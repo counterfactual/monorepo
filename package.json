@@ -1,0 +1,41 @@
+{
+  "name": "@counterfactual.com/counterfactual-contracts",
+  "version": "0.0.1",
+  "description": "Collection of smart contracts for using state channels",
+  "scripts": {
+    "lint": "eslint .",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "test-norpc": "truffle test --network testing",
+    "test": "run-with-testrpc -l 20000000 'truffle test --network testing'",
+    "coverage": "solidity-coverage"
+  },
+  "keywords": [
+    "Ethereum",
+    "Counterfactual",
+    "State Channels",
+    "Solidity",
+    "Truffle"
+  ],
+  "author": "Counterfactual (https://counterfactual.com)",
+  "license": "GPL-3.0",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^8.0.2",
+    "decimal.js": "^9.0.1",
+    "eslint": "^4.11.0",
+    "eslint-plugin-babel": "^4.1.1",
+    "ethers": "2.2.6",
+    "run-with-testrpc": "^0.3.0",
+    "solidity-coverage": "^0.4.2",
+    "truffle": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/counterfactual-contracts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/counterfactual/counterfactual-contracts/issues"
+  },
+  "homepage": "https://github.com/counterfactual/counterfactual-contracts#readme"
+}

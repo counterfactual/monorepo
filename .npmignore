@@ -1,0 +1,21 @@
+test/python/
+requirements.txt
+.travis.yml
+
+# Coverage stuff #
+##################
+
+allFiredEvents
+coverage.json
+coverage/
+coverageEnv/
+scTopics
+
+# Project stuff #
+#################
+
+truffle-local.js
+
+Gemfile
+Gemfile.lock
+_site/
