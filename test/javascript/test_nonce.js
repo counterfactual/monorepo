@@ -2,10 +2,15 @@ const utils = require('./utils.js')
 
 const Nonce = artifacts.require("Nonce")
 
+const contracts = [Nonce]
+
 contract('Nonce', (accounts) => {
 
     let nonce
     let id
+
+    before(utils.createGasStatCollectorBeforeHook(contracts))
+    after(utils.createGasStatCollectorAfterHook(contracts))
 
     before(async () => {
         id = utils.randrange(1, 10e9)
