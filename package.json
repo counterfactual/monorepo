@@ -1,5 +1,5 @@
 {
-  "name": "@counterfactual.com/counterfactual-contracts",
+  "name": "@counterfactual/counterfactual-contracts",
   "version": "0.0.1",
   "description": "Collection of smart contracts for using state channels",
   "scripts": {
