@@ -20,11 +20,11 @@ function randrange(a, b) {
     return Decimal.random(PRECISION).mul(Decimal(b.valueOf()).sub(a)).add(a).floor()
 }
 
-function getParamFromTxEvent(transaction, paramName, contractFactory, eventName) {
+function getParamFromTxEvent(transaction, eventName, paramName, contract, contractFactory) {
     assert.isObject(transaction)
     let logs = transaction.logs
     if(eventName != null) {
-        logs = logs.filter((l) => l.event === eventName)
+        logs = logs.filter((l) => l.event === eventName && l.address === contract)
     }
     assert.equal(logs.length, 1, 'too many logs found!')
     let param = logs[0].args[paramName]
@@ -163,6 +163,27 @@ function createGasStatCollectorAfterHook(contracts) {
     }
 }
 
+const ecsign = (digest, account) => {
+
+    const sig = web3.eth.sign(account, digest).slice(2);
+    const r = `0x${sig.slice(0, 64)}`;
+    const s = `0x${sig.slice(64, 128)}`;
+    const v = web3.toDecimal(sig.slice(128, 130)) + 27;
+
+    return [ r, s, v ];
+
+};
+
+const ecsignMulti = (digest, accounts) => {
+    const zip = (rows)=>rows[0].map((_,c)=>rows.map(row=>row[c]));
+    const sigs = accounts.map((account) => {
+        const [r, s, v] = ecsign(digest, account);
+        return [v, r, s];
+    });
+    return zip(sigs);
+}
+
+
 Object.assign(exports, {
     Decimal,
     ONE,
@@ -173,4 +194,6 @@ Object.assign(exports, {
     evm_mine,
     createGasStatCollectorBeforeHook,
     createGasStatCollectorAfterHook,
+    ecsign,
+    ecsignMulti
 })
