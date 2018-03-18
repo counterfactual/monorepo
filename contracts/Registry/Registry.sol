@@ -18,6 +18,10 @@ contract Registry {
         return ecrecover(keccak256("\x19Ethereum Signed Message:\n32", digest), v, r, s);
     }
 
+    function getCounterfactualAddress(bytes code, address[] owners) public view returns (bytes32) {
+        return keccak256(code, owners);
+    }
+
     function deploySigned(bytes code, uint8[] v, bytes32[] r, bytes32[] s) public returns (address) {
         require(v.length == r.length && r.length == s.length);
         address newContract;
