@@ -56,13 +56,21 @@ contract Payment {
         return balances.length;
     }
 
-    function update(address[] _participants, uint256[] _balances, uint256 nonce) {
+    function update(
+        address[] _participants,
+        uint256[] _balances,
+        bytes32 _dependencyAddress,
+        uint256 _dependencyNonce,
+        uint256 nonce
+    ) {
         require(nonce > latestNonce);
         require(_participants.length == _balances.length);
         require(_participants.length == balances.length);
         for (uint256 i = 0; i < _participants.length; i++) {
             balances[i] = Balance(_participants[i], _balances[i]);
         }
+        dependencyAddress = _dependencyAddress;
+        dependencyNonce = _dependencyNonce;
         latestNonce = nonce;
         finalizesAt = block.number + deltaTimeout;
     }
