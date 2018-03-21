@@ -1,12 +1,10 @@
-pragma solidity 0.4.19;
+pragma solidity ^0.4.19;
+
+import './IRegistry.sol';
 
 /// @title Counterfactual Registry - A counterfactual addressing registry
 /// @author Liam Horne - <liam@counterfactual.com>
-contract Registry {
-
-    event ContractCreated(bytes32 cfAddress, address deployedAddress);
-    event ContractUpdated(bytes32 cfAddress, address deployedAddress);
-    event ContractWithdrawn(bytes32 cfAddress, address deployedAddress);
+contract Registry is IRegistry {
 
     string public constant NAME = "Counterfactual Registry";
     string public constant VERSION = "0.0.1";
@@ -14,56 +12,40 @@ contract Registry {
     // isDeployed allows to check if a counterfactual address has been deployed
     mapping(bytes32 => address) public isDeployed;
 
-    function recoverSigner(bytes32 digest, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
-        return ecrecover(keccak256("\x19Ethereum Signed Message:\n32", digest), v, r, s);
+    function getTransactionHash(bytes code) public view returns (bytes32) {
+        return keccak256(byte(0x19), this, code);
     }
 
     function getCounterfactualAddress(bytes code, address[] owners) public view returns (bytes32) {
         return keccak256(code, owners);
     }
 
-    function deploySigned(bytes code, uint8[] v, bytes32[] r, bytes32[] s) public returns (address) {
+    function deploySigned(
+        bytes code,
+        uint8[] v,
+        bytes32[] r,
+        bytes32[] s
+    ) public returns (address) {
         require(v.length == r.length && r.length == s.length);
-        address newContract;
-        bytes32 cfAddress;
 
-        bytes32 codeHash = keccak256(code);
-
+        bytes32 codeHash = getTransactionHash(code);
         address[] memory owners = new address[](v.length);
         for (uint8 i = 0; i < v.length; i++) {
-            owners[i] = recoverSigner(codeHash, v[i], r[i], s[i]);
+            owners[i] = ecrecover(codeHash, v[i], r[i], s[i]);
         }
 
-        cfAddress = keccak256(code, owners);
-
-        uint dataSize = code.length;
-        assembly {
-            calldatacopy(mload(0x40), 164, dataSize)
-            newContract := create(callvalue, mload(0x40), dataSize)
-        }
-
-        require(newContract != 0x0);
-        require(isDeployed[cfAddress] == 0x0);
-
-        ContractCreated(cfAddress, newContract);
-
-        isDeployed[cfAddress] = newContract;
-
-        return newContract;
+        bytes32 cfAddress = keccak256(code, owners);
+        return deploy(cfAddress, code);
     }
 
-    function deploy(bytes code) public returns (address) {
+    function deployAsOwner(bytes code) public returns (address) {
+        bytes32 cfAddress = keccak256(code, [msg.sender]);
+        return deploy(cfAddress, code);
+    }
 
-        address newContract;
-        bytes32 cfAddress;
-
-        cfAddress = keccak256(code, [msg.sender]);
-
-        uint dataSize = code.length;
-
+    function deploy(bytes32 cfAddress, bytes code) private returns (address newContract) {
         assembly {
-            calldatacopy(mload(0x40), 68, dataSize)
-            newContract := create(callvalue, mload(0x40), dataSize)
+            newContract := create(0, add(code, 0x20), mload(code))
         }
 
         require(newContract != 0x0);
@@ -74,7 +56,6 @@ contract Registry {
         isDeployed[cfAddress] = newContract;
 
         return newContract;
-
     }
 
     function resolve(bytes32 cfAddress) public view returns (address) {
