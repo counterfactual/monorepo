@@ -163,27 +163,6 @@ function createGasStatCollectorAfterHook(contracts) {
     }
 }
 
-const ecsign = (digest, account) => {
-
-    const sig = web3.eth.sign(account, digest).slice(2);
-    const r = `0x${sig.slice(0, 64)}`;
-    const s = `0x${sig.slice(64, 128)}`;
-    const v = web3.toDecimal(sig.slice(128, 130)) + 27;
-
-    return [ r, s, v ];
-
-};
-
-const ecsignMulti = (digest, accounts) => {
-    const zip = (rows)=>rows[0].map((_,c)=>rows.map(row=>row[c]));
-    const sigs = accounts.map((account) => {
-        const [r, s, v] = ecsign(digest, account);
-        return [v, r, s];
-    });
-    return zip(sigs);
-}
-
-
 Object.assign(exports, {
     Decimal,
     ONE,
@@ -194,6 +173,4 @@ Object.assign(exports, {
     evm_mine,
     createGasStatCollectorBeforeHook,
     createGasStatCollectorAfterHook,
-    ecsign,
-    ecsignMulti
 })

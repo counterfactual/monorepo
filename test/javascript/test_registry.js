@@ -1,4 +1,5 @@
 const ethers = require('ethers')
+const _ = require('lodash')
 const solc = require('solc')
 const utils = require('./utils.js')
 
@@ -8,6 +9,17 @@ const Registry = artifacts.require('Registry')
 contract('Registry', (accounts) => {
 
     let registry
+
+    function signMessage (message, wallet) {
+        const signingKey = new ethers.SigningKey(wallet.privateKey)
+        const sig = signingKey.signDigest(message)
+        return [sig.recoveryParam + 27, sig.r, sig.s]
+    }
+
+    let signers = [
+        new ethers.Wallet.createRandom(),
+        new ethers.Wallet.createRandom(),
+    ].sort((a, b) => a.address > b.address)
 
     before(async () => {
         registry = await Registry.deployed()
@@ -25,22 +37,27 @@ contract('Registry', (accounts) => {
         let interface = JSON.parse(output.contracts[':Test']['interface'])
         let bytecode = '0x' + output.contracts[':Test']['bytecode']
 
-        const codeHash = ethers.utils.solidityKeccak256(['bytes'], [bytecode])
+        const codeHash = await registry.getTransactionHash(bytecode)
+
+        const signatures = _.zipObject(['v', 'r', 's'], _.zip(
+            signMessage(codeHash, signers[0]),
+            signMessage(codeHash, signers[1]),
+        ))
 
         const TestContract = web3.eth.contract(interface);
         const testContract = utils.getParamFromTxEvent(
-            await registry.deploySigned(bytecode, ...utils.ecsignMulti(codeHash, accounts.slice(0, 2))),
-            'ContractCreated', 'deployedAddress', registry.address, TestContract, 'deploy'
+            await registry.deploySigned(bytecode, signatures.v, signatures.r, signatures.s),
+            'ContractCreated', 'deployedAddress', registry.address, TestContract,
         )
 
-        const cfAddress = ethers.utils.solidityKeccak256(
-            ['bytes', 'address[]'],
-            [bytecode, [accounts[0], accounts[1]]]
+        const cfAddress = await registry.getCounterfactualAddress(
+            bytecode,
+            [signers[0].address, signers[1].address]
         )
 
         assert.equal(
             await testContract.address,
-            await registry.isDeployed.call(cfAddress)
+            await registry.resolve(cfAddress)
         )
 
         assert.equal('hi', await testContract.sayHello())
@@ -58,22 +75,17 @@ contract('Registry', (accounts) => {
         let interface = JSON.parse(output.contracts[':Test']['interface'])
         let bytecode = '0x' + output.contracts[':Test']['bytecode']
 
-        const codeHash = ethers.utils.solidityKeccak256(['bytes'], [bytecode])
-
         const TestContract = web3.eth.contract(interface);
         const testContract = utils.getParamFromTxEvent(
-            await registry.deploy(bytecode),
-            'ContractCreated', 'deployedAddress', registry.address, TestContract, 'deploy'
+            await registry.deployAsOwner(bytecode),
+            'ContractCreated', 'deployedAddress', registry.address, TestContract,
         )
 
-        const cfAddress = ethers.utils.solidityKeccak256(
-            ['bytes', 'address[]'],
-            [bytecode, [accounts[0]]]
-        )
+        const cfAddress = await registry.getCounterfactualAddress(bytecode, [accounts[0]])
 
         assert.equal(
             await testContract.address,
-            await registry.isDeployed.call(cfAddress)
+            await registry.resolve(cfAddress)
         )
 
         assert.equal('hi', await testContract.sayHello())
@@ -99,25 +111,26 @@ contract('Registry', (accounts) => {
             ["address"], [accounts[0]]
         ).substr(2)
 
-        const codeHash = ethers.utils.solidityKeccak256(['bytes'], [code])
+        const codeHash = await registry.getTransactionHash(code)
 
-        const [ r0, s0, v0 ] = utils.ecsign(codeHash, accounts[0])
-        const [ r1, s1, v1 ] = utils.ecsign(codeHash, accounts[1])
+        const signatures = _.zipObject(['v', 'r', 's'], _.zip(
+            signMessage(codeHash, signers[0]),
+            signMessage(codeHash, signers[1]),
+        ))
 
-        const cfAddress = ethers.utils.solidityKeccak256(
-            ['bytes', 'address[]'],
-            [code, [accounts[0], accounts[1]]]
+        const cfAddress = await registry.getCounterfactualAddress(
+            code, [signers[0].address, signers[1].address]
         )
 
         const TestContract = web3.eth.contract(interface);
         const testContract = utils.getParamFromTxEvent(
-            await registry.deploySigned(code, [v0, v1], [r0, r1], [s0, s1]),
-            'ContractCreated', 'deployedAddress', registry.address, TestContract, 'deploy'
+            await registry.deploySigned(code, signatures.v, signatures.r, signatures.s),
+            'ContractCreated', 'deployedAddress', registry.address, TestContract,
         )
 
         assert.equal(
             await testContract.address,
-            await registry.isDeployed.call(cfAddress)
+            await registry.resolve(cfAddress)
         )
 
         assert.equal(accounts[0], await testContract.sayHello())
