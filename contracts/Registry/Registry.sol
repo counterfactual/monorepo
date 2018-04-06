@@ -34,11 +34,12 @@ contract Registry is IRegistry {
             owners[i] = ecrecover(codeHash, v[i], r[i], s[i]);
         }
 
-        bytes32 cfAddress = keccak256(code, owners);
+        bytes32 cfAddress = getCounterfactualAddress(code, owners);
         return deploy(cfAddress, code);
     }
 
     function deployAsOwner(bytes code) public returns (address) {
+        // todo: can't change this keccak256 to getCounterfactualAddress
         bytes32 cfAddress = keccak256(code, [msg.sender]);
         return deploy(cfAddress, code);
     }
