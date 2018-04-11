@@ -59,7 +59,7 @@ contract Registry is IRegistry {
         require(newContract != 0x0);
         require(isDeployed[cfAddress] == 0x0);
 
-        emit ContractCreated(cfAddress, newContract);
+        ContractCreated(cfAddress, newContract);
 
         isDeployed[cfAddress] = newContract;
 
@@ -81,7 +81,7 @@ contract Registry is IRegistry {
             ret := call(gas, to, 0, mload(0x40), dataSize, 0, 0)
         }
         require(ret);
-        emit ContractUpdated(cfAddress, to);
+        ContractUpdated(cfAddress, to);
     }
 
     function proxyDelegatecall(address registry, bytes32 cfAddress, bytes data) public {
@@ -95,7 +95,7 @@ contract Registry is IRegistry {
             ret := delegatecall(gas, to, mload(0x40), dataSize, 0, 0)
         }
         require(ret);
-        emit ContractWithdrawn(cfAddress, to);
+        ContractWithdrawn(cfAddress, to);
     }
 
 }
