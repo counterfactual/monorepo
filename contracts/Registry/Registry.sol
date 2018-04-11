@@ -20,6 +20,13 @@ contract Registry is IRegistry {
         return keccak256(code, owners);
     }
 
+    /*todo: remove this*/
+    function deployDebug(bytes code) public returns (address) {
+        address[] memory owners = new address[](0);
+        bytes32 cfAddress = getCounterfactualAddress(code, owners);
+        return deploy(cfAddress, code);
+    }
+
     function deploySigned(
         bytes code,
         uint8[] v,
