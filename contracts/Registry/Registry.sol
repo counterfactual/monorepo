@@ -34,17 +34,20 @@ contract Registry is IRegistry {
             owners[i] = ecrecover(codeHash, v[i], r[i], s[i]);
         }
 
-        bytes32 cfAddress = getCounterfactualAddress(code, owners);
-        return deploy(cfAddress, code);
+        return deploy(code, owners);
     }
 
     function deployAsOwner(bytes code) public returns (address) {
-        // todo: can't change this keccak256 to getCounterfactualAddress
-        bytes32 cfAddress = keccak256(code, [msg.sender]);
-        return deploy(cfAddress, code);
+        address[] memory _owners = new address[](1);
+        _owners[0] = msg.sender;
+
+        return deploy(code, _owners);
     }
 
-    function deploy(bytes32 cfAddress, bytes code) private returns (address newContract) {
+    function deploy(bytes code, address[] owners) private returns (address newContract) {
+
+        bytes32 cfAddress = getCounterfactualAddress(code, owners);
+
         assembly {
             newContract := create(0, add(code, 0x20), mload(code))
         }
