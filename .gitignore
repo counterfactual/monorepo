@@ -120,6 +120,10 @@ node_modules/
 # pip
 src/
 
+# emacs
+*~
+*#*
+
 # OS generated files #
 ######################
 .DS_Store
