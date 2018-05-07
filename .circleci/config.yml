@@ -22,7 +22,7 @@ jobs:
       - run:
           command: |
             . venv/bin/activate
-            PATH=/home/circleci/project:$PATH python3 test/python.py
+            PATH=/home/circleci/project:$PATH python3 test/python/main.py
 workflows:
   version: 2
   run-node-tests:
