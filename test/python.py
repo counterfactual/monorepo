@@ -30,33 +30,37 @@ registry = c.contract(
     language="solidity"
 )
 
-simplestorage_source = """
+testContract_source = """
 pragma solidity ^0.4.17;
-contract SimpleStorage {
-  mapping(bytes32 => bytes32) public m;
-  function setM() public {
-    m[0x00] = 0x61626364;
-  }
+contract Test {
+    function sayHello() public pure returns (string) {
+        return "hi";
+    }
 }
 """
 
-simplestorage = c.contract(
-    sourcecode=simplestorage_source,
+# test Test.sol
+
+testContract = c.contract(
+    sourcecode=testContract_source,
     language="solidity"
 )
 
-simplestorage.setM()
-assert(simplestorage.m(b'')[-4:] == b'abcd')
+assert(testContract.sayHello() == b"hi")
 
-simplestorage_bytecode = get_solidity().compile(simplestorage_source)
+# get Test.sol bytecode
 
-simplestorage_deployed_addr = registry.deploySigned(simplestorage_bytecode, [], [], [])
-simplestorage_cf_addr = registry.getCounterfactualAddress(simplestorage_bytecode, [])
-assert(registry.resolve(simplestorage_cf_addr) == simplestorage_deployed_addr)
+testContract_bytecode = get_solidity().compile(testContract_source)
+
+# deploy with no owners
+
+testContract_deployed_addr = registry.deploySigned(testContract_bytecode, [], [], [])
+testContract_cf_addr = registry.getCounterfactualAddress(testContract_bytecode, [])
+assert(registry.resolve(testContract_cf_addr) == testContract_deployed_addr)
 
 storage_items = set(v for k, v in c.head_state.get_and_cache_account(registry.address).to_dict()['storage'].items())
 
-assert(storage_items == set([simplestorage_deployed_addr]))
+assert(storage_items == set([testContract_deployed_addr]))
 
 logs = list(log for receipt in c.head_state.receipts for log in receipt.logs )
 
@@ -68,5 +72,15 @@ x = registry.translator.decode_event(log.topics, log.data)
 xf = { k:x[k] for k, v in x.items() if k != '_event_type' }
 
 assert(x['_event_type'].decode('ascii') == 'ContractCreated')
-assert(xf['cfAddress'] == simplestorage_cf_addr)
-assert(xf['deployedAddress'] == simplestorage_deployed_addr)
+assert(xf['cfAddress'] == testContract_cf_addr)
+assert(xf['deployedAddress'] == testContract_deployed_addr)
+
+# deploy with signatures
+
+pass
+
+# deploy with msg.sender
+
+pass
+
+# deploy and passes arguments

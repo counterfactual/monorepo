@@ -25,7 +25,7 @@ contract.skip('Registry', (accounts) => {
         registry = await Registry.deployed()
     })
 
-    it("deploys a contract", async () => {
+    it("deploys a contract using signatures", async () => {
 
         let source = `
         contract Test {
