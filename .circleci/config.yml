@@ -14,11 +14,14 @@ jobs:
       - checkout
       - run: wget -O solc https://github.com/ethereum/solidity/releases/download/v0.4.23/solc-static-linux
       - run: chmod +x /home/circleci/project/solc
+      - run: python3 -m venv venv
       - run:
           command: |
-            python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
+      - run:
+          command: |
+            . venv/bin/activate
             PATH=/home/circleci/project:$PATH python3 test/python.py
 workflows:
   version: 2
