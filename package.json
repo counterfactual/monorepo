@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Collection of smart contracts for using state channels",
   "scripts": {
-    "lint": "eslint -c .eslintrc.js test/",
+    "lint": "eslint -c .eslintrc.js test/ && solium --dir contracts/",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
