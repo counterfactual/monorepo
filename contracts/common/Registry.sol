@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IRegistry.sol";
 import "./ProxyFactory.sol";
 
+
 /// @title Counterfactual Registry - A counterfactual addressing registry
 /// @author Liam Horne - <liam@counterfactual.com>
 contract Registry is IRegistry {
@@ -31,7 +32,7 @@ contract Registry is IRegistry {
         address[] owners
     )
         public
-        constant
+        view
         returns (bytes32)
     {
         return keccak256(code, owners);

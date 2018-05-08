@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "../common/Counterfactual.sol";
 import "../lib/BytesLib.sol";
 
+
 /// ForceMoveGame.sol is based on a research paper written by Tom Close with support
 /// from the L4 Research team. Adapted here to work within the Counterfactual framework.
 contract ForceMoveGame is Counterfactual {

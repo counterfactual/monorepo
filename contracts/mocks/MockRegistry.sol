@@ -2,6 +2,7 @@ pragma solidity ^0.4.19;
 
 import "../../contracts/interfaces/IRegistry.sol";
 
+
 contract MockRegistry is IRegistry {
 
 	mapping(bytes32 => address) lookup;
@@ -40,6 +41,7 @@ contract MockRegistry is IRegistry {
 	event ContractWithdrawn(bytes32 cfAddress, address deployedAddress);
 	function deploySigned(bytes, uint8[], bytes32[], bytes32[])
 		external returns (address) {}
+
 	function deployAsOwner(bytes) external returns (address) {}
 	function proxyDelegatecall(address, bytes32, bytes) external {}
 }

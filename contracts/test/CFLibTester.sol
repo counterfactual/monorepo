@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../core/CFLib.sol";
 
+
 contract CFLibTester {
 
 	using CFLib for CFLib.CFAddress;
@@ -14,7 +15,7 @@ contract CFLibTester {
 		_addr = addr;
 	}
 
-	function lookup() public constant returns (address) {
+	function lookup() public view returns (address) {
 		return _addr.lookup();
 	}
 }

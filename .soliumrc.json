@@ -13,7 +13,7 @@
         "no-empty-blocks": 1,
         "no-unused-vars": 1,
         "quotes": 1,
-        "indentation": 1,
+        "indentation": ["error", "tab"],
         "arg-overflow": ["error", 8],
         "whitespace": 1,
         "deprecated-suicide": 1,

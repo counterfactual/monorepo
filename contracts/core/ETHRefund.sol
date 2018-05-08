@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../common/Counterfactual.sol";
 
+
 contract ETHRefund is Counterfactual {
     
     struct State {
