@@ -15,40 +15,39 @@ contract UnidirectionalETHBalance is Counterfactual {
 		bytes32 s;
 	}
 
-	address public sender;
-	address public recipient;
-	uint256 public decidedAmount;
-	uint256 public maxAmount;
+	address public _sender;
+	address public _recipient;
+	uint256 public _decidedAmount;
+	uint256 public _maxAmount;
 
 	constructor(
-        address _sender,
-        address _recipient,
-        uint256 _maxAmount,
+        address sender,
+        address recipient,
+        uint256 maxAmount,
         ObjectStorage cfparams
     )
         init(cfparams)
         public
     {
-		sender = _sender;
-		recipient = _recipient;
-		maxAmount = _maxAmount;
+		_sender = sender;
+		_recipient = recipient;
+		_maxAmount = maxAmount;
 	}
 
-	function setAmount(Signature sigSender, Signature sigReceiver, uint256 _amount) public {
-		bytes32 h = keccak256(byte(0x19), objectStorage.owner, _amount);
+	function setAmount(Signature sigSender, Signature sigReceiver, uint256 amount) public {
+		bytes32 h = keccak256(byte(0x19), objectStorage.owner, amount);
 		address signer = ecrecover(h, sigSender.v, sigSender.r, sigSender.s);
 		address receiver = ecrecover(h, sigReceiver.v, sigReceiver.r, sigReceiver.s);
-		require(signer == sender);
-		require(recipient == receiver);
-		require(_amount >= decidedAmount);
-		require(_amount < maxAmount);
-		decidedAmount = _amount;
+		require(signer == _sender);
+		require(receiver == _recipient);
+		require(amount >= _decidedAmount);
+		require(amount < _maxAmount);
+		_decidedAmount = amount;
 	}
 
 	function kill() public {
-        // FIXME @armani multiple owners
 		require(msg.sender == objectStorage.owner);
-		selfdestruct(sender);
+		selfdestruct(_sender);
 	}
 
 	function claimAmount(address registry, bytes32 cfaddress) public {
@@ -57,7 +56,7 @@ contract UnidirectionalETHBalance is Counterfactual {
 		);
 
         // Send only the decided amount
-		self.recipient().transfer(self.decidedAmount());
+		self._recipient().transfer(self._decidedAmount());
 
         // Destroy this contract so this function can't be called again
 		self.kill();

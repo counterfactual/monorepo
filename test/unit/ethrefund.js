@@ -74,7 +74,7 @@ contract("ETHRefund", (accounts) => {
 			threshold: ethers.utils.parseEther("93"),
 		};
 		await ethrefund.functions.setState(update, ++nonce, moreGas);
-		const {recipient, threshold} = await ethrefund.state();
+		const {recipient, threshold} = await ethrefund._state();
 		assert.equal(recipient.toLowerCase(), accounts[2].toLowerCase());
 		assert.equal(ethers.utils.formatUnits(threshold), "93.0");
 	});
