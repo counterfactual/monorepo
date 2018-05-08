@@ -6,18 +6,18 @@ import "../common/Counterfactual.sol";
 
 
 contract ETHRefund is Counterfactual {
-    
-    struct State {
-        address recipient;
-        uint256 threshold;
-    }
-    
-    State public state;
+	
+	struct State {
+		address recipient;
+		uint256 threshold;
+	}
+	
+	State public state;
 
-    constructor(ObjectStorage cfparams) init(cfparams) public {}
+	constructor(ObjectStorage cfparams) init(cfparams) public {}
 
-    function setState(State _state, uint256 nonce) public safeUpdate(nonce) {
-        state = _state;
-    }
+	function setState(State _state, uint256 nonce) public safeUpdate(nonce) {
+		state = _state;
+	}
 
 }
