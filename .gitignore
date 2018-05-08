@@ -9,6 +9,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+pip-selfcheck.json
+pyvenv.cfg
+bin/
 env/
 build/
 develop-eggs/
@@ -118,6 +121,10 @@ node_modules/
 
 # pip
 src/
+
+# emacs
+*~
+*#*
 
 # OS generated files #
 ######################

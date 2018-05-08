@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  run-node-tests:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm test
+  run-python-tests:
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - run: wget -O solc https://github.com/ethereum/solidity/releases/download/v0.4.23/solc-static-linux
+      - run: chmod +x /home/circleci/project/solc
+      - run: python3 -m venv venv
+      - run:
+          command: |
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          command: |
+            . venv/bin/activate
+            PATH=/home/circleci/project:$PATH python3 test/python/main.py
+workflows:
+  version: 2
+  run-node-tests:
+    jobs:
+      - run-node-tests
+  run-python-tests:
+    jobs:
+      - run-python-tests
