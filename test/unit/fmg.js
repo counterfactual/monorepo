@@ -185,7 +185,7 @@ contract("ForceMoveGame", (accounts) => {
 			});
 		});
 
-		describe("alternativeRespondWithMove", async () => {
+		describe.skip("alternativeRespondWithMove", async () => {
 			it("should allow responses with alternative moves", async () => {
 				const move1 = moveHelper(0, [0, 1335], tmpsigner1);
 				const move2 = moveHelper(1, [0, 1336], tmpsigner2);

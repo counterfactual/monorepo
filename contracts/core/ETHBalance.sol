@@ -29,32 +29,32 @@ contract ETHBalance is Counterfactual {
 		uint256 balance;
 	}
 
-	mapping(uint256 => Balance) public balances;
-	uint256 public numBalances;
+	mapping(uint256 => Balance) public _balances;
+	uint256 public _numBalances;
 
 	bytes32 _callback;
 
 	constructor(ObjectStorage cfparams) init(cfparams) public {}
 
 	function setState(
-		Balance[] _balances,
+		Balance[] balances,
 		bytes32 callback,
 		uint256 nonce
 	)
 		public
 		safeUpdate(nonce)
 	{
-		for (uint256 i = 0; i < _balances.length; i++) {
-			balances[i] = _balances[i];
+		for (uint256 i = 0; i < balances.length; i++) {
+			_balances[i] = balances[i];
 		}
-		numBalances = _balances.length;
+		_numBalances = balances.length;
 		_callback = callback;
 	}
 
 	function getState() view public returns (Balance[]) {
-		Balance[] memory ret = new Balance[](numBalances);
-		for (uint256 i = 0; i < numBalances; i++) {
-			ret[i] = balances[i];
+		Balance[] memory ret = new Balance[](_numBalances);
+		for (uint256 i = 0; i < _numBalances; i++) {
+			ret[i] = _balances[i];
 		}
 		return ret;
 	}
@@ -62,11 +62,11 @@ contract ETHBalance is Counterfactual {
 	function resolve() public {
 		IETH.Transform memory T;
 
-		address[] memory receivers = new address[](numBalances);
-		uint256[] memory amounts = new uint256[](numBalances);
-		for (uint256 i = 0; i < numBalances; i++) {
-			receivers[i] = balances[i].cfAddr.lookup();
-			amounts[i] = balances[i].balance;
+		address[] memory receivers = new address[](_numBalances);
+		uint256[] memory amounts = new uint256[](_numBalances);
+		for (uint256 i = 0; i < _numBalances; i++) {
+			receivers[i] = _balances[i].cfAddr.lookup();
+			amounts[i] = _balances[i].balance;
 		}
 
 		T = IETH.Transform(receivers, amounts);
