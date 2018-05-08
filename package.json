@@ -39,6 +39,7 @@
     "run-with-testrpc": "^0.3.0",
     "solc": "^0.4.23",
     "solidity-coverage": "^0.4.2",
+    "solium": "^1.1.7",
     "truffle": "^4.1.7",
     "truffle-hdwallet-provider": "0.0.3",
     "truffle-privatekey-provider": "0.0.5"
