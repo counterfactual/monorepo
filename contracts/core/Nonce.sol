@@ -7,8 +7,8 @@ import "../common/Counterfactual.sol";
 
 contract Nonce is Counterfactual {  
 
-    constructor(ObjectStorage cfparams) init(cfparams) public {}
+	constructor(ObjectStorage cfparams) init(cfparams) public {}
 
-    function setState(uint256 nonce) public safeUpdate(nonce) {}
+	function setState(uint256 nonce) public safeUpdate(nonce) {}
 
 }

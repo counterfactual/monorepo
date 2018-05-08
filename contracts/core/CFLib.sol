@@ -19,6 +19,6 @@ library CFLib {
 			return address(self.addr >> 96);
 		}
 
-	    return IRegistry(self.registry).resolve(self.addr);
+		return IRegistry(self.registry).resolve(self.addr);
 	}
 }
