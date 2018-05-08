@@ -4,8 +4,6 @@ const GnosisSafe = artifacts.require('./GnosisSafe.sol')
 const ProxyFactory = artifacts.require('./ProxyFactory.sol')
 const Registry = artifacts.require('./Registry.sol')
 const Counterfactual = artifacts.require('./Counterfactual.sol')
-const ETHController = artifacts.require('./ETHController.sol')
-const ConditionalTransfer = artifacts.require('./ConditionalTransfer.sol')
 const Nonce = artifacts.require('./Nonce.sol')
 const ETHBalance = artifacts.require('./ETHBalance.sol')
 const ETHRefund = artifacts.require('./ETHRefund.sol')
@@ -14,6 +12,7 @@ const CFLibTester = artifacts.require('./CFLibTester.sol')
 const MockRegistry = artifacts.require('./MockRegistry.sol')
 const ForceMoveGame = artifacts.require('./ForceMoveGame.sol')
 const UnidirectionalETHBalance = artifacts.require('./UnidirectionalETHBalance.sol')
+const ETHConditionalTransfer = artifacts.require('./ETHConditionalTransfer.sol')
 
 const notOwnedAddress = '0x0000000000000000000000000000000000000001'
 
@@ -29,8 +28,7 @@ module.exports = async (deployer) => {
 		await deployer.deploy(Counterfactual)
 
 		await deployer.link(Counterfactual, [
-			ETHController,
-			ConditionalTransfer,
+			ETHConditionalTransfer,
 			Nonce,
 			ETHBalance,
 			ETHRefund,
