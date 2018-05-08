@@ -31,9 +31,10 @@ module.exports = {
   networks: {
     rpc: {
       network_id: "*",
-      host: 'localhost',
+      host: '127.0.0.1',
       port: 8545,
-      gas: 6.9e6,      
+      gas: 6.9e6,     
+      // from: '0x5289A00B3806093a3b340D686A2C4DDFb7934BC8' 
     },
     devnet: {
       network_id: 15,

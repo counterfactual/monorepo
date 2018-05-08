@@ -13,16 +13,11 @@ contract('ETHRefund', (accounts) => {
     const provider = new ethers.providers.Web3Provider(web3.currentProvider)
     const signer = provider.getSigner()
 
-    let ethRefund
-    let id
+    let ethrefund, moreGas, nonce
 
     const deployTx = ethers.Contract.getDeployTransaction(
         ETHRefund.binary,
         ETHRefund.abi,
-        {
-            recipient: accounts[1],
-            threshold: ethers.utils.parseEther('3'),
-        },
         {
             owner: accounts[0],
             registry: Registry.address,
@@ -45,21 +40,20 @@ contract('ETHRefund', (accounts) => {
             gasPrice: await provider.getGasPrice(),
             ...deployTx
         }))
-        ethRefund = new ethers.Contract(
+        ethrefund = new ethers.Contract(
         	ethers.utils.getContractAddress(tx),
         	ETHRefund.abi,
         	signer
         )
-    })
-
-    it("should have the correct state from constructor", async () => {
-        const {recipient, threshold} = await ethRefund.state()
-		assert.equal(recipient.toLowerCase(), accounts[1].toLowerCase())
-		assert.equal(ethers.utils.formatUnits(threshold), '3.0')
+        nonce = 0
+        moreGas = {
+            gasLimit: 4712388,
+            gasPrice: await provider.getGasPrice(),
+        }
     })
 
     it("should have the correct params from constructor", async () => {
-        const parameters = await ethRefund.objectStorage()
+        const parameters = await ethrefund.objectStorage()
 
         assert.equal(accounts[0].toLowerCase(), parameters.owner.toLowerCase())
         assert.equal(
@@ -69,7 +63,7 @@ contract('ETHRefund', (accounts) => {
         assert.equal(1337, parameters.id)
         assert.equal(10, parameters.deltaTimeout)
         assert.equal(web3.eth.blockNumber + 10, parameters.finalizesAt)
-        assert.equal(0, parameters.latestNonce)
+        assert.equal(nonce, parameters.latestNonce)
         assert.equal(false, parameters.wasDeclaredFinal)
         assert.equal(zeroBytes32, parameters.dependancy.addr)
         assert.equal(0, parameters.dependancy.nonce)
@@ -80,8 +74,8 @@ contract('ETHRefund', (accounts) => {
         	recipient: accounts[2],
         	threshold: ethers.utils.parseEther('93'),
         }
-        await ethRefund.functions.update(update)
-        const {recipient, threshold} = await ethRefund.state()
+        await ethrefund.functions.setState(update, ++nonce, moreGas)
+        const {recipient, threshold} = await ethrefund.state()
 		assert.equal(recipient.toLowerCase(), accounts[2].toLowerCase())
 		assert.equal(ethers.utils.formatUnits(threshold), '93.0')
     })
@@ -92,26 +86,26 @@ contract('ETHRefund', (accounts) => {
         	threshold: ethers.utils.parseEther('93'),
         }
         await utils.assertRejects(
-        	ethRefund
+        	ethrefund
 	        	.connect(provider.getSigner(accounts[1]))
 	        	.functions
-	        	.update(update)
+	        	.setState(update, ++nonce, moreGas)
 	    )
     })
 
     it("should be finalizable by its owner", async () => {
-        const ref2 = ethRefund.connect(provider.getSigner(accounts[1]))
+        const ref2 = ethrefund.connect(provider.getSigner(accounts[1]))
 
         await utils.assertRejects(ref2.finalize())
-        assert.equal(false, await ethRefund.functions.isFinal())
-        await ethRefund.finalize()
-        assert.equal(true, await ethRefund.functions.isFinal())
+        assert.equal(false, await ethrefund.functions.isFinal())
+        await ethrefund.finalize()
+        assert.equal(true, await ethrefund.functions.isFinal())
     })
 
     it("should eventually be considered final", async () => {
-        assert.equal(false, await ethRefund.functions.isFinal())
+        assert.equal(false, await ethrefund.functions.isFinal())
         await utils.evm_mine(10)
-        assert.equal(true, await ethRefund.functions.isFinal())
+        assert.equal(true, await ethrefund.functions.isFinal())
     })
 
 })
