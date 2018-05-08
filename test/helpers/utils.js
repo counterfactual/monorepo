@@ -50,10 +50,54 @@ const evm_mine_one = function () {
       });
     })
   }
-  
-  const evm_mine = async (blocks) => {
-      for (var i=0; i<blocks; i++) await evm_mine_one();
-  }
+
+const evm_mine = async (blocks) => {
+    for (var i=0; i<blocks; i++) await evm_mine_one();
+}
+
+async function getEthBalance(address, provider) {
+    let balance = await provider.getBalance(address);
+	return fromWei(balance)
+}
+
+function fromWei(num) {
+	return num / 1000000000000000000
+}
+
+async function sendEth(toAddr, amount, signer, provider) {
+	let tx = {
+		to: toAddr,
+		value: ethers.utils.parseEther(amount),
+		gasLimit: 4712388,
+		gasPrice: await provider.getGasPrice(),
+	};
+	await signer.sendTransaction(tx);
+}
+
+async function deployContract(contract, args, signer, provider) {
+	let deployTx = ethers.Contract.getDeployTransaction(
+		contract.binary,
+		contract.abi,
+		...args
+	)
+
+	const tx = await signer.sendTransaction({
+		gasLimit: 4712388,
+		gasPrice: await provider.getGasPrice(),
+		...deployTx
+	})
+
+	const addr = ethers.utils.getContractAddress(tx)
+	return new ethers.Contract(
+		addr,
+		contract.abi,
+		signer
+	)
+}
+
+function toBytes32Str(address) {
+	return address + "000000000000000000000000";
+}
 
 module.exports = {
     signMessage,
@@ -63,4 +107,8 @@ module.exports = {
     getParamFromTxEvent,
     assertRejects,
     evm_mine,
+	getEthBalance,
+	sendEth,
+	deployContract,
+	toBytes32Str
 }
