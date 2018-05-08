@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-with open('contracts/Registry/Registry.sol') as f:
+with open('contracts/common/Registry.sol') as f:
     code = f.readlines()
 
-with open('contracts/Registry/IRegistry.sol') as f:
+with open('contracts/interfaces/IRegistry.sol') as f:
     iregistry = f.read()
 
 # hack to delete IRegistry
