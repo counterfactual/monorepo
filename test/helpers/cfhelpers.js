@@ -5,7 +5,6 @@ const {
 	zeroAddress,
 	zeroBytes32,
 	getParamFromTxEvent,
-	signMessage,
 } = require("./utils.js");
 
 const GnosisSafe   = artifacts.require("GnosisSafe");

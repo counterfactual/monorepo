@@ -11,14 +11,14 @@ const MockRegistry = artifacts.require("MockRegistry");
 /**
  * Tests the ETHBalance contract can act as a metachannel deposit.
  */
-contract("ETHBalance", (accounts) => {
+contract("ETHBalance", (_accounts) => {
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 	const signer = provider.getSigner();
 
 	/**
 	 * Tests the execution of a withdraw transaction, making a delegate call
-	 * from a MultiSig to the ETHBalance object.
+	 * from a MultiSig through the registry to the ETHBalance object.
 	 *
 	 * Expects the sender's deposit to be drained from the multisig and sent
 	 * to it's resolved counterfactual address representing, e.g., a multisig
@@ -34,7 +34,10 @@ contract("ETHBalance", (accounts) => {
 		let participants = setupParticipants();
 		let multiSig = await setupMultiSig(participants, "1.5");
 		let metaChanMultiSig = await setupMetaChanMultiSig(registry);
-		let conditionalTransfer = await setupConditionalTransfer(registry, multiSig);
+		let conditionalTransfer = await setupConditionalTransfer(
+			registry,
+			multiSig
+		);
 		let metaChanDeposit = await setupMetaChanDeposit(
 			registry,
 			multiSig,
@@ -53,7 +56,11 @@ contract("ETHBalance", (accounts) => {
 		);
 
 		await assertBalances(
-			[multiSig.address, metaChanMultiSig.contract.address, participants.intermediaryAddr],
+			[
+				multiSig.address,
+				metaChanMultiSig.contract.address,
+				participants.intermediaryAddr
+			],
 			[1.5, 0, 0]
 		);
 		await executeWithdrawal(
@@ -64,7 +71,11 @@ contract("ETHBalance", (accounts) => {
 			participants.wallets
 		);
 		await assertBalances(
-			[multiSig.address, metaChanMultiSig.contract.address, participants.intermediaryAddr],
+			[
+				multiSig.address,
+				metaChanMultiSig.contract.address,
+				participants.intermediaryAddr
+			],
 			[0.5, 0.3, 0.7]
 		);
 	});

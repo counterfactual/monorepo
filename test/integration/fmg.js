@@ -1,10 +1,8 @@
 const ethers = require("ethers");
-const solc = require("solc");
 
 const {
 	signMessage,
 	unusedAddr,
-	zeroAddress,
 	zeroBytes32,
 	evm_mine,
 } = require("../helpers/utils.js");
@@ -24,25 +22,9 @@ const ETHTicTacToeInterpreter = artifacts.require("ETHTicTacToeInterpreter");
 contract("TicTacToe for ETH", (accounts) => {
 
 	let registry,
-		multisig,
 		signer;
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-
-	let i = 0;
-	const defaultObjectStorage = (registry) => ({
-		owner: accounts[0],
-		registry: registry.address,
-		id: i++,
-		deltaTimeout: 10,
-		finalizesAt: 0,
-		latestNonce: 0,
-		wasDeclaredFinal: false,
-		dependancy: {
-			addr: "0x0",
-			nonce: 0,
-		}
-	});
 
 	beforeEach(async () => {
 		registry = await Registry.new(unusedAddr);
@@ -50,14 +32,9 @@ contract("TicTacToe for ETH", (accounts) => {
 		signer.provider = provider;
 	});
 
-	it("can do end to end test", async () => {   
+	it("can do end to end test", async () => {
 
-		const extraGas = {
-			gasLimit: 4712388,
-			gasPrice: await provider.getGasPrice(),
-		};
-
-		const [X_TURN, O_TURN, X_WON, O_WON] = [0, 1, 2, 3];
+		const [X_TURN, O_TURN, X_WON, O_WON] = [0, 1, 2, 3]; // eslint-disable-line no-unused-vars
 
 		const [X, O, EMPTY] = [0, 1, 2];
 
@@ -130,11 +107,11 @@ contract("TicTacToe for ETH", (accounts) => {
 		// - cf instantiate interpretter
 
 		const interpretter = await deployer.deploy(ETHTicTacToeInterpreter, signer);
-    
+
 		// - cf instantiate ect
 
 		const ect = await deployer.deploy(ETHConditionalTransfer, signer);
-    
+
 		// - cf update fmg = (ttt, vtsh, ifsh, [interpretter], nonce(?), d_o={nonce:1})
 		await deployer.call(fmg, signer, "setState", [
 			ttt.address,

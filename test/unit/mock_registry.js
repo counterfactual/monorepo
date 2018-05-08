@@ -1,7 +1,7 @@
 const MockRegistry = artifacts.require("MockRegistry");
 
 
-contract("MockRegistry", (accounts) => {
+contract("MockRegistry", (_accounts) => {
 	it ("should resolve to a setLookp address", async() => {
 		let reg = await MockRegistry.new();
 		reg.setLookup(

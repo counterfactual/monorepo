@@ -7,10 +7,10 @@ const utils = require("../helpers/utils.js");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const Registry = artifacts.require("Registry");
 
-const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
+const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 // skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
-contract.skip('Registry', (accounts) => {
+contract.skip("Registry", (accounts) => {
 
 	let registry, simpleContract;
 

@@ -5,7 +5,6 @@ const utils = require("../helpers/utils.js");
 const Registry = artifacts.require("Registry");
 const Nonce = artifacts.require("Nonce");
 
-const unusedAddr = "0x0000000000000000000000000000000000000001";
 const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 const STARTING_NONCE = 99;
@@ -98,4 +97,3 @@ contract("Nonce", (accounts) => {
 	});
 
 });
-

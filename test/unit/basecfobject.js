@@ -1,14 +1,11 @@
 const ethers = require("ethers");
 
-const utils = require("../helpers/utils.js");
-
-const Registry = artifacts.require("Registry");
 const Counterfactual = artifacts.require("Counterfactual");
 
 const zeroAddr = "0x0000000000000000000000000000000000000000";
 const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-contract("Counterfactual", (accounts) => {
+contract("Counterfactual", (_accounts) => {
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 	const signer = provider.getSigner();
@@ -48,4 +45,3 @@ contract("Counterfactual", (accounts) => {
 	});
 
 });
-
