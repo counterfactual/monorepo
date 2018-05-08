@@ -13,7 +13,7 @@ library CFLib {
 	}
 
 	function lookup(CFAddress memory self) public returns (address) {
-		bool isNotCounterfactual =  self.registry == 0x0;
+		bool isNotCounterfactual = self.registry == 0x0;
 
 		if (isNotCounterfactual) {
 			return address(self.addr >> 96);

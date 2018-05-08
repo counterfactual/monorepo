@@ -17,11 +17,12 @@ contract ProxyFactory {
 		returns (Proxy proxy)
 	{
 		proxy = new Proxy(masterCopy);
-		if (data.length > 0)
+		if (data.length > 0) {
 			assembly {
 				switch call(not(0), proxy, 0, add(data, 0x20), mload(data), 0, 0)
 				case 0 { revert(0, 0) }
 			}
+		}
 		emit ProxyCreation(proxy);
 	}
 }

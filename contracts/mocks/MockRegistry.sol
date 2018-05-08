@@ -39,9 +39,7 @@ contract MockRegistry is IRegistry {
 	event ContractCreated(bytes32 cfAddress, address deployedAddress);
 	event ContractUpdated(bytes32 cfAddress, address deployedAddress);
 	event ContractWithdrawn(bytes32 cfAddress, address deployedAddress);
-	function deploySigned(bytes, uint8[], bytes32[], bytes32[])
-		external returns (address) {}
-
+	function deploySigned(bytes, uint8[], bytes32[], bytes32[]) external returns (address) {}
 	function deployAsOwner(bytes) external returns (address) {}
 	function proxyDelegatecall(address, bytes32, bytes) external {}
 }

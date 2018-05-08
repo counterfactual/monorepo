@@ -34,8 +34,11 @@ contract TicTacToe {
 		uint256 numX;
 		uint256 numO;
 		for (uint256 i = 0; i < board.length; i++) {
-			if (board[i] == SquareType.X) numX++;
-			else if (board[i] == SquareType.O) numO++;
+			if (board[i] == SquareType.X) {
+				numX++;
+			} else if (board[i] == SquareType.O) {
+				numO++;
+			}
 		}
 		return (numX, numO);
 	}
@@ -72,7 +75,7 @@ contract TicTacToe {
 			return false;
 		}
 	}
-		
+
 	function isFinal(State state) public pure returns (bool) {
 		require(
 			state.stateType == StateType.X_WON ||
@@ -98,8 +101,8 @@ contract TicTacToe {
 				return true;
 			}
 		}
-		
+
 		return false;
-	}	
-	
+	}
+
 }
