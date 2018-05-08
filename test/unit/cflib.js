@@ -4,20 +4,20 @@ const utils = require("../helpers/utils");
 const CFLibTester = artifacts.require("CFLibTester");
 const MockRegistry = artifacts.require("MockRegistry");
 
-contract('CFLibTester', (accounts) => {
+contract("CFLibTester", (accounts) => {
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 	const signer = provider.getSigner();
 
-	it('should lookup a regular address', async() => {
+	it("should lookup a regular address", async() => {
 		await runCFAddressTest(
 			utils.zeroAddress,
 			utils.toBytes32Str(accounts[0]),
 			accounts[0]
-		)
+		);
 	});
 
-	it('should lookup a counterfactual address', async() => {
+	it("should lookup a counterfactual address", async() => {
 		let registry = await MockRegistry.new();
 		await registry.setLookup(utils.zeroBytes32, accounts[0]);
 
@@ -43,4 +43,4 @@ contract('CFLibTester', (accounts) => {
 		assert.equal(result.toLowerCase(), expectedAddr.toLowerCase());
 	}
 
-})
+});

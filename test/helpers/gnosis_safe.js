@@ -1,10 +1,10 @@
-const ethers = require('ethers')
+const ethers = require("ethers");
 
 let Operation = Object.freeze({
 	Call: 0,
 	Delegatecall: 1,
 	Create: 2,
-})
+});
 
 /**
  * Executes a transaction from the multisig to itself according to
@@ -16,16 +16,16 @@ let Operation = Object.freeze({
  * @param op is the Operation to use, i.e., Call, Delegatecall, or Create.
  */
 async function executeTxData(data, toAddr, gnosisSafe, wallets, op) {
-	let value = 0
+	let value = 0;
 
 	let transactionHash = await gnosisSafe.getTransactionHash(
 		toAddr,
 		value,
 		data,
 		op,
-	)
+	);
 
-	let signatures = sign(transactionHash, wallets)
+	let signatures = sign(transactionHash, wallets);
 	return await gnosisSafe.executeTransaction(
 		toAddr,
 		value,
@@ -36,31 +36,31 @@ async function executeTxData(data, toAddr, gnosisSafe, wallets, op) {
 		signatures.s,
 		[],
 		[],
-	)
+	);
 }
 
 function sign(data, wallets) {
 	let sortedWallets = wallets.slice().sort((w1, w2) => {
 		return w1.address < w2.address ? -1 : (
 			(w1.address == w2.address) ? 0 : 1
-		)
-	})
+		);
+	});
 	let sortedSigs = {
 		v: [],
 		r: [],
 		s: [],
-	}
+	};
 	sortedWallets.forEach((wallet) => {
-		let sig = new ethers.SigningKey(wallet.privateKey).signDigest(data)
-		sortedSigs.v.push(sig.recoveryParam + 27)
-		sortedSigs.r.push(sig.r)
-		sortedSigs.s.push(sig.s)
+		let sig = new ethers.SigningKey(wallet.privateKey).signDigest(data);
+		sortedSigs.v.push(sig.recoveryParam + 27);
+		sortedSigs.r.push(sig.r);
+		sortedSigs.s.push(sig.s);
 	});
 
-	return sortedSigs
+	return sortedSigs;
 }
 
 module.exports = {
 	executeTxData,
 	Operation
-}
+};
