@@ -3,12 +3,12 @@ const ethers = require('ethers')
 const utils = require('../helpers/utils.js')
 
 const Registry = artifacts.require("Registry")
-const BaseCFObject = artifacts.require("BaseCFObject")
+const Counterfactual = artifacts.require("Counterfactual")
 
 const zeroAddr = '0x0000000000000000000000000000000000000000'
 const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-contract('BaseCFObject', (accounts) => {
+contract('Counterfactual', (accounts) => {
 
     const provider = new ethers.providers.Web3Provider(web3.currentProvider)
     const signer = provider.getSigner()
@@ -16,8 +16,8 @@ contract('BaseCFObject', (accounts) => {
     let baseObject
 
     const deployTx = ethers.Contract.getDeployTransaction(
-        BaseCFObject.binary,
-        BaseCFObject.abi,
+        Counterfactual.binary,
+        Counterfactual.abi,
     )
 
     beforeEach(async () => {
@@ -28,7 +28,7 @@ contract('BaseCFObject', (accounts) => {
         }))
         baseObject = new ethers.Contract(
             ethers.utils.getContractAddress(tx),
-            BaseCFObject.abi,
+            Counterfactual.abi,
             signer
         )
     })

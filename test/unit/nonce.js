@@ -15,17 +15,11 @@ contract('Nonce', (accounts) => {
     const provider = new ethers.providers.Web3Provider(web3.currentProvider)
     const signer = provider.getSigner()
 
-    const {bytecode, abi} = Nonce
-
     let nonce
-    let id
 
     const deployTx = ethers.Contract.getDeployTransaction(
         Nonce.binary,
         Nonce.abi,
-        {
-            nonce: STARTING_NONCE,
-        },
         {
             owner: accounts[0],
             registry: Registry.address,
@@ -33,7 +27,7 @@ contract('Nonce', (accounts) => {
             deltaTimeout: 10,
             // Apparently you cannot ignore args and have them default
             finalizesAt: 0,
-            latestNonce: 0,
+            latestNonce: STARTING_NONCE,
             wasDeclaredFinal: false,
             dependancy: {
                 addr: '0x0',
@@ -55,10 +49,6 @@ contract('Nonce', (accounts) => {
 
     })
 
-    it("should have the correct state from constructor", async () => {
-        assert.equal(STARTING_NONCE, await nonce.state())
-    })
-
     it("should have the correct params from constructor", async () => {
         const parameters = await nonce.objectStorage()
 
@@ -67,18 +57,18 @@ contract('Nonce', (accounts) => {
         assert.equal(1337, parameters.id)
         assert.equal(10, parameters.deltaTimeout)
         assert.equal(web3.eth.blockNumber + 10, parameters.finalizesAt)
-        assert.equal(0, parameters.latestNonce)
+        assert.equal(STARTING_NONCE, parameters.latestNonce)
         assert.equal(false, parameters.wasDeclaredFinal)
         assert.equal(zeroBytes32, parameters.dependancy.addr)
         assert.equal(0, parameters.dependancy.nonce)
     })
 
     it("should only allow positive nonce increments", async () => {
-        await nonce.functions.update({nonce: STARTING_NONCE + 1})
-        await nonce.functions.update({nonce: STARTING_NONCE + 2})
-        await utils.assertRejects(nonce.functions.update({nonce: STARTING_NONCE + 2}))
-        await utils.assertRejects(nonce.functions.update({nonce: STARTING_NONCE + 1}))
-        await utils.assertRejects(nonce.functions.update({nonce: STARTING_NONCE}))
+        await nonce.setState(STARTING_NONCE + 1)
+        await nonce.setState(STARTING_NONCE + 2)
+        await utils.assertRejects(nonce.setState(STARTING_NONCE + 2))
+        await utils.assertRejects(nonce.setState(STARTING_NONCE + 1))
+        await utils.assertRejects(nonce.setState(STARTING_NONCE))
     })
 
     it("should reject state updates sent from non-owners", async () => {
@@ -86,7 +76,7 @@ contract('Nonce', (accounts) => {
             nonce
                 .connect(provider.getSigner(accounts[1]))
                 .functions
-                .update({nonce: await nonce.state() + 1})
+                .setState(await nonce.getLatestNonce() + 1)
         )
     })
 
@@ -94,17 +84,17 @@ contract('Nonce', (accounts) => {
         const nonceRef2 = nonce.connect(provider.getSigner(accounts[1]))
 
         await utils.assertRejects(nonceRef2.finalize())
-        assert.equal(false, await nonce.functions.isFinal())
+        assert.equal(false, await nonce.isFinal())
         await nonce.finalize()
-        assert.equal(true, await nonce.functions.isFinal())
-        assert.equal(STARTING_NONCE, await nonce.state())
+        assert.equal(true, await nonce.isFinal())
+        assert.equal(STARTING_NONCE, await nonce.getLatestNonce())
     })
 
     it("should eventually be considered final", async () => {
-        assert.equal(false, await nonce.functions.isFinal())
+        assert.equal(false, await nonce.isFinal())
         await utils.evm_mine(10)
-        assert.equal(true, await nonce.functions.isFinal())
-        assert.equal(STARTING_NONCE, await nonce.state())
+        assert.equal(true, await nonce.isFinal())
+        assert.equal(STARTING_NONCE, await nonce.getLatestNonce())
     })
 
 })
