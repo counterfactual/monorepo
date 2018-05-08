@@ -6,23 +6,27 @@
     "lint": "solium --dir ./contracts",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "networks": "truffle networks",
-    "test": "npm run ganache-cli:dev && truffle test --network rpc",
+    "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
     "test:gas": "GAS_REPORTER=true npm test",
-    "coverage": "npm run ganache-cli:coverage && node_modules/.bin/solidity-coverage",
+    "coverage": "SOLIDITY_COVERAGE=true npm run ganache-cli:test",
     "console": "node_modules/.bin/truffle console",
-    "ganache-cli:dev": "scripts/ganache-cli.sh",
-    "ganache-cli:coverage": "SOLIDITY_COVERAGE=true scripts/ganache-cli.sh",
-    "injectnetinfo": "node scripts/inject_network_info.js",
-    "extractnetinfo": "node scripts/extract_network_info.js",
-    "resetnetinfo": "truffle networks --clean && node scripts/inject_network_info.js"
+    "ganache-cli:test": "scripts/ganache-cli.sh",
+    "ganache-cli:coverage": "SOLIDITY_COVERAGE=true scripts/ganache-cli.sh"
   },
+  "files": [
+    "build/",
+    "contracts/",
+    "migrations/",
+    "scripts/",
+    "truffle-config.js",
+    "test/"
+  ],
   "keywords": [
     "ethereum",
     "counterfactual",
     "state channels",
     "solidity",
-    "truffle"
+    "ethers"
   ],
   "author": "Counterfactual (https://counterfactual.com)",
   "license": "GPL-3.0",
