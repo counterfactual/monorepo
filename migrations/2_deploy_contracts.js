@@ -13,6 +13,7 @@ const CFLib = artifacts.require('./CFLib.sol')
 const CFLibTester = artifacts.require('./CFLibTester.sol')
 const MockRegistry = artifacts.require('./MockRegistry.sol')
 const ForceMoveGame = artifacts.require('./ForceMoveGame.sol')
+const UnidirectionalETHBalance = artifacts.require('./UnidirectionalETHBalance.sol')
 
 const notOwnedAddress = '0x0000000000000000000000000000000000000001'
 
@@ -34,13 +35,14 @@ module.exports = async (deployer) => {
 			ETHBalance,
 			ETHRefund,
 			ForceMoveGame,
+			UnidirectionalETHBalance,
 		])
 
 		await deployer.deploy(CFLib)
 
 		await deployer.link(CFLib, [
 			CFLibTester,
-			ETHBalance
+			ETHBalance,
 		])
 
 		await deployer.deploy(MockRegistry)
