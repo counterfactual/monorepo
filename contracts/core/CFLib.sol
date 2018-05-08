@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IRegistry.sol";
 
+
 library CFLib {
 
 	struct CFAddress {

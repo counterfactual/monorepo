@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "../common/Counterfactual.sol";
 import "./CFLib.sol";
 
+
 library IETH {
     struct Transform {
         address[] receivers;
@@ -12,10 +13,12 @@ library IETH {
     }
 }
 
+
 contract Callback {
     using IETH for IETH.Transform;
     function receiveUpdate(IETH.Transform) public returns (bool);
 }
+
 
 contract ETHBalance is Counterfactual {
 
