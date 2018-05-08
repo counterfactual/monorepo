@@ -5,7 +5,6 @@ const utils = require("../helpers/utils.js");
 const Registry = artifacts.require("Registry");
 const ETHRefund = artifacts.require("ETHRefund");
 
-const unusedAddr = "0x0000000000000000000000000000000000000001";
 const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 contract("ETHRefund", (accounts) => {
@@ -28,8 +27,8 @@ contract("ETHRefund", (accounts) => {
 			latestNonce: 0,
 			wasDeclaredFinal: false,
 			dependancy: {
-	            addr: "0x0",
-	            nonce: 0,
+				addr: "0x0",
+				nonce: 0,
 			}
 		},
 	);
@@ -41,9 +40,9 @@ contract("ETHRefund", (accounts) => {
 			...deployTx
 		}));
 		ethrefund = new ethers.Contract(
-        	ethers.utils.getContractAddress(tx),
-        	ETHRefund.abi,
-        	signer
+			ethers.utils.getContractAddress(tx),
+			ETHRefund.abi,
+			signer
 		);
 		nonce = 0;
 		moreGas = {
@@ -57,8 +56,8 @@ contract("ETHRefund", (accounts) => {
 
 		assert.equal(accounts[0].toLowerCase(), parameters.owner.toLowerCase());
 		assert.equal(
-        	Registry.address.toLowerCase(),
-        	parameters.registry.toLowerCase()
+			Registry.address.toLowerCase(),
+			parameters.registry.toLowerCase()
 		);
 		assert.equal(1337, parameters.id);
 		assert.equal(10, parameters.deltaTimeout);
@@ -70,9 +69,9 @@ contract("ETHRefund", (accounts) => {
 	});
 
 	it("should allow state updates", async () => {
-    	const update = {
-        	recipient: accounts[2],
-        	threshold: ethers.utils.parseEther("93"),
+		const update = {
+			recipient: accounts[2],
+			threshold: ethers.utils.parseEther("93"),
 		};
 		await ethrefund.functions.setState(update, ++nonce, moreGas);
 		const {recipient, threshold} = await ethrefund.state();
@@ -81,16 +80,16 @@ contract("ETHRefund", (accounts) => {
 	});
 
 	it("should reject balance updates sent from non-owners", async () => {
-    	const update = {
-        	recipient: accounts[2],
-        	threshold: ethers.utils.parseEther("93"),
+		const update = {
+			recipient: accounts[2],
+			threshold: ethers.utils.parseEther("93"),
 		};
 		await utils.assertRejects(
-        	ethrefund
-	        	.connect(provider.getSigner(accounts[1]))
-	        	.functions
-	        	.setState(update, ++nonce, moreGas)
-	    );
+			ethrefund
+				.connect(provider.getSigner(accounts[1]))
+				.functions
+				.setState(update, ++nonce, moreGas)
+		);
 	});
 
 	it("should be finalizable by its owner", async () => {
@@ -109,4 +108,3 @@ contract("ETHRefund", (accounts) => {
 	});
 
 });
-

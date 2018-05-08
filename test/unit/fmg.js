@@ -7,9 +7,6 @@ const ForceMoveGame = artifacts.require("ForceMoveGame");
 const SimpleGame = artifacts.require("SimpleGame");
 const TicTacToe = artifacts.require("TicTacToe");
 
-const unusedAddr = "0x0000000000000000000000000000000000000001";
-const unusedBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000001";
-const zeroAddress = "0x0000000000000000000000000000000000000000";
 const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 contract("ForceMoveGame", (accounts) => {
@@ -64,11 +61,11 @@ contract("ForceMoveGame", (accounts) => {
 	describe("SimpleGame", async () => {
 
 		let moveHelper, moreGas, tmpsigner1, tmpsigner2;
-    
+
 		beforeEach(async () => {
-            
+
 			tmpsigner1 = ethers.Wallet.createRandom();
-			tmpsigner2 = ethers.Wallet.createRandom();    
+			tmpsigner2 = ethers.Wallet.createRandom();
 
 			moreGas = {
 				gasLimit: 4712388,
@@ -146,7 +143,7 @@ contract("ForceMoveGame", (accounts) => {
 				await utils.assertRejects(fma.forceMove([move1, move2], moreGas));
 			});
 		});
-    
+
 		describe("refute", async () => {
 			it("should allow refuting a move", async () => {
 				const move1 = moveHelper(0, [0, 1336], tmpsigner1);
@@ -187,7 +184,7 @@ contract("ForceMoveGame", (accounts) => {
 				assert.equal(challenge.challengeState.gameState, "0x");
 			});
 		});
-    
+
 		describe("alternativeRespondWithMove", async () => {
 			it("should allow responses with alternative moves", async () => {
 				const move1 = moveHelper(0, [0, 1335], tmpsigner1);
@@ -198,14 +195,14 @@ contract("ForceMoveGame", (accounts) => {
 				const move3 = moveHelper(2, [0, 1337], tmpsigner1);
 
 				await fma.alternativeRespondWithMove([move2, move3], moreGas);
-            
+
 				const challenge = await fma.challenge();
 
 				assert.equal(challenge.exists, false);
 				assert.equal(challenge.challengeState.gameState, "0x");
 			});
 		});
-    
+
 		describe("conclude", async () => {
 			it("should allow a party to conclude with a valid sequence of end moves", async () => {
 				const move1 = moveHelper(0, [1, 1337], tmpsigner1);
@@ -226,13 +223,13 @@ contract("ForceMoveGame", (accounts) => {
 
 		let moveHelper, moreGas, tmpsigner1, tmpsigner2;
 
-		const [X_TURN, O_TURN, X_WON, O_WON] = [0, 1, 2, 3];
+		const [X_TURN, O_TURN, X_WON, O_WON] = [0, 1, 2, 3]; // eslint-disable-line no-unused-vars
 		const [X, O, EMPTY] = [0, 1, 2];
-    
+
 		beforeEach(async () => {
-            
+
 			tmpsigner1 = ethers.Wallet.createRandom();
-			tmpsigner2 = ethers.Wallet.createRandom();    
+			tmpsigner2 = ethers.Wallet.createRandom();
 
 			moreGas = {
 				gasLimit: 4712388,
@@ -347,4 +344,3 @@ contract("ForceMoveGame", (accounts) => {
 
 
 });
-
