@@ -6,6 +6,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
+      - run: eslint -c .eslintrc.js test/
       - run: npm test
   run-python-tests:
     docker:
