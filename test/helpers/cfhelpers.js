@@ -30,10 +30,11 @@ async function deployMultisig(owners) {
     
 function getCFDeployer(multisig, registry, provider) {
     return {
-        deploy: async (contract, signer) => {
+        deploy: async (contract, signer, cargs) => {
             const bytecode = ethers.Contract.getDeployTransaction(
                 contract.binary,
                 contract.abi,
+                ...(cargs || []),
                 {
                     owner: multisig.address,
                     registry: registry.address,
