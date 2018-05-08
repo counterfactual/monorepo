@@ -8,7 +8,9 @@ Counterfactual Smart Contracts
 
 Collection of smart contracts for the Counterfactual state channels framework (https://counterfactual.com).
 
-Install
+Tests are written in truffle and in pyethereum. In addition, running migrate from this repository is the recommended way to deploy these contracts onto a local ganache instance.
+
+Testing: truffle
 -------
 ### Install requirements with npm:
 
@@ -16,18 +18,31 @@ Install
 npm install
 ```
 
-Testing and Linting
--------------------
-### Run all tests (requires Node version >=7 for `async/await`, and will automatically run TestRPC in the background):
+### Run all tests:
 
 ```bash
 npm test
 ```
 
+These require Node version >=7 for `async/await`. Truffle will automatically run TestRPC in the background.
+
 ### Lint the JS
 
 ```bash
 npm run lint
+```
+
+Testing: pyethereum
+------
+
+### Install requirements with pip:
+
+```bash
+pip3 install -r requirements.txt
+```
+
+```bash
+python3 ./test/python.py
 ```
 
 Security and Liability

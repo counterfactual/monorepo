@@ -7,10 +7,10 @@ const utils = require('../helpers/utils.js')
 const ProxyFactory = artifacts.require('ProxyFactory')
 const Registry = artifacts.require('Registry')
 
-const unusedAddr = '0x0000000000000000000000000000000000000001'
 const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-contract('Registry', (accounts) => {
+// skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
+contract.skip('Registry', (accounts) => {
 
     let registry, simpleContract
 
@@ -235,4 +235,8 @@ contract('Registry', (accounts) => {
 
     })
 
+<<<<<<< HEAD
 })
+=======
+})
+>>>>>>> a85f5ee0645b04df71f79a0379bec8762fa09727
