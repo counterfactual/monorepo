@@ -11,7 +11,7 @@ const MockRegistry = artifacts.require("MockRegistry");
 /**
  * Tests the ETHBalance contract can act as a metachannel deposit.
  */
-contract("ETHBalance", (_accounts) => {
+contract.skip("ETHBalance", (_accounts) => {
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 	const signer = provider.getSigner();
