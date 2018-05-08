@@ -5,7 +5,11 @@ module.exports = {
         "sourceType": "script"
     },
     "rules": {
-        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+		"semi": ["error", "always"],
+		"quotes": ["error", "double"],
+		"no-console": "off",
+		"indent": ["error", "tab"]
     },
     "env": {
         "node": true,

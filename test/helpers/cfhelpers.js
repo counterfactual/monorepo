@@ -1,33 +1,33 @@
-const ethers = require('ethers')
-const gnosisSafeUtils = require('./gnosis_safe.js')
+const ethers = require("ethers");
+const gnosisSafeUtils = require("./gnosis_safe.js");
 
 const {
-    zeroAddress,
-    zeroBytes32,
-    getParamFromTxEvent,
-    signMessage,
-} = require('./utils.js')
+	zeroAddress,
+	zeroBytes32,
+	getParamFromTxEvent,
+	signMessage,
+} = require("./utils.js");
 
-const GnosisSafe   = artifacts.require("GnosisSafe")
-const ProxyFactory = artifacts.require("ProxyFactory")
+const GnosisSafe   = artifacts.require("GnosisSafe");
+const ProxyFactory = artifacts.require("ProxyFactory");
 
 async function deployMultisig(owners) {
-    const proxyFactory = await ProxyFactory.deployed()
-    return getParamFromTxEvent(
-        await proxyFactory.createProxy(
-            GnosisSafe.address,
-            new ethers
-                .Interface(GnosisSafe.abi)
-                .deployFunction('0x', owners, 1, zeroAddress, zeroBytes32)
-                .bytecode
-        ),
-        'ProxyCreation',
-        'proxy',
-        proxyFactory.address,
-        GnosisSafe,
-    )
+	const proxyFactory = await ProxyFactory.deployed();
+	return getParamFromTxEvent(
+		await proxyFactory.createProxy(
+			GnosisSafe.address,
+			new ethers
+				.Interface(GnosisSafe.abi)
+				.deployFunction("0x", owners, 1, zeroAddress, zeroBytes32)
+				.bytecode
+		),
+		"ProxyCreation",
+		"proxy",
+		proxyFactory.address,
+		GnosisSafe,
+	);
 }
-    
+
 function getCFDeployer(multisig, registry, provider) {
     return {
         deploy: async (contract, signer, cargs) => {
@@ -107,32 +107,32 @@ function getCFDeployer(multisig, registry, provider) {
 
 // TODO Get rid of use cases of this for the approach above
 async function executeProxyCall(
-		data,
-		registry,
-		cfAddr,
-		multiSig,
-		wallets
-	) {
-		let proxyCallData = registry
-			.interface
-			.functions
-			.proxyCall(
-				registry.address,
-				cfAddr,
-				data
-			).data
-
-		await gnosisSafeUtils.executeTxData(
-			proxyCallData,
+	data,
+	registry,
+	cfAddr,
+	multiSig,
+	wallets
+) {
+	let proxyCallData = registry
+		.interface
+		.functions
+		.proxyCall(
 			registry.address,
-			multiSig,
-			wallets,
-			gnosisSafeUtils.Operation.Delegatecall
-		)
-	}
+			cfAddr,
+			data
+		).data;
+
+	await gnosisSafeUtils.executeTxData(
+		proxyCallData,
+		registry.address,
+		multiSig,
+		wallets,
+		gnosisSafeUtils.Operation.Delegatecall
+	);
+}
 
 module.exports = {
-    getCFDeployer,
-    executeProxyCall,
-    deployMultisig
-}
+	getCFDeployer,
+	executeProxyCall,
+	deployMultisig
+};
