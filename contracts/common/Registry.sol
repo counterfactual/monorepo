@@ -90,7 +90,8 @@ contract Registry is IRegistry {
 		uint8[] v,
 		bytes32[] r,
 		bytes32[] s
-	) external returns (address) {
+	) external returns (address)
+	{
 		require(v.length == r.length && r.length == s.length);
 
 		bytes32 codeHash = getTransactionHash(code);
