@@ -51,12 +51,12 @@ contract("UnidirectionalETHBalance", (accounts) => {
 		);
 
 		assert.equal(
-			(await unidirectional.contract.decidedAmount()).toString(),
+			(await unidirectional.contract._decidedAmount()).toString(),
 			(ethers.utils.parseEther("0.5")).toString(),
 		);
 
 		assert.equal(
-			(await unidirectional.contract.maxAmount()).toString(),
+			(await unidirectional.contract._maxAmount()).toString(),
 			(ethers.utils.parseEther("1.0")).toString(),
 		);
 

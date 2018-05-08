@@ -12,12 +12,12 @@ contract ETHRefund is Counterfactual {
 		uint256 threshold;
 	}
 
-	State public state;
+	State public _state;
 
 	constructor(ObjectStorage cfparams) init(cfparams) public {}
 
-	function setState(State _state, uint256 nonce) public safeUpdate(nonce) {
-		state = _state;
+	function setState(State state, uint256 nonce) public safeUpdate(nonce) {
+		_state = state;
 	}
 
 }
