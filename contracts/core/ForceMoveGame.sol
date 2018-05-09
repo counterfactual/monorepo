@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-pragma experimental ABIEncoderV2;
+pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
 import "../lib/BytesLib.sol";
@@ -17,7 +17,7 @@ contract ForceMoveGame is Counterfactual {
 		bytes32 r;
 		bytes32 s;
 	}
-  
+
 	struct Channel {
 		address gameType;
 		address[] participants;
@@ -40,7 +40,7 @@ contract ForceMoveGame is Counterfactual {
 		State challengeState;
 		bytes resolutionTransform;
 	}
-	
+
 	struct Callback {
 		bytes32 cfaddr;
 		bytes sighash;
@@ -71,7 +71,7 @@ contract ForceMoveGame is Counterfactual {
 		require(!challenge.exists);
 		_;
 	}
-	
+
 	modifier onlyWhenChallengeActive() {
 		require(challenge.exists);
 		_;
@@ -127,7 +127,7 @@ contract ForceMoveGame is Counterfactual {
 	}
 
 	function resolve() onlyWhenFinal public {
-		IRegistry registry = IRegistry(getRegistry()); 
+		IRegistry registry = IRegistry(getRegistry());
 		for (uint256 i = 0; i < _numCallbacks; i++) {
 			bytes memory x = _callbacks[i].sighash;
 			bytes memory z = x.concat(challenge.challengeState.gameState);
@@ -173,7 +173,7 @@ contract ForceMoveGame is Counterfactual {
 			bool ret = _gameType.call(z);
 			require(ret == true);
 		}
-		
+
 		challenge.exists = true;
 		challenge.challengeState = moves[moves.length - 1].state;
 	}
@@ -229,7 +229,7 @@ contract ForceMoveGame is Counterfactual {
 	}
 
 	function conclude(Move[] moves) onlyWhenFinal onlyWhenChallengeInactive public {
-		
+
 		require(moves.length > 1);
 		require(correctPersonSigned(moves[0]));
 
