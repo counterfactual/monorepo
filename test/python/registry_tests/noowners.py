@@ -5,7 +5,7 @@ import bitcoin
 
 from ethereum.tools import tester
 from ethereum.tools._solidity import get_solidity
-from ethereum.utils import int_to_bytes, privtoaddr
+from ethereum.utils import int_to_bytes, privtoaddr, encode_hex
 
 from registry import registry_source
 from testcontract import testcontract_source, testcontract_bytecode
@@ -25,7 +25,9 @@ def runTests():
 
     storage_items = set(v for k, v in c.head_state.get_and_cache_account(registry.address).to_dict()['storage'].items())
 
-    assert(storage_items == set([testContract_deployed_addr]))
+    assert(storage_items == set([
+        testContract_deployed_addr,
+        '0x' + encode_hex(testContract_cf_addr)]))
 
     logs = list(log for receipt in c.head_state.receipts for log in receipt.logs )
 
