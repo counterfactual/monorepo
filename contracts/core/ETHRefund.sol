@@ -19,5 +19,4 @@ contract ETHRefund is Counterfactual {
 	function setState(State state, uint256 nonce) public safeUpdate(nonce) {
 		_state = state;
 	}
-
 }
