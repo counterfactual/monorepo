@@ -1,11 +1,11 @@
 pragma solidity ^0.4.23;
 
-pragma experimental ABIEncoderV2;
+pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
 
 
-contract Nonce is Counterfactual {  
+contract Nonce is Counterfactual {
 
 	constructor(ObjectStorage cfparams) init(cfparams) public {}
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-pragma experimental ABIEncoderV2;
+pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
 
@@ -28,7 +28,7 @@ contract ETHConditionalTransfer is Counterfactual {
 	// are the "defaults" if the condition never resolves.
 	address[] _receivers;
 	uint256[] _amounts;
-	
+
 	modifier onlyWhitelist () {
 		bytes32 whoami = IRegistry(getRegistry()).reverseResolve(msg.sender);
 		require(_whitelist[whoami]);
@@ -90,5 +90,5 @@ contract ETHConditionalTransfer is Counterfactual {
 			receivers[i].transfer(amounts[i]);
 		}
 	}
-	
+
 }
