@@ -1,6 +1,8 @@
 Counterfactual Smart Contracts
 ======================
 
+[![Coverage Status](https://coveralls.io/repos/github/counterfactual/counterfactual-contracts/badge.svg?branch=develop&t=Pc5Qbc)](https://coveralls.io/github/counterfactual/counterfactual-contracts?branch=develop)
+
 <p align="center">
   <br/>
   <img width="100" height="100" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5a56e2c5ec212d24a8ac0bc6/1516740168424/?format=1500w"></img>
