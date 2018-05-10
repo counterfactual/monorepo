@@ -1,2 +1,2 @@
 bitcoin==1.1.42
-https://github.com/ldct/pyethereum/tarball/ldct/py3
+https://github.com/ethereum/pyethereum/tarball/develop
