@@ -37,8 +37,6 @@ contract Counterfactual {
 		objectStorage.finalizesAt = block.number + objectStorage.deltaTimeout;
 	}
 
-
-
 	modifier onlyOwner() {
 		require(objectStorage.owner == msg.sender);
 		_;
@@ -71,6 +69,10 @@ contract Counterfactual {
 
 	function getRegistry() public view returns (address) {
 		return objectStorage.registry;
+	}
+
+	function registryResolve(bytes32 cfaddress) view internal returns (address) {
+		return IRegistry(objectStorage.registry).resolve(cfaddress);
 	}
 
 	function finalize()

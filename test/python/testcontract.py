@@ -2,7 +2,7 @@ from ethereum.tools import tester
 from ethereum.tools._solidity import get_solidity
 
 testcontract_source = """
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.23;
 contract Test {
     function sayHello() public pure returns (string) {
         return "hi";

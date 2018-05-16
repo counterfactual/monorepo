@@ -2,16 +2,16 @@ pragma solidity ^0.4.19;
 
 pragma experimental "ABIEncoderV2";
 
-import "../core/CFLib.sol";
+import "../core/CFAddressLib.sol";
 
 
 contract CFLibTester {
 
-	using CFLib for CFLib.CFAddress;
+	using CFAddressLib for CFAddressLib.CFAddress;
 
-	CFLib.CFAddress _addr;
+	CFAddressLib.CFAddress _addr;
 
-	constructor(CFLib.CFAddress addr) public {
+	constructor(CFAddressLib.CFAddress addr) public {
 		_addr = addr;
 	}
 

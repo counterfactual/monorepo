@@ -3,14 +3,11 @@ pragma solidity ^0.4.23;
 pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
-import "../lib/BytesLib.sol";
 
 
 /// ForceMoveGame.sol is based on a research paper written by Tom Close with support
 /// from the L4 Research team. Adapted here to work within the Counterfactual framework.
 contract ForceMoveGame is Counterfactual {
-
-	using BytesLib for bytes;
 
 	struct Signature {
 		uint8 v;
@@ -41,28 +38,17 @@ contract ForceMoveGame is Counterfactual {
 		bytes resolutionTransform;
 	}
 
-	struct Callback {
-		bytes32 cfaddr;
-		bytes sighash;
-	}
-
 	// _gameType is a reference to a particular game being played that adheres
 	//		   to the ForceMoveGame interface.
 	address _gameType;
 
 	// _validTransitionSighash is the signature of the validTransition(...) function
 	//						 from the ABI of the contract at `_gameType`
-	bytes _validTransitionSighash;
+	bytes4 _validTransitionSighash;
 
 	// _isFinalSighash is the signature of the isFinal(...) function
 	//				 from the ABI of the contract at `_gameType`
-	bytes _isFinalSighash;
-
-	// _callbacks is an array of Callback structs (bytes32 cfaddr and bytes sighash)
-	//			for which Registry.resolve(cfaddr).call(sighash + ...) will be called
-	//			upon the ForceMoveGame being considered "over"
-	mapping(uint256 => Callback) _callbacks;
-	uint256 _numCallbacks;
+	bytes4 _isFinalSighash;
 
 	// challenge is a single Challenge representing the currently forced move of the game
 	Challenge public challenge;
@@ -84,7 +70,23 @@ contract ForceMoveGame is Counterfactual {
 		delete challenge.challengeState;
 	}
 
-	constructor(ObjectStorage cfparams) init(cfparams) public {}
+	constructor(
+		address gameType,
+		bytes4 validTransitionSighash,
+		bytes4 isFinalSighash,
+		ObjectStorage cfparams
+	)
+		public
+		init(cfparams)
+	{
+		_gameType = gameType;
+		_validTransitionSighash = validTransitionSighash;
+		_isFinalSighash = isFinalSighash;
+	}
+
+	function getState() public onlyWhenFinal returns (bytes) {
+		return challenge.challengeState.gameState;
+	}
 
 	function mover(State state) internal pure returns (address) {
 		uint256 n = state.channel.participants.length;
@@ -126,34 +128,6 @@ contract ForceMoveGame is Counterfactual {
 		return signer(move) == mover(move.state);
 	}
 
-	function resolve() onlyWhenFinal public {
-		IRegistry registry = IRegistry(getRegistry());
-		for (uint256 i = 0; i < _numCallbacks; i++) {
-			bytes memory x = _callbacks[i].sighash;
-			bytes memory z = x.concat(challenge.challengeState.gameState);
-			bool ret = registry.resolve(_callbacks[i].cfaddr).call(z);
-			require(ret == true);
-		}
-	}
-
-	function setState(
-		address gameType,
-		bytes validTransitionSighash,
-		bytes isFinalSighash,
-		Callback[] callbacks
-	)
-		public
-		safeUpdate(1) // tmp 1
-	{
-		_gameType = gameType;
-		_validTransitionSighash = validTransitionSighash;
-		_isFinalSighash = isFinalSighash;
-		_numCallbacks = callbacks.length;
-		for (uint256 i = 0; i < callbacks.length; i++) {
-			_callbacks[i] = callbacks[i];
-		}
-	}
-
 	// https://github.com/ethereum/solidity/issues/434
 	function forceMove (Move[] moves)
 		public
@@ -167,11 +141,13 @@ contract ForceMoveGame is Counterfactual {
 			require(correctPersonSigned(m2));
 			require(channelId(m1.state.channel) == channelId(m2.state.channel));
 			require(isValidTransition(m1.state, m2.state));
-			bytes memory x = m1.state.gameState.concat(m2.state.gameState);
-			bytes memory y = _validTransitionSighash;
-			bytes memory z = y.concat(x);
-			bool ret = _gameType.call(z);
-			require(ret == true);
+			require(
+				_gameType.call(
+					_validTransitionSighash,
+					m1.state.gameState,
+					m2.state.gameState
+				)
+			);
 		}
 
 		challenge.exists = true;
@@ -196,11 +172,13 @@ contract ForceMoveGame is Counterfactual {
 		require(channelId(responseMove.state.channel) == channelId(challenge.challengeState.channel));
 		require(correctPersonSigned(responseMove));
 		require(isValidTransition(challenge.challengeState, responseMove.state));
-		bytes memory x = challenge.challengeState.gameState.concat(responseMove.state.gameState);
-		bytes memory y = _validTransitionSighash;
-		bytes memory z = y.concat(x);
-		bool ret = _gameType.call(z);
-		require(ret == true);
+		require(
+			_gameType.call(
+				_validTransitionSighash,
+				challenge.challengeState.gameState,
+				responseMove.state.gameState
+			)
+		);
 	}
 
 	function alternativeRespondWithMove(Move[] moves)
@@ -216,11 +194,13 @@ contract ForceMoveGame is Counterfactual {
 			require(correctPersonSigned(m2));
 			require(channelId(m1.state.channel) == channelId(m2.state.channel));
 			require(isValidTransition(m1.state, m2.state));
-			bytes memory x = m1.state.gameState.concat(m2.state.gameState);
-			bytes memory y = _validTransitionSighash;
-			bytes memory z = y.concat(x);
-			bool ret = _gameType.call(z);
-			require(ret == true);
+			require(
+				_gameType.call(
+					_validTransitionSighash,
+					m1.state.gameState,
+					m2.state.gameState
+				)
+			);
 		}
 
 		State memory lastState = moves[moves.length - 2].state;
@@ -234,9 +214,7 @@ contract ForceMoveGame is Counterfactual {
 		require(correctPersonSigned(moves[0]));
 
 		// the first move’s state is a conclusion state i.e. moves[0].state ∈ Sconclude
-		bytes memory ifsh = _isFinalSighash;
-		bytes memory gs = ifsh.concat(moves[0].state.gameState);
-		require(_gameType.call(gs));
+		require(_gameType.call(_isFinalSighash, moves[0].state.gameState));
 
 		// moves is a sequence of n valid moves, where n is the number of participants
 		for (uint256 i = 1; i < moves.length; i++) {
@@ -245,11 +223,13 @@ contract ForceMoveGame is Counterfactual {
 			require(correctPersonSigned(m2));
 			require(channelId(m1.state.channel) == channelId(m2.state.channel));
 			require(isValidTransition(m1.state, m2.state));
-			bytes memory x = m1.state.gameState.concat(m2.state.gameState);
-			bytes memory y = _validTransitionSighash;
-			bytes memory z = y.concat(x);
-			bool ret = _gameType.call(z);
-			require(ret == true);
+			require(
+				_gameType.call(
+					_validTransitionSighash,
+					m1.state.gameState,
+					m2.state.gameState
+				)
+			);
 		}
 
 		challenge.challengeState = moves[0].state;

@@ -3,92 +3,60 @@ pragma solidity ^0.4.23;
 pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
+import "../misc/ETHChannelLib.sol";
 
 
 contract ETHConditionalTransfer is Counterfactual {
 
-	struct Transform {
-		address[] receivers;
-		uint256[] amounts;
-	}
+	using ETHChannelLib for ETHChannelLib.Balance;
 
-	// A cap at the amount that can be distributed.
 	uint256 _allowance;
 
-	// The address that defines whether or not the condition
-	// has been "finalized". It might cause side-effects.
-	bytes32 _condition;
+	bytes32 _allowedSender;
 
-	// A whitelist of addresses that are allowed to submit
-	// state updates to the ETHConditionalTransfer object
-	mapping(bytes32 => bool) _whitelist;
-
-	// A mapping of addresses and amounts defining how the funds
-	// get distributed. The values passed into the constructor
-	// are the "defaults" if the condition never resolves.
-	address[] _receivers;
-	uint256[] _amounts;
+	mapping(uint256 => ETHChannelLib.Balance) _balances;
+	uint256 _numBalances;
 
 	modifier onlyWhitelist () {
-		bytes32 whoami = IRegistry(getRegistry()).reverseResolve(msg.sender);
-		require(_whitelist[whoami]);
+		require(registryResolve(_allowedSender) == msg.sender);
 		_;
 	}
 
 	constructor(ObjectStorage cfparams) init(cfparams) public {}
 
-	// TODO
-	// Figure out whether the constructor can contain this
-	// without the variables changing the cfaddress
 	function setState(
 		uint256 allowance,
-		bytes32 condition,
-		bytes32[] whitelist,
-		address[] receivers,
-		uint256[] amounts
+		bytes32 allowedSender,
+		ETHChannelLib.Balance[] balances
 	)
 		safeUpdate(1)
 		public
 	{
 		_allowance = allowance;
-		_condition = condition;
-		_receivers = receivers;
-		_amounts = amounts;
-		for (uint256 i = 0; i < whitelist.length; i++) {
-			_whitelist[whitelist[i]] = true;
+		_allowedSender = allowedSender;
+		for (uint256 i = 0; i < balances.length; i++) {
+			_balances[i] = balances[i];
 		}
+		_numBalances = balances.length;
 	}
 
-	function receiveUpdate(Transform T) onlyWhitelist public returns (bool) {
+	function receiveUpdate(ETHChannelLib.Balance[] balances) public {
 		uint256 sum = 0;
-		for (uint256 i = 0; i < T.receivers.length; i++) {
-			sum += T.amounts[i];
+		for (uint256 i = 0; i < balances.length; i++) {
+			sum += balances[i].amount;
+			_balances[i] = balances[i];
 		}
+		_numBalances = balances.length;
 
 		require(sum == _allowance);
-
-		_receivers = T.receivers;
-		_amounts = T.amounts;
-
-		return true;
 	}
 
-	function getState() public view returns (address[], uint256[]) {
-		return (_receivers, _amounts);
-	}
-
-	function resolve(address registry, bytes32 cfaddress) public {
-		address meta = IRegistry(registry).resolve(cfaddress);
-		ETHConditionalTransfer self = ETHConditionalTransfer(meta);
-
-		address[] memory receivers;
-		uint256[] memory amounts;
-
-		(receivers, amounts) = self.getState();
-
-		for (uint256 i = 0; i < receivers.length; i++) {
-			receivers[i].transfer(amounts[i]);
+	function getState() public view returns (ETHChannelLib.Balance[]) {
+		ETHChannelLib.Balance[] memory balances = new ETHChannelLib.Balance[](_numBalances);
+		for (uint256 i = 0; i < _numBalances; i++) {
+			balances[i] = _balances[i];
 		}
+		return balances;
 	}
 
 }

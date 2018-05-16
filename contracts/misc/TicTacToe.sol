@@ -2,8 +2,14 @@ pragma solidity ^0.4.23;
 
 pragma experimental "ABIEncoderV2";
 
+import "./TicTacToeLib.sol";
+
 
 contract TicTacToe {
+
+	using TicTacToeLib for TicTacToeLib.StateType;
+	using TicTacToeLib for TicTacToeLib.SquareType;
+	using TicTacToeLib for TicTacToeLib.State;
 
 	//   TicTacToe finite state machine.
 	//
@@ -12,31 +18,13 @@ contract TicTacToe {
 	//		v				   v
 	//	( X_WON )		   ( O_WON )
 
-	enum SquareType {
-		X,
-		O,
-		EMPTY
-	}
-
-	enum StateType {
-		X_TURN,
-		O_TURN,
-		X_WON,
-		O_WON
-	}
-
-	struct State {
-		StateType stateType;
-		SquareType[9] board;
-	}
-
-	function numPieces(SquareType[9] board) internal pure returns (uint256, uint256) {
+	function numPieces(TicTacToeLib.SquareType[9] board) internal pure returns (uint256, uint256) {
 		uint256 numX;
 		uint256 numO;
 		for (uint256 i = 0; i < board.length; i++) {
-			if (board[i] == SquareType.X) {
+			if (board[i] == TicTacToeLib.SquareType.X) {
 				numX++;
-			} else if (board[i] == SquareType.O) {
+			} else if (board[i] == TicTacToeLib.SquareType.O) {
 				numO++;
 			}
 		}
@@ -44,8 +32,8 @@ contract TicTacToe {
 	}
 
 	function validTransition(
-		State oldState,
-		State newState
+		TicTacToeLib.State oldState,
+		TicTacToeLib.State newState
 	)
 		public
 		pure
@@ -59,16 +47,16 @@ contract TicTacToe {
 		(oldX, oldO) = numPieces(oldState.board);
 		(newX, newO) = numPieces(newState.board);
 
-		if (oldState.stateType == StateType.X_TURN) {
+		if (oldState.stateType == TicTacToeLib.StateType.X_TURN) {
 			require(
-				newState.stateType == StateType.X_WON ||
-				newState.stateType == StateType.O_TURN
+				newState.stateType == TicTacToeLib.StateType.X_WON ||
+				newState.stateType == TicTacToeLib.StateType.O_TURN
 			);
 			require(newX == 1 + oldX && newO == oldO);
-		} else if (oldState.stateType == StateType.O_TURN) {
+		} else if (oldState.stateType == TicTacToeLib.StateType.O_TURN) {
 			require(
-				newState.stateType == StateType.O_WON ||
-				newState.stateType == StateType.X_TURN
+				newState.stateType == TicTacToeLib.StateType.O_WON ||
+				newState.stateType == TicTacToeLib.StateType.X_TURN
 			);
 			require(newX == oldX && newO == 1 + oldO);
 		} else {
@@ -76,10 +64,10 @@ contract TicTacToe {
 		}
 	}
 
-	function isFinal(State state) public pure returns (bool) {
+	function isFinal(TicTacToeLib.State state) public pure returns (bool) {
 		require(
-			state.stateType == StateType.X_WON ||
-			state.stateType == StateType.O_WON
+			state.stateType == TicTacToeLib.StateType.X_WON ||
+			state.stateType == TicTacToeLib.StateType.O_WON
 		);
 
 		uint8[3][8] memory winTypes = [

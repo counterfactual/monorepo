@@ -7,14 +7,15 @@ const {
 } = require("../helpers/utils.js");
 
 const {
-	getCFDeployer,
+	getCFHelper,
 	deployMultisig,
 } = require("../helpers/cfhelpers.js");
 
 const Registry = artifacts.require("Registry");
 const UnidirectionalETHBalance = artifacts.require("UnidirectionalETHBalance");
 
-contract("UnidirectionalETHBalance", (accounts) => {
+// skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
+contract.skip("UnidirectionalETHBalance", (accounts) => {
 
 	let registry, signer;
 
@@ -30,11 +31,11 @@ contract("UnidirectionalETHBalance", (accounts) => {
 
 		const multisig = await deployMultisig([signer.address]);
 
-		const deployer = getCFDeployer(multisig, registry, provider);
+		const helper = getCFHelper(multisig, registry, provider);
 
 		const cargs = [signer.address, signer.address, ethers.utils.parseEther("1")];
 
-		const unidirectional = await deployer.deploy(UnidirectionalETHBalance, signer, cargs);
+		const unidirectional = await helper.deploy(UnidirectionalETHBalance, signer, cargs);
 
 		const sig = signMessage(
 			ethers.utils.solidityKeccak256(
@@ -66,7 +67,7 @@ contract("UnidirectionalETHBalance", (accounts) => {
 			value: ethers.utils.parseEther("2.5"),
 		});
 
-		await deployer.delegatecall(unidirectional, signer, "claimAmount", [
+		await helper.proxyDelegatecall(unidirectional, signer, "claimAmount", [
 			registry.address, unidirectional.cfaddress
 		]);
 
