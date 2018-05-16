@@ -23,19 +23,22 @@ async function executeTxData(data, toAddr, gnosisSafe, wallets, op) {
 		value,
 		data,
 		op,
+		0, //nonce
 	);
 
 	let signatures = sign(transactionHash, wallets);
-	return await gnosisSafe.executeTransaction(
+	return await gnosisSafe.execTransaction(
 		toAddr,
 		value,
 		data,
 		op,
+		0, // nonce
 		signatures.v,
 		signatures.r,
 		signatures.s,
-		[],
-		[],
+		{
+			gasLimit: 4712388,
+		},
 	);
 }
 

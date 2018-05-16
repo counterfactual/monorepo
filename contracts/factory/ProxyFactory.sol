@@ -1,6 +1,6 @@
-pragma solidity ^0.4.19;
+pragma solidity 0.4.23;
 
-import "./Proxy.sol";
+import "../common/Proxy.sol";
 
 
 /// @title Proxy Factory - Allows to create new proxy contact and execute a message call to the new proxy within one transaction.
@@ -19,8 +19,7 @@ contract ProxyFactory {
 		proxy = new Proxy(masterCopy);
 		if (data.length > 0) {
 			assembly {
-				switch call(not(0), proxy, 0, add(data, 0x20), mload(data), 0, 0)
-				case 0 { revert(0, 0) }
+				if eq(call(gas, proxy, 0, add(data, 0x20), mload(data), 0, 0), 0) { revert(0, 0) }
 			}
 		}
 		emit ProxyCreation(proxy);

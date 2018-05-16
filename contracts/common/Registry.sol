@@ -3,7 +3,7 @@ pragma solidity ^0.4.19;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/IRegistry.sol";
-import "./ProxyFactory.sol";
+import "../factory/ProxyFactory.sol";
 
 
 /// @title Counterfactual Registry - A counterfactual addressing registry

@@ -31,33 +31,6 @@ contract("ForceMoveGame", (accounts) => {
 		}
 	};
 
-	beforeEach(async () => {
-		const tx = (await signer.sendTransaction({
-			gasLimit: 4712388,
-			gasPrice: await provider.getGasPrice(),
-			...ethers.Contract.getDeployTransaction(
-				ForceMoveGame.binary,
-				ForceMoveGame.abi,
-				testObjectStorage,
-			)
-		}));
-		const addr = ethers.utils.getContractAddress(tx);
-		fma = new ethers.Contract(addr, ForceMoveGame.abi, signer);
-	});
-
-	it("should have the correct params from constructor", async () => {
-		const parameters = await fma.objectStorage();
-		assert.equal(accounts[0].toLowerCase(), parameters.owner.toLowerCase());
-		assert.equal(Registry.address.toLowerCase(), parameters.registry.toLowerCase());
-		assert.equal(0, parameters.id);
-		assert.equal(10, parameters.deltaTimeout);
-		assert.equal(web3.eth.blockNumber + 10, parameters.finalizesAt);
-		assert.equal(0, parameters.latestNonce);
-		assert.equal(false, parameters.wasDeclaredFinal);
-		assert.equal(zeroBytes32, parameters.dependancy.addr);
-		assert.equal(0, parameters.dependancy.nonce);
-	});
-
 	describe("SimpleGame", async () => {
 
 		let moveHelper, moreGas, tmpsigner1, tmpsigner2;
@@ -75,14 +48,20 @@ contract("ForceMoveGame", (accounts) => {
 			const sg = await SimpleGame.new();
 			const ittt = new ethers.Interface(sg.abi);
 
-			const state = [
-				sg.address,
-				ittt.functions.validTransition.sighash,
-				ittt.functions.isFinal.sighash,
-				[]
-			];
-
-			await fma.setState(...state, moreGas);
+			const tx = (await signer.sendTransaction({
+				gasLimit: 4712388,
+				gasPrice: await provider.getGasPrice(),
+				...ethers.Contract.getDeployTransaction(
+					ForceMoveGame.binary,
+					ForceMoveGame.abi,
+					sg.address,
+					ittt.functions.validTransition.sighash,
+					ittt.functions.isFinal.sighash,
+					testObjectStorage,
+				)
+			}));
+			const addr = ethers.utils.getContractAddress(tx);
+			fma = new ethers.Contract(addr, ForceMoveGame.abi, signer);
 
 			moveHelper = (turnNum, gameState, signer) => {
 				const move = {
@@ -239,14 +218,20 @@ contract("ForceMoveGame", (accounts) => {
 			const ttt = await TicTacToe.new();
 			const ittt = new ethers.Interface(ttt.abi);
 
-			const state = [
-				ttt.address,
-				ittt.functions.validTransition.sighash,
-				ittt.functions.isFinal.sighash,
-				[]
-			];
-
-			await fma.setState(...state, moreGas);
+			const tx = (await signer.sendTransaction({
+				gasLimit: 4712388,
+				gasPrice: await provider.getGasPrice(),
+				...ethers.Contract.getDeployTransaction(
+					ForceMoveGame.binary,
+					ForceMoveGame.abi,
+					ttt.address,
+					ittt.functions.validTransition.sighash,
+					ittt.functions.isFinal.sighash,
+					testObjectStorage,
+				)
+			}));
+			const addr = ethers.utils.getContractAddress(tx);
+			fma = new ethers.Contract(addr, ForceMoveGame.abi, signer);
 
 			moveHelper = (turnNum, gameState, signer) => {
 				const move = {

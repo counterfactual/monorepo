@@ -3,7 +3,7 @@ pragma solidity ^0.4.19;
 pragma experimental "ABIEncoderV2";
 
 import "../common/Counterfactual.sol";
-import "./CFLib.sol";
+import "./CFAddressLib.sol";
 
 
 library IETH {
@@ -22,10 +22,10 @@ contract Callback {
 
 contract ETHBalance is Counterfactual {
 
-	using CFLib for CFLib.CFAddress;
+	using CFAddressLib for CFAddressLib.CFAddress;
 
 	struct Balance {
-		CFLib.CFAddress cfAddr;
+		CFAddressLib.CFAddress cfAddr;
 		uint256 balance;
 	}
 

@@ -1,7 +1,9 @@
 module.exports = {
     skipFiles: [
-		'lib/BytesLib.sol',
-		'gnosis-safe/GnosisSafe.sol',
-		'mocks/MockRegistry.sol'
+		'lib',
+		'mocks/MockRegistry.sol',
+		//https://github.com/sc-forks/solidity-coverage/issues/176
+		'common/Proxy.sol',
+		'factory/ProxyFactory.sol',
 	]
 };

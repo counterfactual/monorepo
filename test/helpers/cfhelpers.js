@@ -7,7 +7,7 @@ const {
 	getParamFromTxEvent,
 } = require("./utils.js");
 
-const GnosisSafe   = artifacts.require("GnosisSafe");
+const GnosisSafe   = artifacts.require("GnosisSafeStateChannelEdition");
 const ProxyFactory = artifacts.require("ProxyFactory");
 
 async function deployMultisig(owners) {
@@ -17,8 +17,9 @@ async function deployMultisig(owners) {
 			GnosisSafe.address,
 			new ethers
 				.Interface(GnosisSafe.abi)
-				.deployFunction("0x", owners, 1, zeroAddress, zeroBytes32)
-				.bytecode
+				.functions
+				.setup(owners, 1, zeroAddress, zeroBytes32)
+				.data
 		),
 		"ProxyCreation",
 		"proxy",
@@ -27,7 +28,7 @@ async function deployMultisig(owners) {
 	);
 }
 
-function getCFDeployer(multisig, registry, provider) {
+function getCFHelper(multisig, registry, provider) {
 	return {
 		deploy: async (contract, signer, cargs) => {
 			const bytecode = ethers.Contract.getDeployTransaction(
@@ -73,7 +74,7 @@ function getCFDeployer(multisig, registry, provider) {
 				)
 			};
 		},
-		_callOrDelegateCall: async (callType, cfobject, signer, fnName, fnArgs) => {
+		_proxyFn: async (callType, cfobject, signer, fnName, fnArgs) => {
 			const data = new ethers
 				.Interface(registry.abi)
 				.functions[callType](
@@ -85,7 +86,7 @@ function getCFDeployer(multisig, registry, provider) {
 						.data
 				)
 				.data;
-			await gnosisSafeUtils.executeTxData(
+			return await gnosisSafeUtils.executeTxData(
 				data,
 				registry.address,
 				multisig,
@@ -93,11 +94,26 @@ function getCFDeployer(multisig, registry, provider) {
 				gnosisSafeUtils.Operation.Delegatecall
 			);
 		},
+		_fn: async (callType, to, signer, data) => {
+			return await gnosisSafeUtils.executeTxData(
+				data,
+				to,
+				multisig,
+				[signer],
+				callType,
+			);
+		},
 		call: async function (...args) {
-			await this._callOrDelegateCall("proxyCall", ...args);
+			return await this._fn(gnosisSafeUtils.Operation.Call, ...args);
 		},
 		delegatecall: async function (...args) {
-			await this._callOrDelegateCall("proxyDelegatecall", ...args);
+			return await this._fn(gnosisSafeUtils.Operation.Delegatecall, ...args);
+		},
+		proxyCall: async function (...args) {
+			return await this._proxyFn("proxyCall", ...args);
+		},
+		proxyDelegatecall: async function (...args) {
+			return await this._proxyFn("proxyDelegatecall", ...args);
 		}
 	};
 }
@@ -129,7 +145,7 @@ async function executeProxyCall(
 }
 
 module.exports = {
-	getCFDeployer,
+	getCFHelper,
 	executeProxyCall,
 	deployMultisig
 };

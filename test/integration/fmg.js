@@ -2,32 +2,38 @@ const ethers = require("ethers");
 
 const {
 	signMessage,
-	unusedAddr,
 	zeroBytes32,
 	evm_mine,
 } = require("../helpers/utils.js");
 
 const {
-	getCFDeployer,
+	getCFHelper,
 	deployMultisig,
 } = require("../helpers/cfhelpers.js");
 
-const Registry = artifacts.require("Registry");
+const DelegateTargets        = artifacts.require("DelegateTargets");
+const Conditional            = artifacts.require("Conditional");
+const ForceMoveGame          = artifacts.require("ForceMoveGame");
+const Registry               = artifacts.require("Registry");
+const TicTacToe              = artifacts.require("TicTacToe");
+const TicTacToeInterpreter   = artifacts.require("TicTacToeInterpreter");
 
-const TicTacToe = artifacts.require("TicTacToe");
-const ETHConditionalTransfer = artifacts.require("ETHConditionalTransfer");
-const ForceMoveGame = artifacts.require("ForceMoveGame");
-const ETHTicTacToeInterpreter = artifacts.require("ETHTicTacToeInterpreter");
-
-contract("TicTacToe for ETH", (accounts) => {
+// skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
+contract.skip("TicTacToe for ETH", (accounts) => {
 
 	let registry,
+		delegateTargets,
 		signer;
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
 	beforeEach(async () => {
-		registry = await Registry.new(unusedAddr);
+		registry = await Registry.deployed();
+		delegateTargets =  new ethers.Contract(
+			(await DelegateTargets.deployed()).address,
+			DelegateTargets.abi,
+			provider
+		);
 		signer = ethers.Wallet.createRandom();
 		signer.provider = provider;
 	});
@@ -80,7 +86,7 @@ contract("TicTacToe for ETH", (accounts) => {
 
 		const multisig = await deployMultisig([signer.address]);
 
-		const deployer = getCFDeployer(multisig, registry, provider);
+		const helper = getCFHelper(multisig, registry, provider);
 
 		// 2. fund the multisig 1 ETH
 
@@ -95,50 +101,30 @@ contract("TicTacToe for ETH", (accounts) => {
 		const ttt = new ethers.Contract(
 			(await TicTacToe.new()).address,
 			TicTacToe.abi,
-			provider
+			signer
+		);
+
+		const conditional = new ethers.Contract(
+			(await Conditional.new()).address,
+			Conditional.abi,
+			signer
 		);
 
 		// 4. cf startup ops in order:
 
 		// - cf instantiate fmg
 
-		const fmg = await deployer.deploy(ForceMoveGame, signer);
-
-		// - cf instantiate interpretter
-
-		const interpretter = await deployer.deploy(ETHTicTacToeInterpreter, signer);
-
-		// - cf instantiate ect
-
-		const ect = await deployer.deploy(ETHConditionalTransfer, signer);
-
-		// - cf update fmg = (ttt, vtsh, ifsh, [interpretter], nonce(?), d_o={nonce:1})
-		await deployer.call(fmg, signer, "setState", [
+		const fmg = await helper.deploy(ForceMoveGame, signer, [
 			ttt.address,
 			ttt.interface.functions.validTransition.sighash,
 			ttt.interface.functions.isFinal.sighash,
-			[{
-				cfaddr: interpretter.cfaddress,
-				sighash: interpretter.contract.interface.functions.interpret.sighash
-			}]
 		]);
 
-		// - cf update ect = (fmg.address, 10, [interpretter], A:5 B:5)
+		// - cf instantiate interpreter
 
-		await deployer.call(ect, signer, "setState", [
-			ethers.utils.parseEther("1"),
-			fmg.cfaddress,
-			[interpretter.cfaddress],
-			[A.address, B.address],
-			[ethers.utils.parseEther("0.5"), ethers.utils.parseEther("0.5")],
-		]);
-
-		// - cf update interpretter = (10, [A, B], ect.address)
-
-		await deployer.call(interpretter, signer, "setState", [
+		const interpreter = await helper.deploy(TicTacToeInterpreter, signer, [
 			ethers.utils.parseEther("1"),
 			[A.address, B.address],
-			ect.cfaddress,
 		]);
 
 		// 5. cf usage
@@ -175,13 +161,11 @@ contract("TicTacToe for ETH", (accounts) => {
 		// 5. dispute
 		// - make a forceMove after O goes offline to declare X as the winner
 
-		await deployer.call(fmg, signer, "forceMove", [
+		await helper.proxyCall(fmg, signer, "forceMove", [
 			[moves[3], moves[4]]
 		]);
 
 		await evm_mine(9);
-
-		await deployer.call(fmg, signer, "resolve", []);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
@@ -198,9 +182,27 @@ contract("TicTacToe for ETH", (accounts) => {
 			(ethers.utils.parseEther("1")).toString()
 		);
 
-		await deployer.delegatecall(ect, signer, "resolve", [
-			registry.address, ect.cfaddress
-		]);
+		await helper.delegatecall(
+			conditional.address,
+			signer,
+			conditional.interface.functions.executeManyThenDelegate(
+				[{
+					dest: {
+						registry: registry.address,
+						addr: fmg.cfaddress,
+					},
+					selector: fmg.contract.interface.functions.getState.sighash,
+				}, {
+					dest: {
+						registry: registry.address,
+						addr: interpreter.cfaddress,
+					},
+					selector: interpreter.contract.interface.functions.interpret.sighash,
+				}],
+				delegateTargets.address,
+				delegateTargets.interface.functions.resolveETH.sighash,
+			).data
+		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
