@@ -1,2 +1,0 @@
-bitcoin==1.1.42
-https://github.com/ethereum/pyethereum/tarball/develop

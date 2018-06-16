@@ -1,101 +1,164 @@
 const ethers = require("ethers");
-const gnosisSafeUtils = require("./gnosis_safe.js");
+const multisigUtils = require("./multisig.js");
 
 const {
 	zeroAddress,
-	zeroBytes32,
 	getParamFromTxEvent,
+	signMessageVRS,
 } = require("./utils.js");
 
-const GnosisSafe   = artifacts.require("GnosisSafeStateChannelEdition");
-const ProxyFactory = artifacts.require("ProxyFactory");
+const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
+const CounterfactualApp     = artifacts.require("CounterfactualApp");
+const ProxyFactory          = artifacts.require("ProxyFactory");
+const ProxyContract         = artifacts.require("Proxy");
+const RegistryCallLib       = artifacts.require("RegistryCallLib");
 
-async function deployMultisig(owners) {
+async function deployThroughProxyFactory(contract, data) {
 	const proxyFactory = await ProxyFactory.deployed();
 	return getParamFromTxEvent(
-		await proxyFactory.createProxy(
-			GnosisSafe.address,
-			new ethers
-				.Interface(GnosisSafe.abi)
-				.functions
-				.setup(owners, 1, zeroAddress, zeroBytes32)
-				.data
-		),
+		await proxyFactory.createProxy(contract.address, data),
 		"ProxyCreation",
 		"proxy",
 		proxyFactory.address,
-		GnosisSafe,
+		contract,
+	);
+}
+
+async function deployApp(owner, signingKeys, id, registry, deltaTimeout) {
+	return await deployThroughProxyFactory(
+		CounterfactualApp,
+		new ethers
+			.Interface(CounterfactualApp.abi)
+			.functions
+			.instantiate(owner, signingKeys, id, registry, deltaTimeout)
+			.data
+	);
+}
+
+async function deployMultisig(owners) {
+	return await deployThroughProxyFactory(
+		MinimumViableMultisig,
+		new ethers
+			.Interface(MinimumViableMultisig.abi)
+			.functions
+			.setup(owners)
+			.data
 	);
 }
 
 function getCFHelper(multisig, registry, provider) {
 	return {
-		deploy: async (contract, signer, cargs) => {
-			const bytecode = ethers.Contract.getDeployTransaction(
-				contract.binary,
-				contract.abi,
-				...(cargs || []),
-				{
-					owner: multisig.address,
-					registry: registry.address,
-					id: 0,
-					deltaTimeout: 10,
-					finalizesAt: 0,
-					latestNonce: 0,
-					wasDeclaredFinal: false,
-					dependancy: {
-						addr: "0x0",
-						nonce: 0,
-					}
-				},
+		deployAppWithState: async (state, signer) => {
+			const id = Math.floor(Math.random() * 100);
+
+			const initcode = ethers.Contract.getDeployTransaction(
+				ProxyContract.bytecode,
+				ProxyContract.abi,
+				CounterfactualApp.address,
 			).data;
-			const data = new ethers
-				.Interface(registry.abi)
+
+			const calldata = new ethers
+				.Interface(CounterfactualApp.abi)
 				.functions
-				.deployAsOwner(bytecode)
-				.data;
-			await gnosisSafeUtils.executeTxData(
-				data,
-				registry.address,
-				multisig,
-				[signer],
-				gnosisSafeUtils.Operation.Call
-			);
-			const cfaddress = ethers.utils.solidityKeccak256(
-				["bytes", "address[]"],
-				[bytecode, [multisig.address]]
-			);
-			return {
-				cfaddress,
-				contract: new ethers.Contract(
-					await registry.resolve(cfaddress),
-					contract.abi,
-					provider.getSigner(),
+				.instantiate(
+					multisig.address,
+					[signer.address],
+					registry.address,
+					id,
+					10
 				)
-			};
+				.data;
+
+			await registry.deployAndCall(
+				initcode,
+				calldata,
+				{
+					gasLimit: 4712388,
+					gasPrice: await provider.getGasPrice()
+				},
+			);
+
+			const cfaddress = ethers.utils.solidityKeccak256(
+				["bytes1", "bytes", "bytes32"],
+				["0x19", initcode, ethers.utils.solidityKeccak256(["bytes"], [calldata])],
+			);
+
+			const address = await registry.isDeployed(cfaddress);
+
+			const contract = new ethers.Contract(
+				address,
+				CounterfactualApp.abi,
+				provider.getSigner()
+			);
+
+			const updateHash = await contract.getUpdateHash(id, state, 1);
+
+			await contract.setStateWithSigningKeys(
+				state,
+				1,
+				signMessageVRS(updateHash, signer),
+				{
+					gasLimit: 4712388,
+					gasPrice: await provider.getGasPrice()
+				},
+			);
+
+			return { cfaddress, contract };
+		},
+		deploy: async (truffleContract, cargs) => {
+			const id = Math.floor(Math.random() * 100);
+
+			const initcode = ethers.Contract.getDeployTransaction(
+				truffleContract.binary,
+				truffleContract.abi,
+				...(cargs || []),
+			).data;
+
+			const salt = ethers.utils.solidityKeccak256(["uint256"], [id]);
+
+			await registry.deploy(initcode, salt, {
+				gasLimit: 4712388,
+				gasPrice: await provider.getGasPrice()
+			});
+
+			const cfaddress = ethers.utils.solidityKeccak256(
+				["bytes1", "bytes", "bytes32"],
+				["0x19", initcode, salt],
+			);
+
+			const address = await registry.isDeployed(cfaddress);
+
+			const contract = new ethers.Contract(
+				address,
+				truffleContract.abi,
+				provider.getSigner()
+			);
+
+			return { cfaddress, contract };
 		},
 		_proxyFn: async (callType, cfobject, signer, fnName, fnArgs) => {
 			const data = new ethers
-				.Interface(registry.abi)
+				.Interface(RegistryCallLib.abi)
 				.functions[callType](
 					registry.address,
 					cfobject.cfaddress,
 					new ethers
 						.Interface(cfobject.contract.interface.abi)
-						.functions[fnName](...fnArgs)
+						.functions[fnName](...(fnArgs || []))
 						.data
 				)
 				.data;
-			return await gnosisSafeUtils.executeTxData(
+
+			return await multisigUtils.executeTxData(
 				data,
-				registry.address,
+				RegistryCallLib.address,
 				multisig,
 				[signer],
-				gnosisSafeUtils.Operation.Delegatecall
+				multisigUtils.Operation.Delegatecall,
 			);
 		},
 		_fn: async (callType, to, signer, data) => {
-			return await gnosisSafeUtils.executeTxData(
+			return await multisigUtils.executeTxData(
 				data,
 				to,
 				multisig,
@@ -104,48 +167,38 @@ function getCFHelper(multisig, registry, provider) {
 			);
 		},
 		call: async function (...args) {
-			return await this._fn(gnosisSafeUtils.Operation.Call, ...args);
+			return await this._fn(multisigUtils.Operation.Call, ...args);
 		},
 		delegatecall: async function (...args) {
-			return await this._fn(gnosisSafeUtils.Operation.Delegatecall, ...args);
+			return await this._fn(multisigUtils.Operation.Delegatecall, ...args);
 		},
 		proxyCall: async function (...args) {
 			return await this._proxyFn("proxyCall", ...args);
 		},
 		proxyDelegatecall: async function (...args) {
 			return await this._proxyFn("proxyDelegatecall", ...args);
-		}
+		},
+		cfaddressOf: (contract) => {
+			if (contract.address) {
+				return {
+					registry: zeroAddress,
+					addr: ethers.utils.AbiCoder.defaultCoder.encode(
+						["bytes32"], [contract.address]
+					),
+				};
+			} else {
+				return {
+					registry: registry.address,
+					addr: contract.cfaddress,
+				};
+			}
+		},
 	};
-}
-
-// TODO Get rid of use cases of this for the approach above
-async function executeProxyCall(
-	data,
-	registry,
-	cfAddr,
-	multiSig,
-	wallets
-) {
-	let proxyCallData = registry
-		.interface
-		.functions
-		.proxyCall(
-			registry.address,
-			cfAddr,
-			data
-		).data;
-
-	await gnosisSafeUtils.executeTxData(
-		proxyCallData,
-		registry.address,
-		multiSig,
-		wallets,
-		gnosisSafeUtils.Operation.Delegatecall
-	);
 }
 
 module.exports = {
 	getCFHelper,
-	executeProxyCall,
-	deployMultisig
+	deployMultisig,
+	deployApp,
+	deployThroughProxyFactory,
 };

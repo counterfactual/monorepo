@@ -1,25 +1,25 @@
-const CFAddressLib                  = artifacts.require("./CFAddressLib.sol");
-const Counterfactual                = artifacts.require("./Counterfactual.sol");
-const DelegateTargets               = artifacts.require("./DelegateTargets.sol");
-const GnosisSafeStateChannelEdition = artifacts.require("./GnosisSafeStateChannelEdition.sol");
-const MockRegistry                  = artifacts.require("./MockRegistry.sol");
-const ProxyFactory                  = artifacts.require("./ProxyFactory.sol");
-
-const notOwnedAddress = "0x0000000000000000000000000000000000000001";
+const AssetLib              = artifacts.require("./AssetLib.sol");
+const MinimumViableMultisig = artifacts.require("./MinimumViableMultisig.sol");
+const ProxyFactory          = artifacts.require("./ProxyFactory.sol");
+const Registry              = artifacts.require("./Registry.sol");
+const RegistryAddressLib    = artifacts.require("./RegistryAddressLib.sol");
+const RegistryCallLib       = artifacts.require("./RegistryCallLib.sol");
 
 module.exports = async (deployer) => {
 
 	deployer.then(async () => {
-		await deployer.deploy(GnosisSafeStateChannelEdition);
+
+		await deployer.deploy(MinimumViableMultisig);
 
 		await deployer.deploy(ProxyFactory);
 
-		await deployer.deploy(Counterfactual);
+		await deployer.deploy(RegistryAddressLib);
 
-		await deployer.deploy(CFAddressLib);
+		await deployer.deploy(RegistryCallLib);
 
-		await deployer.deploy(MockRegistry);
+		await deployer.deploy(Registry);
 
-		await deployer.deploy(DelegateTargets);
+		await deployer.deploy(AssetLib);
+
 	});
 };

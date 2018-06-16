@@ -11,6 +11,17 @@ function signMessage (message, wallet) {
 	return [sig.recoveryParam + 27, sig.r, sig.s];
 }
 
+function signMessageVRS (message, wallets) {
+	const [v, r, s] = [[], [], []];
+	for (let i = 0; i < wallets.length; i++) {
+		const [vi, ri, si] = signMessage(message, wallets[i]);
+		v.push(vi);
+		r.push(ri);
+		s.push(si);
+	}
+	return {v, r, s};
+}
+
 function getParamFromTxEvent(transaction, eventName, paramName, contract, contractFactory) {
 	let logs = transaction.logs;
 	if(eventName != null) {
@@ -95,12 +106,19 @@ async function deployContract(contract, args, signer, provider) {
 	);
 }
 
-function toBytes32Str(address) {
-	return address + "000000000000000000000000";
-}
+const defaultObjectStorage = ({owner, registry}) => ({
+	owner,
+	registry,
+	id: 1337,
+	deltaTimeout: 10,
+	finalizesAt: 0,
+	latestNonce: 0,
+	wasDeclaredFinal: false,
+});
 
 module.exports = {
 	signMessage,
+	signMessageVRS,
 	unusedAddr,
 	zeroAddress,
 	zeroBytes32,
@@ -110,5 +128,5 @@ module.exports = {
 	getEthBalance,
 	sendEth,
 	deployContract,
-	toBytes32Str
+	defaultObjectStorage,
 };

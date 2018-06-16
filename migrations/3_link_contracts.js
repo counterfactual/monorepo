@@ -1,41 +1,37 @@
-// const ethers = require("ethers")
+const RegistryAddressLib = artifacts.require("./RegistryAddressLib.sol");
+const AssetLib           = artifacts.require("./AssetLib.sol");
 
-const CFAddressLib   = artifacts.require("./CFAddressLib.sol");
-const Counterfactual = artifacts.require("./Counterfactual.sol");
+const AssetDispatcher    = artifacts.require("./AssetDispatcher.sol");
+const ETHForwarder       = artifacts.require("./ETHForwarder.sol");
+const ConditionalTransfer = artifacts.require("./ConditionalTransfer.sol");
+const CounterfactualApp  = artifacts.require("./CounterfactualApp.sol");
 
-const CFLibTester            = artifacts.require("./CFLibTester.sol");
-const Conditional            = artifacts.require("./Conditional.sol");
-const ETHConditionalTransfer = artifacts.require("./ETHConditionalTransfer.sol");
-const ETHBalance             = artifacts.require("./ETHBalance.sol");
-const ETHRefund              = artifacts.require("./ETHRefund.sol");
-const ForceMoveGame          = artifacts.require("./ForceMoveGame.sol");
-const Nonce                  = artifacts.require("./Nonce.sol");
-const ProxyFactory           = artifacts.require("./ProxyFactory.sol");
-const Registry               = artifacts.require("./Registry.sol");
-const TicTacToeInterpreter   = artifacts.require("./TicTacToeInterpreter.sol");
-const UnidirectionalETHBalance = artifacts.require("./UnidirectionalETHBalance.sol");
+const MetachannelModule = artifacts.require("./MetachannelModule.sol");
 
 module.exports = async (deployer) => {
 
-	deployer.then(async () => {
+	await deployer.then(async () => {
 
-		await deployer.deploy(Registry, ProxyFactory.address);
-
-		await deployer.link(Counterfactual, [
-			Nonce,
-			ETHBalance,
-			ETHRefund,
-			ForceMoveGame,
-			UnidirectionalETHBalance,
-			TicTacToeInterpreter,
-			ETHConditionalTransfer,
+		await deployer.link(RegistryAddressLib, [
+			AssetDispatcher,
+			ConditionalTransfer,
+			CounterfactualApp,
+			MetachannelModule,
+			ETHForwarder,
 		]);
 
-		await deployer.link(CFAddressLib, [
-			Conditional,
-			CFLibTester,
-			ETHBalance,
+		await deployer.link(AssetLib, [
+			AssetDispatcher,
 		]);
+
+		await deployer.deploy(AssetDispatcher);
+
+		await deployer.deploy(ConditionalTransfer, [
+			(await AssetDispatcher.deployed()).address
+		]);
+
+		await deployer.deploy(CounterfactualApp);
 
 	});
+
 };

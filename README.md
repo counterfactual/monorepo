@@ -45,10 +45,6 @@ Testing: pyethereum
 pip3 install -r requirements.txt
 ```
 
-```bash
-python3 ./test/python.py
-```
-
 Security and Liability
 ----------------------
 All contracts are WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
