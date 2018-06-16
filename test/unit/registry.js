@@ -1,44 +1,37 @@
 const ethers = require("ethers");
-const _ = require("lodash");
 const solc = require("solc");
 
-const utils = require("../helpers/utils.js");
+const {
+	zeroBytes32,
+	getParamFromTxEvent,
+} = require("../helpers/utils.js");
 
-const ProxyFactory = artifacts.require("ProxyFactory");
+const ProxyContract = artifacts.require("Proxy");
 const Registry = artifacts.require("Registry");
 
-const zeroBytes32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-// skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
-contract.skip("Registry", (accounts) => {
+contract("Registry", (accounts) => {
 
 	let registry, simpleContract;
 
-	function signMessage (message, wallet) {
-		const signingKey = new ethers.SigningKey(wallet.privateKey);
-		const sig = signingKey.signDigest(message);
-		return [sig.recoveryParam + 27, sig.r, sig.s];
+	function salt(i) {
+		return ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [i]);
 	}
 
-	let signers = [
-		new ethers.Wallet.createRandom(),
-		new ethers.Wallet.createRandom(),
-	].sort((a, b) => a.address > b.address);
+	function cfaddress(bytecode, i) {
+		return ethers.utils.solidityKeccak256(
+			["bytes1", "bytes", "bytes32"],
+			["0x19", bytecode, salt(i)]
+		);
+	}
 
 	before(async () => {
-		registry = await Registry.new(ProxyFactory.address);
+		registry = await Registry.new();
 	});
 
 	it("computes counterfactual addresses of bytes deployments", async () => {
 		assert.equal(
-			ethers.utils.solidityKeccak256(
-				["bytes", "address[]"],
-				[zeroBytes32, [accounts[0]]]
-			),
-			await registry.getCounterfactualAddress(
-				zeroBytes32,
-				[accounts[0]]
-			)
+			cfaddress(zeroBytes32, salt(1)),
+			await registry.getCounterfactualAddress(zeroBytes32, salt(1))
 		);
 	});
 
@@ -48,33 +41,21 @@ contract.skip("Registry", (accounts) => {
         contract Test {
             function sayHello() public pure returns (string) {
                 return "hi";
-            }
+			}
         }`;
 		let output = await solc.compile(source, 0);
 		let interface = JSON.parse(output.contracts[":Test"]["interface"]);
 		let bytecode = "0x" + output.contracts[":Test"]["bytecode"];
 
-		const codeHash = await registry.getTransactionHash(bytecode);
-
-		const signatures = _.zipObject(["v", "r", "s"], _.zip(
-			signMessage(codeHash, signers[0]),
-			signMessage(codeHash, signers[1]),
-		));
-
 		const TestContract = web3.eth.contract(interface);
-		const tx = await registry.deploySigned(bytecode, signatures.v, signatures.r, signatures.s);
-		simpleContract = utils.getParamFromTxEvent(
+		const tx = await registry.deploy(bytecode, salt(2));
+		simpleContract = getParamFromTxEvent(
 			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
 		);
 
-		const cfAddress = ethers.utils.solidityKeccak256(["bytes", "address[]"], [
-			bytecode,
-			[signers[0].address, signers[1].address]
-		]);
-
 		assert.equal(
 			await simpleContract.address,
-			await registry.resolve(cfAddress)
+			await registry.isDeployed(cfaddress(bytecode, salt(2)))
 		);
 
 		assert.equal("hi", await simpleContract.sayHello());
@@ -93,91 +74,35 @@ contract.skip("Registry", (accounts) => {
 		let bytecode = "0x" + output.contracts[":Test"]["bytecode"];
 
 		const TestContract = web3.eth.contract(interface);
-		const tx = await registry.deployAsOwner(bytecode);
-		const testContract = utils.getParamFromTxEvent(
+		const tx = await registry.deploy(bytecode, salt(3));
+		const testContract = getParamFromTxEvent(
 			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
 		);
 
-		const cfAddress = ethers.utils.solidityKeccak256(["bytes", "address[]"], [
-			bytecode,
-			[accounts[0]]
-		]);
-
 		assert.equal(
 			await testContract.address,
-			await registry.resolve(cfAddress)
-		);
-
-		assert.equal(
-			cfAddress,
-			await registry.reverseResolve(await testContract.address)
+			await registry.isDeployed(cfaddress(bytecode, salt(3)))
 		);
 
 		assert.equal("hi", await testContract.sayHello());
 	});
 
-	it("deploys a contract through the ProxyFactory as owner", async () => {
-		const params = "0x";
+	it("deploys a ProxyContract contract through as owner", async () => {
 
-		const cfAddress = ethers.utils.solidityKeccak256(
-			["address", "bytes", "address[]"],
-			[simpleContract.address, params, [accounts[0]]
-			]);
+		const initcode = ProxyContract.bytecode + ethers.utils.AbiCoder.defaultCoder.encode(
+			["address"], [simpleContract.address]
+		).substr(2);
 
 		const TestContract = web3.eth.contract(simpleContract.abi);
-		const tx = await registry.deployAsOwnerProxy(simpleContract.address, params);
-		const testContract = utils.getParamFromTxEvent(
+
+		const tx = await registry.deploy(initcode, salt(3));
+		const testContract = getParamFromTxEvent(
 			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
 		);
 
 		assert.equal(
 			await testContract.address,
-			await registry.resolve(cfAddress)
-		);
-
-		assert.equal(
-			cfAddress,
-			await registry.reverseResolve(await testContract.address)
-		);
-
-		assert.equal("hi", await testContract.sayHello());
-	});
-
-	it("deploys a contract through the ProxyFactory signed", async () => {
-		const params = "0x";
-
-		const codeHash = await registry.getTransactionHash(params);
-
-		const signatures = _.zipObject(["v", "r", "s"], _.zip(
-			signMessage(codeHash, signers[0]),
-			signMessage(codeHash, signers[1]),
-		));
-
-		const cfAddress = ethers.utils.solidityKeccak256(
-			["address", "bytes", "address[]"],
-			[simpleContract.address, params, [signers[0].address, signers[1].address]
-			]);
-
-		const TestContract = web3.eth.contract(simpleContract.abi);
-		const tx = await registry.deploySignedProxy(
-			simpleContract.address,
-			params,
-			signatures.v,
-			signatures.r,
-			signatures.s
-		);
-		const testContract = utils.getParamFromTxEvent(
-			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
-		);
-
-		assert.equal(
-			await testContract.address,
-			await registry.resolve(cfAddress)
-		);
-
-		assert.equal(
-			cfAddress,
-			await registry.reverseResolve(await testContract.address)
+			await registry.isDeployed(cfaddress(initcode, salt(3)))
 		);
 
 		assert.equal("hi", await testContract.sayHello());
@@ -203,32 +128,15 @@ contract.skip("Registry", (accounts) => {
 			["address"], [accounts[0]]
 		).substr(2);
 
-		const codeHash = await registry.getTransactionHash(code);
-
-		const signatures = _.zipObject(["v", "r", "s"], _.zip(
-			signMessage(codeHash, signers[0]),
-			signMessage(codeHash, signers[1]),
-		));
-
-		const cfAddress = ethers.utils.solidityKeccak256(["bytes", "address[]"], [
-			code,
-			[signers[0].address, signers[1].address]
-		]);
-
 		const TestContract = web3.eth.contract(interface);
-		const tx = await registry.deploySigned(code, signatures.v, signatures.r, signatures.s);
-		const testContract = utils.getParamFromTxEvent(
+		const tx = await registry.deploy(code, salt(4));
+		const testContract = getParamFromTxEvent(
 			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
 		);
 
 		assert.equal(
 			await testContract.address,
-			await registry.resolve(cfAddress)
-		);
-
-		assert.equal(
-			cfAddress,
-			await registry.reverseResolve(await testContract.address)
+			await registry.isDeployed(cfaddress(code, salt(4)))
 		);
 
 		assert.equal(accounts[0], await testContract.sayHello());
