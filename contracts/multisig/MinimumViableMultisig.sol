@@ -48,11 +48,7 @@ contract MinimumViableMultisig {
 		for (uint256 i = 0; i < owners.length; i++) {
 			require(
 				isOwner[
-					// FIXME: This line must be uncommented, but a ganache bug makes it
-					//        simpler to keep commented for now.
-					//        https://github.com/trufflesuite/ganache-core/issues/98
-					owners[i]
-					// ecrecover(transactionHash, v[i], r[i], s[i])
+					ecrecover(transactionHash, v[i], r[i], s[i])
 				],
 				"Signer must be an owner of the multisig."
 			);
