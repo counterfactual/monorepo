@@ -54,8 +54,8 @@ function sign(data, wallets) {
 	sortedWallets.forEach((wallet) => {
 		let sig = new ethers.SigningKey(wallet.privateKey).signDigest(data);
 		sortedSigs.v.push(sig.recoveryParam + 27);
-		sortedSigs.r.push(sig.r);
-		sortedSigs.s.push(sig.s);
+		sortedSigs.r.push(ethers.utils.hexlify(ethers.utils.padZeros(sig.r, 32)));
+		sortedSigs.s.push(ethers.utils.hexlify(ethers.utils.padZeros(sig.s, 32)));
 	});
 
 	return sortedSigs;

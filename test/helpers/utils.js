@@ -16,8 +16,8 @@ function signMessageVRS (message, wallets) {
 	for (let i = 0; i < wallets.length; i++) {
 		const [vi, ri, si] = signMessage(message, wallets[i]);
 		v.push(vi);
-		r.push(ri);
-		s.push(si);
+		r.push(ethers.utils.hexlify(ethers.utils.padZeros(ri, 32)));
+		s.push(ethers.utils.hexlify(ethers.utils.padZeros(si, 32)));
 	}
 	return {v, r, s};
 }
