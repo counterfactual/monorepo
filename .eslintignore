@@ -1,2 +1,2 @@
-docs/
-_site/
+node_modules
+coverage

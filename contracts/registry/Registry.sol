@@ -8,6 +8,10 @@ contract Registry is RegistryInterface {
 
 	mapping(bytes32 => address) public isDeployed;
 
+	function resolve(bytes32 cfAddress) external returns (address) {
+		return isDeployed[cfAddress];
+	}
+
 	function getCounterfactualAddress(
 		bytes code,
 		bytes32 salt
@@ -59,10 +63,6 @@ contract Registry is RegistryInterface {
 		}
 
 		return newContract;
-	}
-
-	function resolve(bytes32 cfAddress) external returns (address) {
-		return isDeployed[cfAddress];
 	}
 
 }

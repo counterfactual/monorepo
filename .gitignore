@@ -8,3 +8,4 @@ coverageEnv/
 coverage.json
 artifacts/
 *.pyc
+networks/777.json

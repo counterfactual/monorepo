@@ -1,56 +1,66 @@
 {
-  "name": "@counterfactual/counterfactual-contracts",
-  "version": "0.0.1",
-  "description": "Collection of smart contracts for using state channels",
-  "scripts": {
-    "lint": "eslint -c .eslintrc.js test/ && solium --dir contracts/",
-    "compile": "truffle compile",
-    "migrate": "truffle migrate",
-    "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
-    "test:gas": "GAS_REPORTER=true npm test",
-    "coverage": "./node_modules/.bin/solidity-coverage",
-    "console": "node_modules/.bin/truffle console",
-    "ganache-cli:test": "scripts/ganache-cli.sh",
-    "ganache-cli:coverage": "SOLIDITY_COVERAGE=true scripts/ganache-cli.sh"
-  },
-  "files": [
-    "build/",
-    "contracts/",
-    "migrations/",
-    "scripts/",
-    "truffle-config.js",
-    "test/"
-  ],
-  "keywords": [
-    "ethereum",
-    "counterfactual",
-    "state channels",
-    "solidity",
-    "ethers"
-  ],
-  "author": "Counterfactual (https://counterfactual.com)",
-  "license": "GPL-3.0",
-  "devDependencies": {
-    "babel-eslint": "^8.0.2",
-    "coveralls": "^3.0.1",
-    "decimal.js": "^9.0.1",
-    "eslint": "^4.11.0",
-    "eslint-plugin-babel": "^4.1.1",
-    "ethers": "^3.0.0",
-    "ganache-cli": "^6.1.0",
-    "solc": "^0.4.24",
-    "solidity-coverage": "^0.5.4",
-    "solium": "^1.1.7",
-    "truffle": "^4.1.11",
-    "truffle-hdwallet-provider": "0.0.3",
-    "truffle-privatekey-provider": "0.0.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/counterfactual/counterfactual-contracts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/counterfactual/counterfactual-contracts/issues"
-  },
-  "homepage": "https://github.com/counterfactual/counterfactual-contracts#readme"
+	"name": "@counterfactual/contracts",
+	"version": "0.0.1",
+	"description": "Collection of smart contracts for use by the Counterfactual framework.",
+	"scripts": {
+		"compile": "./node_modules/.bin/truffle compile",
+		"lint:all:fix": "yarn lint:fix && yarn lint:sol:fix",
+		"lint:all": "yarn lint && yarn lint:sol",
+		"lint:fix": "eslint . --fix",
+		"lint:sol:fix": "solium -d . --fix",
+		"lint:sol": "solium -d .",
+		"lint": "eslint .",
+		"migrate": "./node_modules/.bin/truffle migrate",
+		"precommit": "lint-staged",
+		"test": "./scripts/test.sh",
+		"console": "./node_modules/.bin/truffle console",
+		"coverage": "scripts/coverage.sh",
+		"version": "scripts/version.js"
+	},
+	"lint-staged": {
+		"*.js": [
+			"prettier --write",
+			"git add"
+		]
+	},
+	"files": [
+		"build/",
+		"contracts/",
+		"migrations/",
+		"scripts/",
+		"truffle-config.js",
+		"test/"
+	],
+	"keywords": [
+		"ethereum",
+		"counterfactual",
+		"state channels",
+		"solidity"
+	],
+	"author": "Counterfactual (https://counterfactual.com)",
+	"license": "MIT",
+	"devDependencies": {
+		"babel-eslint": "8.2.5",
+		"coveralls": "3.0.1",
+		"decimal.js": "10.0.1",
+		"eslint": "5.0.1",
+		"ethers": "3.0.24",
+		"ganache-cli": "6.1.3",
+		"husky": "0.14.3",
+		"lint-staged": "7.2.0",
+		"prettier": "1.13.6",
+		"solc": "0.4.24",
+		"solidity-coverage": "0.5.4",
+		"solium": "1.1.7",
+		"truffle": "4.1.12",
+		"truffle-migrate-off-chain": "^0.1.4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/counterfactual/contracts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/counterfactual/contracts/issues"
+	},
+	"homepage": "https://github.com/counterfactual/contracts#readme"
 }
