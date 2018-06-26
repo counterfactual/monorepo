@@ -1,25 +1,62 @@
 version: 2
 jobs:
+  build:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "ethpm.json" }}
+      - run: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - save_cache:
+          key: dependency-cache-{{ checksum "ethpm.json" }}
+          paths:
+            - ./build
+      - run: yarn compile
+  run-lint-tests:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: yarn lint:all
   run-node-tests:
     docker:
       - image: circleci/node:9.11
     steps:
       - checkout
-      - run: npm install
-      - run: npm run lint
-      - run: npm test
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "ethpm.json" }}
+      - run: yarn test
   run-code-coverage:
     docker:
       - image: circleci/node:9.11
     steps:
       - checkout
-      - run: npm install
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "ethpm.json" }}
       - run: ./scripts/coverage.sh
+      - run: cat coverage/lcov.info | ./node_modules/.bin/coveralls
 workflows:
   version: 2
-  run-node-tests:
+  ci-tests:
     jobs:
-      - run-node-tests
-  run-code-coverage:
-    jobs:
-      - run-code-coverage
+      - build
+      - run-lint-tests
+      - run-node-tests:
+          requires:
+            - build
+      - run-code-coverage:
+          requires:
+            - build

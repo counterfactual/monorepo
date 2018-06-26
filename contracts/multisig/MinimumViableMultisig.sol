@@ -61,6 +61,27 @@ contract MinimumViableMultisig {
 		isExecuted[transactionHash] = true;
 	}
 
+	function getTransactionHash(
+		address to,
+		uint256 value,
+		bytes data,
+		Operation operation
+	)
+		public
+		view
+		returns (bytes32)
+	{
+		return keccak256(abi.encodePacked(byte(0x19), this, to, value, data, operation));
+	}
+
+	function getOwners()
+		public
+		view
+		returns (address[])
+	{
+		return owners;
+	}
+
 	function execute(address to, uint256 value, bytes data, Operation operation)
 		internal
 	{
@@ -86,27 +107,6 @@ contract MinimumViableMultisig {
 		assembly {
 			success := delegatecall(not(0), to, add(data, 0x20), mload(data), 0, 0)
 		}
-	}
-
-	function getTransactionHash(
-		address to,
-		uint256 value,
-		bytes data,
-		Operation operation
-	)
-		public
-		view
-		returns (bytes32)
-	{
-		return keccak256(abi.encodePacked(byte(0x19), this, to, value, data, operation));
-	}
-
-	function getOwners()
-		public
-		view
-		returns (address[])
-	{
-		return owners;
 	}
 
 }

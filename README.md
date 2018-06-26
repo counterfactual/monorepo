@@ -1,59 +1,25 @@
-Counterfactual Smart Contracts
-======================
-
-[![CircleCI](https://circleci.com/gh/counterfactual/counterfactual-contracts/tree/develop.svg?style=svg&circle-token=755f90dc490099c4e5f4334f16355a6262158bcf)](https://circleci.com/gh/counterfactual/counterfactual-contracts/tree/develop)
-[![Coverage Status](https://coveralls.io/repos/github/counterfactual/counterfactual-contracts/badge.svg?branch=develop&t=Pc5Qbc)](https://coveralls.io/github/counterfactual/counterfactual-contracts?branch=develop)
+# Counterfactual <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" /> [![CircleCI](https://circleci.com/gh/counterfactual/counterfactual-contracts/tree/develop.svg?style=svg&circle-token=755f90dc490099c4e5f4334f16355a6262158bcf)](https://circleci.com/gh/counterfactual/counterfactual-contracts/tree/develop) [![Coverage Status](https://coveralls.io/repos/github/counterfactual/counterfactual-contracts/badge.svg?branch=develop&t=Pc5Qbc)](https://coveralls.io/github/counterfactual/counterfactual-contracts?branch=develop)
 
 
-<p align="center">
-  <br/>
-  <img width="100" height="100" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5a56e2c5ec212d24a8ac0bc6/1516740168424/?format=1500w"></img>
-</p>
+#### ⚠️️️ This is experimental software, do not use in production
+All of the code presented in this repository has not been audited and using it in production can cause loss of funds. Use cautiously.
 
-Collection of smart contracts for the Counterfactual state channels framework (https://counterfactual.com).
+#### 👋 We are tagging tasks that are [good first issues](https://github.com/counterfactual/counterfactual-contracts/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to help others contribute.
+Feel free to contribute any ideas or updates to this repo, we're very open to improvements!
 
-Tests are written in truffle and in pyethereum. In addition, running migrate from this repository is the recommended way to deploy these contracts onto a local ganache instance.
+## Getting Started
 
-Testing: truffle
--------
-### Install requirements with npm:
+### Testing
 
 ```bash
-npm install
+yarn
+yarn test
+yarn lint:all
 ```
 
-### Run all tests:
+## Security
+If you find a security issue, please contact us at security@counterfactual.com.
 
-```bash
-npm test
-```
+## License
 
-These require Node version >=7 for `async/await`. Truffle will automatically run TestRPC in the background.
-
-### Lint the JS
-
-```bash
-npm run lint
-```
-
-Testing: pyethereum
-------
-
-### Install requirements with pip:
-
-```bash
-pip3 install -r requirements.txt
-```
-
-Security and Liability
-----------------------
-All contracts are WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-License
--------
-All smart contracts are released under GPL v.3.
-
-Contributors
-------------
-- Liam Horne ([snario](https://github.com/snario/))
-- Li Xuanji ([ldct](https://github.com/ldct))
+Code released under the [MIT License](LICENSE)

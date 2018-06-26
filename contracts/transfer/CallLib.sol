@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "../lib/LibBytes.sol";
 import "../registry/RegistryAddressLib.sol";
 
 
-contract CallLib is LibBytes {
+contract CallLib {
 
 	using RegistryAddressLib for RegistryAddressLib.CFAddress;
 
@@ -22,7 +21,7 @@ contract CallLib is LibBytes {
 		public
 		returns (bool)
 	{
-		return LibBytes.areBytesEqual(apply(func, parameters), expected);
+		return keccak256(apply(func, parameters)) == keccak256(expected);
 	}
 
 	function apply(

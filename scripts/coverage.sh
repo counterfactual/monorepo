@@ -1,2 +1,3 @@
-npm run coverage || true
-cat coverage/lcov.info | ./node_modules/.bin/coveralls
+#!/usr/bin/env bash
+
+PATH=$PWD/node_modules/.bin:$PATH solidity-coverage

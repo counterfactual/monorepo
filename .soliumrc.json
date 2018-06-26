@@ -1,7 +1,7 @@
 {
-    "extends": "solium:all",
+	"extends": "solium:all",
+	"plugins": ["security"],
     "rules": {
-        "function-order": "off",
         "imports-on-top": 1,
         "variable-declarations": 1,
         "array-declarations": 1,
@@ -18,6 +18,10 @@
         "whitespace": 1,
         "deprecated-suicide": 1,
         "pragma-on-top": 1,
-		"no-experimental": 0
+		"no-experimental": 0,
+		"security/enforce-explicit-visibility": ["error"],
+		"security/no-block-members": ["warning"],
+		"security/no-low-level-calls": 0,
+		"security/no-inline-assembly": 0
     }
 }
