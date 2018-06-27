@@ -1,29 +1,25 @@
-const ethers = require("ethers");
+import { assert } from "chai";
+import * as ethers from "ethers";
 
-const {
-	zeroAddress,
-} = require("../helpers/utils.js");
+import { zeroAddress } from "../helpers/utils.js";
 
-const {
-	getCFHelper,
-	deployMultisig,
-} = require("../helpers/cfhelpers.js");
+import { deployMultisig, getCFHelper } from "../helpers/cfhelpers.js";
 
-const AssetDispatcher      = artifacts.require("AssetDispatcher");
-const ETHForwarder         = artifacts.require("ETHForwarder");
-const ConditionalTransfer   = artifacts.require("ConditionalTransfer");
-const Registry             = artifacts.require("Registry");
+const AssetDispatcher = artifacts.require("AssetDispatcher");
+const ETHForwarder = artifacts.require("ETHForwarder");
+const ConditionalTransfer = artifacts.require("ConditionalTransfer");
+const Registry = artifacts.require("Registry");
 
 const MetachannelModule = artifacts.require("MetachannelModule");
-const TicTacToeModule   = artifacts.require("TicTacToeModule");
+const TicTacToeModule = artifacts.require("TicTacToeModule");
 
+contract("Metachannel", accounts => {
+	const web3 = (global as any).web3;
 
-contract("Metachannel", (accounts) => {
-
-	let registry,
-		assetDispatcher,
-		conditionalTransfer,
-		signer;
+	let registry: ethers.Contract;
+	let assetDispatcher: ethers.Contract;
+	let conditionalTransfer: ethers.Contract;
+	let signer: ethers.Wallet;
 
 	const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
@@ -31,7 +27,7 @@ contract("Metachannel", (accounts) => {
 		registry = new ethers.Contract(
 			(await Registry.deployed()).address,
 			Registry.abi,
-			await provider.getSigner() // uses signer for registry.deploy
+			await provider.getSigner(accounts[0]) // uses signer for registry.deploy
 		);
 		assetDispatcher = new ethers.Contract(
 			(await AssetDispatcher.deployed()).address,
@@ -43,12 +39,10 @@ contract("Metachannel", (accounts) => {
 			ConditionalTransfer.abi,
 			provider
 		);
-		signer = ethers.Wallet.createRandom();
-		signer.provider = provider;
+		signer = ethers.Wallet.createRandom({}).connect(provider);
 	});
 
 	it("allows A and C to route through B for payments", async () => {
-
 		// Situation
 		//     0.5          0.5   0.5           0.5
 		// (A) --------------- (B) --------------- (C)
@@ -62,7 +56,8 @@ contract("Metachannel", (accounts) => {
 		const [A, B, C] = [
 			// 0xb37e49bFC97A948617bF3B63BC6942BB15285715
 			new ethers.Wallet(
-				"0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"),
+				"0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
+			),
 			// 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
 			new ethers.Wallet(
 				"0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
@@ -70,7 +65,7 @@ contract("Metachannel", (accounts) => {
 			// 0xAdEC4a9DB6cBeF4F281c675928D0EeD18c456857
 			new ethers.Wallet(
 				"0xaf88f3efeb9aebe15de20e6f15d037317f122e9ff45352b1237e52fbc2c37b8a"
-			),
+			)
 		];
 
 		const moneybags = await provider.getSigner(accounts[0]);
@@ -84,9 +79,8 @@ contract("Metachannel", (accounts) => {
 
 		await moneybags.sendTransaction({
 			to: multisigAB.address,
-			value: ethers.utils.parseEther("1"),
+			value: ethers.utils.parseEther("1")
 		});
-
 
 		///////////////////////////////////////////////////////////////////////////
 		//
@@ -97,7 +91,7 @@ contract("Metachannel", (accounts) => {
 
 		await moneybags.sendTransaction({
 			to: multisigBC.address,
-			value: ethers.utils.parseEther("1"),
+			value: ethers.utils.parseEther("1")
 		});
 
 		///////////////////////////////////////////////////////////////////////////
@@ -114,39 +108,44 @@ contract("Metachannel", (accounts) => {
 		const helperAC = await getCFHelper(multisigAC, registry, provider);
 
 		const balanceAC = await helperAC.deployAppWithState(
-			ethers.utils.AbiCoder.defaultCoder.encode(
+			ethers.utils.defaultAbiCoder.encode(
 				["tuple(tuple(address,bytes32),uint256)[]"],
-				[ // abiCoder
-					[ // array
-						[ // tuple
-							[ // tuple
+				[
+					// abiCoder
+					[
+						// array
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [A.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
 							],
-							ethers.utils.parseEther("0.25"),
+							ethers.utils.parseEther("0.25")
 						],
-						[ // tuple
-							[ // tuple
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [C.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
 							],
-							ethers.utils.parseEther("0.75"),
+							ethers.utils.parseEther("0.75")
 						],
-						[ // tuple
-							[ // tuple
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [multisigAC.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(
+									["bytes32"],
+									[multisigAC.address]
+								)
 							],
-							ethers.utils.parseEther("0"),
-						],
-					],
-				],
+							ethers.utils.parseEther("0")
+						]
+					]
+				]
 			),
 			signer
 		);
@@ -157,7 +156,7 @@ contract("Metachannel", (accounts) => {
 		//
 		const forwarder = await helperAC.deploy(ETHForwarder, [
 			helperAC.cfaddressOf(multisigAC),
-			helperAC.cfaddressOf(B),
+			helperAC.cfaddressOf(B)
 		]);
 
 		///////////////////////////////////////////////////////////////////////////
@@ -166,176 +165,185 @@ contract("Metachannel", (accounts) => {
 		// in the AC channel being changed from meta to "real" and then exiting
 		// that channel should lead to A = 0.25 and C = 0.75.
 		//
-		const metachannelAB = await helperAC.deploy(
-			MetachannelModule,
-			[
-				A.address,
-				B.address,
-				ethers.utils.parseEther("1"),
-				helperAC.cfaddressOf(multisigAC),
-				helperAC.cfaddressOf(forwarder),
-			]
-		);
+		const metachannelAB = await helperAC.deploy(MetachannelModule, [
+			A.address,
+			B.address,
+			ethers.utils.parseEther("1"),
+			helperAC.cfaddressOf(multisigAC),
+			helperAC.cfaddressOf(forwarder)
+		]);
 		await helperAB.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperAB.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[{
-					dest: helperAB.cfaddressOf(metachannelAB),
-					selector: metachannelAB.contract.interface.functions.interpretAsBytes.sighash,
-				}],
+				[
+					{
+						dest: helperAB.cfaddressOf(metachannelAB),
+						selector:
+							metachannelAB.contract.interface.functions.interpretAsBytes
+								.sighash
+					}
+				],
 				{
 					dest: helperAB.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("0.75")).toString()
+			ethers.utils.parseEther("0.75").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("0.25")).toString()
+			ethers.utils.parseEther("0.25").toString()
 		);
 
-		const metachannelBC = await helperAC.deploy(MetachannelModule,
-			[
-				C.address,
-				B.address,
-				ethers.utils.parseEther("1"),
-				helperAC.cfaddressOf(multisigAC),
-				helperAC.cfaddressOf(forwarder),
-			]
-		);
+		const metachannelBC = await helperAC.deploy(MetachannelModule, [
+			C.address,
+			B.address,
+			ethers.utils.parseEther("1"),
+			helperAC.cfaddressOf(multisigAC),
+			helperAC.cfaddressOf(forwarder)
+		]);
 		await helperBC.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperBC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[{
-					dest: helperBC.cfaddressOf(metachannelBC),
-					selector: metachannelBC.contract.interface.functions.interpretAsBytes.sighash,
-				}],
+				[
+					{
+						dest: helperBC.cfaddressOf(metachannelBC),
+						selector:
+							metachannelBC.contract.interface.functions.interpretAsBytes
+								.sighash
+					}
+				],
 				{
 					dest: helperBC.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		await helperAC.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperAC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[ /* No interpreters for the metachannel ethbalance */ ],
+				[
+					/* No interpreters for the metachannel ethbalance */
+				],
 				{
 					dest: helperAC.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0.25")).toString()
+			ethers.utils.parseEther("0.25").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0.75")).toString()
+			ethers.utils.parseEther("0.75").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
-
 	});
 
 	it("allows A and C to route through B for state", async () => {
-
 		// Situation
 		//     0.5          0.5   0.5           0.5
 		// (A) --------------- (B) --------------- (C)
@@ -350,7 +358,8 @@ contract("Metachannel", (accounts) => {
 		const [A, B, C] = [
 			// 0x0298E8d11e2aa5CD9aC29E96F8A21F4C87D629c5
 			new ethers.Wallet(
-				"0xe49707afef987c83f5ac9d90e3c447f2435f0dd61d4e2626e19a7e25a68cf876"),
+				"0xe49707afef987c83f5ac9d90e3c447f2435f0dd61d4e2626e19a7e25a68cf876"
+			),
 			// 0xEbe694d4272b56462cE6d563A4788f379b2F8b4C
 			new ethers.Wallet(
 				"0xbb617bd390a2a52fa96faa3bdf8432334821174a2b356adca6115b63fe4f5f8d"
@@ -358,7 +367,7 @@ contract("Metachannel", (accounts) => {
 			// 0xe276e2C8aD5655de33C5B9dB255F68236adb7239
 			new ethers.Wallet(
 				"0x2b7547a0ee3e2fadf28222a0f9a3013ee4c346624c76fef9295e70b737b77982"
-			),
+			)
 		];
 
 		const moneybags = await provider.getSigner(accounts[0]);
@@ -372,7 +381,7 @@ contract("Metachannel", (accounts) => {
 
 		await moneybags.sendTransaction({
 			to: multisigAB.address,
-			value: ethers.utils.parseEther("1"),
+			value: ethers.utils.parseEther("1")
 		});
 
 		///////////////////////////////////////////////////////////////////////////
@@ -384,7 +393,7 @@ contract("Metachannel", (accounts) => {
 
 		await moneybags.sendTransaction({
 			to: multisigBC.address,
-			value: ethers.utils.parseEther("1"),
+			value: ethers.utils.parseEther("1")
 		});
 
 		///////////////////////////////////////////////////////////////////////////
@@ -398,39 +407,44 @@ contract("Metachannel", (accounts) => {
 		const helperAC = await getCFHelper(multisigAC, registry, provider);
 
 		const balanceAC = await helperAC.deployAppWithState(
-			ethers.utils.AbiCoder.defaultCoder.encode(
+			ethers.utils.defaultAbiCoder.encode(
 				["tuple(tuple(address,bytes32),uint256)[]"],
-				[ // abiCoder
-					[ // array
-						[ // tuple
-							[ // tuple
+				[
+					// abiCoder
+					[
+						// array
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [A.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
 							],
-							ethers.utils.parseEther("0.1"),
+							ethers.utils.parseEther("0.1")
 						],
-						[ // tuple
-							[ // tuple
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [C.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
 							],
-							ethers.utils.parseEther("0.1"),
+							ethers.utils.parseEther("0.1")
 						],
-						[ // tuple
-							[ // tuple
+						[
+							// tuple
+							[
+								// tuple
 								zeroAddress,
-								ethers.utils.AbiCoder.defaultCoder.encode(
-									["bytes32"], [multisigAC.address]
-								),
+								ethers.utils.defaultAbiCoder.encode(
+									["bytes32"],
+									[multisigAC.address]
+								)
 							],
-							ethers.utils.parseEther("0.8"),
-						],
-					],
-				],
+							ethers.utils.parseEther("0.8")
+						]
+					]
+				]
 			),
 			signer
 		);
@@ -441,7 +455,7 @@ contract("Metachannel", (accounts) => {
 		//
 		const forwarder = await helperBC.deploy(ETHForwarder, [
 			helperAC.cfaddressOf(multisigAC),
-			helperAC.cfaddressOf(B),
+			helperAC.cfaddressOf(B)
 		]);
 
 		///////////////////////////////////////////////////////////////////////////
@@ -450,250 +464,250 @@ contract("Metachannel", (accounts) => {
 		// in the AC channel being changed from meta to "real" and then exiting
 		// that channel should lead to A = 0.25 and C = 0.75.
 		//
-		const metachannelAB = await helperAB.deploy(
-			MetachannelModule,
-			[
-				A.address,
-				B.address,
-				ethers.utils.parseEther("1"),
-				helperAB.cfaddressOf(multisigAC),
-				helperAB.cfaddressOf(forwarder),
-			]
-		);
+		const metachannelAB = await helperAB.deploy(MetachannelModule, [
+			A.address,
+			B.address,
+			ethers.utils.parseEther("1"),
+			helperAB.cfaddressOf(multisigAC),
+			helperAB.cfaddressOf(forwarder)
+		]);
 
 		await helperAB.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperAB.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[{
-					dest: helperAB.cfaddressOf(metachannelAB),
-					selector: metachannelAB.contract.interface.functions.interpretAsBytes.sighash,
-				}],
+				[
+					{
+						dest: helperAB.cfaddressOf(metachannelAB),
+						selector:
+							metachannelAB.contract.interface.functions.interpretAsBytes
+								.sighash
+					}
+				],
 				{
 					dest: helperAB.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("0.1")).toString()
+			ethers.utils.parseEther("0.1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("0.9")).toString()
+			ethers.utils.parseEther("0.9").toString()
 		);
 
-		const metachannelBC = await helperBC.deploy(
-			MetachannelModule,
-			[
-				C.address,
-				B.address,
-				ethers.utils.parseEther("1"),
-				helperBC.cfaddressOf(multisigAC),
-				helperBC.cfaddressOf(forwarder),
-			]
-		);
+		const metachannelBC = await helperBC.deploy(MetachannelModule, [
+			C.address,
+			B.address,
+			ethers.utils.parseEther("1"),
+			helperBC.cfaddressOf(multisigAC),
+			helperBC.cfaddressOf(forwarder)
+		]);
 		await helperBC.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperBC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[{
-					dest: helperBC.cfaddressOf(metachannelBC),
-					selector: metachannelBC.contract.interface.functions.interpretAsBytes.sighash,
-				}],
+				[
+					{
+						dest: helperBC.cfaddressOf(metachannelBC),
+						selector:
+							metachannelBC.contract.interface.functions.interpretAsBytes
+								.sighash
+					}
+				],
 				{
 					dest: helperBC.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		await helperAC.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
-				[ /* No conditions in this test, normally there would be a nonce here. */ ],
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
+				[
+					/* No conditions in this test, normally there would be a nonce here. */
+				],
 				{
 					dest: helperAC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash,
+					selector: balanceAC.contract.interface.functions.getAppState.sighash
 				},
-				[ /* No s for the metachannel ethbalance */ ],
+				[
+					/* No s for the metachannel ethbalance */
+				],
 				{
 					dest: helperAC.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0.1")).toString()
+			ethers.utils.parseEther("0.1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0.1")).toString()
+			ethers.utils.parseEther("0.1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("0.8")).toString()
+			ethers.utils.parseEther("0.8").toString()
 		);
 
 		const [EMPTY, X, O] = [0, 1, 2];
 		const X_WON = 2;
 
 		const tictactoe = await helperAC.deployAppWithState(
-			ethers.utils.AbiCoder.defaultCoder.encode(
+			ethers.utils.defaultAbiCoder.encode(
 				["tuple(uint256,uint256[9])"],
-				[[
-					X_WON,
-					[
-						X,     X,     X,
-						O,     O,     EMPTY,
-						EMPTY, EMPTY, EMPTY,
-					],
-				]]
+				[[X_WON, [X, X, X, O, O, EMPTY, EMPTY, EMPTY, EMPTY]]]
 			),
 			signer
 		);
 
-		const tictactoeAC = await helperAC.deploy(
-			TicTacToeModule,
-			[
-				ethers.utils.parseEther("0.8"),
-				[A.address, C.address],
-			]
-		);
+		const tictactoeAC = await helperAC.deploy(TicTacToeModule, [
+			ethers.utils.parseEther("0.8"),
+			[A.address, C.address]
+		]);
 
 		await helperAC.delegatecall(
 			conditionalTransfer.address,
 			signer,
-			conditionalTransfer.interface.functions.makeConditionalTransfer(
+			conditionalTransfer.interface.functions.makeConditionalTransfer.encode([
 				[],
 				{
 					dest: helperAC.cfaddressOf(tictactoe),
-					selector: tictactoe.contract.interface.functions.getAppState.sighash,
+					selector: tictactoe.contract.interface.functions.getAppState.sighash
 				},
-				[{
-					dest: helperAC.cfaddressOf(tictactoeAC),
-					selector: tictactoeAC.contract.interface.functions.interpret.sighash,
-				}],
+				[
+					{
+						dest: helperAC.cfaddressOf(tictactoeAC),
+						selector: tictactoeAC.contract.interface.functions.interpret.sighash
+					}
+				],
 				{
 					dest: helperAC.cfaddressOf(assetDispatcher),
-					selector: assetDispatcher.interface.functions.transferETH.sighash,
-				},
-			).data
+					selector: assetDispatcher.interface.functions.transferETH.sighash
+				}
+			])
 		);
 
 		assert.equal(
 			(await provider.getBalance(A.address)).toString(),
-			(ethers.utils.parseEther("0.9")).toString()
+			ethers.utils.parseEther("0.9").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(B.address)).toString(),
-			(ethers.utils.parseEther("1")).toString()
+			ethers.utils.parseEther("1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(C.address)).toString(),
-			(ethers.utils.parseEther("0.1")).toString()
+			ethers.utils.parseEther("0.1").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAB.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigBC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
 
 		assert.equal(
 			(await provider.getBalance(multisigAC.address)).toString(),
-			(ethers.utils.parseEther("0")).toString()
+			ethers.utils.parseEther("0").toString()
 		);
-
 	});
-
 });

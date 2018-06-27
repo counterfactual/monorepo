@@ -1,16 +1,3 @@
-# EditorConfig helps developers define and maintain consistent
-# coding styles between different editors and IDEs
-# editorconfig.org
-#
-# Install in Sublime: https://github.com/sindresorhus/editorconfig-sublime#readme
-# tl;dr: EditorConfig in Package Control
-#
-# Install in Atom: https://github.com/sindresorhus/atom-editorconfig
-# ```$ apm install editorconfig```
-#
-# Install in VS Code: https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig
-# ```ext install EditorConfig```
-
 root = true
 
 [*]
@@ -22,5 +9,9 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 80
 
+[*.sol]
+tab_width = 4
+
 [*.md]
 trim_trailing_whitespace = false
+max_line_length = 80

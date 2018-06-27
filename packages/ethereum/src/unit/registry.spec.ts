@@ -1,20 +1,20 @@
-const ethers = require("ethers");
-const solc = require("solc");
+import { assert } from "chai";
+import ethers from "ethers";
+import * as solc from "solc";
 
-const {
-	zeroBytes32,
-	getParamFromTxEvent,
-} = require("../helpers/utils.js");
+import * as Utils from "../helpers/utils";
 
 const ProxyContract = artifacts.require("Proxy");
 const Registry = artifacts.require("Registry");
 
-contract("Registry", (accounts) => {
+contract("Registry", accounts => {
+	const web3 = (global as any).web3;
 
-	let registry, simpleContract;
+	let registry;
+	let simpleContract;
 
 	function salt(i) {
-		return ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [i]);
+		return ethers.utils.defaultAbiCoder.encode(["uint256"], [i]);
 	}
 
 	function cfaddress(bytecode, i) {
@@ -30,27 +30,30 @@ contract("Registry", (accounts) => {
 
 	it("computes counterfactual addresses of bytes deployments", async () => {
 		assert.equal(
-			cfaddress(zeroBytes32, salt(1)),
-			await registry.getCounterfactualAddress(zeroBytes32, salt(1))
+			cfaddress(Utils.zeroBytes32, salt(1)),
+			await registry.getCounterfactualAddress(Utils.zeroBytes32, salt(1))
 		);
 	});
 
 	it("deploys a contract", async () => {
-
-		let source = `
+		const source = `
         contract Test {
             function sayHello() public pure returns (string) {
                 return "hi";
 			}
         }`;
-		let output = await solc.compile(source, 0);
-		let interface = JSON.parse(output.contracts[":Test"]["interface"]);
-		let bytecode = "0x" + output.contracts[":Test"]["bytecode"];
+		const output = await (solc as any).compile(source, 0);
+		const iface = JSON.parse(output.contracts[":Test"].interface);
+		const bytecode = "0x" + output.contracts[":Test"].bytecode;
 
-		const TestContract = web3.eth.contract(interface);
+		const TestContract = web3.eth.contract(iface);
 		const tx = await registry.deploy(bytecode, salt(2));
-		simpleContract = getParamFromTxEvent(
-			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
+		simpleContract = Utils.getParamFromTxEvent(
+			tx,
+			"ContractCreated",
+			"deployedAddress",
+			registry.address,
+			TestContract
 		);
 
 		assert.equal(
@@ -62,21 +65,24 @@ contract("Registry", (accounts) => {
 	});
 
 	it("deploys a contract using msg.sender", async () => {
-
-		let source = `
+		const source = `
         contract Test {
             function sayHello() public pure returns (string) {
                 return "hi";
             }
         }`;
-		let output = await solc.compile(source, 0);
-		let interface = JSON.parse(output.contracts[":Test"]["interface"]);
-		let bytecode = "0x" + output.contracts[":Test"]["bytecode"];
+		const output = await (solc as any).compile(source, 0);
+		const iface = JSON.parse(output.contracts[":Test"].interface);
+		const bytecode = "0x" + output.contracts[":Test"].bytecode;
 
-		const TestContract = web3.eth.contract(interface);
+		const TestContract = web3.eth.contract(iface);
 		const tx = await registry.deploy(bytecode, salt(3));
-		const testContract = getParamFromTxEvent(
-			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
+		const testContract = Utils.getParamFromTxEvent(
+			tx,
+			"ContractCreated",
+			"deployedAddress",
+			registry.address,
+			TestContract
 		);
 
 		assert.equal(
@@ -88,16 +94,21 @@ contract("Registry", (accounts) => {
 	});
 
 	it("deploys a ProxyContract contract through as owner", async () => {
-
-		const initcode = ProxyContract.bytecode + ethers.utils.AbiCoder.defaultCoder.encode(
-			["address"], [simpleContract.address]
-		).substr(2);
+		const initcode =
+			ProxyContract.bytecode +
+			ethers.utils.defaultAbiCoder
+				.encode(["address"], [simpleContract.address])
+				.substr(2);
 
 		const TestContract = web3.eth.contract(simpleContract.abi);
 
 		const tx = await registry.deploy(initcode, salt(3));
-		const testContract = getParamFromTxEvent(
-			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
+		const testContract = Utils.getParamFromTxEvent(
+			tx,
+			"ContractCreated",
+			"deployedAddress",
+			registry.address,
+			TestContract
 		);
 
 		assert.equal(
@@ -109,8 +120,7 @@ contract("Registry", (accounts) => {
 	});
 
 	it("deploys a contract and passes arguments", async () => {
-
-		let source = `
+		const source = `
         contract Test {
             address whatToSay;
             function Test(address _whatToSay) public {
@@ -120,18 +130,22 @@ contract("Registry", (accounts) => {
                 return whatToSay;
             }
         }`;
-		let output = await solc.compile(source, 0);
-		let interface = JSON.parse(output.contracts[":Test"]["interface"]);
-		let bytecode = "0x" + output.contracts[":Test"]["bytecode"];
+		const output = await (solc as any).compile(source, 0);
+		const iface = JSON.parse(output.contracts[":Test"].interface);
+		const bytecode = "0x" + output.contracts[":Test"].bytecode;
 
-		const code = bytecode + ethers.utils.AbiCoder.defaultCoder.encode(
-			["address"], [accounts[0]]
-		).substr(2);
+		const code =
+			bytecode +
+			ethers.utils.defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
 
-		const TestContract = web3.eth.contract(interface);
+		const TestContract = web3.eth.contract(iface);
 		const tx = await registry.deploy(code, salt(4));
-		const testContract = getParamFromTxEvent(
-			tx, "ContractCreated", "deployedAddress", registry.address, TestContract,
+		const testContract = Utils.getParamFromTxEvent(
+			tx,
+			"ContractCreated",
+			"deployedAddress",
+			registry.address,
+			TestContract
 		);
 
 		assert.equal(
@@ -140,6 +154,5 @@ contract("Registry", (accounts) => {
 		);
 
 		assert.equal(accounts[0], await testContract.sayHello());
-
 	});
 });
