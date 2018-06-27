@@ -10,7 +10,8 @@
 	"scripts": {
 		"lint": "tslint --project .",
 		"watch_without_deps": "tsc -w",
-		"build": "copyfiles -u 1 './lib/**/*' ./scripts",
+		"build": ":",
+		"test": ":",
 		"clean": "shx rm -rf scripts"
 	},
 	"devDependencies": {
