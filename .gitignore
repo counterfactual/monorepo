@@ -3,8 +3,9 @@
 # Dependencies
 node_modules/
 
-# Yarn lock files
+# Yarn
 yarn.lock
+yarn-error.log
 
 # coverage
 coverage/
