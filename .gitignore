@@ -1,26 +1,24 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
+.DS_Store
 
-# dependencies
+# Dependencies
 node_modules/
 
-# production
-*.js
-*.js.map
-build/
-dist/
+# Yarn lock files
+yarn.lock
 
-# misc
-.DS_Store
-.vscode
-.idea/
-*.iml
-coverage
-coverageEnv
+# coverage
+coverage/
+coverageEnv/
 coverage.json
+allFiredEvents
+scTopics
 
+# truffle build artifacts
+build/
+abis.json
+
+# lerna
+lerna-debug.log
+
+# build directories
 packages/ethereum/lib
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
