@@ -1,11 +1,26 @@
-.DS_Store
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
 node_modules/
-npm-debug.log
+
+# production
+*.js
+*.js.map
 build/
-tmp-*
-coverage/
-coverageEnv/
+dist/
+
+# misc
+.DS_Store
+.vscode
+.idea/
+*.iml
+coverage
+coverageEnv
 coverage.json
-artifacts/
-*.pyc
-networks/777.json
+
+packages/ethereum/lib
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*

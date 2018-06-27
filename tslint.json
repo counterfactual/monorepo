@@ -1,0 +1,9 @@
+{
+	"rules": {
+		"no-implicit-dependencies": [true, "dev"]
+	},
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier"
+  ]
+}
