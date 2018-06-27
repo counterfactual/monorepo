@@ -61,7 +61,7 @@
 		"lint-staged": "7.2.0",
 		"prettier": "1.13.6",
 		"run-with-testrpc": "^0.3.0",
-		"solc": "^0.4.24",
+		"solc": "0.4.24",
 		"solidity-coverage": "0.5.4",
 		"solium": "1.1.7",
 		"truffle": "4.1.12",
