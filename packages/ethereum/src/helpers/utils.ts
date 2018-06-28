@@ -45,7 +45,7 @@ export function getParamFromTxEvent(
 	}
 }
 
-export async function assertRejects(q, msg) {
+export async function assertRejects(q, msg?) {
 	let res;
 	let catchFlag = false;
 	try {

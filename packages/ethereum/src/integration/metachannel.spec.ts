@@ -10,8 +10,10 @@ const ETHForwarder = artifacts.require("ETHForwarder");
 const ConditionalTransfer = artifacts.require("ConditionalTransfer");
 const Registry = artifacts.require("Registry");
 
+const BytesApp = artifacts.require("BytesApp");
+
 const MetachannelModule = artifacts.require("MetachannelModule");
-const TicTacToeModule = artifacts.require("TicTacToeModule");
+const TwoPlayerGameModule = artifacts.require("TwoPlayerGameModule");
 
 contract("Metachannel", accounts => {
 	const web3 = (global as any).web3;
@@ -108,45 +110,34 @@ contract("Metachannel", accounts => {
 		const helperAC = await getCFHelper(multisigAC, registry, provider);
 
 		const balanceAC = await helperAC.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(tuple(address,bytes32),uint256)[]"],
+			BytesApp,
+			"tuple(tuple(address,bytes32),uint256)[]",
+			[
 				[
-					// abiCoder
 					[
-						// array
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
-							],
-							ethers.utils.parseEther("0.25")
-						],
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
-							],
-							ethers.utils.parseEther("0.75")
-						],
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(
-									["bytes32"],
-									[multisigAC.address]
-								)
-							],
-							ethers.utils.parseEther("0")
-						]
-					]
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
+					],
+					ethers.utils.parseEther("0.25")
+				],
+				[
+					[
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
+					],
+					ethers.utils.parseEther("0.75")
+				],
+				[
+					[
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(
+							["bytes32"],
+							[multisigAC.address]
+						)
+					],
+					ethers.utils.parseEther("0")
 				]
-			),
+			],
 			signer
 		);
 
@@ -181,7 +172,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperAB.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
@@ -244,7 +236,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperBC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
@@ -300,7 +293,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperAC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					/* No interpreters for the metachannel ethbalance */
@@ -407,45 +401,35 @@ contract("Metachannel", accounts => {
 		const helperAC = await getCFHelper(multisigAC, registry, provider);
 
 		const balanceAC = await helperAC.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(tuple(address,bytes32),uint256)[]"],
+			BytesApp,
+			"tuple(tuple(address,bytes32),uint256)[]",
+			[
 				[
-					// abiCoder
 					[
-						// array
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
-							],
-							ethers.utils.parseEther("0.1")
-						],
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
-							],
-							ethers.utils.parseEther("0.1")
-						],
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(
-									["bytes32"],
-									[multisigAC.address]
-								)
-							],
-							ethers.utils.parseEther("0.8")
-						]
-					]
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
+					],
+					ethers.utils.parseEther("0.1")
+				],
+				[
+					[
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [C.address])
+					],
+					ethers.utils.parseEther("0.1")
+				],
+				[
+					[
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(
+							["bytes32"],
+							[multisigAC.address]
+						)
+					],
+					ethers.utils.parseEther("0.8")
 				]
-			),
+			],
+
 			signer
 		);
 
@@ -481,7 +465,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperAB.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
@@ -544,7 +529,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperBC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
@@ -600,7 +586,8 @@ contract("Metachannel", accounts => {
 				],
 				{
 					dest: helperAC.cfaddressOf(balanceAC),
-					selector: balanceAC.contract.interface.functions.getAppState.sighash
+					selector:
+						balanceAC.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					/* No s for the metachannel ethbalance */
@@ -642,18 +629,16 @@ contract("Metachannel", accounts => {
 			ethers.utils.parseEther("0.8").toString()
 		);
 
-		const [EMPTY, X, O] = [0, 1, 2];
-		const X_WON = 2;
+		const P1_WON = 0;
 
 		const tictactoe = await helperAC.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(uint256,uint256[9])"],
-				[[X_WON, [X, X, X, O, O, EMPTY, EMPTY, EMPTY, EMPTY]]]
-			),
+			BytesApp,
+			"tuple(uint256)",
+			[P1_WON],
 			signer
 		);
 
-		const tictactoeAC = await helperAC.deploy(TicTacToeModule, [
+		const tictactoeAC = await helperAC.deploy(TwoPlayerGameModule, [
 			ethers.utils.parseEther("0.8"),
 			[A.address, C.address]
 		]);
@@ -665,7 +650,8 @@ contract("Metachannel", accounts => {
 				[],
 				{
 					dest: helperAC.cfaddressOf(tictactoe),
-					selector: tictactoe.contract.interface.functions.getAppState.sighash
+					selector:
+						tictactoe.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{

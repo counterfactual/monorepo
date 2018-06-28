@@ -3,7 +3,9 @@ const AssetLib = artifacts.require("./AssetLib.sol");
 const AssetDispatcher = artifacts.require("./AssetDispatcher.sol");
 const ETHForwarder = artifacts.require("./ETHForwarder.sol");
 const ConditionalTransfer = artifacts.require("./ConditionalTransfer.sol");
-const CounterfactualApp = artifacts.require("./CounterfactualApp.sol");
+const BytesApp  = artifacts.require("./BytesApp.sol");
+const TicTacToe  = artifacts.require("./TicTacToe.sol");
+
 const MetachannelModule = artifacts.require("./MetachannelModule.sol");
 
 module.exports = async (deployer) => {
@@ -11,7 +13,8 @@ module.exports = async (deployer) => {
 		await deployer.link(RegistryAddressLib, [
 			AssetDispatcher,
 			ConditionalTransfer,
-			CounterfactualApp,
+			BytesApp,
+			TicTacToe,
 			MetachannelModule,
 			ETHForwarder
 		]);
@@ -24,6 +27,8 @@ module.exports = async (deployer) => {
 			(await AssetDispatcher.deployed()).address
 		]);
 
-		await deployer.deploy(CounterfactualApp);
+		await deployer.deploy(BytesApp);
+		await deployer.deploy(TicTacToe);
+
 	});
 };
