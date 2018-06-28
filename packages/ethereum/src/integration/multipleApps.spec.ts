@@ -9,6 +9,8 @@ const AssetDispatcher = artifacts.require("AssetDispatcher");
 const ConditionalTransfer = artifacts.require("ConditionalTransfer");
 const Registry = artifacts.require("Registry");
 
+const BytesApp = artifacts.require("BytesApp");
+
 const WithdrawModule = artifacts.require("WithdrawModule");
 
 contract("Multiple Apps", accounts => {
@@ -65,51 +67,51 @@ contract("Multiple Apps", accounts => {
 		// be deployed in an actual use case. This is just for convenience in the test case.
 
 		const withdraw = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(address,address,uint256)"],
-				[[B.address, multisig.address, ethers.utils.parseEther("3")]]
-			),
+			BytesApp,
+			"tuple(address,address,uint256)",
+			[B.address, multisig.address, ethers.utils.parseEther("3")],
+
 			signer
 		);
 
 		const ethbalance = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(tuple(address,bytes32),uint256)[]"],
+			BytesApp,
+			"tuple(tuple(address,bytes32),uint256)[]",
+			[
+				// array
 				[
-					// abiCoder
+					// tuple
 					[
-						// array
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
-							],
-							ethers.utils.parseEther("1.5")
-						],
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [B.address])
-							],
-							ethers.utils.parseEther("1.5")
-						]
-					]
+						// tuple
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
+					],
+					ethers.utils.parseEther("1.5")
+				],
+				[
+					// tuple
+					[
+						// tuple
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [B.address])
+					],
+					ethers.utils.parseEther("1.5")
 				]
-			),
+			],
 			signer
 		);
 
 		const nonce1 = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(["uint256"], [1000]),
+			BytesApp,
+			"uint256",
+			1000,
 			signer
 		);
 
 		const nonce2 = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(["uint256"], [2000]),
+			BytesApp,
+			"uint256",
+			2000,
 			signer
 		);
 
@@ -136,14 +138,16 @@ contract("Multiple Apps", accounts => {
 						),
 						func: {
 							dest: helper.cfaddressOf(nonce1),
-							selector: nonce1.contract.interface.functions.getAppState.sighash
+							selector:
+								nonce1.contract.interface.functions.getExternalState.sighash
 						},
 						parameters: "0x"
 					}
 				],
 				{
 					dest: helper.cfaddressOf(withdraw),
-					selector: withdraw.contract.interface.functions.getAppState.sighash
+					selector:
+						withdraw.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
@@ -182,14 +186,16 @@ contract("Multiple Apps", accounts => {
 						),
 						func: {
 							dest: helper.cfaddressOf(nonce2),
-							selector: nonce2.contract.interface.functions.getAppState.sighash
+							selector:
+								nonce2.contract.interface.functions.getExternalState.sighash
 						},
 						parameters: "0x"
 					}
 				],
 				{
 					dest: helper.cfaddressOf(ethbalance),
-					selector: ethbalance.contract.interface.functions.getAppState.sighash
+					selector:
+						ethbalance.contract.interface.functions.getExternalState.sighash
 				},
 				[],
 				{

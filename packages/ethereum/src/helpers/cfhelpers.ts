@@ -4,7 +4,6 @@ import * as Multisig from "./multisig";
 import * as Utils from "./utils";
 
 const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
-const CounterfactualApp = artifacts.require("CounterfactualApp");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const ProxyContract = artifacts.require("Proxy");
 const RegistryCallLib = artifacts.require("RegistryCallLib");
@@ -21,6 +20,7 @@ export async function deployThroughProxyFactory(contract, data) {
 }
 
 export async function deployApp(
+	app,
 	owner,
 	signingKeys,
 	id,
@@ -28,8 +28,8 @@ export async function deployApp(
 	deltaTimeout
 ) {
 	return deployThroughProxyFactory(
-		CounterfactualApp,
-		new ethers.Interface(CounterfactualApp.abi).functions.instantiate.encode([
+		app,
+		new ethers.Interface(app.abi).functions.instantiate.encode([
 			owner,
 			signingKeys,
 			id,
@@ -51,7 +51,7 @@ export async function deployMultisig(owners) {
 export function getCFHelper(
 	multisig: ethers.Contract,
 	registry: ethers.Contract,
-	provider: ethers.providers.Web3Provider,
+	provider: ethers.providers.Web3Provider
 ) {
 	return {
 		cfaddressOf: contract => {
@@ -70,7 +70,7 @@ export function getCFHelper(
 				};
 			}
 		},
-		deploy: async (truffleContract, cargs?: any[]) => {
+		deploy: async (truffleContract: any, cargs?: any[]) => {
 			const id = Math.floor(Math.random() * 100);
 
 			const initcode = new ethers.Interface(
@@ -100,17 +100,20 @@ export function getCFHelper(
 
 			return { cfaddress, contract };
 		},
-		deployAppWithState: async (state, signer) => {
+		deployAppWithState: async (
+			app: any, // TODO: Import TruffleContract type.
+			appStateType: string,
+			state: any,
+			signer: ethers.Wallet
+		) => {
 			const id = Math.floor(Math.random() * 100);
 
 			const initcode = new ethers.Interface(
 				ProxyContract.abi
-			).deployFunction.encode(ProxyContract.bytecode, [
-				(CounterfactualApp as any).address
-			]);
+			).deployFunction.encode(ProxyContract.bytecode, [app.address]);
 
 			const calldata = new ethers.Interface(
-				CounterfactualApp.abi
+				app.abi
 			).functions.instantiate.encode([
 				multisig.address,
 				[signer.address],
@@ -137,15 +140,27 @@ export function getCFHelper(
 
 			const contract = new ethers.Contract(
 				address,
-				CounterfactualApp.abi,
+				app.abi,
 				// @ts-ignore: ethers bug, no argument works too
 				provider.getSigner()
 			);
 
-			const updateHash = await (contract as any).getUpdateHash(id, state, 1);
+			const updateHash = ethers.utils.solidityKeccak256(
+				["bytes1", "uint256", "bytes", "uint256"],
+				[
+					"0x19",
+					id,
+					ethers.utils.defaultAbiCoder.encode([appStateType], [state]),
+					1
+				]
+			);
 
-			await (contract as any).setStateWithSigningKeys(
-				state,
+			await (contract as any).setAppStateWithSigningKeys(
+				// TODO: Generalize.
+				//       This is helpful for this helper function, but confusing
+				app.contractName === "BytesApp"
+					? ethers.utils.defaultAbiCoder.encode([appStateType], [state])
+					: state,
 				1,
 				Utils.signMessageVRS(updateHash, [signer]),
 				{

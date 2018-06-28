@@ -9,7 +9,10 @@ const AssetDispatcher = artifacts.require("AssetDispatcher");
 const ConditionalTransfer = artifacts.require("ConditionalTransfer");
 const Registry = artifacts.require("Registry");
 
-const TicTacToeModule = artifacts.require("TicTacToeModule");
+const BytesApp = artifacts.require("BytesApp");
+const TicTacToe = artifacts.require("TicTacToe");
+
+const TwoPlayerGameModule = artifacts.require("TwoPlayerGameModule");
 
 contract("Simple ConditionalTransfer Examples", accounts => {
 	const web3 = (global as any).web3;
@@ -41,8 +44,9 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 	});
 
 	it("handles uncommon state (e.g., tictactoe)", async () => {
-		const [EMPTY, X, O] = [0, 1, 2];
-		const X_WON = 2;
+		const X = 0;
+		const O = 1;
+		const E = 2;
 
 		const [A, B] = [
 			// 0xb37e49bFC97A948617bF3B63BC6942BB15285715
@@ -66,19 +70,20 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 		});
 
 		const nonce = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(["uint256"], [0]),
+			BytesApp,
+			"uint256",
+			0,
 			signer
 		);
 
 		const tictactoe = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(uint256,uint256[9])"],
-				[[X_WON, [X, X, X, O, O, EMPTY, EMPTY, EMPTY, EMPTY]]]
-			),
+			TicTacToe,
+			"tuple(uint256)",
+			[0],
 			signer
 		);
 
-		const tttModule = await helper.deploy(TicTacToeModule, [
+		const tttModule = await helper.deploy(TwoPlayerGameModule, [
 			ethers.utils.parseEther("1"),
 			[A.address, B.address]
 		]);
@@ -117,7 +122,8 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 						),
 						func: {
 							dest: helper.cfaddressOf(nonce),
-							selector: nonce.contract.interface.functions.getAppState.sighash
+							selector:
+								nonce.contract.interface.functions.getExternalState.sighash
 						},
 						parameters: zeroBytes32
 					}
@@ -126,7 +132,8 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 				// The source data comes from tictactoe.getState
 				{
 					dest: helper.cfaddressOf(tictactoe),
-					selector: tictactoe.contract.interface.functions.getAppState.sighash
+					selector:
+						tictactoe.contract.interface.functions.getExternalState.sighash
 				},
 
 				// The data will be piped through <get data> | tttModule.interpret
@@ -179,24 +186,17 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 		});
 
 		const ethbalance = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(tuple(address,bytes32),uint256)[]"],
+			BytesApp,
+			"tuple(tuple(address,bytes32),uint256)[]",
+			[
 				[
-					// abiCoder
 					[
-						// array
-						[
-							// tuple
-							[
-								// tuple
-								zeroAddress,
-								ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
-							],
-							ethers.utils.parseEther("0.5")
-						]
-					]
+						zeroAddress,
+						ethers.utils.defaultAbiCoder.encode(["bytes32"], [A.address])
+					],
+					ethers.utils.parseEther("0.5")
 				]
-			),
+			],
 			signer
 		);
 
@@ -232,7 +232,8 @@ contract("Simple ConditionalTransfer Examples", accounts => {
 				// The source data comes from ethbalance.getState
 				{
 					dest: helper.cfaddressOf(ethbalance),
-					selector: ethbalance.contract.interface.functions.getAppState.sighash
+					selector:
+						ethbalance.contract.interface.functions.getExternalState.sighash
 				},
 
 				// No tttModule function, pretty basic

@@ -7,6 +7,8 @@ const AssetDispatcher = artifacts.require("AssetDispatcher");
 const ConditionalTransfer = artifacts.require("ConditionalTransfer");
 const Registry = artifacts.require("Registry");
 
+const BytesApp = artifacts.require("BytesApp");
+
 const WithdrawModule = artifacts.require("WithdrawModule");
 
 // skip these tests until https://github.com/trufflesuite/ganache-core/issues/98 is resolved
@@ -61,15 +63,16 @@ contract("Withdrawing", accounts => {
 		// be deployed in an actual use case. This is just for convenience in the test case.
 
 		const nonce = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(["uint256"], [0]),
+			BytesApp,
+			"uint256",
+			0,
 			signer
 		);
 
 		const withdraw = await helper.deployAppWithState(
-			ethers.utils.defaultAbiCoder.encode(
-				["tuple(address,address,uint256)"],
-				[[A.address, multisig.address, ethers.utils.parseEther("0")]]
-			),
+			BytesApp,
+			"tuple(address,address,uint256)",
+			[A.address, multisig.address, ethers.utils.parseEther("0")],
 			signer
 		);
 
@@ -96,14 +99,16 @@ contract("Withdrawing", accounts => {
 						),
 						func: {
 							dest: helper.cfaddressOf(nonce),
-							selector: nonce.contract.interface.functions.getAppState.sighash
+							selector:
+								nonce.contract.interface.functions.getExternalState.sighash
 						},
 						parameters: "0x"
 					}
 				],
 				{
 					dest: helper.cfaddressOf(withdraw),
-					selector: withdraw.contract.interface.functions.getAppState.sighash
+					selector:
+						withdraw.contract.interface.functions.getExternalState.sighash
 				},
 				[
 					{
