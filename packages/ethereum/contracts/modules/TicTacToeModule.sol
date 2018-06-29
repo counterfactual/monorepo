@@ -1,31 +1,39 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
 import "../registry/RegistryAddressLib.sol";
 import "../transfer/AssetLib.sol";
 
 
-contract TwoPlayerGameModule {
+contract TicTacToeModule {
 
   using RegistryAddressLib for RegistryAddressLib.CFAddress;
   using AssetLib for AssetLib.ETHTransfer;
 
+  enum SquareType {
+    X,
+    O,
+    EMPTY
+  }
+
   enum StateType {
-    P1_Won,
-    P2_Won,
-    Draw
+    X_TURN,
+    O_TURN,
+    X_WON,
+    O_WON
   }
 
   struct State {
     StateType stateType;
+    SquareType[9] board;
   }
 
   uint256 _amount;
-  address[2] _players;
+  address[] _players;
 
   constructor(
     uint256 amount,
-    address[2] players
+    address[] players
   )
     public
   {
@@ -41,10 +49,10 @@ contract TwoPlayerGameModule {
     AssetLib.ETHTransfer[] memory balances = new AssetLib.ETHTransfer[](2);
     uint256[] memory amounts = new uint256[](2);
 
-    if (state.stateType == StateType.P1_Won) {
+    if (state.stateType == StateType.X_WON) {
       amounts[0] = _amount;
       amounts[1] = 0;
-    } else if (state.stateType == StateType.P2_Won) {
+    } else if (state.stateType == StateType.O_WON) {
       amounts[0] = 0;
       amounts[1] = _amount;
     } else {
