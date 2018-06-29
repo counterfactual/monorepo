@@ -6,16 +6,16 @@ import "./RegistryInterface.sol";
 
 contract RegistryCallLib {
 
-	function proxyCall(
-		address registry,
-		bytes32 cfAddress,
-		bytes data
-	)
-		external
-	{
-		address to = RegistryInterface(registry).resolve(cfAddress);
-		require(to != 0x0);
-		require(to.call(data));
-	}
+  function proxyCall(
+    address registry,
+    bytes32 cfAddress,
+    bytes data
+  )
+    external
+  {
+    address to = RegistryInterface(registry).resolve(cfAddress);
+    require(to != 0x0);
+    require(to.call(data));
+  }
 
 }

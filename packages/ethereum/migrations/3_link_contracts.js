@@ -9,26 +9,26 @@ const TicTacToe  = artifacts.require("./TicTacToe.sol");
 const MetachannelModule = artifacts.require("./MetachannelModule.sol");
 
 module.exports = async (deployer) => {
-	await deployer.then(async () => {
-		await deployer.link(RegistryAddressLib, [
-			AssetDispatcher,
-			ConditionalTransfer,
-			BytesApp,
-			TicTacToe,
-			MetachannelModule,
-			ETHForwarder
-		]);
+  await deployer.then(async () => {
+    await deployer.link(RegistryAddressLib, [
+      AssetDispatcher,
+      ConditionalTransfer,
+      BytesApp,
+      TicTacToe,
+      MetachannelModule,
+      ETHForwarder
+    ]);
 
-		await deployer.link(AssetLib, [AssetDispatcher]);
+    await deployer.link(AssetLib, [AssetDispatcher]);
 
-		await deployer.deploy(AssetDispatcher);
+    await deployer.deploy(AssetDispatcher);
 
-		await deployer.deploy(ConditionalTransfer, [
-			(await AssetDispatcher.deployed()).address
-		]);
+    await deployer.deploy(ConditionalTransfer, [
+      (await AssetDispatcher.deployed()).address
+    ]);
 
-		await deployer.deploy(BytesApp);
-		await deployer.deploy(TicTacToe);
+    await deployer.deploy(BytesApp);
+    await deployer.deploy(TicTacToe);
 
-	});
+  });
 };

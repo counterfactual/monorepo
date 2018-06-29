@@ -6,17 +6,17 @@ const RegistryAddressLib = artifacts.require("./RegistryAddressLib.sol");
 const RegistryCallLib = artifacts.require("./RegistryCallLib.sol");
 
 module.exports = (deployer) => {
-	deployer.then(async () => {
-		await deployer.deploy(MinimumViableMultisig);
+  deployer.then(async () => {
+    await deployer.deploy(MinimumViableMultisig);
 
-		await deployer.deploy(ProxyFactory);
+    await deployer.deploy(ProxyFactory);
 
-		await deployer.deploy(RegistryAddressLib);
+    await deployer.deploy(RegistryAddressLib);
 
-		await deployer.deploy(RegistryCallLib);
+    await deployer.deploy(RegistryCallLib);
 
-		await deployer.deploy(Registry);
+    await deployer.deploy(Registry);
 
-		await deployer.deploy(AssetLib);
-	});
+    await deployer.deploy(AssetLib);
+  });
 };

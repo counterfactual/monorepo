@@ -4,12 +4,12 @@ pragma experimental "ABIEncoderV2";
 
 interface RegistryInterface {
 
-	event ContractCreated(bytes32 cfAddress, address deployedAddress);
+  event ContractCreated(bytes32 cfAddress, address deployedAddress);
 
-	function deploy(bytes, bytes32) public returns (address);
+  function deploy(bytes, bytes32) public returns (address);
 
-	function deployAndCall(bytes, bytes) public returns (address);
+  function deployAndCall(bytes, bytes) public returns (address);
 
-	function resolve(bytes32) external returns (address);
+  function resolve(bytes32) external returns (address);
 
 }
