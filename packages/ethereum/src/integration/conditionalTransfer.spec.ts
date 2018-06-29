@@ -43,7 +43,8 @@ contract("Simple ConditionalTransfer Examples", accounts => {
     signer = ethers.Wallet.createRandom({}).connect(provider);
   });
 
-  it("handles uncommon state (e.g., tictactoe)", async () => {
+  it("handles tictactoe", async () => {
+    const P1_WON = 0;
     const X = 0;
     const O = 1;
     const E = 2;
@@ -76,10 +77,14 @@ contract("Simple ConditionalTransfer Examples", accounts => {
       signer
     );
 
+    const appStateType = ethers.utils.formatParamType(
+      new ethers.Interface(TicTacToe.abi).functions.setAppStateAsOwner.inputs[0]
+    );
+
     const tictactoe = await helper.deployAppWithState(
       TicTacToe,
-      "tuple(uint256)",
-      [0],
+      appStateType,
+      [A.address, B.address, E, P1_WON, [[X, X, X], [O, O, E], [E, E, E]]],
       signer
     );
 
@@ -132,8 +137,7 @@ contract("Simple ConditionalTransfer Examples", accounts => {
         // The source data comes from tictactoe.getState
         {
           dest: helper.cfaddressOf(tictactoe),
-          selector:
-            tictactoe.contract.interface.functions.getExternalState.sighash
+          selector: tictactoe.contract.interface.functions.getGameResult.sighash
         },
 
         // The data will be piped through <get data> | tttModule.interpret

@@ -10,14 +10,14 @@ contract TwoPlayerGameModule {
   using RegistryAddressLib for RegistryAddressLib.CFAddress;
   using AssetLib for AssetLib.ETHTransfer;
 
-  enum StateType {
+  enum Result {
     P1_Won,
     P2_Won,
     Draw
   }
 
   struct State {
-    StateType stateType;
+    Result result;
   }
 
   uint256 _amount;
@@ -41,10 +41,10 @@ contract TwoPlayerGameModule {
     AssetLib.ETHTransfer[] memory balances = new AssetLib.ETHTransfer[](2);
     uint256[] memory amounts = new uint256[](2);
 
-    if (state.stateType == StateType.P1_Won) {
+    if (state.result == Result.P1_Won) {
       amounts[0] = _amount;
       amounts[1] = 0;
-    } else if (state.stateType == StateType.P2_Won) {
+    } else if (state.result == Result.P2_Won) {
       amounts[0] = 0;
       amounts[1] = _amount;
     } else {
