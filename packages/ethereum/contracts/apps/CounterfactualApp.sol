@@ -116,7 +116,7 @@ contract CounterfactualApp {
 		finalizesAt = block.number + _deltaTimeout;
 	}
 
-    function getAppStateHash(
+	function getAppStateHash(
 		bytes appState,
 		uint256 nonce
 	)
@@ -132,7 +132,7 @@ contract CounterfactualApp {
 				nonce
 			)
 		);
-    }
+	}
 
 	function finalizeAsOwner()
 		public

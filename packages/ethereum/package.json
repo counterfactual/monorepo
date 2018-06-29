@@ -9,7 +9,7 @@
 		"lint:all:fix": "yarn lint:fix && yarn lint:sol:fix",
 		"lint:all": "yarn lint && yarn lint:sol",
 		"lint:fix": "tslint -c tslint.json migrations/**/*.ts src/**/*.ts --fix",
-		"lint:sol:fix": "solium -d . --fix",
+		"lint:sol:fix": "solium -d contracts/ --fix",
 		"lint:sol": "solium -d .",
 		"lint": "tslint -c tslint.json migrations/**/*.ts src/**/*.ts",
 		"precommit": "lint-staged",
@@ -28,14 +28,19 @@
 	"files": [
 		"lib/"
 	],
-	"config": {
-		"testFiles": "lib/**/*.spec.js"
-	},
 	"lint-staged": {
-		"*.js": [
-			"prettier --write",
+		"**/*.ts": [
+			"yarn prettier:fix",
+			"yarn lint:fix",
+			"git add"
+		],
+		"contracts/**/*.sol": [
+			"yarn lint:sol:fix",
 			"git add"
 		]
+	},
+	"config": {
+		"testFiles": "lib/**/*.spec.js"
 	},
 	"keywords": [
 		"ethereum",
@@ -57,8 +62,8 @@
 		"decimal.js": "10.0.1",
 		"ethers": "ethers-io/ethers.js#typescript",
 		"ganache-cli": "6.1.3",
-		"husky": "0.14.3",
 		"lint-staged": "7.2.0",
+		"husky": "0.14.3",
 		"prettier": "1.13.6",
 		"run-with-testrpc": "^0.3.0",
 		"solc": "0.4.24",

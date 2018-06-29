@@ -10,15 +10,16 @@
     ]
   },
   "scripts": {
-    "clean": "wsrun clean $PKG --fast-exit -r --parallel",
-    "ganache": "ganache-cli -p 8545 --networkId 50 -m \"${npm_package_config_mnemonic}\"",
-    "rebuild": "run-s clean build",
+		"precommit": "wsrun precommit $PKG --fast-exit -r --exclude-missing",
+		"test": "wsrun test $PKG --exclude-missing",
     "build": "wsrun build $PKG --fast-exit -r --serial",
-    "coverage": "wsrun coverage $PKG",
-    "lint": "wsrun lint $PKG",
-    "prettier": "wsrun prettier $PKG",
-    "test": "wsrun test $PKG"
-  },
+    "clean": "wsrun clean $PKG --fast-exit -r --parallel",
+    "coverage": "wsrun coverage $PKG --exclude-missing",
+    "ganache": "ganache-cli -p 8545 --networkId 50 -m \"${npm_package_config_mnemonic}\"",
+    "lint": "wsrun lint $PKG --exclude-missing",
+    "prettier": "wsrun prettier $PKG --exclude-missing",
+    "rebuild": "run-s clean build"
+	},
   "config": {
     "mnemonic": "concert load couple harbor equip island argue ramp clarify fence smart topic"
   },
@@ -27,6 +28,7 @@
     "npm-run-all": "^4.1.3",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "2.9.2",
-    "wsrun": "2.2.0"
+		"wsrun": "2.2.0",
+		"husky": "0.14.3"
   }
 }

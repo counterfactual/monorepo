@@ -9,31 +9,33 @@ contract BytesApp is CounterfactualApp {
 
 	bytes _appState;
 
-    function setAppStateWithSigningKeys(
-        bytes appState,
-        uint256 nonce,
-        Signature signature
-    )
-        CFSignedUpdate(
+	function getExternalState() external view returns (bytes) {
+		return _appState;
+	}
+
+	function setAppStateWithSigningKeys(
+		bytes appState,
+		uint256 nonce,
+		Signature signature
+	)
+		CFSignedUpdate(
 			appState,
 			nonce,
 			signature
 		)
-    {
-        _appState = appState;
-    }
+	 	public
+	{
+		_appState = appState;
+	}
 
-    function setAppStateAsOwner(
-        bytes appState,
-        uint256 nonce
-    )
-        CFOwnedUpdate(nonce)
-    {
-        _appState = appState;
-    }
-
-    function getExternalState() external view returns (bytes) {
-        return _appState;
-    }
+	function setAppStateAsOwner(
+		bytes appState,
+		uint256 nonce
+	)
+		CFOwnedUpdate(nonce)
+		public
+	{
+		_appState = appState;
+	}
 
 }
