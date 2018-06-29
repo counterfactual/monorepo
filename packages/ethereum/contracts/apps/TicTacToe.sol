@@ -2,41 +2,49 @@ pragma solidity ^0.4.24;
 pragma experimental "ABIEncoderV2";
 
 import "./CounterfactualApp.sol";
+import "../modules/TwoPlayerGameModule.sol";
 
 
 contract TicTacToe is CounterfactualApp {
 
-  /**
-   * Application-specific state.
-   */
-
-  enum GameState {
-    X_TURN,
-    O_TURN,
-    X_WON,
-    O_WON,
-    DRAW
+  enum Player {
+    X,
+    O
   }
 
-  enum SquareType {
+  enum OptionalPlayer {
     X,
     O,
-    EMPTY
+    NONE
   }
 
   struct AppState {
-    uint256 winner;
+    address pXAddr;
+    address pOAddr;
+    OptionalPlayer gameState; // NONE => game im progress
+    TwoPlayerGameModule.Result winner;
+    OptionalPlayer[3][3] board; // NONE => empty square
   }
 
   AppState public appState;
 
+  modifier correctTurn() {
+    if (appState.gameState == OptionalPlayer.X) {
+      require(msg.sender == appState.pXAddr);
+    } else if (appState.gameState == OptionalPlayer.O) {
+      require(msg.sender == appState.pOAddr);
+    }
+    _;
+  }
+
+  function getGameResult() external view returns (bytes) {
+    require(appState.gameState == OptionalPlayer.NONE);
+    return abi.encode(appState.winner);
+  }
+
   function getExternalState() external view returns (bytes) {
     return abi.encode(appState);
   }
-
-  /**
-   * Overriding CounterfactualApp signing methods.
-   */
 
   function setAppStateWithSigningKeys(
     AppState _appState,
@@ -63,57 +71,64 @@ contract TicTacToe is CounterfactualApp {
     appState = _appState;
   }
 
-  /**
-   * Application-specific API.
-   *
-   * Only used in interactive dispute resolution case.
-   */
+  function makeMove(uint x, uint y)
+    public
+    correctTurn
+  {
+    require(appState.board[x][y] == OptionalPlayer.NONE);
+    appState.gameState = flipOptional(appState.gameState);
+    appState.board[x][y] = appState.gameState;
+  }
 
-  // modifier sameTurn() {
-  //     if (appState.turn == GameState.X_TURN) {
-  //         require(msg.sender == appState.playerX);
-  //     } else if (appState.turn == GameState.O_TURN) {
-  //         require(msg.sender == appState.playerO);
-  //     }
-  //     _;
-  // }
+  function declareVictoryRow(uint rowNum, Player player) public {
+    require(appState.board[rowNum][0] == just(player));
+    require(appState.board[rowNum][1] == just(player));
+    require(appState.board[rowNum][2] == just(player));
+    appState.gameState = just(player);
+  }
 
-  // function flip (GameState turn) internal pure returns (GameState) {
-  //     if (turn == GameState.X_TURN) return GameState.O_TURN;
-  //     return GameState.X_TURN;
-  // }
+  function declareVictoryCol(uint colNum, Player player) public {
+    require(appState.board[0][colNum] == just(player));
+    require(appState.board[1][colNum] == just(player));
+    require(appState.board[2][colNum] == just(player));
+    appState.gameState = just(player);
+  }
 
-  // function squareTypeOfTurn(GameState turn) internal pure returns (SquareType) {
-  //     if (turn == GameState.X_TURN) return SquareType.X;
-  //     return SquareType.O;
-  // }
+  function declareVictoryMainDiag(Player player) public {
+    require(appState.board[0][0] == just(player));
+    require(appState.board[1][1] == just(player));
+    require(appState.board[2][2] == just(player));
+    appState.gameState = just(player);
+  }
 
-  // function makeMove(uint x, uint y)
-  //   public
-  //   appInDispute
-  //   sameTurn
-  // {
-  //     require(appState.board[x][y] == SquareType.EMPTY);
-  //     appState.turn = flip(appState.turn);
-  //     appState.board[x][y] = squareTypeOfTurn(appState.turn);
-  // }
+  function declareVictoryOffDiag(Player player) public {
+    require(appState.board[2][0] == just(player));
+    require(appState.board[1][1] == just(player));
+    require(appState.board[0][2] == just(player));
+    appState.gameState = just(player);
+  }
 
-  // function declareVictoryRow(uint rowNum) {
-  //     return;
-  // }
+  function flip (Player p) internal pure returns (Player) {
+    if (p == Player.X)
+      return Player.O;
+    if (p == Player.O)
+      return Player.X;
+  }
 
-  // function declareVictoryCol(uint rowNum) {
-  //     return;
-  // }
+  function flipOptional (OptionalPlayer p) internal pure returns (OptionalPlayer) {
+    if (p == OptionalPlayer.X)
+      return OptionalPlayer.O;
+    if (p == OptionalPlayer.O)
+      return OptionalPlayer.X;
+    return OptionalPlayer.NONE;
+  }
 
-  // function declareVictoryMainDiag() {
-  //     return;
-  // }
-
-  // function declareVictoryOffDiag() {
-  //     return;
-  // }
-
-
+  function just (Player p) internal pure returns (OptionalPlayer) {
+    if (p == Player.X)
+      return OptionalPlayer.O;
+    if (p == Player.O)
+      return OptionalPlayer.X;
+    require(false);
+  }
 
 }
