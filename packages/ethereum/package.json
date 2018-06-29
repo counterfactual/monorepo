@@ -19,7 +19,7 @@
     "truffle:compile": "truffle compile",
     "truffle:console": "truffle console",
     "truffle:migrate": "truffle migrate",
-		"truffle:test": "./bin/test.sh $npm_package_config_testFiles"
+    "truffle:test": "./bin/test.sh $npm_package_config_testFiles"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
