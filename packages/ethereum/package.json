@@ -14,7 +14,7 @@
     "lint": "tsc --noEmit && tslint -c tslint.json src/**/*.ts",
     "precommit": "lint-staged",
     "test": "yarn build && yarn truffle:test",
-    "test:circleci": "yarn test:coverage",
+    "test:circleci": "yarn test:coverage && ./bin/coveralls.sh",
     "test:coverage": "solidity-coverage",
     "truffle:compile": "truffle compile",
     "truffle:console": "truffle console",
