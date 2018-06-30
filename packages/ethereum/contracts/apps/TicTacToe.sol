@@ -49,13 +49,13 @@ contract TicTacToe is CounterfactualApp {
   function setAppStateWithSigningKeys(
     AppState _appState,
     uint256 nonce,
-    Signature signature
+    bytes signatures
   )
     public
     CFSignedUpdate(
       abi.encode(_appState),
       nonce,
-      signature
+      signatures
     )
   {
     appState = _appState;

@@ -16,14 +16,14 @@ contract BytesApp is CounterfactualApp {
   function setAppStateWithSigningKeys(
     bytes appState,
     uint256 nonce,
-    Signature signature
+    bytes signatures
   )
     CFSignedUpdate(
       appState,
       nonce,
-      signature
+      signatures
     )
-     public
+    public
   {
     _appState = appState;
   }
@@ -32,8 +32,8 @@ contract BytesApp is CounterfactualApp {
     bytes appState,
     uint256 nonce
   )
+  public
     CFOwnedUpdate(nonce)
-    public
   {
     _appState = appState;
   }

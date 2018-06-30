@@ -2,15 +2,10 @@ pragma solidity ^0.4.24;
 pragma experimental "ABIEncoderV2";
 
 import "../registry/RegistryAddressLib.sol";
+import "../lib/SignatureValidator.sol";
 
 
-contract CounterfactualApp {
-
-  struct Signature {
-    uint8[] v;
-    bytes32[] r;
-    bytes32[] s;
-  }
+contract CounterfactualApp is SignatureValidator {
 
   address public masterCopy;
 
@@ -64,7 +59,7 @@ contract CounterfactualApp {
   modifier CFSignedUpdate(
     bytes appState,
     uint256 nonce,
-    Signature signature
+    bytes signatures
   ) {
     require(
       nonce > latestNonce,
@@ -77,20 +72,11 @@ contract CounterfactualApp {
     );
 
     bytes32 updateHash = getAppStateHash(appState, nonce);
-    address lastSigner = address(0);
-    for (uint256 i = 0; i < _signingKeys.length; i++) {
-      require(
-        _signingKeys[i] == ecrecover(
-          updateHash,
-          signature.v[i],
-          signature.r[i],
-          signature.s[i]
-        ),
-        "Signer must be an owner of the object."
-      );
-      require(_signingKeys[i] > lastSigner);
-      lastSigner = _signingKeys[i];
-    }
+
+    require(
+      checkSignature(updateHash, signatures, _signingKeys),
+      "Signatures invalid."
+    );
 
     _;
 
@@ -142,7 +128,7 @@ contract CounterfactualApp {
     finalizesAt = block.number;
   }
 
-  function finalizeWithSigningKeys(Signature signature)
+  function finalizeWithSigningKeys(bytes signatures)
     appNotFinalized
     public
   {
@@ -155,20 +141,11 @@ contract CounterfactualApp {
       )
     );
 
-    address lastSigner = address(0);
-    for (uint256 i = 0; i < _signingKeys.length; i++) {
-      require(
-        _signingKeys[i] == ecrecover(
-          finalizeHash,
-          signature.v[i],
-          signature.r[i],
-          signature.s[i]
-        ),
-        "Signer must be an owner of the object."
-      );
-      require(_signingKeys[i] > lastSigner);
-      lastSigner = _signingKeys[i];
-    }
+    require(
+      checkSignature(finalizeHash, signatures, _signingKeys),
+      "Signatures invalid."
+    );
+
 
     finalizesAt = block.number;
   }
@@ -181,7 +158,7 @@ contract CounterfactualApp {
     finalizesAt = 0;
   }
 
-  function resumeWithSigningKeys(Signature signature)
+  function resumeWithSigningKeys(bytes signatures)
     public
     appNotFinalized
   {
@@ -194,26 +171,37 @@ contract CounterfactualApp {
       )
     );
 
-    address lastSigner = address(0);
-    for (uint256 i = 0; i < _signingKeys.length; i++) {
-      require(
-        _signingKeys[i] == ecrecover(
-          finalizeHash,
-          signature.v[i],
-          signature.r[i],
-          signature.s[i]
-        ),
-        "Signer must be an owner of the object."
-      );
-      require(_signingKeys[i] > lastSigner);
-      lastSigner = _signingKeys[i];
-    }
+    require(
+      checkSignature(finalizeHash, signatures, _signingKeys),
+      "Signatures invalid."
+    );
 
     finalizesAt = 0;
   }
 
   function isFinal() public view returns (bool) {
     return finalizesAt != 0 && finalizesAt <= block.number;
+  }
+
+  function checkSignature(
+    bytes32 stateHash,
+    bytes signatures,
+    address[] signingKeys
+  )
+		public
+		pure
+		returns(bool)
+	{
+    address lastSigner = address(0);
+    for (uint256 i = 0; i < signingKeys.length; i++) {
+      require(
+        signingKeys[i] == recoverKey(stateHash, signatures, i),
+        "Signer must be an owner of the object."
+      );
+      require(signingKeys[i] > lastSigner);
+      lastSigner = signingKeys[i];
+    }
+    return true;
   }
 
 }
