@@ -149,7 +149,7 @@ contract("BytesApp", accounts => {
             app.functions.setAppStateWithSigningKeys(
               appState || Utils.zeroBytes32,
               nonce,
-              Utils.signMessageVRS(
+              Utils.signMessageBytes(
                 getUpdateHash(APP_ID, appState || Utils.zeroBytes32, nonce),
                 [signer]
               ),
@@ -210,7 +210,7 @@ contract("BytesApp", accounts => {
   describe("finalizing app state", async () => {
     const sendSignedFinalizationToChainWithNonce = (nonce: number) =>
       app.functions.finalizeWithSigningKeys(
-        Utils.signMessageVRS(getFinalizeHash(APP_ID, nonce), [signer])
+        Utils.signMessageBytes(getFinalizeHash(APP_ID, nonce), [signer])
       );
 
     it("should work with owner", async () => {

@@ -162,7 +162,7 @@ export function getCFHelper(
           ? ethers.utils.defaultAbiCoder.encode([appStateType], [state])
           : state,
         1,
-        Utils.signMessageVRS(updateHash, [signer]),
+        Utils.signMessageBytes(updateHash, [signer]),
         {
           gasLimit: 4712388,
           gasPrice: await provider.getGasPrice()

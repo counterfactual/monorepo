@@ -25,6 +25,23 @@ export function signMessageVRS(message, wallets: ethers.Wallet[]) {
   return { v, r, s };
 }
 
+export function signMessageRaw(message, wallet) {
+  const [v, r, s] = signMessage(message, wallet);
+  return (
+    ethers.utils.hexlify(ethers.utils.padZeros(r, 32)).substring(2) +
+    ethers.utils.hexlify(ethers.utils.padZeros(s, 32)).substring(2) +
+    v.toString(16)
+  );
+}
+
+export function signMessageBytes(message, wallets) {
+  let signatures = "";
+  for (const wallet of wallets) {
+    signatures += signMessageRaw(message, wallet);
+  }
+  return "0x" + signatures;
+}
+
 export function getParamFromTxEvent(
   transaction,
   eventName,
