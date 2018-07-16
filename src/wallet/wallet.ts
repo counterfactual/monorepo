@@ -6,7 +6,7 @@ import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	ChannelStates,
+	CfState,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
