@@ -1,0 +1,35 @@
+{
+	"rules": {
+		"extends": [
+			"tslint:latest",
+			"tslint-config-prettier"
+		],
+		"class-name": true,
+		"comment-format": [
+			false,
+			"check-space"
+		],
+		"curly": false,
+		"interface-name": false,
+		"jsdoc-format": true,
+		"no-consecutive-blank-lines" : false,
+		"no-debugger": true,
+		"no-duplicate-variable": true,
+		"no-eval": true,
+		"no-internal-module": true,
+		"no-trailing-whitespace": false,
+		"no-shadowed-variable": false,
+		"no-switch-case-fall-through": true,
+		"no-unused-expression": false,
+		"no-use-before-declare": false,
+		"no-var-keyword": true,
+		"triple-equals": [
+			true,
+			"allow-null-check"
+		],
+		"variable-name": [
+			true,
+			"ban-keywords"
+		]
+	}
+}

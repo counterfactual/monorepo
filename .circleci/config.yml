@@ -1,0 +1,108 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule sync --recursive
+            git submodule update --recursive --init
+      - restore_cache:
+          key: dependency-cache-{{ checksum "counterfactual-contracts/package.json" }}
+      - run:
+          working_directory: counterfactual-contracts
+          command: npm i
+      - run:
+          working_directory: counterfactual-contracts
+          command: ./node_modules/.bin/truffle compile
+      - save_cache:
+          key: dependency-cache-{{ checksum "counterfactual-contracts/package.json" }}
+          paths:
+            - ./counterfactual-contracts/build
+            - ./counterfactual-contracts/node_modules
+      - run:
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          command: npm i
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+  run-node-tests:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule sync --recursive
+            git submodule update --recursive --init
+      - restore_cache:
+          key: dependency-cache-{{ checksum "counterfactual-contracts/package.json" }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: "Install node@9.10.1"
+          command: |
+            set +e
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v9.10.1
+            nvm alias default v9.10.1
+            # Each step uses the same `$BASH_ENV`, so need to modify it
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - run: docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest --account="0x170f140962cc7c9afc98d0d2468b075c87493c9ab8164117f3a9866a9a4404fa,99999999999999999999999999" --account="0xd0fb28b764036a8df6f7ea63865b0ed1c0de67543d2b795f5ad96541208ce763,99999999999999999999999999"
+      - run: npm test
+
+  run-tslint:
+      docker:
+        - image: circleci/node:9.11
+      steps:
+        - checkout
+        - restore_cache:
+            key: dependency-cache-{{ checksum "package.json" }}
+        - run: npm run lint
+
+  run-prettier:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: npm run prettier
+
+  run-code-coverage:
+    docker:
+      - image: circleci/node:9.11
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: ./scripts/coverage.sh
+
+workflows:
+  version: 2
+  run-node-tests:
+    jobs:
+      - build
+      - run-tslint:
+          requires:
+            - build
+      - run-prettier:
+          requires:
+            - build
+      - run-node-tests:
+          requires:
+            - build
+      - run-code-coverage:
+          requires:
+            - build
