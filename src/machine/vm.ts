@@ -3,7 +3,8 @@ import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	CfState,
+	ChannelStates,
+	NetworkContext,		
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -58,6 +59,24 @@ export class InternalMessage {
 	}
 }
 
+export class CfState {
+	channelStates: ChannelStates;
+	networkContext: NetworkContext;
+	constructor(channelStates: ChannelStates) {
+		this.channelStates = channelStates;
+		// TODO Refactor params to be an an object with prop names
+		this.networkContext = new NetworkContext(
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"0xaaaabbbb",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"0xbbbbaaaa",
+			"0x0"
+		)
+	}
+}
+
 export class CounterfactualVM {
 	requests: any;
 	middlewares: { method: Function, scope: string }[];
@@ -81,7 +100,7 @@ export class CounterfactualVM {
 		stateChannel.appChannels.someAppId = appChannel;
 		this.appChannelInfos.someAppId = appChannel;
 
-		this.cfState = this.stateChannelInfos;
+		this.cfState = new CfState(this.stateChannelInfos);
 	}
 
 	setupDefaultMiddlewares() {
@@ -100,7 +119,7 @@ export class CounterfactualVM {
 				}
 			}
 
-			let result: CfState = {
+			let result: ChannelStates = {
 				[appChannel.stateChannel.multisigAddress]: updatedStateChannel
 			}
 
@@ -136,12 +155,12 @@ export class CounterfactualVM {
 		// write to the state object
 	}
 
-	mutateState(state: CfState) {
+	mutateState(state: ChannelStates) {
 		console.log('about to update -------');
-		console.log('existing state ', this.cfState);
+		console.log('existing state ', this.cfState.channelStates);
 		console.log('new state ', state);
-		Object.assign(this.cfState, state);
-		console.log('updated state after updating ', this.cfState);
+		Object.assign(this.cfState.channelStates, state);
+		console.log('updated state after updating ', this.cfState.channelStates);
 	}
 
 	register(scope: string, method: Function) {

@@ -1,5 +1,7 @@
+import { ClientMessage } from './../src/machine/types';
 import { CfOpUpdate } from "../src/protocols/cf-operation/cf-op-update";
 import { CfWallet } from "../src/wallet/wallet";
+import * as ethers from "ethers";
 
 
 describe("Exploring", () => {
@@ -12,12 +14,17 @@ describe("Exploring", () => {
 
 	it("IgorXX", async (done) => {
 		let wallet = new CfWallet();
-		let msg = {
+		let msg: ClientMessage = {
 			requestId: '123-456-789',
-			appName: 'ethmo',
-			appId: 'someAppId',
-			action: 'update',
-			data: { moduleUpdateData: { someValue: 1 } }
+			//appName: 'ethmo',
+			//appId: 'someAppId',
+			toAddress: 'toAddr',
+			fromAddress: 'fromAddr',
+			multisigAddress: '',
+			action: 'setup',
+			data: { 
+				encodedData: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]),
+				moduleUpdateData: { someValue: 1 } }
 		};
 		wallet.receive(msg);
 		let incoming = {

@@ -2,7 +2,7 @@ import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	CfState,
+	ChannelStates,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -10,7 +10,7 @@ import {
 	ClientMessage,
 	FreeBalance
 } from "./types";
-
+import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
 import { CounterfactualVM, Instructions, InternalMessage } from './vm';
 (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
@@ -28,8 +28,8 @@ export class Action {
 		this.instructions = Instructions[action];
 	}
 
-	execute(wallet: CounterfactualVM): ActionExecution {
-		let exe = new ActionExecution(this, 0, this.clientMessage, wallet);
+	execute(vm: CounterfactualVM): ActionExecution {
+		let exe = new ActionExecution(this, 0, this.clientMessage, vm);
 		this.execution = exe;
 		return exe;
 	}
@@ -41,26 +41,37 @@ export class ActionExecution {
 	instructionPointer: number;
 	opCodes: string[][];
   clientMessage: ClientMessage;
-  // FIX The naming
-	wallet: CounterfactualVM;
+	vm: CounterfactualVM;
 	// probably not the best data structure
 	results: { opCode: string, value: any }[];
 	stateChannelInfos: StateChannelInfos;
 	appChannelInfos: AppChannelInfos;
 
-	constructor(action: Action, instruction: number, clientMessage: ClientMessage, wallet: CounterfactualVM) {
+	constructor(action: Action, instruction: number, clientMessage: ClientMessage, vm: CounterfactualVM) {
 		this.action = action;
 		this.instructionPointer = instruction;
 		this.opCodes = Instructions[action.name]
 		this.clientMessage = clientMessage;
-		this.wallet = wallet;
+		this.vm = vm;
 		this.results = [];
-		this.stateChannelInfos = wallet.stateChannelInfos;
-		this.appChannelInfos = wallet.appChannelInfos;
+		this.stateChannelInfos = vm.stateChannelInfos;
+    this.appChannelInfos = vm.appChannelInfos;
 	}
+
+  initializeExecution() {
+    if (this.action.name === 'setup') {
+      let stateChannel = new StateChannelInfoImpl(this.clientMessage.toAddress, this.clientMessage.fromAddress, this.clientMessage.multisigAddress);
+      this.clientMessage.stateChannel = stateChannel;
+      // TODO Think about pending state/whether we want to do this for the underlying copy
+      this.vm.mutateState({[this.clientMessage.multisigAddress]: stateChannel});
+    }
+  }
 
 	// update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo', 'validateSignatures', 'returnSuccess']
 	async next(): Promise<{ done: boolean, value: number }> {
+    if (this.instructionPointer === 0) {
+      this.initializeExecution();
+    }
 		let op = this.opCodes[this.instructionPointer];
 		let internalMessage = new InternalMessage(this.action.name, op, this.clientMessage);
 
@@ -79,7 +90,7 @@ export class ActionExecution {
 		});
 
 		let counter = 0;
-		let middlewares = this.wallet.middlewares;
+		let middlewares = this.vm.middlewares;
 		let opCode = msg.opCode;
 		let context = {
 			results: this.results,

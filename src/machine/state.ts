@@ -3,7 +3,7 @@ import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	CfState,
+	ChannelStates,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -12,18 +12,16 @@ import {
 	FreeBalance
 } from "./types";
 
-export class StateChannelInfoImpl implements StateChannelInfo {
-	toAddress?: string;
-	fromAddress?: string;
-	multisigAddress?: string;
-	appChannels?: AppChannelInfos;
-	freeBalance?: FreeBalance;
 
-	constructor() {
-		this.toAddress = 'toAddress';
-		this.fromAddress = 'fromAddress';
-		this.multisigAddress = 'sampleMultisig';
-		this.appChannels = {};
+export class StateChannelInfoImpl implements StateChannelInfo {
+  appChannels?: AppChannelInfos;
+  freeBalance?: FreeBalance;
+	constructor(
+    readonly toAddress?: string,
+    readonly fromAddress?: string,
+    readonly multisigAddress?: string
+  ) {
+    this.appChannels = {};
 	}
 }
 

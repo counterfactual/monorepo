@@ -2,19 +2,37 @@ import { Response } from "./vm";
 
 export interface ClientMessage {
 	requestId: string;
-	appName: string;
-	appId: string;
+	appName?: string;
+	appId?: string;
 	action: string;
 	data: any;
+	multisigAddress?: string;
+	toAddress?: string;
+	fromAddress?: string;
+	stateChannel: StateChannelInfo
 }
 
 export class FreeBalance {
 
 }
 
-export interface CfState {
+export class NetworkContext {
+	constructor(
+		readonly CounterfactualAppAddress: string,
+		readonly RegistryAddress: string,
+		readonly WithdrawAppInterpreterAddress: string,
+		readonly WithdrawAppInterpreterSighash: string,
+		readonly AssetDispatcherAddress: string,
+		readonly AssetDispatcherSighashForETH: string,
+		readonly WithdrawAppBytecode: string,
+	) { }
+}
+
+// Tree of all the stateChannel and appChannel state
+export interface ChannelStates {
 	[s: string]: StateChannelInfo
 }
+
 
 export interface StateChannelInfo {
 	toAddress?: string;

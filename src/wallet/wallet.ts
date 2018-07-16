@@ -6,7 +6,7 @@ import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	CfState,
+	ChannelStates,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -55,6 +55,7 @@ export class CfWallet implements ResponseSink {
 					nonce
 				});
 			return Promise.resolve(null);
+			}
 		});
 
 		this.register('signMyUpdate', async function signMyUpdate(message: InternalMessage, next: Function) {
