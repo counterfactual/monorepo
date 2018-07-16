@@ -20,10 +20,18 @@ export let Instructions = {
 };
 
 /*
+readonly appId: string,
+readonly signingKey: string,
+readonly peerAmounts: Array<CfPeerAmount>,
+readonly initData: any,
+readonly metadata?: any
+*/
+/*
 let Instructions = {
 	update: ['generateOp', 'signMyUpdate', 'validate', 'IoSendMessage', 'waitForAllSignatures', 'validate', 'returnSuccess'],
 }
 */
+
 export class Response {
 	requestId: string;
 	status: string;
