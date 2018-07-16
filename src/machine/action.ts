@@ -39,7 +39,7 @@ export class ActionExecution {
 
 	action: Action;
 	instructionPointer: number;
-	opCodes: string[];
+	opCodes: string[][];
   clientMessage: ClientMessage;
   // FIX The naming
 	wallet: CounterfactualVM;
@@ -66,7 +66,7 @@ export class ActionExecution {
 
 		let value = await this.runMiddlewares(internalMessage);
 		this.instructionPointer++;
-		this.results.push({ opCode: op, value });
+		this.results.push({ opCode: op[0], value });
 		let done = this.instructionPointer === this.opCodes.length;
 		return { value, done };
 	}

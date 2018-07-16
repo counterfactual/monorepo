@@ -15,8 +15,9 @@ import {
 
 import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
 export let Instructions = {
-	update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo', 'validateSignatures', 'returnSuccess'],
-	updateAck: ['waitForIo', 'generateOp', 'validateSignatures', 'signMyUpdate', 'IoSendMessage', 'returnSuccess']
+	update: [['generateOp', 'update'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
+	updateAck: [['waitForIo'], ['generateOp'], ['validateSignatures'], ['signMyUpdate'], ['IoSendMessage'], ['returnSuccess']],
+	setup: [['generateOp', 'update'], ['signMyUpdate'], ['generateOp', 'install'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
 };
 
 /*
@@ -46,11 +47,13 @@ export class Response {
 export class InternalMessage {
 	actionName: string;
 	opCode: string;
+	opCodeArgs: string[];
 	clientMessage: ClientMessage;
 
-	constructor(action: string, opCode: string, clientMessage: ClientMessage) {
+	constructor(action: string, [opCode, ...opCodeArgs]: string[],  clientMessage: ClientMessage) {
 		this.actionName = action;
 		this.opCode = opCode;
+		this.opCodeArgs = opCodeArgs;
 		this.clientMessage = clientMessage;
 	}
 }

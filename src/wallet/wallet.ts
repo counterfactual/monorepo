@@ -30,7 +30,7 @@ export class CfWallet implements ResponseSink {
 			return result;
 		});
 
-		this.register('generateOp', async function generateOp(message, next) {
+		this.register('generateOp', async function generateOp(message: InternalMessage, next: Function) {
 
 			if (message.actionName === 'update') {
 
@@ -48,12 +48,12 @@ export class CfWallet implements ResponseSink {
 			return Promise.resolve(null);
 		});
 
-		this.register('signMyUpdate', async function signMyUpdate(message, next) {
+		this.register('signMyUpdate', async function signMyUpdate(message: InternalMessage, next: Function) {
 			console.log(message);
 			return Promise.resolve({ signature: 'hi', data: { something: 'hello' } });
 		});
 
-		this.register('validateSignatures', async function validateSignatures(message, next, context) {
+		this.register('validateSignatures', async function validateSignatures(message: InternalMessage, next: Function, context) {
 			let incomingMessage = getFirstResult('waitForIo', context.results);
 			let op = getFirstResult('generateOp', context.results);
 			// do some magic here
