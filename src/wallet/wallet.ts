@@ -33,7 +33,6 @@ export class CfWallet implements ResponseSink {
 		this.register('generateOp', async function generateOp(message: InternalMessage, next: Function) {
 
 			if (message.actionName === 'update') {
-
 				let nonce = 75;
 				const op = CfOpUpdate.operation({
 					appId: 'non actually needed',
@@ -45,6 +44,16 @@ export class CfWallet implements ResponseSink {
 				});
 				return Promise.resolve(op);
 			}
+			if (message.actionName === 'setup' && message.opCodeArgs[0] === 'updateAsOwn') {
+				let nonce = 75;
+				const op = CfOpUpdate.operation({
+					appId: 'non actually needed',
+					cfaddress: 'some address',
+					proposedAppState: 'some state',
+					moduleUpdateData: 'some state',
+					metadata: 'this goes away with this design',
+					nonce
+				});
 			return Promise.resolve(null);
 		});
 

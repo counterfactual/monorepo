@@ -17,7 +17,7 @@ import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
 export let Instructions = {
 	update: [['generateOp', 'update'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
 	updateAck: [['waitForIo'], ['generateOp'], ['validateSignatures'], ['signMyUpdate'], ['IoSendMessage'], ['returnSuccess']],
-	setup: [['generateOp', 'update'], ['signMyUpdate'], ['generateOp', 'install'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
+	setup: [['generateOp', 'updateAsOwn'], ['signMyUpdate'], ['generateOp', 'install'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
 };
 
 /*
