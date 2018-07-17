@@ -1,12 +1,17 @@
-import { Context } from './../machine/state';
-import { CfOpUpdate } from './../protocols/cf-operation/cf-op-update';
-import { CounterfactualVM, Response, InternalMessage } from './../machine/vm';
+import { Context } from "../machine/state";
+import { CfOpUpdate } from "../protocols/cf-operation/cf-op-update";
+import { CfOpSetup } from "../protocols/cf-operation/cf-op-setup";
+import {
+	CfState,
+	CounterfactualVM,
+	Response,
+	InternalMessage
+} from "./../machine/vm";
 
 import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
-	CfState,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -23,49 +28,76 @@ export class CfWallet implements ResponseSink {
 		this.vm = new CounterfactualVM(this);
 		let ioProvider = new IoProvider();
 		this.ioProvider = ioProvider;
-		this.register('*', async function logger(message, next) {
-			console.log('message', message);
+		this.register("*", async function logger(message, next) {
+			console.log("message", message);
 			let result = await next();
-			console.log('result', result);
+			console.log("result", result);
 			return result;
 		});
 
-		this.register('generateOp', async function generateOp(message: InternalMessage, next: Function) {
-
-			if (message.actionName === 'update') {
-				let nonce = 75;
-				const op = CfOpUpdate.operation({
-					appId: 'non actually needed',
-					cfaddress: 'some address',
-					proposedAppState: 'some state',
-					moduleUpdateData: 'some state',
-					metadata: 'this goes away with this design',
-					nonce
-				});
-				return Promise.resolve(op);
+		this.register(
+			"generateOp",
+			async (message: InternalMessage, next: Function) => {
+				if (message.actionName === "update") {
+					let nonce = 75;
+					const op = CfOpUpdate.operation({
+						appId: "non actually needed",
+						cfaddress: "some address",
+						proposedAppState: "some state",
+						moduleUpdateData: "some state",
+						metadata: "this goes away with this design",
+						nonce
+					});
+					return op;
+				}
+				if (
+					// @igor let's just use the current cf op structure for now
+					// I need to think more about the  general "updateAsOwner"
+					// in this context, but I'm running out of time today.
+					message.actionName === "setup" &&
+					message.opCodeArgs[0] === "setupNonce"
+				) {
+					let nonceUniqueId = 1; // todo
+					const op = CfOpSetup.nonceUpdateOp(
+						nonceUniqueId,
+						message.clientMessage.multisigAddress,
+						message.clientMessage.stateChannel.owners(),
+						this.vm.cfState.networkContext
+					);
+					return op;
+				}
+				if (
+					message.actionName === "setup" &&
+					message.opCodeArgs[0] === "setupFreeBalance"
+				) {
+					let freeBalanceUniqueId = 2; // todo
+					let owners = [];
+					const op = CfOpSetup.freeBalanceInstallOp(
+						freeBalanceUniqueId,
+						message.clientMessage.multisigAddress,
+						message.clientMessage.stateChannel.owners(),
+						this.vm.cfState.networkContext
+					);
+					return op;
+				}
 			}
-			if (message.actionName === 'setup' && message.opCodeArgs[0] === 'updateAsOwn') {
-				let nonce = 75;
-				const op = CfOpUpdate.operation({
-					appId: 'non actually needed',
-					cfaddress: 'some address',
-					proposedAppState: 'some state',
-					moduleUpdateData: 'some state',
-					metadata: 'this goes away with this design',
-					nonce
-				});
-			return Promise.resolve(null);
-			}
-		});
+		);
 
-		this.register('signMyUpdate', async function signMyUpdate(message: InternalMessage, next: Function) {
+		this.register("signMyUpdate", async function signMyUpdate(
+			message: InternalMessage,
+			next: Function
+		) {
 			console.log(message);
-			return Promise.resolve({ signature: 'hi', data: { something: 'hello' } });
+			return Promise.resolve({ signature: "hi", data: { something: "hello" } });
 		});
 
-		this.register('validateSignatures', async function validateSignatures(message: InternalMessage, next: Function, context) {
-			let incomingMessage = getFirstResult('waitForIo', context.results);
-			let op = getFirstResult('generateOp', context.results);
+		this.register("validateSignatures", async function validateSignatures(
+			message: InternalMessage,
+			next: Function,
+			context
+		) {
+			let incomingMessage = getFirstResult("waitForIo", context.results);
+			let op = getFirstResult("generateOp", context.results);
 			// do some magic here
 
 			console.log(message);
@@ -73,8 +105,8 @@ export class CfWallet implements ResponseSink {
 			return Promise.resolve();
 		});
 
-		this.register('IoSendMessage', ioProvider.IoSendMessage.bind(ioProvider));
-		this.register('waitForIo', ioProvider.waitForIo.bind(ioProvider));
+		this.register("IoSendMessage", ioProvider.IoSendMessage.bind(ioProvider));
+		this.register("waitForIo", ioProvider.waitForIo.bind(ioProvider));
 		this.vm.setupDefaultMiddlewares();
 	}
 
@@ -87,19 +119,17 @@ export class CfWallet implements ResponseSink {
 	}
 
 	sendResponse(res: Response) {
-		console.log('sending response', res);
+		console.log("sending response", res);
 	}
 	receiveMessageFromPeer(incoming) {
 		this.ioProvider.receiveMessageFromPeer(incoming);
 	}
 }
 
-
 class IoProvider {
-
 	messages: IoMessage[];
 	// TODO Refactor this into using an EventEmitter class so we don't do this manually
-	listeners: { appId: string, multisig: string, method: Function }[]
+	listeners: { appId: string; multisig: string; method: Function }[];
 
 	constructor() {
 		// setup websockets
@@ -109,8 +139,11 @@ class IoProvider {
 
 	receiveMessageFromPeer(message: IoMessage) {
 		let done = false;
-		this.listeners.forEach((listener) => {
-			if (listener.appId === message.appId || (!listener.appId && listener.multisig === message.multisig)) {
+		this.listeners.forEach(listener => {
+			if (
+				listener.appId === message.appId ||
+				(!listener.appId && listener.multisig === message.multisig)
+			) {
 				listener.method(message);
 				done = true;
 			}
@@ -123,9 +156,9 @@ class IoProvider {
 	findMessage(multisig?: string, appId?: string): IoMessage {
 		let message: IoMessage;
 		if (appId) {
-			message = this.messages.find((m) => m.appId === appId);
+			message = this.messages.find(m => m.appId === appId);
 		} else {
-			message = this.messages.find((m) => m.multisig === multisig);
+			message = this.messages.find(m => m.multisig === multisig);
 		}
 		return message;
 	}
@@ -147,7 +180,11 @@ class IoProvider {
 	3. Signatures, etc. provided by the VM runtime
 	4. Sequence - counter of where in the handshake we are
 	*/
-	async  IoSendMessage(message: InternalMessage, next: Function, context: Context) {
+	async IoSendMessage(
+		message: InternalMessage,
+		next: Function,
+		context: Context
+	) {
 		let appChannel = context.appChannelInfos[message.clientMessage.appId];
 		let stateChannel = appChannel.stateChannel;
 		let channelPart = {
@@ -159,26 +196,38 @@ class IoProvider {
 
 		let seq = { seq: context.instructionPointer };
 		let body = { body: message.clientMessage.data };
-		let signatures = { signatures: [getFirstResult('signMyUpdate', context.results).value] };
+		let signatures = {
+			signatures: [getFirstResult("signMyUpdate", context.results).value]
+		};
 		let io = Object.assign({}, channelPart, seq, body, signatures);
 		console.log(context);
 		console.log("Pretending to send Io to", io, " with data ");
 		return io;
 	}
 
-	async waitForIo(message: InternalMessage, next: Function): Promise<IoMessage> {
+	async waitForIo(
+		message: InternalMessage,
+		next: Function
+	): Promise<IoMessage> {
 		// has websocket received a message for this appId/multisig
 		// if yes, return the message, if not wait until it does
 		console.log(message);
 		let resolve: Function;
-		let promise = new Promise<IoMessage>((r) => resolve = r);
-		this.listenOnce((message) => {
-			console.log("it works with msg", message);
-			resolve(message)
-		}, null, message.clientMessage.appId);
+		let promise = new Promise<IoMessage>(r => (resolve = r));
+		this.listenOnce(
+			message => {
+				console.log("it works with msg", message);
+				resolve(message);
+			},
+			null,
+			message.clientMessage.appId
+		);
 		return promise;
 	}
 }
-function getFirstResult(toFindOpCode: string, results: { value: any, opCode }[]): OpCodeResult {
+function getFirstResult(
+	toFindOpCode: string,
+	results: { value: any; opCode }[]
+): OpCodeResult {
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }

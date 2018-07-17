@@ -9,12 +9,10 @@ export interface ClientMessage {
 	multisigAddress?: string;
 	toAddress?: string;
 	fromAddress?: string;
-	stateChannel: StateChannelInfo
+	stateChannel: StateChannelInfo;
 }
 
-export class FreeBalance {
-
-}
+export class FreeBalance {}
 
 export class NetworkContext {
 	constructor(
@@ -24,15 +22,14 @@ export class NetworkContext {
 		readonly WithdrawAppInterpreterSighash: string,
 		readonly AssetDispatcherAddress: string,
 		readonly AssetDispatcherSighashForETH: string,
-		readonly WithdrawAppBytecode: string,
-	) { }
+		readonly WithdrawAppBytecode: string
+	) {}
 }
 
 // Tree of all the stateChannel and appChannel state
 export interface ChannelStates {
-	[s: string]: StateChannelInfo
+	[s: string]: StateChannelInfo;
 }
-
 
 export interface StateChannelInfo {
 	toAddress?: string;
@@ -40,6 +37,12 @@ export interface StateChannelInfo {
 	multisigAddress?: string;
 	appChannels?: AppChannelInfos;
 	freeBalance?: FreeBalance;
+
+	/**
+	 * @returns the addresses of the owners of this state channel sorted
+	 *          in alphabetical order.
+	 */
+	owners(): string[];
 }
 
 export interface AppChannelInfo {
@@ -55,17 +58,23 @@ export interface AppChannelInfo {
 	localNonce?: number;
 }
 
-export interface StateChannelInfos { [s: string]: StateChannelInfo }
-export interface AppChannelInfos { [s: string]: AppChannelInfo }
+export interface StateChannelInfos {
+	[s: string]: StateChannelInfo;
+}
+export interface AppChannelInfos {
+	[s: string]: AppChannelInfo;
+}
 
-export interface OpCodeResult { opCode: string, value: any };
+export interface OpCodeResult {
+	opCode: string;
+	value: any;
+}
 
 export interface ResponseSink {
-	sendResponse(res: Response)
+	sendResponse(res: Response);
 }
 
 export interface IoMessage {
 	appId: string;
 	multisig: string;
-};
-
+}

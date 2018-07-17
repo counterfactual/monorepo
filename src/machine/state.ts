@@ -1,4 +1,3 @@
-
 import {
 	IoMessage,
 	StateChannelInfos,
@@ -12,16 +11,17 @@ import {
 	FreeBalance
 } from "./types";
 
-
 export class StateChannelInfoImpl implements StateChannelInfo {
-  appChannels?: AppChannelInfos;
-  freeBalance?: FreeBalance;
+	freeBalance?: FreeBalance;
 	constructor(
-    readonly toAddress?: string,
-    readonly fromAddress?: string,
-    readonly multisigAddress?: string
-  ) {
-    this.appChannels = {};
+		readonly toAddress?: string,
+		readonly fromAddress?: string,
+		readonly multisigAddress?: string,
+		readonly appChannels: AppChannelInfos = {}
+	) {}
+
+	owners(): string[] {
+		return [this.toAddress, this.fromAddress].sort((a, b) => (a < b ? -1 : 1));
 	}
 }
 

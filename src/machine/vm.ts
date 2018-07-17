@@ -1,10 +1,10 @@
-import { ActionExecution, Action } from './action';
+import { ActionExecution, Action } from "./action";
 import {
 	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
 	ChannelStates,
-	NetworkContext,		
+	NetworkContext,
 	OpCodeResult,
 	ResponseSink,
 	AppChannelInfo,
@@ -12,13 +12,37 @@ import {
 	ClientMessage,
 	FreeBalance
 } from "./types";
-(Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
+(Symbol as any).asyncIterator =
+	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
 import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
 export let Instructions = {
-	update: [['generateOp', 'update'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
-	updateAck: [['waitForIo'], ['generateOp'], ['validateSignatures'], ['signMyUpdate'], ['IoSendMessage'], ['returnSuccess']],
-	setup: [['generateOp', 'updateAsOwn'], ['signMyUpdate'], ['generateOp', 'install'], ['signMyUpdate'], ['IoSendMessage'], ['waitForIo'], ['validateSignatures'], ['returnSuccess']],
+	update: [
+		["generateOp", "update"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["validateSignatures"],
+		["returnSuccess"]
+	],
+	updateAck: [
+		["waitForIo"],
+		["generateOp"],
+		["validateSignatures"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["returnSuccess"]
+	],
+	setup: [
+		["generateOp", "setupNonce"],
+		["signMyUpdate"],
+		["generateOp", "setupFreeBalance"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["validateSignatures"],
+		["returnSuccess"]
+	]
 };
 
 /*
@@ -51,7 +75,11 @@ export class InternalMessage {
 	opCodeArgs: string[];
 	clientMessage: ClientMessage;
 
-	constructor(action: string, [opCode, ...opCodeArgs]: string[],  clientMessage: ClientMessage) {
+	constructor(
+		action: string,
+		[opCode, ...opCodeArgs]: string[],
+		clientMessage: ClientMessage
+	) {
 		this.actionName = action;
 		this.opCode = opCode;
 		this.opCodeArgs = opCodeArgs;
@@ -73,13 +101,13 @@ export class CfState {
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
 			"0xbbbbaaaa",
 			"0x0"
-		)
+		);
 	}
 }
 
 export class CounterfactualVM {
 	requests: any;
-	middlewares: { method: Function, scope: string }[];
+	middlewares: { method: Function; scope: string }[];
 	stateChannelInfos: StateChannelInfos;
 	appChannelInfos: AppChannelInfos;
 	wallet: ResponseSink;
@@ -95,7 +123,7 @@ export class CounterfactualVM {
 
 		this.appChannelInfos = Object.create(null);
 		let appChannel = new AppChannelInfoImpl();
-		appChannel.id = 'someAppId';
+		appChannel.id = "someAppId";
 		appChannel.stateChannel = stateChannel;
 		stateChannel.appChannels.someAppId = appChannel;
 		this.appChannelInfos.someAppId = appChannel;
@@ -104,27 +132,30 @@ export class CounterfactualVM {
 	}
 
 	setupDefaultMiddlewares() {
-		this.register('returnSuccess', async (message: InternalMessage, next: Function, context: Context) => {
-			
-			let appChannel = context.appChannelInfos[message.clientMessage.appId];
+		this.register(
+			"returnSuccess",
+			async (message: InternalMessage, next: Function, context: Context) => {
+				let appChannel = context.appChannelInfos[message.clientMessage.appId];
 
-			// TODO add nonce and encoded app state
-			let updatedAppChannel: AppChannelInfo = {
-				appState: message.clientMessage.data.appState
+				// TODO add nonce and encoded app state
+				let updatedAppChannel: AppChannelInfo = {
+					appState: message.clientMessage.data.appState
+				};
+
+				let updatedStateChannel = new StateChannelInfoImpl(
+					undefined,
+					undefined,
+					undefined,
+					{ [appChannel.id]: updatedAppChannel }
+				);
+
+				let result: ChannelStates = {
+					[appChannel.stateChannel.multisigAddress]: updatedStateChannel
+				};
+
+				return result;
 			}
-
-			let updatedStateChannel: StateChannelInfo = {
-				appChannels: {
-					[appChannel.id]: updatedAppChannel
-				}
-			}
-
-			let result: ChannelStates = {
-				[appChannel.stateChannel.multisigAddress]: updatedStateChannel
-			}
-
-			return result;
-		});
+		);
 	}
 
 	validateMessage(msg: ClientMessage) {
@@ -135,7 +166,7 @@ export class CounterfactualVM {
 		this.validateMessage(msg);
 		let request = new Action(msg.requestId, msg.action, msg);
 		this.requests[request.requestId] = request;
-		let response = new Response(request.requestId, 'started');
+		let response = new Response(request.requestId, "started");
 		this.sendResponse(response);
 		this.processRequest(request);
 	}
@@ -148,7 +179,7 @@ export class CounterfactualVM {
 		let val;
 		// TODO deal with errors
 		for await (val of action.execute(this)) {
-			console.log('processed a step');
+			console.log("processed a step");
 		}
 
 		this.mutateState(val);
@@ -156,11 +187,11 @@ export class CounterfactualVM {
 	}
 
 	mutateState(state: ChannelStates) {
-		console.log('about to update -------');
-		console.log('existing state ', this.cfState.channelStates);
-		console.log('new state ', state);
+		console.log("about to update -------");
+		console.log("existing state ", this.cfState.channelStates);
+		console.log("new state ", state);
 		Object.assign(this.cfState.channelStates, state);
-		console.log('updated state after updating ', this.cfState.channelStates);
+		console.log("updated state after updating ", this.cfState.channelStates);
 	}
 
 	register(scope: string, method: Function) {
