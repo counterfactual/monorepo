@@ -1,11 +1,6 @@
 import * as ethers from "ethers";
 import { StateChannelContext } from "../state-channel";
-import {
-	CfApp,
-	CfAppStore,
-	CfAppUninstallRequest,
-	CfPeerAmount
-} from "../../client/cf-app-store";
+import { CfPeerAmount } from "../../machine/types";
 import {
 	CfOperation,
 	CFMultiOp,
@@ -28,12 +23,9 @@ const GET_STATE_SIGHASH = "0xb5d78d8c";
 export class CfOpUninstall {
 	static operation(
 		ctx: StateChannelContext,
-		req: CfAppUninstallRequest
+		peerAmounts: CfPeerAmount[]
 	): CfOperation {
-		let updateFreeBalance = CfOpUninstall.updateFreeBalance(
-			ctx,
-			req.peerAmounts
-		);
+		let updateFreeBalance = CfOpUninstall.updateFreeBalance(ctx, peerAmounts);
 
 		let bumpNonce = CfOpUninstall.updateNonce(ctx);
 

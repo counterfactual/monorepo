@@ -1,10 +1,6 @@
 import * as ethers from "ethers";
 import { StateChannelContext } from "../state-channel";
-import {
-	CfApp,
-	CfAppStore,
-	CfAppInstallRequest
-} from "../../client/cf-app-store";
+import { CfApp } from "../../machine/types";
 import {
 	CfOperation,
 	CFMultiOp,
@@ -27,11 +23,10 @@ const GET_STATE_SIGHASH = "0xb5d78d8c";
 export class CfOpInstall {
 	static operation(
 		ctx: StateChannelContext,
-		req: CfAppInstallRequest,
 		signingKeys: Array<string>
 	): CfOperation {
-		// we might want to save the app in a store
-		let app = CfAppStore.app(req, signingKeys);
+		// todo
+		let app = null;
 
 		let updateFreeBalance = CfOpInstall.updateFreeBalance(ctx, app);
 		let installCondTransfer = CfOpInstall.installCondTransfer(ctx, app);

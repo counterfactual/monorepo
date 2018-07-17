@@ -78,3 +78,19 @@ export interface IoMessage {
 	appId: string;
 	multisig: string;
 }
+
+export class CfPeerAmount {
+	constructor(readonly addr: string, public amount: number) {}
+}
+
+export class CfApp {
+	constructor(
+		readonly bytecode: string,
+		readonly stateType: string,
+		readonly signingKeys: Array<string>,
+		readonly peerAmounts: Array<CfPeerAmount>,
+		readonly initData: any,
+		readonly interpreterSigHash: string,
+		readonly uniqueId: number
+	) {}
+}

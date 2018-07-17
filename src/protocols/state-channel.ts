@@ -1,10 +1,3 @@
-import {
-	CfAppInstallRequest,
-	CfAppUninstallRequest,
-	CfApp,
-	CfPeerAmount,
-	CfAppUpdateRequest
-} from "../client/cf-app-store";
 import * as sys from "./system";
 
 export class StateChannelContext {

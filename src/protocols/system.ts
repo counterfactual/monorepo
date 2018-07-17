@@ -1,4 +1,4 @@
-import { CfPeerAmount } from "../client/cf-app-store";
+import { CfPeerAmount } from "../machine/types";
 
 // todo: this should persist and be able to bootup the state channel client
 

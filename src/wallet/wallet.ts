@@ -185,6 +185,7 @@ class IoProvider {
 		next: Function,
 		context: Context
 	) {
+		// @igor we can't do this for all IoSendMessages
 		let appChannel = context.appChannelInfos[message.clientMessage.appId];
 		let stateChannel = appChannel.stateChannel;
 		let channelPart = {
