@@ -14,25 +14,11 @@
 		"prettier": "./node_modules/.bin/prettier -l 'src/*/**'",
 		"prettier-run": "./node_modules/.bin/prettier --write 'src/*/**'"
 	},
-	"dependencies": {
-		"@counterfactual/counterfactual-contracts": "file:./counterfactual-contracts",
-		"await-semaphore": "^0.1.3",
-		"express": "^4.16.3",
-		"isomorphic-ws": "^4.0.1",
-		"request": "^2.87.0",
-		"request-promise-native": "^1.0.5",
-		"ws": "^5.2.0"
-	},
 	"devDependencies": {
-		"@types/chai": "^4.1.3",
-		"@types/express": "^4.11.1",
 		"@types/jest": "^23.1.1",
-		"@types/request-promise-native": "^1.0.14",
-		"@types/ws": "^5.1.2",
 		"coveralls": "^3.0.1",
 		"ethers": "^3.0.24",
 		"jest": "^23.1.0",
-		"json-d-ts": "^1.0.1",
 		"prettier": "1.13.5",
 		"rollup": "^0.60.0",
 		"rollup-plugin-json": "^3.0.0",
