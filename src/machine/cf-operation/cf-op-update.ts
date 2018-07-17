@@ -1,8 +1,8 @@
 import * as ethers from "ethers";
-import { StateChannelContext } from "../../protocols/state-channel";
+import { StateChannelContext } from "../delete_me";
 import { CFAppUpdateWithSigningKeys, CfOperation } from "./cf-operation";
 
-import { Proxy as ProxyContract } from "../../protocols/contracts-layer-constants";
+import { Proxy as ProxyContract } from "./contracts-layer-constants";
 
 const TIMEOUT = 100;
 

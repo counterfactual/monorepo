@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { StateChannelContext } from "../../protocols/state-channel";
+import { StateChannelContext } from "../delete_me";
 import { CfPeerAmount } from "../../machine/types";
 import {
 	CfOperation,
@@ -15,7 +15,7 @@ import {
 import {
 	zeroAddress,
 	Proxy as ProxyContract
-} from "../../protocols/contracts-layer-constants";
+} from "./contracts-layer-constants";
 
 const TIMEOUT = 100;
 const GET_STATE_SIGHASH = "0xb5d78d8c";
