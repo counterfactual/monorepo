@@ -1,7 +1,5 @@
 import * as ethers from "ethers";
 import { Transaction } from "./cf-operation/types";
-import { ChannelMsg } from "./channel-msg";
-import { CfProtocol } from "./protocol";
 
 export class Signature {
 	// todo: fix types
