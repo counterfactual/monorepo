@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
-import { StateChannelContext } from "../state-channel";
-import { CfApp } from "../../machine/types";
+import { StateChannelContext } from "../../protocols/state-channel";
+import { CfPeerAmount } from "../../machine/types";
 import {
 	CfOperation,
 	CFMultiOp,
@@ -15,29 +15,27 @@ import {
 import {
 	zeroAddress,
 	Proxy as ProxyContract
-} from "../contracts-layer-constants";
+} from "../../protocols/contracts-layer-constants";
 
 const TIMEOUT = 100;
 const GET_STATE_SIGHASH = "0xb5d78d8c";
 
-export class CfOpInstall {
+export class CfOpUninstall {
 	static operation(
 		ctx: StateChannelContext,
-		signingKeys: Array<string>
+		peerAmounts: CfPeerAmount[]
 	): CfOperation {
-		// todo
-		let app = null;
+		let updateFreeBalance = CfOpUninstall.updateFreeBalance(ctx, peerAmounts);
 
-		let updateFreeBalance = CfOpInstall.updateFreeBalance(ctx, app);
-		let installCondTransfer = CfOpInstall.installCondTransfer(ctx, app);
+		let bumpNonce = CfOpUninstall.updateNonce(ctx);
 
-		let ops = [updateFreeBalance, installCondTransfer];
-
+		let ops = [updateFreeBalance, bumpNonce];
+		//let ops = [bumpNonce];
 		return new CFMultiOp(ops, ctx.multisigAddr);
 	}
 
 	private static updateNonce(ctx: StateChannelContext): CfAppUpdateAsOwner {
-		const nonceCfAddress = CfOpInstall.cfAddress(
+		const nonceCfAddress = CfOpUninstall.cfAddress(
 			ctx,
 			ctx.getOwners(),
 			ctx.system.nonce.uniqueId,
@@ -59,16 +57,16 @@ export class CfOpInstall {
 
 	private static updateFreeBalance(
 		ctx: StateChannelContext,
-		app: CfApp
+		peerAmounts: Array<CfPeerAmount>
 	): CfAppUpdateAsOwner {
-		const freeBalanceCfAddress = CfOpInstall.cfAddress(
+		const freeBalanceCfAddress = CfOpUninstall.cfAddress(
 			ctx,
 			ctx.getOwners(),
 			ctx.system.freeBalance.uniqueId,
 			TIMEOUT
 		);
 		let freeBal = ctx.system.freeBalance;
-		const newBals = freeBal.deduct(app.peerAmounts);
+		const newBals = freeBal.add(peerAmounts);
 		const freeBalanceState = ethers.utils.AbiCoder.defaultCoder.encode(
 			["tuple(tuple(address,bytes32),uint256)[]"],
 			[
@@ -105,33 +103,7 @@ export class CfOpInstall {
 		);
 	}
 
-	private static installCondTransfer(
-		ctx: StateChannelContext,
-		app: CfApp
-	): CfAppInstall {
-		let condTransferApp = CfOpInstall.condTransferApp(ctx, app);
-		return new CfAppInstall(ctx.multisigAddr, condTransferApp);
-	}
-
-	private static condTransferApp(ctx: StateChannelContext, app: CfApp): App {
-		let address = CfOpInstall.address(ctx, app);
-		let conditions = [CfOpInstall.nonceCondition(ctx, address.cfaddress)];
-		let pipeline = CfOpInstall.pipeline(ctx, app, address.cfaddress);
-		let payoutFn = CfOpInstall.payoutFn(ctx);
-
-		return new App(conditions, address, pipeline, payoutFn);
-	}
-
-	private static address(ctx: StateChannelContext, app: CfApp): Address {
-		let cfAddress = CfOpInstall.cfAddress(
-			ctx,
-			app.signingKeys,
-			app.uniqueId, // figure out actual type here
-			TIMEOUT
-		);
-		return new Address(ctx.networkContext["RegistryAddress"], cfAddress);
-	}
-
+	// TODO: Generalize for all cf ops
 	private static cfAddress(
 		ctx: StateChannelContext,
 		signingKeys: Array<string>,
@@ -157,51 +129,6 @@ export class CfOpInstall {
 		return ethers.utils.solidityKeccak256(
 			["bytes1", "bytes", "bytes32"],
 			["0x19", initcode, ethers.utils.solidityKeccak256(["bytes"], [calldata])]
-		);
-	}
-
-	private static nonceCondition(
-		ctx: StateChannelContext,
-		appCfAddr: string
-	): Condition {
-		let nonceUniqueId = ethers.utils.solidityKeccak256(
-			["bytes32"],
-			[appCfAddr]
-		);
-		let nonceCfAddr = CfOpInstall.cfAddress(
-			ctx,
-			ctx.getOwners(),
-			nonceUniqueId,
-			TIMEOUT
-		);
-
-		return new Condition(
-			new Function(
-				new Address(ctx.networkContext["RegistryAddress"], nonceCfAddr),
-				GET_STATE_SIGHASH
-			),
-			"0x",
-			ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1])
-		);
-	}
-
-	private static pipeline(
-		ctx: StateChannelContext,
-		app: CfApp,
-		appCfAddr: string
-	): Array<Function> {
-		return [
-			new Function(
-				new Address(ctx.networkContext["RegistryAddress"], appCfAddr),
-				app.interpreterSigHash
-			)
-		];
-	}
-
-	private static payoutFn(ctx: StateChannelContext): Function {
-		return new Function(
-			new Address(zeroAddress, ctx.networkContext["AssetDispatcherAddress"]),
-			ctx.networkContext["AssetDispatcherSighashForETH"]
 		);
 	}
 }

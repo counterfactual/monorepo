@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { Transaction } from "./cf-operation/types";
+import { Transaction } from "../machine/cf-operation/types";
 
 export class Signature {
 	// todo: fix types

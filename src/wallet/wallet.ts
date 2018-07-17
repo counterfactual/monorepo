@@ -1,6 +1,6 @@
 import { Context } from "../machine/state";
-import { CfOpUpdate } from "../protocols/cf-operation/cf-op-update";
-import { CfOpSetup } from "../protocols/cf-operation/cf-op-setup";
+import { CfOpUpdate } from "../machine/cf-operation/cf-op-update";
+import { CfOpSetup } from "../machine/cf-operation/cf-op-setup";
 import {
 	CfState,
 	CounterfactualVM,

@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 
 import { Transaction, MultisigTransaction, Operation } from "./types";
-import { Signature } from "../types";
+import { Signature } from "../../protocols/types";
 import { MultiSend } from "./multisend";
 
 export { CfOpInstall } from "./cf-op-install";

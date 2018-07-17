@@ -2,7 +2,7 @@ import { FreeBalance, NetworkContext } from "./../../machine/types";
 import * as ethers from "ethers";
 
 import * as cfOp from "./cf-operation";
-import { StateChannelContext } from "../state-channel";
+import { StateChannelContext } from "../../protocols/state-channel";
 
 const TIMEOUT = 100;
 
