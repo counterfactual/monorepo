@@ -11,8 +11,9 @@ import {
 	FreeBalance
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
-import { CounterfactualVM, Instructions, InternalMessage } from './vm';
-(Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
+import { CounterfactualVM, Instructions, InternalMessage } from "./vm";
+(Symbol as any).asyncIterator =
+	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
 export class Action {
 	name: string;
@@ -36,44 +37,60 @@ export class Action {
 }
 
 export class ActionExecution {
-
 	action: Action;
 	instructionPointer: number;
 	opCodes: string[][];
-  clientMessage: ClientMessage;
+	clientMessage: ClientMessage;
 	vm: CounterfactualVM;
 	// probably not the best data structure
-	results: { opCode: string, value: any }[];
+	results: { opCode: string; value: any }[];
 	stateChannelInfos: StateChannelInfos;
 	appChannelInfos: AppChannelInfos;
 
-	constructor(action: Action, instruction: number, clientMessage: ClientMessage, vm: CounterfactualVM) {
+	constructor(
+		action: Action,
+		instruction: number,
+		clientMessage: ClientMessage,
+		vm: CounterfactualVM
+	) {
 		this.action = action;
 		this.instructionPointer = instruction;
-		this.opCodes = Instructions[action.name]
+		this.opCodes = Instructions[action.name];
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];
 		this.stateChannelInfos = vm.stateChannelInfos;
-    this.appChannelInfos = vm.appChannelInfos;
+		this.appChannelInfos = vm.appChannelInfos;
 	}
 
-  initializeExecution() {
-    if (this.action.name === 'setup') {
-      let stateChannel = new StateChannelInfoImpl(this.clientMessage.toAddress, this.clientMessage.fromAddress, this.clientMessage.multisigAddress);
-      this.clientMessage.stateChannel = stateChannel;
-      // TODO Think about pending state/whether we want to do this for the underlying copy
-      this.vm.mutateState({[this.clientMessage.multisigAddress]: stateChannel});
-    }
-  }
+	initializeExecution() {
+		if (this.action.name === "setup") {
+			let stateChannel = new StateChannelInfoImpl(
+				this.clientMessage.toAddress,
+				this.clientMessage.fromAddress,
+				this.clientMessage.multisigAddress
+			);
+			this.clientMessage.stateChannel = stateChannel;
+			// TODO Think about pending state/whether we want to do this for the
+			// underlying copy
+			this.vm.mutateState({
+				[this.clientMessage.multisigAddress]: stateChannel
+			});
+		}
+	}
 
-	// update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo', 'validateSignatures', 'returnSuccess']
-	async next(): Promise<{ done: boolean, value: number }> {
-    if (this.instructionPointer === 0) {
-      this.initializeExecution();
-    }
+	// update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo',
+	//          'validateSignatures', 'returnSuccess']
+	async next(): Promise<{ done: boolean; value: number }> {
+		if (this.instructionPointer === 0) {
+			this.initializeExecution();
+		}
 		let op = this.opCodes[this.instructionPointer];
-		let internalMessage = new InternalMessage(this.action.name, op, this.clientMessage);
+		let internalMessage = new InternalMessage(
+			this.action.name,
+			op,
+			this.clientMessage
+		);
 
 		let value = await this.runMiddlewares(internalMessage);
 		this.instructionPointer++;
@@ -106,8 +123,8 @@ export class ActionExecution {
 				// This is hacky, prevents next from being called more than once
 				counter++;
 				let middleware = middlewares[counter];
-				console.log('counter', counter);
-				if (middleware.scope === '*' || middleware.scope === opCode) {
+				console.log("counter", counter);
+				if (middleware.scope === "*" || middleware.scope === opCode) {
 					return middleware.method(msg, callback, context);
 				} else {
 					return callback();
@@ -120,11 +137,8 @@ export class ActionExecution {
 	[Symbol.asyncIterator]() {
 		return {
 			next: () => this.next()
-		}
+		};
 	}
 
-	executeInstruction(instr) {
-
-	}
+	executeInstruction(instr) {}
 }
-

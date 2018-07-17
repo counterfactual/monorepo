@@ -128,7 +128,8 @@ export class CfWallet implements ResponseSink {
 
 class IoProvider {
 	messages: IoMessage[];
-	// TODO Refactor this into using an EventEmitter class so we don't do this manually
+	// TODO Refactor this into using an EventEmitter class so we don't do
+	// this manually
 	listeners: { appId: string; multisig: string; method: Function }[];
 
 	constructor() {

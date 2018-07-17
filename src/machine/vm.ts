@@ -54,7 +54,8 @@ readonly metadata?: any
 */
 /*
 let Instructions = {
-	update: ['generateOp', 'signMyUpdate', 'validate', 'IoSendMessage', 'waitForAllSignatures', 'validate', 'returnSuccess'],
+	update: ['generateOp', 'signMyUpdate', 'validate',
+'IoSendMessage', 'waitForAllSignatures', 'validate', 'returnSuccess'],
 }
 */
 
