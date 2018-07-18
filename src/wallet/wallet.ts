@@ -121,6 +121,9 @@ class IoProvider {
 	}
 
 	listenOnce(method: Function, multisig?: string, appId?: string) {
+		if (!multisig && !appId) {
+			throw "Must specify either a multisig or appId";
+		}
 		let message = this.findMessage(multisig, appId);
 		if (!message) {
 			this.listeners.push({ appId, multisig, method });
@@ -180,17 +183,27 @@ class IoProvider {
 		console.log(message);
 		let resolve: Function;
 		let promise = new Promise<IoMessage>(r => (resolve = r));
+
+		let multisig = null;
+		let appId = null;
+		if (message.actionName === "setup") {
+			multisig = message.clientMessage.multisigAddress;
+		} else {
+			appId = message.clientMessage.appId;
+		}
+
 		this.listenOnce(
 			message => {
 				console.log("it works with msg", message);
 				resolve(message);
 			},
-			null,
-			message.clientMessage.appId
+			multisig,
+			appId
 		);
 		return promise;
 	}
 }
+
 function getFirstResult(
 	toFindOpCode: string,
 	results: { value: any; opCode }[]

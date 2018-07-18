@@ -44,6 +44,16 @@ export let Instructions = {
 		["waitForIo"],
 		["validateSignatures"],
 		["returnSuccess"]
+	],
+	setupAck: [
+		["waitForIo"],
+		["generateOp", "setupNonce"],
+		["validateSignatures"],
+		["generateOp", "setupFreeBalance"],
+		["validateSignatures"], // @igor we could also  do validate in one step
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["returnSuccess"]
 	]
 };
 /*

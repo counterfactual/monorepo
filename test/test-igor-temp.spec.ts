@@ -5,7 +5,6 @@ import * as ethers from "ethers";
 
 describe("Exploring", () => {
 	it("IgorXX", async () => {
-		/*
 		let wallet = new CfWallet();
 		let msg: ClientMessage = {
 			requestId: "123-456-789",
@@ -25,9 +24,10 @@ describe("Exploring", () => {
 			}
 		};
 		wallet.receive(msg);
+		// app id and multisig must match the above client message
 		let incoming = {
 			appId: "someAppId",
-			multisig: "sampleMultisig",
+			multisig: "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4",
 			to: "fromAddress",
 			from: "toAddress",
 			seq: 1,
@@ -35,6 +35,5 @@ describe("Exploring", () => {
 			signatures: ["hi i am a signature"]
 		};
 		wallet.receiveMessageFromPeer(incoming);
-		*/
 	});
 });
