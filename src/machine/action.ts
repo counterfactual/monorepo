@@ -10,7 +10,7 @@ import {
 	ClientMessage,
 	FreeBalance
 } from "./types";
-import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
+import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
 import { CounterfactualVM, Instructions, InternalMessage } from "./vm";
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");

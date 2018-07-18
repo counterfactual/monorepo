@@ -1,13 +1,10 @@
 import {
-	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
 	ChannelStates,
 	OpCodeResult,
-	ResponseSink,
 	AppChannelInfo,
 	StateChannelInfo,
-	ClientMessage,
 	FreeBalance
 } from "./types";
 

@@ -7,7 +7,6 @@ import {
 	Response,
 	InternalMessage
 } from "./../machine/vm";
-
 import {
 	IoMessage,
 	StateChannelInfos,
@@ -21,77 +20,32 @@ import {
 } from "../machine/types";
 
 export class CfWallet implements ResponseSink {
-	vm: CounterfactualVM;
-	ioProvider: IoProvider;
+	private vm: CounterfactualVM;
+	private ioProvider: IoProvider;
 
 	constructor() {
 		this.vm = new CounterfactualVM(this);
-		let ioProvider = new IoProvider();
-		this.ioProvider = ioProvider;
-		this.register("*", async function logger(message, next) {
+		this.ioProvider = new IoProvider();
+		this.registerMiddlewares();
+	}
+
+	private registerMiddlewares() {
+		this.vm.register("*", async function logger(message, next) {
 			console.log("message", message);
 			let result = await next();
 			console.log("result", result);
 			return result;
 		});
 
-		this.register(
-			"generateOp",
-			async (message: InternalMessage, next: Function) => {
-				if (message.actionName === "update") {
-					let nonce = 75;
-					const op = CfOpUpdate.operation({
-						appId: "non actually needed",
-						cfaddress: "some address",
-						proposedAppState: "some state",
-						moduleUpdateData: "some state",
-						metadata: "this goes away with this design",
-						nonce
-					});
-					return op;
-				}
-				if (
-					// @igor let's just use the current cf op structure for now
-					// I need to think more about the  general "updateAsOwner"
-					// in this context, but I'm running out of time today.
-					message.actionName === "setup" &&
-					message.opCodeArgs[0] === "setupNonce"
-				) {
-					let nonceUniqueId = 1; // todo
-					const op = CfOpSetup.nonceUpdateOp(
-						nonceUniqueId,
-						message.clientMessage.multisigAddress,
-						message.clientMessage.stateChannel.owners(),
-						this.vm.cfState.networkContext
-					);
-					return op;
-				}
-				if (
-					message.actionName === "setup" &&
-					message.opCodeArgs[0] === "setupFreeBalance"
-				) {
-					let freeBalanceUniqueId = 2; // todo
-					let owners = [];
-					const op = CfOpSetup.freeBalanceInstallOp(
-						freeBalanceUniqueId,
-						message.clientMessage.multisigAddress,
-						message.clientMessage.stateChannel.owners(),
-						this.vm.cfState.networkContext
-					);
-					return op;
-				}
-			}
-		);
-
-		this.register("signMyUpdate", async function signMyUpdate(
+		this.vm.register("signMyUpdate", async function signMyUpdate(
 			message: InternalMessage,
 			next: Function
 		) {
 			console.log(message);
-			return Promise.resolve({ signature: "hi", data: { something: "hello" } });
+			return { signature: "hi", data: { something: "hello" } };
 		});
 
-		this.register("validateSignatures", async function validateSignatures(
+		this.vm.register("validateSignatures", async function validateSignatures(
 			message: InternalMessage,
 			next: Function,
 			context
@@ -99,19 +53,20 @@ export class CfWallet implements ResponseSink {
 			let incomingMessage = getFirstResult("waitForIo", context.results);
 			let op = getFirstResult("generateOp", context.results);
 			// do some magic here
-
 			console.log(message);
-
-			return Promise.resolve();
 		});
 
-		this.register("IoSendMessage", ioProvider.IoSendMessage.bind(ioProvider));
-		this.register("waitForIo", ioProvider.waitForIo.bind(ioProvider));
-		this.vm.setupDefaultMiddlewares();
-	}
+		this.vm.register(
+			"IoSendMessage",
+			this.ioProvider.ioSendMessage.bind(this.ioProvider)
+		);
 
-	register(scope: string, method: Function) {
-		this.vm.register(scope, method);
+		this.vm.register(
+			"waitForIo",
+			this.ioProvider.waitForIo.bind(this.ioProvider)
+		);
+
+		this.vm.setupDefaultMiddlewares();
 	}
 
 	receive(msg: ClientMessage) {
@@ -121,7 +76,8 @@ export class CfWallet implements ResponseSink {
 	sendResponse(res: Response) {
 		console.log("sending response", res);
 	}
-	receiveMessageFromPeer(incoming) {
+
+	receiveMessageFromPeer(incoming: IoMessage) {
 		this.ioProvider.receiveMessageFromPeer(incoming);
 	}
 }
@@ -181,16 +137,20 @@ class IoProvider {
 	3. Signatures, etc. provided by the VM runtime
 	4. Sequence - counter of where in the handshake we are
 	*/
-	async IoSendMessage(
+	async ioSendMessage(
 		message: InternalMessage,
 		next: Function,
 		context: Context
 	) {
-		// @igor we can't do this for all IoSendMessages
-		let appChannel = context.appChannelInfos[message.clientMessage.appId];
-		let stateChannel = appChannel.stateChannel;
+		let appChannelId = "";
+		let stateChannel =
+			context.stateChannelInfos[message.clientMessage.multisigAddress];
+		if (this.needsAppId(message)) {
+			appChannelId = context.appChannelInfos[message.clientMessage.appId].id;
+		}
+
 		let channelPart = {
-			appId: appChannel.id,
+			appId: appChannelId,
 			multisig: stateChannel.multisigAddress,
 			to: stateChannel.toAddress,
 			from: stateChannel.fromAddress
@@ -205,6 +165,10 @@ class IoProvider {
 		console.log(context);
 		console.log("Pretending to send Io to", io, " with data ");
 		return io;
+	}
+
+	private needsAppId(message: InternalMessage) {
+		return message.actionName !== "setup";
 	}
 
 	async waitForIo(
