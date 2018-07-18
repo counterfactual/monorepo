@@ -92,32 +92,31 @@ export class CounterfactualVM {
 		this.register(
 			"returnSuccess",
 			async (message: InternalMessage, next: Function, context: Context) => {
-				let appChannel = context.appChannelInfos[message.clientMessage.appId];
-
-				// TODO add nonce and encoded app state
-				let updatedAppChannel: AppChannelInfo = {
-					appState: message.clientMessage.data.appState
-				};
-
+				let appChannelInfo = {};
+				if (message.actionName !== "setup") {
+					let appChannel = context.appChannelInfos[message.clientMessage.appId];
+					// TODO add nonce and encoded app state
+					let updatedAppChannel: AppChannelInfo = {
+						appState: message.clientMessage.data.appState
+					};
+					let appChannelInfo = { [appChannel.id]: updatedAppChannel };
+				}
+				let multisig = message.clientMessage.multisigAddress;
 				let updatedStateChannel = new StateChannelInfoImpl(
-					undefined,
-					undefined,
-					undefined,
-					{ [appChannel.id]: updatedAppChannel }
+					message.clientMessage.toAddress,
+					message.clientMessage.fromAddress,
+					multisig,
+					appChannelInfo
 				);
 
-				let result: ChannelStates = {
-					[appChannel.stateChannel.multisigAddress]: updatedStateChannel
-				};
-
-				return result;
+				return { [multisig]: updatedStateChannel };
 			}
 		);
 		this.register(
 			"generateOp",
 			async (message: InternalMessage, next: Function) => {
 				if (message.actionName === "update") {
-					let nonce = 75;
+					let nonce = 75; // todo
 					const op = CfOpUpdate.operation({
 						appId: "non actually needed",
 						cfaddress: "some address",
