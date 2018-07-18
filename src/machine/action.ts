@@ -82,6 +82,9 @@ export class ActionExecution {
 	// update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo',
 	//          'validateSignatures', 'returnSuccess']
 	async next(): Promise<{ done: boolean; value: number }> {
+		if (this.instructionPointer === this.opCodes.length) {
+			return { done: true, value: 0 };
+		}
 		if (this.instructionPointer === 0) {
 			this.initializeExecution();
 		}
@@ -95,8 +98,7 @@ export class ActionExecution {
 		let value = await this.runMiddlewares(internalMessage);
 		this.instructionPointer++;
 		this.results.push({ opCode: op[0], value });
-		let done = this.instructionPointer === this.opCodes.length;
-		return { value, done };
+		return { value, done: false };
 	}
 
 	// logger, store, syncWallets, instruction itself
