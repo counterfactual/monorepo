@@ -1,9 +1,103 @@
-import { ClientMessage } from "./../src/machine/types";
-import { CfOpUpdate } from "../src/protocols/cf-operation/cf-op-update";
+import { ClientMessage, ChannelStates } from "./../src/machine/types";
 import { CfWallet } from "../src/wallet/wallet";
 import * as ethers from "ethers";
 
 describe("Exploring", () => {
+	it("update ack", async (done) => {
+		let wallet = new CfWallet();
+		let state: ChannelStates = {
+			sampleMultisig: {
+				toAddress: 'toAddress',
+				fromAddress: 'fromAddress',
+				multisigAddress: 'sampleMultisig',
+				appChannels: {
+					someAppId: {
+						id: 'someAppId',
+						toSigningKey: 'toSigningKey',
+						fromSigningKey: 'fromSigningKey',
+						rootNonce: 0,
+						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]), 
+						appState: { someValue: 1 },
+						localNonce: 5
+					}
+				},
+				// we should move this out into an accessor class
+			 owners() { return [] }
+			 }
+		}
+
+		// temp hack until we move the parent pointer out of the data structure
+		state.sampleMultisig.appChannels.someAppId.stateChannel = state.sampleMultisig;
+
+		wallet.initState(state);
+
+		let incoming = {
+			appId: 'someAppId',
+      multisig: 'sampleMultisig',
+      to: 'fromAddress',
+			from: 'toAddress',
+			protocol: 'update',
+      seq: 0,
+      body: { moduleUpdateData: { someValue: 2 } },
+      signatures: [ 'hi i am a signature' ]
+		};
+		wallet.receiveMessageFromPeer(incoming);
+	});
+	/*
+	it("update", async (done) => {
+		let wallet = new CfWallet();
+		let state: ChannelStates = {
+			sampleMultisig: {
+				toAddress: 'toAddress',
+				fromAddress: 'fromAddress',
+				multisigAddress: 'sampleMultisig',
+				appChannels: {
+					someAppId: {
+						id: 'someAppId',
+						toSigningKey: 'toSigningKey',
+						fromSigningKey: 'fromSigningKey',
+						rootNonce: 0,
+						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]), 
+						appState: { someValue: 1 },
+						localNonce: 5
+					}
+				},
+				// we should move this out into an accessor class
+			 owners() { return [] }
+			 }
+		}
+
+		// temp hack until we move the parent pointer out of the data structure
+		state.sampleMultisig.appChannels.someAppId.stateChannel = state.sampleMultisig;
+
+		wallet.initState(state);
+
+		let msg: ClientMessage = {
+			requestId: '123-456-789',
+			appName: 'ethmo',
+			appId: 'someAppId',
+			//toAddress: 'toAddr',
+			//fromAddress: 'fromAddr',
+			//multisigAddress: '',
+			action: 'update',
+			data: { 
+				encodedData: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [2]),
+				moduleUpdateData: { someValue: 1 } }
+		};
+		wallet.receive(msg);
+		let incoming = {
+			appId: 'someAppId',
+			multisig: 'sampleMultisig',
+			to: 'fromAddress',
+			from: 'toAddress',
+			seq: 1,
+			body: { moduleUpdateData: { someValue: 1 } },
+			signatures: ['hi i am a signature']
+		};
+		wallet.receiveMessageFromPeer(incoming);
+	});
+	*/
+/*
 	it("IgorXX", async () => {
 		let wallet = new CfWallet();
 		let msg: ClientMessage = {
@@ -36,4 +130,5 @@ describe("Exploring", () => {
 		};
 		wallet.receiveMessageFromPeer(incoming);
 	});
+	*/
 });

@@ -18,6 +18,7 @@ import { CfOpSetup } from "./cf-operation/cf-op-setup";
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
 import { AppChannelInfoImpl, StateChannelInfoImpl, Context } from "./state";
+import { stat } from "fs";
 export let Instructions = {
 	update: [
 		["generateOp", "update"],
@@ -25,14 +26,6 @@ export let Instructions = {
 		["IoSendMessage"],
 		["waitForIo"],
 		["validateSignatures"],
-		["returnSuccess"]
-	],
-	updateAck: [
-		["waitForIo"],
-		["generateOp"],
-		["validateSignatures"],
-		["signMyUpdate"],
-		["IoSendMessage"],
 		["returnSuccess"]
 	],
 	setup: [
@@ -45,7 +38,18 @@ export let Instructions = {
 		["validateSignatures"],
 		["returnSuccess"]
 	],
-	setupAck: [
+}
+
+export let AckInstructions = {
+	update: [
+		["generateOp"],
+		["validateSignatures"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["returnSuccess"]
+	],
+	/*
+	setup: [
 		["waitForIo"],
 		["generateOp", "setupNonce"],
 		["validateSignatures"],
@@ -55,6 +59,7 @@ export let Instructions = {
 		["IoSendMessage"],
 		["returnSuccess"]
 	]
+	*/
 };
 /*
 let Instructions = {
@@ -62,12 +67,19 @@ let Instructions = {
 'IoSendMessage', 'waitForAllSignatures', 'validate', 'returnSuccess'],
 }
 */
+interface Addressable {
+	appId?: string,
+	multisigAddress?: string,
+	toAddress?: string,
+	fromAddress?: string
+}
 
 export class CounterfactualVM {
 	requests: any;
 	middlewares: { method: Function; scope: string }[];
+	// TODO cleanup and have a single source of truth between cfState and state/appChannel infos
+	// we should make appchanelinfos a helper method
 	stateChannelInfos: StateChannelInfos;
-	appChannelInfos: AppChannelInfos;
 	wallet: ResponseSink;
 	cfState: CfState;
 
@@ -77,15 +89,51 @@ export class CounterfactualVM {
 		this.stateChannelInfos = Object.create(null);
 		let stateChannel = new StateChannelInfoImpl();
 		this.wallet = wallet;
-		this.stateChannelInfos.sampleMultisig = stateChannel;
-
-		this.appChannelInfos = Object.create(null);
-		let appChannel = new AppChannelInfoImpl();
-		appChannel.id = "someAppId";
-		appChannel.stateChannel = stateChannel;
-		stateChannel.appChannels.someAppId = appChannel;
-		this.appChannelInfos.someAppId = appChannel;
 		this.cfState = new CfState(this.stateChannelInfos);
+	}
+
+	get appChannelInfos(): AppChannelInfos {
+		let infos = {};
+		for (let channel of Object.keys(this.cfState.channelStates))	{
+			for (let appChannel of Object.keys(this.cfState.channelStates[channel].appChannels)) {
+				infos[appChannel] = this.cfState.channelStates[channel].appChannels[appChannel];
+			}
+		}
+		return infos;
+	}
+
+	startAck(message: IoMessage) {
+		let request = new Action(null, message.protocol, this.ioMessageToClientMessage(message), true);
+		this.processRequest(request);
+	}
+
+	// TODO fix/make nice
+	generateRandomId(): string {
+		return '' + Math.random();
+	}
+
+	// TODO add support for not appID
+	getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
+		if (data.appId) {
+			return this.appChannelInfos[data.appId].stateChannel;
+		}
+	}
+
+	// This is a bit weird, I think the layering here is not 100% correct,
+	// want to refactor but need to think about it for a bit/refactor later
+	ioMessageToClientMessage(msg: IoMessage): ClientMessage {
+		let clientMessage = {};
+		let requestId = this.generateRandomId();
+
+		let stateChannel = this.getStateChannelFromAddressable(msg);
+		// TODO Clean this up once we know more about how actions map to protocols
+		let action = msg.protocol;
+		return Object.assign({}, { requestId, stateChannel, action, data: msg.body }, msg);
+	}
+
+	initState(state: ChannelStates) {
+		// TODO make this more robust/go through a nice method
+		Object.assign(this.cfState.channelStates, state);
 	}
 
 	setupDefaultMiddlewares() {

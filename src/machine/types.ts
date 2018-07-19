@@ -39,6 +39,7 @@ export interface StateChannelInfo {
 	appChannels?: AppChannelInfos;
 	freeBalance?: FreeBalance;
 
+	// TODO Move this out of the datastructure
 	/**
 	 * @returns the addresses of the owners of this state channel sorted
 	 *          in alphabetical order.
@@ -51,12 +52,14 @@ export interface AppChannelInfo {
 	amount?: any;
 	toSigningKey?: string;
 	fromSigningKey?: string;
-	stateChannel?: StateChannelInfo;
 	rootNonce?: number;
 
 	encodedState?: any;
 	appState?: any;
 	localNonce?: number;
+
+	//TODO move this into a method that is outside the data structure
+	stateChannel?: StateChannelInfo;
 }
 
 export interface StateChannelInfos {
@@ -76,8 +79,12 @@ export interface ResponseSink {
 }
 
 export interface IoMessage {
+	protocol: string;
 	appId: string;
 	multisig: string;
+	seq: number;
+	// TODO Rename this to data?
+	body: any
 }
 
 export class CfPeerAmount {

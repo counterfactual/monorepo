@@ -7,12 +7,14 @@ export class IoProvider {
 	messages: IoMessage[];
 	// TODO Refactor this into using an EventEmitter class so we don't do
 	// this manually
-	listeners: { appId: string; multisig: string; method: Function }[];
+	listeners: { appId: string; multisig: string; seq: number; method: Function }[];
+	fallThroughListeners: { appId: string; multisig: string; seq: number; method: Function }[];
 
 	constructor() {
 		// setup websockets
 		this.messages = [];
 		this.listeners = [];
+		this.fallThroughListeners = [];
 	}
 
 	receiveMessageFromPeer(message: IoMessage) {
@@ -20,12 +22,21 @@ export class IoProvider {
 		this.listeners.forEach(listener => {
 			if (
 				listener.appId === message.appId ||
+				(!listener.appId && listener.multisig === message.multisig) ||
 				(!listener.appId && listener.multisig === message.multisig)
 			) {
 				listener.method(message);
 				done = true;
 			}
 		});
+		if (!done) {
+			this.fallThroughListeners.forEach(listener => {
+				if (listener.seq === message.seq) {
+					listener.method(message);
+					done = true;
+				}
+			});
+		}
 		if (!done) {
 			this.messages.push(message);
 		}
@@ -41,17 +52,23 @@ export class IoProvider {
 		return message;
 	}
 
-	listenOnce(method: Function, multisig?: string, appId?: string) {
-		if (!multisig && !appId) {
-			throw "Must specify either a multisig or appId";
+
+	listenOnce(method: Function, multisig?: string, appId?: string, seq?: number) {
+		if (!multisig && !appId && !seq) {
+			throw "Must specify either a multisig or appId or sequence";
 		}
 		let message = this.findMessage(multisig, appId);
 		if (!message) {
-			this.listeners.push({ appId, multisig, method });
+			this.listeners.push({ appId, multisig, method, seq });
 		} else {
 			this.messages.splice(this.messages.indexOf(message), 1);
 			method(message);
 		}
+	}
+
+	// catches anything that is not caught by listenOnce
+	listen(method: Function, multisig?: string, appId?: string, seq?: number) {
+		this.fallThroughListeners.push({ method, seq, multisig, appId });
 	}
 
 	/*
@@ -67,11 +84,12 @@ export class IoProvider {
 		context: Context
 	) {
 		let appChannelId = "";
-		let stateChannel =
-			context.stateChannelInfos[message.clientMessage.multisigAddress];
+		let appChannel;
 		if (this.needsAppId(message)) {
-			appChannelId = context.appChannelInfos[message.clientMessage.appId].id;
+			appChannel = context.appChannelInfos[message.clientMessage.appId];
+			appChannelId = appChannel.id; 
 		}
+		let stateChannel = message.clientMessage.stateChannel || appChannel.stateChannel;
 
 		let channelPart = {
 			appId: appChannelId,
