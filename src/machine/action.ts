@@ -11,7 +11,7 @@ import {
 	FreeBalance
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
-import { CounterfactualVM, Instructions, InternalMessage } from "./vm";
+import { CounterfactualVM, Instructions, AckInstructions, InternalMessage } from "./vm";
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
@@ -20,13 +20,17 @@ export class Action {
 	requestId: string;
 	clientMessage: ClientMessage;
 	execution: ActionExecution;
-	instructions: string[];
+	instructions: string[][];
 
-	constructor(id: string, action: string, clientMessage: ClientMessage) {
+	constructor(id: string, action: string, clientMessage: ClientMessage, isAckSide: boolean = false) {
 		this.requestId = id;
 		this.clientMessage = clientMessage;
 		this.name = action;
-		this.instructions = Instructions[action];
+		if (isAckSide) {
+			this.instructions = AckInstructions[action];
+		} else {
+			this.instructions = Instructions[action];
+		}
 	}
 
 	execute(vm: CounterfactualVM): ActionExecution {
@@ -55,7 +59,7 @@ export class ActionExecution {
 	) {
 		this.action = action;
 		this.instructionPointer = instruction;
-		this.opCodes = Instructions[action.name];
+		this.opCodes = action.instructions;
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];

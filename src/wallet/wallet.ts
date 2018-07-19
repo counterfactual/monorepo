@@ -16,7 +16,8 @@ import {
 	AppChannelInfo,
 	StateChannelInfo,
 	ClientMessage,
-	FreeBalance
+	FreeBalance,
+	ChannelStates
 } from "../machine/types";
 import { IoProvider } from "./ioProvider";
 
@@ -28,6 +29,17 @@ export class CfWallet implements ResponseSink {
 		this.vm = new CounterfactualVM(this);
 		this.io = new IoProvider();
 		this.registerMiddlewares();
+		this.startListening();
+	}
+
+	startListening() {
+		this.io.listen((message: IoMessage) => {
+			this.vm.startAck(message);
+		}, null, null, 0);
+	}
+
+	initState(states: ChannelStates) {
+		this.vm.initState(states);
 	}
 
 	private registerMiddlewares() {
