@@ -1,4 +1,4 @@
-import { FreeBalance, NetworkContext } from "./../../machine/types";
+import { FreeBalance, NetworkContext } from "../types";
 import * as ethers from "ethers";
 
 import * as cfOp from "./cf-operation";
