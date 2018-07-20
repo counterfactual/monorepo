@@ -1,5 +1,5 @@
-import { Context } from "../../src/machine/state";
-import { CfOpUpdate } from "../../src/machine/cf-operation/cf-op-update";
+import { Context } from "../../src/state";
+import { CfOpUpdate } from "../../src/cf-operation/cf-op-update";
 import { CfOpSetup } from "../../src/cf-operation/cf-op-setup";
 import {
 	CfState,
