@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { StateChannelContext } from "../delete_me";
-import { CfApp } from "../../machine/types";
+import { CfApp } from "../types";
 import {
 	CfOperation,
 	CFMultiOp,

@@ -1,6 +1,6 @@
 import { TestWallet } from "./wallet/wallet";
-import { ClientMessage } from "../src/machine/types";
-import { ResponseStatus } from "../src/machine/vm";
+import { ClientMessage } from "../src/types";
+import { ResponseStatus } from "../src/vm";
 
 describe("Lifecycle", async () => {
 	it("should have the correct funds on chain", async () => {

@@ -1,12 +1,12 @@
 import { Context } from "../../src/machine/state";
 import { CfOpUpdate } from "../../src/machine/cf-operation/cf-op-update";
-import { CfOpSetup } from "../../src/machine/cf-operation/cf-op-setup";
+import { CfOpSetup } from "../../src/cf-operation/cf-op-setup";
 import {
 	CfState,
 	CounterfactualVM,
 	Response,
 	InternalMessage
-} from "../../src/machine/vm";
+} from "../../src/vm";
 import {
 	StateChannelInfos,
 	AppChannelInfos,
@@ -17,7 +17,7 @@ import {
 	ClientMessage,
 	FreeBalance,
 	ChannelStates
-} from "../../src/machine/types";
+} from "../../src/types";
 import { IoProvider } from "./ioProvider";
 
 export class TestWallet implements ResponseSink {
@@ -60,7 +60,7 @@ export class TestWallet implements ResponseSink {
 	/**
 	 * The test will call this when it wants to start a protocol.
 	 * Returns a promise that resolves with a Response object when
-	 * the protocol has completd execution.
+	 * the protocol has completed execution.
 	 */
 	async runProtocol(msg: ClientMessage): Promise<Response> {
 		let promise = new Promise<Response>((resolve, reject) => {
