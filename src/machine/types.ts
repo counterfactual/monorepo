@@ -11,9 +11,16 @@ export interface ClientMessage {
 	toAddress?: string;
 	fromAddress?: string;
 	stateChannel: StateChannelInfo;
+	seq: number;
 }
 
-export class FreeBalance {}
+export class FreeBalance {
+	constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
+}
+
+export class PeerBalance {
+	constructor(readonly address: string, readonly balance: number) {}
+}
 
 export class NetworkContext {
 	constructor(
@@ -76,15 +83,6 @@ export interface OpCodeResult {
 
 export interface ResponseSink {
 	sendResponse(res: Response);
-}
-
-export interface IoMessage {
-	protocol: string;
-	appId: string;
-	multisig: string;
-	seq: number;
-	// TODO Rename this to data?
-	body: any
 }
 
 export class CfPeerAmount {

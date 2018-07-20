@@ -1,5 +1,4 @@
 import {
-	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
 	ChannelStates,
@@ -11,7 +10,12 @@ import {
 	FreeBalance
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
-import { CounterfactualVM, Instructions, AckInstructions, InternalMessage } from "./vm";
+import {
+	CounterfactualVM,
+	Instructions,
+	AckInstructions,
+	InternalMessage
+} from "./vm";
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
@@ -22,10 +26,16 @@ export class Action {
 	execution: ActionExecution;
 	instructions: string[][];
 
-	constructor(id: string, action: string, clientMessage: ClientMessage, isAckSide: boolean = false) {
+	constructor(
+		id: string,
+		action: string,
+		clientMessage: ClientMessage,
+		isAckSide: boolean = false
+	) {
 		this.requestId = id;
 		this.clientMessage = clientMessage;
 		this.name = action;
+
 		if (isAckSide) {
 			this.instructions = AckInstructions[action];
 		} else {
@@ -83,8 +93,6 @@ export class ActionExecution {
 		}
 	}
 
-	// update: ['generateOp', 'signMyUpdate', 'IoSendMessage', 'waitForIo',
-	//          'validateSignatures', 'returnSuccess']
 	async next(): Promise<{ done: boolean; value: number }> {
 		if (this.instructionPointer === this.opCodes.length) {
 			return { done: true, value: 0 };
@@ -121,7 +129,6 @@ export class ActionExecution {
 			appChannelInfos: this.appChannelInfos,
 			instructionPointer: this.instructionPointer
 		};
-
 		async function callback() {
 			if (counter === middlewares.length - 1) {
 				return Promise.resolve(null);
@@ -129,7 +136,6 @@ export class ActionExecution {
 				// This is hacky, prevents next from being called more than once
 				counter++;
 				let middleware = middlewares[counter];
-				console.log("counter", counter);
 				if (middleware.scope === "*" || middleware.scope === opCode) {
 					return middleware.method(msg, callback, context);
 				} else {

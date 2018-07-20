@@ -1,9 +1,11 @@
-import { ClientMessage } from "../machine/types";
-import { InternalMessage, getFirstResult } from "../machine/vm";
-import { Context } from "../machine/state";
+import { ClientMessage } from "../../src/machine/types";
+import { InternalMessage } from "../../src/machine/vm";
+import { Context } from "../../src/machine/state";
+import { TestWallet, getFirstResult } from "./wallet";
 
 export class IoProvider {
 	messages: ClientMessage[];
+	peer: TestWallet;
 	// TODO Refactor this into using an EventEmitter class so we don't do
 	// this manually
 	listeners: {
@@ -84,43 +86,26 @@ export class IoProvider {
 		this.fallThroughListeners.push({ method, seq, multisig, appId });
 	}
 
-	/*
-	each channel messsage is composed of four parts
-	1. Channel/AppChannel info that is generated from the context
-	2. Body which is the payload provided by the incoming message
-	3. Signatures, etc. provided by the VM runtime
-	4. Sequence - counter of where in the handshake we are
-	*/
 	async ioSendMessage(
-		message: InternalMessage,
+		internalMessage: InternalMessage,
 		next: Function,
 		context: Context
 	) {
-		let appChannelId = "";
-		let appChannel;
-		if (this.needsAppId(message)) {
-			appChannel = context.appChannelInfos[message.clientMessage.appId];
-			appChannelId = appChannel.id;
-		}
-		let stateChannel =
-			message.clientMessage.stateChannel || appChannel.stateChannel;
-
-		let channelPart = {
-			appId: appChannelId,
-			multisig: stateChannel.multisigAddress,
-			to: stateChannel.toAddress,
-			from: stateChannel.fromAddress
+		let message = internalMessage.clientMessage;
+		let msg: ClientMessage = {
+			requestId: "none this should be a notification on completion",
+			appName: message.appName,
+			appId: message.appId,
+			action: message.action,
+			data: message.data,
+			multisigAddress: message.multisigAddress,
+			toAddress: message.fromAddress, // swap to/from here since sending to peer
+			fromAddress: message.toAddress,
+			stateChannel: null,
+			seq: message.seq + 1
 		};
 
-		let seq = { seq: context.instructionPointer };
-		let body = { body: message.clientMessage.data };
-		let signatures = {
-			signatures: [getFirstResult("signMyUpdate", context.results).value]
-		};
-		let io = Object.assign({}, channelPart, seq, body, signatures);
-		console.log(context);
-		console.log("Pretending to send Io to", io, " with data ");
-		return io;
+		this.peer.receiveMessageFromPeer(msg);
 	}
 
 	private needsAppId(message: InternalMessage) {
@@ -133,7 +118,6 @@ export class IoProvider {
 	): Promise<ClientMessage> {
 		// has websocket received a message for this appId/multisig
 		// if yes, return the message, if not wait until it does
-		console.log(message);
 		let resolve: Function;
 		let promise = new Promise<ClientMessage>(r => (resolve = r));
 
@@ -147,7 +131,6 @@ export class IoProvider {
 
 		this.listenOnce(
 			message => {
-				console.log("it works with msg", message);
 				resolve(message);
 			},
 			multisig,
