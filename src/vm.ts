@@ -1,3 +1,4 @@
+import * as ethers from "ethers";
 import { ActionExecution, Action } from "./action";
 import {
 	StateChannelInfos,
@@ -36,6 +37,16 @@ export let Instructions = {
 		["waitForIo"],
 		["validateSignatures"],
 		["returnSuccess"]
+	],
+	install: [
+		["generateKey"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["generateOp", "install"],
+		["validateSignatures"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["returnSuccess"]
 	]
 };
 
@@ -54,6 +65,15 @@ export let AckInstructions = {
 		["validateSignatures"], // @igor we could also  do validate in one step
 		["signMyUpdate"],
 		["IoSendMessage"],
+		["returnSuccess"]
+	],
+	install: [
+		["generateKey"],
+		["generateOp", "install"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["validateSignatures"],
 		["returnSuccess"]
 	]
 };
@@ -192,6 +212,23 @@ export class CounterfactualVM {
 						this.cfState.networkContext
 					);
 				}
+			}
+		);
+		/**
+		 * After generating this machine's app/ephemeral key, mutate the
+		 * client message by placing the ephemeral key on it for my address.
+		 */
+		this.register(
+			"generateKey",
+			async (message: InternalMessage, next: Function, context: Context) => {
+				let wallet = ethers.Wallet.createRandom();
+				let installData = message.clientMessage.data;
+				if (installData.peerA.address == message.clientMessage.fromAddress) {
+					installData.keyA = wallet.address;
+				} else {
+					installData.keyB = wallet.address;
+				}
+				return wallet;
 			}
 		);
 	}

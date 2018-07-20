@@ -91,6 +91,7 @@ export class IoProvider {
 		next: Function,
 		context: Context
 	) {
+		console.log("ioSendMessageNow ", internalMessage.clientMessage);
 		let message = internalMessage.clientMessage;
 		let msg: ClientMessage = {
 			requestId: "none this should be a notification on completion",

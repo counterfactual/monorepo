@@ -1,5 +1,5 @@
 import { TestWallet } from "./wallet/wallet";
-import { ClientMessage } from "../src/types";
+import { ClientMessage, InstallData, PeerBalance } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 
 describe("Lifecycle", async () => {
@@ -92,10 +92,79 @@ async function makeDeposits(
 	walletA: TestWallet,
 	walletB: TestWallet
 ): Promise<any> {
+	await deposit(walletA, walletB, 10);
+	await deposit(walletB, walletA, 5);
+}
+
+async function deposit(
+	walletA: TestWallet,
+	walletB: TestWallet,
+	amount: number
+) {
+	await installDeposit(walletA, walletB, amount);
+	await uninstallDeposit(walletB, walletA, amount);
+}
+
+async function installDeposit(
+	walletA: TestWallet,
+	walletB: TestWallet,
+	amount: number
+) {
+	let msg = startInstallDepositMsg(walletA.address, walletB.address, amount);
+	let response = await walletA.runProtocol(msg);
+	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	validateInstalledDeposit(walletA, amount);
+}
+
+function startInstallDepositMsg(
+	from: string,
+	to: string,
+	amount: number
+): ClientMessage {
+	let peerA = from;
+	let peerB = to;
+	let amountA = amount;
+	let amountB = 0;
+	if (peerB.localeCompare(peerA) < 0) {
+		let tmp = peerA;
+		peerB = peerA;
+		peerA = tmp;
+		amountA = 0;
+		amountB = amount;
+	}
+	let installData: InstallData = {
+		peerA: new PeerBalance(peerA, amountA),
+		peerB: new PeerBalance(peerB, amountB),
+		keyA: null,
+		keyB: null
+	};
+	return {
+		requestId: "1",
+		appName: "balanceRefund",
+		appId: undefined,
+		action: "install",
+		data: installData,
+		multisigAddress: "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+		toAddress: to,
+		fromAddress: from,
+		stateChannel: undefined,
+		seq: 0
+	};
+}
+
+function validateInstalledDeposit(wallet: TestWallet, amount: number) {
 	// todo
 }
 
-function validateDeposits(walletA: TestWallet, walletB: TestWallet) {
+async function uninstallDeposit(
+	walletA: TestWallet,
+	walletB: TestWallet,
+	amount: number
+) {
+	// todo
+}
+
+function validateUninstalledDeposit(wallet: TestWallet, amount: number) {
 	// todo
 }
 

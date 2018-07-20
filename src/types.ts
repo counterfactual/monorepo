@@ -14,6 +14,13 @@ export interface ClientMessage {
 	seq: number;
 }
 
+export interface InstallData {
+	peerA: PeerBalance;
+	peerB: PeerBalance;
+	keyA: string;
+	keyB: string;
+}
+
 export class FreeBalance {
 	constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
 }
