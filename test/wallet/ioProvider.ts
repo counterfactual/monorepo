@@ -1,6 +1,6 @@
-import { ClientMessage } from "../../src/machine/types";
-import { InternalMessage } from "../../src/machine/vm";
-import { Context } from "../../src/machine/state";
+import { ClientMessage } from "../../src/types";
+import { InternalMessage } from "../../src/vm";
+import { Context } from "../../src/state";
 import { TestWallet, getFirstResult } from "./wallet";
 
 export class IoProvider {
