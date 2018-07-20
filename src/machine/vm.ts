@@ -68,7 +68,8 @@ interface Addressable {
 export class CounterfactualVM {
 	requests: any;
 	middlewares: { method: Function; scope: string }[];
-	// TODO cleanup and have a single source of truth between cfState and state/appChannel infos
+	// TODO cleanup and have a single source of truth between cfState
+	// and state/appChannel infos
 	// we should make appchanelinfos a helper method
 	stateChannelInfos: StateChannelInfos;
 	wallet: ResponseSink;
