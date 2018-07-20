@@ -1,6 +1,5 @@
 import { ActionExecution, Action } from "./action";
 import {
-	IoMessage,
 	StateChannelInfos,
 	AppChannelInfos,
 	ChannelStates,
@@ -37,8 +36,8 @@ export let Instructions = {
 		["waitForIo"],
 		["validateSignatures"],
 		["returnSuccess"]
-	],
-}
+	]
+};
 
 export let AckInstructions = {
 	update: [
@@ -48,9 +47,7 @@ export let AckInstructions = {
 		["IoSendMessage"],
 		["returnSuccess"]
 	],
-	/*
 	setup: [
-		["waitForIo"],
 		["generateOp", "setupNonce"],
 		["validateSignatures"],
 		["generateOp", "setupFreeBalance"],
@@ -59,19 +56,13 @@ export let AckInstructions = {
 		["IoSendMessage"],
 		["returnSuccess"]
 	]
-	*/
 };
-/*
-let Instructions = {
-	update: ['generateOp', 'signMyUpdate', 'validate',
-'IoSendMessage', 'waitForAllSignatures', 'validate', 'returnSuccess'],
-}
-*/
+
 interface Addressable {
-	appId?: string,
-	multisigAddress?: string,
-	toAddress?: string,
-	fromAddress?: string
+	appId?: string;
+	multisigAddress?: string;
+	toAddress?: string;
+	fromAddress?: string;
 }
 
 export class CounterfactualVM {
@@ -94,22 +85,27 @@ export class CounterfactualVM {
 
 	get appChannelInfos(): AppChannelInfos {
 		let infos = {};
-		for (let channel of Object.keys(this.cfState.channelStates))	{
-			for (let appChannel of Object.keys(this.cfState.channelStates[channel].appChannels)) {
-				infos[appChannel] = this.cfState.channelStates[channel].appChannels[appChannel];
+		for (let channel of Object.keys(this.cfState.channelStates)) {
+			for (let appChannel of Object.keys(
+				this.cfState.channelStates[channel].appChannels
+			)) {
+				infos[appChannel] = this.cfState.channelStates[channel].appChannels[
+					appChannel
+				];
 			}
 		}
 		return infos;
 	}
 
-	startAck(message: IoMessage) {
-		let request = new Action(null, message.protocol, this.ioMessageToClientMessage(message), true);
+	startAck(message: ClientMessage) {
+		console.log("Starting ack", message);
+		let request = new Action(message.requestId, message.action, message, true);
 		this.processRequest(request);
 	}
 
 	// TODO fix/make nice
 	generateRandomId(): string {
-		return '' + Math.random();
+		return "" + Math.random();
 	}
 
 	// TODO add support for not appID
@@ -117,18 +113,6 @@ export class CounterfactualVM {
 		if (data.appId) {
 			return this.appChannelInfos[data.appId].stateChannel;
 		}
-	}
-
-	// This is a bit weird, I think the layering here is not 100% correct,
-	// want to refactor but need to think about it for a bit/refactor later
-	ioMessageToClientMessage(msg: IoMessage): ClientMessage {
-		let clientMessage = {};
-		let requestId = this.generateRandomId();
-
-		let stateChannel = this.getStateChannelFromAddressable(msg);
-		// TODO Clean this up once we know more about how actions map to protocols
-		let action = msg.protocol;
-		return Object.assign({}, { requestId, stateChannel, action, data: msg.body }, msg);
 	}
 
 	initState(state: ChannelStates) {
@@ -156,8 +140,15 @@ export class CounterfactualVM {
 					multisig,
 					appChannelInfo
 				);
-
 				return { [multisig]: updatedStateChannel };
+			}
+		);
+		this.register(
+			"validateSignatures",
+			async (message: InternalMessage, next: Function, context: Context) => {
+				let incomingMessage = getFirstResult("waitForIo", context.results);
+				let op = getFirstResult("generateOp", context.results);
+				// now validate the signature against the op hash
 			}
 		);
 		this.register(
@@ -180,13 +171,12 @@ export class CounterfactualVM {
 					message.opCodeArgs[0] === "setupNonce"
 				) {
 					let nonceUniqueId = 1; // todo
-					const op = CfOpSetup.nonceUpdateOp(
+					return CfOpSetup.nonceUpdateOp(
 						nonceUniqueId,
 						message.clientMessage.multisigAddress,
 						message.clientMessage.stateChannel.owners(),
 						this.cfState.networkContext
 					);
-					return op;
 				}
 				if (
 					message.actionName === "setup" &&
@@ -194,13 +184,12 @@ export class CounterfactualVM {
 				) {
 					let freeBalanceUniqueId = 2; // todo
 					let owners = [];
-					const op = CfOpSetup.freeBalanceInstallOp(
+					return CfOpSetup.freeBalanceInstallOp(
 						freeBalanceUniqueId,
 						message.clientMessage.multisigAddress,
 						message.clientMessage.stateChannel.owners(),
 						this.cfState.networkContext
 					);
-					return op;
 				}
 			}
 		);
@@ -210,13 +199,12 @@ export class CounterfactualVM {
 		return true;
 	}
 
-	receive(msg: ClientMessage) {
+	receive(msg: ClientMessage): Response {
 		this.validateMessage(msg);
 		let request = new Action(msg.requestId, msg.action, msg);
 		this.requests[request.requestId] = request;
-		let response = new Response(request.requestId, "started");
-		this.sendResponse(response);
 		this.processRequest(request);
+		return new Response(request.requestId, ResponseStatus.STARTED);
 	}
 
 	sendResponse(res: Response) {
@@ -225,21 +213,17 @@ export class CounterfactualVM {
 
 	async processRequest(action: Action) {
 		let val;
+		console.log("Processing request: ", action);
 		// TODO deal with errors
 		for await (val of action.execute(this)) {
 			console.log("processed a step");
 		}
-
 		this.mutateState(val);
-		// write to the state object
+		this.sendResponse(new Response(action.requestId, ResponseStatus.COMPLETED));
 	}
 
 	mutateState(state: ChannelStates) {
-		console.log("about to update -------");
-		console.log("existing state ", this.cfState.channelStates);
-		console.log("new state ", state);
 		Object.assign(this.cfState.channelStates, state);
-		console.log("updated state after updating ", this.cfState.channelStates);
 	}
 
 	register(scope: string, method: Function) {
@@ -284,12 +268,21 @@ export class InternalMessage {
 }
 
 export class Response {
-	requestId: string;
-	status: string;
-	error: string;
+	constructor(
+		readonly requestId: string,
+		readonly status: ResponseStatus,
+		error?: string
+	) {}
+}
 
-	constructor(id: string, status: string) {
-		this.requestId = id;
-		this.status = status;
-	}
+export enum ResponseStatus {
+	STARTED,
+	COMPLETED
+}
+
+export function getFirstResult(
+	toFindOpCode: string,
+	results: { value: any; opCode }[]
+): OpCodeResult {
+	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }

@@ -1,13 +1,12 @@
-import { Context } from "../machine/state";
-import { CfOpUpdate } from "../machine/cf-operation/cf-op-update";
-import { CfOpSetup } from "../machine/cf-operation/cf-op-setup";
+import { Context } from "../../src/machine/state";
+import { CfOpUpdate } from "../../src/machine/cf-operation/cf-op-update";
+import { CfOpSetup } from "../../src/machine/cf-operation/cf-op-setup";
 import {
 	CfState,
 	CounterfactualVM,
 	Response,
-	InternalMessage,
-	getFirstResult
-} from "./../machine/vm";
+	InternalMessage
+} from "../../src/machine/vm";
 import {
 	StateChannelInfos,
 	AppChannelInfos,
@@ -18,16 +17,18 @@ import {
 	ClientMessage,
 	FreeBalance,
 	ChannelStates
-} from "../machine/types";
+} from "../../src/machine/types";
 import { IoProvider } from "./ioProvider";
 
-export class CfWallet implements ResponseSink {
-	private vm: CounterfactualVM;
-	private io: IoProvider;
+export class TestWallet implements ResponseSink {
+	vm: CounterfactualVM;
+	io: IoProvider;
+	private requests: Map<string, Function>;
 
-	constructor() {
+	constructor(readonly address: string) {
 		this.vm = new CounterfactualVM(this);
 		this.io = new IoProvider();
+		this.requests = new Map<string, Function>();
 		this.registerMiddlewares();
 		this.startListening();
 	}
@@ -39,7 +40,7 @@ export class CfWallet implements ResponseSink {
 			},
 			null,
 			null,
-			0
+			1
 		);
 	}
 
@@ -56,42 +57,56 @@ export class CfWallet implements ResponseSink {
 		this.vm.setupDefaultMiddlewares();
 	}
 
-	receive(msg: ClientMessage) {
-		this.vm.receive(msg);
+	/**
+	 * The test will call this when it wants to start a protocol.
+	 * Returns a promise that resolves with a Response object when
+	 * the protocol has completd execution.
+	 */
+	async runProtocol(msg: ClientMessage): Promise<Response> {
+		let promise = new Promise<Response>((resolve, reject) => {
+			this.requests[msg.requestId] = resolve;
+		});
+		let response = this.vm.receive(msg);
+		return promise;
 	}
 
+	/**
+	 * Resolves the registered promise so the test can continue.
+	 */
 	sendResponse(res: Response) {
-		console.log("sending response", res);
+		this.requests[res.requestId](res);
 	}
 
 	receiveMessageFromPeer(incoming: ClientMessage) {
+		console.log("Received!");
 		this.io.receiveMessageFromPeer(incoming);
 	}
 }
 
-async function signMyUpdate(
-	message: InternalMessage,
-	next: Function,
-	context: Context
-) {
-	console.log(message);
-	return { signature: "hi", data: { something: "hello" } };
+async function signMyUpdate(message: InternalMessage, next: Function) {
+	return { signature: "fake sig", data: { something: "hello" } };
 }
 
 async function validateSignatures(
 	message: InternalMessage,
 	next: Function,
-	context: Context
+	context
 ) {
 	let incomingMessage = getFirstResult("waitForIo", context.results);
 	let op = getFirstResult("generateOp", context.results);
 	// do some magic here
-	console.log(message);
+}
+
+export function getFirstResult(
+	toFindOpCode: string,
+	results: { value: any; opCode }[]
+): OpCodeResult {
+	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }
 
 async function log(message: InternalMessage, next: Function, context: Context) {
-	console.log("message", message);
+	//console.log("message", message);
 	let result = await next();
-	console.log("result", result);
+	//console.log("result", result);
 	return result;
 }

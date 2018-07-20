@@ -3,7 +3,8 @@ import { CfWallet } from "../src/wallet/wallet";
 import * as ethers from "ethers";
 
 describe("Exploring", () => {
-	it("update ack", async (done) => {
+	it("update ack", async () => {
+		/*
 		let wallet = new CfWallet();
 		let state: ChannelStates = {
 			sampleMultisig: {
@@ -16,7 +17,7 @@ describe("Exploring", () => {
 						toSigningKey: 'toSigningKey',
 						fromSigningKey: 'fromSigningKey',
 						rootNonce: 0,
-						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]), 
+						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]),
 						appState: { someValue: 1 },
 						localNonce: 5
 					}
@@ -43,6 +44,7 @@ describe("Exploring", () => {
 		};
 		wallet.receiveMessageFromPeer(incoming);
 	});
+		*/
 	/*
 	it("update", async (done) => {
 		let wallet = new CfWallet();
@@ -57,7 +59,7 @@ describe("Exploring", () => {
 						toSigningKey: 'toSigningKey',
 						fromSigningKey: 'fromSigningKey',
 						rootNonce: 0,
-						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]), 
+						encodedState: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]),
 						appState: { someValue: 1 },
 						localNonce: 5
 					}
@@ -80,7 +82,7 @@ describe("Exploring", () => {
 			//fromAddress: 'fromAddr',
 			//multisigAddress: '',
 			action: 'update',
-			data: { 
+			data: {
 				encodedData: ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [2]),
 				moduleUpdateData: { someValue: 1 } }
 		};
@@ -97,7 +99,7 @@ describe("Exploring", () => {
 		wallet.receiveMessageFromPeer(incoming);
 	});
 	*/
-/*
+	/*
 	it("IgorXX", async () => {
 		let wallet = new CfWallet();
 		let msg: ClientMessage = {
