@@ -19,14 +19,81 @@ export interface InstallData {
 	peerB: PeerBalance;
 	keyA: string;
 	keyB: string;
+	encodedAppState: string;
 }
 
 export class FreeBalance {
-	constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
+	constructor(
+		readonly peerA: PeerBalance,
+		readonly peerB: PeerBalance,
+		readonly localNonce: number,
+		readonly uniqueId: number
+	) {}
+}
+
+/**
+ * peerA is always the address first in alphabetical order.
+ */
+export interface CanonicalPeerBalance {
+	peerA: PeerBalance;
+	peerB: PeerBalance;
 }
 
 export class PeerBalance {
 	constructor(readonly address: string, readonly balance: number) {}
+
+	/**
+	 * Returnsan array of peer balance objects sorted by address ascendi.
+	 */
+	static balances(
+		address1: string,
+		balance1: number,
+		address2: string,
+		balance2: number
+	): CanonicalPeerBalance {
+		if (address2.localeCompare(address1) < 0) {
+			return {
+				peerA: new PeerBalance(address2, balance2),
+				peerB: new PeerBalance(address1, balance1)
+			};
+		}
+		return {
+			peerA: new PeerBalance(address1, balance1),
+			peerB: new PeerBalance(address2, balance2)
+		};
+	}
+
+	/**
+	 * @assume each array is of length 2.
+	 */
+	static subtract(
+		oldBals: PeerBalance[],
+		newBals: PeerBalance[]
+	): PeerBalance[] {
+		if (oldBals[0].address === newBals[0].address) {
+			return [
+				new PeerBalance(
+					oldBals[0].address,
+					oldBals[0].balance - newBals[0].balance
+				),
+				new PeerBalance(
+					oldBals[1].address,
+					oldBals[1].balance - newBals[1].balance
+				)
+			];
+		} else {
+			return [
+				new PeerBalance(
+					oldBals[0].address,
+					oldBals[0].balance - newBals[1].balance
+				),
+				new PeerBalance(
+					oldBals[1].address,
+					oldBals[1].balance - newBals[0].balance
+				)
+			];
+		}
+	}
 }
 
 export class NetworkContext {
@@ -62,15 +129,17 @@ export interface StateChannelInfo {
 }
 
 export interface AppChannelInfo {
-	id?: string;
-	amount?: any;
-	toSigningKey?: string;
-	fromSigningKey?: string;
-	rootNonce?: number;
-
-	encodedState?: any;
+	id: string;
+	peerA: PeerBalance;
+	peerB: PeerBalance;
+	// ephemeral keys
+	keyA: string;
+	keyB: string;
+	// count of the dependency nonce in my condition
+	rootNonce: number;
+	encodedState: any;
 	appState?: any;
-	localNonce?: number;
+	localNonce: number;
 
 	//TODO move this into a method that is outside the data structure
 	stateChannel?: StateChannelInfo;
@@ -101,7 +170,7 @@ export class CfApp {
 		readonly bytecode: string,
 		readonly stateType: string,
 		readonly signingKeys: Array<string>,
-		readonly peerAmounts: Array<CfPeerAmount>,
+		readonly peerAmounts: Array<PeerBalance>,
 		readonly initData: any,
 		readonly interpreterSigHash: string,
 		readonly uniqueId: number
