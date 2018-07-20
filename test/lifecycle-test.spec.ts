@@ -2,6 +2,8 @@ import { TestWallet } from "./wallet/wallet";
 import { ClientMessage, InstallData, PeerBalance } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 
+const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
+
 describe("Lifecycle", async () => {
 	it("should have the correct funds on chain", async () => {
 		//given
@@ -42,7 +44,7 @@ function setupStartMsg(from: string, to: string): ClientMessage {
 		appId: undefined,
 		action: "setup",
 		data: {},
-		multisigAddress: "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+		multisigAddress: MULTISIG,
 		toAddress: to,
 		fromAddress: from,
 		stateChannel: undefined,
@@ -62,7 +64,7 @@ function validateSetup(walletA: TestWallet, walletB: TestWallet) {
 		peerB = peerA;
 	}
 
-	let multisig = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
+	let multisig = MULTISIG;
 
 	// valiate A's state
 	let aChannel = stateA.channelStates[multisig];
@@ -93,7 +95,7 @@ async function makeDeposits(
 	walletB: TestWallet
 ): Promise<any> {
 	await deposit(walletA, walletB, 10);
-	await deposit(walletB, walletA, 5);
+	//await deposit(walletB, walletA, 5);
 }
 
 async function deposit(
@@ -101,22 +103,26 @@ async function deposit(
 	walletB: TestWallet,
 	amount: number
 ) {
-	await installDeposit(walletA, walletB, amount);
-	await uninstallDeposit(walletB, walletA, amount);
+	await installBalanceRefund(walletA, walletB, amount);
+	await uninstallBalanceRefund(walletB, walletA, amount);
 }
 
-async function installDeposit(
+async function installBalanceRefund(
 	walletA: TestWallet,
 	walletB: TestWallet,
 	amount: number
 ) {
-	let msg = startInstallDepositMsg(walletA.address, walletB.address, amount);
+	let msg = startInstallBalanceRefundMsg(
+		walletA.address,
+		walletB.address,
+		amount
+	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	validateInstalledDeposit(walletA, amount);
+	validateInstalledBalanceRefund(walletA, amount);
 }
 
-function startInstallDepositMsg(
+function startInstallBalanceRefundMsg(
 	from: string,
 	to: string,
 	amount: number
@@ -133,10 +139,11 @@ function startInstallDepositMsg(
 		amountB = amount;
 	}
 	let installData: InstallData = {
-		peerA: new PeerBalance(peerA, amountA),
-		peerB: new PeerBalance(peerB, amountB),
+		peerA: new PeerBalance(peerA, 0),
+		peerB: new PeerBalance(peerB, 0),
 		keyA: null,
-		keyB: null
+		keyB: null,
+		encodedAppState: "0x1234"
 	};
 	return {
 		requestId: "1",
@@ -144,7 +151,7 @@ function startInstallDepositMsg(
 		appId: undefined,
 		action: "install",
 		data: installData,
-		multisigAddress: "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+		multisigAddress: MULTISIG,
 		toAddress: to,
 		fromAddress: from,
 		stateChannel: undefined,
@@ -152,11 +159,29 @@ function startInstallDepositMsg(
 	};
 }
 
-function validateInstalledDeposit(wallet: TestWallet, amount: number) {
+function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 	// todo
+	let stateChannel = wallet.vm.cfState.channelStates[MULTISIG];
+	let appChannel = stateChannel.appChannels;
+	let cfAddrs = Object.keys(appChannel);
+	expect(cfAddrs.length).toBe(1);
+
+	let cfAddr = cfAddrs[0];
+	console.log(stateChannel);
+	expect(appChannel[cfAddr].peerA.balance).toBe(0);
+	expect(appChannel[cfAddr].peerA.address).toBe(
+		stateChannel.freeBalance.peerA.address
+	);
+	expect(appChannel[cfAddr].peerA.balance).toBe(0);
+
+	expect(appChannel[cfAddr].peerB.balance).toBe(0);
+	expect(appChannel[cfAddr].peerB.address).toBe(
+		stateChannel.freeBalance.peerB.address
+	);
+	expect(appChannel[cfAddr].peerB.balance).toBe(0);
 }
 
-async function uninstallDeposit(
+async function uninstallBalanceRefund(
 	walletA: TestWallet,
 	walletB: TestWallet,
 	amount: number
@@ -164,7 +189,7 @@ async function uninstallDeposit(
 	// todo
 }
 
-function validateUninstalledDeposit(wallet: TestWallet, amount: number) {
+function validateUninstalledBalanceRefund(wallet: TestWallet, amount: number) {
 	// todo
 }
 

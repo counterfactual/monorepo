@@ -20,12 +20,6 @@ export class StateChannelInfoImpl implements StateChannelInfo {
 		if (!appChannels) {
 			this.appChannels = {};
 		}
-		if (!freeBalance) {
-			let owners = this.owners();
-			let peerBalA = new PeerBalance(owners[0], 0);
-			let peerBalB = new PeerBalance(owners[1], 0);
-			this.freeBalance = new FreeBalance(peerBalA, peerBalB);
-		}
 	}
 
 	/**

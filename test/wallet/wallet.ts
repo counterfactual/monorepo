@@ -78,7 +78,6 @@ export class TestWallet implements ResponseSink {
 	}
 
 	receiveMessageFromPeer(incoming: ClientMessage) {
-		console.log("Received!");
 		this.io.receiveMessageFromPeer(incoming);
 	}
 }

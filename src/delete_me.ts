@@ -35,42 +35,6 @@ export class StateChannelSystem {
 	freeBalance: FreeBalance;
 
 	/**
-	 * Order of the peers matters here since the free balances will be
-	 * updated accordingly. Initiator of setupChannel is always peerA,
-	 * receiver is always peerB.
-	 */
-	static makeSystem(peerA: string, peerB: string): StateChannelSystem {
-		let system = new StateChannelSystem();
-		system.peerA = peerA;
-		system.peerB = peerB;
-		system.nonce = system.makeNonce();
-		system.freeBalance = system.makeFreeBalance(peerA, peerB);
-		return system;
-	}
-
-	/**
-	 * First nonce has id = 1.
-	 */
-	private makeNonce(): Nonce {
-		this.idCounter += 1;
-		return new Nonce(this.idCounter, 1);
-	}
-
-	/**
-	 * First free balance has id = 2.
-	 */
-	private makeFreeBalance(peerA: string, peerB: string): FreeBalance {
-		this.idCounter += 1;
-		return new FreeBalance(
-			this.idCounter,
-			"ETH",
-			new CfPeerAmount(peerA, 0),
-			new CfPeerAmount(peerB, 0),
-			1
-		);
-	}
-
-	/**
 	 * The unique id is a global counter over all apps in the state channel.
 	 */
 	generateUniqueId() {

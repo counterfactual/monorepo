@@ -7,7 +7,8 @@ import {
 	AppChannelInfo,
 	StateChannelInfo,
 	ClientMessage,
-	FreeBalance
+	FreeBalance,
+	PeerBalance
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
 import {
@@ -25,6 +26,7 @@ export class Action {
 	clientMessage: ClientMessage;
 	execution: ActionExecution;
 	instructions: string[][];
+	isAckSide: boolean;
 
 	constructor(
 		id: string,
@@ -35,6 +37,7 @@ export class Action {
 		this.requestId = id;
 		this.clientMessage = clientMessage;
 		this.name = action;
+		this.isAckSide = isAckSide;
 
 		if (isAckSide) {
 			this.instructions = AckInstructions[action];
@@ -79,10 +82,23 @@ export class ActionExecution {
 
 	initializeExecution() {
 		if (this.action.name === "setup") {
+			let toAddress = this.clientMessage.toAddress;
+			let fromAddress = this.clientMessage.fromAddress;
+			let balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
+			let uniqueId = 2; // todo
+			let localNonce = 1;
+			let freeBalance = new FreeBalance(
+				balances.peerA,
+				balances.peerB,
+				localNonce,
+				uniqueId
+			);
 			let stateChannel = new StateChannelInfoImpl(
-				this.clientMessage.toAddress,
-				this.clientMessage.fromAddress,
-				this.clientMessage.multisigAddress
+				toAddress,
+				fromAddress,
+				this.clientMessage.multisigAddress,
+				{},
+				freeBalance
 			);
 			this.clientMessage.stateChannel = stateChannel;
 			// TODO Think about pending state/whether we want to do this for the
@@ -101,6 +117,7 @@ export class ActionExecution {
 			this.initializeExecution();
 		}
 		let op = this.opCodes[this.instructionPointer];
+		console.log("Executing op: ", op);
 		let internalMessage = new InternalMessage(
 			this.action.name,
 			op,

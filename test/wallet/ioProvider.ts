@@ -70,6 +70,7 @@ export class IoProvider {
 		seq?: number
 	) {
 		if (!multisig && !appId && !seq) {
+			console.trace();
 			throw "Must specify either a multisig or appId or sequence";
 		}
 		let message = this.findMessage(multisig, appId);
@@ -91,7 +92,6 @@ export class IoProvider {
 		next: Function,
 		context: Context
 	) {
-		console.log("ioSendMessageNow ", internalMessage.clientMessage);
 		let message = internalMessage.clientMessage;
 		let msg: ClientMessage = {
 			requestId: "none this should be a notification on completion",
@@ -124,12 +124,11 @@ export class IoProvider {
 
 		let multisig = null;
 		let appId = null;
-		if (message.actionName === "setup") {
+		if (message.actionName === "setup" || message.actionName == "install") {
 			multisig = message.clientMessage.multisigAddress;
 		} else {
 			appId = message.clientMessage.appId;
 		}
-
 		this.listenOnce(
 			message => {
 				resolve(message);

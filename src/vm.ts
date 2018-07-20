@@ -10,10 +10,14 @@ import {
 	AppChannelInfo,
 	StateChannelInfo,
 	ClientMessage,
-	FreeBalance
+	CfApp,
+	FreeBalance,
+	PeerBalance
 } from "./types";
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
+import { CfOpInstall } from "./cf-operation/cf-op-install";
+// @igor this breaks on node 10.0
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
@@ -99,7 +103,6 @@ export class CounterfactualVM {
 		this.requests = {};
 		this.middlewares = [];
 		this.stateChannelInfos = Object.create(null);
-		let stateChannel = new StateChannelInfoImpl();
 		this.wallet = wallet;
 		this.cfState = new CfState(this.stateChannelInfos);
 	}
@@ -119,7 +122,6 @@ export class CounterfactualVM {
 	}
 
 	startAck(message: ClientMessage) {
-		console.log("Starting ack", message);
 		let request = new Action(message.requestId, message.action, message, true);
 		this.processRequest(request);
 	}
@@ -146,22 +148,66 @@ export class CounterfactualVM {
 			"returnSuccess",
 			async (message: InternalMessage, next: Function, context: Context) => {
 				let appChannelInfo = {};
-				if (message.actionName !== "setup") {
+				let freeBalance;
+				let multisig = message.clientMessage.multisigAddress;
+				if (message.actionName === "update") {
+					// todo
+					/*
 					let appChannel = context.appChannelInfos[message.clientMessage.appId];
 					// TODO add nonce and encoded app state
 					let updatedAppChannel: AppChannelInfo = {
 						appState: message.clientMessage.data.appState
 					};
-					let appChannelInfo = { [appChannel.id]: updatedAppChannel };
+					appChannelInfo = { [appChannel.id]: updatedAppChannel };
+					*/
+				} else if (message.actionName === "install") {
+					let cfAddr = getFirstResult("generateOp", context.results).value
+						.cfAddr;
+
+					let existingFreeBalance = this.cfState.stateChannel(multisig)
+						.freeBalance;
+
+					let uniqueId = 3; // todo
+					let localNonce = 1;
+					let data = message.clientMessage.data;
+					let newAppChannel: AppChannelInfo = {
+						id: cfAddr,
+						peerA: data.peerA,
+						peerB: data.peerB,
+						keyA: data.keyA,
+						keyB: data.keyB,
+						rootNonce: 1,
+						encodedState: "0x0", // todo
+						localNonce: 1
+					};
+					let peerA = new PeerBalance(
+						existingFreeBalance.peerA.address,
+						existingFreeBalance.peerA.balance - data.peerA.balance
+					);
+					let peerB = new PeerBalance(
+						existingFreeBalance.peerB.address,
+						existingFreeBalance.peerB.balance - data.peerB.balance
+					);
+					appChannelInfo = { [newAppChannel.id]: newAppChannel };
+					freeBalance = new FreeBalance(
+						peerA,
+						peerB,
+						existingFreeBalance.localNonce + 1,
+						existingFreeBalance.uniqueId
+					);
 				}
-				let multisig = message.clientMessage.multisigAddress;
-				let updatedStateChannel = new StateChannelInfoImpl(
-					message.clientMessage.toAddress,
-					message.clientMessage.fromAddress,
-					multisig,
-					appChannelInfo
-				);
-				return { [multisig]: updatedStateChannel };
+
+				// todo: resolve this metho with initilizeExecution
+				if (message.actionName !== "setup") {
+					let updatedStateChannel = new StateChannelInfoImpl(
+						message.clientMessage.toAddress,
+						message.clientMessage.fromAddress,
+						multisig,
+						appChannelInfo,
+						freeBalance
+					);
+					return { [multisig]: updatedStateChannel };
+				}
 			}
 		);
 		this.register(
@@ -192,10 +238,11 @@ export class CounterfactualVM {
 					message.opCodeArgs[0] === "setupNonce"
 				) {
 					let nonceUniqueId = 1; // todo
+					let multisig = message.clientMessage.multisigAddress;
 					return CfOpSetup.nonceUpdateOp(
 						nonceUniqueId,
-						message.clientMessage.multisigAddress,
-						message.clientMessage.stateChannel.owners(),
+						multisig,
+						this.cfState.stateChannel(multisig).owners(),
 						this.cfState.networkContext
 					);
 				}
@@ -211,6 +258,39 @@ export class CounterfactualVM {
 						message.clientMessage.stateChannel.owners(),
 						this.cfState.networkContext
 					);
+				}
+				if (message.actionName === "install") {
+					let appKeys = [
+						message.clientMessage.data.keyA,
+						message.clientMessage.data.keyB
+					];
+					let multisig = message.clientMessage.multisigAddress;
+					let channelKeys = this.cfState.stateChannel(multisig).owners();
+					let uniqueId = 4; // todo
+					let app = new CfApp(
+						"0x1",
+						"",
+						channelKeys,
+						[
+							message.clientMessage.data.peerA,
+							message.clientMessage.data.peerB
+						],
+						null,
+						"",
+						uniqueId
+					);
+					let [op, cfAddr] = CfOpInstall.operation(
+						this.cfState.networkContext,
+						multisig,
+						this.cfState.freeBalance(multisig),
+						channelKeys,
+						appKeys,
+						app
+					);
+					return {
+						op,
+						cfAddr
+					};
 				}
 			}
 		);
@@ -254,10 +334,15 @@ export class CounterfactualVM {
 		console.log("Processing request: ", action);
 		// TODO deal with errors
 		for await (val of action.execute(this)) {
-			console.log("processed a step");
+			//console.log("processed a step");
 		}
 		this.mutateState(val);
-		this.sendResponse(new Response(action.requestId, ResponseStatus.COMPLETED));
+		//
+		if (!action.isAckSide) {
+			this.sendResponse(
+				new Response(action.requestId, ResponseStatus.COMPLETED)
+			);
+		}
 	}
 
 	mutateState(state: ChannelStates) {
@@ -284,6 +369,14 @@ export class CfState {
 			"0xbbbbaaaa",
 			"0x0"
 		);
+	}
+
+	stateChannel(multisig: string): StateChannelInfo {
+		return this.channelStates[multisig];
+	}
+
+	freeBalance(multisig: string): FreeBalance {
+		return this.channelStates[multisig].freeBalance;
 	}
 }
 
