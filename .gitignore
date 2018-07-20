@@ -1,7 +1,7 @@
 .DS_Store
 
 # Dependencies
-node_modules/
+node_modules
 
 # Yarn
 yarn.lock
@@ -23,4 +23,6 @@ abis.json
 lerna-debug.log
 
 # build directories
-packages/ethereum/lib
+packages/core/lib
+packages/cf-fmg/lib
+
