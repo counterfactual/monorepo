@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { StateChannelContext } from "../delete_me";
 import { CFAppUpdateWithSigningKeys, CfOperation } from "./cf-operation";
 
 import { Proxy as ProxyContract } from "./contracts-layer-constants";

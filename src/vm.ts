@@ -17,6 +17,7 @@ import {
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
 import { CfOpInstall } from "./cf-operation/cf-op-install";
+import { CfOpUninstall } from "./cf-operation/cf-op-uninstall";
 // @igor this breaks on node 10.0
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
@@ -51,6 +52,14 @@ export let Instructions = {
 		["signMyUpdate"],
 		["IoSendMessage"],
 		["returnSuccess"]
+	],
+	uninstall: [
+		["generateOp", "uninstall"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["validateSignatures"],
+		["returnSuccess"]
 	]
 };
 
@@ -74,6 +83,15 @@ export let AckInstructions = {
 	install: [
 		["generateKey"],
 		["generateOp", "install"],
+		["signMyUpdate"],
+		["IoSendMessage"],
+		["waitForIo"],
+		["validateSignatures"],
+		["returnSuccess"]
+	],
+	uninstall: [
+		["generateOp", "uninstall"],
+		["validateSignatures"],
 		["signMyUpdate"],
 		["IoSendMessage"],
 		["waitForIo"],
@@ -163,10 +181,8 @@ export class CounterfactualVM {
 				} else if (message.actionName === "install") {
 					let cfAddr = getFirstResult("generateOp", context.results).value
 						.cfAddr;
-
 					let existingFreeBalance = this.cfState.stateChannel(multisig)
 						.freeBalance;
-
 					let uniqueId = 3; // todo
 					let localNonce = 1;
 					let data = message.clientMessage.data;
@@ -195,6 +211,9 @@ export class CounterfactualVM {
 						existingFreeBalance.localNonce + 1,
 						existingFreeBalance.uniqueId
 					);
+				} else if (message.actionName === "uninstall") {
+					// todo
+					// remove the app channe from the state
 				}
 
 				// todo: resolve this metho with initilizeExecution
@@ -267,7 +286,7 @@ export class CounterfactualVM {
 					let multisig = message.clientMessage.multisigAddress;
 					let channelKeys = this.cfState.stateChannel(multisig).owners();
 					let uniqueId = 4; // todo
-					let app = new CfApp(
+					let app = new CfApp( //todo
 						"0x1",
 						"",
 						channelKeys,
@@ -291,6 +310,18 @@ export class CounterfactualVM {
 						op,
 						cfAddr
 					};
+				}
+				if (message.actionName == "uninstall") {
+					debugger;
+					let multisig = message.clientMessage.multisigAddress;
+					let cfAddr = message.clientMessage.appId;
+					let op = CfOpUninstall.operation(
+						this.cfState.networkContext,
+						multisig,
+						this.cfState.freeBalance(multisig),
+						this.cfState.app(multisig, cfAddr),
+						message.clientMessage.data.peerAmounts
+					);
 				}
 			}
 		);
@@ -373,6 +404,10 @@ export class CfState {
 
 	stateChannel(multisig: string): StateChannelInfo {
 		return this.channelStates[multisig];
+	}
+
+	app(multisig: string, cfAddr: string): AppChannelInfo {
+		return this.channelStates[multisig].appChannels[cfAddr];
 	}
 
 	freeBalance(multisig: string): FreeBalance {

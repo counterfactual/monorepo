@@ -34,9 +34,17 @@ export class FreeBalance {
 /**
  * peerA is always the address first in alphabetical order.
  */
-export interface CanonicalPeerBalance {
-	peerA: PeerBalance;
-	peerB: PeerBalance;
+export class CanonicalPeerBalance {
+	constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
+	static canonicalize(
+		peer1: PeerBalance,
+		peer2: PeerBalance
+	): CanonicalPeerBalance {
+		if (peer2.address.localeCompare(peer1.address) < 0) {
+			return new CanonicalPeerBalance(peer2, peer1);
+		}
+		return new CanonicalPeerBalance(peer1, peer2);
+	}
 }
 
 export class PeerBalance {
@@ -52,15 +60,22 @@ export class PeerBalance {
 		balance2: number
 	): CanonicalPeerBalance {
 		if (address2.localeCompare(address1) < 0) {
-			return {
-				peerA: new PeerBalance(address2, balance2),
-				peerB: new PeerBalance(address1, balance1)
-			};
+			return new CanonicalPeerBalance(
+				new PeerBalance(address2, balance2),
+				new PeerBalance(address1, balance1)
+			);
 		}
-		return {
-			peerA: new PeerBalance(address1, balance1),
-			peerB: new PeerBalance(address2, balance2)
-		};
+		return new CanonicalPeerBalance(
+			new PeerBalance(address1, balance1),
+			new PeerBalance(address2, balance2)
+		);
+	}
+
+	static add(bals: PeerBalance[], inc: PeerBalance[]): PeerBalance[] {
+		return [
+			new PeerBalance(bals[0].address, bals[0].balance + inc[0].balance),
+			new PeerBalance(bals[1].address, bals[1].balance + inc[1].balance)
+		];
 	}
 
 	/**
