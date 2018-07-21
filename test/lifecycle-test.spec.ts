@@ -103,8 +103,8 @@ async function deposit(
 	walletB: TestWallet,
 	amount: number
 ) {
-	await installBalanceRefund(walletA, walletB, amount);
-	await uninstallBalanceRefund(walletB, walletA, amount);
+	let cfAddr = await installBalanceRefund(walletA, walletB, amount);
+	await uninstallBalanceRefund(cfAddr, walletA, walletB, amount);
 }
 
 async function installBalanceRefund(
@@ -119,7 +119,7 @@ async function installBalanceRefund(
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	validateInstalledBalanceRefund(walletA, amount);
+	return validateInstalledBalanceRefund(walletA, amount);
 }
 
 function startInstallBalanceRefundMsg(
@@ -161,6 +161,7 @@ function startInstallBalanceRefundMsg(
 
 function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 	// todo
+	debugger;
 	let stateChannel = wallet.vm.cfState.channelStates[MULTISIG];
 	let appChannel = stateChannel.appChannels;
 	let cfAddrs = Object.keys(appChannel);
@@ -179,18 +180,53 @@ function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 		stateChannel.freeBalance.peerB.address
 	);
 	expect(appChannel[cfAddr].peerB.balance).toBe(0);
+	return cfAddr;
 }
 
 async function uninstallBalanceRefund(
+	cfAddr: string,
 	walletA: TestWallet,
 	walletB: TestWallet,
 	amount: number
 ) {
-	// todo
+	let msg = startUninstallBalanceRefundMsg(
+		cfAddr,
+		walletA.address,
+		walletB.address,
+		amount
+	);
+	let response = await walletA.runProtocol(msg);
+	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	validateUninstalledBalanceRefund(walletA, amount);
+}
+
+function startUninstallBalanceRefundMsg(
+	appId: string,
+	from: string,
+	to: string,
+	amount: number
+): ClientMessage {
+	let uninstallData = {
+		peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
+	};
+	debugger;
+	return {
+		requestId: "2",
+		appName: "balanceRefund",
+		appId: appId,
+		action: "uninstall",
+		data: uninstallData,
+		multisigAddress: MULTISIG,
+		toAddress: to,
+		fromAddress: from,
+		stateChannel: undefined,
+		seq: 0
+	};
 }
 
 function validateUninstalledBalanceRefund(wallet: TestWallet, amount: number) {
-	// todo
+	console.log(wallet.vm.cfState);
+	expect(true).toBe(false);
 }
 
 async function playTtt(walletA: TestWallet, walletB: TestWallet) {

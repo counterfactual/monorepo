@@ -2,7 +2,6 @@ import { FreeBalance, NetworkContext } from "../types";
 import * as ethers from "ethers";
 
 import * as cfOp from "./cf-operation";
-import { StateChannelContext } from "../delete_me";
 
 const TIMEOUT = 100;
 

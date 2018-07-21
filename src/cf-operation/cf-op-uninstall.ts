@@ -1,6 +1,11 @@
 import * as ethers from "ethers";
-import { StateChannelContext } from "../delete_me";
-import { CfPeerAmount } from "../types";
+import {
+	NetworkContext,
+	PeerBalance,
+	FreeBalance,
+	AppChannelInfo,
+	CanonicalPeerBalance
+} from "../types";
 import {
 	CfOperation,
 	CFMultiOp,
@@ -22,33 +27,55 @@ const GET_STATE_SIGHASH = "0xb5d78d8c";
 
 export class CfOpUninstall {
 	static operation(
-		ctx: StateChannelContext,
-		peerAmounts: CfPeerAmount[]
+		ctx: NetworkContext,
+		multisig: string,
+		freeBalance: FreeBalance,
+		app: AppChannelInfo,
+		peerAmounts: PeerBalance[]
 	): CfOperation {
-		let updateFreeBalance = CfOpUninstall.updateFreeBalance(ctx, peerAmounts);
-
-		let bumpNonce = CfOpUninstall.updateNonce(ctx);
+		let canon = CanonicalPeerBalance.canonicalize(
+			peerAmounts[0],
+			peerAmounts[1]
+		);
+		let owners = [canon.peerA.address, canon.peerB.address];
+		let updateFreeBalance = CfOpUninstall.updateFreeBalance(
+			ctx,
+			multisig,
+			freeBalance,
+			peerAmounts,
+			owners
+		);
+		let bumpNonce = CfOpUninstall.updateNonce(ctx, multisig, owners, app);
 
 		let ops = [updateFreeBalance, bumpNonce];
 		//let ops = [bumpNonce];
-		return new CFMultiOp(ops, ctx.multisigAddr);
+		return new CFMultiOp(ops, multisig);
 	}
 
-	private static updateNonce(ctx: StateChannelContext): CfAppUpdateAsOwner {
+	private static updateNonce(
+		ctx: NetworkContext,
+		multisig: string,
+		owners: string[],
+		app: AppChannelInfo
+	): CfAppUpdateAsOwner {
+		// todo: put dependency nonce on app objet and pass in
+		//       once new conract updates are incorporated
+		let uniqueId = 10;
 		const nonceCfAddress = CfOpUninstall.cfAddress(
 			ctx,
-			ctx.getOwners(),
-			ctx.system.nonce.uniqueId,
+			multisig,
+			owners,
+			uniqueId,
 			TIMEOUT
 		);
 
-		let newNonce = ctx.system.nonce.incrementNonce();
+		let newNonce = app.rootNonce + 1;
 		const nonceState = ethers.utils.AbiCoder.defaultCoder.encode(
 			["uint256"],
 			[newNonce]
 		);
 		return new CfAppUpdateAsOwner(
-			ctx.multisigAddr,
+			multisig,
 			nonceCfAddress,
 			nonceState,
 			newNonce
@@ -56,17 +83,23 @@ export class CfOpUninstall {
 	}
 
 	private static updateFreeBalance(
-		ctx: StateChannelContext,
-		peerAmounts: Array<CfPeerAmount>
+		ctx: NetworkContext,
+		multisig: string,
+		freeBalance: FreeBalance,
+		peerBalances: Array<PeerBalance>,
+		owners: Array<string>
 	): CfAppUpdateAsOwner {
 		const freeBalanceCfAddress = CfOpUninstall.cfAddress(
 			ctx,
-			ctx.getOwners(),
-			ctx.system.freeBalance.uniqueId,
+			multisig,
+			owners,
+			freeBalance.uniqueId,
 			TIMEOUT
 		);
-		let freeBal = ctx.system.freeBalance;
-		const newBals = freeBal.add(peerAmounts);
+		const newBals = PeerBalance.add(
+			[freeBalance.peerA, freeBalance.peerB],
+			peerBalances
+		);
 		const freeBalanceState = ethers.utils.AbiCoder.defaultCoder.encode(
 			["tuple(tuple(address,bytes32),uint256)[]"],
 			[
@@ -76,27 +109,27 @@ export class CfOpUninstall {
 							zeroAddress,
 							ethers.utils.AbiCoder.defaultCoder.encode(
 								["bytes32"],
-								[newBals[0].addr]
+								[newBals[0].address]
 							)
 						],
-						newBals[0].amount.toString()
+						newBals[0].balance.toString()
 					],
 					[
 						[
 							zeroAddress,
 							ethers.utils.AbiCoder.defaultCoder.encode(
 								["bytes32"],
-								[newBals[1].addr]
+								[newBals[1].address]
 							)
 						],
-						newBals[1].amount.toString()
+						newBals[1].balance.toString()
 					]
 				]
 			]
 		);
-		const freeBalanceNonce = ctx.system.freeBalance.incrementNonce();
+		const freeBalanceNonce = freeBalance.localNonce + 1;
 		return new CfAppUpdateAsOwner(
-			ctx.multisigAddr,
+			multisig,
 			freeBalanceCfAddress,
 			freeBalanceState,
 			freeBalanceNonce
@@ -105,7 +138,8 @@ export class CfOpUninstall {
 
 	// TODO: Generalize for all cf ops
 	private static cfAddress(
-		ctx: StateChannelContext,
+		ctx: NetworkContext,
+		multisig: string,
 		signingKeys: Array<string>,
 		uniqueId: number,
 		timeout: number
@@ -113,15 +147,15 @@ export class CfOpUninstall {
 		const initcode = ethers.Contract.getDeployTransaction(
 			ProxyContract.bytecode,
 			ProxyContract.abi,
-			ctx.networkContext["CounterfactualAppAddress"]
+			ctx["CounterfactualAppAddress"]
 		).data;
 
 		const calldata = new ethers.Interface([
 			"instantiate(address,address[],address,uint256,uint256)"
 		]).functions.instantiate(
-			ctx.multisigAddr,
+			multisig,
 			signingKeys,
-			ctx.networkContext["RegistryAddress"],
+			ctx["RegistryAddress"],
 			uniqueId,
 			timeout
 		).data;
