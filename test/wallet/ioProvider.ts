@@ -14,18 +14,16 @@ export class IoProvider {
 		seq: number;
 		method: Function;
 	}[];
-	fallThroughListeners: {
-		appId: string;
-		multisig: string;
-		seq: number;
-		method: Function;
-	}[];
+
+	/**
+	 * Called when receivng a message with seqno = 1.
+	 */
+	ackMethod: Function;
 
 	constructor() {
 		// setup websockets
 		this.messages = [];
 		this.listeners = [];
-		this.fallThroughListeners = [];
 	}
 
 	receiveMessageFromPeer(message: ClientMessage) {
@@ -33,20 +31,15 @@ export class IoProvider {
 		this.listeners.forEach(listener => {
 			if (
 				listener.appId === message.appId ||
-				(!listener.appId && listener.multisig === message.multisigAddress) ||
 				(!listener.appId && listener.multisig === message.multisigAddress)
 			) {
 				listener.method(message);
 				done = true;
 			}
 		});
-		if (!done) {
-			this.fallThroughListeners.forEach(listener => {
-				if (listener.seq === message.seq) {
-					listener.method(message);
-					done = true;
-				}
-			});
+		if (message.seq === 1) {
+			this.ackMethod(message);
+			done = true;
 		}
 		if (!done) {
 			this.messages.push(message);
@@ -82,9 +75,8 @@ export class IoProvider {
 		}
 	}
 
-	// catches anything that is not caught by listenOnce
 	listen(method: Function, multisig?: string, appId?: string, seq?: number) {
-		this.fallThroughListeners.push({ method, seq, multisig, appId });
+		this.ackMethod = method;
 	}
 
 	async ioSendMessage(
@@ -105,7 +97,7 @@ export class IoProvider {
 			stateChannel: null,
 			seq: message.seq + 1
 		};
-
+		console.log("IOSEND: ", msg);
 		this.peer.receiveMessageFromPeer(msg);
 	}
 
@@ -124,7 +116,8 @@ export class IoProvider {
 
 		let multisig = null;
 		let appId = null;
-		if (message.actionName === "setup" || message.actionName == "install") {
+
+		if (message.actionName === "setup" || message.actionName === "install") {
 			multisig = message.clientMessage.multisigAddress;
 		} else {
 			appId = message.clientMessage.appId;
