@@ -28,22 +28,14 @@ export class TestWallet implements ResponseSink {
 	constructor(readonly address: string) {
 		this.vm = new CounterfactualVM(this);
 		this.io = new IoProvider();
+		this.io.ackMethod = this.vm.startAck.bind(this.vm);
 		this.requests = new Map<string, Function>();
 		this.registerMiddlewares();
-		this.startListening();
 	}
 
-	startListening() {
-		this.io.listen(
-			(message: ClientMessage) => {
-				this.vm.startAck(message);
-			},
-			null,
-			null,
-			1
-		);
-	}
-
+	/**
+	 * Reconstructs the vm state to the given ChannelStates.
+	 */
 	initState(states: ChannelStates) {
 		this.vm.initState(states);
 	}
@@ -77,10 +69,17 @@ export class TestWallet implements ResponseSink {
 		this.requests[res.requestId](res);
 	}
 
+	/**
+	 * Called When a peer wants to send an io messge to this wallet.
+	 */
 	receiveMessageFromPeer(incoming: ClientMessage) {
 		this.io.receiveMessageFromPeer(incoming);
 	}
 }
+
+/**
+ * Plugin middleware methods.
+ */
 
 async function signMyUpdate(message: InternalMessage, next: Function) {
 	return { signature: "fake sig", data: { something: "hello" } };
@@ -96,16 +95,19 @@ async function validateSignatures(
 	// do some magic here
 }
 
-export function getFirstResult(
-	toFindOpCode: string,
-	results: { value: any; opCode }[]
-): OpCodeResult {
-	return results.find(({ opCode, value }) => opCode === toFindOpCode);
-}
-
 async function log(message: InternalMessage, next: Function, context: Context) {
 	//console.log("message", message);
 	let result = await next();
 	//console.log("result", result);
 	return result;
+}
+
+/**
+ * Utilitiy for middleware to access return values of other middleware.
+ */
+export function getFirstResult(
+	toFindOpCode: string,
+	results: { value: any; opCode }[]
+): OpCodeResult {
+	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }
