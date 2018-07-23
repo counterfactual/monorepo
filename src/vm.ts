@@ -13,31 +13,33 @@ import {
 	FreeBalance,
 	PeerBalance
 } from "./types";
-import { KeyGenerator, OpCodeGenerator, StateDiffGenerator } from "./generator";
-
+import {
+	KeyGenerator,
+	OpCodeGenerator,
+	StateDiffGenerator,
+	SignatureValidator
+} from "./middleware";
 import {
 	CfState,
 	AppChannelInfoImpl,
 	StateChannelInfoImpl,
 	Context
 } from "./state";
-import { stat } from "fs";
 import { Instructions, AckInstructions } from "instructions";
 
 export class CounterfactualVM {
 	middlewares: { method: Function; scope: string }[];
-	wallet: ResponseSink;
+	responseHandler: ResponseSink;
 	cfState: CfState;
 
-	constructor(wallet: ResponseSink) {
+	constructor(responseHandler: ResponseSink) {
 		this.middlewares = [];
-		this.wallet = wallet;
+		this.responseHandler = responseHandler;
 		this.cfState = new CfState(Object.create(null));
 	}
 
 	startAck(message: ClientMessage) {
-		let request = new Action(message.requestId, message.action, message, true);
-		this.processRequest(request);
+		this.execute(new Action(message.requestId, message.action, message, true));
 	}
 
 	// TODO add support for not appID
@@ -66,27 +68,20 @@ export class CounterfactualVM {
 			}
 		);
 		this.register(
-			"validateSignatures",
-			async (message: InternalMessage, next: Function, context: Context) => {
-				let incomingMessage = getFirstResult("waitForIo", context.results);
-				let op = getFirstResult("generateOp", context.results);
-				// now validate the signature against the op hash
-			}
-		);
-		this.register(
 			"generateOp",
 			async (message: InternalMessage, next: Function) => {
 				return OpCodeGenerator.generate(message, next, this.cfState);
 			}
 		);
 		this.register("generateKey", KeyGenerator.generate);
+		this.register("validateSignatures", SignatureValidator.validate);
 	}
 
 	receive(msg: ClientMessage): Response {
 		this.validateMessage(msg);
-		let request = new Action(msg.requestId, msg.action, msg);
-		this.processRequest(request);
-		return new Response(request.requestId, ResponseStatus.STARTED);
+		let action = new Action(msg.requestId, msg.action, msg);
+		this.execute(action);
+		return new Response(action.requestId, ResponseStatus.STARTED);
 	}
 
 	validateMessage(msg: ClientMessage) {
@@ -95,10 +90,10 @@ export class CounterfactualVM {
 	}
 
 	sendResponse(res: Response) {
-		this.wallet.sendResponse(res);
+		this.responseHandler.sendResponse(res);
 	}
 
-	async processRequest(action: Action) {
+	async execute(action: Action) {
 		let val;
 		console.log("Processing request: ", action);
 		// TODO deal with errors
@@ -106,7 +101,6 @@ export class CounterfactualVM {
 			//console.log("processed a step");
 		}
 		this.mutateState(val);
-		//
 		if (!action.isAckSide) {
 			this.sendResponse(
 				new Response(action.requestId, ResponseStatus.COMPLETED)

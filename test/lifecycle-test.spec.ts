@@ -244,6 +244,58 @@ function startUninstallBalanceRefundMsg(
 }
 
 async function playTtt(walletA: TestWallet, walletB: TestWallet) {
+	await installTtt(walletA, walletB);
+	await makeMoves(walletA, walletB);
+	await uninstallTtt(walletA, walletB);
+}
+
+async function installTtt(walletA: TestWallet, walletB: TestWallet) {
+	let msg = installTttMsg(walletA.address, walletB.address);
+	let response = await walletA.runProtocol(msg);
+	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	return validateInstallTtt(walletA, walletB);
+}
+
+function installTttMsg(to: string, from: string): ClientMessage {
+	let peerA = from;
+	let peerB = to;
+	if (peerB.localeCompare(peerA) < 0) {
+		let tmp = peerA;
+		peerA = peerB;
+		peerB = tmp;
+	}
+	let installData: InstallData = {
+		peerA: new PeerBalance(peerA, 0),
+		peerB: new PeerBalance(peerB, 0),
+		keyA: null,
+		keyB: null,
+		encodedAppState: "0x1234"
+	};
+	return {
+		requestId: "1",
+		appName: "ttt",
+		appId: undefined,
+		action: "install",
+		data: installData,
+		multisigAddress: MULTISIG,
+		toAddress: to,
+		fromAddress: from,
+		stateChannel: undefined,
+		seq: 0
+	};
+}
+
+function validateInstallTtt(walletA: TestWallet, walletB: TestWallet) {
+	// todo
+	console.log(walletA.vm.cfState);
+	console.log(walletB.vm.cfState);
+}
+
+async function makeMoves(walletA: TestWallet, walletB: TestWallet) {
+	// todo
+}
+
+async function uninstallTtt(walletA: TestWallet, walletB: TestWallet) {
 	// todo
 }
 

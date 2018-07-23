@@ -93,7 +93,6 @@ export class StateDiffGenerator {
 			existingFreeBalance.peerB.address,
 			existingFreeBalance.peerB.balance - data.peerB.balance
 		);
-		console.log("peers! = ", peerA, peerB);
 		let appChannelInfo = { [newAppChannel.id]: newAppChannel };
 		let freeBalance = new FreeBalance(
 			peerA,
@@ -108,6 +107,8 @@ export class StateDiffGenerator {
 			appChannelInfo,
 			freeBalance
 		);
+		console.log("msg = ", message.clientMessage);
+		console.log("installed!", updatedStateChannel);
 		return { [multisig]: updatedStateChannel };
 	}
 
@@ -250,5 +251,17 @@ export class KeyGenerator {
 			installData.keyB = wallet.address;
 		}
 		return wallet;
+	}
+}
+
+export class SignatureValidator {
+	static async validate(
+		message: InternalMessage,
+		next: Function,
+		context: Context
+	) {
+		let incomingMessage = getFirstResult("waitForIo", context.results);
+		let op = getFirstResult("generateOp", context.results);
+		// now validate the signature against the op hash
 	}
 }
