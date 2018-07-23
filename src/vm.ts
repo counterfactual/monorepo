@@ -14,9 +14,6 @@ import {
 	PeerBalance
 } from "./types";
 import { KeyGenerator, OpCodeGenerator, StateDiffGenerator } from "./generator";
-// @igor this breaks on node 10.0
-(Symbol as any).asyncIterator =
-	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
 import {
 	CfState,
