@@ -10,6 +10,7 @@ export interface ClientMessage {
 	multisigAddress?: string;
 	toAddress?: string;
 	fromAddress?: string;
+	// we should remove this from this object
 	stateChannel: StateChannelInfo;
 	seq: number;
 }
