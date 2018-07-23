@@ -23,6 +23,7 @@ abis.json
 lerna-debug.log
 
 # build directories
-packages/core/lib
-packages/cf-fmg/lib
+packages/cf-core/lib
+packages/cf-utils/lib
+packages/cf-apps/lib
 
