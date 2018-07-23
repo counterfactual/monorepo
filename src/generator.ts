@@ -93,6 +93,7 @@ export class StateDiffGenerator {
 			existingFreeBalance.peerB.address,
 			existingFreeBalance.peerB.balance - data.peerB.balance
 		);
+		console.log("peers! = ", peerA, peerB);
 		let appChannelInfo = { [newAppChannel.id]: newAppChannel };
 		let freeBalance = new FreeBalance(
 			peerA,

@@ -66,6 +66,7 @@ function validateNoAppsAndFreeBalance(
 	amountA: number,
 	amountB: number
 ) {
+	// todo: add nonce and uniqueId params and check them
 	let state = walletA.vm.cfState;
 
 	let peerA = walletA.address;
@@ -74,9 +75,9 @@ function validateNoAppsAndFreeBalance(
 		let tmp = peerA;
 		peerA = peerB;
 		peerB = tmp;
-		let tmpAmmount = amountA;
+		let tmpAmount = amountA;
 		amountA = amountB;
-		amountB = amountA;
+		amountB = tmpAmount;
 	}
 
 	let channel = walletA.vm.cfState.channelStates[MULTISIG];
@@ -96,12 +97,13 @@ async function makeDeposits(
 	walletB: TestWallet
 ): Promise<any> {
 	await deposit(walletA, walletB, 10, 0);
-	//await deposit(walletB, walletA, 5, 10);
+	await deposit(walletB, walletA, 5, 10);
 }
 
 /**
  * @param amountA is the amount wallet A wants to deposit into the channel.
- * @param amountBCumualtive is the amount wallet B already has in the channel.
+ * @param amountBCumualtive is the amount wallet B already has in the channel,
+ *        i.e., the threshold for the balance refund.
  */
 async function deposit(
 	walletA: TestWallet,
@@ -123,33 +125,29 @@ async function deposit(
 async function installBalanceRefund(
 	walletA: TestWallet,
 	walletB: TestWallet,
-	amount: number
+	threshold: number
 ) {
 	let msg = startInstallBalanceRefundMsg(
 		walletA.address,
 		walletB.address,
-		amount
+		threshold
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	return validateInstalledBalanceRefund(walletA, amount);
+	return validateInstalledBalanceRefund(walletA, threshold);
 }
 
 function startInstallBalanceRefundMsg(
 	from: string,
 	to: string,
-	amount: number
+	threshold: number
 ): ClientMessage {
 	let peerA = from;
 	let peerB = to;
-	let amountA = amount;
-	let amountB = 0;
 	if (peerB.localeCompare(peerA) < 0) {
 		let tmp = peerA;
-		peerB = peerA;
-		peerA = tmp;
-		amountA = 0;
-		amountB = amount;
+		peerA = peerB;
+		peerB = tmp;
 	}
 	let installData: InstallData = {
 		peerA: new PeerBalance(peerA, 0),
@@ -214,7 +212,12 @@ async function uninstallBalanceRefund(
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	console.log(walletA.vm.cfState.channelStates[MULTISIG].freeBalance);
+	// validate walletA
 	validateNoAppsAndFreeBalance(walletA, walletB, amountA, amountB);
+	console.log(walletB.vm.cfState.channelStates[MULTISIG].freeBalance);
+	// validate walletB
+	validateNoAppsAndFreeBalance(walletB, walletA, amountB, amountA);
 }
 
 function startUninstallBalanceRefundMsg(

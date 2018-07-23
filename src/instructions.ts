@@ -68,8 +68,6 @@ export let AckInstructions = {
 		["validateSignatures"],
 		["signMyUpdate"],
 		["IoSendMessage"],
-		["waitForIo"],
-		["validateSignatures"],
 		["returnSuccess"]
 	]
 };
