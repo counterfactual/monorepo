@@ -11,12 +11,8 @@ import {
 	PeerBalance
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
-import {
-	CounterfactualVM,
-	Instructions,
-	AckInstructions,
-	InternalMessage
-} from "./vm";
+import { CounterfactualVM, InternalMessage } from "./vm";
+import { Instructions, AckInstructions } from "./instructions";
 (Symbol as any).asyncIterator =
 	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
 
@@ -76,8 +72,8 @@ export class ActionExecution {
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];
-		this.stateChannelInfos = vm.stateChannelInfos;
-		this.appChannelInfos = vm.appChannelInfos;
+		this.stateChannelInfos = vm.cfState.stateChannelInfos;
+		this.appChannelInfos = vm.cfState.appChannelInfos;
 	}
 
 	initializeExecution() {
