@@ -39,7 +39,7 @@ export class CfState {
 		return this.channelStates[multisig].freeBalance;
 	}
 
-	get stateChannelInfos(): StateChannelInfos {
+	stateChannelInfos(): StateChannelInfos {
 		let infos = {};
 		for (let channel of Object.keys(this.channelStates)) {
 			infos[channel] = this.channelStates[channel];
@@ -47,7 +47,7 @@ export class CfState {
 		return infos;
 	}
 
-	get appChannelInfos(): AppChannelInfos {
+	appChannelInfos(): AppChannelInfos {
 		let infos = {};
 		for (let channel of Object.keys(this.channelStates)) {
 			for (let appChannel of Object.keys(

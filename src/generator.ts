@@ -6,6 +6,7 @@ import {
 	Context
 } from "./state";
 import {
+	CanonicalPeerBalance,
 	StateChannelInfos,
 	AppChannelInfos,
 	ChannelStates,
@@ -37,7 +38,7 @@ export class StateDiffGenerator {
 		} else if (message.actionName === "install") {
 			return StateDiffGenerator.installStateDiff(message, context, cfState);
 		} else if (message.actionName === "uninstall") {
-			return StateDiffGenerator.uninstallStateDiff(message, context);
+			return StateDiffGenerator.uninstallStateDiff(message, context, cfState);
 		}
 	}
 	static updateStateDiff(message: InternalMessage, context: Context) {
@@ -109,7 +110,45 @@ export class StateDiffGenerator {
 		return { [multisig]: updatedStateChannel };
 	}
 
-	static uninstallStateDiff(message: InternalMessage, context: Context) {}
+	static uninstallStateDiff(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	) {
+		let multisig = message.clientMessage.multisigAddress;
+		let channels = state.stateChannelInfos();
+		let appId = message.clientMessage.appId;
+		// delete app
+		delete channels[multisig].appChannels[appId];
+		// add balance and update nonce
+		let canon = CanonicalPeerBalance.canonicalize(
+			message.clientMessage.data.peerAmounts[0],
+			message.clientMessage.data.peerAmounts[1]
+		);
+		let oldFreeBalance = channels[multisig].freeBalance;
+		let newFreeBalance = new FreeBalance(
+			new PeerBalance(
+				oldFreeBalance.peerA.address,
+				oldFreeBalance.peerA.balance + canon.peerA.balance
+			),
+			new PeerBalance(
+				oldFreeBalance.peerB.address,
+				oldFreeBalance.peerB.balance + canon.peerB.balance
+			),
+			oldFreeBalance.localNonce + 1,
+			oldFreeBalance.uniqueId
+		);
+		let chan = channels[multisig];
+		// now replace the state channel with a newly updated one
+		channels[multisig] = new StateChannelInfoImpl(
+			chan.toAddress,
+			chan.fromAddress,
+			multisig,
+			chan.appChannels,
+			newFreeBalance
+		);
+		return channels;
+	}
 }
 
 export class OpCodeGenerator {
@@ -204,7 +243,7 @@ export class KeyGenerator {
 	static generate(message: InternalMessage, next: Function, Context) {
 		let wallet = ethers.Wallet.createRandom();
 		let installData = message.clientMessage.data;
-		if (installData.peerA.address == message.clientMessage.fromAddress) {
+		if (installData.peerA.address === message.clientMessage.fromAddress) {
 			installData.keyA = wallet.address;
 		} else {
 			installData.keyB = wallet.address;

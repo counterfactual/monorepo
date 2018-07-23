@@ -72,8 +72,8 @@ export class ActionExecution {
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];
-		this.stateChannelInfos = vm.cfState.stateChannelInfos;
-		this.appChannelInfos = vm.cfState.appChannelInfos;
+		this.stateChannelInfos = vm.cfState.stateChannelInfos();
+		this.appChannelInfos = vm.cfState.appChannelInfos();
 	}
 
 	initializeExecution() {

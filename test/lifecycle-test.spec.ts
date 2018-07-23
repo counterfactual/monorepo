@@ -53,14 +53,14 @@ function setupStartMsg(from: string, to: string): ClientMessage {
 }
 
 function validateSetup(walletA: TestWallet, walletB: TestWallet) {
-	validateFreeBalance(walletA, walletB, 0, 0);
-	validateFreeBalance(walletB, walletA, 0, 0);
+	validateNoAppsAndFreeBalance(walletA, walletB, 0, 0);
+	validateNoAppsAndFreeBalance(walletB, walletA, 0, 0);
 }
 
 /**
  * Validates the correctness of walletA's free balance *not* walletB's.
  */
-function validateFreeBalance(
+function validateNoAppsAndFreeBalance(
 	walletA: TestWallet,
 	walletB: TestWallet,
 	amountA: number,
@@ -214,7 +214,7 @@ async function uninstallBalanceRefund(
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	//validateUninstalledBalanceRefund(walletA, walletB, amountA, amountB);
+	validateNoAppsAndFreeBalance(walletA, walletB, amountA, amountB);
 }
 
 function startUninstallBalanceRefundMsg(
@@ -238,20 +238,6 @@ function startUninstallBalanceRefundMsg(
 		stateChannel: undefined,
 		seq: 0
 	};
-}
-
-function validateUninstalledBalanceRefund(
-	walletA: TestWallet,
-	walletB: TestWallet,
-	amountA: number,
-	amountB: number
-) {
-	console.log(walletA.vm.cfState);
-
-	let channel = walletA.vm.cfState.channelStates[MULTISIG];
-	let cfAddrs = Object.keys(channel.appChannels);
-	expect(cfAddrs.length).toBe(0);
-	validateFreeBalance(walletA, walletB, amountA, amountB);
 }
 
 async function playTtt(walletA: TestWallet, walletB: TestWallet) {
