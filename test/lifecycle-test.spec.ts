@@ -20,6 +20,7 @@ describe("Lifecycle", async () => {
 		// then
 		validateSystem(walletA);
 		validateSystem(walletB);
+		await gotoChain();
 		await validateBlockchain();
 	});
 });
@@ -122,6 +123,10 @@ async function deposit(
 	);
 }
 
+async function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function installBalanceRefund(
 	walletA: TestWallet,
 	walletB: TestWallet,
@@ -134,6 +139,12 @@ async function installBalanceRefund(
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	// since the machine is async, we need to wait for walletB to finish up its
+	// side of the protocol before inspecting it's state
+	await sleep(100);
+	// check B's client
+	validateInstalledBalanceRefund(walletB, threshold);
+	// check A's client and return the newly created cf address
 	return validateInstalledBalanceRefund(walletA, threshold);
 }
 
@@ -212,10 +223,8 @@ async function uninstallBalanceRefund(
 	);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	console.log(walletA.vm.cfState.channelStates[MULTISIG].freeBalance);
 	// validate walletA
 	validateNoAppsAndFreeBalance(walletA, walletB, amountA, amountB);
-	console.log(walletB.vm.cfState.channelStates[MULTISIG].freeBalance);
 	// validate walletB
 	validateNoAppsAndFreeBalance(walletB, walletA, amountB, amountA);
 }
@@ -307,6 +316,14 @@ function validateSystem(wallet: TestWallet) {
 	// todo
 }
 
+async function gotoChain() {
+	// todo
+}
+
 async function validateBlockchain(): Promise<any> {
 	// todo
+}
+
+export async function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }

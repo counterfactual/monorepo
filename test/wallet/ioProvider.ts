@@ -1,7 +1,7 @@
 import { ClientMessage } from "../../src/types";
-import { InternalMessage } from "../../src/vm";
+import { InternalMessage, getFirstResult, getLastResult } from "../../src/vm";
 import { Context } from "../../src/state";
-import { TestWallet, getFirstResult } from "./wallet";
+import { TestWallet } from "./wallet";
 
 export class IoProvider {
 	messages: ClientMessage[];
@@ -28,6 +28,10 @@ export class IoProvider {
 
 	receiveMessageFromPeer(message: ClientMessage) {
 		let done = false;
+		let executedListeners = [];
+		let count = 0;
+
+		// invoke all listeners waiting for a response to resolve their promise
 		this.listeners.forEach(listener => {
 			if (
 				listener.appId === message.appId ||
@@ -35,8 +39,13 @@ export class IoProvider {
 			) {
 				listener.method(message);
 				done = true;
+				executedListeners.push(count++);
 			}
 		});
+		// now remove all listeners we just invoked
+		executedListeners.forEach(index => this.listeners.splice(index, 1));
+
+		// initiate ack side if needed
 		if (message.seq === 1) {
 			this.ackMethod(message);
 			done = true;
@@ -63,7 +72,6 @@ export class IoProvider {
 		seq?: number
 	) {
 		if (!multisig && !appId && !seq) {
-			console.trace();
 			throw "Must specify either a multisig or appId or sequence";
 		}
 		let message = this.findMessage(multisig, appId);
@@ -84,21 +92,8 @@ export class IoProvider {
 		next: Function,
 		context: Context
 	) {
-		let message = internalMessage.clientMessage;
-		let msg: ClientMessage = {
-			requestId: "none this should be a notification on completion",
-			appName: message.appName,
-			appId: message.appId,
-			action: message.action,
-			data: message.data,
-			multisigAddress: message.multisigAddress,
-			toAddress: message.fromAddress, // swap to/from here since sending to peer
-			fromAddress: message.toAddress,
-			stateChannel: null,
-			seq: message.seq + 1
-		};
-		console.log("IOSEND: ", msg);
-		this.peer.receiveMessageFromPeer(msg);
+		let msg = getLastResult("prepareNextMsg", context.results);
+		this.peer.receiveMessageFromPeer(msg.value);
 	}
 
 	private needsAppId(message: InternalMessage) {
@@ -122,6 +117,7 @@ export class IoProvider {
 		} else {
 			appId = message.clientMessage.appId;
 		}
+
 		this.listenOnce(
 			message => {
 				resolve(message);

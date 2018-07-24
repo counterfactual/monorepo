@@ -26,6 +26,32 @@ import { CfOpSetup } from "./cf-operation/cf-op-setup";
 import { CfOpInstall } from "./cf-operation/cf-op-install";
 import { CfOpUninstall } from "./cf-operation/cf-op-uninstall";
 
+export class NextMsgGenerator {
+	static generate(
+		internalMessage: InternalMessage,
+		next: Function,
+		context: Context
+	) {
+		let message = internalMessage.clientMessage;
+		let msg: ClientMessage = {
+			requestId: "none this should be a notification on completion",
+			appName: message.appName,
+			appId: message.appId,
+			action: message.action,
+			data: message.data,
+			multisigAddress: message.multisigAddress,
+			toAddress: message.fromAddress, // swap to/from here since sending to peer
+			fromAddress: message.toAddress,
+			stateChannel: null,
+			seq: message.seq + 1
+		};
+		// need to bump the seqeunce number, so that, when we send out another IO
+		// msg we give the correct one to the nextMsg.
+		internalMessage.clientMessage.seq += 1;
+		return msg;
+	}
+}
+
 export class StateDiffGenerator {
 	static generate(
 		message: InternalMessage,
@@ -107,8 +133,7 @@ export class StateDiffGenerator {
 			appChannelInfo,
 			freeBalance
 		);
-		console.log("msg = ", message.clientMessage);
-		console.log("installed!", updatedStateChannel);
+		console.log("installing state diff yay!", updatedStateChannel);
 		return { [multisig]: updatedStateChannel };
 	}
 

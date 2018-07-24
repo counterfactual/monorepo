@@ -14,6 +14,7 @@ import {
 	PeerBalance
 } from "./types";
 import {
+	NextMsgGenerator,
 	KeyGenerator,
 	OpCodeGenerator,
 	StateDiffGenerator,
@@ -75,6 +76,7 @@ export class CounterfactualVM {
 		);
 		this.register("generateKey", KeyGenerator.generate);
 		this.register("validateSignatures", SignatureValidator.validate);
+		this.register("prepareNextMsg", NextMsgGenerator.generate);
 	}
 
 	receive(msg: ClientMessage): Response {
@@ -155,9 +157,26 @@ export enum ResponseStatus {
 	COMPLETED
 }
 
+// todo: we should change the results data structure or design
+
 export function getFirstResult(
 	toFindOpCode: string,
 	results: { value: any; opCode }[]
 ): OpCodeResult {
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
+}
+
+export function getLastResult(
+	toFindOpCode: string,
+	results: {
+		value: any;
+		opCode;
+	}[]
+) {
+	for (let k = results.length - 1; k >= 0; k -= 1) {
+		if (results[k].opCode === toFindOpCode) {
+			return results[k];
+		}
+	}
+	return null;
 }
