@@ -37,8 +37,8 @@ contract ConditionalTransfer is Conditional {
     address addr = registry.resolver(appIdentifier);
     StateChannel app = StateChannel(addr);
     Transfer.Details memory details = app.getResolution();
-    require(Transfer.meetsTerms(details), terms);
-    for (uint256 i = 0; i < conditions; i++ ) {
+    require(Transfer.meetsTerms(details, terms));
+    for (uint256 i = 0; i < conditions.length; i++ ) {
       require(Conditional.isSatisfied(conditions[i]));
     }
     details.executeTransfer();
