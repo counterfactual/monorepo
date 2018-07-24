@@ -22,7 +22,7 @@ contract MinimumViableMultisig {
 
   }
 
-  function setup(address[] _owners)
+  function MinimumViableMultisig(address[] _owners)
     public
   {
     owners = _owners;
