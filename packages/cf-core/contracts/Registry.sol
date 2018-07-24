@@ -7,19 +7,19 @@ contract Registry {
 
   mapping(bytes32 => address) public resolver;
 
-  function cfaddress(bytes initcode, uint256 nonce)
+  function cfaddress(bytes initcode, uint256 salt)
     public
     pure
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(byte(0x19), initcode, nonce));
+    return keccak256(abi.encodePacked(byte(0x19), initcode, salt));
   }
 
-  function deploy(bytes initcode, uint256 nonce)
+  function deploy(bytes initcode, uint256 salt)
     public
     returns (address deployed)
   {
-    bytes32 ptr = cfaddress(initcode, nonce);
+    bytes32 ptr = cfaddress(initcode, salt);
 
     require(
       resolver[ptr] == 0x0,
