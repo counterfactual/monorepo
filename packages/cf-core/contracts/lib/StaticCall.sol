@@ -15,29 +15,15 @@ library StaticCall {
   )
     public
     view
-    returns (bytes)
+    returns (bool success)
   {
     require(to.isContract());
     assembly {
-      let result := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
-      let size := returndatasize
-      let ptr := mload(0x40)
-      returndatacopy(ptr, 0, size)
-      switch result case 0 { revert(ptr, size) }
-      default { return(ptr, size) }
+      let success := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
     }
   }
 
-  function staticcallAddress(address to, bytes data)
-    public
-    view
-    returns (address)
-  {
-    executeStaticCall(to, data);
-    assembly { return(mload(0x40), returndatasize) }
-  }
-
-  function staticcallBool(address to, bytes data)
+  function staticcall_as_bool(address to, bytes data)
     public
     view
     returns (bool)
