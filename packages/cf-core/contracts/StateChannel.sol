@@ -169,7 +169,13 @@ contract StateChannel {
       abi.encodePacked(app.turnTaker, checkpoint)
     );
     address turnTaker = auth.signingKeys[idx];
-    bytes32 h2 = computeActionHash(turnTaker, keccak256(checkpoint), action);
+    bytes32 h2 = computeActionHash(
+      turnTaker,
+      keccak256(checkpoint),
+      action,
+      state.nonce,
+      state.disputeNonce
+    );
     require(
       turnTaker == actionSignature.recoverKey(h2, 0),
       "Action must have been signed by correct turn taker"
@@ -312,7 +318,9 @@ contract StateChannel {
   function computeActionHash(
     address turnTaker,
     bytes32 previousState,
-    bytes action
+    bytes action,
+    uint256 setStateNonce,
+    uint256 disputeNonce
   )
     internal
     view
@@ -323,7 +331,9 @@ contract StateChannel {
         byte(0x19),
         turnTaker,
         previousState,
-        action
+        action,
+        setStateNonce,
+        disputeNonce
       )
     );
   }
