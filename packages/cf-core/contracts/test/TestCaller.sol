@@ -29,7 +29,7 @@ contract TestCaller {
     returns (bool)
   {
     bytes memory data = abi.encodePacked(selector, calldata);
-    return to.staticcallBool(data);
+    return to.staticcall_as_bool(data);
   }
 
 }
