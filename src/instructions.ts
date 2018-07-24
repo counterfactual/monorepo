@@ -2,6 +2,7 @@ export let Instructions = {
 	update: [
 		["generateOp", "update"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["waitForIo"],
 		["validateSignatures"],
@@ -12,6 +13,7 @@ export let Instructions = {
 		["signMyUpdate"],
 		["generateOp", "setupFreeBalance"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["waitForIo"],
 		["validateSignatures"],
@@ -19,17 +21,20 @@ export let Instructions = {
 	],
 	install: [
 		["generateKey"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["waitForIo"],
 		["generateOp", "install"],
 		["validateSignatures"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["returnSuccess"]
 	],
 	uninstall: [
 		["generateOp", "uninstall"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["waitForIo"],
 		["validateSignatures"],
@@ -42,6 +47,7 @@ export let AckInstructions = {
 		["generateOp"],
 		["validateSignatures"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["returnSuccess"]
 	],
@@ -51,6 +57,7 @@ export let AckInstructions = {
 		["generateOp", "setupFreeBalance"],
 		["validateSignatures"], // @igor we could also  do validate in one step
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["returnSuccess"]
 	],
@@ -58,6 +65,7 @@ export let AckInstructions = {
 		["generateKey"],
 		["generateOp", "install"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["waitForIo"],
 		["validateSignatures"],
@@ -67,6 +75,7 @@ export let AckInstructions = {
 		["generateOp", "uninstall"],
 		["validateSignatures"],
 		["signMyUpdate"],
+		["prepareNextMsg"],
 		["IoSendMessage"],
 		["returnSuccess"]
 	]

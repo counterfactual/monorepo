@@ -114,7 +114,7 @@ export class ActionExecution {
 			this.initializeExecution();
 		}
 		let op = this.opCodes[this.instructionPointer];
-		console.log("Executing op: ", op);
+		console.log("Executing op: ", op, this.clientMessage.seq);
 		let internalMessage = new InternalMessage(
 			this.action.name,
 			op,
