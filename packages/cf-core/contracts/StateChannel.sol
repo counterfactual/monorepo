@@ -191,7 +191,7 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
-  function resolveDispute(
+  function progressDispute(
     App app,
     bytes fromState,
     bytes action,

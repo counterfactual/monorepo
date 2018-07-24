@@ -6,14 +6,14 @@ import "@counterfactual/core/contracts/lib/Transfer.sol";
 
 contract PaymentApp {
 
-  struct State {
+  struct AppState {
     address alice;
     address bob;
     uint256 aliceBalance;
     uint256 bobBalance;
   }
 
-  function resolver(State state, Transfer.Terms terms)
+  function resolver(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)

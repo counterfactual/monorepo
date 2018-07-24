@@ -13,14 +13,14 @@ contract CountingApp {
     uint256 byHowMuch;
   }
 
-  struct State {
+  struct AppState {
     address player1;
     address player2;
     uint256 count;
     uint256 turnNum;
   }
 
-  function turn(State state)
+  function turn(AppState state)
     public
     pure
     returns (uint256)
@@ -28,7 +28,7 @@ contract CountingApp {
     return state.turnNum % 2;
   }
 
-  function resolver(State state, Transfer.Terms terms)
+  function resolver(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)
@@ -49,7 +49,7 @@ contract CountingApp {
     );
   }
 
-  function reducer(State state, Action action)
+  function reducer(AppState state, Action action)
     public
     view
     returns (bytes)
@@ -63,23 +63,23 @@ contract CountingApp {
     }
   }
 
-  function onIncrement(State state, Action inc)
+  function onIncrement(AppState state, Action inc)
     public
     pure
     returns (bytes)
   {
-    State memory ret = state;
+    AppState memory ret = state;
     state.count += inc.byHowMuch;
     state.turnNum += 1;
     return abi.encode(ret);
   }
 
-  function onDecrement(State state, Action dec)
+  function onDecrement(AppState state, Action dec)
     public
     pure
     returns (bytes)
   {
-    State memory ret = state;
+    AppState memory ret = state;
     state.count -= dec.byHowMuch;
     state.turnNum += 1;
     return abi.encode(ret);

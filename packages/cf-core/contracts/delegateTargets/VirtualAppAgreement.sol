@@ -7,7 +7,7 @@ import "@counterfactual/core/contracts/Registry.sol";
 import "@counterfactual/core/contracts/StateChannel.sol";
 
 
-contract VCAgreement {
+contract VirtualAppAgreement {
 
   using Transfer for Transfer.Details;
   using Transfer for Transfer.Terms;

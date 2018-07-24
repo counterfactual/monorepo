@@ -1,7 +1,7 @@
 const Registry = artifacts.require("Registry");
 const NonceRegistry = artifacts.require("NonceRegistry");
 const ConditionalTransfer = artifacts.require("ConditionalTransfer");
-const VCAgreement = artifacts.require("VCAgreement");
+const VirtualAppAgreement = artifacts.require("VirtualAppAgreement");
 const MultiSend = artifacts.require("MultiSend");
 const StaticCall = artifacts.require("StaticCall");
 const Signatures = artifacts.require("Signatures");
@@ -14,7 +14,7 @@ module.exports = deployer => {
   });
 
   deployer.deploy(Transfer).then(() => {
-    return deployer.link(Transfer, [VCAgreement, ConditionalTransfer]);
+    return deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
   });
 
   deployer.deploy(Signatures);
