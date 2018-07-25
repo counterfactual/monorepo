@@ -1,0 +1,22 @@
+{
+  "name": "@counterfactual/run-with-ganache",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Tool for running tests with standalone `ganache-cli` in the background",
+  "bin": {
+    "run-with-ganache": "./bin/test.sh"
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels",
+    "solidity",
+    "ganache-cli"
+  ],
+  "author": "Liam Horne <liam@l4v.io>",
+  "license": "MIT",
+  "dependencies": {
+    "ganache-cli": "6.1.3",
+    "solidity-coverage": "0.5.4"
+  }
+}
