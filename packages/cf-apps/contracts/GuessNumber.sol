@@ -107,7 +107,13 @@ contract GuessNumber {
     amounts[0] = terms.limit;
 
     address[] memory to = new address[](1);
-    to[0] = state.winner;
+    if (state.stateNum == StateNumber.DONE) {
+      to[0] = state.winner;
+    }
+    else {
+      to[0] = (turn(state) == state.choosingPlayer) ?
+        state.guessingPlayer : state.choosingPlayer;
+    }
 
     return Transfer.Details(
       terms.assetType,
