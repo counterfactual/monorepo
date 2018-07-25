@@ -142,9 +142,11 @@ contract("CountingApp", (accounts: string[]) => {
 
     stateChannel = await contract.deploy(
       StateChannel.binary,
+      accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),
-      keccak256(encode(termsEncoding, terms))
+      keccak256(encode(termsEncoding, terms)),
+      10
     );
   });
 
@@ -197,9 +199,9 @@ contract("CountingApp", (accounts: string[]) => {
       }
 
       enum Status {
-        OK,
+        ON,
         DISPUTE,
-        SETTLED
+        OFF
       }
 
       const actionEncoding = "tuple(uint8 actionType, uint256 byHowMuch)";
