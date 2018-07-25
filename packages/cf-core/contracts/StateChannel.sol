@@ -28,6 +28,7 @@ contract StateChannel {
     bytes4 reducer;
     bytes4 resolver;
     bytes4 turnTaker;
+    bytes4 isStateFinal;
   }
 
   struct State {
@@ -80,7 +81,7 @@ contract StateChannel {
     auth.signingKeys = signingKeys;
     termsHash = terms;
     appHash = app;
-    deltaTimeout = timeout;
+    defaultTimeout = timeout;
   }
 
   function getOwner() external view returns (address) {
@@ -233,8 +234,50 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
+  function finalizeDispute(
+    App app,
+    bytes fromState,
+    bytes action,
+    bytes signatures
+  )
+    public
+    onlyWhenChannelOpen
+  {
+    require(
+      keccak256(fromState) == state.proof,
+      "Invalid state submitted"
+    );
+
+    require(
+      keccak256(abi.encode(app)) == appHash,
+      "Tried to resolve dispute with non-agreed upon app"
+    );
+
+    uint256 idx = app.addr.staticcall_as_uint256(
+      abi.encodePacked(app.turnTaker, fromState)
+    );
+
+    require(
+      auth.signingKeys[idx] == signatures.recoverKey(keccak256(action), 0),
+      "Action must have been signed by correct turn taker"
+    );
+
+    bytes memory newState = app.addr.staticcall_as_bytes(
+      abi.encodePacked(app.reducer, fromState, action)
+    );
+
+    bool memory isFinal = app.addr.staticcall_as_bool(
+      abi.encodePacked(app.isStateFinal, newState)
+    );
+
+    require(isFinal, "App state must be final");
+
+    state.proof = keccak256(newState);
+    state.status = Status.OFF;
+    state.latestSubmitter = msg.sender;
+  }
+
   function cancelDispute(
-    bytes32 stateHash,
     bytes signatures
   )
     public
