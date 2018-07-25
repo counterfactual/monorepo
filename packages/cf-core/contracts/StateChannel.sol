@@ -48,14 +48,6 @@ contract StateChannel {
   bytes32 private termsHash;
   uint256 private defaultTimeout;
 
-  modifier onlyOwner() {
-    require(
-      msg.sender == auth.owner,
-      "Sender must be the owner of this object"
-    );
-    _;
-  }
-
   modifier onlyWhenChannelOpen() {
     require(
       !isSettled(state),
