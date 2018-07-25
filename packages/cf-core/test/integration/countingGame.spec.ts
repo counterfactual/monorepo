@@ -24,10 +24,16 @@ const computeStateHash = (stateHash: string, nonce: number, timeout: number) =>
     ["0x19", [A.address, B.address], nonce, timeout, stateHash]
   );
 
-const computeActionHash = (turn: string, prevState: string, action: string) =>
+const computeActionHash = (
+  turn: string,
+  prevState: string,
+  action: string,
+  setStateNonce: number,
+  disputeNonce: number
+) =>
   ethers.utils.solidityKeccak256(
-    ["bytes1", "address", "bytes32", "bytes"],
-    ["0x19", turn, prevState, action]
+    ["bytes1", "address", "bytes32", "bytes", "uint256", "uint256"],
+    ["0x19", turn, prevState, action, setStateNonce, disputeNonce]
   );
 
 contract("CountingApp", (accounts: string[]) => {
@@ -209,15 +215,17 @@ contract("CountingApp", (accounts: string[]) => {
       const state = encode(gameEncoding, exampleState);
 
       const action = {
-        actionType: 0,
-        byHowMuch: 1
+        actionType: ActionTypes.INCREMENT,
+        byHowMuch: 1.0
       };
 
       const h1 = computeStateHash(keccak256(state), 1, 10);
       const h2 = computeActionHash(
         A.address,
         keccak256(state),
-        encode(actionEncoding, action)
+        encode(actionEncoding, action),
+        0,
+        0
       );
 
       await stateChannel.functions.createDispute(
