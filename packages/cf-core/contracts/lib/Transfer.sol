@@ -23,6 +23,7 @@ library Transfer {
     address token;
     address[] to;
     uint256[] amount;
+    bytes data;
   }
 
   function executeTransfer(Transfer.Details memory details) public {
