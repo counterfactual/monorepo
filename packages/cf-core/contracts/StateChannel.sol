@@ -143,6 +143,23 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
+  function _finalizeState(
+    App app,
+    bytes newState
+  )
+    private
+  {
+    // This call will fail if app doesn't have an `isStateFinal` method
+    bool memory stateIsFinal = app.addr.staticcall_as_bool(
+      abi.encodePacked(app.isStateFinal, newState)
+    );
+
+    require(stateIsFinal, "App state must be final");
+
+    state.proof = keccak256(newState);
+    state.status = Status.OFF;
+  }
+
   function createDispute(
     App app,
     bytes checkpoint,
@@ -150,7 +167,8 @@ contract StateChannel {
     uint256 timeout,
     bytes action,
     bytes checkpointSignatures,
-    bytes actionSignature
+    bytes actionSignature,
+    bool finalize
   )
     public
     onlyWhenChannelOpen
@@ -186,20 +204,24 @@ contract StateChannel {
       abi.encodePacked(app.reducer, checkpoint, action)
     );
 
-    state.proof = keccak256(newState);
-    state.nonce = nonce;
-    state.disputeNonce = 0;
-    state.finalizesAt = block.number + timeout;
-    state.disputeCounter += 1;
-    state.status = Status.DISPUTE;
-    state.latestSubmitter = msg.sender;
+    if (finalize) {
+      _finalizeState(app, newState);
+    } else {
+      state.nonce = nonce;
+      state.disputeNonce = 0;
+      state.finalizesAt = block.number + timeout;
+      state.disputeCounter += 1;
+      state.status = Status.DISPUTE;
+      state.latestSubmitter = msg.sender;
+    }
   }
 
   function progressDispute(
     App app,
     bytes fromState,
     bytes action,
-    bytes signatures
+    bytes signatures,
+    bool finalize
   )
     public
     onlyWhenChannelDispute
@@ -227,54 +249,15 @@ contract StateChannel {
       abi.encodePacked(app.reducer, fromState, action)
     );
 
-    state.proof = keccak256(newState);
-    state.disputeNonce += 1;
-    state.finalizesAt = block.number + defaultTimeout;
-    state.status = Status.DISPUTE;
-    state.latestSubmitter = msg.sender;
-  }
-
-  function finalizeDispute(
-    App app,
-    bytes fromState,
-    bytes action,
-    bytes signatures
-  )
-    public
-    onlyWhenChannelOpen
-  {
-    require(
-      keccak256(fromState) == state.proof,
-      "Invalid state submitted"
-    );
-
-    require(
-      keccak256(abi.encode(app)) == appHash,
-      "Tried to resolve dispute with non-agreed upon app"
-    );
-
-    uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, fromState)
-    );
-
-    require(
-      auth.signingKeys[idx] == signatures.recoverKey(keccak256(action), 0),
-      "Action must have been signed by correct turn taker"
-    );
-
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, fromState, action)
-    );
-
-    bool memory isFinal = app.addr.staticcall_as_bool(
-      abi.encodePacked(app.isStateFinal, newState)
-    );
-
-    require(isFinal, "App state must be final");
-
-    state.proof = keccak256(newState);
-    state.status = Status.OFF;
-    state.latestSubmitter = msg.sender;
+    if (finalize) {
+      _finalizeState(app, newState);
+    } else {
+      state.proof = keccak256(newState);
+      state.disputeNonce += 1;
+      state.finalizesAt = block.number + defaultTimeout;
+      state.status = Status.DISPUTE;
+      state.latestSubmitter = msg.sender;
+    }
   }
 
   function cancelDispute(
