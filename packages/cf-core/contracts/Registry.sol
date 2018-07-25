@@ -3,7 +3,7 @@ pragma solidity 0.4.24;
 
 contract Registry {
 
-  event ContractCreated(address deployedAddress);
+  event ContractCreated(bytes32 cfAddress, address deployedAddress);
 
   mapping(bytes32 => address) public resolver;
 
@@ -37,7 +37,7 @@ contract Registry {
 
     resolver[ptr] = deployed;
 
-    emit ContractCreated(deployed);
+    emit ContractCreated(ptr, deployed);
   }
 
 }
