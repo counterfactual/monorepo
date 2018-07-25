@@ -13,9 +13,9 @@ contract StateChannel {
   using Signatures for bytes;
 
   enum Status {
-    OK,
+    ON,
     DISPUTE,
-    SETTLED
+    OFF
   }
 
   struct Auth {
@@ -38,10 +38,7 @@ contract StateChannel {
     uint256 disputeNonce;
     uint256 finalizesAt;
     uint256 disputeCounter;
-    uint256 timeoutPeriod;
   }
-
-  uint256 private constant DEFAULT_TIMEOUT = 10;
 
   Auth public auth;
   State public state;
@@ -49,6 +46,7 @@ contract StateChannel {
 
   bytes32 private appHash;
   bytes32 private termsHash;
+  uint256 private defaultTimeout;
 
   modifier onlyOwner() {
     require(
@@ -79,11 +77,18 @@ contract StateChannel {
     _;
   }
 
-  constructor(address[] signingKeys, bytes32 app, bytes32 terms) public {
-    auth.owner = msg.sender;
+  constructor(
+    address owner,
+    address[] signingKeys,
+    bytes32 app,
+    bytes32 terms,
+    uint256 timeout
+  ) public {
+    auth.owner = owner;
     auth.signingKeys = signingKeys;
     termsHash = terms;
     appHash = app;
+    deltaTimeout = timeout;
   }
 
   function getOwner() external view returns (address) {
@@ -134,7 +139,7 @@ contract StateChannel {
         nonce >= state.nonce,
         "Tried to finalize state with stale state"
       );
-      state.status = Status.SETTLED;
+      state.status = Status.OFF;
     }
 
     state.proof = stateHash;
@@ -225,10 +230,9 @@ contract StateChannel {
 
     state.proof = keccak256(newState);
     state.disputeNonce += 1;
-    state.finalizesAt = block.number + DEFAULT_TIMEOUT;
+    state.finalizesAt = block.number + defaultTimeout;
     state.status = Status.DISPUTE;
     state.latestSubmitter = msg.sender;
-
   }
 
   function cancelDispute(
@@ -241,7 +245,7 @@ contract StateChannel {
     bytes32 h = computeStateHash(
       state.proof,
       state.nonce,
-      DEFAULT_TIMEOUT
+      defaultTimeout
     );
 
     require(
@@ -251,7 +255,7 @@ contract StateChannel {
 
     state.disputeNonce = 0;
     state.finalizesAt = 0;
-    state.status = Status.OK;
+    state.status = Status.ON;
     state.latestSubmitter = msg.sender;
   }
 
@@ -284,11 +288,11 @@ contract StateChannel {
   }
 
   function isSettled(State s) public view returns (bool) {
-    if (s.status == Status.OK) {
+    if (s.status == Status.ON) {
       return false;
     } else if (s.status == Status.DISPUTE) {
       return block.number >= s.finalizesAt;
-    } else if (s.status == Status.SETTLED) {
+    } else if (s.status == Status.OFF) {
       return true;
     }
   }

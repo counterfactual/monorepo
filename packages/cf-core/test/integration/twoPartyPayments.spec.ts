@@ -130,9 +130,11 @@ contract("PaymentApp", (accounts: string[]) => {
 
     stateChannel = await contract.deploy(
       StateChannel.binary,
+      accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),
-      keccak256(encode(termsEncoding, terms))
+      keccak256(encode(termsEncoding, terms)),
+      10
     );
   });
 

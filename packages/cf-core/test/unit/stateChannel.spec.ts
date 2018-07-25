@@ -11,9 +11,9 @@ const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 // HELPER DATA
 enum Status {
-  OK,
+  ON,
   DISPUTE,
-  SETTLED
+  OFF
 }
 const TIMEOUT = 30;
 const [A, B] = [
@@ -97,9 +97,11 @@ contract("StateChannel", (accounts: string[]) => {
     const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
     stateChannel = await contract.deploy(
       StateChannel.binary,
+      accounts[0],
       [A.address, B.address],
       "0x",
-      "0x"
+      "0x",
+      10
     );
   });
 
@@ -113,7 +115,7 @@ contract("StateChannel", (accounts: string[]) => {
 
   it("should start without a dispute if deployed", async () => {
     const state = await stateChannel.functions.state();
-    state.status.should.be.equal(Status.OK);
+    state.status.should.be.equal(Status.ON);
   });
 
   describe("updating app state", async () => {
