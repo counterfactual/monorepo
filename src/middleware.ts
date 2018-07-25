@@ -18,7 +18,8 @@ import {
 	ClientMessage,
 	CfApp,
 	FreeBalance,
-	PeerBalance
+	PeerBalance,
+	UpdateData
 } from "./types";
 import { InternalMessage, getFirstResult } from "./vm";
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
@@ -60,34 +61,30 @@ export class StateDiffGenerator {
 		cfState: CfState
 	) {
 		if (message.actionName === "update") {
-			return StateDiffGenerator.updateStateDiff(message, context);
+			return StateDiffGenerator.updateStateDiff(message, context, cfState);
 		} else if (message.actionName === "install") {
 			return StateDiffGenerator.installStateDiff(message, context, cfState);
 		} else if (message.actionName === "uninstall") {
 			return StateDiffGenerator.uninstallStateDiff(message, context, cfState);
 		}
 	}
-	static updateStateDiff(message: InternalMessage, context: Context) {
-		// todo
-		/*
-		let appChannelInfo = {};
-		let freeBalance;
+	static updateStateDiff(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	) {
 		let multisig = message.clientMessage.multisigAddress;
-			let appChannel = context.appChannelInfos[message.clientMessage.appId];
-			// TODO add nonce and encoded app state
-			let updatedAppChannel: AppChannelInfo = {
-			appState: message.clientMessage.data.appState
-			};
-			appChannelInfo = { [appChannel.id]: updatedAppChannel };
-			let updatedStateChannel = new StateChannelInfoImpl(
-			message.clientMessage.toAddress,
-			message.clientMessage.fromAddress,
-			multisig,
-			appChannelInfo,
-			freeBalance
-			);
-			return { [multisig]: updatedStateChannel };
-		*/
+		let channels = state.stateChannelInfos();
+
+		let appId = message.clientMessage.appId;
+		let app = channels[multisig].appChannels[appId];
+
+		let updateData: UpdateData = message.clientMessage.data;
+		app.encodedState = updateData.encodedAppState;
+		app.localNonce += 1;
+
+		let chan = channels[multisig];
+		return channels;
 	}
 
 	static installStateDiff(

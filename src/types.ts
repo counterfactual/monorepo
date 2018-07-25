@@ -23,6 +23,10 @@ export interface InstallData {
 	encodedAppState: string;
 }
 
+export interface UpdateData {
+	encodedAppState: string;
+}
+
 export class FreeBalance {
 	constructor(
 		readonly peerA: PeerBalance,
