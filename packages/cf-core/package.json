@@ -14,12 +14,14 @@
     "lint": "tsc --noEmit && tslint -c tslint.json test/**/*.ts",
     "precommit": "lint-staged",
     "test": "yarn build && yarn truffle:test",
+    "testfiles": "yarn build && yarn truffle:testfiles $1",
     "test:circleci": "yarn test:coverage && ./bin/coveralls.sh",
     "test:coverage": "solidity-coverage",
     "truffle:compile": "truffle compile",
     "truffle:console": "truffle console",
     "truffle:migrate": "truffle migrate",
-    "truffle:test": "run-with-ganache $npm_package_config_testFiles"
+    "truffle:test": "run-with-ganache $npm_package_config_testFiles",
+    "truffle:testfiles": "run-with-ganache"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

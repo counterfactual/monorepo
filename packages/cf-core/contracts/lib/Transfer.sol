@@ -43,6 +43,7 @@ library Transfer {
     Transfer.Terms terms
   )
     public
+    pure
     returns (bool)
   {
     uint256 sum = 0;
