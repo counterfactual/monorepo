@@ -22,6 +22,7 @@ import {
 	UpdateData
 } from "./types";
 import { InternalMessage, getFirstResult } from "./vm";
+import { CfOperation } from "./cf-operation/cf-operation";
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
 import { CfOpInstall } from "./cf-operation/cf-op-install";
@@ -178,84 +179,104 @@ export class StateDiffGenerator {
 export class OpCodeGenerator {
 	static generate(message: InternalMessage, next: Function, cfState: CfState) {
 		if (message.actionName === "update") {
-			let nonce = 75; // todo
-			const op = CfOpUpdate.operation({
-				appId: "non actually needed",
-				cfaddress: "some address",
-				proposedAppState: "some state",
-				moduleUpdateData: "some state",
-				metadata: "this goes away with this design",
-				nonce
-			});
-			return op;
-		}
-		if (
+			return this.update(message);
+		} else if (
 			message.actionName === "setup" &&
 			message.opCodeArgs[0] === "setupNonce"
 		) {
-			let nonceUniqueId = 1; // todo
-			let multisig = message.clientMessage.multisigAddress;
-			return CfOpSetup.nonceUpdateOp(
-				nonceUniqueId,
-				multisig,
-				cfState.stateChannel(multisig).owners(),
-				cfState.networkContext
-			);
-		}
-		if (
+			return OpCodeGenerator.setupNonce(message, cfState);
+		} else if (
 			message.actionName === "setup" &&
 			message.opCodeArgs[0] === "setupFreeBalance"
 		) {
-			let freeBalanceUniqueId = 2; // todo
-			let owners = [];
-			return CfOpSetup.freeBalanceInstallOp(
-				freeBalanceUniqueId,
-				message.clientMessage.multisigAddress,
-				message.clientMessage.stateChannel.owners(),
-				cfState.networkContext
-			);
+			return OpCodeGenerator.setupFreeBalance(message, cfState);
+		} else if (message.actionName === "install") {
+			return OpCodeGenerator.install(message, cfState);
+		} else if (message.actionName === "uninstall") {
+			return OpCodeGenerator.uninstall(message, cfState);
 		}
-		if (message.actionName === "install") {
-			let appKeys = [
-				message.clientMessage.data.keyA,
-				message.clientMessage.data.keyB
-			];
-			let multisig = message.clientMessage.multisigAddress;
-			let channelKeys = cfState.stateChannel(multisig).owners();
-			let uniqueId = 4; // todo
-			let app = new CfApp( //todo
-				"0x1",
-				"",
-				channelKeys,
-				[message.clientMessage.data.peerA, message.clientMessage.data.peerB],
-				null,
-				"",
-				uniqueId
-			);
-			let [op, cfAddr] = CfOpInstall.operation(
-				cfState.networkContext,
-				multisig,
-				cfState.freeBalance(multisig),
-				channelKeys,
-				appKeys,
-				app
-			);
-			return {
-				op,
-				cfAddr
-			};
-		}
-		if (message.actionName === "uninstall") {
-			let multisig = message.clientMessage.multisigAddress;
-			let cfAddr = message.clientMessage.appId;
-			let op = CfOpUninstall.operation(
-				cfState.networkContext,
-				multisig,
-				cfState.freeBalance(multisig),
-				cfState.app(multisig, cfAddr),
-				message.clientMessage.data.peerAmounts
-			);
-		}
+	}
+
+	static update(message: InternalMessage): CfOperation {
+		let nonce = 75; // todo
+		const op = CfOpUpdate.operation({
+			appId: "non actually needed",
+			cfaddress: "some address",
+			proposedAppState: "some state",
+			moduleUpdateData: "some state",
+			metadata: "this goes away with this design",
+			nonce
+		});
+		return op;
+	}
+
+	static setupNonce(message: InternalMessage, cfState: CfState): CfOperation {
+		let nonceUniqueId = 1; // todo
+		let multisig = message.clientMessage.multisigAddress;
+		return CfOpSetup.nonceUpdateOp(
+			nonceUniqueId,
+			multisig,
+			cfState.stateChannel(multisig).owners(),
+			cfState.networkContext
+		);
+	}
+
+	static setupFreeBalance(
+		message: InternalMessage,
+		cfState: CfState
+	): CfOperation {
+		let freeBalanceUniqueId = 2; // todo
+		let owners = [];
+		return CfOpSetup.freeBalanceInstallOp(
+			freeBalanceUniqueId,
+			message.clientMessage.multisigAddress,
+			message.clientMessage.stateChannel.owners(),
+			cfState.networkContext
+		);
+	}
+
+	static install(message: InternalMessage, cfState: CfState) {
+		let appKeys = [
+			message.clientMessage.data.keyA,
+			message.clientMessage.data.keyB
+		];
+		let multisig = message.clientMessage.multisigAddress;
+		let channelKeys = cfState.stateChannel(multisig).owners();
+		let uniqueId = 4; // todo
+		let app = new CfApp( //todo
+			"0x1",
+			"",
+			channelKeys,
+			[message.clientMessage.data.peerA, message.clientMessage.data.peerB],
+			null,
+			"",
+			uniqueId
+		);
+		let [op, cfAddr] = CfOpInstall.operation(
+			cfState.networkContext,
+			multisig,
+			cfState.freeBalance(multisig),
+			channelKeys,
+			appKeys,
+			app
+		);
+		return {
+			op,
+			cfAddr
+		};
+	}
+
+	static uninstall(message: InternalMessage, cfState: CfState): CfOperation {
+		let multisig = message.clientMessage.multisigAddress;
+		let cfAddr = message.clientMessage.appId;
+		let op = CfOpUninstall.operation(
+			cfState.networkContext,
+			multisig,
+			cfState.freeBalance(multisig),
+			cfState.app(multisig, cfAddr),
+			message.clientMessage.data.peerAmounts
+		);
+		return op;
 	}
 }
 
