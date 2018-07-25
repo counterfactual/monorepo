@@ -10,6 +10,9 @@ import { ResponseStatus } from "../src/vm";
 const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
 
 describe("Lifecycle", async () => {
+	// extending the timeout to allow the async machines to finish
+	jest.setTimeout(30000);
+
 	it("should have the correct funds on chain", async () => {
 		//given
 		let walletA = new TestWallet("0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd0");
@@ -128,10 +131,6 @@ async function deposit(
 	);
 }
 
-async function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function installBalanceRefund(
 	walletA: TestWallet,
 	walletB: TestWallet,
@@ -146,7 +145,7 @@ async function installBalanceRefund(
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
 	// since the machine is async, we need to wait for walletB to finish up its
 	// side of the protocol before inspecting it's state
-	await sleep(100);
+	await sleep(50);
 	// check B's client
 	validateInstalledBalanceRefund(walletB, threshold);
 	// check A's client and return the newly created cf address
@@ -305,7 +304,7 @@ async function validateInstallTtt(
 ): string {
 	validateInstallTttWallet(walletA, walletB);
 	// wait for other client to finish, since the machine is async
-	await sleep(100);
+	await sleep(50);
 	return validateInstallTttWallet(walletB, walletA);
 }
 
@@ -340,11 +339,11 @@ async function makeMoves(
 	const X = 1;
 	const O = 2;
 
-	await makeMove(walletA, walletB, cfAddr, state, 0, X);
-	await makeMove(walletB, walletA, cfAddr, state, 4, O);
-	await makeMove(walletA, walletB, cfAddr, state, 1, X);
-	await makeMove(walletB, walletA, cfAddr, state, 5, O);
-	await makeMove(walletA, walletB, cfAddr, state, 2, X);
+	await makeMove(walletA, walletB, cfAddr, state, 0, X, 1);
+	await makeMove(walletB, walletA, cfAddr, state, 4, O, 2);
+	await makeMove(walletA, walletB, cfAddr, state, 1, X, 3);
+	await makeMove(walletB, walletA, cfAddr, state, 5, O, 4);
+	await makeMove(walletA, walletB, cfAddr, state, 2, X, 5);
 }
 
 async function makeMove(
@@ -353,16 +352,17 @@ async function makeMove(
 	cfAddr: string,
 	appState: Array<number>,
 	cell: number,
-	side: number
+	side: number,
+	moveNumber: number
 ) {
 	appState[cell] = side;
 	let state = appState + ""; // todo: this should be encodedc
 	let msg = updateTttMsg(state, cell, walletA.address, walletB.address, cfAddr);
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
-	validateMakeMove(walletA, walletB, cfAddr, state);
-	await sleep(100);
-	validateMakeMove(walletB, walletA, cfAddr, state);
+	validateMakeMove(walletA, walletB, cfAddr, state, moveNumber);
+	await sleep(50);
+	validateMakeMove(walletB, walletA, cfAddr, state, moveNumber);
 }
 
 function updateTttMsg(
@@ -393,10 +393,16 @@ function validateMakeMove(
 	walletA: TestWallet,
 	walletB: TestWallet,
 	cfAddr,
-	appState: string
+	appState: string,
+	moveNumber: number
 ) {
-	console.log(walletA.vm.cfState.channelStates[MULTISIG].appChannels[cfAddr]);
-	console.log(walletB.vm.cfState.channelStates[MULTISIG].appChannels[cfAddr]);
+	let appA = walletA.vm.cfState.channelStates[MULTISIG].appChannels[cfAddr];
+	let appB = walletB.vm.cfState.channelStates[MULTISIG].appChannels[cfAddr];
+
+	expect(appA.encodedState).toBe(appState);
+	expect(appA.localNonce).toBe(moveNumber + 1);
+	expect(appB.encodedState).toBe(appState);
+	expect(appB.localNonce).toBe(moveNumber + 1);
 }
 
 async function uninstallTtt(
@@ -404,11 +410,58 @@ async function uninstallTtt(
 	walletB: TestWallet,
 	cfAddr: string
 ) {
-	// todo
+	let msg = uninstallTttStartMsg(
+		cfAddr,
+		walletA.address,
+		4,
+		walletB.address,
+		0
+	);
+	let response = await walletA.runProtocol(msg);
+	expect(response.status).toBe(ResponseStatus.COMPLETED);
+	// A wins so give him 2 and subtract 2 from B
+	validateUninstallTtt(walletA, 12, 3);
+	await sleep(50);
+	validateUninstallTtt(walletB, 12, 3);
 }
 
-function validateTtt(walletA: TestWallet, walletB: TestWallet) {
-	// todo
+function uninstallTttStartMsg(
+	cfAddr: string,
+	addressA: string,
+	amountA: number,
+	addressB: string,
+	amountB: number
+): ClientMessage {
+	let uninstallData = {
+		peerAmounts: [
+			new PeerBalance(addressA, amountA),
+			new PeerBalance(addressB, amountB)
+		]
+	};
+	return {
+		requestId: "2",
+		appName: "ttt",
+		appId: cfAddr,
+		action: "uninstall",
+		data: uninstallData,
+		multisigAddress: MULTISIG,
+		fromAddress: addressA,
+		toAddress: addressB,
+		stateChannel: undefined,
+		seq: 0
+	};
+}
+
+function validateUninstallTtt(
+	wallet: TestWallet,
+	amountA: number,
+	amountB: number
+) {
+	let channel = wallet.vm.cfState.channelStates[MULTISIG];
+	console.log(channel.freeBalance);
+	expect(channel.appChannels).toEqual({});
+	expect(channel.freeBalance.peerA.balance).toBe(amountA);
+	expect(channel.freeBalance.peerB.balance).toBe(amountB);
 }
 
 function validateSystem(wallet: TestWallet) {
