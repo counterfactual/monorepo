@@ -80,7 +80,7 @@ contract StateChannel {
     auth.signingKeys = signingKeys;
     termsHash = terms;
     appHash = app;
-    deltaTimeout = timeout;
+    defaultTimeout = timeout;
   }
 
   function getOwner() external view returns (address) {
