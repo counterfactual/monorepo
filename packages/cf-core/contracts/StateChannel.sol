@@ -150,7 +150,7 @@ contract StateChannel {
     private
   {
     // This call will fail if app doesn't have an `isStateFinal` method
-    bool memory stateIsFinal = app.addr.staticcall_as_bool(
+    bool stateIsFinal = app.addr.staticcall_as_bool(
       abi.encodePacked(app.isStateFinal, newState)
     );
 
