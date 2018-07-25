@@ -170,20 +170,20 @@ contract StateChannel {
 
   function _finalizeState(
     App app,
-    bytes state
+    bytes appState
   )
     private
   {
     // This call will fail if app doesn't have an `isStateFinal` method
     bool stateIsFinal = app.addr.staticcall_as_bool(
-      abi.encodePacked(app.isStateFinal, state)
+      abi.encodePacked(app.isStateFinal, appState)
     );
 
     require(stateIsFinal, "App state must be final");
 
-    state.proof = keccak256(state);
+    state.proof = keccak256(appState);
     state.status = Status.OFF;
-    emit DisputeFinalized(msg.sender, state);
+    emit DisputeFinalized(msg.sender, appState);
   }
 
   function createDispute(
