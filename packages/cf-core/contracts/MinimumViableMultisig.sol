@@ -2,13 +2,12 @@ pragma solidity 0.4.24;
 
 
 contract MinimumViableMultisig {
-
-  address masterCopy;
-
   mapping(bytes32 => bool) isExecuted;
-  address[] public owners;
 
+  address[] public owners;
   mapping (address => bool) isOwner;
+
+  bytes32 public salt;
 
   enum Operation {
     Call,
@@ -22,9 +21,10 @@ contract MinimumViableMultisig {
 
   }
 
-  function MinimumViableMultisig(address[] _owners)
+  function MinimumViableMultisig(address[] _owners, bytes32 _salt)
     public
   {
+    salt = _salt;
     owners = _owners;
     for (uint256 i = 0; i < _owners.length; i++) {
       require(_owners[i] != 0);
@@ -71,7 +71,7 @@ contract MinimumViableMultisig {
     view
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(byte(0x19), this, to, value, data, operation));
+    return keccak256(abi.encodePacked(byte(0x19), salt, to, value, data, operation));
   }
 
   function getOwners()

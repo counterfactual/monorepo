@@ -7,6 +7,31 @@ import "@counterfactual/core/contracts/lib/Transfer.sol";
 
 
 contract StateChannel {
+  event DisputeStarted(
+    address sender,
+    uint256 disputeCounter,
+    bytes32 stateHash,
+    uint256 nonce,
+    uint256 finalizesAt
+  );
+
+  event DisputeProgressed(
+    address sender,
+    bytes fromState,
+    bytes action,
+    bytes toState,
+    uint256 disputeNonce,
+    uint256 finalizesAt
+  );
+
+  event DisputeFinalized(
+    address sender,
+    bytes finalState
+  );
+
+  event DisputeCancelled(
+    address sender
+  );
 
   using Transfer for Transfer.Details;
   using StaticCall for address;
@@ -145,19 +170,20 @@ contract StateChannel {
 
   function _finalizeState(
     App app,
-    bytes newState
+    bytes state
   )
     private
   {
     // This call will fail if app doesn't have an `isStateFinal` method
     bool stateIsFinal = app.addr.staticcall_as_bool(
-      abi.encodePacked(app.isStateFinal, newState)
+      abi.encodePacked(app.isStateFinal, state)
     );
 
     require(stateIsFinal, "App state must be final");
 
-    state.proof = keccak256(newState);
+    state.proof = keccak256(state);
     state.status = Status.OFF;
+    emit DisputeFinalized(msg.sender, state);
   }
 
   function createDispute(
@@ -178,9 +204,9 @@ contract StateChannel {
       "Tried to create dispute with outdated state"
     );
 
-    bytes32 h1 = computeStateHash(keccak256(checkpoint), nonce, timeout);
+    bytes32 stateHash = computeStateHash(keccak256(checkpoint), nonce, timeout);
     require(
-      checkpointSignatures.verifySignatures(h1, auth.signingKeys),
+      checkpointSignatures.verifySignatures(stateHash, auth.signingKeys),
       "Invalid signatures"
     );
 
@@ -188,7 +214,7 @@ contract StateChannel {
       abi.encodePacked(app.turnTaker, checkpoint)
     );
     address turnTaker = auth.signingKeys[idx];
-    bytes32 h2 = computeActionHash(
+    bytes32 actionHash = computeActionHash(
       turnTaker,
       keccak256(checkpoint),
       action,
@@ -196,23 +222,28 @@ contract StateChannel {
       state.disputeNonce
     );
     require(
-      turnTaker == actionSignature.recoverKey(h2, 0),
+      turnTaker == actionSignature.recoverKey(actionHash, 0),
       "Action must have been signed by correct turn taker"
     );
+
+    uint256 finalizesAt = block.number + timeout;
 
     bytes memory newState = app.addr.staticcall_as_bytes(
       abi.encodePacked(app.reducer, checkpoint, action)
     );
+
+    emit DisputeStarted(msg.sender, state.disputeCounter + 1, stateHash, nonce, finalizesAt);
 
     if (finalize) {
       _finalizeState(app, newState);
     } else {
       state.nonce = nonce;
       state.disputeNonce = 0;
-      state.finalizesAt = block.number + timeout;
+      state.finalizesAt = finalizesAt;
       state.disputeCounter += 1;
       state.status = Status.DISPUTE;
       state.latestSubmitter = msg.sender;
+      emit DisputeProgressed(msg.sender, checkpoint, action, newState, state.disputeNonce, finalizesAt);
     }
   }
 
@@ -257,6 +288,7 @@ contract StateChannel {
       state.finalizesAt = block.number + defaultTimeout;
       state.status = Status.DISPUTE;
       state.latestSubmitter = msg.sender;
+      emit DisputeProgressed(msg.sender, fromState, action, newState, state.disputeNonce, state.finalizesAt);
     }
   }
 
@@ -266,14 +298,14 @@ contract StateChannel {
     public
     onlyWhenChannelDispute
   {
-    bytes32 h = computeStateHash(
+    bytes32 stateHash = computeStateHash(
       state.proof,
       state.nonce,
       defaultTimeout
     );
 
     require(
-      signatures.verifySignatures(h, auth.signingKeys),
+      signatures.verifySignatures(stateHash, auth.signingKeys),
       "Invalid signatures"
     );
 
@@ -281,6 +313,7 @@ contract StateChannel {
     state.finalizesAt = 0;
     state.status = Status.ON;
     state.latestSubmitter = msg.sender;
+    emit DisputeCancelled(msg.sender);
   }
 
   function setResolution(
