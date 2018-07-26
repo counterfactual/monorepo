@@ -23,6 +23,7 @@ library Transfer {
     address token;
     address[] to;
     uint256[] amount;
+    bytes data;
   }
 
   function executeTransfer(Transfer.Details memory details) public {
@@ -43,6 +44,7 @@ library Transfer {
     Transfer.Terms terms
   )
     public
+    pure
     returns (bool)
   {
     uint256 sum = 0;

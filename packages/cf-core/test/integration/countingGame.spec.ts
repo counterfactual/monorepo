@@ -24,10 +24,16 @@ const computeStateHash = (stateHash: string, nonce: number, timeout: number) =>
     ["0x19", [A.address, B.address], nonce, timeout, stateHash]
   );
 
-const computeActionHash = (turn: string, prevState: string, action: string) =>
+const computeActionHash = (
+  turn: string,
+  prevState: string,
+  action: string,
+  setStateNonce: number,
+  disputeNonce: number
+) =>
   ethers.utils.solidityKeccak256(
-    ["bytes1", "address", "bytes32", "bytes"],
-    ["0x19", turn, prevState, action]
+    ["bytes1", "address", "bytes32", "bytes", "uint256", "uint256"],
+    ["0x19", turn, prevState, action, setStateNonce, disputeNonce]
   );
 
 contract("CountingApp", (accounts: string[]) => {
@@ -62,12 +68,12 @@ contract("CountingApp", (accounts: string[]) => {
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker)";
+    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
   const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount)";
+    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
 
   const keccak256 = (bytes: string) =>
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
@@ -129,7 +135,8 @@ contract("CountingApp", (accounts: string[]) => {
       addr: game.address,
       resolver: game.interface.functions.resolver.sighash,
       reducer: game.interface.functions.reducer.sighash,
-      turnTaker: game.interface.functions.turn.sighash
+      turnTaker: game.interface.functions.turn.sighash,
+      isStateFinal: game.interface.functions.isStateFinal.sighash
     };
 
     terms = {
@@ -192,32 +199,34 @@ contract("CountingApp", (accounts: string[]) => {
   });
 
   describe("handling a dispute", async () => {
+    enum ActionTypes {
+      INCREMENT,
+      DECREMENT
+    }
+
+    enum Status {
+      ON,
+      DISPUTE,
+      OFF
+    }
+
+    const actionEncoding = "tuple(uint8 actionType, uint256 byHowMuch)";
+
+    const state = encode(gameEncoding, exampleState);
+
     it("should update state based on reducer", async () => {
-      enum ActionTypes {
-        INCREMENT,
-        DECREMENT
-      }
-
-      enum Status {
-        ON,
-        DISPUTE,
-        OFF
-      }
-
-      const actionEncoding = "tuple(uint8 actionType, uint256 byHowMuch)";
-
-      const state = encode(gameEncoding, exampleState);
-
       const action = {
-        actionType: 0,
-        byHowMuch: 1
+        actionType: ActionTypes.INCREMENT,
+        byHowMuch: 1.0
       };
 
       const h1 = computeStateHash(keccak256(state), 1, 10);
       const h2 = computeActionHash(
         A.address,
         keccak256(state),
-        encode(actionEncoding, action)
+        encode(actionEncoding, action),
+        0,
+        0
       );
 
       await stateChannel.functions.createDispute(
@@ -228,6 +237,7 @@ contract("CountingApp", (accounts: string[]) => {
         encode(actionEncoding, action),
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
+        false,
         Utils.highGasLimit
       );
 
@@ -244,6 +254,78 @@ contract("CountingApp", (accounts: string[]) => {
       onchain.disputeNonce.should.be.bignumber.eq(0);
       onchain.disputeCounter.should.be.bignumber.eq(1);
       onchain.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
+    });
+
+    it("should update and finalize state based on reducer", async () => {
+      const action = {
+        actionType: ActionTypes.DECREMENT,
+        byHowMuch: 1.0
+      };
+
+      const h1 = computeStateHash(keccak256(state), 1, 10);
+      const h2 = computeActionHash(
+        A.address,
+        keccak256(state),
+        encode(actionEncoding, action),
+        0,
+        0
+      );
+
+      await stateChannel.functions.createDispute(
+        app,
+        state,
+        1,
+        10,
+        encode(actionEncoding, action),
+        Utils.signMessageBytes(h1, [A, B]),
+        Utils.signMessageBytes(h2, [A]),
+        true,
+        Utils.highGasLimit
+      );
+
+      const channelState = await stateChannel.functions.state();
+
+      const expectedState = { ...exampleState, count: -1, turnNum: 1 };
+      const expectedProof = keccak256(encode(gameEncoding, expectedState));
+      const expectedFinalizeBlock = await provider.getBlockNumber();
+
+      channelState.status.should.be.bignumber.eq(Status.OFF);
+      channelState.proof.should.be.equalIgnoreCase(expectedProof);
+      channelState.latestSubmitter.should.be.equalIgnoreCase(accounts[0]);
+      channelState.nonce.should.be.bignumber.eq(1);
+      channelState.disputeNonce.should.be.bignumber.eq(0);
+      channelState.disputeCounter.should.be.bignumber.eq(1);
+      channelState.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
+    });
+
+    it("should fail when trying to finalize a non-final state", async () => {
+      const action = {
+        actionType: ActionTypes.INCREMENT,
+        byHowMuch: 1.0
+      };
+
+      const h1 = computeStateHash(keccak256(state), 1, 10);
+      const h2 = computeActionHash(
+        A.address,
+        keccak256(state),
+        encode(actionEncoding, action),
+        0,
+        0
+      );
+
+      await Utils.assertRejects(
+        stateChannel.functions.createDispute(
+          app,
+          state,
+          1,
+          10,
+          encode(actionEncoding, action),
+          Utils.signMessageBytes(h1, [A, B]),
+          Utils.signMessageBytes(h2, [A]),
+          true,
+          Utils.highGasLimit
+        )
+      );
     });
   });
 });
