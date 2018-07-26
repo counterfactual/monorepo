@@ -44,7 +44,8 @@ contract VirtualAppAgreement {
       agreement.terms.assetType,
       agreement.terms.token,
       to,
-      amount
+      amount,
+      0
     );
 
     ret.executeTransfer();
