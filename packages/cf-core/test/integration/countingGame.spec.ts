@@ -297,5 +297,35 @@ contract("CountingApp", (accounts: string[]) => {
       channelState.disputeCounter.should.be.bignumber.eq(1);
       channelState.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
     });
+
+    it("should fail when trying to finalize a non-final state", async () => {
+      const action = {
+        actionType: ActionTypes.INCREMENT,
+        byHowMuch: 1.0
+      };
+
+      const h1 = computeStateHash(keccak256(state), 1, 10);
+      const h2 = computeActionHash(
+        A.address,
+        keccak256(state),
+        encode(actionEncoding, action),
+        0,
+        0
+      );
+
+      await Utils.assertRejects(
+        stateChannel.functions.createDispute(
+          app,
+          state,
+          1,
+          10,
+          encode(actionEncoding, action),
+          Utils.signMessageBytes(h1, [A, B]),
+          Utils.signMessageBytes(h2, [A]),
+          true,
+          Utils.highGasLimit
+        )
+      );
+    });
   });
 });
