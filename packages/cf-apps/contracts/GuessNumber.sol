@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../../cf-core/contracts/lib/Transfer.sol";
+import "@counterfactual/cf-core/contracts/lib/Transfer.sol";
 
 
 // Enums in libraries or calls to libraries using ABI encoded structs are broken in Solidity
