@@ -68,12 +68,12 @@ contract("CountingApp", (accounts: string[]) => {
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker)";
+    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
   const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount)";
+    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
 
   const keccak256 = (bytes: string) =>
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
@@ -135,7 +135,8 @@ contract("CountingApp", (accounts: string[]) => {
       addr: game.address,
       resolver: game.interface.functions.resolver.sighash,
       reducer: game.interface.functions.reducer.sighash,
-      turnTaker: game.interface.functions.turn.sighash
+      turnTaker: game.interface.functions.turn.sighash,
+      isStateFinal: "0x"
     };
 
     terms = {
@@ -236,6 +237,7 @@ contract("CountingApp", (accounts: string[]) => {
         encode(actionEncoding, action),
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
+        false,
         Utils.highGasLimit
       );
 

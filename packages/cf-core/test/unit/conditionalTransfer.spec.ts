@@ -74,7 +74,8 @@ contract("ConditionalTransfer", (accounts: string[]) => {
             amount: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.zeroAddress
+            token: Utils.zeroAddress,
+            data: Utils.zeroAddress
           }
         ]
       );
@@ -101,7 +102,8 @@ contract("ConditionalTransfer", (accounts: string[]) => {
             amount: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.zeroAddress
+            token: Utils.zeroAddress,
+            data: Utils.zeroAddress
           }
         ]
       );
