@@ -20,6 +20,15 @@ contract CountingApp {
     uint256 turnNum;
   }
 
+  function isStateFinal(AppState state)
+    public
+    pure
+    returns (bool)
+  {
+    // 2^256 - 1
+    return state.count == (uint256(0) - 1);
+  }
+
   function turn(AppState state)
     public
     pure
@@ -40,12 +49,14 @@ contract CountingApp {
     address[] memory to = new address[](2);
     to[0] = state.player1;
     to[1] = state.player2;
+    bytes memory data;
 
     return Transfer.Details(
       terms.assetType,
       terms.token,
       to,
-      amounts
+      amounts,
+      data
     );
   }
 

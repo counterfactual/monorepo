@@ -43,7 +43,8 @@ contract("Transfer", (accounts: string[]) => {
         amount: [Utils.UNIT_ETH],
         assetType: AssetType.ETH,
         to: [randomTarget],
-        token: Utils.zeroAddress
+        token: Utils.zeroAddress,
+        data: Utils.zeroAddress
       };
 
       await delegateProxy.functions.delegate(
@@ -66,7 +67,8 @@ contract("Transfer", (accounts: string[]) => {
         amount: randomTargets.map(_ => Utils.UNIT_ETH.div(10)),
         assetType: AssetType.ETH,
         to: randomTargets,
-        token: Utils.zeroAddress
+        token: Utils.zeroAddress,
+        data: Utils.zeroAddress
       };
 
       await delegateProxy.functions.delegate(
@@ -94,7 +96,8 @@ contract("Transfer", (accounts: string[]) => {
         amount: [10],
         assetType: AssetType.ERC20,
         to: [randomTarget],
-        token: dolphinCoin.address
+        token: dolphinCoin.address,
+        data: Utils.zeroAddress
       };
 
       await delegateProxy.functions.delegate(
@@ -117,7 +120,8 @@ contract("Transfer", (accounts: string[]) => {
         amount: randomTargets.map(_ => 1),
         assetType: AssetType.ERC20,
         to: randomTargets,
-        token: dolphinCoin.address
+        token: dolphinCoin.address,
+        data: Utils.zeroAddress
       };
 
       await delegateProxy.functions.delegate(

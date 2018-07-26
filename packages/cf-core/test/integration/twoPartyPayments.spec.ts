@@ -56,12 +56,12 @@ contract("PaymentApp", (accounts: string[]) => {
     "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker)";
+    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
   const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount)";
+    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
 
   const keccak256 = (bytes: string) =>
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
@@ -117,7 +117,8 @@ contract("PaymentApp", (accounts: string[]) => {
       addr: pc.address,
       resolver: pc.interface.functions.resolver.sighash,
       reducer: "0x",
-      turnTaker: "0x"
+      turnTaker: "0x",
+      isStateFinal: "0x"
     };
 
     terms = {
