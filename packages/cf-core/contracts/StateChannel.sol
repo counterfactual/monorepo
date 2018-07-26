@@ -168,7 +168,7 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
-  function _finalizeState(
+  function _checkAppStateFinalized(
     App app,
     bytes appState
   )
@@ -180,10 +180,6 @@ contract StateChannel {
     );
 
     require(stateIsFinal, "App state must be final");
-
-    state.proof = keccak256(appState);
-    state.status = Status.OFF;
-    emit DisputeFinalized(msg.sender, appState);
   }
 
   function createDispute(
@@ -235,16 +231,19 @@ contract StateChannel {
       abi.encodePacked(app.reducer, checkpoint, action)
     );
 
+    state.proof = keccak256(newState);
+    state.nonce = nonce;
+    state.disputeNonce = 0;
+    state.disputeCounter += 1;
+    state.latestSubmitter = msg.sender;
     if (finalize) {
-      _finalizeState(app, newState);
+      _checkAppStateFinalized(app, newState);
+      state.finalizesAt = block.number;
+      state.status = Status.OFF;
+      emit DisputeFinalized(msg.sender, newState);
     } else {
-      state.proof = keccak256(newState);
-      state.nonce = nonce;
-      state.disputeNonce = 0;
       state.finalizesAt = block.number + timeout;
-      state.disputeCounter += 1;
       state.status = Status.DISPUTE;
-      state.latestSubmitter = msg.sender;
       emit DisputeProgressed(msg.sender, checkpoint, action, newState, state.disputeNonce, block.number + timeout);
     }
   }
@@ -282,15 +281,18 @@ contract StateChannel {
       abi.encodePacked(app.reducer, fromState, action)
     );
 
+    state.proof = keccak256(newState);
+    state.disputeNonce += 1;
+    state.latestSubmitter = msg.sender;
     if (finalize) {
-      _finalizeState(app, newState);
+      _checkAppStateFinalized(app, newState);
+      state.finalizesAt = block.number;
+      state.status = Status.OFF;
+      emit DisputeFinalized(msg.sender, newState);
     } else {
-      state.proof = keccak256(newState);
-      state.disputeNonce += 1;
-      state.finalizesAt = block.number + defaultTimeout;
       state.status = Status.DISPUTE;
-      state.latestSubmitter = msg.sender;
-      emit DisputeProgressed(msg.sender, fromState, action, newState, state.disputeNonce, state.finalizesAt);
+      state.finalizesAt = block.number + defaultTimeout;
+      emit DisputeProgressed(msg.sender, fromState, action, newState, state.disputeNonce, block.number + defaultTimeout);
     }
   }
 
