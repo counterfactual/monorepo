@@ -2,6 +2,9 @@ pragma solidity 0.4.24;
 
 
 contract MinimumViableMultisig {
+
+  address masterCopy;
+
   mapping(bytes32 => bool) isExecuted;
 
   address[] public owners;

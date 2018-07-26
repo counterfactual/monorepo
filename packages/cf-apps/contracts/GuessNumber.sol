@@ -3,87 +3,89 @@ pragma solidity ^0.4.24;
 import "../../cf-core/contracts/lib/Transfer.sol";
 
 
-// No support for enums in libraries or calls to libraries using ABI encoded structs
+// Enums in libraries or calls to libraries using ABI encoded structs are broken in Solidity
+// Therefore, we are forced to use contracts
 contract GuessNumber {
 
-  enum ActionTypes {
+  enum ActionType {
     SET_MAX,
     CHOOSE_NUMBER,
     GUESS_NUMBER,
     REVEAL_NUMBER
   }
 
-  enum StateNumber {
+  enum Stage {
     SETTING_MAX, CHOOSING, GUESSING, REVEALING, DONE
   }
 
-  struct State {
-    StateNumber stateNum;
-    address choosingPlayer;
-    address guessingPlayer;
+  struct AppState {
+    Stage stage;
+    uint256 choosingPlayer;
+    uint256 guessingPlayer;
+    address[2] players;
     uint256 maximum;
     uint256 guessedNumber;
-    bytes32 numberHash;
+    bytes32 commitHash;
     address winner;
   }
 
   struct Action {
-    ActionTypes actionType;
+    ActionType actionType;
     uint256 number;
     bytes32 hash;
   }
 
-  function isFinalState(State state)
+  function isFinalState(AppState state)
     public
     pure
     returns (bool)
   {
-    return state.winner != address(0);
+    return state.stage == Stage.DONE;
   }
 
-  function turn(State state)
+  function getTurnTaker(AppState state)
     public
     pure
     returns (uint256)
   {
-    if (state.stateNum == StateNumber.GUESSING) {
+    if (state.stage == Stage.GUESSING) {
       return state.guessingPlayer;
     }
     return state.choosingPlayer;
   }
 
-  function reducer(State state, Action action, address turnTaker)
-  public
-  view
-  returns (bytes)
+  function reducer(AppState state, Action action)
+    public
+    view
+    returns (bytes)
   {
-    State memory nextState = state;
-    if (action.actionType == ActionTypes.SET_MAX) {
-      require(state.stateNum == StateNumber.SETTING_MAX);
-      nextState.stateNum = StateNumber.CHOOSING;
+    AppState memory nextState = state;
+    if (action.actionType == ActionType.SET_MAX) {
+      require(state.stage == Stage.SETTING_MAX);
+      nextState.stage = Stage.CHOOSING;
 
       nextState.maximum = action.number;
     }
-    else if (action.actionType == ActionTypes.CHOOSE_NUMBER) {
-      require(state.stateNum == StateNumber.CHOOSING);
-      nextState.stateNum = StateNumber.GUESSING;
+    else if (action.actionType == ActionType.CHOOSE_NUMBER) {
+      require(state.stage == Stage.CHOOSING);
+      nextState.stage = Stage.GUESSING;
 
-      nextState.numberHash = action.hash;
+      nextState.commitHash = action.hash;
     }
-    else if (action.actionType == ActionTypes.GUESS_NUMBER) {
-      require(state.stateNum == StateNumber.GUESSING);
-      nextState.stateNum = StateNumber.REVEALING;
+    else if (action.actionType == ActionType.GUESS_NUMBER) {
+      require(state.stage == Stage.GUESSING);
+      nextState.stage = Stage.REVEALING;
 
       require(action.number < state.maximum);
       nextState.guessedNumber = action.number;
     }
-    else if (action.actionType == ActionTypes.REVEAL_NUMBER) {
-      require(state.stateNum == StateNumber.REVEALING);
-      nextState.stateNum = StateNumber.DONE;
+    else if (action.actionType == ActionType.REVEAL_NUMBER) {
+      require(state.stage == Stage.REVEALING);
+      nextState.stage = Stage.DONE;
 
       bytes32 salt = action.hash;
       uint256 chosenNumber = action.number;
-      if (keccak256(salt, chosenNumber) == state.numberHash &&
+      if (keccak256(salt, chosenNumber) == state.commitHash &&
         state.guessedNumber != chosenNumber &&
         chosenNumber < state.maximum) {
         nextState.winner = state.choosingPlayer;
@@ -98,7 +100,7 @@ contract GuessNumber {
     return abi.encode(nextState);
   }
 
-  function resolver(State state, Transfer.Terms terms)
+  function resolver(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)
@@ -107,12 +109,12 @@ contract GuessNumber {
     amounts[0] = terms.limit;
 
     address[] memory to = new address[](1);
-    if (state.stateNum == StateNumber.DONE) {
+    if (state.stage == Stage.DONE) {
       to[0] = state.winner;
     }
     else {
-      to[0] = (turn(state) == state.choosingPlayer) ?
-        state.guessingPlayer : state.choosingPlayer;
+      // The player who is not the turn taker
+      to[0] = state.players[1 - getTurnTaker(state)];
     }
 
     return Transfer.Details(
