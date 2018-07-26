@@ -45,7 +45,8 @@ contract CountingApp {
       terms.assetType,
       terms.token,
       to,
-      amounts
+      amounts,
+      0
     );
   }
 
