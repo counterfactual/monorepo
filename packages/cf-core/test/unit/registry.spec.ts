@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import ethers from "ethers";
+import * as ethers from "ethers";
 import * as solc from "solc";
 
 import * as Utils from "@counterfactual/cf-utils";

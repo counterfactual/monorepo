@@ -1,6 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
+pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/cf-core/contracts/lib/Transfer.sol";
+import "@counterfactual/core/contracts/lib/Transfer.sol";
 
 
 // Enums in libraries or calls to libraries using ABI encoded structs are broken in Solidity
@@ -88,10 +89,10 @@ contract GuessNumber {
       if (keccak256(salt, chosenNumber) == state.commitHash &&
         state.guessedNumber != chosenNumber &&
         chosenNumber < state.maximum) {
-        nextState.winner = state.choosingPlayer;
+        nextState.winner = state.players[state.choosingPlayer];
       }
       else {
-        nextState.winner = state.guessingPlayer;
+        nextState.winner = state.players[state.guessingPlayer];
       }
     }
     else {
@@ -117,11 +118,14 @@ contract GuessNumber {
       to[0] = state.players[1 - getTurnTaker(state)];
     }
 
+    bytes memory data;
+
     return Transfer.Details(
       terms.assetType,
       terms.token,
       to,
-      amounts
+      amounts,
+      data
     );
   }
 }
