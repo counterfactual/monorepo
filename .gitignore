@@ -27,3 +27,5 @@ packages/contracts/lib
 packages/test-utils/lib
 packages/apps/lib
 
+# editors
+.vscode
