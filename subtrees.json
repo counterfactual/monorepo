@@ -1,7 +1,12 @@
-{ 
+{
 	"contracts" : {
 		"localFolder": "packages/contracts",
 		"repository": "https://github.com/counterfactual/contracts.git",
+		"branch": "master"
+  },
+  "protocol" : {
+		"localFolder": "packages/protocol",
+		"repository": "https://github.com/counterfactual/machine.git",
 		"branch": "master"
 	}
 }
