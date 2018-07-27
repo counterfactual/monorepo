@@ -288,7 +288,7 @@ contract StateChannel {
     }
   }
 
-  /// @notice The primary method for responding to a dispute with a valid move
+  /// @notice The primary method for responding to a dispute with a valid action
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param fromState The ABI encoded version of the latest signed application state
   /// @param action The ABI encoded version of the action the submitter wishes to take
