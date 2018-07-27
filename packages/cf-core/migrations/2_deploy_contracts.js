@@ -22,7 +22,7 @@ module.exports = deployer => {
   deployer.deploy(MultiSend);
 
   deployer.deploy(Registry).then(() => {
-    return deployer.deploy(ConditionalTransfer, Registry.address);
+    return deployer.deploy(ConditionalTransfer, Registry.address, NonceRegistry.address);
   });
 
 };
