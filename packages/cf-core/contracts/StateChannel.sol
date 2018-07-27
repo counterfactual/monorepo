@@ -9,8 +9,9 @@ import "@counterfactual/core/contracts/lib/Transfer.sol";
 /// @title StateChannel - A generalized state channel application contract
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports the adjudication and timeout guarantees required by state channel
-/// applications to be secure in a gas and storage-optimized manner with the expectation
-/// of resolving to a `Transfer.Details` generic resolution type when the channel is closed.
+/// applications to be secure in a gas and storage-optimized manner. Includes the the
+/// expectation of resolving to a `Transfer.Details` generic resolution type when the
+/// channel is closed.
 contract StateChannel {
 
   using Transfer for Transfer.Details;
@@ -105,7 +106,7 @@ contract StateChannel {
   /// @param owner A unique owner with unilateral ability to update state
   /// @param signingKeys An array of unique keys that can be used unanimously to set state
   /// @param app The hash of an application's interface
-  /// @param terms The hash of a `Transfer.Term` object commiting to the terms of the app
+  /// @param terms The hash of a `Transfer.Terms` object commiting to the terms of the app
   /// @param timeout An integer representing the default timeout in the case of dispute
   constructor(
     address owner,
@@ -183,7 +184,7 @@ contract StateChannel {
     } else {
       require(
         nonce >= state.nonce,
-        "Tried to claimFinal state with stale state"
+        "Tried to finalize state with stale state"
       );
       state.status = Status.OFF;
     }
@@ -197,7 +198,7 @@ contract StateChannel {
   }
 
   /// @notice The primary method for creating disputes pertaining to the latest signed
-  /// state of a state channel app and a unilateral action that can be taken update it.
+  /// state of a state channel app and a unilateral action that can be taken to update it.
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param checkpoint The ABI encoded version of the applications state
   /// @param nonce The nonce of the agreed upon state
