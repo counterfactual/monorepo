@@ -25,6 +25,13 @@ contract("ConditionalTransfer", (accounts: string[]) => {
     registry.should.be.equalIgnoreCase(artifacts.require("Registry").address);
   });
 
+  it("instantiates with correct nonceRegistry address", async () => {
+    const nonceRegistry = await ct.functions.nonceRegistry();
+    nonceRegistry.should.be.equalIgnoreCase(
+      artifacts.require("NonceRegistry").address
+    );
+  });
+
   describe("Pre-commit to transfer details", () => {
     const makeCondition = (expectedValue, onlyCheckForSuccess) => ({
       expectedValueHash: ethers.utils.solidityKeccak256(
