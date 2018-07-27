@@ -40,7 +40,7 @@ contract("NonceRegistry", accounts => {
     const ret = await registry.functions.table(computeKey(Utils.zeroBytes32));
     ret.nonce.should.be.bignumber.eq(0);
     ret.finalizesAt.should.be.bignumber.eq(await provider.getBlockNumber());
-    const isFinal = await registry.functions.isFinalizedAt(
+    const isFinal = await registry.functions.isFinalized(
       computeKey(Utils.zeroBytes32),
       0
     );
