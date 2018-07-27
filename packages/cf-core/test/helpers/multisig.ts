@@ -1,4 +1,4 @@
-import ethers from "ethers";
+import * as ethers from "ethers";
 
 export const Operation = Object.freeze({
   Call: 0,
@@ -49,6 +49,9 @@ export function sign(data, wallets) {
   const s: string[] = [];
   sortedWallets.forEach(wallet => {
     const sig = new ethers.SigningKey(wallet.privateKey).signDigest(data);
+    if (!sig.recoveryParam) {
+      throw new Error("could not sign with wallet");
+    }
     v.push(sig.recoveryParam + 27);
     r.push(sig.r);
     s.push(sig.s);

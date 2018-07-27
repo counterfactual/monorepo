@@ -9,13 +9,16 @@ import { Provider } from "ethers/providers";
 
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
-ethers.utils.default.BigNumber.prototype.equals =
-  ethers.utils.default.BigNumber.prototype.eq;
+ethers.types.BigNumber.prototype.equals = function(
+  other: ethers.types.BigNumberish
+) {
+  return this.eq(other);
+};
 
 export const should = chai
   .use(chaiAsPromised)
   .use(chaiString)
-  .use(chaiBigNumber(ethers.utils.default.BigNumber))
+  .use(chaiBigNumber(ethers.types.BigNumber))
   .should();
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
@@ -62,6 +65,9 @@ export const setupTestEnv = (web3: any) => {
 export function signMessage(message, wallet): [number, string, string] {
   const signingKey = new ethers.SigningKey(wallet.privateKey);
   const sig = signingKey.signDigest(message);
+  if (!sig.recoveryParam) {
+    throw new Error("could not sign with wallet");
+  }
   return [sig.recoveryParam + 27, sig.r, sig.s];
 }
 
