@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/cf-utils";
+import * as Utils from "@counterfactual/test-utils";
 
 const PaymentApp = artifacts.require("PaymentApp");
 
@@ -116,9 +116,9 @@ contract("PaymentApp", (accounts: string[]) => {
     app = {
       addr: pc.address,
       resolver: pc.interface.functions.resolver.sighash,
-      reducer: "0x",
-      turnTaker: "0x",
-      isStateFinal: "0x"
+      reducer: "0x00000000",
+      turnTaker: "0x00000000",
+      isStateFinal: "0x00000000"
     };
 
     terms = {

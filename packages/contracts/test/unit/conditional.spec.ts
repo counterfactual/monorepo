@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/cf-utils";
+import * as Utils from "@counterfactual/test-utils";
 
 const ExampleCondition = artifacts.require("ExampleCondition");
 const Conditional = artifacts.require("Conditional");

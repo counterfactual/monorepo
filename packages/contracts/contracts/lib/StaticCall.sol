@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
-import "@counterfactual/core/contracts/lib/Transfer.sol";
+import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 
 
 library StaticCall {

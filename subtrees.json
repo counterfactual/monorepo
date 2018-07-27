@@ -4,9 +4,24 @@
 		"repository": "https://github.com/counterfactual/contracts.git",
 		"branch": "master"
   },
-  "protocol" : {
-		"localFolder": "packages/protocol",
-		"repository": "https://github.com/counterfactual/machine.git",
+  "apps" : {
+		"localFolder": "packages/apps",
+		"repository": "https://github.com/counterfactual/apps.git",
+		"branch": "master"
+  },
+  "test-utils" : {
+		"localFolder": "packages/test-utils",
+		"repository": "https://github.com/counterfactual/test-utils.git",
+		"branch": "master"
+  },
+  "typescript-typings" : {
+		"localFolder": "packages/typescript-typings",
+		"repository": "https://github.com/counterfactual/typescript-typings.git",
+		"branch": "master"
+  },
+  "run-with-ganache" : {
+		"localFolder": "packages/run-with-ganache",
+		"repository": "https://github.com/counterfactual/run-with-ganache.git",
 		"branch": "master"
 	}
 }

@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/cf-utils";
+import * as Utils from "@counterfactual/test-utils";
 
 // tslint:disable-next-line
 import { Web3Provider } from "ethers/providers";
