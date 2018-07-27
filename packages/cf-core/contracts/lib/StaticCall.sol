@@ -9,7 +9,7 @@ library StaticCall {
 
   using AddressUtils for address;
 
-  function staticcall(
+  function staticcall_no_error(
     address to,
     bytes data
   )
