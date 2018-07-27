@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/cf-utils";
+import * as Utils from "@counterfactual/test-utils";
 
 const NonceRegistry = artifacts.require("NonceRegistry");
 

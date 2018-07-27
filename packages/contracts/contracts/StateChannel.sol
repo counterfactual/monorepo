@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/core/contracts/lib/Signatures.sol";
-import "@counterfactual/core/contracts/lib/StaticCall.sol";
-import "@counterfactual/core/contracts/lib/Transfer.sol";
+import "@counterfactual/contracts/contracts/lib/Signatures.sol";
+import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
+import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 
 
 contract StateChannel {
@@ -217,7 +217,7 @@ contract StateChannel {
       turnTaker,
       keccak256(checkpoint),
       action,
-      state.nonce,
+      nonce,
       state.disputeNonce
     );
     require(
@@ -236,6 +236,7 @@ contract StateChannel {
     state.disputeNonce = 0;
     state.disputeCounter += 1;
     state.latestSubmitter = msg.sender;
+
     if (finalize) {
       _checkAppStateFinalized(app, newState);
       state.finalizesAt = block.number;

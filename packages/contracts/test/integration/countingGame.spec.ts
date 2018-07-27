@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/cf-utils";
+import * as Utils from "@counterfactual/test-utils";
 
 const CountingApp = artifacts.require("CountingApp");
 
@@ -217,7 +217,7 @@ contract("CountingApp", (accounts: string[]) => {
     it("should update state based on reducer", async () => {
       const action = {
         actionType: ActionTypes.INCREMENT,
-        byHowMuch: 1.0
+        byHowMuch: 1
       };
 
       const h1 = computeStateHash(keccak256(state), 1, 10);
@@ -225,7 +225,7 @@ contract("CountingApp", (accounts: string[]) => {
         A.address,
         keccak256(state),
         encode(actionEncoding, action),
-        0,
+        1,
         0
       );
 
@@ -258,8 +258,8 @@ contract("CountingApp", (accounts: string[]) => {
 
     it("should update and finalize state based on reducer", async () => {
       const action = {
-        actionType: ActionTypes.DECREMENT,
-        byHowMuch: 1.0
+        actionType: ActionTypes.INCREMENT,
+        byHowMuch: 2.0
       };
 
       const h1 = computeStateHash(keccak256(state), 1, 10);
@@ -267,7 +267,7 @@ contract("CountingApp", (accounts: string[]) => {
         A.address,
         keccak256(state),
         encode(actionEncoding, action),
-        0,
+        1,
         0
       );
 
@@ -285,7 +285,7 @@ contract("CountingApp", (accounts: string[]) => {
 
       const channelState = await stateChannel.functions.state();
 
-      const expectedState = { ...exampleState, count: -1, turnNum: 1 };
+      const expectedState = { ...exampleState, count: 2, turnNum: 1 };
       const expectedProof = keccak256(encode(gameEncoding, expectedState));
       const expectedFinalizeBlock = await provider.getBlockNumber();
 
@@ -309,7 +309,7 @@ contract("CountingApp", (accounts: string[]) => {
         A.address,
         keccak256(state),
         encode(actionEncoding, action),
-        0,
+        1,
         0
       );
 
