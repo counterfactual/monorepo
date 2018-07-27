@@ -12,12 +12,12 @@ contract ConditionalTransfer is Conditional {
 
   using Transfer for Transfer.Details;
 
-  Registry public registry;
-  NonceRegistry public nonceRegistry;
+  Registry public _registry;
+  NonceRegistry public _nonceRegistry;
 
-  constructor(Registry _registry, NonceRegistry _nonceRegistry) {
-    registry = _registry;
-    nonceRegistry = _nonceRegistry;
+  constructor(Registry registry, NonceRegistry nonceRegistry) {
+    _registry = registry;
+    _nonceRegistry = nonceRegistry;
   }
 
   function executeSimpleConditionalTransfer(
@@ -38,11 +38,11 @@ contract ConditionalTransfer is Conditional {
   )
     public
   {
-    address addr = registry.resolver(stateChannelId);
+    address addr = _registry.resolver(stateChannelId);
     StateChannel channel = StateChannel(addr);
     Transfer.Details memory details = channel.getResolution();
     require(Transfer.meetsTerms(details, terms), "Transfer details do not meet terms");
-    require(nonceRegistry.isFinalizedAt(key, nonce), "State Channel nonce is not finalized");
+    require(_nonceRegistry.isFinalizedAt(key, nonce), "State Channel nonce is not finalized");
     details.executeTransfer();
   }
 
