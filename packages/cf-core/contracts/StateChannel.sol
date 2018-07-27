@@ -207,6 +207,8 @@ contract StateChannel {
   /// `checkpoint` state, signed by all `signingKeys`
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// signing key for which it is their turn to take the submitted `action`
+  /// @param claimFinal A boolean representing a claim by the caller that the action
+  /// progresses the state of the application to a terminal / finalized state
   /// @dev Note this function is only callable when the state channel is in an ON state
   function createDispute(
     App app,
