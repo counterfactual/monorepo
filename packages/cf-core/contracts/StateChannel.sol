@@ -156,7 +156,7 @@ contract StateChannel {
   /// @param nonce The nonce of the agreed upon state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @param signatures A sorted bytes string of concatenated signatures of each signingKey
-  /// @dev Note this function is only callable when the state channel is in an OK state.
+  /// @dev Note this function is only callable when the state channel is in an ON state.
   function setState(
     bytes32 stateHash,
     uint256 nonce,
@@ -207,7 +207,7 @@ contract StateChannel {
   /// `checkpoint` state, signed by all `signingKeys`
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// signing key for which it is their turn to take the submitted `action`
-  /// @dev Note this function is only callable when the state channel is in an OK state
+  /// @dev Note this function is only callable when the state channel is in an ON state
   function createDispute(
     App app,
     bytes checkpoint,

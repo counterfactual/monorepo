@@ -69,7 +69,7 @@ contract MinimumViableMultisig {
     isExecuted[transactionHash] = true;
   }
 
-  /// @notice Computed a unique transaction has for a particular (to, value, data, op) tuple
+  /// @notice Computes a unique transaction hash for a particular (to, value, data, op) tuple
   /// @param to The address the transaction is addressed to
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
