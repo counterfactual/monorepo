@@ -32,7 +32,7 @@ contract ConditionalTransfer is Conditional {
 
   function executeStateChannelConditionalTransfer(
     bytes32 key,
-    uint256 nonce,
+    uint256 expectedNonce,
     bytes32 stateChannelId,
     Transfer.Terms terms
   )
@@ -42,7 +42,9 @@ contract ConditionalTransfer is Conditional {
     StateChannel channel = StateChannel(addr);
     Transfer.Details memory details = channel.getResolution();
     require(Transfer.meetsTerms(details, terms), "Transfer details do not meet terms");
-    require(_nonceRegistry.isFinalizedAt(key, nonce), "State Channel nonce is not finalized");
+    require(
+      _nonceRegistry.isFinalizedAt(key, expectedNonce),
+      "State Channel nonce is either not finalized or finalized at an incorrect nonce");
     details.executeTransfer();
   }
 
