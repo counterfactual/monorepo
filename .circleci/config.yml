@@ -18,7 +18,7 @@ jobs:
             - yarn-packages-
       - run:
           name: yarn
-          command: yarn --frozen-lockfile install
+          command: yarn
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
@@ -30,7 +30,7 @@ jobs:
           paths:
             - ~/repo
 
-  test-contracts-ganache:
+  test-all-with-ganache:
     docker:
       - image: circleci/node:10.5.0
     working_directory: ~/repo
@@ -38,7 +38,12 @@ jobs:
       - restore_cache:
           keys:
             - repo-{{ .Environment.CIRCLE_SHA1 }}
-      - run: yarn wsrun test:circleci @counterfactual/contracts
+      - run:
+          name: Start ganache
+          command: |
+            yarn ganache
+          background: true
+      - run: yarn test
 
   lint-repo:
     docker:
@@ -55,7 +60,7 @@ workflows:
   ethereum-tests:
     jobs:
       - build
-      - test-contracts-ganache:
+      - test-all-with-ganache:
           requires:
             - build
       - lint-repo:

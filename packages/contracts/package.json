@@ -14,7 +14,7 @@
     "precommit": "lint-staged",
     "test": "yarn build && yarn truffle:test",
     "testfiles": "yarn build && yarn truffle:testfiles",
-    "test:circleci": "yarn test:coverage && ./bin/coveralls.sh",
+    "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage",
     "truffle:compile": "truffle compile",
     "truffle:console": "truffle console",
