@@ -58,7 +58,7 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a address
-  function staticcall_as_bytes(address to, bytes data)
+  function staticcall_as_address(address to, bytes data)
     public
     view
     returns (address)
