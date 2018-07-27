@@ -47,6 +47,9 @@ library Transfer {
     pure
     returns (bool)
   {
+    if (details.assetType != terms.assetType || details.token != terms.token) {
+      return false;
+    }
     uint256 sum = 0;
     for (uint256 i = 0; i < details.amount.length; i++) {
       sum += details.amount[i];
