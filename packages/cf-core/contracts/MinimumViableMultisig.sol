@@ -127,7 +127,6 @@ contract MinimumViableMultisig {
   }
   /// @notice Executes a DELEGATECALL on behalf of the multisignature wallet
   /// @param to The address the transaction is addressed to
-  /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
   function executeDelegateCall(address to, bytes data)

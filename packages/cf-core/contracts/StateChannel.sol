@@ -235,10 +235,8 @@ contract StateChannel {
       "Invalid signatures"
     );
 
-    uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, checkpoint)
-    );
-    address turnTaker = auth.signingKeys[idx];
+    address turnTaker = getAppTurnTaker(app, checkpoint);
+
     bytes32 actionHash = computeActionHash(
       turnTaker,
       keccak256(checkpoint),
@@ -259,9 +257,7 @@ contract StateChannel {
       block.number + timeout
     );
 
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, checkpoint, action)
-    );
+    bytes memory newState = executeAppReducer(app, checkpoint, action);
 
     state.proof = keccak256(newState);
     state.nonce = nonce;
@@ -319,18 +315,14 @@ contract StateChannel {
       "Tried to resolve dispute with non-agreed upon app"
     );
 
-    uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, fromState)
-    );
+    address turnTaker = getAppTurnTaker(app, fromState);
 
     require(
-      auth.signingKeys[idx] == actionSignature.recoverKey(keccak256(action), 0),
+      turnTaker == actionSignature.recoverKey(keccak256(action), 0),
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, fromState, action)
-    );
+    bytes memory newState = executeAppReducer(app, fromState, action);
 
     state.proof = keccak256(newState);
     state.disputeNonce += 1;
@@ -408,9 +400,7 @@ contract StateChannel {
       "Tried to set resolution with non-agreed upon app"
     );
 
-    resolution = app.addr.staticcall_as_TransferDetails(
-      abi.encodePacked(app.resolver, finalState, terms)
-    );
+    resolution = getAppResolution(app, finalState, terms);
   }
 
   /// @notice A helper method to check if the state of the channel is final or not by
@@ -434,6 +424,51 @@ contract StateChannel {
   function isAppStateTerminal(App app, bytes appState) private returns (bool) {
     return app.addr.staticcall_as_bool(
       abi.encodePacked(app.isStateFinal, appState)
+    );
+  }
+
+  /// @notice A helper method to get the turn taker for an app
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @return An address representing the turn taker in the `signingKeys`
+  function getAppTurnTaker(App app, bytes appState) private returns (address) {
+    uint256 idx = app.addr.staticcall_as_uint256(
+      abi.encodePacked(app.turnTaker, appState)
+    );
+
+    require(
+      auth.signingKeys[idx] != address(0),
+      "Application returned invalid turn taker index"
+    );
+
+    return auth.signingKeys[idx];
+  }
+
+  /// @notice Execute the application's reducer function to compute new state
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @param action The ABI encoded version of some application action
+  /// @return A bytes array of the ABI encoded newly computed application state
+  function executeAppReducer(App app, bytes appState, bytes action)
+    private
+    returns (bytes)
+  {
+    return app.addr.staticcall_as_bytes(
+      abi.encodePacked(app.reducer, appState, action)
+    );
+  }
+
+  /// @notice Execute the application's resolver function to compute a resolution
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @param terms The ABI encoded version of the transfer terms
+  /// @return A `Transfer.Details` struct with all encoded information of the resolution
+  function getAppResolution(App app, bytes appState, bytes terms)
+    private
+    returns (Transfer.Details)
+  {
+    return app.addr.staticcall_as_TransferDetails(
+      abi.encodePacked(app.resolver, appState, terms)
     );
   }
 
