@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/counterfactual/typescript-typings.git
+	branch = master
+	commit = 2d9ca2a44ceb28c03958a2ebe19dbac471c02ccb
+	parent = 60b7b66d1933de71771caa22721b04962ef95ea5
+	cmdver = 0.3.1

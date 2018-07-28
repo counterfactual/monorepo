@@ -51,4 +51,15 @@ contract Registry {
     emit ContractCreated(ptr, deployed);
   }
 
+  /// @notice Make a call to a contract deployed by reference to its counterfactual address
+  /// @param registry The address of a registry
+  /// @param ptr A counterfactual address
+  /// @param data The data being sent in the call to the counterfactual contract
+  function proxyCall(Registry registry, bytes32 ptr, bytes data) public {
+    require(
+      registry.resolver(ptr).call(data),
+      "The call failed."
+    );
+  }
+
 }

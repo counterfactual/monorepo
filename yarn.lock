@@ -3366,14 +3366,6 @@ git-semver-tags@^1.3.0, git-semver-tags@^1.3.6:
     meow "^4.0.0"
     semver "^5.5.0"
 
-git-subtree@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/git-subtree/-/git-subtree-0.2.1.tgz#82b4898128a1b2a621faf7fc5b6f8d331bb50058"
-  dependencies:
-    async "^1.4.0"
-    colors "^1.1.2"
-    lodash "^3.10.1"
-
 gitconfiglocal@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/gitconfiglocal/-/gitconfiglocal-1.0.0.tgz#41d045f3851a5ea88f03f24ca1c6178114464b9b"
@@ -4894,10 +4886,6 @@ lodash.toarray@^4.4.0:
 lodash@4.17.10, lodash@^4.0.0, lodash@^4.1.0, lodash@^4.11.1, lodash@^4.11.2, lodash@^4.13.1, lodash@^4.14.2, lodash@^4.15.0, lodash@^4.17.1, lodash@^4.17.10, lodash@^4.17.2, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
-
-lodash@^3.10.1:
-  version "3.10.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
 log-driver@^1.2.5:
   version "1.2.7"

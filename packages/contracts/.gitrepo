@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/counterfactual/contracts.git
+	branch = master
+	commit = 62f18610618648ce000f688e838f1b46232ff5b9
+	parent = 93af2885940ff4d519159342833651e22b7202a1
+	cmdver = 0.3.1
