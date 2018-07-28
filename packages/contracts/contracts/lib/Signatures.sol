@@ -1,6 +1,13 @@
 pragma solidity 0.4.24;
 
 
+/// @title Signatures - A library wrapper around signature verification
+/// @author Liam Horne - <liam@l4v.io>
+/// @author Ricardo Guilherme Schmidt (Status Research & Development GmbH)
+/// @author Richard Meissner - <richard@gnosis.pm>
+/// @notice This contracts purpose is to make it easy to do signature verification of
+/// string concatenated signatures in a bytes array. It is heavily based off the
+/// SignatureValidator contract from Gnosis: https://git.io/fNzRJ
 library Signatures {
 
   /// @dev Recovers address who signed the message

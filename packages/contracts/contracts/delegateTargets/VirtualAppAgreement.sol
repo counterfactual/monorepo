@@ -30,7 +30,7 @@ contract VirtualAppAgreement {
     public
   {
 
-    require(agreement.nonceRegistry.isFinalizedAt(salt, nonce));
+    require(agreement.nonceRegistry.isFinalized(salt, nonce));
 
     address[] memory to = new address[](2);
     to[0] = agreement.registry.resolver(agreement.virtualStateDeposit);
