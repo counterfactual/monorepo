@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
 
-/// @title NonceRegistry - A global nonce time-lock registry
+/// @title NonceRegistry - A global nonce time-lock registry. Maps nonce keys to nonce values.
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports a global mapping of sender and salt based keys to sequential nonces and the ability to consider a key "finalized" or not at a particular nonce
 contract NonceRegistry {
@@ -36,8 +36,8 @@ contract NonceRegistry {
     return state.nonce == nonce;
   }
 
-  /// @notice Sets a nonce in the mapping and triggers the timeout period to begin
-  /// @param salt A unique salt to be applied to the `computeKey` function to get a key
+  /// @notice Set a nonce in the mapping and triggers the timeout period to begin
+  /// @param salt A salt used to generate the nonce key
   /// @param nonce A nonce at which to set the computed key's value in the mapping
   function setNonce(bytes32 salt, uint256 nonce) external {
     bytes32 key = computeKey(salt);
@@ -47,8 +47,8 @@ contract NonceRegistry {
     emit NonceSet(key, nonce);
   }
 
-  /// @notice Finalizes a keys value in the mapping at a particular nonce without a timeout
-  /// @param salt A unique salt to be applied to the `computeKey` function to get a key
+  /// @notice Finalize a keys value in the mapping at a particular nonce without a timeout
+  /// @param salt A salt used to generate the nonce key
   function finalizeNonce(bytes32 salt) external {
     bytes32 key = computeKey(salt);
     table[key].finalizesAt = block.number;
@@ -56,8 +56,8 @@ contract NonceRegistry {
   }
 
   /// @notice Computes a unique key for the particular salt and msg.sender
-  /// @param salt A unique salt to be applied to the `computeKey` function to get a key
-  /// @return A unique key that the salt and msg.sender hash together to form
+  /// @param salt A salt used to generate the nonce key
+  /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(bytes32 salt)
     view
     internal

@@ -9,9 +9,8 @@ import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 /// @title StateChannel - A generalized state channel application contract
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports the adjudication and timeout guarantees required by state channel
-/// applications to be secure in a gas and storage-optimized manner. Includes the the
-/// expectation of resolving to a `Transfer.Details` generic resolution type when the
-/// channel is closed.
+/// applications to be secure in a gas and storage-optimized manner. Resolves to a
+/// `Transfer.Details` when the channel is closed.
 contract StateChannel {
 
   using Transfer for Transfer.Details;
@@ -103,11 +102,11 @@ contract StateChannel {
   }
 
   /// @notice Contract constructor
-  /// @param owner A unique owner with unilateral ability to update state
-  /// @param signingKeys An array of unique keys that can be used unanimously to set state
-  /// @param app The hash of an application's interface
-  /// @param terms The hash of a `Transfer.Terms` object commiting to the terms of the app
-  /// @param timeout An integer representing the default timeout in the case of dispute
+  /// @param owner An address which is allowed to set state. Typically an address off a multisig wallet.
+  /// @param signingKeys An array of addresses which can set state with unanimous consent
+  /// @param app Hash of the application's interface
+  /// @param terms Hash of a `Transfer.Terms` object commiting to the terms of the app
+  /// @param timeout The default timeout (in blocks) in case of dispute
   constructor(
     address owner,
     address[] signingKeys,
@@ -152,14 +151,16 @@ contract StateChannel {
     return resolution;
   }
 
-  /// @notice The primary method for setting the latest signed state of a state channel app.
-  /// @param stateHash The hash of the agreed upon state
+  /// @notice Set the application state to a given value.
+  /// This value must have been signed off by all parties to the channel, that is,
+  /// this must be called with the correct msg.sender or signatures must be provided.
+  /// @param appStateHash The hash of the agreed upon state. Typically this is the latest signed state.
   /// @param nonce The nonce of the agreed upon state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @param signatures A sorted bytes string of concatenated signatures of each signingKey
-  /// @dev Note this function is only callable when the state channel is in an ON state.
+  /// @dev This function is only callable when the state channel is in an ON state.
   function setState(
-    bytes32 stateHash,
+    bytes32 appStateHash,
     uint256 nonce,
     uint256 timeout,
     bytes signatures
@@ -168,7 +169,7 @@ contract StateChannel {
     onlyWhenChannelOpen
   {
     if (msg.sender != auth.owner) {
-      bytes32 h = computeStateHash(stateHash, nonce, timeout);
+      bytes32 h = computeStateHash(appStateHash, nonce, timeout);
       require(
         signatures.verifySignatures(h, auth.signingKeys),
         "Invalid signatures"
@@ -189,7 +190,7 @@ contract StateChannel {
       state.status = Status.OFF;
     }
 
-    state.appStateHash = stateHash;
+    state.appStateHash = appStateHash;
     state.nonce = nonce;
     state.disputeNonce = 0;
     state.finalizesAt = block.number + timeout;
@@ -197,13 +198,13 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
-  /// @notice The primary method for creating disputes pertaining to the latest signed
-  /// state of a state channel app and a unilateral action that can be taken to update it.
-  /// @param app An `App` struct including all information relevant to interface with an app
-  /// @param appState The ABI encoded version of the applications state
+  /// @notice Create a dispute regarding the latest signed state and immediately after,
+  /// performs a unilateral action to update it.
+  /// @param app An `App` struct specifying the application logic
+  /// @param appState The ABI encoded application state
   /// @param nonce The nonce of the agreed upon state
   /// @param timeout A dynamic timeout value representing the timeout for this state
-  /// @param action The ABI encoded version of the action the submitter wishes to take
+  /// @param action The ABI encoded action the submitter wishes to take
   /// @param appStateSignatures A sorted bytes string of concatenated signatures on the
   /// `appState` state, signed by all `signingKeys`
   /// @param actionSignature A bytes string of a single signature by the address of the
@@ -289,15 +290,15 @@ contract StateChannel {
     }
   }
 
-  /// @notice The primary method for responding to a dispute with a valid action
-  /// @param app An `App` struct including all information relevant to interface with an app
-  /// @param appState The ABI encoded version of the latest signed application state
-  /// @param action The ABI encoded version of the action the submitter wishes to take
+  /// @notice Respond to a dispute with a valid action
+  /// @param app An `App` struct specifying the application logic
+  /// @param appState The ABI encoded latest signed application state
+  /// @param action The ABI encoded action the submitter wishes to take
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// signing key for which it is their turn to take the submitted `action`
-  /// @param claimFinal A boolean representing a claim by the caller that the action
-  /// progresses the state of the application to a terminal / finalized state
-  /// @dev Note this function is only callable when the state channel is in a DISPUTE state
+  /// @param claimFinal If set, the caller claims that the action progresses the state
+  /// to a terminal / finalized state
+  /// @dev This function is only callable when the state channel is in a DISPUTE state
   function progressDispute(
     App app,
     bytes appState,
@@ -352,7 +353,7 @@ contract StateChannel {
     }
   }
 
-  /// @notice The primary method for unanimously agreeing to cancel a dispute
+  /// @notice Unanimously agree to cancel a dispute
   /// @param signatures Signatures by all signing keys of the currently latest disputed
   /// state; an indication of agreement of this state and valid to cancel a dispute
   /// @dev Note this function is only callable when the state channel is in a DISPUTE state
@@ -379,7 +380,7 @@ contract StateChannel {
     emit DisputeCancelled(msg.sender);
   }
 
-  /// @notice A method to fetch and store the resolution of a state channel application
+  /// @notice Fetch and store the resolution of a state channel application
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param finalState The ABI encoded version of the finalized application state
   /// @param terms The ABI encoded version of the already agreed upon terms
@@ -406,8 +407,8 @@ contract StateChannel {
     resolution = getAppResolution(app, finalState, terms);
   }
 
-  /// @notice A helper method to check if the state of the channel is final or not by
-  /// doing a check on the submitted state and referencing the current block number
+  /// @notice A helper method to check if the state of the channel is final by
+  /// doing a check on the submitted state and comparing to the current block number
   /// @param s A state wrapper struct including the status and finalization time
   /// @return A boolean indicating if the state is final or not
   function isStateFinal(State s) public view returns (bool) {
@@ -475,7 +476,7 @@ contract StateChannel {
     );
   }
 
-  /// @notice Computes a unique hash for a state of this state channel and application
+  /// @notice Compute a unique hash for a state of this state channel and application
   /// @param stateHash The hash of a state to be signed
   /// @param nonce The nonce corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
@@ -496,7 +497,7 @@ contract StateChannel {
     );
   }
 
-  /// @notice Computes a unique hash for an action used in this channel application
+  /// @notice Compute a unique hash for an action used in this channel application
   /// @param turnTaker The address of the user taking the action
   /// @param previousState The hash of a state this action is being taken on
   /// @param action The ABI encoded version of the action being taken
