@@ -28,7 +28,7 @@ contract StateChannel {
 
   event DisputeProgressed(
     address sender,
-    bytes fromState,
+    bytes appState,
     bytes action,
     bytes toState,
     uint256 disputeNonce,
@@ -65,7 +65,7 @@ contract StateChannel {
 
   struct State {
     Status status;
-    bytes32 proof;
+    bytes32 appStateHash;
     address latestSubmitter;
     uint256 nonce;
     uint256 disputeNonce;
@@ -189,7 +189,7 @@ contract StateChannel {
       state.status = Status.OFF;
     }
 
-    state.proof = stateHash;
+    state.appStateHash = stateHash;
     state.nonce = nonce;
     state.disputeNonce = 0;
     state.finalizesAt = block.number + timeout;
@@ -200,12 +200,12 @@ contract StateChannel {
   /// @notice The primary method for creating disputes pertaining to the latest signed
   /// state of a state channel app and a unilateral action that can be taken to update it.
   /// @param app An `App` struct including all information relevant to interface with an app
-  /// @param checkpoint The ABI encoded version of the applications state
+  /// @param appState The ABI encoded version of the applications state
   /// @param nonce The nonce of the agreed upon state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @param action The ABI encoded version of the action the submitter wishes to take
-  /// @param checkpointSignatures A sorted bytes string of concatenated signatures on the
-  /// `checkpoint` state, signed by all `signingKeys`
+  /// @param appStateSignatures A sorted bytes string of concatenated signatures on the
+  /// `appState` state, signed by all `signingKeys`
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// signing key for which it is their turn to take the submitted `action`
   /// @param claimFinal A boolean representing a claim by the caller that the action
@@ -213,11 +213,11 @@ contract StateChannel {
   /// @dev Note this function is only callable when the state channel is in an ON state
   function createDispute(
     App app,
-    bytes checkpoint,
+    bytes appState,
     uint256 nonce,
     uint256 timeout,
     bytes action,
-    bytes checkpointSignatures,
+    bytes appStateSignatures,
     bytes actionSignature,
     bool claimFinal
   )
@@ -229,20 +229,20 @@ contract StateChannel {
       "Tried to create dispute with outdated state"
     );
 
-    bytes32 appStateHash = keccak256(checkpoint);
+    bytes32 appStateHash = keccak256(appState);
     require(
-      checkpointSignatures.verifySignatures(
+      appStateSignatures.verifySignatures(
         computeStateHash(appStateHash, nonce, timeout),
         auth.signingKeys
       ),
       "Invalid signatures"
     );
 
-    address turnTaker = getAppTurnTaker(app, checkpoint);
+    address turnTaker = getAppTurnTaker(app, appState);
 
     bytes32 actionHash = computeActionHash(
       turnTaker,
-      keccak256(checkpoint),
+      keccak256(appState),
       action,
       nonce,
       state.disputeNonce
@@ -260,29 +260,29 @@ contract StateChannel {
       block.number + timeout
     );
 
-    bytes memory newState = executeAppReducer(app, checkpoint, action);
+    bytes memory newAppState = executeAppReducer(app, appState, action);
 
-    state.proof = keccak256(newState);
+    state.appStateHash = keccak256(newAppState);
     state.nonce = nonce;
     state.disputeNonce = 0;
     state.disputeCounter += 1;
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newState));
+      require(isAppStateTerminal(app, newAppState));
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 
-      emit DisputeFinalized(msg.sender, newState);
+      emit DisputeFinalized(msg.sender, newAppState);
     } else {
       state.finalizesAt = block.number + timeout;
       state.status = Status.DISPUTE;
 
       emit DisputeProgressed(
         msg.sender,
-        checkpoint,
+        appState,
         action,
-        newState,
+        newAppState,
         state.disputeNonce,
         block.number + timeout
       );
@@ -291,7 +291,7 @@ contract StateChannel {
 
   /// @notice The primary method for responding to a dispute with a valid action
   /// @param app An `App` struct including all information relevant to interface with an app
-  /// @param fromState The ABI encoded version of the latest signed application state
+  /// @param appState The ABI encoded version of the latest signed application state
   /// @param action The ABI encoded version of the action the submitter wishes to take
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// signing key for which it is their turn to take the submitted `action`
@@ -300,7 +300,7 @@ contract StateChannel {
   /// @dev Note this function is only callable when the state channel is in a DISPUTE state
   function progressDispute(
     App app,
-    bytes fromState,
+    bytes appState,
     bytes action,
     bytes actionSignature,
     bool claimFinal
@@ -309,7 +309,7 @@ contract StateChannel {
     onlyWhenChannelDispute
   {
     require(
-      keccak256(fromState) == state.proof,
+      keccak256(appState) == state.appStateHash,
       "Invalid state submitted"
     );
 
@@ -318,34 +318,34 @@ contract StateChannel {
       "Tried to resolve dispute with non-agreed upon app"
     );
 
-    address turnTaker = getAppTurnTaker(app, fromState);
+    address turnTaker = getAppTurnTaker(app, appState);
 
     require(
       turnTaker == actionSignature.recoverKey(keccak256(action), 0),
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newState = executeAppReducer(app, fromState, action);
+    bytes memory newAppState = executeAppReducer(app, appState, action);
 
-    state.proof = keccak256(newState);
+    state.appStateHash = keccak256(newAppState);
     state.disputeNonce += 1;
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newState));
+      require(isAppStateTerminal(app, newAppState));
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 
-      emit DisputeFinalized(msg.sender, newState);
+      emit DisputeFinalized(msg.sender, newAppState);
     } else {
       state.status = Status.DISPUTE;
       state.finalizesAt = block.number + defaultTimeout;
 
       emit DisputeProgressed(
         msg.sender,
-        fromState,
+        appState,
         action,
-        newState,
+        newAppState,
         state.disputeNonce,
         block.number + defaultTimeout
       );
@@ -361,7 +361,7 @@ contract StateChannel {
     onlyWhenChannelDispute
   {
     bytes32 stateHash = computeStateHash(
-      state.proof,
+      state.appStateHash,
       state.nonce,
       defaultTimeout
     );
@@ -389,7 +389,7 @@ contract StateChannel {
     onlyWhenChannelClosed
   {
     require(
-      keccak256(finalState) == state.proof,
+      keccak256(finalState) == state.appStateHash,
       "Tried to set resolution with incorrect final state"
     );
 

@@ -244,11 +244,11 @@ contract("CountingApp", (accounts: string[]) => {
       const onchain = await stateChannel.functions.state();
 
       const expectedState = { ...exampleState, count: 1, turnNum: 1 };
-      const expectedProof = keccak256(encode(gameEncoding, expectedState));
+      const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
       const expectedFinalizeBlock = (await provider.getBlockNumber()) + 10;
 
       onchain.status.should.be.bignumber.eq(Status.DISPUTE);
-      onchain.proof.should.be.equalIgnoreCase(expectedProof);
+      onchain.appStateHash.should.be.equalIgnoreCase(expectedStateHash);
       onchain.latestSubmitter.should.be.equalIgnoreCase(accounts[0]);
       onchain.nonce.should.be.bignumber.eq(1);
       onchain.disputeNonce.should.be.bignumber.eq(0);
@@ -286,11 +286,11 @@ contract("CountingApp", (accounts: string[]) => {
       const channelState = await stateChannel.functions.state();
 
       const expectedState = { ...exampleState, count: 2, turnNum: 1 };
-      const expectedProof = keccak256(encode(gameEncoding, expectedState));
+      const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
       const expectedFinalizeBlock = await provider.getBlockNumber();
 
       channelState.status.should.be.bignumber.eq(Status.OFF);
-      channelState.proof.should.be.equalIgnoreCase(expectedProof);
+      channelState.appStateHash.should.be.equalIgnoreCase(expectedStateHash);
       channelState.latestSubmitter.should.be.equalIgnoreCase(accounts[0]);
       channelState.nonce.should.be.bignumber.eq(1);
       channelState.disputeNonce.should.be.bignumber.eq(0);
