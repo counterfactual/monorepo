@@ -6,7 +6,18 @@ import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
 import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 
 
+/// @title StateChannel - A generalized state channel application contract
+/// @author Liam Horne - <liam@l4v.io>
+/// @notice Supports the adjudication and timeout guarantees required by state channel
+/// applications to be secure in a gas and storage-optimized manner. Includes the the
+/// expectation of resolving to a `Transfer.Details` generic resolution type when the
+/// channel is closed.
 contract StateChannel {
+
+  using Transfer for Transfer.Details;
+  using StaticCall for address;
+  using Signatures for bytes;
+
   event DisputeStarted(
     address sender,
     uint256 disputeCounter,
@@ -32,10 +43,6 @@ contract StateChannel {
   event DisputeCancelled(
     address sender
   );
-
-  using Transfer for Transfer.Details;
-  using StaticCall for address;
-  using Signatures for bytes;
 
   enum Status {
     ON,
@@ -76,7 +83,7 @@ contract StateChannel {
 
   modifier onlyWhenChannelOpen() {
     require(
-      !isSettled(state),
+      !isStateFinal(state),
       "State has already been settled"
     );
     _;
@@ -91,10 +98,16 @@ contract StateChannel {
   }
 
   modifier onlyWhenChannelClosed() {
-    require(isSettled(state), "State is still unsettled");
+    require(isStateFinal(state), "State is still unsettled");
     _;
   }
 
+  /// @notice Contract constructor
+  /// @param owner A unique owner with unilateral ability to update state
+  /// @param signingKeys An array of unique keys that can be used unanimously to set state
+  /// @param app The hash of an application's interface
+  /// @param terms The hash of a `Transfer.Terms` object commiting to the terms of the app
+  /// @param timeout An integer representing the default timeout in the case of dispute
   constructor(
     address owner,
     address[] signingKeys,
@@ -109,26 +122,42 @@ contract StateChannel {
     defaultTimeout = timeout;
   }
 
+  /// @notice A getter function for the owner of the state channel
+  /// @return The address of the `owner`
   function getOwner() external view returns (address) {
     return auth.owner;
   }
 
+  /// @notice A getter function for the signing keys of the state channel
+  /// @return The addresses of the `signingKeys`
   function getSigningKeys() external view returns (address[]) {
     return auth.signingKeys;
   }
 
+  /// @notice A getter function for the latest agreed nonce of the state channel
+  /// @return The uint value of the latest agreed nonce
   function latestNonce() external view returns (uint256) {
     return state.nonce;
   }
 
+  /// @notice A helper method to determine whether or not the channel is closed
+  /// @return A boolean representing whether or not the state channel is closed
   function isClosed() external view returns (bool) {
-    return isSettled(state);
+    return isStateFinal(state);
   }
 
+  /// @notice A getter function for the resolution if one is set
+  /// @return A `Transfer.Details` object representing the resolution of the channel
   function getResolution() public view returns (Transfer.Details) {
     return resolution;
   }
 
+  /// @notice The primary method for setting the latest signed state of a state channel app.
+  /// @param stateHash The hash of the agreed upon state
+  /// @param nonce The nonce of the agreed upon state
+  /// @param timeout A dynamic timeout value representing the timeout for this state
+  /// @param signatures A sorted bytes string of concatenated signatures of each signingKey
+  /// @dev Note this function is only callable when the state channel is in an ON state.
   function setState(
     bytes32 stateHash,
     uint256 nonce,
@@ -168,20 +197,20 @@ contract StateChannel {
     state.latestSubmitter = msg.sender;
   }
 
-  function _checkAppStateFinalized(
-    App app,
-    bytes appState
-  )
-    private
-  {
-    // This call will fail if app doesn't have an `isStateFinal` method
-    bool stateIsFinal = app.addr.staticcall_as_bool(
-      abi.encodePacked(app.isStateFinal, appState)
-    );
-
-    require(stateIsFinal, "App state must be final");
-  }
-
+  /// @notice The primary method for creating disputes pertaining to the latest signed
+  /// state of a state channel app and a unilateral action that can be taken to update it.
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param checkpoint The ABI encoded version of the applications state
+  /// @param nonce The nonce of the agreed upon state
+  /// @param timeout A dynamic timeout value representing the timeout for this state
+  /// @param action The ABI encoded version of the action the submitter wishes to take
+  /// @param checkpointSignatures A sorted bytes string of concatenated signatures on the
+  /// `checkpoint` state, signed by all `signingKeys`
+  /// @param actionSignature A bytes string of a single signature by the address of the
+  /// signing key for which it is their turn to take the submitted `action`
+  /// @param claimFinal A boolean representing a claim by the caller that the action
+  /// progresses the state of the application to a terminal / finalized state
+  /// @dev Note this function is only callable when the state channel is in an ON state
   function createDispute(
     App app,
     bytes checkpoint,
@@ -190,7 +219,7 @@ contract StateChannel {
     bytes action,
     bytes checkpointSignatures,
     bytes actionSignature,
-    bool finalize
+    bool claimFinal
   )
     public
     onlyWhenChannelOpen
@@ -209,10 +238,8 @@ contract StateChannel {
       "Invalid signatures"
     );
 
-    uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, checkpoint)
-    );
-    address turnTaker = auth.signingKeys[idx];
+    address turnTaker = getAppTurnTaker(app, checkpoint);
+
     bytes32 actionHash = computeActionHash(
       turnTaker,
       keccak256(checkpoint),
@@ -225,11 +252,15 @@ contract StateChannel {
       "Action must have been signed by correct turn taker"
     );
 
-    emit DisputeStarted(msg.sender, state.disputeCounter + 1, appStateHash, nonce, block.number + timeout);
-
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, checkpoint, action)
+    emit DisputeStarted(
+      msg.sender,
+      state.disputeCounter + 1,
+      appStateHash,
+      nonce,
+      block.number + timeout
     );
+
+    bytes memory newState = executeAppReducer(app, checkpoint, action);
 
     state.proof = keccak256(newState);
     state.nonce = nonce;
@@ -237,24 +268,42 @@ contract StateChannel {
     state.disputeCounter += 1;
     state.latestSubmitter = msg.sender;
 
-    if (finalize) {
-      _checkAppStateFinalized(app, newState);
+    if (claimFinal) {
+      require(isAppStateTerminal(app, newState));
       state.finalizesAt = block.number;
       state.status = Status.OFF;
+
       emit DisputeFinalized(msg.sender, newState);
     } else {
       state.finalizesAt = block.number + timeout;
       state.status = Status.DISPUTE;
-      emit DisputeProgressed(msg.sender, checkpoint, action, newState, state.disputeNonce, block.number + timeout);
+
+      emit DisputeProgressed(
+        msg.sender,
+        checkpoint,
+        action,
+        newState,
+        state.disputeNonce,
+        block.number + timeout
+      );
     }
   }
 
+  /// @notice The primary method for responding to a dispute with a valid action
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param fromState The ABI encoded version of the latest signed application state
+  /// @param action The ABI encoded version of the action the submitter wishes to take
+  /// @param actionSignature A bytes string of a single signature by the address of the
+  /// signing key for which it is their turn to take the submitted `action`
+  /// @param claimFinal A boolean representing a claim by the caller that the action
+  /// progresses the state of the application to a terminal / finalized state
+  /// @dev Note this function is only callable when the state channel is in a DISPUTE state
   function progressDispute(
     App app,
     bytes fromState,
     bytes action,
-    bytes signatures,
-    bool finalize
+    bytes actionSignature,
+    bool claimFinal
   )
     public
     onlyWhenChannelDispute
@@ -269,37 +318,45 @@ contract StateChannel {
       "Tried to resolve dispute with non-agreed upon app"
     );
 
-    uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, fromState)
-    );
+    address turnTaker = getAppTurnTaker(app, fromState);
 
     require(
-      auth.signingKeys[idx] == signatures.recoverKey(keccak256(action), 0),
+      turnTaker == actionSignature.recoverKey(keccak256(action), 0),
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, fromState, action)
-    );
+    bytes memory newState = executeAppReducer(app, fromState, action);
 
     state.proof = keccak256(newState);
     state.disputeNonce += 1;
     state.latestSubmitter = msg.sender;
-    if (finalize) {
-      _checkAppStateFinalized(app, newState);
+
+    if (claimFinal) {
+      require(isAppStateTerminal(app, newState));
       state.finalizesAt = block.number;
       state.status = Status.OFF;
+
       emit DisputeFinalized(msg.sender, newState);
     } else {
       state.status = Status.DISPUTE;
       state.finalizesAt = block.number + defaultTimeout;
-      emit DisputeProgressed(msg.sender, fromState, action, newState, state.disputeNonce, block.number + defaultTimeout);
+
+      emit DisputeProgressed(
+        msg.sender,
+        fromState,
+        action,
+        newState,
+        state.disputeNonce,
+        block.number + defaultTimeout
+      );
     }
   }
 
-  function cancelDispute(
-    bytes signatures
-  )
+  /// @notice The primary method for unanimously agreeing to cancel a dispute
+  /// @param signatures Signatures by all signing keys of the currently latest disputed
+  /// state; an indication of agreement of this state and valid to cancel a dispute
+  /// @dev Note this function is only callable when the state channel is in a DISPUTE state
+  function cancelDispute(bytes signatures)
     public
     onlyWhenChannelDispute
   {
@@ -318,14 +375,16 @@ contract StateChannel {
     state.finalizesAt = 0;
     state.status = Status.ON;
     state.latestSubmitter = msg.sender;
+
     emit DisputeCancelled(msg.sender);
   }
 
-  function setResolution(
-    App app,
-    bytes finalState,
-    bytes terms
-  )
+  /// @notice A method to fetch and store the resolution of a state channel application
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param finalState The ABI encoded version of the finalized application state
+  /// @param terms The ABI encoded version of the already agreed upon terms
+  /// @dev Note this function is only callable when the state channel is in an OFF state
+  function setResolution(App app, bytes finalState, bytes terms)
     public
     onlyWhenChannelClosed
   {
@@ -344,12 +403,14 @@ contract StateChannel {
       "Tried to set resolution with non-agreed upon app"
     );
 
-    resolution = app.addr.staticcall_as_TransferDetails(
-      abi.encodePacked(app.resolver, finalState, terms)
-    );
+    resolution = getAppResolution(app, finalState, terms);
   }
 
-  function isSettled(State s) public view returns (bool) {
+  /// @notice A helper method to check if the state of the channel is final or not by
+  /// doing a check on the submitted state and referencing the current block number
+  /// @param s A state wrapper struct including the status and finalization time
+  /// @return A boolean indicating if the state is final or not
+  function isStateFinal(State s) public view returns (bool) {
     if (s.status == Status.ON) {
       return false;
     } else if (s.status == Status.DISPUTE) {
@@ -359,11 +420,67 @@ contract StateChannel {
     }
   }
 
-  function computeStateHash(
-    bytes32 stateHash,
-    uint256 nonce,
-    uint256 timeout
-  )
+  /// @notice A helper method to check if the state of an application is terminal or not
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @return A boolean indicating if the application state is terminal or not
+  function isAppStateTerminal(App app, bytes appState) private returns (bool) {
+    return app.addr.staticcall_as_bool(
+      abi.encodePacked(app.isStateFinal, appState)
+    );
+  }
+
+  /// @notice A helper method to get the turn taker for an app
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @return An address representing the turn taker in the `signingKeys`
+  function getAppTurnTaker(App app, bytes appState) private returns (address) {
+    uint256 idx = app.addr.staticcall_as_uint256(
+      abi.encodePacked(app.turnTaker, appState)
+    );
+
+    require(
+      auth.signingKeys[idx] != address(0),
+      "Application returned invalid turn taker index"
+    );
+
+    return auth.signingKeys[idx];
+  }
+
+  /// @notice Execute the application's reducer function to compute new state
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @param action The ABI encoded version of some application action
+  /// @return A bytes array of the ABI encoded newly computed application state
+  function executeAppReducer(App app, bytes appState, bytes action)
+    private
+    returns (bytes)
+  {
+    return app.addr.staticcall_as_bytes(
+      abi.encodePacked(app.reducer, appState, action)
+    );
+  }
+
+  /// @notice Execute the application's resolver function to compute a resolution
+  /// @param app An `App` struct including all information relevant to interface with an app
+  /// @param appState The ABI encoded version of some application state
+  /// @param terms The ABI encoded version of the transfer terms
+  /// @return A `Transfer.Details` struct with all encoded information of the resolution
+  function getAppResolution(App app, bytes appState, bytes terms)
+    private
+    returns (Transfer.Details)
+  {
+    return app.addr.staticcall_as_TransferDetails(
+      abi.encodePacked(app.resolver, appState, terms)
+    );
+  }
+
+  /// @notice Computes a unique hash for a state of this state channel and application
+  /// @param stateHash The hash of a state to be signed
+  /// @param nonce The nonce corresponding to the version of the state
+  /// @param timeout A dynamic timeout value representing the timeout for this state
+  /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
+  function computeStateHash(bytes32 stateHash, uint256 nonce, uint256 timeout)
     internal
     view
     returns (bytes32)
@@ -379,6 +496,14 @@ contract StateChannel {
     );
   }
 
+  /// @notice Computes a unique hash for an action used in this channel application
+  /// @param turnTaker The address of the user taking the action
+  /// @param previousState The hash of a state this action is being taken on
+  /// @param action The ABI encoded version of the action being taken
+  /// @param setStateNonce The nonce of the state this action is being taken on
+  /// @param disputeNonce A nonce corresponding to how many actions have been taken on the
+  /// state since a new state has been unanimously agreed upon by all signing keys.
+  /// @return A bytes32 hash of the arguments
   function computeActionHash(
     address turnTaker,
     bytes32 previousState,

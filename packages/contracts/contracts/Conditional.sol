@@ -4,6 +4,11 @@ pragma experimental "ABIEncoderV2";
 import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
 
 
+/// @title Conditional - A wrapper to verify if abstract conditions are true
+/// @author Liam Horne - <liam@l4v.io>
+/// @notice This contracts purpose is to make it easy for to define and verify the
+/// resolution of an abstract blockchain condition. A condition may be represented as
+/// a successful function call or as an equality check on a function calls return value.
 contract Conditional {
 
   using StaticCall for address;
@@ -16,6 +21,9 @@ contract Conditional {
     bool onlyCheckForSuccess;
   }
 
+  /// @notice Checks if a Condition is satisfied.
+  /// @param condition A `Condition` struct
+  /// @return A boolean indicating whether or not the condition is satisfied
   function isSatisfied(Condition memory condition)
     public
     view
@@ -28,6 +36,9 @@ contract Conditional {
     }
   }
 
+  /// @notice Checks if the defined function call in a Condition fails or not.
+  /// @param condition A `Condition` struct
+  /// @return A boolean indicating whether or not the function call passed or failed.
   function assertNotFails(Condition condition)
     private
     returns (bool)
@@ -41,6 +52,9 @@ contract Conditional {
     return true; // TODO: Need better way of cheaply checking
   }
 
+  /// @notice Verifies the expected return value of a Condition
+  /// @param condition A `Condition` struct
+  /// @return A boolean verifying if the function call returned the expected result
   function assertReturnsExpectedResult(Condition condition)
     private
     returns (bool)
