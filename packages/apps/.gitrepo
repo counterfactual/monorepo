@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/counterfactual/apps.git
+	branch = master
+	commit = 3204c62441865e0d347ba0a0f571d06dd28cc0c3
+	parent = 9a35b6d9bd8997925c95bb162acdbf3efeca2202
+	cmdver = 0.3.1
