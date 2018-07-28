@@ -86,7 +86,8 @@ contract GuessNumber {
 
       bytes32 salt = action.hash;
       uint256 chosenNumber = action.number;
-      if (keccak256(salt, chosenNumber) == state.commitHash &&
+      if (
+        keccak256(abi.encodePacked(salt, chosenNumber)) == state.commitHash &&
         state.guessedNumber != chosenNumber &&
         chosenNumber < state.maximum) {
         nextState.winner = state.players[state.choosingPlayer];

@@ -54,7 +54,7 @@ contract("StateChannel", (accounts: string[]) => {
   let sendSignedFinalizationToChain: () => Promise<any>;
 
   const latestState = async () => {
-    return (await stateChannel.functions.state()).proof;
+    return (await stateChannel.functions.state()).appStateHash;
   };
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
@@ -197,7 +197,7 @@ contract("StateChannel", (accounts: string[]) => {
         await latestState(),
         await latestNonce(),
         0,
-        "0x",
+        Utils.zeroBytes32,
         Utils.highGasLimit
       );
       true.should.be.equal(await stateChannel.functions.isClosed());
