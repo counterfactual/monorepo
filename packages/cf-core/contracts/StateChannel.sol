@@ -58,7 +58,7 @@ contract StateChannel {
 
   struct State {
     Status status;
-    bytes32 proof;
+    bytes32 appStateHash;
     address latestSubmitter;
     uint256 nonce;
     uint256 disputeNonce;
@@ -130,7 +130,7 @@ contract StateChannel {
   }
 
   function setState(
-    bytes32 stateHash,
+    bytes32 appStateHash,
     uint256 nonce,
     uint256 timeout,
     bytes signatures
@@ -139,7 +139,7 @@ contract StateChannel {
     onlyWhenChannelOpen
   {
     if (msg.sender != auth.owner) {
-      bytes32 h = computeStateHash(stateHash, nonce, timeout);
+      bytes32 h = computeStateHash(appStateHash, nonce, timeout);
       require(
         signatures.verifySignatures(h, auth.signingKeys),
         "Invalid signatures"
@@ -160,7 +160,7 @@ contract StateChannel {
       state.status = Status.OFF;
     }
 
-    state.proof = stateHash;
+    state.appStateHash = appStateHash;
     state.nonce = nonce;
     state.disputeNonce = 0;
     state.finalizesAt = block.number + timeout;
@@ -184,11 +184,11 @@ contract StateChannel {
 
   function createDispute(
     App app,
-    bytes checkpoint,
+    bytes appState,
     uint256 nonce,
     uint256 timeout,
     bytes action,
-    bytes checkpointSignatures,
+    bytes appStateSignatures,
     bytes actionSignature,
     bool finalize
   )
@@ -200,9 +200,9 @@ contract StateChannel {
       "Tried to create dispute with outdated state"
     );
 
-    bytes32 appStateHash = keccak256(checkpoint);
+    bytes32 appStateHash = keccak256(appState);
     require(
-      checkpointSignatures.verifySignatures(
+      appStateSignatures.verifySignatures(
         computeStateHash(appStateHash, nonce, timeout),
         auth.signingKeys
       ),
@@ -210,12 +210,12 @@ contract StateChannel {
     );
 
     uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, checkpoint)
+      abi.encodePacked(app.turnTaker, appState)
     );
     address turnTaker = auth.signingKeys[idx];
     bytes32 actionHash = computeActionHash(
       turnTaker,
-      keccak256(checkpoint),
+      keccak256(appState),
       action,
       state.nonce,
       state.disputeNonce
@@ -227,24 +227,24 @@ contract StateChannel {
 
     emit DisputeStarted(msg.sender, state.disputeCounter + 1, appStateHash, nonce, block.number + timeout);
 
-    bytes memory newState = app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, checkpoint, action)
+    bytes memory newAppState = app.addr.staticcall_as_bytes(
+      abi.encodePacked(app.reducer, appState, action)
     );
 
-    state.proof = keccak256(newState);
+    state.appStateHash = keccak256(newAppState);
     state.nonce = nonce;
     state.disputeNonce = 0;
     state.disputeCounter += 1;
     state.latestSubmitter = msg.sender;
     if (finalize) {
-      _checkAppStateFinalized(app, newState);
+      _checkAppStateFinalized(app, newAppState);
       state.finalizesAt = block.number;
       state.status = Status.OFF;
-      emit DisputeFinalized(msg.sender, newState);
+      emit DisputeFinalized(msg.sender, newAppState);
     } else {
       state.finalizesAt = block.number + timeout;
       state.status = Status.DISPUTE;
-      emit DisputeProgressed(msg.sender, checkpoint, action, newState, state.disputeNonce, block.number + timeout);
+      emit DisputeProgressed(msg.sender, appState, action, newAppState, state.disputeNonce, block.number + timeout);
     }
   }
 
@@ -259,7 +259,7 @@ contract StateChannel {
     onlyWhenChannelDispute
   {
     require(
-      keccak256(fromState) == state.proof,
+      keccak256(fromState) == state.appStateHash,
       "Invalid state submitted"
     );
 
@@ -277,22 +277,22 @@ contract StateChannel {
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newState = app.addr.staticcall_as_bytes(
+    bytes memory newAppState = app.addr.staticcall_as_bytes(
       abi.encodePacked(app.reducer, fromState, action)
     );
 
-    state.proof = keccak256(newState);
+    state.appStateHash = keccak256(newAppState);
     state.disputeNonce += 1;
     state.latestSubmitter = msg.sender;
     if (finalize) {
-      _checkAppStateFinalized(app, newState);
+      _checkAppStateFinalized(app, newAppState);
       state.finalizesAt = block.number;
       state.status = Status.OFF;
-      emit DisputeFinalized(msg.sender, newState);
+      emit DisputeFinalized(msg.sender, newAppState);
     } else {
       state.status = Status.DISPUTE;
       state.finalizesAt = block.number + defaultTimeout;
-      emit DisputeProgressed(msg.sender, fromState, action, newState, state.disputeNonce, block.number + defaultTimeout);
+      emit DisputeProgressed(msg.sender, fromState, action, newAppState, state.disputeNonce, block.number + defaultTimeout);
     }
   }
 
@@ -303,7 +303,7 @@ contract StateChannel {
     onlyWhenChannelDispute
   {
     bytes32 stateHash = computeStateHash(
-      state.proof,
+      state.appStateHash,
       state.nonce,
       defaultTimeout
     );
@@ -329,7 +329,7 @@ contract StateChannel {
     onlyWhenChannelClosed
   {
     require(
-      keccak256(finalState) == state.proof,
+      keccak256(finalState) == state.appStateHash,
       "Tried to set resolution with incorrect final state"
     );
 
