@@ -11,10 +11,12 @@ contract Registry {
 
   mapping(bytes32 => address) public resolver;
 
-  /// @notice Compute the deterministic counterfactual address of initcode and some salt
-  /// @param initcode Contract bytecode concatenated with ABI encoded constructor arguments
-  /// @param salt Unique salt that is applied to add entropy to the contract
-  /// @return A deterministic "counterfactual address"
+  /// @notice Compute the deterministic counterfactual address of the given initcode and salt.
+  /// @param initcode EVM code for contract initialization. Typically this is the contract
+  /// constructor bytecode concatenated with ABI encoded constructor arguments.
+  /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
+  /// @return A deterministic "counterfactual address". This depends on the initcode,
+  /// msg.sender and salt, but importantly does NOT depend on the sending account's account nonce.
   function cfaddress(bytes initcode, uint256 salt)
     public
     pure
@@ -25,7 +27,7 @@ contract Registry {
 
   /// @notice Deploy a contract and add a mapping from counterfactual address to deployed address to storage
   /// @param initcode Contract bytecode concatenated with ABI encoded constructor arguments
-  /// @param salt Unique salt that is applied to add entropy to the contract
+  /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
   function deploy(bytes initcode, uint256 salt) public {
     address deployed;
     bytes32 ptr = cfaddress(initcode, salt);

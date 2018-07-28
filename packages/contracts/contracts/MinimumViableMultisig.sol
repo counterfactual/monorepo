@@ -42,11 +42,14 @@ contract MinimumViableMultisig {
     }
   }
 
-  /// @notice Executes an n-of-n signed transaction defined as a (to, value, data, op) tuple
-  /// @param to The address the transaction is addressed to
-  /// @param value The amount of ETH being sent in the transaction
-  /// @param data Any calldata being sent along with the transaction
-  /// @param operation An `Operation` referring to the use of `CALL` or `DELEGATECALL`
+  /// @notice Execute an n-of-n signed transaction specified by a (to, value, data, op) tuple
+  /// This transaction is a message call, i.e., either a CALL or a DELEGATECALL,
+  /// depending on the value of `op`. The arguments `to`, `value`, `data` are passed
+  /// as arguments to the CALL/DELEGATECALL.
+  /// @param to The destination address of the message call
+  /// @param value The amount of ETH being forwarded in the message call
+  /// @param data Any calldata being sent along with the message call
+  /// @param operation Specifies whether the message call is a `CALL` or a `DELEGATECALL`
   /// @param signatures A sorted bytes string of concatenated signatures of each owner
   function execTransaction(
     address to,
@@ -69,7 +72,7 @@ contract MinimumViableMultisig {
     isExecuted[transactionHash] = true;
   }
 
-  /// @notice Computes a unique transaction hash for a particular (to, value, data, op) tuple
+  /// @notice Compute a unique transaction hash for a particular (to, value, data, op) tuple
   /// @param to The address the transaction is addressed to
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
@@ -98,7 +101,7 @@ contract MinimumViableMultisig {
     return _owners;
   }
 
-  /// @notice Executes a transaction on behalf of the multisignature wallet
+  /// @notice Execute a transaction on behalf of the multisignature wallet
   /// @param to The address the transaction is addressed to
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
@@ -112,7 +115,7 @@ contract MinimumViableMultisig {
       require(executeDelegateCall(to, data));
   }
 
-  /// @notice Executes a CALL on behalf of the multisignature wallet
+  /// @notice Execute a CALL on behalf of the multisignature wallet
   /// @param to The address the transaction is addressed to
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
@@ -125,7 +128,7 @@ contract MinimumViableMultisig {
       success := call(not(0), to, value, add(data, 0x20), mload(data), 0, 0)
     }
   }
-  /// @notice Executes a DELEGATECALL on behalf of the multisignature wallet
+  /// @notice Execute a DELEGATECALL on behalf of the multisignature wallet
   /// @param to The address the transaction is addressed to
   /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
