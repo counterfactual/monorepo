@@ -1,7 +1,11 @@
-import { FreeBalance, NetworkContext } from "../types";
+import { NetworkContext } from "../types";
 import * as ethers from "ethers";
 
 import * as cfOp from "./cf-operation";
+import {
+	Proxy as ProxyContract,
+	zeroAddress
+} from "./contracts-layer-constants";
 
 const TIMEOUT = 100;
 
@@ -22,7 +26,7 @@ export class CfOpSetup {
 		const nonceStateUpdate = new cfOp.CfAppUpdateAsOwner(
 			multisig,
 			nonce,
-			ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1]),
+			ethers.utils.defaultAbiCoder.encode(["uint256"], [1]),
 			1
 		);
 
@@ -60,7 +64,7 @@ export class CfOpSetup {
 							"0xb5d78d8c"
 						),
 						"0x",
-						ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1])
+						ethers.utils.defaultAbiCoder.encode(["uint256"], [1])
 					)
 				],
 				new cfOp.Address(networkContext.RegistryAddress, freeBalanceETH),
@@ -85,19 +89,22 @@ function generateNonceCfAddress(
 	owners: string[],
 	networkContext: NetworkContext
 ) {
-	const initcode = ethers.Contract.getDeployTransaction(
-		networkContext.WithdrawAppBytecode,
-		[]
-	).data;
-	const calldata = new ethers.Interface([
-		"instantiate(address,address[],address,uint256,uint256)"
-	]).functions.instantiate(
-		multisig,
-		owners,
-		networkContext.RegistryAddress,
-		uniqueId,
-		TIMEOUT
-	).data;
+	// FIXME: the abi and bytecode are placeholders here
+	const initcode = new ethers.Interface(
+		ProxyContract.abi
+	).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
+
+	// FIXME: need to get call data to contract to ensure unique hash
+	//const calldata = new ethers.Interface([
+	//	"instantiate(address,address[],address,uint256,uint256)"
+	//]).functions.instantiate.encode(
+	//	multisig,
+	//	owners,
+	//	networkContext.RegistryAddress,
+	//	uniqueId,
+	//	TIMEOUT
+	//);
+	const calldata = zeroAddress; // arbitrary string
 
 	return ethers.utils.solidityKeccak256(
 		["bytes1", "bytes", "bytes32"],
@@ -111,20 +118,22 @@ function generateFreeBalanceCfAddress(
 	owners: string[],
 	networkContext: NetworkContext
 ) {
-	const initcode = ethers.Contract.getDeployTransaction(
-		networkContext.WithdrawAppBytecode,
-		[]
-	).data;
+	// FIXME: the abi and bytecode are placeholders here
+	const initcode = new ethers.Interface(
+		ProxyContract.abi
+	).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
 
-	const calldata = new ethers.Interface([
-		"instantiate(address,address[],address,uint256,uint256)"
-	]).functions.instantiate(
-		multisigAddress,
-		owners,
-		networkContext.RegistryAddress,
-		uniqueId,
-		TIMEOUT
-	).data;
+	// FIXME: need to get call data to contract to ensure unique hash
+	//const calldata = new ethers.Interface([
+	//	"instantiate(address,address[],address,uint256,uint256)"
+	//]).functions.instantiate(
+	//	multisigAddress,
+	//	owners,
+	//	networkContext.RegistryAddress,
+	//	uniqueId,
+	//	TIMEOUT
+	//).data;
+	const calldata = zeroAddress; // arbitrary string
 
 	return ethers.utils.solidityKeccak256(
 		["bytes1", "bytes", "bytes32"],

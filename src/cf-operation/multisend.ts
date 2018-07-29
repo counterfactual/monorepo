@@ -9,7 +9,7 @@ export class MultiSend {
 	public getTransaction(): MultisigTransaction {
 		let txs: string = "0x";
 		for (let i = 0; i < this.transactions.length; i++) {
-			txs += ethers.utils.AbiCoder.defaultCoder
+			txs += ethers.utils.defaultAbiCoder
 				.encode(
 					["tuple(uint256,address,uint256,bytes)"],
 					[

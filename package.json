@@ -2,22 +2,21 @@
 	"name": "counterfactual-machine",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/machine.js",
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"test": "./node_modules/.bin/tsc &&  ./node_modules/.bin/jest",
-		"test-debug": "./node_modules/.bin/tsc && node --inspect-brk ./node_modules/.bin/jest --runInBand  --detectOpenHandles --forceExit",
-		"build": "./node_modules/.bin/tsc && ./scripts/rollup.sh",
-		"coverage": "./node_modules/.bin/jest --coverage",
-		"lint": "./node_modules/.bin/tslint -c tslint.json -p tsconfig.json",
-		"prettier": "./node_modules/.bin/prettier -l 'src/*/**'",
-		"prettier-run": "./node_modules/.bin/prettier --write 'src/*/**'"
+		"test": "tsc &&  jest",
+		"test-debug": "tsc && node --inspect-brk jest --runInBand  --detectOpenHandles --forceExit",
+		"build": "tsc",
+		"coverage": "jest --coverage",
+		"lint": "tslint -c tslint.json -p tsconfig.json",
+		"prettier": "prettier -l 'src/*/**'",
+		"prettier-run": "prettier --write 'src/*/**'"
 	},
 	"devDependencies": {
 		"@types/jest": "^23.1.1",
 		"coveralls": "^3.0.1",
-		"ethers": "^3.0.24",
 		"jest": "^23.1.0",
 		"prettier": "1.13.5",
 		"rollup": "^0.60.0",
@@ -25,10 +24,12 @@
 		"rollup-plugin-node-resolve": "^3.3.0",
 		"ts-jest": "^22.4.6",
 		"ts-node": "^6.1.2",
-		"tsc": "^1.20150623.0",
 		"tslint": "^5.10.0",
 		"tslint-config-prettier": "^1.13.0",
 		"typescript": "^2.9.2"
+	},
+	"dependencies": {
+		"ethers": "ethers-io/ethers.js\/typescript"
 	},
 	"jest": {
 		"transform": {

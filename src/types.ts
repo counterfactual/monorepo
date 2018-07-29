@@ -199,7 +199,7 @@ export class CfApp {
 
 export class Signature {
 	// todo: fix types
-	constructor(readonly v: Number, readonly r: string, readonly s: string) {}
+	constructor(readonly v: number, readonly r: string, readonly s: string) {}
 
 	public toString(): string {
 		return (
