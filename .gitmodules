@@ -1,3 +1,0 @@
-[submodule "counterfactual-contracts"]
-	path = counterfactual-contracts
-	url = git@github.com:counterfactual/counterfactual-contracts.git
