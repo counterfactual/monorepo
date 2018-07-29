@@ -66,15 +66,15 @@ export class CfOpInstall {
 			[freeBalance.peerA, freeBalance.peerB],
 			app.peerAmounts
 		);
-		const freeBalanceState = ethers.utils.AbiCoder.defaultCoder.encode(
+		const freeBalanceState = ethers.utils.defaultAbiCoder.encode(
 			["tuple(tuple(address,bytes32),uint256)[]"],
 			[
 				[
 					[
 						[
 							zeroAddress,
-							ethers.utils.AbiCoder.defaultCoder.encode(
-								["bytes32"],
+							ethers.utils.defaultAbiCoder.encode(
+								["address"],
 								[newBals[0].address]
 							)
 						],
@@ -83,8 +83,8 @@ export class CfOpInstall {
 					[
 						[
 							zeroAddress,
-							ethers.utils.AbiCoder.defaultCoder.encode(
-								["bytes32"],
+							ethers.utils.defaultAbiCoder.encode(
+								["address"],
 								[newBals[1].address]
 							)
 						],
@@ -155,21 +155,22 @@ export class CfOpInstall {
 		uniqueId: number,
 		timeout: number
 	): string {
-		const initcode = ethers.Contract.getDeployTransaction(
-			ProxyContract.bytecode,
-			ProxyContract.abi,
-			ctx["CounterfactualAppAddress"]
-		).data;
+		// FIXME: the abi and bytecode are placeholders here
+		const initcode = new ethers.Interface(
+			ProxyContract.abi
+		).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
 
-		const calldata = new ethers.Interface([
-			"instantiate(address,address[],address,uint256,uint256)"
-		]).functions.instantiate(
-			multisig,
-			appKeys,
-			ctx["RegistryAddress"],
-			uniqueId,
-			timeout
-		).data;
+		// FIXME: need to get call data to contract to ensure unique hash
+		//const calldata = new ethers.Interface([
+		//	"instantiate(address,address[],address,uint256,uint256)"
+		//]).functions.instantiate(
+		//	multisig,
+		//	appKeys,
+		//	ctx["RegistryAddress"],
+		//	uniqueId,
+		//	timeout
+		//).data;
+		const calldata = zeroAddress; // arbitrary string
 
 		return ethers.utils.solidityKeccak256(
 			["bytes1", "bytes", "bytes32"],
@@ -183,9 +184,8 @@ export class CfOpInstall {
 		channelKeys: Array<string>,
 		appCfAddr: string
 	): Condition {
-		let nonceUniqueId = ethers.utils.solidityKeccak256(
-			["bytes32"],
-			[appCfAddr]
+		let nonceUniqueId = Number(
+			ethers.utils.solidityKeccak256(["bytes32"], [appCfAddr])
 		);
 		let nonceCfAddr = CfOpInstall.cfAddress(
 			ctx,
@@ -201,7 +201,7 @@ export class CfOpInstall {
 				GET_STATE_SIGHASH
 			),
 			"0x",
-			ethers.utils.AbiCoder.defaultCoder.encode(["uint256"], [1])
+			ethers.utils.defaultAbiCoder.encode(["uint256"], [1])
 		);
 	}
 

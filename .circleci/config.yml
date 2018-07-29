@@ -15,7 +15,8 @@ jobs:
             - node_modules
 
   run-node-tests:
-    machine: true
+    docker:
+      - image: circleci/node:9.11
     steps:
       - checkout
       - restore_cache:
