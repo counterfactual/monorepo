@@ -13,9 +13,10 @@ import {
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
 import { CounterfactualVM, InternalMessage } from "./vm";
 import { Instructions, AckInstructions } from "./instructions";
-// @igor this breaks on node 10.0
-(Symbol as any).asyncIterator =
-	Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
+
+if (!Symbol.asyncIterator) {
+    (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator")
+}
 
 export class Action {
 	name: string;

@@ -70,7 +70,7 @@ export class CfOpUninstall {
 		);
 
 		let newNonce = app.rootNonce + 1;
-		const nonceState = ethers.utils.AbiCoder.defaultCoder.encode(
+		const nonceState = ethers.utils.defaultAbiCoder.encode(
 			["uint256"],
 			[newNonce]
 		);
@@ -100,15 +100,15 @@ export class CfOpUninstall {
 			[freeBalance.peerA, freeBalance.peerB],
 			peerBalances
 		);
-		const freeBalanceState = ethers.utils.AbiCoder.defaultCoder.encode(
+		const freeBalanceState = ethers.utils.defaultAbiCoder.encode(
 			["tuple(tuple(address,bytes32),uint256)[]"],
 			[
 				[
 					[
 						[
 							zeroAddress,
-							ethers.utils.AbiCoder.defaultCoder.encode(
-								["bytes32"],
+							ethers.utils.defaultAbiCoder.encode(
+								["address"],
 								[newBals[0].address]
 							)
 						],
@@ -117,8 +117,8 @@ export class CfOpUninstall {
 					[
 						[
 							zeroAddress,
-							ethers.utils.AbiCoder.defaultCoder.encode(
-								["bytes32"],
+							ethers.utils.defaultAbiCoder.encode(
+								["address"],
 								[newBals[1].address]
 							)
 						],
@@ -144,21 +144,22 @@ export class CfOpUninstall {
 		uniqueId: number,
 		timeout: number
 	): string {
-		const initcode = ethers.Contract.getDeployTransaction(
-			ProxyContract.bytecode,
-			ProxyContract.abi,
-			ctx["CounterfactualAppAddress"]
-		).data;
+		// FIXME: the abi and bytecode are placeholders here
+		const initcode = new ethers.Interface(
+			ProxyContract.abi
+		).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
 
-		const calldata = new ethers.Interface([
-			"instantiate(address,address[],address,uint256,uint256)"
-		]).functions.instantiate(
-			multisig,
-			signingKeys,
-			ctx["RegistryAddress"],
-			uniqueId,
-			timeout
-		).data;
+		// FIXME: need to get call data to contract to ensure unique hash
+		//const calldata = new ethers.Interface([
+		//	"instantiate(address,address[],address,uint256,uint256)"
+		//]).functions.instantiate(
+		//	multisig,
+		//	signingKeys,
+		//	ctx["RegistryAddress"],
+		//	uniqueId,
+		//	timeout
+		//).data;
+		const calldata = zeroAddress; // arbitrary string
 
 		return ethers.utils.solidityKeccak256(
 			["bytes1", "bytes", "bytes32"],

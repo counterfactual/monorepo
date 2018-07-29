@@ -1,17 +1,10 @@
-import { ActionExecution, Action } from "./action";
+import { Action } from "./action";
 import {
-	StateChannelInfos,
-	AppChannelInfos,
 	ChannelStates,
-	NetworkContext,
 	OpCodeResult,
 	ResponseSink,
-	AppChannelInfo,
 	StateChannelInfo,
-	ClientMessage,
-	CfApp,
-	FreeBalance,
-	PeerBalance
+	ClientMessage
 } from "./types";
 import {
 	NextMsgGenerator,
@@ -20,13 +13,7 @@ import {
 	StateDiffGenerator,
 	SignatureValidator
 } from "./middleware";
-import {
-	CfState,
-	AppChannelInfoImpl,
-	StateChannelInfoImpl,
-	Context
-} from "./state";
-import { Instructions, AckInstructions } from "instructions";
+import { CfState, Context } from "./state";
 
 export class CounterfactualVM {
 	middlewares: { method: Function; scope: string }[];
