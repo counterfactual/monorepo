@@ -1,6 +1,6 @@
 {
 	"name": "@counterfactual/machine",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "",
 	"main": "dist/machine.js",
 	"author": "",
@@ -43,6 +43,7 @@
 			"jsx",
 			"json",
 			"node"
-		]
+		],
+		"testURL": "http://localhost/"
 	}
 }

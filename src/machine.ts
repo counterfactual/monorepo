@@ -1,3 +1,3 @@
-import * as vm from "./vm";
+import * as _vm from "./vm";
 
-exports.vm = vm;
+export const vm = _vm;
