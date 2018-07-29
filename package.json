@@ -1,12 +1,12 @@
 {
-	"name": "counterfactual-machine",
+	"name": "@counterfactual/machine",
 	"version": "1.0.0",
 	"description": "",
 	"main": "dist/machine.js",
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"test": "tsc &&  jest",
+		"test": "tsc && jest",
 		"test-debug": "tsc && node --inspect-brk jest --runInBand  --detectOpenHandles --forceExit",
 		"build": "tsc",
 		"coverage": "jest --coverage",
@@ -29,7 +29,7 @@
 		"typescript": "^2.9.2"
 	},
 	"dependencies": {
-		"ethers": "ethers-io/ethers.js\/typescript"
+		"ethers": "ethers-io/ethers.js/typescript"
 	},
 	"jest": {
 		"transform": {
