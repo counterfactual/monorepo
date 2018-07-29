@@ -1,24 +1,19 @@
 {
 	"compilerOptions": {
 		"moduleResolution": "node",
-		"declaration": false,
+		"declaration": true,
 		"noImplicitAny": false,
 		"removeComments": true,
 		"noLib": false,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"target": "es6",
+		"target": "es2017",
 		"sourceMap": true,
-		"allowJs": true,
-		"outDir": "./dist",
-		"baseUrl": "./src",
+		"allowJs": false,
+		"outDir": "dist/",
+		"sourceRoot": ".",
 		"typeRoots": ["./node_modules/@types", "./node_modules/json-d-ts"]
 	},
-	"include": [
-		"src/**/*",
-		"src/*",
-		"test/**/*.ts",
-		"./node_modules/ethers/dist/types/ethers.d.ts"
-	],
+	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }
