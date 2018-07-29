@@ -1,20 +1,8 @@
 import * as ethers from "ethers";
-import {
-	CfState,
-	AppChannelInfoImpl,
-	StateChannelInfoImpl,
-	Context
-} from "./state";
+import { CfState, StateChannelInfoImpl, Context } from "./state";
 import {
 	CanonicalPeerBalance,
-	StateChannelInfos,
-	AppChannelInfos,
-	ChannelStates,
-	NetworkContext,
-	OpCodeResult,
-	ResponseSink,
 	AppChannelInfo,
-	StateChannelInfo,
 	ClientMessage,
 	CfApp,
 	FreeBalance,
@@ -84,7 +72,6 @@ export class StateDiffGenerator {
 		app.encodedState = updateData.encodedAppState;
 		app.localNonce += 1;
 
-		let chan = channels[multisig];
 		return channels;
 	}
 
@@ -96,8 +83,6 @@ export class StateDiffGenerator {
 		let multisig = message.clientMessage.multisigAddress;
 		let cfAddr = getFirstResult("generateOp", context.results).value.cfAddr;
 		let existingFreeBalance = cfState.stateChannel(multisig).freeBalance;
-		let uniqueId = 3; // todo
-		let localNonce = 1;
 		let data = message.clientMessage.data;
 		let newAppChannel: AppChannelInfo = {
 			id: cfAddr,
@@ -226,7 +211,6 @@ export class OpCodeGenerator {
 		cfState: CfState
 	): CfOperation {
 		let freeBalanceUniqueId = 2; // todo
-		let owners = [];
 		return CfOpSetup.freeBalanceInstallOp(
 			freeBalanceUniqueId,
 			message.clientMessage.multisigAddress,

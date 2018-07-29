@@ -12,19 +12,13 @@
 		"allowJs": true,
 		"outDir": "./dist",
 		"baseUrl": "./src",
-		"typeRoots": [
-			"./node_modules/@types",
-      "./node_modules/json-d-ts"
-		]
+		"typeRoots": ["./node_modules/@types", "./node_modules/json-d-ts"]
 	},
 	"include": [
 		"src/**/*",
 		"src/*",
 		"test/**/*.ts",
-		"examples/**/*.ts"
+		"./node_modules/ethers/dist/types/ethers.d.ts"
 	],
-	"exclude": [
-		"node_modules",
-		"**/*.spec.ts"
-    ]
+	"exclude": ["node_modules", "**/*.spec.ts"]
 }

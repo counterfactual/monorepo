@@ -69,7 +69,7 @@ export abstract class CfOperation {
 	public abstract getTransaction(): Transaction;
 	public abstract getTransactionForMulti(): MultisigTransaction;
 	public addSignature(address: string, signature: Signature) {
-		const signer: string = ethers.Wallet.verifyMessage(
+		const signer: string = ethers.utils.verifyMessage(
 			this.getHashToSign(),
 			signature.toString()
 		);
@@ -94,10 +94,10 @@ export class Address {
 	}
 	public async lookup(): Promise<string> {
 		if (this.registry === "") {
-			return await ethers.utils.AbiCoder.defaultCoder.encode([
-				"bytes20",
-				this.cfaddress
-			]);
+			return await ethers.utils.defaultAbiCoder.encode(
+				["bytes20"],
+				[this.cfaddress]
+			);
 		} else {
 			const registry = new ethers.Contract(
 				this.registry,
@@ -165,9 +165,11 @@ export class CFAppUpdateWithSigningKeys extends CfOperation {
 		return new Transaction(
 			REGISTRY_ADDRESS,
 			0,
+			// @ts-ignore
 			new ethers.Interface([Interfaces.ProxyCall]).functions.proxyCall(
 				REGISTRY_ADDRESS,
 				this.cfaddress,
+				// @ts-ignore
 				new ethers.Interface([
 					Interfaces.SetStateWithSigningKeys
 				]).functions.setStateWithSigningKeys(this.appState, this.nonce, [
@@ -213,6 +215,7 @@ export class CfAppUpdateAsOwner extends CfOperation {
 		return new Transaction(
 			this.multisigAddress,
 			0,
+			// @ts-ignore
 			new ethers.Interface([
 				Interfaces.ExecTransaction
 			]).functions.execTransaction(
@@ -231,9 +234,11 @@ export class CfAppUpdateAsOwner extends CfOperation {
 		return new MultisigTransaction(
 			REGISTRY_ADDRESS,
 			0,
+			// @ts-ignore
 			new ethers.Interface([Interfaces.ProxyCall]).functions.proxyCall(
 				REGISTRY_ADDRESS,
 				this.cfaddress,
+				// @ts-ignore
 				new ethers.Interface([
 					Interfaces.SetStateAsOwner
 				]).functions.setStateAsOwner(this.appState, this.nonce).data
@@ -267,6 +272,7 @@ export class CfAppInstall extends CfOperation {
 		return new Transaction(
 			this.multisigAddress,
 			0,
+			// @ts-ignore
 			new ethers.Interface([
 				Interfaces.ExecTransaction
 			]).functions.execTransaction(
@@ -283,6 +289,7 @@ export class CfAppInstall extends CfOperation {
 		return new MultisigTransaction(
 			CONDITIONAL_TRANSFER_ADDRESS,
 			0,
+			// @ts-ignore
 			new ethers.Interface([
 				Interfaces.MakeConditionalTransfer
 			]).functions.makeConditionalTransfer(
@@ -326,10 +333,14 @@ export class CFMultiOp extends CfOperation {
 		for (let i = 0; i < this.cfoperations.length; i++) {
 			transactions.push(this.cfoperations[i].getTransactionForMulti());
 		}
+		const functions = new ethers.Interface([Interfaces.ExecTransaction])
+			.functions;
+
 		const multisend = new MultiSend(transactions).getTransaction();
 		return new Transaction(
 			this.multisigAddress,
 			0,
+			// @ts-ignore
 			new ethers.Interface([
 				Interfaces.ExecTransaction
 			]).functions.execTransaction(
