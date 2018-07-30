@@ -4,7 +4,9 @@ import {
 	OpCodeResult,
 	ResponseSink,
 	StateChannelInfo,
-	ClientMessage
+	ClientMessage,
+	FreeBalance,
+	PeerBalance
 } from "./types";
 import {
 	NextMsgGenerator,
@@ -106,7 +108,7 @@ export class CounterfactualVM {
 	}
 }
 
-interface Addressable {
+export interface Addressable {
 	appId?: string;
 	multisigAddress?: string;
 	toAddress?: string;

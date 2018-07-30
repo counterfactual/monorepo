@@ -1,169 +1,115 @@
 import * as ethers from "ethers";
+import * as common from "./common";
+import { NetworkContext, Bytes, Signature, Address } from "../types";
 import {
-	NetworkContext,
-	PeerBalance,
-	FreeBalance,
-	AppChannelInfo,
-	CanonicalPeerBalance
-} from "../types";
-import {
-	CfOperation,
-	CFMultiOp,
-	CfAppUpdateAsOwner,
-	CfAppInstall,
-	App,
-	Address,
-	Condition,
-	Function
-} from "./cf-operation";
-
-import {
+	Transaction,
+	Abi,
+	MultisigInput,
+	MultiSend,
+	Operation,
 	zeroAddress,
-	Proxy as ProxyContract
-} from "./contracts-layer-constants";
+	CfOperation
+} from "./types";
 
-const TIMEOUT = 100;
-const GET_STATE_SIGHASH = "0xb5d78d8c";
-
-export class CfOpUninstall {
-	static operation(
-		ctx: NetworkContext,
-		multisig: string,
-		freeBalance: FreeBalance,
-		app: AppChannelInfo,
-		peerAmounts: PeerBalance[]
-	): CfOperation {
-		let canon = CanonicalPeerBalance.canonicalize(
-			peerAmounts[0],
-			peerAmounts[1]
-		);
-		let owners = [canon.peerA.address, canon.peerB.address];
-		let updateFreeBalance = CfOpUninstall.updateFreeBalance(
-			ctx,
-			multisig,
-			freeBalance,
-			peerAmounts,
-			owners
-		);
-		let bumpNonce = CfOpUninstall.updateNonce(ctx, multisig, owners, app);
-
-		let ops = [updateFreeBalance, bumpNonce];
-		//let ops = [bumpNonce];
-		return new CFMultiOp(ops, multisig);
+// TODO: everything in this can be shared with cf-op-install except the
+//       specification of the multisend
+export class CfOpUninstall extends CfOperation {
+	constructor(
+		readonly ctx: NetworkContext,
+		readonly multisig: Address,
+		readonly signingKeys: Address[],
+		readonly freeBalanceUniqueId: number,
+		readonly freeBalanceLocalNonce: number,
+		readonly alice: Address, // first person in free balance object
+		readonly aliceFreeBalance: number,
+		readonly bob: Address, // second person in free balance object
+		readonly bobFreeBalance: number,
+		readonly dependencyNonceSalt: string,
+		readonly dependencyNonceNonce: number,
+		readonly timeout: number
+	) {
+		super();
 	}
 
-	private static updateNonce(
-		ctx: NetworkContext,
-		multisig: string,
-		owners: string[],
-		app: AppChannelInfo
-	): CfAppUpdateAsOwner {
-		// todo: put dependency nonce on app objet and pass in
-		//       once new conract updates are incorporated
-		let uniqueId = 10;
-		const nonceCfAddress = CfOpUninstall.cfAddress(
-			ctx,
-			multisig,
-			owners,
-			uniqueId,
-			TIMEOUT
-		);
-
-		let newNonce = app.rootNonce + 1;
-		const nonceState = ethers.utils.defaultAbiCoder.encode(
-			["uint256"],
-			[newNonce]
-		);
-		return new CfAppUpdateAsOwner(
-			multisig,
-			nonceCfAddress,
-			nonceState,
-			newNonce
-		);
-	}
-
-	private static updateFreeBalance(
-		ctx: NetworkContext,
-		multisig: string,
-		freeBalance: FreeBalance,
-		peerBalances: Array<PeerBalance>,
-		owners: Array<string>
-	): CfAppUpdateAsOwner {
-		const freeBalanceCfAddress = CfOpUninstall.cfAddress(
-			ctx,
-			multisig,
-			owners,
-			freeBalance.uniqueId,
-			TIMEOUT
-		);
-		const newBals = PeerBalance.add(
-			[freeBalance.peerA, freeBalance.peerB],
-			peerBalances
-		);
-		const freeBalanceState = ethers.utils.defaultAbiCoder.encode(
-			["tuple(tuple(address,bytes32),uint256)[]"],
+	hashToSign(): string {
+		let multisigInput = this.multisigInput();
+		return ethers.utils.solidityKeccak256(
+			["bytes1", "address", "address", "uint256", "bytes", "uint256"],
 			[
-				[
-					[
-						[
-							zeroAddress,
-							ethers.utils.defaultAbiCoder.encode(
-								["address"],
-								[newBals[0].address]
-							)
-						],
-						newBals[0].balance.toString()
-					],
-					[
-						[
-							zeroAddress,
-							ethers.utils.defaultAbiCoder.encode(
-								["address"],
-								[newBals[1].address]
-							)
-						],
-						newBals[1].balance.toString()
-					]
-				]
+				"0x19",
+				this.multisig,
+				multisigInput.to,
+				multisigInput.val,
+				multisigInput.data,
+				multisigInput.op
 			]
 		);
-		const freeBalanceNonce = freeBalance.localNonce + 1;
-		return new CfAppUpdateAsOwner(
-			multisig,
-			freeBalanceCfAddress,
-			freeBalanceState,
-			freeBalanceNonce
-		);
 	}
 
-	// TODO: Generalize for all cf ops
-	private static cfAddress(
-		ctx: NetworkContext,
-		multisig: string,
-		signingKeys: Array<string>,
-		uniqueId: number,
-		timeout: number
-	): string {
-		// FIXME: the abi and bytecode are placeholders here
-		const initcode = new ethers.Interface(
-			ProxyContract.abi
-		).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
-
-		// FIXME: need to get call data to contract to ensure unique hash
-		//const calldata = new ethers.Interface([
-		//	"instantiate(address,address[],address,uint256,uint256)"
-		//]).functions.instantiate(
-		//	multisig,
-		//	signingKeys,
-		//	ctx["RegistryAddress"],
-		//	uniqueId,
-		//	timeout
-		//).data;
-		const calldata = zeroAddress; // arbitrary string
-
-		return ethers.utils.solidityKeccak256(
-			["bytes1", "bytes", "bytes32"],
-			["0x19", initcode, ethers.utils.solidityKeccak256(["bytes"], [calldata])]
+	// exact same as cf-op-install
+	transaction(sigs: Signature[]): Transaction {
+		let multisigInput = this.multisigInput();
+		return new Transaction(
+			this.multisig,
+			0,
+			new ethers.Interface([
+				Abi.execTransaction
+			]).functions.execTransaction.encode([
+				multisigInput.to,
+				multisigInput.val,
+				multisigInput.data,
+				multisigInput.op,
+				Signature.toBytes(sigs)
+			])
 		);
+	}
+	/**
+	 * @returns the input for the transaction from the multisig that will trigger
+	 *          a multisend transaction.
+	 */
+	// exact same as cf-op-install
+	private multisigInput(): MultisigInput {
+		return new MultiSend(this.eachMultisigInput()).input(this.ctx.MultiSend);
+	}
+
+	/**
+	 * @returns the inputs for each transacton in the multisend transaction
+	 *          representing this install.
+	 */
+	// exact same as cf-op-install
+	private eachMultisigInput(): Array<MultisigInput> {
+		return [this.freeBalance(), this.dependencyNonce()];
+	}
+
+	// exact same as cf-op-install
+	private freeBalance(): MultisigInput {
+		let to = this.ctx.Registry;
+		let val = 0;
+		let data = common.freeBalanceData(
+			this.ctx,
+			this.multisig,
+			this.signingKeys,
+			this.timeout,
+			this.freeBalanceUniqueId,
+			this.alice,
+			this.aliceFreeBalance,
+			this.bob,
+			this.bobFreeBalance,
+			this.freeBalanceLocalNonce
+		);
+		let op = Operation.Call;
+		return new MultisigInput(to, val, data, op);
+	}
+
+	// exact same as cf-op-install
+	private dependencyNonce(): MultisigInput {
+		let to = this.ctx.NonceRegistry;
+		let val = 0;
+		let data = new ethers.Interface([Abi.setNonce]).functions.setNonce.encode([
+			this.dependencyNonceSalt,
+			this.dependencyNonceNonce
+		]);
+		let op = Operation.Call;
+		return new MultisigInput(to, val, data, op);
 	}
 }

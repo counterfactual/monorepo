@@ -15,15 +15,12 @@ export class CfState {
 	networkContext: NetworkContext;
 	constructor(channelStates: ChannelStates) {
 		this.channelStates = channelStates;
-		// TODO Refactor params to be an an object with prop names
 		this.networkContext = new NetworkContext(
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
-			"9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
-			"0xaaaabbbb",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
-			"0xbbbbaaaa",
-			"0x0"
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd0",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd1",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd2",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd3",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4"
 		);
 	}
 

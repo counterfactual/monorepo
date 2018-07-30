@@ -30,7 +30,6 @@
 		"variable-name": [
 			true,
 			"ban-keywords"
-		],
-    "max-line-length": [true, 80]
+		]
 	}
 }

@@ -1,142 +1,97 @@
-import { NetworkContext } from "../types";
-import * as ethers from "ethers";
-
-import * as cfOp from "./cf-operation";
+import { FreeBalance, NetworkContext, Signature } from "../types";
 import {
-	Proxy as ProxyContract,
-	zeroAddress
-} from "./contracts-layer-constants";
+	Operation,
+	Transaction,
+	MultisigInput,
+	Abi,
+	CfApp,
+	Terms,
+	zeroAddress,
+	zeroBytes32,
+	CfOperation
+} from "./types";
+import * as ethers from "ethers";
+import * as common from "./common";
 
-const TIMEOUT = 100;
-
-export class CfOpSetup {
-	static nonceUpdateOp(
-		nonceUniqueId: number,
-		multisig: string,
-		owners: string[],
-		networkContext: NetworkContext
-	): cfOp.CfOperation {
-		const nonce = generateNonceCfAddress(
-			nonceUniqueId,
-			multisig,
-			owners,
-			networkContext
-		);
-
-		const nonceStateUpdate = new cfOp.CfAppUpdateAsOwner(
-			multisig,
-			nonce,
-			ethers.utils.defaultAbiCoder.encode(["uint256"], [1]),
-			1
-		);
-
-		return nonceStateUpdate;
+export class CfOpSetup extends CfOperation {
+	/**
+	 * nonceRegistryKey should be the unique identifier for a particular
+	 * dependency nonces on a single app. It can simply be a unique counter
+	 * on the number off apps in a given state channel container represented
+	 * by a single multisig.
+	 */
+	constructor(
+		readonly ctx: NetworkContext,
+		readonly multisig: string,
+		readonly signingKeys: string[], // must be alphabetically ordered
+		readonly freeBalanceUniqueId: number,
+		readonly nonceRegistryKey: string,
+		readonly nonceRegistryNonce: number,
+		readonly timeout: number
+	) {
+		super();
 	}
 
-	static freeBalanceInstallOp(
-		uniqueId: number,
-		multisig: string,
-		owners: string[],
-		networkContext: NetworkContext
-	): cfOp.CfOperation {
-		const FREEBAL_ETH_ID = 2;
-
-		const freeBalanceETH = generateFreeBalanceCfAddress(
-			multisig,
-			uniqueId,
-			owners,
-			networkContext
+	hashToSign(): string {
+		let multisigInput = this.multisigInput();
+		return ethers.utils.solidityKeccak256(
+			["bytes1", "address", "address", "uint256", "bytes", "uint256"],
+			[
+				"0x19",
+				this.multisig, // why did we use this as salt in the last iteration?
+				multisigInput.to,
+				multisigInput.val,
+				multisigInput.data,
+				multisigInput.op
+			]
 		);
-		const nonceCfAddress = generateNonceCfAddress(
-			1,
-			multisig,
-			owners,
-			networkContext
-		);
-
-		const conditionalTransferForFreeBalanceETH = new cfOp.CfAppInstall(
-			multisig,
-			new cfOp.App(
-				[
-					new cfOp.Condition(
-						new cfOp.Function(
-							new cfOp.Address(networkContext.RegistryAddress, nonceCfAddress),
-							"0xb5d78d8c"
-						),
-						"0x",
-						ethers.utils.defaultAbiCoder.encode(["uint256"], [1])
-					)
-				],
-				new cfOp.Address(networkContext.RegistryAddress, freeBalanceETH),
-				[],
-				new cfOp.Function(
-					new cfOp.Address(
-						"0x0000000000000000000000000000000000000000",
-						networkContext.AssetDispatcherAddress
-					),
-					networkContext.AssetDispatcherSighashForETH
-				)
-			)
-		);
-
-		return conditionalTransferForFreeBalanceETH;
 	}
-}
 
-function generateNonceCfAddress(
-	uniqueId: number,
-	multisig: string,
-	owners: string[],
-	networkContext: NetworkContext
-) {
-	// FIXME: the abi and bytecode are placeholders here
-	const initcode = new ethers.Interface(
-		ProxyContract.abi
-	).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
+	multisigInput(): MultisigInput {
+		let [terms, app] = common.freeBalance(this.ctx);
+		let freeBalanceCfAddr = common.appCfAddress(
+			this.ctx,
+			this.multisig,
+			this.signingKeys,
+			this.timeout,
+			this.freeBalanceUniqueId,
+			terms,
+			app
+		);
+		let termsArray = [terms.assetType, terms.limit, terms.token];
+		let multisigCalldata = new ethers.Interface([
+			Abi.executeStateChannelConditionalTransfer
+		]).functions.executeStateChannelConditionalTransfer.encode([
+			this.nonceRegistryKey,
+			this.nonceRegistryNonce,
+			freeBalanceCfAddr,
+			termsArray
+		]);
 
-	// FIXME: need to get call data to contract to ensure unique hash
-	//const calldata = new ethers.Interface([
-	//	"instantiate(address,address[],address,uint256,uint256)"
-	//]).functions.instantiate.encode(
-	//	multisig,
-	//	owners,
-	//	networkContext.RegistryAddress,
-	//	uniqueId,
-	//	TIMEOUT
-	//);
-	const calldata = zeroAddress; // arbitrary string
+		return new MultisigInput(
+			this.ctx.ConditionalTransfer,
+			0,
+			multisigCalldata,
+			Operation.Delegatecall
+		);
+	}
 
-	return ethers.utils.solidityKeccak256(
-		["bytes1", "bytes", "bytes32"],
-		["0x19", initcode, ethers.utils.solidityKeccak256(["bytes"], [calldata])]
-	);
-}
-
-function generateFreeBalanceCfAddress(
-	multisigAddress: string,
-	uniqueId: number,
-	owners: string[],
-	networkContext: NetworkContext
-) {
-	// FIXME: the abi and bytecode are placeholders here
-	const initcode = new ethers.Interface(
-		ProxyContract.abi
-	).deployFunction.encode(ProxyContract.bytecode, [zeroAddress]);
-
-	// FIXME: need to get call data to contract to ensure unique hash
-	//const calldata = new ethers.Interface([
-	//	"instantiate(address,address[],address,uint256,uint256)"
-	//]).functions.instantiate(
-	//	multisigAddress,
-	//	owners,
-	//	networkContext.RegistryAddress,
-	//	uniqueId,
-	//	TIMEOUT
-	//).data;
-	const calldata = zeroAddress; // arbitrary string
-
-	return ethers.utils.solidityKeccak256(
-		["bytes1", "bytes", "bytes32"],
-		["0x19", initcode, ethers.utils.solidityKeccak256(["bytes"], [calldata])]
-	);
+	// CHANGE: we should put a hash on the Transaction instead of a hash
+	//        on the cfoperation itself.
+	transaction(sigs: Signature[]): Transaction {
+		let msInput = this.multisigInput();
+		return new Transaction(
+			this.multisig,
+			0,
+			new ethers.Interface([
+				Abi.execTransaction
+			]).functions.execTransaction.encode([
+				msInput.to,
+				msInput.val,
+				msInput.data,
+				msInput.op,
+				Signature.toBytes(sigs)
+			])
+		);
+	}
 }

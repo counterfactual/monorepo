@@ -5,6 +5,12 @@ import {
 	UpdateData,
 	PeerBalance
 } from "../src/types";
+import {
+	Terms,
+	CfApp,
+	zeroAddress,
+	zeroBytes32
+} from "../src/cf-operation/types";
 import { ResponseStatus } from "../src/vm";
 
 const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
@@ -164,12 +170,25 @@ function startInstallBalanceRefundMsg(
 		peerA = peerB;
 		peerB = tmp;
 	}
+	let terms = new Terms(0, 10, zeroAddress); // todo
+
+	let app = new CfApp( // todo
+		"0x0",
+		"0x11111111",
+		"0x11111111",
+		"0x11111111",
+		"0x11111111"
+	);
+	let timeout = 100;
 	let installData: InstallData = {
 		peerA: new PeerBalance(peerA, 0),
 		peerB: new PeerBalance(peerB, 0),
 		keyA: null,
 		keyB: null,
-		encodedAppState: "0x1234"
+		encodedAppState: "0x1234",
+		terms,
+		app,
+		timeout
 	};
 	return {
 		requestId: "1",
@@ -277,12 +296,24 @@ function installTttMsg(to: string, from: string): ClientMessage {
 		peerA = peerB;
 		peerB = tmp;
 	}
+	let terms = new Terms(0, 10, zeroAddress); // todo
+	let app = new CfApp( // todo
+		"0x0",
+		"0x11111111",
+		"0x11111111",
+		"0x11111111",
+		"0x11111111"
+	);
+	let timeout = 100;
 	let installData: InstallData = {
 		peerA: new PeerBalance(peerA, 2),
 		peerB: new PeerBalance(peerB, 2),
 		keyA: null,
 		keyB: null,
-		encodedAppState: "0x1234"
+		encodedAppState: "0x1234",
+		terms,
+		app,
+		timeout
 	};
 	return {
 		requestId: "5",

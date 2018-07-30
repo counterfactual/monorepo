@@ -85,11 +85,13 @@ export class ActionExecution {
 			let balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
 			let uniqueId = 2; // todo
 			let localNonce = 1;
+			let timeout = 100; // todo, probably some default timeout
 			let freeBalance = new FreeBalance(
 				balances.peerA,
 				balances.peerB,
 				localNonce,
-				uniqueId
+				uniqueId,
+				timeout
 			);
 			let stateChannel = new StateChannelInfoImpl(
 				toAddress,

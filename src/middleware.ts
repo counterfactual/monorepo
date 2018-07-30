@@ -4,13 +4,16 @@ import {
 	CanonicalPeerBalance,
 	AppChannelInfo,
 	ClientMessage,
-	CfApp,
 	FreeBalance,
 	PeerBalance,
-	UpdateData
+	UpdateData,
+	InstallData,
+	Signature,
+	StateChannelInfos
 } from "./types";
 import { InternalMessage, getFirstResult } from "./vm";
-import { CfOperation } from "./cf-operation/cf-operation";
+import { CfApp, zeroBytes32 } from "./cf-operation/types";
+import { CfOperation } from "./cf-operation/types";
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
 import { CfOpInstall } from "./cf-operation/cf-op-install";
@@ -48,7 +51,7 @@ export class StateDiffGenerator {
 		next: Function,
 		context: Context,
 		cfState: CfState
-	) {
+	): StateChannelInfos {
 		if (message.actionName === "update") {
 			return StateDiffGenerator.updateStateDiff(message, context, cfState);
 		} else if (message.actionName === "install") {
@@ -83,16 +86,22 @@ export class StateDiffGenerator {
 		let multisig = message.clientMessage.multisigAddress;
 		let cfAddr = getFirstResult("generateOp", context.results).value.cfAddr;
 		let existingFreeBalance = cfState.stateChannel(multisig).freeBalance;
-		let data = message.clientMessage.data;
+		let uniqueId = 3; // todo
+		let localNonce = 1;
+		let data: InstallData = message.clientMessage.data;
 		let newAppChannel: AppChannelInfo = {
 			id: cfAddr,
+			uniqueId: uniqueId,
 			peerA: data.peerA,
 			peerB: data.peerB,
 			keyA: data.keyA,
 			keyB: data.keyB,
 			rootNonce: 1,
-			encodedState: "0x0", // todo
-			localNonce: 1
+			encodedState: "0x3", // todo
+			localNonce: 1,
+			timeout: data.timeout,
+			terms: data.terms,
+			cfApp: data.app
 		};
 		let peerA = new PeerBalance(
 			existingFreeBalance.peerA.address,
@@ -107,7 +116,8 @@ export class StateDiffGenerator {
 			peerA,
 			peerB,
 			existingFreeBalance.localNonce + 1,
-			existingFreeBalance.uniqueId
+			existingFreeBalance.uniqueId,
+			data.timeout
 		);
 		let updatedStateChannel = new StateChannelInfoImpl(
 			message.clientMessage.toAddress,
@@ -146,7 +156,8 @@ export class StateDiffGenerator {
 				oldFreeBalance.peerB.balance + canon.peerB.balance
 			),
 			oldFreeBalance.localNonce + 1,
-			oldFreeBalance.uniqueId
+			oldFreeBalance.uniqueId,
+			oldFreeBalance.timeout
 		);
 		let chan = channels[multisig];
 		// now replace the state channel with a newly updated one
@@ -163,102 +174,142 @@ export class StateDiffGenerator {
 
 export class OpCodeGenerator {
 	static generate(message: InternalMessage, next: Function, cfState: CfState) {
+		let op = null;
 		if (message.actionName === "update") {
-			return this.update(message);
-		} else if (
-			message.actionName === "setup" &&
-			message.opCodeArgs[0] === "setupNonce"
-		) {
-			return OpCodeGenerator.setupNonce(message, cfState);
-		} else if (
-			message.actionName === "setup" &&
-			message.opCodeArgs[0] === "setupFreeBalance"
-		) {
-			return OpCodeGenerator.setupFreeBalance(message, cfState);
+			op = this.update(message, cfState);
+		} else if (message.actionName === "setup") {
+			op = OpCodeGenerator.setup(message, cfState);
 		} else if (message.actionName === "install") {
-			return OpCodeGenerator.install(message, cfState);
+			op = OpCodeGenerator.install(message, cfState);
 		} else if (message.actionName === "uninstall") {
-			return OpCodeGenerator.uninstall(message, cfState);
+			op = OpCodeGenerator.uninstall(message, cfState);
 		}
-	}
-
-	static update(message: InternalMessage): CfOperation {
-		let nonce = 75; // todo
-		const op = CfOpUpdate.operation({
-			appId: "non actually needed",
-			cfaddress: "some address",
-			proposedAppState: "some state",
-			moduleUpdateData: "some state",
-			metadata: "this goes away with this design",
-			nonce
-		});
+		if (op != null) {
+			let sigA = new Signature(
+				28,
+				"0x11111111111111111111111111111111",
+				"0x22222222222222222222222222222222"
+			);
+			let sigB = new Signature(
+				28,
+				"0x11111111111111111111111111111111",
+				"0x22222222222222222222222222222222"
+			);
+			if (message.actionName === "install") {
+				console.log(op.op.hashToSign());
+				console.log(op.op.transaction([sigA, sigB]));
+			} else {
+				console.log(op.hashToSign());
+				console.log(op.transaction([sigA, sigB]));
+			}
+		}
 		return op;
 	}
 
-	static setupNonce(message: InternalMessage, cfState: CfState): CfOperation {
-		let nonceUniqueId = 1; // todo
+	static update(message: InternalMessage, cfState: CfState): CfOperation {
 		let multisig = message.clientMessage.multisigAddress;
-		return CfOpSetup.nonceUpdateOp(
-			nonceUniqueId,
+		let cfAddr = message.clientMessage.appId;
+		let appChannel = cfState.app(multisig, cfAddr);
+		let signingKeys = [appChannel.keyA, appChannel.keyB];
+		let appStateHash = zeroBytes32; // todo: this needs to be in the msg data.
+		return new CfOpUpdate(
+			cfState.networkContext,
 			multisig,
-			cfState.stateChannel(multisig).owners(),
-			cfState.networkContext
+			signingKeys,
+			appStateHash,
+			appChannel.uniqueId,
+			appChannel.terms,
+			appChannel.cfApp,
+			appChannel.localNonce + 1,
+			appChannel.timeout
 		);
 	}
 
-	static setupFreeBalance(
-		message: InternalMessage,
-		cfState: CfState
-	): CfOperation {
-		let freeBalanceUniqueId = 2; // todo
-		return CfOpSetup.freeBalanceInstallOp(
-			freeBalanceUniqueId,
-			message.clientMessage.multisigAddress,
-			message.clientMessage.stateChannel.owners(),
-			cfState.networkContext
+	static setup(message: InternalMessage, cfState: CfState): CfOperation {
+		let multisig = message.clientMessage.multisigAddress;
+		// todo: need to decide if we want ephemeral keys for free balance
+		let signingKeys = [
+			message.clientMessage.fromAddress,
+			message.clientMessage.toAddress
+		];
+		let freeBalance = cfState.channelStates[multisig].freeBalance;
+		let nonceRegistryKey = zeroBytes32;
+		let nonceRegistryNonce = 0;
+		return new CfOpSetup(
+			cfState.networkContext,
+			multisig,
+			signingKeys,
+			freeBalance.uniqueId,
+			nonceRegistryKey,
+			nonceRegistryNonce,
+			freeBalance.timeout
 		);
 	}
 
 	static install(message: InternalMessage, cfState: CfState) {
-		let appKeys = [
-			message.clientMessage.data.keyA,
-			message.clientMessage.data.keyB
-		];
+		let data = message.clientMessage.data;
+		let appKeys = [data.keyA, data.keyB];
 		let multisig = message.clientMessage.multisigAddress;
 		let channelKeys = cfState.stateChannel(multisig).owners();
-		let uniqueId = 4; // todo
-		let app = new CfApp( //todo
-			"0x1",
-			"",
-			channelKeys,
-			[message.clientMessage.data.peerA, message.clientMessage.data.peerB],
-			null,
-			"",
-			uniqueId
-		);
-		let [op, cfAddr] = CfOpInstall.operation(
+		let appUniqueId = 4; // todo
+		let freeBalance = cfState.stateChannel(multisig).freeBalance;
+
+		let peerAInstallInfo = message.clientMessage.data.peerA;
+		let alice = peerAInstallInfo.address;
+		let aliceFreeBalance = freeBalance.peerA.balance - peerAInstallInfo.balance;
+
+		let peerBInstallInfo = message.clientMessage.data.peerB;
+		let bob = peerBInstallInfo.address;
+		let bobFreeBalance = freeBalance.peerB.balance - peerBInstallInfo.balance;
+
+		// todo
+		let timeout = 0;
+		let dependencyNonceSalt = zeroBytes32;
+		let dependencyNonceNonce = 0;
+		let op = new CfOpInstall(
 			cfState.networkContext,
 			multisig,
-			cfState.freeBalance(multisig),
+			appUniqueId,
 			channelKeys,
-			appKeys,
-			app
+			freeBalance.uniqueId,
+			freeBalance.localNonce + 1,
+			alice,
+			aliceFreeBalance,
+			bob,
+			bobFreeBalance,
+			dependencyNonceSalt,
+			dependencyNonceNonce,
+			data.terms,
+			data.app,
+			timeout
 		);
 		return {
 			op,
-			cfAddr
+			cfAddr: op.appCfAddress
 		};
 	}
 
 	static uninstall(message: InternalMessage, cfState: CfState): CfOperation {
 		let multisig = message.clientMessage.multisigAddress;
 		let cfAddr = message.clientMessage.appId;
-		let op = CfOpUninstall.operation(
+		let freeBalance = cfState.stateChannel(multisig).freeBalance;
+		let appChannel = cfState.app(multisig, cfAddr);
+		let signingKeys = [appChannel.keyA, appChannel.keyB];
+		let dependencyNonceNonce = 0; // todo
+		let dependencyNonceSalt = zeroBytes32; // todo
+		let op = new CfOpUninstall(
 			cfState.networkContext,
 			multisig,
-			cfState.freeBalance(multisig),
-			cfState.app(multisig, cfAddr),
-			message.clientMessage.data.peerAmounts
+			signingKeys,
+			freeBalance.uniqueId,
+			freeBalance.localNonce,
+			freeBalance.peerA.address,
+			freeBalance.peerA.balance,
+			freeBalance.peerB.address,
+			freeBalance.peerB.balance,
+			dependencyNonceSalt,
+			dependencyNonceNonce,
+			appChannel.timeout
 		);
 		return op;
 	}
