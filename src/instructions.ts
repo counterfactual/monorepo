@@ -9,9 +9,7 @@ export let Instructions = {
 		["returnSuccess"]
 	],
 	setup: [
-		["generateOp", "setupNonce"],
-		["signMyUpdate"],
-		["generateOp", "setupFreeBalance"],
+		["generateOp", "setup"],
 		["signMyUpdate"],
 		["prepareNextMsg"],
 		["IoSendMessage"],
