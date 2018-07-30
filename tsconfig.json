@@ -30,6 +30,6 @@
 		"sourceRoot": ".",
 		"typeRoots": ["./node_modules/@types", "./node_modules/json-d-ts"]
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "test/**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }
