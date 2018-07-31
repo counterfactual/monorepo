@@ -9,7 +9,19 @@
 # build runs separately
 
 declare -a packages=("contracts" "test-utils" "apps")
+
 for package in "${packages[@]}"
 do
+  if [ -f packages/"$package"/tsconfig.json.original ];
+  then
+    rm -f "packages/$package/tsconfig.json";
+    rm -f "packages/$package/tsconfig.json-e";
+    cp packages/"$package"/tsconfig.json.original packages/"$package"/tsconfig.json
+  fi
+done
+
+for package in "${packages[@]}"
+do
+  cp packages/"$package"/tsconfig.json packages/"$package"/tsconfig.json.original
   sed -i -e 's/.\/node_modules/..\/..\/node_modules/g' packages/"$package"/tsconfig.json
 done

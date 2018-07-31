@@ -27,5 +27,9 @@ packages/contracts/lib
 packages/test-utils/lib
 packages/apps/lib
 
+# build artifacts
+packages/*/*.json-e
+packages/*/*.json.original
+
 # editors
 .vscode

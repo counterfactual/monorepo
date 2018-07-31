@@ -6,6 +6,7 @@
 [subrepo]
 	remote = git@github.com:counterfactual/configs.git
 	branch = master
-	commit = eed7d732160264d19224e77ae2a329ea668eadb8
-	parent = d855e725ce9fb45653f1d025f6779022c781b586
-	cmdver = 0.3.1
+	commit = 89814c0c0d341d64bb1ff8893872a9d0322c86cc
+	parent = 0dad9c78640c3fa959a9b0cc6ba28ed01f4bdbd3
+	method = merge
+	cmdver = 0.4.0
