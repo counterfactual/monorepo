@@ -1,8 +1,18 @@
 import * as ethers from "ethers";
-import { NetworkContext, Bytes, Address } from "../types";
-import { CfApp, Abi, Terms, zeroBytes32, zeroAddress } from "./types";
+import { NetworkContext, Bytes, Address, Signature } from "../types";
+import {
+	Abi,
+	CfApp,
+	Terms,
+	zeroBytes32,
+	zeroAddress,
+	Transaction,
+	MultisigInput,
+	MultiSend
+} from "./types";
 import { PaymentApp } from "./contracts/paymentApp";
 import { StateChannel } from "./contracts/stateChannel";
+import * as common from "./common";
 
 /**
  * @param signingKeys are the ephemeral keys used to sign state updates.
@@ -50,19 +60,6 @@ function cfAddr(initcode: string, salt: number) {
 	);
 }
 
-export function freeBalance(ctx: NetworkContext): [Terms, CfApp] {
-	let address = ctx.PaymentAppAddress;
-	let reducer = "0x00000000"; // not used
-	let resolver = new ethers.Interface(PaymentApp.abi).functions.resolver
-		.sighash;
-	let turnTaker = "0x00000000"; // not used
-	let isStateFinal = "0x00000000"; // not used
-	return [
-		new Terms(0, 0, zeroAddress),
-		new CfApp(address, reducer, resolver, turnTaker, isStateFinal)
-	];
-}
-
 export function freeBalanceData(
 	ctx: NetworkContext,
 	multisig: Address,
@@ -99,6 +96,19 @@ export function freeBalanceData(
 		signatures,
 		ctx.Registry
 	);
+}
+
+export function freeBalance(ctx: NetworkContext): [Terms, CfApp] {
+	let address = ctx.PaymentAppAddress;
+	let reducer = "0x00000000"; // not used
+	let resolver = new ethers.Interface(PaymentApp.abi).functions.resolver
+		.sighash;
+	let turnTaker = "0x00000000"; // not used
+	let isStateFinal = "0x00000000"; // not used
+	return [
+		new Terms(0, 0, zeroAddress),
+		new CfApp(address, reducer, resolver, turnTaker, isStateFinal)
+	];
 }
 
 export function proxyCallSetStateData(
