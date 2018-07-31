@@ -49,6 +49,7 @@
   "author": "Liam Horne <liam@l4v.io>",
   "license": "MIT",
   "devDependencies": {
+    "@counterfactual/configs": "0.0.1",
     "@counterfactual/run-with-ganache": "0.0.1",
     "@counterfactual/typescript-typings": "1.0.0",
     "@digix/doxity": "^0.5.2",
