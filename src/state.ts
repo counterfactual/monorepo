@@ -59,16 +59,12 @@ export class CfState {
 
 export class StateChannelInfoImpl implements StateChannelInfo {
 	constructor(
-		readonly toAddress?: string,
-		readonly fromAddress?: string,
-		readonly multisigAddress?: string,
-		readonly appChannels?: AppChannelInfos,
-		readonly freeBalance?: FreeBalance
-	) {
-		if (!appChannels) {
-			this.appChannels = {};
-		}
-	}
+		readonly toAddress: string,
+		readonly fromAddress: string,
+		readonly multisigAddress: string,
+		readonly appChannels: AppChannelInfos = {},
+		readonly freeBalance: FreeBalance
+	) {}
 
 	/**
 	 * @returns the toAddress, fromAddress in alphabetical order.
@@ -92,8 +88,8 @@ export class AppChannelInfoImpl {
 }
 
 export class Context {
-	results: OpCodeResult[];
-	stateChannelInfos: StateChannelInfos;
-	appChannelInfos: AppChannelInfos;
-	instructionPointer: number;
+	results: OpCodeResult[] = Object.create(null);
+	stateChannelInfos: StateChannelInfos = Object.create(null);
+	appChannelInfos: AppChannelInfos = Object.create(null);
+	instructionPointer: number = Object.create(null);
 }

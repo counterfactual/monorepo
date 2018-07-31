@@ -15,18 +15,18 @@ import {
 import * as common from "./common";
 
 export abstract class CfMultiSendOp extends CfOperation {
-	readonly ctx: NetworkContext;
-	readonly multisig: Address;
-	readonly signingKeys: Address[];
-	readonly timeout: number;
-	readonly freeBalanceUniqueId: number;
-	readonly alice: Address;
-	readonly aliceFreeBalance: number;
-	readonly bob: Address;
-	readonly bobFreeBalance: number;
-	readonly freeBalanceLocalNonce: number;
-	readonly dependencyNonceSalt: string;
-	readonly dependencyNonceNonce: number;
+	readonly ctx: NetworkContext = Object.create(null);
+	readonly multisig: Address = Object.create(null);
+	readonly signingKeys: Address[] = Object.create(null);
+	readonly timeout: number = Object.create(null);
+	readonly freeBalanceUniqueId: number = Object.create(null);
+	readonly alice: Address = Object.create(null);
+	readonly aliceFreeBalance: number = Object.create(null);
+	readonly bob: Address = Object.create(null);
+	readonly bobFreeBalance: number = Object.create(null);
+	readonly freeBalanceLocalNonce: number = Object.create(null);
+	readonly dependencyNonceSalt: string = Object.create(null);
+	readonly dependencyNonceNonce: number = Object.create(null);
 
 	transaction(sigs: Signature[]): Transaction {
 		let multisigInput = this.multisigInput();

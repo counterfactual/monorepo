@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import * as common from "./common";
-import { CfApp, Terms, Transaction, CfOperation, Operation } from "./types";
+import { CfApp, Terms, Transaction, CfOperation } from "./types";
 import { NetworkContext, Address, Signature } from "../types";
 
 export class CfOpUpdate extends CfOperation {
@@ -63,6 +63,6 @@ export class CfOpUpdate extends CfOperation {
 	// and not unilateral moves
 	disputeWithUnilateralAction(sig: Signature): Transaction {
 		// todo
-		return null;
+		return Object.create(Transaction);
 	}
 }

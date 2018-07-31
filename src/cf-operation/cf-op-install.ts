@@ -1,29 +1,11 @@
 import * as ethers from "ethers";
-import {
-	Signature,
-	NetworkContext,
-	FreeBalance,
-	PeerBalance,
-	Bytes,
-	Address
-} from "../types";
-import { Transaction } from "./types";
-import {
-	Operation,
-	Abi,
-	MultiSend,
-	MultiSendInput,
-	MultisigInput,
-	Terms,
-	CfApp,
-	zeroAddress,
-	CfOperation
-} from "./types";
+import { NetworkContext, Address } from "../types";
+import { Operation, Abi, MultisigInput, Terms, CfApp } from "./types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 import * as common from "./common";
 
 export class CfOpInstall extends CfMultiSendOp {
-	appCfAddress: Address;
+	appCfAddress: Address = Object.create(null);
 	// todo: abstract these items that must be passed in from the executing
 	//       vm keeping track of all these things
 	constructor(

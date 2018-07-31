@@ -1,6 +1,7 @@
 import * as ethers from "ethers";
 import { CfState, StateChannelInfoImpl, Context } from "./state";
 import {
+	Address,
 	CanonicalPeerBalance,
 	AppChannelInfo,
 	ClientMessage,
@@ -12,7 +13,7 @@ import {
 	StateChannelInfos
 } from "./types";
 import { InternalMessage, getFirstResult } from "./vm";
-import { CfApp, zeroBytes32 } from "./cf-operation/types";
+import { zeroBytes32, zeroAddress } from "./cf-operation/types";
 import { CfOperation } from "./cf-operation/types";
 import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
@@ -36,7 +37,6 @@ export class NextMsgGenerator {
 			multisigAddress: message.multisigAddress,
 			toAddress: message.fromAddress, // swap to/from here since sending to peer
 			fromAddress: message.toAddress,
-			stateChannel: null,
 			seq: message.seq + 1
 		};
 		// need to bump the seqeunce number, so that, when we send out another IO
@@ -52,13 +52,18 @@ export class StateDiffGenerator {
 		next: Function,
 		context: Context,
 		cfState: CfState
-	): StateChannelInfos {
+	): StateChannelInfos | void {
 		if (message.actionName === "update") {
 			return StateDiffGenerator.updateStateDiff(message, context, cfState);
 		} else if (message.actionName === "install") {
 			return StateDiffGenerator.installStateDiff(message, context, cfState);
 		} else if (message.actionName === "uninstall") {
 			return StateDiffGenerator.uninstallStateDiff(message, context, cfState);
+		} else if (message.actionName === "setup") {
+			console.log("Setup action needs no diff generation");
+			return;
+		} else {
+			throw Error("Action name not supported");
 		}
 	}
 	static updateStateDiff(
@@ -66,11 +71,14 @@ export class StateDiffGenerator {
 		context: Context,
 		state: CfState
 	) {
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 
-		let appId = message.clientMessage.appId;
-		let app = channels[multisig].appChannels[appId];
+		let appId: string = message.clientMessage.appId;
+		let app;
+		try {
+			app = channels[multisig].appChannels[appId];
+		} catch (e) {}
 
 		let updateData: UpdateData = message.clientMessage.data;
 		app.encodedState = updateData.encodedAppState;
@@ -83,10 +91,12 @@ export class StateDiffGenerator {
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState
-	) {
-		let multisig = message.clientMessage.multisigAddress;
-		let cfAddr = getFirstResult(Instruction.OP_GENERATE, context.results).value
-			.cfAddr;
+	): StateChannelInfos {
+		let multisig: Address = message.clientMessage.multisigAddress;
+		// FIXME: no cfAddr actually gets retrieved here
+		//let cfAddr = getFirstResult(Instruction.OP_GENERATE, context.results).value
+		//	.cfAddr;
+		let cfAddr = zeroAddress;
 		let existingFreeBalance = cfState.stateChannel(multisig).freeBalance;
 		let uniqueId = 3; // todo
 		let localNonce = 1;
@@ -106,18 +116,25 @@ export class StateDiffGenerator {
 			cfApp: data.app
 		};
 		let peerA = new PeerBalance(
+			// FIXME: (ts-strict) object should never be undefined
+			// @ts-ignore
 			existingFreeBalance.peerA.address,
+			// @ts-ignore
 			existingFreeBalance.peerA.balance - data.peerA.balance
 		);
 		let peerB = new PeerBalance(
+			// @ts-ignore
 			existingFreeBalance.peerB.address,
+			// @ts-ignore
 			existingFreeBalance.peerB.balance - data.peerB.balance
 		);
 		let appChannelInfo = { [newAppChannel.id]: newAppChannel };
 		let freeBalance = new FreeBalance(
 			peerA,
 			peerB,
+			// @ts-ignore
 			existingFreeBalance.localNonce + 1,
+			// @ts-ignore
 			existingFreeBalance.uniqueId,
 			data.timeout
 		);
@@ -137,7 +154,7 @@ export class StateDiffGenerator {
 		context: Context,
 		state: CfState
 	) {
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 		let appId = message.clientMessage.appId;
 		// delete app
@@ -176,7 +193,7 @@ export class StateDiffGenerator {
 
 export class OpCodeGenerator {
 	static generate(message: InternalMessage, next: Function, cfState: CfState) {
-		let op = null;
+		let op;
 		if (message.actionName === "update") {
 			op = this.update(message, cfState);
 		} else if (message.actionName === "setup") {
@@ -209,7 +226,7 @@ export class OpCodeGenerator {
 	}
 
 	static update(message: InternalMessage, cfState: CfState): CfOperation {
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		let cfAddr = message.clientMessage.appId;
 		let appChannel = cfState.app(multisig, cfAddr);
 		let signingKeys = [appChannel.keyA, appChannel.keyB];
@@ -228,7 +245,7 @@ export class OpCodeGenerator {
 	}
 
 	static setup(message: InternalMessage, cfState: CfState): CfOperation {
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		// todo: need to decide if we want ephemeral keys for free balance
 		let signingKeys = [
 			message.clientMessage.fromAddress,
@@ -251,7 +268,7 @@ export class OpCodeGenerator {
 	static install(message: InternalMessage, cfState: CfState) {
 		let data = message.clientMessage.data;
 		let appKeys = [data.keyA, data.keyB];
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		let channelKeys = cfState.stateChannel(multisig).owners();
 		let appUniqueId = 4; // todo
 		let freeBalance = cfState.stateChannel(multisig).freeBalance;
@@ -292,7 +309,7 @@ export class OpCodeGenerator {
 	}
 
 	static uninstall(message: InternalMessage, cfState: CfState): CfOperation {
-		let multisig = message.clientMessage.multisigAddress;
+		let multisig: Address = message.clientMessage.multisigAddress;
 		let cfAddr = message.clientMessage.appId;
 		let freeBalance = cfState.stateChannel(multisig).freeBalance;
 		let appChannel = cfState.app(multisig, cfAddr);

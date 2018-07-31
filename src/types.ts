@@ -8,14 +8,14 @@ export type Address = string;
 export interface ClientMessage {
 	requestId: string;
 	appName?: string;
-	appId?: string;
+	appId: string;
 	action: string;
 	data: any;
-	multisigAddress?: string;
-	toAddress?: string;
-	fromAddress?: string;
+	multisigAddress: string;
+	toAddress: string;
+	fromAddress: string;
 	// we should remove this from this object
-	stateChannel: StateChannelInfo;
+	stateChannel?: StateChannelInfo;
 	seq: number;
 }
 
@@ -144,11 +144,11 @@ export interface ChannelStates {
 }
 
 export interface StateChannelInfo {
-	toAddress?: string;
-	fromAddress?: string;
-	multisigAddress?: string;
-	appChannels?: AppChannelInfos;
-	freeBalance?: FreeBalance;
+	toAddress: string;
+	fromAddress: string;
+	multisigAddress: string;
+	appChannels: AppChannelInfos;
+	freeBalance: FreeBalance;
 
 	// TODO Move this out of the datastructure
 	/**

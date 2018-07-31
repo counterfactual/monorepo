@@ -107,5 +107,7 @@ export function getFirstResult(
 	toFindOpCode: Instruction,
 	results: { value: any; opCode }[]
 ): OpCodeResult {
+	// FIXME: (ts-strict) we should change the results data structure or design
+	// @ts-ignore
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }
