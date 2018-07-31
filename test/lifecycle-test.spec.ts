@@ -402,9 +402,10 @@ function updateTttMsg(
 	to: string,
 	from: string,
 	cfAddr: string
-): ClientMsg {
+): ClientMessage {
 	let updateData: UpdateData = {
-		encodedAppState: state
+		encodedAppState: state,
+		appStateHash: zeroBytes32 // todo
 	};
 	return {
 		requestId: "1",

@@ -32,6 +32,10 @@ export interface InstallData {
 
 export interface UpdateData {
 	encodedAppState: string;
+	/**
+	 * Hash of the State struct specific to a given applicatioin.
+	 */
+	appStateHash: string;
 }
 
 export class FreeBalance {

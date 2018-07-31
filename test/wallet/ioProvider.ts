@@ -2,6 +2,7 @@ import { ClientMessage } from "../../src/types";
 import { InternalMessage, getFirstResult, getLastResult } from "../../src/vm";
 import { Context } from "../../src/state";
 import { TestWallet } from "./wallet";
+import { Instruction } from "../../src/instructions";
 
 export class IoProvider {
 	messages: ClientMessage[];
@@ -92,7 +93,7 @@ export class IoProvider {
 		next: Function,
 		context: Context
 	) {
-		let msg = getLastResult("prepareNextMsg", context.results);
+		let msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
 		this.peer.receiveMessageFromPeer(msg.value);
 	}
 

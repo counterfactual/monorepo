@@ -18,6 +18,7 @@ import { CfOpUpdate } from "./cf-operation/cf-op-update";
 import { CfOpSetup } from "./cf-operation/cf-op-setup";
 import { CfOpInstall } from "./cf-operation/cf-op-install";
 import { CfOpUninstall } from "./cf-operation/cf-op-uninstall";
+import { Instruction } from "./instructions";
 
 export class NextMsgGenerator {
 	static generate(
@@ -84,7 +85,8 @@ export class StateDiffGenerator {
 		cfState: CfState
 	) {
 		let multisig = message.clientMessage.multisigAddress;
-		let cfAddr = getFirstResult("generateOp", context.results).value.cfAddr;
+		let cfAddr = getFirstResult(Instruction.OP_GENERATE, context.results).value
+			.cfAddr;
 		let existingFreeBalance = cfState.stateChannel(multisig).freeBalance;
 		let uniqueId = 3; // todo
 		let localNonce = 1;
@@ -211,7 +213,7 @@ export class OpCodeGenerator {
 		let cfAddr = message.clientMessage.appId;
 		let appChannel = cfState.app(multisig, cfAddr);
 		let signingKeys = [appChannel.keyA, appChannel.keyB];
-		let appStateHash = zeroBytes32; // todo: this needs to be in the msg data.
+		let appStateHash = message.clientMessage.data.appStateHash;
 		return new CfOpUpdate(
 			cfState.networkContext,
 			multisig,
@@ -338,8 +340,8 @@ export class SignatureValidator {
 		next: Function,
 		context: Context
 	) {
-		let incomingMessage = getFirstResult("waitForIo", context.results);
-		let op = getFirstResult("generateOp", context.results);
+		let incomingMessage = getFirstResult(Instruction.IO_WAIT, context.results);
+		let op = getFirstResult(Instruction.OP_GENERATE, context.results);
 		// now validate the signature against the op hash
 	}
 }
