@@ -1,1 +1,1 @@
-module.exports = require("../../truffle-config.js");
+module.exports = require("@counterfactual/configs/truffle-config");
