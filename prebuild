@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# node module resolution is not supported yet by tsc so we can't reference tsconfig files
+# directly in the @counterfactual/configs repo
+# https://github.com/Microsoft/TypeScript/issues/18865
+# a workaround is to redirect the relative path to the hoisted node_modules directory
+# at the top of repo, but leave the original relative path in place as each package
+# can resolve this configs package via their local node_modules folder when their
+# build runs separately
+
+declare -a packages=("contracts" "test-utils" "apps")
+for package in "${packages[@]}"
+do
+  sed -i -e 's/.\/node_modules/..\/..\/node_modules/g' packages/"$package"/tsconfig.json
+done
