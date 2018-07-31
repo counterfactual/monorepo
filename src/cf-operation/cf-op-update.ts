@@ -8,7 +8,6 @@ export class CfOpUpdate extends CfOperation {
 		readonly ctx: NetworkContext,
 		readonly multisig: Address,
 		readonly signingKeys: Address[],
-		// VM doesn't know about app contracts for now (must be passed via RPC)
 		readonly appStateHash: string,
 		readonly appUniqueId: number,
 		readonly terms: Terms,

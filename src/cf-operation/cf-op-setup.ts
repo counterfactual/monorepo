@@ -76,8 +76,6 @@ export class CfOpSetup extends CfOperation {
 		);
 	}
 
-	// CHANGE: we should put a hash on the Transaction instead of a hash
-	//        on the cfoperation itself.
 	transaction(sigs: Signature[]): Transaction {
 		let msInput = this.multisigInput();
 		return new Transaction(
