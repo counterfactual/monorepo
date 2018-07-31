@@ -37,6 +37,8 @@ export class CounterfactualVM {
 	getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
 		if (data.appId) {
 			return this.cfState.appChannelInfos[data.appId].stateChannel;
+		} else {
+			throw Error("No app id available");
 		}
 	}
 
@@ -145,12 +147,12 @@ export enum ResponseStatus {
 	COMPLETED
 }
 
-// todo: we should change the results data structure or design
-
 export function getFirstResult(
 	toFindOpCode: Instruction,
 	results: { value: any; opCode }[]
 ): OpCodeResult {
+	// FIXME: (ts-strict) we should change the results data structure or design
+	// @ts-ignore
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }
 

@@ -1,16 +1,11 @@
 import {
 	StateChannelInfos,
 	AppChannelInfos,
-	ChannelStates,
-	OpCodeResult,
-	ResponseSink,
-	AppChannelInfo,
-	StateChannelInfo,
 	ClientMessage,
 	FreeBalance,
 	PeerBalance
 } from "./types";
-import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
+import { StateChannelInfoImpl } from "./state";
 import { CounterfactualVM, InternalMessage } from "./vm";
 import { Instructions, AckInstructions, Instruction } from "./instructions";
 
@@ -22,7 +17,7 @@ export class Action {
 	name: string;
 	requestId: string;
 	clientMessage: ClientMessage;
-	execution: ActionExecution;
+	execution: ActionExecution = Object.create(null);
 	instructions: Instruction[];
 	isAckSide: boolean;
 
@@ -102,7 +97,7 @@ export class ActionExecution {
 			// TODO Think about pending state/whether we want to do this for the
 			// underlying copy
 			this.vm.mutateState({
-				[this.clientMessage.multisigAddress]: stateChannel
+				[String(this.clientMessage.multisigAddress)]: stateChannel
 			});
 		}
 	}

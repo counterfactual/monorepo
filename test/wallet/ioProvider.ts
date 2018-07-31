@@ -6,7 +6,7 @@ import { Instruction } from "../../src/instructions";
 
 export class IoProvider {
 	messages: ClientMessage[];
-	peer: TestWallet;
+	peer: TestWallet = Object.create(null);
 	// TODO Refactor this into using an EventEmitter class so we don't do
 	// this manually
 	listeners: {
@@ -19,7 +19,7 @@ export class IoProvider {
 	/**
 	 * Called when receivng a message with seqno = 1.
 	 */
-	ackMethod: Function;
+	ackMethod: Function = Object.create(null);
 
 	constructor() {
 		// setup websockets
@@ -29,7 +29,7 @@ export class IoProvider {
 
 	receiveMessageFromPeer(message: ClientMessage) {
 		let done = false;
-		let executedListeners = [];
+		let executedListeners = [] as number[];
 		let count = 0;
 
 		// invoke all listeners waiting for a response to resolve their promise
@@ -59,8 +59,11 @@ export class IoProvider {
 	findMessage(multisig?: string, appId?: string): ClientMessage {
 		let message: ClientMessage;
 		if (appId) {
+			// FIXME: these shouldn't be ignored. refactor for type safety
+			// @ts-ignore
 			message = this.messages.find(m => m.appId === appId);
 		} else {
+			// @ts-ignore
 			message = this.messages.find(m => m.multisigAddress === multisig);
 		}
 		return message;
@@ -77,6 +80,8 @@ export class IoProvider {
 		}
 		let message = this.findMessage(multisig, appId);
 		if (!message) {
+			// FIXME: (ts-strict) refactor for proper argument passing
+			// @ts-ignore
 			this.listeners.push({ appId, multisig, method, seq });
 		} else {
 			this.messages.splice(this.messages.indexOf(message), 1);
@@ -94,6 +99,8 @@ export class IoProvider {
 		context: Context
 	) {
 		let msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
+		// FIXME: (ts-strict) msg should never be null here
+		// @ts-ignore
 		this.peer.receiveMessageFromPeer(msg.value);
 	}
 
@@ -110,8 +117,8 @@ export class IoProvider {
 		let resolve: Function;
 		let promise = new Promise<ClientMessage>(r => (resolve = r));
 
-		let multisig = null;
-		let appId = null;
+		let multisig: string = "";
+		let appId: string = "";
 
 		if (message.actionName === "setup" || message.actionName === "install") {
 			multisig = message.clientMessage.multisigAddress;
