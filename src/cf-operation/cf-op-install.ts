@@ -61,23 +61,6 @@ export class CfOpInstall extends CfOperation {
 		);
 	}
 
-	transaction(sigs: Signature[]): Transaction {
-		let multisigInput = this.multisigInput();
-		return new Transaction(
-			this.multisig,
-			0,
-			new ethers.Interface([
-				Abi.execTransaction
-			]).functions.execTransaction.encode([
-				multisigInput.to,
-				multisigInput.val,
-				multisigInput.data,
-				multisigInput.op,
-				Signature.toBytes(sigs)
-			])
-		);
-	}
-
 	/**
 	 * @returns the input for the transaction from the multisig that will trigger
 	 *          a multisend transaction.
@@ -152,5 +135,22 @@ export class CfOpInstall extends CfOperation {
 		]);
 		let op = Operation.Delegatecall;
 		return new MultisigInput(to, val, data, op);
+	}
+
+	transaction(sigs: Signature[]): Transaction {
+		let multisigInput = this.multisigInput();
+		return new Transaction(
+			this.multisig,
+			0,
+			new ethers.Interface([
+				Abi.execTransaction
+			]).functions.execTransaction.encode([
+				multisigInput.to,
+				multisigInput.val,
+				multisigInput.data,
+				multisigInput.op,
+				Signature.toBytes(sigs)
+			])
+		);
 	}
 }

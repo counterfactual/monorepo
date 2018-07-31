@@ -12,10 +12,10 @@ import {
 } from "./types";
 import { AppChannelInfoImpl, StateChannelInfoImpl } from "./state";
 import { CounterfactualVM, InternalMessage } from "./vm";
-import { Instructions, AckInstructions } from "./instructions";
+import { Instructions, AckInstructions, Instruction } from "./instructions";
 
 if (!Symbol.asyncIterator) {
-    (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator")
+	(Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
 }
 
 export class Action {
@@ -23,7 +23,7 @@ export class Action {
 	requestId: string;
 	clientMessage: ClientMessage;
 	execution: ActionExecution;
-	instructions: string[][];
+	instructions: Instruction[];
 	isAckSide: boolean;
 
 	constructor(
@@ -54,11 +54,10 @@ export class Action {
 export class ActionExecution {
 	action: Action;
 	instructionPointer: number;
-	opCodes: string[][];
 	clientMessage: ClientMessage;
 	vm: CounterfactualVM;
 	// probably not the best data structure
-	results: { opCode: string; value: any }[];
+	results: { opCode: Instruction; value: any }[];
 	stateChannelInfos: StateChannelInfos;
 	appChannelInfos: AppChannelInfos;
 
@@ -70,7 +69,6 @@ export class ActionExecution {
 	) {
 		this.action = action;
 		this.instructionPointer = instruction;
-		this.opCodes = action.instructions;
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];
@@ -110,13 +108,13 @@ export class ActionExecution {
 	}
 
 	async next(): Promise<{ done: boolean; value: number }> {
-		if (this.instructionPointer === this.opCodes.length) {
+		if (this.instructionPointer === this.action.instructions.length) {
 			return { done: true, value: 0 };
 		}
 		if (this.instructionPointer === 0) {
 			this.initializeExecution();
 		}
-		let op = this.opCodes[this.instructionPointer];
+		let op = this.action.instructions[this.instructionPointer];
 		console.log("Executing op: ", op, this.clientMessage.seq);
 		let internalMessage = new InternalMessage(
 			this.action.name,
@@ -126,11 +124,10 @@ export class ActionExecution {
 
 		let value = await this.runMiddlewares(internalMessage);
 		this.instructionPointer++;
-		this.results.push({ opCode: op[0], value });
+		this.results.push({ opCode: op, value });
 		return { value, done: false };
 	}
 
-	// logger, store, syncWallets, instruction itself
 	async runMiddlewares(msg: InternalMessage) {
 		let resolve;
 		let result = new Promise((res, rej) => {
@@ -153,7 +150,10 @@ export class ActionExecution {
 				// This is hacky, prevents next from being called more than once
 				counter++;
 				let middleware = middlewares[counter];
-				if (middleware.scope === "*" || middleware.scope === opCode) {
+				if (
+					middleware.scope === Instruction.ALL ||
+					middleware.scope === opCode
+				) {
 					return middleware.method(msg, callback, context);
 				} else {
 					return callback();

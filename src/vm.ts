@@ -16,9 +16,10 @@ import {
 	SignatureValidator
 } from "./middleware";
 import { CfState, Context } from "./state";
+import { Instruction } from "./instructions";
 
 export class CounterfactualVM {
-	middlewares: { method: Function; scope: string }[];
+	middlewares: { method: Function; scope: Instruction }[];
 	responseHandler: ResponseSink;
 	cfState: CfState;
 
@@ -47,7 +48,7 @@ export class CounterfactualVM {
 
 	setupDefaultMiddlewares() {
 		this.register(
-			"returnSuccess",
+			Instruction.SUCCESS,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				return StateDiffGenerator.generate(
 					message,
@@ -58,14 +59,14 @@ export class CounterfactualVM {
 			}
 		);
 		this.register(
-			"generateOp",
+			Instruction.OP_GENERATE,
 			async (message: InternalMessage, next: Function) => {
 				return OpCodeGenerator.generate(message, next, this.cfState);
 			}
 		);
-		this.register("generateKey", KeyGenerator.generate);
-		this.register("validateSignatures", SignatureValidator.validate);
-		this.register("prepareNextMsg", NextMsgGenerator.generate);
+		this.register(Instruction.KEY_GENERATE, KeyGenerator.generate);
+		this.register(Instruction.OP_SIGN_VALIDATE, SignatureValidator.validate);
+		this.register(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
 	}
 
 	receive(msg: ClientMessage): Response {
@@ -103,7 +104,7 @@ export class CounterfactualVM {
 		Object.assign(this.cfState.channelStates, state);
 	}
 
-	register(scope: string, method: Function) {
+	register(scope: Instruction, method: Function) {
 		this.middlewares.push({ scope, method });
 	}
 }
@@ -117,18 +118,16 @@ export interface Addressable {
 
 export class InternalMessage {
 	actionName: string;
-	opCode: string;
-	opCodeArgs: string[];
+	opCode: Instruction;
 	clientMessage: ClientMessage;
 
 	constructor(
 		action: string,
-		[opCode, ...opCodeArgs]: string[],
+		opCode: Instruction,
 		clientMessage: ClientMessage
 	) {
 		this.actionName = action;
 		this.opCode = opCode;
-		this.opCodeArgs = opCodeArgs;
 		this.clientMessage = clientMessage;
 	}
 }
@@ -149,14 +148,14 @@ export enum ResponseStatus {
 // todo: we should change the results data structure or design
 
 export function getFirstResult(
-	toFindOpCode: string,
+	toFindOpCode: Instruction,
 	results: { value: any; opCode }[]
 ): OpCodeResult {
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
 }
 
 export function getLastResult(
-	toFindOpCode: string,
+	toFindOpCode: Instruction,
 	results: {
 		value: any;
 		opCode;

@@ -4,6 +4,10 @@ import { CfApp, Abi, Terms, zeroBytes32, zeroAddress } from "./types";
 import { PaymentApp } from "./contracts/paymentApp";
 import { StateChannel } from "./contracts/stateChannel";
 
+/**
+ * @param signingKeys are the ephemeral keys used to sign state updates.
+ *        They must be in alphabetical order.
+ */
 export function appCfAddress(
 	ctx: NetworkContext,
 	multisig: string,
@@ -22,7 +26,6 @@ export function appCfAddress(
 	 *   uint256 timeout
 	 * )
 	 */
-	// @ts-ignore
 	/*
 	let initcode = ethers.Contract.getDeployTransaction(
 		StateChannel.bytecode,
@@ -106,7 +109,6 @@ export function proxyCallSetStateData(
 	signatures: Bytes,
 	registry: Address
 ) {
-	// @ts-ignore
 	return new ethers.Interface([Abi.proxyCall]).functions.proxyCall.encode([
 		registry,
 		appCfAddr,

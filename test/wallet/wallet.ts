@@ -15,6 +15,7 @@ import {
 	ChannelStates
 } from "../../src/types";
 import { IoProvider } from "./ioProvider";
+import { Instruction } from "../../src/instructions";
 
 export class TestWallet implements ResponseSink {
 	vm: CounterfactualVM;
@@ -37,10 +38,10 @@ export class TestWallet implements ResponseSink {
 	}
 
 	private registerMiddlewares() {
-		this.vm.register("*", log.bind(this));
-		this.vm.register("signMyUpdate", signMyUpdate.bind(this));
-		this.vm.register("IoSendMessage", this.io.ioSendMessage.bind(this.io));
-		this.vm.register("waitForIo", this.io.waitForIo.bind(this.io));
+		this.vm.register(Instruction.ALL, log.bind(this));
+		this.vm.register(Instruction.OP_SIGN, signMyUpdate.bind(this));
+		this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
+		this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
 		// todo: @igor we shouldn't have to call this manually
 		this.vm.setupDefaultMiddlewares();
 	}
@@ -87,8 +88,8 @@ async function validateSignatures(
 	next: Function,
 	context
 ) {
-	let incomingMessage = getFirstResult("waitForIo", context.results);
-	let op = getFirstResult("generateOp", context.results);
+	let incomingMessage = getFirstResult(Instruction.IO_WAIT, context.results);
+	let op = getFirstResult(Instruction.OP_GENERATE, context.results);
 	// do some magic here
 }
 
@@ -103,7 +104,7 @@ async function log(message: InternalMessage, next: Function, context: Context) {
  * Utilitiy for middleware to access return values of other middleware.
  */
 export function getFirstResult(
-	toFindOpCode: string,
+	toFindOpCode: Instruction,
 	results: { value: any; opCode }[]
 ): OpCodeResult {
 	return results.find(({ opCode, value }) => opCode === toFindOpCode);
