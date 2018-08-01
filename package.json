@@ -12,7 +12,8 @@
   "scripts": {
     "precommit": "wsrun precommit $PKG --fast-exit -r --exclude-missing",
     "ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545 --account=\"${npm_package_config_unlockedAccount}\" -m \"${npm_package_config_mnemonic}\"",
-    "test": "yarn build:pre && yarn build:packages && wsrun test $PKG --exclude-missing && yarn build:post",
+    "test-ci": "yarn build:pre && yarn build:packages && wsrun test $PKG --exclude-missing && yarn build:post",
+    "test": "yarn ganache &> ganache.log & yarn build:pre && yarn build:packages && wsrun test $PKG --exclude-missing && yarn build:post",
     "build": "yarn build:pre && yarn build:packages && yarn build:post",
     "build:pre": "./bin/prebuild",
     "build:packages": "wsrun build $PKG --fast-exit -r --serial --exclude-missing",
