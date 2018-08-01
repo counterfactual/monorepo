@@ -10,8 +10,8 @@ import {
 	CfStateChannel
 } from "../cf-operation/types";
 import { Instruction } from "../instructions";
-export { StateDiffGenerator } from "./state_diff_generator";
-export { CfOpGenerator } from "./cf_op_generator";
+export { StateDiffGenerator } from "./state-diff-generator";
+export { CfOpGenerator } from "./cf-op-generator";
 
 export class NextMsgGenerator {
 	static generate(
