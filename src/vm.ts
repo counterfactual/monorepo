@@ -6,7 +6,9 @@ import {
 	StateChannelInfo,
 	ClientMessage,
 	FreeBalance,
-	PeerBalance
+	PeerBalance,
+	Address,
+	H256
 } from "./types";
 import {
 	NextMsgGenerator,
@@ -112,10 +114,10 @@ export class CounterfactualVM {
 }
 
 export interface Addressable {
-	appId?: string;
-	multisigAddress?: string;
-	toAddress?: string;
-	fromAddress?: string;
+	appId?: H256;
+	multisigAddress?: Address;
+	toAddress?: Address;
+	fromAddress?: Address;
 }
 
 export class InternalMessage {

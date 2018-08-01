@@ -1,5 +1,12 @@
 import * as ethers from "ethers";
-import { Address, Signature, H256, Bytes4, NetworkContext } from "../types";
+import {
+	Bytes,
+	Address,
+	Signature,
+	H256,
+	Bytes4,
+	NetworkContext
+} from "../types";
 import { PaymentApp } from "./contracts/paymentApp";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
@@ -74,16 +81,16 @@ export enum Operation {
 
 export class Transaction {
 	constructor(
-		readonly to: string,
+		readonly to: Address,
 		readonly value: Number,
 		readonly data: string
 	) {}
 }
 export class MultisigTransaction extends Transaction {
 	constructor(
-		readonly to: string,
+		readonly to: Address,
 		readonly value: Number,
-		readonly data: string,
+		readonly data: Bytes,
 		readonly operation: Operation
 	) {
 		super(to, value, data);
@@ -92,9 +99,9 @@ export class MultisigTransaction extends Transaction {
 
 export class MultisigInput {
 	constructor(
-		readonly to: string,
+		readonly to: Address,
 		readonly val: number,
-		readonly data: string,
+		readonly data: Bytes,
 		readonly op: Operation
 	) {}
 }
@@ -102,9 +109,9 @@ export class MultisigInput {
 // todo: redundant with multisig input
 export class MultiSendInput {
 	constructor(
-		readonly to: string,
+		readonly to: Address,
 		readonly val: number,
-		readonly data: string,
+		readonly data: Bytes,
 		readonly op: Operation
 	) {}
 }

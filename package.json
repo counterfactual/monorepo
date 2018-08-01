@@ -2,7 +2,7 @@
 	"name": "@counterfactual/machine",
 	"version": "0.0.1",
 	"description": "",
-	"main": "dist/machine.js",
+	"main": "dist/index.js",
 	"author": "",
 	"license": "ISC",
 	"scripts": {
