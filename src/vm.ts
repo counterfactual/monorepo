@@ -11,10 +11,10 @@ import {
 import {
 	NextMsgGenerator,
 	KeyGenerator,
-	OpCodeGenerator,
+	SignatureValidator,
 	StateDiffGenerator,
-	SignatureValidator
-} from "./middleware";
+	CfOpGenerator
+} from "./middleware/middleware";
 import { CfState, Context } from "./state";
 import { Instruction } from "./instructions";
 
@@ -63,7 +63,7 @@ export class CounterfactualVM {
 		this.register(
 			Instruction.OP_GENERATE,
 			async (message: InternalMessage, next: Function) => {
-				return OpCodeGenerator.generate(message, next, this.cfState);
+				return CfOpGenerator.generate(message, next, this.cfState);
 			}
 		);
 		this.register(Instruction.KEY_GENERATE, KeyGenerator.generate);

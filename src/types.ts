@@ -1,9 +1,15 @@
 import * as ethers from "ethers";
 import { Response } from "./vm";
-import { CfApp, Terms } from "./cf-operation/types";
+import { CfAppInterface, Terms } from "./cf-operation/types";
 
+/**
+ * Aliases to help code readability. Should think about actually changing these
+ * to be non strings.
+ */
 export type Bytes = string;
+export type Bytes4 = string;
 export type Address = string;
+export type H256 = string;
 
 export interface ClientMessage {
 	requestId: string;
@@ -26,7 +32,7 @@ export interface InstallData {
 	keyB: string;
 	encodedAppState: string;
 	terms: Terms;
-	app: CfApp;
+	app: CfAppInterface;
 	timeout: number;
 }
 
@@ -175,7 +181,7 @@ export interface AppChannelInfo {
 	localNonce: number;
 	timeout: number;
 	terms: Terms;
-	cfApp: CfApp;
+	cfApp: CfAppInterface;
 
 	//TODO move this into a method that is outside the data structure
 	stateChannel?: StateChannelInfo;
