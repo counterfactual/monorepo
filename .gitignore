@@ -18,6 +18,7 @@ scTopics
 # truffle build artifacts
 build/
 abis.json
+ganache.log
 
 # lerna
 lerna-debug.log
