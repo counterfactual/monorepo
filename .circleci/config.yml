@@ -43,7 +43,7 @@ jobs:
           command: |
             yarn ganache
           background: true
-      - run: yarn test
+      - run: yarn test-ci
 
   lint-repo:
     docker:
