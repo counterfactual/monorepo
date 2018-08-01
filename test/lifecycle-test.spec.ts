@@ -7,7 +7,7 @@ import {
 } from "../src/types";
 import {
 	Terms,
-	CfApp,
+	CfAppInterface,
 	zeroAddress,
 	zeroBytes32
 } from "../src/cf-operation/types";
@@ -172,7 +172,7 @@ function startInstallBalanceRefundMsg(
 	}
 	let terms = new Terms(0, 10, zeroAddress); // todo
 
-	let app = new CfApp( // todo
+	let app = new CfAppInterface( // todo
 		"0x0",
 		"0x11111111",
 		"0x11111111",
@@ -297,7 +297,7 @@ function installTttMsg(to: string, from: string): ClientMessage {
 		peerB = tmp;
 	}
 	let terms = new Terms(0, 10, zeroAddress); // todo
-	let app = new CfApp( // todo
+	let app = new CfAppInterface( // todo
 		"0x0",
 		"0x11111111",
 		"0x11111111",

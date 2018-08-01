@@ -4,30 +4,22 @@ import {
 	Transaction,
 	MultisigInput,
 	Abi,
-	CfApp,
 	Terms,
 	zeroAddress,
 	zeroBytes32,
-	CfOperation
+	CfOperation,
+	CfNonce,
+	CfStateChannel
 } from "./types";
 import * as ethers from "ethers";
 import * as common from "./common";
 
 export class CfOpSetup extends CfOperation {
-	/**
-	 * nonceRegistryKey should be the unique identifier for a particular
-	 * dependency nonces on a single app. It can simply be a unique counter
-	 * on the number off apps in a given state channel container represented
-	 * by a single multisig.
-	 */
 	constructor(
 		readonly ctx: NetworkContext,
 		readonly multisig: string,
-		readonly signingKeys: string[], // must be alphabetically ordered
-		readonly freeBalanceUniqueId: number,
-		readonly nonceRegistryKey: string,
-		readonly nonceRegistryNonce: number,
-		readonly timeout: number
+		readonly freeBalance: CfStateChannel,
+		readonly nonce: CfNonce
 	) {
 		super();
 	}
@@ -48,23 +40,17 @@ export class CfOpSetup extends CfOperation {
 	}
 
 	multisigInput(): MultisigInput {
-		let [terms, app] = common.freeBalance(this.ctx);
-		let freeBalanceCfAddr = common.appCfAddress(
-			this.ctx,
-			this.multisig,
-			this.signingKeys,
-			this.timeout,
-			this.freeBalanceUniqueId,
-			terms,
-			app
-		);
-		let termsArray = [terms.assetType, terms.limit, terms.token];
+		let termsArray = [
+			this.freeBalance.terms.assetType,
+			this.freeBalance.terms.limit,
+			this.freeBalance.terms.token
+		];
 		let multisigCalldata = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
-			this.nonceRegistryKey,
-			this.nonceRegistryNonce,
-			freeBalanceCfAddr,
+			this.nonce.salt,
+			this.nonce.nonce,
+			this.freeBalance.cfAddress(),
 			termsArray
 		]);
 

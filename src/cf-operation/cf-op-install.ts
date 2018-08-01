@@ -1,67 +1,60 @@
 import * as ethers from "ethers";
-import { NetworkContext, Address } from "../types";
-import { Operation, Abi, MultisigInput, Terms, CfApp } from "./types";
+import { NetworkContext, Address, H256 } from "../types";
+import {
+	Operation,
+	Abi,
+	MultisigInput,
+	Terms,
+	CfFreeBalance,
+	CfNonce,
+	CfStateChannel
+} from "./types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 import * as common from "./common";
 
 export class CfOpInstall extends CfMultiSendOp {
-	appCfAddress: Address = Object.create(null);
-	// todo: abstract these items that must be passed in from the executing
-	//       vm keeping track of all these things
 	constructor(
 		readonly ctx: NetworkContext,
 		readonly multisig: Address,
-		readonly appUniqueId: number,
-		readonly signingKeys: Address[],
-		readonly freeBalanceUniqueId: number,
-		readonly freeBalanceLocalNonce: number,
-		readonly alice: Address, // first person in free balance object
-		readonly aliceFreeBalance: number,
-		readonly bob: Address, // second person in free balance object
-		readonly bobFreeBalance: number,
-		readonly dependencyNonceSalt: string,
-		readonly dependencyNonceNonce: number,
-		readonly terms: Terms,
-		readonly app: CfApp,
-		readonly timeout: number
+		readonly app: CfStateChannel,
+		readonly cfFreeBalance: CfFreeBalance,
+		readonly dependencyNonce: CfNonce
 	) {
 		super();
 	}
 
 	/**
-	 * @overrid common.CfMultiSendOp
+	 * @override common.CfMultiSendOp
 	 */
 	eachMultisigInput(): Array<MultisigInput> {
 		return [
-			this.freeBalance(),
-			this.dependencyNonce(),
-			this.conditionalTransfer()
+			this.freeBalanceInput(),
+			this.dependencyNonceInput(),
+			this.conditionalTransferInput()
 		];
 	}
 
-	private conditionalTransfer(): MultisigInput {
-		let appCfAddr = common.appCfAddress(
-			this.ctx,
-			this.multisig,
-			this.signingKeys,
-			this.timeout,
-			this.appUniqueId,
-			this.terms,
-			this.app
-		);
-		this.appCfAddress = appCfAddr;
+	private conditionalTransferInput(): MultisigInput {
 		let to = this.ctx.ConditionalTransfer;
 		let val = 0;
-		let terms = [this.terms.assetType, this.terms.limit, this.terms.token];
+		let terms = [
+			this.app.terms.assetType,
+			this.app.terms.limit,
+			this.app.terms.token
+		];
 		let data = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
-			this.dependencyNonceSalt,
-			this.dependencyNonceNonce,
-			appCfAddr,
+			this.dependencyNonce.salt,
+			this.dependencyNonce.nonce,
+			this.appCfAddress,
 			terms
 		]);
 		let op = Operation.Delegatecall;
 		return new MultisigInput(to, val, data, op);
+	}
+
+	get appCfAddress(): H256 {
+		return this.app.cfAddress();
 	}
 }

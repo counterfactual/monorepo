@@ -1,7 +1,6 @@
-import { NetworkContext, Address, Signature } from "../types";
+import { NetworkContext, Address, Signature, Bytes } from "../types";
 import * as ethers from "ethers";
 import {
-	CfApp,
 	Abi,
 	Terms,
 	zeroBytes32,
@@ -10,23 +9,18 @@ import {
 	CfOperation,
 	MultisigInput,
 	MultiSend,
-	Operation
+	Operation,
+	CfFreeBalance,
+	CfNonce,
+	CfStateChannel
 } from "./types";
 import * as common from "./common";
 
 export abstract class CfMultiSendOp extends CfOperation {
 	readonly ctx: NetworkContext = Object.create(null);
 	readonly multisig: Address = Object.create(null);
-	readonly signingKeys: Address[] = Object.create(null);
-	readonly timeout: number = Object.create(null);
-	readonly freeBalanceUniqueId: number = Object.create(null);
-	readonly alice: Address = Object.create(null);
-	readonly aliceFreeBalance: number = Object.create(null);
-	readonly bob: Address = Object.create(null);
-	readonly bobFreeBalance: number = Object.create(null);
-	readonly freeBalanceLocalNonce: number = Object.create(null);
-	readonly dependencyNonceSalt: string = Object.create(null);
-	readonly dependencyNonceNonce: number = Object.create(null);
+	readonly dependencyNonce: CfNonce = Object.create(null);
+	readonly cfFreeBalance: CfFreeBalance = Object.create(null);
 
 	transaction(sigs: Signature[]): Transaction {
 		let multisigInput = this.multisigInput();
@@ -68,31 +62,54 @@ export abstract class CfMultiSendOp extends CfOperation {
 		return new MultiSend(this.eachMultisigInput()).input(this.ctx.MultiSend);
 	}
 
-	freeBalance(): MultisigInput {
+	freeBalanceInput(): MultisigInput {
 		let to = this.ctx.Registry;
 		let val = 0;
-		let data = common.freeBalanceData(
-			this.ctx,
-			this.multisig,
-			this.signingKeys,
-			this.timeout,
-			this.freeBalanceUniqueId,
-			this.alice,
-			this.aliceFreeBalance,
-			this.bob,
-			this.bobFreeBalance,
-			this.freeBalanceLocalNonce
-		);
+		let data = this.freeBalanceData();
 		let op = Operation.Call;
 		return new MultisigInput(to, val, data, op);
 	}
 
-	dependencyNonce(): MultisigInput {
+	freeBalanceData(): Bytes {
+		let terms = CfFreeBalance.terms();
+		let app = CfFreeBalance.contractInterface(this.ctx);
+		let freeBalanceCfAddress = new CfStateChannel(
+			this.multisig,
+			[this.cfFreeBalance.alice, this.cfFreeBalance.bob],
+			app,
+			terms,
+			this.cfFreeBalance.timeout,
+			this.cfFreeBalance.uniqueId
+		).cfAddress();
+
+		let appStateHash = ethers.utils.solidityKeccak256(
+			["bytes1", "address", "address", "uint256", "uint256"],
+			[
+				"0x19",
+				this.cfFreeBalance.alice,
+				this.cfFreeBalance.bob,
+				this.cfFreeBalance.aliceBalance,
+				this.cfFreeBalance.bobBalance
+			]
+		);
+		// don't need signatures since the multisig is the owner
+		let signatures = "0x0";
+		return common.proxyCallSetStateData(
+			appStateHash,
+			freeBalanceCfAddress,
+			this.cfFreeBalance.localNonce,
+			this.cfFreeBalance.timeout,
+			signatures,
+			this.ctx.Registry
+		);
+	}
+
+	dependencyNonceInput(): MultisigInput {
 		let to = this.ctx.NonceRegistry;
 		let val = 0;
 		let data = new ethers.Interface([Abi.setNonce]).functions.setNonce.encode([
-			this.dependencyNonceSalt,
-			this.dependencyNonceNonce
+			this.dependencyNonce.salt,
+			this.dependencyNonce.nonce
 		]);
 		let op = Operation.Call;
 		return new MultisigInput(to, val, data, op);

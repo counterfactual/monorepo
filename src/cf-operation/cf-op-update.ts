@@ -1,6 +1,12 @@
 import * as ethers from "ethers";
 import * as common from "./common";
-import { CfApp, Terms, Transaction, CfOperation } from "./types";
+import {
+	CfAppInterface,
+	Terms,
+	Transaction,
+	CfOperation,
+	CfStateChannel
+} from "./types";
 import { NetworkContext, Address, Signature } from "../types";
 
 export class CfOpUpdate extends CfOperation {
@@ -11,7 +17,7 @@ export class CfOpUpdate extends CfOperation {
 		readonly appStateHash: string,
 		readonly appUniqueId: number,
 		readonly terms: Terms,
-		readonly app: CfApp,
+		readonly app: CfAppInterface,
 		readonly appLocalNonce: number,
 		readonly timeout: number
 	) {
@@ -36,16 +42,14 @@ export class CfOpUpdate extends CfOperation {
 	 *          `setState` on StateChannel.sol.
 	 */
 	transaction(sigs: Signature[]): Transaction {
-		let appCfAddr = common.appCfAddress(
-			this.ctx,
+		let appCfAddr = new CfStateChannel(
 			this.multisig,
 			this.signingKeys,
-			this.timeout,
-			this.appUniqueId,
+			this.app,
 			this.terms,
-			this.app
-		);
-
+			this.timeout,
+			this.appUniqueId
+		).cfAddress();
 		let to = this.ctx.Registry;
 		let val = 0;
 		let data = common.proxyCallSetStateData(
