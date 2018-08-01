@@ -13,7 +13,7 @@ Counterfactual is a framework for developing applications using state channels. 
 
 ## Features
 
-### 📱 Multi-Application Support
+### 📱 Multiple Applications
 
 By using state commitments and deterministic addressing, Counterfactual supports the ability to install and uninstall applications within a channel without any on-chain transactions.
 
@@ -21,7 +21,7 @@ By using state commitments and deterministic addressing, Counterfactual supports
 
 Interact with anyone across a network of channels (subject to collateral constraints) and get all the benefits of channelization without having to open a channel with your counterparties.
 
-### 💡 Flexible yet Simple API
+### 💻 Familar Redux-Like API
 
 We expose a redux-like stateless API for application developers. We use native ABIEncoderV2 integration to allow developers to specify their own application data layout.
 
