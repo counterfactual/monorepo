@@ -1,6 +1,7 @@
 import * as ethers from "ethers";
 import { Response } from "./vm";
 import { CfAppInterface, Terms } from "./cf-operation/types";
+import { Instruction } from "./instructions";
 
 /**
  * Aliases to help code readability. Should think about actually changing these
@@ -28,8 +29,8 @@ export interface ClientMessage {
 export interface InstallData {
 	peerA: PeerBalance;
 	peerB: PeerBalance;
-	keyA: string;
-	keyB: string;
+	keyA: Address;
+	keyB: Address;
 	encodedAppState: string;
 	terms: Terms;
 	app: CfAppInterface;
@@ -71,15 +72,15 @@ export class CanonicalPeerBalance {
 }
 
 export class PeerBalance {
-	constructor(readonly address: string, readonly balance: number) {}
+	constructor(readonly address: Address, readonly balance: number) {}
 
 	/**
 	 * Returnsan array of peer balance objects sorted by address ascendi.
 	 */
 	static balances(
-		address1: string,
+		address1: Address,
 		balance1: number,
-		address2: string,
+		address2: Address,
 		balance2: number
 	): CanonicalPeerBalance {
 		if (address2.localeCompare(address1) < 0) {
@@ -150,9 +151,9 @@ export interface ChannelStates {
 }
 
 export interface StateChannelInfo {
-	toAddress: string;
-	fromAddress: string;
-	multisigAddress: string;
+	toAddress: Address;
+	fromAddress: Address;
+	multisigAddress: Address;
 	appChannels: AppChannelInfos;
 	freeBalance: FreeBalance;
 
@@ -166,14 +167,14 @@ export interface StateChannelInfo {
 
 export interface AppChannelInfo {
 	// cf address
-	id: string;
+	id: H256;
 	// used to generate cf address
 	uniqueId: number;
 	peerA: PeerBalance;
 	peerB: PeerBalance;
 	// ephemeral keys
-	keyA: string;
-	keyB: string;
+	keyA: Address;
+	keyB: Address;
 	// count of the dependency nonce in my condition
 	rootNonce: number;
 	encodedState: any;
@@ -195,7 +196,7 @@ export interface AppChannelInfos {
 }
 
 export interface OpCodeResult {
-	opCode: string;
+	opCode: Instruction;
 	value: any;
 }
 

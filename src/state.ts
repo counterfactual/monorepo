@@ -7,7 +7,9 @@ import {
 	AppChannelInfo,
 	StateChannelInfo,
 	FreeBalance,
-	PeerBalance
+	PeerBalance,
+	Address,
+	H256
 } from "./types";
 
 export class CfState {
@@ -24,15 +26,15 @@ export class CfState {
 		);
 	}
 
-	stateChannel(multisig: string): StateChannelInfo {
+	stateChannel(multisig: Address): StateChannelInfo {
 		return this.channelStates[multisig];
 	}
 
-	app(multisig: string, cfAddr: string): AppChannelInfo {
+	app(multisig: Address, cfAddr: H256): AppChannelInfo {
 		return this.channelStates[multisig].appChannels[cfAddr];
 	}
 
-	freeBalance(multisig: string): FreeBalance {
+	freeBalance(multisig: Address): FreeBalance {
 		return this.channelStates[multisig].freeBalance;
 	}
 
@@ -75,10 +77,10 @@ export class StateChannelInfoImpl implements StateChannelInfo {
 }
 
 export class AppChannelInfoImpl {
-	id?: string;
+	id?: H256;
 	amount?: any;
-	toSigningKey?: string;
-	fromSigningKey?: string;
+	toSigningKey?: Address;
+	fromSigningKey?: Address;
 	stateChannel?: StateChannelInfo;
 	rootNonce?: number;
 

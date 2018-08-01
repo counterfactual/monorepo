@@ -1,10 +1,10 @@
 import * as ethers from "ethers";
-import { Bytes, Address } from "../types";
+import { Bytes, Address, H256 } from "../types";
 import { Abi } from "./types";
 
 export function proxyCallSetStateData(
-	appStateHash: string,
-	appCfAddr: string,
+	appStateHash: H256,
+	appCfAddr: H256,
 	appLocalNonce: number,
 	timeout: number,
 	signatures: Bytes,
