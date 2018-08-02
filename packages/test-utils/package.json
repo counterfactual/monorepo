@@ -4,14 +4,14 @@
   "description": "Miscellaneous utility functions.",
   "main": "lib/utils.js",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json.modified",
     "clean": "shx rm -rf lib",
     "lint:all:fix": "yarn lint:fix && yarn lint:sol:fix",
     "lint:all": "yarn lint && yarn lint:sol",
-    "lint:fix": "tsc --noEmit && tslint -c tslint.json src/**/*.ts --fix",
+    "lint:fix": "tsc --noEmit --project tsconfig.json.modified && tslint -c tslint.json src/**/*.ts --fix",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:sol": "solium -d .",
-    "lint": "tsc --noEmit && tslint -c tslint.json src/**/*.ts",
+    "lint": "tsc --noEmit --project tsconfig.json.modified && tslint -c tslint.json src/**/*.ts",
     "precommit": "lint-staged"
   },
   "files": [
