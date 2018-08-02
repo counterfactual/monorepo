@@ -4,7 +4,7 @@
 
 Counterfactual is a general framework for building state channel applications.
 
-- **Generalized**: Counterfactual makes no assumptions about your application, the type of state being passed around, the number of parties in the channel, the type of asset being stored, or the structure of your application. It is fully generalized to support any number of state channel applications for _n_-party channels with zero on-chain transactions for installing or uninstall applications.
+- **Generalized**: Counterfactual makes no assumptions about your application, the type of state being passed around, the number of parties in the channel, the type of asset being stored, or the structure of your application. It is fully generalized to support any number of state channel applications for _n_-party channels with zero on-chain transactions for installing or uninstalling applications.
 
 - **Modular**: Write your application logic without concerning yourself with the details of the state channel dispute process, timeout periods, or for edge case attack scenarios. Counterfactual aims to seperate the state channel logistics from your application logistics. Applications themselves, despite being secured through the same on-chain multisignature wallet, are completely isolated from each other.
 
