@@ -12,8 +12,6 @@ Untested!
 */
 contract Nim {
 
-  enum ActionTypes { INCREMENT, DECREMENT}
-
   struct Action {
     uint256 pileIdx;
     uint256 takeAmnt;
@@ -65,6 +63,7 @@ contract Nim {
     AppState memory ret = state;
 
     ret.pileHeights[action.pileIdx] -= action.takeAmnt;
+    ret.turnNum += 1;
 
     return abi.encode(ret);
   }
