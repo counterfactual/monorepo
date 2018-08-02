@@ -32,7 +32,7 @@ export interface InstallData {
 	peerB: PeerBalance;
 	keyA: Address;
 	keyB: Address;
-	encodedAppState: string;
+	encodedAppState: Bytes;
 	terms: Terms;
 	app: CfAppInterface;
 	timeout: number;
@@ -180,6 +180,7 @@ export interface AppChannelInfo {
 	keyB: Address;
 	encodedState: any;
 	appState?: any;
+	appStateHash?: H256;
 	localNonce: number;
 	timeout: number;
 	terms: Terms;

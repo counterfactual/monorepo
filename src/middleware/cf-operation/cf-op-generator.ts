@@ -167,7 +167,6 @@ export class CfOpGenerator {
 		cfState: CfState,
 		proposedUninstall: any
 	): CfOperation {
-		console.log("proposed = ", proposedUninstall);
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let cfAddr = message.clientMessage.appId;
 		let freeBalance = proposedUninstall[multisig].freeBalance;
