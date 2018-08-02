@@ -10,6 +10,8 @@ When disputes occur, an instance of the contract [`StateChannel.sol`](./contract
 
 State deposit is stored in a [multisig wallet](./contracts/MinimumViableMultisig.sol). Apps are installed by signing [commitments](./contracts/delegateTargets/ConditionalTransfer.sol) from the multisig. Deterministic addressing for counterfactually instantiated objects is provided through a [registry](./contracts/Registry.sol).
 
+For a more detailed description of contract architecture, please see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 ## Contributing
 
 Counterfactual is an open-source project. Development happens in the open on GitHub, and we welcome bugfixes and improvements from the community.
