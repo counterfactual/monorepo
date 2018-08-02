@@ -4,7 +4,7 @@ import { InternalMessage, getFirstResult } from "../vm";
 import { ClientMessage } from "../types";
 import { Instruction } from "../instructions";
 
-export { StateTransition } from "./state-transition";
+export { StateTransition } from "./state-transition/state-transition";
 export { CfOpGenerator } from "./cf-operation/cf-op-generator";
 
 export class NextMsgGenerator {
