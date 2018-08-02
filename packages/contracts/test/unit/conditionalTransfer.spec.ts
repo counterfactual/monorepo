@@ -20,18 +20,6 @@ contract("ConditionalTransfer", (accounts: string[]) => {
     ct = await Utils.getDeployedContract(ConditionalTransfer, unlockedAccount);
   });
 
-  it("instantiates with correct registry address", async () => {
-    const registry = await ct.functions._registry();
-    registry.should.be.equalIgnoreCase(artifacts.require("Registry").address);
-  });
-
-  it("instantiates with correct nonceRegistry address", async () => {
-    const nonceRegistry = await ct.functions._nonceRegistry();
-    nonceRegistry.should.be.equalIgnoreCase(
-      artifacts.require("NonceRegistry").address
-    );
-  });
-
   describe("Pre-commit to transfer details", () => {
     const makeCondition = (expectedValue, onlyCheckForSuccess) => ({
       expectedValueHash: ethers.utils.solidityKeccak256(

@@ -25,14 +25,48 @@ export const zeroBytes32 =
 
 export const deployContract = async (
   contract: any,
-  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider
+  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider,
+  args?: any[]
 ): Promise<ethers.Contract> => {
-  return new ethers.Contract(
-    (await contract.new()).address,
-    contract.abi,
-    providerOrSigner
+  return new ethers.Contract("", contract.abi, providerOrSigner).deploy(
+    contract.binary,
+    ...(args || [])
   );
 };
+
+let runningTally = 0;
+
+export async function deployContractViaRegistry(
+  truffleContract: any,
+  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider,
+  cargs?: any[]
+): Promise<{ cfAddr: string; contract: ethers.Contract }> {
+  const Registry = artifacts.require("Registry");
+  const registry = await getDeployedContract(Registry, providerOrSigner);
+  const initcode = new ethers.Interface(
+    truffleContract.abi
+  ).deployFunction.encode(truffleContract.binary, cargs || []);
+  const contractSalt = ethers.utils.solidityKeccak256(
+    ["uint256"],
+    [runningTally++]
+  );
+  const cfAddr = ethers.utils.solidityKeccak256(
+    ["bytes1", "bytes", "uint256"],
+    ["0x19", initcode, contractSalt]
+  );
+
+  await registry.functions.deploy(initcode, contractSalt, highGasLimit);
+
+  const realAddr = await registry.functions.resolver(cfAddr);
+
+  const contract = new ethers.Contract(
+    realAddr,
+    truffleContract.abi,
+    providerOrSigner
+  );
+
+  return { cfAddr, contract };
+}
 
 export const getDeployedContract = async (
   contract: any,
@@ -79,7 +113,7 @@ export function signMessageVRS(message, wallets: ethers.Wallet[]) {
   return { v, r, s };
 }
 
-export function signMessageRaw(message, wallet) {
+export function signMessageRaw(message: string, wallet: ethers.Wallet) {
   const [v, r, s] = signMessage(message, wallet);
   return (
     ethers.utils.hexlify(ethers.utils.padZeros(r, 32)).substring(2) +
@@ -88,7 +122,7 @@ export function signMessageRaw(message, wallet) {
   );
 }
 
-export function signMessageBytes(message, wallets) {
+export function signMessageBytes(message, wallets: ethers.Wallet[]) {
   let signatures = "";
   for (const wallet of wallets) {
     signatures += signMessageRaw(message, wallet);
