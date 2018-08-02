@@ -4,6 +4,7 @@ import {
 	Address,
 	Signature,
 	H256,
+	Bytes32,
 	Bytes4,
 	NetworkContext
 } from "../../types";
@@ -177,7 +178,15 @@ export class CfFreeBalance {
 }
 
 export class CfNonce {
-	constructor(public salt: H256, public nonce: number) {}
+	public salt: Bytes32;
+	public nonce: number;
+	constructor(uniqueId: number, nonce?: number) {
+		this.salt = ethers.utils.solidityKeccak256(["uint256"], [uniqueId]);
+		if (!nonce) {
+			nonce = 1;
+		}
+		this.nonce = nonce;
+	}
 }
 
 /**

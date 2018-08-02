@@ -14,21 +14,20 @@ export class InstallProposer {
 	static propose(message: InternalMessage, context: Context, state: CfState) {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let data: InstallData = message.clientMessage.data;
-
+		let uniqueId = InstallProposer.nextUniqueId(state, multisig);
 		let cfAddr = new CfStateChannel(
 			multisig,
 			[message.clientMessage.data.keyA, message.clientMessage.data.keyB],
 			message.clientMessage.data.app,
 			message.clientMessage.data.terms,
 			data.timeout,
-			4 // unique id todo
+			uniqueId
 		).cfAddress();
 
 		// add on for use by other middleware
 		message.clientMessage.appId = cfAddr;
 
 		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
-		let uniqueId = 3; // todo
 		let localNonce = 1;
 		let newAppChannel: AppChannelInfo = {
 			id: cfAddr,
@@ -38,11 +37,11 @@ export class InstallProposer {
 			keyA: data.keyA,
 			keyB: data.keyB,
 			encodedState: data.encodedAppState,
-			localNonce: 1,
+			localNonce: localNonce,
 			timeout: data.timeout,
 			terms: data.terms,
 			cfApp: data.app,
-			dependencyNonce: new CfNonce(zeroBytes32, 0) // todo
+			dependencyNonce: new CfNonce(uniqueId)
 		};
 		let peerA = new PeerBalance(
 			existingFreeBalance.peerA.address,
@@ -69,5 +68,11 @@ export class InstallProposer {
 			freeBalance
 		);
 		return { [multisig]: updatedStateChannel };
+	}
+
+	static nextUniqueId(state: CfState, multisig: Address): number {
+		let channel = state.channelStates[multisig];
+		// + 1 for the free balance
+		return Object.keys(channel.appChannels).length + 1;
 	}
 }
