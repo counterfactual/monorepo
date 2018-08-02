@@ -10,6 +10,7 @@ import { CfNonce } from "./middleware/cf-operation/types";
  */
 export type Bytes = string;
 export type Bytes4 = string;
+export type Bytes32 = string;
 export type Address = string;
 export type H256 = string;
 

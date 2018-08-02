@@ -83,7 +83,6 @@ export class AppChannelInfoImpl {
 	fromSigningKey?: Address;
 	stateChannel?: StateChannelInfo;
 	rootNonce?: number;
-
 	encodedState?: any;
 	appStateHash?: H256;
 	appState?: any;

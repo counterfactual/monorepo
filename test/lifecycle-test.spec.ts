@@ -288,7 +288,7 @@ function validateUninstalledAndFreeBalance(
 	expect(channel.freeBalance.peerA.balance).toBe(amountA);
 	expect(channel.freeBalance.peerB.balance).toBe(amountB);
 
-	expect(app.dependencyNonce.nonce).toBe(1);
+	expect(app.dependencyNonce.nonce).toBe(2);
 }
 
 function startUninstallBalanceRefundMsg(
@@ -533,7 +533,7 @@ function validateUninstallTtt(
 	let app = channel.appChannels[cfAddr];
 	expect(channel.freeBalance.peerA.balance).toBe(amountA);
 	expect(channel.freeBalance.peerB.balance).toBe(amountB);
-	expect(app.dependencyNonce.nonce).toBe(1);
+	expect(app.dependencyNonce.nonce).toBe(2);
 }
 
 function validateSystem(wallet: TestWallet) {

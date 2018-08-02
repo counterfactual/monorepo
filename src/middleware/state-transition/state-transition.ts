@@ -12,13 +12,13 @@ import { InstallProposer } from "./install-proposer";
 import { UninstallProposer } from "./uninstall-proposer";
 import { UpdateProposer } from "./update-proposer";
 
-/**
- * The proposed state transitions do not complete a state upate. They give
- * a "proposed" state update that should not be enacted until both
- * STATE_TRANSITION_PREPARE and STATE_TRANSITION_COMMIT instructions have
- * been executed.
- */
 export class StateTransition {
+	/**
+	 * The proposed state transitions do not complete a state upate. They give
+	 * a "proposed" state update that should not be enacted until both
+	 * STATE_TRANSITION_PREPARE and STATE_TRANSITION_COMMIT instructions have
+	 * been executed.
+	 */
 	static propose(
 		message: InternalMessage,
 		next: Function,
