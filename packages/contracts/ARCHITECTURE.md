@@ -36,13 +36,13 @@ where `nextState` has type `AppState`.
 
 If `AppState` defines the data structure needed to represent the state of an app instance, `reducer` defines the app logic that operates on the app. In a Tic-Tac-Toe game,  `AppState`  represents the state of the board, and `reducer` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `reducer` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
 
-![reducer](/images/reducer.svg )
+![reducer](./images/reducer.svg )
 
 ### Resolver
 
 From certain app states, `resolver` can be called to return a value of type `struct Tansfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
-![resolver](/images/resolver.svg)
+![resolver](./images/resolver.svg)
 
 ### isStateFinal
 
@@ -75,7 +75,7 @@ In addition, an app in a DISPUTE state has a `finalizesAt` field representing th
 
 The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
 
-![statechannel statuses](/images/statechannel-statuses.svg)
+![statechannel statuses](./images/statechannel-statuses.svg)
 
 ### `appStateHash` and `nonce`
 
