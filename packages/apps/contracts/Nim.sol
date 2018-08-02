@@ -7,8 +7,6 @@ import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 /*
 Normal-form Nim
 https://en.wikipedia.org/wiki/Nim
-
-Untested!
 */
 contract Nim {
 
