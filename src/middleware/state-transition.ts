@@ -10,31 +10,44 @@ import {
 	UpdateData,
 	InstallData,
 	Signature,
-	StateChannelInfos
+	StateChannelInfos,
+	H256
 } from "../types";
-import { zeroAddress } from "../cf-operation/types";
+import { Instruction } from "../instructions";
+import {
+	zeroAddress,
+	zeroBytes32,
+	CfNonce,
+	CfStateChannel
+} from "./cf-operation/types";
 
-export class StateDiffGenerator {
-	static generate(
+/**
+ * The proposed state transitions do not complete a state upate. They give
+ * a "proposed" state update that should not be enacted until both
+ * STATE_TRANSITION_PREPARE and STATE_TRANSITION_COMMIT instructions have
+ * been executed.
+ */
+export class StateTransition {
+	static propose(
 		message: InternalMessage,
 		next: Function,
 		context: Context,
 		cfState: CfState
-	): StateChannelInfos | void {
+	) {
 		if (message.actionName === "update") {
-			return StateDiffGenerator.updateStateDiff(message, context, cfState);
+			return StateTransition.proposeUpdate(message, context, cfState);
 		} else if (message.actionName === "install") {
-			return StateDiffGenerator.installStateDiff(message, context, cfState);
+			return StateTransition.proposeInstall(message, context, cfState);
 		} else if (message.actionName === "uninstall") {
-			return StateDiffGenerator.uninstallStateDiff(message, context, cfState);
+			return StateTransition.proposeUninstall(message, context, cfState);
 		} else if (message.actionName === "setup") {
-			console.log("Setup action needs no diff generation");
-			return;
+			return StateTransition.proposeSetup(message, context, cfState);
 		} else {
 			throw Error("Action name not supported");
 		}
 	}
-	static updateStateDiff(
+
+	private static proposeUpdate(
 		message: InternalMessage,
 		context: Context,
 		state: CfState
@@ -42,30 +55,37 @@ export class StateDiffGenerator {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 
-		let appId: string = message.clientMessage.appId;
+		let appId: H256 = message.clientMessage.appId;
 		let app;
 		try {
 			app = channels[multisig].appChannels[appId];
 		} catch (e) {}
 
 		let updateData: UpdateData = message.clientMessage.data;
+		app.appStateHash = updateData.appStateHash;
 		app.encodedState = updateData.encodedAppState;
 		app.localNonce += 1;
 
 		return channels;
 	}
 
-	static installStateDiff(
+	private static proposeInstall(
 		message: InternalMessage,
 		context: Context,
-		cfState: CfState
-	): StateChannelInfos {
+		state: CfState
+	) {
 		let multisig: Address = message.clientMessage.multisigAddress;
-		// FIXME: no cfAddr actually gets retrieved here
-		//let cfAddr = getFirstResult(Instruction.OP_GENERATE, context.results).value
-		//	.cfAddr;
-		let cfAddr = zeroAddress;
-		let existingFreeBalance = cfState.stateChannel(multisig).freeBalance;
+		let cfAddr = new CfStateChannel(
+			multisig,
+			[message.clientMessage.data.keyA, message.clientMessage.data.keyB],
+			message.clientMessage.data.app,
+			message.clientMessage.data.terms,
+			100, // timeout todo
+			4 // unique id todo
+		).cfAddress();
+		// add on for use by other middleware
+		message.clientMessage.appId = cfAddr;
+		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
 		let uniqueId = 3; // todo
 		let localNonce = 1;
 		let data: InstallData = message.clientMessage.data;
@@ -76,35 +96,29 @@ export class StateDiffGenerator {
 			peerB: data.peerB,
 			keyA: data.keyA,
 			keyB: data.keyB,
-			rootNonce: 1,
 			encodedState: "0x3", // todo
 			localNonce: 1,
 			timeout: data.timeout,
 			terms: data.terms,
-			cfApp: data.app
+			cfApp: data.app,
+			dependencyNonce: new CfNonce(zeroBytes32, 0)
 		};
 		let peerA = new PeerBalance(
-			// FIXME: (ts-strict) object should never be undefined
-			// @ts-ignore
 			existingFreeBalance.peerA.address,
-			// @ts-ignore
 			existingFreeBalance.peerA.balance - data.peerA.balance
 		);
 		let peerB = new PeerBalance(
-			// @ts-ignore
 			existingFreeBalance.peerB.address,
-			// @ts-ignore
 			existingFreeBalance.peerB.balance - data.peerB.balance
 		);
 		let appChannelInfo = { [newAppChannel.id]: newAppChannel };
 		let freeBalance = new FreeBalance(
 			peerA,
 			peerB,
-			// @ts-ignore
 			existingFreeBalance.localNonce + 1,
-			// @ts-ignore
 			existingFreeBalance.uniqueId,
-			data.timeout
+			data.timeout,
+			existingFreeBalance.nonce
 		);
 		let updatedStateChannel = new StateChannelInfoImpl(
 			message.clientMessage.toAddress,
@@ -113,11 +127,10 @@ export class StateDiffGenerator {
 			appChannelInfo,
 			freeBalance
 		);
-		console.log("installing state diff yay!", updatedStateChannel);
 		return { [multisig]: updatedStateChannel };
 	}
 
-	static uninstallStateDiff(
+	private static proposeUninstall(
 		message: InternalMessage,
 		context: Context,
 		state: CfState
@@ -125,8 +138,8 @@ export class StateDiffGenerator {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 		let appId = message.clientMessage.appId;
-		// delete app
-		delete channels[multisig].appChannels[appId];
+		// delete the app by bumping the nonce
+		channels[multisig].appChannels[appId].dependencyNonce.nonce += 1;
 		// add balance and update nonce
 		let canon = CanonicalPeerBalance.canonicalize(
 			message.clientMessage.data.peerAmounts[0],
@@ -144,7 +157,8 @@ export class StateDiffGenerator {
 			),
 			oldFreeBalance.localNonce + 1,
 			oldFreeBalance.uniqueId,
-			oldFreeBalance.timeout
+			oldFreeBalance.timeout,
+			oldFreeBalance.nonce
 		);
 		let chan = channels[multisig];
 		// now replace the state channel with a newly updated one
@@ -156,5 +170,62 @@ export class StateDiffGenerator {
 			newFreeBalance
 		);
 		return channels;
+	}
+
+	private static proposeSetup(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	) {
+		let toAddress = message.clientMessage.toAddress;
+		let fromAddress = message.clientMessage.fromAddress;
+		let balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
+		let uniqueId = 2; // todo
+		let localNonce = 1;
+		let timeout = 100; // todo, probably some default timeout
+		let freeBalance = new FreeBalance(
+			balances.peerA,
+			balances.peerB,
+			localNonce,
+			uniqueId,
+			timeout,
+			new CfNonce(zeroBytes32, 0)
+		);
+		let stateChannel = new StateChannelInfoImpl(
+			toAddress,
+			fromAddress,
+			message.clientMessage.multisigAddress,
+			{},
+			freeBalance
+		);
+		message.clientMessage.stateChannel = stateChannel;
+		let channels = {
+			[String(message.clientMessage.multisigAddress)]: stateChannel
+		};
+		// TODO we shouldn't mutate state until we get to COMMIT
+		context.vm.mutateState(channels);
+		return channels;
+	}
+
+	static prepare(
+		message: InternalMessage,
+		next: Function,
+		context: Context,
+		cfState: CfState
+	) {
+		// todo
+	}
+
+	static commit(
+		message: InternalMessage,
+		next: Function,
+		context: Context,
+		cfState: CfState
+	) {
+		let newState = getFirstResult(
+			Instruction.STATE_TRANSITION_PROPOSE,
+			context.results
+		);
+		context.vm.mutateState(newState.value);
 	}
 }

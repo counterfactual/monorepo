@@ -1,7 +1,8 @@
 import * as ethers from "ethers";
 import { Response } from "./vm";
-import { CfAppInterface, Terms } from "./cf-operation/types";
+import { CfAppInterface, Terms } from "./middleware/cf-operation/types";
 import { Instruction } from "./instructions";
+import { CfNonce } from "./middleware/cf-operation/types";
 
 /**
  * Aliases to help code readability. Should think about actually changing these
@@ -45,13 +46,15 @@ export interface UpdateData {
 	appStateHash: string;
 }
 
+// todo: remove in favor of CfNonce
 export class FreeBalance {
 	constructor(
 		readonly peerA: PeerBalance,
 		readonly peerB: PeerBalance,
 		readonly localNonce: number,
 		readonly uniqueId: number,
-		readonly timeout: number
+		readonly timeout: number,
+		readonly nonce: CfNonce
 	) {}
 }
 
@@ -175,14 +178,13 @@ export interface AppChannelInfo {
 	// ephemeral keys
 	keyA: Address;
 	keyB: Address;
-	// count of the dependency nonce in my condition
-	rootNonce: number;
 	encodedState: any;
 	appState?: any;
 	localNonce: number;
 	timeout: number;
 	terms: Terms;
 	cfApp: CfAppInterface;
+	dependencyNonce: CfNonce;
 
 	//TODO move this into a method that is outside the data structure
 	stateChannel?: StateChannelInfo;

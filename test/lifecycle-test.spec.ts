@@ -10,7 +10,7 @@ import {
 	CfAppInterface,
 	zeroAddress,
 	zeroBytes32
-} from "../src/cf-operation/types";
+} from "../src/middleware/cf-operation/types";
 import { ResponseStatus } from "../src/vm";
 
 const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
@@ -247,9 +247,48 @@ async function uninstallBalanceRefund(
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
 	// validate walletA
-	validateNoAppsAndFreeBalance(walletA, walletB, amountA, amountB);
+	validateUninstalledAndFreeBalance(cfAddr, walletA, walletB, amountA, amountB);
 	// validate walletB
-	validateNoAppsAndFreeBalance(walletB, walletA, amountB, amountA);
+	validateUninstalledAndFreeBalance(cfAddr, walletB, walletA, amountB, amountA);
+}
+
+/**
+ * Validates the correctness of walletA's free balance *not* walletB's.
+ */
+function validateUninstalledAndFreeBalance(
+	cfAddr: string,
+	walletA: TestWallet,
+	walletB: TestWallet,
+	amountA: number,
+	amountB: number
+) {
+	// todo: add nonce and uniqueId params and check them
+	let state = walletA.vm.cfState;
+
+	let peerA = walletA.address;
+	let peerB = walletB.address;
+	if (peerB.localeCompare(peerA) < 0) {
+		let tmp = peerA;
+		peerA = peerB;
+		peerB = tmp;
+		let tmpAmount = amountA;
+		amountA = amountB;
+		amountB = tmpAmount;
+	}
+
+	let channel = walletA.vm.cfState.channelStates[MULTISIG];
+	let app = channel.appChannels[cfAddr];
+
+	expect(Object.keys(state.channelStates).length).toBe(1);
+	expect(channel.toAddress).toBe(walletB.address);
+	expect(channel.fromAddress).toBe(walletA.address);
+	expect(channel.multisigAddress).toBe(MULTISIG);
+	expect(channel.freeBalance.peerA.address).toBe(peerA);
+	expect(channel.freeBalance.peerB.address).toBe(peerB);
+	expect(channel.freeBalance.peerA.balance).toBe(amountA);
+	expect(channel.freeBalance.peerB.balance).toBe(amountB);
+
+	expect(app.dependencyNonce.nonce).toBe(1);
 }
 
 function startUninstallBalanceRefundMsg(
@@ -452,9 +491,9 @@ async function uninstallTtt(
 	let response = await walletA.runProtocol(msg);
 	expect(response.status).toBe(ResponseStatus.COMPLETED);
 	// A wins so give him 2 and subtract 2 from B
-	validateUninstallTtt(walletA, 12, 3);
+	validateUninstallTtt(cfAddr, walletA, 12, 3);
 	await sleep(50);
-	validateUninstallTtt(walletB, 12, 3);
+	validateUninstallTtt(cfAddr, walletB, 12, 3);
 }
 
 function uninstallTttStartMsg(
@@ -485,15 +524,16 @@ function uninstallTttStartMsg(
 }
 
 function validateUninstallTtt(
+	cfAddr: string,
 	wallet: TestWallet,
 	amountA: number,
 	amountB: number
 ) {
 	let channel = wallet.vm.cfState.channelStates[MULTISIG];
-	console.log(channel.freeBalance);
-	expect(channel.appChannels).toEqual({});
+	let app = channel.appChannels[cfAddr];
 	expect(channel.freeBalance.peerA.balance).toBe(amountA);
 	expect(channel.freeBalance.peerB.balance).toBe(amountB);
+	expect(app.dependencyNonce.nonce).toBe(1);
 }
 
 function validateSystem(wallet: TestWallet) {

@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { Bytes, Address, H256 } from "../types";
+import { Bytes, Address, H256 } from "../../types";
 import { Abi } from "./types";
 
 export function proxyCallSetStateData(

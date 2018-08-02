@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { NetworkContext, Address, H256 } from "../types";
+import { NetworkContext, Address, H256 } from "../../types";
 import {
 	Operation,
 	Abi,

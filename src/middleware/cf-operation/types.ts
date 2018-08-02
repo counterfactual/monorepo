@@ -6,7 +6,7 @@ import {
 	H256,
 	Bytes4,
 	NetworkContext
-} from "../types";
+} from "../../types";
 import { PaymentApp } from "./contracts/paymentApp";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
@@ -177,7 +177,7 @@ export class CfFreeBalance {
 }
 
 export class CfNonce {
-	constructor(readonly salt: H256, readonly nonce: number) {}
+	constructor(public salt: H256, public nonce: number) {}
 }
 
 /**

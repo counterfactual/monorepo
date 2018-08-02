@@ -11,6 +11,7 @@ import {
 	Address,
 	H256
 } from "./types";
+import { CounterfactualVM } from "./vm";
 
 export class CfState {
 	channelStates: ChannelStates;
@@ -38,12 +39,11 @@ export class CfState {
 		return this.channelStates[multisig].freeBalance;
 	}
 
+	/**
+	 * @returns a deep copy of the StateChannelInfos.
+	 */
 	stateChannelInfos(): StateChannelInfos {
-		let infos = {};
-		for (let channel of Object.keys(this.channelStates)) {
-			infos[channel] = this.channelStates[channel];
-		}
-		return infos;
+		return JSON.parse(JSON.stringify(this.channelStates));
 	}
 
 	appChannelInfos(): AppChannelInfos {
@@ -85,6 +85,7 @@ export class AppChannelInfoImpl {
 	rootNonce?: number;
 
 	encodedState?: any;
+	appStateHash?: H256;
 	appState?: any;
 	localNonce?: number;
 }
@@ -94,4 +95,5 @@ export class Context {
 	stateChannelInfos: StateChannelInfos = Object.create(null);
 	appChannelInfos: AppChannelInfos = Object.create(null);
 	instructionPointer: number = Object.create(null);
+	vm: CounterfactualVM = Object.create(null);
 }

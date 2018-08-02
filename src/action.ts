@@ -71,44 +71,11 @@ export class ActionExecution {
 		this.appChannelInfos = vm.cfState.appChannelInfos();
 	}
 
-	initializeExecution() {
-		if (this.action.name === "setup") {
-			let toAddress = this.clientMessage.toAddress;
-			let fromAddress = this.clientMessage.fromAddress;
-			let balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
-			let uniqueId = 2; // todo
-			let localNonce = 1;
-			let timeout = 100; // todo, probably some default timeout
-			let freeBalance = new FreeBalance(
-				balances.peerA,
-				balances.peerB,
-				localNonce,
-				uniqueId,
-				timeout
-			);
-			let stateChannel = new StateChannelInfoImpl(
-				toAddress,
-				fromAddress,
-				this.clientMessage.multisigAddress,
-				{},
-				freeBalance
-			);
-			this.clientMessage.stateChannel = stateChannel;
-			// TODO Think about pending state/whether we want to do this for the
-			// underlying copy
-			this.vm.mutateState({
-				[String(this.clientMessage.multisigAddress)]: stateChannel
-			});
-		}
-	}
-
 	async next(): Promise<{ done: boolean; value: number }> {
 		if (this.instructionPointer === this.action.instructions.length) {
 			return { done: true, value: 0 };
 		}
-		if (this.instructionPointer === 0) {
-			this.initializeExecution();
-		}
+
 		let op = this.action.instructions[this.instructionPointer];
 		console.log("Executing op: ", op, this.clientMessage.seq);
 		let internalMessage = new InternalMessage(
@@ -136,7 +103,8 @@ export class ActionExecution {
 			results: this.results,
 			stateChannelInfos: this.stateChannelInfos,
 			appChannelInfos: this.appChannelInfos,
-			instructionPointer: this.instructionPointer
+			instructionPointer: this.instructionPointer,
+			vm: this.vm
 		};
 		async function callback() {
 			if (counter === middlewares.length - 1) {

@@ -1,4 +1,4 @@
-import { NetworkContext, Address, Signature, Bytes } from "../types";
+import { NetworkContext, Address, Signature, Bytes } from "../../types";
 import * as ethers from "ethers";
 import {
 	Abi,

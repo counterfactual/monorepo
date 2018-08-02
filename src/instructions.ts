@@ -1,9 +1,27 @@
 export enum Instruction {
 	/**
+	 * Optimistically creates the new state that will result if a protocol
+	 * completes. Useful for other opcodes that may need to know about such state,
+	 * for example, to generate the correct cf operation.
+	 */
+	STATE_TRANSITION_PROPOSE = 0,
+	/**
+	 * Transitions the state into a preparing to commit phase. Due to the fair
+	 * exchange problem, the machine must assume the peer has a newly signed
+	 * commitment, but hasn't yet shared a countersignature of the commitment.
+	 */
+	STATE_TRANSITION_PREPARE,
+	/**
+	 * Saves the new state upon completion of a protocol, using the state from
+	 * STATE_TRANSITION_PROPOSE. Assumes all messages have been exchanged and
+	 * the state has gone through PROPOSE and PREPARE already.
+	 */
+	STATE_TRANSITION_COMMIT,
+	/**
 	 * Returns a CfOperation, giving the ability to create a hash to sign
 	 * or construct a transaction to be broadcast on chain.
 	 */
-	OP_GENERATE = 0,
+	OP_GENERATE,
 	/**
 	 * Requests a signature on the hash of a previously generated CfOperation.
 	 */
@@ -31,11 +49,6 @@ export enum Instruction {
 	 */
 	KEY_GENERATE,
 	/**
-	 * Called when a protocol has correctly executed. The state of the VM
-	 * should transitioned at this point, finalizing all pending protocol state.
-	 */
-	SUCCESS,
-	/**
 	 * Represents all instructions. Registering for this instruction will yield
 	 * all messages.
 	 */
@@ -48,43 +61,51 @@ export enum Instruction {
  */
 export let Instructions = {
 	update: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	setup: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	install: [
 		Instruction.KEY_GENERATE,
 		Instruction.IO_PREPARE_SEND,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
 		Instruction.IO_SEND,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	uninstall: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	]
 };
 
@@ -94,37 +115,45 @@ export let Instructions = {
  */
 export let AckInstructions = {
 	update: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	setup: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	install: [
 		Instruction.KEY_GENERATE,
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	],
 	uninstall: [
+		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
+		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
-		Instruction.SUCCESS
+		Instruction.STATE_TRANSITION_COMMIT
 	]
 };

@@ -14,8 +14,8 @@ import {
 	NextMsgGenerator,
 	KeyGenerator,
 	SignatureValidator,
-	StateDiffGenerator,
-	CfOpGenerator
+	CfOpGenerator,
+	StateTransition
 } from "./middleware/middleware";
 import { CfState, Context } from "./state";
 import { Instruction } from "./instructions";
@@ -52,20 +52,27 @@ export class CounterfactualVM {
 
 	setupDefaultMiddlewares() {
 		this.register(
-			Instruction.SUCCESS,
+			Instruction.OP_GENERATE,
 			async (message: InternalMessage, next: Function, context: Context) => {
-				return StateDiffGenerator.generate(
-					message,
-					next,
-					context,
-					this.cfState
-				);
+				return CfOpGenerator.generate(message, next, context, this.cfState);
 			}
 		);
 		this.register(
-			Instruction.OP_GENERATE,
-			async (message: InternalMessage, next: Function) => {
-				return CfOpGenerator.generate(message, next, this.cfState);
+			Instruction.STATE_TRANSITION_PROPOSE,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.propose(message, next, context, this.cfState);
+			}
+		);
+		this.register(
+			Instruction.STATE_TRANSITION_PREPARE,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.prepare(message, next, context, this.cfState);
+			}
+		);
+		this.register(
+			Instruction.STATE_TRANSITION_COMMIT,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.commit(message, next, context, this.cfState);
 			}
 		);
 		this.register(Instruction.KEY_GENERATE, KeyGenerator.generate);
@@ -96,7 +103,6 @@ export class CounterfactualVM {
 		for await (val of action.execute(this)) {
 			//console.log("processed a step");
 		}
-		this.mutateState(val);
 		if (!action.isAckSide) {
 			this.sendResponse(
 				new Response(action.requestId, ResponseStatus.COMPLETED)
