@@ -2,16 +2,10 @@ import * as ethers from "ethers";
 import { CfState, StateChannelInfoImpl, Context } from "../state";
 import { InternalMessage, getFirstResult } from "../vm";
 import { ClientMessage } from "../types";
-import {
-	zeroBytes32,
-	zeroAddress,
-	CfFreeBalance,
-	CfNonce,
-	CfStateChannel
-} from "../cf-operation/types";
 import { Instruction } from "../instructions";
-export { StateDiffGenerator } from "./state-diff-generator";
-export { CfOpGenerator } from "./cf-op-generator";
+
+export { StateTransition } from "./state-transition";
+export { CfOpGenerator } from "./cf-operation/cf-op-generator";
 
 export class NextMsgGenerator {
 	static generate(

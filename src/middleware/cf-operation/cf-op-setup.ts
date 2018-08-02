@@ -1,4 +1,4 @@
-import { FreeBalance, NetworkContext, Signature } from "../types";
+import { FreeBalance, NetworkContext, Signature } from "../../types";
 import {
 	Operation,
 	Transaction,

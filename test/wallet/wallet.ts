@@ -1,6 +1,6 @@
 import { Context } from "../../src/state";
-import { CfOpUpdate } from "../../src/cf-operation/cf-op-update";
-import { CfOpSetup } from "../../src/cf-operation/cf-op-setup";
+import { CfOpUpdate } from "../../src/middleware/cf-operation/cf-op-update";
+import { CfOpSetup } from "../../src/middleware/cf-operation/cf-op-setup";
 import { CounterfactualVM, Response, InternalMessage } from "../../src/vm";
 import { CfState } from "../../src/state";
 import {

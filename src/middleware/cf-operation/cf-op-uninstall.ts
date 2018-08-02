@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import * as common from "./common";
-import { NetworkContext, Bytes, Signature, Address } from "../types";
+import { NetworkContext, Bytes, Signature, Address } from "../../types";
 import { MultisigInput, CfFreeBalance, CfNonce } from "./types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 

@@ -7,7 +7,7 @@ import {
 	CfOperation,
 	CfStateChannel
 } from "./types";
-import { NetworkContext, Address, Signature } from "../types";
+import { NetworkContext, Address, Signature } from "../../types";
 
 export class CfOpUpdate extends CfOperation {
 	constructor(
