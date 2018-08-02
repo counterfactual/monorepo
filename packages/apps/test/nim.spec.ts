@@ -28,17 +28,20 @@ contract("Nim", (accounts: string[]) => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 0,
-        pileHeights: [6, 5, 12],
+        pileHeights: [6, 5, 12]
       };
 
       const action = {
         pileIdx: 0,
-        takeAmnt: 5,
-      }
+        takeAmnt: 5
+      };
 
       const ret = await game.functions.reducer(preState, action);
 
-      const postState = ethers.utils.defaultAbiCoder.decode([stateEncoding], ret)[0];
+      const postState = ethers.utils.defaultAbiCoder.decode(
+        [stateEncoding],
+        ret
+      )[0];
 
       postState.pileHeights[0].should.be.bignumber.eq(1);
       postState.pileHeights[1].should.be.bignumber.eq(5);
@@ -50,13 +53,13 @@ contract("Nim", (accounts: string[]) => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 0,
-        pileHeights: [6, 5, 12],
+        pileHeights: [6, 5, 12]
       };
 
       const action = {
         pileIdx: 0,
-        takeAmnt: 6,
-      }
+        takeAmnt: 6
+      };
 
       await game.functions.reducer(preState, action);
     });
@@ -65,13 +68,13 @@ contract("Nim", (accounts: string[]) => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 0,
-        pileHeights: [6, 5, 12],
+        pileHeights: [6, 5, 12]
       };
 
       const action = {
         pileIdx: 0,
-        takeAmnt: 7,
-      }
+        takeAmnt: 7
+      };
 
       await Utils.assertRejects(game.functions.reducer(preState, action));
     });
@@ -82,7 +85,7 @@ contract("Nim", (accounts: string[]) => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 49,
-        pileHeights: [0, 0, 0],
+        pileHeights: [0, 0, 0]
       };
       const ret = await game.functions.isStateFinal(preState);
       chai.assert(ret);
@@ -92,7 +95,7 @@ contract("Nim", (accounts: string[]) => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 49,
-        pileHeights: [0, 1, 0],
+        pileHeights: [0, 1, 0]
       };
       const ret = await game.functions.isStateFinal(preState);
       chai.assert(!ret);
