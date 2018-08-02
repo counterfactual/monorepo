@@ -1,5 +1,3 @@
-import * as chai from "chai";
-
 import * as ethers from "ethers";
 
 import * as Utils from "@counterfactual/test-utils";
@@ -36,7 +34,7 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 5
       };
 
-      const ret = await game.functions.reducer(preState, action);
+      const ret = await game.functions.reduce(preState, action);
 
       const postState = ethers.utils.defaultAbiCoder.decode(
         [stateEncoding],
@@ -49,7 +47,7 @@ contract("Nim", (accounts: string[]) => {
       postState.turnNum.should.be.bignumber.eq(1);
     });
 
-    it("should not fail for emptying pile", async () => {
+    it("can take to produce an empty pile", async () => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
         turnNum: 0,
@@ -61,7 +59,17 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 6
       };
 
-      await game.functions.reducer(preState, action);
+      const ret = await game.functions.reduce(preState, action);
+
+      const postState = ethers.utils.defaultAbiCoder.decode(
+        [stateEncoding],
+        ret
+      )[0];
+
+      postState.pileHeights[0].should.be.bignumber.eq(0);
+      postState.pileHeights[1].should.be.bignumber.eq(5);
+      postState.pileHeights[2].should.be.bignumber.eq(12);
+      postState.turnNum.should.be.bignumber.eq(1);
     });
 
     it("should fail for taking too much", async () => {
@@ -76,7 +84,7 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 7
       };
 
-      await Utils.assertRejects(game.functions.reducer(preState, action));
+      await Utils.assertRejects(game.functions.reduce(preState, action));
     });
   });
 
@@ -88,7 +96,7 @@ contract("Nim", (accounts: string[]) => {
         pileHeights: [0, 0, 0]
       };
       const ret = await game.functions.isStateFinal(preState);
-      chai.assert(ret);
+      ret.should.be.eq(true);
     });
 
     it("nonempty state is not final", async () => {
@@ -98,7 +106,7 @@ contract("Nim", (accounts: string[]) => {
         pileHeights: [0, 1, 0]
       };
       const ret = await game.functions.isStateFinal(preState);
-      chai.assert(!ret);
+      ret.should.be.eq(false);
     });
   });
 });
