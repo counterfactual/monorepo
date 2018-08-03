@@ -57,7 +57,7 @@ export async function deployContractViaRegistry(
 
   await registry.functions.deploy(initcode, contractSalt, highGasLimit);
 
-  const realAddr = await registry.functions.resolve(cfAddr);
+  const realAddr = await registry.functions.resolver(cfAddr);
 
   const contract = new ethers.Contract(
     realAddr,

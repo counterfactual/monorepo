@@ -54,7 +54,7 @@ contract("Registry", accounts => {
 
     assert.equal(
       await simpleContract.address,
-      await registry.resolve(cfaddress(bytecode, 2))
+      await registry.resolver(cfaddress(bytecode, 2))
     );
 
     assert.equal("hi", await simpleContract.sayHello());
@@ -83,7 +83,7 @@ contract("Registry", accounts => {
 
     assert.equal(
       await testContract.address,
-      await registry.resolve(cfaddress(bytecode, 3))
+      await registry.resolver(cfaddress(bytecode, 3))
     );
 
     assert.equal("hi", await testContract.sayHello());
@@ -109,7 +109,7 @@ contract("Registry", accounts => {
 
     assert.equal(
       await testContract.address,
-      await registry.resolve(cfaddress(initcode, 3))
+      await registry.resolver(cfaddress(initcode, 3))
     );
 
     assert.equal("hi", await testContract.sayHello());
@@ -146,7 +146,7 @@ contract("Registry", accounts => {
 
     assert.equal(
       await testContract.address,
-      await registry.resolve(cfaddress(code, 4))
+      await registry.resolver(cfaddress(code, 4))
     );
 
     assert.equal(accounts[0], await testContract.sayHello());

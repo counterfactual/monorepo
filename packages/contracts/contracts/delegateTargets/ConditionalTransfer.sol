@@ -46,7 +46,7 @@ contract ConditionalTransfer is Conditional {
       "State Channel nonce is either not finalized or finalized at an incorrect nonce"
     );
 
-    address channelAddr = Registry(registry).resolve(channelCfAddress);
+    address channelAddr = Registry(registry).resolver(channelCfAddress);
     StateChannel channel = StateChannel(channelAddr);
     Transfer.Details memory details = channel.getResolution();
 
