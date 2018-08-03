@@ -1,6 +1,14 @@
 import * as ethers from "ethers";
 import { SolidityStruct, SolidityStructType } from "./solidityStruct";
 
+/**
+ * Compute the raw state hash for use in the StateChannel contract.
+ * @param signingKeys Signing keys of the StateChannel
+ * @param appState App state
+ * @param appStateNonce App state nonce
+ * @param timeout Time until finalization.
+ * @returns string 32-byte keccak256 hash
+ */
 export function computeStateHash(
   signingKeys: string[],
   appState: SolidityStruct,
@@ -13,6 +21,15 @@ export function computeStateHash(
   );
 }
 
+/**
+ * Compute the raw action hash for use in the StateChannel contract.
+ * @param turnTaker The address of the turn taker
+ * @param prevState The previous app state
+ * @param action The action
+ * @param appStateNonce The app state nonce
+ * @param disputeNonce The dispute nonce
+ * @returns string 32-byte keccak256 hash
+ */
 export function computeActionHash(
   turnTaker: string,
   prevState: SolidityStruct,
@@ -33,12 +50,18 @@ export function computeActionHash(
   );
 }
 
+/**
+ * Solidity struct type for the Transfer.Terms struct
+ */
 export const TransferTerms = new SolidityStructType(`
   uint8 assetType;
   uint256 limit;
   address token;
 `);
 
+/**
+ * Solidity struct type for the App struct
+ */
 export const App = new SolidityStructType(`
   address addr;
   bytes4 reducer;
