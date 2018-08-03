@@ -57,7 +57,7 @@ contract StateChannel {
   struct App {
     address addr;
     bytes4 reduce;
-    bytes4 resolver;
+    bytes4 resolve;
     bytes4 turnTaker;
     bytes4 isStateFinal;
   }
@@ -514,7 +514,7 @@ contract StateChannel {
     );
   }
 
-  /// @notice Execute the application's resolver function to compute a resolution
+  /// @notice Execute the application's resolve function to compute a resolution
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
@@ -524,7 +524,7 @@ contract StateChannel {
     returns (Transfer.Details)
   {
     return app.addr.staticcall_as_TransferDetails(
-      abi.encodePacked(app.resolver, appState, terms)
+      abi.encodePacked(app.resolve, appState, terms)
     );
   }
 

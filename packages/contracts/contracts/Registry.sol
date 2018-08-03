@@ -9,7 +9,7 @@ contract Registry {
 
   event ContractCreated(bytes32 indexed cfAddress, address deployedAddress);
 
-  mapping(bytes32 => address) public resolver;
+  mapping(bytes32 => address) public resolve;
 
   /// @notice Compute the deterministic counterfactual address of the given initcode and salt.
   /// @param initcode EVM code for contract initialization. Typically this is the contract
@@ -35,7 +35,7 @@ contract Registry {
     bytes32 ptr = cfaddress(initcode, salt);
 
     require(
-      resolver[ptr] == 0x0,
+      resolve[ptr] == 0x0,
       "This contract was already deployed."
     );
 
@@ -48,7 +48,7 @@ contract Registry {
       "There was an error deploying the contract."
     );
 
-    resolver[ptr] = deployed;
+    resolve[ptr] = deployed;
 
     emit ContractCreated(ptr, deployed);
   }
@@ -59,7 +59,7 @@ contract Registry {
   /// @param data The data being sent in the call to the counterfactual contract
   function proxyCall(Registry registry, bytes32 ptr, bytes data) public {
     require(
-      registry.resolver(ptr).call(data),
+      registry.resolve(ptr).call(data),
       "The call failed."
     );
   }

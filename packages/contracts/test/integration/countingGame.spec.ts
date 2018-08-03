@@ -62,13 +62,13 @@ contract("CountingApp", (accounts: string[]) => {
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
-  // ethers.utils.formatParamType(iface.functions.resolver.inputs[0])
+  // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
   // github.com/ethers-io/ethers.js/blob/typescript/src.ts/utils/abi-coder.ts#L301
   const gameEncoding =
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reduce, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 reduce, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -133,7 +133,7 @@ contract("CountingApp", (accounts: string[]) => {
 
     app = {
       addr: game.address,
-      resolver: game.interface.functions.resolver.sighash,
+      resolve: game.interface.functions.resolve.sighash,
       reduce: game.interface.functions.reduce.sighash,
       turnTaker: game.interface.functions.turn.sighash,
       isStateFinal: game.interface.functions.isStateFinal.sighash
@@ -158,7 +158,7 @@ contract("CountingApp", (accounts: string[]) => {
   });
 
   it("should resolve to some balance", async () => {
-    const ret = await game.functions.resolver(exampleState, terms);
+    const ret = await game.functions.resolve(exampleState, terms);
     ret.assetType.should.be.equal(AssetType.ETH);
     ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
     ret.to[0].should.be.equalIgnoreCase(A.address);

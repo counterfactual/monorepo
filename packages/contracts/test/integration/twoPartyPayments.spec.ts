@@ -50,13 +50,13 @@ contract("PaymentApp", (accounts: string[]) => {
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
-  // ethers.utils.formatParamType(iface.functions.resolver.inputs[0])
+  // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
   // github.com/ethers-io/ethers.js/blob/typescript/src.ts/utils/abi-coder.ts#L301
   const pcEncoding =
     "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reduce, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 reduce, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -115,7 +115,7 @@ contract("PaymentApp", (accounts: string[]) => {
 
     app = {
       addr: pc.address,
-      resolver: pc.interface.functions.resolver.sighash,
+      resolve: pc.interface.functions.resolve.sighash,
       reduce: "0x00000000",
       turnTaker: "0x00000000",
       isStateFinal: "0x00000000"
@@ -140,7 +140,7 @@ contract("PaymentApp", (accounts: string[]) => {
   });
 
   it("should resolve to payments", async () => {
-    const ret = await pc.functions.resolver(exampleState, terms);
+    const ret = await pc.functions.resolve(exampleState, terms);
     ret.assetType.should.be.equal(AssetType.ETH);
     ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
     ret.to[0].should.be.equalIgnoreCase(A.address);

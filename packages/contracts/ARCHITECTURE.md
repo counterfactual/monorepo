@@ -11,7 +11,6 @@ The layout of this storage is defined in `StateChannel.sol`. The application-spe
 
 Upon conclusion of a dispute, apps return a struct called `Transfer.Details`, which specifies what happens to the state deposit assigned to the app. For state deposits which are ether and ERC20 tokens, the framework ensures that the returned transfer details transfer less tokens than a precomitted `Transfer.Terms`, allowing us to limit the impact of bugs in application code.
 
-
 ## App Interface
 
 App functionality is defined in a stateless contract. This function defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-state-modifying functions. By non-state-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `staticcall` opcode.
@@ -21,35 +20,33 @@ Up to four functions can be implemented. The signatures are as follows:
 - `isStateFinal: AppState → bool`
 - `getTurnTaker: AppState → uint256`
 - `reduce: (AppState, Action) → AppState`
-- `resolver: AppState → Transfer.Details`
+- `resolve: AppState → Transfer.Details`
 
 In designing the framework we must try to achieve two sometimes contradictory goals. One the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
 
-Another limitation is that the return type of `resolver` is actually `bytes`. We expect that application developers simply end their `resolver` function with something like
+Another limitation is that the return type of `resolve` is actually `bytes`. We expect that application developers simply end their `resolve` function with something like
 
 `return abi.encode(nextState);`
 
 where `nextState` has type `AppState`.
 
-
 ### `reduce` and `getTurnTaker`: The Application State Transition Function
 
-If `AppState` defines the data structure needed to represent the state of an app instance, `reduce` defines the app logic that operates on the app. In a Tic-Tac-Toe game,  `AppState`  represents the state of the board, and `reduce` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `reduce` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
+If `AppState` defines the data structure needed to represent the state of an app instance, `reduce` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `reduce` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `reduce` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
 
-![reduce](./images/reduce.svg )
+![reduce](./images/reduce.svg)
 
-### Resolver
+### resolve
 
-From certain app states, `resolver` can be called to return a value of type `struct Tansfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
+From certain app states, `resolve` can be called to return a value of type `struct Tansfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
-![resolver](./images/resolver.svg)
+![resolve](./images/resolve.svg)
 
 ### isStateFinal
 
 Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that reduce(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateFinal` return true for them, allowing us to skip one step of dispute resolution.
 
 Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
-
 
 ## Framework State
 
@@ -84,7 +81,6 @@ As discussed above, `appStateHash` is a hash of the app state. The nonce field r
 ## Framework State Transition Function
 
 The framework state transition function is defined by the functions
-
 
 - `setState`
 - `createDispute`
@@ -135,7 +131,7 @@ The `appHash` is the hash of a `struct App`
 struct App {
   address addr;
   bytes4 reduce;
-  bytes4 resolver;
+  bytes4 resolve;
   bytes4 turnTaker;
   bytes4 isStateFinal;
 }
@@ -174,4 +170,3 @@ The multisig stores the state deposit of a state channel. To assign state deposi
 ## Multisig
 
 This code makes use of a custom multisig defined in `MinimumViableMultisig.sol`. In the future, we believe all multisig wallets should be channel-compatible. We are working with teams from [Gnosis](https://github.com/gnosis/safe-contracts) and [dapphub](https://github.com/dapphub/ds-group) on wallet compatibility.
-
