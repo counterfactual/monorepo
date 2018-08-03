@@ -59,7 +59,7 @@ contract CountingApp {
     );
   }
 
-  function reducer(AppState state, Action action)
+  function reduce(AppState state, Action action)
     public
     view
     returns (bytes)

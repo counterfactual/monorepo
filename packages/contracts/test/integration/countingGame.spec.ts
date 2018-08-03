@@ -68,7 +68,7 @@ contract("CountingApp", (accounts: string[]) => {
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 reduce, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -134,7 +134,7 @@ contract("CountingApp", (accounts: string[]) => {
     app = {
       addr: game.address,
       resolver: game.interface.functions.resolver.sighash,
-      reducer: game.interface.functions.reducer.sighash,
+      reduce: game.interface.functions.reduce.sighash,
       turnTaker: game.interface.functions.turn.sighash,
       isStateFinal: game.interface.functions.isStateFinal.sighash
     };
@@ -214,7 +214,7 @@ contract("CountingApp", (accounts: string[]) => {
 
     const state = encode(gameEncoding, exampleState);
 
-    it("should update state based on reducer", async () => {
+    it("should update state based on reduce", async () => {
       const action = {
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 1
@@ -256,7 +256,7 @@ contract("CountingApp", (accounts: string[]) => {
       onchain.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
     });
 
-    it("should update and finalize state based on reducer", async () => {
+    it("should update and finalize state based on reduce", async () => {
       const action = {
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 2.0

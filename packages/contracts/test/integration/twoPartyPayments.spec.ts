@@ -56,7 +56,7 @@ contract("PaymentApp", (accounts: string[]) => {
     "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 reduce, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -116,7 +116,7 @@ contract("PaymentApp", (accounts: string[]) => {
     app = {
       addr: pc.address,
       resolver: pc.interface.functions.resolver.sighash,
-      reducer: "0x00000000",
+      reduce: "0x00000000",
       turnTaker: "0x00000000",
       isStateFinal: "0x00000000"
     };
