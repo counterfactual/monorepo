@@ -21,7 +21,7 @@ contract("Nim", (accounts: string[]) => {
     game = await contract.deploy(Nim.binary);
   });
 
-  describe("reducer", () => {
+  describe("reduce", () => {
     it("can take from a pile", async () => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],

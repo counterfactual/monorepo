@@ -54,7 +54,7 @@ contract Nim {
     return abi.encode(ret);
   }
 
-  function resolver(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)

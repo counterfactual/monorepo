@@ -85,7 +85,7 @@ describe("CommitRevealApp", async () => {
   let app;
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 reduce, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const appStateEncoding =
     "tuple(address[2] playerAddrs, uint256 stage, uint256 maximum, " +
@@ -126,8 +126,8 @@ describe("CommitRevealApp", async () => {
     );
     app = {
       addr: appContract.address,
-      reducer: appContract.interface.functions.reducer.sighash,
-      resolver: appContract.interface.functions.resolver.sighash,
+      reduce: appContract.interface.functions.reduce.sighash,
+      resolve: appContract.interface.functions.resolve.sighash,
       turnTaker: appContract.interface.functions.getTurnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
     };
