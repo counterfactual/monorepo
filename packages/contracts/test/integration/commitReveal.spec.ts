@@ -6,7 +6,7 @@ import Multisig from "../helpers/multisig";
 const CommitRevealApp = artifacts.require("CommitRevealApp");
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { provider, unlockedAccount: masterAccount } = Utils.setupTestEnv(web3);
 
 const [A, B] = [
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
@@ -108,8 +108,8 @@ describe("CommitRevealApp", async () => {
     const startBalanceB = await B.getBalance();
     // 1. Deploy & fund multisig
     const multisig = new Multisig([A.address, B.address]);
-    await multisig.deploy(unlockedAccount);
-    await unlockedAccount.sendTransaction({
+    await multisig.deploy(masterAccount);
+    await masterAccount.sendTransaction({
       to: multisig.address,
       value: Utils.UNIT_ETH.mul(2)
     });
@@ -122,7 +122,7 @@ describe("CommitRevealApp", async () => {
     // 2. Deploy CommitRevealApp app
     const appContract = await Utils.deployContract(
       CommitRevealApp,
-      unlockedAccount
+      masterAccount
     );
     app = {
       addr: appContract.address,
@@ -145,7 +145,7 @@ describe("CommitRevealApp", async () => {
       contract: stateChannel
     } = await Utils.deployContractViaRegistry(
       StateChannel,
-      unlockedAccount,
+      masterAccount,
       args
     );
 
@@ -191,7 +191,7 @@ describe("CommitRevealApp", async () => {
     // 6. Call setNonce on NonceRegistry with some salt and nonce
     const nonceRegistry: ethers.Contract = await Utils.getDeployedContract(
       NonceRegistry,
-      unlockedAccount
+      masterAccount
     );
     await multisig.execCall(
       nonceRegistry,
@@ -214,11 +214,11 @@ describe("CommitRevealApp", async () => {
     // // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
     const conditionalTransfer: ethers.Contract = await Utils.getDeployedContract(
       ConditionalTransfer,
-      unlockedAccount
+      masterAccount
     );
     const registry: ethers.Contract = await Utils.getDeployedContract(
       Registry,
-      unlockedAccount
+      masterAccount
     );
     await multisig.execDelegatecall(
       conditionalTransfer,

@@ -10,6 +10,12 @@ const enum Operation {
   Delegatecall = 1
 }
 
+/**
+ * Helper class for dealing with Multisignature wallets in tests.
+ * Usage:
+ * const multisig = new Multisig([alice.address, bob.address]);
+ * await multisig.deploy(masterAccount);
+ */
 export default class Multisig {
   private static loadTruffleContract() {
     const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
@@ -20,8 +26,15 @@ export default class Multisig {
 
   private contract?: ethers.Contract;
 
+  /**
+   * Creates new undeployed Multisig instance
+   * @param owners List of owner addresses
+   */
   constructor(readonly owners: string[]) {}
 
+  /**
+   * Gets the on-chain address of the Multisig
+   */
   get address() {
     if (!this.contract) {
       throw new Error("Must deploy Multisig contract first");
@@ -29,44 +42,60 @@ export default class Multisig {
     return this.contract.address;
   }
 
-  public async deploy(
-    providerOrSigner: ethers.ethers.Wallet | ethers.types.MinimalProvider
-  ) {
+  /**
+   * Deploy Multisig contract on-chain
+   * @param signer The signer for the on-chain transaction
+   */
+  public async deploy(signer: ethers.ethers.Wallet) {
     const contract = await deployContract(
       Multisig.loadTruffleContract(),
-      providerOrSigner
+      signer
     );
     await contract.functions.setup(this.owners);
     this.contract = contract;
   }
 
+  /**
+   * Execute delegatecall originating from Multisig contract
+   * @param toContract Contract instance to send delegatecall to
+   * @param funcName The name of the function to execute
+   * @param args Arguments for the function call
+   * @param signers The signers of the transaction
+   */
   public async execDelegatecall(
     toContract: ethers.Contract,
     funcName: string,
     args: any[],
-    wallets: ethers.Wallet[]
+    signers: ethers.Wallet[]
   ): Promise<ethers.types.Transaction> {
     return this.execTransaction(
       toContract,
       funcName,
       args,
       Operation.Delegatecall,
-      wallets
+      signers
     );
   }
 
+  /**
+   * Execute call originating from Multisig contract
+   * @param toContract Contract instance to send call to
+   * @param funcName The name of the function to execute
+   * @param args Arguments for the function call
+   * @param signers The signers of the transaction
+   */
   public async execCall(
     toContract: ethers.Contract,
     funcName: string,
     args: any[],
-    wallets: ethers.Wallet[]
+    signers: ethers.Wallet[]
   ): Promise<ethers.types.Transaction> {
     return this.execTransaction(
       toContract,
       funcName,
       args,
       Operation.Call,
-      wallets
+      signers
     );
   }
 
