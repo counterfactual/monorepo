@@ -29,8 +29,8 @@ contract("CountingApp", (accounts: string[]) => {
   describe("applyAction", () => {
     it("should work for increment", async () => {
       const baseState = {
-        player1: Utils.zeroAddress,
-        player2: Utils.zeroAddress,
+        player1: Utils.ZERO_ADDRESS,
+        player2: Utils.ZERO_ADDRESS,
         count: 0,
         turnNum: 0
       };
@@ -50,8 +50,8 @@ contract("CountingApp", (accounts: string[]) => {
 
     it("should work for decrement", async () => {
       const baseState = {
-        player1: Utils.zeroAddress,
-        player2: Utils.zeroAddress,
+        player1: Utils.ZERO_ADDRESS,
+        player2: Utils.ZERO_ADDRESS,
         count: 5,
         turnNum: 1
       };
@@ -71,8 +71,8 @@ contract("CountingApp", (accounts: string[]) => {
 
     it("should fail for unknown action", async () => {
       const baseState = {
-        player1: Utils.zeroAddress,
-        player2: Utils.zeroAddress,
+        player1: Utils.ZERO_ADDRESS,
+        player2: Utils.ZERO_ADDRESS,
         count: 0,
         turnNum: 0
       };

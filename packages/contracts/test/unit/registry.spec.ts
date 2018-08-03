@@ -26,8 +26,8 @@ contract("Registry", accounts => {
 
   it("computes counterfactual addresses of bytes deployments", async () => {
     assert.equal(
-      cfaddress(Utils.zeroBytes32, 1),
-      await registry.cfaddress(Utils.zeroBytes32, 1)
+      cfaddress(Utils.ZERO_BYTES32, 1),
+      await registry.cfaddress(Utils.ZERO_BYTES32, 1)
     );
   });
 

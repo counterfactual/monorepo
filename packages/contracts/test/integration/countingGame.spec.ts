@@ -1,11 +1,25 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/test-utils";
+import {
+  App,
+  assertRejects,
+  computeActionHash,
+  computeStateHash,
+  deployContract,
+  HIGH_GAS_LIMIT,
+  setupTestEnv,
+  signMessageBytes,
+  SolidityStruct,
+  SolidityStructType,
+  TransferTerms,
+  ZERO_ADDRESS,
+  ZERO_BYTES32
+} from "@counterfactual/test-utils";
 
 const CountingApp = artifacts.require("CountingApp");
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { provider, unlockedAccount } = setupTestEnv(web3);
 
 const [A, B] = [
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
@@ -18,34 +32,9 @@ const [A, B] = [
   )
 ];
 
-const computeStateHash = (stateHash: string, nonce: number, timeout: number) =>
-  ethers.utils.solidityKeccak256(
-    ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
-    ["0x19", [A.address, B.address], nonce, timeout, stateHash]
-  );
-
-const computeActionHash = (
-  turn: string,
-  prevState: string,
-  action: string,
-  setStateNonce: number,
-  disputeNonce: number
-) =>
-  ethers.utils.solidityKeccak256(
-    ["bytes1", "address", "bytes32", "bytes", "uint256", "uint256"],
-    ["0x19", turn, prevState, action, setStateNonce, disputeNonce]
-  );
-
 contract("CountingApp", (accounts: string[]) => {
-  let game: ethers.Contract;
+  let appContract: ethers.Contract;
   let stateChannel: ethers.Contract;
-
-  const exampleState = {
-    player1: A.address,
-    player2: B.address,
-    count: 0,
-    turnNum: 0
-  };
 
   enum AssetType {
     ETH,
@@ -53,67 +42,44 @@ contract("CountingApp", (accounts: string[]) => {
     ANY
   }
 
-  const encode = (encoding: string, state: any) =>
-    ethers.utils.defaultAbiCoder.encode([encoding], [state]);
-
-  const decode = (encoding: string, state: any) =>
-    ethers.utils.defaultAbiCoder.decode([encoding], state);
-
-  const latestNonce = async () => stateChannel.functions.latestNonce();
+  async function latestNonce(): Promise<number> {
+    return parseInt(await stateChannel.functions.latestNonce(), 10);
+  }
 
   // TODO: Wait for this to work:
   // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
   // github.com/ethers-io/ethers.js/blob/typescript/src.ts/utils/abi-coder.ts#L301
-  const gameEncoding =
-    "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
-  const appEncoding =
-    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
-
-  const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
-
-  const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
-
-  const keccak256 = (bytes: string) =>
-    ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-
-  const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
+  const sendSignedFinalizationToChain = async (state: SolidityStruct) => {
+    const nonce = await latestNonce();
+    const stateHash = computeStateHash([A.address, B.address], state, nonce, 0);
+    return stateChannel.functions.setState(
+      state.keccak256(),
       nonce,
-      10,
-      "0x",
-      Utils.highGasLimit
-    );
-
-  const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
-      nonce,
-      10,
-      Utils.signMessageBytes(
-        computeStateHash(appState || Utils.zeroBytes32, nonce, 10),
-        [unlockedAccount]
-      ),
-      Utils.highGasLimit
-    );
-
-  const sendSignedFinalizationToChain = async (stateHash: string) =>
-    stateChannel.functions.setState(
-      stateHash,
-      await latestNonce(),
       0,
-      Utils.signMessageBytes(
-        computeStateHash(
-          stateHash || Utils.zeroBytes32,
-          await latestNonce(),
-          0
-        ),
-        [unlockedAccount]
-      ),
-      Utils.highGasLimit
+      signMessageBytes(stateHash, [unlockedAccount]),
+      HIGH_GAS_LIMIT
     );
+  };
+
+  const Action = new SolidityStructType(`
+    uint256 actionType;
+    uint256 byHowMuch;
+  `);
+
+  const AppState = new SolidityStructType(`
+    address player1;
+    address player2;
+    uint256 count;
+    uint256 turnNum;
+  `);
+
+  const exampleState = AppState.new({
+    player1: A.address,
+    player2: B.address,
+    count: 0,
+    turnNum: 0
+  });
 
   let app;
   let terms;
@@ -125,25 +91,25 @@ contract("CountingApp", (accounts: string[]) => {
 
     CountingApp.link("StaticCall", StaticCall.address);
 
-    game = await Utils.deployContract(CountingApp, unlockedAccount);
+    appContract = await deployContract(CountingApp, unlockedAccount);
 
     StateChannel.link("Signatures", Signatures.address);
     StateChannel.link("StaticCall", StaticCall.address);
     StateChannel.link("Transfer", Transfer.address);
 
-    app = {
-      addr: game.address,
-      resolve: game.interface.functions.resolve.sighash,
-      applyAction: game.interface.functions.applyAction.sighash,
-      turnTaker: game.interface.functions.turn.sighash,
-      isStateFinal: game.interface.functions.isStateFinal.sighash
-    };
+    app = App.new({
+      addr: appContract.address,
+      resolve: appContract.interface.functions.resolve.sighash,
+      applyAction: appContract.interface.functions.applyAction.sighash,
+      turnTaker: appContract.interface.functions.turn.sighash,
+      isStateFinal: appContract.interface.functions.isStateFinal.sighash
+    });
 
-    terms = {
+    terms = TransferTerms.new({
       assetType: AssetType.ETH,
-      limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.zeroAddress
-    };
+      limit: ethers.utils.parseEther("2"),
+      token: ZERO_ADDRESS
+    });
 
     const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
 
@@ -151,49 +117,50 @@ contract("CountingApp", (accounts: string[]) => {
       StateChannel.binary,
       accounts[0],
       [A.address, B.address],
-      keccak256(encode(appEncoding, app)),
-      keccak256(encode(termsEncoding, terms)),
+      app.keccak256(),
+      terms.keccak256(),
       10
     );
   });
 
   it("should resolve to some balance", async () => {
-    const ret = await game.functions.resolve(exampleState, terms);
+    const ret = await appContract.functions.resolve(
+      exampleState.asObject(),
+      terms.asObject()
+    );
     ret.assetType.should.be.equal(AssetType.ETH);
-    ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+    ret.token.should.be.equalIgnoreCase(ZERO_ADDRESS);
     ret.to[0].should.be.equalIgnoreCase(A.address);
     ret.to[1].should.be.equalIgnoreCase(B.address);
-    ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
+    ret.amount[0].should.be.bignumber.eq(ethers.utils.parseEther("2"));
     ret.amount[1].should.be.bignumber.eq(0);
   });
 
   describe("setting a resolution", async () => {
     it("should fail before state is settled", async () => {
-      const finalState = encode(gameEncoding, exampleState);
-      await Utils.assertRejects(
+      await assertRejects(
         stateChannel.functions.setResolution(
-          app,
-          finalState,
-          encode(termsEncoding, terms),
-          Utils.highGasLimit
+          app.asObject(),
+          exampleState.encodeBytes(),
+          terms.encodeBytes(),
+          HIGH_GAS_LIMIT
         )
       );
     });
     it("should succeed after state is settled", async () => {
-      const finalState = encode(gameEncoding, exampleState);
-      await sendSignedFinalizationToChain(keccak256(finalState));
+      await sendSignedFinalizationToChain(exampleState);
       await stateChannel.functions.setResolution(
-        app,
-        finalState,
-        encode(termsEncoding, terms),
-        Utils.highGasLimit
+        app.asObject(),
+        exampleState.encodeBytes(),
+        terms.encodeBytes(),
+        HIGH_GAS_LIMIT
       );
       const ret = await stateChannel.functions.getResolution();
       ret.assetType.should.be.equal(AssetType.ETH);
-      ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+      ret.token.should.be.equalIgnoreCase(ZERO_ADDRESS);
       ret.to[0].should.be.equalIgnoreCase(A.address);
       ret.to[1].should.be.equalIgnoreCase(B.address);
-      ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
+      ret.amount[0].should.be.bignumber.eq(ethers.utils.parseEther("2"));
       ret.amount[1].should.be.bignumber.eq(0);
     });
   });
@@ -210,41 +177,45 @@ contract("CountingApp", (accounts: string[]) => {
       OFF
     }
 
-    const actionEncoding = "tuple(uint8 actionType, uint256 byHowMuch)";
-
-    const state = encode(gameEncoding, exampleState);
-
     it("should update state based on applyAction", async () => {
-      const action = {
+      const action = Action.new({
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 1
-      };
+      });
 
-      const h1 = computeStateHash(keccak256(state), 1, 10);
-      const h2 = computeActionHash(
+      const stateHash = computeStateHash(
+        [A.address, B.address],
+        exampleState,
+        1,
+        10
+      );
+      const actionHash = computeActionHash(
         A.address,
-        keccak256(state),
-        encode(actionEncoding, action),
+        exampleState,
+        action,
         1,
         0
       );
 
       await stateChannel.functions.createDispute(
-        app,
-        state,
+        app.asObject(),
+        exampleState.encodeBytes(),
         1,
         10,
-        encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, [A, B]),
-        Utils.signMessageBytes(h2, [A]),
+        action.encodeBytes(),
+        signMessageBytes(stateHash, [A, B]),
+        signMessageBytes(actionHash, [A]),
         false,
-        Utils.highGasLimit
+        HIGH_GAS_LIMIT
       );
 
       const onchain = await stateChannel.functions.state();
 
-      const expectedState = { ...exampleState, count: 1, turnNum: 1 };
-      const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
+      const expectedState = exampleState.clone({
+        count: 1,
+        turnNum: 1
+      });
+      const expectedStateHash = expectedState.keccak256();
       const expectedFinalizeBlock = (await provider.getBlockNumber()) + 10;
 
       onchain.status.should.be.bignumber.eq(Status.DISPUTE);
@@ -257,36 +228,30 @@ contract("CountingApp", (accounts: string[]) => {
     });
 
     it("should update and finalize state based on applyAction", async () => {
-      const action = {
+      const action = Action.new({
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 2.0
-      };
+      });
 
-      const h1 = computeStateHash(keccak256(state), 1, 10);
-      const h2 = computeActionHash(
-        A.address,
-        keccak256(state),
-        encode(actionEncoding, action),
-        1,
-        0
-      );
+      const h1 = computeStateHash([A.address, B.address], exampleState, 1, 10);
+      const h2 = computeActionHash(A.address, exampleState, action, 1, 0);
 
       await stateChannel.functions.createDispute(
-        app,
-        state,
+        app.asObject(),
+        exampleState.encodeBytes(),
         1,
         10,
-        encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, [A, B]),
-        Utils.signMessageBytes(h2, [A]),
+        action.encodeBytes(),
+        signMessageBytes(h1, [A, B]),
+        signMessageBytes(h2, [A]),
         true,
-        Utils.highGasLimit
+        HIGH_GAS_LIMIT
       );
 
       const channelState = await stateChannel.functions.state();
 
-      const expectedState = { ...exampleState, count: 2, turnNum: 1 };
-      const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
+      const expectedState = exampleState.clone({ count: 2, turnNum: 1 });
+      const expectedStateHash = expectedState.keccak256();
       const expectedFinalizeBlock = await provider.getBlockNumber();
 
       channelState.status.should.be.bignumber.eq(Status.OFF);
@@ -299,31 +264,25 @@ contract("CountingApp", (accounts: string[]) => {
     });
 
     it("should fail when trying to finalize a non-final state", async () => {
-      const action = {
+      const action = Action.new({
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 1.0
-      };
+      });
 
-      const h1 = computeStateHash(keccak256(state), 1, 10);
-      const h2 = computeActionHash(
-        A.address,
-        keccak256(state),
-        encode(actionEncoding, action),
-        1,
-        0
-      );
+      const h1 = computeStateHash([A.address, B.address], exampleState, 1, 10);
+      const h2 = computeActionHash(A.address, exampleState, action, 1, 0);
 
-      await Utils.assertRejects(
+      await assertRejects(
         stateChannel.functions.createDispute(
-          app,
-          state,
+          app.asObject(),
+          exampleState.encodeBytes(),
           1,
           10,
-          encode(actionEncoding, action),
-          Utils.signMessageBytes(h1, [A, B]),
-          Utils.signMessageBytes(h2, [A]),
+          action.encodeBytes(),
+          signMessageBytes(h1, [A, B]),
+          signMessageBytes(h2, [A]),
           true,
-          Utils.highGasLimit
+          HIGH_GAS_LIMIT
         )
       );
     });

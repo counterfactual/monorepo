@@ -1,14 +1,27 @@
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/test-utils";
+import {
+  App,
+  computeStateHash,
+  deployContract,
+  deployContractViaRegistry,
+  getDeployedContract,
+  HIGH_GAS_LIMIT,
+  setupTestEnv,
+  signMessageBytes,
+  SolidityStructType,
+  TransferTerms,
+  UNIT_ETH,
+  ZERO_ADDRESS
+} from "@counterfactual/test-utils";
 import Multisig from "../helpers/multisig";
 
 const CommitRevealApp = artifacts.require("CommitRevealApp");
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount: masterAccount } = Utils.setupTestEnv(web3);
+const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
 
-const [A, B] = [
+const [alice, bob] = [
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
   new ethers.Wallet(
     "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27",
@@ -20,17 +33,6 @@ const [A, B] = [
     provider
   )
 ];
-
-function computeStateHash(
-  appStateHash: string,
-  nonce: number,
-  timeout: number
-) {
-  return ethers.utils.solidityKeccak256(
-    ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
-    ["0x19", [A.address, B.address], nonce, timeout, appStateHash]
-  );
-}
 
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
@@ -44,15 +46,6 @@ function computeNonceRegistryKey(multisigAddress: string, nonceSalt: string) {
     ["address", "bytes32"],
     [multisigAddress, nonceSalt]
   );
-}
-
-function encode(encoding: string, state: any) {
-  return ethers.utils.defaultAbiCoder.encode([encoding], [state]);
-}
-
-function keccak256Struct(encoding: string, struct: any) {
-  const bytes = ethers.utils.defaultAbiCoder.encode([encoding], [struct]);
-  return ethers.utils.solidityKeccak256(["bytes"], [bytes]);
 }
 
 enum AssetType {
@@ -73,7 +66,7 @@ enum Player {
   GUESSING = 1
 }
 
-describe("CommitRevealApp", async () => {
+describe("CommitReveal", async () => {
   const StateChannel = artifacts.require("StateChannel");
   const ConditionalTransfer = artifacts.require("ConditionalTransfer");
   const StaticCall = artifacts.require("StaticCall");
@@ -81,17 +74,6 @@ describe("CommitRevealApp", async () => {
   const Registry = artifacts.require("Registry");
   const Signatures = artifacts.require("Signatures");
   const Transfer = artifacts.require("Transfer");
-
-  let app;
-
-  const appEncoding =
-    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
-
-  const appStateEncoding =
-    "tuple(address[2] playerAddrs, uint256 stage, uint256 maximum, " +
-    "uint256 guessedNumber, bytes32 commitHash, uint256 winner)";
-
-  const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
   beforeEach(async () => {
     CommitRevealApp.link("StaticCall", StaticCall.address);
@@ -104,49 +86,43 @@ describe("CommitRevealApp", async () => {
   it("should complete a full lifecycle", async function() {
     this.timeout(4000);
 
-    const startBalanceA = await A.getBalance();
-    const startBalanceB = await B.getBalance();
+    const startBalanceA = await alice.getBalance();
+    const startBalanceB = await bob.getBalance();
+
     // 1. Deploy & fund multisig
-    const multisig = new Multisig([A.address, B.address]);
+    const multisig = new Multisig([alice.address, bob.address]);
     await multisig.deploy(masterAccount);
     await masterAccount.sendTransaction({
       to: multisig.address,
-      value: Utils.UNIT_ETH.mul(2)
+      value: UNIT_ETH.mul(2)
     });
 
-    const terms = {
+    const terms = TransferTerms.new({
       assetType: AssetType.ETH,
-      limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.zeroAddress
-    };
+      limit: UNIT_ETH.mul(2),
+      token: ZERO_ADDRESS
+    });
     // 2. Deploy CommitRevealApp app
-    const appContract = await Utils.deployContract(
-      CommitRevealApp,
-      masterAccount
-    );
-    app = {
+    const appContract = await deployContract(CommitRevealApp, masterAccount);
+    const app = App.new({
       addr: appContract.address,
       applyAction: appContract.interface.functions.applyAction.sighash,
       resolve: appContract.interface.functions.resolve.sighash,
       turnTaker: appContract.interface.functions.getTurnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
-    };
+    });
 
     // 3. Deploy StateChannel
-    const args = [
-      multisig.address,
-      [A.address, B.address],
-      keccak256Struct(appEncoding, app),
-      keccak256Struct(termsEncoding, terms),
-      10
-    ];
-    const {
-      cfAddr,
-      contract: stateChannel
-    } = await Utils.deployContractViaRegistry(
+    const { cfAddr, contract: stateChannel } = await deployContractViaRegistry(
       StateChannel,
       masterAccount,
-      args
+      [
+        multisig.address,
+        [alice.address, bob.address],
+        app.keccak256(),
+        terms.keccak256(),
+        10
+      ]
     );
 
     // 4. Call setState(claimFinal=true) on StateChannel with a final state
@@ -156,67 +132,80 @@ describe("CommitRevealApp", async () => {
 
     const commitHash = computeCommitHash(appSalt, chosenNumber);
 
-    const finalAppState = {
-      playerAddrs: [A.address, B.address],
+    const AppState = new SolidityStructType(`
+      address[2] playerAddrs;
+      uint256 stage;
+      uint256 maximum;
+      uint256 guessedNumber;
+      bytes32 commitHash;
+      uint256 winner;
+    `);
+
+    const appState = AppState.new({
+      playerAddrs: [alice.address, bob.address],
       stage: Stage.DONE,
       maximum: 10,
       guessedNumber: 1,
       commitHash,
       winner: Player.CHOOSING
-    };
+    });
 
     const appNonce = 5;
     const timeout = 0;
-    const appStateHash = keccak256Struct(appStateEncoding, finalAppState);
-    const stateHash = computeStateHash(appStateHash, appNonce, 0);
-    const signatures = Utils.signMessageBytes(stateHash, [A, B]);
+    const appStateHash = appState.keccak256();
+    const stateHash = computeStateHash(multisig.owners, appState, appNonce, 0);
+    const signatures = signMessageBytes(stateHash, [alice, bob]);
     await stateChannel.functions.setState(
       appStateHash,
       appNonce,
       timeout,
       signatures,
-      Utils.highGasLimit
+      HIGH_GAS_LIMIT
     );
     // 5. Call setResolution() on StateChannel
     await stateChannel.functions.setResolution(
-      app,
-      encode(appStateEncoding, finalAppState),
-      encode(termsEncoding, terms)
+      app.asObject(),
+      appState.encodeBytes(),
+      terms.encodeBytes()
     );
 
     const channelNonce = 1;
-    const nonceSalt =
+    const channelNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
     // 6. Call setNonce on NonceRegistry with some salt and nonce
-    const nonceRegistry: ethers.Contract = await Utils.getDeployedContract(
+    const nonceRegistry: ethers.Contract = await getDeployedContract(
       NonceRegistry,
       masterAccount
     );
     await multisig.execCall(
       nonceRegistry,
       "setNonce",
-      [nonceSalt, channelNonce],
-      [A, B]
+      [channelNonceSalt, channelNonce],
+      [alice, bob]
     );
+
     await multisig.execCall(
       nonceRegistry,
       "finalizeNonce",
-      [nonceSalt],
-      [A, B]
+      [channelNonceSalt],
+      [alice, bob]
     );
 
-    const nonceKey = computeNonceRegistryKey(multisig.address, nonceSalt);
+    const channelNonceKey = computeNonceRegistryKey(
+      multisig.address,
+      channelNonceSalt
+    );
     (await nonceRegistry.functions.isFinalized(
-      nonceKey,
+      channelNonceKey,
       channelNonce
     )).should.be.equal(true);
     // // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
-    const conditionalTransfer: ethers.Contract = await Utils.getDeployedContract(
+    const conditionalTransfer: ethers.Contract = await getDeployedContract(
       ConditionalTransfer,
       masterAccount
     );
-    const registry: ethers.Contract = await Utils.getDeployedContract(
+    const registry: ethers.Contract = await getDeployedContract(
       Registry,
       masterAccount
     );
@@ -226,17 +215,19 @@ describe("CommitRevealApp", async () => {
       [
         registry.address,
         nonceRegistry.address,
-        nonceKey,
+        channelNonceKey,
         channelNonce,
         cfAddr,
-        terms
+        terms.asObject()
       ],
-      [A, B]
+      [alice, bob]
     );
+
     // 8. Verify balance of A and B
-    (await A.getBalance())
-      .sub(startBalanceA)
-      .should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
-    (await B.getBalance()).should.be.bignumber.eq(startBalanceB);
+    const endBalanceA = await alice.getBalance();
+    const endBalanceB = await bob.getBalance();
+
+    endBalanceA.sub(startBalanceA).should.be.bignumber.eq(UNIT_ETH.mul(2));
+    endBalanceB.should.be.bignumber.eq(startBalanceB);
   });
 });
