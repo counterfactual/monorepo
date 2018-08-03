@@ -16,20 +16,6 @@ contract ConditionalTransfer is Conditional {
 
   using Transfer for Transfer.Details;
 
-  Registry public _registry;
-  NonceRegistry public _nonceRegistry;
-
-  /// @notice Contract constructor
-  /// @param registry The registry to use for resolution of Counterfactual addresses
-  /// @param nonceRegistry The nonce registry to check for finalized state channel nonces
-  constructor(Registry registry, NonceRegistry nonceRegistry) {
-    _registry = registry;
-    _nonceRegistry = nonceRegistry;
-  }
-
-  /// @notice Execute a fund transfer if simple condition is met
-  /// @param condition The condition that has to be met
-  /// @param details Details of the funds transfer to be executed
   function executeSimpleConditionalTransfer(
     Condition condition,
     Transfer.Details memory details
@@ -46,6 +32,8 @@ contract ConditionalTransfer is Conditional {
   /// @param channelCfAddress Counterfactual address of the state channel contract
   /// @param terms The pre-agreed upon terms of the funds transfer
   function executeStateChannelConditionalTransfer(
+    address registry,
+    address nonceRegistry,
     bytes32 key,
     uint256 expectedNonce,
     bytes32 channelCfAddress,
@@ -53,13 +41,12 @@ contract ConditionalTransfer is Conditional {
   )
     public
   {
-
     require(
-      _nonceRegistry.isFinalized(key, expectedNonce),
+      NonceRegistry(nonceRegistry).isFinalized(key, expectedNonce),
       "State Channel nonce is either not finalized or finalized at an incorrect nonce"
     );
 
-    address channelAddr = _registry.resolver(channelCfAddress);
+    address channelAddr = Registry(registry).resolver(channelCfAddress);
     StateChannel channel = StateChannel(channelAddr);
     Transfer.Details memory details = channel.getResolution();
 

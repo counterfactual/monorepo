@@ -1,61 +1,132 @@
+import {
+  deployContract,
+  highGasLimit,
+  signMessageBytes
+} from "@counterfactual/test-utils";
 import * as ethers from "ethers";
 
-export const Operation = Object.freeze({
-  Call: 0,
-  Create: 2,
-  Delegatecall: 1
-});
-
-/**
- * Executes a transaction from the multisig to itself according to
- * to the given data.
- *
- * @param data is the contract abi to invoke the correct function with args.
- * @param multisig is the multisig sending and receiving the tx.
- * @param wallets is the array of wallets signing off on the tx.
- * @param op is the Operation to use, i.e., Call, Delegatecall, or Create.
- */
-export async function executeTxData(data, toAddr, multisig, wallets, op) {
-  const value = 0;
-
-  const transactionHash = await multisig.getTransactionHash(
-    toAddr,
-    value,
-    data,
-    op
-  );
-
-  const signatures = sign(transactionHash, wallets);
-  return multisig.execTransaction(
-    toAddr,
-    value,
-    data,
-    op,
-    signatures.v,
-    signatures.r,
-    signatures.s,
-    {
-      gasLimit: 4712388
-    }
-  );
+const enum Operation {
+  Call = 0,
+  Delegatecall = 1
 }
 
-export function sign(data, wallets) {
-  const sortedWallets = wallets.slice().sort((w1, w2) => {
-    return w1.address < w2.address ? -1 : w1.address === w2.address ? 0 : 1;
-  });
-  const v: number[] = [];
-  const r: string[] = [];
-  const s: string[] = [];
-  sortedWallets.forEach(wallet => {
-    const sig = new ethers.SigningKey(wallet.privateKey).signDigest(data);
-    if (!sig.recoveryParam) {
-      throw new Error("could not sign with wallet");
-    }
-    v.push(sig.recoveryParam + 27);
-    r.push(sig.r);
-    s.push(sig.s);
-  });
+/**
+ * Helper class for dealing with Multisignature wallets in tests.
+ * Usage:
+ * const multisig = new Multisig([alice.address, bob.address]);
+ * await multisig.deploy(masterAccount);
+ */
+export default class Multisig {
+  private static loadTruffleContract() {
+    const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
+    const Signatures = artifacts.require("Signatures");
+    MinimumViableMultisig.link("Signatures", Signatures.address);
+    return MinimumViableMultisig;
+  }
 
-  return { v, r, s };
+  private contract?: ethers.Contract;
+
+  /**
+   * Creates new undeployed Multisig instance
+   * @param owners List of owner addresses
+   */
+  constructor(readonly owners: string[]) {}
+
+  /**
+   * Gets the on-chain address of the Multisig
+   */
+  get address() {
+    if (!this.contract) {
+      throw new Error("Must deploy Multisig contract first");
+    }
+    return this.contract.address;
+  }
+
+  /**
+   * Deploy Multisig contract on-chain
+   * @param signer The signer for the on-chain transaction
+   */
+  public async deploy(signer: ethers.ethers.Wallet) {
+    const contract = await deployContract(
+      Multisig.loadTruffleContract(),
+      signer
+    );
+    await contract.functions.setup(this.owners);
+    this.contract = contract;
+  }
+
+  /**
+   * Execute delegatecall originating from Multisig contract
+   * @param toContract Contract instance to send delegatecall to
+   * @param funcName The name of the function to execute
+   * @param args Arguments for the function call
+   * @param signers The signers of the transaction
+   */
+  public async execDelegatecall(
+    toContract: ethers.Contract,
+    funcName: string,
+    args: any[],
+    signers: ethers.Wallet[]
+  ): Promise<ethers.types.Transaction> {
+    return this.execTransaction(
+      toContract,
+      funcName,
+      args,
+      Operation.Delegatecall,
+      signers
+    );
+  }
+
+  /**
+   * Execute call originating from Multisig contract
+   * @param toContract Contract instance to send call to
+   * @param funcName The name of the function to execute
+   * @param args Arguments for the function call
+   * @param signers The signers of the transaction
+   */
+  public async execCall(
+    toContract: ethers.Contract,
+    funcName: string,
+    args: any[],
+    signers: ethers.Wallet[]
+  ): Promise<ethers.types.Transaction> {
+    return this.execTransaction(
+      toContract,
+      funcName,
+      args,
+      Operation.Call,
+      signers
+    );
+  }
+
+  private async execTransaction(
+    toContract: ethers.Contract,
+    funcName: string,
+    args: any[],
+    operation: Operation,
+    wallets: ethers.Wallet[]
+  ): Promise<ethers.types.Transaction> {
+    if (!this.contract) {
+      throw new Error("Must deploy Multisig contract first");
+    }
+    const value = 0;
+    const calldata = toContract.interface.functions[funcName].encode(args);
+
+    const transactionHash = await this.contract.functions.getTransactionHash(
+      toContract.address,
+      value,
+      calldata,
+      operation
+    );
+
+    const signatures = signMessageBytes(transactionHash, wallets);
+    return this.contract.functions.execTransaction(
+      toContract.address,
+      value,
+      calldata,
+      operation,
+      signatures,
+      highGasLimit
+    );
+  }
 }

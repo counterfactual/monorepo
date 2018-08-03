@@ -30,7 +30,7 @@ contract NonceRegistry {
   {
     State storage state = table[key];
     require(
-      table[key].finalizesAt < block.number,
+      table[key].finalizesAt <= block.number,
       "Nonce is not yet finalized"
     );
     return state.nonce == nonce;

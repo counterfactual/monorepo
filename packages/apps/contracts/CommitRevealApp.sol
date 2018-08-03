@@ -6,7 +6,7 @@ import "@counterfactual/contracts/contracts/lib/Transfer.sol";
 
 // Enums in libraries or calls to libraries using ABI encoded structs are broken in Solidity
 // Therefore, we are forced to use contracts
-contract GuessNumber {
+contract CommitRevealApp {
 
   enum ActionType {
     SET_MAX,
@@ -19,15 +19,18 @@ contract GuessNumber {
     SETTING_MAX, CHOOSING, GUESSING, REVEALING, DONE
   }
 
+  enum Player {
+    CHOOSING,
+    GUESSING
+  }
+
   struct AppState {
+    address[2] playerAddrs;
     Stage stage;
-    uint256 choosingPlayer;
-    uint256 guessingPlayer;
-    address[2] players;
     uint256 maximum;
     uint256 guessedNumber;
     bytes32 commitHash;
-    address winner;
+    Player winner;
   }
 
   struct Action {
@@ -36,7 +39,7 @@ contract GuessNumber {
     bytes32 hash;
   }
 
-  function isFinalState(AppState state)
+  function isStateFinal(AppState state)
     public
     pure
     returns (bool)
@@ -47,12 +50,12 @@ contract GuessNumber {
   function getTurnTaker(AppState state)
     public
     pure
-    returns (uint256)
+    returns (Player)
   {
     if (state.stage == Stage.GUESSING) {
-      return state.guessingPlayer;
+      return Player.GUESSING;
     }
-    return state.choosingPlayer;
+    return Player.CHOOSING;
   }
 
   function reducer(AppState state, Action action)
@@ -90,10 +93,10 @@ contract GuessNumber {
         keccak256(abi.encodePacked(salt, chosenNumber)) == state.commitHash &&
         state.guessedNumber != chosenNumber &&
         chosenNumber < state.maximum) {
-        nextState.winner = state.players[state.choosingPlayer];
+        nextState.winner = Player.CHOOSING;
       }
       else {
-        nextState.winner = state.players[state.guessingPlayer];
+        nextState.winner = Player.GUESSING;
       }
     }
     else {
@@ -111,13 +114,15 @@ contract GuessNumber {
     amounts[0] = terms.limit;
 
     address[] memory to = new address[](1);
+    uint256 player;
     if (state.stage == Stage.DONE) {
-      to[0] = state.winner;
+      player = uint256(state.winner);
     }
     else {
       // The player who is not the turn taker
-      to[0] = state.players[1 - getTurnTaker(state)];
+      player = 1 - uint256(getTurnTaker(state));
     }
+    to[0] = state.playerAddrs[player];
 
     bytes memory data;
 
