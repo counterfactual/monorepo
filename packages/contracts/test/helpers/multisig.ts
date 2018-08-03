@@ -1,6 +1,6 @@
 import {
   deployContract,
-  highGasLimit,
+  HIGH_GAS_LIMIT,
   signMessageBytes
 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
@@ -126,7 +126,7 @@ export default class Multisig {
       calldata,
       operation,
       signatures,
-      highGasLimit
+      HIGH_GAS_LIMIT
     );
   }
 }

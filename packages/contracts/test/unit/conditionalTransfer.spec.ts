@@ -27,7 +27,7 @@ contract("ConditionalTransfer", (accounts: string[]) => {
         [expectedValue]
       ),
       onlyCheckForSuccess,
-      parameters: Utils.zeroBytes32,
+      parameters: Utils.ZERO_BYTES32,
       selector: condition.interface.functions.isSatisfiedNoParam.sighash,
       to: condition.address
     });
@@ -64,13 +64,13 @@ contract("ConditionalTransfer", (accounts: string[]) => {
       const randomTarget = Utils.randomETHAddress();
       const tx = ct.interface.functions.executeSimpleConditionalTransfer.encode(
         [
-          makeCondition(Utils.zeroBytes32, true),
+          makeCondition(Utils.ZERO_BYTES32, true),
           {
             amount: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.zeroAddress,
-            data: Utils.zeroAddress
+            token: Utils.ZERO_ADDRESS,
+            data: Utils.ZERO_ADDRESS
           }
         ]
       );
@@ -78,7 +78,7 @@ contract("ConditionalTransfer", (accounts: string[]) => {
       await delegateProxy.functions.delegate(
         ct.address,
         tx,
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       const balTarget = await provider.getBalance(randomTarget);
@@ -97,14 +97,14 @@ contract("ConditionalTransfer", (accounts: string[]) => {
             amount: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.zeroAddress,
-            data: Utils.zeroAddress
+            token: Utils.ZERO_ADDRESS,
+            data: Utils.ZERO_ADDRESS
           }
         ]
       );
 
       await Utils.assertRejects(
-        delegateProxy.functions.delegate(ct.address, tx, Utils.highGasLimit)
+        delegateProxy.functions.delegate(ct.address, tx, Utils.HIGH_GAS_LIMIT)
       );
 
       const balTarget = await provider.getBalance(randomTarget);

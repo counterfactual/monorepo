@@ -43,14 +43,14 @@ contract("Transfer", (accounts: string[]) => {
         amount: [Utils.UNIT_ETH],
         assetType: AssetType.ETH,
         to: [randomTarget],
-        token: Utils.zeroAddress,
-        data: Utils.zeroAddress
+        token: Utils.ZERO_ADDRESS,
+        data: Utils.ZERO_ADDRESS
       };
 
       await delegateProxy.functions.delegate(
         transfer.address,
         transfer.interface.functions.transfer.encode([details]),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       const balTarget = await provider.getBalance(randomTarget);
@@ -67,14 +67,14 @@ contract("Transfer", (accounts: string[]) => {
         amount: randomTargets.map(_ => Utils.UNIT_ETH.div(10)),
         assetType: AssetType.ETH,
         to: randomTargets,
-        token: Utils.zeroAddress,
-        data: Utils.zeroAddress
+        token: Utils.ZERO_ADDRESS,
+        data: Utils.ZERO_ADDRESS
       };
 
       await delegateProxy.functions.delegate(
         transfer.address,
         transfer.interface.functions.transfer.encode([details]),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       for (let i = 0; i < 10; i++) {
@@ -97,13 +97,13 @@ contract("Transfer", (accounts: string[]) => {
         assetType: AssetType.ERC20,
         to: [randomTarget],
         token: dolphinCoin.address,
-        data: Utils.zeroAddress
+        data: Utils.ZERO_ADDRESS
       };
 
       await delegateProxy.functions.delegate(
         transfer.address,
         transfer.interface.functions.transfer.encode([details]),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       const balTarget = await dolphinCoin.functions.balanceOf(randomTarget);
@@ -121,13 +121,13 @@ contract("Transfer", (accounts: string[]) => {
         assetType: AssetType.ERC20,
         to: randomTargets,
         token: dolphinCoin.address,
-        data: Utils.zeroAddress
+        data: Utils.ZERO_ADDRESS
       };
 
       await delegateProxy.functions.delegate(
         transfer.address,
         transfer.interface.functions.transfer.encode([details]),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       for (let i = 0; i < 10; i++) {
