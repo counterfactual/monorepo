@@ -34,7 +34,8 @@ contract MinimumViableMultisig {
 
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
-  constructor(address[] owners) public {
+  function setup(address[] owners) public {
+    require(_owners.length == 0); // Contract hasn't been set up before
     _owners = owners;
     for (uint256 i = 0; i < owners.length; i++) {
       require(owners[i] != 0);
@@ -77,7 +78,7 @@ contract MinimumViableMultisig {
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
   /// @param operation An `Operation` referring to the use of `CALL` or `DELEGATECALL`
-  /// @return A unique hash that owners are expected to sign and submit to `execTransaction`
+  /// @return A unique hash that owners are expected to sign and submit to `multisigExecTransaction`
   function getTransactionHash(
     address to,
     uint256 value,

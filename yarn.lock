@@ -157,20 +157,20 @@
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.0.tgz#b3c8e69f038835db1a7fdc0b3d879fc50506e29e"
 
 "@types/node@*", "@types/node@^10.3.2":
-  version "10.5.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.3.tgz#5bcfaf088ad17894232012877669634c06b20cc5"
+  version "10.5.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.4.tgz#6eccc158504357d1da91434d75e86acde94bb10b"
 
 "@types/node@10.1.3":
   version "10.1.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.1.3.tgz#5c16980936c4e3c83ce64e8ed71fb37bd7aea135"
 
 "@types/node@^8.0.0", "@types/node@^8.0.53":
-  version "8.10.21"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.21.tgz#12b3f2359b27aa05a45d886c8ba1eb8d1a77e285"
+  version "8.10.22"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.22.tgz#c095d7c668908d48b95ae11fcc4a6d6b1c116a35"
 
 "@types/node@^9.3.0", "@types/node@^9.4.1":
-  version "9.6.23"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.23.tgz#fc429962c1b75f32bd66214a3997f660e8434f0d"
+  version "9.6.24"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.24.tgz#c1bccb30f30871718b220b34290ccf53e7ee9317"
 
 "@types/qs@^6.2.31":
   version "6.5.1"
@@ -2488,10 +2488,11 @@ easy-stack@^1.0.0:
   resolved "https://registry.yarnpkg.com/easy-stack/-/easy-stack-1.0.0.tgz#12c91b3085a37f0baa336e9486eac4bf94e3e788"
 
 ecc-jsbn@~0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz#3a83a904e54353287874c564b7549386849a98c9"
   dependencies:
     jsbn "~0.1.0"
+    safer-buffer "^2.1.0"
 
 editions@^1.3.3:
   version "1.3.4"
@@ -2745,9 +2746,9 @@ ethereumjs-testrpc-sc@6.1.2:
     source-map-support "^0.5.3"
     webpack-cli "^2.0.9"
 
-ethers@ethers-io/ethers.js#typescript:
+ethers@4.0.0-beta.5:
   version "4.0.0-beta.5"
-  resolved "https://codeload.github.com/ethers-io/ethers.js/tar.gz/1d98928475758ec46d27d952586a59bdcca90bbe"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.5.tgz#37032a7ddf2fc3bb011f3db0cac5a178d66b7166"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -5994,8 +5995,8 @@ preserve@^0.2.0:
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
 prettier@^1.12.1:
-  version "1.13.7"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.13.7.tgz#850f3b8af784a49a6ea2d2eaa7ed1428a34b7281"
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.14.0.tgz#847c235522035fd988100f1f43cf20a7d24f9372"
 
 pretty-bytes@^4.0.2:
   version "4.0.2"
@@ -6675,7 +6676,7 @@ safe-regex@^1.1.0:
   dependencies:
     ret "~0.1.10"
 
-"safer-buffer@>= 2.1.2 < 3", safer-buffer@^2.0.2:
+"safer-buffer@>= 2.1.2 < 3", safer-buffer@^2.0.2, safer-buffer@^2.1.0:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
 

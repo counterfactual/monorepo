@@ -4,12 +4,10 @@ import * as Utils from "@counterfactual/test-utils";
 
 // tslint:disable-next-line
 import { Web3Provider } from "ethers/providers";
-import * as Multisig from "./multisig";
 
 const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const ProxyContract = artifacts.require("Proxy");
-const RegistryCall = artifacts.require("RegistryCall");
 
 export async function deployThroughProxyFactory(contract, data) {
   const proxyFactory = await ProxyFactory.deployed();
@@ -42,7 +40,7 @@ export async function deployApp(
   );
 }
 
-export async function deployMultisig(owners) {
+export async function deployMultisig(owners): Promise<ethers.Contract> {
   return deployThroughProxyFactory(
     MinimumViableMultisig,
     new ethers.Interface(MinimumViableMultisig.abi).functions.setup.encode([
@@ -218,46 +216,6 @@ export function getCFHelper(
       );
 
       return { cfaddress, contract };
-    },
-    async call(to, signer, data) {
-      return this.fn(Multisig.Operation.Call, to, signer, data);
-    },
-    async delegatecall(to, signer, data) {
-      return this.fn(Multisig.Operation.Delegatecall, to, signer, data);
-    },
-    async proxyCall(cfobject, signer, fnName, fnArgs) {
-      return this.proxyFn("proxyCall", cfobject, signer, fnName, fnArgs);
-    },
-    async proxyDelegatecall(cfobject, signer, fnName, fnArgs) {
-      return this.proxyFn(
-        "proxyDelegatecall",
-        cfobject,
-        signer,
-        fnName,
-        fnArgs
-      );
-    },
-    fn: async (callType, to, signer, data) => {
-      return Multisig.executeTxData(data, to, multisig, [signer], callType);
-    },
-    proxyFn: async (callType, cfobject, signer, fnName, fnArgs) => {
-      const data = new ethers.Interface(RegistryCall.abi).functions[
-        callType
-      ].encode([
-        registry.address,
-        cfobject.cfaddress,
-        new ethers.Interface(cfobject.contract.interface.abi).functions[
-          fnName
-        ].encode(fnArgs || [])
-      ]);
-
-      return Multisig.executeTxData(
-        data,
-        (RegistryCall as any).address,
-        multisig,
-        [signer],
-        Multisig.Operation.Delegatecall
-      );
     }
   };
 }

@@ -121,71 +121,71 @@ contract("StateChannel", (accounts: string[]) => {
   describe("updating app state", async () => {
     describe("with owner", async () => {
       it("should work with higher nonce", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendUpdateToChainWithNonce(1);
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
       });
 
       it("should work many times", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendUpdateToChainWithNonce(1);
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
         await sendUpdateToChainWithNonce(2);
-        "2".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(2);
         await sendUpdateToChainWithNonce(3);
-        "3".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(3);
       });
 
       it("should work with much higher nonce", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendUpdateToChainWithNonce(1000);
-        "1000".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1000);
       });
 
       it("shouldn't work with an equal nonce", async () => {
         await Utils.assertRejects(sendUpdateToChainWithNonce(0));
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
       });
 
       it("shouldn't work with an lower nonce", async () => {
         await sendUpdateToChainWithNonce(1);
         await Utils.assertRejects(sendUpdateToChainWithNonce(0));
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
       });
     });
 
     describe("with signing keys", async () => {
       it("should work with higher nonce", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendSignedUpdateToChainWithNonce(1);
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
       });
 
       it("should work many times", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendSignedUpdateToChainWithNonce(1);
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
         await sendSignedUpdateToChainWithNonce(2);
-        "2".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(2);
         await sendSignedUpdateToChainWithNonce(3);
-        "3".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(3);
       });
 
       it("should work with much higher nonce", async () => {
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
         await sendSignedUpdateToChainWithNonce(1000);
-        "1000".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1000);
       });
 
       it("shouldn't work with an equal nonce", async () => {
         await Utils.assertRejects(sendSignedUpdateToChainWithNonce(0));
-        "0".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(0);
       });
 
       it("shouldn't work with an lower nonce", async () => {
         await sendSignedUpdateToChainWithNonce(1);
         await Utils.assertRejects(sendSignedUpdateToChainWithNonce(0));
-        "1".should.be.bignumber.eq(await latestNonce());
+        (await latestNonce()).should.be.bignumber.eq(1);
       });
     });
   });

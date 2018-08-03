@@ -28,7 +28,9 @@ contract Registry {
   /// @notice Deploy a contract and add a mapping from counterfactual address to deployed address to storage
   /// @param initcode Contract bytecode concatenated with ABI encoded constructor arguments
   /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
-  function deploy(bytes initcode, uint256 salt) public {
+  function deploy(bytes initcode, uint256 salt)
+    public
+  {
     address deployed;
     bytes32 ptr = cfaddress(initcode, salt);
 
