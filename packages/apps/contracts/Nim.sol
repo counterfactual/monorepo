@@ -29,18 +29,6 @@ contract Nim {
     return isWin(state);
   }
 
-  function isWin(AppState state)
-    internal
-    pure
-    returns (bool)
-  {
-    return (
-      (state.pileHeights[0] == 0) &&
-      (state.pileHeights[1] == 0) &&
-      (state.pileHeights[2] == 0)
-    );
-  }
-
   function turn(AppState state)
     public
     pure
@@ -92,5 +80,14 @@ contract Nim {
       data
     );
   }
+
+  function isWin(AppState state)
+    internal
+    pure
+    returns (bool)
+  {
+    return ((state.pileHeights[0] == 0) && (state.pileHeights[1] == 0) && (state.pileHeights[2] == 0));
+  }
+
 
 }
