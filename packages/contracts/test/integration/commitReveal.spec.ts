@@ -21,18 +21,34 @@ const [A, B] = [
   )
 ];
 
-const computeStateHash = (
+function computeStateHash(
   appStateHash: string,
   nonce: number,
   timeout: number
-) =>
-  ethers.utils.solidityKeccak256(
+) {
+  return ethers.utils.solidityKeccak256(
     ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
     ["0x19", [A.address, B.address], nonce, timeout, appStateHash]
   );
+}
 
-const encode = (encoding: string, state: any) =>
-  ethers.utils.defaultAbiCoder.encode([encoding], [state]);
+function computeCommitHash(appSalt: string, chosenNumber: number) {
+  return ethers.utils.solidityKeccak256(
+    ["bytes32", "uint256"],
+    [appSalt, chosenNumber]
+  );
+}
+
+function computeNonceRegistryKey(multisigAddress: string, nonceSalt: string) {
+  return ethers.utils.solidityKeccak256(
+    ["address", "bytes32"],
+    [multisigAddress, nonceSalt]
+  );
+}
+
+function encode(encoding: string, state: any) {
+  return ethers.utils.defaultAbiCoder.encode([encoding], [state]);
+}
 
 function keccak256Struct(encoding: string, struct: any) {
   const bytes = ethers.utils.defaultAbiCoder.encode([encoding], [struct]);
@@ -138,10 +154,7 @@ describe("CommitRevealApp", async () => {
       "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
     const chosenNumber = 5;
 
-    const commitHash = ethers.utils.solidityKeccak256(
-      ["bytes32", "uint256"],
-      [appSalt, chosenNumber]
-    );
+    const commitHash = computeCommitHash(appSalt, chosenNumber);
 
     const finalAppState = {
       playerAddrs: [A.address, B.address],
@@ -193,10 +206,7 @@ describe("CommitRevealApp", async () => {
       [A, B]
     );
 
-    const nonceKey = ethers.utils.solidityKeccak256(
-      ["address", "bytes32"],
-      [multisig.address, nonceSalt]
-    );
+    const nonceKey = computeNonceRegistryKey(multisig.address, nonceSalt);
     (await nonceRegistry.functions.isFinalized(
       nonceKey,
       channelNonce
