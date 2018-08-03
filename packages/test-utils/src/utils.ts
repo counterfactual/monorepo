@@ -4,20 +4,21 @@ import * as chaiBigNumber from "chai-bignumber";
 import * as chaiString from "chai-string";
 import * as ethers from "ethers";
 
-import { SolidityStruct, SolidityStructType } from "./solidityStruct";
 import {
-  App,
+  AppEncoder,
   computeActionHash,
+  computeNonceRegistryKey,
   computeStateHash,
-  TransferTerms
+  TermsEncoder
 } from "./stateChannel";
+import { StructAbiEncoder } from "./structAbiEncoder";
 export {
-  SolidityStructType,
-  SolidityStruct,
+  StructAbiEncoder,
   computeStateHash,
   computeActionHash,
-  TransferTerms,
-  App
+  computeNonceRegistryKey,
+  TermsEncoder,
+  AppEncoder
 };
 
 // https://github.com/ethers-io/ethers.js/pull/225

@@ -1,7 +1,8 @@
 import * as ethers from "ethers";
 
 import {
-  App,
+  AppEncoder,
+  computeNonceRegistryKey,
   computeStateHash,
   deployContract,
   deployContractViaRegistry,
@@ -9,8 +10,8 @@ import {
   HIGH_GAS_LIMIT,
   setupTestEnv,
   signMessageBytes,
-  SolidityStructType,
-  TransferTerms,
+  StructAbiEncoder,
+  TermsEncoder,
   UNIT_ETH,
   ZERO_ADDRESS
 } from "@counterfactual/test-utils";
@@ -34,17 +35,12 @@ const [alice, bob] = [
   )
 ];
 
+const keccak256 = ethers.utils.keccak256;
+
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
     ["bytes32", "uint256"],
     [appSalt, chosenNumber]
-  );
-}
-
-function computeNonceRegistryKey(multisigAddress: string, nonceSalt: string) {
-  return ethers.utils.solidityKeccak256(
-    ["address", "bytes32"],
-    [multisigAddress, nonceSalt]
   );
 }
 
@@ -94,23 +90,23 @@ describe("CommitReveal", async () => {
     await multisig.deploy(masterAccount);
     await masterAccount.sendTransaction({
       to: multisig.address,
-      value: UNIT_ETH.mul(2)
+      value: ethers.utils.parseEther("2")
     });
 
-    const terms = TransferTerms.new({
+    const terms = {
       assetType: AssetType.ETH,
-      limit: UNIT_ETH.mul(2),
+      limit: ethers.utils.parseEther("2"),
       token: ZERO_ADDRESS
-    });
+    };
     // 2. Deploy CommitRevealApp app
     const appContract = await deployContract(CommitRevealApp, masterAccount);
-    const app = App.new({
+    const app = {
       addr: appContract.address,
       applyAction: appContract.interface.functions.applyAction.sighash,
       resolve: appContract.interface.functions.resolve.sighash,
       turnTaker: appContract.interface.functions.getTurnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
-    });
+    };
 
     // 3. Deploy StateChannel
     const { cfAddr, contract: stateChannel } = await deployContractViaRegistry(
@@ -119,8 +115,8 @@ describe("CommitReveal", async () => {
       [
         multisig.address,
         [alice.address, bob.address],
-        app.keccak256(),
-        terms.keccak256(),
+        keccak256(AppEncoder.encode(app)),
+        keccak256(TermsEncoder.encode(terms)),
         10
       ]
     );
@@ -132,7 +128,7 @@ describe("CommitReveal", async () => {
 
     const commitHash = computeCommitHash(appSalt, chosenNumber);
 
-    const AppState = new SolidityStructType(`
+    const AppStateEncoder = StructAbiEncoder.fromDefinition(`
       address[2] playerAddrs;
       uint256 stage;
       uint256 maximum;
@@ -141,19 +137,24 @@ describe("CommitReveal", async () => {
       uint256 winner;
     `);
 
-    const appState = AppState.new({
+    const appState = {
       playerAddrs: [alice.address, bob.address],
       stage: Stage.DONE,
       maximum: 10,
       guessedNumber: 1,
       commitHash,
       winner: Player.CHOOSING
-    });
+    };
 
     const appNonce = 5;
     const timeout = 0;
-    const appStateHash = appState.keccak256();
-    const stateHash = computeStateHash(multisig.owners, appState, appNonce, 0);
+    const appStateHash = keccak256(AppStateEncoder.encode(appState));
+    const stateHash = computeStateHash(
+      multisig.owners,
+      appStateHash,
+      appNonce,
+      0
+    );
     const signatures = signMessageBytes(stateHash, [alice, bob]);
     await stateChannel.functions.setState(
       appStateHash,
@@ -164,9 +165,9 @@ describe("CommitReveal", async () => {
     );
     // 5. Call setResolution() on StateChannel
     await stateChannel.functions.setResolution(
-      app.asObject(),
-      appState.encodeBytes(),
-      terms.encodeBytes()
+      app,
+      AppStateEncoder.encode(appState),
+      TermsEncoder.encode(terms)
     );
 
     const channelNonce = 1;
@@ -218,7 +219,7 @@ describe("CommitReveal", async () => {
         channelNonceKey,
         channelNonce,
         cfAddr,
-        terms.asObject()
+        terms
       ],
       [alice, bob]
     );
