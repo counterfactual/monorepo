@@ -68,23 +68,23 @@ contract("PaymentApp", (accounts: string[]) => {
 
   const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
+      appState || Utils.ZERO_BYTES32,
       nonce,
       10,
       "0x",
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
+      appState || Utils.ZERO_BYTES32,
       nonce,
       10,
       Utils.signMessageBytes(
-        getUpdateHash(appState || Utils.zeroBytes32, nonce, 10),
+        getUpdateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         [unlockedAccount]
       ),
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
@@ -93,10 +93,10 @@ contract("PaymentApp", (accounts: string[]) => {
       await latestNonce(),
       0,
       Utils.signMessageBytes(
-        getUpdateHash(stateHash || Utils.zeroBytes32, await latestNonce(), 0),
+        getUpdateHash(stateHash || Utils.ZERO_BYTES32, await latestNonce(), 0),
         [unlockedAccount]
       ),
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   let app;
@@ -124,7 +124,7 @@ contract("PaymentApp", (accounts: string[]) => {
     terms = {
       assetType: AssetType.ETH,
       limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.zeroAddress
+      token: Utils.ZERO_ADDRESS
     };
 
     const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
@@ -142,7 +142,7 @@ contract("PaymentApp", (accounts: string[]) => {
   it("should resolve to payments", async () => {
     const ret = await pc.functions.resolver(exampleState, terms);
     ret.assetType.should.be.equal(AssetType.ETH);
-    ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+    ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
     ret.to[0].should.be.equalIgnoreCase(A.address);
     ret.to[1].should.be.equalIgnoreCase(B.address);
     ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH);
@@ -157,7 +157,7 @@ contract("PaymentApp", (accounts: string[]) => {
           app,
           finalState,
           encode(termsEncoding, terms),
-          Utils.highGasLimit
+          Utils.HIGH_GAS_LIMIT
         )
       );
     });
@@ -168,11 +168,11 @@ contract("PaymentApp", (accounts: string[]) => {
         app,
         finalState,
         encode(termsEncoding, terms),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
       const ret = await stateChannel.functions.getResolution();
       ret.assetType.should.be.equal(AssetType.ETH);
-      ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+      ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
       ret.to[0].should.be.equalIgnoreCase(A.address);
       ret.to[1].should.be.equalIgnoreCase(B.address);
       ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH);

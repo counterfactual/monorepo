@@ -62,7 +62,7 @@ export function getCFHelper(
             ["bytes32"],
             [contract.address]
           ),
-          registry: Utils.zeroAddress
+          registry: Utils.ZERO_ADDRESS
         };
       } else {
         return {
