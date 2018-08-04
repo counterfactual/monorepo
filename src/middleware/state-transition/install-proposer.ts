@@ -1,4 +1,4 @@
-import { InternalMessage, getFirstResult } from "../../vm";
+import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import {
 	Address,
@@ -6,7 +6,8 @@ import {
 	FreeBalance,
 	PeerBalance,
 	InstallData,
-	H256
+	H256,
+	InternalMessage
 } from "../../types";
 import { zeroBytes32, CfNonce, CfStateChannel } from "../cf-operation/types";
 

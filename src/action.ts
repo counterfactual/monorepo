@@ -3,10 +3,11 @@ import {
 	AppChannelInfos,
 	ClientMessage,
 	FreeBalance,
-	PeerBalance
+	PeerBalance,
+	InternalMessage
 } from "./types";
 import { StateChannelInfoImpl } from "./state";
-import { CounterfactualVM, InternalMessage } from "./vm";
+import { CounterfactualVM } from "./vm";
 import { Instructions, AckInstructions, Instruction } from "./instructions";
 
 if (!Symbol.asyncIterator) {

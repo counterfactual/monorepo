@@ -1,4 +1,5 @@
-import { InternalMessage, getFirstResult } from "../../vm";
+import { getFirstResult } from "../../vm";
+import { InternalMessage, StateChannelInfos } from "../../types";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import { Instruction } from "../../instructions";
 import {
@@ -24,7 +25,7 @@ export class StateTransition {
 		next: Function,
 		context: Context,
 		cfState: CfState
-	) {
+	): StateChannelInfos {
 		if (message.actionName === "update") {
 			return UpdateProposer.propose(message, context, cfState);
 		} else if (message.actionName === "install") {
@@ -58,5 +59,6 @@ export class StateTransition {
 			context.results
 		);
 		context.vm.mutateState(newState.value);
+		next();
 	}
 }

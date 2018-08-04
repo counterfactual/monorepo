@@ -1,6 +1,6 @@
-import { InternalMessage, getFirstResult } from "../../vm";
+import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
-import { FreeBalance, PeerBalance } from "../../types";
+import { FreeBalance, PeerBalance, InternalMessage } from "../../types";
 import { CfNonce, zeroBytes32 } from "../cf-operation/types";
 import * as ethers from "ethers";
 
