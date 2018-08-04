@@ -1,9 +1,19 @@
-import { InternalMessage, getFirstResult } from "../../vm";
+import { getFirstResult } from "../../vm";
 import { CfState, Context } from "../../state";
-import { Address, H256, UpdateData } from "../../types";
+import {
+	Address,
+	H256,
+	UpdateData,
+	InternalMessage,
+	StateChannelInfos
+} from "../../types";
 
 export class UpdateProposer {
-	static propose(message: InternalMessage, context: Context, state: CfState) {
+	static propose(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	): StateChannelInfos {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 

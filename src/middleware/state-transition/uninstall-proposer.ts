@@ -1,15 +1,21 @@
-import { InternalMessage, getFirstResult } from "../../vm";
+import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
+import { InternalMessage } from "../../types";
 
 import {
 	Address,
 	CanonicalPeerBalance,
 	FreeBalance,
-	PeerBalance
+	PeerBalance,
+	StateChannelInfos
 } from "../../types";
 
 export class UninstallProposer {
-	static propose(message: InternalMessage, context: Context, state: CfState) {
+	static propose(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	): StateChannelInfos {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfos();
 		let appId = message.clientMessage.appId;

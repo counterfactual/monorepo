@@ -7,8 +7,8 @@ import {
 	CfStateChannel
 } from "../cf-operation/types";
 import { Instruction } from "../../instructions";
-import { Signature, Address } from "../../types";
-import { InternalMessage, getFirstResult } from "../../vm";
+import { Signature, Address, InternalMessage } from "../../types";
+import { getFirstResult } from "../../vm";
 import * as common from "./common";
 import { CfOperation } from "./types";
 import { CfOpUpdate } from "./cf-op-update";

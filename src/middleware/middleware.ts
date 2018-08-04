@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 import { CfState, StateChannelInfoImpl, Context } from "../state";
-import { InternalMessage, getFirstResult } from "../vm";
-import { ClientMessage } from "../types";
+import { getFirstResult } from "../vm";
+import { ClientMessage, InternalMessage } from "../types";
 import { Instruction } from "../instructions";
 
 export { StateTransition } from "./state-transition/state-transition";

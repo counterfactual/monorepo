@@ -1,7 +1,7 @@
 import { Context } from "../../src/state";
 import { CfOpUpdate } from "../../src/middleware/cf-operation/cf-op-update";
 import { CfOpSetup } from "../../src/middleware/cf-operation/cf-op-setup";
-import { CounterfactualVM, Response, InternalMessage } from "../../src/vm";
+import { CounterfactualVM, Response } from "../../src/vm";
 import { CfState } from "../../src/state";
 import {
 	StateChannelInfos,
@@ -12,7 +12,8 @@ import {
 	StateChannelInfo,
 	ClientMessage,
 	FreeBalance,
-	ChannelStates
+	ChannelStates,
+	InternalMessage
 } from "../../src/types";
 import { IoProvider } from "./ioProvider";
 import { Instruction } from "../../src/instructions";

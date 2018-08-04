@@ -8,7 +8,9 @@ import {
 	FreeBalance,
 	PeerBalance,
 	Address,
-	H256
+	H256,
+	Addressable,
+	InternalMessage
 } from "./types";
 import {
 	NextMsgGenerator,
@@ -116,29 +118,6 @@ export class CounterfactualVM {
 
 	register(scope: Instruction, method: Function) {
 		this.middlewares.push({ scope, method });
-	}
-}
-
-export interface Addressable {
-	appId?: H256;
-	multisigAddress?: Address;
-	toAddress?: Address;
-	fromAddress?: Address;
-}
-
-export class InternalMessage {
-	actionName: string;
-	opCode: Instruction;
-	clientMessage: ClientMessage;
-
-	constructor(
-		action: string,
-		opCode: Instruction,
-		clientMessage: ClientMessage
-	) {
-		this.actionName = action;
-		this.opCode = opCode;
-		this.clientMessage = clientMessage;
 	}
 }
 

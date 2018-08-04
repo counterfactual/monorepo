@@ -1,5 +1,5 @@
-import { ClientMessage } from "../../src/types";
-import { InternalMessage, getFirstResult, getLastResult } from "../../src/vm";
+import { ClientMessage, InternalMessage } from "../../src/types";
+import { getFirstResult, getLastResult } from "../../src/vm";
 import { Context } from "../../src/state";
 import { TestWallet } from "./wallet";
 import { Instruction } from "../../src/instructions";
