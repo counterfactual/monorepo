@@ -33,7 +33,7 @@ export class StateTransition {
 		} else if (message.actionName === "uninstall") {
 			return UninstallProposer.propose(message, context, cfState);
 		} else if (message.actionName === "setup") {
-			return SetupProposer.propose(message, context, cfState);
+			return SetupProposer.propose(message);
 		} else {
 			throw Error("Action name not supported");
 		}

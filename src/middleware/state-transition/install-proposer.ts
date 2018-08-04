@@ -15,7 +15,6 @@ export class InstallProposer {
 	static propose(message: InternalMessage, context: Context, state: CfState) {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let data: InstallData = message.clientMessage.data;
-
 		let uniqueId = InstallProposer.nextUniqueId(state, multisig);
 		let cfAddr = InstallProposer.proposedCfAddress(message, uniqueId);
 
