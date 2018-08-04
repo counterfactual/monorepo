@@ -17,7 +17,7 @@ const FREE_BALANCE_UNIQUE_ID = 0;
  * free balance this number is 0.
  */
 export class SetupProposer {
-	static propose(message: InternalMessage, context: Context, state: CfState) {
+	static propose(message: InternalMessage) {
 		let toAddress = message.clientMessage.toAddress;
 		let fromAddress = message.clientMessage.fromAddress;
 

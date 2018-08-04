@@ -16,7 +16,6 @@ export class NextMsgGenerator {
 		let message = internalMessage.clientMessage;
 		let msg: ClientMessage = {
 			requestId: "none this should be a notification on completion",
-			appName: message.appName,
 			appId: message.appId,
 			action: message.action,
 			data: message.data,

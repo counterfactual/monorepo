@@ -16,15 +16,13 @@ export type H256 = string;
 
 export interface ClientMessage {
 	requestId: string;
-	appName?: string;
 	appId: string;
 	action: string;
 	data: any;
 	multisigAddress: string;
 	toAddress: string;
 	fromAddress: string;
-	// we should remove this from this object
-	stateChannel?: StateChannelInfo;
+	stateChannel?: StateChannelInfo; // we should remove this from this object
 	seq: number;
 }
 
@@ -247,17 +245,9 @@ export interface Addressable {
 }
 
 export class InternalMessage {
-	actionName: string;
-	opCode: Instruction;
-	clientMessage: ClientMessage;
-
 	constructor(
-		action: string,
-		opCode: Instruction,
-		clientMessage: ClientMessage
-	) {
-		this.actionName = action;
-		this.opCode = opCode;
-		this.clientMessage = clientMessage;
-	}
+		public actionName: string,
+		public opCode: Instruction,
+		public clientMessage: ClientMessage
+	) {}
 }
