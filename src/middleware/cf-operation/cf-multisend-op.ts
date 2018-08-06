@@ -17,10 +17,14 @@ import {
 import * as common from "./common";
 
 export abstract class CfMultiSendOp extends CfOperation {
-	readonly ctx: NetworkContext = Object.create(null);
-	readonly multisig: Address = Object.create(null);
-	readonly dependencyNonce: CfNonce = Object.create(null);
-	readonly cfFreeBalance: CfFreeBalance = Object.create(null);
+	constructor(
+		readonly ctx: NetworkContext,
+		readonly multisig: Address,
+		readonly cfFreeBalance: CfFreeBalance,
+		readonly dependencyNonce: CfNonce
+	) {
+		super();
+	}
 
 	transaction(sigs: Signature[]): Transaction {
 		let multisigInput = this.multisigInput();

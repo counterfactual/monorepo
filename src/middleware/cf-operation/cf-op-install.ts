@@ -20,7 +20,7 @@ export class CfOpInstall extends CfMultiSendOp {
 		readonly cfFreeBalance: CfFreeBalance,
 		readonly dependencyNonce: CfNonce
 	) {
-		super();
+		super(ctx, multisig, cfFreeBalance, dependencyNonce);
 	}
 
 	/**
