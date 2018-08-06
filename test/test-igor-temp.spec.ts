@@ -5,7 +5,6 @@ import * as ethers from "ethers";
 describe("Exploring", () => {
 	it("update ack", async () => {
 		/*
-		let wallet = new CfWallet();
 		let state: ChannelStates = {
 			sampleMultisig: {
 				toAddress: 'toAddress',
@@ -29,8 +28,7 @@ describe("Exploring", () => {
 
 		// temp hack until we move the parent pointer out of the data structure
 		state.sampleMultisig.appChannels.someAppId.stateChannel = state.sampleMultisig;
-
-		wallet.initState(state);
+		let wallet = new CfWallet("", state);
 
 		let incoming = {
 			appId: 'someAppId',
@@ -47,7 +45,6 @@ describe("Exploring", () => {
 		*/
 	/*
 	it("update", async (done) => {
-		let wallet = new CfWallet();
 		let state: ChannelStates = {
 			sampleMultisig: {
 				toAddress: 'toAddress',
@@ -71,8 +68,7 @@ describe("Exploring", () => {
 
 		// temp hack until we move the parent pointer out of the data structure
 		state.sampleMultisig.appChannels.someAppId.stateChannel = state.sampleMultisig;
-
-		wallet.initState(state);
+		let wallet = new CfWallet("", state);
 
 		let msg: ClientMessage = {
 			requestId: '123-456-789',

@@ -23,19 +23,12 @@ export class TestWallet implements ResponseSink {
 	io: IoProvider;
 	private requests: Map<string, Function>;
 
-	constructor(readonly address: string) {
-		this.vm = new CounterfactualVM(this);
+	constructor(readonly address: string, states: ChannelStates) {
+		this.vm = new CounterfactualVM(this, states);
 		this.io = new IoProvider();
 		this.io.ackMethod = this.vm.startAck.bind(this.vm);
 		this.requests = new Map<string, Function>();
 		this.registerMiddlewares();
-	}
-
-	/**
-	 * Reconstructs the vm state to the given ChannelStates.
-	 */
-	initState(states: ChannelStates) {
-		this.vm.initState(states);
 	}
 
 	private registerMiddlewares() {
@@ -43,8 +36,6 @@ export class TestWallet implements ResponseSink {
 		this.vm.register(Instruction.OP_SIGN, signMyUpdate.bind(this));
 		this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
 		this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
-		// todo: @igor we shouldn't have to call this manually
-		this.vm.setupDefaultMiddlewares();
 	}
 
 	/**

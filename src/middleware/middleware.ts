@@ -3,9 +3,78 @@ import { CfState, StateChannelInfoImpl, Context } from "../state";
 import { getFirstResult } from "../vm";
 import { ClientMessage, InternalMessage } from "../types";
 import { Instruction } from "../instructions";
-
+import { StateTransition } from "./state-transition/state-transition";
 export { StateTransition } from "./state-transition/state-transition";
+import { CfOpGenerator } from "./cf-operation/cf-op-generator";
 export { CfOpGenerator } from "./cf-operation/cf-op-generator";
+
+export class CfMiddleware {
+	constructor(readonly cfState: CfState, private middlewares = {}) {
+		this.add(
+			Instruction.OP_GENERATE,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return CfOpGenerator.generate(message, next, context, this.cfState);
+			}
+		);
+		this.add(
+			Instruction.STATE_TRANSITION_PROPOSE,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.propose(message, next, context, this.cfState);
+			}
+		);
+		this.add(
+			Instruction.STATE_TRANSITION_PREPARE,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.prepare(message, next, context, this.cfState);
+			}
+		);
+		this.add(
+			Instruction.STATE_TRANSITION_COMMIT,
+			async (message: InternalMessage, next: Function, context: Context) => {
+				return StateTransition.commit(message, next, context, this.cfState);
+			}
+		);
+		this.add(Instruction.KEY_GENERATE, KeyGenerator.generate);
+		this.add(Instruction.OP_SIGN_VALIDATE, SignatureValidator.validate);
+		this.add(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
+	}
+
+	add(scope: Instruction, method: Function) {
+		if (scope in this.middlewares) {
+			this.middlewares[scope].push({ scope, method });
+		} else {
+			this.middlewares[scope] = [{ scope, method }];
+		}
+	}
+
+	async run(msg: InternalMessage, context: Context) {
+		let resolve;
+		let result = new Promise((res, rej) => {
+			resolve = res;
+		});
+
+		let counter = 0;
+		let middlewares = this.middlewares;
+		let opCode = msg.opCode;
+
+		async function callback() {
+			if (counter === middlewares[opCode].length - 1) {
+				return Promise.resolve(null);
+			} else {
+				// This is hacky, prevents next from being called more than once
+				counter++;
+				console.log(counter);
+				let middleware = middlewares[opCode][counter];
+				if (opCode === Instruction.ALL || middleware.scope === opCode) {
+					return middleware.method(msg, callback, context);
+				} else {
+					return callback();
+				}
+			}
+		}
+		return this.middlewares[opCode][0].method(msg, callback, context);
+	}
+}
 
 export class NextMsgGenerator {
 	static generate(
