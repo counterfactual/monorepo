@@ -13,6 +13,7 @@ import {
 	InternalMessage
 } from "./types";
 import {
+	CfMiddleware,
 	NextMsgGenerator,
 	KeyGenerator,
 	SignatureValidator,
@@ -23,14 +24,14 @@ import { CfState, Context } from "./state";
 import { Instruction } from "./instructions";
 
 export class CounterfactualVM {
-	middlewares: { method: Function; scope: Instruction }[];
+	middleware: CfMiddleware;
 	responseHandler: ResponseSink;
 	cfState: CfState;
 
-	constructor(responseHandler: ResponseSink) {
-		this.middlewares = [];
+	constructor(responseHandler: ResponseSink, state?: ChannelStates) {
 		this.responseHandler = responseHandler;
-		this.cfState = new CfState(Object.create(null));
+		this.cfState = new CfState(state ? state : Object.create(null));
+		this.middleware = new CfMiddleware(this.cfState);
 	}
 
 	startAck(message: ClientMessage) {
@@ -44,42 +45,6 @@ export class CounterfactualVM {
 		} else {
 			throw Error("No app id available");
 		}
-	}
-
-	initState(state: ChannelStates) {
-		// @igor what do you think about putting this logic in the constructor?
-		// TODO make this more robust/go through a nice method
-		Object.assign(this.cfState.channelStates, state);
-	}
-
-	setupDefaultMiddlewares() {
-		this.register(
-			Instruction.OP_GENERATE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return CfOpGenerator.generate(message, next, context, this.cfState);
-			}
-		);
-		this.register(
-			Instruction.STATE_TRANSITION_PROPOSE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return StateTransition.propose(message, next, context, this.cfState);
-			}
-		);
-		this.register(
-			Instruction.STATE_TRANSITION_PREPARE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return StateTransition.prepare(message, next, context, this.cfState);
-			}
-		);
-		this.register(
-			Instruction.STATE_TRANSITION_COMMIT,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return StateTransition.commit(message, next, context, this.cfState);
-			}
-		);
-		this.register(Instruction.KEY_GENERATE, KeyGenerator.generate);
-		this.register(Instruction.OP_SIGN_VALIDATE, SignatureValidator.validate);
-		this.register(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
 	}
 
 	receive(msg: ClientMessage): Response {
@@ -117,7 +82,7 @@ export class CounterfactualVM {
 	}
 
 	register(scope: Instruction, method: Function) {
-		this.middlewares.push({ scope, method });
+		this.middleware.add(scope, method);
 	}
 }
 

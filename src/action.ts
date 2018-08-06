@@ -84,22 +84,6 @@ export class ActionExecution {
 			op,
 			this.clientMessage
 		);
-
-		let value = await this.runMiddlewares(internalMessage);
-		this.instructionPointer++;
-		this.results.push({ opCode: op, value });
-		return { value, done: false };
-	}
-
-	async runMiddlewares(msg: InternalMessage) {
-		let resolve;
-		let result = new Promise((res, rej) => {
-			resolve = res;
-		});
-
-		let counter = 0;
-		let middlewares = this.vm.middlewares;
-		let opCode = msg.opCode;
 		let context = {
 			results: this.results,
 			stateChannelInfos: this.stateChannelInfos,
@@ -107,24 +91,10 @@ export class ActionExecution {
 			instructionPointer: this.instructionPointer,
 			vm: this.vm
 		};
-		async function callback() {
-			if (counter === middlewares.length - 1) {
-				return Promise.resolve(null);
-			} else {
-				// This is hacky, prevents next from being called more than once
-				counter++;
-				let middleware = middlewares[counter];
-				if (
-					middleware.scope === Instruction.ALL ||
-					middleware.scope === opCode
-				) {
-					return middleware.method(msg, callback, context);
-				} else {
-					return callback();
-				}
-			}
-		}
-		return middlewares[counter].method(msg, callback, context);
+		let value = await this.vm.middleware.run(internalMessage, context);
+		this.instructionPointer++;
+		this.results.push({ opCode: op, value });
+		return { value, done: false };
 	}
 
 	[Symbol.asyncIterator]() {
