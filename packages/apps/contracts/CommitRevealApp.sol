@@ -69,37 +69,29 @@ contract CommitRevealApp {
       nextState.stage = Stage.CHOOSING;
 
       nextState.maximum = action.number;
-    }
-    else if (action.actionType == ActionType.CHOOSE_NUMBER) {
+    } else if (action.actionType == ActionType.CHOOSE_NUMBER) {
       require(state.stage == Stage.CHOOSING);
       nextState.stage = Stage.GUESSING;
 
       nextState.commitHash = action.hash;
-    }
-    else if (action.actionType == ActionType.GUESS_NUMBER) {
+    } else if (action.actionType == ActionType.GUESS_NUMBER) {
       require(state.stage == Stage.GUESSING);
       nextState.stage = Stage.REVEALING;
 
       require(action.number < state.maximum);
       nextState.guessedNumber = action.number;
-    }
-    else if (action.actionType == ActionType.REVEAL_NUMBER) {
+    } else if (action.actionType == ActionType.REVEAL_NUMBER) {
       require(state.stage == Stage.REVEALING);
       nextState.stage = Stage.DONE;
 
       bytes32 salt = action.hash;
       uint256 chosenNumber = action.number;
-      if (
-        keccak256(abi.encodePacked(salt, chosenNumber)) == state.commitHash &&
-        state.guessedNumber != chosenNumber &&
-        chosenNumber < state.maximum) {
+      if (keccak256(abi.encodePacked(salt, chosenNumber)) == state.commitHash && state.guessedNumber != chosenNumber && chosenNumber < state.maximum) {
         nextState.winner = Player.CHOOSING;
-      }
-      else {
+      } else {
         nextState.winner = Player.GUESSING;
       }
-    }
-    else {
+    } else {
       revert("Invalid action type");
     }
     return abi.encode(nextState);
@@ -117,8 +109,7 @@ contract CommitRevealApp {
     uint256 player;
     if (state.stage == Stage.DONE) {
       player = uint256(state.winner);
-    }
-    else {
+    } else {
       // The player who is not the turn taker
       player = 1 - uint256(getTurnTaker(state));
     }

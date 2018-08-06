@@ -25,13 +25,6 @@ contract MinimumViableMultisig {
     DelegateCall
   }
 
-  function ()
-    external
-    payable
-  {
-
-  }
-
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
   function setup(address[] owners) public {
@@ -41,6 +34,13 @@ contract MinimumViableMultisig {
       require(owners[i] != 0);
       isOwner[owners[i]] = true;
     }
+  }
+
+  function ()
+    external
+    payable
+  {
+
   }
 
   /// @notice Execute an n-of-n signed transaction specified by a (to, value, data, op) tuple
@@ -129,6 +129,7 @@ contract MinimumViableMultisig {
       success := call(not(0), to, value, add(data, 0x20), mload(data), 0, 0)
     }
   }
+
   /// @notice Execute a DELEGATECALL on behalf of the multisignature wallet
   /// @param to The address the transaction is addressed to
   /// @param data Any calldata being sent along with the transaction
