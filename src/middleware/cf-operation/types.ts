@@ -18,7 +18,7 @@ export const zeroBytes32 =
 export const Abi = {
 	// ConditionalTranfer.sol
 	executeStateChannelConditionalTransfer:
-		"executeStateChannelConditionalTransfer(bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
+		"executeStateChannelConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
 	// MinimumViableMultisig.sol
 	execTransaction: "execTransaction(address,uint256,bytes,uint256,bytes)",
 	// Multisend.sol

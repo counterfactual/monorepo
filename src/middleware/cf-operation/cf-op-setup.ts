@@ -1,4 +1,4 @@
-import { FreeBalance, NetworkContext, Signature } from "../../types";
+import { FreeBalance, NetworkContext, Signature, H256 } from "../../types";
 import {
 	Operation,
 	Transaction,
@@ -24,7 +24,7 @@ export class CfOpSetup extends CfOperation {
 		super();
 	}
 
-	hashToSign(): string {
+	hashToSign(): H256 {
 		let multisigInput = this.multisigInput();
 		return ethers.utils.solidityKeccak256(
 			["bytes1", "address", "address", "uint256", "bytes", "uint256"],
@@ -48,6 +48,8 @@ export class CfOpSetup extends CfOperation {
 		let multisigCalldata = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
+			this.ctx.Registry,
+			this.ctx.NonceRegistry,
 			this.nonce.salt,
 			this.nonce.nonce,
 			this.freeBalance.cfAddress(),

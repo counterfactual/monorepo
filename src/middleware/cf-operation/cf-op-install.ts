@@ -45,6 +45,8 @@ export class CfOpInstall extends CfMultiSendOp {
 		let data = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
+			this.ctx.Registry,
+			this.ctx.NonceRegistry,
 			this.dependencyNonce.salt,
 			this.dependencyNonce.nonce,
 			this.appCfAddress,
