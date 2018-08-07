@@ -47,7 +47,7 @@ contract CommitRevealApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState state)
+  function turnTaker(AppState state)
     public
     pure
     returns (Player)

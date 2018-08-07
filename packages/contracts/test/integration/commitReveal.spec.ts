@@ -104,7 +104,7 @@ describe("CommitReveal", async () => {
       addr: appContract.address,
       applyAction: appContract.interface.functions.applyAction.sighash,
       resolve: appContract.interface.functions.resolve.sighash,
-      turnTaker: appContract.interface.functions.getTurnTaker.sighash,
+      turnTaker: appContract.interface.functions.turnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
     };
 

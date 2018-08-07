@@ -4,23 +4,6 @@ import * as chaiBigNumber from "chai-bignumber";
 import * as chaiString from "chai-string";
 import * as ethers from "ethers";
 
-import {
-  AppEncoder,
-  computeActionHash,
-  computeNonceRegistryKey,
-  computeStateHash,
-  TermsEncoder
-} from "./stateChannel";
-import { StructAbiEncoder } from "./structAbiEncoder";
-export {
-  StructAbiEncoder,
-  computeStateHash,
-  computeActionHash,
-  computeNonceRegistryKey,
-  TermsEncoder,
-  AppEncoder
-};
-
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
 ethers.types.BigNumber.prototype.equals = function(x): boolean {
