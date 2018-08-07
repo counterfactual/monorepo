@@ -4,6 +4,23 @@ import * as chaiBigNumber from "chai-bignumber";
 import * as chaiString from "chai-string";
 import * as ethers from "ethers";
 
+import {
+  AppEncoder,
+  computeActionHash,
+  computeNonceRegistryKey,
+  computeStateHash,
+  TermsEncoder
+} from "./stateChannel";
+import { StructAbiEncoder } from "./structAbiEncoder";
+export {
+  StructAbiEncoder,
+  computeStateHash,
+  computeActionHash,
+  computeNonceRegistryKey,
+  TermsEncoder,
+  AppEncoder
+};
+
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
 ethers.types.BigNumber.prototype.equals = function(x): boolean {
@@ -17,10 +34,9 @@ export const should = chai
   .should();
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
-export const highGasLimit = { gasLimit: 6e9 };
-export const unusedAddr = "0x0000000000000000000000000000000000000001";
-export const zeroAddress = "0x0000000000000000000000000000000000000000";
-export const zeroBytes32 =
+export const HIGH_GAS_LIMIT = { gasLimit: 6e9 };
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ZERO_BYTES32 =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export const deployContract = async (
@@ -55,7 +71,7 @@ export async function deployContractViaRegistry(
     ["0x19", initcode, contractSalt]
   );
 
-  await registry.functions.deploy(initcode, contractSalt, highGasLimit);
+  await registry.functions.deploy(initcode, contractSalt, HIGH_GAS_LIMIT);
 
   const realAddr = await registry.functions.resolver(cfAddr);
 
@@ -91,7 +107,7 @@ export const setupTestEnv = (web3: any) => {
   return { provider, unlockedAccount };
 };
 
-export function signMessage(message, wallet): [number, string, string] {
+function signMessage(message, wallet): [number, string, string] {
   const signingKey = new ethers.SigningKey(wallet.privateKey);
   const sig = signingKey.signDigest(message);
   if (typeof sig.recoveryParam === "undefined") {
@@ -100,20 +116,7 @@ export function signMessage(message, wallet): [number, string, string] {
   return [sig.recoveryParam + 27, sig.r, sig.s];
 }
 
-export function signMessageVRS(message, wallets: ethers.Wallet[]) {
-  const v: number[] = [];
-  const r: string[] = [];
-  const s: string[] = [];
-  for (const wallet of wallets) {
-    const [vi, ri, si] = signMessage(message, wallet);
-    v.push(vi);
-    r.push(ri);
-    s.push(si);
-  }
-  return { v, r, s };
-}
-
-export function signMessageRaw(message: string, wallet: ethers.Wallet) {
+function signMessageRaw(message: string, wallet: ethers.Wallet) {
   const [v, r, s] = signMessage(message, wallet);
   return (
     ethers.utils.hexlify(ethers.utils.padZeros(r, 32)).substring(2) +
@@ -189,12 +192,3 @@ export const mineBlocks = async blocks => {
     await mineOneBlock();
   }
 };
-
-export async function getEthBalance(address, provider) {
-  const balance = await provider.getBalance(address);
-  return fromWei(balance);
-}
-
-export function fromWei(num) {
-  return num / 1000000000000000000;
-}

@@ -18,8 +18,12 @@ contract("NonceRegistry", accounts => {
   });
 
   it("can set nonces", async () => {
-    await registry.functions.setNonce(Utils.zeroBytes32, 1, Utils.highGasLimit);
-    const ret = await registry.functions.table(computeKey(Utils.zeroBytes32));
+    await registry.functions.setNonce(
+      Utils.ZERO_BYTES32,
+      1,
+      Utils.HIGH_GAS_LIMIT
+    );
+    const ret = await registry.functions.table(computeKey(Utils.ZERO_BYTES32));
     ret.nonce.should.be.bignumber.eq(1);
     ret.finalizesAt.should.be.bignumber.eq(
       (await provider.getBlockNumber()) + 10
@@ -28,20 +32,20 @@ contract("NonceRegistry", accounts => {
 
   it("fails if nonce increment is not positive", async () => {
     await Utils.assertRejects(
-      registry.functions.setNonce(Utils.zeroBytes32, 0, Utils.highGasLimit)
+      registry.functions.setNonce(Utils.ZERO_BYTES32, 0, Utils.HIGH_GAS_LIMIT)
     );
   });
 
   it("can finalize nonces", async () => {
     await registry.functions.finalizeNonce(
-      Utils.zeroBytes32,
-      Utils.highGasLimit
+      Utils.ZERO_BYTES32,
+      Utils.HIGH_GAS_LIMIT
     );
-    const ret = await registry.functions.table(computeKey(Utils.zeroBytes32));
+    const ret = await registry.functions.table(computeKey(Utils.ZERO_BYTES32));
     ret.nonce.should.be.bignumber.eq(0);
     ret.finalizesAt.should.be.bignumber.eq(await provider.getBlockNumber());
     const isFinal = await registry.functions.isFinalized(
-      computeKey(Utils.zeroBytes32),
+      computeKey(Utils.ZERO_BYTES32),
       0
     );
     isFinal.should.be.equal(true);

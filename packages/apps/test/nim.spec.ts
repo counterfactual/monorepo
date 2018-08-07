@@ -24,7 +24,7 @@ contract("Nim", (accounts: string[]) => {
   describe("applyAction", () => {
     it("can take from a pile", async () => {
       const preState = {
-        players: [Utils.zeroAddress, Utils.zeroAddress],
+        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -49,7 +49,7 @@ contract("Nim", (accounts: string[]) => {
 
     it("can take to produce an empty pile", async () => {
       const preState = {
-        players: [Utils.zeroAddress, Utils.zeroAddress],
+        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -74,7 +74,7 @@ contract("Nim", (accounts: string[]) => {
 
     it("should fail for taking too much", async () => {
       const preState = {
-        players: [Utils.zeroAddress, Utils.zeroAddress],
+        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -91,7 +91,7 @@ contract("Nim", (accounts: string[]) => {
   describe("isFinal", () => {
     it("empty state is final", async () => {
       const preState = {
-        players: [Utils.zeroAddress, Utils.zeroAddress],
+        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
         turnNum: 49,
         pileHeights: [0, 0, 0]
       };
@@ -101,7 +101,7 @@ contract("Nim", (accounts: string[]) => {
 
     it("nonempty state is not final", async () => {
       const preState = {
-        players: [Utils.zeroAddress, Utils.zeroAddress],
+        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
         turnNum: 49,
         pileHeights: [0, 1, 0]
       };

@@ -80,23 +80,23 @@ contract("CountingApp", (accounts: string[]) => {
 
   const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
+      appState || Utils.ZERO_BYTES32,
       nonce,
       10,
       "0x",
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.zeroBytes32,
+      appState || Utils.ZERO_BYTES32,
       nonce,
       10,
       Utils.signMessageBytes(
-        computeStateHash(appState || Utils.zeroBytes32, nonce, 10),
+        computeStateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         [unlockedAccount]
       ),
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
@@ -106,13 +106,13 @@ contract("CountingApp", (accounts: string[]) => {
       0,
       Utils.signMessageBytes(
         computeStateHash(
-          stateHash || Utils.zeroBytes32,
+          stateHash || Utils.ZERO_BYTES32,
           await latestNonce(),
           0
         ),
         [unlockedAccount]
       ),
-      Utils.highGasLimit
+      Utils.HIGH_GAS_LIMIT
     );
 
   let app;
@@ -142,7 +142,7 @@ contract("CountingApp", (accounts: string[]) => {
     terms = {
       assetType: AssetType.ETH,
       limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.zeroAddress
+      token: Utils.ZERO_ADDRESS
     };
 
     const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
@@ -160,7 +160,7 @@ contract("CountingApp", (accounts: string[]) => {
   it("should resolve to some balance", async () => {
     const ret = await game.functions.resolve(exampleState, terms);
     ret.assetType.should.be.equal(AssetType.ETH);
-    ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+    ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
     ret.to[0].should.be.equalIgnoreCase(A.address);
     ret.to[1].should.be.equalIgnoreCase(B.address);
     ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
@@ -175,7 +175,7 @@ contract("CountingApp", (accounts: string[]) => {
           app,
           finalState,
           encode(termsEncoding, terms),
-          Utils.highGasLimit
+          Utils.HIGH_GAS_LIMIT
         )
       );
     });
@@ -186,11 +186,11 @@ contract("CountingApp", (accounts: string[]) => {
         app,
         finalState,
         encode(termsEncoding, terms),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
       const ret = await stateChannel.functions.getResolution();
       ret.assetType.should.be.equal(AssetType.ETH);
-      ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
+      ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
       ret.to[0].should.be.equalIgnoreCase(A.address);
       ret.to[1].should.be.equalIgnoreCase(B.address);
       ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
@@ -238,7 +238,7 @@ contract("CountingApp", (accounts: string[]) => {
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
         false,
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       const onchain = await stateChannel.functions.state();
@@ -280,7 +280,7 @@ contract("CountingApp", (accounts: string[]) => {
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
         true,
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
       const channelState = await stateChannel.functions.state();
@@ -323,7 +323,7 @@ contract("CountingApp", (accounts: string[]) => {
           Utils.signMessageBytes(h1, [A, B]),
           Utils.signMessageBytes(h2, [A]),
           true,
-          Utils.highGasLimit
+          Utils.HIGH_GAS_LIMIT
         )
       );
     });
