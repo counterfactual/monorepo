@@ -35,7 +35,7 @@ const [alice, bob] = [
   )
 ];
 
-const keccak256 = ethers.utils.keccak256;
+const { keccak256, parseEther } = ethers.utils;
 
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
@@ -90,12 +90,12 @@ describe("CommitReveal", async () => {
     await multisig.deploy(masterAccount);
     await masterAccount.sendTransaction({
       to: multisig.address,
-      value: ethers.utils.parseEther("2")
+      value: parseEther("2")
     });
 
     const terms = {
       assetType: AssetType.ETH,
-      limit: ethers.utils.parseEther("2"),
+      limit: parseEther("2"),
       token: ZERO_ADDRESS
     };
     // 2. Deploy CommitRevealApp app
@@ -228,7 +228,7 @@ describe("CommitReveal", async () => {
     const endBalanceA = await alice.getBalance();
     const endBalanceB = await bob.getBalance();
 
-    endBalanceA.sub(startBalanceA).should.be.bignumber.eq(UNIT_ETH.mul(2));
+    endBalanceA.sub(startBalanceA).should.be.bignumber.eq(parseEther("2"));
     endBalanceB.should.be.bignumber.eq(startBalanceB);
   });
 });

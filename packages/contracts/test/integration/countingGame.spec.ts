@@ -68,7 +68,7 @@ contract("CountingApp", (accounts: string[]) => {
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 

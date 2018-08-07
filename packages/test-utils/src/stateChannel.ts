@@ -73,8 +73,8 @@ export const TermsEncoder = StructAbiEncoder.fromDefinition(`
  */
 export const AppEncoder = StructAbiEncoder.fromDefinition(`
   address addr;
-  bytes4 reducer;
-  bytes4 resolver;
+  bytes4 applyAction;
+  bytes4 resolve;
   bytes4 turnTaker;
   bytes4 isStateFinal;
 `);
