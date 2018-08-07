@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
-ethers.types.BigNumber.prototype.equals = function(x): boolean {
+ethers.utils.BigNumber.prototype.equals = function(x): boolean {
   return x.eq(this);
 };
 
@@ -24,7 +24,7 @@ export const ZERO_BYTES32 =
 
 export const deployContract = async (
   contract: any,
-  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider,
+  providerOrSigner: ethers.Wallet | ethers.types.Provider,
   args?: any[]
 ): Promise<ethers.Contract> => {
   return new ethers.Contract("", contract.abi, providerOrSigner).deploy(
@@ -37,7 +37,7 @@ let runningTally = 0;
 
 export async function deployContractViaRegistry(
   truffleContract: any,
-  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider,
+  providerOrSigner: ethers.Wallet | ethers.types.Provider,
   cargs?: any[]
 ): Promise<{ cfAddr: string; contract: ethers.Contract }> {
   const Registry = artifacts.require("Registry");
@@ -69,7 +69,7 @@ export async function deployContractViaRegistry(
 
 export const getDeployedContract = async (
   contract: any,
-  providerOrSigner: ethers.Wallet | ethers.types.MinimalProvider
+  providerOrSigner: ethers.Wallet | ethers.types.Provider
 ): Promise<ethers.Contract> => {
   return new ethers.Contract(
     (await contract.deployed()).address,
