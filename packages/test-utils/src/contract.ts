@@ -1,38 +1,5 @@
 import * as ethers from "ethers";
-
-/*
-export async function deployContractViaRegistry(
-  truffleContract: any,
-  providerOrSigner: ethers.Wallet | ethers.types.Provider,
-  cargs?: any[]
-): Promise<{ cfAddr: string; contract: ethers.Contract }> {
-  const Registry = artifacts.require("Registry");
-  const registry = await getDeployedContract(Registry, providerOrSigner);
-  const initcode = new ethers.Interface(
-    truffleContract.abi
-  ).deployFunction.encode(truffleContract.binary, cargs || []);
-  const contractSalt = ethers.utils.solidityKeccak256(
-    ["uint256"],
-    [runningTally++]
-  );
-  const cfAddr = ethers.utils.solidityKeccak256(
-    ["bytes1", "bytes", "uint256"],
-    ["0x19", initcode, contractSalt]
-  );
-
-  await registry.functions.deploy(initcode, contractSalt, HIGH_GAS_LIMIT);
-
-  const realAddr = await registry.functions.resolver(cfAddr);
-
-  const contract = new ethers.Contract(
-    realAddr,
-    truffleContract.abi,
-    providerOrSigner
-  );
-
-  return { cfAddr, contract };
-}
-*/
+import { HIGH_GAS_LIMIT } from "./utils";
 
 const { solidityKeccak256 } = ethers.utils;
 
@@ -112,8 +79,7 @@ export class AbstractContract {
       this.binary,
       args || []
     );
-    console.log(JSON.stringify({ initcode, salt }));
-    await registry.functions.deploy(initcode, salt);
+    await registry.functions.deploy(initcode, salt, HIGH_GAS_LIMIT);
     const cfAddress = solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
       ["0x19", initcode, salt]

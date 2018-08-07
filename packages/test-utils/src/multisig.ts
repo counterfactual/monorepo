@@ -1,9 +1,5 @@
-import {
-  deployContract,
-  HIGH_GAS_LIMIT,
-  signMessageBytes
-} from "@counterfactual/test-utils";
 import * as ethers from "ethers";
+import { deployContract, HIGH_GAS_LIMIT, signMessageBytes } from "./utils";
 
 const enum Operation {
   Call = 0,
@@ -16,7 +12,7 @@ const enum Operation {
  * const multisig = new Multisig([alice.address, bob.address]);
  * await multisig.deploy(masterAccount);
  */
-export default class Multisig {
+export class Multisig {
   private static loadTruffleContract() {
     const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
     const Signatures = artifacts.require("Signatures");

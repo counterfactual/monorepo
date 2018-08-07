@@ -9,7 +9,7 @@ import {
   deployContract,
   deployContractViaRegistry,
   getDeployedContract,
-  HIGH_GAS_LIMIT,
+  Multisig,
   setupTestEnv,
   signMessageBytes,
   StructAbiEncoder,
@@ -17,7 +17,6 @@ import {
   UNIT_ETH,
   ZERO_ADDRESS
 } from "@counterfactual/test-utils";
-import Multisig from "../helpers/multisig";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
@@ -105,7 +104,7 @@ describe("CommitReveal", async () => {
       token: ZERO_ADDRESS
     };
     // 2. Deploy CommitRevealApp app
-    const appContract = await CommitRevealApp.deploy(masterAccount);
+    const appContract: Contract = await CommitRevealApp.deploy(masterAccount);
     const app = {
       addr: appContract.address,
       applyAction: appContract.interface.functions.applyAction.sighash,
@@ -128,108 +127,107 @@ describe("CommitReveal", async () => {
       ]
     );
 
-    // // 4. Call setState(claimFinal=true) on StateChannel with a final state
-    // const appSalt =
-    //   "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
-    // const chosenNumber = 5;
-    //
-    // const commitHash = computeCommitHash(appSalt, chosenNumber);
-    //
-    // const AppStateEncoder = StructAbiEncoder.fromDefinition(`
-    //   address[2] playerAddrs;
-    //   uint256 stage;
-    //   uint256 maximum;
-    //   uint256 guessedNumber;
-    //   bytes32 commitHash;
-    //   uint256 winner;
-    // `);
-    //
-    // const appState = {
-    //   playerAddrs: [alice.address, bob.address],
-    //   stage: Stage.DONE,
-    //   maximum: 10,
-    //   guessedNumber: 1,
-    //   commitHash,
-    //   winner: Player.CHOOSING
-    // };
-    //
-    // const appNonce = 5;
-    // const timeout = 0;
-    // const appStateHash = keccak256(AppStateEncoder.encode(appState));
-    // const stateHash = computeStateHash(
-    //   multisig.owners,
-    //   appStateHash,
-    //   appNonce,
-    //   0
-    // );
-    // const signatures = signMessageBytes(stateHash, [alice, bob]);
-    // await stateChannel.functions.setState(
-    //   appStateHash,
-    //   appNonce,
-    //   timeout,
-    //   signatures,
-    //   HIGH_GAS_LIMIT
-    // );
-    // // 5. Call setResolution() on StateChannel
-    // await stateChannel.functions.setResolution(
-    //   app,
-    //   AppStateEncoder.encode(appState),
-    //   TermsEncoder.encode(terms)
-    // );
-    //
-    // const channelNonce = 1;
-    // const channelNonceSalt =
-    //   "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
-    //
-    // // 6. Call setNonce on NonceRegistry with some salt and nonce
-    // const nonceRegistry: Contract = await NonceRegistry.getSingleton(
-    //   masterAccount
-    // );
-    // await multisig.execCall(
-    //   nonceRegistry,
-    //   "setNonce",
-    //   [channelNonceSalt, channelNonce],
-    //   [alice, bob]
-    // );
-    //
-    // await multisig.execCall(
-    //   nonceRegistry,
-    //   "finalizeNonce",
-    //   [channelNonceSalt],
-    //   [alice, bob]
-    // );
-    //
-    // const channelNonceKey = computeNonceRegistryKey(
-    //   multisig.address,
-    //   channelNonceSalt
-    // );
-    // (await nonceRegistry.functions.isFinalized(
-    //   channelNonceKey,
-    //   channelNonce
-    // )).should.be.equal(true);
-    // // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
-    // const conditionalTransfer: Contract = await ConditionalTransfer.getSingleton(
-    //   masterAccount
-    // );
-    // await multisig.execDelegatecall(
-    //   conditionalTransfer,
-    //   "executeStateChannelConditionalTransfer",
-    //   [
-    //     registry.address,
-    //     nonceRegistry.address,
-    //     channelNonceKey,
-    //     channelNonce,
-    //     stateChannel.cfAddress,
-    //     terms
-    //   ],
-    //   [alice, bob]
-    // );
-    //
-    // // 8. Verify balance of A and B
-    // const endBalanceA = await alice.getBalance();
-    // const endBalanceB = await bob.getBalance();
-    //
-    // endBalanceA.sub(startBalanceA).should.be.bignumber.eq(parseEther("2"));
-    // endBalanceB.should.be.bignumber.eq(startBalanceB);
+    // 4. Call setState(claimFinal=true) on StateChannel with a final state
+    const appSalt =
+      "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
+    const chosenNumber = 5;
+
+    const commitHash = computeCommitHash(appSalt, chosenNumber);
+
+    const AppStateEncoder = StructAbiEncoder.fromDefinition(`
+      address[2] playerAddrs;
+      uint256 stage;
+      uint256 maximum;
+      uint256 guessedNumber;
+      bytes32 commitHash;
+      uint256 winner;
+    `);
+
+    const appState = {
+      playerAddrs: [alice.address, bob.address],
+      stage: Stage.DONE,
+      maximum: 10,
+      guessedNumber: 1,
+      commitHash,
+      winner: Player.CHOOSING
+    };
+
+    const appNonce = 5;
+    const timeout = 0;
+    const appStateHash = keccak256(AppStateEncoder.encode(appState));
+    const stateHash = computeStateHash(
+      multisig.owners,
+      appStateHash,
+      appNonce,
+      0
+    );
+    const signatures = signMessageBytes(stateHash, [alice, bob]);
+    await stateChannel.functions.setState(
+      appStateHash,
+      appNonce,
+      timeout,
+      signatures
+    );
+    // 5. Call setResolution() on StateChannel
+    await stateChannel.functions.setResolution(
+      app,
+      AppStateEncoder.encode(appState),
+      TermsEncoder.encode(terms)
+    );
+
+    const channelNonce = 1;
+    const channelNonceSalt =
+      "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
+
+    // 6. Call setNonce on NonceRegistry with some salt and nonce
+    const nonceRegistry: Contract = await NonceRegistry.getSingleton(
+      masterAccount
+    );
+    await multisig.execCall(
+      nonceRegistry,
+      "setNonce",
+      [channelNonceSalt, channelNonce],
+      [alice, bob]
+    );
+
+    await multisig.execCall(
+      nonceRegistry,
+      "finalizeNonce",
+      [channelNonceSalt],
+      [alice, bob]
+    );
+
+    const channelNonceKey = computeNonceRegistryKey(
+      multisig.address,
+      channelNonceSalt
+    );
+    (await nonceRegistry.functions.isFinalized(
+      channelNonceKey,
+      channelNonce
+    )).should.be.equal(true);
+    // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
+    const conditionalTransfer: Contract = await ConditionalTransfer.getSingleton(
+      masterAccount
+    );
+    await multisig.execDelegatecall(
+      conditionalTransfer,
+      "executeStateChannelConditionalTransfer",
+      [
+        registry.address,
+        nonceRegistry.address,
+        channelNonceKey,
+        channelNonce,
+        stateChannel.cfAddress,
+        terms
+      ],
+      [alice, bob]
+    );
+
+    // 8. Verify balance of A and B
+    const endBalanceA = await alice.getBalance();
+    const endBalanceB = await bob.getBalance();
+
+    endBalanceA.sub(startBalanceA).should.be.bignumber.eq(parseEther("2"));
+    endBalanceB.should.be.bignumber.eq(startBalanceB);
   });
 });
