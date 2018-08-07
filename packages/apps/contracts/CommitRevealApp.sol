@@ -58,7 +58,7 @@ contract CommitRevealApp {
     return Player.CHOOSING;
   }
 
-  function reduce(AppState state, Action action)
+  function applyAction(AppState state, Action action)
     public
     view
     returns (bytes)

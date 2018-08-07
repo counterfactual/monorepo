@@ -37,7 +37,7 @@ contract Nim {
     return state.turnNum % 2;
   }
 
-  function reduce(AppState state, Action action)
+  function applyAction(AppState state, Action action)
     public
     view
     returns (bytes)

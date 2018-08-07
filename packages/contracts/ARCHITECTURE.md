@@ -19,7 +19,7 @@ Up to four functions can be implemented. The signatures are as follows:
 
 - `isStateFinal: AppState → bool`
 - `getTurnTaker: AppState → uint256`
-- `reduce: (AppState, Action) → AppState`
+- `applyAction: (AppState, Action) → AppState`
 - `resolve: AppState → Transfer.Details`
 
 In designing the framework we must try to achieve two sometimes contradictory goals. One the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
@@ -30,11 +30,11 @@ Another limitation is that the return type of `resolve` is actually `bytes`. We 
 
 where `nextState` has type `AppState`.
 
-### `reduce` and `getTurnTaker`: The Application State Transition Function
+### `applyAction` and `getTurnTaker`: The Application State Transition Function
 
-If `AppState` defines the data structure needed to represent the state of an app instance, `reduce` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `reduce` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `reduce` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
+If `AppState` defines the data structure needed to represent the state of an app instance, `applyAction` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `applyAction` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `applyAction` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
 
-![reduce](./images/reduce.svg)
+![applyAction](./images/applyAction.svg)
 
 ### resolve
 
@@ -44,7 +44,7 @@ From certain app states, `resolve` can be called to return a value of type `stru
 
 ### isStateFinal
 
-Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that reduce(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateFinal` return true for them, allowing us to skip one step of dispute resolution.
+Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that applyAction(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateFinal` return true for them, allowing us to skip one step of dispute resolution.
 
 Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
 
@@ -130,7 +130,7 @@ The `appHash` is the hash of a `struct App`
 ```
 struct App {
   address addr;
-  bytes4 reduce;
+  bytes4 applyAction;
   bytes4 resolve;
   bytes4 turnTaker;
   bytes4 isStateFinal;
