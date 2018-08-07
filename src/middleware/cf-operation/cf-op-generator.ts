@@ -15,6 +15,7 @@ import { CfOpUpdate } from "./cf-op-update";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpUninstall } from "./cf-op-uninstall";
+import { CfOpGenerator } from "../middleware";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -22,8 +23,8 @@ import { CfOpUninstall } from "./cf-op-uninstall";
  * in the state channel, the CfOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
-export class CfOpGenerator {
-	static generate(
+export class EthCfOpGenerator extends CfOpGenerator {
+	generate(
 		message: InternalMessage,
 		next: Function,
 		context: Context,
@@ -38,11 +39,11 @@ export class CfOpGenerator {
 		if (message.actionName === "update") {
 			op = this.update(message, context, cfState, proposedState);
 		} else if (message.actionName === "setup") {
-			op = CfOpGenerator.setup(message, context, cfState, proposedState);
+			op = this.setup(message, context, cfState, proposedState);
 		} else if (message.actionName === "install") {
-			op = CfOpGenerator.install(message, context, cfState, proposedState);
+			op = this.install(message, context, cfState, proposedState);
 		} else if (message.actionName === "uninstall") {
-			op = CfOpGenerator.uninstall(message, context, cfState, proposedState);
+			op = this.uninstall(message, context, cfState, proposedState);
 		}
 		// leaving temporarily since the tests aren't checking against the commitments
 		// and so we need to exercise their functionality
@@ -68,7 +69,7 @@ export class CfOpGenerator {
 		return op;
 	}
 
-	static update(
+	update(
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState,
@@ -90,7 +91,7 @@ export class CfOpGenerator {
 		);
 	}
 
-	static setup(
+	setup(
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState,
@@ -119,7 +120,7 @@ export class CfOpGenerator {
 		);
 	}
 
-	static install(
+	install(
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState,
@@ -161,7 +162,7 @@ export class CfOpGenerator {
 		};
 	}
 
-	static uninstall(
+	uninstall(
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState,

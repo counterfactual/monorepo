@@ -5,15 +5,23 @@ import { ClientMessage, InternalMessage } from "../types";
 import { Instruction } from "../instructions";
 import { StateTransition } from "./state-transition/state-transition";
 export { StateTransition } from "./state-transition/state-transition";
-import { CfOpGenerator } from "./cf-operation/cf-op-generator";
-export { CfOpGenerator } from "./cf-operation/cf-op-generator";
 
+/**
+ * CfMiddleware is the container holding the groups of middleware responsible
+ * for executing a given instruction in the Counterfactual VM.
+ */
 export class CfMiddleware {
-	constructor(readonly cfState: CfState, private middlewares = {}) {
+	/**
+	 * Maps instruction to list of middleware that will process the instruction.
+	 */
+	private middlewares: Object;
+
+	constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
+		this.middlewares = {};
 		this.add(
 			Instruction.OP_GENERATE,
 			async (message: InternalMessage, next: Function, context: Context) => {
-				return CfOpGenerator.generate(message, next, context, this.cfState);
+				return cfOpGenerator.generate(message, next, context, this.cfState);
 			}
 		);
 		this.add(
@@ -76,12 +84,28 @@ export class CfMiddleware {
 	}
 }
 
+/**
+ * Interface to dependency inject blockchain commitments. The middleware
+ * should be constructed with a CfOpGenerator, which is responsible for
+ * creating CfOperations, i.e. commitments, to be stored, used, and signed
+ * in the state channel system.
+ */
+export abstract class CfOpGenerator {
+	abstract generate(
+		message: InternalMessage,
+		next: Function,
+		context: Context,
+		cfState: CfState
+	);
+}
+
 export class NextMsgGenerator {
 	static generate(
 		internalMessage: InternalMessage,
 		next: Function,
 		context: Context
 	) {
+		let signature = NextMsgGenerator.signature(internalMessage, context);
 		let message = internalMessage.clientMessage;
 		let msg: ClientMessage = {
 			requestId: "none this should be a notification on completion",
@@ -91,12 +115,25 @@ export class NextMsgGenerator {
 			multisigAddress: message.multisigAddress,
 			toAddress: message.fromAddress, // swap to/from here since sending to peer
 			fromAddress: message.toAddress,
-			seq: message.seq + 1
+			seq: message.seq + 1,
+			signature: signature
 		};
 		// need to bump the seqeunce number, so that, when we send out another IO
 		// msg we give the correct one to the nextMsg.
 		internalMessage.clientMessage.seq += 1;
 		return msg;
+	}
+
+	static signature(internalMessage: InternalMessage, context: Context) {
+		// first time we send an install message (from non-ack side) we don't have
+		// a signature since we are just exchanging an app-speicific ephemeral key.
+		if (
+			internalMessage.actionName === "install" &&
+			internalMessage.clientMessage.seq === 0
+		) {
+			return undefined;
+		}
+		return getFirstResult(Instruction.OP_SIGN, context.results).value;
 	}
 }
 

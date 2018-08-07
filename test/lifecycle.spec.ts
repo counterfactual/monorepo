@@ -73,7 +73,7 @@ function validateSetup(walletA: TestWallet, walletB: TestWallet) {
 }
 
 /**
- * Validates the correctness of walletA's free balance *not* walletB's.
+ * Validates the correctness of walletAs free balance *not* walletBs.
  */
 function validateNoAppsAndFreeBalance(
 	walletA: TestWallet,

@@ -1,7 +1,7 @@
 import { Context } from "../../src/state";
 import { CfOpUpdate } from "../../src/middleware/cf-operation/cf-op-update";
 import { CfOpSetup } from "../../src/middleware/cf-operation/cf-op-setup";
-import { CounterfactualVM, Response } from "../../src/vm";
+import { CounterfactualVM, CfVmConfig, Response } from "../../src/vm";
 import { CfState } from "../../src/state";
 import {
 	StateChannelInfos,
@@ -17,6 +17,7 @@ import {
 } from "../../src/types";
 import { IoProvider } from "./ioProvider";
 import { Instruction } from "../../src/instructions";
+import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 
 export class TestWallet implements ResponseSink {
 	vm: CounterfactualVM;
@@ -24,7 +25,9 @@ export class TestWallet implements ResponseSink {
 	private requests: Map<string, Function>;
 
 	constructor(readonly address: string, states: ChannelStates) {
-		this.vm = new CounterfactualVM(this, states);
+		this.vm = new CounterfactualVM(
+			new CfVmConfig(this, new EthCfOpGenerator(), states)
+		);
 		this.io = new IoProvider();
 		this.io.ackMethod = this.vm.startAck.bind(this.vm);
 		this.requests = new Map<string, Function>();

@@ -24,6 +24,7 @@ export interface ClientMessage {
 	fromAddress: string;
 	stateChannel?: StateChannelInfo; // we should remove this from this object
 	seq: number;
+	signature?: Signature;
 }
 
 export interface InstallData {
@@ -42,7 +43,7 @@ export interface UpdateData {
 	/**
 	 * Hash of the State struct specific to a given applicatioin.
 	 */
-	appStateHash: string;
+	appStateHash: H256;
 }
 
 // todo: remove in favor of CfNonce

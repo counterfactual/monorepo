@@ -12,26 +12,29 @@ import {
 	Addressable,
 	InternalMessage
 } from "./types";
-import {
-	CfMiddleware,
-	NextMsgGenerator,
-	KeyGenerator,
-	SignatureValidator,
-	CfOpGenerator,
-	StateTransition
-} from "./middleware/middleware";
+import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
 import { CfState, Context } from "./state";
 import { Instruction } from "./instructions";
+
+export class CfVmConfig {
+	constructor(
+		readonly responseHandler: ResponseSink,
+		readonly cfOpGenerator: CfOpGenerator,
+		readonly state?: ChannelStates
+	) {}
+}
 
 export class CounterfactualVM {
 	middleware: CfMiddleware;
 	responseHandler: ResponseSink;
 	cfState: CfState;
 
-	constructor(responseHandler: ResponseSink, state?: ChannelStates) {
-		this.responseHandler = responseHandler;
-		this.cfState = new CfState(state ? state : Object.create(null));
-		this.middleware = new CfMiddleware(this.cfState);
+	constructor(config: CfVmConfig) {
+		this.responseHandler = config.responseHandler;
+		this.cfState = new CfState(
+			config.state ? config.state : Object.create(null)
+		);
+		this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
 	}
 
 	startAck(message: ClientMessage) {
