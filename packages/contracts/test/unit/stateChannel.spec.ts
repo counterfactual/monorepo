@@ -61,23 +61,23 @@ contract("StateChannel", (accounts: string[]) => {
   before(async () => {
     sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
       stateChannel.functions.setState(
-        appState || Utils.zeroBytes32,
+        appState || Utils.ZERO_BYTES32,
         nonce,
         TIMEOUT,
         "0x",
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
     sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
       stateChannel.functions.setState(
-        appState || Utils.zeroBytes32,
+        appState || Utils.ZERO_BYTES32,
         nonce,
         TIMEOUT,
         Utils.signMessageBytes(
-          computeHash(appState || Utils.zeroBytes32, nonce, TIMEOUT),
+          computeHash(appState || Utils.ZERO_BYTES32, nonce, TIMEOUT),
           [unlockedAccount]
         ),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
 
     sendSignedFinalizationToChain = async () =>
@@ -89,7 +89,7 @@ contract("StateChannel", (accounts: string[]) => {
           computeHash(await latestState(), await latestNonce(), 0),
           [unlockedAccount]
         ),
-        Utils.highGasLimit
+        Utils.HIGH_GAS_LIMIT
       );
   });
 
@@ -99,8 +99,8 @@ contract("StateChannel", (accounts: string[]) => {
       StateChannel.binary,
       accounts[0],
       [A.address, B.address],
-      Utils.zeroBytes32,
-      Utils.zeroBytes32,
+      Utils.ZERO_BYTES32,
+      Utils.ZERO_BYTES32,
       10
     );
   });
@@ -197,8 +197,8 @@ contract("StateChannel", (accounts: string[]) => {
         await latestState(),
         await latestNonce(),
         0,
-        Utils.zeroBytes32,
-        Utils.highGasLimit
+        Utils.ZERO_BYTES32,
+        Utils.HIGH_GAS_LIMIT
       );
       true.should.be.equal(await stateChannel.functions.isClosed());
     });

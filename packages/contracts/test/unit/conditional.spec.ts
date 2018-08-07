@@ -29,13 +29,13 @@ contract("Conditional", (accounts: string[]) => {
         [expectedValue]
       ),
       onlyCheckForSuccess,
-      parameters: Utils.zeroBytes32,
+      parameters: Utils.ZERO_BYTES32,
       selector: example.interface.functions.isSatisfiedNoParam.sighash,
       to: example.address
     });
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(Utils.zeroBytes32, true);
+      const condition = makeCondition(Utils.ZERO_BYTES32, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       ret.should.be.equal(true);
     });
@@ -50,7 +50,7 @@ contract("Conditional", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(Utils.zeroBytes32, false);
+      const condition = makeCondition(Utils.ZERO_BYTES32, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
       ret.should.be.equal(false);
     });
@@ -79,13 +79,13 @@ contract("Conditional", (accounts: string[]) => {
     );
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(Utils.zeroBytes32, trueParam, true);
+      const condition = makeCondition(Utils.ZERO_BYTES32, trueParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       ret.should.be.equal(true);
     });
 
     it("returns true if function did not fail but returned false", async () => {
-      const condition = makeCondition(Utils.zeroBytes32, falseParam, true);
+      const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       ret.should.be.equal(true);
     });
@@ -101,7 +101,7 @@ contract("Conditional", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(Utils.zeroBytes32, falseParam, false);
+      const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
       ret.should.be.equal(false);
     });
