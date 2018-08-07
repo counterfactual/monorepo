@@ -21,7 +21,7 @@ contract("Nim", (accounts: string[]) => {
     game = await contract.deploy(Nim.binary);
   });
 
-  describe("reducer", () => {
+  describe("applyAction", () => {
     it("can take from a pile", async () => {
       const preState = {
         players: [Utils.zeroAddress, Utils.zeroAddress],
@@ -34,7 +34,7 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 5
       };
 
-      const ret = await game.functions.reduce(preState, action);
+      const ret = await game.functions.applyAction(preState, action);
 
       const postState = ethers.utils.defaultAbiCoder.decode(
         [stateEncoding],
@@ -59,7 +59,7 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 6
       };
 
-      const ret = await game.functions.reduce(preState, action);
+      const ret = await game.functions.applyAction(preState, action);
 
       const postState = ethers.utils.defaultAbiCoder.decode(
         [stateEncoding],
@@ -84,7 +84,7 @@ contract("Nim", (accounts: string[]) => {
         takeAmnt: 7
       };
 
-      await Utils.assertRejects(game.functions.reduce(preState, action));
+      await Utils.assertRejects(game.functions.applyAction(preState, action));
     });
   });
 

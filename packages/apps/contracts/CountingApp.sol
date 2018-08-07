@@ -36,7 +36,7 @@ contract CountingApp {
     return state.turnNum % 2;
   }
 
-  function resolver(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)
@@ -59,7 +59,7 @@ contract CountingApp {
     );
   }
 
-  function reducer(AppState state, Action action)
+  function applyAction(AppState state, Action action)
     public
     view
     returns (bytes)

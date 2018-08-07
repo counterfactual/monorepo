@@ -13,7 +13,7 @@ contract PaymentApp {
     uint256 bobBalance;
   }
 
-  function resolver(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)

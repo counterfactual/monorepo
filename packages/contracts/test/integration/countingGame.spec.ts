@@ -62,13 +62,13 @@ contract("CountingApp", (accounts: string[]) => {
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
-  // ethers.utils.formatParamType(iface.functions.resolver.inputs[0])
+  // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
   // github.com/ethers-io/ethers.js/blob/typescript/src.ts/utils/abi-coder.ts#L301
   const gameEncoding =
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 reducer, bytes4 resolver, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -133,8 +133,8 @@ contract("CountingApp", (accounts: string[]) => {
 
     app = {
       addr: game.address,
-      resolver: game.interface.functions.resolver.sighash,
-      reducer: game.interface.functions.reducer.sighash,
+      resolve: game.interface.functions.resolve.sighash,
+      applyAction: game.interface.functions.applyAction.sighash,
       turnTaker: game.interface.functions.turn.sighash,
       isStateFinal: game.interface.functions.isStateFinal.sighash
     };
@@ -158,7 +158,7 @@ contract("CountingApp", (accounts: string[]) => {
   });
 
   it("should resolve to some balance", async () => {
-    const ret = await game.functions.resolver(exampleState, terms);
+    const ret = await game.functions.resolve(exampleState, terms);
     ret.assetType.should.be.equal(AssetType.ETH);
     ret.token.should.be.equalIgnoreCase(Utils.zeroAddress);
     ret.to[0].should.be.equalIgnoreCase(A.address);
@@ -214,7 +214,7 @@ contract("CountingApp", (accounts: string[]) => {
 
     const state = encode(gameEncoding, exampleState);
 
-    it("should update state based on reducer", async () => {
+    it("should update state based on applyAction", async () => {
       const action = {
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 1
@@ -256,7 +256,7 @@ contract("CountingApp", (accounts: string[]) => {
       onchain.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
     });
 
-    it("should update and finalize state based on reducer", async () => {
+    it("should update and finalize state based on applyAction", async () => {
       const action = {
         actionType: ActionTypes.INCREMENT,
         byHowMuch: 2.0

@@ -56,8 +56,8 @@ contract StateChannel {
 
   struct App {
     address addr;
-    bytes4 reducer;
-    bytes4 resolver;
+    bytes4 applyAction;
+    bytes4 resolve;
     bytes4 turnTaker;
     bytes4 isStateFinal;
   }
@@ -261,7 +261,7 @@ contract StateChannel {
       block.number + timeout
     );
 
-    bytes memory newAppState = executeAppReducer(app, appState, action);
+    bytes memory newAppState = executeAppApplyAction(app, appState, action);
 
     state.appStateHash = keccak256(newAppState);
     state.nonce = nonce;
@@ -326,7 +326,7 @@ contract StateChannel {
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newAppState = executeAppReducer(app, appState, action);
+    bytes memory newAppState = executeAppApplyAction(app, appState, action);
 
     state.appStateHash = keccak256(newAppState);
     state.disputeNonce += 1;
@@ -500,21 +500,21 @@ contract StateChannel {
     return auth.signingKeys[idx];
   }
 
-  /// @notice Execute the application's reducer function to compute new state
+  /// @notice Execute the application's applyAction function to compute new state
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @param action The ABI encoded version of some application action
   /// @return A bytes array of the ABI encoded newly computed application state
-  function executeAppReducer(App app, bytes appState, bytes action)
+  function executeAppApplyAction(App app, bytes appState, bytes action)
     private
     returns (bytes)
   {
     return app.addr.staticcall_as_bytes(
-      abi.encodePacked(app.reducer, appState, action)
+      abi.encodePacked(app.applyAction, appState, action)
     );
   }
 
-  /// @notice Execute the application's resolver function to compute a resolution
+  /// @notice Execute the application's resolve function to compute a resolution
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
@@ -524,7 +524,7 @@ contract StateChannel {
     returns (Transfer.Details)
   {
     return app.addr.staticcall_as_TransferDetails(
-      abi.encodePacked(app.resolver, appState, terms)
+      abi.encodePacked(app.resolve, appState, terms)
     );
   }
 
