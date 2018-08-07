@@ -37,7 +37,7 @@ contract Nim {
     return state.turnNum % 2;
   }
 
-  function reduce(AppState state, Action action)
+  function applyAction(AppState state, Action action)
     public
     view
     returns (bytes)
@@ -54,7 +54,7 @@ contract Nim {
     return abi.encode(ret);
   }
 
-  function resolver(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.Terms terms)
     public
     pure
     returns (Transfer.Details)

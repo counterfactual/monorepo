@@ -26,7 +26,7 @@ contract("CountingApp", (accounts: string[]) => {
     game = await contract.deploy(CountingApp.binary);
   });
 
-  describe("reducer", () => {
+  describe("applyAction", () => {
     it("should work for increment", async () => {
       const baseState = {
         player1: Utils.zeroAddress,
@@ -40,7 +40,7 @@ contract("CountingApp", (accounts: string[]) => {
         byHowMuch: 1
       };
 
-      const ret = await game.functions.reducer(baseState, action);
+      const ret = await game.functions.applyAction(baseState, action);
 
       const data = ethers.utils.defaultAbiCoder.decode([stateEncoding], ret)[0];
 
@@ -61,7 +61,7 @@ contract("CountingApp", (accounts: string[]) => {
         byHowMuch: 1
       };
 
-      const ret = await game.functions.reducer(baseState, action);
+      const ret = await game.functions.applyAction(baseState, action);
 
       const data = ethers.utils.defaultAbiCoder.decode([stateEncoding], ret)[0];
 
@@ -82,7 +82,7 @@ contract("CountingApp", (accounts: string[]) => {
         byHowMuch: 1
       };
 
-      await Utils.assertRejects(game.functions.reducer(baseState, action));
+      await Utils.assertRejects(game.functions.applyAction(baseState, action));
     });
   });
 });
