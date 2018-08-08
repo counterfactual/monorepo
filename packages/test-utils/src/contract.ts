@@ -58,7 +58,7 @@ export class AbstractContract {
 
   constructor(readonly abi: string[], readonly binary: string) {}
 
-  public getSingleton(signer: ethers.Wallet): Contract {
+  public getDeployed(signer: ethers.Wallet): Contract {
     if (!this.deployedAddress) {
       throw new Error("Must have a deployed address");
     }
