@@ -71,8 +71,7 @@ contract("PaymentApp", (accounts: string[]) => {
       appState || Utils.ZERO_BYTES32,
       nonce,
       10,
-      "0x",
-      Utils.HIGH_GAS_LIMIT
+      "0x"
     );
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
@@ -83,8 +82,7 @@ contract("PaymentApp", (accounts: string[]) => {
       Utils.signMessageBytes(
         getUpdateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         [unlockedAccount]
-      ),
-      Utils.HIGH_GAS_LIMIT
+      )
     );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
@@ -95,8 +93,7 @@ contract("PaymentApp", (accounts: string[]) => {
       Utils.signMessageBytes(
         getUpdateHash(stateHash || Utils.ZERO_BYTES32, await latestNonce(), 0),
         [unlockedAccount]
-      ),
-      Utils.HIGH_GAS_LIMIT
+      )
     );
 
   let app;
@@ -156,8 +153,7 @@ contract("PaymentApp", (accounts: string[]) => {
         stateChannel.functions.setResolution(
           app,
           finalState,
-          encode(termsEncoding, terms),
-          Utils.HIGH_GAS_LIMIT
+          encode(termsEncoding, terms)
         )
       );
     });
@@ -167,8 +163,7 @@ contract("PaymentApp", (accounts: string[]) => {
       await stateChannel.functions.setResolution(
         app,
         finalState,
-        encode(termsEncoding, terms),
-        Utils.HIGH_GAS_LIMIT
+        encode(termsEncoding, terms)
       );
       const ret = await stateChannel.functions.getResolution();
       ret.assetType.should.be.equal(AssetType.ETH);

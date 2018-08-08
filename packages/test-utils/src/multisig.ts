@@ -115,6 +115,8 @@ export class Multisig {
       operation
     );
 
+    // estimateGas() doesn't work well for delegatecalls, so need to hardcode gas limit
+    const options = operation === Operation.Delegatecall ? HIGH_GAS_LIMIT : {};
     const signatures = signMessageBytes(transactionHash, wallets);
     return this.contract.functions.execTransaction(
       toContract.address,
@@ -122,7 +124,7 @@ export class Multisig {
       calldata,
       operation,
       signatures,
-      HIGH_GAS_LIMIT
+      options
     );
   }
 }

@@ -104,7 +104,7 @@ contract("ConditionalTransfer", (accounts: string[]) => {
       );
 
       await Utils.assertRejects(
-        delegateProxy.functions.delegate(ct.address, tx, Utils.HIGH_GAS_LIMIT)
+        delegateProxy.functions.delegate(ct.address, tx)
       );
 
       const balTarget = await provider.getBalance(randomTarget);

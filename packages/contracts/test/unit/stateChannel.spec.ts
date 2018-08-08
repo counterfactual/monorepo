@@ -64,8 +64,7 @@ contract("StateChannel", (accounts: string[]) => {
         appState || Utils.ZERO_BYTES32,
         nonce,
         TIMEOUT,
-        "0x",
-        Utils.HIGH_GAS_LIMIT
+        "0x"
       );
 
     sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
@@ -76,8 +75,7 @@ contract("StateChannel", (accounts: string[]) => {
         Utils.signMessageBytes(
           computeHash(appState || Utils.ZERO_BYTES32, nonce, TIMEOUT),
           [unlockedAccount]
-        ),
-        Utils.HIGH_GAS_LIMIT
+        )
       );
 
     sendSignedFinalizationToChain = async () =>
@@ -88,8 +86,7 @@ contract("StateChannel", (accounts: string[]) => {
         Utils.signMessageBytes(
           computeHash(await latestState(), await latestNonce(), 0),
           [unlockedAccount]
-        ),
-        Utils.HIGH_GAS_LIMIT
+        )
       );
   });
 
@@ -197,8 +194,7 @@ contract("StateChannel", (accounts: string[]) => {
         await latestState(),
         await latestNonce(),
         0,
-        Utils.ZERO_BYTES32,
-        Utils.HIGH_GAS_LIMIT
+        Utils.ZERO_BYTES32
       );
       true.should.be.equal(await stateChannel.functions.isClosed());
     });
