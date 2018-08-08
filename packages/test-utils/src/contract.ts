@@ -3,9 +3,11 @@ import { HIGH_GAS_LIMIT } from "./utils";
 
 const { solidityKeccak256 } = ethers.utils;
 
-interface Web3Contract {
-  address: string;
-  deployed(): Promise<{ address: string }>;
+export interface TruffleContract {
+  readonly contractName: string;
+  readonly abi: any[];
+  readonly bytecode: string;
+  readonly networks: { [networkName: string]: { address: string } };
 }
 
 export class Contract extends ethers.Contract {
@@ -15,38 +17,52 @@ export class Contract extends ethers.Contract {
 }
 
 export class AbstractContract {
-  public static fromTruffleArtifact(
+  public static loadTruffleArtifact(
     artifactName: string,
     links?: { [name: string]: AbstractContract }
-  ) {
-    const artifact = artifacts.require(artifactName);
+  ): AbstractContract {
+    const truffleContract = artifacts.require(artifactName);
+    return AbstractContract.fromTruffleContract(truffleContract, links);
+  }
+
+  public static fromTruffleContract(
+    truffleContract: TruffleContract,
+    links?: { [name: string]: AbstractContract }
+  ): AbstractContract {
+    let { bytecode } = truffleContract;
     if (links) {
       for (const name of Object.keys(links)) {
         const library = links[name];
-        if (!library.singletonContract) {
-          throw new Error("Library must have singleton contract");
+        if (!library.deployedAddress) {
+          throw new Error("Library must have a deployed address");
         }
-        artifact.link(name, library.singletonContract.address);
+        const regex = new RegExp(`__${name}_+`, "g");
+        const addressHex = library.deployedAddress.replace("0x", "");
+        bytecode = bytecode.replace(regex, addressHex);
       }
     }
     const abstractContract = new AbstractContract(
-      artifact.abi,
-      artifact.binary
+      truffleContract.abi,
+      bytecode
     );
-    abstractContract.singletonContract = artifact;
+    const networkNames = Object.keys(truffleContract.networks);
+    if (networkNames.length !== 0) {
+      const networkName = networkNames.sort()[0];
+      abstractContract.deployedAddress =
+        truffleContract.networks[networkName].address;
+    }
     return abstractContract;
   }
 
-  private singletonContract?: Web3Contract;
+  private deployedAddress?: string;
 
   constructor(readonly abi: string[], readonly binary: string) {}
 
-  public async getSingleton(signer: ethers.Wallet): Promise<Contract> {
-    if (!this.singletonContract) {
-      throw new Error("Not a singleton contract");
+  public getSingleton(signer: ethers.Wallet): Contract {
+    if (!this.deployedAddress) {
+      throw new Error("Must have a deployed address");
     }
-    const { address } = await this.singletonContract.deployed();
-    return new Contract(address, this.abi, signer);
+    return new Contract(this.deployedAddress, this.abi, signer);
   }
 
   public async deploy(signer: ethers.Wallet, args?: any[]): Promise<Contract> {
