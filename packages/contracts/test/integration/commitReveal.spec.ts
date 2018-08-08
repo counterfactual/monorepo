@@ -112,7 +112,7 @@ describe("CommitReveal", async () => {
       turnTaker: appContract.interface.functions.turnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
     };
-    const registry = await Registry.getSingleton(masterAccount);
+    const registry = Registry.getSingleton(masterAccount);
 
     // 3. Deploy StateChannel
     const stateChannel = await StateChannel.deployViaRegistry(
@@ -180,9 +180,7 @@ describe("CommitReveal", async () => {
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
     // 6. Call setNonce on NonceRegistry with some salt and nonce
-    const nonceRegistry: Contract = await NonceRegistry.getSingleton(
-      masterAccount
-    );
+    const nonceRegistry: Contract = NonceRegistry.getSingleton(masterAccount);
     await multisig.execCall(
       nonceRegistry,
       "setNonce",
@@ -206,7 +204,7 @@ describe("CommitReveal", async () => {
       channelNonce
     )).should.be.equal(true);
     // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
-    const conditionalTransfer: Contract = await ConditionalTransfer.getSingleton(
+    const conditionalTransfer: Contract = ConditionalTransfer.getSingleton(
       masterAccount
     );
     await multisig.execDelegatecall(
