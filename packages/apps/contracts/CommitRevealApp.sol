@@ -60,7 +60,7 @@ contract CommitRevealApp {
 
   function applyAction(AppState state, Action action)
     public
-    view
+    pure
     returns (bytes)
   {
     AppState memory nextState = state;
