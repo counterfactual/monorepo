@@ -458,7 +458,7 @@ contract StateChannel {
     uint256 disputeNonce
   )
     internal
-    view
+    pure
     returns (bytes32)
   {
     return keccak256(
