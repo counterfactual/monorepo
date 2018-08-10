@@ -477,7 +477,11 @@ contract StateChannel {
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @return A boolean indicating if the application state is terminal or not
-  function isAppStateTerminal(App app, bytes appState) private returns (bool) {
+  function isAppStateTerminal(App app, bytes appState)
+    private
+    view
+    returns (bool)
+  {
     return app.addr.staticcall_as_bool(
       abi.encodePacked(app.isStateFinal, appState)
     );
@@ -487,7 +491,11 @@ contract StateChannel {
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @return An address representing the turn taker in the `signingKeys`
-  function getAppTurnTaker(App app, bytes appState) private returns (address) {
+  function getAppTurnTaker(App app, bytes appState)
+    private
+    view
+    returns (address)
+  {
     uint256 idx = app.addr.staticcall_as_uint256(
       abi.encodePacked(app.turnTaker, appState)
     );
@@ -507,6 +515,7 @@ contract StateChannel {
   /// @return A bytes array of the ABI encoded newly computed application state
   function executeAppApplyAction(App app, bytes appState, bytes action)
     private
+    view
     returns (bytes)
   {
     return app.addr.staticcall_as_bytes(
@@ -521,6 +530,7 @@ contract StateChannel {
   /// @return A `Transfer.Details` struct with all encoded information of the resolution
   function getAppResolution(App app, bytes appState, bytes terms)
     private
+    view
     returns (Transfer.Details)
   {
     return app.addr.staticcall_as_TransferDetails(
