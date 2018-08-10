@@ -1,6 +1,26 @@
 import * as ethers from "ethers";
 import { StructAbiEncoder } from "./structAbiEncoder";
 
+export class App {
+  public static fromContract(contract: ethers.Contract): App {
+    return new App(
+      contract.address,
+      contract.interface.functions.applyAction.sighash,
+      contract.interface.functions.resolve.sighash,
+      contract.interface.functions.turnTaker.sighash,
+      contract.interface.functions.isStateFinal.sighash
+    );
+  }
+
+  constructor(
+    readonly address: string,
+    readonly applyAction: string,
+    readonly resolve: string,
+    readonly turnTaker: string,
+    readonly isStateFinal: string
+  ) {}
+}
+
 /**
  * Compute the raw state hash for use in the StateChannel contract.
  * @param signingKeys Signing keys of the StateChannel

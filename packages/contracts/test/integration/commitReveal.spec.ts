@@ -1,13 +1,15 @@
 import * as ethers from "ethers";
 
 import {
+  AbstractContract,
   AppEncoder,
   computeNonceRegistryKey,
   computeStateHash,
+  Contract,
   deployContract,
   deployContractViaRegistry,
   getDeployedContract,
-  HIGH_GAS_LIMIT,
+  Multisig,
   setupTestEnv,
   signMessageBytes,
   StructAbiEncoder,
@@ -15,9 +17,6 @@ import {
   UNIT_ETH,
   ZERO_ADDRESS
 } from "@counterfactual/test-utils";
-import Multisig from "../helpers/multisig";
-
-const CommitRevealApp = artifacts.require("CommitRevealApp");
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
@@ -63,21 +62,27 @@ enum Player {
 }
 
 describe("CommitReveal", async () => {
-  const StateChannel = artifacts.require("StateChannel");
-  const ConditionalTransfer = artifacts.require("ConditionalTransfer");
-  const StaticCall = artifacts.require("StaticCall");
-  const NonceRegistry = artifacts.require("NonceRegistry");
-  const Registry = artifacts.require("Registry");
-  const Signatures = artifacts.require("Signatures");
-  const Transfer = artifacts.require("Transfer");
+  const ConditionalTransfer = AbstractContract.loadTruffleArtifact(
+    "ConditionalTransfer"
+  );
+  const StaticCall = AbstractContract.loadTruffleArtifact("StaticCall");
+  const NonceRegistry = AbstractContract.loadTruffleArtifact("NonceRegistry");
+  const Registry = AbstractContract.loadTruffleArtifact("Registry");
+  const Signatures = AbstractContract.loadTruffleArtifact("Signatures");
+  const Transfer = AbstractContract.loadTruffleArtifact("Transfer");
 
-  beforeEach(async () => {
-    CommitRevealApp.link("StaticCall", StaticCall.address);
-
-    StateChannel.link("Signatures", Signatures.address);
-    StateChannel.link("StaticCall", StaticCall.address);
-    StateChannel.link("Transfer", Transfer.address);
+  const StateChannel = AbstractContract.loadTruffleArtifact("StateChannel", {
+    StaticCall,
+    Signatures,
+    Transfer
   });
+
+  const CommitRevealApp: AbstractContract = AbstractContract.loadTruffleArtifact(
+    "CommitRevealApp",
+    {
+      StaticCall
+    }
+  );
 
   it("should complete a full lifecycle", async function() {
     this.timeout(4000);
@@ -99,19 +104,20 @@ describe("CommitReveal", async () => {
       token: ZERO_ADDRESS
     };
     // 2. Deploy CommitRevealApp app
-    const appContract = await deployContract(CommitRevealApp, masterAccount);
+    const appContract = await CommitRevealApp.deploy(masterAccount);
     const app = {
       addr: appContract.address,
       applyAction: appContract.interface.functions.applyAction.sighash,
       resolve: appContract.interface.functions.resolve.sighash,
-      turnTaker: appContract.interface.functions.getTurnTaker.sighash,
+      turnTaker: appContract.interface.functions.turnTaker.sighash,
       isStateFinal: appContract.interface.functions.isStateFinal.sighash
     };
+    const registry = Registry.getDeployed(masterAccount);
 
     // 3. Deploy StateChannel
-    const { cfAddr, contract: stateChannel } = await deployContractViaRegistry(
-      StateChannel,
+    const stateChannel = await StateChannel.deployViaRegistry(
       masterAccount,
+      registry,
       [
         multisig.address,
         [alice.address, bob.address],
@@ -160,8 +166,7 @@ describe("CommitReveal", async () => {
       appStateHash,
       appNonce,
       timeout,
-      signatures,
-      HIGH_GAS_LIMIT
+      signatures
     );
     // 5. Call setResolution() on StateChannel
     await stateChannel.functions.setResolution(
@@ -175,10 +180,7 @@ describe("CommitReveal", async () => {
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
     // 6. Call setNonce on NonceRegistry with some salt and nonce
-    const nonceRegistry: ethers.Contract = await getDeployedContract(
-      NonceRegistry,
-      masterAccount
-    );
+    const nonceRegistry = NonceRegistry.getDeployed(masterAccount);
     await multisig.execCall(
       nonceRegistry,
       "setNonce",
@@ -201,15 +203,8 @@ describe("CommitReveal", async () => {
       channelNonceKey,
       channelNonce
     )).should.be.equal(true);
-    // // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
-    const conditionalTransfer: ethers.Contract = await getDeployedContract(
-      ConditionalTransfer,
-      masterAccount
-    );
-    const registry: ethers.Contract = await getDeployedContract(
-      Registry,
-      masterAccount
-    );
+    // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
+    const conditionalTransfer = ConditionalTransfer.getDeployed(masterAccount);
     await multisig.execDelegatecall(
       conditionalTransfer,
       "executeStateChannelConditionalTransfer",
@@ -218,7 +213,7 @@ describe("CommitReveal", async () => {
         nonceRegistry.address,
         channelNonceKey,
         channelNonce,
-        cfAddr,
+        stateChannel.cfAddress,
         terms
       ],
       [alice, bob]

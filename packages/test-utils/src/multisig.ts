@@ -1,9 +1,5 @@
-import {
-  deployContract,
-  HIGH_GAS_LIMIT,
-  signMessageBytes
-} from "@counterfactual/test-utils";
 import * as ethers from "ethers";
+import { deployContract, HIGH_GAS_LIMIT, signMessageBytes } from "./utils";
 
 const enum Operation {
   Call = 0,
@@ -16,7 +12,7 @@ const enum Operation {
  * const multisig = new Multisig([alice.address, bob.address]);
  * await multisig.deploy(masterAccount);
  */
-export default class Multisig {
+export class Multisig {
   private static loadTruffleContract() {
     const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
     const Signatures = artifacts.require("Signatures");
@@ -119,6 +115,8 @@ export default class Multisig {
       operation
     );
 
+    // estimateGas() doesn't work well for delegatecalls, so need to hardcode gas limit
+    const options = operation === Operation.Delegatecall ? HIGH_GAS_LIMIT : {};
     const signatures = signMessageBytes(transactionHash, wallets);
     return this.contract.functions.execTransaction(
       toContract.address,
@@ -126,7 +124,7 @@ export default class Multisig {
       calldata,
       operation,
       signatures,
-      HIGH_GAS_LIMIT
+      options
     );
   }
 }

@@ -83,8 +83,7 @@ contract("CountingApp", (accounts: string[]) => {
       appState || Utils.ZERO_BYTES32,
       nonce,
       10,
-      "0x",
-      Utils.HIGH_GAS_LIMIT
+      "0x"
     );
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
@@ -95,8 +94,7 @@ contract("CountingApp", (accounts: string[]) => {
       Utils.signMessageBytes(
         computeStateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         [unlockedAccount]
-      ),
-      Utils.HIGH_GAS_LIMIT
+      )
     );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
@@ -111,8 +109,7 @@ contract("CountingApp", (accounts: string[]) => {
           0
         ),
         [unlockedAccount]
-      ),
-      Utils.HIGH_GAS_LIMIT
+      )
     );
 
   let app;
@@ -174,8 +171,7 @@ contract("CountingApp", (accounts: string[]) => {
         stateChannel.functions.setResolution(
           app,
           finalState,
-          encode(termsEncoding, terms),
-          Utils.HIGH_GAS_LIMIT
+          encode(termsEncoding, terms)
         )
       );
     });
@@ -185,8 +181,7 @@ contract("CountingApp", (accounts: string[]) => {
       await stateChannel.functions.setResolution(
         app,
         finalState,
-        encode(termsEncoding, terms),
-        Utils.HIGH_GAS_LIMIT
+        encode(termsEncoding, terms)
       );
       const ret = await stateChannel.functions.getResolution();
       ret.assetType.should.be.equal(AssetType.ETH);
@@ -237,8 +232,7 @@ contract("CountingApp", (accounts: string[]) => {
         encode(actionEncoding, action),
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
-        false,
-        Utils.HIGH_GAS_LIMIT
+        false
       );
 
       const onchain = await stateChannel.functions.state();
@@ -279,8 +273,7 @@ contract("CountingApp", (accounts: string[]) => {
         encode(actionEncoding, action),
         Utils.signMessageBytes(h1, [A, B]),
         Utils.signMessageBytes(h2, [A]),
-        true,
-        Utils.HIGH_GAS_LIMIT
+        true
       );
 
       const channelState = await stateChannel.functions.state();
@@ -322,8 +315,7 @@ contract("CountingApp", (accounts: string[]) => {
           encode(actionEncoding, action),
           Utils.signMessageBytes(h1, [A, B]),
           Utils.signMessageBytes(h2, [A]),
-          true,
-          Utils.HIGH_GAS_LIMIT
+          true
         )
       );
     });

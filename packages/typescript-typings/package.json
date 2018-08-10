@@ -5,7 +5,7 @@
     "node": ">=6.12"
   },
   "description": "Counterfactual Types",
-  "types": "lib/index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "tslint --project .",
     "watch_without_deps": "tsc -w",
