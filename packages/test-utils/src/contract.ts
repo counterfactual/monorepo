@@ -1,14 +1,8 @@
+import { TruffleContract } from "@counterfactual/typescript-typings";
 import * as ethers from "ethers";
 import { HIGH_GAS_LIMIT } from "./utils";
 
 const { solidityKeccak256 } = ethers.utils;
-
-export interface TruffleContract {
-  readonly contractName: string;
-  readonly abi: any[];
-  readonly bytecode: string;
-  readonly networks: { [networkName: string]: { address: string } };
-}
 
 export class Contract extends ethers.Contract {
   public salt?: string;
