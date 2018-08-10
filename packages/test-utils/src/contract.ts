@@ -4,13 +4,30 @@ import { HIGH_GAS_LIMIT } from "./utils";
 
 const { solidityKeccak256 } = ethers.utils;
 
+/**
+ * Simple wrapper around ethers.Contract to include information about Counterfactual instantiation.
+ */
 export class Contract extends ethers.Contract {
+  // Salt used for Counterfactual deployment
   public salt?: string;
+  // Counterfactual address
   public cfAddress?: string;
+  // Registry used to deploy contract through
   public registry?: Contract;
 }
 
+/**
+ * Convenience class for an undeployed contract i.e. only the ABI and bytecode.
+ */
 export class AbstractContract {
+  /**
+   * Load Truffle artifact by name into an abstract contract
+   * @example
+   *  const CountingApp = AbstractContract.loadTruffleArtifact("CountingApp", {StaticCall});
+   * @param artifactName The name of the artifact to load
+   * @param links Optional AbstractContract libraries to link.
+   * @returns Truffle artifact wrapped in an AbstractContract.
+   */
   public static loadTruffleArtifact(
     artifactName: string,
     links?: { [name: string]: AbstractContract }
@@ -19,6 +36,12 @@ export class AbstractContract {
     return AbstractContract.fromTruffleContract(truffleContract, links);
   }
 
+  /**
+   * Wrap Truffle contract in abstract contract
+   * @param truffleContract Truffle contract to wrap
+   * @param links Optional AbstractContract libraries to link.
+   * @returns Truffle artifact wrapped in an AbstractContract.
+   */
   public static fromTruffleContract(
     truffleContract: TruffleContract,
     links?: { [name: string]: AbstractContract }
@@ -50,8 +73,17 @@ export class AbstractContract {
 
   private deployedAddress?: string;
 
-  constructor(readonly abi: string[], readonly binary: string) {}
+  /**
+   * @param abi ABI of the abstract contract
+   * @param binary Binary of the abstract contract
+   */
+  constructor(readonly abi: string[] | string, readonly binary: string) {}
 
+  /**
+   * Get the deployed singleton instance of this abstract contract, if it exists
+   * @param signer Signer (with provider) to use for contract calls
+   * @throws Error if AbstractContract has no deployed address
+   */
   public getDeployed(signer: ethers.Wallet): Contract {
     if (!this.deployedAddress) {
       throw new Error("Must have a deployed address");
@@ -59,6 +91,12 @@ export class AbstractContract {
     return new Contract(this.deployedAddress, this.abi, signer);
   }
 
+  /**
+   * Deploy new instance of contract
+   * @param signer Signer (with provider) to use for contract calls
+   * @param args Optional arguments to pass to contract constructor
+   * @returns New contract instance
+   */
   public async deploy(signer: ethers.Wallet, args?: any[]): Promise<Contract> {
     return new Contract("", this.abi, signer).deploy(
       this.binary,
@@ -66,6 +104,12 @@ export class AbstractContract {
     );
   }
 
+  /**
+   * Connect to a deployed instance of this abstract contract
+   * @param signer Signer (with provider) to use for contract calls
+   * @param address Address of deployed instance to connect to
+   * @returns Contract instance
+   */
   public async connect(
     signer: ethers.Wallet,
     address: string
@@ -73,6 +117,14 @@ export class AbstractContract {
     return new Contract(address, this.abi, signer);
   }
 
+  /**
+   * Deploys new contract instance through a Counterfactual Registry
+   * @param signer Signer (with provider) to use for contract calls
+   * @param registry Counterfactual Registry instance to use
+   * @param args Optional arguments to pass to contract constructor
+   * @param salt Optional salt for Counterfactual deployment
+   * @returns Contract instance
+   */
   public async deployViaRegistry(
     signer: ethers.Wallet,
     registry: Contract,
