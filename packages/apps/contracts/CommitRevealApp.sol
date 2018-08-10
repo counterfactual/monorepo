@@ -47,7 +47,7 @@ contract CommitRevealApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState state)
+  function turnTaker(AppState state)
     public
     pure
     returns (Player)
@@ -111,7 +111,7 @@ contract CommitRevealApp {
       player = uint256(state.winner);
     } else {
       // The player who is not the turn taker
-      player = 1 - uint256(getTurnTaker(state));
+      player = 1 - uint256(turnTaker(state));
     }
     to[0] = state.playerAddrs[player];
 
