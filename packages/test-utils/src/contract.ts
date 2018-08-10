@@ -1,4 +1,4 @@
-import { TruffleContract } from "@counterfactual/typescript-typings";
+import { BuildArtifact } from "@counterfactual/typescript-typings";
 import * as ethers from "ethers";
 import { HIGH_GAS_LIMIT } from "./utils";
 
@@ -8,11 +8,8 @@ const { solidityKeccak256 } = ethers.utils;
  * Simple wrapper around ethers.Contract to include information about Counterfactual instantiation.
  */
 export class Contract extends ethers.Contract {
-  // Salt used for Counterfactual deployment
   public salt?: string;
-  // Counterfactual address
   public cfAddress?: string;
-  // Registry used to deploy contract through
   public registry?: Contract;
 }
 
@@ -21,32 +18,33 @@ export class Contract extends ethers.Contract {
  */
 export class AbstractContract {
   /**
-   * Load Truffle artifact by name into an abstract contract
+   * Load build artifact by name into an abstract contract
    * @example
-   *  const CountingApp = AbstractContract.loadTruffleArtifact("CountingApp", {StaticCall});
+   *  const CountingApp = AbstractContract.loadBuildArtifact("CountingApp", {StaticCall});
    * @param artifactName The name of the artifact to load
    * @param links Optional AbstractContract libraries to link.
    * @returns Truffle artifact wrapped in an AbstractContract.
    */
-  public static loadTruffleArtifact(
+  public static loadBuildArtifact(
     artifactName: string,
     links?: { [name: string]: AbstractContract }
   ): AbstractContract {
+    // TODO: Load build artifacts manually once we move away from Truffle
     const truffleContract = artifacts.require(artifactName);
-    return AbstractContract.fromTruffleContract(truffleContract, links);
+    return AbstractContract.fromBuildArtifact(truffleContract, links);
   }
 
   /**
-   * Wrap Truffle contract in abstract contract
-   * @param truffleContract Truffle contract to wrap
+   * Wrap build artifact in abstract contract
+   * @param buildArtifact Truffle contract to wrap
    * @param links Optional AbstractContract libraries to link.
    * @returns Truffle artifact wrapped in an AbstractContract.
    */
-  public static fromTruffleContract(
-    truffleContract: TruffleContract,
+  public static fromBuildArtifact(
+    buildArtifact: BuildArtifact,
     links?: { [name: string]: AbstractContract }
   ): AbstractContract {
-    let { bytecode } = truffleContract;
+    let { bytecode } = buildArtifact;
     if (links) {
       for (const name of Object.keys(links)) {
         const library = links[name];
@@ -58,15 +56,12 @@ export class AbstractContract {
         bytecode = bytecode.replace(regex, addressHex);
       }
     }
-    const abstractContract = new AbstractContract(
-      truffleContract.abi,
-      bytecode
-    );
-    const networkNames = Object.keys(truffleContract.networks);
+    const abstractContract = new AbstractContract(buildArtifact.abi, bytecode);
+    const networkNames = Object.keys(buildArtifact.networks);
     if (networkNames.length !== 0) {
       const networkName = networkNames.sort()[0];
       abstractContract.deployedAddress =
-        truffleContract.networks[networkName].address;
+        buildArtifact.networks[networkName].address;
     }
     return abstractContract;
   }
