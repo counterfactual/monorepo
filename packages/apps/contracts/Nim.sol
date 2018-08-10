@@ -39,7 +39,7 @@ contract Nim {
 
   function applyAction(AppState state, Action action)
     public
-    view
+    pure
     returns (bytes)
   {
     require(0 <= action.pileIdx);

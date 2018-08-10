@@ -61,7 +61,7 @@ contract CountingApp {
 
   function applyAction(AppState state, Action action)
     public
-    view
+    pure
     returns (bytes)
   {
     if (action.actionType == ActionTypes.INCREMENT) {
