@@ -84,7 +84,7 @@ describe("CommitReveal", async () => {
     }
   );
 
-  it("should complete a full lifecycle", async function() {
+  it("should complete a full lifecycle", async function(this: Mocha.ITestCallbackContext) {
     this.timeout(4000);
 
     const startBalanceA = await alice.getBalance();

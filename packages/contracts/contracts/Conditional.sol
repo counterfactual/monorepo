@@ -41,6 +41,7 @@ contract Conditional {
   /// @return A boolean indicating whether or not the function call passed or failed.
   function assertNotFails(Condition condition)
     private
+    view
     returns (bool)
   {
     condition.to.staticcall_as_bytes(
@@ -57,6 +58,7 @@ contract Conditional {
   /// @return A boolean verifying if the function call returned the expected result
   function assertReturnsExpectedResult(Condition condition)
     private
+    view
     returns (bool)
   {
     bytes memory ret = condition.to.staticcall_as_bytes(
