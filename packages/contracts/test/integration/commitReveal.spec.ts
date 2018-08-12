@@ -62,22 +62,22 @@ enum Player {
 }
 
 describe("CommitReveal", async () => {
-  const ConditionalTransfer = AbstractContract.loadTruffleArtifact(
+  const ConditionalTransfer = AbstractContract.loadBuildArtifact(
     "ConditionalTransfer"
   );
-  const StaticCall = AbstractContract.loadTruffleArtifact("StaticCall");
-  const NonceRegistry = AbstractContract.loadTruffleArtifact("NonceRegistry");
-  const Registry = AbstractContract.loadTruffleArtifact("Registry");
-  const Signatures = AbstractContract.loadTruffleArtifact("Signatures");
-  const Transfer = AbstractContract.loadTruffleArtifact("Transfer");
+  const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+  const NonceRegistry = AbstractContract.loadBuildArtifact("NonceRegistry");
+  const Registry = AbstractContract.loadBuildArtifact("Registry");
+  const Signatures = AbstractContract.loadBuildArtifact("Signatures");
+  const Transfer = AbstractContract.loadBuildArtifact("Transfer");
 
-  const StateChannel = AbstractContract.loadTruffleArtifact("StateChannel", {
+  const StateChannel = AbstractContract.loadBuildArtifact("StateChannel", {
     StaticCall,
     Signatures,
     Transfer
   });
 
-  const CommitRevealApp: AbstractContract = AbstractContract.loadTruffleArtifact(
+  const CommitRevealApp: AbstractContract = AbstractContract.loadBuildArtifact(
     "CommitRevealApp",
     {
       StaticCall
