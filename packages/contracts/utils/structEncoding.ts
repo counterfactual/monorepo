@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-export function structDefinitionToEncoding(structDefinition: string): string {
+export function abiEncodingForStruct(structDefinition: string): string {
   const definitions: string[] = [];
   const lines = structDefinition.split(";");
   for (const line of lines) {

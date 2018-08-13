@@ -1,4 +1,6 @@
 import {
+  generateEthWallets,
+  mineBlocks,
   setupTestEnv,
   signMessageBytes,
   UNIT_ETH,
@@ -7,18 +9,17 @@ import {
 import * as ethers from "ethers";
 
 import {
+  abiEncodingForStruct,
   AbstractContract,
   AssetType,
   buildArtifacts,
   computeNonceRegistryKey,
   Multisig,
   StateChannel,
-  structDefinitionToEncoding,
   TransferTerms
 } from "../../utils";
 
-const web3 = (global as any).web3;
-const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
+const { web3 } = global as any;
 
 const {
   Registry,
@@ -26,21 +27,6 @@ const {
   ConditionalTransfer,
   StaticCall
 } = buildArtifacts;
-
-const [alice, bob] = [
-  // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
-  new ethers.Wallet(
-    "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27",
-    provider
-  ),
-  // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
-  new ethers.Wallet(
-    "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd",
-    provider
-  )
-];
-
-const { keccak256, parseEther } = ethers.utils;
 
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
@@ -62,47 +48,50 @@ enum Player {
   GUESSING = 1
 }
 
-async function createMultisig() {
+const { parseEther } = ethers.utils;
+const CommitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
+  StaticCall
+});
+
+const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
+const appStateEncoding = abiEncodingForStruct(`
+  address[2] playerAddrs;
+  uint256 stage;
+  uint256 maximum;
+  uint256 guessedNumber;
+  bytes32 commitHash;
+  uint256 winner;
+`);
+
+let alice: ethers.Wallet;
+let bob: ethers.Wallet;
+
+async function createMultisig(
+  funder: ethers.Wallet,
+  initialFunding: ethers.utils.BigNumber
+): Promise<Multisig> {
   const multisig = new Multisig([alice.address, bob.address]);
-  await multisig.deploy(masterAccount);
-  await masterAccount.sendTransaction({
+  await multisig.deploy(funder);
+  await funder.sendTransaction({
     to: multisig.address,
-    value: parseEther("2")
-  });
+    value: initialFunding
+  }); // @ts-ignore
   return multisig;
 }
 
-async function deployApp() {
-  const CommitRevealApp = AbstractContract.loadBuildArtifact(
-    "CommitRevealApp",
-    { StaticCall }
-  );
-
-  const terms = {
-    assetType: AssetType.ETH,
-    limit: parseEther("2")
-  };
-  const appContract = await CommitRevealApp.deploy(masterAccount);
-  const appStateEncoding = structDefinitionToEncoding(`
-      address[2] playerAddrs;
-      uint256 stage;
-      uint256 maximum;
-      uint256 guessedNumber;
-      bytes32 commitHash;
-      uint256 winner;
-    `);
-  return { terms, appContract, appStateEncoding };
+async function deployApp(): Promise<ethers.Contract> {
+  return CommitRevealApp.deploy(masterAccount);
 }
 
 async function deployStateChannel(
   multisig: Multisig,
   appContract: ethers.Contract,
-  appStateEncoding: string,
   terms: TransferTerms
 ) {
   const registry = Registry.getDeployed(masterAccount);
+  const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const stateChannel = new StateChannel(
-    [alice.address, bob.address],
+    signers,
     multisig,
     appContract,
     appStateEncoding,
@@ -128,12 +117,7 @@ async function setFinalizedChannelNonce(
     [alice, bob]
   );
 
-  await multisig.execCall(
-    nonceRegistry,
-    "finalizeNonce",
-    [channelNonceSalt],
-    [alice, bob]
-  );
+  await mineBlocks(11);
 
   const channelNonceKey = computeNonceRegistryKey(
     multisig.address,
@@ -175,25 +159,25 @@ async function executeStateChannelTransfer(
 }
 
 describe("CommitReveal", async () => {
+  beforeEach(() => {
+    [alice, bob] = generateEthWallets(2, provider);
+  });
+
   it("should pay out to the winner", async function() {
     this.timeout(4000);
 
-    const startBalanceA = await alice.getBalance();
-    const startBalanceB = await bob.getBalance();
-
     // 1. Deploy & fund multisig
-    const multisig = await createMultisig();
+    const multisig = await createMultisig(masterAccount, parseEther("2"));
 
     // 2. Deploy CommitRevealApp app
-    const { terms, appContract, appStateEncoding } = await deployApp();
+    const appContract = await deployApp();
 
     // 3. Deploy StateChannel
-    const stateChannel = await deployStateChannel(
-      multisig,
-      appContract,
-      appStateEncoding,
-      terms
-    );
+    const terms = {
+      assetType: AssetType.ETH,
+      limit: parseEther("2")
+    };
+    const stateChannel = await deployStateChannel(multisig, appContract, terms);
 
     // 4. Call setState(claimFinal=true) on StateChannel with a final state
     const numberSalt =
@@ -235,10 +219,7 @@ describe("CommitReveal", async () => {
     );
 
     // 8. Verify balance of A and B
-    const endBalanceA = await alice.getBalance();
-    const endBalanceB = await bob.getBalance();
-
-    endBalanceA.sub(startBalanceA).should.be.bignumber.eq(parseEther("2"));
-    endBalanceB.should.be.bignumber.eq(startBalanceB);
+    (await alice.getBalance()).should.be.bignumber.eq(parseEther("2"));
+    (await bob.getBalance()).should.be.bignumber.eq(0);
   });
 });

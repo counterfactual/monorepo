@@ -81,6 +81,21 @@ export const getDeployedContract = async (
 export const randomETHAddress = (): string =>
   ethers.utils.hexlify(ethers.utils.randomBytes(20));
 
+export function generateEthWallets(
+  count: number,
+  provider?: ethers.types.Provider
+): ethers.Wallet[] {
+  const wallets: ethers.Wallet[] = [];
+  for (let i = 0; i < count; i++) {
+    let wallet = ethers.Wallet.createRandom();
+    if (provider) {
+      wallet = wallet.connect(provider); // @ts-ignore
+    }
+    wallets.push(wallet);
+  }
+  return wallets;
+}
+
 export const setupTestEnv = (web3: any) => {
   const provider = new ethers.providers.Web3Provider(web3.currentProvider);
   const unlockedAccount = new ethers.Wallet(

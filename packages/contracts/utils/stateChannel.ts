@@ -3,7 +3,7 @@ import { HIGH_GAS_LIMIT, signMessageBytes, ZERO_ADDRESS } from "../../test-utils
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
 import { Multisig } from "./multisig";
-import { encodeStruct, structDefinitionToEncoding } from "./structEncoding";
+import { encodeStruct, abiEncodingForStruct } from "./structEncoding";
 
 const { keccak256 } = ethers.utils;
 
@@ -173,7 +173,7 @@ export function computeNonceRegistryKey(
 /**
  * Solidity struct type for the Transfer.Terms struct
  */
-export const termsEncoding = structDefinitionToEncoding(`
+export const termsEncoding = abiEncodingForStruct(`
   uint8 assetType;
   uint256 limit;
   address token;
@@ -182,7 +182,7 @@ export const termsEncoding = structDefinitionToEncoding(`
 /**
  * Solidity struct type for the App struct
  */
-export const appEncoding = structDefinitionToEncoding(`
+export const appEncoding = abiEncodingForStruct(`
   address addr;
   bytes4 applyAction;
   bytes4 resolve;
