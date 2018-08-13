@@ -2,7 +2,7 @@
   "name": "@counterfactual/test-utils",
   "version": "0.0.1",
   "description": "Miscellaneous utility functions.",
-  "main": "lib/index.js",
+  "main": "lib/utils.js",
   "scripts": {
     "build": "tsc --project tsconfig.json.modified",
     "clean": "shx rm -rf lib",

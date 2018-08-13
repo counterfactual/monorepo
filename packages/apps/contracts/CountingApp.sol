@@ -20,7 +20,7 @@ contract CountingApp {
     uint256 turnNum;
   }
 
-  function isStateFinal(AppState state)
+  function isStateTerminal(AppState state)
     public
     pure
     returns (bool)
@@ -28,7 +28,7 @@ contract CountingApp {
     return state.count == 2;
   }
 
-  function turn(AppState state)
+  function getTurnTaker(AppState state)
     public
     pure
     returns (uint256)

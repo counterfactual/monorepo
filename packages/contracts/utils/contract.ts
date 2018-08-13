@@ -1,6 +1,6 @@
+import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
 import { BuildArtifact } from "@counterfactual/typescript-typings";
 import * as ethers from "ethers";
-import { HIGH_GAS_LIMIT } from "./utils";
 
 const { solidityKeccak256 } = ethers.utils;
 

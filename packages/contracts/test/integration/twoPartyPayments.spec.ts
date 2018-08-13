@@ -56,7 +56,7 @@ contract("PaymentApp", (accounts: string[]) => {
     "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -81,7 +81,7 @@ contract("PaymentApp", (accounts: string[]) => {
       10,
       Utils.signMessageBytes(
         getUpdateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
-        [unlockedAccount]
+        unlockedAccount
       )
     );
 
@@ -92,7 +92,7 @@ contract("PaymentApp", (accounts: string[]) => {
       0,
       Utils.signMessageBytes(
         getUpdateHash(stateHash || Utils.ZERO_BYTES32, await latestNonce(), 0),
-        [unlockedAccount]
+        unlockedAccount
       )
     );
 
@@ -114,8 +114,8 @@ contract("PaymentApp", (accounts: string[]) => {
       addr: pc.address,
       resolve: pc.interface.functions.resolve.sighash,
       applyAction: "0x00000000",
-      turnTaker: "0x00000000",
-      isStateFinal: "0x00000000"
+      getTurnTaker: "0x00000000",
+      isStateTerminal: "0x00000000"
     };
 
     terms = {

@@ -68,7 +68,7 @@ contract("CountingApp", (accounts: string[]) => {
     "tuple(address player1, address player2, uint256 count, uint256 turnNum)";
 
   const appEncoding =
-    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 turnTaker, bytes4 isStateFinal)";
+    "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)";
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
@@ -93,7 +93,7 @@ contract("CountingApp", (accounts: string[]) => {
       10,
       Utils.signMessageBytes(
         computeStateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
-        [unlockedAccount]
+        unlockedAccount
       )
     );
 
@@ -108,7 +108,7 @@ contract("CountingApp", (accounts: string[]) => {
           await latestNonce(),
           0
         ),
-        [unlockedAccount]
+        unlockedAccount
       )
     );
 
@@ -132,8 +132,8 @@ contract("CountingApp", (accounts: string[]) => {
       addr: game.address,
       resolve: game.interface.functions.resolve.sighash,
       applyAction: game.interface.functions.applyAction.sighash,
-      turnTaker: game.interface.functions.turn.sighash,
-      isStateFinal: game.interface.functions.isStateFinal.sighash
+      getTurnTaker: game.interface.functions.getTurnTaker.sighash,
+      isStateTerminal: game.interface.functions.isStateTerminal.sighash
     };
 
     terms = {
@@ -230,8 +230,8 @@ contract("CountingApp", (accounts: string[]) => {
         1,
         10,
         encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, [A, B]),
-        Utils.signMessageBytes(h2, [A]),
+        Utils.signMessageBytes(h1, A, B),
+        Utils.signMessageBytes(h2, A),
         false
       );
 
@@ -271,8 +271,8 @@ contract("CountingApp", (accounts: string[]) => {
         1,
         10,
         encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, [A, B]),
-        Utils.signMessageBytes(h2, [A]),
+        Utils.signMessageBytes(h1, A, B),
+        Utils.signMessageBytes(h2, A),
         true
       );
 
@@ -313,8 +313,8 @@ contract("CountingApp", (accounts: string[]) => {
           1,
           10,
           encode(actionEncoding, action),
-          Utils.signMessageBytes(h1, [A, B]),
-          Utils.signMessageBytes(h2, [A]),
+          Utils.signMessageBytes(h1, A, B),
+          Utils.signMessageBytes(h2, A),
           true
         )
       );
