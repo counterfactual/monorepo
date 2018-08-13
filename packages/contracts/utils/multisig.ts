@@ -1,5 +1,10 @@
+import {
+  deployContract,
+  HIGH_GAS_LIMIT,
+  signMessageBytes
+} from "@counterfactual/test-utils";
 import * as ethers from "ethers";
-import { deployContract, HIGH_GAS_LIMIT, signMessageBytes } from "./utils";
+import { MinimumViableMultisig } from "./buildArtifacts";
 
 const enum Operation {
   Call = 0,
@@ -13,13 +18,6 @@ const enum Operation {
  * await multisig.deploy(masterAccount);
  */
 export class Multisig {
-  private static loadTruffleContract() {
-    const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
-    const Signatures = artifacts.require("Signatures");
-    MinimumViableMultisig.link("Signatures", Signatures.address);
-    return MinimumViableMultisig;
-  }
-
   private contract?: ethers.Contract;
 
   /**
@@ -43,12 +41,8 @@ export class Multisig {
    * @param signer The signer for the on-chain transaction
    */
   public async deploy(signer: ethers.ethers.Wallet) {
-    const contract = await deployContract(
-      Multisig.loadTruffleContract(),
-      signer
-    );
-    await contract.functions.setup(this.owners);
-    this.contract = contract;
+    this.contract = await MinimumViableMultisig.deploy(signer);
+    await this.contract.functions.setup(this.owners);
   }
 
   /**
@@ -117,7 +111,7 @@ export class Multisig {
 
     // estimateGas() doesn't work well for delegatecalls, so need to hardcode gas limit
     const options = operation === Operation.Delegatecall ? HIGH_GAS_LIMIT : {};
-    const signatures = signMessageBytes(transactionHash, wallets);
+    const signatures = signMessageBytes(transactionHash, ...wallets);
     return this.contract.functions.execTransaction(
       toContract.address,
       value,

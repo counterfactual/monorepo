@@ -17,7 +17,7 @@ App functionality is defined in a stateless contract. This function defines the 
 
 Up to four functions can be implemented. The signatures are as follows:
 
-- `isStateFinal: AppState → bool`
+- `isStateTerminal: AppState → bool`
 - `getTurnTaker: AppState → uint256`
 - `applyAction: (AppState, Action) → AppState`
 - `resolve: AppState → Transfer.Details`
@@ -38,13 +38,13 @@ If `AppState` defines the data structure needed to represent the state of an app
 
 ### resolve
 
-From certain app states, `resolve` can be called to return a value of type `struct Tansfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
+From certain app states, `resolve` can be called to return a value of type `struct Transfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
 ![resolve](./images/resolve.svg)
 
-### isStateFinal
+### isStateTerminal
 
-Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that applyAction(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateFinal` return true for them, allowing us to skip one step of dispute resolution.
+Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that applyAction(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateTerminal` return true for them, allowing us to skip one step of dispute resolution.
 
 Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
 
@@ -132,8 +132,8 @@ struct App {
   address addr;
   bytes4 applyAction;
   bytes4 resolve;
-  bytes4 turnTaker;
-  bytes4 isStateFinal;
+  bytes4 getTurnTaker;
+  bytes4 isStateTerminal;
 }
 ```
 

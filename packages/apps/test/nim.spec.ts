@@ -95,7 +95,7 @@ contract("Nim", (accounts: string[]) => {
         turnNum: 49,
         pileHeights: [0, 0, 0]
       };
-      const ret = await game.functions.isStateFinal(preState);
+      const ret = await game.functions.isStateTerminal(preState);
       ret.should.be.eq(true);
     });
 
@@ -105,7 +105,7 @@ contract("Nim", (accounts: string[]) => {
         turnNum: 49,
         pileHeights: [0, 1, 0]
       };
-      const ret = await game.functions.isStateFinal(preState);
+      const ret = await game.functions.isStateTerminal(preState);
       ret.should.be.eq(false);
     });
   });
