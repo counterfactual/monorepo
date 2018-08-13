@@ -38,7 +38,7 @@
     ]
   },
   "config": {
-    "testFiles": "lib/**/*.spec.js"
+    "testFiles": "lib/contracts/test/**/*.spec.js"
   },
   "keywords": [
     "ethereum",

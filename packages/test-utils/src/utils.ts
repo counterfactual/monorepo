@@ -4,23 +4,6 @@ import * as chaiBigNumber from "chai-bignumber";
 import * as chaiString from "chai-string";
 import * as ethers from "ethers";
 
-import {
-  AppEncoder,
-  computeActionHash,
-  computeNonceRegistryKey,
-  computeStateHash,
-  TermsEncoder
-} from "./stateChannel";
-import { StructAbiEncoder } from "./structAbiEncoder";
-export {
-  StructAbiEncoder,
-  computeStateHash,
-  computeActionHash,
-  computeNonceRegistryKey,
-  TermsEncoder,
-  AppEncoder
-};
-
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
 ethers.utils.BigNumber.prototype.equals = function(x): boolean {
@@ -98,6 +81,21 @@ export const getDeployedContract = async (
 export const randomETHAddress = (): string =>
   ethers.utils.hexlify(ethers.utils.randomBytes(20));
 
+export function generateEthWallets(
+  count: number,
+  provider?: ethers.types.Provider
+): ethers.Wallet[] {
+  const wallets: ethers.Wallet[] = [];
+  for (let i = 0; i < count; i++) {
+    let wallet = ethers.Wallet.createRandom();
+    if (provider) {
+      wallet = wallet.connect(provider); // @ts-ignore
+    }
+    wallets.push(wallet);
+  }
+  return wallets;
+}
+
 export const setupTestEnv = (web3: any) => {
   const provider = new ethers.providers.Web3Provider(web3.currentProvider);
   const unlockedAccount = new ethers.Wallet(
@@ -125,7 +123,7 @@ function signMessageRaw(message: string, wallet: ethers.Wallet) {
   );
 }
 
-export function signMessageBytes(message, wallets: ethers.Wallet[]) {
+export function signMessageBytes(message, ...wallets: ethers.Wallet[]) {
   let signatures = "";
   for (const wallet of wallets) {
     signatures += signMessageRaw(message, wallet);

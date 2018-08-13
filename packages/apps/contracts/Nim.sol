@@ -21,7 +21,7 @@ contract Nim {
     uint256[3] pileHeights;
   }
 
-  function isStateFinal(AppState state)
+  function isStateTerminal(AppState state)
     public
     pure
     returns (bool)
@@ -29,7 +29,7 @@ contract Nim {
     return isWin(state);
   }
 
-  function turn(AppState state)
+  function getTurnTaker(AppState state)
     public
     pure
     returns (uint256)

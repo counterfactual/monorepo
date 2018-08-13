@@ -58,8 +58,8 @@ contract StateChannel {
     address addr;
     bytes4 applyAction;
     bytes4 resolve;
-    bytes4 turnTaker;
-    bytes4 isStateFinal;
+    bytes4 getTurnTaker;
+    bytes4 isStateTerminal;
   }
 
   struct State {
@@ -82,7 +82,7 @@ contract StateChannel {
 
   modifier onlyWhenChannelOpen() {
     require(
-      !isStateFinal(state),
+      !isStateTerminal(state),
       "State has already been settled"
     );
     _;
@@ -97,7 +97,7 @@ contract StateChannel {
   }
 
   modifier onlyWhenChannelClosed() {
-    require(isStateFinal(state), "State is still unsettled");
+    require(isStateTerminal(state), "State is still unsettled");
     _;
   }
 
@@ -142,7 +142,7 @@ contract StateChannel {
   /// @notice A helper method to determine whether or not the channel is closed
   /// @return A boolean representing whether or not the state channel is closed
   function isClosed() external view returns (bool) {
-    return isStateFinal(state);
+    return isStateTerminal(state);
   }
 
   /// @notice A getter function for the resolution if one is set
@@ -411,7 +411,7 @@ contract StateChannel {
   /// doing a check on the submitted state and comparing to the current block number
   /// @param s A state wrapper struct including the status and finalization time
   /// @return A boolean indicating if the state is final or not
-  function isStateFinal(State s) public view returns (bool) {
+  function isStateTerminal(State s) public view returns (bool) {
     if (s.status == Status.ON) {
       return false;
     } else if (s.status == Status.DISPUTE) {
@@ -483,7 +483,7 @@ contract StateChannel {
     returns (bool)
   {
     return app.addr.staticcall_as_bool(
-      abi.encodePacked(app.isStateFinal, appState)
+      abi.encodePacked(app.isStateTerminal, appState)
     );
   }
 
@@ -497,7 +497,7 @@ contract StateChannel {
     returns (address)
   {
     uint256 idx = app.addr.staticcall_as_uint256(
-      abi.encodePacked(app.turnTaker, appState)
+      abi.encodePacked(app.getTurnTaker, appState)
     );
 
     require(

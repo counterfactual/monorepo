@@ -74,7 +74,7 @@ contract("StateChannel", (accounts: string[]) => {
         TIMEOUT,
         Utils.signMessageBytes(
           computeHash(appState || Utils.ZERO_BYTES32, nonce, TIMEOUT),
-          [unlockedAccount]
+          unlockedAccount
         )
       );
 
@@ -85,7 +85,7 @@ contract("StateChannel", (accounts: string[]) => {
         0,
         Utils.signMessageBytes(
           computeHash(await latestState(), await latestNonce(), 0),
-          [unlockedAccount]
+          unlockedAccount
         )
       );
   });
