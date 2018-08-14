@@ -170,10 +170,10 @@ contract StateChannel {
   {
     if (msg.sender != auth.owner) {
       bytes32 h = computeStateHash(appStateHash, nonce, timeout);
-//      require(
-//        signatures.verifySignatures(h, auth.signingKeys),
-//        "Invalid signatures"
-//      );
+      require(
+        signatures.verifySignatures(h, auth.signingKeys),
+        "Invalid signatures"
+      );
     }
 
     if (timeout > 0) {
