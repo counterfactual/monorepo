@@ -2746,9 +2746,9 @@ ethereumjs-testrpc-sc@6.1.2:
     source-map-support "^0.5.3"
     webpack-cli "^2.0.9"
 
-ethers@4.0.0-beta.11:
-  version "4.0.0-beta.11"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.11.tgz#d160f5476fc63d7416b4060c0052a8511d7da452"
+ethers@4.0.0-beta.12:
+  version "4.0.0-beta.12"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.12.tgz#3465570f52116397abc3a3722880e1827c3db093"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"

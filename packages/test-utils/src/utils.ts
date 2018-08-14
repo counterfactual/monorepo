@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
-ethers.utils.BigNumber.prototype.equals = function(x): boolean {
+ethers.BigNumber.prototype.equals = function(x): boolean {
   return x.eq(this);
 };
 

@@ -1,9 +1,13 @@
 import * as ethers from "ethers";
-import { HIGH_GAS_LIMIT, signMessageBytes, ZERO_ADDRESS } from "../../test-utils/src/utils";
+import {
+  HIGH_GAS_LIMIT,
+  signMessageBytes,
+  ZERO_ADDRESS
+} from "../../test-utils/src/utils";
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
 import { Multisig } from "./multisig";
-import { encodeStruct, abiEncodingForStruct } from "./structEncoding";
+import { abiEncodingForStruct, encodeStruct } from "./structEncoding";
 
 const { keccak256 } = ethers.utils;
 
@@ -14,7 +18,7 @@ export enum AssetType {
 
 export interface TransferTerms {
   assetType: AssetType;
-  limit: ethers.utils.BigNumber;
+  limit: ethers.types.BigNumberish;
   token?: string;
 }
 
@@ -90,6 +94,19 @@ export class StateChannel {
       appStateNonce,
       timeout
     );
+    console.log(
+      JSON.stringify(
+        {
+          appState,
+          stateHash,
+          appStateHash,
+          appStateNonce,
+          timeout
+        },
+        null,
+        2
+      )
+    );
     const signatures = signMessageBytes(stateHash, ...signers);
     await this.contract.functions.setState(
       appStateHash,
@@ -107,7 +124,7 @@ export class StateChannel {
     await this.contract.functions.setResolution(
       this.app,
       encodeStruct(this.appStateEncoding, appState),
-      encodeStruct(termsEncoding, this.terms),
+      encodeStruct(termsEncoding, this.terms)
     );
   }
 }
