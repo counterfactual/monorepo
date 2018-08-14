@@ -18,6 +18,7 @@ import {
   StateChannel,
   TransferTerms
 } from "../../utils";
+import { getDefaultContext } from "../../utils/buildArtifacts";
 
 const { web3 } = global as any;
 
@@ -87,18 +88,12 @@ async function deployStateChannel(
   terms: TransferTerms
 ) {
   const registry = Registry.getDeployed(masterAccount);
-  const signers = multisig.owners; // TODO: generate new signing keys for each state channel
-  const stateChannel = new StateChannel(
-    signers,
-    multisig,
+  const stateChannel = multisig.createStateChannel(
     appContract,
     appStateEncoding,
     terms
   );
   await stateChannel.deploy(masterAccount, registry);
-  if (!stateChannel.contract) {
-    throw new Error("Deploy failed");
-  }
   return stateChannel;
 }
 

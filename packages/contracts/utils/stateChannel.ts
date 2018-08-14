@@ -47,9 +47,9 @@ export class StateChannel {
   public appStateNonce: number = 0;
 
   constructor(
-    readonly signerAddrs: string[],
     readonly multisig: Multisig,
-    appContract: ethers.Contract,
+    readonly signerAddrs: string[],
+    appContract: Contract,
     readonly appStateEncoding: string,
     readonly terms: TransferTerms,
     readonly defaultTimeout: number = 10

@@ -4,7 +4,12 @@ import {
   signMessage
 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
-import { MinimumViableMultisig } from "./buildArtifacts";
+import {
+  getDefaultContext,
+  MinimumViableMultisig,
+  OnChainContext
+} from "./buildArtifacts";
+import { StateChannel, TransferTerms } from "./stateChannel";
 
 const enum Operation {
   Call = 0,
@@ -23,8 +28,15 @@ export class Multisig {
   /**
    * Creates new undeployed Multisig instance
    * @param owners List of owner addresses
+   * @param context context
    */
-  constructor(readonly owners: string[]) {
+  constructor(
+    readonly owners: string[],
+    private readonly context?: OnChainContext
+  ) {
+    if (!context) {
+      this.context = getDefaultContext();
+    }
     owners.sort((a, b) => a.localeCompare(b));
   }
 
@@ -36,6 +48,22 @@ export class Multisig {
       throw new Error("Must deploy Multisig contract first");
     }
     return this.contract.address;
+  }
+
+  public createStateChannel(
+    app: ethers.Contract,
+    appStateEncoding: string,
+    terms: TransferTerms,
+    defaultTimeout: number = 10
+  ): StateChannel {
+    return new StateChannel(
+      this,
+      this.owners,
+      app,
+      appStateEncoding,
+      terms,
+      defaultTimeout
+    );
   }
 
   /**
