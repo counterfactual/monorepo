@@ -72,7 +72,7 @@ contract("StateChannel", (accounts: string[]) => {
         appState || Utils.ZERO_BYTES32,
         nonce,
         TIMEOUT,
-        Utils.signMessageBytes(
+        Utils.signMessage(
           computeHash(appState || Utils.ZERO_BYTES32, nonce, TIMEOUT),
           unlockedAccount
         )
@@ -83,7 +83,7 @@ contract("StateChannel", (accounts: string[]) => {
         await latestState(),
         await latestNonce(),
         0,
-        Utils.signMessageBytes(
+        Utils.signMessage(
           computeHash(await latestState(), await latestNonce(), 0),
           unlockedAccount
         )

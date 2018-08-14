@@ -91,7 +91,7 @@ contract("CountingApp", (accounts: string[]) => {
       appState || Utils.ZERO_BYTES32,
       nonce,
       10,
-      Utils.signMessageBytes(
+      Utils.signMessage(
         computeStateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         unlockedAccount
       )
@@ -102,7 +102,7 @@ contract("CountingApp", (accounts: string[]) => {
       stateHash,
       await latestNonce(),
       0,
-      Utils.signMessageBytes(
+      Utils.signMessage(
         computeStateHash(
           stateHash || Utils.ZERO_BYTES32,
           await latestNonce(),
@@ -230,8 +230,8 @@ contract("CountingApp", (accounts: string[]) => {
         1,
         10,
         encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, A, B),
-        Utils.signMessageBytes(h2, A),
+        Utils.signMessage(h1, A, B),
+        Utils.signMessage(h2, A),
         false
       );
 
@@ -271,8 +271,8 @@ contract("CountingApp", (accounts: string[]) => {
         1,
         10,
         encode(actionEncoding, action),
-        Utils.signMessageBytes(h1, A, B),
-        Utils.signMessageBytes(h2, A),
+        Utils.signMessage(h1, A, B),
+        Utils.signMessage(h2, A),
         true
       );
 
@@ -313,8 +313,8 @@ contract("CountingApp", (accounts: string[]) => {
           1,
           10,
           encode(actionEncoding, action),
-          Utils.signMessageBytes(h1, A, B),
-          Utils.signMessageBytes(h2, A),
+          Utils.signMessage(h1, A, B),
+          Utils.signMessage(h2, A),
           true
         )
       );

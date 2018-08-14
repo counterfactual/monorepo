@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 import {
   HIGH_GAS_LIMIT,
-  signMessageBytes,
+  signMessage,
   ZERO_ADDRESS
 } from "../../test-utils/src/utils";
 import * as artifacts from "./buildArtifacts";
@@ -94,20 +94,7 @@ export class StateChannel {
       appStateNonce,
       timeout
     );
-    console.log(
-      JSON.stringify(
-        {
-          appState,
-          stateHash,
-          appStateHash,
-          appStateNonce,
-          timeout
-        },
-        null,
-        2
-      )
-    );
-    const signatures = signMessageBytes(stateHash, ...signers);
+    const signatures = signMessage(stateHash, ...signers);
     await this.contract.functions.setState(
       appStateHash,
       appStateNonce,

@@ -79,7 +79,7 @@ contract("PaymentApp", (accounts: string[]) => {
       appState || Utils.ZERO_BYTES32,
       nonce,
       10,
-      Utils.signMessageBytes(
+      Utils.signMessage(
         getUpdateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
         unlockedAccount
       )
@@ -90,7 +90,7 @@ contract("PaymentApp", (accounts: string[]) => {
       stateHash,
       await latestNonce(),
       0,
-      Utils.signMessageBytes(
+      Utils.signMessage(
         getUpdateHash(stateHash || Utils.ZERO_BYTES32, await latestNonce(), 0),
         unlockedAccount
       )
