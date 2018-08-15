@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# In this build environment, the monorepo packages install their dependencies
+# into their local node_modules folder instead of a hoisted node_modules folder
+# at the root of the monorepo.
+# This script ensures that the `tsc` config file that we point to in the builds,
+# i.e. tsconfig.json.modified, points to a local node_modules folder and not to
+# a hoisted node_modules as it's configured to in a monorepo setting.
+
+echo -e "\n\nModifying tsconfig relative paths for monorepo packages\n\n"
+
+declare -a packages=("contracts" "test-utils" "apps")
+
+for package in "${packages[@]}"
+do
+  if [ ! -f $CF_DIR/packages/"$package"/tsconfig.json.original ];
+  then
+    cp $CF_DIR/packages/"$package"/tsconfig.json $CF_DIR/packages/"$package"/tsconfig.json.original
+	else
+    cp $CF_DIR/packages/"$package"/tsconfig.json.original $CF_DIR/packages/"$package"/tsconfig.json
+  fi
+done
+
+for package in "${packages[@]}"
+do
+  cp $CF_DIR/packages/"$package"/tsconfig.json $CF_DIR/packages/"$package"/tsconfig.json.modified
+done

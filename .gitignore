@@ -1,4 +1,39 @@
+# Miscellaneous
+.DS_Store
+
+# Dependencies
 node_modules
+
+# Yarn
+yarn.lock
+yarn-error.log
+
+# coverage
+coverage.json
+coverage/
+coverageEnv/
+coverage.json
+allFiredEvents
+scTopics
+
+# truffle build artifacts
+build/
+abis.json
+ganache.log
+
+# lerna
+lerna-debug.log
+
+# build directories
+packages/contracts/lib
+packages/test-utils/lib
+packages/apps/lib
+.config
+.node-gyp
+.npm
+tmp
 dist
-build
-package-lock.json
+
+# editors
+.vscode
+.vim*

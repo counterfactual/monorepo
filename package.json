@@ -6,7 +6,9 @@
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"test": "yarn build && yarn ganache && sleep 5 && jest && yarn ganache:stop",
+		"install:contracts_deps": "./build_scripts/build_monorepo_dependencies",
+		"preinstall": "npm run install:contracts_deps",
+		"test": "npm run build && npm run ganache && sleep 5 && jest && npm run ganache:stop",
 		"test-debug": "tsc && node --inspect-brk jest --runInBand  --detectOpenHandles --forceExit",
 		"ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545 --account=\"${npm_package_config_unlockedAccount1}\",\"${npm_package_config_balance}\" --account=\"${npm_package_config_unlockedAccount2}\",\"${npm_package_config_balance}\" --account=\"${npm_package_config_unlockedAccount3}\",\"${npm_package_config_balance}\" -m \"${npm_package_config_mnemonic}\" &",
 		"ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
@@ -26,7 +28,7 @@
 	},
 	"devDependencies": {
 		"@types/jest": "^23.1.1",
-		"coveralls": "^3.0.1",
+		"coveralls": "3.0.1",
 		"ganache-cli": "^6.1.6",
 		"jest": "^23.1.0",
 		"prettier": "1.14.0",
@@ -41,13 +43,23 @@
 		"typescript": "^2.9.2"
 	},
 	"dependencies": {
-		"ethers": "4.0.0-beta.5"
+		"@counterfactual/configs": "0.0.1",
+		"@counterfactual/contracts": "0.0.2",
+		"@counterfactual/test-utils": "0.0.1",
+		"@counterfactual/typescript-typings": "1.0.0",
+		"ethers": "4.0.0-beta.5",
+		"package.json": "^2.0.1"
 	},
 	"jest": {
 		"transform": {
 			"^.+\\.tsx?$": "ts-jest"
 		},
 		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+		"testPathIgnorePatterns": [
+			"node_modules",
+			"tmp",
+			"dist"
+		],
 		"moduleFileExtensions": [
 			"ts",
 			"tsx",

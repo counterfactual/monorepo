@@ -8,7 +8,9 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          command: yarn install
+          command: npm config set prefix '~/.npm-global'
+      - run:
+          command: npm install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:

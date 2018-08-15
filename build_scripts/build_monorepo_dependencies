@@ -1,0 +1,96 @@
+#!/bin/bash
+
+set -e
+
+export MACHINE_DIR="$PWD"
+export CF_DIR="$MACHINE_DIR/tmp/counterfactual"
+
+function setupMonorepo() {
+	mkdir -p $MACHINE_DIR/tmp
+	git clone https://github.com/counterfactual/counterfactual.git $MACHINE_DIR/tmp/counterfactual
+	cd $CF_DIR
+	npm install
+}
+
+
+function linkTypings() {
+	cd $CF_DIR/packages/typescript-typings
+	echo -e "\n\nlinking typescript-typings dependency\n\n"
+	npm link
+}
+
+function linkGanache() {
+	cd $CF_DIR/packages/run-with-ganache
+	echo -e "\n\nlinking run-with-ganache dependency\n\n"
+	npm link
+}
+
+function linkConfigs() {
+	cd $CF_DIR/packages/configs
+	echo -e "\n\nlinking configs dependency\n\n"
+	npm link
+}
+
+function linkApps() {
+	cd $CF_DIR/packages/apps
+	echo -e "\n\nlinking apps dependency\n\n"
+	npm link @counterfactual/configs
+}
+
+function linkTestUtils() {
+	cd $CF_DIR/packages/test-utils
+	echo -e "\n\nlinking test-utils dependency\n\n"
+	npm link @counterfactual/configs
+	npm link @counterfactual/typescript-typings
+	npm link
+}
+
+function linkContracts() {
+	cd $CF_DIR/packages/contracts
+	echo -e "\n\nlinking contracts dependency\n\n"
+	npm link @counterfactual/test-utils
+	npm link @counterfactual/typescript-typings
+	npm link @counterfactual/run-with-ganache
+	npm link @counterfactual/configs
+	npm link
+}
+
+function linkMachine() {
+	cd $MACHINE_DIR
+	echo -e "\n\nlinking machine dependency\n\n"
+	npm link @counterfactual/configs
+	npm link @counterfactual/typescript-typings
+	npm link @counterfactual/contracts
+	npm link @counterfactual/test-utils
+}
+
+function linkPackages() {
+	echo -e "\n\n*** linking counterfactual packages ***\n\n"
+	linkTypings
+	linkGanache
+	linkConfigs
+	linkApps
+	linkTestUtils
+	linkContracts
+	linkMachine
+}
+
+function buildMonorepoPackages() {
+	$MACHINE_DIR/build_scripts/prebuild
+
+	cd $CF_DIR
+	echo -e "\n\nBuilding monorepo packages\n\n"
+	npm run build:packages -- --exclude @counterfactual/apps
+
+	cd $MACHINE_DIR
+	echo -e "\n\nSuccessfully built monorepo packages\n"
+	echo -e "Monorepo packages are now linked as dependencies\n"
+}
+
+if [ ! -d $CF_DIR ];
+then
+	setupMonorepo
+	linkPackages
+	buildMonorepoPackages
+fi
+rm -f package-lock.json

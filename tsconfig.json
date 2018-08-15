@@ -10,15 +10,23 @@
 		"declaration": true,
 		"forceConsistentCasingInFileNames": true,
 		"moduleResolution": "node",
-		"lib": ["es2017", "esnext.asynciterable"],
+		"lib": ["es2017", "dom", "esnext.asynciterable"],
 		"target": "es2017",
 		"module": "commonjs",
 		"sourceMap": true,
 		"outDir": "dist/",
 		"sourceRoot": ".",
-		"typeRoots": ["./node_modules/@types", "./node_modules/json-d-ts"],
+		"typeRoots": [
+			"./node_modules/@types",
+			"./node_modules/@counterfactual/typescript-typings/types",
+			"./node_modules/json-d-ts"
+		],
 		"strict": true
 	},
-	"include": ["src/**/*.ts", "test/**/*.ts"],
-	"exclude": ["node_modules", "**/*.spec.ts"]
+	"include": [
+		"src/**/*.ts",
+		"test/**/*.ts",
+		"./node_modules/@counterfactual/typescript-typings/types/**/*.d.ts"
+	],
+	"exclude": ["node_modules", "tmp", "**/*.spec.ts"]
 }
