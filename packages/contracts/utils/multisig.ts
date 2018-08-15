@@ -1,7 +1,7 @@
 import {
   deployContract,
   HIGH_GAS_LIMIT,
-  signMessageBytes
+  signMessage
 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
 import { MinimumViableMultisig } from "./buildArtifacts";
@@ -24,7 +24,9 @@ export class Multisig {
    * Creates new undeployed Multisig instance
    * @param owners List of owner addresses
    */
-  constructor(readonly owners: string[]) {}
+  constructor(readonly owners: string[]) {
+    owners.sort((a, b) => a.localeCompare(b));
+  }
 
   /**
    * Gets the on-chain address of the Multisig
@@ -111,7 +113,7 @@ export class Multisig {
 
     // estimateGas() doesn't work well for delegatecalls, so need to hardcode gas limit
     const options = operation === Operation.Delegatecall ? HIGH_GAS_LIMIT : {};
-    const signatures = signMessageBytes(transactionHash, ...wallets);
+    const signatures = signMessage(transactionHash, ...wallets);
     return this.contract.functions.execTransaction(
       toContract.address,
       value,

@@ -2,7 +2,7 @@ import {
   generateEthWallets,
   mineBlocks,
   setupTestEnv,
-  signMessageBytes,
+  signMessage,
   UNIT_ETH,
   ZERO_ADDRESS
 } from "@counterfactual/test-utils";
@@ -63,19 +63,17 @@ const appStateEncoding = abiEncodingForStruct(`
   uint256 winner;
 `);
 
-let alice: ethers.Wallet;
-let bob: ethers.Wallet;
-
 async function createMultisig(
   funder: ethers.Wallet,
-  initialFunding: ethers.utils.BigNumber
+  initialFunding: ethers.BigNumber,
+  owners: ethers.Wallet[]
 ): Promise<Multisig> {
-  const multisig = new Multisig([alice.address, bob.address]);
+  const multisig = new Multisig(owners.map(w => w.address));
   await multisig.deploy(funder);
   await funder.sendTransaction({
     to: multisig.address,
     value: initialFunding
-  }); // @ts-ignore
+  });
   return multisig;
 }
 
@@ -107,17 +105,18 @@ async function deployStateChannel(
 async function setFinalizedChannelNonce(
   multisig: Multisig,
   channelNonce: number,
-  channelNonceSalt: string
+  channelNonceSalt: string,
+  signers: ethers.Wallet[]
 ) {
   const nonceRegistry = NonceRegistry.getDeployed(masterAccount);
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
     [channelNonceSalt, channelNonce],
-    [alice, bob]
+    signers
   );
 
-  await mineBlocks(11);
+  await mineBlocks(10);
 
   const channelNonceKey = computeNonceRegistryKey(
     multisig.address,
@@ -134,7 +133,8 @@ async function executeStateChannelTransfer(
   stateChannel: StateChannel,
   multisig: Multisig,
   channelNonceKey: string,
-  channelNonce: number
+  channelNonce: number,
+  signers: ethers.Wallet[]
 ) {
   if (!stateChannel.contract) {
     throw new Error("Deploy failed");
@@ -154,20 +154,21 @@ async function executeStateChannelTransfer(
       stateChannel.contract.cfAddress,
       stateChannel.terms
     ],
-    [alice, bob]
+    signers
   );
 }
 
 describe("CommitReveal", async () => {
-  beforeEach(() => {
-    [alice, bob] = generateEthWallets(2, provider);
-  });
-
   it("should pay out to the winner", async function() {
     this.timeout(4000);
 
+    const [alice, bob] = generateEthWallets(2, provider);
+
     // 1. Deploy & fund multisig
-    const multisig = await createMultisig(masterAccount, parseEther("2"));
+    const multisig = await createMultisig(masterAccount, parseEther("2"), [
+      alice,
+      bob
+    ]);
 
     // 2. Deploy CommitRevealApp app
     const appContract = await deployApp();
@@ -208,14 +209,16 @@ describe("CommitReveal", async () => {
     const channelNonceKey = await setFinalizedChannelNonce(
       multisig,
       channelNonce,
-      channelNonceSalt
+      channelNonceSalt,
+      [alice, bob]
     );
     // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
     await executeStateChannelTransfer(
       stateChannel,
       multisig,
       channelNonceKey,
-      channelNonce
+      channelNonce,
+      [alice, bob]
     );
 
     // 8. Verify balance of A and B
