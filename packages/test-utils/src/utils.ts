@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 
 // https://github.com/ethers-io/ethers.js/pull/225
 // @ts-ignore
-ethers.utils.BigNumber.prototype.equals = function(x): boolean {
+ethers.BigNumber.prototype.equals = function(x): boolean {
   return x.eq(this);
 };
 
@@ -105,7 +105,7 @@ export const setupTestEnv = (web3: any) => {
   return { provider, unlockedAccount };
 };
 
-function signMessage(message, wallet): [number, string, string] {
+function signMessageVRS(message, wallet): [number, string, string] {
   const signingKey = new ethers.SigningKey(wallet.privateKey);
   const sig = signingKey.signDigest(message);
   if (typeof sig.recoveryParam === "undefined") {
@@ -114,8 +114,8 @@ function signMessage(message, wallet): [number, string, string] {
   return [sig.recoveryParam + 27, sig.r, sig.s];
 }
 
-function signMessageRaw(message: string, wallet: ethers.Wallet) {
-  const [v, r, s] = signMessage(message, wallet);
+function signMessageBytes(message: string, wallet: ethers.Wallet) {
+  const [v, r, s] = signMessageVRS(message, wallet);
   return (
     ethers.utils.hexlify(ethers.utils.padZeros(r, 32)).substring(2) +
     ethers.utils.hexlify(ethers.utils.padZeros(s, 32)).substring(2) +
@@ -123,12 +123,10 @@ function signMessageRaw(message: string, wallet: ethers.Wallet) {
   );
 }
 
-export function signMessageBytes(message, ...wallets: ethers.Wallet[]) {
-  let signatures = "";
-  for (const wallet of wallets) {
-    signatures += signMessageRaw(message, wallet);
-  }
-  return "0x" + signatures;
+export function signMessage(message, ...wallets: ethers.Wallet[]) {
+  wallets.sort((a, b) => a.address.localeCompare(b.address));
+  const signatures = wallets.map(w => signMessageBytes(message, w));
+  return `0x${signatures.join("")}`;
 }
 
 export function getParamFromTxEvent(
