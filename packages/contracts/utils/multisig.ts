@@ -4,11 +4,8 @@ import {
   signMessage
 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
-import {
-  getDefaultContext,
-  MinimumViableMultisig,
-  OnChainContext
-} from "./buildArtifacts";
+import { MinimumViableMultisig } from "./buildArtifacts";
+import { SharedContractAddresses, SharedContracts } from "./sharedContracts";
 import { StateChannel, TransferTerms } from "./stateChannel";
 
 const enum Operation {
@@ -23,21 +20,25 @@ const enum Operation {
  * await multisig.deploy(masterAccount);
  */
 export class Multisig {
+  public readonly sharedContracts: SharedContracts;
   private contract?: ethers.Contract;
 
   /**
    * Creates new undeployed Multisig instance
+   * @param signer
    * @param owners List of owner addresses
-   * @param context context
+   * @param sharedContractAddresses
    */
   constructor(
+    readonly signer: ethers.types.Signer,
     readonly owners: string[],
-    private readonly context?: OnChainContext
+    sharedContractAddresses?: SharedContractAddresses
   ) {
-    if (!context) {
-      this.context = getDefaultContext();
-    }
     owners.sort((a, b) => a.localeCompare(b));
+    this.sharedContracts = new SharedContracts(
+      this.signer,
+      sharedContractAddresses
+    );
   }
 
   /**
@@ -58,7 +59,7 @@ export class Multisig {
   ): StateChannel {
     return new StateChannel(
       this,
-      this.owners,
+      this.owners, // TODO: deterministically generate new keys
       app,
       appStateEncoding,
       terms,
@@ -68,10 +69,9 @@ export class Multisig {
 
   /**
    * Deploy Multisig contract on-chain
-   * @param signer The signer for the on-chain transaction
    */
-  public async deploy(signer: ethers.ethers.Wallet) {
-    this.contract = await MinimumViableMultisig.deploy(signer);
+  public async deploy() {
+    this.contract = await MinimumViableMultisig.deploy(this.signer);
     await this.contract.functions.setup(this.owners);
   }
 

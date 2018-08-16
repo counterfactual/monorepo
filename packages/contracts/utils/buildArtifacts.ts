@@ -25,30 +25,6 @@ export const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
   }
 );
 
-export class OnChainContext {
-  constructor(
-    private abstractContracts: { [name: string]: AbstractContract }
-  ) {}
-
-  public connect(contractName: string, sender: ethers.Wallet) {
-    const abstractContract = this.abstractContracts[contractName];
-    if (!abstractContract) {
-      throw new Error(
-        `Cannot find contract with name ${contractName} in context`
-      );
-    }
-    return abstractContract.getDeployed(sender);
-  }
-}
-
-export function getDefaultContext(): OnChainContext {
-  return new OnChainContext({
-    Registry,
-    NonceRegistry,
-    ConditionalTransfer
-  });
-}
-
 export default {
   ConditionalTransfer,
   NonceRegistry,

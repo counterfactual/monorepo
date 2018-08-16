@@ -18,7 +18,6 @@ import {
   StateChannel,
   TransferTerms
 } from "../../utils";
-import { getDefaultContext } from "../../utils/buildArtifacts";
 
 const { web3 } = global as any;
 
@@ -54,7 +53,9 @@ const CommitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
   StaticCall
 });
 
-const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
+const { provider, unlockedAccount: masterAccount } = setupTestEnv(
+  (global as any).web3
+);
 const appStateEncoding = abiEncodingForStruct(`
   address[2] playerAddrs;
   uint256 stage;
@@ -69,8 +70,8 @@ async function createMultisig(
   initialFunding: ethers.BigNumber,
   owners: ethers.Wallet[]
 ): Promise<Multisig> {
-  const multisig = new Multisig(owners.map(w => w.address));
-  await multisig.deploy(funder);
+  const multisig = new Multisig(funder, owners.map(w => w.address));
+  await multisig.deploy();
   await funder.sendTransaction({
     to: multisig.address,
     value: initialFunding
@@ -93,35 +94,35 @@ async function deployStateChannel(
     appStateEncoding,
     terms
   );
-  await stateChannel.deploy(masterAccount, registry);
+  await stateChannel.deploy();
   return stateChannel;
 }
 
-async function setFinalizedChannelNonce(
+async function setFinalizedDependencyNonce(
   multisig: Multisig,
-  channelNonce: number,
-  channelNonceSalt: string,
+  dependencyNonce: number,
+  dependencyNonceSalt: string,
   signers: ethers.Wallet[]
 ) {
-  const nonceRegistry = NonceRegistry.getDeployed(masterAccount);
+  const { nonceRegistry } = multisig.sharedContracts;
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
-    [channelNonceSalt, channelNonce],
+    [dependencyNonceSalt, dependencyNonce],
     signers
   );
 
   await mineBlocks(10);
 
-  const channelNonceKey = computeNonceRegistryKey(
+  const dependencyNonceKey = computeNonceRegistryKey(
     multisig.address,
-    channelNonceSalt
+    dependencyNonceSalt
   );
   (await nonceRegistry.functions.isFinalized(
-    channelNonceKey,
-    channelNonce
+    dependencyNonceKey,
+    dependencyNonce
   )).should.be.equal(true);
-  return channelNonceKey;
+  return dependencyNonceKey;
 }
 
 async function executeStateChannelTransfer(
@@ -197,14 +198,18 @@ describe("CommitReveal", async () => {
     await stateChannel.setResolution(appState);
 
     // 6. Call setNonce on NonceRegistry with some salt and nonce
-    const channelNonce = 1;
-    const channelNonceSalt =
+    const dependencyNonce = 1;
+    const dependencyNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
-    const channelNonceKey = await setFinalizedChannelNonce(
+    // await stateChannel.setDependencyNonce(dependencyNonce, dependencyNonceSalt);
+    //
+    // await stateChannel.conclude();
+
+    const channelNonceKey = await setFinalizedDependencyNonce(
       multisig,
-      channelNonce,
-      channelNonceSalt,
+      dependencyNonce,
+      dependencyNonceSalt,
       [alice, bob]
     );
     // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
@@ -212,7 +217,7 @@ describe("CommitReveal", async () => {
       stateChannel,
       multisig,
       channelNonceKey,
-      channelNonce,
+      dependencyNonce,
       [alice, bob]
     );
 

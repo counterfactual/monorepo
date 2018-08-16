@@ -74,16 +74,20 @@ export class AbstractContract {
    */
   constructor(readonly abi: string[] | string, readonly binary: string) {}
 
+  public getDeployedAddress(): string {
+    if (!this.deployedAddress) {
+      throw new Error("Must have a deployed address");
+    }
+    return this.deployedAddress;
+  }
+
   /**
    * Get the deployed singleton instance of this abstract contract, if it exists
    * @param signer Signer (with provider) to use for contract calls
    * @throws Error if AbstractContract has no deployed address
    */
-  public getDeployed(signer: ethers.Wallet): Contract {
-    if (!this.deployedAddress) {
-      throw new Error("Must have a deployed address");
-    }
-    return new Contract(this.deployedAddress, this.abi, signer);
+  public getDeployed(signer: ethers.types.Signer): Contract {
+    return new Contract(this.getDeployedAddress(), this.abi, signer);
   }
 
   /**
@@ -92,7 +96,10 @@ export class AbstractContract {
    * @param args Optional arguments to pass to contract constructor
    * @returns New contract instance
    */
-  public async deploy(signer: ethers.Wallet, args?: any[]): Promise<Contract> {
+  public async deploy(
+    signer: ethers.types.Signer,
+    args?: any[]
+  ): Promise<Contract> {
     return new Contract("", this.abi, signer).deploy(
       this.binary,
       ...(args || [])
@@ -105,10 +112,7 @@ export class AbstractContract {
    * @param address Address of deployed instance to connect to
    * @returns Contract instance
    */
-  public async connect(
-    signer: ethers.Wallet,
-    address: string
-  ): Promise<Contract> {
+  public connect(signer: ethers.types.Signer, address: string): Contract {
     return new Contract(address, this.abi, signer);
   }
 
@@ -121,7 +125,7 @@ export class AbstractContract {
    * @returns Contract instance
    */
   public async deployViaRegistry(
-    signer: ethers.Wallet,
+    signer: ethers.types.Signer,
     registry: Contract,
     args?: any[],
     salt?: string
