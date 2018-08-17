@@ -13,7 +13,7 @@
     "lint:ts:fix": "tsc --noEmit --project tsconfig.json && tslint -c tslint.json test/**/*.ts --fix",
     "precommit": "lint-staged",
     "test": "yarn build && yarn truffle:test",
-    "testfiles": "yarn build && yarn truffle:testfiles",
+    "testfiles": "yarn bild && yarn truffle:testfiles",
     "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage",
     "truffle:compile": "truffle compile",
@@ -38,7 +38,7 @@
     ]
   },
   "config": {
-    "testFiles": "lib/contracts/test/**/*.spec.js"
+    "testFiles": "lib/counterfactual/test/**/*.spec.js"
   },
   "keywords": [
     "ethereum",
@@ -76,6 +76,7 @@
   },
   "dependencies": {
     "@counterfactual/test-utils": "https://github.com/counterfactual/test-utils.git",
+    "@counterfactual/apps": "https://github.com/counterfactual/apps.git",
     "chai": "4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",

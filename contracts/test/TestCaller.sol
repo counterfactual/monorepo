@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
+import "../lib/StaticCall.sol";
 
 
 contract TestCaller {

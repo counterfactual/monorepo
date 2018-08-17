@@ -20,10 +20,6 @@ State deposit is stored in a [multisig wallet](./contracts/MinimumViableMultisig
 
 For a more detailed description of contract architecture, please see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-## Contributing
-
-Counterfactual is an open-source project. Development happens in the open on GitHub, and we welcome bugfixes and improvements from the community.
-
 ### Security
 
 If you find a security issue, please contact us at security@counterfactual.com.

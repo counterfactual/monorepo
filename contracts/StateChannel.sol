@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/lib/Signatures.sol";
-import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
-import "@counterfactual/contracts/contracts/lib/Transfer.sol";
+import "./lib/Signatures.sol";
+import "./lib/StaticCall.sol";
+import "./lib/Transfer.sol";
 
 
 /// @title StateChannel - A generalized state channel application contract

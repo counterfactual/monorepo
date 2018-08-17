@@ -1,10 +1,10 @@
 pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/lib/Transfer.sol";
-import "@counterfactual/contracts/contracts/NonceRegistry.sol";
-import "@counterfactual/contracts/contracts/Registry.sol";
-import "@counterfactual/contracts/contracts/StateChannel.sol";
+import "../lib/Transfer.sol";
+import "../NonceRegistry.sol";
+import "../Registry.sol";
+import "../StateChannel.sol";
 
 
 contract VirtualAppAgreement {

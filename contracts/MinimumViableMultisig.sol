@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "@counterfactual/contracts/contracts/lib/Signatures.sol";
+import "./lib/Signatures.sol";
 
 
 /// @title MinimumViableMultisig - An example multisig exemplifying the minimal

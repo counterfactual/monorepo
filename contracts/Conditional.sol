@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/lib/StaticCall.sol";
+import "./lib/StaticCall.sol";
 
 
 /// @title Conditional - A wrapper to verify if abstract conditions are true
