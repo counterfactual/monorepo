@@ -1,3 +1,0 @@
-{
-  "extends": ["@counterfactual/configs/tslints/base-tslint"]
-}

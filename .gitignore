@@ -34,3 +34,4 @@ packages/*/*.json.modified-e
 
 # editors
 .vscode
+.viminfo
