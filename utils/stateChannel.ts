@@ -1,9 +1,5 @@
+import { signMessage, ZERO_ADDRESS } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
-import {
-  HIGH_GAS_LIMIT,
-  signMessage,
-  ZERO_ADDRESS
-} from "../../test-utils/src/utils";
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
 import { Multisig } from "./multisig";
