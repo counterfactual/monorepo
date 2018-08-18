@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "shx rm -rf lib node_modules",
+    "ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545 --account=\"${npm_package_config_unlockedAccount}\" -m \"${npm_package_config_mnemonic}\"",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "solium -d contracts/ --fix",
@@ -38,7 +39,9 @@
     ]
   },
   "config": {
-    "testFiles": "lib/counterfactual/test/**/*.spec.js"
+    "testFiles": "lib/counterfactual/test/**/*.spec.js",
+    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d,1000000000000000000000000",
+    "mnemonic": "concert load couple harbor equip island argue ramp clarify fence smart topic"
   },
   "keywords": [
     "ethereum",
