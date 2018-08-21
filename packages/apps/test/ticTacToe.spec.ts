@@ -15,7 +15,7 @@ contract("TicTacToe", (accounts: string[]) => {
   const stateEncoding =
     "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
 
-  beforeEach(async () => {
+  before(async () => {
     const contract = new ethers.Contract("", TicTacToe.abi, unlockedAccount);
     TicTacToe.link("StaticCall", StaticCall.address);
     game = await contract.deploy(TicTacToe.binary);
