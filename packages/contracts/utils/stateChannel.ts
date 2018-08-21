@@ -47,9 +47,9 @@ export class StateChannel {
   public appStateNonce: number = 0;
 
   constructor(
-    readonly signerAddrs: string[],
     readonly multisig: Multisig,
-    appContract: ethers.Contract,
+    readonly signerAddrs: string[],
+    appContract: Contract,
     readonly appStateEncoding: string,
     readonly terms: TransferTerms,
     readonly defaultTimeout: number = 10
@@ -60,12 +60,12 @@ export class StateChannel {
     this.app = appFromContract(appContract);
   }
 
-  public async deploy(sender: ethers.Wallet, registry: ethers.Contract) {
+  public async deploy() {
     const appHash = keccak256(encodeStruct(appEncoding, this.app));
     const termsHash = keccak256(encodeStruct(termsEncoding, this.terms));
     this.contract = await artifacts.StateChannel.deployViaRegistry(
-      sender,
-      registry,
+      this.multisig.signer,
+      this.multisig.sharedContracts.registry,
       [
         this.multisig.address,
         this.signerAddrs,
