@@ -19,14 +19,14 @@ import {
   TransferTerms
 } from "../../utils";
 
-const { web3 } = global as any;
-
 const {
   Registry,
   NonceRegistry,
   ConditionalTransfer,
   StaticCall
 } = buildArtifacts;
+
+const { parseEther } = ethers.utils;
 
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
@@ -47,8 +47,6 @@ enum Player {
   CHOOSING = 0,
   GUESSING = 1
 }
-
-const { parseEther } = ethers.utils;
 const CommitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
   StaticCall
 });
@@ -77,25 +75,6 @@ async function createMultisig(
     value: initialFunding
   });
   return multisig;
-}
-
-async function deployApp(): Promise<ethers.Contract> {
-  return CommitRevealApp.deploy(masterAccount);
-}
-
-async function deployStateChannel(
-  multisig: Multisig,
-  appContract: ethers.Contract,
-  terms: TransferTerms
-) {
-  const registry = Registry.getDeployed(masterAccount);
-  const stateChannel = multisig.createStateChannel(
-    appContract,
-    appStateEncoding,
-    terms
-  );
-  await stateChannel.deploy();
-  return stateChannel;
 }
 
 async function setFinalizedDependencyNonce(
@@ -167,14 +146,20 @@ describe("CommitReveal", async () => {
     ]);
 
     // 2. Deploy CommitRevealApp app
-    const appContract = await deployApp();
+    const appContract = await CommitRevealApp.deploy(masterAccount);
 
     // 3. Deploy StateChannel
     const terms = {
       assetType: AssetType.ETH,
       limit: parseEther("2")
     };
-    const stateChannel = await deployStateChannel(multisig, appContract, terms);
+
+    const stateChannel = multisig.createStateChannel(
+      appContract,
+      appStateEncoding,
+      terms
+    );
+    await stateChannel.deploy();
 
     // 4. Call setState(claimFinal=true) on StateChannel with a final state
     const numberSalt =
@@ -202,16 +187,13 @@ describe("CommitReveal", async () => {
     const dependencyNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
-    // await stateChannel.setDependencyNonce(dependencyNonce, dependencyNonceSalt);
-    //
-    // await stateChannel.conclude();
-
     const channelNonceKey = await setFinalizedDependencyNonce(
       multisig,
       dependencyNonce,
       dependencyNonceSalt,
       [alice, bob]
     );
+    // TODO: await stateChannel.setDependencyNonce(nonce, [alice, bob])
     // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
     await executeStateChannelTransfer(
       stateChannel,
@@ -220,6 +202,7 @@ describe("CommitReveal", async () => {
       dependencyNonce,
       [alice, bob]
     );
+    // TODO: await stateChannel.conclude()
 
     // 8. Verify balance of A and B
     (await alice.getBalance()).should.be.bignumber.eq(parseEther("2"));
