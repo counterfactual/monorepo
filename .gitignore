@@ -19,17 +19,8 @@ build/
 abis.json
 ganache.log
 
-# lerna
-lerna-debug.log
-
 # build directories
-packages/contracts/lib
-packages/test-utils/lib
-packages/apps/lib
-
-# build artifacts
-packages/*/*.json.modified
-packages/*/*.json.modified-e
+lib/
 
 # editors
 .vscode
