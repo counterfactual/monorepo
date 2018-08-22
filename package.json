@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@counterfactual/test-utils": "https://github.com/counterfactual/test-utils.git",
-    "@counterfactual/apps": "https://github.com/counterfactual/apps.git",
+    "@counterfactual/apps": "https://github.com/counterfactual/apps.git#6eeff7066e8b4a06659c253dcd999dbcfff0e3a9",
     "chai": "4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
