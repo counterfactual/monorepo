@@ -1,24 +1,17 @@
 [![CircleCI](https://circleci.com/gh/counterfactual/machine/tree/master.svg?style=svg&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c)](https://circleci.com/gh/counterfactual/machine/tree/master)
 
-## Dependencies
+## Usage
 
-Until the monorepo is broken up, the packages in the monorepo can be linked as dependencies of the machine repo.
+This repo uses the yarn package manager. To install the dependencies, run:
 
-The NPM script `install:contracts_deps` pulls in the packages and does the linking & building.
-
-This script is wrapped around `install` so simply running:
-
-```
-npm install
+```shell
+yarn
 ```
 
-will install all the dependencies, including the monorepo packages.
+## Testing
 
-More concretely, this linking allows the monorepo packages to be treated like regular dependencies in the machine, as follows:
+Run the following to execute the test suites (which use Jest):
 
-```
-import * as utils from "@counterfactual/test-utils";
-
-console.log("Standard ETH unit");
-console.log(utils.UNIT_ETH);
+```shell
+yarn test
 ```
