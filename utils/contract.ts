@@ -49,7 +49,7 @@ export class AbstractContract {
       for (const name of Object.keys(links)) {
         const library = links[name];
         if (!library.deployedAddress) {
-          throw new Error("Library must have a deployed address");
+          throw new Error(`Library ${name} must have a deployed address`);
         }
         const regex = new RegExp(`__${name}_+`, "g");
         const addressHex = library.deployedAddress.replace("0x", "");

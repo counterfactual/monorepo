@@ -3,7 +3,9 @@ import { AbstractContract } from "./contract";
 export const ConditionalTransfer = AbstractContract.loadBuildArtifact(
   "ConditionalTransfer"
 );
-export const NonceRegistry = AbstractContract.loadBuildArtifact("NonceRegistry");
+export const NonceRegistry = AbstractContract.loadBuildArtifact(
+  "NonceRegistry"
+);
 export const Registry = AbstractContract.loadBuildArtifact("Registry");
 export const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
 export const Signatures = AbstractContract.loadBuildArtifact("Signatures");
