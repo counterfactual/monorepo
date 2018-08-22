@@ -1,0 +1,17 @@
+{
+  "extends": "./node_modules/@counterfactual/configs/tsconfigs/base-tsconfig",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "outDir": "lib/",
+    "baseUrl": ".",
+    "paths": {
+      "@counterfactual/*": ["node_modules/@counterfactual/*"]
+    },
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@counterfactual/typescript-typings/types",
+      "node_modules/ethers/dist/ethers.d.ts"
+    ]
+  },
+  "include": ["**/**/*.ts"]
+}

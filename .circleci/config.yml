@@ -40,10 +40,9 @@ jobs:
             - repo-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Start ganache
-          command: |
-            yarn ganache
+          command: yarn ganache
           background: true
-      - run: yarn test-ci
+      - run: yarn test
 
   lint-repo:
     docker:
