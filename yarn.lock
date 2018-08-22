@@ -92,15 +92,6 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/apps@https://github.com/counterfactual/apps.git":
-  version "0.0.1"
-  resolved "https://github.com/counterfactual/apps.git#00948ceca3fb98b223fd9e477bddd789bc847b19"
-  dependencies:
-    "@counterfactual/contracts" "https://github.com/counterfactual/counterfactual.git#fc91ba7a08efea2e21c9831e2140f2271d80f16e"
-    "@counterfactual/test-utils" "https://github.com/counterfactual/test-utils.git"
-    chai "4.1.2"
-    ethers "4.0.0-beta.12"
-
 "@counterfactual/configs@https://github.com/counterfactual/configs.git":
   version "0.0.1"
   resolved "https://github.com/counterfactual/configs.git#7a81d70e96aaa6431c96e8bdda94525d9a85e2ba"
@@ -109,19 +100,6 @@
     tslint "5.11.0"
     tslint-config-prettier "1.14.0"
     tslint-plugin-prettier "1.3.0"
-
-"@counterfactual/contracts@https://github.com/counterfactual/counterfactual.git#fc91ba7a08efea2e21c9831e2140f2271d80f16e":
-  version "0.0.2"
-  resolved "https://github.com/counterfactual/counterfactual.git#fc91ba7a08efea2e21c9831e2140f2271d80f16e"
-  dependencies:
-    "@counterfactual/test-utils" "https://github.com/counterfactual/test-utils.git"
-    chai "4.1.2"
-    chai-as-promised "^7.1.1"
-    chai-bignumber "^2.0.2"
-    chai-string "^1.4.0"
-    ethers "4.0.0-beta.12"
-    openzeppelin-solidity "^1.10.0"
-    solc "0.4.24"
 
 "@counterfactual/run-with-ganache@https://github.com/counterfactual/run-with-ganache.git":
   version "0.0.1"
@@ -170,6 +148,10 @@
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
+
+"@types/bignumber.js@4.0.2":
+  version "4.0.2"
+  resolved "https://registry.npmjs.org/@types/bignumber.js/-/bignumber.js-4.0.2.tgz#22a16946c9faa9f2c9c0ad4c7c3734a3033320ae"
 
 "@types/concat-stream@^1.6.0":
   version "1.6.0"
