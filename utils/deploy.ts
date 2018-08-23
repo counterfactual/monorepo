@@ -1,16 +1,4 @@
-import { BuildArtifact } from "@counterfactual/typescript-typings";
-
-export interface ArtifactsLoader {
-  require(name: string): BuildArtifact;
-}
-
-export interface TruffleDeployer {
-  deploy(artifact: BuildArtifact);
-
-  link(artifact: BuildArtifact, libraries: BuildArtifact[]);
-}
-
-export async function deployTruffle(
+export async function deployTruffleArtifacts(
   loader: ArtifactsLoader,
   deployer: TruffleDeployer
 ) {

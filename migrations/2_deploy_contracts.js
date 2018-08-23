@@ -1,3 +1,3 @@
-const {deployTruffle} = require("../lib/utils/deployArtifacts");
+const {deployTruffleArtifacts} = require("../lib/utils");
 
-module.exports = deployer => deployTruffle(artifacts, deployer);
+module.exports = deployer => deployTruffleArtifacts(artifacts, deployer);
