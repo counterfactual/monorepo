@@ -7,7 +7,7 @@ const TicTacToe = artifacts.require("TicTacToe");
 const StaticCall = artifacts.require("StaticCall");
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("TicTacToe", (accounts: string[]) => {
   let game: ethers.Contract;
