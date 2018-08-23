@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/lib/Transfer.sol";
+import "../lib/Transfer.sol";
 
 
 contract TicTacToe {
