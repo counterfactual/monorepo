@@ -96,8 +96,7 @@ export class AbstractContract {
     const networkId = (await signer.provider.getNetwork()).chainId;
     const bytecode = this.generateLinkedBytecode(networkId);
     const contract = new Contract("", this.abi, signer);
-    await contract.deploy(bytecode, ...(args || []));
-    return contract;
+    return contract.deploy(bytecode, ...(args || []));
   }
 
   /**
@@ -127,14 +126,20 @@ export class AbstractContract {
     args?: any[],
     salt?: string
   ): Promise<Contract> {
+    if (!signer.provider) {
+      throw new Error("Signer requires provider");
+    }
+
     if (salt === undefined) {
       salt = solidityKeccak256(
         ["uint256"],
         [Math.round(Math.random() * 4294967296)]
       );
     }
+    const networkId = (await signer.provider.getNetwork()).chainId;
+    const bytecode = this.generateLinkedBytecode(networkId);
     const initcode = new ethers.Interface(this.abi).deployFunction.encode(
-      this.bytecode,
+      bytecode,
       args || []
     );
     await registry.functions.deploy(initcode, salt, HIGH_GAS_LIMIT);
@@ -167,10 +172,10 @@ export class AbstractContract {
   }
 
   private getDeployedAddress(networkId: number): string {
-    const address = this.networks[networkId];
-    if (!address) {
+    const info = this.networks[networkId];
+    if (!info) {
       throw new Error(`Abstract contract not deployed on network ${networkId}`);
     }
-    return address;
+    return info.address;
   }
 }

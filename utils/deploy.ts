@@ -1,4 +1,4 @@
-export async function deployTruffleArtifacts(
+export function deployTruffleArtifacts(
   loader: ArtifactsLoader,
   deployer: TruffleDeployer
 ) {
@@ -13,15 +13,18 @@ export async function deployTruffleArtifacts(
   const Conditional = loader.require("Conditional");
   const Transfer = loader.require("Transfer");
 
-  deployer.deploy(Transfer);
-  deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
-  deployer.deploy(StaticCall);
-  deployer.link(StaticCall, [ConditionalTransfer, Conditional]);
+  deployer.deploy(Transfer).then(() => {
+    deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
+  });
+  deployer.deploy(StaticCall).then(() => {
+    deployer.link(StaticCall, [ConditionalTransfer, Conditional]);
+  });
 
   deployer.deploy(Signatures);
   deployer.deploy(NonceRegistry);
   deployer.deploy(MultiSend);
   deployer.deploy(ProxyFactory);
   deployer.deploy(Registry);
+
   deployer.deploy(ConditionalTransfer);
 }
