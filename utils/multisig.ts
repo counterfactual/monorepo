@@ -40,9 +40,9 @@ export class Multisig {
 
   /**
    * Deploy Multisig contract on-chain
-   * @param signer The signer for the on-chain transaction
+   * @param signer The signer (with provider) for the on-chain transaction
    */
-  public async deploy(signer: ethers.ethers.Wallet) {
+  public async deploy(signer: ethers.types.Signer) {
     this.contract = await MinimumViableMultisig.deploy(signer);
     await this.contract.functions.setup(this.owners);
   }
