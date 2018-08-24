@@ -20,7 +20,7 @@ abis.json
 ganache.log
 
 # build directories
-lib/
+/lib/
 
 # editors
 .vscode
