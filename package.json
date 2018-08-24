@@ -54,7 +54,7 @@
   "devDependencies": {
     "@counterfactual/configs": "https://github.com/counterfactual/configs.git",
     "@counterfactual/run-with-ganache": "https://github.com/counterfactual/run-with-ganache.git",
-    "@counterfactual/typescript-typings": "../typescript-typings",
+    "@counterfactual/typescript-typings": "https://github.com/counterfactual/typescript-typings.git",
     "@types/bignumber.js": "4.0.2",
     "@types/mocha": "5.2.0",
     "@types/node": "10.1.3",
