@@ -10,7 +10,8 @@ import {
 	Address,
 	H256,
 	Addressable,
-	InternalMessage
+	InternalMessage,
+	NetworkContext
 } from "./types";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
 import { CfState, Context } from "./state";
@@ -20,7 +21,8 @@ export class CfVmConfig {
 	constructor(
 		readonly responseHandler: ResponseSink,
 		readonly cfOpGenerator: CfOpGenerator,
-		readonly state?: ChannelStates
+		readonly state?: ChannelStates,
+		readonly network?: NetworkContext
 	) {}
 }
 
@@ -32,7 +34,8 @@ export class CounterfactualVM {
 	constructor(config: CfVmConfig) {
 		this.responseHandler = config.responseHandler;
 		this.cfState = new CfState(
-			config.state ? config.state : Object.create(null)
+			config.state ? config.state : Object.create(null),
+			config.network
 		);
 		this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
 	}

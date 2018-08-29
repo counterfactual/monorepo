@@ -16,9 +16,17 @@ import { CounterfactualVM } from "./vm";
 export class CfState {
 	channelStates: ChannelStates;
 	networkContext: NetworkContext;
-	constructor(channelStates: ChannelStates) {
+	constructor(channelStates: ChannelStates, network?: NetworkContext) {
 		this.channelStates = channelStates;
-		this.networkContext = new NetworkContext(
+		if (network === undefined) {
+			this.networkContext = this.defaultNetwork();
+		} else {
+			this.networkContext = network;
+		}
+	}
+
+	private defaultNetwork(): NetworkContext {
+		return new NetworkContext(
 			// todo
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd0",
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd1",
