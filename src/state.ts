@@ -100,8 +100,6 @@ export class AppChannelInfoImpl {
 
 export class Context {
 	results: OpCodeResult[] = Object.create(null);
-	stateChannelInfos: StateChannelInfos = Object.create(null);
-	appChannelInfos: AppChannelInfos = Object.create(null);
 	instructionPointer: number = Object.create(null);
 	vm: CounterfactualVM = Object.create(null);
 }
