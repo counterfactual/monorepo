@@ -52,7 +52,7 @@
   "author": "Liam Horne <liam@l4v.io>",
   "license": "MIT",
   "devDependencies": {
-    "@counterfactual/configs": "https://github.com/counterfactual/configs.git",
+    "@counterfactual/configs": "https://github.com/counterfactual/configs.git#3f4cdd1cc203ad5cc7a11ab2e87fba9a77eaa482",
     "@counterfactual/run-with-ganache": "https://github.com/counterfactual/run-with-ganache.git",
     "@counterfactual/typescript-typings": "https://github.com/counterfactual/typescript-typings.git",
     "@types/bignumber.js": "4.0.2",
