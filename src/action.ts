@@ -54,8 +54,6 @@ export class ActionExecution {
 	vm: CounterfactualVM;
 	// probably not the best data structure
 	results: { opCode: Instruction; value: any }[];
-	stateChannelInfos: StateChannelInfos;
-	appChannelInfos: AppChannelInfos;
 
 	constructor(
 		action: Action,
@@ -68,8 +66,6 @@ export class ActionExecution {
 		this.clientMessage = clientMessage;
 		this.vm = vm;
 		this.results = [];
-		this.stateChannelInfos = vm.cfState.stateChannelInfos();
-		this.appChannelInfos = vm.cfState.appChannelInfos();
 	}
 
 	async next(): Promise<{ done: boolean; value: number }> {
@@ -86,8 +82,6 @@ export class ActionExecution {
 		);
 		let context = {
 			results: this.results,
-			stateChannelInfos: this.stateChannelInfos,
-			appChannelInfos: this.appChannelInfos,
 			instructionPointer: this.instructionPointer,
 			vm: this.vm
 		};
