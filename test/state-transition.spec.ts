@@ -2,6 +2,7 @@ import * as ethers from "ethers";
 import { InstallProposer } from "../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../src/middleware/state-transition/setup-proposer";
 import {
+	CfFreeBalance,
 	CfNonce,
 	Terms,
 	CfAppInterface
@@ -11,8 +12,7 @@ import {
 	InternalMessage,
 	StateChannelInfos,
 	ChannelStates,
-	PeerBalance,
-	FreeBalance
+	PeerBalance
 } from "../src/types";
 import { CfState, Context, StateChannelInfoImpl } from "../src/state";
 import { Instruction } from "../src/instructions";
@@ -72,9 +72,11 @@ function setupClientMsg(): ClientMessage {
 }
 
 function setupInstallCfState(): CfState {
-	let freeBalance = new FreeBalance(
-		new PeerBalance(FROM, 20),
-		new PeerBalance(TO, 20),
+	let freeBalance = new CfFreeBalance(
+		FROM,
+		20,
+		TO,
+		20,
 		0, // local nonce
 		0, // uniqueId
 		100, // timeout
@@ -91,10 +93,10 @@ function validateSetupInfos(infos: StateChannelInfos) {
 	expect(info.fromAddress).toBe(FROM);
 	expect(info.toAddress).toBe(TO);
 	expect(Object.keys(info.appChannels).length).toBe(0);
-	expect(info.freeBalance.peerA.address).toBe(FROM);
-	expect(info.freeBalance.peerA.balance).toBe(0);
-	expect(info.freeBalance.peerB.address).toBe(TO);
-	expect(info.freeBalance.peerB.balance).toBe(0);
+	expect(info.freeBalance.alice).toBe(FROM);
+	expect(info.freeBalance.aliceBalance).toBe(0);
+	expect(info.freeBalance.bob).toBe(TO);
+	expect(info.freeBalance.bobBalance).toBe(0);
 	expect(info.freeBalance.localNonce).toBe(0);
 	expect(info.freeBalance.uniqueId).toBe(0);
 
@@ -136,8 +138,8 @@ function installClientMsg(): ClientMessage {
 function validateInstallInfos(infos: StateChannelInfos) {
 	let stateChannel = infos[MULTISIG];
 
-	expect(stateChannel.freeBalance.peerA.balance).toBe(15);
-	expect(stateChannel.freeBalance.peerB.balance).toBe(17);
+	expect(stateChannel.freeBalance.aliceBalance).toBe(15);
+	expect(stateChannel.freeBalance.bobBalance).toBe(17);
 
 	let expectedCfAddr =
 		"0x363674963cc867f9de0dbcd8ba8d513a42dbedae380bbd2ad5a15e6ceddb4e64";

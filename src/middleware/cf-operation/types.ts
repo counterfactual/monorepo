@@ -153,7 +153,8 @@ export class CfFreeBalance {
 		readonly bobBalance: number,
 		readonly uniqueId: number,
 		readonly localNonce: number,
-		readonly timeout: number
+		readonly timeout: number,
+		readonly nonce: CfNonce
 	) {}
 
 	static terms(): Terms {

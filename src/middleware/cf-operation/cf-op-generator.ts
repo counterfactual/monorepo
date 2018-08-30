@@ -140,13 +140,14 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			appChannel.uniqueId
 		);
 		let cfFreeBalance = new CfFreeBalance(
-			freeBalance.peerA.address,
-			freeBalance.peerA.balance,
-			freeBalance.peerB.address,
-			freeBalance.peerB.balance,
+			freeBalance.alice,
+			freeBalance.aliceBalance,
+			freeBalance.bob,
+			freeBalance.bobBalance,
 			freeBalance.uniqueId,
 			freeBalance.localNonce,
-			freeBalance.localNonce
+			freeBalance.timeout,
+			freeBalance.nonce
 		);
 
 		let op = new CfOpInstall(
@@ -174,13 +175,14 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		let appChannel = proposedUninstall[multisig].appChannels[cfAddr];
 
 		let cfFreeBalance = new CfFreeBalance(
-			freeBalance.peerA.address,
-			freeBalance.peerA.balance,
-			freeBalance.peerB.address,
-			freeBalance.peerB.balance,
+			freeBalance.alice,
+			freeBalance.aliceBalance,
+			freeBalance.bob,
+			freeBalance.bobBalance,
 			freeBalance.uniqueId,
 			freeBalance.localNonce,
-			freeBalance.timeout
+			freeBalance.timeout,
+			freeBalance.nonce
 		);
 
 		let op = new CfOpUninstall(

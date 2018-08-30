@@ -1,7 +1,7 @@
 import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
-import { FreeBalance, PeerBalance, InternalMessage } from "../../types";
-import { CfNonce, zeroBytes32 } from "../cf-operation/types";
+import { PeerBalance, InternalMessage } from "../../types";
+import { CfFreeBalance, CfNonce, zeroBytes32 } from "../cf-operation/types";
 import * as ethers from "ethers";
 
 const FREE_BALANCE_TIMEOUT = 100;
@@ -23,9 +23,11 @@ export class SetupProposer {
 
 		let balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
 		let localNonce = 0;
-		let freeBalance = new FreeBalance(
-			balances.peerA,
-			balances.peerB,
+		let freeBalance = new CfFreeBalance(
+			balances.peerA.address,
+			balances.peerA.balance,
+			balances.peerB.address,
+			balances.peerB.balance,
 			localNonce,
 			FREE_BALANCE_UNIQUE_ID,
 			FREE_BALANCE_TIMEOUT,

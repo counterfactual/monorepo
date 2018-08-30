@@ -11,7 +11,6 @@ import {
 	AppChannelInfo,
 	StateChannelInfo,
 	ClientMessage,
-	FreeBalance,
 	ChannelStates,
 	InternalMessage
 } from "../../src/types";

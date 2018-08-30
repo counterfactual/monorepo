@@ -5,7 +5,6 @@ import {
 	ResponseSink,
 	StateChannelInfo,
 	ClientMessage,
-	FreeBalance,
 	PeerBalance,
 	Address,
 	H256,
