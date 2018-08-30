@@ -6,11 +6,11 @@ import {
 	OpCodeResult,
 	AppChannelInfo,
 	StateChannelInfo,
-	FreeBalance,
 	PeerBalance,
 	Address,
 	H256
 } from "./types";
+import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { CounterfactualVM } from "./vm";
 
 export class CfState {
@@ -44,7 +44,7 @@ export class CfState {
 		return this.channelStates[multisig].appChannels[cfAddr];
 	}
 
-	freeBalance(multisig: Address): FreeBalance {
+	freeBalance(multisig: Address): CfFreeBalance {
 		return this.channelStates[multisig].freeBalance;
 	}
 
@@ -74,7 +74,7 @@ export class StateChannelInfoImpl implements StateChannelInfo {
 		readonly fromAddress: string,
 		readonly multisigAddress: string,
 		readonly appChannels: AppChannelInfos = {},
-		readonly freeBalance: FreeBalance
+		readonly freeBalance: CfFreeBalance
 	) {}
 
 	/**

@@ -2,7 +2,7 @@ import * as ethers from "ethers";
 import { Response } from "./vm";
 import { CfAppInterface, Terms } from "./middleware/cf-operation/types";
 import { Instruction } from "./instructions";
-import { CfNonce } from "./middleware/cf-operation/types";
+import { CfFreeBalance, CfNonce } from "./middleware/cf-operation/types";
 
 /**
  * Aliases to help code readability. Should think about actually changing these
@@ -44,18 +44,6 @@ export interface UpdateData {
 	 * Hash of the State struct specific to a given applicatioin.
 	 */
 	appStateHash: H256;
-}
-
-// todo: remove in favor of CfNonce
-export class FreeBalance {
-	constructor(
-		readonly peerA: PeerBalance,
-		readonly peerB: PeerBalance,
-		readonly localNonce: number,
-		readonly uniqueId: number,
-		readonly timeout: number,
-		readonly nonce: CfNonce
-	) {}
 }
 
 /**
@@ -158,7 +146,7 @@ export interface StateChannelInfo {
 	fromAddress: Address;
 	multisigAddress: Address;
 	appChannels: AppChannelInfos;
-	freeBalance: FreeBalance;
+	freeBalance: CfFreeBalance;
 
 	// TODO Move this out of the datastructure
 	/**

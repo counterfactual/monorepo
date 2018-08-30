@@ -1,14 +1,13 @@
 import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
-import { InternalMessage } from "../../types";
-
 import {
 	Address,
 	CanonicalPeerBalance,
-	FreeBalance,
 	PeerBalance,
-	StateChannelInfos
+	StateChannelInfos,
+	InternalMessage
 } from "../../types";
+import { CfFreeBalance } from "../cf-operation/types";
 
 export class UninstallProposer {
 	static propose(
@@ -27,15 +26,11 @@ export class UninstallProposer {
 			message.clientMessage.data.peerAmounts[1]
 		);
 		let oldFreeBalance = channels[multisig].freeBalance;
-		let newFreeBalance = new FreeBalance(
-			new PeerBalance(
-				oldFreeBalance.peerA.address,
-				oldFreeBalance.peerA.balance + canon.peerA.balance
-			),
-			new PeerBalance(
-				oldFreeBalance.peerB.address,
-				oldFreeBalance.peerB.balance + canon.peerB.balance
-			),
+		let newFreeBalance = new CfFreeBalance(
+			oldFreeBalance.alice,
+			oldFreeBalance.aliceBalance + canon.peerA.balance,
+			oldFreeBalance.bob,
+			oldFreeBalance.bobBalance + canon.peerB.balance,
 			oldFreeBalance.localNonce + 1,
 			oldFreeBalance.uniqueId,
 			oldFreeBalance.timeout,

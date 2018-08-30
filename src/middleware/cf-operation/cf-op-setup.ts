@@ -1,4 +1,4 @@
-import { FreeBalance, NetworkContext, Signature, H256 } from "../../types";
+import { NetworkContext, Signature, H256 } from "../../types";
 import {
 	Operation,
 	Transaction,

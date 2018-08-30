@@ -3,13 +3,17 @@ import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import {
 	Address,
 	AppChannelInfo,
-	FreeBalance,
 	PeerBalance,
 	InstallData,
 	H256,
 	InternalMessage
 } from "../../types";
-import { zeroBytes32, CfNonce, CfStateChannel } from "../cf-operation/types";
+import {
+	zeroBytes32,
+	CfFreeBalance,
+	CfNonce,
+	CfStateChannel
+} from "../cf-operation/types";
 
 export class InstallProposer {
 	static propose(message: InternalMessage, context: Context, state: CfState) {
@@ -24,9 +28,11 @@ export class InstallProposer {
 		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
 		let newAppChannel = InstallProposer.newAppChannel(cfAddr, data, uniqueId);
 		let [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
-		let freeBalance = new FreeBalance(
-			peerA,
-			peerB,
+		let freeBalance = new CfFreeBalance(
+			peerA.address,
+			peerA.balance,
+			peerB.address,
+			peerB.balance,
 			existingFreeBalance.localNonce + 1,
 			existingFreeBalance.uniqueId,
 			data.timeout,
@@ -78,16 +84,16 @@ export class InstallProposer {
 	}
 
 	private static newPeers(
-		existingFreeBalance: FreeBalance,
+		existingFreeBalance: CfFreeBalance,
 		data: InstallData
 	): [PeerBalance, PeerBalance] {
 		let peerA = new PeerBalance(
-			existingFreeBalance.peerA.address,
-			existingFreeBalance.peerA.balance - data.peerA.balance
+			existingFreeBalance.alice,
+			existingFreeBalance.aliceBalance - data.peerA.balance
 		);
 		let peerB = new PeerBalance(
-			existingFreeBalance.peerB.address,
-			existingFreeBalance.peerB.balance - data.peerB.balance
+			existingFreeBalance.bob,
+			existingFreeBalance.bobBalance - data.peerB.balance
 		);
 		return [peerA, peerB];
 	}

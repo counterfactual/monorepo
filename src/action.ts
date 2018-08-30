@@ -2,7 +2,6 @@ import {
 	StateChannelInfos,
 	AppChannelInfos,
 	ClientMessage,
-	FreeBalance,
 	PeerBalance,
 	InternalMessage
 } from "./types";

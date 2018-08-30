@@ -55,7 +55,6 @@ function validatePresetup(walletA: TestWallet, walletB: TestWallet) {
 function setupStartMsg(from: string, to: string): ClientMessage {
 	return {
 		requestId: "0",
-		appName: undefined,
 		appId: undefined,
 		action: "setup",
 		data: {},
@@ -101,10 +100,10 @@ function validateNoAppsAndFreeBalance(
 	expect(channel.fromAddress).toBe(walletA.address);
 	expect(channel.multisigAddress).toBe(MULTISIG);
 	expect(channel.appChannels).toEqual({});
-	expect(channel.freeBalance.peerA.address).toBe(peerA);
-	expect(channel.freeBalance.peerB.address).toBe(peerB);
-	expect(channel.freeBalance.peerA.balance).toBe(amountA);
-	expect(channel.freeBalance.peerB.balance).toBe(amountB);
+	expect(channel.freeBalance.alice).toBe(peerA);
+	expect(channel.freeBalance.bob).toBe(peerB);
+	expect(channel.freeBalance.aliceBalance).toBe(amountA);
+	expect(channel.freeBalance.bobBalance).toBe(amountB);
 }
 
 async function makeDeposits(
@@ -214,14 +213,12 @@ function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 
 	expect(appChannels[cfAddr].peerA.balance).toBe(0);
 	expect(appChannels[cfAddr].peerA.address).toBe(
-		stateChannel.freeBalance.peerA.address
+		stateChannel.freeBalance.alice
 	);
 	expect(appChannels[cfAddr].peerA.balance).toBe(0);
 
 	expect(appChannels[cfAddr].peerB.balance).toBe(0);
-	expect(appChannels[cfAddr].peerB.address).toBe(
-		stateChannel.freeBalance.peerB.address
-	);
+	expect(appChannels[cfAddr].peerB.address).toBe(stateChannel.freeBalance.bob);
 	expect(appChannels[cfAddr].peerB.balance).toBe(0);
 
 	return cfAddr;
@@ -283,10 +280,10 @@ function validateUninstalledAndFreeBalance(
 	expect(channel.toAddress).toBe(walletB.address);
 	expect(channel.fromAddress).toBe(walletA.address);
 	expect(channel.multisigAddress).toBe(MULTISIG);
-	expect(channel.freeBalance.peerA.address).toBe(peerA);
-	expect(channel.freeBalance.peerB.address).toBe(peerB);
-	expect(channel.freeBalance.peerA.balance).toBe(amountA);
-	expect(channel.freeBalance.peerB.balance).toBe(amountB);
+	expect(channel.freeBalance.alice).toBe(peerA);
+	expect(channel.freeBalance.bob).toBe(peerB);
+	expect(channel.freeBalance.aliceBalance).toBe(amountA);
+	expect(channel.freeBalance.bobBalance).toBe(amountB);
 
 	expect(app.dependencyNonce.nonce).toBe(2);
 }
@@ -392,8 +389,8 @@ function validateInstallTttWallet(walletA: TestWallet, walletB: TestWallet) {
 	// now validate the free balance
 	let channel = walletA.vm.cfState.channelStates[MULTISIG];
 	// start with 10, 5 and both parties deposit 2 into TTT.
-	expect(channel.freeBalance.peerA.balance).toBe(8);
-	expect(channel.freeBalance.peerB.balance).toBe(3);
+	expect(channel.freeBalance.aliceBalance).toBe(8);
+	expect(channel.freeBalance.bobBalance).toBe(3);
 	return cfAddr;
 }
 
@@ -531,8 +528,8 @@ function validateUninstallTtt(
 ) {
 	let channel = wallet.vm.cfState.channelStates[MULTISIG];
 	let app = channel.appChannels[cfAddr];
-	expect(channel.freeBalance.peerA.balance).toBe(amountA);
-	expect(channel.freeBalance.peerB.balance).toBe(amountB);
+	expect(channel.freeBalance.aliceBalance).toBe(amountA);
+	expect(channel.freeBalance.bobBalance).toBe(amountB);
 	expect(app.dependencyNonce.nonce).toBe(2);
 }
 
