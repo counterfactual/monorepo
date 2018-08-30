@@ -17,8 +17,7 @@ export class StateTransition {
 	/**
 	 * The proposed state transitions do not complete a state upate. They give
 	 * a "proposed" state update that should not be enacted until both
-	 * STATE_TRANSITION_PREPARE and STATE_TRANSITION_COMMIT instructions have
-	 * been executed.
+	 * STATE_TRANSITION_COMMIT instructions have been executed.
 	 */
 	static propose(
 		message: InternalMessage,
@@ -37,15 +36,6 @@ export class StateTransition {
 		} else {
 			throw Error("Action name not supported");
 		}
-	}
-
-	static prepare(
-		message: InternalMessage,
-		next: Function,
-		context: Context,
-		cfState: CfState
-	) {
-		// todo
 	}
 
 	static commit(

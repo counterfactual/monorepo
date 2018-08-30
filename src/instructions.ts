@@ -6,12 +6,6 @@ export enum Instruction {
 	 */
 	STATE_TRANSITION_PROPOSE = 0,
 	/**
-	 * Transitions the state into a preparing to commit phase. Due to the fair
-	 * exchange problem, the machine must assume the peer has a newly signed
-	 * commitment, but hasn't yet shared a countersignature of the commitment.
-	 */
-	STATE_TRANSITION_PREPARE,
-	/**
 	 * Saves the new state upon completion of a protocol, using the state from
 	 * STATE_TRANSITION_PROPOSE. Assumes all messages have been exchanged and
 	 * the state has gone through PROPOSE and PREPARE already.
@@ -65,7 +59,6 @@ export let Instructions = {
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
@@ -76,7 +69,6 @@ export let Instructions = {
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
@@ -90,7 +82,6 @@ export let Instructions = {
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
 		Instruction.IO_SEND,
@@ -101,7 +92,6 @@ export let Instructions = {
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
@@ -120,7 +110,6 @@ export let AckInstructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
@@ -130,7 +119,6 @@ export let AckInstructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
@@ -140,7 +128,6 @@ export let AckInstructions = {
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.IO_WAIT,
 		Instruction.OP_SIGN_VALIDATE,
@@ -152,7 +139,6 @@ export let AckInstructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.OP_SIGN,
 		Instruction.IO_PREPARE_SEND,
-		Instruction.STATE_TRANSITION_PREPARE,
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	]
