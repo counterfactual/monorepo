@@ -31,12 +31,6 @@ export class CfMiddleware {
 			}
 		);
 		this.add(
-			Instruction.STATE_TRANSITION_PREPARE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return StateTransition.prepare(message, next, context, this.cfState);
-			}
-		);
-		this.add(
 			Instruction.STATE_TRANSITION_COMMIT,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				return StateTransition.commit(message, next, context, this.cfState);
