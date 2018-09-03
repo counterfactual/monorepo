@@ -36,6 +36,8 @@ export enum Instruction {
 	IO_SEND,
 	/**
 	 * Blocks the action execution until the next message is received by a peer.
+	 * The registered middleware for this instruction *must* return the received
+	 * ClientMessage from the peer.
 	 */
 	IO_WAIT,
 	/**

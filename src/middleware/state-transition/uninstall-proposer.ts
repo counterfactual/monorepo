@@ -5,7 +5,8 @@ import {
 	CanonicalPeerBalance,
 	PeerBalance,
 	StateChannelInfos,
-	InternalMessage
+	InternalMessage,
+	StateProposal
 } from "../../types";
 import { CfFreeBalance } from "../cf-operation/types";
 
@@ -14,9 +15,9 @@ export class UninstallProposer {
 		message: InternalMessage,
 		context: Context,
 		state: CfState
-	): StateChannelInfos {
+	): StateProposal {
 		let multisig: Address = message.clientMessage.multisigAddress;
-		let channels = state.stateChannelInfos();
+		let channels = state.stateChannelInfosCopy();
 		let appId = message.clientMessage.appId;
 		// delete the app by bumping the nonce
 		channels[multisig].appChannels[appId].dependencyNonce.nonce += 1;
@@ -45,6 +46,6 @@ export class UninstallProposer {
 			chan.appChannels,
 			newFreeBalance
 		);
-		return channels;
+		return { state: channels };
 	}
 }

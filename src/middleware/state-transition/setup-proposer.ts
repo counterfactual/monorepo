@@ -1,6 +1,6 @@
 import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
-import { PeerBalance, InternalMessage } from "../../types";
+import { PeerBalance, InternalMessage, StateProposal } from "../../types";
 import { CfFreeBalance, CfNonce, zeroBytes32 } from "../cf-operation/types";
 import * as ethers from "ethers";
 
@@ -17,7 +17,7 @@ const FREE_BALANCE_UNIQUE_ID = 0;
  * free balance this number is 0.
  */
 export class SetupProposer {
-	static propose(message: InternalMessage) {
+	static propose(message: InternalMessage): StateProposal {
 		let toAddress = message.clientMessage.toAddress;
 		let fromAddress = message.clientMessage.fromAddress;
 
@@ -41,7 +41,9 @@ export class SetupProposer {
 			freeBalance
 		);
 		return {
-			[String(message.clientMessage.multisigAddress)]: stateChannel
+			state: {
+				[String(message.clientMessage.multisigAddress)]: stateChannel
+			}
 		};
 	}
 }

@@ -6,7 +6,8 @@ import {
 	PeerBalance,
 	InstallData,
 	H256,
-	InternalMessage
+	InternalMessage,
+	StateProposal
 } from "../../types";
 import {
 	zeroBytes32,
@@ -16,15 +17,15 @@ import {
 } from "../cf-operation/types";
 
 export class InstallProposer {
-	static propose(message: InternalMessage, context: Context, state: CfState) {
+	static propose(
+		message: InternalMessage,
+		context: Context,
+		state: CfState
+	): StateProposal {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let data: InstallData = message.clientMessage.data;
 		let uniqueId = InstallProposer.nextUniqueId(state, multisig);
 		let cfAddr = InstallProposer.proposedCfAddress(message, uniqueId);
-
-		// add on for use by other middleware
-		message.clientMessage.appId = cfAddr;
-
 		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
 		let newAppChannel = InstallProposer.newAppChannel(cfAddr, data, uniqueId);
 		let [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
@@ -45,7 +46,11 @@ export class InstallProposer {
 			{ [newAppChannel.id]: newAppChannel },
 			freeBalance
 		);
-		return { [multisig]: updatedStateChannel };
+
+		return {
+			cfAddr,
+			state: { [multisig]: updatedStateChannel }
+		};
 	}
 
 	private static newAppChannel(

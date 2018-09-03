@@ -7,7 +7,7 @@ import {
 	CfStateChannel
 } from "../cf-operation/types";
 import { Instruction } from "../../instructions";
-import { Signature, Address, InternalMessage } from "../../types";
+import { Signature, Address, InternalMessage, H256 } from "../../types";
 import { getFirstResult } from "../../vm";
 import * as common from "./common";
 import { CfOperation } from "./types";
@@ -37,13 +37,19 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		let op;
 		console.log("Generating = ", message.actionName);
 		if (message.actionName === "update") {
-			op = this.update(message, context, cfState, proposedState);
+			op = this.update(message, context, cfState, proposedState.state);
 		} else if (message.actionName === "setup") {
-			op = this.setup(message, context, cfState, proposedState);
+			op = this.setup(message, context, cfState, proposedState.state);
 		} else if (message.actionName === "install") {
-			op = this.install(message, context, cfState, proposedState);
+			op = this.install(
+				message,
+				context,
+				cfState,
+				proposedState.state,
+				proposedState.cfAddr
+			);
 		} else if (message.actionName === "uninstall") {
-			op = this.uninstall(message, context, cfState, proposedState);
+			op = this.uninstall(message, context, cfState, proposedState.state);
 		}
 		// leaving temporarily since the tests aren't checking against the commitments
 		// and so we need to exercise their functionality
@@ -124,12 +130,13 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		message: InternalMessage,
 		context: Context,
 		cfState: CfState,
-		proposedInstall: any
+		proposedInstall: any,
+		cfAddr: H256
 	) {
 		let channel = proposedInstall[message.clientMessage.multisigAddress];
 		let freeBalance = channel.freeBalance;
 		let multisig: Address = message.clientMessage.multisigAddress;
-		let appChannel = channel.appChannels[message.clientMessage.appId];
+		let appChannel = channel.appChannels[cfAddr];
 
 		let app = new CfStateChannel(
 			multisig,
