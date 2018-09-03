@@ -39,6 +39,14 @@ export interface InstallData {
 	timeout: number;
 }
 
+/**
+ * The return value from the STATE_TRANSITION_PROPOSE middleware.
+ */
+export interface StateProposal {
+	state: StateChannelInfos;
+	cfAddr?: H256;
+}
+
 export interface UpdateData {
 	encodedAppState: string;
 	/**

@@ -190,14 +190,12 @@ function startInstallBalanceRefundMsg(
 	};
 	return {
 		requestId: "1",
-		appName: "balanceRefund",
 		appId: undefined,
 		action: "install",
 		data: installData,
 		multisigAddress: MULTISIG,
 		toAddress: to,
 		fromAddress: from,
-		stateChannel: undefined,
 		seq: 0
 	};
 }

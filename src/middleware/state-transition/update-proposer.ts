@@ -5,7 +5,8 @@ import {
 	H256,
 	UpdateData,
 	InternalMessage,
-	StateChannelInfos
+	StateChannelInfos,
+	StateProposal
 } from "../../types";
 
 export class UpdateProposer {
@@ -13,9 +14,9 @@ export class UpdateProposer {
 		message: InternalMessage,
 		context: Context,
 		state: CfState
-	): StateChannelInfos {
+	): StateProposal {
 		let multisig: Address = message.clientMessage.multisigAddress;
-		let channels = state.stateChannelInfos();
+		let channels = state.stateChannelInfosCopy();
 
 		let appId: H256 = message.clientMessage.appId;
 		let updateData: UpdateData = message.clientMessage.data;
@@ -25,6 +26,6 @@ export class UpdateProposer {
 		app.encodedState = updateData.encodedAppState;
 		app.localNonce += 1;
 
-		return channels;
+		return { state: channels };
 	}
 }

@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { CfState, StateChannelInfoImpl, Context } from "../state";
-import { getFirstResult } from "../vm";
+import { getFirstResult, getLastResult } from "../vm";
 import { ClientMessage, InternalMessage } from "../types";
 import { Instruction } from "../instructions";
 import { StateTransition } from "./state-transition/state-transition";
@@ -114,22 +114,30 @@ export class NextMsgGenerator {
 		context: Context
 	) {
 		let signature = NextMsgGenerator.signature(internalMessage, context);
-		let message = internalMessage.clientMessage;
+		let lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
 		let msg: ClientMessage = {
 			requestId: "none this should be a notification on completion",
-			appId: message.appId,
-			action: message.action,
-			data: message.data,
-			multisigAddress: message.multisigAddress,
-			toAddress: message.fromAddress, // swap to/from here since sending to peer
-			fromAddress: message.toAddress,
-			seq: message.seq + 1,
+			appId: lastMsg.appId,
+			action: lastMsg.action,
+			data: lastMsg.data,
+			multisigAddress: lastMsg.multisigAddress,
+			toAddress: lastMsg.fromAddress, // swap to/from here since sending to peer
+			fromAddress: lastMsg.toAddress,
+			seq: lastMsg.seq + 1,
 			signature: signature
 		};
-		// need to bump the seqeunce number, so that, when we send out another IO
-		// msg we give the correct one to the nextMsg.
-		internalMessage.clientMessage.seq += 1;
 		return msg;
+	}
+
+	/**
+	 * @returns the last received client message for this protocol. If the
+	 *          protocol just started, then we haven't received a message from
+	 *          our peer, so just return our starting message. Otherwise, return
+	 *          the last message from our peer (from IO_WAIT).
+	 */
+	static lastClientMsg(internalMessage: InternalMessage, context: Context) {
+		let res = getLastResult(Instruction.IO_WAIT, context.results);
+		return res === null ? internalMessage.clientMessage : res.value;
 	}
 
 	static signature(internalMessage: InternalMessage, context: Context) {

@@ -51,7 +51,7 @@ export class CfState {
 	/**
 	 * @returns a deep copy of the StateChannelInfos.
 	 */
-	stateChannelInfos(): StateChannelInfos {
+	stateChannelInfosCopy(): StateChannelInfos {
 		return JSON.parse(JSON.stringify(this.channelStates));
 	}
 

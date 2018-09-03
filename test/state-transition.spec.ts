@@ -39,8 +39,8 @@ describe("State transition", () => {
 			Instruction.STATE_TRANSITION_PROPOSE,
 			setupClientMsg()
 		);
-		let infos: StateChannelInfos = SetupProposer.propose(message);
-		validateSetupInfos(infos);
+		let proposal = SetupProposer.propose(message);
+		validateSetupInfos(proposal.state);
 	});
 	it("should propose a new install state", () => {
 		let message = new InternalMessage(
@@ -48,12 +48,12 @@ describe("State transition", () => {
 			Instruction.STATE_TRANSITION_PROPOSE,
 			installClientMsg()
 		);
-		let infos: StateChannelInfos = InstallProposer.propose(
+		let proposal = InstallProposer.propose(
 			message,
 			new Context(),
 			setupInstallCfState()
 		);
-		validateInstallInfos(infos);
+		validateInstallInfos(proposal.state);
 	});
 });
 
