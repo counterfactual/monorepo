@@ -1,4 +1,4 @@
-import { Action } from "./action";
+import { Action, ActionExecution } from "./action";
 import {
 	ChannelStates,
 	OpCodeResult,
@@ -12,6 +12,7 @@ import {
 	InternalMessage,
 	NetworkContext
 } from "./types";
+import { CfVmWal } from "./wal";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
 import { CfState, Context } from "./state";
 import { Instruction } from "./instructions";
@@ -20,15 +21,33 @@ export class CfVmConfig {
 	constructor(
 		readonly responseHandler: ResponseSink,
 		readonly cfOpGenerator: CfOpGenerator,
+		readonly wal: CfVmWal,
 		readonly state?: ChannelStates,
 		readonly network?: NetworkContext
 	) {}
 }
 
 export class CounterfactualVM {
+	/**
+	 * The object responsible for processing each Instruction in the Vm.
+	 */
 	middleware: CfMiddleware;
+	/**
+	 * The delegate handler we send responses to.
+	 */
 	responseHandler: ResponseSink;
+	/**
+	 * The underlying state for the entire machine. All state here is a result of
+	 * a completed and commited protocol.
+	 */
 	cfState: CfState;
+	/**
+	 * The write ahead log is used to keep track of protocol executions.
+	 * Specifically, whenever an instruction in a protocol is executed,
+	 * we write to the log so that, if the machine crashes, we can resume
+	 * by reading the last log entry and starting where the protocol left off.
+	 */
+	writeAheadLog: CfVmWal;
 
 	constructor(config: CfVmConfig) {
 		this.responseHandler = config.responseHandler;
@@ -37,6 +56,18 @@ export class CounterfactualVM {
 			config.network
 		);
 		this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
+		this.writeAheadLog = config.wal;
+	}
+	/**
+	 * Restarts all protocols that were stopped mid execution, and returns when
+	 * they all finish.
+	 */
+	async resume() {
+		let executions = this.writeAheadLog.read(this);
+		return executions.reduce(
+			(promise, exec) => promise.then(_ => this.run(exec)),
+			Promise.resolve()
+		);
 	}
 
 	startAck(message: ClientMessage) {
@@ -64,20 +95,32 @@ export class CounterfactualVM {
 		return true;
 	}
 
-	sendResponse(res: Response) {
-		this.responseHandler.sendResponse(res);
+	async execute(action: Action) {
+		console.log("Processing request: ", action);
+		let execution = action.makeExecution(this);
+		this.writeAheadLog.write(execution);
+		this.run(execution);
 	}
 
-	async execute(action: Action) {
-		let val;
-		console.log("Processing request: ", action);
-		// TODO deal with errors
-		for await (val of action.execute(this)) {
-			//console.log("processed a step");
+	async run(execution: ActionExecution) {
+		try {
+			// temporary error handling for testing resuming protocols
+			let val;
+			for await (val of execution) {
+				this.writeAheadLog.write(execution);
+			}
+			this.writeAheadLog.clear(execution);
+			this.sendResponse(execution, ResponseStatus.COMPLETED);
+		} catch (e) {
+			console.error("Error executing the action: " + e);
+			this.sendResponse(execution, ResponseStatus.ERROR);
 		}
-		if (!action.isAckSide) {
-			this.sendResponse(
-				new Response(action.requestId, ResponseStatus.COMPLETED)
+	}
+
+	sendResponse(execution: ActionExecution, status: ResponseStatus) {
+		if (!execution.action.isAckSide) {
+			this.responseHandler.sendResponse(
+				new Response(execution.action.requestId, status)
 			);
 		}
 	}
@@ -101,6 +144,7 @@ export class Response {
 
 export enum ResponseStatus {
 	STARTED,
+	ERROR,
 	COMPLETED
 }
 

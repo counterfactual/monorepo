@@ -3,7 +3,8 @@ import {
 	AppChannelInfos,
 	ClientMessage,
 	PeerBalance,
-	InternalMessage
+	InternalMessage,
+	MiddlewareResult
 } from "./types";
 import { StateChannelInfoImpl } from "./state";
 import { CounterfactualVM } from "./vm";
@@ -39,7 +40,7 @@ export class Action {
 		}
 	}
 
-	execute(vm: CounterfactualVM): ActionExecution {
+	makeExecution(vm: CounterfactualVM): ActionExecution {
 		let exe = new ActionExecution(this, 0, this.clientMessage, vm);
 		this.execution = exe;
 		return exe;
@@ -51,8 +52,7 @@ export class ActionExecution {
 	instructionPointer: number;
 	clientMessage: ClientMessage;
 	vm: CounterfactualVM;
-	// probably not the best data structure
-	results: { opCode: Instruction; value: any }[];
+	results: MiddlewareResult[];
 
 	constructor(
 		action: Action,
@@ -87,6 +87,7 @@ export class ActionExecution {
 		let value = await this.vm.middleware.run(internalMessage, context);
 		this.instructionPointer++;
 		this.results.push({ opCode: op, value });
+
 		return { value, done: false };
 	}
 
