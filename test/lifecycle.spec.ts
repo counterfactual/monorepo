@@ -12,6 +12,7 @@ import {
 	zeroBytes32
 } from "../src/middleware/cf-operation/types";
 import { ResponseStatus } from "../src/vm";
+import { sleep } from "./common";
 
 const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
 
@@ -55,13 +56,11 @@ function validatePresetup(walletA: TestWallet, walletB: TestWallet) {
 function setupStartMsg(from: string, to: string): ClientMessage {
 	return {
 		requestId: "0",
-		appId: undefined,
 		action: "setup",
 		data: {},
 		multisigAddress: MULTISIG,
 		toAddress: to,
 		fromAddress: from,
-		stateChannel: undefined,
 		seq: 0
 	};
 }
@@ -543,8 +542,4 @@ async function gotoChain() {
 
 async function validateBlockchain(): Promise<any> {
 	// todo
-}
-
-export async function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
 }

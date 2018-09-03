@@ -59,6 +59,8 @@ export class CfMiddleware {
 		let middlewares = this.middlewares;
 		let opCode = msg.opCode;
 
+		this.executeAllMiddlewares(msg, context);
+
 		async function callback() {
 			if (counter === middlewares[opCode].length - 1) {
 				return Promise.resolve(null);
@@ -75,6 +77,18 @@ export class CfMiddleware {
 			}
 		}
 		return this.middlewares[opCode][0].method(msg, callback, context);
+	}
+
+	/**
+	 * Runs the middlewares for Instruction.ALL.
+	 */
+	private executeAllMiddlewares(msg, context) {
+		let all = this.middlewares[Instruction.ALL];
+		if (all && all.length > 0) {
+			all.forEach(middleware => {
+				middleware.method(msg, null, context);
+			});
+		}
 	}
 }
 

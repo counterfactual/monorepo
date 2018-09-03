@@ -13,6 +13,7 @@ export type Bytes4 = string;
 export type Bytes32 = string;
 export type Address = string;
 export type H256 = string;
+export type MiddlewareResult = { opCode: Instruction; value: any };
 
 export interface ClientMessage {
 	requestId: string;
