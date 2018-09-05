@@ -65,7 +65,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 1,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -94,7 +94,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -115,7 +115,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -143,7 +143,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -164,7 +164,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -192,7 +192,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -213,7 +213,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 2,
         winClaim: {
           winClaimType: 0, // COL
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
@@ -241,7 +241,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 2,
         winClaim: {
           winClaimType: 0, // COL
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
