@@ -28,6 +28,8 @@ const {
   StaticCall
 } = buildArtifacts;
 
+/// Returns the commit hash that can be used to commit to chosenNumber
+/// using appSalt
 function computeCommitHash(appSalt: string, chosenNumber: number) {
   return ethers.utils.solidityKeccak256(
     ["bytes32", "uint256"],
@@ -102,9 +104,11 @@ async function deployStateChannel(
   return stateChannel;
 }
 
-async function setFinalizedChannelNonce(
+/// Set channel nonce with key corresponding to (multisig.address, channelNonceSalt),
+/// and then wait 10 blocks, hence finalizing the nonce.
+async function setChannelNonceAndWait(
   multisig: Multisig,
-  channelNonce: number,
+  channelNonceValue: ethers.BigNumber,
   channelNonceSalt: string,
   signers: ethers.Wallet[]
 ) {
@@ -112,7 +116,7 @@ async function setFinalizedChannelNonce(
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
-    [channelNonceSalt, channelNonce],
+    [channelNonceSalt, channelNonceValue],
     signers
   );
 
@@ -124,7 +128,7 @@ async function setFinalizedChannelNonce(
   );
   (await nonceRegistry.functions.isFinalized(
     channelNonceKey,
-    channelNonce
+    channelNonceValue
   )).should.be.equal(true);
   return channelNonceKey;
 }
@@ -133,7 +137,8 @@ async function executeStateChannelTransfer(
   stateChannel: StateChannel,
   multisig: Multisig,
   channelNonceKey: string,
-  channelNonce: number,
+  expectedRValue: ethers.BigNumber,
+  appIdx: number,
   signers: ethers.Wallet[]
 ) {
   if (!stateChannel.contract) {
@@ -152,7 +157,8 @@ async function executeStateChannelTransfer(
       registry.address,
       nonceRegistry.address,
       channelNonceKey,
-      channelNonce,
+      expectedRValue,
+      appIdx,
       stateChannel.contract.cfAddress,
       stateChannel.terms
     ],
@@ -203,23 +209,30 @@ describe("CommitReveal", async () => {
     // 5. Call setResolution() on StateChannel
     await stateChannel.setResolution(appState);
 
-    // 6. Call setNonce on NonceRegistry with some salt and nonce
-    const channelNonce = 1;
+    // 6. Call setNonce on NonceRegistry. Salt is arbitrarily chosen.
+    const channelNonceValue = new ethers.BigNumber(
+      "0x00000000000000000000000000000001" + "80000000000000000000000000000000"
+    );
     const channelNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
-    const channelNonceKey = await setFinalizedChannelNonce(
+    const channelNonceKey = await setChannelNonceAndWait(
       multisig,
-      channelNonce,
+      channelNonceValue,
       channelNonceSalt,
       [alice, bob]
     );
+
     // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
     await executeStateChannelTransfer(
       stateChannel,
       multisig,
       channelNonceKey,
-      channelNonce,
+      new ethers.BigNumber(
+        "0x00000000000000000000000000000000" +
+          "00000000000000000000000000000000"
+      ),
+      0,
       [alice, bob]
     );
 
