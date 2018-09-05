@@ -22,14 +22,25 @@ contract TicTacToe {
 
   struct WinClaim {
     WinClaimType winClaimType;
-    uint256 winClaimIdx;
+    uint256 idx;
   }
+
+  // Constants for AppState::winner.
+  // If i = AppState::winner is not one of these, then
+  // players[i-1] has won.
+  uint256 constant GAME_IN_PROGRESS = 0;
+  uint256 constant GAME_DRAWN = 3;
+
+  // Constants for elements of AppState::board
+  // If i = AppState::board[x][y] is not one of these, then
+  // players[i-1] has played on (x, y)
+  uint256 constant EMPTY_SQUARE = 0;
 
   struct AppState {
     address[2] players;
     uint256 turnNum;
-    uint256 winner; // 0 => game in progress, 3 => drawn, i => player[i-1] won otherwise
-    uint256[3][3] board; // 0 => empty square, i => players[i-1] otherwise
+    uint256 winner;
+    uint256[3][3] board;
   }
 
   struct Action {
@@ -107,8 +118,8 @@ contract TicTacToe {
       amounts[0] = terms.limit;
       amounts[1] = 0;
 
-      to[0] = loser;
-      to[1] = winner;
+      to[0] = winner;
+      to[1] = loser;
 
       return Transfer.Details(
         terms.assetType,
@@ -121,9 +132,11 @@ contract TicTacToe {
 
   }
 
-  function playMove(
-    AppState state, uint256 playerId, uint256 x, uint256 y
-  ) internal pure returns (AppState) {
+  function playMove(AppState state, uint256 playerId, uint256 x, uint256 y)
+    internal
+    pure
+    returns (AppState)
+  {
     require(state.board[x][y] == 0, "playMove: square is not empty");
     require(playerId == 0 || playerId == 1, "playMove: playerId not in range [0, 1]");
 
@@ -133,30 +146,31 @@ contract TicTacToe {
   }
 
   function assertBoardIsFull(AppState preState) internal pure {
-    for (uint256 i=0; i<3; i++) {
-      for (uint256 j=0; j<3; j++) {
+    for (uint256 i = 0; i < 3; i++) {
+      for (uint256 j = 0; j < 3; j++) {
         require(preState.board[i][j] != 0, "assertBoardIsFull: square is empty");
       }
     }
   }
 
   function assertWin(uint256 playerId, AppState state, WinClaim winClaim) internal pure {
+    uint256 expectedSquareState = playerId + 1;
     if (winClaim.winClaimType == WinClaimType.COL) {
-      require(state.board[winClaim.winClaimIdx][0] == playerId + 1, "assertWin failed");
-      require(state.board[winClaim.winClaimIdx][1] == playerId + 1, "assertWin failed");
-      require(state.board[winClaim.winClaimIdx][2] == playerId + 1, "assertWin failed");
+      require(state.board[winClaim.idx][0] == expectedSquareState, "Win Claim not valid");
+      require(state.board[winClaim.idx][1] == expectedSquareState, "Win Claim not valid");
+      require(state.board[winClaim.idx][2] == expectedSquareState, "Win Claim not valid");
     } else if (winClaim.winClaimType == WinClaimType.ROW) {
-      require(state.board[0][winClaim.winClaimIdx] == playerId + 1, "assertWin failed");
-      require(state.board[1][winClaim.winClaimIdx] == playerId + 1, "assertWin failed");
-      require(state.board[2][winClaim.winClaimIdx] == playerId + 1, "assertWin failed");
+      require(state.board[0][winClaim.idx] == expectedSquareState, "Win Claim not valid");
+      require(state.board[1][winClaim.idx] == expectedSquareState, "Win Claim not valid");
+      require(state.board[2][winClaim.idx] == expectedSquareState, "Win Claim not valid");
     } else if (winClaim.winClaimType == WinClaimType.DIAG) {
-      require(state.board[0][0] == playerId + 1, "assertWin failed");
-      require(state.board[1][1] == playerId + 1, "assertWin failed");
-      require(state.board[2][2] == playerId + 1, "assertWin failed");
+      require(state.board[0][0] == expectedSquareState, "Win Claim not valid");
+      require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
+      require(state.board[2][2] == expectedSquareState, "Win Claim not valid");
     } else if (winClaim.winClaimType == WinClaimType.CROSS_DIAG) {
-      require(state.board[2][0] == playerId + 1, "assertWin failed");
-      require(state.board[1][1] == playerId + 1, "assertWin failed");
-      require(state.board[0][2] == playerId + 1, "assertWin failed");
+      require(state.board[2][0] == expectedSquareState, "Win Claim not valid");
+      require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
+      require(state.board[0][2] == expectedSquareState, "Win Claim not valid");
     }
   }
 
