@@ -47,6 +47,12 @@ contract("NonceRegistry", accounts => {
     );
   });
 
+  it("fails if nonce increment is not positive", async () => {
+    await Utils.assertRejects(
+      registry.functions.setNonce(Utils.ZERO_BYTES32, 0)
+    );
+  });
+
   it("can finalize nonces", async () => {
     await registry.functions.finalizeNonce(Utils.ZERO_BYTES32);
     const ret = await registry.functions.table(computeKey(Utils.ZERO_BYTES32));
@@ -57,11 +63,5 @@ contract("NonceRegistry", accounts => {
       0
     );
     isFinal.should.be.equal(true);
-  });
-
-  it("fails if nonce increment is not positive", async () => {
-    await Utils.assertRejects(
-      registry.functions.setNonce(Utils.ZERO_BYTES32, 0)
-    );
   });
 });
