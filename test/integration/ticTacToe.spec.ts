@@ -36,7 +36,7 @@ contract("TicTacToe", (accounts: string[]) => {
         playY: 0,
         winClaim: {
           winClaimType: 0,
-          winClaimIdx: 0
+          idx: 0
         }
       };
 
