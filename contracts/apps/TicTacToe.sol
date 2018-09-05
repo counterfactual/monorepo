@@ -132,6 +132,15 @@ contract TicTacToe {
 
   }
 
+
+  function isStateTerminal(AppState state)
+    public
+    pure
+    returns (bool)
+  {
+    return state.winner != GAME_IN_PROGRESS;
+  }
+
   function playMove(AppState state, uint256 playerId, uint256 x, uint256 y)
     internal
     pure
