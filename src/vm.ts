@@ -109,8 +109,8 @@ export class CounterfactualVM {
 			for await (val of execution) {
 				this.writeAheadLog.write(execution);
 			}
-			this.writeAheadLog.clear(execution);
 			this.sendResponse(execution, ResponseStatus.COMPLETED);
+			this.writeAheadLog.clear(execution);
 		} catch (e) {
 			console.error("Error executing the action: " + e);
 			this.sendResponse(execution, ResponseStatus.ERROR);
