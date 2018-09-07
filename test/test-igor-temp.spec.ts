@@ -1,5 +1,4 @@
-import { ClientMessage, ChannelStates } from "./../src/machine/types";
-import { CfWallet } from "../src/wallet/wallet";
+import { ClientMessage, ChannelStates } from "./../src/types";
 import * as ethers from "ethers";
 
 describe("Exploring", () => {
@@ -72,7 +71,6 @@ describe("Exploring", () => {
 
 		let msg: ClientMessage = {
 			requestId: '123-456-789',
-			appName: 'ethmo',
 			appId: 'someAppId',
 			//toAddress: 'toAddr',
 			//fromAddress: 'fromAddr',
@@ -100,7 +98,6 @@ describe("Exploring", () => {
 		let wallet = new CfWallet();
 		let msg: ClientMessage = {
 			requestId: "123-456-789",
-			//appName: 'ethmo',
 			//appId: 'someAppId',
 			// @igor: need to use real addresses for ethers to not crash
 			toAddress: "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3",
@@ -127,6 +124,6 @@ describe("Exploring", () => {
 			signatures: ["hi i am a signature"]
 		};
 		wallet.receiveMessageFromPeer(incoming);
-	});
 	*/
+	});
 });

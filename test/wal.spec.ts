@@ -26,7 +26,7 @@ describe("Write ahead log", () => {
 function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 	const requestIds = ["1", "2", "3"];
 	const actions = ["install", "update", "uninstall"];
-	const msgs: ClientMessage = [
+	const msgs: Array<ClientMessage> = [
 		{
 			requestId: "1",
 			action: "install",
@@ -76,7 +76,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 	return executions;
 }
 
-function validateWal(wal: CfVmWal, vm: CounterfactualVm) {
+function validateWal(wal: CfVmWal, vm: CounterfactualVM) {
 	let executions = wal.read(vm);
 	let expectedExecutions = makeExecutions(vm);
 	for (let k = 0; k < expectedExecutions.length; k += 1) {

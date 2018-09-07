@@ -296,7 +296,6 @@ function startUninstallBalanceRefundMsg(
 	};
 	return {
 		requestId: "2",
-		appName: "balanceRefund",
 		appId: appId,
 		action: "uninstall",
 		data: uninstallData,
@@ -350,7 +349,6 @@ function installTttMsg(to: string, from: string): ClientMessage {
 	};
 	return {
 		requestId: "5",
-		appName: "ttt",
 		appId: undefined,
 		action: "install",
 		data: installData,
@@ -365,14 +363,14 @@ function installTttMsg(to: string, from: string): ClientMessage {
 async function validateInstallTtt(
 	walletA: TestWallet,
 	walletB: TestWallet
-): string {
+): Promise<string> {
 	validateInstallTttWallet(walletA, walletB);
 	// wait for other client to finish, since the machine is async
 	await sleep(50);
 	return validateInstallTttWallet(walletB, walletA);
 }
 
-function validateInstallTttWallet(walletA: TestWallet, walletB: TestWallet) {
+function validateInstallTttWallet(walletA: TestWallet, walletB: TestWallet) : string {
 	let stateChannel = walletA.vm.cfState.channelStates[MULTISIG];
 	let appChannels = stateChannel.appChannels;
 	let cfAddrs = Object.keys(appChannels);
@@ -442,7 +440,6 @@ function updateTttMsg(
 	};
 	return {
 		requestId: "1",
-		appName: "ttt",
 		appId: cfAddr,
 		action: "update",
 		data: updateData,
@@ -505,7 +502,6 @@ function uninstallTttStartMsg(
 	};
 	return {
 		requestId: "2",
-		appName: "ttt",
 		appId: cfAddr,
 		action: "uninstall",
 		data: uninstallData,

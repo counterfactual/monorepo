@@ -18,6 +18,10 @@ export class UpdateProposer {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfosCopy();
 
+		if (message.clientMessage.appId === undefined) {
+			throw "update message must have appId set";
+		}
+
 		let appId: H256 = message.clientMessage.appId;
 		let updateData: UpdateData = message.clientMessage.data;
 

@@ -123,6 +123,9 @@ export class IoProvider {
 		if (message.actionName === "setup" || message.actionName === "install") {
 			multisig = message.clientMessage.multisigAddress;
 		} else {
+			if (message.clientMessage.appId === undefined) {
+				throw "messages other than setup and install must have appId set";
+			}
 			appId = message.clientMessage.appId;
 		}
 

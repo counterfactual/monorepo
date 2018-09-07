@@ -19,7 +19,7 @@ export type MiddlewareResult = { opCode: Instruction; value: any };
 
 export interface ClientMessage {
 	requestId: string;
-	appId: string;
+	appId?: string;
 	action: string;
 	data: any;
 	multisigAddress: string;

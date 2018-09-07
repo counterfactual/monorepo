@@ -14,7 +14,7 @@ export class CfMiddleware {
 	/**
 	 * Maps instruction to list of middleware that will process the instruction.
 	 */
-	private middlewares: Object;
+	public middlewares: Object;
 
 	constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
 		this.middlewares = {};
