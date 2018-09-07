@@ -82,6 +82,9 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		proposedUpdate: any
 	): CfOperation {
 		let multisig: Address = message.clientMessage.multisigAddress;
+		if (message.clientMessage.appId === undefined) {
+			throw "update message must have appId set";
+		}
 		let appChannel =
 			proposedUpdate[multisig].appChannels[message.clientMessage.appId];
 		return new CfOpUpdate(
@@ -178,6 +181,10 @@ export class EthCfOpGenerator extends CfOpGenerator {
 	): CfOperation {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let cfAddr = message.clientMessage.appId;
+		if (cfAddr === undefined) {
+			throw "update message must have appId set";
+		}
+
 		let freeBalance = proposedUninstall[multisig].freeBalance;
 		let appChannel = proposedUninstall[multisig].appChannels[cfAddr];
 

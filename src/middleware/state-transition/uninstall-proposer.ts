@@ -19,6 +19,9 @@ export class UninstallProposer {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let channels = state.stateChannelInfosCopy();
 		let appId = message.clientMessage.appId;
+		if (appId === undefined) {
+			throw "uninstall message must have appId set";
+		}
 		// delete the app by bumping the nonce
 		channels[multisig].appChannels[appId].dependencyNonce.nonce += 1;
 		// add balance and update nonce
