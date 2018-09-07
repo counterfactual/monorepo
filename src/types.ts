@@ -5,14 +5,16 @@ import { Instruction } from "./instructions";
 import { CfFreeBalance, CfNonce } from "./middleware/cf-operation/types";
 
 /**
- * Aliases to help code readability. Should think about actually changing these
- * to be non strings.
+ * Aliases to help code readability. Byte arrays and addresses are represented as hex-encoded strings.
+ * Should think about actually changing these to be non strings.
  */
-export type Bytes = string;
-export type Bytes4 = string;
+export type Bytes = string;			// dynamically-sized byte array
+export type Bytes4 = string;		// fixed-size byte arrays
 export type Bytes32 = string;
-export type Address = string;
-export type H256 = string;
+export type Address = string;		// ethereum address (i.e. rightmost 20 bytes of keccak256 of ECDSA pubkey)
+export type H256 = string;			// a bytes32 which is the output of the keccak256 hash function
+
+
 export type MiddlewareResult = { opCode: Instruction; value: any };
 
 export interface ClientMessage {
