@@ -44,7 +44,7 @@ From certain app states, `resolve` can be called to return a value of type `stru
 
 ### isStateTerminal
 
-Some app states are marked terminal. An app state a is terminal if there does not exist an action c such that applyAction(a, c) returns (i.e., the app state transition graph has no outgoing edges from a). Since we cannot statically check this property, the app developer can manually mark these states by making `isStateTerminal` return true for them, allowing us to skip one step of dispute resolution.
+Some app states are marked terminal. An app state `a` is terminal if there does not exist an action `c` such that `applyAction(a, c)` returns without throwing. In other words, the app state transition graph has no outgoing edges from `a`. Since we cannot statically check this property, the app developer can manually mark these states by making `isStateTerminal` return true for them, allowing us to skip one step of dispute resolution.
 
 Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
 

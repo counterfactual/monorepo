@@ -21,9 +21,9 @@ contract NonceRegistry {
 
   /// @notice Determine whether a particular key has been set and finalized at a nonce
   /// @param key A unique entry in the mapping, computed using `computeKey`
-  /// @param nonce The nonce that the key is expected to be finalized at
+  /// @param expectedNonce The nonce that the key is expected to be finalized at
   /// @return A boolean referring to whether or not the key has been finalized at the nonce
-  function isFinalized(bytes32 key, uint256 nonce)
+  function isFinalized(bytes32 key, uint256 expectedNonce)
     external
     view
     returns (bool)
@@ -33,7 +33,11 @@ contract NonceRegistry {
       table[key].finalizesAt <= block.number,
       "Nonce is not yet finalized"
     );
-    return state.nonce == nonce;
+    require(
+      state.nonce == expectedNonce,
+      "Nonce is not equal to expectedNonce"
+    );
+    return true;
   }
 
   /// @notice Return the N highest-order bits from the input.
