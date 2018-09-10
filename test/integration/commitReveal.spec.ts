@@ -64,13 +64,13 @@ const appStateEncoding = abiEncodingForStruct(`
 `);
 
 async function createMultisig(
-  funder: ethers.Wallet,
+  sender: ethers.Wallet,
   initialFunding: ethers.BigNumber,
   owners: ethers.Wallet[]
 ): Promise<Multisig> {
   const multisig = new Multisig(owners.map(w => w.address));
-  await multisig.deploy(funder);
-  await funder.sendTransaction({
+  await multisig.deploy(sender);
+  await sender.sendTransaction({
     to: multisig.address,
     value: initialFunding
   });
@@ -86,7 +86,7 @@ async function deployStateChannel(
   appContract: ethers.Contract,
   terms: TransferTerms
 ) {
-  const registry = Registry.getDeployed(masterAccount);
+  const registry = await Registry.getDeployed(masterAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const stateChannel = new StateChannel(
     signers,
@@ -108,7 +108,7 @@ async function setFinalizedChannelNonce(
   channelNonceSalt: string,
   signers: ethers.Wallet[]
 ) {
-  const nonceRegistry = NonceRegistry.getDeployed(masterAccount);
+  const nonceRegistry = await NonceRegistry.getDeployed(masterAccount);
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
@@ -139,9 +139,11 @@ async function executeStateChannelTransfer(
   if (!stateChannel.contract) {
     throw new Error("Deploy failed");
   }
-  const conditionalTransfer = ConditionalTransfer.getDeployed(masterAccount);
-  const registry = Registry.getDeployed(masterAccount);
-  const nonceRegistry = NonceRegistry.getDeployed(masterAccount);
+  const conditionalTransfer = await ConditionalTransfer.getDeployed(
+    masterAccount
+  );
+  const registry = await Registry.getDeployed(masterAccount);
+  const nonceRegistry = await NonceRegistry.getDeployed(masterAccount);
 
   await multisig.execDelegatecall(
     conditionalTransfer,

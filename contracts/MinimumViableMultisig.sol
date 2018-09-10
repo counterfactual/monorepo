@@ -16,7 +16,6 @@ contract MinimumViableMultisig {
   using Signatures for bytes;
 
   mapping(bytes32 => bool) isExecuted;
-  mapping (address => bool) isOwner;
 
   address[] private _owners;
 
@@ -30,10 +29,6 @@ contract MinimumViableMultisig {
   function setup(address[] owners) public {
     require(_owners.length == 0); // Contract hasn't been set up before
     _owners = owners;
-    for (uint256 i = 0; i < owners.length; i++) {
-      require(owners[i] != 0);
-      isOwner[owners[i]] = true;
-    }
   }
 
   function ()
