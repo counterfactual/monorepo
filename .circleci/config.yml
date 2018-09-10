@@ -21,7 +21,7 @@ jobs:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-      - run: npm test
+      - run: yarn test
 
   run-tslint:
       docker:
@@ -30,7 +30,7 @@ jobs:
         - checkout
         - restore_cache:
             key: dependency-cache-{{ checksum "package.json" }}
-        - run: npm run lint
+        - run: yarn run lint
 
   run-prettier:
     docker:
@@ -39,7 +39,7 @@ jobs:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-      - run: npm run prettier
+      - run: yarn run prettier
 
 workflows:
   version: 2
