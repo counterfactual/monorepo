@@ -11,7 +11,7 @@ import { Signature, Address, InternalMessage, H256 } from "../../types";
 import { getFirstResult } from "../../vm";
 import * as common from "./common";
 import { CfOperation } from "./types";
-import { CfOpUpdate } from "./cf-op-update";
+import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpUninstall } from "./cf-op-uninstall";
@@ -87,7 +87,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		}
 		let appChannel =
 			proposedUpdate[multisig].appChannels[message.clientMessage.appId];
-		return new CfOpUpdate(
+		return new CfOpSetState(
 			cfState.networkContext,
 			multisig,
 			[appChannel.keyA, appChannel.keyB],

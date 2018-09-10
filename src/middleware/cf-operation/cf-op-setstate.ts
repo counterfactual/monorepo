@@ -9,7 +9,7 @@ import {
 } from "./types";
 import { NetworkContext, Address, Signature } from "../../types";
 
-export class CfOpUpdate extends CfOperation {
+export class CfOpSetState extends CfOperation {
 	constructor(
 		readonly ctx: NetworkContext,
 		readonly multisig: Address,
