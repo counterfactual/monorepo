@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  docker_devnet:
+    image: trufflesuite/ganache-cli:v6.1.8
+    command: |
+      --networkId 7777777 --gasLimit 0xfffffffffff --port 9545
+      --account="${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}"
+      --account="${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}"
+      --account="${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}"
+    ports:
+      - "9545:9545"
+
+  machine: &machine
+    build: .
+    command: tail -f /dev/null
+    working_dir: /app/machine
+    environment:
+      - GANACHE_URL=http://docker_devnet:9545
+      - npm_package_config_unlockedAccount0
+      - npm_package_config_unlockedAccount1
+      - npm_package_config_unlockedAccount2
+      - npm_package_config_etherBalance
+    volumes:
+      - .:/app/machine
+    depends_on:
+      - docker_devnet
+  
+  machine_local_contracts:
+    <<: *machine
+    volumes:
+      - .:/app/machine
+      - ../contracts/contracts:/app/contracts/contracts

@@ -1,3 +1,5 @@
+import { ActionName } from "./types";
+
 export enum Instruction {
 	/**
 	 * Optimistically creates the new state that will result if a protocol
@@ -56,7 +58,7 @@ export enum Instruction {
  * starts a protocol with a peer out of nowhere.
  */
 export let Instructions = {
-	update: [
+	[ActionName.UPDATE]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
@@ -66,7 +68,7 @@ export let Instructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	setup: [
+	[ActionName.SETUP]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
@@ -76,7 +78,7 @@ export let Instructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	install: [
+	[ActionName.INSTALL]: [
 		Instruction.KEY_GENERATE,
 		Instruction.IO_PREPARE_SEND,
 		Instruction.IO_SEND,
@@ -89,7 +91,7 @@ export let Instructions = {
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	uninstall: [
+	[ActionName.UNINSTALL]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN,
@@ -106,7 +108,7 @@ export let Instructions = {
  * who did not initiate a given protocol.
  */
 export let AckInstructions = {
-	update: [
+	[ActionName.UPDATE]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
@@ -115,7 +117,7 @@ export let AckInstructions = {
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	setup: [
+	[ActionName.SETUP]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,
@@ -124,7 +126,7 @@ export let AckInstructions = {
 		Instruction.IO_SEND,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	install: [
+	[ActionName.INSTALL]: [
 		Instruction.KEY_GENERATE,
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
@@ -135,7 +137,7 @@ export let AckInstructions = {
 		Instruction.OP_SIGN_VALIDATE,
 		Instruction.STATE_TRANSITION_COMMIT
 	],
-	uninstall: [
+	[ActionName.UNINSTALL]: [
 		Instruction.STATE_TRANSITION_PROPOSE,
 		Instruction.OP_GENERATE,
 		Instruction.OP_SIGN_VALIDATE,

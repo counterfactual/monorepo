@@ -1,12 +1,9 @@
 import {
-	StateChannelInfos,
-	AppChannelInfos,
 	ClientMessage,
-	PeerBalance,
 	InternalMessage,
-	MiddlewareResult
+	MiddlewareResult,
+	ActionName
 } from "./types";
-import { StateChannelInfoImpl } from "./state";
 import { CounterfactualVM } from "./vm";
 import { Instructions, AckInstructions, Instruction } from "./instructions";
 
@@ -15,7 +12,7 @@ if (!Symbol.asyncIterator) {
 }
 
 export class Action {
-	name: string;
+	name: ActionName;
 	requestId: string;
 	clientMessage: ClientMessage;
 	execution: ActionExecution = Object.create(null);
@@ -24,7 +21,7 @@ export class Action {
 
 	constructor(
 		id: string,
-		action: string,
+		action: ActionName,
 		clientMessage: ClientMessage,
 		isAckSide: boolean = false
 	) {
@@ -73,7 +70,7 @@ export class ActionExecution {
 		}
 
 		let op = this.action.instructions[this.instructionPointer];
-		console.log("Executing op: ", op, this.clientMessage.seq);
+		console.log("Executing op: ", Instruction[op], this.clientMessage.seq);
 		let internalMessage = new InternalMessage(
 			this.action.name,
 			op,
@@ -84,11 +81,20 @@ export class ActionExecution {
 			instructionPointer: this.instructionPointer,
 			vm: this.vm
 		};
-		let value = await this.vm.middleware.run(internalMessage, context);
-		this.instructionPointer++;
-		this.results.push({ opCode: op, value });
 
-		return { value, done: false };
+		try {
+			let value = await this.vm.middleware.run(internalMessage, context);
+			this.instructionPointer++;
+			this.results.push({ opCode: op, value });
+
+			return { value, done: false };
+		} catch (e) {
+			throw Error(
+				`Failed to execute op ${Instruction[op]} at seq ${
+					this.clientMessage.seq
+				}. Error: ${e}`
+			);
+		}
 	}
 
 	[Symbol.asyncIterator]() {

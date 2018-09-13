@@ -1,50 +1,60 @@
-import { NetworkContext, Signature, H256 } from "../../types";
+import { NetworkContext, Address, H256 } from "../../types";
 import {
 	Operation,
-	Transaction,
 	MultisigInput,
 	Abi,
-	Terms,
-	zeroAddress,
-	zeroBytes32,
-	CfOperation,
 	CfNonce,
-	CfStateChannel
+	CfStateChannel,
+	CfFreeBalance
 } from "./types";
 import * as ethers from "ethers";
-import * as common from "./common";
 
-export class CfOpSetup extends CfOperation {
+import { CfMultiSendOp } from "./cf-multisend-op";
+import { BigNumber } from "ethers";
+
+const TYPES = ["bytes1", "address", "address", "uint256", "bytes", "uint256"];
+
+export class CfOpSetup extends CfMultiSendOp {
 	constructor(
 		readonly ctx: NetworkContext,
-		readonly multisig: string,
-		readonly freeBalance: CfStateChannel,
+		readonly multisig: Address,
+		readonly freeBalanceStateChannel: CfStateChannel,
+		readonly freeBalance: CfFreeBalance,
 		readonly nonce: CfNonce
 	) {
-		super();
+		super(ctx, multisig, freeBalance, nonce);
 	}
 
-	hashToSign(): H256 {
-		let multisigInput = this.multisigInput();
-		return ethers.utils.solidityKeccak256(
-			["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-			[
-				"0x19",
-				this.multisig, // why did we use this as salt in the last iteration?
-				multisigInput.to,
-				multisigInput.val,
-				multisigInput.data,
-				multisigInput.op
-			]
-		);
+	/**
+	 * Helper method to get hash of an input calldata
+	 * @param multisig
+	 * @param multisigInput
+	 */
+	static toHash(multisig: Address, multisigInput: MultisigInput): H256 {
+		multisigInput = sanitizeMultisigInput(multisigInput);
+		return ethers.utils.solidityKeccak256(TYPES, [
+			"0x19",
+			multisig, // why did we use this as salt in the last iteration?
+			multisigInput.to,
+			multisigInput.val,
+			multisigInput.data,
+			multisigInput.op
+		]);
 	}
 
-	multisigInput(): MultisigInput {
-		let termsArray = [
-			this.freeBalance.terms.assetType,
-			this.freeBalance.terms.limit,
-			this.freeBalance.terms.token
+	/**
+	 * @override common.CfMultiSendOp
+	 */
+	eachMultisigInput(): Array<MultisigInput> {
+		return [
+			this.finalizeDependencyNonceInput(),
+			this.conditionalTransferInput()
 		];
+	}
+
+	conditionalTransferInput(): MultisigInput {
+		let terms = CfFreeBalance.terms();
+
 		let multisigCalldata = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
@@ -52,8 +62,8 @@ export class CfOpSetup extends CfOperation {
 			this.ctx.NonceRegistry,
 			this.nonce.salt,
 			this.nonce.nonce,
-			this.freeBalance.cfAddress(),
-			termsArray
+			this.freeBalanceStateChannel.cfAddress(),
+			[terms.assetType, terms.limit, terms.token]
 		]);
 
 		return new MultisigInput(
@@ -63,21 +73,13 @@ export class CfOpSetup extends CfOperation {
 			Operation.Delegatecall
 		);
 	}
+}
 
-	transaction(sigs: Signature[]): Transaction {
-		let msInput = this.multisigInput();
-		return new Transaction(
-			this.multisig,
-			0,
-			new ethers.Interface([
-				Abi.execTransaction
-			]).functions.execTransaction.encode([
-				msInput.to,
-				msInput.val,
-				msInput.data,
-				msInput.op,
-				Signature.toBytes(sigs)
-			])
-		);
-	}
+function sanitizeMultisigInput(multisigInput: any): MultisigInput {
+	return new MultisigInput(
+		multisigInput.to,
+		new BigNumber(multisigInput.value).toNumber(),
+		multisigInput.data,
+		new BigNumber(multisigInput.operation).toNumber()
+	);
 }

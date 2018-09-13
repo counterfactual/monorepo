@@ -1,7 +1,12 @@
 import * as ethers from "ethers";
-import { CfState, StateChannelInfoImpl, Context } from "../state";
-import { getFirstResult, getLastResult } from "../vm";
-import { ClientMessage, InternalMessage } from "../types";
+import { CfState, Context } from "../state";
+import {
+	ClientMessage,
+	InternalMessage,
+	OpCodeResult,
+	Signature,
+	ActionName
+} from "../types";
 import { Instruction } from "../instructions";
 import { StateTransition } from "./state-transition/state-transition";
 export { StateTransition } from "./state-transition/state-transition";
@@ -50,11 +55,6 @@ export class CfMiddleware {
 	}
 
 	async run(msg: InternalMessage, context: Context) {
-		let resolve;
-		let result = new Promise((res, rej) => {
-			resolve = res;
-		});
-
 		let counter = 0;
 		let middlewares = this.middlewares;
 		let opCode = msg.opCode;
@@ -137,15 +137,22 @@ export class NextMsgGenerator {
 	 */
 	static lastClientMsg(internalMessage: InternalMessage, context: Context) {
 		let res = getLastResult(Instruction.IO_WAIT, context.results);
-		return res === null ? internalMessage.clientMessage : res.value;
+		// TODO: make getLastResult's return value nullable
+		return JSON.stringify(res) === JSON.stringify({})
+			? internalMessage.clientMessage
+			: res.value;
 	}
 
-	static signature(internalMessage: InternalMessage, context: Context) {
+	static signature(
+		internalMessage: InternalMessage,
+		context: Context
+	): Signature | undefined {
 		// first time we send an install message (from non-ack side) we don't have
 		// a signature since we are just exchanging an app-speicific ephemeral key.
+		let lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
 		if (
-			internalMessage.actionName === "install" &&
-			internalMessage.clientMessage.seq === 0
+			internalMessage.actionName === ActionName.INSTALL &&
+			lastMsg.seq === 0
 		) {
 			return undefined;
 		}
@@ -178,6 +185,31 @@ export class SignatureValidator {
 	) {
 		let incomingMessage = getFirstResult(Instruction.IO_WAIT, context.results);
 		let op = getFirstResult(Instruction.OP_GENERATE, context.results);
-		// now validate the signature against the op hash
+		// TODO: now validate the signature against the op hash
+		next();
 	}
+}
+
+/**
+ * Utilitiy for middleware to access return values of other middleware.
+ */
+export function getFirstResult(
+	toFindOpCode: Instruction,
+	results: { value: any; opCode }[]
+): OpCodeResult {
+	// FIXME: (ts-strict) we should change the results data structure or design
+	// @ts-ignore
+	return results.find(({ opCode, value }) => opCode === toFindOpCode);
+}
+
+export function getLastResult(
+	toFindOpCode: Instruction,
+	results: { value: any; opCode }[]
+): OpCodeResult {
+	for (let k = results.length - 1; k >= 0; k -= 1) {
+		if (results[k].opCode === toFindOpCode) {
+			return results[k];
+		}
+	}
+	return Object.create(null);
 }

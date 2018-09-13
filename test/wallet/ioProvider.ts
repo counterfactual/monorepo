@@ -1,8 +1,8 @@
-import { ClientMessage, InternalMessage } from "../../src/types";
-import { getFirstResult, getLastResult } from "../../src/vm";
+import { ClientMessage, InternalMessage, ActionName } from "../../src/types";
 import { Context } from "../../src/state";
 import { TestWallet } from "./wallet";
 import { Instruction } from "../../src/instructions";
+import { getLastResult } from "../../src/middleware/middleware";
 
 export class IoProvider {
 	messages: ClientMessage[];
@@ -105,7 +105,7 @@ export class IoProvider {
 	}
 
 	private needsAppId(message: InternalMessage) {
-		return message.actionName !== "setup";
+		return message.actionName !== ActionName.SETUP;
 	}
 
 	async waitForIo(
@@ -120,7 +120,10 @@ export class IoProvider {
 		let multisig: string = "";
 		let appId: string = "";
 
-		if (message.actionName === "setup" || message.actionName === "install") {
+		if (
+			message.actionName === ActionName.SETUP ||
+			message.actionName === ActionName.INSTALL
+		) {
 			multisig = message.clientMessage.multisigAddress;
 		} else {
 			if (message.clientMessage.appId === undefined) {

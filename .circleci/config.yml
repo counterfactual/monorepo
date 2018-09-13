@@ -2,35 +2,42 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:9.11
+        - image: circleci/node:9.11
     steps:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          command: yarn install
+      - run: yarn install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
 
   run-node-tests:
+    machine: true
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: "Yarn install"
+          command: |
+              curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+              echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+              sudo apt-get update && sudo apt-get install yarn
+              yarn install
+      - run: yarn docker:build # Pull in image instead of building once image is deployed to hub
+      - run: yarn docker:run
+      - run: yarn test:ci
+
+  run-tslint:
     docker:
       - image: circleci/node:9.11
     steps:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
-      - run: yarn test
-
-  run-tslint:
-      docker:
-        - image: circleci/node:9.11
-      steps:
-        - checkout
-        - restore_cache:
-            key: dependency-cache-{{ checksum "package.json" }}
-        - run: yarn run lint
+      - run: yarn run lint
 
   run-prettier:
     docker:

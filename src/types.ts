@@ -20,7 +20,7 @@ export type MiddlewareResult = { opCode: Instruction; value: any };
 export interface ClientMessage {
 	requestId: string;
 	appId?: string;
-	action: string;
+	action: ActionName;
 	data: any;
 	multisigAddress: string;
 	toAddress: string;
@@ -52,7 +52,7 @@ export interface StateProposal {
 export interface UpdateData {
 	encodedAppState: string;
 	/**
-	 * Hash of the State struct specific to a given applicatioin.
+	 * Hash of the State struct specific to a given application.
 	 */
 	appStateHash: H256;
 }
@@ -140,10 +140,12 @@ export class PeerBalance {
 export class NetworkContext {
 	constructor(
 		readonly Registry: Address,
-		readonly PaymentAppAddress: Address,
+		readonly PaymentApp: Address,
 		readonly ConditionalTransfer: Address,
 		readonly MultiSend: Address,
-		readonly NonceRegistry: Address
+		readonly NonceRegistry: Address,
+		readonly Signatures: Address,
+		readonly StaticCall: Address
 	) {}
 }
 
@@ -153,8 +155,8 @@ export interface ChannelStates {
 }
 
 export interface StateChannelInfo {
-	toAddress: Address;
-	fromAddress: Address;
+	counterParty: Address;
+	me: Address;
 	multisigAddress: Address;
 	appChannels: AppChannelInfos;
 	freeBalance: CfFreeBalance;
@@ -210,9 +212,19 @@ export class CfPeerAmount {
 	constructor(readonly addr: string, public amount: number) {}
 }
 
+// eg. 'dfee8149d73c19def9cfaf3ea73e95f4f7606826de8d3355eeaf1fd992b2b0f302616ad09ccee8025e5ba345763ee0de9a75b423bbb0ea8da2b2cc34391bc7e628'
+const SIGNATURE_LENGTH_WITHOUT_PREFIX = 130;
+const V_LENGTH = 2;
+const R_LENGTH = 64;
+const S_LENGTH = 64;
+
 export class Signature {
 	// todo: fix types
 	constructor(readonly v: number, readonly r: string, readonly s: string) {}
+
+	get recoveryParam() {
+		return this.v - 27;
+	}
 
 	toString(): string {
 		return (
@@ -235,6 +247,37 @@ export class Signature {
 		});
 		return bytes;
 	}
+
+	/**
+	 * Helper method in verifying signatures in transactions
+	 * @param signatures
+	 */
+	static fromBytes(sigs: Bytes): Signature[] {
+		// chop off the 0x prefix
+		sigs = sigs.substr(2);
+		if (sigs.length % SIGNATURE_LENGTH_WITHOUT_PREFIX !== 0) {
+			throw Error("The bytes string representing the signatures is malformed.");
+		}
+		const signatures = new Array<Signature>();
+		while (sigs.length !== 0) {
+			const sig = sigs.substr(0, SIGNATURE_LENGTH_WITHOUT_PREFIX);
+			sigs = sigs.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX);
+			// note: +<string> is syntactic sugar for parsing a number from a string
+			const v = +sig.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX - V_LENGTH);
+			const r = "0x" + sig.substr(0, R_LENGTH);
+			const s = "0x" + sig.substr(R_LENGTH, S_LENGTH);
+			signatures.push(new Signature(v, r, s));
+		}
+
+		return signatures;
+	}
+}
+
+export enum ActionName {
+	SETUP = 0,
+	INSTALL,
+	UPDATE,
+	UNINSTALL
 }
 
 export interface Addressable {
@@ -246,7 +289,7 @@ export interface Addressable {
 
 export class InternalMessage {
 	constructor(
-		public actionName: string,
+		public actionName: ActionName,
 		public opCode: Instruction,
 		public clientMessage: ClientMessage
 	) {}

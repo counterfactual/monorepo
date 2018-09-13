@@ -1,15 +1,21 @@
-import * as ethers from "ethers";
-import { CfState, StateChannelInfoImpl, Context } from "../../state";
+import { CfState, Context } from "../../state";
 import {
-	zeroBytes32,
 	CfFreeBalance,
-	CfNonce,
-	CfStateChannel
+	CfStateChannel,
+	CfAppInterface,
+	Terms
 } from "../cf-operation/types";
 import { Instruction } from "../../instructions";
-import { Signature, Address, InternalMessage, H256 } from "../../types";
-import { getFirstResult } from "../../vm";
-import * as common from "./common";
+import {
+	Signature,
+	Address,
+	InternalMessage,
+	H256,
+	PeerBalance,
+	CanonicalPeerBalance,
+	ActionName
+} from "../../types";
+import { getFirstResult } from "../middleware";
 import { CfOperation } from "./types";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
@@ -29,18 +35,18 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		next: Function,
 		context: Context,
 		cfState: CfState
-	) {
+	): CfOperation {
 		let proposedState = getFirstResult(
 			Instruction.STATE_TRANSITION_PROPOSE,
 			context.results
 		).value;
 		let op;
 		console.log("Generating = ", message.actionName);
-		if (message.actionName === "update") {
+		if (message.actionName === ActionName.UPDATE) {
 			op = this.update(message, context, cfState, proposedState.state);
-		} else if (message.actionName === "setup") {
+		} else if (message.actionName === ActionName.SETUP) {
 			op = this.setup(message, context, cfState, proposedState.state);
-		} else if (message.actionName === "install") {
+		} else if (message.actionName === ActionName.INSTALL) {
 			op = this.install(
 				message,
 				context,
@@ -48,7 +54,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 				proposedState.state,
 				proposedState.cfAddr
 			);
-		} else if (message.actionName === "uninstall") {
+		} else if (message.actionName === ActionName.UNINSTALL) {
 			op = this.uninstall(message, context, cfState, proposedState.state);
 		}
 		// leaving temporarily since the tests aren't checking against the commitments
@@ -64,9 +70,9 @@ export class EthCfOpGenerator extends CfOpGenerator {
 				"0x11111111111111111111111111111111",
 				"0x22222222222222222222222222222222"
 			);
-			if (message.actionName === "install") {
-				console.log(op.op.hashToSign());
-				console.log(op.op.transaction([sigA, sigB]));
+			if (message.actionName === ActionName.INSTALL) {
+				console.log(op.hashToSign());
+				console.log(op.transaction([sigA, sigB]));
 			} else {
 				console.log(op.hashToSign());
 				console.log(op.transaction([sigA, sigB]));
@@ -87,6 +93,23 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		}
 		let appChannel =
 			proposedUpdate[multisig].appChannels[message.clientMessage.appId];
+
+		// TODO: ensure these members are typed instead of having to reconstruct
+		// class instances
+		appChannel.cfApp = new CfAppInterface(
+			appChannel.cfApp.address,
+			appChannel.cfApp.applyAction,
+			appChannel.cfApp.resolve,
+			appChannel.cfApp.turn,
+			appChannel.cfApp.isStateTerminal
+		);
+
+		appChannel.terms = new Terms(
+			appChannel.terms.assetType,
+			appChannel.terms.limit,
+			appChannel.terms.token
+		);
+
 		return new CfOpSetState(
 			cfState.networkContext,
 			multisig,
@@ -107,13 +130,25 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		proposedSetup: any
 	): CfOperation {
 		let multisig: Address = message.clientMessage.multisigAddress;
-		let signingKeys = [
-			message.clientMessage.fromAddress,
-			message.clientMessage.toAddress
-		];
 		let freeBalance = proposedSetup[multisig].freeBalance;
 		let nonce = freeBalance.nonce;
-		let cfFreeBalance = new CfStateChannel(
+		let cfFreeBalance = new CfFreeBalance(
+			freeBalance.alice,
+			freeBalance.aliceBalance,
+			freeBalance.bob,
+			freeBalance.bobBalance,
+			freeBalance.uniqueId,
+			freeBalance.localNonce,
+			freeBalance.timeout,
+			freeBalance.nonce
+		);
+		let canon = CanonicalPeerBalance.canonicalize(
+			new PeerBalance(message.clientMessage.fromAddress, 0),
+			new PeerBalance(message.clientMessage.toAddress, 0)
+		);
+		let signingKeys = [canon.peerA.address, canon.peerB.address];
+		let cfStateChannel = new CfStateChannel(
+			cfState.networkContext,
 			multisig,
 			signingKeys,
 			CfFreeBalance.contractInterface(cfState.networkContext),
@@ -121,9 +156,11 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			freeBalance.timeout,
 			freeBalance.uniqueId
 		);
+
 		return new CfOpSetup(
 			cfState.networkContext,
 			multisig,
+			cfStateChannel,
 			cfFreeBalance,
 			nonce
 		);
@@ -142,6 +179,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		let appChannel = channel.appChannels[cfAddr];
 
 		let app = new CfStateChannel(
+			cfState.networkContext,
 			multisig,
 			[appChannel.keyA, appChannel.keyB],
 			appChannel.cfApp,
@@ -167,10 +205,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			cfFreeBalance,
 			appChannel.dependencyNonce
 		);
-		return {
-			op,
-			cfAddr: op.appCfAddress
-		};
+		return op;
 	}
 
 	uninstall(
@@ -187,6 +222,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
 		let freeBalance = proposedUninstall[multisig].freeBalance;
 		let appChannel = proposedUninstall[multisig].appChannels[cfAddr];
+
 
 		let cfFreeBalance = new CfFreeBalance(
 			freeBalance.alice,

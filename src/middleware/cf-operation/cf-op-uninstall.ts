@@ -1,6 +1,4 @@
-import * as ethers from "ethers";
-import * as common from "./common";
-import { NetworkContext, Bytes, Signature, Address } from "../../types";
+import { NetworkContext, Address } from "../../types";
 import { MultisigInput, CfFreeBalance, CfNonce } from "./types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 
@@ -18,6 +16,9 @@ export class CfOpUninstall extends CfMultiSendOp {
 	 * @override common.CfMultiSendOp
 	 */
 	eachMultisigInput(): Array<MultisigInput> {
-		return [this.freeBalanceInput(), this.dependencyNonceInput()];
+		return [
+			this.freeBalanceInput(),
+			this.dependencyNonceInput()
+		];
 	}
 }

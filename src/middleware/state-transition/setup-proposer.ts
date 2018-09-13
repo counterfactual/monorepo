@@ -1,4 +1,4 @@
-import { getFirstResult } from "../../vm";
+import { getFirstResult } from "../middleware";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import { PeerBalance, InternalMessage, StateProposal } from "../../types";
 import { CfFreeBalance, CfNonce, zeroBytes32 } from "../cf-operation/types";
@@ -7,7 +7,7 @@ import * as ethers from "ethers";
 const FREE_BALANCE_TIMEOUT = 100;
 /**
  * UniqueId corresponds to the number of apps maintained by a particular
- * multisig. Since the free balance is the first app, it's id is 0.
+ * multisig. Since the free balance is the first app, its id is 0.
  */
 const FREE_BALANCE_UNIQUE_ID = 0;
 /**
@@ -28,14 +28,14 @@ export class SetupProposer {
 			balances.peerA.balance,
 			balances.peerB.address,
 			balances.peerB.balance,
-			localNonce,
 			FREE_BALANCE_UNIQUE_ID,
+			localNonce,
 			FREE_BALANCE_TIMEOUT,
 			new CfNonce(FREE_BALANCE_UNIQUE_ID)
 		);
 		let stateChannel = new StateChannelInfoImpl(
-			toAddress,
 			fromAddress,
+			toAddress,
 			message.clientMessage.multisigAddress,
 			{},
 			freeBalance

@@ -9,7 +9,7 @@ export function proxyCallSetStateData(
 	timeout: number,
 	signatures: Bytes,
 	registry: Address
-) {
+): Bytes {
 	return new ethers.Interface([Abi.proxyCall]).functions.proxyCall.encode([
 		registry,
 		appCfAddr,

@@ -19,13 +19,11 @@
 		"typeRoots": [
 			"./node_modules/@types",
 			"./node_modules/@counterfactual/typescript-typings/types",
+			"./node_modules/ethers/index.d.ts",
 			"./node_modules/json-d-ts"
 		],
 		"strict": true
 	},
-	"include": [
-		"src/**/*.ts",
-		"test/**/*.ts"
-	],
+	"include": ["src/**/*.ts", "test/**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

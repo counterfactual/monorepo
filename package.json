@@ -6,34 +6,44 @@
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"test": "yarn run build && yarn run ganache && sleep 5 && jest && yarn run ganache:stop",
-		"test-debug": "tsc && node --inspect-brk jest --runInBand  --detectOpenHandles --forceExit",
-		"ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545 --account=\"${npm_package_config_unlockedAccount1}\",\"${npm_package_config_balance}\" --account=\"${npm_package_config_unlockedAccount2}\",\"${npm_package_config_balance}\" --account=\"${npm_package_config_unlockedAccount3}\",\"${npm_package_config_balance}\" -m \"${npm_package_config_mnemonic}\" &",
+		"docker:run": "docker-compose run --name machine -d machine",
+		"docker:build": "docker-compose build",
+		"shell:local": "docker-compose run machine_local_contracts sh",
+		"shell": "docker-compose run machine sh",
+		"test": "docker-compose run machine sh /app/machine/bin/test",
+		"test:jest": "./node_modules/.bin/jest --runInBand",
+		"test:ci": "docker-compose run machine sh /app/machine/bin/deploy_contracts && ./node_modules/.bin/jest",
+		"test:deployContracts": "docker-compose run machine sh /app/machine/bin/deploy_contracts",
+		"ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545",
 		"ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
 		"build": "tsc -p tsconfig.json",
-		"coverage": "jest --coverage",
 		"lint": "tslint -c tslint.json -p tsconfig.json",
 		"lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
 		"prettier": "prettier -l 'src/*/**'",
 		"prettier-run": "prettier --write 'src/*/**'"
 	},
 	"config": {
-		"unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
-		"unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e",
-		"unlockedAccount3": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f",
-		"balance": "1000000000000000000000000",
-		"mnemonic": "concert load couple harbor equip island argue ramp clarify fence smart topic"
+		"unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
+		"unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e",
+		"unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f",
+		"etherBalance": "1000000000000000000000000"
 	},
 	"devDependencies": {
-		"@types/jest": "^23.1.1",
+		"@types/jest": "^23.3.2",
+		"@types/lodash": "^4.14.116",
+		"@types/node": "^10.9.3",
 		"coveralls": "3.0.1",
 		"ganache-cli": "^6.1.6",
-		"jest": "^23.1.0",
+		"jest": "^23.5.0",
+		"jest-runner-mocha": "^0.6.0",
+		"jest-runner-tsc": "^1.2.0",
+		"lodash": "^4.17.10",
+		"mocha": "^5.2.0",
 		"prettier": "1.14.0",
 		"rollup": "^0.60.0",
 		"rollup-plugin-json": "^3.0.0",
 		"rollup-plugin-node-resolve": "^3.3.0",
-		"ts-jest": "^22.4.6",
+		"ts-jest": "^23.1.4",
 		"ts-node": "^6.1.2",
 		"tslint": "5.11.0",
 		"tslint-config-prettier": "1.14.0",
@@ -41,29 +51,37 @@
 		"typescript": "^2.9.2"
 	},
 	"dependencies": {
-		"@counterfactual/configs": "https://github.com/counterfactual/configs.git",
-		"@counterfactual/contracts": "https://github.com/counterfactual/counterfactual.git",
+		"@counterfactual/configs": "https://github.com/counterfactual/configs.git#3f4cdd1cc203ad5cc7a11ab2e87fba9a77eaa482",
 		"@counterfactual/test-utils": "https://github.com/counterfactual/test-utils.git",
 		"@counterfactual/typescript-typings": "https://github.com/counterfactual/typescript-typings.git",
-		"ethers": "4.0.0-beta.12"
+		"ethers": "4.0.0-beta.14"
 	},
 	"jest": {
+		"verbose": false,
+		"bail": true,
+		"cacheDirectory": "jest-cache",
 		"transform": {
 			"^.+\\.tsx?$": "ts-jest"
 		},
-		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+		"testRegex": "\\.(jsx?|tsx?)$",
 		"testPathIgnorePatterns": [
+			"src",
 			"node_modules",
 			"dist"
 		],
+		"roots": [
+			"test"
+		],
 		"moduleFileExtensions": [
 			"ts",
-			"tsx",
 			"js",
-			"jsx",
-			"json",
-			"node"
+			"json"
 		],
-		"testURL": "http://localhost/"
+		"testURL": "http://localhost/",
+		"globals": {
+			"ts-jest": {
+				"skipBabel": true
+			}
+		}
 	}
 }
