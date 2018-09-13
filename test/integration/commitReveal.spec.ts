@@ -138,7 +138,6 @@ async function executeStateChannelTransfer(
   multisig: Multisig,
   channelNonceKey: string,
   channelNonceValue: ethers.BigNumber,
-  appIdx: number,
   signers: ethers.Wallet[]
 ) {
   if (!stateChannel.contract) {
@@ -158,7 +157,6 @@ async function executeStateChannelTransfer(
       nonceRegistry.address,
       channelNonceKey,
       channelNonceValue,
-      appIdx,
       stateChannel.contract.cfAddress,
       stateChannel.terms
     ],
@@ -227,7 +225,6 @@ describe("CommitReveal", async () => {
       multisig,
       channelNonceKey,
       channelNonceValue,
-      0,
       [alice, bob]
     );
 
