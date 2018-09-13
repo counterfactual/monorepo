@@ -1,5 +1,7 @@
 ## Criteria
 
+This is a list of criteria for proposed protocols, i.e., predicates that a protocol either satisfies or does not.
+
 ### One round trip communication
 
 In a 2-party channel, 2 messages suffices to safely change the counterfactual state of the GSC 
