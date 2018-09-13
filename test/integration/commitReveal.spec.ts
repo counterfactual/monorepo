@@ -137,7 +137,7 @@ async function executeStateChannelTransfer(
   stateChannel: StateChannel,
   multisig: Multisig,
   channelNonceKey: string,
-  expectedRValue: ethers.BigNumber,
+  channelNonceValue: ethers.BigNumber,
   appIdx: number,
   signers: ethers.Wallet[]
 ) {
@@ -157,7 +157,7 @@ async function executeStateChannelTransfer(
       registry.address,
       nonceRegistry.address,
       channelNonceKey,
-      expectedRValue,
+      channelNonceValue,
       appIdx,
       stateChannel.contract.cfAddress,
       stateChannel.terms
@@ -210,9 +210,7 @@ describe("CommitReveal", async () => {
     await stateChannel.setResolution(appState);
 
     // 6. Call setNonce on NonceRegistry. Salt is arbitrarily chosen.
-    const channelNonceValue = new ethers.BigNumber(
-      "0x00000000000000000000000000000001" + "80000000000000000000000000000000"
-    );
+    const channelNonceValue = new ethers.BigNumber(1);
     const channelNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
@@ -228,10 +226,7 @@ describe("CommitReveal", async () => {
       stateChannel,
       multisig,
       channelNonceKey,
-      new ethers.BigNumber(
-        "0x00000000000000000000000000000000" +
-          "00000000000000000000000000000000"
-      ),
+      channelNonceValue,
       0,
       [alice, bob]
     );
