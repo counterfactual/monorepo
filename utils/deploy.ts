@@ -2,16 +2,17 @@ export function deployTruffleArtifacts(
   loader: ArtifactsLoader,
   deployer: TruffleDeployer
 ) {
-  const Registry = loader.require("Registry");
-  const NonceRegistry = loader.require("NonceRegistry");
-  const ConditionalTransfer = loader.require("ConditionalTransfer");
-  const VirtualAppAgreement = loader.require("VirtualAppAgreement");
-  const ProxyFactory = loader.require("ProxyFactory");
-  const MultiSend = loader.require("MultiSend");
-  const StaticCall = loader.require("StaticCall");
-  const Signatures = loader.require("Signatures");
   const Conditional = loader.require("Conditional");
+  const ConditionalTransfer = loader.require("ConditionalTransfer");
+  const MultiSend = loader.require("MultiSend");
+  const NonceRegistry = loader.require("NonceRegistry");
+  const PaymentApp = loader.require("PaymentApp");
+  const ProxyFactory = loader.require("ProxyFactory");
+  const Registry = loader.require("Registry");
+  const Signatures = loader.require("Signatures");
+  const StaticCall = loader.require("StaticCall");
   const Transfer = loader.require("Transfer");
+  const VirtualAppAgreement = loader.require("VirtualAppAgreement");
 
   deployer.deploy(Transfer).then(() => {
     deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
@@ -20,11 +21,11 @@ export function deployTruffleArtifacts(
     deployer.link(StaticCall, [ConditionalTransfer, Conditional]);
   });
 
-  deployer.deploy(Signatures);
-  deployer.deploy(NonceRegistry);
+  deployer.deploy(ConditionalTransfer);
   deployer.deploy(MultiSend);
+  deployer.deploy(NonceRegistry);
+  deployer.deploy(PaymentApp);
   deployer.deploy(ProxyFactory);
   deployer.deploy(Registry);
-
-  deployer.deploy(ConditionalTransfer);
+  deployer.deploy(Signatures);
 }

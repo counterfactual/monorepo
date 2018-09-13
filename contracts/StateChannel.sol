@@ -13,7 +13,6 @@ import "./lib/Transfer.sol";
 /// `Transfer.Details` when the channel is closed.
 contract StateChannel {
 
-  using Transfer for Transfer.Details;
   using StaticCall for address;
   using Signatures for bytes;
 
