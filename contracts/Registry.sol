@@ -57,9 +57,9 @@ contract Registry {
   /// @param registry The address of a registry
   /// @param ptr A counterfactual address
   /// @param data The data being sent in the call to the counterfactual contract
-  function proxyCall(Registry registry, bytes32 ptr, bytes data) public {
+  function proxyCall(address registry, bytes32 ptr, bytes data) public {
     require(
-      registry.resolver(ptr).call(data),
+      Registry(registry).resolver(ptr).call(data),
       "The call failed."
     );
   }
