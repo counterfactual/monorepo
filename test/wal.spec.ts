@@ -2,7 +2,7 @@ import { CfVmWal, MemDb } from "../src/wal";
 import { Action, ActionExecution } from "../src/action";
 import { CfVmConfig, CounterfactualVM } from "../src/vm";
 import { Instruction } from "../src/instructions";
-import { ClientMessage } from "../src/types";
+import { ClientMessage, ActionName } from "../src/types";
 
 describe("Write ahead log", () => {
 	it("should generate the same write ahead log when using the same db", () => {
@@ -25,11 +25,11 @@ describe("Write ahead log", () => {
  */
 function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 	const requestIds = ["1", "2", "3"];
-	const actions = ["install", "update", "uninstall"];
+	const actions = [ActionName.INSTALL, ActionName.UPDATE, ActionName.UNINSTALL];
 	const msgs: Array<ClientMessage> = [
 		{
 			requestId: "1",
-			action: "install",
+			action: ActionName.INSTALL,
 			data: {},
 			multisigAddress: "0x1234",
 			fromAddress: "0xa",
@@ -38,7 +38,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 		},
 		{
 			requestId: "2",
-			action: "install",
+			action: ActionName.INSTALL,
 			data: {},
 			multisigAddress: "0x1234",
 			fromAddress: "0xa",
@@ -47,7 +47,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 		},
 		{
 			requestId: "3",
-			action: "install",
+			action: ActionName.INSTALL,
 			data: {},
 			multisigAddress: "0x1234",
 			fromAddress: "0xa",
@@ -84,14 +84,14 @@ function validateWal(wal: CfVmWal, vm: CounterfactualVM) {
 		const received = executions[k];
 		// note: only check the fields we construct in makeExecutions since we
 		//       don't actually set them all there
-		expect(received.action.requestId).toBe(expected.action.requestId);
-		expect(received.action.name).toBe(expected.action.name);
-		expect(received.action.isAckSide).toBe(expected.action.isAckSide);
-		expect(JSON.stringify(received.clientMessage)).toBe(
+		expect(received.action.requestId).toEqual(expected.action.requestId);
+		expect(received.action.name).toEqual(expected.action.name);
+		expect(received.action.isAckSide).toEqual(expected.action.isAckSide);
+		expect(JSON.stringify(received.clientMessage)).toEqual(
 			JSON.stringify(expected.clientMessage)
 		);
-		expect(received.instructionPointer).toBe(expected.instructionPointer);
-		expect(JSON.stringify(received.results)).toBe(
+		expect(received.instructionPointer).toEqual(expected.instructionPointer);
+		expect(JSON.stringify(received.results)).toEqual(
 			JSON.stringify(expected.results)
 		);
 	}

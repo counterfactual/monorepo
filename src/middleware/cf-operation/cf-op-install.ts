@@ -4,13 +4,11 @@ import {
 	Operation,
 	Abi,
 	MultisigInput,
-	Terms,
 	CfFreeBalance,
 	CfNonce,
 	CfStateChannel
 } from "./types";
 import { CfMultiSendOp } from "./cf-multisend-op";
-import * as common from "./common";
 
 export class CfOpInstall extends CfMultiSendOp {
 	constructor(

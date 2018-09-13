@@ -43,6 +43,7 @@ export class CfOpSetState extends CfOperation {
 	 */
 	transaction(sigs: Signature[]): Transaction {
 		let appCfAddr = new CfStateChannel(
+			this.ctx,
 			this.multisig,
 			this.signingKeys,
 			this.app,

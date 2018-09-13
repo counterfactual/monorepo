@@ -1,20 +1,15 @@
 import { Action, ActionExecution } from "./action";
 import {
 	ChannelStates,
-	OpCodeResult,
 	ResponseSink,
 	StateChannelInfo,
 	ClientMessage,
-	PeerBalance,
-	Address,
-	H256,
 	Addressable,
-	InternalMessage,
 	NetworkContext
 } from "./types";
 import { CfVmWal } from "./wal";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
-import { CfState, Context } from "./state";
+import { CfState } from "./state";
 import { Instruction } from "./instructions";
 
 export class CfVmConfig {
@@ -91,7 +86,7 @@ export class CounterfactualVM {
 	}
 
 	validateMessage(msg: ClientMessage) {
-		// todo
+		// TODO:
 		return true;
 	}
 
@@ -112,7 +107,7 @@ export class CounterfactualVM {
 			this.sendResponse(execution, ResponseStatus.COMPLETED);
 			this.writeAheadLog.clear(execution);
 		} catch (e) {
-			console.error("Error executing the action: " + e);
+			console.error(e);
 			this.sendResponse(execution, ResponseStatus.ERROR);
 		}
 	}
@@ -146,28 +141,4 @@ export enum ResponseStatus {
 	STARTED,
 	ERROR,
 	COMPLETED
-}
-
-export function getFirstResult(
-	toFindOpCode: Instruction,
-	results: { value: any; opCode }[]
-): OpCodeResult {
-	// FIXME: (ts-strict) we should change the results data structure or design
-	// @ts-ignore
-	return results.find(({ opCode, value }) => opCode === toFindOpCode);
-}
-
-export function getLastResult(
-	toFindOpCode: Instruction,
-	results: {
-		value: any;
-		opCode;
-	}[]
-) {
-	for (let k = results.length - 1; k >= 0; k -= 1) {
-		if (results[k].opCode === toFindOpCode) {
-			return results[k];
-		}
-	}
-	return null;
 }

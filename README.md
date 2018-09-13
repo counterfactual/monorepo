@@ -10,8 +10,44 @@ yarn
 
 ## Testing
 
-Run the following to execute the test suites (which use Jest):
+To build the Docker containers, run:
+
+```shell
+yarn docker:build
+```
+
+Then to get a persisent machine container that you can reuse across tests, run:
+
+```shell
+yarn docker:run
+```
+
+Then to deploy the contrats that are used in testing: run
+
+```shell
+yarn test:deployContracts
+```
+
+And to run the test suites, simply run:
 
 ```shell
 yarn test
+```
+
+If you want to run a specific test suite (i.e. `.spec.ts` file), you can specify that via a regex that would capture the file name:
+
+```shell
+yarn test <regex>
+```
+
+for eg:
+
+```shell
+yarn test lifecycle.spec.ts
+```
+
+If you need to go inside the machine container, run:
+
+```shell
+yarn shell
 ```

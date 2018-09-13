@@ -2,9 +2,6 @@ import { NetworkContext, Address, Signature, Bytes } from "../../types";
 import * as ethers from "ethers";
 import {
 	Abi,
-	Terms,
-	zeroBytes32,
-	zeroAddress,
 	Transaction,
 	CfOperation,
 	MultisigInput,
@@ -27,29 +24,30 @@ export abstract class CfMultiSendOp extends CfOperation {
 	}
 
 	transaction(sigs: Signature[]): Transaction {
+		const { abi } = require("/app/contracts/build/contracts/MinimumViableMultisig.json");
 		let multisigInput = this.multisigInput();
-		return new Transaction(
-			this.multisig,
-			0,
-			new ethers.Interface([
-				Abi.execTransaction
-			]).functions.execTransaction.encode([
+		const txData = new ethers.Interface(abi).functions
+			.execTransaction.encode([
 				multisigInput.to,
 				multisigInput.val,
 				multisigInput.data,
 				multisigInput.op,
 				Signature.toBytes(sigs)
-			])
+		]);
+		return new Transaction(
+			this.multisig,
+			0,
+			txData
 		);
 	}
 
 	hashToSign(): string {
 		let multisigInput = this.multisigInput();
 		return ethers.utils.solidityKeccak256(
-			["bytes1", "address", "address", "uint256", "bytes", "uint256"],
+			["bytes1", "address[]", "address", "uint256", "bytes", "uint256"],
 			[
 				"0x19",
-				this.multisig,
+				[this.cfFreeBalance.alice, this.cfFreeBalance.bob],
 				multisigInput.to,
 				multisigInput.val,
 				multisigInput.data,
@@ -70,7 +68,7 @@ export abstract class CfMultiSendOp extends CfOperation {
 		let to = this.ctx.Registry;
 		let val = 0;
 		let data = this.freeBalanceData();
-		let op = Operation.Call;
+		let op = Operation.Delegatecall;
 		return new MultisigInput(to, val, data, op);
 	}
 
@@ -78,6 +76,7 @@ export abstract class CfMultiSendOp extends CfOperation {
 		let terms = CfFreeBalance.terms();
 		let app = CfFreeBalance.contractInterface(this.ctx);
 		let freeBalanceCfAddress = new CfStateChannel(
+			this.ctx,
 			this.multisig,
 			[this.cfFreeBalance.alice, this.cfFreeBalance.bob],
 			app,
@@ -115,6 +114,16 @@ export abstract class CfMultiSendOp extends CfOperation {
 			this.dependencyNonce.salt,
 			this.dependencyNonce.nonce
 		]);
+		let op = Operation.Call;
+		return new MultisigInput(to, val, data, op);
+	}
+
+	finalizeDependencyNonceInput(): MultisigInput {
+		let to = this.ctx.NonceRegistry;
+		let val = 0;
+		let data = new ethers.Interface([
+			Abi.finalizeNonce
+		]).functions.finalizeNonce.encode([this.dependencyNonce.salt]);
 		let op = Operation.Call;
 		return new MultisigInput(to, val, data, op);
 	}

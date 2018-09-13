@@ -13,6 +13,9 @@ import {
 import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { CounterfactualVM } from "./vm";
 
+// TODO: Cleanup
+const networkInfo = require("../../contracts/networks/7777777.json");
+
 export class CfState {
 	channelStates: ChannelStates;
 	networkContext: NetworkContext;
@@ -32,7 +35,9 @@ export class CfState {
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd1",
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd2",
 			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd3",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4"
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd5",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd6"
 		);
 	}
 
@@ -70,9 +75,9 @@ export class CfState {
 
 export class StateChannelInfoImpl implements StateChannelInfo {
 	constructor(
-		readonly toAddress: string,
-		readonly fromAddress: string,
-		readonly multisigAddress: string,
+		readonly counterParty: Address,
+		readonly me: Address,
+		readonly multisigAddress: Address,
 		readonly appChannels: AppChannelInfos = {},
 		readonly freeBalance: CfFreeBalance
 	) {}
@@ -81,7 +86,7 @@ export class StateChannelInfoImpl implements StateChannelInfo {
 	 * @returns the toAddress, fromAddress in alphabetical order.
 	 */
 	owners(): string[] {
-		return [this.toAddress, this.fromAddress].sort((a, b) => (a < b ? -1 : 1));
+		return [this.counterParty, this.me].sort((a, b) => (a < b ? -1 : 1));
 	}
 }
 

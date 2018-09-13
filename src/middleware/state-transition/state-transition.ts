@@ -1,13 +1,7 @@
-import { getFirstResult } from "../../vm";
-import { InternalMessage, StateChannelInfos, StateProposal } from "../../types";
-import { CfState, StateChannelInfoImpl, Context } from "../../state";
+import { InternalMessage, StateProposal, ActionName } from "../../types";
+import { CfState, Context } from "../../state";
+import { getFirstResult } from "../../middleware/middleware";
 import { Instruction } from "../../instructions";
-import {
-	zeroAddress,
-	zeroBytes32,
-	CfNonce,
-	CfStateChannel
-} from "../cf-operation/types";
 import { SetupProposer } from "./setup-proposer";
 import { InstallProposer } from "./install-proposer";
 import { UninstallProposer } from "./uninstall-proposer";
@@ -15,7 +9,7 @@ import { UpdateProposer } from "./update-proposer";
 
 export class StateTransition {
 	/**
-	 * The proposed state transitions do not complete a state upate. They give
+	 * The proposed state transitions do not complete a state update. They give
 	 * a "proposed" state update that should not be enacted until both
 	 * STATE_TRANSITION_COMMIT instructions have been executed.
 	 */
@@ -25,13 +19,13 @@ export class StateTransition {
 		context: Context,
 		cfState: CfState
 	): StateProposal {
-		if (message.actionName === "update") {
+		if (message.actionName === ActionName.UPDATE) {
 			return UpdateProposer.propose(message, context, cfState);
-		} else if (message.actionName === "install") {
+		} else if (message.actionName === ActionName.INSTALL) {
 			return InstallProposer.propose(message, context, cfState);
-		} else if (message.actionName === "uninstall") {
+		} else if (message.actionName === ActionName.UNINSTALL) {
 			return UninstallProposer.propose(message, context, cfState);
-		} else if (message.actionName === "setup") {
+		} else if (message.actionName === ActionName.SETUP) {
 			return SetupProposer.propose(message);
 		} else {
 			throw Error("Action name not supported");

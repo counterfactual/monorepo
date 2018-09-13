@@ -1,4 +1,6 @@
-import { InternalMessage } from "../src/types";
+import { expect } from "chai";
+
+import { InternalMessage, ActionName } from "../src/types";
 import { Context } from "../src/state";
 import { StateTransition } from "../src/middleware/middleware";
 import { Instruction, Instructions } from "../src/instructions";
@@ -7,11 +9,14 @@ import { MemDb } from "../src/wal";
 import { ResponseStatus } from "../src/vm";
 import { ClientMessage } from "../src/types";
 import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
-import { sleep } from "./common";
 
-const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
-const A_ADDRESS = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd5";
-const B_ADDRESS = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd6";
+import {
+	MULTISIG_ADDRESS,
+	A_ADDRESS,
+	A_PRIVATE_KEY,
+	B_ADDRESS,
+	B_PRIVATE_KEY
+} from "./constants";
 
 /**
  * See run() for the entry point to the test. The basic structure
@@ -32,8 +37,8 @@ abstract class SetupProtocolTestCase {
 	executedInstructions: Instruction[];
 	constructor() {
 		this.db = new MemDb();
-		this.walletA = new TestWallet(A_ADDRESS, this.db);
-		this.walletB = new TestWallet(B_ADDRESS, new MemDb());
+		this.walletA = new TestWallet(A_PRIVATE_KEY, this.db);
+		this.walletB = new TestWallet(B_PRIVATE_KEY, new MemDb());
 		this.walletA.io.peer = this.walletB;
 		this.walletB.io.peer = this.walletA;
 		this.executedInstructions = [];
@@ -41,7 +46,7 @@ abstract class SetupProtocolTestCase {
 	async run() {
 		this.setupWallet(this.walletA, true);
 		let resp = await this.walletA.runProtocol(this.msg());
-		expect(resp.status).toBe(ResponseStatus.ERROR);
+		expect(resp.status).to.eql(ResponseStatus.ERROR);
 		await this.resumeNewMachine();
 		this.validate();
 	}
@@ -54,7 +59,7 @@ abstract class SetupProtocolTestCase {
 	async resumeNewMachine() {
 		// make a new wallet with the exact same state
 		// i.e., the same WAL db and the same channelStates
-		let walletA2 = new TestWallet(A_ADDRESS, this.db);
+		let walletA2 = new TestWallet(A_PRIVATE_KEY, this.db);
 		walletA2.io.peer = this.walletB;
 		this.walletB.io.peer = walletA2;
 		this.setupWallet(walletA2, false);
@@ -68,9 +73,9 @@ abstract class SetupProtocolTestCase {
 		return {
 			requestId: "0",
 			appId: undefined,
-			action: "setup",
+			action: ActionName.SETUP,
 			data: {},
-			multisigAddress: MULTISIG,
+			multisigAddress: MULTISIG_ADDRESS,
 			toAddress: A_ADDRESS,
 			fromAddress: B_ADDRESS,
 			stateChannel: undefined,
@@ -120,9 +125,11 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 	 * the setup protocol.
 	 */
 	validate() {
-		let setupInstructions = JSON.parse(JSON.stringify(Instructions.setup));
+		let setupInstructions = JSON.parse(
+			JSON.stringify(Instructions[ActionName.SETUP])
+		);
 		setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
-		expect(JSON.stringify(setupInstructions)).toBe(
+		expect(JSON.stringify(setupInstructions)).to.eql(
 			JSON.stringify(this.executedInstructions)
 		);
 	}
@@ -168,9 +175,11 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 	 * the setup protocol.
 	 */
 	validate() {
-		let setupInstructions = JSON.parse(JSON.stringify(Instructions.setup));
+		let setupInstructions = JSON.parse(
+			JSON.stringify(Instructions[ActionName.SETUP])
+		);
 		setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
-		expect(JSON.stringify(setupInstructions)).toBe(
+		expect(JSON.stringify(setupInstructions)).to.eql(
 			JSON.stringify(this.executedInstructions)
 		);
 	}
@@ -215,9 +224,11 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 	 * the setup protocol.
 	 */
 	validate() {
-		let setupInstructions = JSON.parse(JSON.stringify(Instructions.setup));
+		let setupInstructions = JSON.parse(
+			JSON.stringify(Instructions[ActionName.SETUP])
+		);
 		setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
-		expect(JSON.stringify(setupInstructions)).toBe(
+		expect(JSON.stringify(setupInstructions)).to.eql(
 			JSON.stringify(this.executedInstructions)
 		);
 	}

@@ -8,7 +8,6 @@ import {
 	Bytes4,
 	NetworkContext
 } from "../../types";
-import { PaymentApp } from "./contracts/paymentApp";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 export const zeroBytes32 =
@@ -20,7 +19,8 @@ export const Abi = {
 	executeStateChannelConditionalTransfer:
 		"executeStateChannelConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
 	// MinimumViableMultisig.sol
-	execTransaction: "execTransaction(address,uint256,bytes,uint256,bytes)",
+	execTransaction:
+		"tuple(address to, uint256 value, bytes data, uint256 operation, bytes signatures)",
 	// Multisend.sol
 	multiSend: "multiSend(bytes)",
 	// Registry.sol
@@ -28,7 +28,8 @@ export const Abi = {
 	// StateChannel.sol
 	setState: "setState(bytes32,uint256,uint256,bytes)",
 	// NonceRegistry.sol
-	setNonce: "setNonce(bytes32,uint256)"
+	setNonce: "setNonce(bytes32,uint256)",
+	finalizeNonce: "finalizeNonce(bytes32)"
 };
 
 export abstract class CfOperation {
@@ -39,10 +40,10 @@ export abstract class CfOperation {
 export class CfAppInterface {
 	constructor(
 		readonly address: Address,
-		readonly reducer: Bytes4,
-		readonly resolver: Bytes4,
-		readonly turnTaker: Bytes4,
-		readonly isStateFinal: Bytes4
+		readonly applyAction: Bytes4,
+		readonly resolve: Bytes4,
+		readonly turn: Bytes4,
+		readonly isStateTerminal: Bytes4
 	) {}
 
 	hash(): string {
@@ -51,10 +52,10 @@ export class CfAppInterface {
 			[
 				"0x19",
 				this.address,
-				this.reducer,
-				this.resolver,
-				this.turnTaker,
-				this.isStateFinal
+				this.applyAction,
+				this.resolve,
+				this.turn,
+				this.isStateTerminal
 			]
 		);
 	}
@@ -76,8 +77,8 @@ export class Terms {
 }
 
 export enum Operation {
-	Call,
-	Delegatecall
+	Call = 0,
+	Delegatecall = 1
 }
 
 export class Transaction {
@@ -103,7 +104,8 @@ export class MultisigInput {
 		readonly to: Address,
 		readonly val: number,
 		readonly data: Bytes,
-		readonly op: Operation
+		readonly op: Operation,
+		readonly signatures?: Signature[]
 	) {}
 }
 
@@ -116,28 +118,24 @@ export class MultiSendInput {
 		readonly op: Operation
 	) {}
 }
-
 export class MultiSend {
 	constructor(readonly transactions: Array<MultisigInput>) {}
 
 	public input(multisend: Address): MultisigInput {
 		let txs: string = "0x";
-		for (let i = 0; i < this.transactions.length; i++) {
+		for (const transaction of this.transactions) {
 			txs += ethers.utils.defaultAbiCoder
 				.encode(
-					["tuple(uint256,address,uint256,bytes)"],
-					[
-						[
-							this.transactions[i].op,
-							this.transactions[i].to,
-							this.transactions[i].val,
-							this.transactions[i].data
-						]
-					]
+					["uint256", "address", "uint256", "bytes"],
+					[transaction.op, transaction.to, transaction.val, transaction.data]
 				)
 				.substr(2);
 		}
-		return new MultisigInput(multisend, 0, txs, Operation.Delegatecall);
+
+		let data = new ethers.Interface([Abi.multiSend]).functions.multiSend.encode(
+			[txs]
+		);
+		return new MultisigInput(multisend, 0, data, Operation.Delegatecall);
 	}
 }
 
@@ -158,22 +156,30 @@ export class CfFreeBalance {
 	) {}
 
 	static terms(): Terms {
-		return new Terms(0, 0, zeroAddress);
+		// FIXME: Change implementation of free balance on contracts layer
+		return new Terms(
+			0, // 0 means ETH
+			10000000000000,
+			zeroAddress
+		);
 	}
 
 	static contractInterface(ctx: NetworkContext): CfAppInterface {
-		let address = ctx.PaymentAppAddress;
-		let reducer = "0x00000000"; // not used
-		let resolver = new ethers.Interface(PaymentApp.abi).functions.resolver
-			.sighash;
-		let turnTaker = "0x00000000"; // not used
-		let isStateFinal = "0x00000000"; // not used
+		console.log(`remove this line: this should be not 0 --> ${ctx.PaymentApp}`);
+		let address = ctx.PaymentApp;
+		let applyAction = "0x00000000"; // not used
+		let resolver = new ethers.Interface([
+			// TODO: Put this somewhere eh
+			"resolve(tuple(address,address,uint256,uint256),tuple(uint8,uint256,address))"
+		]).functions.resolve.sighash;
+		let turn = "0x00000000"; // not used
+		let isStateTerminal = "0x00000000"; // not used
 		return new CfAppInterface(
 			address,
-			reducer,
+			applyAction,
 			resolver,
-			turnTaker,
-			isStateFinal
+			turn,
+			isStateTerminal
 		);
 	}
 }
@@ -193,12 +199,12 @@ export class CfNonce {
 /**
  * Maps 1-1 with StateChannel.sol (with the addition of the uniqueId, which
  * is used to calculate the cf address).
+ *
+ * @param signingKeys *must* be in sorted lexicographic order.
  */
 export class CfStateChannel {
 	constructor(
-		/**
-		 * The multisig controlling the funds.
-		 */
+		readonly ctx: NetworkContext,
 		readonly owner: Address,
 		readonly signingKeys: Address[],
 		readonly cfApp: CfAppInterface,
@@ -207,31 +213,29 @@ export class CfStateChannel {
 		readonly uniqueId: number
 	) {}
 
-	// todo: decide if we want this inside of this class
 	cfAddress(): H256 {
-		/*
-			 * constructor(
-			 *   address owner,
-			 *   address[] signingKeys,
-			 *   bytes32 app,
-			 *   bytes32 terms,
-			 *   uint256 timeout
-			 * )
-			 */
-		/*
-				let initcode = ethers.Contract.getDeployTransaction(
-				StateChannel.bytecode,
-				StateChannel.abi,
-				app.owner,
-				app.signingKeys,
-				app.cfApp.hash(),
-				app.terms.hash(),
-				app.timeout
-				).data;
-			*/
-		// todo: why is the bytecode for StateChannel breaking ethers?
-		let initcode =
-			"0x60806040523480156200001157600080fd5b5060405162003621380380620036";
+		const StateChannel = require("/app/contracts/build/contracts/StateChannel.json");
+
+		StateChannel.bytecode = StateChannel.bytecode.replace(
+			/__Signatures_+/g,
+			this.ctx.Signatures.substr(2)
+		);
+
+		StateChannel.bytecode = StateChannel.bytecode.replace(
+			/__StaticCall_+/g,
+			this.ctx.StaticCall.substr(2)
+		);
+
+		const initcode = new ethers.Interface(
+			StateChannel.abi
+		).deployFunction.encode(StateChannel.bytecode, [
+			this.owner,
+			this.signingKeys,
+			this.cfApp.hash(),
+			this.terms.hash(),
+			this.timeout
+		]);
+
 		return ethers.utils.solidityKeccak256(
 			["bytes1", "bytes", "uint256"],
 			["0x19", initcode, this.uniqueId]

@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { InstallProposer } from "../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../src/middleware/state-transition/setup-proposer";
 import {
@@ -12,30 +13,28 @@ import {
 	InternalMessage,
 	StateChannelInfos,
 	ChannelStates,
-	PeerBalance
+	PeerBalance,
+	ActionName
 } from "../src/types";
 import { CfState, Context, StateChannelInfoImpl } from "../src/state";
 import { Instruction } from "../src/instructions";
 
-// generic params for  peers
-const MULTISIG = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd0";
-const FROM = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd1";
-const TO = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd2";
+import { MULTISIG_ADDRESS, A_ADDRESS, B_ADDRESS } from "./constants";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
 const KEY_B = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd4";
 const TOKEN_ADDRESS = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd5";
 const APP_ADDRESS = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd6";
-const REDUCER = "0x00000001";
-const RESOLVER = "0x00000002";
-const TURN_TAKER = "0x00000003";
-const IS_STATE_FINAL = "0x00000004";
+const APPLY_ACTION = "0x00000001";
+const RESOLVE = "0x00000002";
+const TURN = "0x00000003";
+const IS_STATE_TERMINAL = "0x00000004";
 
 describe("State transition", () => {
 	it("should propose a new setup state", () => {
 		let message = new InternalMessage(
-			"setup",
+			ActionName.SETUP,
 			Instruction.STATE_TRANSITION_PROPOSE,
 			setupClientMsg()
 		);
@@ -44,7 +43,7 @@ describe("State transition", () => {
 	});
 	it("should propose a new install state", () => {
 		let message = new InternalMessage(
-			"install",
+			ActionName.INSTALL,
 			Instruction.STATE_TRANSITION_PROPOSE,
 			installClientMsg()
 		);
@@ -61,11 +60,11 @@ function setupClientMsg(): ClientMessage {
 	return {
 		requestId: "0",
 		appId: "0",
-		action: "setup",
+		action: ActionName.SETUP,
 		data: {},
-		multisigAddress: MULTISIG,
-		toAddress: TO,
-		fromAddress: FROM,
+		multisigAddress: MULTISIG_ADDRESS,
+		fromAddress: B_ADDRESS,
+		toAddress: A_ADDRESS,
 		stateChannel: undefined,
 		seq: 0
 	};
@@ -73,97 +72,107 @@ function setupClientMsg(): ClientMessage {
 
 function setupInstallCfState(): CfState {
 	let freeBalance = new CfFreeBalance(
-		FROM,
+		A_ADDRESS,
 		20,
-		TO,
+		B_ADDRESS,
 		20,
 		0, // local nonce
 		0, // uniqueId
 		100, // timeout
 		new CfNonce(0) // nonce
 	);
-	let info = new StateChannelInfoImpl(TO, FROM, MULTISIG, {}, freeBalance);
-	let channelStates: ChannelStates = { [MULTISIG]: info };
+	let info = new StateChannelInfoImpl(
+		B_ADDRESS,
+		A_ADDRESS,
+		MULTISIG_ADDRESS,
+		{},
+		freeBalance
+	);
+	let channelStates: ChannelStates = { [MULTISIG_ADDRESS]: info };
 	return new CfState(channelStates);
 }
 
 function validateSetupInfos(infos: StateChannelInfos) {
-	expect(Object.keys(infos).length).toBe(1);
-	let info = infos[MULTISIG];
-	expect(info.fromAddress).toBe(FROM);
-	expect(info.toAddress).toBe(TO);
-	expect(Object.keys(info.appChannels).length).toBe(0);
-	expect(info.freeBalance.alice).toBe(FROM);
-	expect(info.freeBalance.aliceBalance).toBe(0);
-	expect(info.freeBalance.bob).toBe(TO);
-	expect(info.freeBalance.bobBalance).toBe(0);
-	expect(info.freeBalance.localNonce).toBe(0);
-	expect(info.freeBalance.uniqueId).toBe(0);
+	expect(Object.keys(infos).length).toEqual(1);
+	let info = infos[MULTISIG_ADDRESS];
+	expect(info.counterParty).toEqual(B_ADDRESS);
+	expect(info.me).toEqual(A_ADDRESS);
+	expect(Object.keys(info.appChannels).length).toEqual(0);
+	expect(info.freeBalance.alice).toEqual(A_ADDRESS);
+	expect(info.freeBalance.aliceBalance).toEqual(0);
+	expect(info.freeBalance.bob).toEqual(B_ADDRESS);
+	expect(info.freeBalance.bobBalance).toEqual(0);
+	expect(info.freeBalance.localNonce).toEqual(0);
+	expect(info.freeBalance.uniqueId).toEqual(0);
 
 	let expectedSalt = ethers.utils.solidityKeccak256(["uint256"], [0]);
 
-	expect(info.freeBalance.nonce.nonce).toBe(1);
-	expect(info.freeBalance.nonce.salt).toBe(expectedSalt);
+	expect(info.freeBalance.nonce.nonce).toEqual(1);
+	expect(info.freeBalance.nonce.salt).toEqual(expectedSalt);
 }
 
 function installClientMsg(): ClientMessage {
 	return {
 		requestId: "0",
 		appId: "0",
-		action: "install",
+		action: ActionName.INSTALL,
 		data: {
-			peerA: new PeerBalance(FROM, 5),
-			peerB: new PeerBalance(TO, 3),
+			peerA: new PeerBalance(A_ADDRESS, 5),
+			peerB: new PeerBalance(B_ADDRESS, 3),
 			keyA: KEY_A,
 			keyB: KEY_B,
 			encodedAppState: "0x0",
 			terms: new Terms(0, 8, TOKEN_ADDRESS),
 			app: new CfAppInterface(
 				APP_ADDRESS,
-				REDUCER,
-				RESOLVER,
-				TURN_TAKER,
-				IS_STATE_FINAL
+				APPLY_ACTION,
+				RESOLVE,
+				TURN,
+				IS_STATE_TERMINAL
 			),
 			timeout: 100
 		},
-		multisigAddress: MULTISIG,
-		toAddress: TO,
-		fromAddress: FROM,
+		multisigAddress: MULTISIG_ADDRESS,
+		fromAddress: B_ADDRESS,
+		toAddress: A_ADDRESS,
 		stateChannel: undefined,
 		seq: 0
 	};
 }
 
 function validateInstallInfos(infos: StateChannelInfos) {
-	let stateChannel = infos[MULTISIG];
+	let stateChannel = infos[MULTISIG_ADDRESS];
 
-	expect(stateChannel.freeBalance.aliceBalance).toBe(15);
-	expect(stateChannel.freeBalance.bobBalance).toBe(17);
+	expect(stateChannel.freeBalance.aliceBalance).toEqual(15);
+	expect(stateChannel.freeBalance.bobBalance).toEqual(17);
 
 	let expectedCfAddr =
-		"0x363674963cc867f9de0dbcd8ba8d513a42dbedae380bbd2ad5a15e6ceddb4e64";
-	let app = infos[MULTISIG].appChannels[expectedCfAddr];
+		"0xb06932b2300b6e5d0da93a59139081d49efe256131a6ddc7b082bdd318383e54";
+	let app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
 	let expectedSalt =
 		"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
 
-	expect(app.id).toBe(expectedCfAddr);
-	expect(app.peerA.address).toBe(FROM);
-	expect(app.peerA.balance).toBe(5);
-	expect(app.peerB.address).toBe(TO);
-	expect(app.keyA).toBe(KEY_A);
-	expect(app.keyB).toBe(KEY_B);
-	expect(app.encodedState).toBe("0x0");
-	expect(app.localNonce).toBe(1);
-	expect(app.timeout).toBe(100);
-	expect(app.terms.assetType).toBe(0);
-	expect(app.terms.limit).toBe(8);
-	expect(app.terms.token).toBe(TOKEN_ADDRESS);
-	expect(app.cfApp.address).toBe(APP_ADDRESS);
-	expect(app.cfApp.reducer).toBe(REDUCER);
-	expect(app.cfApp.resolver).toBe(RESOLVER);
-	expect(app.cfApp.turnTaker).toBe(TURN_TAKER);
-	expect(app.cfApp.isStateFinal).toBe(IS_STATE_FINAL);
-	expect(app.dependencyNonce.salt).toBe(expectedSalt);
-	expect(app.dependencyNonce.nonce).toBe(1);
+	console.info("This is the app");
+	console.info(app);
+	console.info(infos[MULTISIG_ADDRESS]);
+
+	expect(app.id).toEqual(expectedCfAddr);
+	expect(app.peerA.address).toEqual(A_ADDRESS);
+	expect(app.peerA.balance).toEqual(5);
+	expect(app.peerB.address).toEqual(B_ADDRESS);
+	expect(app.keyA).toEqual(KEY_A);
+	expect(app.keyB).toEqual(KEY_B);
+	expect(app.encodedState).toEqual("0x0");
+	expect(app.localNonce).toEqual(1);
+	expect(app.timeout).toEqual(100);
+	expect(app.terms.assetType).toEqual(0);
+	expect(app.terms.limit).toEqual(8);
+	expect(app.terms.token).toEqual(TOKEN_ADDRESS);
+	expect(app.cfApp.address).toEqual(APP_ADDRESS);
+	expect(app.cfApp.applyAction).toEqual(APPLY_ACTION);
+	expect(app.cfApp.resolve).toEqual(RESOLVE);
+	expect(app.cfApp.turn).toEqual(TURN);
+	expect(app.cfApp.isStateTerminal).toEqual(IS_STATE_TERMINAL);
+	expect(app.dependencyNonce.salt).toEqual(expectedSalt);
+	expect(app.dependencyNonce.nonce).toEqual(1);
 }

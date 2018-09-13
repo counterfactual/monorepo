@@ -1,4 +1,4 @@
-import { Address, MiddlewareResult, ClientMessage } from "./types";
+import { Address, MiddlewareResult, ClientMessage, ActionName } from "./types";
 import { Action, ActionExecution } from "./action";
 import { CounterfactualVM } from "./vm";
 
@@ -109,7 +109,7 @@ interface Log {
  * Record stored in the WAL.
  */
 interface LogRecord {
-	actionName: string;
+	actionName: ActionName;
 	to: Address;
 	from: Address;
 	requestId: string;

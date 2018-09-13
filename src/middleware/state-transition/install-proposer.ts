@@ -1,4 +1,3 @@
-import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import {
 	Address,
@@ -25,7 +24,7 @@ export class InstallProposer {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let data: InstallData = message.clientMessage.data;
 		let uniqueId = InstallProposer.nextUniqueId(state, multisig);
-		let cfAddr = InstallProposer.proposedCfAddress(message, uniqueId);
+		let cfAddr = InstallProposer.proposedCfAddress(state, message, uniqueId);
 		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
 		let newAppChannel = InstallProposer.newAppChannel(cfAddr, data, uniqueId);
 		let [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
@@ -34,14 +33,14 @@ export class InstallProposer {
 			peerA.balance,
 			peerB.address,
 			peerB.balance,
-			existingFreeBalance.localNonce + 1,
 			existingFreeBalance.uniqueId,
+			existingFreeBalance.localNonce + 1,
 			data.timeout,
 			existingFreeBalance.nonce
 		);
 		let updatedStateChannel = new StateChannelInfoImpl(
-			message.clientMessage.toAddress,
 			message.clientMessage.fromAddress,
+			message.clientMessage.toAddress,
 			multisig,
 			{ [newAppChannel.id]: newAppChannel },
 			freeBalance
@@ -75,10 +74,12 @@ export class InstallProposer {
 	}
 
 	private static proposedCfAddress(
+		state: CfState,
 		message: InternalMessage,
 		uniqueId: number
 	): H256 {
 		return new CfStateChannel(
+			state.networkContext,
 			message.clientMessage.multisigAddress,
 			[message.clientMessage.data.keyA, message.clientMessage.data.keyB],
 			message.clientMessage.data.app,

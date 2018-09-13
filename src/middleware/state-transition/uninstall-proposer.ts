@@ -1,4 +1,3 @@
-import { getFirstResult } from "../../vm";
 import { CfState, StateChannelInfoImpl, Context } from "../../state";
 import {
 	Address,
@@ -35,16 +34,16 @@ export class UninstallProposer {
 			oldFreeBalance.aliceBalance + canon.peerA.balance,
 			oldFreeBalance.bob,
 			oldFreeBalance.bobBalance + canon.peerB.balance,
-			oldFreeBalance.localNonce + 1,
 			oldFreeBalance.uniqueId,
+			oldFreeBalance.localNonce + 1,
 			oldFreeBalance.timeout,
 			oldFreeBalance.nonce
 		);
 		let chan = channels[multisig];
 		// now replace the state channel with a newly updated one
 		channels[multisig] = new StateChannelInfoImpl(
-			chan.toAddress,
-			chan.fromAddress,
+			chan.counterParty,
+			chan.me,
 			multisig,
 			chan.appChannels,
 			newFreeBalance

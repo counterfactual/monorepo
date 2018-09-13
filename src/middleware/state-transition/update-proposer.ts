@@ -1,4 +1,3 @@
-import { getFirstResult } from "../../vm";
 import { CfState, Context } from "../../state";
 import {
 	Address,
