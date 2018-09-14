@@ -43,8 +43,30 @@ export class CfAppInterface {
 		readonly applyAction: Bytes4,
 		readonly resolve: Bytes4,
 		readonly turn: Bytes4,
-		readonly isStateTerminal: Bytes4
+		readonly isStateTerminal: Bytes4,
+		readonly abiEncoding: string
 	) {}
+
+	encode(state: object): string {
+		return ethers.utils.defaultAbiCoder.encode([this.abiEncoding], [state]);
+	}
+
+	stateHash(state: object): string {
+		// assumes encoding "tuple(type key, type key, type key)"
+		let regex = /\(([^)]+)\)/;
+		let tuples = (regex.exec(this.abiEncoding) || [])[1].split(",");
+		let hashArgs = tuples.reduce(
+			(acc, tuple) => {
+				let [type, key] = tuple.split(" ").filter(str => str.length > 0);
+				acc.types.push(type);
+				acc.values.push(state[key]);
+				return acc;
+			},
+			{ types: ["bytes1"], values: ["0x19"] }
+		);
+
+		return ethers.utils.solidityKeccak256(hashArgs.types, hashArgs.values);
+	}
 
 	hash(): string {
 		return ethers.utils.solidityKeccak256(
@@ -179,7 +201,8 @@ export class CfFreeBalance {
 			applyAction,
 			resolver,
 			turn,
-			isStateTerminal
+			isStateTerminal,
+			"tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)"
 		);
 	}
 }

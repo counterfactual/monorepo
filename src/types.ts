@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { Response } from "./vm";
+import { Response, ResponseStatus } from "./vm";
 import { CfAppInterface, Terms } from "./middleware/cf-operation/types";
 import { Instruction } from "./instructions";
 import { CfFreeBalance, CfNonce } from "./middleware/cf-operation/types";
@@ -8,26 +8,54 @@ import { CfFreeBalance, CfNonce } from "./middleware/cf-operation/types";
  * Aliases to help code readability. Byte arrays and addresses are represented as hex-encoded strings.
  * Should think about actually changing these to be non strings.
  */
-export type Bytes = string;			// dynamically-sized byte array
-export type Bytes4 = string;		// fixed-size byte arrays
+export type Bytes = string; // dynamically-sized byte array
+export type Bytes4 = string; // fixed-size byte arrays
 export type Bytes32 = string;
-export type Address = string;		// ethereum address (i.e. rightmost 20 bytes of keccak256 of ECDSA pubkey)
-export type H256 = string;			// a bytes32 which is the output of the keccak256 hash function
-
+export type Address = string; // ethereum address (i.e. rightmost 20 bytes of keccak256 of ECDSA pubkey)
+export type H256 = string; // a bytes32 which is the output of the keccak256 hash function
 
 export type MiddlewareResult = { opCode: Instruction; value: any };
+
+export interface WalletMessaging {
+	postMessage(message: Object, to: string);
+	onMessage(userId: string, callback: Function);
+}
 
 export interface ClientMessage {
 	requestId: string;
 	appId?: string;
+	type?: string;
 	action: ActionName;
+}
+
+export interface Notification {
+	type: string;
+	notificationType: string;
 	data: any;
+}
+
+export interface ClientActionMessage extends ClientMessage {
+	data?: any;
 	multisigAddress: string;
 	toAddress: string;
 	fromAddress: string;
 	stateChannel?: StateChannelInfo; // we should remove this from this object
 	seq: number;
 	signature?: Signature;
+}
+
+export enum ClientQueryType {
+	FreeBalance = "freeBalance",
+	StateChannel = "stateChannel",
+	User = "user"
+}
+
+export interface ClientQuery extends ClientMessage {
+	requestId: string;
+	query: ClientQueryType;
+	data?: any;
+	userId?: string;
+	multisigAddress?: Address;
 }
 
 export interface InstallData {
@@ -49,12 +77,55 @@ export interface StateProposal {
 	cfAddr?: H256;
 }
 
+export interface ClientResponse {
+	requestId: string;
+	// TODO tighten the type
+	status?: any;
+	data?: any;
+	appId?: string;
+}
+
+export interface UserDataClientResponse extends ClientResponse {
+	data: {
+		userAddress: string;
+	};
+}
+
+export interface StateChannelDataClientResponse extends ClientResponse {
+	data: {
+		stateChannel: StateChannelInfo;
+	};
+}
+
+export interface FreeBalanceClientResponse extends ClientResponse {
+	requestId: string;
+	data: {
+		freeBalance: CfFreeBalance;
+	};
+}
+
+export interface InstallClientResponse extends ClientResponse {
+	data: {
+		appId: string;
+	};
+}
+
 export interface UpdateData {
 	encodedAppState: string;
 	/**
 	 * Hash of the State struct specific to a given application.
 	 */
 	appStateHash: H256;
+}
+
+export interface UpdateOptions {
+	state: object;
+}
+
+export interface InstallOptions {
+	abiEncoding: string;
+	state: object;
+	peerABalance: number;
 }
 
 /**
@@ -77,7 +148,7 @@ export class PeerBalance {
 	constructor(readonly address: Address, readonly balance: number) {}
 
 	/**
-	 * Returnsan array of peer balance objects sorted by address ascendi.
+	 * Returns an array of peer balance objects sorted by address ascendi.
 	 */
 	static balances(
 		address1: Address,
@@ -273,11 +344,17 @@ export class Signature {
 	}
 }
 
+// FIXME: move operation action names away from client action names
 export enum ActionName {
-	SETUP = 0,
-	INSTALL,
-	UPDATE,
-	UNINSTALL
+	SETUP = "setup",
+	INSTALL = "install",
+	UPDATE = "update",
+	UNINSTALL = "uninstall",
+	ADD_OBSERVER = "addObserver",
+	REMOVE_OBSERVER = "removeObserver",
+	REGISTER_IO = "registerIo",
+	RECEIVE_IO = "receiveIo",
+	QUERY = "query"
 }
 
 export interface Addressable {
@@ -291,6 +368,19 @@ export class InternalMessage {
 	constructor(
 		public actionName: ActionName,
 		public opCode: Instruction,
-		public clientMessage: ClientMessage
+		public clientMessage: ClientActionMessage
+	) {}
+}
+
+export class WalletMessage {
+	constructor(id: string, status: ResponseStatus, readonly type?: string) {}
+}
+
+export class WalletResponse {
+	constructor(
+		readonly requestId: string,
+		readonly status: ResponseStatus,
+		readonly type?: string,
+		error?: string
 	) {}
 }

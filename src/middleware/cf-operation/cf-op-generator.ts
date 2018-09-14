@@ -1,27 +1,26 @@
 import { CfState, Context } from "../../state";
 import {
-	CfFreeBalance,
-	CfStateChannel,
+	CfOperation,
 	CfAppInterface,
-	Terms
-} from "../cf-operation/types";
-import { Instruction } from "../../instructions";
-import {
-	Signature,
-	Address,
-	InternalMessage,
-	H256,
-	PeerBalance,
-	CanonicalPeerBalance,
-	ActionName
-} from "../../types";
-import { getFirstResult } from "../middleware";
-import { CfOperation } from "./types";
+	Terms,
+	CfFreeBalance,
+	CfStateChannel
+} from "./types";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfOpGenerator } from "../middleware";
+import { CfOpGenerator, getFirstResult } from "../middleware";
+import {
+	InternalMessage,
+	ActionName,
+	Signature,
+	Address,
+	CanonicalPeerBalance,
+	PeerBalance,
+	H256
+} from "../../types";
+import { Instruction } from "../../instructions";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -57,27 +56,6 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		} else if (message.actionName === ActionName.UNINSTALL) {
 			op = this.uninstall(message, context, cfState, proposedState.state);
 		}
-		// leaving temporarily since the tests aren't checking against the commitments
-		// and so we need to exercise their functionality
-		if (op != null) {
-			let sigA = new Signature(
-				28,
-				"0x11111111111111111111111111111111",
-				"0x22222222222222222222222222222222"
-			);
-			let sigB = new Signature(
-				28,
-				"0x11111111111111111111111111111111",
-				"0x22222222222222222222222222222222"
-			);
-			if (message.actionName === ActionName.INSTALL) {
-				console.log(op.hashToSign());
-				console.log(op.transaction([sigA, sigB]));
-			} else {
-				console.log(op.hashToSign());
-				console.log(op.transaction([sigA, sigB]));
-			}
-		}
 		return op;
 	}
 
@@ -89,7 +67,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
 	): CfOperation {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		if (message.clientMessage.appId === undefined) {
-			throw "update message must have appId set";
+			// FIXME: handle more gracefully
+			throw Error("update message must have appId set");
 		}
 		let appChannel =
 			proposedUpdate[multisig].appChannels[message.clientMessage.appId];
@@ -101,7 +80,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			appChannel.cfApp.applyAction,
 			appChannel.cfApp.resolve,
 			appChannel.cfApp.turn,
-			appChannel.cfApp.isStateTerminal
+			appChannel.cfApp.isStateTerminal,
+			appChannel.cfApp.abiEncoding
 		);
 
 		appChannel.terms = new Terms(

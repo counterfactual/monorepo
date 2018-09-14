@@ -1,84 +1,54 @@
-import { Context } from "../../src/state";
-import { CounterfactualVM, CfVmConfig, Response } from "../../src/vm";
+import { SyncDb } from "../../src/wal";
+import { User } from "./user";
+import { NotificationType } from "../../src/mixins/observable";
 import {
+	ClientQueryType,
+	ClientQuery,
+	ClientActionMessage,
+	ActionName,
+	Notification,
+	WalletResponse,
+	ClientResponse,
 	ResponseSink,
-	ClientMessage,
 	ChannelStates,
-	InternalMessage,
-	Address,
-	Signature,
-	NetworkContext,
-	ActionName
+	NetworkContext
 } from "../../src/types";
-import { CfVmWal, MemDb, SyncDb } from "../../src/wal";
-import { IoProvider } from "./ioProvider";
-import { Instruction } from "../../src/instructions";
-import { CfOperation } from "../../src/middleware/cf-operation/types";
-import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
-import { CommitmentStore } from "./commitmentStore";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-
-import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
-import * as ethers from "ethers";
 
 export class TestWallet implements ResponseSink {
-	readonly address: Address;
-	signer: ethers.SigningKey;
-	vm: CounterfactualVM;
-	io: IoProvider;
-	store: CommitmentStore;
-	blockchainProvider: ethers.providers.BaseProvider;
-	wallet: ethers.Wallet;
+	users: Map<string, User>;
+	address?: string;
 	private requests: Map<string, Function>;
+	private responseListener?: Function;
+	private messageListener?: Function;
 
-	constructor(
-		readonly privateKey: string,
+	constructor() {
+		this.users = new Map<string, User>();
+		this.requests = new Map<string, Function>();
+	}
+
+	setUser(
+		address: string,
+		privateKey: string,
 		db?: SyncDb,
 		states?: ChannelStates,
 		networkContext?: NetworkContext
 	) {
-		this.vm = new CounterfactualVM(
-			new CfVmConfig(
-				this,
-				new EthCfOpGenerator(),
-				new CfVmWal(db !== undefined ? db : new MemDb()),
-				states,
-				networkContext
-			)
-		);
-		this.io = new IoProvider();
-		this.io.ackMethod = this.vm.startAck.bind(this.vm);
-		this.store = new CommitmentStore();
-		this.requests = new Map<string, Function>();
-		this.signer = new ethers.SigningKey(privateKey);
-		this.address = this.signer.address;
-		this.registerMiddlewares();
+		this.address = address;
 
-		this.blockchainProvider = new ethers.providers.JsonRpcProvider(
-			process.env.GANACHE_URL || "http://localhost:9545"
-		);
-		this.wallet = new ethers.Wallet(privateKey, this.blockchainProvider);
+		if (!this.users.has(address)) {
+			this.users.set(
+				address,
+				new User(this, address, privateKey, db, states, networkContext)
+			);
+		}
 	}
 
-	private registerMiddlewares() {
-		this.vm.register(
-			Instruction.OP_SIGN,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return signMyUpdate(message, next, context, this);
-			}
-		);
-		this.vm.register(
-			Instruction.OP_SIGN_VALIDATE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return validateSignatures(message, next, context, this);
-			}
-		);
-		this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
-		this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
-		this.vm.register(
-			Instruction.STATE_TRANSITION_COMMIT,
-			this.store.setCommitment.bind(this.store)
-		);
+	get currentUser(): User {
+		if (!this.address) {
+			throw Error("could not find current user without address");
+		}
+
+		return this.users.get(this.address)!;
 	}
 
 	/**
@@ -86,121 +56,176 @@ export class TestWallet implements ResponseSink {
 	 * Returns a promise that resolves with a Response object when
 	 * the protocol has completed execution.
 	 */
-	async runProtocol(msg: ClientMessage): Promise<Response> {
-		let promise = new Promise<Response>((resolve, reject) => {
+	async runProtocol(msg: ClientActionMessage): Promise<WalletResponse> {
+		let promise = new Promise<WalletResponse>((resolve, reject) => {
 			this.requests[msg.requestId] = resolve;
 		});
-		let response = this.vm.receive(msg);
+		let response = this.currentUser.vm.receive(msg);
 		return promise;
 	}
 
 	/**
 	 * Resolves the registered promise so the test can continue.
 	 */
-	sendResponse(res: Response) {
-		if (this.requests[res.requestId] !== undefined) {
+	sendResponse(res: WalletResponse | Notification) {
+		if ("requestId" in res && this.requests[res.requestId] !== undefined) {
 			let promise = this.requests[res.requestId];
 			delete this.requests[res.requestId];
 			promise(res);
+		} else {
+			this.sendMessageToClient(res);
 		}
 	}
 
 	/**
 	 * Called When a peer wants to send an io messge to this wallet.
 	 */
-	receiveMessageFromPeer(incoming: ClientMessage) {
-		console.log("Receive from peer: ", incoming.action, incoming.seq);
-		this.io.receiveMessageFromPeer(incoming);
-	}
-
-	async goToChain(appId: string) {
-		//await this.installApp(appId);
-		//await this.updateApp(appId);
-	}
-
-	async installApp(appId: string) {
-		const signedInstallTransaction: any = Object.assign(
-			{},
-			this.store.getTransaction(appId, ActionName.INSTALL)
+	receiveMessageFromPeer(incoming: ClientActionMessage) {
+		console.log(
+			"Receive from peer: " +
+				incoming.fromAddress +
+				", by: " +
+				incoming.toAddress,
+			incoming.action,
+			incoming.seq
 		);
-		console.log("about to send the signed transaction");
-
-		signedInstallTransaction.gasLimit = HIGH_GAS_LIMIT.gasLimit;
-		//signedInstallTransaction.data = "0x";
-		signedInstallTransaction.nonce = await this.blockchainProvider.getTransactionCount(
-			this.address
-		);
-		const gasEstimate = await this.blockchainProvider.estimateGas(
-			signedInstallTransaction
-		);
-		console.log(gasEstimate);
-		// for the test check for contracts having been deployed
+		this.currentUser.io.receiveMessageFromPeer(incoming);
 	}
 
-	async updateApp(appId: string) {
-		// const signedUpdateTransaction = this.store.getTransaction(appId, "update");
-		// this.blockchainProvider.sendTransaction(signedUpdateTransaction);
-		// for the test check that the on chain contracts have the same state as the machine
-	}
-}
-
-/**
- * Plugin middleware methods.
- */
-
-async function signMyUpdate(
-	message: InternalMessage,
-	next: Function,
-	context: Context,
-	wallet: TestWallet
-): Promise<Signature> {
-	const operation: CfOperation = getFirstResult(
-		Instruction.OP_GENERATE,
-		context.results
-	).value;
-	const digest = operation.hashToSign();
-	console.log("signing digest = ", digest);
-	const sig = wallet.signer.signDigest(digest);
-	console.info("signing address: " + wallet.signer.address);
-	console.info(
-		"recovered address: " + ethers.utils.recoverAddress(digest, sig)
-	);
-	return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
-}
-
-async function validateSignatures(
-	message: InternalMessage,
-	next: Function,
-	context: Context,
-	wallet: TestWallet
-) {
-	const op: CfOperation = getLastResult(
-		Instruction.OP_GENERATE,
-		context.results
-	).value;
-	const digest = op.hashToSign();
-	console.log("validate digest = ", digest);
-	let sig;
-	let expectedSigningAddress =
-		message.clientMessage.fromAddress === wallet.address
-			? message.clientMessage.toAddress
-			: message.clientMessage.fromAddress;
-	if (message.clientMessage.signature === undefined) {
-		// initiator
-		const incomingMessage = getLastResult(Instruction.IO_WAIT, context.results)
-			.value;
-		sig = incomingMessage.signature;
-	} else {
-		// receiver
-		sig = message.clientMessage.signature;
+	// TODO figure out which client to send the response to
+	sendResponseToClient(response: ClientResponse) {
+		if (this.responseListener) {
+			this.responseListener(response);
+		}
 	}
 
-	const recoveredAddress = ethers.utils.recoverAddress(digest, {
-		v: sig.v,
-		r: sig.r,
-		s: sig.s
-	});
-	if (recoveredAddress !== expectedSigningAddress) {
-		throw "Invalid signature";
+	sendMessageToClient(msg: ClientResponse | Notification) {
+		if (this.responseListener) {
+			this.responseListener(msg);
+		}
+	}
+
+	// TODO make responseListener a map/array
+	onResponse(callback: Function) {
+		this.responseListener = callback;
+	}
+
+	// TODO figure out which client to send the response to
+	// TODO refactor to clarify difference with sendMessageToClient
+	sendIoMessageToClient(message: ClientActionMessage) {
+		if (this.messageListener) {
+			this.messageListener(message);
+		}
+	}
+
+	// TODO make messageListener a map/array
+	onMessage(callback: Function) {
+		this.messageListener = callback;
+	}
+
+	handleFreeBalanceQuery(query: ClientQuery) {
+		if (typeof query.multisigAddress === "string") {
+			let freeBalance = this.currentUser.vm.cfState.freeBalanceFromMultisigAddress(
+				query.multisigAddress
+			);
+			let response = {
+				requestId: query.requestId,
+				data: {
+					freeBalance: freeBalance
+				}
+			};
+
+			this.sendResponseToClient(response);
+		}
+	}
+
+	sendNotification(type: NotificationType, data: object) {
+		let message: Notification = {
+			type: "notification",
+			notificationType: type,
+			data: data
+		};
+
+		this.sendResponse(message);
+	}
+
+	addObserver(message: ClientActionMessage) {
+		this.currentUser.addObserver(message);
+	}
+
+	removeObserver(message: ClientActionMessage) {
+		this.currentUser.removeObserver(message);
+	}
+
+	setClientToHandleIO() {
+		this.currentUser.io.setClientToHandleIO();
+	}
+
+	handleStateChannelQuery(query: ClientQuery) {
+		if (typeof query.multisigAddress === "string") {
+			let stateChannel = this.currentUser.vm.cfState.stateChannelFromMultisigAddress(
+				query.multisigAddress
+			);
+			let response = {
+				requestId: query.requestId,
+				data: {
+					stateChannel: stateChannel
+				}
+			};
+
+			this.sendResponseToClient(response);
+		}
+	}
+
+	handleUserQuery(query: ClientQuery) {
+		let response = {
+			requestId: query.requestId,
+			data: {
+				userAddress: this.address
+			}
+		};
+
+		this.sendResponseToClient(response);
+	}
+
+	async receiveMessageFromClient(incoming: ClientActionMessage | ClientQuery) {
+		if ("query" in incoming) {
+			switch (incoming.query) {
+				case ClientQueryType.FreeBalance:
+					this.handleFreeBalanceQuery(incoming);
+					break;
+				case ClientQueryType.StateChannel:
+					this.handleStateChannelQuery(incoming);
+					break;
+				case ClientQueryType.User:
+					this.handleUserQuery(incoming);
+					break;
+			}
+		} else if (incoming.action) {
+			switch (incoming.action) {
+				case ActionName.ADD_OBSERVER: {
+					this.addObserver(incoming);
+					break;
+				}
+				case ActionName.REMOVE_OBSERVER: {
+					this.removeObserver(incoming);
+					break;
+				}
+				case ActionName.REGISTER_IO: {
+					this.setClientToHandleIO();
+					break;
+				}
+				case ActionName.RECEIVE_IO: {
+					this.currentUser.io.receiveMessageFromPeer(incoming.data);
+					break;
+				}
+				default: {
+					await this.runProtocol(incoming);
+					break;
+				}
+			}
+			console.log("incoming message", incoming);
+			this.sendResponseToClient(incoming);
+		}
 	}
 }

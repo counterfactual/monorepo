@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>
+
+
+<!--
+	<iframe id=counter width=800 height=800 src="http://localhost:8000/examples/ttt"></iframe>
+	<iframe id=counter width=500 height=800 src="http://localhost:8000/examples/counter"></iframe> -->
+
+<script charset="utf-8" type="text/javascript" src="../../../node_modules/ethers/dist/ethers.min.js"></script>
+<script id="cf_src" type="text/javascript" src="../../../build/js/counterfactual.min.js"></script>
+<script id="wa_src" type="text/javascript" src="../../../build/js/wallet.min.js"></script>
+<script id="ci_src" type="text/javascript" src="../../../build/js/client-interface.min.js"></script>
+
+<!--<script type="text/javascript" src="/build/js/counterfactual.min.js"></script>-->
+<script>
+	// let injectedScript = Object.keys(cf.vm).reduce((injectedScript, key) => {
+	// 	return injectedScript;
+	// 	return `${injectedScript} window.${key} = ${typeof cf.vm[key] === 'object' ? JSON.stringify(cf.vm[key]) : cf.vm[key].toString()};`
+	// }, `
+	// 	window.ClientInterface = ${clientInterface.toString()};
+	// 	window.TestWallet = ${wallet.toString()};
+	// `);
+
+	let useAppIO = {};
+
+	let counter = 0;
+	let ephemeralAPublic = "0x586D9E7c82E98D61513DBB2Bb7f919d131e517Af";
+	let ephemeralAPrivate = "0x2e0a8863cfc67014457ef53b7990b95ae7c82cbee1b98a6d994876505b3ed4c5"
+
+	let ephemeralBPublic = "0x8301eD32b1EF7167f1aE3497FC1Eeb3b5Ed82388";
+	let ephemeralBPrivate = "0x758eddf758f5c399c5e29f855a6af189c53ebc05d3177b7f91113334308f1dcb";
+
+	class SimpleAppSigner {
+		constructor(appName) {
+			// not sure if we need this
+			this.appName = appName;
+			this.peerKey = 'something';
+			this.signingKey = counter ? ephemeralAPublic : ephemeralBPublic;
+			counter++;
+			// here we need to generate keys
+		}
+		async signPeerUpdate(dataToSign, data) {
+			// TODO IMPORTANT TO FIGURE OUT
+			// should this ask the app?
+			return Promise.resolve({ v: 0, r: "0xa", s: "0xb" });
+		}
+		async signMyUpdate(dataToSign) {
+			//TODO do for real
+			return Promise.resolve({ v: 0, r: "0xa", s: "0xb" });
+
+		}
+		async shouldUninstall(req) {
+
+		}
+		/**
+		 * The key used to sign app updates.
+		 */
+		async getSigningKey() {
+			return this.signingKey;
+		}
+	}
+
+	let clientToKey = {
+		'A': '0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539',
+		'B': '0x08d1cd793fd871c131c594f0cfd9564b774da50c'
+	}
+	let keyStore = {
+		"0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539": "0xd0fb28b764036a8df6f7ea63865b0ed1c0de67543d2b795f5ad96541208ce763",
+		"0x08d1cd793fd871c131c594f0cfd9564b774da50c": "0x170f140962cc7c9afc98d0d2468b075c87493c9ab8164117f3a9866a9a4404fa"
+	};
+
+	let relayStore = {
+	}
+
+	/*
+	let clientStore = {
+		"0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539": new cf.SimpleCounterfactualClient(keyStore["0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539"])
+	}
+	*/
+
+
+	let address = "0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539";
+
+	let clientA = new ci.ClientInterface(keyStore[address]);
+	let clientB = new ci.ClientInterface(keyStore[clientToKey['B']]);
+
+	// TODO hardcoded for now, somehow needs to hookup with installs later
+	let appSignerStore = {
+		[clientToKey.A]: {
+			'test': new SimpleAppSigner('test')
+		},
+		[clientToKey.B]: {
+			'test': new SimpleAppSigner('test')
+		}
+	}
+	// clientA.client.registerSigner('test', appSignerStore[clientToKey.A].test);
+	// clientB.client.registerSigner('test', appSignerStore[clientToKey.B].test);
+	// clientA.client.registerSigner('ttt', appSignerStore[clientToKey.A].test);
+	// clientB.client.registerSigner('ttt', appSignerStore[clientToKey.B].test);
+
+	// let clientStore = {
+	// 	[clientToKey.A]: clientA,
+	// 	[clientToKey.B]: clientB
+	// };
+
+	// let appChannelStore = {
+	// };
+
+	// let refundModuleBFinalizeEvent, refundModuleARequestId, refundModuleAFinalizeEvent;
+
+	// // this is bad and I do feel bad
+	// let connectionAtoB = {
+	// 	routeMsg(msg) {
+	// 		let appId = msg.msg.body.req.metadata.appId;
+	// 		if (!appId || !useAppIO[appId]) {
+	// 			debugger
+	// 			let wsConnection = relayStore[msg.peerAddr.toLowerCase()];
+	// 			msg.toAddr = msg.toAddr.toLowerCase();
+	// 			wsConnection.send(msg);
+	// 		} else if (!appId || useAppIO[appId]) {
+	// 			sendMessageToChild({type: 'cf:io-send', msg});
+	// 		}
+	// 	}
+	// }
+	// let connectionBtoA = {
+	// 	routeMsg(msg) {
+	// 		let appId = msg.msg.body.req.metadata.appId;
+	// 		if (!appId || !useAppIO[appId]) {
+	// 			debugger
+	// 			let wsConnection = relayStore[msg.peerAddr.toLowerCase()];
+	// 			msg.toAddr = msg.toAddr.toLowerCase();
+	// 			wsConnection.send(msg);
+	// 		} else if (!appId || useAppIO[appId]) {
+	// 			sendMessageToChild({type: 'cf:io-send', msg});
+	// 		}
+	// 	}
+	// }
+	// clientA.client.ioProvider.connection = connectionAtoB;
+	// clientB.client.ioProvider.connection = connectionBtoA;
+	// let refundModuleA = new cf.RefundModule(
+	// 	clientA.client,  (msg) => {
+	// 		if (msg.peerAddr.toLowerCase() != clientToKey.A) {
+	// 			return;
+	// 		}
+	// 		console.log('got into the callback for refund A');
+	// 		let event =  refundEventsStore[clientToKey.A];
+	// 		event.source.postMessage({requestId: event.data.requestId}, '*')
+	// 	}, () => {
+	// 		return;
+	// 		//let event =  refundFinalizeEventsStore[clientToKey.A];
+	// 		//event.source.postMessage({requestId: event.data.requestId}, '*')
+	// 	 });
+	// let refundModuleB = new cf.RefundModule(
+	// 	clientB.client,  (msg) => {
+	// 		console.log('got into the callback for refund B');
+	// 		if (msg.peerAddr.toLowerCase() != clientToKey.B) {
+	// 			return;
+	// 		}
+	// 		let event =  refundEventsStore[clientToKey.B];
+	// 		event.source.postMessage({requestId: event.data.requestId}, '*')
+	// 	}, () => {
+	// 		if (!refundModuleBFinalizeEvent) {
+	// 			return;
+	// 		}
+	// 	 });
+
+	// let refundStore = {
+	// 	[clientToKey.A]: refundModuleA,
+	// 	[clientToKey.B]: refundModuleB
+	// }
+
+	// let refundEventsStore = {
+	// }
+
+	// let refundFinalizeEventsStore = {
+	// }
+
+	let getSrc = async function (id) {
+		let response = await fetch(document.getElementById(`${id}_src`).src);
+		let reader = response.body.getReader();
+		let decoder = new TextDecoder('utf-8');
+		let file = '';
+		let done = false;
+
+		while (!done) {
+			let segment = await reader.read();
+			file += decoder.decode(segment.value);
+			done = segment.done;
+		}
+
+		return file.replace(`var ${id} =`, `window.${id} =`);
+	}
+
+	let injectScript = async function (event) {
+		let injectedScript = `
+			${await getSrc('ci')};
+		`;
+
+		event.source.postMessage({ type: 'cf:init-reply', source: injectedScript }, '*');
+	}
+
+
+	window.addEventListener('message', (event) => {
+		if (event.data.type === 'cf:init') {
+			injectScript(event);
+		}
+	});
+
+
+	function sendMessageToChild(msg) {
+		document.querySelectorAll('iframe').forEach((el) => {
+			el.contentWindow.postMessage(msg, '*');
+		});
+	}
+
+	let wallet = new wa.TestWallet()
+
+	async function pickUser(key, pkey) {
+		// let wsConnection = new cf.StateChannelWsConnection(
+		// 	{routeMsg: (msg) => {
+
+		// 		let client = clientStore[msg.toAddr.toLowerCase()].client;
+		// 		client.ioProvider.routeMsg(msg);
+		// 	}},
+		// 	key,
+		// 	"ws://localhost:5000",
+		// 	{
+		// 		showedPresence: (peerAddr) => {
+		// 			console.log("Showed presence!");
+		// 			peers.push(peerAddr);
+		// 			sendMessageToChild({type: 'cf:peers-changed', peers});
+		// 		},
+		// 		removedPresence: (peerAddr) => {
+		// 			console.log("This doens't work");
+		// 			let msg = {peers}
+		// 			sendMessageToChild({type: 'cf:peers-changed', peers});
+		// 		}
+		// 	}
+		// );
+		// //router.connection = wsConnection;
+		// relayStore[key.toLowerCase()] = wsConnection;
+		// wsConnection.connect(wsPeers => {
+		// 	peers = wsPeers;
+		// 	console.log("Connected to relay");
+		// 	//this.peers = peers;
+		// 	//this.delegate.peersDidChange(this.peers);
+		// 	sendMessageToChild({type: 'cf:peers-changed', peers});
+		// 	//resolve(router);
+		// });
+
+		wallet.setUser(key, pkey);
+
+		wallet.onMessage((msg) => {
+			let message = {
+				type: 'cf:io-send',
+				data: msg
+			}
+
+			sendMessageToChild(message);
+		});
+
+		wallet.onResponse((message) => {
+			console.log('onResponse', message)
+			sendMessageToChild(message);
+		});
+
+		window.addEventListener('message', (event) => {
+			if (event.data.type === 'cf:default') {
+				wallet.receiveMessageFromClient(event.data);
+			}
+		});
+
+		sendMessageToChild({ type: 'cf:user-picked', key, pkey })
+	}
+
+</script>
+
+
+<div style="float: right">
+	<div>
+		Pick user
+	</div>
+	<button onclick="pickUser('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d')">(A)
+		0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1</button>
+	<button onclick="pickUser('0xffcf8fdee72ac11b5c542428b35eef5769c409f0', '0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1')">(B)
+		0xffcf8fdee72ac11b5c542428b35eef5769c409f0</button>
+</div>
+
+</html>

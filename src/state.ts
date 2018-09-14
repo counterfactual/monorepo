@@ -6,7 +6,6 @@ import {
 	OpCodeResult,
 	AppChannelInfo,
 	StateChannelInfo,
-	PeerBalance,
 	Address,
 	H256
 } from "./types";
@@ -45,12 +44,42 @@ export class CfState {
 		return this.channelStates[multisig];
 	}
 
+	stateChannelFromAddress(toAddress: Address): StateChannelInfo {
+		let multisig = Object.keys(this.channelStates).find(multisig => {
+			return this.channelStates[multisig].me === toAddress;
+		});
+
+		if (multisig) {
+			return this.channelStates[multisig];
+		} else {
+			throw Error(`Could not find multisig for address ${toAddress}`);
+		}
+	}
+
+	stateChannelFromMultisigAddress(multisigAddress: Address): StateChannelInfo {
+		let multisig = this.channelStates[multisigAddress];
+		if (multisig) {
+			return this.channelStates[multisigAddress];
+		} else {
+			throw Error(`Could not find multisig of address ${multisigAddress}`);
+		}
+	}
+
 	app(multisig: Address, cfAddr: H256): AppChannelInfo {
 		return this.channelStates[multisig].appChannels[cfAddr];
 	}
 
-	freeBalance(multisig: Address): CfFreeBalance {
-		return this.channelStates[multisig].freeBalance;
+	freeBalanceFromAddress(toAddress: Address): CfFreeBalance {
+		return this.stateChannelFromAddress(toAddress).freeBalance;
+	}
+
+	freeBalanceFromMultisigAddress(multisigAddress: Address): CfFreeBalance {
+		let multisig = this.channelStates[multisigAddress];
+		if (multisig) {
+			return this.channelStates[multisigAddress].freeBalance;
+		} else {
+			throw Error(`Could not find multisig of address ${multisigAddress}`);
+		}
 	}
 
 	/**

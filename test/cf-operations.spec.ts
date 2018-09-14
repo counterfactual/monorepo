@@ -7,7 +7,8 @@ import {
 	InstallData,
 	NetworkContext,
 	PeerBalance,
-	UpdateData
+	UpdateData,
+	ClientActionMessage
 } from "../src/types";
 import {
 	CfAppInterface,
@@ -23,9 +24,12 @@ import {
 	A_PRIVATE_KEY,
 	B_PRIVATE_KEY,
 	MULTISIG_ADDRESS,
-	MULTISIG_PRIVATE_KEY
+	MULTISIG_PRIVATE_KEY,
+	A_ADDRESS,
+	B_ADDRESS
 } from "./constants";
 import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
+import { sleep } from "./common";
 
 export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
 	return provider.send("evm_mine", []);
@@ -42,7 +46,6 @@ export async function mineBlocks(
 
 describe("Setup Protocol", async function() {
 	jest.setTimeout(30000);
-	console.log = () => {};
 
 	it("should have the correct funds on chain", async () => {
 		const networkFile = require("/app/contracts/networks/7777777.json");
@@ -62,31 +65,37 @@ describe("Setup Protocol", async function() {
 			networkFileAsMap["StaticCall"]
 		);
 
-		let walletA = new TestWallet(
+		const walletA = new TestWallet();
+		walletA.setUser(
+			A_ADDRESS,
 			A_PRIVATE_KEY,
 			undefined,
 			undefined,
 			networkContext
 		);
-		let walletB = new TestWallet(
+		const walletB = new TestWallet();
+		walletB.setUser(
+			B_ADDRESS,
 			B_PRIVATE_KEY,
 			undefined,
 			undefined,
 			networkContext
 		);
 
-		let startBalanceA = await walletA.wallet.getBalance();
-		let startBalanceB = await walletB.wallet.getBalance();
+		let startBalanceA = await walletA.currentUser.ethersWallet.getBalance();
+		let startBalanceB = await walletB.currentUser.ethersWallet.getBalance();
 
-		let masterWallet = new TestWallet(
+		const masterWallet = new TestWallet();
+		masterWallet.setUser(
+			MULTISIG_ADDRESS,
 			MULTISIG_PRIVATE_KEY,
 			undefined,
 			undefined,
 			networkContext
 		);
 
-		walletA.io.peer = walletB;
-		walletB.io.peer = walletA;
+		walletA.currentUser.io.peer = walletB;
+		walletB.currentUser.io.peer = walletA;
 
 		// STEP 1 -- DEPLOY MULTISIG :)
 
@@ -94,7 +103,7 @@ describe("Setup Protocol", async function() {
 		const registry = await new ethers.Contract(
 			networkContext.Registry,
 			Registry.abi,
-			masterWallet.wallet
+			masterWallet.currentUser.ethersWallet
 		);
 
 		// TODO: Truffle migrate does not auto-link the bytecode in the build folder,
@@ -108,7 +117,7 @@ describe("Setup Protocol", async function() {
 		const multisig = await new ethers.Contract(
 			"",
 			Multisig.abi,
-			masterWallet.wallet
+			masterWallet.currentUser.ethersWallet
 		).deploy(Multisig.bytecode);
 		console.error(`DEPLOYED MULTISIG AT ${multisig.address}`);
 
@@ -168,14 +177,14 @@ describe("Setup Protocol", async function() {
 		const stateChannel = new ethers.Contract(
 			channelAddr,
 			StateChannel.abi,
-			masterWallet.wallet
+			masterWallet.currentUser.ethersWallet
 		);
 
-		const uninstallTx = walletA.store.getTransaction(
+		const uninstallTx = walletA.currentUser.store.getTransaction(
 			balanceRefundAppId,
 			ActionName.UNINSTALL
 		);
-		await masterWallet.wallet.sendTransaction({
+		await masterWallet.currentUser.ethersWallet.sendTransaction({
 			to: uninstallTx.to,
 			value: `0x${uninstallTx.value.toString(16)}`,
 			data: uninstallTx.data,
@@ -191,7 +200,7 @@ describe("Setup Protocol", async function() {
 		const nonceRegistry = new ethers.Contract(
 			networkContext.NonceRegistry,
 			NonceRegistry.abi,
-			masterWallet.wallet
+			masterWallet.currentUser.ethersWallet
 		);
 		const salt = ethers.utils.solidityKeccak256(["uint256"], [2]);
 		const nonceKey = ethers.utils.solidityKeccak256(
@@ -257,15 +266,15 @@ async function setup(
 }
 
 function validatePresetup(walletA: TestWallet, walletB: TestWallet) {
-	expect(walletA.vm.cfState.channelStates).toEqual({});
-	expect(walletB.vm.cfState.channelStates).toEqual({});
+	expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
+	expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
 }
 
 function setupStartMsg(
 	multisigAddress: string,
-	to: string,
-	from: string
-): ClientMessage {
+	from: string,
+	to: string
+): ClientActionMessage {
 	return {
 		requestId: "0",
 		appId: "",
@@ -300,7 +309,7 @@ function validateNoAppsAndFreeBalance(
 	amountB: number
 ) {
 	// todo: add nonce and uniqueId params and check them
-	let state = walletA.vm.cfState;
+	let state = walletA.currentUser.vm.cfState;
 
 	let peerA = walletA.address;
 	let peerB = walletB.address;
@@ -313,9 +322,7 @@ function validateNoAppsAndFreeBalance(
 		amountB = tmpAmount;
 	}
 
-	let channel = walletA.vm.cfState.channelStates[multisigAddr];
-	console.log("getting channel");
-	console.log(state.channelStates);
+	let channel = walletA.currentUser.vm.cfState.channelStates[multisigAddr];
 	expect(Object.keys(state.channelStates).length).toEqual(1);
 	expect(channel.counterParty).toEqual(walletB.address);
 	expect(channel.me).toEqual(walletA.address);
@@ -391,10 +398,10 @@ async function installBalanceRefund(
 
 function startInstallBalanceRefundMsg(
 	multisigAddr: string,
-	to: string,
 	from: string,
+	to: string,
 	threshold: number
-): ClientMessage {
+): ClientActionMessage {
 	let peerA = from;
 	let peerB = to;
 	if (peerB.localeCompare(peerA) < 0) {
@@ -409,7 +416,8 @@ function startInstallBalanceRefundMsg(
 		"0x00000000",
 		"0x00000000",
 		"0x00000000",
-		"0x00000000"
+		"0x00000000",
+		""
 	); // todo
 	let timeout = 100;
 	let installData: InstallData = {
@@ -439,7 +447,7 @@ function validateInstalledBalanceRefund(
 	wallet: TestWallet,
 	amount: number
 ) {
-	let stateChannel = wallet.vm.cfState.channelStates[multisigAddr];
+	let stateChannel = wallet.currentUser.vm.cfState.channelStates[multisigAddr];
 	let appChannels = stateChannel.appChannels;
 	let cfAddrs = Object.keys(appChannels);
 	expect(cfAddrs.length).toEqual(1);
@@ -467,7 +475,7 @@ async function depositOnChain(
 	value: number
 ) {
 	console.log(`💸 Send ${value} to the multisig (${multisigAddress})`);
-	await wallet.wallet.sendTransaction({
+	await wallet.currentUser.ethersWallet.sendTransaction({
 		to: multisigAddress,
 		value
 	});
@@ -522,7 +530,7 @@ function validateUninstalledAndFreeBalance(
 	amountB: number
 ) {
 	// todo: add nonce and uniqueId params and check them
-	let state = walletA.vm.cfState;
+	let state = walletA.currentUser.vm.cfState;
 
 	let peerA = walletA.address;
 	let peerB = walletB.address;
@@ -535,7 +543,7 @@ function validateUninstalledAndFreeBalance(
 		amountB = tmpAmount;
 	}
 
-	let channel = walletA.vm.cfState.channelStates[multisigAddr];
+	let channel = walletA.currentUser.vm.cfState.channelStates[multisigAddr];
 	let app = channel.appChannels[cfAddr];
 
 	expect(Object.keys(state.channelStates).length).toEqual(1);
@@ -553,12 +561,12 @@ function validateUninstalledAndFreeBalance(
 function startUninstallBalanceRefundMsg(
 	multisigAddr: string,
 	appId: string,
-	to: string,
 	from: string,
+	to: string,
 	amount: number
-): ClientMessage {
+): ClientActionMessage {
 	let uninstallData = {
-		peerAmounts: [new PeerBalance(to, amount), new PeerBalance(from, 0)]
+		peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
 	};
 	return {
 		requestId: "2",
@@ -600,7 +608,7 @@ function installTttMsg(
 	multisigAddr: string,
 	to: string,
 	from: string
-): ClientMessage {
+): ClientActionMessage {
 	let peerA = from;
 	let peerB = to;
 	if (peerB.localeCompare(peerA) < 0) {
@@ -614,7 +622,8 @@ function installTttMsg(
 		"0x11111111",
 		"0x11111111",
 		"0x11111111",
-		"0x11111111"
+		"0x11111111",
+		""
 	); // todo
 	let timeout = 100;
 	let installData: InstallData = {
@@ -652,10 +661,9 @@ async function validateInstallTtt(
 }
 
 function validateInstallTttWallet(walletA: TestWallet, walletB: TestWallet) {
-	let stateChannel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+	let stateChannel =
+		walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 	let appChannels = stateChannel.appChannels;
-	console.log("getting app channels");
-	console.log(appChannels);
 	let cfAddrs = Object.keys(appChannels);
 	expect(cfAddrs.length).toEqual(1);
 
@@ -665,7 +673,7 @@ function validateInstallTttWallet(walletA: TestWallet, walletB: TestWallet) {
 	expect(appChannels[cfAddr].peerB.balance).toEqual(2);
 
 	// now validate the free balance
-	let channel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+	let channel = walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 	// start with 10, 5 and both parties deposit 2 into TTT.
 	expect(channel.freeBalance.aliceBalance).toEqual(8);
 	expect(channel.freeBalance.bobBalance).toEqual(3);
@@ -716,7 +724,7 @@ function updateTttMsg(
 	to: string,
 	from: string,
 	cfAddr: string
-): ClientMessage {
+): ClientActionMessage {
 	let updateData: UpdateData = {
 		encodedAppState: state,
 		appStateHash: zeroBytes32 // todo
@@ -743,9 +751,13 @@ function validateMakeMove(
 	moveNumber: number
 ) {
 	let appA =
-		walletA.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+		walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[
+			cfAddr
+		];
 	let appB =
-		walletB.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+		walletB.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[
+			cfAddr
+		];
 
 	expect(appA.encodedState).toEqual(appState);
 	expect(appA.localNonce).toEqual(moveNumber + 1);
@@ -779,7 +791,7 @@ function uninstallTttStartMsg(
 	amountA: number,
 	addressB: string,
 	amountB: number
-): ClientMessage {
+): ClientActionMessage {
 	let uninstallData = {
 		peerAmounts: [
 			new PeerBalance(addressA, amountA),
@@ -806,25 +818,9 @@ function validateUninstallTtt(
 	amountA: number,
 	amountB: number
 ) {
-	let channel = wallet.vm.cfState.channelStates[MULTISIG_ADDRESS];
+	let channel = wallet.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 	let app = channel.appChannels[cfAddr];
 	expect(channel.freeBalance.aliceBalance).toEqual(amountA);
 	expect(channel.freeBalance.bobBalance).toEqual(amountB);
 	expect(app.dependencyNonce.nonce).toEqual(2);
-}
-
-function validateSystem(wallet: TestWallet) {
-	// todo
-}
-
-async function gotoChain(wallet: TestWallet) {
-	// todo
-}
-
-async function validateBlockchain(): Promise<any> {
-	// todo
-}
-
-export async function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
 }

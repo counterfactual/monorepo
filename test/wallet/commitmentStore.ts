@@ -3,7 +3,7 @@ import {
 	InternalMessage,
 	Signature,
 	ActionName,
-	ClientMessage
+	ClientActionMessage
 } from "../../src/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Instruction } from "../../src/instructions";
@@ -172,7 +172,7 @@ export class CommitmentStore {
 	incomingMessage(
 		internalMessage: InternalMessage,
 		context: Context
-	): ClientMessage | null {
+	): ClientActionMessage | null {
 		if (internalMessage.actionName === ActionName.INSTALL) {
 			return getLastResult(Instruction.IO_WAIT, context.results).value;
 		} else {
