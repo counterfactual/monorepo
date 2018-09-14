@@ -3,14 +3,17 @@ import {
 	ChannelStates,
 	ResponseSink,
 	StateChannelInfo,
-	ClientMessage,
+	NetworkContext,
+	ClientActionMessage,
 	Addressable,
-	NetworkContext
+	WalletResponse
 } from "./types";
 import { CfVmWal } from "./wal";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
 import { CfState } from "./state";
 import { Instruction } from "./instructions";
+import { applyMixins } from "./mixins/apply";
+import { Observable, NotificationType } from "./mixins/observable";
 
 export class CfVmConfig {
 	constructor(
@@ -22,7 +25,7 @@ export class CfVmConfig {
 	) {}
 }
 
-export class CounterfactualVM {
+export class CounterfactualVM implements Observable {
 	/**
 	 * The object responsible for processing each Instruction in the Vm.
 	 */
@@ -43,6 +46,12 @@ export class CounterfactualVM {
 	 * by reading the last log entry and starting where the protocol left off.
 	 */
 	writeAheadLog: CfVmWal;
+
+	// Obserable
+	observers: Map<NotificationType, Function[]> = new Map();
+	registerObserver(type: NotificationType, callback: Function) {}
+	unregisterObserver(type: NotificationType, callback: Function) {}
+	notifyObservers(type: NotificationType, data: object) {}
 
 	constructor(config: CfVmConfig) {
 		this.responseHandler = config.responseHandler;
@@ -65,7 +74,7 @@ export class CounterfactualVM {
 		);
 	}
 
-	startAck(message: ClientMessage) {
+	startAck(message: ClientActionMessage) {
 		this.execute(new Action(message.requestId, message.action, message, true));
 	}
 
@@ -78,15 +87,15 @@ export class CounterfactualVM {
 		}
 	}
 
-	receive(msg: ClientMessage): Response {
+	receive(msg: ClientActionMessage): WalletResponse {
 		this.validateMessage(msg);
 		let action = new Action(msg.requestId, msg.action, msg);
 		this.execute(action);
-		return new Response(action.requestId, ResponseStatus.STARTED);
+		return new WalletResponse(action.requestId, ResponseStatus.STARTED);
 	}
 
-	validateMessage(msg: ClientMessage) {
-		// TODO:
+	validateMessage(msg: ClientActionMessage) {
+		// TODO;
 		return true;
 	}
 
@@ -94,7 +103,18 @@ export class CounterfactualVM {
 		console.log("Processing request: ", action);
 		let execution = action.makeExecution(this);
 		this.writeAheadLog.write(execution);
-		this.run(execution);
+		await this.run(execution);
+
+		this.notifyObservers("actionCompleted", {
+			type: "notification",
+			NotificationType: "actionCompleted",
+			data: {
+				requestId: action.requestId,
+				name: action.name,
+				results: execution.results,
+				clientMessage: action.clientMessage
+			}
+		});
 	}
 
 	async run(execution: ActionExecution) {
@@ -142,3 +162,5 @@ export enum ResponseStatus {
 	ERROR,
 	COMPLETED
 }
+
+applyMixins(CounterfactualVM, [Observable]);

@@ -34,8 +34,8 @@ export class SetupProposer {
 			new CfNonce(FREE_BALANCE_UNIQUE_ID)
 		);
 		let stateChannel = new StateChannelInfoImpl(
-			fromAddress,
 			toAddress,
+			fromAddress,
 			message.clientMessage.multisigAddress,
 			{},
 			freeBalance

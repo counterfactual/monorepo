@@ -39,8 +39,8 @@ export class InstallProposer {
 			existingFreeBalance.nonce
 		);
 		let updatedStateChannel = new StateChannelInfoImpl(
-			message.clientMessage.fromAddress,
 			message.clientMessage.toAddress,
+			message.clientMessage.fromAddress,
 			multisig,
 			{ [newAppChannel.id]: newAppChannel },
 			freeBalance

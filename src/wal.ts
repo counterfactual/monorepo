@@ -1,6 +1,11 @@
-import { Address, MiddlewareResult, ClientMessage, ActionName } from "./types";
 import { Action, ActionExecution } from "./action";
 import { CounterfactualVM } from "./vm";
+import {
+	ActionName,
+	Address,
+	ClientActionMessage,
+	MiddlewareResult
+} from "./types";
 
 /**
  * Persistent write ahead log to be able to resume or abort protocols if the
@@ -113,7 +118,7 @@ interface LogRecord {
 	to: Address;
 	from: Address;
 	requestId: string;
-	clientMessage: ClientMessage;
+	clientMessage: ClientActionMessage;
 	isAckSide: boolean;
 	instructionPointer: number;
 	results: MiddlewareResult[];

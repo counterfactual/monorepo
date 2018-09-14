@@ -1,11 +1,11 @@
-import {
-	ClientMessage,
-	InternalMessage,
-	MiddlewareResult,
-	ActionName
-} from "./types";
 import { CounterfactualVM } from "./vm";
 import { Instructions, AckInstructions, Instruction } from "./instructions";
+import {
+	ActionName,
+	ClientActionMessage,
+	MiddlewareResult,
+	InternalMessage
+} from "./types";
 
 if (!Symbol.asyncIterator) {
 	(Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -14,7 +14,7 @@ if (!Symbol.asyncIterator) {
 export class Action {
 	name: ActionName;
 	requestId: string;
-	clientMessage: ClientMessage;
+	clientMessage: ClientActionMessage;
 	execution: ActionExecution = Object.create(null);
 	instructions: Instruction[];
 	isAckSide: boolean;
@@ -22,7 +22,7 @@ export class Action {
 	constructor(
 		id: string,
 		action: ActionName,
-		clientMessage: ClientMessage,
+		clientMessage: ClientActionMessage,
 		isAckSide: boolean = false
 	) {
 		this.requestId = id;
@@ -31,8 +31,10 @@ export class Action {
 		this.isAckSide = isAckSide;
 
 		if (isAckSide) {
+			console.log("ack instructions", AckInstructions[action]);
 			this.instructions = AckInstructions[action];
 		} else {
+			console.log("instructions", Instructions[action], action);
 			this.instructions = Instructions[action];
 		}
 	}
@@ -47,14 +49,14 @@ export class Action {
 export class ActionExecution {
 	action: Action;
 	instructionPointer: number;
-	clientMessage: ClientMessage;
+	clientMessage: ClientActionMessage;
 	vm: CounterfactualVM;
 	results: MiddlewareResult[];
 
 	constructor(
 		action: Action,
 		instruction: number,
-		clientMessage: ClientMessage,
+		clientMessage: ClientActionMessage,
 		vm: CounterfactualVM
 	) {
 		this.action = action;

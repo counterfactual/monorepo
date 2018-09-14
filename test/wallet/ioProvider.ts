@@ -1,12 +1,19 @@
-import { ClientMessage, InternalMessage, ActionName } from "../../src/types";
 import { Context } from "../../src/state";
-import { TestWallet } from "./wallet";
+import { User } from "./user";
 import { Instruction } from "../../src/instructions";
 import { getLastResult } from "../../src/middleware/middleware";
+import {
+	ClientActionMessage,
+	InternalMessage,
+	ActionName
+} from "../../src/types";
+import { TestWallet } from "./wallet";
 
 export class IoProvider {
-	messages: ClientMessage[];
+	messages: ClientActionMessage[];
+	user: User = Object.create(null);
 	peer: TestWallet = Object.create(null);
+	clientHandlesIO: Boolean;
 	// TODO Refactor this into using an EventEmitter class so we don't do
 	// this manually
 	listeners: {
@@ -21,13 +28,15 @@ export class IoProvider {
 	 */
 	ackMethod: Function = Object.create(null);
 
-	constructor() {
+	constructor(user) {
 		// setup websockets
+		this.user = user;
 		this.messages = [];
 		this.listeners = [];
+		this.clientHandlesIO = false;
 	}
 
-	receiveMessageFromPeer(message: ClientMessage) {
+	receiveMessageFromPeer(message: ClientActionMessage) {
 		let done = false;
 		let executedListeners = [] as number[];
 		let count = 0;
@@ -56,15 +65,13 @@ export class IoProvider {
 		}
 	}
 
-	findMessage(multisig?: string, appId?: string): ClientMessage {
-		let message: ClientMessage;
+	findMessage(multisig?: string, appId?: string): ClientActionMessage {
+		let message: ClientActionMessage;
 		if (appId) {
 			// FIXME: these shouldn't be ignored. refactor for type safety
-			// @ts-ignore
-			message = this.messages.find(m => m.appId === appId);
+			message = this.messages.find(m => m.appId === appId)!;
 		} else {
-			// @ts-ignore
-			message = this.messages.find(m => m.multisigAddress === multisig);
+			message = this.messages.find(m => m.multisigAddress === multisig)!;
 		}
 		return message;
 	}
@@ -93,6 +100,10 @@ export class IoProvider {
 		this.ackMethod = method;
 	}
 
+	setClientToHandleIO() {
+		this.clientHandlesIO = true;
+	}
+
 	async ioSendMessage(
 		internalMessage: InternalMessage,
 		next: Function,
@@ -100,8 +111,14 @@ export class IoProvider {
 	) {
 		let msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
 		// FIXME: (ts-strict) msg should never be null here
-		// @ts-ignore
-		this.peer.receiveMessageFromPeer(msg.value);
+		let value = msg.value;
+
+		if (this.clientHandlesIO) {
+			this.user.sendIoMessageToClient(value);
+		} else {
+			// Hack for testing and demo purposes, full IO handling by client goes here
+			this.peer.receiveMessageFromPeer(value);
+		}
 	}
 
 	private needsAppId(message: InternalMessage) {
@@ -111,11 +128,11 @@ export class IoProvider {
 	async waitForIo(
 		message: InternalMessage,
 		next: Function
-	): Promise<ClientMessage> {
+	): Promise<ClientActionMessage> {
 		// has websocket received a message for this appId/multisig
 		// if yes, return the message, if not wait until it does
 		let resolve: Function;
-		let promise = new Promise<ClientMessage>(r => (resolve = r));
+		let promise = new Promise<ClientActionMessage>(r => (resolve = r));
 
 		let multisig: string = "";
 		let appId: string = "";

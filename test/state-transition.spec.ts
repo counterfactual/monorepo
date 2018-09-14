@@ -9,12 +9,12 @@ import {
 	CfAppInterface
 } from "../src/middleware/cf-operation/types";
 import {
-	ClientMessage,
-	InternalMessage,
-	StateChannelInfos,
+	ActionName,
 	ChannelStates,
+	ClientActionMessage,
+	InternalMessage,
 	PeerBalance,
-	ActionName
+	StateChannelInfos
 } from "../src/types";
 import { CfState, Context, StateChannelInfoImpl } from "../src/state";
 import { Instruction } from "../src/instructions";
@@ -30,6 +30,7 @@ const APPLY_ACTION = "0x00000001";
 const RESOLVE = "0x00000002";
 const TURN = "0x00000003";
 const IS_STATE_TERMINAL = "0x00000004";
+const ABI_ENCODING = "";
 
 describe("State transition", () => {
 	it("should propose a new setup state", () => {
@@ -56,15 +57,15 @@ describe("State transition", () => {
 	});
 });
 
-function setupClientMsg(): ClientMessage {
+function setupClientMsg(): ClientActionMessage {
 	return {
 		requestId: "0",
 		appId: "0",
 		action: ActionName.SETUP,
 		data: {},
 		multisigAddress: MULTISIG_ADDRESS,
-		fromAddress: B_ADDRESS,
-		toAddress: A_ADDRESS,
+		fromAddress: A_ADDRESS,
+		toAddress: B_ADDRESS,
 		stateChannel: undefined,
 		seq: 0
 	};
@@ -111,7 +112,7 @@ function validateSetupInfos(infos: StateChannelInfos) {
 	expect(info.freeBalance.nonce.salt).toEqual(expectedSalt);
 }
 
-function installClientMsg(): ClientMessage {
+function installClientMsg(): ClientActionMessage {
 	return {
 		requestId: "0",
 		appId: "0",
@@ -128,7 +129,8 @@ function installClientMsg(): ClientMessage {
 				APPLY_ACTION,
 				RESOLVE,
 				TURN,
-				IS_STATE_TERMINAL
+				IS_STATE_TERMINAL,
+				ABI_ENCODING
 			),
 			timeout: 100
 		},

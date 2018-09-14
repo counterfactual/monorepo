@@ -1,6 +1,5 @@
-import { TestWallet } from "./wallet/wallet";
 import {
-	ClientMessage,
+	ClientActionMessage,
 	InstallData,
 	UpdateData,
 	PeerBalance,
@@ -14,7 +13,14 @@ import {
 } from "../src/middleware/cf-operation/types";
 import { ResponseStatus } from "../src/vm";
 import { sleep, SetupProtocol } from "./common";
-import { MULTISIG_ADDRESS, A_PRIVATE_KEY, B_PRIVATE_KEY } from "./constants";
+import {
+	MULTISIG_ADDRESS,
+	A_PRIVATE_KEY,
+	B_PRIVATE_KEY,
+	A_ADDRESS,
+	B_ADDRESS
+} from "./constants";
+import { TestWallet } from "./wallet/wallet";
 
 /**
  * Tests that the machine's CfState is correctly modified during the lifecycle
@@ -26,7 +32,7 @@ describe("Machine State Lifecycle", async function() {
 	jest.setTimeout(30000);
 
 	it("should modify machine state during the lifecycle of TTT", async () => {
-		let [walletA, walletB] = wallets();
+		const [walletA, walletB]: TestWallet[] = getWallets();
 		await SetupProtocol.run(walletA, walletB);
 		await Depositor.makeDeposits(walletA, walletB);
 		await Ttt.play(walletA, walletB);
@@ -36,11 +42,15 @@ describe("Machine State Lifecycle", async function() {
 /**
  * @returns the wallets containing the machines that will be used for the test.
  */
-function wallets(): [TestWallet, TestWallet] {
-	let walletA = new TestWallet(A_PRIVATE_KEY);
-	let walletB = new TestWallet(B_PRIVATE_KEY);
-	walletA.io.peer = walletB;
-	walletB.io.peer = walletA;
+function getWallets(): TestWallet[] {
+	const walletA = new TestWallet();
+	walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
+
+	const walletB = new TestWallet();
+	walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
+
+	walletA.currentUser.io.peer = walletB;
+	walletB.currentUser.io.peer = walletA;
 	return [walletA, walletB];
 }
 
@@ -99,7 +109,7 @@ class Depositor {
 		// side of the protocol before inspecting it's state
 		await sleep(50);
 		// check B's client
-		Depositor.validateInstalledBalanceRefund(walletB, walletA, threshold);
+		Depositor.validateInstalledBalanceRefund(walletA, walletB, threshold);
 		// check A's client and return the newly created cf address
 		return Depositor.validateInstalledBalanceRefund(
 			walletA,
@@ -109,10 +119,10 @@ class Depositor {
 	}
 
 	static startInstallBalanceRefundMsg(
-		to: string,
 		from: string,
+		to: string,
 		threshold: number
-	): ClientMessage {
+	): ClientActionMessage {
 		let canon = PeerBalance.balances(from, 0, to, 0);
 		let terms = new Terms(0, 10, zeroAddress); // todo
 		let app = new CfAppInterface(
@@ -120,7 +130,8 @@ class Depositor {
 			"0x11111111",
 			"0x11111111",
 			"0x11111111",
-			"0x11111111"
+			"0x11111111",
+			""
 		); // todo
 		let timeout = 100;
 		let installData: InstallData = {
@@ -150,7 +161,8 @@ class Depositor {
 		walletB: TestWallet,
 		amount: number
 	) {
-		let stateChannel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+		let stateChannel =
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 		expect(stateChannel.me).toEqual(walletA.address);
 		expect(stateChannel.counterParty).toEqual(walletB.address);
 
@@ -202,7 +214,7 @@ class Depositor {
 		amountB: number
 	) {
 		// todo: add nonce and uniqueId params and check them
-		let state = walletA.vm.cfState;
+		let state = walletA.currentUser.vm.cfState;
 		let canon = PeerBalance.balances(
 			walletA.address,
 			amountA,
@@ -210,7 +222,8 @@ class Depositor {
 			amountB
 		);
 
-		let channel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+		let channel =
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 		let app = channel.appChannels[cfAddr];
 
 		expect(Object.keys(state.channelStates).length).toEqual(1);
@@ -230,7 +243,7 @@ class Depositor {
 		from: string,
 		to: string,
 		amount: number
-	): ClientMessage {
+	): ClientActionMessage {
 		let uninstallData = {
 			peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
 		};
@@ -262,7 +275,7 @@ class Ttt {
 		return await Ttt.validateInstall(walletA, walletB);
 	}
 
-	static installMsg(to: string, from: string): ClientMessage {
+	static installMsg(to: string, from: string): ClientActionMessage {
 		let peerA = from;
 		let peerB = to;
 		if (peerB.localeCompare(peerA) < 0) {
@@ -276,7 +289,8 @@ class Ttt {
 			"0x11111111",
 			"0x11111111",
 			"0x11111111",
-			"0x11111111"
+			"0x11111111",
+			""
 		); // todo
 		let timeout = 100;
 		let installData: InstallData = {
@@ -311,11 +325,13 @@ class Ttt {
 		return Ttt.validateInstallWallet(walletB, walletA);
 	}
 
-	static validateInstallWallet(walletA: TestWallet, walletB: TestWallet) : string {
-		let stateChannel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+	static validateInstallWallet(
+		walletA: TestWallet,
+		walletB: TestWallet
+	): string {
+		let stateChannel =
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 		let appChannels = stateChannel.appChannels;
-		console.log("getting app channels");
-		console.log(appChannels);
 		let cfAddrs = Object.keys(appChannels);
 		expect(cfAddrs.length).toEqual(1);
 
@@ -325,7 +341,8 @@ class Ttt {
 		expect(appChannels[cfAddr].peerB.balance).toEqual(2);
 
 		// now validate the free balance
-		let channel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+		let channel =
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 		// start with 10, 5 and both parties deposit 2 into TTT.
 		expect(channel.freeBalance.aliceBalance).toEqual(8);
 		expect(channel.freeBalance.bobBalance).toEqual(3);
@@ -382,7 +399,7 @@ class Ttt {
 		to: string,
 		from: string,
 		cfAddr: string
-	): ClientMessage {
+	): ClientActionMessage {
 		let updateData: UpdateData = {
 			encodedAppState: state,
 			appStateHash: zeroBytes32 // todo
@@ -407,9 +424,11 @@ class Ttt {
 		moveNumber: number
 	) {
 		let appA =
-			walletA.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS]
+				.appChannels[cfAddr];
 		let appB =
-			walletB.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+			walletB.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS]
+				.appChannels[cfAddr];
 
 		expect(appA.encodedState).toEqual(appState);
 		expect(appA.localNonce).toEqual(moveNumber + 1);
@@ -443,7 +462,7 @@ class Ttt {
 		amountA: number,
 		addressB: string,
 		amountB: number
-	): ClientMessage {
+	): ClientActionMessage {
 		let uninstallData = {
 			peerAmounts: [
 				new PeerBalance(addressA, amountA),
@@ -468,7 +487,7 @@ class Ttt {
 		amountA: number,
 		amountB: number
 	) {
-		let channel = wallet.vm.cfState.channelStates[MULTISIG_ADDRESS];
+		let channel = wallet.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
 		let app = channel.appChannels[cfAddr];
 		expect(channel.freeBalance.aliceBalance).toEqual(amountA);
 		expect(channel.freeBalance.bobBalance).toEqual(amountB);

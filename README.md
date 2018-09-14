@@ -1,3 +1,5 @@
+# machine
+
 [![CircleCI](https://circleci.com/gh/counterfactual/machine/tree/master.svg?style=svg&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c)](https://circleci.com/gh/counterfactual/machine/tree/master)
 
 ## Usage
@@ -7,7 +9,6 @@ This repo uses the yarn package manager. To install the dependencies, run:
 ```shell
 yarn
 ```
-
 ## Testing
 
 To build the Docker containers, run:
@@ -51,3 +52,15 @@ If you need to go inside the machine container, run:
 ```shell
 yarn shell
 ```
+
+## Ethmo
+
+### Rebuilding
+
+* `yarn rollup`
+
+### Running / Development
+
+* install/run the `multi-app-wallet` branch of the venmo app, following the instructions [here](https://github.com/ebryn/venmo/tree/multi-app-wallet#installation)
+* `python -m SimpleHTTPServer`
+* visit your app at [http://localhost:8000/src/examples/wallet/](http://localhost:8000/src/examples/wallet/)

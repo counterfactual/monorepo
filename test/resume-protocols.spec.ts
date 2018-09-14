@@ -2,14 +2,12 @@ import { expect } from "chai";
 
 import { InternalMessage, ActionName } from "../src/types";
 import { Context } from "../src/state";
-import { StateTransition } from "../src/middleware/middleware";
 import { Instruction, Instructions } from "../src/instructions";
 import { TestWallet } from "./wallet/wallet";
 import { MemDb } from "../src/wal";
 import { ResponseStatus } from "../src/vm";
-import { ClientMessage } from "../src/types";
+import { ClientActionMessage } from "../src/types";
 import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
-
 import {
 	MULTISIG_ADDRESS,
 	A_ADDRESS,
@@ -17,6 +15,7 @@ import {
 	B_ADDRESS,
 	B_PRIVATE_KEY
 } from "./constants";
+import { StateTransition } from "../src/middleware/state-transition/state-transition";
 
 /**
  * See run() for the entry point to the test. The basic structure
@@ -37,10 +36,12 @@ abstract class SetupProtocolTestCase {
 	executedInstructions: Instruction[];
 	constructor() {
 		this.db = new MemDb();
-		this.walletA = new TestWallet(A_PRIVATE_KEY, this.db);
-		this.walletB = new TestWallet(B_PRIVATE_KEY, new MemDb());
-		this.walletA.io.peer = this.walletB;
-		this.walletB.io.peer = this.walletA;
+		this.walletA = new TestWallet();
+		this.walletB = new TestWallet();
+		this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, this.db);
+		this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, new MemDb());
+		this.walletA.currentUser.io.peer = this.walletB;
+		this.walletB.currentUser.io.peer = this.walletA;
 		this.executedInstructions = [];
 	}
 	async run() {
@@ -59,17 +60,18 @@ abstract class SetupProtocolTestCase {
 	async resumeNewMachine() {
 		// make a new wallet with the exact same state
 		// i.e., the same WAL db and the same channelStates
-		let walletA2 = new TestWallet(A_PRIVATE_KEY, this.db);
-		walletA2.io.peer = this.walletB;
-		this.walletB.io.peer = walletA2;
+		let walletA2 = new TestWallet();
+		walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, this.db);
+		walletA2.currentUser.io.peer = this.walletB;
+		this.walletB.currentUser.io.peer = walletA2;
 		this.setupWallet(walletA2, false);
-		await walletA2.vm.resume();
+		await walletA2.currentUser.vm.resume();
 	}
 	abstract setupWallet(wallet: TestWallet, shouldError: boolean);
 	/**
 	 * @returns the msg to start the setup protocol.
 	 */
-	msg(): ClientMessage {
+	msg(): ClientActionMessage {
 		return {
 			requestId: "0",
 			appId: undefined,
@@ -93,7 +95,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
 	setupWallet(wallet: TestWallet, shouldError: boolean) {
 		// ensure the instructions are recorded so we can validate the test
-		wallet.vm.register(
+		wallet.currentUser.vm.register(
 			Instruction.ALL,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				this.executedInstructions.push(message.opCode);
@@ -102,8 +104,10 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
 		// override the existing STATE_TRANSITION_PROPOSE middleware so we can
 		// error out if needed
-		wallet.vm.middleware.middlewares[Instruction.STATE_TRANSITION_PROPOSE] = [];
-		wallet.vm.middleware.add(
+		wallet.currentUser.vm.middleware.middlewares[
+			Instruction.STATE_TRANSITION_PROPOSE
+		] = [];
+		wallet.currentUser.vm.middleware.add(
 			Instruction.STATE_TRANSITION_PROPOSE,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				if (shouldError) {
@@ -113,7 +117,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 					message,
 					next,
 					context,
-					wallet.vm.cfState
+					wallet.currentUser.vm.cfState
 				);
 			}
 		);
@@ -142,7 +146,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
 	setupWallet(wallet: TestWallet, shouldError: boolean) {
 		// ensure the instructions are recorded so we can validate the test
-		wallet.vm.register(
+		wallet.currentUser.vm.register(
 			Instruction.ALL,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				this.executedInstructions.push(message.opCode);
@@ -151,8 +155,8 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
 		// override the existing STATE_TRANSITION_PROPOSE middleware so we can
 		// error out if needed
-		wallet.vm.middleware.middlewares[Instruction.OP_GENERATE] = [];
-		wallet.vm.middleware.add(
+		wallet.currentUser.vm.middleware.middlewares[Instruction.OP_GENERATE] = [];
+		wallet.currentUser.vm.middleware.add(
 			Instruction.OP_GENERATE,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				if (shouldError) {
@@ -163,7 +167,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 					message,
 					next,
 					context,
-					wallet.vm.cfState
+					wallet.currentUser.vm.cfState
 				);
 			}
 		);
@@ -192,7 +196,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
 	setupWallet(wallet: TestWallet, shouldError: boolean) {
 		// ensure the instructions are recorded so we can validate the test
-		wallet.vm.register(
+		wallet.currentUser.vm.register(
 			Instruction.ALL,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				this.executedInstructions.push(message.opCode);
@@ -201,8 +205,10 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
 		// override the existing STATE_TRANSITION_PROPOSE middleware so we can
 		// error out if needed
-		wallet.vm.middleware.middlewares[Instruction.STATE_TRANSITION_COMMIT] = [];
-		wallet.vm.middleware.add(
+		wallet.currentUser.vm.middleware.middlewares[
+			Instruction.STATE_TRANSITION_COMMIT
+		] = [];
+		wallet.currentUser.vm.middleware.add(
 			Instruction.STATE_TRANSITION_COMMIT,
 			async (message: InternalMessage, next: Function, context: Context) => {
 				if (shouldError) {
@@ -212,7 +218,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 					message,
 					next,
 					context,
-					wallet.vm.cfState
+					wallet.currentUser.vm.cfState
 				);
 			}
 		);

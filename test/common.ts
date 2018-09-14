@@ -1,6 +1,4 @@
-import { expect } from "chai";
-
-import { ActionName, ClientMessage, PeerBalance } from "../src/types";
+import { ActionName, PeerBalance, ClientActionMessage } from "../src/types";
 import { MULTISIG_ADDRESS } from "./constants";
 import { ResponseStatus } from "../src/vm";
 import { TestWallet } from "./wallet/wallet";
@@ -24,17 +22,20 @@ export class SetupProtocol {
 	 * Asserts the state of the given wallets is empty.
 	 */
 	static validatePresetup(walletA: TestWallet, walletB: TestWallet) {
-		expect(walletA.vm.cfState.channelStates).to.eql({});
-		expect(walletB.vm.cfState.channelStates).to.eql({});
+		expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
+		expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
 	}
 
 	private static async _run(walletA: TestWallet, walletB: TestWallet) {
-		let msg = SetupProtocol.setupStartMsg(walletA.address, walletB.address);
+		let msg = SetupProtocol.setupStartMsg(
+			walletA.currentUser.address,
+			walletB.currentUser.address
+		);
 		let response = await walletA.runProtocol(msg);
-		expect(response.status).to.equal(ResponseStatus.COMPLETED);
+		expect(response.status).toEqual(ResponseStatus.COMPLETED);
 	}
 
-	static setupStartMsg(to: string, from: string): ClientMessage {
+	static setupStartMsg(from: string, to: string): ClientActionMessage {
 		return {
 			requestId: "0",
 			appId: "",
@@ -65,22 +66,23 @@ export class SetupProtocol {
 		amountB: number
 	) {
 		// todo: add nonce and uniqueId params and check them
-		let state = walletA.vm.cfState;
+		let state = walletA.currentUser.vm.cfState;
 		let canon = PeerBalance.balances(
-			walletA.address,
+			walletA.currentUser.address,
 			amountA,
-			walletB.address,
+			walletB.currentUser.address,
 			amountB
 		);
-		let channel = walletA.vm.cfState.channelStates[MULTISIG_ADDRESS];
-		expect(Object.keys(state.channelStates).length).to.equal(1);
-		expect(channel.counterParty).to.equal(walletB.address);
-		expect(channel.me).to.equal(walletA.address);
-		expect(channel.multisigAddress).to.equal(MULTISIG_ADDRESS);
-		expect(channel.appChannels).to.eql({});
-		expect(channel.freeBalance.alice).to.equal(canon.peerA.address);
-		expect(channel.freeBalance.bob).to.equal(canon.peerB.address);
-		expect(channel.freeBalance.aliceBalance).to.equal(canon.peerA.balance);
-		expect(channel.freeBalance.bobBalance).to.equal(canon.peerB.balance);
+		let channel =
+			walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
+		expect(Object.keys(state.channelStates).length).toEqual(1);
+		expect(channel.counterParty).toEqual(walletB.address);
+		expect(channel.me).toEqual(walletA.address);
+		expect(channel.multisigAddress).toEqual(MULTISIG_ADDRESS);
+		expect(channel.appChannels).toEqual({});
+		expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
+		expect(channel.freeBalance.bob).toEqual(canon.peerB.address);
+		expect(channel.freeBalance.aliceBalance).toEqual(canon.peerA.balance);
+		expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
 	}
 }

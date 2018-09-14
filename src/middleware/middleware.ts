@@ -1,15 +1,14 @@
 import * as ethers from "ethers";
-import { CfState, Context } from "../state";
-import {
-	ClientMessage,
-	InternalMessage,
-	OpCodeResult,
-	Signature,
-	ActionName
-} from "../types";
 import { Instruction } from "../instructions";
 import { StateTransition } from "./state-transition/state-transition";
-export { StateTransition } from "./state-transition/state-transition";
+import { CfState, Context } from "../state";
+import {
+	InternalMessage,
+	ClientActionMessage,
+	Signature,
+	ActionName,
+	OpCodeResult
+} from "../types";
 
 /**
  * CfMiddleware is the container holding the groups of middleware responsible
@@ -115,7 +114,7 @@ export class NextMsgGenerator {
 	) {
 		let signature = NextMsgGenerator.signature(internalMessage, context);
 		let lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
-		let msg: ClientMessage = {
+		let msg: ClientActionMessage = {
 			requestId: "none this should be a notification on completion",
 			appId: lastMsg.appId,
 			action: lastMsg.action,
@@ -198,8 +197,7 @@ export function getFirstResult(
 	results: { value: any; opCode }[]
 ): OpCodeResult {
 	// FIXME: (ts-strict) we should change the results data structure or design
-	// @ts-ignore
-	return results.find(({ opCode, value }) => opCode === toFindOpCode);
+	return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
 }
 
 export function getLastResult(
