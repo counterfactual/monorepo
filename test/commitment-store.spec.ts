@@ -29,7 +29,7 @@ describe("should have empty commitment stores", async () => {
 	});
 });
 
-describe("should have one commitment for the setup protocol", () => {
+describe.skip("should have one commitment for the setup protocol", () => {
 	it("should have the setup commitments in store", async () => {
 		await setup(walletA, walletB);
 		expect(walletA.store.appExists(MULTISIG_ADDRESS)).toEqual(true);
@@ -49,10 +49,17 @@ describe("should have one commitment for the setup protocol", () => {
 
 	let multisigInput;
 	it("the transaction's call data should be another transaction being sent to the multisend address", () => {
+		console.info("setup tx");
+		console.info(setupTransaction);
 		multisigInput = ethers.utils.defaultAbiCoder.decode(
 			[Abi.execTransaction],
 			setupTransaction.data
 		)[0];
+		//multisigInput = new ethers.Interface(abi).functions.execTransaction.decode(
+		//	setupTransaction.data
+		//);
+		console.info("multisig input");
+		console.info(multisigInput);
 
 		expect(multisigInput.to.toLowerCase()).toEqual(
 			walletA.vm.cfState.networkContext.MultiSend

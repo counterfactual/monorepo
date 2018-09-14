@@ -42,7 +42,7 @@ export async function mineBlocks(
 
 describe("Setup Protocol", async function() {
 	jest.setTimeout(30000);
-	//console.log = () => {};
+	console.log = () => {};
 
 	it("should have the correct funds on chain", async () => {
 		const networkFile = require("/app/contracts/networks/7777777.json");
