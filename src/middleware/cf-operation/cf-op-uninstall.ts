@@ -16,9 +16,6 @@ export class CfOpUninstall extends CfMultiSendOp {
 	 * @override common.CfMultiSendOp
 	 */
 	eachMultisigInput(): Array<MultisigInput> {
-		return [
-			this.freeBalanceInput(),
-			this.dependencyNonceInput()
-		];
+		return [this.freeBalanceInput(), this.dependencyNonceInput()];
 	}
 }

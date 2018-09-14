@@ -20,7 +20,7 @@ export const Abi = {
 		"executeStateChannelConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
 	// MinimumViableMultisig.sol
 	execTransaction:
-		"tuple(address to, uint256 value, bytes data, uint256 operation, bytes signatures)",
+		"tuple(address to, uint256 value, bytes data, uint8 operation, bytes signatures)",
 	// Multisend.sol
 	multiSend: "multiSend(bytes)",
 	// Registry.sol

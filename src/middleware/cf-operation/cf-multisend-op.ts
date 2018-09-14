@@ -24,21 +24,18 @@ export abstract class CfMultiSendOp extends CfOperation {
 	}
 
 	transaction(sigs: Signature[]): Transaction {
-		const { abi } = require("/app/contracts/build/contracts/MinimumViableMultisig.json");
+		const {
+			abi
+		} = require("/app/contracts/build/contracts/MinimumViableMultisig.json");
 		let multisigInput = this.multisigInput();
-		const txData = new ethers.Interface(abi).functions
-			.execTransaction.encode([
-				multisigInput.to,
-				multisigInput.val,
-				multisigInput.data,
-				multisigInput.op,
-				Signature.toBytes(sigs)
+		const txData = new ethers.Interface(abi).functions.execTransaction.encode([
+			multisigInput.to,
+			multisigInput.val,
+			multisigInput.data,
+			multisigInput.op,
+			Signature.toBytes(sigs)
 		]);
-		return new Transaction(
-			this.multisig,
-			0,
-			txData
-		);
+		return new Transaction(this.multisig, 0, txData);
 	}
 
 	hashToSign(): string {

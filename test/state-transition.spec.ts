@@ -147,14 +147,10 @@ function validateInstallInfos(infos: StateChannelInfos) {
 	expect(stateChannel.freeBalance.bobBalance).toEqual(17);
 
 	let expectedCfAddr =
-		"0xb06932b2300b6e5d0da93a59139081d49efe256131a6ddc7b082bdd318383e54";
+		"0xe415d0ddf2596ed939b2aa9bf846f23b95f698e7c894b569f516495126730e9b";
 	let app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
 	let expectedSalt =
 		"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
-
-	console.info("This is the app");
-	console.info(app);
-	console.info(infos[MULTISIG_ADDRESS]);
 
 	expect(app.id).toEqual(expectedCfAddr);
 	expect(app.peerA.address).toEqual(A_ADDRESS);

@@ -16,13 +16,13 @@ To build the Docker containers, run:
 yarn docker:build
 ```
 
-Then to get a persisent machine container that you can reuse across tests, run:
+To get a persisent machine container that you can reuse across tests, run:
 
 ```shell
 yarn docker:run
 ```
 
-Then to deploy the contrats that are used in testing: run
+To deploy the contracts that are used in testing, run:
 
 ```shell
 yarn test:deployContracts

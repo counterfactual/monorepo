@@ -223,7 +223,6 @@ export class EthCfOpGenerator extends CfOpGenerator {
 		let freeBalance = proposedUninstall[multisig].freeBalance;
 		let appChannel = proposedUninstall[multisig].appChannels[cfAddr];
 
-
 		let cfFreeBalance = new CfFreeBalance(
 			freeBalance.alice,
 			freeBalance.aliceBalance,

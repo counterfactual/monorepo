@@ -6,14 +6,14 @@
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"docker:run": "docker-compose run --name machine -d machine",
+		"docker:run": "docker-compose up -d machine",
 		"docker:build": "docker-compose build",
 		"shell:local": "docker-compose run machine_local_contracts sh",
 		"shell": "docker-compose run machine sh",
-		"test": "docker-compose run machine sh /app/machine/bin/test",
+		"test": "docker-compose exec machine sh /app/machine/bin/test",
+		"test:deployContracts": "docker-compose exec machine sh /app/machine/bin/deploy_contracts",
 		"test:jest": "./node_modules/.bin/jest --runInBand",
-		"test:ci": "docker-compose run machine sh /app/machine/bin/deploy_contracts && ./node_modules/.bin/jest",
-		"test:deployContracts": "docker-compose run machine sh /app/machine/bin/deploy_contracts",
+		"test:ci": "yarn test:deployContracts && yarn test",
 		"ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545",
 		"ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
 		"build": "tsc -p tsconfig.json",
@@ -35,10 +35,7 @@
 		"coveralls": "3.0.1",
 		"ganache-cli": "^6.1.6",
 		"jest": "^23.5.0",
-		"jest-runner-mocha": "^0.6.0",
-		"jest-runner-tsc": "^1.2.0",
 		"lodash": "^4.17.10",
-		"mocha": "^5.2.0",
 		"prettier": "1.14.0",
 		"rollup": "^0.60.0",
 		"rollup-plugin-json": "^3.0.0",
@@ -63,7 +60,7 @@
 		"transform": {
 			"^.+\\.tsx?$": "ts-jest"
 		},
-		"testRegex": "\\.(jsx?|tsx?)$",
+		"testRegex": "\\.spec.(jsx?|tsx?)$",
 		"testPathIgnorePatterns": [
 			"src",
 			"node_modules",
