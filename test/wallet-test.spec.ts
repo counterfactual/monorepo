@@ -55,12 +55,15 @@ describe("Lifecycle", async () => {
 	it("wallet can be used to deploy a multisig", async () => {
 		// This wallet is used _only_ to deploy the multisig
 		const multisigWallet = new TestWallet();
+		const owners = [A_ADDRESS, B_ADDRESS];
 		multisigWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
 
 		const multisigContract = await ClientInterface.deployMultisig(
-			multisigWallet.currentUser.ethersWallet
+			multisigWallet.currentUser.ethersWallet,
+			owners
 		);
 		expect(multisigContract.address).not.toBe(null);
+		expect(await multisigContract.functions.getOwners()).toEqual(owners);
 		multisigContractAddress = multisigContract.address;
 	});
 
