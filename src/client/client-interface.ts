@@ -207,10 +207,14 @@ export class ClientInterface implements Observable {
 
 	createClientMessage() {}
 
-	static async deployMultisig(wallet: ethers.Wallet): Promise<ethers.Contract> {
+	static async deployMultisig(
+		wallet: ethers.Wallet,
+		owners: string[]
+	): Promise<ethers.Contract> {
 		const multisig = new ethers.Contract("", Multisig.abi, wallet);
-		const tx = await multisig.deploy(Multisig.bytecode);
-		return tx;
+		const contract = await multisig.deploy(Multisig.bytecode);
+		await contract.functions.setup(owners);
+		return contract;
 	}
 
 	getStateChannel(multisigAddress: string): StateChannelClient {
