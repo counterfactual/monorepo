@@ -161,12 +161,13 @@ export function computeActionHash(
  * @returns string 32-byte keccak256 hash
  */
 export function computeNonceRegistryKey(
+  timeout: ethers.BigNumber,
   multisigAddress: string,
   nonceSalt: string
 ) {
   return ethers.utils.solidityKeccak256(
-    ["address", "bytes32"],
-    [multisigAddress, nonceSalt]
+    ["address", "uint256", "bytes32"],
+    [multisigAddress, timeout, nonceSalt]
   );
 }
 
