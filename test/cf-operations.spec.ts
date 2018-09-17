@@ -1,9 +1,6 @@
-import * as _ from "lodash";
-
 import { TestWallet } from "./wallet/wallet";
 import {
 	ActionName,
-	ClientMessage,
 	InstallData,
 	NetworkContext,
 	PeerBalance,
@@ -31,6 +28,11 @@ import {
 import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
 import { sleep } from "./common";
 
+import Registry from "../contracts/build/contracts/Registry.json";
+import NonceRegistry from "../contracts/build/contracts/NonceRegistry.json";
+import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
+import StateChannel from "../contracts/build/contracts/StateChannel.json";
+
 export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
 	return provider.send("evm_mine", []);
 }
@@ -48,71 +50,34 @@ describe("Setup Protocol", async function() {
 	jest.setTimeout(30000);
 
 	it("should have the correct funds on chain", async () => {
-		const networkFile = require("/app/contracts/networks/7777777.json");
-
-		const networkFileAsMap = _.mapValues(
-			_.keyBy(networkFile.contracts, "contractName"),
-			"address"
-		);
-
-		const networkContext = new NetworkContext(
-			networkFileAsMap["Registry"],
-			networkFileAsMap["PaymentApp"],
-			networkFileAsMap["ConditionalTransfer"],
-			networkFileAsMap["MultiSend"],
-			networkFileAsMap["NonceRegistry"],
-			networkFileAsMap["Signatures"],
-			networkFileAsMap["StaticCall"]
-		);
-
 		const walletA = new TestWallet();
-		walletA.setUser(
-			A_ADDRESS,
-			A_PRIVATE_KEY,
-			undefined,
-			undefined,
-			networkContext
-		);
+		walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
 		const walletB = new TestWallet();
-		walletB.setUser(
-			B_ADDRESS,
-			B_PRIVATE_KEY,
-			undefined,
-			undefined,
-			networkContext
-		);
+		walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
+		const network = walletA.network;
 
 		let startBalanceA = await walletA.currentUser.ethersWallet.getBalance();
 		let startBalanceB = await walletB.currentUser.ethersWallet.getBalance();
 
 		const masterWallet = new TestWallet();
-		masterWallet.setUser(
-			MULTISIG_ADDRESS,
-			MULTISIG_PRIVATE_KEY,
-			undefined,
-			undefined,
-			networkContext
-		);
+		masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
 
 		walletA.currentUser.io.peer = walletB;
 		walletB.currentUser.io.peer = walletA;
 
 		// STEP 1 -- DEPLOY MULTISIG :)
 
-		const Registry = require("/app/contracts/build/contracts/Registry.json");
 		const registry = await new ethers.Contract(
-			networkContext.Registry,
+			network.Registry,
 			Registry.abi,
 			masterWallet.currentUser.ethersWallet
 		);
 
 		// TODO: Truffle migrate does not auto-link the bytecode in the build folder,
 		//       so we have to do it manually. Will fix later of course :)
-		// TODO: Also don't require a docker-specific path.
-		const Multisig = require("/app/contracts/build/contracts/MinimumViableMultisig.json");
 		Multisig.bytecode = Multisig.bytecode.replace(
 			/__Signatures_+/g,
-			networkFileAsMap["Signatures"].substr(2)
+			network.Signatures.substr(2)
 		);
 		const multisig = await new ethers.Contract(
 			"",
@@ -135,20 +100,19 @@ describe("Setup Protocol", async function() {
 		// Attempt 1 --> walletA.goToChain()
 		// Attempt 2 --> walletA.vm.cfState.freeBalance(multisig.address).
 
-		const StateChannel = require("/app/contracts/build/contracts/StateChannel.json");
 		StateChannel.bytecode = StateChannel.bytecode.replace(
 			/__Signatures_+/g,
-			networkFileAsMap["Signatures"].substr(2)
+			network.Signatures.substr(2)
 		);
 		StateChannel.bytecode = StateChannel.bytecode.replace(
 			/__StaticCall_+/g,
-			networkFileAsMap["StaticCall"].substr(2)
+			network.StaticCall.substr(2)
 		);
 
 		let canon = PeerBalance.balances(walletA.address, 0, walletB.address, 0);
 
 		const signingKeys = [canon.peerA.address, canon.peerB.address];
-		const app = CfFreeBalance.contractInterface(networkContext);
+		const app = CfFreeBalance.contractInterface(network);
 		const terms = CfFreeBalance.terms();
 		const initcode = new ethers.Interface(
 			StateChannel.abi
@@ -165,7 +129,7 @@ describe("Setup Protocol", async function() {
 
 		// LOG STATE CHANNEL STATE
 		const channelCfAddr = new CfStateChannel(
-			networkContext,
+			network,
 			multisig.address,
 			signingKeys,
 			app,
@@ -196,9 +160,8 @@ describe("Setup Protocol", async function() {
 		);
 
 		// LOG DEPENDENCY NONCE
-		const NonceRegistry = require("/app/contracts/build/contracts/NonceRegistry.json");
 		const nonceRegistry = new ethers.Contract(
-			networkContext.NonceRegistry,
+			network.NonceRegistry,
 			NonceRegistry.abi,
 			masterWallet.currentUser.ethersWallet
 		);

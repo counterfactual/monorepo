@@ -17,6 +17,9 @@ jobs:
     machine: true
     steps:
       - checkout
+      - run:
+          name: "Pull submodules"
+          command: git submodule update --init --recursive
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:

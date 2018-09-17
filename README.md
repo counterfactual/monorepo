@@ -8,7 +8,9 @@ This repo uses the yarn package manager. To install the dependencies, run:
 
 ```shell
 yarn
+git submodule update --init --recursive
 ```
+
 ## Testing
 
 To build the Docker containers, run:
@@ -17,7 +19,7 @@ To build the Docker containers, run:
 yarn docker:build
 ```
 
-To get a persisent machine container that you can reuse across tests, run:
+Make sure no other ganache instance is running on port 9545, then to get a persisent machine container that you can reuse across tests, run:
 
 ```shell
 yarn docker:run
@@ -57,10 +59,10 @@ yarn shell
 
 ### Rebuilding
 
-* `yarn rollup`
+- `yarn rollup`
 
 ### Running / Development
 
-* install/run the `multi-app-wallet` branch of the venmo app, following the instructions [here](https://github.com/ebryn/venmo/tree/multi-app-wallet#installation)
-* `python -m SimpleHTTPServer`
-* visit your app at [http://localhost:8000/src/examples/wallet/](http://localhost:8000/src/examples/wallet/)
+- install/run the `multi-app-wallet` branch of the venmo app, following the instructions [here](https://github.com/ebryn/venmo/tree/multi-app-wallet#installation)
+- `python -m SimpleHTTPServer`
+- visit your app at [http://localhost:8000/src/examples/wallet/](http://localhost:8000/src/examples/wallet/)

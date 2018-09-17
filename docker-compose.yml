@@ -11,10 +11,12 @@ services:
     ports:
       - "9545:9545"
 
-  machine: &machine
-    build: .
+  machine:
+    build:
+        context: .
+        dockerfile: Dockerfile
     command: tail -f /dev/null
-    working_dir: /app/machine
+    working_dir: /machine
     environment:
       - GANACHE_URL=http://docker_devnet:9545
       - npm_package_config_unlockedAccount0
@@ -22,12 +24,6 @@ services:
       - npm_package_config_unlockedAccount2
       - npm_package_config_etherBalance
     volumes:
-      - .:/app/machine
+      - .:/machine
     depends_on:
       - docker_devnet
-  
-  machine_local_contracts:
-    <<: *machine
-    volumes:
-      - .:/app/machine
-      - ../contracts/contracts:/app/contracts/contracts

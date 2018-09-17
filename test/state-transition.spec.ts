@@ -20,6 +20,7 @@ import { CfState, Context, StateChannelInfoImpl } from "../src/state";
 import { Instruction } from "../src/instructions";
 
 import { MULTISIG_ADDRESS, A_ADDRESS, B_ADDRESS } from "./constants";
+import { TestWallet } from "./wallet/wallet";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
@@ -90,7 +91,7 @@ function setupInstallCfState(): CfState {
 		freeBalance
 	);
 	let channelStates: ChannelStates = { [MULTISIG_ADDRESS]: info };
-	return new CfState(channelStates);
+	return new CfState(channelStates, TestWallet.testNetwork());
 }
 
 function validateSetupInfos(infos: StateChannelInfos) {
@@ -149,7 +150,7 @@ function validateInstallInfos(infos: StateChannelInfos) {
 	expect(stateChannel.freeBalance.bobBalance).toEqual(17);
 
 	let expectedCfAddr =
-		"0xe415d0ddf2596ed939b2aa9bf846f23b95f698e7c894b569f516495126730e9b";
+		"0x25d87f7547fb5457de375e910217b9db08356a51bec068e7b0a849a97260aef5";
 	let app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
 	let expectedSalt =
 		"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";

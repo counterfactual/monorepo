@@ -1,5 +1,6 @@
 import * as ethers from "ethers";
-import Multisig from "./MinimumViableMultisig.json";
+import Multisig from "../../contracts/build/contracts/MinimumViableMultisig.json";
+import networkFile from "../../contracts/networks/7777777.json";
 import {
 	ClientQuery,
 	ClientQueryType,
@@ -11,7 +12,8 @@ import {
 	WalletMessage,
 	WalletResponse,
 	ActionName,
-	ClientActionMessage
+	ClientActionMessage,
+	NetworkContext
 } from "../types";
 
 import { StateChannelClient } from "./state-channel-client";
@@ -205,12 +207,16 @@ export class ClientInterface implements Observable {
 		return this.sendMessage(message);
 	}
 
-	createClientMessage() {}
-
+	// TODO: remove `networkContext` when contract linking is setup properly
 	static async deployMultisig(
 		wallet: ethers.Wallet,
-		owners: string[]
+		owners: string[],
+		networkContext: NetworkContext
 	): Promise<ethers.Contract> {
+		Multisig.bytecode = Multisig.bytecode.replace(
+			/__Signatures_+/g,
+			networkContext.Signatures.substr(2)
+		);
 		const multisig = new ethers.Contract("", Multisig.abi, wallet);
 		const contract = await multisig.deploy(Multisig.bytecode);
 		await contract.functions.setup(owners);

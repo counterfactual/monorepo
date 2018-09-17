@@ -38,8 +38,8 @@ abstract class SetupProtocolTestCase {
 		this.db = new MemDb();
 		this.walletA = new TestWallet();
 		this.walletB = new TestWallet();
-		this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, this.db);
-		this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, new MemDb());
+		this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
+		this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, undefined, new MemDb());
 		this.walletA.currentUser.io.peer = this.walletB;
 		this.walletB.currentUser.io.peer = this.walletA;
 		this.executedInstructions = [];
@@ -61,7 +61,7 @@ abstract class SetupProtocolTestCase {
 		// make a new wallet with the exact same state
 		// i.e., the same WAL db and the same channelStates
 		let walletA2 = new TestWallet();
-		walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, this.db);
+		walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
 		walletA2.currentUser.io.peer = this.walletB;
 		this.walletB.currentUser.io.peer = walletA2;
 		this.setupWallet(walletA2, false);
