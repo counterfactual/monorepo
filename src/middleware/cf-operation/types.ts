@@ -31,6 +31,7 @@ export const Abi = {
 	setNonce: "setNonce(bytes32,uint256)",
 	finalizeNonce: "finalizeNonce(bytes32)"
 };
+import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
 
 export abstract class CfOperation {
 	abstract hashToSign(): H256;
@@ -237,8 +238,6 @@ export class CfStateChannel {
 	) {}
 
 	cfAddress(): H256 {
-		const StateChannel = require("/app/contracts/build/contracts/StateChannel.json");
-
 		StateChannel.bytecode = StateChannel.bytecode.replace(
 			/__Signatures_+/g,
 			this.ctx.Signatures.substr(2)

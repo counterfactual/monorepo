@@ -12,32 +12,12 @@ import {
 import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { CounterfactualVM } from "./vm";
 
-// TODO: Cleanup
-const networkInfo = require("../../contracts/networks/7777777.json");
-
 export class CfState {
 	channelStates: ChannelStates;
 	networkContext: NetworkContext;
-	constructor(channelStates: ChannelStates, network?: NetworkContext) {
+	constructor(channelStates: ChannelStates, network: NetworkContext) {
 		this.channelStates = channelStates;
-		if (network === undefined) {
-			this.networkContext = this.defaultNetwork();
-		} else {
-			this.networkContext = network;
-		}
-	}
-
-	private defaultNetwork(): NetworkContext {
-		return new NetworkContext(
-			// todo
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd0",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd1",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd2",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd3",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd5",
-			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd6"
-		);
+		this.networkContext = network;
 	}
 
 	stateChannel(multisig: Address): StateChannelInfo {

@@ -7,7 +7,9 @@ import { ClientMessage, ActionName } from "../src/types";
 describe("Write ahead log", () => {
 	it("should generate the same write ahead log when using the same db", () => {
 		const db = new MemDb();
-		const vm = new CounterfactualVM(new CfVmConfig(null, null, null));
+		const vm = new CounterfactualVM(
+			new CfVmConfig(null, null, null, undefined)
+		);
 		const wal1 = new CfVmWal(db);
 		makeExecutions(vm).forEach(execution => {
 			wal1.write(execution);

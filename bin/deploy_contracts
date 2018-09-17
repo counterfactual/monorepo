@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /app/contracts
+cd /machine/contracts
 rm -rf ./networks
 ./node_modules/.bin/truffle-migrate-off-chain --network docker
-cd /app/machine
+cd /machine

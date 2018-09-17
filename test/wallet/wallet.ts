@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import { SyncDb } from "../../src/wal";
 import { User } from "./user";
 import { NotificationType } from "../../src/mixins/observable";
@@ -13,32 +15,40 @@ import {
 	ChannelStates,
 	NetworkContext
 } from "../../src/types";
+import networkFile from "../../contracts/networks/7777777.json";
 
 export class TestWallet implements ResponseSink {
 	users: Map<string, User>;
 	address?: string;
+	private networkContext: NetworkContext;
 	private requests: Map<string, Function>;
 	private responseListener?: Function;
 	private messageListener?: Function;
 
-	constructor() {
+	constructor(networkContext?: NetworkContext) {
 		this.users = new Map<string, User>();
 		this.requests = new Map<string, Function>();
+		this.networkContext =
+			networkContext !== undefined ? networkContext : this.defaultNetwork();
 	}
 
 	setUser(
 		address: string,
 		privateKey: string,
+		networkContext?: NetworkContext,
 		db?: SyncDb,
-		states?: ChannelStates,
-		networkContext?: NetworkContext
+		states?: ChannelStates
 	) {
 		this.address = address;
+
+		if (networkContext === undefined) {
+			networkContext = this.networkContext;
+		}
 
 		if (!this.users.has(address)) {
 			this.users.set(
 				address,
-				new User(this, address, privateKey, db, states, networkContext)
+				new User(this, address, privateKey, networkContext, db, states)
 			);
 		}
 	}
@@ -49,6 +59,49 @@ export class TestWallet implements ResponseSink {
 		}
 
 		return this.users.get(this.address)!;
+	}
+
+	/**
+	 * It's the wallet's responsibility to construct a NetworkContext
+	 * and pass that to the VM.
+	 */
+	private defaultNetwork(): NetworkContext {
+		const networkMap = _.mapValues(
+			_.keyBy(networkFile.contracts, "contractName"),
+			"address"
+		);
+		return new NetworkContext(
+			networkMap["Registry"],
+			networkMap["PaymentApp"],
+			networkMap["ConditionalTransfer"],
+			networkMap["MultiSend"],
+			networkMap["NonceRegistry"],
+			networkMap["Signatures"],
+			networkMap["StaticCall"]
+		);
+	}
+
+	get network(): NetworkContext {
+		return this.networkContext;
+	}
+
+	/**
+	 * If no network information is provided, this wallet uses dummy addresses
+	 * for contracts.
+	 *
+	 * This is mainly used for testing to ensure contract addresses do not
+	 * change with every deployment of the contracts in the test environment.
+	 */
+	static testNetwork(): NetworkContext {
+		return new NetworkContext(
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd0",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd1",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd2",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd3",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd4",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd5",
+			"0x9e5c9691ad19e3b8c48cb9b531465ffa73ee8dd6"
+		);
 	}
 
 	/**

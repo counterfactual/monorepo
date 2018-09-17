@@ -12,6 +12,7 @@ import {
 	CfStateChannel
 } from "./types";
 import * as common from "./common";
+import Multisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
 
 export abstract class CfMultiSendOp extends CfOperation {
 	constructor(
@@ -24,11 +25,10 @@ export abstract class CfMultiSendOp extends CfOperation {
 	}
 
 	transaction(sigs: Signature[]): Transaction {
-		const {
-			abi
-		} = require("/app/contracts/build/contracts/MinimumViableMultisig.json");
 		let multisigInput = this.multisigInput();
-		const txData = new ethers.Interface(abi).functions.execTransaction.encode([
+		const txData = new ethers.Interface(
+			Multisig.abi
+		).functions.execTransaction.encode([
 			multisigInput.to,
 			multisigInput.val,
 			multisigInput.data,

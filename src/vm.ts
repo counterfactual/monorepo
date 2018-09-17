@@ -20,8 +20,8 @@ export class CfVmConfig {
 		readonly responseHandler: ResponseSink,
 		readonly cfOpGenerator: CfOpGenerator,
 		readonly wal: CfVmWal,
-		readonly state?: ChannelStates,
-		readonly network?: NetworkContext
+		readonly network: NetworkContext,
+		readonly state?: ChannelStates
 	) {}
 }
 

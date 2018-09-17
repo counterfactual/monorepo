@@ -60,7 +60,8 @@ describe("Lifecycle", async () => {
 
 		const multisigContract = await ClientInterface.deployMultisig(
 			multisigWallet.currentUser.ethersWallet,
-			owners
+			owners,
+			multisigWallet.network
 		);
 		expect(multisigContract.address).not.toBe(null);
 		expect(await multisigContract.functions.getOwners()).toEqual(owners);

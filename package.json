@@ -7,13 +7,13 @@
 	"license": "ISC",
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
-		"docker:run": "docker-compose up -d machine",
+		"docker:run": "docker-compose up -d machine && yarn test:buildContracts",
 		"docker:build": "docker-compose build",
-		"shell:local": "docker-compose run machine_local_contracts sh",
 		"shell": "docker-compose run machine sh",
-		"test": "docker-compose exec machine sh /app/machine/bin/test",
-		"test:deployContracts": "docker-compose exec machine sh /app/machine/bin/deploy_contracts",
-		"test:jest": "./node_modules/.bin/jest --runInBand",
+		"test": "docker-compose exec machine sh /machine/bin/test",
+		"test:buildContracts": "docker-compose exec machine /bin/sh -c \"cd contracts && yarn && yarn build\"",
+		"test:deployContracts": "docker-compose exec machine sh /machine/bin/deploy_contracts",
+		"test:jest": "./node_modules/.bin/jest --runInBand --detectOpenHandles --bail",
 		"test:ci": "yarn test:deployContracts && yarn test",
 		"ganache": "ganache-cli --gasLimit 0xfffffffffff --port 9545",
 		"ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
@@ -53,12 +53,8 @@
 		"@counterfactual/configs": "https://github.com/counterfactual/configs.git#3f4cdd1cc203ad5cc7a11ab2e87fba9a77eaa482",
 		"@counterfactual/test-utils": "https://github.com/counterfactual/test-utils.git",
 		"@counterfactual/typescript-typings": "https://github.com/counterfactual/typescript-typings.git",
-		"ethers": "4.0.0-beta.14"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": ""
-		}
+		"ethers": "4.0.0-beta.14",
+		"sha3": "^1.2.2"
 	},
 	"jest": {
 		"verbose": false,

@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { Context } from "../../src/state";
 import { CounterfactualVM, CfVmConfig } from "../../src/vm";
 import {
@@ -53,9 +54,9 @@ export class User implements Observable, ResponseSink {
 		readonly wallet: TestWallet,
 		address: string,
 		privateKey: string,
+		networkContext: NetworkContext,
 		db?: SyncDb,
-		states?: ChannelStates,
-		networkContext?: NetworkContext
+		states?: ChannelStates
 	) {
 		this.wallet = wallet;
 		this.address = address;
@@ -65,8 +66,8 @@ export class User implements Observable, ResponseSink {
 				this,
 				new EthCfOpGenerator(),
 				new CfVmWal(db !== undefined ? db : new MemDb()),
-				states,
-				networkContext
+				networkContext,
+				states
 			)
 		);
 		this.store = new CommitmentStore();
@@ -187,6 +188,7 @@ async function validateSignatures(
 	context: Context,
 	user: User
 ) {
+	// FIXME: this should actually validate signatures
 	return true;
 	const op: CfOperation = getLastResult(
 		Instruction.OP_GENERATE,
