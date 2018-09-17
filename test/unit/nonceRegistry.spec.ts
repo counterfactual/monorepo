@@ -10,8 +10,11 @@ const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 contract("NonceRegistry", accounts => {
   let registry: ethers.Contract;
 
-  const computeKey = (salt: string) =>
-    ethers.utils.solidityKeccak256(["address", "bytes32"], [accounts[0], salt]);
+  const computeKey = (timeout: ethers.BigNumber, salt: string) =>
+    ethers.utils.solidityKeccak256(
+      ["address", "uint256", "bytes32"],
+      [accounts[0], timeout, salt]
+    );
 
   beforeEach(async () => {
     registry = await Utils.deployContract(NonceRegistry, unlockedAccount);
@@ -39,9 +42,12 @@ contract("NonceRegistry", accounts => {
   });
 
   it("can set nonces", async () => {
-    await registry.functions.setNonce(Utils.ZERO_BYTES32, 1);
-    const ret = await registry.functions.table(computeKey(Utils.ZERO_BYTES32));
-    ret.nonce.should.be.bignumber.eq(1);
+    const timeout = new ethers.BigNumber(10);
+    await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, 1);
+    const ret = await registry.functions.table(
+      computeKey(timeout, Utils.ZERO_BYTES32)
+    );
+    ret.nonceValue.should.be.bignumber.eq(1);
     ret.finalizesAt.should.be.bignumber.eq(
       (await provider.getBlockNumber()) + 10
     );
@@ -49,18 +55,26 @@ contract("NonceRegistry", accounts => {
 
   it("fails if nonce increment is not positive", async () => {
     await Utils.assertRejects(
-      registry.functions.setNonce(Utils.ZERO_BYTES32, 0)
+      registry.functions.setNonce(
+        new ethers.BigNumber(10),
+        Utils.ZERO_BYTES32,
+        0
+      )
     );
   });
 
-  it("can finalize nonces", async () => {
-    await registry.functions.finalizeNonce(Utils.ZERO_BYTES32);
-    const ret = await registry.functions.table(computeKey(Utils.ZERO_BYTES32));
-    ret.nonce.should.be.bignumber.eq(0);
+  it("can insta-finalize nonces", async () => {
+    const timeout = new ethers.BigNumber(0);
+    const nonceValue = new ethers.BigNumber(1);
+    await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, nonceValue);
+    const ret = await registry.functions.table(
+      computeKey(timeout, Utils.ZERO_BYTES32)
+    );
+    ret.nonceValue.should.be.bignumber.eq(nonceValue);
     ret.finalizesAt.should.be.bignumber.eq(await provider.getBlockNumber());
     const isFinal = await registry.functions.isFinalized(
-      computeKey(Utils.ZERO_BYTES32),
-      0
+      computeKey(timeout, Utils.ZERO_BYTES32),
+      nonceValue
     );
     isFinal.should.be.equal(true);
   });
