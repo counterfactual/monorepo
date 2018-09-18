@@ -27,6 +27,7 @@ tmp
 dist
 jest-cache
 deployedContracts
+contracts/
 
 # editors
 .vscode

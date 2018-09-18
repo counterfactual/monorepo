@@ -48,6 +48,15 @@ export class CfAppInterface {
 		readonly abiEncoding: string
 	) {}
 
+	static generateSighash(
+		abiInterface: ethers.Interface,
+		functionName: string
+	): string {
+		return abiInterface.functions[name]
+			? abiInterface.functions[name].sighash
+			: "0x00000000";
+	}
+
 	encode(state: object): string {
 		return ethers.utils.defaultAbiCoder.encode([this.abiEncoding], [state]);
 	}

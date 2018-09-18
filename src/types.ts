@@ -122,10 +122,16 @@ export interface UpdateOptions {
 	state: object;
 }
 
+export interface UninstallOptions {
+	peerABalance: number;
+	peerBBalance: number;
+}
+
 export interface InstallOptions {
 	abiEncoding: string;
 	state: object;
 	peerABalance: number;
+	peerBBalance: number;
 }
 
 /**
@@ -248,8 +254,8 @@ export interface AppChannelInfo {
 	peerA: PeerBalance;
 	peerB: PeerBalance;
 	// ephemeral keys
-	keyA: Address;
-	keyB: Address;
+	keyA?: Address;
+	keyB?: Address;
 	encodedState: any;
 	appState?: any;
 	appStateHash?: H256;

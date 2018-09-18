@@ -216,39 +216,12 @@
 	}
 
 	let wallet = new wa.TestWallet()
+	let listeners = [];
 
-	async function pickUser(key, pkey) {
-		// let wsConnection = new cf.StateChannelWsConnection(
-		// 	{routeMsg: (msg) => {
-
-		// 		let client = clientStore[msg.toAddr.toLowerCase()].client;
-		// 		client.ioProvider.routeMsg(msg);
-		// 	}},
-		// 	key,
-		// 	"ws://localhost:5000",
-		// 	{
-		// 		showedPresence: (peerAddr) => {
-		// 			console.log("Showed presence!");
-		// 			peers.push(peerAddr);
-		// 			sendMessageToChild({type: 'cf:peers-changed', peers});
-		// 		},
-		// 		removedPresence: (peerAddr) => {
-		// 			console.log("This doens't work");
-		// 			let msg = {peers}
-		// 			sendMessageToChild({type: 'cf:peers-changed', peers});
-		// 		}
-		// 	}
-		// );
-		// //router.connection = wsConnection;
-		// relayStore[key.toLowerCase()] = wsConnection;
-		// wsConnection.connect(wsPeers => {
-		// 	peers = wsPeers;
-		// 	console.log("Connected to relay");
-		// 	//this.peers = peers;
-		// 	//this.delegate.peersDidChange(this.peers);
-		// 	sendMessageToChild({type: 'cf:peers-changed', peers});
-		// 	//resolve(router);
-		// });
+	async function pickUser(pkey) {
+		// TODO figure out a way to access process.env within rollup and use `test/constants.ts`
+		// currently can't rollup envvars: https://github.com/calvinmetcalf/rollup-plugin-node-globals/issues/7
+		let key = new ethers.Wallet(pkey).address;
 
 		wallet.setUser(key, pkey);
 
@@ -257,7 +230,6 @@
 				type: 'cf:io-send',
 				data: msg
 			}
-
 			sendMessageToChild(message);
 		});
 
@@ -266,11 +238,17 @@
 			sendMessageToChild(message);
 		});
 
-		window.addEventListener('message', (event) => {
+		listeners.forEach((listener) => window.removeEventListener('message', listener));
+
+		let listener = (event) => {
 			if (event.data.type === 'cf:default') {
 				wallet.receiveMessageFromClient(event.data);
 			}
-		});
+		}
+
+		listeners.push(listener);
+
+		window.addEventListener('message', listener);
 
 		sendMessageToChild({ type: 'cf:user-picked', key, pkey })
 	}
@@ -282,10 +260,8 @@
 	<div>
 		Pick user
 	</div>
-	<button onclick="pickUser('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d')">(A)
-		0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1</button>
-	<button onclick="pickUser('0xffcf8fdee72ac11b5c542428b35eef5769c409f0', '0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1')">(B)
-		0xffcf8fdee72ac11b5c542428b35eef5769c409f0</button>
+	<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
+	<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
 </div>
 
 </html>
