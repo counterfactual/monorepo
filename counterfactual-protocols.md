@@ -1,12 +1,6 @@
 # Counterfactual
 
-Counterfactual is a composable software suite facilitating the creation, maintenance, and defensibility of an off-chain cryptographic database, using the technique of generalized state channels. The goal of this document is to define the transactions that update the state of this database by specifying a series of Counterfactual Protocols to generate and enforce proofs regarding state on an underlying blockchain.
-
 Informally, we define a **generalized state channel (GSC)** to be a container of application-specific state channels, where each application-specific state channel is a commitment assuming ownership over the payout distribution of some portion of the funds "locked" in the container.
-
-In practice, this means there exists one on-chain multisig, the container, used to enforce commitments to several "installed" application contracts. Although this document does not cover the structure of such contracts (<a href="https://github.com/counterfactual/contracts/blob/develop/ARCHITECTURE.md">it is itself a framework</a>), it's worth pointing out that these "install" commitments are unanimously signed delegatecall transactions from the multisig to what we call a <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/delegateTargets/ConditionalTransfer.sol#L34">conditional transfer</a>.
-
-The rest of this document defines these protocols and their associated commitments, illustrating the lifecycle of a generalized state channel by walking through each protocol and its effect on the counterfactual state.
 
 ## Commitments
 

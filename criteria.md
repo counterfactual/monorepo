@@ -1,6 +1,6 @@
 ## Criteria
 
-This is a list of criteria for proposed protocols, i.e., predicates that a protocol either satisfies or does not.
+This is a list of criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
 
 ### One round trip communication
 
