@@ -12,8 +12,12 @@ import {
 	zeroBytes32,
 	CfFreeBalance,
 	CfNonce,
-	CfStateChannel
+	CfStateChannel,
+	CfAppInterface,
+	Terms
 } from "../cf-operation/types";
+import { getLastResult } from "../middleware";
+import { Instruction, Instructions } from "../../instructions";
 
 export class InstallProposer {
 	static propose(
@@ -23,10 +27,38 @@ export class InstallProposer {
 	): StateProposal {
 		let multisig: Address = message.clientMessage.multisigAddress;
 		let data: InstallData = message.clientMessage.data;
+		let app = new CfAppInterface(
+			data.app.address,
+			data.app.applyAction,
+			data.app.resolve,
+			data.app.turn,
+			data.app.isStateTerminal,
+			data.app.abiEncoding
+		);
+		let terms = new Terms(
+			data.terms.assetType,
+			data.terms.limit,
+			data.terms.token
+		);
 		let uniqueId = InstallProposer.nextUniqueId(state, multisig);
-		let cfAddr = InstallProposer.proposedCfAddress(state, message, uniqueId);
+		let signingKeys = InstallProposer.newSigningKeys(context, data);
+		let cfAddr = InstallProposer.proposedCfAddress(
+			state,
+			message,
+			app,
+			terms,
+			signingKeys,
+			uniqueId
+		);
 		let existingFreeBalance = state.stateChannel(multisig).freeBalance;
-		let newAppChannel = InstallProposer.newAppChannel(cfAddr, data, uniqueId);
+		let newAppChannel = InstallProposer.newAppChannel(
+			cfAddr,
+			data,
+			app,
+			terms,
+			signingKeys,
+			uniqueId
+		);
 		let [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
 		let freeBalance = new CfFreeBalance(
 			peerA.address,
@@ -52,9 +84,25 @@ export class InstallProposer {
 		};
 	}
 
+	private static newSigningKeys(
+		context: Context,
+		data: InstallData
+	): Array<string> {
+		let lastResult = getLastResult(Instruction.IO_WAIT, context.results);
+
+		if (lastResult && lastResult.value && lastResult.value.data) {
+			return [lastResult.value.data.keyA, lastResult.value.data.keyB];
+		} else {
+			return [data.keyA, data.keyB];
+		}
+	}
+
 	private static newAppChannel(
 		cfAddr: H256,
 		data: InstallData,
+		app: CfAppInterface,
+		terms: Terms,
+		signingKeys: Array<string>,
 		uniqueId: number
 	): AppChannelInfo {
 		return {
@@ -62,13 +110,13 @@ export class InstallProposer {
 			uniqueId: uniqueId,
 			peerA: data.peerA,
 			peerB: data.peerB,
-			keyA: data.keyA,
-			keyB: data.keyB,
+			keyA: signingKeys[0],
+			keyB: signingKeys[1],
 			encodedState: data.encodedAppState,
 			localNonce: 1,
 			timeout: data.timeout,
-			terms: data.terms,
-			cfApp: data.app,
+			terms: terms,
+			cfApp: app,
 			dependencyNonce: new CfNonce(uniqueId)
 		};
 	}
@@ -76,14 +124,17 @@ export class InstallProposer {
 	private static proposedCfAddress(
 		state: CfState,
 		message: InternalMessage,
+		app: CfAppInterface,
+		terms: Terms,
+		signingKeys: Array<string>,
 		uniqueId: number
 	): H256 {
 		return new CfStateChannel(
 			state.networkContext,
 			message.clientMessage.multisigAddress,
-			[message.clientMessage.data.keyA, message.clientMessage.data.keyB],
-			message.clientMessage.data.app,
-			message.clientMessage.data.terms,
+			signingKeys,
+			app,
+			terms,
 			message.clientMessage.data.timeout,
 			uniqueId
 		).cfAddress();
@@ -108,5 +159,13 @@ export class InstallProposer {
 		let channel = state.channelStates[multisig];
 		// + 1 for the free balance
 		return Object.keys(channel.appChannels).length + 1;
+	}
+
+	private static getSigningKeys(lastResult: any, data: any): Address[] {
+		if (lastResult !== undefined && lastResult.value.data !== undefined) {
+			return [lastResult.value.data.keyA, lastResult.value.data.keyB];
+		} else {
+			return [data.keyA, data.keyB];
+		}
 	}
 }

@@ -1,6 +1,5 @@
 import * as ethers from "ethers";
 import Multisig from "../../contracts/build/contracts/MinimumViableMultisig.json";
-import networkFile from "../../contracts/networks/7777777.json";
 import {
 	ClientQuery,
 	ClientQueryType,

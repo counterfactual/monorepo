@@ -1,6 +1,7 @@
 import {
 	UpdateData,
 	UpdateOptions,
+	UninstallOptions,
 	PeerBalance,
 	ClientResponse,
 	ActionName
@@ -50,11 +51,11 @@ export class AppChannelClient {
 		return await this.stateChannel.clientInterface.sendMessage(message);
 	}
 
-	async uninstall(options): Promise<ClientResponse> {
+	async uninstall(options: UninstallOptions): Promise<ClientResponse> {
 		let uninstallData = {
 			peerAmounts: [
-				new PeerBalance(this.stateChannel.fromAddress, options.amount),
-				new PeerBalance(this.stateChannel.toAddress, 0)
+				new PeerBalance(this.stateChannel.fromAddress, options.peerABalance),
+				new PeerBalance(this.stateChannel.toAddress, options.peerBBalance)
 			]
 		};
 

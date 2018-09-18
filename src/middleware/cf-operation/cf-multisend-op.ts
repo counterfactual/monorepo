@@ -88,8 +88,8 @@ export abstract class CfMultiSendOp extends CfOperation {
 				"0x19",
 				this.cfFreeBalance.alice,
 				this.cfFreeBalance.bob,
-				this.cfFreeBalance.aliceBalance,
-				this.cfFreeBalance.bobBalance
+				this.cfFreeBalance.aliceBalance.toString(),
+				this.cfFreeBalance.bobBalance.toString()
 			]
 		);
 		// don't need signatures since the multisig is the owner

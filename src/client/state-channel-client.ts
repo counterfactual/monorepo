@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import PaymentApp from "../../contracts/build/contracts/PaymentApp.json";
 import {
 	ClientQuery,
 	FreeBalanceClientResponse,
@@ -9,7 +10,6 @@ import {
 	ClientQueryType,
 	ActionName
 } from "../types";
-import { PaymentApp } from "../middleware/cf-operation/contracts/paymentApp";
 
 import {
 	Terms,
@@ -18,8 +18,11 @@ import {
 } from "../middleware/cf-operation/types";
 
 import { ClientInterface } from "./client-interface";
-
 import { AppChannelClient } from "./app-channel-client";
+
+const Contracts = {
+	PaymentApp
+};
 
 export class StateChannelClient {
 	clientInterface: ClientInterface;
@@ -42,26 +45,21 @@ export class StateChannelClient {
 		appName: string,
 		abiEncoding: string
 	): CfAppInterface {
-		switch (appName.toLowerCase()) {
-			case "paymentapp":
-				return new CfAppInterface( // todo
-					"0x0290fb167208af455bb137780163b7b7a9a10c16",
-					"0x00000000",
-					new ethers.Interface(PaymentApp.abi).functions.resolver.sighash,
-					"0x00000000",
-					"0x00000000",
-					abiEncoding
-				);
-			default:
-				return new CfAppInterface(
-					"0x0",
-					"0x00000000",
-					"0x00000000",
-					"0x00000000",
-					"0x00000000",
-					abiEncoding
-				);
-		}
+		let capitalizedAppName = appName[0].toUpperCase() + appName.slice(1);
+		let contract = Contracts[capitalizedAppName];
+		let address = contract
+			? contract.networks[Object.keys(contract.networks)[0]].address
+			: "0x0";
+		let abiInterface = new ethers.Interface(contract ? contract.abi : "");
+
+		return new CfAppInterface(
+			address,
+			CfAppInterface.generateSighash(abiInterface, "applyAction"),
+			CfAppInterface.generateSighash(abiInterface, "resolve"),
+			CfAppInterface.generateSighash(abiInterface, "turn"),
+			CfAppInterface.generateSighash(abiInterface, "isStateTerminal"),
+			abiEncoding
+		);
 	}
 
 	async install(
@@ -83,7 +81,7 @@ export class StateChannelClient {
 		let timeout = 100;
 		let installData: InstallData = {
 			peerA: new PeerBalance(peerA, options.peerABalance),
-			peerB: new PeerBalance(peerB, 0),
+			peerB: new PeerBalance(peerB, options.peerBBalance),
 			// TODO provide actual signing keys?
 			keyA: this.toAddress,
 			keyB: this.fromAddress,
@@ -142,7 +140,7 @@ export class StateChannelClient {
 		let freeBalanceData = (await this.clientInterface.sendMessage(
 			freeBalanceQuery
 		)) as FreeBalanceClientResponse;
-		console.log("receiverd freeBalanceData", freeBalanceData);
+
 		return freeBalanceData;
 	}
 
@@ -156,7 +154,7 @@ export class StateChannelClient {
 		let stateChannelData = (await this.clientInterface.sendMessage(
 			stateChannelQuery
 		)) as StateChannelDataClientResponse;
-		console.log("receiverd stateChannelData", stateChannelData);
+
 		return stateChannelData;
 	}
 }

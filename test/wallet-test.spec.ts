@@ -23,6 +23,7 @@ const PAYMENT_APP_ENCODING =
 	"tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const INSTALL_OPTIONS = {
 	peerABalance: 0,
+	peerBBalance: 0,
 	abiEncoding: PAYMENT_APP_ENCODING,
 	state: {
 		alice: A_ADDRESS,
@@ -218,7 +219,7 @@ describe("Lifecycle", async () => {
 		let uninstallAmountA = 10;
 		let uninstallAmountB = 0;
 
-		await appChannel.uninstall({ amount: uninstallAmountA });
+		await appChannel.uninstall({ peerABalance: uninstallAmountA, peerBBalance: uninstallAmountB });
 
 		// validate walletA
 		validateNoAppsAndFreeBalance(
