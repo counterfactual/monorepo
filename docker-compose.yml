@@ -4,7 +4,11 @@ services:
   docker_devnet:
     image: trufflesuite/ganache-cli:v6.1.8
     command: |
-      --networkId 7777777 --gasLimit 0xfffffffffff --port 9545
+      --verbose
+      --networkId 7777777
+      --gasLimit 0xfffffffffff
+      --port 9545
+      --deterministic
       --account="${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}"
       --account="${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}"
       --account="${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}"
