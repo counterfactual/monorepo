@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html>
-<iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>
 
-
-<!--
-	<iframe id=counter width=800 height=800 src="http://localhost:8000/examples/ttt"></iframe>
-	<iframe id=counter width=500 height=800 src="http://localhost:8000/examples/counter"></iframe> -->
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
 <script charset="utf-8" type="text/javascript" src="../../../node_modules/ethers/dist/ethers.min.js"></script>
@@ -13,16 +8,7 @@
 <script id="wa_src" type="text/javascript" src="../../../build/js/wallet.min.js"></script>
 <script id="ci_src" type="text/javascript" src="../../../build/js/client-interface.min.js"></script>
 
-<!--<script type="text/javascript" src="/build/js/counterfactual.min.js"></script>-->
 <script>
-	// let injectedScript = Object.keys(cf.vm).reduce((injectedScript, key) => {
-	// 	return injectedScript;
-	// 	return `${injectedScript} window.${key} = ${typeof cf.vm[key] === 'object' ? JSON.stringify(cf.vm[key]) : cf.vm[key].toString()};`
-	// }, `
-	// 	window.ClientInterface = ${clientInterface.toString()};
-	// 	window.TestWallet = ${wallet.toString()};
-	// `);
-
 	let useAppIO = {};
 
 	let counter = 0;
@@ -71,16 +57,6 @@
 		"0x08d1cd793fd871c131c594f0cfd9564b774da50c": "0x170f140962cc7c9afc98d0d2468b075c87493c9ab8164117f3a9866a9a4404fa"
 	};
 
-	let relayStore = {
-	}
-
-	/*
-	let clientStore = {
-		"0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539": new cf.SimpleCounterfactualClient(keyStore["0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539"])
-	}
-	*/
-
-
 	let address = "0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539";
 
 	let clientA = new ci.ClientInterface(keyStore[address]);
@@ -95,87 +71,6 @@
 			'test': new SimpleAppSigner('test')
 		}
 	}
-	// clientA.client.registerSigner('test', appSignerStore[clientToKey.A].test);
-	// clientB.client.registerSigner('test', appSignerStore[clientToKey.B].test);
-	// clientA.client.registerSigner('ttt', appSignerStore[clientToKey.A].test);
-	// clientB.client.registerSigner('ttt', appSignerStore[clientToKey.B].test);
-
-	// let clientStore = {
-	// 	[clientToKey.A]: clientA,
-	// 	[clientToKey.B]: clientB
-	// };
-
-	// let appChannelStore = {
-	// };
-
-	// let refundModuleBFinalizeEvent, refundModuleARequestId, refundModuleAFinalizeEvent;
-
-	// // this is bad and I do feel bad
-	// let connectionAtoB = {
-	// 	routeMsg(msg) {
-	// 		let appId = msg.msg.body.req.metadata.appId;
-	// 		if (!appId || !useAppIO[appId]) {
-	// 			debugger
-	// 			let wsConnection = relayStore[msg.peerAddr.toLowerCase()];
-	// 			msg.toAddr = msg.toAddr.toLowerCase();
-	// 			wsConnection.send(msg);
-	// 		} else if (!appId || useAppIO[appId]) {
-	// 			sendMessageToChild({type: 'cf:io-send', msg});
-	// 		}
-	// 	}
-	// }
-	// let connectionBtoA = {
-	// 	routeMsg(msg) {
-	// 		let appId = msg.msg.body.req.metadata.appId;
-	// 		if (!appId || !useAppIO[appId]) {
-	// 			debugger
-	// 			let wsConnection = relayStore[msg.peerAddr.toLowerCase()];
-	// 			msg.toAddr = msg.toAddr.toLowerCase();
-	// 			wsConnection.send(msg);
-	// 		} else if (!appId || useAppIO[appId]) {
-	// 			sendMessageToChild({type: 'cf:io-send', msg});
-	// 		}
-	// 	}
-	// }
-	// clientA.client.ioProvider.connection = connectionAtoB;
-	// clientB.client.ioProvider.connection = connectionBtoA;
-	// let refundModuleA = new cf.RefundModule(
-	// 	clientA.client,  (msg) => {
-	// 		if (msg.peerAddr.toLowerCase() != clientToKey.A) {
-	// 			return;
-	// 		}
-	// 		console.log('got into the callback for refund A');
-	// 		let event =  refundEventsStore[clientToKey.A];
-	// 		event.source.postMessage({requestId: event.data.requestId}, '*')
-	// 	}, () => {
-	// 		return;
-	// 		//let event =  refundFinalizeEventsStore[clientToKey.A];
-	// 		//event.source.postMessage({requestId: event.data.requestId}, '*')
-	// 	 });
-	// let refundModuleB = new cf.RefundModule(
-	// 	clientB.client,  (msg) => {
-	// 		console.log('got into the callback for refund B');
-	// 		if (msg.peerAddr.toLowerCase() != clientToKey.B) {
-	// 			return;
-	// 		}
-	// 		let event =  refundEventsStore[clientToKey.B];
-	// 		event.source.postMessage({requestId: event.data.requestId}, '*')
-	// 	}, () => {
-	// 		if (!refundModuleBFinalizeEvent) {
-	// 			return;
-	// 		}
-	// 	 });
-
-	// let refundStore = {
-	// 	[clientToKey.A]: refundModuleA,
-	// 	[clientToKey.B]: refundModuleB
-	// }
-
-	// let refundEventsStore = {
-	// }
-
-	// let refundFinalizeEventsStore = {
-	// }
 
 	let getSrc = async function (id) {
 		let response = await fetch(document.getElementById(`${id}_src`).src);
@@ -253,15 +148,40 @@
 		sendMessageToChild({ type: 'cf:user-picked', key, pkey })
 	}
 
+	function getCurrentUserApps() {
+		// This assumes the current user has only one channel open
+		const openChannelAddress = Object.keys(wallet.currentUser.vm.cfState.channelStates)[0];
+		const apps = wallet.currentUser.vm.cfState.channelStates[openChannelAddress].appChannels;
+		let appList = "<ul>"
+		for (var appId in apps) {
+			console.log(apps[appId]);
+			appList += "<li>" + appId + "</li>";
+		}
+		appList += "<ul>";
+		document.getElementById("apps").innerHTML = appList;
+	}
+
 </script>
 
 
-<div style="float: right">
-	<div>
-		Pick user
+<div>
+	<div style="float: left">
+		<div>
+			Pick user
+		</div>
+		<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
+		<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
 	</div>
-	<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
-	<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
+	<div style="float: right">
+		<div>
+			List apps for current user's current open channel
+		</div>
+		<button onclick="getCurrentUserApps()">User Apps</button>
+		<div id="apps">
+		</div>
+	</div>
 </div>
+
+<iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>
 
 </html>
