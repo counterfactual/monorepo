@@ -1,13 +1,15 @@
 import * as ethers from "ethers";
 import {
-	Bytes,
 	Address,
-	Signature,
-	H256,
+	Bytes,
 	Bytes32,
 	Bytes4,
-	NetworkContext
+	H256,
+	NetworkContext,
+	Signature
 } from "../../types";
+import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
+import { ZERO_BYTES32 } from "@counterfactual/test-utils";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 export const zeroBytes32 =
@@ -25,16 +27,18 @@ export const Abi = {
 	multiSend: "multiSend(bytes)",
 	// Registry.sol
 	proxyCall: "proxyCall(address,bytes32,bytes)",
+	setResolution:
+		"setResolution(tuple(address, bytes4, bytes4, bytes4, bytes4) app, bytes finalState, bytes terms)",
 	// StateChannel.sol
 	setState: "setState(bytes32,uint256,uint256,bytes)",
 	// NonceRegistry.sol
 	setNonce: "setNonce(bytes32,uint256)",
 	finalizeNonce: "finalizeNonce(bytes32)"
 };
-import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
 
 export abstract class CfOperation {
 	abstract hashToSign(): H256;
+
 	abstract transaction(sigs: Signature[]): Transaction;
 }
 
@@ -43,7 +47,7 @@ export class CfAppInterface {
 		readonly address: Address,
 		readonly applyAction: Bytes4,
 		readonly resolve: Bytes4,
-		readonly turn: Bytes4,
+		readonly getTurnTaker: Bytes4,
 		readonly isStateTerminal: Bytes4,
 		readonly abiEncoding: string
 	) {}
@@ -79,17 +83,27 @@ export class CfAppInterface {
 	}
 
 	hash(): string {
-		return ethers.utils.solidityKeccak256(
-			["bytes1", "address", "bytes4", "bytes4", "bytes4", "bytes4"],
+		if (this.address === "0x0") {
+			// FIXME:
+			console.error("WARNING: This won't work, my address is 0x0");
+			return ZERO_BYTES32;
+		}
+		const appBytes = ethers.utils.defaultAbiCoder.encode(
 			[
-				"0x19",
-				this.address,
-				this.applyAction,
-				this.resolve,
-				this.turn,
-				this.isStateTerminal
+				"tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
+			],
+			// ["address", "bytes4", "bytes4", "bytes4", "bytes4"],
+			[
+				{
+					addr: this.address,
+					applyAction: this.applyAction,
+					resolve: this.resolve,
+					getTurnTaker: this.getTurnTaker,
+					isStateTerminal: this.isStateTerminal
+				}
 			]
 		);
+		return ethers.utils.solidityKeccak256(["bytes"], [appBytes]);
 	}
 }
 
@@ -101,9 +115,11 @@ export class Terms {
 	) {}
 
 	hash(): string {
-		return ethers.utils.solidityKeccak256(
-			["bytes1", "uint8", "uint256", "address"],
-			["0x19", this.assetType, this.limit, this.token]
+		return ethers.utils.keccak256(
+			ethers.utils.defaultAbiCoder.encode(
+				["bytes1", "uint8", "uint256", "address"],
+				["0x19", this.assetType, this.limit, this.token]
+			)
 		);
 	}
 }
@@ -120,6 +136,7 @@ export class Transaction {
 		readonly data: string
 	) {}
 }
+
 export class MultisigTransaction extends Transaction {
 	constructor(
 		readonly to: Address,
@@ -150,6 +167,7 @@ export class MultiSendInput {
 		readonly op: Operation
 	) {}
 }
+
 export class MultiSend {
 	constructor(readonly transactions: Array<MultisigInput>) {}
 
@@ -191,7 +209,7 @@ export class CfFreeBalance {
 		// FIXME: Change implementation of free balance on contracts layer
 		return new Terms(
 			0, // 0 means ETH
-			10000000000000,
+			100000000000000, // FIXME: un-hardcode
 			zeroAddress
 		);
 	}
@@ -220,6 +238,7 @@ export class CfFreeBalance {
 export class CfNonce {
 	public salt: Bytes32;
 	public nonce: number;
+
 	constructor(uniqueId: number, nonce?: number) {
 		this.salt = ethers.utils.solidityKeccak256(["uint256"], [uniqueId]);
 		if (!nonce) {

@@ -82,16 +82,17 @@ export abstract class CfMultiSendOp extends CfOperation {
 			this.cfFreeBalance.uniqueId
 		).cfAddress();
 
-		let appStateHash = ethers.utils.solidityKeccak256(
-			["bytes1", "address", "address", "uint256", "uint256"],
-			[
-				"0x19",
-				this.cfFreeBalance.alice,
-				this.cfFreeBalance.bob,
-				this.cfFreeBalance.aliceBalance.toString(),
-				this.cfFreeBalance.bobBalance.toString()
-			]
+		const values = [
+			this.cfFreeBalance.alice,
+			this.cfFreeBalance.bob,
+			this.cfFreeBalance.aliceBalance.toString(),
+			this.cfFreeBalance.bobBalance.toString()
+		];
+		const appState = ethers.utils.defaultAbiCoder.encode(
+			["address", "address", "uint256", "uint256"],
+			values
 		);
+		let appStateHash = ethers.utils.solidityKeccak256(["bytes"], [appState]);
 		// don't need signatures since the multisig is the owner
 		let signatures = "0x0";
 		return common.proxyCallSetStateData(
