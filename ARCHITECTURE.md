@@ -1,6 +1,6 @@
 # Architecture.md
 
-Application-specific code is isolated in a stateless contract. Examples of these contracts can be seen in the repository `cf-apps`.
+Application-specific code is isolated in a stateless contract.
 
 The framework code lives in more places. We know that in case of a dispute, individual counterfactually instantiated contracts must be put on chain and their storage modified throughout the dispute. This storage must contain:
 

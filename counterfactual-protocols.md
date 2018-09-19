@@ -4,10 +4,6 @@ Informally, we define a **generalized state channel (GSC)** to be a container of
 
 ## Commitments
 
-To start, let's define the structure of a commitment.
-
-Commitments are signatures allowing us to execute a specific transaction. Each commitment has the following components:
-
 - the cryptographic *signature* over some hash representing the transaction to be executed
 - the *data* that allows any party in the channel to reconstruct the hash and thus verify the signature
 

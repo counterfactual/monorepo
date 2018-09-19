@@ -29,13 +29,39 @@ Sometimes, there are multiple designs that provide the same features but with di
 
 The file ![proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
 
-## Concepts, Part 2
+## Design
 
-Apps, free balance
+A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
 
-## Contracts
+### Commitments 
+
+We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to call the internal `MinimumViableMultisig::execute` function, which performs a message call from the multisig.
+
+An example of a simple commitment is a commitment to call `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`, and is used in unanimous withdrawals.
+
+Many commitments are commitments to delegatecall a contract in the `delegateTargets` folder. These contracts hence execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
+
+### Apps
+
+See ![ARCHITECTURE.md](ARCHITECTURE.md).
+
+### Installation, Uininstallation and Dependency Nonces
+
+An app that is installed but not uninstalled is called active.
+
+### Free Balance
+
+State deposit that is not assigned to any other app is held in a special app called the Free Balance app. The app logic is implement by `PaymentChannel.sol`.
 
 ## Protocols
+
+### Setup
+
+### Install
+
+### Update
+
+### Uninstall
 
 ## Roadmap
 
@@ -45,3 +71,4 @@ Here is a list of future features we wish to support someday (TM).
 - Designs for metachannels
 - Designs for onion-routed metachannels
 - Designs for hash nonces and merkelized multisigs
+- Designs for watchtowers
