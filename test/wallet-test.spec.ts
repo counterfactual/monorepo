@@ -7,8 +7,8 @@ import {
 	zeroAddress,
 	zeroBytes32
 } from "../src/middleware/cf-operation/types";
-import { ClientInterface } from "../src/client/client-interface";
-import { AppChannelClient } from "../src/client/app-channel-client";
+import { ClientInterface } from "../cf.js/client-interface";
+import { AppChannelClient } from "../cf.js/app-channel-client";
 import {
 	MULTISIG_PRIVATE_KEY,
 	A_PRIVATE_KEY,

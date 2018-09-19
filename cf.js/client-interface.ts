@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import Multisig from "../../contracts/build/contracts/MinimumViableMultisig.json";
+import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
 import {
 	ClientQuery,
 	ClientQueryType,
@@ -13,11 +13,11 @@ import {
 	ActionName,
 	ClientActionMessage,
 	NetworkContext
-} from "../types";
+} from "../src/types";
 
 import { StateChannelClient } from "./state-channel-client";
-import { applyMixins } from "../mixins/apply";
-import { Observable, NotificationType } from "../mixins/observable";
+import { applyMixins } from "../src/mixins/apply";
+import { Observable, NotificationType } from "../src/mixins/observable";
 
 export class ClientInterface implements Observable {
 	wallet: WalletMessaging;

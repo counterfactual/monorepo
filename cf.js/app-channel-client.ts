@@ -5,8 +5,8 @@ import {
 	PeerBalance,
 	ClientResponse,
 	ActionName
-} from "../types";
-import { CfAppInterface } from "../middleware/cf-operation/types";
+} from "../src/types";
+import { CfAppInterface } from "../src/middleware/cf-operation/types";
 
 import { StateChannelClient } from "./state-channel-client";
 
