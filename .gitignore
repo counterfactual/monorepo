@@ -18,6 +18,7 @@ scTopics
 build/
 abis.json
 ganache.log
+networks/7777777.json
 
 # build directories
 /lib/
