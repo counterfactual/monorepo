@@ -4,22 +4,23 @@ This repository contains specifications for the counterfactual protocols and con
 
 ## Concepts
 
-For an introduction to concepts and terminology behind state channels, please see [this](https://counterfactual.com/statechannels).
+For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
 
 We recapitulate some relevant definitions. In some cases we use definitions that are more specialized (less general) than in the paper.
 
-- state deposit: blockchain state locked into a state channel
-- state deposit holder: the on-chain multisignature wallet that holds the state deposit
-- counterfactual instantiation: the process by which parties in a state channel agree to be bound by the terms of some off-chain contract
-- counterfactual address: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
-- commitment: a signed transaction (piece of data) that allows the owner to perform a certain action
-- conditional transfer: the action of transferring part of the state deposit to a given address if a certain condition is true. hence one may speak of a commitment to a conditional transfer.
+- **state deposit**: blockchain state locked into a state channel
+- **state deposit holder**: the on-chain multisignature wallet that holds the state deposit
+- **counterfactual instantiation**: the process by which parties in a state channel agree to be bound by the terms of some off-chain contract
+- **counterfactual address**: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
+- **commitment**: a signed transaction (piece of data) that allows the owner to perform a certain action
+- **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
+- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true; hence one may speak of a commitment to a conditional transfer.
 
 Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
 
 ## Organization
 
-These documents include a high-level design overview of the protocols. These should specify the types of commitments we make and dependencies between commitments, as well as a description of the contract functionality and how they enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
+These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
 
 ### Proposed Changes
 
