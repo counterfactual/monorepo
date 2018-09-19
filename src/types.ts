@@ -61,8 +61,8 @@ export interface ClientQuery extends ClientMessage {
 export interface InstallData {
 	peerA: PeerBalance;
 	peerB: PeerBalance;
-	keyA: Address;
-	keyB: Address;
+	keyA?: Address;
+	keyB?: Address;
 	encodedAppState: Bytes;
 	terms: Terms;
 	app: CfAppInterface;

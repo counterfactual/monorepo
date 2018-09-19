@@ -27,11 +27,11 @@ beforeAll(() => {
 
 describe("should have empty commitment stores", async () => {
 	it("wallet A should be empty", () => {
-		expect(walletA.currentUser.store.appCount()).toEqual(0);
+		expect(walletA.currentUser.store.getAppCount()).toEqual(0);
 	});
 
 	it("wallet B should be empty", () => {
-		expect(walletB.currentUser.store.appCount()).toEqual(0);
+		expect(walletB.currentUser.store.getAppCount()).toEqual(0);
 	});
 });
 

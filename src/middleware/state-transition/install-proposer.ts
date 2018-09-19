@@ -9,7 +9,6 @@ import {
 	StateProposal
 } from "../../types";
 import {
-	zeroBytes32,
 	CfFreeBalance,
 	CfNonce,
 	CfStateChannel,
@@ -17,7 +16,7 @@ import {
 	Terms
 } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
-import { Instruction, Instructions } from "../../instructions";
+import { Instruction } from "../../instructions";
 
 export class InstallProposer {
 	static propose(
@@ -93,7 +92,7 @@ export class InstallProposer {
 		if (lastResult && lastResult.value && lastResult.value.data) {
 			return [lastResult.value.data.keyA, lastResult.value.data.keyB];
 		} else {
-			return [data.keyA, data.keyB];
+			return [data.keyA!, data.keyB!];
 		}
 	}
 
@@ -159,13 +158,5 @@ export class InstallProposer {
 		let channel = state.channelStates[multisig];
 		// + 1 for the free balance
 		return Object.keys(channel.appChannels).length + 1;
-	}
-
-	private static getSigningKeys(lastResult: any, data: any): Address[] {
-		if (lastResult !== undefined && lastResult.value.data !== undefined) {
-			return [lastResult.value.data.keyA, lastResult.value.data.keyB];
-		} else {
-			return [data.keyA, data.keyB];
-		}
 	}
 }
