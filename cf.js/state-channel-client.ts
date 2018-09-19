@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import PaymentApp from "../../contracts/build/contracts/PaymentApp.json";
+import PaymentApp from "../contracts/build/contracts/PaymentApp.json";
 import {
 	ClientQuery,
 	FreeBalanceClientResponse,
@@ -9,13 +9,13 @@ import {
 	PeerBalance,
 	ClientQueryType,
 	ActionName
-} from "../types";
+} from "../src/types";
 
 import {
 	Terms,
 	CfAppInterface,
 	zeroAddress
-} from "../middleware/cf-operation/types";
+} from "../src/middleware/cf-operation/types";
 
 import { ClientInterface } from "./client-interface";
 import { AppChannelClient } from "./app-channel-client";
