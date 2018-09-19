@@ -23,11 +23,11 @@ These documents include a high-level design overview of the protocols. These sho
 
 ### Proposed Changes
 
-Sometimes, there are multiple designs that provide the same features but with different tradeoffs. We describe these designs in the ![proposed](proposed) folder, in order to have a single place to reference them, but with the understanding that they are not currently being implemented. We also place here designs that add new features when they are still in the evaluation phase.
+Sometimes, there are multiple designs that provide the same features but with different tradeoffs. We describe these designs in the [proposed](proposed) folder, in order to have a single place to reference them, but with the understanding that they are not currently being implemented. We also place here designs that add new features when they are still in the evaluation phase.
 
 ### Criteria
 
-The file ![proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
+The file [proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
 
 ## Design
 
@@ -43,11 +43,11 @@ Many commitments are commitments to delegatecall a contract in the `delegateTarg
 
 ### Apps
 
-See ![ARCHITECTURE.md](ARCHITECTURE.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Installation, Uininstallation and Dependency Nonces
 
-An app that is installed but not uninstalled is called active.
+An app that is installed but not uninstalled is called an active app.
 
 ### Free Balance
 
