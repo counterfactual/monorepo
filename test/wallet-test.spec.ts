@@ -53,13 +53,13 @@ describe("Lifecycle", async () => {
 	// extending the timeout to allow the async machines to finish
 	jest.setTimeout(30000);
 
-	it("wallet can be used to deploy a multisig", async () => {
-		// This wallet is used _only_ to deploy the multisig
+	let multisigContract;
+	const owners = [A_ADDRESS, B_ADDRESS];
+	beforeAll(async () => {
 		const multisigWallet = new TestWallet();
-		const owners = [A_ADDRESS, B_ADDRESS];
 		multisigWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
 
-		const multisigContract = await ClientInterface.deployMultisig(
+		multisigContract = await ClientInterface.deployMultisig(
 			multisigWallet.currentUser.ethersWallet,
 			owners,
 			multisigWallet.network
@@ -142,10 +142,7 @@ describe("Lifecycle", async () => {
 			expect(false).toBeTruthy();
 		});
 
-		walletB.setUser(
-			"0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd2",
-			B_PRIVATE_KEY
-		);
+		walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
 
 		await clientA.init();
 		await clientB.init();
@@ -155,20 +152,20 @@ describe("Lifecycle", async () => {
 
 		let threshold = 10;
 
-		let stateChannelA = await clientA.setup(
-			"0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd2",
-			multisigContractAddress
-		);
-		let stateChannelB = await clientB.getOrCreateStateChannel(
+		let stateChannelAB = await clientA.setup(
 			B_ADDRESS,
 			multisigContractAddress
+		);
+		let stateChannelBA = await clientB.getOrCreateStateChannel(
+			multisigContractAddress,
+			A_ADDRESS
 		);
 
 		clientB.addObserver("installCompleted", data => {
 			expect(true).toBeTruthy();
 		});
 
-		await stateChannelA.install("paymentApp", INSTALL_OPTIONS);
+		await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
 		let uninstallAmountA = 10;
 		let uninstallAmountB = 0;
 
@@ -219,7 +216,10 @@ describe("Lifecycle", async () => {
 		let uninstallAmountA = 10;
 		let uninstallAmountB = 0;
 
-		await appChannel.uninstall({ peerABalance: uninstallAmountA, peerBBalance: uninstallAmountB });
+		await appChannel.uninstall({
+			peerABalance: uninstallAmountA,
+			peerBBalance: uninstallAmountB
+		});
 
 		// validate walletA
 		validateNoAppsAndFreeBalance(
