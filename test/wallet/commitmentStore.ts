@@ -11,6 +11,7 @@ import {
 	CfOperation,
 	Transaction
 } from "../../src/middleware/cf-operation/types";
+import { LocalStorage, LocalStorageImpl } from "./localStorage";
 
 interface Commitments {
 	appId: string;
@@ -37,9 +38,12 @@ export class AppCommitments implements Commitments {
 	readonly appId: string;
 	readonly commitments: Map<ActionName, Transaction>;
 
-	constructor(appId: string) {
+	constructor(
+		appId: string,
+		commitments: Map<ActionName, Transaction> = new Map()
+	) {
 		this.appId = appId;
-		this.commitments = new Map();
+		this.commitments = commitments;
 	}
 
 	/**
@@ -82,6 +86,25 @@ export class AppCommitments implements Commitments {
 			"App ID: " + this.appId + " has no " + ActionName[action] + " commitment"
 		);
 	}
+
+	serialize(): string {
+		return JSON.stringify([...this.commitments]);
+	}
+
+	static deserialize(
+		appId: string,
+		serializedCommitments: string
+	): AppCommitments {
+		const commitments = new Map<ActionName, Transaction>();
+		const commitmentObjects = new Map(JSON.parse(serializedCommitments));
+		commitmentObjects.forEach((commitment: any, action) => {
+			commitments.set(
+				action as ActionName,
+				new Transaction(commitment.to, commitment.value, commitment.data)
+			);
+		});
+		return new AppCommitments(appId, commitments);
+	}
 }
 
 /**
@@ -93,11 +116,12 @@ export class AppCommitments implements Commitments {
  * operation and the data that's being operated on.
  */
 export class CommitmentStore {
-	// TODO: provide an actual backend db for this later
-	public store: Map<string, AppCommitments>;
+	public store: LocalStorage;
+	private appCount: number;
 
 	constructor() {
-		this.store = new Map();
+		this.appCount = 0;
+		this.store = new LocalStorageImpl();
 	}
 
 	/**
@@ -131,11 +155,12 @@ export class CommitmentStore {
 			appId = internalMessage.clientMessage.appId;
 		}
 
-		if (!this.store.has(appId)) {
-			appCommitments = new AppCommitments(appId);
-			this.store.set(appId, appCommitments);
+		if (this.store.has(appId)) {
+			appCommitments = AppCommitments.deserialize(appId, this.store.get(appId));
 		} else {
-			appCommitments = this.store.get(appId)!;
+			appCommitments = new AppCommitments(appId);
+			this.appCount += 1;
+			this.store.put(appId, appCommitments);
 		}
 
 		const signature: Signature = getFirstResult(
@@ -163,6 +188,7 @@ export class CommitmentStore {
 			signature,
 			counterpartySignature
 		]);
+		this.store.put(appId, Object(appCommitments.serialize()));
 		next();
 	}
 
@@ -190,6 +216,13 @@ export class CommitmentStore {
 		}
 	}
 
+	getCommitments(appId: string): AppCommitments {
+		if (!this.store.has(appId)) {
+			throw Error("Invalid app id: " + appId);
+		}
+		return AppCommitments.deserialize(appId, this.store.get(appId));
+	}
+
 	/**
 	 * Given an app ID, returns the signed transaction representing the action
 	 * operating over the specified app.
@@ -200,18 +233,18 @@ export class CommitmentStore {
 	 */
 	getTransaction(appId: string, action: ActionName): Transaction {
 		if (!this.store.has(appId)) {
-			console.error("appid = ", appId);
-			console.error("store = ", this.store);
 			throw Error("Invalid app id");
 		}
-		const appCommitments = this.store.get(appId);
-		console.log("store ===", this.store);
-		console.log("commitments ====", appCommitments);
-		return appCommitments!.getTransaction(action);
+		const appCommitments = AppCommitments.deserialize(
+			appId,
+			this.store.get(appId)
+		);
+
+		return appCommitments.getTransaction(action);
 	}
 
-	appCount(): number {
-		return this.store.size;
+	getAppCount(): number {
+		return this.appCount;
 	}
 
 	appExists(appId: string): boolean {
@@ -219,8 +252,10 @@ export class CommitmentStore {
 	}
 
 	appHasCommitment(appId: string, action: ActionName): boolean {
-		return (
-			this.store.has(appId) && this.store.get(appId)!.hasCommitment(action)
+		const appCommitments = AppCommitments.deserialize(
+			appId,
+			this.store.get(appId)
 		);
+		return this.store.has(appId) && appCommitments.hasCommitment(action);
 	}
 }
