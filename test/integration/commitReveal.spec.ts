@@ -116,13 +116,14 @@ async function setChannelNonceAndWait(
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
-    [channelNonceSalt, channelNonceValue],
+    [new ethers.BigNumber(10), channelNonceSalt, channelNonceValue],
     signers
   );
 
   await mineBlocks(10);
 
   const channelNonceKey = computeNonceRegistryKey(
+    new ethers.BigNumber(10),
     multisig.address,
     channelNonceSalt
   );
