@@ -172,6 +172,7 @@ async function signMyUpdate(
 		Instruction.OP_GENERATE,
 		context.results
 	).value;
+	console.log(user.address + " is signing the digest");
 	const digest = operation.hashToSign();
 	console.log("signing digest = ", digest);
 	const sig = user.signer.signDigest(digest);
@@ -188,8 +189,6 @@ async function validateSignatures(
 	context: Context,
 	user: User
 ) {
-	// FIXME: this should actually validate signatures
-	return true;
 	const op: CfOperation = getLastResult(
 		Instruction.OP_GENERATE,
 		context.results
@@ -199,8 +198,13 @@ async function validateSignatures(
 	let sig;
 	let expectedSigningAddress =
 		message.clientMessage.toAddress === user.address
-			? message.clientMessage.toAddress
-			: message.clientMessage.fromAddress;
+			? message.clientMessage.fromAddress
+			: message.clientMessage.toAddress;
+	console.log(
+		user.address +
+			" is validating signature for counterparty: " +
+			expectedSigningAddress
+	);
 	if (message.clientMessage.signature === undefined) {
 		// initiator
 		const incomingMessage = getLastResult(Instruction.IO_WAIT, context.results)
