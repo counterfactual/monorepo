@@ -36,11 +36,11 @@ A state channel is an on-chain multisig state deposit holder, a set of counterfa
 
 ### Commitments 
 
-We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to call the internal `MinimumViableMultisig::execute` function, which performs a message call from the multisig.
+We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
 
-An example of a simple commitment is a commitment to call `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`, and is used in unanimous withdrawals.
+An example of a simple action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
 
-Many commitments are commitments to delegatecall a contract in the `delegateTargets` folder. These contracts hence execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
+Many actions are simply delegate calls a contract in the `delegateTargets` folder. These contracts execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
 
 ### Apps
 
