@@ -1,16 +1,16 @@
-import { NetworkContext, Address, H256 } from "../../types";
+import { Address, H256, NetworkContext } from "../../types";
 import {
-	Operation,
-	MultisigInput,
 	Abi,
+	CfFreeBalance,
 	CfNonce,
 	CfStateChannel,
-	CfFreeBalance
+	MultisigInput,
+	Operation
 } from "./types";
 import * as ethers from "ethers";
+import { BigNumber } from "ethers";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
-import { BigNumber } from "ethers";
 
 const TYPES = ["bytes1", "address", "address", "uint256", "bytes", "uint256"];
 
@@ -47,6 +47,7 @@ export class CfOpSetup extends CfMultiSendOp {
 	 */
 	eachMultisigInput(): Array<MultisigInput> {
 		return [
+			this.dependencyNonceInput(),
 			this.finalizeDependencyNonceInput(),
 			this.conditionalTransferInput()
 		];
@@ -55,13 +56,18 @@ export class CfOpSetup extends CfMultiSendOp {
 	conditionalTransferInput(): MultisigInput {
 		let terms = CfFreeBalance.terms();
 
+		const depNonceKey = ethers.utils.solidityKeccak256(
+			["address", "uint256"],
+			[this.multisig, this.dependencyNonce.salt]
+		);
+
 		let multisigCalldata = new ethers.Interface([
 			Abi.executeStateChannelConditionalTransfer
 		]).functions.executeStateChannelConditionalTransfer.encode([
 			this.ctx.Registry,
 			this.ctx.NonceRegistry,
-			this.nonce.salt,
-			this.nonce.nonce,
+			depNonceKey,
+			this.dependencyNonce.nonce,
 			this.freeBalanceStateChannel.cfAddress(),
 			[terms.assetType, terms.limit, terms.token]
 		]);

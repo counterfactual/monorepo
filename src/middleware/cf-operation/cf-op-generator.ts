@@ -79,7 +79,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			appChannel.cfApp.address,
 			appChannel.cfApp.applyAction,
 			appChannel.cfApp.resolve,
-			appChannel.cfApp.turn,
+			appChannel.cfApp.getTurnTaker,
 			appChannel.cfApp.isStateTerminal,
 			appChannel.cfApp.abiEncoding
 		);

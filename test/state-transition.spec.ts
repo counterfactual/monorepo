@@ -150,7 +150,7 @@ function validateInstallInfos(infos: StateChannelInfos) {
 	expect(stateChannel.freeBalance.bobBalance).toEqual(17);
 
 	let expectedCfAddr =
-		"0x25d87f7547fb5457de375e910217b9db08356a51bec068e7b0a849a97260aef5";
+		"0x401dd8c5a75425aff8bd81624b66f02eb6337ec94778cb6ef8c44161df4459bc";
 	let app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
 	let expectedSalt =
 		"0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
@@ -170,7 +170,7 @@ function validateInstallInfos(infos: StateChannelInfos) {
 	expect(app.cfApp.address).toEqual(APP_ADDRESS);
 	expect(app.cfApp.applyAction).toEqual(APPLY_ACTION);
 	expect(app.cfApp.resolve).toEqual(RESOLVE);
-	expect(app.cfApp.turn).toEqual(TURN);
+	expect(app.cfApp.getTurnTaker).toEqual(TURN);
 	expect(app.cfApp.isStateTerminal).toEqual(IS_STATE_TERMINAL);
 	expect(app.dependencyNonce.salt).toEqual(expectedSalt);
 	expect(app.dependencyNonce.nonce).toEqual(1);

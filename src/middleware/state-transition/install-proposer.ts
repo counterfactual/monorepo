@@ -31,7 +31,7 @@ export class InstallProposer {
 			data.app.address,
 			data.app.applyAction,
 			data.app.resolve,
-			data.app.turn,
+			data.app.getTurnTaker,
 			data.app.isStateTerminal,
 			data.app.abiEncoding
 		);

@@ -56,7 +56,7 @@ export class StateChannelClient {
 			address,
 			CfAppInterface.generateSighash(abiInterface, "applyAction"),
 			CfAppInterface.generateSighash(abiInterface, "resolve"),
-			CfAppInterface.generateSighash(abiInterface, "turn"),
+			CfAppInterface.generateSighash(abiInterface, "getTurnTaker"),
 			CfAppInterface.generateSighash(abiInterface, "isStateTerminal"),
 			abiEncoding
 		);
