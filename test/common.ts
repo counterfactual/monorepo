@@ -1,5 +1,5 @@
 import { ActionName, PeerBalance, ClientActionMessage } from "../src/types";
-import { MULTISIG_ADDRESS } from "./constants";
+import { MULTISIG_ADDRESS } from "./environment";
 import { ResponseStatus } from "../src/vm";
 import { TestWallet } from "./wallet/wallet";
 

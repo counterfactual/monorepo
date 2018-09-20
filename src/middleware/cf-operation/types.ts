@@ -210,7 +210,7 @@ export class CfFreeBalance {
 		// FIXME: Change implementation of free balance on contracts layer
 		return new Terms(
 			0, // 0 means ETH
-			100000000000000, // FIXME: un-hardcode
+			ethers.utils.parseEther("0.001").toNumber(), // FIXME: un-hardcode
 			zeroAddress
 		);
 	}

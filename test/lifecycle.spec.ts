@@ -19,7 +19,7 @@ import {
 	B_PRIVATE_KEY,
 	A_ADDRESS,
 	B_ADDRESS
-} from "./constants";
+} from "./environment";
 import { TestWallet } from "./wallet/wallet";
 
 /**
