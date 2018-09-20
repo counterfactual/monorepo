@@ -8,7 +8,7 @@ import {
 	B_PRIVATE_KEY,
 	A_ADDRESS,
 	B_ADDRESS
-} from "./constants";
+} from "./environment";
 import { SetupProtocol } from "./common";
 import { ethers } from "ethers";
 import { CfOpSetup } from "../src/middleware/cf-operation/cf-op-setup";

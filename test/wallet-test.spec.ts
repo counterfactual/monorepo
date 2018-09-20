@@ -16,7 +16,7 @@ import {
 	A_ADDRESS,
 	B_ADDRESS,
 	MULTISIG_ADDRESS
-} from "./constants";
+} from "./environment";
 import { sleep } from "./common";
 
 const PAYMENT_APP_ENCODING =

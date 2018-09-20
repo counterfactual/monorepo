@@ -19,7 +19,7 @@ import {
 import { CfState, Context, StateChannelInfoImpl } from "../src/state";
 import { Instruction } from "../src/instructions";
 
-import { MULTISIG_ADDRESS, A_ADDRESS, B_ADDRESS } from "./constants";
+import { MULTISIG_ADDRESS, A_ADDRESS, B_ADDRESS } from "./environment";
 import { TestWallet } from "./wallet/wallet";
 
 // install params

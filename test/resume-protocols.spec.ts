@@ -14,7 +14,7 @@ import {
 	A_PRIVATE_KEY,
 	B_ADDRESS,
 	B_PRIVATE_KEY
-} from "./constants";
+} from "./environment";
 import { StateTransition } from "../src/middleware/state-transition/state-transition";
 
 /**

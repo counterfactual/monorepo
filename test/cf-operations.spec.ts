@@ -1,19 +1,16 @@
 import { TestWallet } from "./wallet/wallet";
-import { ActionName,  InstallData, NetworkContext, PeerBalance, UpdateData ,
-	ClientActionMessage
-} from "../src/types";
-import {
-	CfAppInterface,
-	CfFreeBalance,
-	CfStateChannel,
-	Terms,
-} from "../src/middleware/cf-operation/types";
+import { ActionName, ClientActionMessage, InstallData, PeerBalance } from "../src/types";
+import { CfAppInterface, CfFreeBalance, CfStateChannel, Terms } from "../src/middleware/cf-operation/types";
 import * as ethers from "ethers";
 import { ResponseStatus } from "../src/vm";
-import { A_PRIVATE_KEY, B_PRIVATE_KEY, MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY ,
+import {
 	A_ADDRESS,
-	B_ADDRESS
-} from "./constants";
+	A_PRIVATE_KEY,
+	B_ADDRESS,
+	B_PRIVATE_KEY,
+	MULTISIG_ADDRESS,
+	MULTISIG_PRIVATE_KEY
+} from "./environment";
 import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
 import { sleep } from "./common";
 
@@ -35,7 +32,6 @@ export async function mineBlocks(
 	}
 }
 
-let masterWallet;
 describe("Setup Protocol", async function() {
 	jest.setTimeout(30000);
 
@@ -47,13 +43,15 @@ describe("Setup Protocol", async function() {
 	 * 4. The test checks whether everyone got back the money they deposited into the channel
 	 */
 	it("should have the correct funds on chain", async () => {
+		const depositAmount = ethers.utils.parseEther("0.0005").toNumber();
+
 		const walletA = new TestWallet();
 		walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
 		const walletB = new TestWallet();
 		walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
 		const network = walletA.network;
 
-		masterWallet = new TestWallet();
+		const masterWallet = new TestWallet();
 		masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
 		const ethersWalletA = walletA.currentUser.ethersWallet;
 		const ethersWalletB = walletB.currentUser.ethersWallet;
@@ -88,10 +86,15 @@ describe("Setup Protocol", async function() {
 		await setup(multisig.address, walletA, walletB);
 
 		// STEP 3 -- FUND THE MULTISIG
-		const balanceRefundAppId = await makeDeposits(
+		const {
+			cfAddr: balanceRefundAppId,
+			txFeeA: depositTxFeeA,
+			txFeeB: depositTxFeeB
+		} = await makeDeposits(
 			multisig.address,
 			walletA,
-			walletB
+			walletB,
+			depositAmount
 		);
 
 		// STEP 4 -- DEPLOY SIGNED COMMITMENT TO SET FREE BALANCE
@@ -204,11 +207,11 @@ describe("Setup Protocol", async function() {
 		// STEP 8 -- CONFIRM EXPECTED BALANCES
 		const endBalanceA = await ethersWalletA.getBalance();
 		const endBalanceB = await ethersWalletB.getBalance();
-		expect(endBalanceB.sub(startBalanceB).toString()).toEqual(
-			"50000000000000" // FIXME: un-hardcode
+		expect(endBalanceA.sub(startBalanceA).toNumber()).toEqual(
+			depositTxFeeA
 		);
-		expect(endBalanceA.sub(startBalanceA).toString()).toEqual(
-			"50000000000000" // FIXME: un-hardcode
+		expect(endBalanceB.sub(startBalanceB).toNumber()).toEqual(
+			depositTxFeeB
 		);
 	});
 });
@@ -297,22 +300,24 @@ function validateNoAppsAndFreeBalance(
 async function makeDeposits(
 	multisigAddr: string,
 	walletA: TestWallet,
-	walletB: TestWallet
-): Promise<string> {
-	await deposit(
+	walletB: TestWallet,
+	depositAmount: number
+): Promise<{cfAddr: string, txFeeA: number, txFeeB: number}> {
+	const {txFee: txFeeA} = await deposit(
 		multisigAddr,
 		walletA, // depositor
 		walletB, // counterparty
-		50000000000000, // amountToDeposit // FIXME: un-hardcode
+		depositAmount, // amountToDeposit
 		0 // counterpartyBalance
 	);
-	return deposit(
+	const {cfAddr, txFee: txFeeB} = await deposit(
 		multisigAddr,
 		walletB, // depositor
 		walletA, // counterparty
-		50000000000000, // amountToDeposit // FIXME: un-hardcode
-		50000000000000 // counterpartyBalance // FIXME: un-hardcode
+		depositAmount, // amountToDeposit
+		depositAmount // counterpartyBalance
 	);
+	return {cfAddr, txFeeA, txFeeB};
 }
 
 async function deposit(
@@ -321,14 +326,14 @@ async function deposit(
 	counterparty: TestWallet,
 	amountToDeposit: number,
 	counterpartyBalance: number
-): Promise<string> {
-	let cfAddr = await installBalanceRefund(
+): Promise<{cfAddr: string, txFee: number}> {
+	const cfAddr = await installBalanceRefund(
 		multisigAddr,
 		depositor,
 		counterparty,
 		counterpartyBalance
 	);
-	await depositOnChain(multisigAddr, depositor, amountToDeposit);
+	const txFee = await depositOnChain(multisigAddr, depositor, amountToDeposit);
 	await uninstallBalanceRefund(
 		multisigAddr,
 		cfAddr,
@@ -337,7 +342,7 @@ async function deposit(
 		amountToDeposit,
 		counterpartyBalance
 	);
-	return cfAddr;
+	return {cfAddr, txFee};
 }
 
 async function installBalanceRefund(
@@ -440,14 +445,16 @@ async function depositOnChain(
 	multisigAddress: string,
 	wallet: TestWallet,
 	value: number
-) {
-	// We use masterWallet here instead of `wallet`. If we used `wallet` we would
-	// have to calculate & subtract gas costs in the test assertion.
-	// FIXME: Use `wallet` instead
-	await masterWallet.currentUser.ethersWallet.sendTransaction({
+): Promise<number> {
+	const {ethersWallet} = wallet.currentUser;
+	const balanceBefore = await ethersWallet.getBalance();
+	await ethersWallet.sendTransaction({
 		to: multisigAddress,
 		value
 	});
+	const balanceAfter = await ethersWallet.getBalance();
+	// Calculate transaction fee
+	return balanceAfter.sub(balanceBefore).add(value).toNumber();
 }
 
 async function uninstallBalanceRefund(
