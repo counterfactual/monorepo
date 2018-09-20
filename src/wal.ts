@@ -29,7 +29,6 @@ export class CfVmWal {
 		let log = this.readLog();
 		log[this.logKey(record)] = record;
 		this.save(log);
-		console.log("wrote to the write ahead log");
 	}
 
 	private makeRecord(execution: ActionExecution): LogRecord {

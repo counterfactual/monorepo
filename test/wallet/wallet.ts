@@ -134,14 +134,6 @@ export class TestWallet implements ResponseSink {
 	 * Called When a peer wants to send an io messge to this wallet.
 	 */
 	receiveMessageFromPeer(incoming: ClientActionMessage) {
-		console.log(
-			"Receive from peer: " +
-				incoming.fromAddress +
-				", by: " +
-				incoming.toAddress,
-			incoming.action,
-			incoming.seq
-		);
 		this.currentUser.io.receiveMessageFromPeer(incoming);
 	}
 
@@ -277,7 +269,6 @@ export class TestWallet implements ResponseSink {
 					break;
 				}
 			}
-			console.log("incoming message", incoming);
 			this.sendResponseToClient(incoming);
 		}
 	}

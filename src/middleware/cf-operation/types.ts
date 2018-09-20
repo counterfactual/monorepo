@@ -85,14 +85,15 @@ export class CfAppInterface {
 	hash(): string {
 		if (this.address === "0x0") {
 			// FIXME:
-			console.error("WARNING: This won't work, my address is 0x0");
+			console.error(
+				"WARNING: Can't compute hash for AppInterface because its address is 0x0"
+			);
 			return ZERO_BYTES32;
 		}
 		const appBytes = ethers.utils.defaultAbiCoder.encode(
 			[
 				"tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
 			],
-			// ["address", "bytes4", "bytes4", "bytes4", "bytes4"],
 			[
 				{
 					addr: this.address,
@@ -215,7 +216,6 @@ export class CfFreeBalance {
 	}
 
 	static contractInterface(ctx: NetworkContext): CfAppInterface {
-		console.log(`remove this line: this should be not 0 --> ${ctx.PaymentApp}`);
 		let address = ctx.PaymentApp;
 		let applyAction = "0x00000000"; // not used
 		let resolver = new ethers.Interface([

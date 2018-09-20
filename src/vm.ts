@@ -100,7 +100,6 @@ export class CounterfactualVM implements Observable {
 	}
 
 	async execute(action: Action) {
-		console.log("Processing request: ", action);
 		let execution = action.makeExecution(this);
 		this.writeAheadLog.write(execution);
 		await this.run(execution);

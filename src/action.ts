@@ -31,10 +31,8 @@ export class Action {
 		this.isAckSide = isAckSide;
 
 		if (isAckSide) {
-			console.log("ack instructions", AckInstructions[action]);
 			this.instructions = AckInstructions[action];
 		} else {
-			console.log("instructions", Instructions[action], action);
 			this.instructions = Instructions[action];
 		}
 	}
@@ -72,7 +70,6 @@ export class ActionExecution {
 		}
 
 		let op = this.action.instructions[this.instructionPointer];
-		console.log("Executing op: ", Instruction[op], this.clientMessage.seq);
 		let internalMessage = new InternalMessage(
 			this.action.name,
 			op,

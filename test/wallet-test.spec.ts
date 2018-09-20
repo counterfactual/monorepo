@@ -398,7 +398,7 @@ function validateNoAppsAndFreeBalance(
 
 	let peerA = walletA.address;
 	let peerB = walletB.address;
-	if (peerB.localeCompare(peerA) < 0) {
+	if (peerB!.localeCompare(peerA!) < 0) {
 		let tmp = peerA;
 		peerA = peerB;
 		peerB = tmp;
