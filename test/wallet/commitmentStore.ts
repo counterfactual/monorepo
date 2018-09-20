@@ -168,9 +168,6 @@ export class CommitmentStore {
 			context.results
 		).value;
 
-		if (incomingMessage === undefined) {
-			console.log("undefined results = ", context.results);
-		}
 		let counterpartySignature = incomingMessage!.signature;
 		if (
 			counterpartySignature === undefined ||

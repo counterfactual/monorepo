@@ -130,7 +130,6 @@ export class ClientInterface implements Observable {
 	// TODO Add type here
 	processMessage(message: WalletMessage | WalletResponse | Notification) {
 		// TODO handle not finished states
-		console.log("processMessage", message);
 		if ("requestId" in message) {
 			if (this.outstandingRequests[message.requestId]) {
 				this.outstandingRequests[message.requestId].resolve(message);
@@ -147,7 +146,6 @@ export class ClientInterface implements Observable {
 		this.wallet.onMessage(
 			this.userId,
 			(message: WalletMessage | WalletResponse) => {
-				console.log("client received message", message);
 				this.processMessage(message);
 			}
 		);
@@ -162,7 +160,6 @@ export class ClientInterface implements Observable {
 
 		this.observerCallbacks.set(observerId, callback);
 		this.registerObserver(notificationType, callback);
-		console.log("registered observer");
 
 		let message = {
 			requestId: this.requestId(),

@@ -66,7 +66,6 @@ export class CfMiddleware {
 			} else {
 				// This is hacky, prevents next from being called more than once
 				counter++;
-				console.log(counter);
 				let middleware = middlewares[opCode][counter];
 				if (opCode === Instruction.ALL || middleware.scope === opCode) {
 					return middleware.method(msg, callback, context);

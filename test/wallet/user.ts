@@ -172,14 +172,8 @@ async function signMyUpdate(
 		Instruction.OP_GENERATE,
 		context.results
 	).value;
-	console.log(user.address + " is signing the digest");
 	const digest = operation.hashToSign();
-	console.log("signing digest = ", digest);
 	const sig = user.signer.signDigest(digest);
-	console.info("signing address: " + user.signer.address);
-	console.info(
-		"recovered address: " + ethers.utils.recoverAddress(digest, sig)
-	);
 	return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 
@@ -194,17 +188,11 @@ async function validateSignatures(
 		context.results
 	).value;
 	const digest = op.hashToSign();
-	console.log("validating signature on digest = ", digest);
 	let sig;
 	let expectedSigningAddress =
 		message.clientMessage.toAddress === user.address
 			? message.clientMessage.fromAddress
 			: message.clientMessage.toAddress;
-	console.log(
-		user.address +
-			" is validating signature for counterparty: " +
-			expectedSigningAddress
-	);
 	if (message.clientMessage.signature === undefined) {
 		// initiator
 		const incomingMessage = getLastResult(Instruction.IO_WAIT, context.results)
@@ -220,8 +208,6 @@ async function validateSignatures(
 		r: sig.r,
 		s: sig.s
 	});
-	console.log("recovered address: " + recoveredAddress);
-	console.log("expected address: " + expectedSigningAddress);
 	if (recoveredAddress !== expectedSigningAddress) {
 		// FIXME: handle this more gracefully
 		throw Error("Invalid signature");

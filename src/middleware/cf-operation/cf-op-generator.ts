@@ -40,7 +40,6 @@ export class EthCfOpGenerator extends CfOpGenerator {
 			context.results
 		).value;
 		let op;
-		console.log("Generating = ", message.actionName);
 		if (message.actionName === ActionName.UPDATE) {
 			op = this.update(message, context, cfState, proposedState.state);
 		} else if (message.actionName === ActionName.SETUP) {
