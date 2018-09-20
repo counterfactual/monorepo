@@ -16,10 +16,12 @@ Note: some data required for signature verification is *not* present in these me
 
 ## Commitments
 
-- the cryptographic *signature* over some hash representing the transaction to be executed
-- the *data* that allows any party in the channel to reconstruct the hash and thus verify the signature
+In our codebase, a `CfOperation` is a class that specifies a commitment type, in other word, a type of transaction. A given `CfOperation` will fix most of the structure of the transaction but accept a small number of parameters (passed into the constructor). Given a `CfOperation` instance, the `hashToSign` function will return a `bytes32` digest that all signatories must sign, and those signatures can be passed into the `transaction` function, to return a transaction.
 
 ## Commitment Structrue
+
+- the cryptographic *signature* over some hash representing the transaction to be executed
+- the *data* that allows any party in the channel to reconstruct the hash and thus verify the signature
 
 - **Transaction digest**.  The transaction digest is the hash that is signed by each party, enabling the protocol's transaction to be executed on-chain. The calldata, if present, is used to generate the digest.
 - **Transaction**. The transaction is the `(to, val, data, op)` tuple that a given protocol allows one to broadcast on-chain. These transactions enforce commitments created from the calldata and signature digests, manifesting the off-chain counterfactual state into the on-chain reality.
@@ -36,7 +38,6 @@ With this multisig, we can begin running the Counterfactual Protocols to update 
 
 ## Setup Protocol
 
-
 **Discussion:**
 
 The very first protocol every GSC must run is the Setup Protocol. As the name suggests, its purpose is to setup the counterfactual state so that later protocols can execute properly. Specifically, it exchanges a commitment allowing a special type of application to withdraw funds from the multisig. We call this application the Free Balance contract, representating the available funds for any new application to be installed into the GSC.
@@ -51,10 +52,10 @@ After discussing later protocols, we'll see how the Free Balance is a fundamenta
 
 **Handshake:**
 
-|A|B|
-|-|-|
-|`Setup`||
-||`SetupAck`|
+|A        |B          |
+|-        |-          |
+|`Setup`  |           |
+|         |`SetupAck` |
 
 **Message:**
 
