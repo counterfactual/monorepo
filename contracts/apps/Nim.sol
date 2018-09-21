@@ -57,7 +57,7 @@ contract Nim {
   function resolve(AppState state, Transfer.Terms terms)
     public
     pure
-    returns (Transfer.Details)
+    returns (Transfer.Transaction)
   {
     require(isWin(state));
     address loser = state.players[state.turnNum % 2];
@@ -70,9 +70,9 @@ contract Nim {
     address[] memory to = new address[](2);
     to[0] = loser;
     to[1] = winner;
-    bytes memory data; // = 0
+    bytes[] memory data; // = 0
 
-    return Transfer.Details(
+    return Transfer.Transaction(
       terms.assetType,
       terms.token,
       to,

@@ -39,7 +39,7 @@ contract CountingApp {
   function resolve(AppState state, Transfer.Terms terms)
     public
     pure
-    returns (Transfer.Details)
+    returns (Transfer.Transaction)
   {
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = terms.limit;
@@ -48,9 +48,9 @@ contract CountingApp {
     address[] memory to = new address[](2);
     to[0] = state.player1;
     to[1] = state.player2;
-    bytes memory data;
+    bytes[] memory data;
 
-    return Transfer.Details(
+    return Transfer.Transaction(
       terms.assetType,
       terms.token,
       to,

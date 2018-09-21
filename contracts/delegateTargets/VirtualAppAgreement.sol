@@ -9,7 +9,7 @@ import "../StateChannel.sol";
 
 contract VirtualAppAgreement {
 
-  using Transfer for Transfer.Details;
+  using Transfer for Transfer.Transaction;
   using Transfer for Transfer.Terms;
 
   struct Agreement {
@@ -41,7 +41,7 @@ contract VirtualAppAgreement {
     amount[1] = agreement.capitalProvided;
     bytes memory data;
 
-    Transfer.Details memory ret = Transfer.Details(
+    Transfer.Transaction memory ret = Transfer.Transaction(
       agreement.terms.assetType,
       agreement.terms.token,
       to,
@@ -49,7 +49,7 @@ contract VirtualAppAgreement {
       data
     );
 
-    ret.executeTransfer();
+    ret.execute();
 
   }
 

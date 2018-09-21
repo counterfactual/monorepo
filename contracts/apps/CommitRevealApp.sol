@@ -100,7 +100,7 @@ contract CommitRevealApp {
   function resolve(AppState state, Transfer.Terms terms)
     public
     pure
-    returns (Transfer.Details)
+    returns (Transfer.Transaction)
   {
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = terms.limit;
@@ -115,9 +115,9 @@ contract CommitRevealApp {
     }
     to[0] = state.playerAddrs[player];
 
-    bytes memory data;
+    bytes[] memory data;
 
-    return Transfer.Details(
+    return Transfer.Transaction(
       terms.assetType,
       terms.token,
       to,
