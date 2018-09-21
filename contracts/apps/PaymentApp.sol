@@ -25,7 +25,7 @@ contract PaymentApp {
     address[] memory to = new address[](2);
     to[0] = state.alice;
     to[1] = state.bob;
-    bytes[] memory data;
+    bytes[] memory data = new bytes[](2);
 
     return Transfer.Transaction(
       terms.assetType,

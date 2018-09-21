@@ -33,7 +33,7 @@ library Transfer {
   }
 
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
-  /// @param details A `Transfer.Transaction` struct
+  /// @param tx A `Transfer.Transaction` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
   function execute(Transfer.Transaction memory tx) public {
     for (uint256 i = 0; i < tx.to.length; i++) {
@@ -50,8 +50,7 @@ library Transfer {
 
   /// @notice Verifies whether or not a `Transfer.Transaction` meets the terms set by a
   /// `Transfer.Terms` object based on the limit information of how much can be transferred
-  /// @param details A `Transfer.Transaction` struct
-  /// @param details A `Transfer.Terms` struct
+  /// @param tx A `Transfer.Transaction` struct
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
     Transfer.Transaction memory tx,

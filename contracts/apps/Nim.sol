@@ -70,7 +70,7 @@ contract Nim {
     address[] memory to = new address[](2);
     to[0] = loser;
     to[1] = winner;
-    bytes[] memory data; // = 0
+    bytes[] memory data = new bytes[](2);
 
     return Transfer.Transaction(
       terms.assetType,

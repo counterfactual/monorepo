@@ -39,7 +39,7 @@ contract VirtualAppAgreement {
     uint256[] memory amount = new uint256[](2);
     amount[0] = agreement.capitalProvided;
     amount[1] = agreement.capitalProvided;
-    bytes memory data;
+    bytes[] memory data = new bytes[](2);
 
     Transfer.Transaction memory ret = Transfer.Transaction(
       agreement.terms.assetType,

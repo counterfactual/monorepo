@@ -94,7 +94,7 @@ contract TicTacToe {
 
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
-    bytes[] memory data; // = 0
+    bytes[] memory data = new bytes[](2);
 
     if (state.winner == 3) {
       amounts[0] = terms.limit / 2;

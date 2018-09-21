@@ -48,7 +48,7 @@ contract CountingApp {
     address[] memory to = new address[](2);
     to[0] = state.player1;
     to[1] = state.player2;
-    bytes[] memory data;
+    bytes[] memory data = new bytes[](2);
 
     return Transfer.Transaction(
       terms.assetType,

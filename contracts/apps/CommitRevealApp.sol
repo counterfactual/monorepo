@@ -115,7 +115,7 @@ contract CommitRevealApp {
     }
     to[0] = state.playerAddrs[player];
 
-    bytes[] memory data;
+    bytes[] memory data = new bytes[](2);
 
     return Transfer.Transaction(
       terms.assetType,
