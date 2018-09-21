@@ -50,6 +50,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Installation, Uininstallation and Dependency Nonces
 
+
+
 An app that is installed but not uninstalled is called an active app.
 
 ### Free Balance
@@ -60,11 +62,26 @@ State deposit that is not assigned to any other app is held in a special app cal
 
 ### Setup
 
+TBD
+
 ### Install
+
+The install commitment is a multisend that
+
+- sets the app dependency nonce to 1
+- sets the freebalance state to a new state with some balance removed
+- does a conditional transfer
 
 ### Update
 
+The update commitment sets the app state hash.
+
 ### Uninstall
+
+The uninstall commitment is a multisend that
+
+- sets the app dependency nonce to 2
+- sets the freebalance state to a new state with some balance added
 
 ## Roadmap
 
