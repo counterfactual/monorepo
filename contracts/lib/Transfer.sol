@@ -65,7 +65,7 @@ library Transfer {
     for (uint256 i = 0; i < details.amount.length; i++) {
       sum += details.amount[i];
     }
-    return sum == terms.limit;
+    return sum <= terms.limit;
   }
 
 }
