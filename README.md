@@ -1,8 +1,20 @@
-# specs
+# Specifications
 
-This repository contains specifications for the counterfactual protocols and contracts.
+[![](https://img.shields.io/badge/made%20by-L4-black.svg?style=flat-square)](http://l4v.io)
+[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-## Concepts
+> This repository contains the specs for the Counterfactual Protocol and associated subsystems.
+
+## Table of Contents
+
+- [Specs](#specs)
+- [Organization](#organization)
+- [Specs](#specs)
+- [Design](#design)
+- [Protocols](#protocols)
+- [Roadmap](#roadmap)
+
+## Specs
 
 For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
 
@@ -46,7 +58,7 @@ Many actions are simply delegate calls a contract in the `delegateTargets` folde
 
 A state channel application (app) is a collection of counterfactual state and functionality that holds the right to allocate some portion of the state deposit of the state channel that it belongs to. An example of a state channel app is a chess game. Multiple apps of the same type (e.g., multiple chess games) can be installed into the same channel.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md).
+See [architecture](architecture/README.md).
 
 ### Installation, Uininstallation and Dependency Nonces
 

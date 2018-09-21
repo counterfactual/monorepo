@@ -1,4 +1,16 @@
-# Protocol Message Format
+![](https://img.shields.io/badge/status-wip-orange.svg?style=flat-square) Counterfactual Protocols
+====================================================================================================
+
+Authors:
+
+- [Armani Ferrante](https://github.com/armaniferrante)
+- [Xuanji Li](https://github.com/ldct)
+
+Reviewers:
+
+- [Liam Horne](https://github.com/snario)
+
+* * *
 
 ## Protocols
 
@@ -32,7 +44,7 @@ Assume there exists a multisig shared by two parties, Alice and Bob.
 
 The state of our GSC looks like this (note everything above the line is "on-chain" and everything below the line is "off-chain"):
 
-![multisig](images/multisig.png)
+![multisig](../images/multisig.png)
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
 
@@ -44,7 +56,7 @@ The very first protocol every GSC must run is the Setup Protocol. As the name su
 
 Completing the Setup Protocol transitions the counterfactual state to
 
-![setup](images/setup.png)
+![setup](../images/setup.png)
 
 If the Free Balance is ever put on-chain, parties can receive the amounts specified in the Free Balance by broadcasting the **Transaction** enabled by the Setup Protocol. As of right now, there are no funds available for applications in our GSC, and so the Free Balance has a state of 0, 0.
 
@@ -152,7 +164,7 @@ Specifically, the commitment is a signature enabling a *multi-send* transaction 
 
 In other words, running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
-![install](images/install.png)
+![install](../images/install.png)
 
 Notice how the funds move out of the free balance and into the tic-tac-toe application. As mentioned before, it is an invariant of the system that the sum of both the free balance and all installed applications equals the amount deposited in the multisig.
 
@@ -298,7 +310,7 @@ And so as the underlying state of the application changes, the result of the pay
 
 Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alice would run the Update Protocol, transitioning our state to
 
-![update](images/update.png)
+![update](../images/update.png)
 
 Notice how both the board changes and the *local* nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 
@@ -388,7 +400,7 @@ Now, both parties could simply broadcast the application on chain, wait the disp
 
 Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declaring X the winner. If Alice runs the Uninstall Protocol, then the Counterfactual state transitions to
 
-![uninstall](images/uninstall.png)
+![uninstall](../images/uninstall.png)
 
 Notice the two operations here:
 
