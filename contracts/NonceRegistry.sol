@@ -94,7 +94,7 @@ contract NonceRegistry {
     return true;
   }
 
-  function nonceIsSet(bytes32 key) public returns (bool) {
+  function isNonceSet(bytes32 key) public returns (bool) {
     return table[key].finalizesAt > 0;
   }
 
