@@ -9,7 +9,7 @@ The framework code lives in more places. We know that in case of a dispute, indi
 
 The layout of this storage is defined in `StateChannel.sol`. The application-specific state is stored through the `StateChannel.state.appStateHash` storage field. This is a hash of the application-specific state (aka “app state”), whose data structure is defined by the dapp developer (e.g. see `PaymentApp::AppState`). When the current app state needs to actually be read, it must be passed in as an argument, and the framework code ensures that the hash matches; this way, the app state is only ever stored in calldata/stack/memory, never storage, saving gas.
 
-Upon conclusion of a dispute, apps return a struct called `Transfer.Details`, which specifies what happens to the state deposit assigned to the app. For state deposits which are ether and ERC20 tokens, the framework ensures that the returned transfer details transfer less tokens than a precomitted `Transfer.Terms`, allowing us to limit the impact of bugs in application code.
+Upon conclusion of a dispute, apps return a struct called `Transfer.Transaction`, which specifies what happens to the state deposit assigned to the app. For state deposits which are ether and ERC20 tokens, the framework ensures that the returned transfer details transfer less tokens than a precomitted `Transfer.Terms`, allowing us to limit the impact of bugs in application code.
 
 ## App Interface
 
@@ -20,7 +20,7 @@ Up to four functions can be implemented. The signatures are as follows:
 - `isStateTerminal: AppState → bool`
 - `getTurnTaker: AppState → uint256`
 - `applyAction: (AppState, Action) → AppState`
-- `resolve: AppState → Transfer.Details`
+- `resolve: AppState → Transfer.Transaction`
 
 In designing the framework we must try to achieve two sometimes contradictory goals. One the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
 
@@ -38,7 +38,7 @@ If `AppState` defines the data structure needed to represent the state of an app
 
 ### resolve
 
-From certain app states, `resolve` can be called to return a value of type `struct Transfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
+From certain app states, `resolve` can be called to return a value of type `struct Transfer.Transaction` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
 ![resolve](./images/resolve.svg)
 
@@ -97,7 +97,7 @@ These functions contain docstrings docummenting their purpose and what states th
 ```
 Auth public auth;
 State public state;
-Transfer.Details public resolution;
+Transfer.Transaction public resolution;
 bytes32 private appHash;
 bytes32 private termsHash;
 uint256 private defaultTimeout;
@@ -141,7 +141,7 @@ This specifies the four functions that define an app by specifying the contract 
 
 ### resolution
 
-An instance of the struct `Transfer.Details`
+An instance of the struct `Transfer.Transaction`
 
 ```
 struct Details {
@@ -155,7 +155,7 @@ struct Details {
 
 This struct represents a locked blockchain state ("state deposit") such as eth, erc20, or any other arbitrary right. `assetType` describes common classes such as eth. State deposits that do not fit into a predefined type will be represented by an `OTHER` type which specifies an address and a message call to the address.
 
-When a dispute is resolved, this storage field is set to an instance of `Transfer.Details`, which specifies what happens the state deposit assigned to the app (e.g., given to the winner).
+When a dispute is resolved, this storage field is set to an instance of `Transfer.Transaction`, which specifies what happens the state deposit assigned to the app (e.g., given to the winner).
 
 ### termsHash
 

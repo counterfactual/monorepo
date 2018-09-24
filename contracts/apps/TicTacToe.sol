@@ -88,13 +88,13 @@ contract TicTacToe {
   function resolve(AppState state, Transfer.Terms terms)
     public
     pure
-    returns (Transfer.Details)
+    returns (Transfer.Transaction)
   {
     require(state.winner != 0);
 
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
-    bytes memory data; // = 0
+    bytes[] memory data = new bytes[](2);
 
     if (state.winner == 3) {
       amounts[0] = terms.limit / 2;
@@ -103,7 +103,7 @@ contract TicTacToe {
       to[0] = state.players[0];
       to[1] = state.players[1];
 
-      return Transfer.Details(
+      return Transfer.Transaction(
         terms.assetType,
         terms.token,
         to,
@@ -121,7 +121,7 @@ contract TicTacToe {
       to[0] = winner;
       to[1] = loser;
 
-      return Transfer.Details(
+      return Transfer.Transaction(
         terms.assetType,
         terms.token,
         to,

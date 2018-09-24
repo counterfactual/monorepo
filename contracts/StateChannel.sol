@@ -10,7 +10,7 @@ import "./lib/Transfer.sol";
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports the adjudication and timeout guarantees required by state channel
 /// applications to be secure in a gas and storage-optimized manner. Resolves to a
-/// `Transfer.Details` when the channel is closed.
+/// `Transfer.Transaction` when the channel is closed.
 contract StateChannel {
 
   using StaticCall for address;
@@ -73,7 +73,7 @@ contract StateChannel {
 
   Auth public auth;
   State public state;
-  Transfer.Details public resolution;
+  Transfer.Transaction public resolution;
 
   bytes32 private appHash;
   bytes32 private termsHash;
@@ -145,8 +145,8 @@ contract StateChannel {
   }
 
   /// @notice A getter function for the resolution if one is set
-  /// @return A `Transfer.Details` object representing the resolution of the channel
-  function getResolution() public view returns (Transfer.Details) {
+  /// @return A `Transfer.Transaction` object representing the resolution of the channel
+  function getResolution() public view returns (Transfer.Transaction) {
     return resolution;
   }
 
@@ -526,11 +526,11 @@ contract StateChannel {
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
-  /// @return A `Transfer.Details` struct with all encoded information of the resolution
+  /// @return A `Transfer.Transaction` struct with all encoded information of the resolution
   function getAppResolution(App app, bytes appState, bytes terms)
     private
     view
-    returns (Transfer.Details)
+    returns (Transfer.Transaction)
   {
     return app.addr.staticcall_as_TransferDetails(
       abi.encodePacked(app.resolve, appState, terms)

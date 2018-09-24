@@ -14,16 +14,16 @@ import "../StateChannel.sol";
 /// @notice Supports a complex transfer of funds contingent on some condition.
 contract ConditionalTransfer is Conditional {
 
-  using Transfer for Transfer.Details;
+  using Transfer for Transfer.Transaction;
 
   function executeSimpleConditionalTransfer(
     Condition condition,
-    Transfer.Details memory details
+    Transfer.Transaction memory tx
   )
     public
   {
     require(Conditional.isSatisfied(condition));
-    details.executeTransfer();
+    tx.execute();
   }
 
   /// @notice Execute a fund transfer for a state channel in a finalized state
@@ -48,14 +48,14 @@ contract ConditionalTransfer is Conditional {
 
     address channelAddr = Registry(registry).resolver(channelCfAddress);
     StateChannel channel = StateChannel(channelAddr);
-    Transfer.Details memory details = channel.getResolution();
+    Transfer.Transaction memory tx = channel.getResolution();
 
     require(
-      Transfer.meetsTerms(details, terms),
+      Transfer.meetsTerms(tx, terms),
       "Transfer details do not meet terms"
     );
 
-    details.executeTransfer();
+    tx.execute();
   }
 
 }
