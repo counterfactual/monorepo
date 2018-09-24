@@ -94,6 +94,10 @@ contract NonceRegistry {
     return true;
   }
 
+  function isNonceSet(bytes32 key) external view returns (bool) {
+    return table[key].finalizesAt > 0;
+  }
+
   /// @notice Set a nonce in the mapping.
   /// Trigger the timeout period to begin if the nonce is set for the first time.
   /// @param salt A salt used to generate the nonce key
