@@ -58,7 +58,7 @@ Completing the Setup Protocol transitions the counterfactual state to
 
 ![setup](../images/setup.png)
 
-If the Free Balance is ever put on-chain, parties can receive the amounts specified in the Free Balance by broadcasting the **Transaction** enabled by the Setup Protocol. As of right now, there are no funds available for applications in our GSC, and so the Free Balance has a state of 0, 0.
+If the Free Balance is ever put on-chain, parties can receive the amounts specified in the Free Balance by broadcasting the transaction commitment produced by the Setup Protocol. As of right now, there are no funds available for applications in our GSC, and so the Free Balance has a state of 0, 0.
 
 After discussing later protocols, we'll see how the Free Balance is a fundamental accounting mechanism that allows our GSC construction to maintain a *conservation of balances* across state channel applications, so that the sum of all funds in the free balance and all installed applications is equal to the amount of funds deposited in the multisig.
 
@@ -74,79 +74,30 @@ After discussing later protocols, we'll see how the Free Balance is a fundamenta
 ```typescript
 let Setup = {
   protocol: 0x01,
-  multisig: Address,
+  multisig: address,
   data: None,
-  from: 0xAlice,
-  to: 0xBob,
+  fromAddress: address,
+  toAddress: address,
   seq: 0,
   signature: Signature_Alice,
 }
 let SetupAck = {
   protocol: 0x01,
-  multisig: Address,
+  multisig: address,
   data: None,
-  fromAddress: Bob,
-  toAddress: Alice,
+  fromAddress: address,
+  toAddress: address,
   seq: 1,
   signature: Signature_Bob,
 }
+
+Setup.fromAddress === SetupAck.toAddress;
+Setup.toAddress === SetupAck.fromAddress;
 ```
 
 Unlike the rest of the protocols, there is no extra message data for the Setup protocol because it is deterministic. It always installs a Free Balance contract with starting balances of 0, and so no extra data is required to be passed in from outside the context of the protocol execution.
 
-**Calldata:**
-
-```typescript
-// todo: needs to be a proxyDelegateCall through the reigstry
-//       with the withdraw as calldata
-//       update once the free balance code is updated
-let calldata = new ethers.Interface([
-	"withdraw()"
-]).functions.setNonce.encode([]);
-```
-
-This calldata is expected to be invoked by the multisig's [`execTransaction`](https://github.com/counterfactual/contracts/blob/develop/contracts/MinimumViableMultisig.sol#L55)  in the context of a delegate call, thereby sending funds from the multisig to its rightful owners by inspecting the state of the Free Balance contract and `transfer`ing the funds.
-
-**Signature Digest:**
-
-```typescript
-let digest = ethers.utils.solidityKeccak256(
-  ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-  [
-    "0x19",
-	this.multisig,
-	REGISTRY, // to (global contract)
-	0,        // val
-	calldata, // data
-	1         // op (delegatecall)
-  ]
-);
-```
-
-Once all parties in the channel have signed the digest, we can invoke the transaction to withdraw the funds at any time. Specifically,
-
-**Transaction:**
-
-```typescript
-function multisigExecTransaction(calldata) {
-    let to = Setup.multisig;
-    let val = 0;
-    let data = new ethers.Interface([
-        "execTransaction(address,uint256,bytes,uint256,bytes)"
-    ]).functions.execTransaction.encode([
-        REGISTRY_ADDRESS,  // to
-        0,                  // val
-        calldata,
-        1,                  // delegatecall
-        Signature.toBytes(signatures)
-    ]);
-    let op = call;
-    return {
-        to, val, data, op
-    }
-}
-let transaction = multisigExecTransaction(calldata);
-```
+**Commitment Format**
 
 ## Install Protocol
 
@@ -170,135 +121,57 @@ Notice how the funds move out of the free balance and into the tic-tac-toe appli
 
 **Handshake:**
 
-|A|B|
-|-|-|
-|`Install`||
-||`InstallAck`|
+|A          |B            |
+|-          |-            |
+|`Install`  |             |
+|           |`InstallAck` |
 
 **Message:**
 
 ```typescript
-/**
- * 1,2 refers to the "canonical" order of the peers, i.e., the
- * lexicographic sorted order of addresses.
- */
+CfAppInterface = tbd; 
+// (app_address, reducer_sighash, resolver_sighash,
+//  turntaker_sighash, is_state_final_sighash)
+PeerBalance = {
+  address: address,
+  balance: uint256
+}
 InstallData = {
-  peer1: PeerBalance,  // (address, free_balance_deduction)
+  peer1: PeerBalance, 
   peer2: PeerBalance,
-  keyA: Address,       // app-specific ephemeral key
-  keyB: Address,
+  keyA: address,       // app-specific ephemeral key
+  keyB: address,
   terms: Terms,        // (asset_type, limit, token_address)
-  app: CfAppInterface, // (app_address, reducer_sighash, resolver_sighash,
-                       //  turntaker_sighash, is_state_final_sighash)
+  app: CfAppInterface, 
   timeout: number,
 }
 Install = {
   protocol: 0x02,
-  multisig: Address,
+  multisig: address,
   data: InstallData,
-  from: 0xAlice,
-  to: 0xBob,
+  fromAddress: address,
+  toAddress: address,
   seq: 0,
   signature: Signature_Alice,
 }
 InstallAck = {
   protocol: 0x02,
-  multisig: Address,
+  multisig: address,
   data: InstallData,
-  fromAddress: Bob,
-  toAddress: Alice,
+  fromAddress: address,
+  toAddress: address,
   seq: 1,
   signature: Signature_Bob,
 }
+
+Install.fromAddress === InstallAck.toAddress;
+Install.toAddress === InstallAck.fromAddress;
+InstallData.peer1.address < InstallData.peer2.address;
 ```
 
-**Calldata:**
+**Commitment Format:**
 
-```typescript
-// first build the individual transactions
-let free_balance_update = {
-	op: 0, // Call
-	to: FREE_BALANCE_ADDRESS,
-	val: 0,
-	data: // todo: update once we rewrite free balance without cond transfer
-}
-let set_nonce_registry = {
-	op: 0, // Call
-	to: NONCE_REGISTRY_ADDRESS,
-	val: 0,
-	data: new ethers.Interface([Abi.setNonce]).functions.setNonce.encode([
-		APP_NUMBER_ID, // k if this application is the kth installed application
-		1
-	]);
-}
-
-// Counterfactual Address of the application, specifically, the
-// StateChannel.sol object.
-let cfAddress = ethers.utils.solidityKeccak256(
-	["bytes1", "bytes", "uint256"],
-    ["0x19", StateChannel.initcode, APP_NUMBER_ID]
-);
-let conditional_transfer = {
-	op: 1, // Delegatecall
-	to: FREE_BALANCE_ADDRESS,
-	val: 0,
-	data: new ethers.Interface([
-			Abi.executeStateChannelConditionalTransfer
-		]).functions.executeStateChannelConditionalTransfer.encode([
-			REGISTRY_ADDRESS,
-			NONCE_REGISTRY_ADDRESS,
-	        APP_NUMBER_ID, // k if this application is the kth installed application
-			1,
-			cfAddress,
-			InstallData.terms
-		])
-}
-let transactions = [free_balance_update, set_nonce_registry, conditional_transfer];
-
-// now construct the multisend
-let calldata = () => {
-	let txs: string = "0x";
-	for (let i = 0; i < transactions.length; i++) {
-		txs += ethers.utils.defaultAbiCoder
-			.encode(
-				["tuple(uint256,address,uint256,bytes)"],
-				[
-				   	[
-				   		transactions[i].op,
-			   			transactions[i].to,
-		   				transactions[i].val,
-	   					transactions[i].data
-   					]
-				]
-			)
-		   	.substr(2);
-	}
-    return txs
-}
-```
-
-**Signature digest:**
-
-```typescript
-let digest = ethers.utils.solidityKeccak256(
-  ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-  [
-    "0x19",
-	this.multisig,
-	MULTISEND_ADDRESS, // to (global contract)
-	0,                 // val
-	calldata,          // data
-	1                  // op (delegatecall)
-  ]
-);
-```
-
-**Transaction:**
-
-```typescript
-// see Setup for the definition of multisigExecTransaction
-let transaction = multisigExecTransaction(calldata);
-```
+TBD
 
 ## Update Protocol
 
