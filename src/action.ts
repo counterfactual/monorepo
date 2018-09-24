@@ -89,9 +89,9 @@ export class ActionExecution {
 			return { value, done: false };
 		} catch (e) {
 			throw Error(
-				`Failed to execute op ${Instruction[op]} at seq ${
+				`While executing op ${Instruction[op]} at seq ${
 					this.clientMessage.seq
-				}. Error: ${e}`
+				}, execution failed with the following error. ${e.stack}`
 			);
 		}
 	}
