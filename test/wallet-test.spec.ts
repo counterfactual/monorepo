@@ -35,13 +35,16 @@ const INSTALL_OPTIONS = {
 
 class ClientWalletBridge implements WalletMessaging {
 	wallet: TestWallet;
+
 	constructor(wallet: TestWallet) {
 		this.wallet = wallet;
 	}
+
 	postMessage(message: ClientActionMessage, to: string) {
 		// TODO move this into a setTimeout to enfore asyncness of the call
 		this.wallet.receiveMessageFromClient(message);
 	}
+
 	onMessage(userId: string, callback: Function) {
 		this.wallet.onResponse(callback);
 	}

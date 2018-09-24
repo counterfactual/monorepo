@@ -34,6 +34,7 @@ abstract class SetupProtocolTestCase {
 	walletA: TestWallet;
 	walletB: TestWallet;
 	executedInstructions: Instruction[];
+
 	constructor() {
 		this.db = new MemDb();
 		this.walletA = new TestWallet();
@@ -44,6 +45,7 @@ abstract class SetupProtocolTestCase {
 		this.walletB.currentUser.io.peer = this.walletA;
 		this.executedInstructions = [];
 	}
+
 	async run() {
 		this.setupWallet(this.walletA, true);
 		let resp = await this.walletA.runProtocol(this.msg());
@@ -67,7 +69,9 @@ abstract class SetupProtocolTestCase {
 		this.setupWallet(walletA2, false);
 		await walletA2.currentUser.vm.resume();
 	}
+
 	abstract setupWallet(wallet: TestWallet, shouldError: boolean);
+
 	/**
 	 * @returns the msg to start the setup protocol.
 	 */
@@ -84,7 +88,9 @@ abstract class SetupProtocolTestCase {
 			seq: 0
 		};
 	}
+
 	abstract description(): string;
+
 	abstract validate();
 }
 
@@ -106,7 +112,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 		// error out if needed
 		wallet.currentUser.vm.middleware.middlewares[
 			Instruction.STATE_TRANSITION_PROPOSE
-		] = [];
+			] = [];
 		wallet.currentUser.vm.middleware.add(
 			Instruction.STATE_TRANSITION_PROPOSE,
 			async (message: InternalMessage, next: Function, context: Context) => {
@@ -207,7 +213,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 		// error out if needed
 		wallet.currentUser.vm.middleware.middlewares[
 			Instruction.STATE_TRANSITION_COMMIT
-		] = [];
+			] = [];
 		wallet.currentUser.vm.middleware.add(
 			Instruction.STATE_TRANSITION_COMMIT,
 			async (message: InternalMessage, next: Function, context: Context) => {
@@ -239,6 +245,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 		);
 	}
 }
+
 describe("Resume protocols", () => {
 	const testCases = [
 		new ResumeFirstInstructionTest(),

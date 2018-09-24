@@ -27,6 +27,6 @@
 		],
 		"strict": true
 	},
-	"include": ["src/**/*.ts", "test/**/*.ts", "cf.js/**/*.ts"],
+	"include": ["src/*.ts", "src/**/*.ts", "test/**/*.ts", "cf.js/**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

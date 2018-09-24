@@ -1,34 +1,34 @@
 import { CfState, Context } from "../../state";
 import {
-	Address,
-	H256,
-	UpdateData,
-	InternalMessage,
-	StateChannelInfos,
-	StateProposal
+  Address,
+  H256,
+  InternalMessage,
+  StateChannelInfos,
+  StateProposal,
+  UpdateData
 } from "../../types";
 
 export class UpdateProposer {
-	static propose(
-		message: InternalMessage,
-		context: Context,
-		state: CfState
-	): StateProposal {
-		let multisig: Address = message.clientMessage.multisigAddress;
-		let channels = state.stateChannelInfosCopy();
+  public static propose(
+    message: InternalMessage,
+    context: Context,
+    state: CfState
+  ): StateProposal {
+    const multisig: Address = message.clientMessage.multisigAddress;
+    const channels = state.stateChannelInfosCopy();
 
-		if (message.clientMessage.appId === undefined) {
-			throw "update message must have appId set";
-		}
+    if (message.clientMessage.appId === undefined) {
+      throw new Error("update message must have appId set");
+    }
 
-		let appId: H256 = message.clientMessage.appId;
-		let updateData: UpdateData = message.clientMessage.data;
+    const appId: H256 = message.clientMessage.appId;
+    const updateData: UpdateData = message.clientMessage.data;
 
-		let app = channels[multisig].appChannels[appId];
-		app.appStateHash = updateData.appStateHash;
-		app.encodedState = updateData.encodedAppState;
-		app.localNonce += 1;
+    const app = channels[multisig].appChannels[appId];
+    app.appStateHash = updateData.appStateHash;
+    app.encodedState = updateData.encodedAppState;
+    app.localNonce += 1;
 
-		return { state: channels };
-	}
+    return { state: channels };
+  }
 }
