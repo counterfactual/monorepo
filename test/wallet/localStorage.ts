@@ -1,51 +1,53 @@
 export class LocalStoragePolyfill {
-	inMemoryStorage: object;
+  public inMemoryStorage: object;
 
-	constructor() {
-		this.inMemoryStorage = {};
-	}
+  constructor() {
+    this.inMemoryStorage = {};
+  }
 
-	setItem(key: string, value: any) {
-		return (this.inMemoryStorage[key] = value);
-	}
+  public setItem(key: string, value: any) {
+    return (this.inMemoryStorage[key] = value);
+  }
 
-	getItem(key: string) {
-		return this.inMemoryStorage[key];
-	}
+  public getItem(key: string) {
+    return this.inMemoryStorage[key];
+  }
 }
 
 export interface LocalStorage {
-	get(key: string);
-	put(key: string, value: object);
-	has(key: string);
+  get(key: string);
+
+  put(key: string, value: object);
+
+  has(key: string);
 }
 
 export function getLocalStorage() {
-	try {
-		// localStorage is not available in Node
-		// @ts-ignore
-		return window.localStorage;
-	} catch (e) {
-		return new LocalStoragePolyfill();
-	}
+  try {
+    // localStorage is not available in Node
+    // @ts-ignore
+    return window.localStorage;
+  } catch (e) {
+    return new LocalStoragePolyfill();
+  }
 }
 
 export class LocalStorageImpl implements LocalStorage {
-	localStorage;
+  public localStorage;
 
-	constructor() {
-		this.localStorage = getLocalStorage();
-	}
+  constructor() {
+    this.localStorage = getLocalStorage();
+  }
 
-	get(key: string) {
-		return JSON.parse(this.localStorage.getItem(key) || "");
-	}
+  public get(key: string) {
+    return JSON.parse(this.localStorage.getItem(key) || "");
+  }
 
-	put(key: string, value: object) {
-		return this.localStorage.setItem(key, JSON.stringify(value));
-	}
+  public put(key: string, value: object) {
+    return this.localStorage.setItem(key, JSON.stringify(value));
+  }
 
-	has(key: string): boolean {
-		return this.localStorage.getItem(key) !== null;
-	}
+  public has(key: string): boolean {
+    return this.localStorage.getItem(key) !== null;
+  }
 }

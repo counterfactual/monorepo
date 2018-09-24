@@ -302,22 +302,22 @@ async function makeDeposits(
 	walletA: TestWallet,
 	walletB: TestWallet,
 	depositAmount: number
-): Promise<{cfAddr: string, txFeeA: number, txFeeB: number}> {
-	const {txFee: txFeeA} = await deposit(
+): Promise<{ cfAddr: string, txFeeA: number, txFeeB: number }> {
+	const { txFee: txFeeA } = await deposit(
 		multisigAddr,
 		walletA, // depositor
 		walletB, // counterparty
 		depositAmount, // amountToDeposit
 		0 // counterpartyBalance
 	);
-	const {cfAddr, txFee: txFeeB} = await deposit(
+	const { cfAddr, txFee: txFeeB } = await deposit(
 		multisigAddr,
 		walletB, // depositor
 		walletA, // counterparty
 		depositAmount, // amountToDeposit
 		depositAmount // counterpartyBalance
 	);
-	return {cfAddr, txFeeA, txFeeB};
+	return { cfAddr, txFeeA, txFeeB };
 }
 
 async function deposit(
@@ -326,7 +326,7 @@ async function deposit(
 	counterparty: TestWallet,
 	amountToDeposit: number,
 	counterpartyBalance: number
-): Promise<{cfAddr: string, txFee: number}> {
+): Promise<{ cfAddr: string, txFee: number }> {
 	const cfAddr = await installBalanceRefund(
 		multisigAddr,
 		depositor,
@@ -342,7 +342,7 @@ async function deposit(
 		amountToDeposit,
 		counterpartyBalance
 	);
-	return {cfAddr, txFee};
+	return { cfAddr, txFee };
 }
 
 async function installBalanceRefund(
@@ -446,7 +446,7 @@ async function depositOnChain(
 	wallet: TestWallet,
 	value: number
 ): Promise<number> {
-	const {ethersWallet} = wallet.currentUser;
+	const { ethersWallet } = wallet.currentUser;
 	const balanceBefore = await ethersWallet.getBalance();
 	await ethersWallet.sendTransaction({
 		to: multisigAddress,

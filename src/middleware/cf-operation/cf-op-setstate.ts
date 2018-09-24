@@ -1,73 +1,73 @@
 import * as ethers from "ethers";
+import { Address, NetworkContext, Signature } from "../../types";
 import * as common from "./common";
 import {
-	CfAppInterface,
-	Terms,
-	Transaction,
-	CfOperation,
-	CfStateChannel
+  CfAppInterface,
+  CfOperation,
+  CfStateChannel,
+  Terms,
+  Transaction
 } from "./types";
-import { NetworkContext, Address, Signature } from "../../types";
 
 export class CfOpSetState extends CfOperation {
-	constructor(
-		readonly ctx: NetworkContext,
-		readonly multisig: Address,
-		readonly signingKeys: Address[],
-		readonly appStateHash: string,
-		readonly appUniqueId: number,
-		readonly terms: Terms,
-		readonly app: CfAppInterface,
-		readonly appLocalNonce: number,
-		readonly timeout: number
-	) {
-		super();
-	}
+  constructor(
+    readonly ctx: NetworkContext,
+    readonly multisig: Address,
+    readonly signingKeys: Address[],
+    readonly appStateHash: string,
+    readonly appUniqueId: number,
+    readonly terms: Terms,
+    readonly app: CfAppInterface,
+    readonly appLocalNonce: number,
+    readonly timeout: number
+  ) {
+    super();
+  }
 
-	hashToSign(): string {
-		return ethers.utils.solidityKeccak256(
-			["bytes1", "address[]", "uint256", "uint256", "bytes32"],
-			[
-				"0x19",
-				this.signingKeys,
-				this.appLocalNonce,
-				this.timeout,
-				this.appStateHash
-			]
-		);
-	}
+  public hashToSign(): string {
+    return ethers.utils.solidityKeccak256(
+      ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+      [
+        "0x19",
+        this.signingKeys,
+        this.appLocalNonce,
+        this.timeout,
+        this.appStateHash
+      ]
+    );
+  }
 
-	/**
-	 * @returns a tx that executes a proxyCall through the registry to call
-	 *          `setState` on StateChannel.sol.
-	 */
-	transaction(sigs: Signature[]): Transaction {
-		let appCfAddr = new CfStateChannel(
-			this.ctx,
-			this.multisig,
-			this.signingKeys,
-			this.app,
-			this.terms,
-			this.timeout,
-			this.appUniqueId
-		).cfAddress();
-		let to = this.ctx.Registry;
-		let val = 0;
-		let data = common.proxyCallSetStateData(
-			this.appStateHash,
-			appCfAddr,
-			this.appLocalNonce,
-			this.timeout,
-			Signature.toBytes(sigs),
-			this.ctx.Registry
-		);
-		return new Transaction(to, val, data);
-	}
+  /**
+   * @returns a tx that executes a proxyCall through the registry to call
+   *          `setState` on StateChannel.sol.
+   */
+  public transaction(sigs: Signature[]): Transaction {
+    const appCfAddr = new CfStateChannel(
+      this.ctx,
+      this.multisig,
+      this.signingKeys,
+      this.app,
+      this.terms,
+      this.timeout,
+      this.appUniqueId
+    ).cfAddress();
+    const to = this.ctx.Registry;
+    const val = 0;
+    const data = common.proxyCallSetStateData(
+      this.appStateHash,
+      appCfAddr,
+      this.appLocalNonce,
+      this.timeout,
+      Signature.toBytes(sigs),
+      this.ctx.Registry
+    );
+    return new Transaction(to, val, data);
+  }
 
-	// not slated for this sprint, since we are only focusing on unanimous consent
-	// and not unilateral moves
-	disputeWithUnilateralAction(sig: Signature): Transaction {
-		// todo
-		return Object.create(Transaction);
-	}
+  // not slated for this sprint, since we are only focusing on unanimous consent
+  // and not unilateral moves
+  public disputeWithUnilateralAction(sig: Signature): Transaction {
+    // todo
+    return Object.create(Transaction);
+  }
 }

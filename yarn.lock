@@ -16,9 +16,9 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@counterfactual/configs@https://github.com/counterfactual/configs.git#3f4cdd1cc203ad5cc7a11ab2e87fba9a77eaa482":
+"@counterfactual/configs@https://github.com/counterfactual/configs.git#ca1f53e":
   version "0.0.1"
-  resolved "https://github.com/counterfactual/configs.git#3f4cdd1cc203ad5cc7a11ab2e87fba9a77eaa482"
+  resolved "https://github.com/counterfactual/configs.git#ca1f53eb1ee93eae8d21bc831beb010ddcedfab0"
   dependencies:
     prettier "1.14.2"
     tslint "5.11.0"

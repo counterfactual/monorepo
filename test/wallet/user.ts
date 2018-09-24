@@ -1,161 +1,164 @@
 import * as ethers from "ethers";
 
-import { Context } from "../../src/state";
-import { CounterfactualVM, CfVmConfig } from "../../src/vm";
-import {
-	ResponseSink,
-	ClientActionMessage,
-	ChannelStates,
-	InternalMessage,
-	Notification,
-	WalletResponse,
-	Signature,
-	NetworkContext
-} from "../../src/types";
-import { CfVmWal, MemDb, SyncDb } from "../../src/wal";
-import { IoProvider } from "./ioProvider";
 import { Instruction } from "../../src/instructions";
 import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
-import { applyMixins } from "../../src/mixins/apply";
-import { Observable, NotificationType } from "../../src/mixins/observable";
-import { TestWallet } from "./wallet";
 import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
+import { applyMixins } from "../../src/mixins/apply";
+import { NotificationType, Observable } from "../../src/mixins/observable";
+import { Context } from "../../src/state";
+import {
+  ChannelStates,
+  ClientActionMessage,
+  InternalMessage,
+  NetworkContext,
+  Notification,
+  ResponseSink,
+  Signature,
+  WalletResponse
+} from "../../src/types";
+import { CfVmConfig, CounterfactualVM } from "../../src/vm";
+import { CfVmWal, MemDb, SyncDb } from "../../src/wal";
 import { CommitmentStore } from "./commitmentStore";
+import { IoProvider } from "./ioProvider";
+import { TestWallet } from "./wallet";
 
 let ganacheURL;
 
 try {
-	ganacheURL = process.env.GANACHE_URL || "http://localhost:9545";
+  ganacheURL = process.env.GANACHE_URL || "http://localhost:9545";
 } catch (e) {
-	ganacheURL = "http://localhost:9545";
+  ganacheURL = "http://localhost:9545";
 }
 
 export class User implements Observable, ResponseSink {
-	private observerCallbacks: Map<string, Function> = new Map<
-		string,
-		Function
-	>();
-	blockchainProvider: ethers.providers.BaseProvider;
-	signer: ethers.SigningKey;
-	ethersWallet: ethers.Wallet;
-	vm: CounterfactualVM;
-	io: IoProvider;
-	address: string;
-	store: CommitmentStore;
+  get isCurrentUser(): boolean {
+    return this.wallet.currentUser === this;
+  }
 
-	// Observable
-	observers: Map<NotificationType, Function[]> = new Map();
-	registerObserver(type: NotificationType, callback: Function) {}
-	unregisterObserver(type: NotificationType, callback: Function) {}
-	notifyObservers(type: NotificationType, data: object) {}
+  public blockchainProvider: ethers.providers.BaseProvider;
+  public signer: ethers.SigningKey;
+  public ethersWallet: ethers.Wallet;
+  public vm: CounterfactualVM;
+  public io: IoProvider;
+  public address: string;
+  public store: CommitmentStore;
 
-	constructor(
-		readonly wallet: TestWallet,
-		address: string,
-		privateKey: string,
-		networkContext: NetworkContext,
-		db?: SyncDb,
-		states?: ChannelStates
-	) {
-		this.wallet = wallet;
-		this.address = address;
-		this.io = new IoProvider(this);
-		this.vm = new CounterfactualVM(
-			new CfVmConfig(
-				this,
-				new EthCfOpGenerator(),
-				new CfVmWal(db !== undefined ? db : new MemDb()),
-				networkContext,
-				states
-			)
-		);
-		this.store = new CommitmentStore();
-		this.io.ackMethod = this.vm.startAck.bind(this.vm);
-		this.registerMiddlewares();
-		this.vm.registerObserver(
-			"actionCompleted",
-			this.handleActionCompletion.bind(this)
-		);
+  // Observable
+  public observers: Map<NotificationType, Function[]> = new Map();
+  private observerCallbacks: Map<string, Function> = new Map<
+    string,
+    Function
+  >();
 
-		this.signer = new ethers.SigningKey(privateKey);
-		this.address = this.signer.address;
-		this.blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
+  constructor(
+    readonly wallet: TestWallet,
+    address: string,
+    privateKey: string,
+    networkContext: NetworkContext,
+    db?: SyncDb,
+    states?: ChannelStates
+  ) {
+    this.wallet = wallet;
+    this.address = address;
+    this.io = new IoProvider(this);
+    this.vm = new CounterfactualVM(
+      new CfVmConfig(
+        this,
+        new EthCfOpGenerator(),
+        new CfVmWal(db !== undefined ? db : new MemDb()),
+        networkContext,
+        states
+      )
+    );
+    this.store = new CommitmentStore();
+    this.io.ackMethod = this.vm.startAck.bind(this.vm);
+    this.registerMiddlewares();
+    this.vm.registerObserver(
+      "actionCompleted",
+      this.handleActionCompletion.bind(this)
+    );
 
-		this.ethersWallet = new ethers.Wallet(privateKey, this.blockchainProvider);
-	}
+    this.signer = new ethers.SigningKey(privateKey);
+    this.address = this.signer.address;
+    this.blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
-	handleActionCompletion(notification: Notification) {
-		this.notifyObservers(`${notification.data.name}Completed`, {
-			requestId: notification.data.requestId,
-			result: this.generateObserverNotification(notification),
-			clientMessage: notification.data.clientMessage
-		});
-	}
+    this.ethersWallet = new ethers.Wallet(privateKey, this.blockchainProvider);
+  }
 
-	generateObserverNotification(notification: Notification): any {
-		return notification.data.results.find(result => result.opCode === 0).value;
-	}
+  public registerObserver(type: NotificationType, callback: Function) {}
 
-	addObserver(message: ClientActionMessage) {
-		let boundNotification = this.sendNotification.bind(
-			this,
-			message.data.notificationType
-		);
-		this.observerCallbacks.set(message.data.observerId, boundNotification);
-		this.registerObserver(message.data.notificationType, boundNotification);
-	}
+  public unregisterObserver(type: NotificationType, callback: Function) {}
 
-	removeObserver(message: ClientActionMessage) {
-		let callback = this.observerCallbacks.get(message.data.observerId);
+  public notifyObservers(type: NotificationType, data: object) {}
 
-		if (callback) {
-			this.unregisterObserver(message.data.notificationType, callback);
-		}
-	}
+  public handleActionCompletion(notification: Notification) {
+    this.notifyObservers(`${notification.data.name}Completed`, {
+      requestId: notification.data.requestId,
+      result: this.generateObserverNotification(notification),
+      clientMessage: notification.data.clientMessage
+    });
+  }
 
-	sendNotification(type: NotificationType, message: object) {
-		if (this.isCurrentUser) {
-			this.wallet.sendNotification(type, message);
-		}
-	}
+  public generateObserverNotification(notification: Notification): any {
+    return notification.data.results.find(result => result.opCode === 0).value;
+  }
 
-	sendResponse(res: WalletResponse | Notification) {
-		if (this.isCurrentUser) {
-			this.wallet.sendResponse(res);
-		}
-	}
+  public addObserver(message: ClientActionMessage) {
+    const boundNotification = this.sendNotification.bind(
+      this,
+      message.data.notificationType
+    );
+    this.observerCallbacks.set(message.data.observerId, boundNotification);
+    this.registerObserver(message.data.notificationType, boundNotification);
+  }
 
-	sendIoMessageToClient(message: any) {
-		if (this.isCurrentUser) {
-			this.wallet.sendIoMessageToClient(message);
-		}
-	}
+  public removeObserver(message: ClientActionMessage) {
+    const callback = this.observerCallbacks.get(message.data.observerId);
 
-	get isCurrentUser(): boolean {
-		return this.wallet.currentUser === this;
-	}
+    if (callback) {
+      this.unregisterObserver(message.data.notificationType, callback);
+    }
+  }
 
-	private registerMiddlewares() {
-		this.vm.register(
-			Instruction.OP_SIGN,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return signMyUpdate(message, next, context, this);
-			}
-		);
-		this.vm.register(
-			Instruction.OP_SIGN_VALIDATE,
-			async (message: InternalMessage, next: Function, context: Context) => {
-				return validateSignatures(message, next, context, this);
-			}
-		);
-		this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
-		this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
-		this.vm.register(
-			Instruction.STATE_TRANSITION_COMMIT,
-			this.store.setCommitment.bind(this.store)
-		);
-	}
+  public sendNotification(type: NotificationType, message: object) {
+    if (this.isCurrentUser) {
+      this.wallet.sendNotification(type, message);
+    }
+  }
+
+  public sendResponse(res: WalletResponse | Notification) {
+    if (this.isCurrentUser) {
+      this.wallet.sendResponse(res);
+    }
+  }
+
+  public sendIoMessageToClient(message: any) {
+    if (this.isCurrentUser) {
+      this.wallet.sendIoMessageToClient(message);
+    }
+  }
+
+  private registerMiddlewares() {
+    this.vm.register(
+      Instruction.OP_SIGN,
+      async (message: InternalMessage, next: Function, context: Context) => {
+        return signMyUpdate(message, next, context, this);
+      }
+    );
+    this.vm.register(
+      Instruction.OP_SIGN_VALIDATE,
+      async (message: InternalMessage, next: Function, context: Context) => {
+        return validateSignatures(message, next, context, this);
+      }
+    );
+    this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
+    this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
+    this.vm.register(
+      Instruction.STATE_TRANSITION_COMMIT,
+      this.store.setCommitment.bind(this.store)
+    );
+  }
 }
 
 /**
@@ -163,55 +166,55 @@ export class User implements Observable, ResponseSink {
  */
 
 async function signMyUpdate(
-	message: InternalMessage,
-	next: Function,
-	context: Context,
-	user: User
+  message: InternalMessage,
+  next: Function,
+  context: Context,
+  user: User
 ): Promise<Signature> {
-	const operation: CfOperation = getFirstResult(
-		Instruction.OP_GENERATE,
-		context.results
-	).value;
-	const digest = operation.hashToSign();
-	const sig = user.signer.signDigest(digest);
-	return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
+  const operation: CfOperation = getFirstResult(
+    Instruction.OP_GENERATE,
+    context.results
+  ).value;
+  const digest = operation.hashToSign();
+  const sig = user.signer.signDigest(digest);
+  return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 
 async function validateSignatures(
-	message: InternalMessage,
-	next: Function,
-	context: Context,
-	user: User
+  message: InternalMessage,
+  next: Function,
+  context: Context,
+  user: User
 ) {
-	const op: CfOperation = getLastResult(
-		Instruction.OP_GENERATE,
-		context.results
-	).value;
-	const digest = op.hashToSign();
-	let sig;
-	let expectedSigningAddress =
-		message.clientMessage.toAddress === user.address
-			? message.clientMessage.fromAddress
-			: message.clientMessage.toAddress;
-	if (message.clientMessage.signature === undefined) {
-		// initiator
-		const incomingMessage = getLastResult(Instruction.IO_WAIT, context.results)
-			.value;
-		sig = incomingMessage.signature;
-	} else {
-		// receiver
-		sig = message.clientMessage.signature;
-	}
+  const op: CfOperation = getLastResult(
+    Instruction.OP_GENERATE,
+    context.results
+  ).value;
+  const digest = op.hashToSign();
+  let sig;
+  const expectedSigningAddress =
+    message.clientMessage.toAddress === user.address
+      ? message.clientMessage.fromAddress
+      : message.clientMessage.toAddress;
+  if (message.clientMessage.signature === undefined) {
+    // initiator
+    const incomingMessage = getLastResult(Instruction.IO_WAIT, context.results)
+      .value;
+    sig = incomingMessage.signature;
+  } else {
+    // receiver
+    sig = message.clientMessage.signature;
+  }
 
-	const recoveredAddress = ethers.utils.recoverAddress(digest, {
-		v: sig.v,
-		r: sig.r,
-		s: sig.s
-	});
-	if (recoveredAddress !== expectedSigningAddress) {
-		// FIXME: handle this more gracefully
-		throw Error("Invalid signature");
-	}
+  const recoveredAddress = ethers.utils.recoverAddress(digest, {
+    v: sig.v,
+    r: sig.r,
+    s: sig.s
+  });
+  if (recoveredAddress !== expectedSigningAddress) {
+    // FIXME: handle this more gracefully
+    throw Error("Invalid signature");
+  }
 }
 
 applyMixins(User, [Observable]);
