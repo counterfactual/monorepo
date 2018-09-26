@@ -73,6 +73,17 @@ describe("Setup Protocol", async function() {
     walletA.currentUser.io.peer = walletB;
     walletB.currentUser.io.peer = walletA;
 
+    const peerBalances = PeerBalance.balances(
+      ethersWalletA.address,
+      0,
+      ethersWalletB.address,
+      0
+    );
+    const signingKeys = [
+      peerBalances.peerA.address,
+      peerBalances.peerB.address
+    ];
+
     // STEP 1 -- DEPLOY MULTISIG :)
     const registry = await new ethers.Contract(
       network.Registry,
@@ -91,6 +102,8 @@ describe("Setup Protocol", async function() {
       Multisig.abi,
       masterWallet.currentUser.ethersWallet
     ).deploy(Multisig.bytecode);
+
+    await multisig.functions.setup(signingKeys);
 
     // STEP 2 -- GENERATE COMMITMENTS
     await setup(multisig.address, walletA, walletB);
@@ -111,16 +124,6 @@ describe("Setup Protocol", async function() {
       /__StaticCall_+/g,
       network.StaticCall.substr(2)
     );
-    const peerBalances = PeerBalance.balances(
-      ethersWalletA.address,
-      0,
-      ethersWalletB.address,
-      0
-    );
-    const signingKeys = [
-      peerBalances.peerA.address,
-      peerBalances.peerB.address
-    ];
     const app = CfFreeBalance.contractInterface(network);
     const terms = CfFreeBalance.terms();
     const initcode = new ethers.Interface(

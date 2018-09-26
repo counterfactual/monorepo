@@ -25,6 +25,12 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public transaction(sigs: Signature[]): Transaction {
+    const digest = this.hashToSign();
+    sigs.sort((sigA, sigB) => {
+      const addrA = sigA.recoverAddress(digest);
+      const addrB = sigB.recoverAddress(digest);
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
     const multisigInput = this.multisigInput();
     const txData = new ethers.Interface(
       Multisig.abi
@@ -41,7 +47,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
     return ethers.utils.solidityKeccak256(
-      ["bytes1", "address[]", "address", "uint256", "bytes", "uint256"],
+      ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
       [
         "0x19",
         [this.cfFreeBalance.alice, this.cfFreeBalance.bob],

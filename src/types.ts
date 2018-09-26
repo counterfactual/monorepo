@@ -322,7 +322,7 @@ export class Signature {
   public static toBytes(sigs: Signature[]): Bytes {
     let bytes = "0x";
     sigs.forEach(sig => {
-      bytes += sig.r.substr(2) + sig.s.substr(2) + sig.v;
+      bytes += sig.toString().substr(2);
     });
     return bytes;
   }
@@ -353,6 +353,10 @@ export class Signature {
 
   // todo: fix types
   constructor(readonly v: number, readonly r: string, readonly s: string) {}
+
+  public recoverAddress(digest: H256): Address {
+    return ethers.utils.recoverAddress(digest, this.toString());
+  }
 
   public toString(): string {
     return (
