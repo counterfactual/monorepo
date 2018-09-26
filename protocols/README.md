@@ -75,7 +75,7 @@ let Setup = {
   fromAddress: address,
   toAddress: address,
   seq: 0,
-  signature: Signature_Alice,
+  signature: signature,
 }
 let SetupAck = {
   protocol: 0x01,
@@ -84,7 +84,7 @@ let SetupAck = {
   fromAddress: address,
   toAddress: address,
   seq: 1,
-  signature: Signature_Bob,
+  signature: signature,
 }
 
 Setup.fromAddress === SetupAck.toAddress;
