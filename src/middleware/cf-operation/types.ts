@@ -32,8 +32,7 @@ export const Abi = {
   // StateChannel.sol
   setState: "setState(bytes32,uint256,uint256,bytes)",
   // NonceRegistry.sol
-  setNonce: "setNonce(bytes32,uint256)",
-  finalizeNonce: "finalizeNonce(bytes32)"
+  setNonce: "setNonce(uint256,bytes32,uint256)"
 };
 
 export abstract class CfOperation {

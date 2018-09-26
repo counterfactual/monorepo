@@ -11,27 +11,13 @@ import {
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
-const TYPES = ["bytes1", "address", "address", "uint256", "bytes", "uint256"];
-
 export class CfOpSetup extends CfMultiSendOp {
   /**
    * Helper method to get hash of an input calldata
    * @param multisig
    * @param multisigInput
    */
-  public static toHash(multisig: Address, multisigInput: MultisigInput): H256 {
-    multisigInput = sanitizeMultisigInput(multisigInput);
-    return ethers.utils.solidityKeccak256(TYPES, [
-      "0x19",
-      multisig, // why did we use this as salt in the last iteration?
-      multisigInput.to,
-      multisigInput.val,
-      multisigInput.data,
-      multisigInput.op
-    ]);
-  }
-
-  constructor(
+  public constructor(
     readonly ctx: NetworkContext,
     readonly multisig: Address,
     readonly freeBalanceStateChannel: CfStateChannel,
@@ -41,23 +27,34 @@ export class CfOpSetup extends CfMultiSendOp {
     super(ctx, multisig, freeBalance, nonce);
   }
 
+  public toHash(multisig: Address, multisigInput: MultisigInput): H256 {
+    multisigInput = sanitizeMultisigInput(multisigInput);
+    return ethers.utils.solidityKeccak256(
+      ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
+      [
+        "0x19",
+        multisig, // why did we use this as salt in the last iteration?
+        multisigInput.to,
+        multisigInput.val,
+        multisigInput.data,
+        multisigInput.op
+      ]
+    );
+  }
+
   /**
    * @override common.CfMultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
-    return [
-      this.dependencyNonceInput(),
-      this.finalizeDependencyNonceInput(),
-      this.conditionalTransferInput()
-    ];
+    return [this.dependencyNonceInput(), this.conditionalTransferInput()];
   }
 
   public conditionalTransferInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
     const depNonceKey = ethers.utils.solidityKeccak256(
-      ["address", "uint256"],
-      [this.multisig, this.dependencyNonce.salt]
+      ["address", "uint256", "uint256"],
+      [this.multisig, 0, this.dependencyNonce.salt]
     );
 
     const multisigCalldata = new ethers.Interface([

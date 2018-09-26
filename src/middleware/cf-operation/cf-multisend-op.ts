@@ -98,21 +98,12 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public dependencyNonceInput(): MultisigInput {
+    const timeout = 0; // FIXME: new NonceRegistry design will obviate timeout
     const to = this.ctx.NonceRegistry;
     const val = 0;
     const data = new ethers.Interface([Abi.setNonce]).functions.setNonce.encode(
-      [this.dependencyNonce.salt, this.dependencyNonce.nonce]
+      [timeout, this.dependencyNonce.salt, this.dependencyNonce.nonce]
     );
-    const op = Operation.Call;
-    return new MultisigInput(to, val, data, op);
-  }
-
-  public finalizeDependencyNonceInput(): MultisigInput {
-    const to = this.ctx.NonceRegistry;
-    const val = 0;
-    const data = new ethers.Interface([
-      Abi.finalizeNonce
-    ]).functions.finalizeNonce.encode([this.dependencyNonce.salt]);
     const op = Operation.Call;
     return new MultisigInput(to, val, data, op);
   }
