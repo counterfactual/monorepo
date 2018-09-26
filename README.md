@@ -40,7 +40,7 @@ Sometimes, there are multiple designs that provide the same features but with di
 
 ### Criteria
 
-The file [proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
+The file [proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs. A criteria is a predicate that a protocol design either satisfies or does not.
 
 ## Design
 
