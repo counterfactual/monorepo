@@ -93,27 +93,25 @@ Setup.toAddress === SetupAck.fromAddress;
 
 Unlike the rest of the protocols, there is no extra message data for the Setup protocol because it is deterministic. It always installs a Free Balance contract with starting balances of 0, and so no extra data is required to be passed in from outside the context of the protocol execution.
 
-**Commitment Format**
+### Commitment
+
+TBD
 
 ## Install Protocol
 
 (For ease of explanation, assume the multisig is now magically owning 20 ETH and that the Free Balance has recorded a balance of 10, 10 for Alice and Bob. We will explain how depositing is implemented by using the `Install` and `Uninstall` protocols at the end.)
 
-**Discussion:**
-
-The install protocol exchanges a commitment that transfers the ability to withdraw some amount of the multisig's funds from the Free Balance contract to a Conditional Transfer on the particular application being installed.
-
-Specifically, the commitment is a signature enabling a *multi-send* transaction that performs three tasks:
-
-- <a href="#need-to-change-free-bal-contract-to-not-use-cond-transfer">updates the free balance state</a>, decrementing both parties by the amount they contribute to the application install
-- <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/NonceRegistry.sol#L42">sets the nonce registry entry to 1</a>, ensuring the "condition" in the Conditional Transfer is true
-- <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/delegateTargets/ConditionalTransfer.sol#L34">executes the conditional transfer</a> via delegatecall, withdrawing the funds from the multisig and distributing them according to the state of the application which the conditional transfer points to.
-
-In other words, running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
+Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
 ![install](../images/install.png)
 
-Notice how the funds move out of the free balance and into the tic-tac-toe application. As mentioned before, it is an invariant of the system that the sum of both the free balance and all installed applications equals the amount deposited in the multisig.
+Notice how the funds move out of the free balance and into the tic-tac-toe application.
+
+### Commitment
+
+- updates the free balance state, decrementing both parties by the amount they contribute to the application install
+- sets the nonce registry entry to 1, ensuring the "condition" in the Conditional Transfer is true
+- executes the conditional transfer via delegatecall, withdrawing the funds from the multisig and distributing them according to the state of the application which the conditional transfer points to.
 
 **Handshake:**
 
@@ -125,9 +123,19 @@ Notice how the funds move out of the free balance and into the tic-tac-toe appli
 **Message:**
 
 ```typescript
-CfAppInterface = tbd; 
-// (app_address, reducer_sighash, resolver_sighash,
-//  turntaker_sighash, is_state_final_sighash)
+Terms = {
+  assetType: number,
+  limit: number,
+  token: address
+}
+CfAppInterface = {
+  address: address,
+  applyAction: bytes4,
+  resolve: bytes4,
+  getTurnTaken: bytes4,
+  isStateTerminal: bytes4,
+  abiEncoding: string
+}
 PeerBalance = {
   address: address,
   balance: uint256
@@ -137,7 +145,7 @@ InstallData = {
   peer2: PeerBalance,
   keyA: address,       // app-specific ephemeral key
   keyB: address,
-  terms: Terms,        // (asset_type, limit, token_address)
+  terms: Terms,
   app: CfAppInterface, 
   timeout: number,
 }
@@ -148,7 +156,7 @@ Install = {
   fromAddress: address,
   toAddress: address,
   seq: 0,
-  signature: Signature_Alice,
+  signature: signature,
 }
 InstallAck = {
   protocol: 0x02,
@@ -157,7 +165,7 @@ InstallAck = {
   fromAddress: address,
   toAddress: address,
   seq: 1,
-  signature: Signature_Bob,
+  signature: signature,
 }
 
 Install.fromAddress === InstallAck.toAddress;
@@ -165,13 +173,12 @@ Install.toAddress === InstallAck.fromAddress;
 InstallData.peer1.address < InstallData.peer2.address;
 ```
 
-**Commitment Format:**
+### Main Files
 
-TBD
+- `install-proposer.ts`
+- `cf-op-install.ts`
 
 ## Update Protocol
-
-**Discussion:**
 
 Once an application has been installed into the GSC, the multisig has transferred control over the installed amount from the free balance to the application's payout function, a mapping from application state to funds distribution. For example, in the case of Tic-Tac-Toe, a possible payout function is: if X wins, Alice gets 2 ETH, else if O wins Bob gets 2 ETH, else send 1 ETH to Alice and Bob.
 
@@ -183,42 +190,43 @@ Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alic
 
 Notice how both the board changes and the *local* nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 
-**Handshake:**
+## Handshake
 
 | A        | B           |
 | -------- | ----------- |
 | `Update` |             |
 |          | `UpdateAck` |
 
-**Messsage:**
+## Messsage
 
 ```typescript
-UpdateData = {
-  appStateHash: H256
-}
 Update = {
   protocol: 0x03,
-  cfAddress: H256, // counterfactual address of the application
-  data: UpdateData,
-  from: 0xAlice,
-  to: 0xBob,
+  cfAddress: bytes32
+  data: {
+    appStateHash: bytes32
+  },
+  fromAddress: address,
+  toAddress: address,
   seq: 0,
-  signature: Signature_Alice,
+  signature: signature,
 }
 UpdateAck = {
   protocol: 0x03,
-  cfAddress: H256, // counterfactual address of the application
+  cfAddress: bytes32
   data: None,
-  fromAddress: Bob,
-  toAddress: Alice,
+  fromAddress: address,
+  toAddress: address,
   seq: 1,
-  signature: Signature_Bob,
+  signature: signature,
 }
 ```
 
-It's worth pointing out that the `appStateHash` is a hash on an *application-unique* state struct. For example, see our <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/apps/PaymentApp.sol#L9">two party payment</a> example. This hash along with other StateChannel details is used in the following signature digest.
+### Main Files
 
-**Signature Digest:**
+- `cf-op-setstate.ts`
+
+### Digest
 
 ```typescript
 ethers.utils.solidityKeccak256(
@@ -233,9 +241,9 @@ ethers.utils.solidityKeccak256(
 );
 ```
 
-When unanimously exchanged, this signature allows us to invoke the <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/StateChannel.sol#L162">setState</a> function on the state channel. Specifically,
+### Commitment 
 
-**Transaction:**
+When exchanged, a signature on this digest allows us to invoke the [setState](https://github.com/counterfactual/contracts/blob/develop/contracts/StateChannel.sol#L162) function on the state channel.
 
 ```typescript
 let to = REGISTRY_ADDRESS;
@@ -261,8 +269,6 @@ This transaction uses the global, on-chain Registry contract to translate the co
 
 ## Uninstall Protocol
 
-**Discussion:**
-
 The lifecycle of an application completes when it reaches some type of end or "final" state, at which point both parties know the finalized distribution of funds in the application-specific state channel.
 
 Now, both parties could simply broadcast the application on chain, wait the dispute period, and then broadcast the execution of the Conditional Transfer, thereby paying out the funds on chain. A better solution, however, is to transfer the funds controlled by the application back to the Free Balance contract off chain, so that they could be reused for other applications.
@@ -273,28 +279,24 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 Notice the two operations here:
 
-- <a href="#need-to-change-free-bal-contract-to-not-use-cond-transfer">set a new state</a> on the Free Balance. Alice's balance in the Free Balance object was incremented by 2 ETH, repurposing the funds once owned by the Tic-Tac-Toe application.
-- <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/NonceRegistry.sol#L42">set a new nonce</a> on the Nonce Registry. As a result, the Conditional Transfer pointing at Tic-Tac-Toe was invalidated, because we changed its associated entry in the NonceRegistry to 2.
+- set a new state on the Free Balance. Alice's balance in the Free Balance object was incremented by 2 ETH, repurposing the funds once owned by the Tic-Tac-Toe application.
+- set a new nonce on the Nonce Registry. As a result, the Conditional Transfer pointing at Tic-Tac-Toe was invalidated, because we changed its associated entry in the NonceRegistry to 2.
 
 Specifically, when we exchange commitments on the Conditional Transfer in the Install Protocol, we are exchanging signatures allowing us to execute a Conditional Transfer if and only if the nonce equals 1. *If the Nonce is ever not 1*, then the conditional transfer will fail, as desired in the Uninstall Protocol.
 
-**Handshake:**
+## Handshake
 
 | A           | B              |
 | ----------- | -------------- |
 | `Uninstall` |                |
 |             | `UninstallAck` |
 
-**Message:**
+## Message
 
 ```typescript
-/**
- * As in install, 1 and 2 refer to the canonical, sorted order of the addresses for
- * the peers in the channel.
- */
 UninstallData = {
 	peer1: PeerBalance, // (address, payout_distribution),
-    peer2: PeerBalance, // (address, payout_distrubution)
+  peer2: PeerBalance, // (address, payout_distrubution)
 }
 Uninstall = {
   protocol: 0x04,

@@ -88,9 +88,9 @@ TBD
 
 The install commitment is a multisend that
 
+- sets the free balance state to a new state with some balance removed
 - sets the app dependency nonce to 1
-- sets the freebalance state to a new state with some balance removed
-- does a conditional transfer
+- does a conditional transfer, which checks that the the dependency nonce is set to 1
 
 ### Update
 
