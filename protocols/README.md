@@ -58,10 +58,6 @@ Completing the Setup Protocol transitions the counterfactual state to
 
 ![setup](../images/setup.png)
 
-If the Free Balance is ever put on-chain, parties can receive the amounts specified in the Free Balance by broadcasting the transaction commitment produced by the Setup Protocol. As of right now, there are no funds available for applications in our GSC, and so the Free Balance has a state of 0, 0.
-
-After discussing later protocols, we'll see how the Free Balance is a fundamental accounting mechanism that allows our GSC construction to maintain a *conservation of balances* across state channel applications, so that the sum of all funds in the free balance and all installed applications is equal to the amount of funds deposited in the multisig.
-
 **Handshake:**
 
 |A        |B          |

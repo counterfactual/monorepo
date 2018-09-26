@@ -58,17 +58,25 @@ Many actions are simply delegate calls a contract in the `delegateTargets` folde
 
 A state channel application (app) is a collection of counterfactual state and functionality that holds the right to allocate some portion of the state deposit of the state channel that it belongs to. An example of a state channel app is a chess game. Multiple apps of the same type (e.g., multiple chess games) can be installed into the same channel.
 
-See [architecture](architecture/README.md).
+An app is also the interface that developers wishing to write channelized code deals with, in that they write an app that encapsulates the functionality that they want to offer users, which can then be installed by users into a channel. Hence, there is a mixing of framework code (written by us) and code written by app developers. See the [contracts](contracts/README.md) folder for details about how this is managed.
 
-### Installation, Uininstallation and Dependency Nonces
+### Nonces
 
+There are two types of nonces, or sequence numbers, used in the code. The first is used by an app and is linked to an app state, and is used to determine which signed state is more recent. The second type is called a dependency nonce and is implemented by the `NonceRegistry` contract. Its purpose is simply that certain commitments depend on them being a certain value. We explain why this is useful in the next section.
 
+### Multiple Apps
+
+One key feature of state channels we support is that multiple applications can be installed without any on-chain transactions, and multiple applications may run simultaneously. When users are done with an application (e.g., one player wins a chess game, or the expiry time on a financial option has passed), the app can be uninstalled and the state deposit assigned to it freed up to be assigned to other apps.
 
 An app that is installed but not uninstalled is called an active app.
 
-### Free Balance
+The state deposit locked in the multisig should be equal to the sum of the state deposit held by all apps in the channel. This property is called *conservation of balance*. There is a special app called the Free Balance app that is the "default place" to hold state deposit. The app logic is implement by `PaymentChannel.sol`.
 
-State deposit that is not assigned to any other app is held in a special app called the Free Balance app. The app logic is implement by `PaymentChannel.sol`.
+To support easy uninstallation of apps, each app has its own dependency nonce.
+
+### Cleanup
+
+TBD
 
 ## Protocols
 
@@ -94,6 +102,10 @@ The uninstall commitment is a multisend that
 
 - sets the app dependency nonce to 2
 - sets the freebalance state to a new state with some balance added
+
+## Cleanup
+
+TBD
 
 ## Roadmap
 
