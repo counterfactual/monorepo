@@ -5,6 +5,7 @@ import {
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
+  CfStateChannel,
   Terms
 } from "../src/middleware/cf-operation/types";
 import { InstallProposer } from "../src/middleware/state-transition/install-proposer";
@@ -14,6 +15,7 @@ import {
   ActionName,
   ChannelStates,
   ClientActionMessage,
+  H256,
   InternalMessage,
   PeerBalance,
   StateChannelInfos
@@ -49,12 +51,21 @@ describe("State transition", () => {
       Instruction.STATE_TRANSITION_PROPOSE,
       installClientMsg()
     );
+    const expectedCfAddr = new CfStateChannel(
+      TestWallet.testNetwork(),
+      message.clientMessage.multisigAddress,
+      [KEY_A, KEY_B],
+      message.clientMessage.data.app,
+      message.clientMessage.data.terms,
+      message.clientMessage.data.timeout,
+      1
+    ).cfAddress();
     const proposal = InstallProposer.propose(
       message,
       new Context(),
       setupInstallCfState()
     );
-    validateInstallInfos(proposal.state);
+    validateInstallInfos(proposal.state, expectedCfAddr);
   });
 });
 
@@ -143,14 +154,12 @@ function installClientMsg(): ClientActionMessage {
   };
 }
 
-function validateInstallInfos(infos: StateChannelInfos) {
+function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
   const stateChannel = infos[MULTISIG_ADDRESS];
 
   expect(stateChannel.freeBalance.aliceBalance).toEqual(15);
   expect(stateChannel.freeBalance.bobBalance).toEqual(17);
 
-  const expectedCfAddr =
-    "0x401dd8c5a75425aff8bd81624b66f02eb6337ec94778cb6ef8c44161df4459bc";
   const app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
   const expectedSalt =
     "0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
