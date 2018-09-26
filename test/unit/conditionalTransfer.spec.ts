@@ -66,11 +66,11 @@ contract("ConditionalTransfer", (accounts: string[]) => {
         [
           makeCondition(Utils.ZERO_BYTES32, true),
           {
-            amount: [Utils.UNIT_ETH],
+            value: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
             token: Utils.ZERO_ADDRESS,
-            data: Utils.ZERO_ADDRESS
+            data: []
           }
         ]
       );
@@ -94,11 +94,11 @@ contract("ConditionalTransfer", (accounts: string[]) => {
         [
           makeConditionParam(trueParam, falseParam),
           {
-            amount: [Utils.UNIT_ETH],
+            value: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
             token: Utils.ZERO_ADDRESS,
-            data: Utils.ZERO_ADDRESS
+            data: []
           }
         ]
       );

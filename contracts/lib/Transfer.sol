@@ -7,9 +7,9 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /// @title Transfer - A library to encode a generic asset transfer data type
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice This library defines `Transfer.Details` and `Transfer.Terms`, two structures
+/// @notice This library defines `Transfer.Transaction` and `Transfer.Terms`, two structures
 /// which are used in state channel applications to represent a kind of "resolution" and
-/// a commitment to how much can be resolved respectively. A `Transfer.Details` object
+/// a commitment to how much can be resolved respectively. A `Transfer.Transaction` object
 /// should be able to encode any arbitrary Ethereum-based asset transfer.
 library Transfer {
 
@@ -24,37 +24,36 @@ library Transfer {
     address token;
   }
 
-  struct Details {
+  struct Transaction {
     uint8 assetType;
     address token;
     address[] to;
-    uint256[] amount;
-    bytes data;
+    uint256[] value;
+    bytes[] data;
   }
 
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
-  /// @param details A `Transfer.Details` struct
+  /// @param tx A `Transfer.Transaction` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
-  function executeTransfer(Transfer.Details memory details) public {
-    for (uint256 i = 0; i < details.to.length; i++) {
-      address to = details.to[i];
-      uint256 amount = details.amount[i];
+  function execute(Transfer.Transaction memory tx) public {
+    for (uint256 i = 0; i < tx.to.length; i++) {
+      address to = tx.to[i];
+      uint256 value = tx.value[i];
 
-      if (details.assetType == uint8(Transfer.Asset.ETH)) {
-        to.transfer(amount);
-      } else if (details.assetType == uint8(Transfer.Asset.ERC20)) {
-        require(ERC20(details.token).transfer(to, amount));
+      if (tx.assetType == uint8(Transfer.Asset.ETH)) {
+        to.transfer(value);
+      } else if (tx.assetType == uint8(Transfer.Asset.ERC20)) {
+        require(ERC20(tx.token).transfer(to, value));
       }
     }
   }
 
-  /// @notice Verifies whether or not a `Transfer.Details` meets the terms set by a
+  /// @notice Verifies whether or not a `Transfer.Transaction` meets the terms set by a
   /// `Transfer.Terms` object based on the limit information of how much can be transferred
-  /// @param details A `Transfer.Details` struct
-  /// @param details A `Transfer.Terms` struct
+  /// @param tx A `Transfer.Transaction` struct
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
-    Transfer.Details memory details,
+    Transfer.Transaction memory tx,
     Transfer.Terms terms
   )
     public
@@ -62,8 +61,8 @@ library Transfer {
     returns (bool)
   {
     uint256 sum = 0;
-    for (uint256 i = 0; i < details.amount.length; i++) {
-      sum += details.amount[i];
+    for (uint256 i = 0; i < tx.value.length; i++) {
+      sum += tx.value[i];
     }
     return sum <= terms.limit;
   }
