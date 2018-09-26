@@ -26,24 +26,24 @@ Specifically, when we exchange commitments on the Conditional Transfer in the In
 
 ```typescript
 UninstallData = {
-	peer1: PeerBalance, // (address, payout_distribution),
+  peer1: PeerBalance, // (address, payout_distribution),
   peer2: PeerBalance, // (address, payout_distrubution)
 }
 Uninstall = {
-  protocol: 0x04,
+  protocol: 4,
   cfAddress: H256, // counterfactual address of the application
   data: UpdateData,
-  from: 0xAlice,
-  to: 0xBob,
+  from: address,
+  to: address,
   seq: 0,
   signature: Signature_Alice,
 }
 AckUninstall = {
-  protocol: 0x04,
+  protocol: 4,
   cfAddress: H256, // counterfactual address of the application
   data: UninstallData,
-  fromAddress: Bob,
-  toAddress: Alice,
+  fromAddress: address,
+  toAddress: address,
   seq: 1,
   signature: Signature_Bob,
 }

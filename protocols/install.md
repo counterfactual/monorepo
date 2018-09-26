@@ -51,7 +51,7 @@ InstallData = {
   timeout: number,
 }
 Install = {
-  protocol: 0x02,
+  protocol: 4,
   multisig: address,
   data: InstallData,
   fromAddress: address,
@@ -60,7 +60,7 @@ Install = {
   signature: signature,
 }
 InstallAck = {
-  protocol: 0x02,
+  protocol: 4,
   multisig: address,
   data: InstallData,
   fromAddress: address,

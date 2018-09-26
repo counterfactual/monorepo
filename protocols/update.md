@@ -21,7 +21,7 @@ Notice how both the board changes and the *local* nonce for the app is bumped fr
 
 ```typescript
 Update = {
-  protocol: 0x03,
+  protocol: 4,
   cfAddress: bytes32
   data: {
     appStateHash: bytes32
@@ -32,7 +32,7 @@ Update = {
   signature: signature,
 }
 UpdateAck = {
-  protocol: 0x03,
+  protocol: 4,
   cfAddress: bytes32
   data: None,
   fromAddress: address,

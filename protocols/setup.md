@@ -17,7 +17,7 @@ Completing the Setup Protocol transitions the counterfactual state to
 
 ```typescript
 let Setup = {
-  protocol: 0x01,
+  protocol: 1,
   multisig: address,
   data: None,
   fromAddress: address,
@@ -26,7 +26,7 @@ let Setup = {
   signature: signature,
 }
 let SetupAck = {
-  protocol: 0x01,
+  protocol: 1,
   multisig: address,
   data: None,
   fromAddress: address,
