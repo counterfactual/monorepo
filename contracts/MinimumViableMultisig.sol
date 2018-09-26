@@ -84,7 +84,7 @@ contract MinimumViableMultisig {
     view
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(byte(0x19), _owners, to, value, data, operation));
+    return keccak256(abi.encodePacked(byte(0x19), _owners, to, value, data, uint8(operation)));
   }
 
   /// @notice A getter function for the owners of the multisig
