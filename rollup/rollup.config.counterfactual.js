@@ -8,6 +8,7 @@ export default {
     sourcemap: true,
     name: "cf",
     globals: {
+      ethers: "ethers",
       testUtils: "test-utils"
     }
   },
