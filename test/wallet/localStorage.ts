@@ -1,3 +1,5 @@
+import { deserialize } from "../../src/serializer";
+
 export class LocalStoragePolyfill {
   public inMemoryStorage: object;
 
@@ -40,7 +42,7 @@ export class LocalStorageImpl implements LocalStorage {
   }
 
   public get(key: string) {
-    return JSON.parse(this.localStorage.getItem(key) || "");
+    return deserialize(JSON.parse(this.localStorage.getItem(key) || ""));
   }
 
   public put(key: string, value: object) {

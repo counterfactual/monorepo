@@ -1,7 +1,10 @@
 import * as ethers from "ethers";
+import * as _ from "lodash";
+import ETHBalanceRefundApp from "../contracts/build/contracts/ETHBalanceRefundApp.json";
 import PaymentApp from "../contracts/build/contracts/PaymentApp.json";
 import {
   ActionName,
+  ClientActionMessage,
   ClientQuery,
   ClientQueryType,
   FreeBalanceClientResponse,
@@ -11,18 +14,19 @@ import {
   StateChannelDataClientResponse
 } from "../src/types";
 
-import {
-  CfAppInterface,
-  Terms,
-  zeroAddress
-} from "../src/middleware/cf-operation/types";
+import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
 
 import { AppChannelClient } from "./app-channel-client";
 import { ClientInterface } from "./client-interface";
 
+// TODO stop hardcoding contracts
 const Contracts = {
+  ETHBalanceRefundApp,
   PaymentApp
 };
+
+const ETHBalanceRefundAppAbiEncoding =
+  "tuple(address recipient, address multisig, uint256 threshold)";
 
 export class StateChannelClient {
   public clientInterface: ClientInterface;
@@ -42,6 +46,27 @@ export class StateChannelClient {
     this.fromAddress = fromAddress;
   }
 
+  public async deposit(amount: ethers.BigNumber, threshold: ethers.BigNumber) {
+    const balanceRefund = await this.install("ETHBalanceRefundApp", {
+      peerABalance: ethers.utils.bigNumberify(0),
+      peerBBalance: ethers.utils.bigNumberify(0),
+      state: {
+        recipient: this.fromAddress,
+        multisig: this.multisigAddress,
+        threshold
+      },
+      abiEncoding: ETHBalanceRefundAppAbiEncoding
+    });
+    await this.depositToMultisig(amount);
+    const stateChannelInfo = await this.queryStateChannel();
+    const isPeerA =
+      stateChannelInfo.data.stateChannel.freeBalance.alice === this.fromAddress;
+    await balanceRefund.uninstall({
+      peerABalance: isPeerA ? amount : ethers.utils.bigNumberify(0),
+      peerBBalance: isPeerA ? ethers.utils.bigNumberify(0) : amount
+    });
+  }
+
   public async install(
     appName: string,
     options: InstallOptions
@@ -53,12 +78,12 @@ export class StateChannelClient {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new Terms(0, 10, zeroAddress); // todo
-
+    const terms = new Terms(0, 10, ethers.constants.AddressZero); // todo
     const app = this.buildAppInterface(appName, options.abiEncoding);
     const state = options.state;
     const encodedAppState = app.encode(state);
     const timeout = 100;
+
     const installData: InstallData = {
       peerA: new PeerBalance(peerA, options.peerABalance),
       peerB: new PeerBalance(peerB, options.peerBBalance),
@@ -137,16 +162,16 @@ export class StateChannelClient {
 
     return stateChannelData;
   }
-
   private buildAppInterface(
     appName: string,
     abiEncoding: string
   ): CfAppInterface {
     const capitalizedAppName = appName[0].toUpperCase() + appName.slice(1);
     const contract = Contracts[capitalizedAppName];
-    const address = contract
-      ? contract.networks[Object.keys(contract.networks)[0]].address
-      : "0x0";
+    const address =
+      contract && _.keys(contract.networks).length > 0
+        ? contract.networks[_.keys(contract.networks)[0]].address
+        : "0x0";
     const abiInterface = new ethers.Interface(contract ? contract.abi : "");
 
     return new CfAppInterface(
@@ -157,5 +182,18 @@ export class StateChannelClient {
       CfAppInterface.generateSighash(abiInterface, "isStateTerminal"),
       abiEncoding
     );
+  }
+
+  private async depositToMultisig(value: ethers.BigNumber) {
+    const depositMessage = {
+      action: ActionName.DEPOSIT,
+      requestId: this.clientInterface.requestId(),
+      data: {
+        multisig: this.multisigAddress,
+        value
+      }
+    };
+
+    await this.clientInterface.sendMessage(depositMessage);
   }
 }

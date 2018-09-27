@@ -54,7 +54,7 @@ describe("Setup Protocol", async function() {
    * 4. The test checks whether everyone got back the money they deposited into the channel
    */
   it("should have the correct funds on chain", async () => {
-    const depositAmount = ethers.utils.parseEther("0.0005").toNumber();
+    const depositAmount = ethers.utils.parseEther("0.0005");
 
     const walletA = new TestWallet();
     walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
@@ -217,8 +217,12 @@ describe("Setup Protocol", async function() {
     // STEP 8 -- CONFIRM EXPECTED BALANCES
     const endBalanceA = await ethersWalletA.getBalance();
     const endBalanceB = await ethersWalletB.getBalance();
-    expect(endBalanceA.sub(startBalanceA).toNumber()).toEqual(depositTxFeeA);
-    expect(endBalanceB.sub(startBalanceB).toNumber()).toEqual(depositTxFeeB);
+    expect(endBalanceA.sub(startBalanceA).toNumber()).toEqual(
+      depositTxFeeA.toNumber()
+    );
+    expect(endBalanceB.sub(startBalanceB).toNumber()).toEqual(
+      depositTxFeeB.toNumber()
+    );
   });
 });
 
@@ -267,8 +271,20 @@ function validateSetup(
   walletA: TestWallet,
   walletB: TestWallet
 ) {
-  validateNoAppsAndFreeBalance(multisigAddr, walletA, walletB, 0, 0);
-  validateNoAppsAndFreeBalance(multisigAddr, walletB, walletA, 0, 0);
+  validateNoAppsAndFreeBalance(
+    multisigAddr,
+    walletA,
+    walletB,
+    ethers.utils.bigNumberify(0),
+    ethers.utils.bigNumberify(0)
+  );
+  validateNoAppsAndFreeBalance(
+    multisigAddr,
+    walletB,
+    walletA,
+    ethers.utils.bigNumberify(0),
+    ethers.utils.bigNumberify(0)
+  );
 }
 
 /**
@@ -278,8 +294,8 @@ function validateNoAppsAndFreeBalance(
   multisigAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: number,
-  amountB: number
+  amountA: ethers.BigNumber,
+  amountB: ethers.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -303,22 +319,28 @@ function validateNoAppsAndFreeBalance(
   expect(channel.appChannels).toEqual({});
   expect(channel.freeBalance.alice).toEqual(peerA);
   expect(channel.freeBalance.bob).toEqual(peerB);
-  expect(channel.freeBalance.aliceBalance).toEqual(amountA);
-  expect(channel.freeBalance.bobBalance).toEqual(amountB);
+  expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(
+    amountA.toNumber()
+  );
+  expect(channel.freeBalance.bobBalance.toNumber()).toEqual(amountB.toNumber());
 }
 
 async function makeDeposits(
   multisigAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  depositAmount: number
-): Promise<{ cfAddr: string; txFeeA: number; txFeeB: number }> {
+  depositAmount: ethers.BigNumber
+): Promise<{
+  cfAddr: string;
+  txFeeA: ethers.BigNumber;
+  txFeeB: ethers.BigNumber;
+}> {
   const { txFee: txFeeA } = await deposit(
     multisigAddr,
     walletA, // depositor
     walletB, // counterparty
     depositAmount, // amountToDeposit
-    0 // counterpartyBalance
+    ethers.utils.bigNumberify(0) // counterpartyBalance
   );
   const { cfAddr, txFee: txFeeB } = await deposit(
     multisigAddr,
@@ -334,9 +356,9 @@ async function deposit(
   multisigAddr: string,
   depositor: TestWallet,
   counterparty: TestWallet,
-  amountToDeposit: number,
-  counterpartyBalance: number
-): Promise<{ cfAddr: string; txFee: number }> {
+  amountToDeposit: ethers.BigNumber,
+  counterpartyBalance: ethers.BigNumber
+): Promise<{ cfAddr: string; txFee: ethers.BigNumber }> {
   const cfAddr = await installBalanceRefund(
     multisigAddr,
     depositor,
@@ -359,7 +381,7 @@ async function installBalanceRefund(
   multisigAddr: string,
   depositor: TestWallet,
   counterparty: TestWallet,
-  threshold: number
+  threshold: ethers.BigNumber
 ) {
   const msg = startInstallBalanceRefundMsg(
     multisigAddr,
@@ -382,7 +404,7 @@ function startInstallBalanceRefundMsg(
   multisigAddr: string,
   from: string,
   to: string,
-  threshold: number
+  threshold: ethers.BigNumber
 ): ClientActionMessage {
   let peerA = from;
   let peerB = to;
@@ -427,7 +449,7 @@ function startInstallBalanceRefundMsg(
 function validateInstalledBalanceRefund(
   multisigAddr: string,
   wallet: TestWallet,
-  amount: number
+  amount: ethers.BigNumber
 ) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigAddr];
@@ -437,17 +459,17 @@ function validateInstalledBalanceRefund(
 
   const cfAddr = cfAddrs[0];
 
-  expect(appChannels[cfAddr].peerA.balance).toEqual(0);
+  expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
   expect(appChannels[cfAddr].peerA.address).toEqual(
     stateChannel.freeBalance.alice
   );
-  expect(appChannels[cfAddr].peerA.balance).toEqual(0);
+  expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
 
-  expect(appChannels[cfAddr].peerB.balance).toEqual(0);
+  expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
   expect(appChannels[cfAddr].peerB.address).toEqual(
     stateChannel.freeBalance.bob
   );
-  expect(appChannels[cfAddr].peerB.balance).toEqual(0);
+  expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
 
   return cfAddr;
 }
@@ -455,8 +477,8 @@ function validateInstalledBalanceRefund(
 async function depositOnChain(
   multisigAddress: string,
   wallet: TestWallet,
-  value: number
-): Promise<number> {
+  value: ethers.BigNumber
+): Promise<ethers.BigNumber> {
   const { ethersWallet } = wallet.currentUser;
   const balanceBefore = await ethersWallet.getBalance();
   await ethersWallet.sendTransaction({
@@ -465,10 +487,7 @@ async function depositOnChain(
   });
   const balanceAfter = await ethersWallet.getBalance();
   // Calculate transaction fee
-  return balanceAfter
-    .sub(balanceBefore)
-    .add(value)
-    .toNumber();
+  return balanceAfter.sub(balanceBefore).add(value);
 }
 
 async function uninstallBalanceRefund(
@@ -476,8 +495,8 @@ async function uninstallBalanceRefund(
   cfAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: number,
-  amountB: number
+  amountA: ethers.BigNumber,
+  amountB: ethers.BigNumber
 ) {
   const msg = startUninstallBalanceRefundMsg(
     multisigAddr,
@@ -516,8 +535,8 @@ function validateUninstalledAndFreeBalance(
   cfAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: number,
-  amountB: number
+  amountA: ethers.BigNumber,
+  amountB: ethers.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -542,8 +561,10 @@ function validateUninstalledAndFreeBalance(
   expect(channel.multisigAddress).toEqual(multisigAddr);
   expect(channel.freeBalance.alice).toEqual(peerA);
   expect(channel.freeBalance.bob).toEqual(peerB);
-  expect(channel.freeBalance.aliceBalance).toEqual(amountA);
-  expect(channel.freeBalance.bobBalance).toEqual(amountB);
+  expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(
+    amountA.toNumber()
+  );
+  expect(channel.freeBalance.bobBalance.toNumber()).toEqual(amountB.toNumber());
 
   expect(app.dependencyNonce.nonceValue).toEqual(2);
 }
@@ -553,7 +574,7 @@ function startUninstallBalanceRefundMsg(
   appId: string,
   from: string,
   to: string,
-  amount: number
+  amount: ethers.BigNumber
 ): ClientActionMessage {
   const uninstallData = {
     peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]

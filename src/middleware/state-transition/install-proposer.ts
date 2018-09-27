@@ -1,3 +1,4 @@
+import * as ethers from "ethers";
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
@@ -142,11 +143,11 @@ export class InstallProposer {
   ): [PeerBalance, PeerBalance] {
     const peerA = new PeerBalance(
       existingFreeBalance.alice,
-      existingFreeBalance.aliceBalance - data.peerA.balance
+      existingFreeBalance.aliceBalance.sub(data.peerA.balance)
     );
     const peerB = new PeerBalance(
       existingFreeBalance.bob,
-      existingFreeBalance.bobBalance - data.peerB.balance
+      existingFreeBalance.bobBalance.sub(data.peerB.balance)
     );
     return [peerA, peerB];
   }

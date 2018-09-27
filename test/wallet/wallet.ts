@@ -1,7 +1,9 @@
+import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import networkFile from "../../contracts/networks/7777777.json";
 import { NotificationType } from "../../src/mixins/observable";
+import { deserialize } from "../../src/serializer";
 import {
   ActionName,
   ChannelStates,
@@ -216,6 +218,8 @@ export class TestWallet implements ResponseSink {
   public async receiveMessageFromClient(
     incoming: ClientActionMessage | ClientQuery
   ) {
+    incoming = deserialize(incoming);
+
     if ("query" in incoming) {
       switch (incoming.query) {
         case ClientQueryType.FreeBalance:
@@ -230,6 +234,10 @@ export class TestWallet implements ResponseSink {
       }
     } else if (incoming.action) {
       switch (incoming.action) {
+        case ActionName.DEPOSIT: {
+          await this.currentUser.deposit(incoming.data);
+          break;
+        }
         case ActionName.ADD_OBSERVER: {
           this.addObserver(incoming);
           break;

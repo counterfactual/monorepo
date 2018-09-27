@@ -1,3 +1,4 @@
+import * as ethers from "ethers";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
   Address,
@@ -31,9 +32,9 @@ export class UninstallProposer {
     const oldFreeBalance = channels[multisig].freeBalance;
     const newFreeBalance = new CfFreeBalance(
       oldFreeBalance.alice,
-      oldFreeBalance.aliceBalance + canon.peerA.balance,
+      oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,
-      oldFreeBalance.bobBalance + canon.peerB.balance,
+      oldFreeBalance.bobBalance.add(canon.peerB.balance),
       oldFreeBalance.uniqueId,
       oldFreeBalance.localNonce + 1,
       oldFreeBalance.timeout,

@@ -1,4 +1,6 @@
+import * as _ from "lodash";
 import { CfFreeBalance } from "./middleware/cf-operation/types";
+import { deserialize } from "./serializer";
 import {
   Address,
   AppChannelInfo,
@@ -71,7 +73,7 @@ export class CfState {
    * @returns a deep copy of the StateChannelInfos.
    */
   public stateChannelInfosCopy(): StateChannelInfos {
-    return JSON.parse(JSON.stringify(this.channelStates));
+    return deserialize(_.cloneDeep(this.channelStates));
   }
 
   public appChannelInfos(): AppChannelInfos {

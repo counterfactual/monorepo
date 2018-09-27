@@ -6,12 +6,12 @@ export default {
     file: "build/js/client-interface.min.js",
     format: "iife",
     sourcemap: true,
-    name: "ci",
-    globals: {
-      ethers: "ethers",
-      lodash: "_",
-      testUtils: "test-utils"
-    }
+		name: "ci",
+		globals: {
+			ethers: "ethers",
+			lodash: "_",
+			testUtils: "test-utils"
+		}
   },
   plugins: [
     json({

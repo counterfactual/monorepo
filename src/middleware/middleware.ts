@@ -117,6 +117,7 @@ export class NextMsgGenerator {
     const msg: ClientActionMessage = {
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,
+      appName: lastMsg.appName,
       action: lastMsg.action,
       data: lastMsg.data,
       multisigAddress: lastMsg.multisigAddress,
