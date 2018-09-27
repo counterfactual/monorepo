@@ -63,7 +63,7 @@ export class CfOpSetup extends CfMultiSendOp {
       this.ctx.Registry,
       this.ctx.NonceRegistry,
       depNonceKey,
-      this.dependencyNonce.nonce,
+      this.dependencyNonce.nonceValue,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);

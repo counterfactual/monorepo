@@ -108,7 +108,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     const to = this.ctx.NonceRegistry;
     const val = 0;
     const data = new ethers.Interface([Abi.setNonce]).functions.setNonce.encode(
-      [timeout, this.dependencyNonce.salt, this.dependencyNonce.nonce]
+      [timeout, this.dependencyNonce.salt, this.dependencyNonce.nonceValue]
     );
     const op = Operation.Call;
     return new MultisigInput(to, val, data, op);

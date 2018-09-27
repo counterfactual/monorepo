@@ -544,7 +544,7 @@ function validateUninstalledAndFreeBalance(
   expect(channel.freeBalance.aliceBalance).toEqual(amountA);
   expect(channel.freeBalance.bobBalance).toEqual(amountB);
 
-  expect(app.dependencyNonce.nonce).toEqual(2);
+  expect(app.dependencyNonce.nonceValue).toEqual(2);
 }
 
 function startUninstallBalanceRefundMsg(

@@ -46,7 +46,7 @@ export class CfOpInstall extends CfMultiSendOp {
       this.ctx.Registry,
       this.ctx.NonceRegistry,
       this.dependencyNonce.salt,
-      this.dependencyNonce.nonce,
+      this.dependencyNonce.nonceValue,
       this.appCfAddress,
       terms
     ]);

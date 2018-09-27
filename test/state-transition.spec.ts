@@ -120,7 +120,7 @@ function validateSetupInfos(infos: StateChannelInfos) {
 
   const expectedSalt = ethers.utils.solidityKeccak256(["uint256"], [0]);
 
-  expect(info.freeBalance.nonce.nonce).toEqual(1);
+  expect(info.freeBalance.nonce.nonceValue).toEqual(1);
   expect(info.freeBalance.nonce.salt).toEqual(expectedSalt);
 }
 
@@ -182,5 +182,5 @@ function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
   expect(app.cfApp.getTurnTaker).toEqual(TURN);
   expect(app.cfApp.isStateTerminal).toEqual(IS_STATE_TERMINAL);
   expect(app.dependencyNonce.salt).toEqual(expectedSalt);
-  expect(app.dependencyNonce.nonce).toEqual(1);
+  expect(app.dependencyNonce.nonceValue).toEqual(1);
 }

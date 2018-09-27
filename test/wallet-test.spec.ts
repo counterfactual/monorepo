@@ -437,7 +437,7 @@ function validateNoAppsAndFreeBalance(
   expect(channel.freeBalance.bobBalance).toBe(amountB);
 
   Object.keys(channel.appChannels).forEach(appId => {
-    expect(channel.appChannels[appId].dependencyNonce.nonce).toBe(2);
+    expect(channel.appChannels[appId].dependencyNonce.nonceValue).toBe(2);
   });
 }
 
