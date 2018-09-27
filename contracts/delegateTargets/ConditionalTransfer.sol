@@ -29,7 +29,7 @@ contract ConditionalTransfer is Conditional {
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param key The key in the nonce registry
   /// @param expectedNonce The expected nonce in the nonce registry
-  /// @param appCfAddress Counterfactual address of the state channel contract
+  /// @param appCfAddress Counterfactual address of the app contract
   /// @param terms The pre-agreed upon terms of the funds transfer
   function executeAppConditionalTransfer(
     address registry,
