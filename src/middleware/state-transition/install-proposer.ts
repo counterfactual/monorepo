@@ -113,7 +113,7 @@ export class InstallProposer {
       timeout: data.timeout,
       terms,
       cfApp: app,
-      dependencyNonce: new CfNonce(uniqueId)
+      dependencyNonce: new CfNonce(uniqueId, 1)
     };
   }
 

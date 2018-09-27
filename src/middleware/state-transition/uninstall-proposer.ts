@@ -22,7 +22,7 @@ export class UninstallProposer {
       throw new Error("uninstall message must have appId set");
     }
     // delete the app by bumping the nonce
-    channels[multisig].appChannels[appId].dependencyNonce.nonce += 1;
+    channels[multisig].appChannels[appId].dependencyNonce.nonceValue += 1;
     // add balance and update nonce
     const canon = CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],

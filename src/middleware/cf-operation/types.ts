@@ -236,14 +236,11 @@ export class CfFreeBalance {
 
 export class CfNonce {
   public salt: Bytes32;
-  public nonce: number;
+  public nonceValue: number;
 
-  constructor(uniqueId: number, nonce?: number) {
+  constructor(uniqueId: number, nonceValue: number) {
     this.salt = ethers.utils.solidityKeccak256(["uint256"], [uniqueId]);
-    if (!nonce) {
-      nonce = 1;
-    }
-    this.nonce = nonce;
+    this.nonceValue = nonceValue;
   }
 }
 
