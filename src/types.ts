@@ -32,6 +32,7 @@ export interface WalletMessaging {
 export interface ClientMessage {
   requestId: string;
   appId?: string;
+  appName?: string;
   type?: string;
   action: ActionName;
 }
@@ -131,15 +132,15 @@ export interface UpdateOptions {
 }
 
 export interface UninstallOptions {
-  peerABalance: number;
-  peerBBalance: number;
+  peerABalance: ethers.BigNumber;
+  peerBBalance: ethers.BigNumber;
 }
 
 export interface InstallOptions {
   abiEncoding: string;
   state: object;
-  peerABalance: number;
-  peerBBalance: number;
+  peerABalance: ethers.BigNumber;
+  peerBBalance: ethers.BigNumber;
 }
 
 /**
@@ -165,9 +166,9 @@ export class PeerBalance {
    */
   public static balances(
     address1: Address,
-    balance1: number,
+    balance1: number | ethers.BigNumber,
     address2: Address,
-    balance2: number
+    balance2: number | ethers.BigNumber
   ): CanonicalPeerBalance {
     if (address2.localeCompare(address1) < 0) {
       return new CanonicalPeerBalance(
@@ -183,8 +184,8 @@ export class PeerBalance {
 
   public static add(bals: PeerBalance[], inc: PeerBalance[]): PeerBalance[] {
     return [
-      new PeerBalance(bals[0].address, bals[0].balance + inc[0].balance),
-      new PeerBalance(bals[1].address, bals[1].balance + inc[1].balance)
+      new PeerBalance(bals[0].address, bals[0].balance.add(inc[0].balance)),
+      new PeerBalance(bals[1].address, bals[1].balance.add(inc[1].balance))
     ];
   }
 
@@ -199,28 +200,31 @@ export class PeerBalance {
       return [
         new PeerBalance(
           oldBals[0].address,
-          oldBals[0].balance - newBals[0].balance
+          oldBals[0].balance.sub(newBals[0].balance)
         ),
         new PeerBalance(
           oldBals[1].address,
-          oldBals[1].balance - newBals[1].balance
+          oldBals[1].balance.sub(newBals[1].balance)
         )
       ];
     } else {
       return [
         new PeerBalance(
           oldBals[0].address,
-          oldBals[0].balance - newBals[1].balance
+          oldBals[0].balance.sub(newBals[1].balance)
         ),
         new PeerBalance(
           oldBals[1].address,
-          oldBals[1].balance - newBals[0].balance
+          oldBals[1].balance.sub(newBals[0].balance)
         )
       ];
     }
   }
+  public balance: ethers.ethers.BigNumber;
 
-  constructor(readonly address: Address, readonly balance: number) {}
+  constructor(readonly address: Address, balance: number | ethers.BigNumber) {
+    this.balance = ethers.utils.bigNumberify(balance.toString());
+  }
 }
 
 export class NetworkContext {
@@ -374,6 +378,7 @@ export enum ActionName {
   INSTALL = "install",
   UPDATE = "update",
   UNINSTALL = "uninstall",
+  DEPOSIT = "deposit",
   ADD_OBSERVER = "addObserver",
   REMOVE_OBSERVER = "removeObserver",
   REGISTER_IO = "registerIo",

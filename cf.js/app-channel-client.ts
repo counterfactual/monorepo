@@ -52,10 +52,13 @@ export class AppChannelClient {
   }
 
   public async uninstall(options: UninstallOptions): Promise<ClientResponse> {
+    const stateChannelInfo = await this.stateChannel.queryStateChannel();
+    const freeBalance = stateChannelInfo.data.stateChannel.freeBalance;
+
     const uninstallData = {
       peerAmounts: [
-        new PeerBalance(this.stateChannel.fromAddress, options.peerABalance),
-        new PeerBalance(this.stateChannel.toAddress, options.peerBBalance)
+        new PeerBalance(freeBalance.alice, options.peerABalance),
+        new PeerBalance(freeBalance.bob, options.peerBBalance)
       ]
     };
 

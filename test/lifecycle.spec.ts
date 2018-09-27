@@ -1,9 +1,5 @@
-import {
-  CfAppInterface,
-  Terms,
-  zeroAddress,
-  zeroBytes32
-} from "../src/middleware/cf-operation/types";
+import * as ethers from "ethers";
+import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
 import {
   ActionName,
   ClientActionMessage,
@@ -64,8 +60,18 @@ class Depositor {
     walletA: TestWallet,
     walletB: TestWallet
   ): Promise<any> {
-    await Depositor.deposit(walletA, walletB, 10, 0);
-    await Depositor.deposit(walletB, walletA, 5, 10);
+    await Depositor.deposit(
+      walletA,
+      walletB,
+      ethers.utils.bigNumberify(10),
+      ethers.utils.bigNumberify(0)
+    );
+    await Depositor.deposit(
+      walletB,
+      walletA,
+      ethers.utils.bigNumberify(5),
+      ethers.utils.bigNumberify(10)
+    );
   }
 
   /**
@@ -76,8 +82,8 @@ class Depositor {
   public static async deposit(
     walletA: TestWallet,
     walletB: TestWallet,
-    amountA: number,
-    amountBCumlative: number
+    amountA: ethers.BigNumber,
+    amountBCumlative: ethers.BigNumber
   ) {
     const cfAddr = await Depositor.installBalanceRefund(
       walletA,
@@ -96,7 +102,7 @@ class Depositor {
   public static async installBalanceRefund(
     walletA: TestWallet,
     walletB: TestWallet,
-    threshold: number
+    threshold: ethers.BigNumber
   ) {
     const msg = Depositor.startInstallBalanceRefundMsg(
       walletA.address,
@@ -121,10 +127,10 @@ class Depositor {
   public static startInstallBalanceRefundMsg(
     from: string,
     to: string,
-    threshold: number
+    threshold: ethers.BigNumber
   ): ClientActionMessage {
     const canon = PeerBalance.balances(from, 0, to, 0);
-    const terms = new Terms(0, 10, zeroAddress); // todo
+    const terms = new Terms(0, 10, ethers.constants.AddressZero); // todo
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -159,7 +165,7 @@ class Depositor {
   public static validateInstalledBalanceRefund(
     walletA: TestWallet,
     walletB: TestWallet,
-    amount: number
+    amount: ethers.BigNumber
   ) {
     const stateChannel =
       walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
@@ -171,16 +177,16 @@ class Depositor {
     expect(cfAddrs.length).toEqual(1);
 
     const cfAddr = cfAddrs[0];
-    expect(appChannels[cfAddr].peerA.balance).toEqual(0);
+    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
     expect(appChannels[cfAddr].peerA.address).toEqual(
       stateChannel.freeBalance.alice
     );
-    expect(appChannels[cfAddr].peerA.balance).toEqual(0);
-    expect(appChannels[cfAddr].peerB.balance).toEqual(0);
+    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
+    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
     expect(appChannels[cfAddr].peerB.address).toEqual(
       stateChannel.freeBalance.bob
     );
-    expect(appChannels[cfAddr].peerB.balance).toEqual(0);
+    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
 
     return cfAddr;
   }
@@ -189,8 +195,8 @@ class Depositor {
     cfAddr: string,
     walletA: TestWallet,
     walletB: TestWallet,
-    amountA: number,
-    amountB: number
+    amountA: ethers.BigNumber,
+    amountB: ethers.BigNumber
   ) {
     const msg = Depositor.startUninstallBalanceRefundMsg(
       cfAddr,
@@ -210,8 +216,8 @@ class Depositor {
     cfAddr: string,
     walletA: TestWallet,
     walletB: TestWallet,
-    amountA: number,
-    amountB: number
+    amountA: ethers.BigNumber,
+    amountB: ethers.BigNumber
   ) {
     // todo: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
@@ -242,7 +248,7 @@ class Depositor {
     appId: string,
     from: string,
     to: string,
-    amount: number
+    amount: ethers.BigNumber
   ): ClientActionMessage {
     const uninstallData = {
       peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
@@ -283,7 +289,7 @@ class Ttt {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new Terms(0, 10, zeroAddress); // todo
+    const terms = new Terms(0, 10, ethers.constants.AddressZero); // todo
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -337,15 +343,15 @@ class Ttt {
 
     // first validate the app
     const cfAddr = cfAddrs[0];
-    expect(appChannels[cfAddr].peerA.balance).toEqual(2);
-    expect(appChannels[cfAddr].peerB.balance).toEqual(2);
+    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(2);
+    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(2);
 
     // now validate the free balance
     const channel =
       walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
     // start with 10, 5 and both parties deposit 2 into TTT.
-    expect(channel.freeBalance.aliceBalance).toEqual(8);
-    expect(channel.freeBalance.bobBalance).toEqual(3);
+    expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
+    expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
     return cfAddr;
   }
 
@@ -402,7 +408,7 @@ class Ttt {
   ): ClientActionMessage {
     const updateData: UpdateData = {
       encodedAppState: state,
-      appStateHash: zeroBytes32 // todo
+      appStateHash: ethers.constants.HashZero // todo
     };
     return {
       requestId: "1",
@@ -444,24 +450,34 @@ class Ttt {
     const msg = Ttt.uninstallStartMsg(
       cfAddr,
       walletA.address,
-      4,
+      ethers.utils.bigNumberify(4),
       walletB.address,
-      0
+      ethers.utils.bigNumberify(0)
     );
     const response = await walletA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
-    Ttt.validateUninstall(cfAddr, walletA, 12, 3);
+    Ttt.validateUninstall(
+      cfAddr,
+      walletA,
+      ethers.utils.bigNumberify(12),
+      ethers.utils.bigNumberify(3)
+    );
     await sleep(50);
-    Ttt.validateUninstall(cfAddr, walletB, 12, 3);
+    Ttt.validateUninstall(
+      cfAddr,
+      walletB,
+      ethers.utils.bigNumberify(12),
+      ethers.utils.bigNumberify(3)
+    );
   }
 
   public static uninstallStartMsg(
     cfAddr: string,
     addressA: string,
-    amountA: number,
+    amountA: ethers.BigNumber,
     addressB: string,
-    amountB: number
+    amountB: ethers.BigNumber
   ): ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
@@ -484,8 +500,8 @@ class Ttt {
   public static validateUninstall(
     cfAddr: string,
     wallet: TestWallet,
-    amountA: number,
-    amountB: number
+    amountA: ethers.BigNumber,
+    amountB: ethers.BigNumber
   ) {
     const channel =
       wallet.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];

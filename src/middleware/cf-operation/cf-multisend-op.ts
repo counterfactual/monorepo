@@ -90,8 +90,8 @@ export abstract class CfMultiSendOp extends CfOperation {
         [
           this.cfFreeBalance.alice,
           this.cfFreeBalance.bob,
-          this.cfFreeBalance.aliceBalance.toString(),
-          this.cfFreeBalance.bobBalance.toString()
+          this.cfFreeBalance.aliceBalance,
+          this.cfFreeBalance.bobBalance
         ]
       )
     );

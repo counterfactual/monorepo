@@ -86,6 +86,13 @@ export class User implements Observable, ResponseSink {
     this.ethersWallet = new ethers.Wallet(privateKey, this.blockchainProvider);
   }
 
+  public async deposit(options) {
+    await this.ethersWallet.sendTransaction({
+      to: options.multisig,
+      value: options.value
+    });
+  }
+
   public registerObserver(type: NotificationType, callback: Function) {}
 
   public unregisterObserver(type: NotificationType, callback: Function) {}

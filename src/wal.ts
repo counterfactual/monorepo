@@ -1,4 +1,5 @@
 import { Action, ActionExecution } from "./action";
+import { deserialize } from "./serializer";
 import {
   ActionName,
   Address,
@@ -88,7 +89,7 @@ export class CfVmWal {
     if (logStr === undefined) {
       return {};
     } else {
-      return JSON.parse(logStr);
+      return deserialize(JSON.parse(logStr));
     }
   }
 

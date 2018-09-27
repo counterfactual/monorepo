@@ -1,5 +1,8 @@
+import * as ethers from "ethers";
+
 import { Instruction } from "../../src/instructions";
 import { getLastResult } from "../../src/middleware/middleware";
+import { deserialize } from "../../src/serializer";
 import { Context } from "../../src/state";
 import {
   ActionName,
@@ -37,6 +40,8 @@ export class IoProvider {
   }
 
   public receiveMessageFromPeer(message: ClientActionMessage) {
+    message = deserialize(message) as ClientActionMessage;
+
     let done = false;
     const executedListeners = [] as number[];
     let count = 0;

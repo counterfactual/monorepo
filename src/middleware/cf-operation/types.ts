@@ -1,4 +1,3 @@
-import { ZERO_BYTES32 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
 import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
 import * as abi from "../../abi";
@@ -13,10 +12,6 @@ import {
 } from "../../types";
 
 const { keccak256 } = ethers.utils;
-
-export const zeroAddress = "0x0000000000000000000000000000000000000000";
-export const zeroBytes32 =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 // todo: remove this and fetch the abi's from the build artifacts
 export const Abi = {
@@ -90,7 +85,7 @@ export class CfAppInterface {
       console.error(
         "WARNING: Can't compute hash for AppInterface because its address is 0x0"
       );
-      return ZERO_BYTES32;
+      return ethers.constants.HashZero;
     }
     return keccak256(
       abi.encode(
@@ -203,7 +198,7 @@ export class CfFreeBalance {
     return new Terms(
       0, // 0 means ETH
       ethers.utils.parseEther("0.001").toNumber(), // FIXME: un-hardcode
-      zeroAddress
+      ethers.constants.AddressZero
     );
   }
 
@@ -228,9 +223,9 @@ export class CfFreeBalance {
 
   constructor(
     readonly alice: Address, // first person in free balance object
-    readonly aliceBalance: number,
+    readonly aliceBalance: ethers.BigNumber,
     readonly bob: Address, // second person in free balance object
-    readonly bobBalance: number,
+    readonly bobBalance: ethers.BigNumber,
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,

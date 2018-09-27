@@ -1,12 +1,7 @@
 import * as ethers from "ethers";
 import { AppChannelClient } from "../cf.js/app-channel-client";
 import { ClientInterface } from "../cf.js/client-interface";
-import {
-  CfAppInterface,
-  Terms,
-  zeroAddress,
-  zeroBytes32
-} from "../src/middleware/cf-operation/types";
+import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
 import { ClientActionMessage, WalletMessaging } from "../src/types";
 import { sleep } from "./common";
 import {
@@ -22,16 +17,20 @@ import { TestWallet } from "./wallet/wallet";
 const PAYMENT_APP_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const INSTALL_OPTIONS = {
-  peerABalance: 0,
-  peerBBalance: 0,
+  peerABalance: ethers.utils.bigNumberify(0),
+  peerBBalance: ethers.utils.bigNumberify(0),
   abiEncoding: PAYMENT_APP_ENCODING,
   state: {
     alice: A_ADDRESS,
     bob: B_ADDRESS,
-    aliceBalance: ethers.utils.bigNumberify(10).toString(),
-    bobBalance: ethers.utils.bigNumberify(10).toString()
+    aliceBalance: ethers.utils.bigNumberify(10),
+    bobBalance: ethers.utils.bigNumberify(10)
   }
 };
+
+let blockchainProvider = new ethers.providers.JsonRpcProvider(
+  process.env.GANACHE_URL
+);
 
 class ClientWalletBridge implements WalletMessaging {
   public wallet: TestWallet;
@@ -72,22 +71,28 @@ describe("Lifecycle", async () => {
     multisigContractAddress = multisigContract.address;
   });
 
-  it("Can observe an installation of an app", async () => {
-    expect.hasAssertions();
-
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
+  let walletA, walletB;
+  let connectionA, connectionB;
+  let clientA, clientB;
+  beforeEach(async () => {
+    walletA = new TestWallet();
+    walletB = new TestWallet();
     walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-    const connectionA = new ClientWalletBridge(walletA);
-    const connectionB = new ClientWalletBridge(walletB);
-    const clientA = new ClientInterface("some-user-id", connectionA);
-    const clientB = new ClientInterface("some-user-id", connectionB);
+    connectionA = new ClientWalletBridge(walletA);
+    connectionB = new ClientWalletBridge(walletB);
+    clientA = new ClientInterface("some-user-id", connectionA);
+    clientB = new ClientInterface("some-user-id", connectionB);
     await clientA.init();
     await clientB.init();
 
     walletA.currentUser.io.peer = walletB;
     walletB.currentUser.io.peer = walletA;
+  });
+
+  it("Can observe an installation of an app", async () => {
+    // hasAssertions to ensure that the "installCompleted" observer fires
+    expect.hasAssertions();
 
     const stateChannelA = await clientA.setup(
       B_ADDRESS,
@@ -103,21 +108,8 @@ describe("Lifecycle", async () => {
   });
 
   it("Can remove observers", async () => {
+    // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
-
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-    const connectionA = new ClientWalletBridge(walletA);
-    const connectionB = new ClientWalletBridge(walletB);
-    const clientA = new ClientInterface("some-user-id", connectionA);
-    const clientB = new ClientInterface("some-user-id", connectionB);
-    await clientA.init();
-    await clientB.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
 
     const stateChannelA = await clientA.setup(
       B_ADDRESS,
@@ -136,6 +128,7 @@ describe("Lifecycle", async () => {
   });
 
   it("Will notify only the current user", async () => {
+    // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
 
     const walletA = new TestWallet();
@@ -159,41 +152,51 @@ describe("Lifecycle", async () => {
     walletA.currentUser.io.peer = walletB;
     walletB.currentUser.io.peer = walletA;
 
-    const threshold = 10;
-
     const stateChannelAB = await clientA.setup(
       B_ADDRESS,
       multisigContractAddress
     );
-    const stateChannelBA = await clientB.getOrCreateStateChannel(
-      multisigContractAddress,
-      A_ADDRESS
-    );
+    await clientB.getOrCreateStateChannel(multisigContractAddress, A_ADDRESS);
 
     clientB.addObserver("installCompleted", data => {
       expect(true).toBeTruthy();
     });
 
     await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
-    const uninstallAmountA = 10;
-    const uninstallAmountB = 0;
 
     await sleep(50);
   });
 
-  it("Can install an app", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
+  it("Can deposit to a state channel", async () => {
+    let amountA = ethers.utils.parseEther("5");
+    let amountB = ethers.utils.parseEther("7");
 
+    let stateChannelAB = await clientA.setup(
+      B_ADDRESS,
+      multisigContractAddress
+    );
+    let stateChannelBA = clientB.getOrCreateStateChannel(
+      stateChannelAB.multisigAddress,
+      A_ADDRESS
+    );
+
+    await stateChannelAB.deposit(amountA, ethers.utils.bigNumberify(0));
+    await validateDeposit(
+      walletA,
+      walletB,
+      amountA,
+      ethers.utils.bigNumberify(0)
+    );
+    await stateChannelBA.deposit(amountB, amountA);
+    await validateDeposit(walletA, walletB, amountA, amountB);
+  });
+
+  it("Can install an app", async () => {
     const connection = new ClientWalletBridge(walletA);
     const client = new ClientInterface("some-user-id", connection);
     await client.init();
-
     walletA.currentUser.io.peer = walletB;
     walletB.currentUser.io.peer = walletA;
-
     const threshold = 10;
 
     const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
@@ -207,17 +210,9 @@ describe("Lifecycle", async () => {
   });
 
   it("Can uninstall an app", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connection = new ClientWalletBridge(walletA);
     const client = new ClientInterface("some-user-id", connection);
     await client.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
 
     const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
     const appChannel = await stateChannel.install(
@@ -225,8 +220,8 @@ describe("Lifecycle", async () => {
       INSTALL_OPTIONS
     );
 
-    const uninstallAmountA = 10;
-    const uninstallAmountB = 0;
+    const uninstallAmountA = ethers.utils.bigNumberify(10);
+    const uninstallAmountB = ethers.utils.bigNumberify(0);
 
     await appChannel.uninstall({
       peerABalance: uninstallAmountA,
@@ -250,19 +245,9 @@ describe("Lifecycle", async () => {
   });
 
   it("Can update an app", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connection = new ClientWalletBridge(walletA);
     const client = new ClientInterface("some-user-id", connection);
     await client.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
-
-    const threshold = 10;
 
     const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
     const appChannel = await stateChannel.install(
@@ -274,17 +259,9 @@ describe("Lifecycle", async () => {
   });
 
   it("Can change users", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connection = new ClientWalletBridge(walletA);
     const client = new ClientInterface("some-user-id", connection);
     await client.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
 
     const threshold = 10;
 
@@ -307,38 +284,22 @@ describe("Lifecycle", async () => {
   });
 
   it("Can query freeBalance", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connection = new ClientWalletBridge(walletA);
     const client = new ClientInterface("some-user-id", connection);
     await client.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
 
     const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
     const freeBalance = await stateChannel.queryFreeBalance();
 
-    expect(freeBalance.data.freeBalance.aliceBalance).toBe(0);
-    expect(freeBalance.data.freeBalance.bobBalance).toBe(0);
+    expect(freeBalance.data.freeBalance.aliceBalance.toNumber()).toBe(0);
+    expect(freeBalance.data.freeBalance.bobBalance.toNumber()).toBe(0);
   });
 
   it("Can query stateChannel", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connection = new ClientWalletBridge(walletA);
     const clientA = new ClientInterface("some-user-id", connection);
     await clientA.init();
-
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
 
     const stateChannelAB = await clientA.setup(
       B_ADDRESS,
@@ -359,17 +320,8 @@ describe("Lifecycle", async () => {
   });
 
   it("Allows apps to communicate directly with each other", async () => {
-    const walletA = new TestWallet();
-    const walletB = new TestWallet();
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-
     const connectionA = new ClientWalletBridge(walletA);
     const clientA = new ClientInterface("some-user-id", connectionA);
-
-    const connectionB = new ClientWalletBridge(walletB);
-    const clientB = new ClientInterface("some-user-id", connectionB);
-
     walletA.onMessage(msg => {
       clientA.sendIOMessage(msg);
     });
@@ -408,8 +360,8 @@ describe("Lifecycle", async () => {
 function validateNoAppsAndFreeBalance(
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: number,
-  amountB: number
+  amountA: ethers.BigNumber,
+  amountB: ethers.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -433,8 +385,8 @@ function validateNoAppsAndFreeBalance(
   expect(channel.multisigAddress).toBe(multisigContractAddress);
   expect(channel.freeBalance.alice).toBe(peerA);
   expect(channel.freeBalance.bob).toBe(peerB);
-  expect(channel.freeBalance.aliceBalance).toBe(amountA);
-  expect(channel.freeBalance.bobBalance).toBe(amountB);
+  expect(channel.freeBalance.aliceBalance.toNumber()).toBe(amountA.toNumber());
+  expect(channel.freeBalance.bobBalance.toNumber()).toBe(amountB.toNumber());
 
   Object.keys(channel.appChannels).forEach(appId => {
     expect(channel.appChannels[appId].dependencyNonce.nonceValue).toBe(2);
@@ -450,17 +402,53 @@ function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 
   const cfAddr = cfAddrs[0];
 
-  expect(appChannels[cfAddr].peerA.balance).toBe(0);
+  expect(appChannels[cfAddr].peerA.balance.toNumber()).toBe(0);
   expect(appChannels[cfAddr].peerA.address).toBe(
     stateChannel.freeBalance.alice
   );
-  expect(appChannels[cfAddr].peerA.balance).toBe(0);
+  expect(appChannels[cfAddr].peerA.balance.toNumber()).toBe(0);
 
-  expect(appChannels[cfAddr].peerB.balance).toBe(0);
+  expect(appChannels[cfAddr].peerB.balance.toNumber()).toBe(0);
   expect(appChannels[cfAddr].peerB.address).toBe(stateChannel.freeBalance.bob);
-  expect(appChannels[cfAddr].peerB.balance).toBe(0);
+  expect(appChannels[cfAddr].peerB.balance.toNumber()).toBe(0);
 
   return cfAddr;
+}
+
+async function validateDeposit(
+  walletA: TestWallet,
+  walletB: TestWallet,
+  amountA: ethers.BigNumber,
+  amountB: ethers.BigNumber
+) {
+  await validateMultisigBalance(amountA, amountB);
+  validateFreebalance(walletB, amountA, amountB);
+  validateFreebalance(walletA, amountA, amountB);
+}
+
+async function validateMultisigBalance(
+  aliceBalance: ethers.BigNumber,
+  bobBalance: ethers.BigNumber
+) {
+  let multisigAmount = await blockchainProvider.getBalance(
+    multisigContractAddress
+  );
+  expect(ethers.utils.bigNumberify(multisigAmount).toString()).toBe(
+    aliceBalance.add(bobBalance).toString()
+  );
+}
+
+function validateFreebalance(
+  wallet: TestWallet,
+  aliceBalance: ethers.BigNumber,
+  bobBalance: ethers.BigNumber
+) {
+  let stateChannel =
+    wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
+  let freeBalance = stateChannel.freeBalance;
+
+  expect(freeBalance.aliceBalance.toString()).toBe(aliceBalance.toString());
+  expect(freeBalance.bobBalance.toString()).toBe(bobBalance.toString());
 }
 
 async function makePayments(

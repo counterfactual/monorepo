@@ -86,9 +86,9 @@ function setupClientMsg(): ClientActionMessage {
 function setupInstallCfState(): CfState {
   const freeBalance = new CfFreeBalance(
     A_ADDRESS,
-    20,
+    ethers.utils.bigNumberify(20),
     B_ADDRESS,
-    20,
+    ethers.utils.bigNumberify(20),
     0, // local nonce
     0, // uniqueId
     100, // timeout
@@ -112,9 +112,9 @@ function validateSetupInfos(infos: StateChannelInfos) {
   expect(info.me).toEqual(A_ADDRESS);
   expect(Object.keys(info.appChannels).length).toEqual(0);
   expect(info.freeBalance.alice).toEqual(A_ADDRESS);
-  expect(info.freeBalance.aliceBalance).toEqual(0);
+  expect(info.freeBalance.aliceBalance.toNumber()).toEqual(0);
   expect(info.freeBalance.bob).toEqual(B_ADDRESS);
-  expect(info.freeBalance.bobBalance).toEqual(0);
+  expect(info.freeBalance.bobBalance.toNumber()).toEqual(0);
   expect(info.freeBalance.localNonce).toEqual(0);
   expect(info.freeBalance.uniqueId).toEqual(0);
 
@@ -157,8 +157,8 @@ function installClientMsg(): ClientActionMessage {
 function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
   const stateChannel = infos[MULTISIG_ADDRESS];
 
-  expect(stateChannel.freeBalance.aliceBalance).toEqual(15);
-  expect(stateChannel.freeBalance.bobBalance).toEqual(17);
+  expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);
+  expect(stateChannel.freeBalance.bobBalance.toNumber()).toEqual(17);
 
   const app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
   const expectedSalt =
@@ -166,7 +166,7 @@ function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
 
   expect(app.id).toEqual(expectedCfAddr);
   expect(app.peerA.address).toEqual(A_ADDRESS);
-  expect(app.peerA.balance).toEqual(5);
+  expect(app.peerA.balance.toNumber()).toEqual(5);
   expect(app.peerB.address).toEqual(B_ADDRESS);
   expect(app.keyA).toEqual(KEY_A);
   expect(app.keyB).toEqual(KEY_B);
