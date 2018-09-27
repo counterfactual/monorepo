@@ -152,7 +152,7 @@ async function executeStateChannelTransfer(
 
   await multisig.execDelegatecall(
     conditionalTransfer,
-    "executeStateChannelConditionalTransfer",
+    "executeAppConditionalTransfer",
     [
       registry.address,
       nonceRegistry.address,

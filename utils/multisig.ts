@@ -85,6 +85,9 @@ export class Multisig {
     args: any[],
     signers: ethers.Wallet[]
   ): Promise<ethers.types.Transaction> {
+    if (toContract.interface.functions[funcName] === undefined) {
+      throw new Error(`Tried to execute delegateCall to ${funcName} but no such function exists on contract`)
+    }
     return this.execTransaction(
       toContract,
       funcName,
