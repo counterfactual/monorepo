@@ -1,6 +1,7 @@
 import { ZERO_BYTES32 } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
 import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
+import * as abi from "../../abi";
 import {
   Address,
   Bytes,
@@ -10,6 +11,8 @@ import {
   NetworkContext,
   Signature
 } from "../../types";
+
+const { keccak256 } = ethers.utils;
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 export const zeroBytes32 =
@@ -61,7 +64,7 @@ export class CfAppInterface {
   ) {}
 
   public encode(state: object): string {
-    return ethers.utils.defaultAbiCoder.encode([this.abiEncoding], [state]);
+    return abi.encode([this.abiEncoding], [state]);
   }
 
   public stateHash(state: object): string {
@@ -78,7 +81,7 @@ export class CfAppInterface {
       { types: ["bytes1"], values: ["0x19"] }
     );
 
-    return ethers.utils.solidityKeccak256(hashArgs.types, hashArgs.values);
+    return keccak256(abi.encodePacked(hashArgs.types, hashArgs.values));
   }
 
   public hash(): string {
@@ -89,21 +92,22 @@ export class CfAppInterface {
       );
       return ZERO_BYTES32;
     }
-    const appBytes = ethers.utils.defaultAbiCoder.encode(
-      [
-        "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
-      ],
-      [
-        {
-          addr: this.address,
-          applyAction: this.applyAction,
-          resolve: this.resolve,
-          getTurnTaker: this.getTurnTaker,
-          isStateTerminal: this.isStateTerminal
-        }
-      ]
+    return keccak256(
+      abi.encode(
+        [
+          "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
+        ],
+        [
+          {
+            addr: this.address,
+            applyAction: this.applyAction,
+            resolve: this.resolve,
+            getTurnTaker: this.getTurnTaker,
+            isStateTerminal: this.isStateTerminal
+          }
+        ]
+      )
     );
-    return ethers.utils.solidityKeccak256(["bytes"], [appBytes]);
   }
 }
 
@@ -115,8 +119,8 @@ export class Terms {
   ) {}
 
   public hash(): string {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    return keccak256(
+      abi.encode(
         ["bytes1", "uint8", "uint256", "address"],
         ["0x19", this.assetType, this.limit, this.token]
       )
@@ -174,7 +178,7 @@ export class MultiSend {
   public input(multisend: Address): MultisigInput {
     let txs: string = "0x";
     for (const transaction of this.transactions) {
-      txs += ethers.utils.defaultAbiCoder
+      txs += abi
         .encode(
           ["uint256", "address", "uint256", "bytes"],
           [transaction.op, transaction.to, transaction.val, transaction.data]
@@ -239,7 +243,7 @@ export class CfNonce {
   public nonceValue: number;
 
   constructor(uniqueId: number, nonceValue: number) {
-    this.salt = ethers.utils.solidityKeccak256(["uint256"], [uniqueId]);
+    this.salt = keccak256(abi.encodePacked(["uint256"], [uniqueId]));
     this.nonceValue = nonceValue;
   }
 }
@@ -282,9 +286,11 @@ export class CfStateChannel {
       this.timeout
     ]);
 
-    return ethers.utils.solidityKeccak256(
-      ["bytes1", "bytes", "uint256"],
-      ["0x19", initcode, this.uniqueId]
+    return keccak256(
+      abi.encodePacked(
+        ["bytes1", "bytes", "uint256"],
+        ["0x19", initcode, this.uniqueId]
+      )
     );
   }
 }

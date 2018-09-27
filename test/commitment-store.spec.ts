@@ -1,3 +1,4 @@
+import * as abi from "../src/abi";
 import { ethers } from "ethers";
 import { CfOpSetup } from "../src/middleware/cf-operation/cf-op-setup";
 import { Abi } from "../src/middleware/cf-operation/types";
@@ -58,10 +59,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
 
   let multisigInput;
   it("the transaction's call data should be another transaction being sent to the multisend address", () => {
-    multisigInput = ethers.utils.defaultAbiCoder.decode(
-      [Abi.execTransaction],
-      setupTransaction.data
-    )[0];
+    multisigInput = abi.decode([Abi.execTransaction], setupTransaction.data)[0];
 
     expect(multisigInput.to.toLowerCase()).toEqual(
       walletA.currentUser.vm.cfState.networkContext.MultiSend

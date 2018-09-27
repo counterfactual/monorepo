@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import * as abi from "../../abi";
 import { Address, NetworkContext, Signature } from "../../types";
 import * as common from "./common";
 import {
@@ -8,6 +9,7 @@ import {
   Terms,
   Transaction
 } from "./types";
+const { keccak256 } = ethers.utils;
 
 export class CfOpSetState extends CfOperation {
   constructor(
@@ -25,15 +27,17 @@ export class CfOpSetState extends CfOperation {
   }
 
   public hashToSign(): string {
-    return ethers.utils.solidityKeccak256(
-      ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
-      [
-        "0x19",
-        this.signingKeys,
-        this.appLocalNonce,
-        this.timeout,
-        this.appStateHash
-      ]
+    return keccak256(
+      abi.encodePacked(
+        ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+        [
+          "0x19",
+          this.signingKeys,
+          this.appLocalNonce,
+          this.timeout,
+          this.appStateHash
+        ]
+      )
     );
   }
 
