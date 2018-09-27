@@ -11,7 +11,7 @@ export const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
 export const Signatures = AbstractContract.loadBuildArtifact("Signatures");
 export const Transfer = AbstractContract.loadBuildArtifact("Transfer");
 
-export const StateChannel = AbstractContract.loadBuildArtifact("StateChannel", {
+export const AppInstance = AbstractContract.loadBuildArtifact("AppInstance", {
   StaticCall,
   Signatures,
   Transfer
@@ -32,5 +32,5 @@ export default {
   MinimumViableMultisig,
   Signatures,
   Transfer,
-  StateChannel
+  AppInstance
 };
