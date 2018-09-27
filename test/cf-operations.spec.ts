@@ -1,5 +1,6 @@
 import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
+import * as abi from "../src/abi";
 import {
   CfAppInterface,
   CfFreeBalance,
@@ -165,7 +166,7 @@ describe("Setup Protocol", async function() {
       cfFreeBalance.aliceBalance,
       cfFreeBalance.bobBalance
     ];
-    const freeBalanceFinalState = ethers.utils.defaultAbiCoder.encode(
+    const freeBalanceFinalState = abi.encode(
       ["address", "address", "uint256", "uint256"],
       values
     );
@@ -192,7 +193,7 @@ describe("Setup Protocol", async function() {
       app.getTurnTaker,
       app.isStateTerminal
     ];
-    const termsData = ethers.utils.defaultAbiCoder.encode(
+    const termsData = abi.encode(
       ["bytes1", "uint8", "uint256", "address"],
       ["0x19", terms.assetType, terms.limit, terms.token]
     );

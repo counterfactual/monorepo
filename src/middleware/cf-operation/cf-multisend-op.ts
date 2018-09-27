@@ -1,5 +1,6 @@
 import * as ethers from "ethers";
 import Multisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
+import * as abi from "../../abi";
 import { Address, Bytes, NetworkContext, Signature } from "../../types";
 import * as common from "./common";
 import {
@@ -13,6 +14,7 @@ import {
   Operation,
   Transaction
 } from "./types";
+const { keccak256 } = ethers.utils;
 
 export abstract class CfMultiSendOp extends CfOperation {
   constructor(
@@ -46,16 +48,18 @@ export abstract class CfMultiSendOp extends CfOperation {
 
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
-    return ethers.utils.solidityKeccak256(
-      ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
-      [
-        "0x19",
-        [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
-        multisigInput.to,
-        multisigInput.val,
-        multisigInput.data,
-        multisigInput.op
-      ]
+    return keccak256(
+      abi.encodePacked(
+        ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
+        [
+          "0x19",
+          [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
+          multisigInput.to,
+          multisigInput.val,
+          multisigInput.data,
+          multisigInput.op
+        ]
+      )
     );
   }
 
@@ -80,17 +84,17 @@ export abstract class CfMultiSendOp extends CfOperation {
       this.cfFreeBalance.uniqueId
     ).cfAddress();
 
-    const values = [
-      this.cfFreeBalance.alice,
-      this.cfFreeBalance.bob,
-      this.cfFreeBalance.aliceBalance.toString(),
-      this.cfFreeBalance.bobBalance.toString()
-    ];
-    const appState = ethers.utils.defaultAbiCoder.encode(
-      ["address", "address", "uint256", "uint256"],
-      values
+    const appStateHash = keccak256(
+      abi.encode(
+        ["address", "address", "uint256", "uint256"],
+        [
+          this.cfFreeBalance.alice,
+          this.cfFreeBalance.bob,
+          this.cfFreeBalance.aliceBalance.toString(),
+          this.cfFreeBalance.bobBalance.toString()
+        ]
+      )
     );
-    const appStateHash = ethers.utils.solidityKeccak256(["bytes"], [appState]);
     // don't need signatures since the multisig is the owner
     const signatures = "0x0";
     return common.proxyCallSetStateData(

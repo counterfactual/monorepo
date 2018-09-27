@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import * as abi from "../../abi";
 import { Address, H256, NetworkContext } from "../../types";
 import {
   Abi,
@@ -10,6 +11,8 @@ import {
 } from "./types";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
+
+const { keccak256 } = ethers.utils;
 
 export class CfOpSetup extends CfMultiSendOp {
   /**
@@ -29,16 +32,18 @@ export class CfOpSetup extends CfMultiSendOp {
 
   public toHash(multisig: Address, multisigInput: MultisigInput): H256 {
     multisigInput = sanitizeMultisigInput(multisigInput);
-    return ethers.utils.solidityKeccak256(
-      ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-      [
-        "0x19",
-        multisig, // why did we use this as salt in the last iteration?
-        multisigInput.to,
-        multisigInput.val,
-        multisigInput.data,
-        multisigInput.op
-      ]
+    return keccak256(
+      abi.encodePacked(
+        ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
+        [
+          "0x19",
+          multisig, // why did we use this as salt in the last iteration?
+          multisigInput.to,
+          multisigInput.val,
+          multisigInput.data,
+          multisigInput.op
+        ]
+      )
     );
   }
 
@@ -52,9 +57,11 @@ export class CfOpSetup extends CfMultiSendOp {
   public conditionalTransferInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
-    const depNonceKey = ethers.utils.solidityKeccak256(
-      ["address", "uint256", "uint256"],
-      [this.multisig, 0, this.dependencyNonce.salt]
+    const depNonceKey = keccak256(
+      abi.encodePacked(
+        ["address", "uint256", "uint256"],
+        [this.multisig, 0, this.dependencyNonce.salt]
+      )
     );
 
     const multisigCalldata = new ethers.Interface([
