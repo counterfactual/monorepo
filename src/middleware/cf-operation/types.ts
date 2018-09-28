@@ -157,16 +157,6 @@ export class MultisigInput {
   ) {}
 }
 
-// todo: redundant with multisig input
-export class MultiSendInput {
-  constructor(
-    readonly to: Address,
-    readonly val: number,
-    readonly data: Bytes,
-    readonly op: Operation
-  ) {}
-}
-
 export class MultiSend {
   constructor(readonly transactions: MultisigInput[]) {}
 
