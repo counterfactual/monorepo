@@ -83,7 +83,22 @@ InstallData.peer1.address < InstallData.peer2.address;
 
 see also: `MultiSend.sol` for how multisend transactions are decoded
 
-## Transaction
+## Commitment
+
+### Parameters
+
+- `freeBalance.cfAddress`
+- `freeBalance.stateHash`
+- `freeBalance.localNonce`
+- `freeBalance.timeout`
+- `salt`
+- `key`
+- `app.cfAddress`
+- `assetType`
+- `limit`
+- `token`
+
+### Transaction
 
 ```typescript
 delegatecall(
@@ -99,13 +114,13 @@ delegatecall(
                 "proxyCall(address,bytes32,bytes)"
                 [
                     REGISTRY_ADDRESS,
-                    app.CfAddress,
+                    freeBalance.CfAddress,
                     encode(
                         "setState(bytes32,uint256,uint256,bytes)",
                         [
                             appStateHash,
-                            cfFreeBalance.localNonce,
-                            timeout,
+                            freeBalance.localNonce,
+                            freeBalance.timeout,
                             0x00
                         ]
                     )
@@ -116,7 +131,7 @@ delegatecall(
         ("uint256", "address", "uint256", "bytes"),
         [
             0,
-            nonceRegistry,
+            NONCE_REGISTRY,
             0,
             encode(
                 "setNonce(uint256,byets32,uint256)",
@@ -137,15 +152,13 @@ delegatecall(
                     NONCE_REGISTRY,
                     key,
                     1,
-                    appCfAddress
+                    app.cfAddress
                     (
                         assetType,
                         limit,
                         token
                     )
                 ]
-
-                ))
             )
         ]
     )

@@ -1,4 +1,4 @@
-## Update Protocol
+# Update Protocol
 
 Once an application has been installed into the GSC, the multisig has transferred control over the installed amount from the free balance to the application's payout function, a mapping from application state to funds distribution. For example, in the case of Tic-Tac-Toe, a possible payout function is: if X wins, Alice gets 2 ETH, else if O wins Bob gets 2 ETH, else send 1 ETH to Alice and Bob.
 
@@ -10,14 +10,14 @@ Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alic
 
 Notice how both the board changes and the *local* nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 
-### Handshake
+## Handshake
 
 | A        | B           |
 | -------- | ----------- |
 | `Update` |             |
 |          | `UpdateAck` |
 
-### Messsage
+## Messsage
 
 ```typescript
 Update = {
@@ -42,11 +42,11 @@ UpdateAck = {
 }
 ```
 
-### Main Files
+## Main Files
 
 - `cf-op-setstate.ts`
 
-### Digest
+## Digest
 
 ```typescript
 KECCAK256(
@@ -61,9 +61,16 @@ KECCAK256(
 )
 ```
 
-### Commitment
+## Commitment
 
-When exchanged, a signature on this digest allows us to invoke the [setState](https://github.com/counterfactual/contracts/blob/develop/contracts/StateChannel.sol#L162) function on the state channel.
+### Parameters
+
+- `app.cfAddress`
+- `app.stateHash`
+- `app.localNonce`
+- `timeout`
+
+### Transaction
 
 ```typescript
 call(
@@ -73,7 +80,7 @@ call(
         "proxyCall(address,bytes32,bytes)",
         [
             REGISTRY_ADDRESS,
-            appCfAddress,
+            app.cfAddress,
             encode(
                 "setState(bytes32,uint256,uint256,bytes)",
                 [
