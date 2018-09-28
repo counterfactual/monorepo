@@ -1,4 +1,4 @@
-export * from "./stateChannel";
+export * from "./appInstance";
 export * from "./structEncoding";
 export * from "./contract";
 export * from "./multisig";

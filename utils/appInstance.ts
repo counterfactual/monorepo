@@ -18,7 +18,7 @@ export interface TransferTerms {
   token?: string;
 }
 
-export interface App {
+export interface AppDefinition {
   addr: string;
   applyAction: string;
   resolve: string;
@@ -26,7 +26,7 @@ export interface App {
   isStateTerminal: string;
 }
 
-function appFromContract(contract: ethers.Contract): App {
+function appFromContract(contract: ethers.Contract): AppDefinition {
   return {
     addr: contract.address,
     applyAction: contract.interface.functions.applyAction.sighash,
@@ -36,8 +36,8 @@ function appFromContract(contract: ethers.Contract): App {
   };
 }
 
-export class StateChannel {
-  public readonly app: App;
+export class AppInstance {
+  public readonly app: AppDefinition;
 
   public contract?: Contract;
   public appStateNonce: number = 0;
@@ -59,7 +59,7 @@ export class StateChannel {
   public async deploy(sender: ethers.Wallet, registry: ethers.Contract) {
     const appHash = keccak256(encodeStruct(appEncoding, this.app));
     const termsHash = keccak256(encodeStruct(termsEncoding, this.terms));
-    this.contract = await artifacts.StateChannel.deployViaRegistry(
+    this.contract = await artifacts.AppInstance.deployViaRegistry(
       sender,
       registry,
       [

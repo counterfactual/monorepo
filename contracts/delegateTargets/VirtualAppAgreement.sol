@@ -4,7 +4,6 @@ pragma experimental "ABIEncoderV2";
 import "../lib/Transfer.sol";
 import "../NonceRegistry.sol";
 import "../Registry.sol";
-import "../StateChannel.sol";
 
 
 contract VirtualAppAgreement {
