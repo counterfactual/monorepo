@@ -167,7 +167,9 @@ contract AppInstance {
     public
     onlyWhenChannelOpen
   {
-    if (msg.sender != auth.owner) {
+    if (msg.sender == auth.owner) {
+      
+    } else {
       bytes32 h = computeStateHash(appStateHash, nonce, timeout);
       require(
         signatures.verifySignatures(h, auth.signingKeys),
