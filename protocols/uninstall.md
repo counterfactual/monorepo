@@ -1,4 +1,4 @@
-## Uninstall Protocol
+# Uninstall Protocol
 
 The lifecycle of an application completes when it reaches some type of end or "final" state, at which point both parties know the finalized distribution of funds in the application-specific state channel.
 
@@ -15,14 +15,14 @@ Notice the two operations here:
 
 Specifically, when we exchange commitments on the Conditional Transfer in the Install Protocol, we are exchanging signatures allowing us to execute a Conditional Transfer if and only if the nonce equals 1. *If the Nonce is ever not 1*, then the conditional transfer will fail, as desired in the Uninstall Protocol.
 
-### Handshake
+## Handshake
 
 | A           | B              |
 | ----------- | -------------- |
 | `Uninstall` |                |
 |             | `UninstallAck` |
 
-### Message
+## Message
 
 ```typescript
 Uninstall = {
@@ -46,70 +46,48 @@ AckUninstall = {
 }
 ```
 
-**Calldata:**
+## Transaction
 
 ```typescript
-// first build the individual transactions
-
-// set state on the free balance, incrementing the balances according to the app payout
-let free_balance_update = {
-	op: 0, // Call
-	to: FREE_BALANCE_ADDRESS,
-	val: 0,
-	data: // todo after we update free balance to not use a conditional transfer
-}
-// set the nonce registry entry to 2, invalidating any conditional transfer on the app
-let set_nonce_registry = {
-	op: 0, // Call
-	to: FREE_BALANCE_ADDRESS,
-	val: 0,
-	data: new ethers.Interface([Abi.setNonce]).functions.setNonce.encode([
-			APP_NUMBER_ID, // k if this application is the kth installed application
-			2
-		]);
-}
-let transactions = [free_balance_update, set_nonce_registry];
-
-// now construct the multisend
-let calldata = // use the transactions to construct calldata (see the install protocol)
-```
-
-**Signature digest:**
-
-```typescript
-ethers.utils.solidityKeccak256(
-  ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-  [
-    "0x19",
-	this.multisig,
-	MULTISEND_ADDRESS, // to (global contract)
-	0, // val
-	calldata, // data
-	0 // op (call)
-  ]
-);
-```
-
-As usual this signature allows us to invoke <a href="https://github.com/counterfactual/contracts/blob/develop/contracts/MinimumViableMultisig.sol">execTransaction</a> on our multisig with the given calldata, which triggers our multisend transaction from above.
-
-**Transaction:**
-
-```typescript
-function transaction() {
-    let to = MULTISIG_ADDRESS;
-    let val = 0;
-    let data = new ethers.Interface([
-        "execTransaction(address,uint256,bytes,uint256,bytes)"
-    ]).functions.execTransaction.encode([
-        MULTISEND_ADDRESS, // to
-        0, // val
-        calldata,
-        0, // call
-        Signature.toBytes(signatures)
-    ]);
-    let op = delegatecall;
-	return {
-    	to, val, data, op
-	}
-}
+delegatecall(
+    to = MULTISEND_ADDRESS,
+    val = 0,
+    data = encodeArgs(/* set FreeBalance state */
+        ("uint256", "address", "uint256", "bytes"),
+        [
+            1,
+            REGISTRY_ADDRESS,
+            0,
+            encode(
+                "proxyCall(address,bytes32,bytes)"
+                [
+                    REGISTRY_ADDRESS,
+                    freeBalance.CfAddress,
+                    encode(
+                        "setState(bytes32,uint256,uint256,bytes)",
+                        [
+                            appStateHash,
+                            freeBalance.localNonce,
+                            freeBalance.timeout,
+                            0x00
+                        ]
+                    )
+                ]
+            ),
+        ]
+    ) + encodeArgs(/* set dependency nonce */
+        ("uint256", "address", "uint256", "bytes"),
+        [
+            0,
+            NONCE_REGISTRY,
+            0,
+            encode(
+                "setNonce(uint256,byets32,uint256)",
+                [
+                    0, salt, 2
+                ]
+            ),
+        ]
+    )
+)
 ```
