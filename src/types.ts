@@ -227,6 +227,11 @@ export class PeerBalance {
   }
 }
 
+/**
+ * A network context is a set of addresses where global contracts are deployed.
+ * A global contract provides functionality in such a way that all channels can
+ * use the same global contract, hence they only need to be deployed once.
+ */
 export class NetworkContext {
   constructor(
     readonly Registry: Address,
