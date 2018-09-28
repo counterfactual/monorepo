@@ -168,7 +168,10 @@ contract AppInstance {
     onlyWhenChannelOpen
   {
     if (msg.sender == auth.owner) {
-      
+      require(
+        signatures.length == 0,
+        "Cannot use sender-based and signature-based authentication at the same time"
+      );
     } else {
       bytes32 h = computeStateHash(appStateHash, nonce, timeout);
       require(
