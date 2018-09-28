@@ -3,7 +3,7 @@ import * as ethers from "ethers";
 import * as Utils from "@counterfactual/test-utils";
 
 const StaticCall = artifacts.require("StaticCall");
-const StateChannel = artifacts.require("StateChannel");
+const StateChannel = artifacts.require("AppInstance");
 const Signatures = artifacts.require("Signatures");
 
 const web3 = (global as any).web3;
@@ -38,7 +38,7 @@ const computeHash = (stateHash: string, nonce: number, timeout: number) =>
 StateChannel.link("Signatures", Signatures.address);
 StateChannel.link("StaticCall", StaticCall.address);
 
-contract("StateChannel", (accounts: string[]) => {
+contract("AppInstance", (accounts: string[]) => {
   let stateChannel: ethers.Contract;
 
   let sendUpdateToChainWithNonce: (

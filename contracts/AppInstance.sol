@@ -6,12 +6,12 @@ import "./lib/StaticCall.sol";
 import "./lib/Transfer.sol";
 
 
-/// @title StateChannel - A generalized state channel application contract
+/// @title AppInstance - A contract that defines a state channel application
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports the adjudication and timeout guarantees required by state channel
 /// applications to be secure in a gas and storage-optimized manner. Resolves to a
 /// `Transfer.Transaction` when the channel is closed.
-contract StateChannel {
+contract AppInstance {
 
   using StaticCall for address;
   using Signatures for bytes;
