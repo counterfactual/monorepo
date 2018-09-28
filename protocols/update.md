@@ -61,12 +61,12 @@ KECCAK256(
 )
 ```
 
-### Commitment 
+### Commitment
 
 When exchanged, a signature on this digest allows us to invoke the [setState](https://github.com/counterfactual/contracts/blob/develop/contracts/StateChannel.sol#L162) function on the state channel.
 
 ```typescript
-CALL(
+call(
     to = REGISTRY_ADDRESS,
     val = 0,
     data = encode(

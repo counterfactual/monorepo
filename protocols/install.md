@@ -1,4 +1,4 @@
-## Install Protocol
+# Install Protocol
 
 (For ease of explanation, assume the multisig is now magically owning 20 ETH and that the Free Balance has recorded a balance of 10, 10 for Alice and Bob. We will explain how depositing is implemented by using the `Install` and `Uninstall` protocols at the end.)
 
@@ -8,20 +8,20 @@ Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob b
 
 Notice how the funds move out of the free balance and into the tic-tac-toe application.
 
-### Commitment
+## Commitment
 
 - updates the free balance state, decrementing both parties by the amount they contribute to the application install
 - sets the nonce registry entry to 1, ensuring the "condition" in the Conditional Transfer is true
 - executes the conditional transfer via delegatecall, withdrawing the funds from the multisig and distributing them according to the state of the application which the conditional transfer points to.
 
-### Handshake
+## Handshake
 
 |A          |B            |
 |-          |-            |
 |`Install`  |             |
 |           |`InstallAck` |
 
-### Message
+## Message
 
 ```typescript
 Terms = {
@@ -42,12 +42,12 @@ PeerBalance = {
   balance: uint256
 }
 InstallData = {
-  peer1: PeerBalance, 
+  peer1: PeerBalance,
   peer2: PeerBalance,
   keyA: address,       // app-specific ephemeral key
   keyB: address,
   terms: Terms,
-  app: CfAppInterface, 
+  app: CfAppInterface,
   timeout: number,
 }
 Install = {
@@ -68,13 +68,86 @@ InstallAck = {
   seq: 1,
   signature: signature,
 }
+```
 
-Install.fromAddress === InstallAck.toAddress;
-Install.toAddress === InstallAck.fromAddress;
+## Notes
+
+```
 InstallData.peer1.address < InstallData.peer2.address;
 ```
 
-### Main Files
+## Main Files
 
 - `install-proposer.ts`
 - `cf-op-install.ts`
+
+see also: `MultiSend.sol` for how multisend transactions are decoded
+
+## Transaction
+
+```typescript
+delegatecall(
+    to = MULTISEND_ADDRESS,
+    val = 0,
+    data = encodeArgs(/* set FreeBalance state */
+        ("uint256", "address", "uint256", "bytes"),
+        [
+            1,
+            REGISTRY_ADDRESS,
+            0,
+            encode(
+                "proxyCall(address,bytes32,bytes)"
+                [
+                    REGISTRY_ADDRESS,
+                    app.CfAddress,
+                    encode(
+                        "setState(bytes32,uint256,uint256,bytes)",
+                        [
+                            appStateHash,
+                            cfFreeBalance.localNonce,
+                            timeout,
+                            0x00
+                        ]
+                    )
+                ]
+            ),
+        ]
+    ) + encodeArgs(/* set dependency nonce */
+        ("uint256", "address", "uint256", "bytes"),
+        [
+            0,
+            nonceRegistry,
+            0,
+            encode(
+                "setNonce(uint256,byets32,uint256)",
+                [
+                    0, salt, 1
+                ]
+            ),
+        ]
+    ) + encodeArgs(/* do conditional transfer */
+        ("uint256", "address", "uint256", "bytes"),
+        [
+            1,
+            CONDITIONAL_TRANSFER,
+            0,
+            encode(
+                "executeAppConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
+                [
+                    NONCE_REGISTRY,
+                    key,
+                    1,
+                    appCfAddress
+                    (
+                        assetType,
+                        limit,
+                        token
+                    )
+                ]
+
+                ))
+            )
+        ]
+    )
+)
+```
