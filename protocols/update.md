@@ -49,16 +49,16 @@ UpdateAck = {
 ### Digest
 
 ```typescript
-ethers.utils.solidityKeccak256(
-	["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+KECCAK256(
+    ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
 	[
-		"0x19",                       // required for every sig digest (ERC 191)
-		[ALICE_ADDRESS, BOB_ADDRESS], // must be in sorted order
-		NONCE,                        // local nonce (1 in the example above)
-		TIMEOUT,                      // determined on installation
-		APP_STATE_HASH                // given in UpdateData
+		0x19,                           // required for every sig digest (ERC 191)
+		[ALICE_ADDRESS, BOB_ADDRESS],   // must be in sorted order
+		app.localNonce,
+		timeout,                        // determined on installation
+		appStateHash                    // given in UpdateData
 	]
-);
+)
 ```
 
 ### Commitment 
@@ -66,23 +66,26 @@ ethers.utils.solidityKeccak256(
 When exchanged, a signature on this digest allows us to invoke the [setState](https://github.com/counterfactual/contracts/blob/develop/contracts/StateChannel.sol#L162) function on the state channel.
 
 ```typescript
-let to = REGISTRY_ADDRESS;
-let val = 0;
-let data = new ethers.Interface([
-    "proxyCall(address,bytes32,bytes)"
-]).functions.proxyCall.encode([
-	registry,
-	appCfAddr,
-    new ethers.Interface([
-        "setState(bytes32,uint256,uint256,bytes)"
-    ]).functions.setState.encode([
-		appStateHash,
-		appLocalNonce,
-		timeout,
-		signatures
-	])
-]);
-let op = 0; // CALL
+CALL(
+    to = REGISTRY_ADDRESS,
+    val = 0,
+    data = encode(
+        "proxyCall(address,bytes32,bytes)",
+        [
+            REGISTRY_ADDRESS,
+            appCfAddress,
+            encode(
+                "setState(bytes32,uint256,uint256,bytes)",
+                [
+                    app.stateHash,
+                    app.localNonce,
+                    timeout,
+                    signatures
+                ]
+            )
+        ]
+    )
+)
 ```
 
 This transaction uses the global, on-chain Registry contract to translate the counterfactual address of the application into an on-chain address, and subsequently invoke the `setState` function with the signatures exchanged during the protocol.

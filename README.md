@@ -103,9 +103,15 @@ The uninstall commitment is a multisend that
 - sets the app dependency nonce to 2
 - sets the freebalance state to a new state with some balance added
 
-## Cleanup
+### Cleanup
 
 TBD
+
+## Formal Specification
+
+The files in the [`protocol`](protocol) folder specify the protocols above more formally.
+
+We assume the existence of a well-known pure function `KECCAK256`, and of a registry contract deployed at `REGISTRY_ADDRESS`.
 
 ## Roadmap
 

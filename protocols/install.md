@@ -14,14 +14,14 @@ Notice how the funds move out of the free balance and into the tic-tac-toe appli
 - sets the nonce registry entry to 1, ensuring the "condition" in the Conditional Transfer is true
 - executes the conditional transfer via delegatecall, withdrawing the funds from the multisig and distributing them according to the state of the application which the conditional transfer points to.
 
-**Handshake:**
+### Handshake
 
 |A          |B            |
 |-          |-            |
 |`Install`  |             |
 |           |`InstallAck` |
 
-**Message:**
+### Message
 
 ```typescript
 Terms = {
