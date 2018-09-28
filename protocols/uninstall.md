@@ -31,8 +31,8 @@ Uninstall = {
   data: {
     peerAmounts: [ PeerBalance, PeerBalance ]
   },
-  from: address,
-  to: address,
+  fromAddress: address,
+  toAddress: address,
   seq: 0,
   signature: signature,
 }
