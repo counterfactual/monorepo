@@ -14,11 +14,11 @@ services:
       --account="${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}"
     ports:
       - "9545:9545"
-
+  
   machine:
     build:
-        context: .
-        dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile
     command: tail -f /dev/null
     working_dir: /machine
     environment:
@@ -31,3 +31,13 @@ services:
       - .:/machine
     depends_on:
       - docker_devnet
+  
+  serve_files:
+    image: halverneus/static-file-server:latest
+    environment:
+      - PORT=8000
+      - FOLDER=/web
+    volumes:
+      - .:/web
+    ports:
+      - "8000:8000"
