@@ -2,7 +2,11 @@ import * as ethers from "ethers";
 import { AppChannelClient } from "../cf.js/app-channel-client";
 import { ClientInterface } from "../cf.js/client-interface";
 import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
-import { ClientActionMessage, WalletMessaging } from "../src/types";
+import {
+  ClientActionMessage,
+  WalletMessaging,
+  InstallOptions
+} from "../src/types";
 import { sleep } from "./common";
 import {
   A_ADDRESS,
@@ -14,12 +18,15 @@ import {
 } from "./environment";
 import { TestWallet } from "./wallet/wallet";
 
-const PAYMENT_APP_ENCODING =
+const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
-const INSTALL_OPTIONS = {
+const PAYMENT_APP_ABI_ENCODING =
+  "resolve(tuple(address,address,uint256,uint256),tuple(uint8,uint256,address))";
+const INSTALL_OPTIONS: InstallOptions = {
   peerABalance: ethers.utils.bigNumberify(0),
   peerBBalance: ethers.utils.bigNumberify(0),
-  abiEncoding: PAYMENT_APP_ENCODING,
+  abiEncoding: PAYMENT_APP_ABI_ENCODING,
+  stateEncoding: PAYMENT_APP_STATE_ENCODING,
   state: {
     alice: A_ADDRESS,
     bob: B_ADDRESS,

@@ -9,177 +9,215 @@
 <script id="ci_src" type="text/javascript" src="../build/js/client-interface.min.js"></script>
 
 <script>
-	let useAppIO = {};
+  const getSrc = async function (id) {
+    const response = await fetch(document.getElementById(`${id}_src`).src);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let file = "";
+    let done = false;
 
-	let counter = 0;
-	let ephemeralAPublic = "0x586D9E7c82E98D61513DBB2Bb7f919d131e517Af";
-	let ephemeralAPrivate = "0x2e0a8863cfc67014457ef53b7990b95ae7c82cbee1b98a6d994876505b3ed4c5"
+    while (!done) {
+      const segment = await reader.read();
+      file += decoder.decode(segment.value);
+      done = segment.done;
+    }
 
-	let ephemeralBPublic = "0x8301eD32b1EF7167f1aE3497FC1Eeb3b5Ed82388";
-	let ephemeralBPrivate = "0x758eddf758f5c399c5e29f855a6af189c53ebc05d3177b7f91113334308f1dcb";
+    return file.replace(`var ${id} =`, `window.${id} =`);
+  };
 
-	class SimpleAppSigner {
-		constructor(appName) {
-			// not sure if we need this
-			this.appName = appName;
-			this.peerKey = 'something';
-			this.signingKey = counter ? ephemeralAPublic : ephemeralBPublic;
-			counter++;
-			// here we need to generate keys
-		}
-		async signPeerUpdate(dataToSign, data) {
-			// TODO IMPORTANT TO FIGURE OUT
-			// should this ask the app?
-			return Promise.resolve({ v: 0, r: "0xa", s: "0xb" });
-		}
-		async signMyUpdate(dataToSign) {
-			//TODO do for real
-			return Promise.resolve({ v: 0, r: "0xa", s: "0xb" });
-
-		}
-		async shouldUninstall(req) {
-
-		}
-		/**
-		 * The key used to sign app updates.
-		 */
-		async getSigningKey() {
-			return this.signingKey;
-		}
-	}
-
-	let clientToKey = {
-		'A': '0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539',
-		'B': '0x08d1cd793fd871c131c594f0cfd9564b774da50c'
-	}
-	let keyStore = {
-		"0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539": "0xd0fb28b764036a8df6f7ea63865b0ed1c0de67543d2b795f5ad96541208ce763",
-		"0x08d1cd793fd871c131c594f0cfd9564b774da50c": "0x170f140962cc7c9afc98d0d2468b075c87493c9ab8164117f3a9866a9a4404fa"
-	};
-
-	let address = "0x3f204ec41ca873c15a44d1c6a6bdfc91d794a539";
-
-	let clientA = new ci.ClientInterface(keyStore[address]);
-	let clientB = new ci.ClientInterface(keyStore[clientToKey['B']]);
-
-	// TODO hardcoded for now, somehow needs to hookup with installs later
-	let appSignerStore = {
-		[clientToKey.A]: {
-			'test': new SimpleAppSigner('test')
-		},
-		[clientToKey.B]: {
-			'test': new SimpleAppSigner('test')
-		}
-	}
-
-	let getSrc = async function (id) {
-		let response = await fetch(document.getElementById(`${id}_src`).src);
-		let reader = response.body.getReader();
-		let decoder = new TextDecoder('utf-8');
-		let file = '';
-		let done = false;
-
-		while (!done) {
-			let segment = await reader.read();
-			file += decoder.decode(segment.value);
-			done = segment.done;
-		}
-
-		return file.replace(`var ${id} =`, `window.${id} =`);
-	}
-
-	let injectScript = async function (event) {
-		let injectedScript = `
-			${await getSrc('ci')};
+  const injectScript = async function (event) {
+    const injectedScript = `
+			${await getSrc("ci")};
 		`;
 
-		event.source.postMessage({ type: 'cf:init-reply', source: injectedScript }, '*');
-	}
+    event.source.postMessage({ type: "cf:init-reply", source: injectedScript }, "*");
+  };
 
 
-	window.addEventListener('message', (event) => {
-		if (event.data.type === 'cf:init') {
-			injectScript(event);
-		}
-	});
+  window.addEventListener("message", (event) => {
+    if (event.data.type === "cf:init") {
+      injectScript(event);
+    }
+  });
 
 
-	function sendMessageToChild(msg) {
-		document.querySelectorAll('iframe').forEach((el) => {
-			el.contentWindow.postMessage(msg, '*');
-		});
-	}
+  function sendMessageToChild(msg) {
+    document.querySelectorAll("iframe").forEach((el) => {
+      el.contentWindow.postMessage(msg, "*");
+    });
+  }
 
-	let wallet = new wa.TestWallet()
-	let listeners = [];
+  const wallet = new wa.TestWallet();
+  let ethmoContract;
+  let multisigContract;
+  let nonceRegistry;
+  const listeners = [];
 
-	async function pickUser(pkey) {
-		// TODO figure out a way to access process.env within rollup and use `test/constants.ts`
-		// currently can't rollup envvars: https://github.com/calvinmetcalf/rollup-plugin-node-globals/issues/7
-		let key = new ethers.Wallet(pkey).address;
+  async function pickUser(pkey) {
+    // TODO figure out a way to access process.env within rollup and use `test/constants.ts`
+    // currently can't rollup envvars: https://github.com/calvinmetcalf/rollup-plugin-node-globals/issues/7
+    const key = new ethers.Wallet(pkey).address;
 
-		wallet.setUser(key, pkey);
+    wallet.setUser(key, pkey);
 
-		wallet.onMessage((msg) => {
-			let message = {
-				type: 'cf:io-send',
-				data: msg
-			}
-			sendMessageToChild(message);
-		});
+    wallet.onMessage((msg) => {
+      const message = {
+        type: "cf:io-send",
+        data: msg
+      };
+      sendMessageToChild(message);
+    });
 
-		wallet.onResponse((message) => {
-			console.log('onResponse', message)
-			sendMessageToChild(message);
-		});
+    wallet.onResponse((message) => {
+      console.log("onResponse", message);
+      sendMessageToChild(message);
+    });
 
-		listeners.forEach((listener) => window.removeEventListener('message', listener));
+    listeners.forEach((listener) => window.removeEventListener("message", listener));
 
-		let listener = (event) => {
-			if (event.data.type === 'cf:default') {
-				wallet.receiveMessageFromClient(event.data);
-			}
-		}
+    const listener = (event) => {
+      if (event.data.type === "cf:default") {
+        wallet.receiveMessageFromClient(event.data);
+      }
+    };
 
-		listeners.push(listener);
+    listeners.push(listener);
 
-		window.addEventListener('message', listener);
+    window.addEventListener("message", listener);
 
-		sendMessageToChild({ type: 'cf:user-picked', key, pkey })
-	}
+    sendMessageToChild({ type: "cf:user-picked", key, pkey });
+  }
 
-	function getCurrentUserApps() {
-		// This assumes the current user has only one channel open
-		const openChannelAddress = Object.keys(wallet.currentUser.vm.cfState.channelStates)[0];
-		const apps = wallet.currentUser.vm.cfState.channelStates[openChannelAddress].appChannels;
-		let appList = "<ul>"
-		for (var appId in apps) {
-			console.log(apps[appId]);
-			appList += "<li>" + appId + "</li>";
-		}
-		appList += "<ul>";
-		document.getElementById("apps").innerHTML = appList;
-	}
+  function getApps() {
+    const openChannelAddress = Object.keys(wallet.currentUser.vm.cfState.channelStates)[0];
+    return wallet.currentUser.vm.cfState.channelStates[openChannelAddress].appChannels;
+  }
+
+  function getStateChannels() {
+    return wallet.currentUser.vm.cfState.channelStates;
+  }
+
+  function getCurrentUserApps() {
+    const apps = getApps();
+    // This assumes the current user has only one channel open
+    let appList = "<ul>";
+    for (var appId in apps) {
+      console.log(apps[appId]);
+      appList += "<li>" + appId + "</li>";
+    }
+    appList += "<ul>";
+    document.getElementById("apps").innerHTML = appList;
+  }
+
+  async function deployFreeBalanceStateChannel() {
+    const stateChannels = getStateChannels();
+    const stateChannel = Object.values(stateChannels)[0];
+    const contract = await ci.ClientInterface.deployFreeBalanceContract(
+      wallet.defaultNetwork(),
+      stateChannel,
+      wallet.currentUser.ethersWallet
+    );
+    console.log(`📄 FreeBalance contract deployed: ${contract.address}`);
+  }
+
+  async function deployEthmoStateChannel() {
+    const apps = getApps();
+    const ethmoApplication = Object.values(apps)[0];
+    const stateChannels = getStateChannels();
+    const stateChannel = Object.values(stateChannels)[0];
+    ethmoContract = await ci.ClientInterface.deployApplicationStateChannel(
+      wallet.defaultNetwork(),
+      stateChannel,
+      ethmoApplication,
+      wallet.currentUser.ethersWallet
+    );
+    console.log(`📄 Ethmo contract deployed: ${ethmoContract.address}`);
+    return ethmoContract;
+  }
+
+  async function submitLatestStateForEthmo() {
+    const apps = getApps();
+    const ethmoAppId = Object.keys(apps)[0];
+    const res = await ci.ClientInterface.setState(ethmoAppId, wallet);
+    console.log(`📝 Latest state submitted to Ethmo: TX hash=${(await res.wait()).transactionHash}`);
+  }
+
+  async function mine() {
+    const ethmoState = await ethmoContract.state();
+    const finalizationBlockerNumber = ethmoState.finalizesAt.toString();
+    const currentBlockNumber = await wallet.currentUser.blockchainProvider.getBlockNumber();
+    for (
+      let blockCount = 0;
+      blockCount < (finalizationBlockerNumber - currentBlockNumber);
+      blockCount++
+    ) {
+      await wallet.currentUser.blockchainProvider.send("evm_mine", []);
+    }
+    console.log(`⌛️ Waited for timeout`);
+  }
+
+  async function setResolution() {
+    const apps = getApps();
+    const ethmoApplication = Object.values(apps)[0];
+    const { cfApp: app, terms, encodedState } = ethmoApplication;
+    const appData = [
+      app.address,
+      app.applyAction,
+      app.resolve,
+      app.getTurnTaker,
+      app.isStateTerminal
+    ];
+    const termsData = ethers.utils.defaultAbiCoder.encode(
+      ["bytes1", "uint8", "uint256", "address"],
+      ["0x19", terms.assetType, terms.limit, terms.token]
+    );
+    await ethmoContract.setResolution(
+      appData, encodedState, termsData
+    );
+    console.log(`✅ State channel resolved`);
+  }
+
+  async function everythingUptoWithdraw() {
+    await deployEthmoStateChannel();
+    await deployFreeBalanceStateChannel();
+    await submitLatestStateForEthmo();
+    await mine();
+    await setResolution();
+  }
+
+  async function withdraw() {
+    const apps = getApps();
+    const ethmoAppId = Object.keys(apps)[0];
+    const res = await ci.ClientInterface.withdrawUnilateral(ethmoAppId, wallet);
+    console.log(`💸 Money withdrawn: ${(await res.wait()).transactionHash}`);
+  }
 
 </script>
 
 
 <div>
-	<div style="float: left">
-		<div>
-			Pick user
-		</div>
-		<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
-		<button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
-	</div>
-	<div style="float: right">
-		<div>
-			List apps for current user's current open channel
-		</div>
-		<button onclick="getCurrentUserApps()">User Apps</button>
-		<div id="apps">
-		</div>
-	</div>
+  <div style="float: left">
+    <div>
+      Pick user
+    </div>
+    <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
+    <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
+  </div>
+  <div style="float: right">
+    <div>
+      List apps for current user's current open channel
+    </div>
+    <button onclick="getCurrentUserApps()">User Apps</button>
+    <div id="apps">
+    </div>
+  </div>
+  <button onclick="deployEthmoStateChannel()">Deploy State Channel Contract (Ethmo App)</button>
+  <button onclick="deployFreeBalanceStateChannel()">Deploy State Channel Contract (Free Balance)</button>
+  <button onclick="submitLatestStateForEthmo()">Submit latest state</button>
+  <button onclick="mine()">Wait for timeout</button>
+  <button onclick="setResolution()">Set Resolution</button>
+  <button style="border: 2px solid black;" onclick="everythingUptoWithdraw()">Everything Upto Withdraw</button>
+  <button onclick="withdraw()">Withdraw</button>
 </div>
 
 <iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>

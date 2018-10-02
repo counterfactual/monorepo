@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import * as _ from "lodash";
 import { Instruction } from "./instructions";
 import {
   CfAppInterface,
@@ -137,6 +138,7 @@ export interface UninstallOptions {
 }
 
 export interface InstallOptions {
+  stateEncoding: string;
   abiEncoding: string;
   state: object;
   peerABalance: ethers.BigNumber;
@@ -220,7 +222,7 @@ export class PeerBalance {
       ];
     }
   }
-  public balance: ethers.ethers.BigNumber;
+  public balance: ethers.BigNumber;
 
   constructor(readonly address: Address, balance: number | ethers.BigNumber) {
     this.balance = ethers.utils.bigNumberify(balance.toString());
@@ -233,6 +235,22 @@ export class PeerBalance {
  * use the same global contract, hence they only need to be deployed once.
  */
 export class NetworkContext {
+  public static fromNetworkFile(networkFile: any): NetworkContext {
+    const networkMap = _.mapValues(
+      _.keyBy(networkFile.contracts, "contractName"),
+      "address"
+    );
+    return new NetworkContext(
+      networkMap.Registry,
+      networkMap.PaymentApp,
+      networkMap.ConditionalTransfer,
+      networkMap.MultiSend,
+      networkMap.NonceRegistry,
+      networkMap.Signatures,
+      networkMap.StaticCall
+    );
+  }
+
   constructor(
     readonly Registry: Address,
     readonly PaymentApp: Address,
@@ -328,12 +346,15 @@ export class Signature {
     return true;
   }
 
-  public static toBytes(sigs: Signature[]): Bytes {
-    let bytes = "0x";
-    sigs.forEach(sig => {
-      bytes += sig.toString().substr(2);
+  public static toBytes(signatures: Signature[]): Bytes {
+    const signatureStrings = signatures.map(sig => {
+      return (
+        ethers.utils.hexlify(ethers.utils.padZeros(sig.r, 32)).substring(2) +
+        ethers.utils.hexlify(ethers.utils.padZeros(sig.s, 32)).substring(2) +
+        sig.v.toString(16)
+      );
     });
-    return bytes;
+    return `0x${signatureStrings.join("")}`;
   }
 
   /**

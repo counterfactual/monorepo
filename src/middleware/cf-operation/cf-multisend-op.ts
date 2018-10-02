@@ -28,12 +28,13 @@ export abstract class CfMultiSendOp extends CfOperation {
 
   public transaction(sigs: Signature[]): Transaction {
     const digest = this.hashToSign();
-    sigs.sort((sigA, sigB) => {
+    sigs.sort((sigA: Signature, sigB: Signature) => {
       const addrA = sigA.recoverAddress(digest);
       const addrB = sigB.recoverAddress(digest);
       return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
     const multisigInput = this.multisigInput();
+    const signatureBytes = Signature.toBytes(sigs);
     const txData = new ethers.Interface(
       Multisig.abi
     ).functions.execTransaction.encode([
@@ -41,19 +42,20 @@ export abstract class CfMultiSendOp extends CfOperation {
       multisigInput.val,
       multisigInput.data,
       multisigInput.op,
-      Signature.toBytes(sigs)
+      signatureBytes
     ]);
     return new Transaction(this.multisig, 0, txData);
   }
 
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
+    const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
     return keccak256(
       abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
         [
           "0x19",
-          [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
+          owners,
           multisigInput.to,
           multisigInput.val,
           multisigInput.data,

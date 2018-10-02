@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import * as abi from "../../abi";
-import { Address, H256, NetworkContext } from "../../types";
+import { Address, NetworkContext } from "../../types";
 import {
   Abi,
   CfFreeBalance,
@@ -28,23 +28,6 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly nonce: CfNonce
   ) {
     super(ctx, multisig, freeBalance, nonce);
-  }
-
-  public toHash(multisig: Address, multisigInput: MultisigInput): H256 {
-    multisigInput = sanitizeMultisigInput(multisigInput);
-    return keccak256(
-      abi.encodePacked(
-        ["bytes1", "address", "address", "uint256", "bytes", "uint256"],
-        [
-          "0x19",
-          multisig, // why did we use this as salt in the last iteration?
-          multisigInput.to,
-          multisigInput.val,
-          multisigInput.data,
-          multisigInput.op
-        ]
-      )
-    );
   }
 
   /**

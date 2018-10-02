@@ -1,3 +1,4 @@
-import * as _vm from "./vm";
+import * as types from "./types";
+import * as vm from "./vm";
 
-export const vm = _vm;
+export { types, vm };

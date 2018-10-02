@@ -44,8 +44,8 @@ export class CfAppInterface {
     abiInterface: ethers.Interface,
     functionName: string
   ): string {
-    return abiInterface.functions[name]
-      ? abiInterface.functions[name].sighash
+    return abiInterface.functions[functionName]
+      ? abiInterface.functions[functionName].sighash
       : "0x00000000";
   }
 
@@ -55,28 +55,16 @@ export class CfAppInterface {
     readonly resolve: Bytes4,
     readonly getTurnTaker: Bytes4,
     readonly isStateTerminal: Bytes4,
-    readonly abiEncoding: string
+    readonly stateEncoding: string
   ) {}
 
   public encode(state: object): string {
-    return abi.encode([this.abiEncoding], [state]);
+    return abi.encode([this.stateEncoding], [state]);
   }
 
   public stateHash(state: object): string {
     // assumes encoding "tuple(type key, type key, type key)"
-    const regex = /\(([^)]+)\)/;
-    const tuples = (regex.exec(this.abiEncoding) || [])[1].split(",");
-    const hashArgs = tuples.reduce(
-      (acc, tuple) => {
-        const [type, key] = tuple.split(" ").filter(str => str.length > 0);
-        acc.types.push(type);
-        acc.values.push(state[key]);
-        return acc;
-      },
-      { types: ["bytes1"], values: ["0x19"] }
-    );
-
-    return keccak256(abi.encodePacked(hashArgs.types, hashArgs.values));
+    return keccak256(this.encode(state));
   }
 
   public hash(): string {
@@ -109,7 +97,7 @@ export class CfAppInterface {
 export class Terms {
   constructor(
     readonly assetType: number,
-    readonly limit: number,
+    readonly limit: ethers.BigNumber,
     readonly token: Address
   ) {}
 
@@ -131,15 +119,17 @@ export enum Operation {
 export class Transaction {
   constructor(
     readonly to: Address,
-    readonly value: Number,
-    readonly data: string
+    readonly value: number,
+    readonly data: string,
+    // TODO: use HIGH_GAS_LIMIT
+    public gasLimit: number = 6e9
   ) {}
 }
 
 export class MultisigTransaction extends Transaction {
   constructor(
     readonly to: Address,
-    readonly value: Number,
+    readonly value: number,
     readonly data: Bytes,
     readonly operation: Operation
   ) {
@@ -187,7 +177,7 @@ export class CfFreeBalance {
     // FIXME: Change implementation of free balance on contracts layer
     return new Terms(
       0, // 0 means ETH
-      ethers.utils.parseEther("0.001").toNumber(), // FIXME: un-hardcode
+      ethers.utils.parseEther("0.001"), // FIXME: un-hardcode
       ethers.constants.AddressZero
     );
   }

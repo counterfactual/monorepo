@@ -27,7 +27,7 @@
 
 "@counterfactual/test-utils@https://github.com/counterfactual/test-utils.git":
   version "0.0.1"
-  resolved "https://github.com/counterfactual/test-utils.git#ceec55692083e86414063a162b4b97b7c233e9f3"
+  resolved "https://github.com/counterfactual/test-utils.git#dfc160b7d3143c0648cfb2e6a5edf5d169e90160"
   dependencies:
     bignumber.js "7.2.1"
     chai "4.1.2"
@@ -38,7 +38,7 @@
 
 "@counterfactual/typescript-typings@https://github.com/counterfactual/typescript-typings.git":
   version "0.0.1"
-  resolved "https://github.com/counterfactual/typescript-typings.git#38ae9de449103e4b8ce0658996d1bbec22a6f47e"
+  resolved "https://github.com/counterfactual/typescript-typings.git#d2a25172b67717ea446532977c92371bc7575e0c"
   dependencies:
     "@types/node" "^8.0.53"
     truffle-contract "^3.0.6"
@@ -64,8 +64,8 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.9.3.tgz#85f288502503ade0b3bfc049fe1777b05d0327d5"
 
 "@types/node@^8.0.53":
-  version "8.10.26"
-  resolved "https://registry.npmjs.org/@types/node/-/node-8.10.26.tgz#950e3d4e6b316ba6e1ae4e84d9155aba67f88c2f"
+  version "8.10.30"
+  resolved "https://registry.npmjs.org/@types/node/-/node-8.10.30.tgz#2c82cbed5f79d72280c131d2acffa88fbd8dd353"
 
 abab@^2.0.0:
   version "2.0.0"
@@ -520,8 +520,8 @@ chai-bignumber@^2.0.2:
   resolved "https://registry.npmjs.org/chai-bignumber/-/chai-bignumber-2.0.2.tgz#de6c219c690b2d66b646ad6930096f9ba2199643"
 
 chai-string@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/chai-string/-/chai-string-1.4.0.tgz#359140c051d36a4e4b1a5fc6b910152f438a8d49"
+  version "1.5.0"
+  resolved "https://registry.npmjs.org/chai-string/-/chai-string-1.5.0.tgz#0bdb2d8a5f1dbe90bc78ec493c1c1c180dd4d3d2"
 
 chai@4.1.2:
   version "4.1.2"
@@ -889,7 +889,7 @@ esutils@^2.0.2:
 
 ethers@4.0.0-beta.12:
   version "4.0.0-beta.12"
-  resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.0-beta.12.tgz#3465570f52116397abc3a3722880e1827c3db093"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.12.tgz#3465570f52116397abc3a3722880e1827c3db093"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -3568,7 +3568,7 @@ watch@~0.18.0:
 
 web3@0.20.6:
   version "0.20.6"
-  resolved "https://registry.npmjs.org/web3/-/web3-0.20.6.tgz#3e97306ae024fb24e10a3d75c884302562215120"
+  resolved "http://registry.npmjs.org/web3/-/web3-0.20.6.tgz#3e97306ae024fb24e10a3d75c884302562215120"
   dependencies:
     bignumber.js "git+https://github.com/frozeman/bignumber.js-nolookahead.git"
     crypto-js "^3.1.4"

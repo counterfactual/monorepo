@@ -171,12 +171,13 @@ export class KeyGenerator {
   public static generate(message: InternalMessage, next: Function, Context) {
     const wallet = ethers.Wallet.createRandom();
     const installData = message.clientMessage.data;
-    if (installData.peerA.address === message.clientMessage.fromAddress) {
-      installData.keyA = wallet.address;
-    } else {
-      installData.keyB = wallet.address;
-    }
-    return wallet;
+    // FIXME: properly assign ephemeral keys
+    //if (installData.peerA.address === message.clientMessage.fromAddress) {
+    //  installData.keyA = wallet.address;
+    //} else {
+    //  installData.keyB = wallet.address;
+    //}
+    //return wallet;
   }
 }
 

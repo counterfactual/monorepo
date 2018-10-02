@@ -1,3 +1,4 @@
+import * as ethers from "ethers";
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
 import {
@@ -6,8 +7,7 @@ import {
   CanonicalPeerBalance,
   H256,
   InternalMessage,
-  PeerBalance,
-  Signature
+  PeerBalance
 } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 import { CfOpInstall } from "./cf-op-install";
@@ -89,10 +89,19 @@ export class EthCfOpGenerator extends CfOpGenerator {
       appChannel.terms.token
     );
 
+    const signingKeys = [
+      message.clientMessage.fromAddress,
+      message.clientMessage.toAddress
+    ];
+    signingKeys.sort((addrA: Address, addrB: Address) => {
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
+
     return new CfOpSetState(
       cfState.networkContext,
       multisig,
-      [appChannel.keyA, appChannel.keyB],
+      // FIXME: signing keys should be app-specific ephemeral keys
+      signingKeys,
       appChannel.appStateHash,
       appChannel.uniqueId,
       appChannel.terms,
@@ -157,10 +166,12 @@ export class EthCfOpGenerator extends CfOpGenerator {
     const multisig: Address = message.clientMessage.multisigAddress;
     const appChannel = channel.appChannels[cfAddr];
 
+    const signingKeys = [appChannel.keyA, appChannel.keyB];
+
     const app = new CfStateChannel(
       cfState.networkContext,
       multisig,
-      [appChannel.keyA, appChannel.keyB],
+      signingKeys,
       appChannel.cfApp,
       appChannel.terms,
       appChannel.timeout,
