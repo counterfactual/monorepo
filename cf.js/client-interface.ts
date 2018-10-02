@@ -1,7 +1,23 @@
 import * as ethers from "ethers";
+
 import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistry from "../contracts/build/contracts/NonceRegistry.json";
+import Registry from "../contracts/build/contracts/Registry.json";
+import Signatures from "../contracts/build/contracts/Signatures.json";
+import StateChannel from "../contracts/build/contracts/StateChannel.json";
+import networkFile from "../contracts/networks/7777777.json";
+
+import {
+  CfFreeBalance,
+  Transaction
+} from "../src/middleware/cf-operation/types";
+import { applyMixins } from "../src/mixins/apply";
+import { NotificationType, Observable } from "../src/mixins/observable";
+import { StateChannelInfoImpl } from "../src/state";
+
 import {
   ActionName,
+  AppChannelInfo,
   ClientActionMessage,
   ClientMessage,
   ClientQuery,
@@ -14,9 +30,7 @@ import {
   WalletMessaging,
   WalletResponse
 } from "../src/types";
-
-import { applyMixins } from "../src/mixins/apply";
-import { NotificationType, Observable } from "../src/mixins/observable";
+import { TestWallet } from "../test/wallet/wallet";
 import { StateChannelClient } from "./state-channel-client";
 
 export class ClientInterface implements Observable {
@@ -33,12 +47,113 @@ export class ClientInterface implements Observable {
   ): Promise<ethers.Contract> {
     Multisig.bytecode = Multisig.bytecode.replace(
       /__Signatures_+/g,
-      networkContext.Signatures.substr(2)
+      NetworkContext.fromNetworkFile(networkFile).Signatures.substr(2)
     );
     const multisig = new ethers.Contract("", Multisig.abi, wallet);
     const contract = await multisig.deploy(Multisig.bytecode);
+    owners.sort((addrA: string, addrB: string) => {
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
     await contract.functions.setup(owners);
     return contract;
+  }
+
+  public static async deployFreeBalanceContract(
+    networkContext: NetworkContext,
+    stateChannel: StateChannelInfoImpl,
+    wallet: ethers.Wallet
+  ): Promise<ethers.Contract> {
+    const registry = ClientInterface.getRegistry(networkContext, wallet);
+    const stateChannelByteCode = this.getStateChannelByteCode(networkContext);
+
+    const freeBalance: CfFreeBalance = stateChannel.freeBalance;
+    const app = CfFreeBalance.contractInterface(networkContext);
+    const terms = CfFreeBalance.terms();
+    const initcode = new ethers.Interface(
+      StateChannel.abi
+    ).deployFunction.encode(stateChannelByteCode, [
+      stateChannel.multisigAddress,
+      [freeBalance.alice, freeBalance.bob],
+      app.hash(),
+      terms.hash(),
+      100
+    ]);
+    const salt = 0;
+    await registry.functions.deploy(initcode, salt, { gasLimit: 6e9 });
+    const cfAddress = ethers.utils.solidityKeccak256(
+      ["bytes1", "bytes", "uint256"],
+      ["0x19", initcode, salt]
+    );
+    const address = await registry.functions.resolver(cfAddress);
+    return new ethers.Contract(address, StateChannel.abi, wallet);
+  }
+
+  public static async deployApplicationStateChannel(
+    networkContext: NetworkContext,
+    stateChannel: StateChannelInfoImpl,
+    application: AppChannelInfo,
+    wallet: ethers.Wallet
+  ) {
+    const registry = ClientInterface.getRegistry(networkContext, wallet);
+    const stateChannelByteCode = this.getStateChannelByteCode(networkContext);
+    const salt = application.uniqueId;
+    const initcode = new ethers.Interface(
+      StateChannel.abi
+    ).deployFunction.encode(stateChannelByteCode, [
+      stateChannel.multisigAddress,
+      // Note: this should be the application-specific keys, not the owners
+      [application.peerA.address, application.peerB.address],
+      application.cfApp.hash(),
+      application.terms.hash(),
+      application.timeout
+    ]);
+    await registry.functions.deploy(initcode, salt, {
+      gasLimit: 6e9
+    });
+    const cfAddress = ethers.utils.solidityKeccak256(
+      ["bytes1", "bytes", "uint256"],
+      ["0x19", initcode, salt]
+    );
+
+    const address = await registry.functions.resolver(cfAddress);
+    return new ethers.Contract(address, StateChannel.abi, wallet);
+  }
+
+  public static async setState(appId: string, wallet: TestWallet) {
+    const setStateTransaction: Transaction = wallet.currentUser.store.getTransaction(
+      appId,
+      ActionName.UPDATE
+    );
+    return wallet.currentUser.ethersWallet.sendTransaction(setStateTransaction);
+  }
+
+  public static async withdrawUnilateral(appId: string, wallet: TestWallet) {
+    const installTransaction: Transaction = wallet.currentUser.store.getTransaction(
+      appId,
+      ActionName.INSTALL
+    );
+    return wallet.currentUser.ethersWallet.sendTransaction(installTransaction);
+  }
+
+  private static getRegistry(
+    networkContext: any,
+    wallet: ethers.Wallet
+  ): ethers.Contract {
+    return new ethers.Contract(networkContext.Registry, Registry.abi, wallet);
+  }
+
+  private static getStateChannelByteCode(
+    networkContext: NetworkContext
+  ): string {
+    StateChannel.bytecode = StateChannel.bytecode.replace(
+      /__Signatures_+/g,
+      networkContext.Signatures.substr(2)
+    );
+    StateChannel.bytecode = StateChannel.bytecode.replace(
+      /__StaticCall_+/g,
+      networkContext.StaticCall.substr(2)
+    );
+    return StateChannel.bytecode;
   }
 
   public wallet: WalletMessaging;

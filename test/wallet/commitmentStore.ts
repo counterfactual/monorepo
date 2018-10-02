@@ -1,3 +1,4 @@
+import * as ethers from "ethers";
 import { Instruction } from "../../src/instructions";
 import {
   CfOperation,
@@ -99,9 +100,7 @@ export class AppCommitments implements Commitments {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
-    throw Error(
-      "App ID: " + this.appId + " has no " + ActionName[action] + " commitment"
-    );
+    throw Error("App ID: " + this.appId + " has no " + action + " commitment");
   }
 
   public serialize(): string {
@@ -140,7 +139,10 @@ export class CommitmentStore {
   ) {
     let appId;
     const action: ActionName = internalMessage.actionName;
-    const op = getFirstResult(Instruction.OP_GENERATE, context.results).value;
+    const op: CfOperation = getFirstResult(
+      Instruction.OP_GENERATE,
+      context.results
+    ).value;
     let appCommitments: AppCommitments;
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
@@ -162,15 +164,15 @@ export class CommitmentStore {
     } else {
       appCommitments = new AppCommitments(appId);
       this.appCount += 1;
-      this.store.put(appId, appCommitments);
+      this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: Signature = getFirstResult(
+    let signature: Signature = getFirstResult(
       Instruction.OP_SIGN,
       context.results
     ).value;
 
-    const counterpartySignature = incomingMessage!.signature;
+    let counterpartySignature = incomingMessage!.signature;
     if (
       counterpartySignature === undefined ||
       signature.toString() === counterpartySignature.toString()
@@ -183,10 +185,26 @@ export class CommitmentStore {
       );
     }
 
-    appCommitments.addCommitment(action, op, [
-      signature,
-      counterpartySignature
-    ]);
+    if (signature instanceof Signature === false) {
+      signature = new Signature(signature.v, signature.r, signature.s);
+    }
+    if (counterpartySignature instanceof Signature === false) {
+      counterpartySignature = new Signature(
+        counterpartySignature.v,
+        counterpartySignature.r,
+        counterpartySignature.s
+      );
+    }
+
+    const digest = op.hashToSign();
+    const sigs = [signature, counterpartySignature];
+    sigs.sort((sigA: Signature, sigB: Signature) => {
+      const addrA = sigA.recoverAddress(digest);
+      const addrB = sigB.recoverAddress(digest);
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
+
+    appCommitments.addCommitment(action, op, sigs);
     this.store.put(appId, Object(appCommitments.serialize()));
     next();
   }

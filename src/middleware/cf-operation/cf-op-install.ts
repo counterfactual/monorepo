@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import * as abi from "../../abi";
 import { Address, H256, NetworkContext } from "../../types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 import {
@@ -9,6 +10,8 @@ import {
   MultisigInput,
   Operation
 } from "./types";
+
+const { keccak256 } = ethers.utils;
 
 export class CfOpInstall extends CfMultiSendOp {
   constructor(
@@ -40,12 +43,18 @@ export class CfOpInstall extends CfMultiSendOp {
       this.app.terms.limit,
       this.app.terms.token
     ];
+    const depNonceKey = keccak256(
+      abi.encodePacked(
+        ["address", "uint256", "uint256"],
+        [this.multisig, 0, this.dependencyNonce.salt]
+      )
+    );
     const data = new ethers.Interface([
       Abi.executeStateChannelConditionalTransfer
     ]).functions.executeStateChannelConditionalTransfer.encode([
       this.ctx.Registry,
       this.ctx.NonceRegistry,
-      this.dependencyNonce.salt,
+      depNonceKey,
       this.dependencyNonce.nonceValue,
       this.appCfAddress,
       terms

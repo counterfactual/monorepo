@@ -33,7 +33,7 @@ export class InstallProposer {
       data.app.resolve,
       data.app.getTurnTaker,
       data.app.isStateTerminal,
-      data.app.abiEncoding
+      data.app.stateEncoding
     );
     const terms = new Terms(
       data.terms.assetType,
@@ -87,11 +87,17 @@ export class InstallProposer {
   private static newSigningKeys(context: Context, data: InstallData): string[] {
     const lastResult = getLastResult(Instruction.IO_WAIT, context.results);
 
+    let signingKeys;
     if (lastResult && lastResult.value && lastResult.value.data) {
-      return [lastResult.value.data.keyA, lastResult.value.data.keyB];
+      signingKeys = [lastResult.value.data.keyA, lastResult.value.data.keyB];
     } else {
-      return [data.keyA!, data.keyB!];
+      signingKeys = [data.keyA!, data.keyB!];
     }
+
+    signingKeys.sort((addrA: Address, addrB: Address) => {
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
+    return signingKeys;
   }
 
   private static newAppChannel(

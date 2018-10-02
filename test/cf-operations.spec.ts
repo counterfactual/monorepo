@@ -43,7 +43,7 @@ export async function mineBlocks(
   }
 }
 
-describe("Setup Protocol", async function() {
+describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
   /**
@@ -427,8 +427,8 @@ function startInstallBalanceRefundMsg(
   const installData: InstallData = {
     peerA: new PeerBalance(peerA, 0),
     peerB: new PeerBalance(peerB, 0),
-    keyA: "",
-    keyB: "",
+    keyA: peerA,
+    keyB: peerB,
     encodedAppState: "0x1234",
     terms,
     app,

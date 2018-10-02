@@ -23,9 +23,11 @@ import { TestWallet } from "./wallet/wallet";
  * of a state channel application, TTT, running the setup, install, update,
  * and uninstall protocols.
  */
-describe("Machine State Lifecycle", async function() {
+describe("Machine State Lifecycle", async () => {
   // extending the timeout to allow the async machines to finish
-  jest.setTimeout(30000);
+  // and give time to `recoverAddress` to order signing keys right
+  // for setting commitments
+  jest.setTimeout(50000);
 
   it("should modify machine state during the lifecycle of TTT", async () => {
     const [walletA, walletB]: TestWallet[] = getWallets();
@@ -130,7 +132,11 @@ class Depositor {
     threshold: ethers.BigNumber
   ): ClientActionMessage {
     const canon = PeerBalance.balances(from, 0, to, 0);
-    const terms = new Terms(0, 10, ethers.constants.AddressZero); // todo
+    const terms = new Terms(
+      0,
+      new ethers.BigNumber(10),
+      ethers.constants.AddressZero
+    ); // todo
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -143,8 +149,8 @@ class Depositor {
     const installData: InstallData = {
       peerA: canon.peerA,
       peerB: canon.peerB,
-      keyA: "",
-      keyB: "",
+      keyA: from,
+      keyB: to,
       encodedAppState: "0x1234",
       terms,
       app,
@@ -289,7 +295,11 @@ class Ttt {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new Terms(0, 10, ethers.constants.AddressZero); // todo
+    const terms = new Terms(
+      0,
+      new ethers.BigNumber(10),
+      ethers.constants.AddressZero
+    ); // todo
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -302,8 +312,8 @@ class Ttt {
     const installData: InstallData = {
       peerA: new PeerBalance(peerA, 2),
       peerB: new PeerBalance(peerB, 2),
-      keyA: "",
-      keyB: "",
+      keyA: peerA,
+      keyB: peerB,
       encodedAppState: "0x1234",
       terms,
       app,

@@ -268,18 +268,6 @@ export class TestWallet implements ResponseSink {
    * and pass that to the VM.
    */
   private defaultNetwork(): NetworkContext {
-    const networkMap = _.mapValues(
-      _.keyBy(networkFile.contracts, "contractName"),
-      "address"
-    );
-    return new NetworkContext(
-      networkMap.Registry,
-      networkMap.PaymentApp,
-      networkMap.ConditionalTransfer,
-      networkMap.MultiSend,
-      networkMap.NonceRegistry,
-      networkMap.Signatures,
-      networkMap.StaticCall
-    );
+    return NetworkContext.fromNetworkFile(networkFile);
   }
 }
