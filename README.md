@@ -57,6 +57,14 @@ yarn shell
 
 ## Ethmo
 
+Serve iframe-wallet
+```bash
+docker-compose up -d serve_files 
+```
+Then navigate to [http://127.0.0.1:8000/iframe-wallet/](http://127.0.0.1:8000/iframe-wallet/).
+
+Then follow steps in the Ethmo repo to get Ethmo up and running.
+
 ### Rebuilding
 
 - `yarn rollup`
