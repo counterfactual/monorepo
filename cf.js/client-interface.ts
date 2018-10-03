@@ -41,7 +41,7 @@ export class ClientInterface implements Observable {
 
   // TODO: remove `networkContext` when contract linking is setup properly
   public static async deployMultisig(
-    wallet: ethers.Wallet,
+    wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
     owners: string[],
     networkContext: NetworkContext
   ): Promise<ethers.Contract> {
@@ -79,7 +79,9 @@ export class ClientInterface implements Observable {
       100
     ]);
     const salt = 0;
-    await registry.functions.deploy(initcode, salt, { gasLimit: 6e9 });
+    await registry.functions.deploy(initcode, salt, {
+      gasLimit: 4e6
+    });
     const cfAddress = ethers.utils.solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
       ["0x19", initcode, salt]
@@ -108,7 +110,7 @@ export class ClientInterface implements Observable {
       application.timeout
     ]);
     await registry.functions.deploy(initcode, salt, {
-      gasLimit: 6e9
+      gasLimit: 4e6
     });
     const cfAddress = ethers.utils.solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
@@ -124,7 +126,10 @@ export class ClientInterface implements Observable {
       appId,
       ActionName.UPDATE
     );
-    return wallet.currentUser.ethersWallet.sendTransaction(setStateTransaction);
+    return wallet.currentUser.ethersWallet.sendTransaction({
+      ...setStateTransaction,
+      gasLimit: 0.5e6
+    });
   }
 
   public static async withdrawUnilateral(appId: string, wallet: TestWallet) {
@@ -132,7 +137,10 @@ export class ClientInterface implements Observable {
       appId,
       ActionName.INSTALL
     );
-    return wallet.currentUser.ethersWallet.sendTransaction(installTransaction);
+    return wallet.currentUser.ethersWallet.sendTransaction({
+      ...installTransaction,
+      gasLimit: 0.5e6
+    });
   }
 
   private static getRegistry(

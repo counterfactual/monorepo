@@ -35,9 +35,8 @@ export class User implements Observable, ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
-  public blockchainProvider: ethers.providers.BaseProvider;
-  public signer: ethers.SigningKey;
-  public ethersWallet: ethers.Wallet;
+  public signingKey: ethers.SigningKey;
+  public ethersWallet: ethers.Wallet | ethers.providers.JsonRpcSigner;
   public vm: CounterfactualVM;
   public io: IoProvider;
   public address: string;
@@ -81,11 +80,19 @@ export class User implements Observable, ResponseSink {
       this.handleActionCompletion.bind(this)
     );
 
-    this.signer = new ethers.SigningKey(privateKey);
-    this.address = this.signer.address;
-    this.blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
-
-    this.ethersWallet = new ethers.Wallet(privateKey, this.blockchainProvider);
+    this.signingKey = new ethers.SigningKey(privateKey);
+    this.address = this.signingKey.address;
+    const { web3 } = window as any;
+    if (web3) {
+      this.ethersWallet = new ethers.providers.Web3Provider(
+        web3.currentProvider
+      ).getSigner();
+    } else {
+      this.ethersWallet = new ethers.Wallet(
+        privateKey,
+        new ethers.providers.JsonRpcProvider(ganacheURL)
+      );
+    }
   }
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
@@ -201,7 +208,10 @@ async function signMyUpdate(
     context.results
   ).value;
   const digest = operation.hashToSign();
-  const sig = user.signer.signDigest(digest);
+  const sig = user.signingKey.signDigest(digest);
+  console.log(
+    `🔑 Signing ${message.actionName} message: ${digest.substr(0, 16)}`
+  );
   return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 

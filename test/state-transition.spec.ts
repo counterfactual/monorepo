@@ -40,7 +40,8 @@ describe("State transition", () => {
     const message = new InternalMessage(
       ActionName.SETUP,
       Instruction.STATE_TRANSITION_PROPOSE,
-      setupClientMsg()
+      setupClientMsg(),
+      false
     );
     const proposal = SetupProposer.propose(message);
     validateSetupInfos(proposal.state);
@@ -49,7 +50,8 @@ describe("State transition", () => {
     const message = new InternalMessage(
       ActionName.INSTALL,
       Instruction.STATE_TRANSITION_PROPOSE,
-      installClientMsg()
+      installClientMsg(),
+      false
     );
     const expectedCfAddr = new CfStateChannel(
       TestWallet.testNetwork(),
