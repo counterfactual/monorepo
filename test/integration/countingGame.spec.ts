@@ -56,9 +56,6 @@ contract("CountingApp", (accounts: string[]) => {
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
 
-  const decode = (encoding: string, state: any) =>
-    ethers.utils.defaultAbiCoder.decode([encoding], state);
-
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
@@ -72,30 +69,8 @@ contract("CountingApp", (accounts: string[]) => {
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
-  const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
-
   const keccak256 = (bytes: string) =>
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-
-  const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
-      appState || Utils.ZERO_BYTES32,
-      nonce,
-      10,
-      "0x"
-    );
-
-  const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
-      appState || Utils.ZERO_BYTES32,
-      nonce,
-      10,
-      Utils.signMessage(
-        computeStateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
-        unlockedAccount
-      )
-    );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
     stateChannel.functions.setState(
@@ -115,7 +90,7 @@ contract("CountingApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const StateChannel = artifacts.require("StateChannel");
+    const StateChannel = artifacts.require("AppInstance");
     const StaticCall = artifacts.require("StaticCall");
     const Signatures = artifacts.require("Signatures");
     const Transfer = artifacts.require("Transfer");
@@ -160,8 +135,8 @@ contract("CountingApp", (accounts: string[]) => {
     ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
     ret.to[0].should.be.equalIgnoreCase(A.address);
     ret.to[1].should.be.equalIgnoreCase(B.address);
-    ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
-    ret.amount[1].should.be.bignumber.eq(0);
+    ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
+    ret.value[1].should.be.bignumber.eq(0);
   });
 
   describe("setting a resolution", async () => {
@@ -188,8 +163,8 @@ contract("CountingApp", (accounts: string[]) => {
       ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
       ret.to[0].should.be.equalIgnoreCase(A.address);
       ret.to[1].should.be.equalIgnoreCase(B.address);
-      ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
-      ret.amount[1].should.be.bignumber.eq(0);
+      ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
+      ret.value[1].should.be.bignumber.eq(0);
     });
   });
 

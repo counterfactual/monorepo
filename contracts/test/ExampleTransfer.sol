@@ -5,8 +5,8 @@ import "../lib/Transfer.sol";
 
 
 contract ExampleTransfer {
-  using Transfer for Transfer.Details;
-  function transfer(Transfer.Details details) public {
-    details.executeTransfer();
+  using Transfer for Transfer.Transaction;
+  function transfer(Transfer.Transaction details) public {
+    details.execute();
   }
 }

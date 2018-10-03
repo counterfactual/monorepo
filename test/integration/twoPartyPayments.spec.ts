@@ -102,7 +102,7 @@ contract("PaymentApp", (accounts: string[]) => {
     pc = await Utils.deployContract(PaymentApp, unlockedAccount);
 
     // Specifically for the StateChannel
-    const StateChannel = artifacts.require("StateChannel");
+    const StateChannel = artifacts.require("AppInstance");
     const StaticCall = artifacts.require("StaticCall");
     const Signatures = artifacts.require("Signatures");
     const Transfer = artifacts.require("Transfer");
@@ -142,8 +142,8 @@ contract("PaymentApp", (accounts: string[]) => {
     ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
     ret.to[0].should.be.equalIgnoreCase(A.address);
     ret.to[1].should.be.equalIgnoreCase(B.address);
-    ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH);
-    ret.amount[1].should.be.bignumber.eq(Utils.UNIT_ETH);
+    ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH);
+    ret.value[1].should.be.bignumber.eq(Utils.UNIT_ETH);
   });
 
   describe("setting a resolution", async () => {
@@ -170,8 +170,8 @@ contract("PaymentApp", (accounts: string[]) => {
       ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
       ret.to[0].should.be.equalIgnoreCase(A.address);
       ret.to[1].should.be.equalIgnoreCase(B.address);
-      ret.amount[0].should.be.bignumber.eq(Utils.UNIT_ETH);
-      ret.amount[1].should.be.bignumber.eq(Utils.UNIT_ETH);
+      ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH);
+      ret.value[1].should.be.bignumber.eq(Utils.UNIT_ETH);
     });
   });
 });

@@ -5,7 +5,7 @@ import "../lib/Transfer.sol";
 import "../Conditional.sol";
 import "../Registry.sol";
 import "../NonceRegistry.sol";
-import "../StateChannel.sol";
+import "../AppInstance.sol";
 
 
 /// @title ConditionalTransfer - A conditional transfer contract
@@ -14,29 +14,29 @@ import "../StateChannel.sol";
 /// @notice Supports a complex transfer of funds contingent on some condition.
 contract ConditionalTransfer is Conditional {
 
-  using Transfer for Transfer.Details;
+  using Transfer for Transfer.Transaction;
 
   function executeSimpleConditionalTransfer(
     Condition condition,
-    Transfer.Details memory details
+    Transfer.Transaction memory tx
   )
     public
   {
     require(Conditional.isSatisfied(condition));
-    details.executeTransfer();
+    tx.execute();
   }
 
-  /// @notice Execute a fund transfer for a state channel in a finalized state
+  /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param key The key in the nonce registry
   /// @param expectedNonce The expected nonce in the nonce registry
-  /// @param channelCfAddress Counterfactual address of the state channel contract
+  /// @param appCfAddress Counterfactual address of the app contract
   /// @param terms The pre-agreed upon terms of the funds transfer
-  function executeStateChannelConditionalTransfer(
+  function executeAppConditionalTransfer(
     address registry,
     address nonceRegistry,
     bytes32 key,
     uint256 expectedNonce,
-    bytes32 channelCfAddress,
+    bytes32 appCfAddress,
     Transfer.Terms terms
   )
     public
@@ -46,9 +46,9 @@ contract ConditionalTransfer is Conditional {
       "State Channel nonce is either not finalized or finalized at an incorrect nonce"
     );
 
-    address channelAddr = Registry(registry).resolver(channelCfAddress);
-    StateChannel channel = StateChannel(channelAddr);
-    Transfer.Transaction memory itx = channel.getResolution();
+    address appAddr = Registry(registry).resolver(appCfAddress);
+    AppInstance app = AppInstance(appAddr);
+    Transfer.Transaction memory itx = app.getResolution();
 
     require(
       Transfer.meetsTerms(itx, terms),

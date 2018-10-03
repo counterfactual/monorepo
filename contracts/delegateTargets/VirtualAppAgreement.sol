@@ -4,12 +4,11 @@ pragma experimental "ABIEncoderV2";
 import "../lib/Transfer.sol";
 import "../NonceRegistry.sol";
 import "../Registry.sol";
-import "../StateChannel.sol";
 
 
 contract VirtualAppAgreement {
 
-  using Transfer for Transfer.Details;
+  using Transfer for Transfer.Transaction;
   using Transfer for Transfer.Terms;
 
   struct Agreement {
@@ -39,9 +38,9 @@ contract VirtualAppAgreement {
     uint256[] memory amount = new uint256[](2);
     amount[0] = agreement.capitalProvided;
     amount[1] = agreement.capitalProvided;
-    bytes memory data;
+    bytes[] memory data = new bytes[](2);
 
-    Transfer.Details memory ret = Transfer.Details(
+    Transfer.Transaction memory ret = Transfer.Transaction(
       agreement.terms.assetType,
       agreement.terms.token,
       to,
@@ -49,7 +48,7 @@ contract VirtualAppAgreement {
       data
     );
 
-    ret.executeTransfer();
+    ret.execute();
 
   }
 
