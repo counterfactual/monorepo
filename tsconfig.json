@@ -15,7 +15,10 @@
     "esModuleInterop": true,
     "lib": ["es2015", "es2017", "dom", "esnext.asynciterable"],
     "target": "es2017",
-    "module": "commonjs",
+    // FIXME: We're in a bit of a weird spot right now where the codebase uses
+    // rollup for three distinct pieces of software all of which have their
+    // own characteristics that would warrant a different module value.
+    // "module": "commonjs",
     "sourceMap": true,
     "outDir": "dist/",
     "sourceRoot": ".",
