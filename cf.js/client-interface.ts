@@ -8,7 +8,9 @@ import StateChannel from "../contracts/build/contracts/StateChannel.json";
 import networkFile from "../contracts/networks/7777777.json";
 
 import {
+  CfAppInterface,
   CfFreeBalance,
+  Terms,
   Transaction
 } from "../src/middleware/cf-operation/types";
 import { applyMixins } from "../src/mixins/apply";
@@ -17,6 +19,7 @@ import { StateChannelInfoImpl } from "../src/state";
 
 import {
   ActionName,
+  Address,
   AppChannelInfo,
   ClientActionMessage,
   ClientMessage,
@@ -39,11 +42,9 @@ export class ClientInterface implements Observable {
     return this.userAddress || "";
   }
 
-  // TODO: remove `networkContext` when contract linking is setup properly
   public static async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
-    owners: string[],
-    networkContext: NetworkContext
+    owners: string[]
   ): Promise<ethers.Contract> {
     Multisig.bytecode = Multisig.bytecode.replace(
       /__Signatures_+/g,
@@ -63,31 +64,24 @@ export class ClientInterface implements Observable {
     stateChannel: StateChannelInfoImpl,
     wallet: ethers.Wallet
   ): Promise<ethers.Contract> {
-    const registry = ClientInterface.getRegistry(networkContext, wallet);
-    const stateChannelByteCode = this.getStateChannelByteCode(networkContext);
-
-    const freeBalance: CfFreeBalance = stateChannel.freeBalance;
+    const signingKeys = [
+      stateChannel.freeBalance.alice,
+      stateChannel.freeBalance.bob
+    ];
+    const salt = 0;
     const app = CfFreeBalance.contractInterface(networkContext);
     const terms = CfFreeBalance.terms();
-    const initcode = new ethers.Interface(
-      StateChannel.abi
-    ).deployFunction.encode(stateChannelByteCode, [
-      stateChannel.multisigAddress,
-      [freeBalance.alice, freeBalance.bob],
-      app.hash(),
-      terms.hash(),
-      100
-    ]);
-    const salt = 0;
-    await registry.functions.deploy(initcode, salt, {
-      gasLimit: 4e6
-    });
-    const cfAddress = ethers.utils.solidityKeccak256(
-      ["bytes1", "bytes", "uint256"],
-      ["0x19", initcode, salt]
+    const timeout = 100;
+    return this.deployAppInstance(
+      networkContext,
+      stateChannel,
+      wallet,
+      salt,
+      signingKeys,
+      app,
+      terms,
+      timeout
     );
-    const address = await registry.functions.resolver(cfAddress);
-    return new ethers.Contract(address, StateChannel.abi, wallet);
   }
 
   public static async deployApplicationStateChannel(
@@ -96,29 +90,16 @@ export class ClientInterface implements Observable {
     application: AppChannelInfo,
     wallet: ethers.Wallet
   ) {
-    const registry = ClientInterface.getRegistry(networkContext, wallet);
-    const stateChannelByteCode = this.getStateChannelByteCode(networkContext);
-    const salt = application.uniqueId;
-    const initcode = new ethers.Interface(
-      StateChannel.abi
-    ).deployFunction.encode(stateChannelByteCode, [
-      stateChannel.multisigAddress,
-      // Note: this should be the application-specific keys, not the owners
+    return this.deployAppInstance(
+      networkContext,
+      stateChannel,
+      wallet,
+      application.uniqueId,
       [application.peerA.address, application.peerB.address],
-      application.cfApp.hash(),
-      application.terms.hash(),
+      application.cfApp,
+      application.terms,
       application.timeout
-    ]);
-    await registry.functions.deploy(initcode, salt, {
-      gasLimit: 4e6
-    });
-    const cfAddress = ethers.utils.solidityKeccak256(
-      ["bytes1", "bytes", "uint256"],
-      ["0x19", initcode, salt]
     );
-
-    const address = await registry.functions.resolver(cfAddress);
-    return new ethers.Contract(address, StateChannel.abi, wallet);
   }
 
   public static async setState(appId: string, wallet: TestWallet) {
@@ -128,7 +109,7 @@ export class ClientInterface implements Observable {
     );
     return wallet.currentUser.ethersWallet.sendTransaction({
       ...setStateTransaction,
-      gasLimit: 0.5e6
+      gasLimit: ClientInterface.GAS_LIMITS.SET_STATE_COMMITMENT
     });
   }
 
@@ -139,13 +120,51 @@ export class ClientInterface implements Observable {
     );
     return wallet.currentUser.ethersWallet.sendTransaction({
       ...installTransaction,
-      gasLimit: 0.5e6
+      gasLimit: ClientInterface.GAS_LIMITS.INSTALL_COMMITMENT
     });
   }
 
+  private static GAS_LIMITS = {
+    DEPLOY_APP_INSTANCE: 4e6,
+    SET_STATE_COMMITMENT: 0.5e6,
+    INSTALL_COMMITMENT: 0.5e6
+  };
+
+  private static async deployAppInstance(
+    networkContext: NetworkContext,
+    stateChannel: StateChannelInfoImpl,
+    wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
+    salt: ethers.types.BigNumberish,
+    signingKeys: Address[],
+    app: CfAppInterface,
+    terms: Terms,
+    timeout: ethers.types.BigNumberish
+  ): Promise<ethers.Contract> {
+    const registry = ClientInterface.getRegistry(networkContext, wallet);
+    const initcode = new ethers.Interface(
+      StateChannel.abi
+    ).deployFunction.encode(this.getStateChannelByteCode(networkContext), [
+      stateChannel.multisigAddress,
+      signingKeys,
+      app.hash(),
+      terms.hash(),
+      timeout
+    ]);
+    await registry.functions.deploy(initcode, salt, {
+      gasLimit: ClientInterface.GAS_LIMITS.DEPLOY_APP_INSTANCE
+    });
+    const cfAddress = ethers.utils.solidityKeccak256(
+      ["bytes1", "bytes", "uint256"],
+      ["0x19", initcode, salt]
+    );
+
+    const address = await registry.functions.resolver(cfAddress);
+    return new ethers.Contract(address, StateChannel.abi, wallet);
+  }
+
   private static getRegistry(
-    networkContext: any,
-    wallet: ethers.Wallet
+    networkContext: NetworkContext,
+    wallet: ethers.types.Signer
   ): ethers.Contract {
     return new ethers.Contract(networkContext.Registry, Registry.abi, wallet);
   }
