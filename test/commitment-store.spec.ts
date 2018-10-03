@@ -1,5 +1,5 @@
-import * as abi from "../src/abi";
 import { ethers } from "ethers";
+import * as abi from "../src/abi";
 import { CfOpSetup } from "../src/middleware/cf-operation/cf-op-setup";
 import { Abi } from "../src/middleware/cf-operation/types";
 import { ActionName, Signature } from "../src/types";
@@ -67,20 +67,20 @@ describe.skip("should have one commitment for the setup protocol", () => {
   });
 
   // FIXME: the operation hash generated is wrong
-  it.skip("the transaction's signatures should be signed by wallet A and wallet B", () => {
-    const signatures = Signature.fromBytes(multisigInput.signatures);
-    const operationHash = CfOpSetup.toHash(MULTISIG_ADDRESS, multisigInput);
-    const addressA = ethers.utils.recoverAddress(operationHash, signatures[0]);
-    const addressB = ethers.utils.recoverAddress(operationHash, signatures[1]);
-    expect(addressA).toEqual(walletA.currentUser.signer.address);
-    expect(addressB).toEqual(walletB.currentUser.signer.address);
-  });
+  // it.skip("the transaction's signatures should be signed by wallet A and wallet B", () => {
+  //   const signatures = Signature.fromBytes(multisigInput.signatures);
+  //   const operationHash = CfOpSetup.toHash(MULTISIG_ADDRESS, multisigInput);
+  //   const addressA = ethers.utils.recoverAddress(operationHash, signatures[0]);
+  //   const addressB = ethers.utils.recoverAddress(operationHash, signatures[1]);
+  //   expect(addressA).toEqual(walletA.currentUser.signer.address);
+  //   expect(addressB).toEqual(walletB.currentUser.signer.address);
+  // });
 
   // TODO: add more tests confirming if the transaction's data are correct
 });
 
 async function setup(walletA: TestWallet, walletB: TestWallet) {
-  const msg = SetupProtocol.setupStartMsg(walletA.address, walletB.address);
+  const msg = SetupProtocol.setupStartMsg(walletA.address!, walletB.address!);
   const response = await walletA.runProtocol(msg);
   expect(response.status).toEqual(ResponseStatus.COMPLETED);
 }

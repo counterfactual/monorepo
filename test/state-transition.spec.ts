@@ -92,7 +92,7 @@ function setupInstallCfState(): CfState {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new CfNonce(0) // nonce
+    new CfNonce(0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
@@ -135,7 +135,7 @@ function installClientMsg(): ClientActionMessage {
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new Terms(0, 8, TOKEN_ADDRESS),
+      terms: new Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
       app: new CfAppInterface(
         APP_ADDRESS,
         APPLY_ACTION,

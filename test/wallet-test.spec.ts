@@ -4,8 +4,8 @@ import { ClientInterface } from "../cf.js/client-interface";
 import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
 import {
   ClientActionMessage,
-  WalletMessaging,
-  InstallOptions
+  InstallOptions,
+  WalletMessaging
 } from "../src/types";
 import { sleep } from "./common";
 import {
@@ -35,7 +35,7 @@ const INSTALL_OPTIONS: InstallOptions = {
   }
 };
 
-let blockchainProvider = new ethers.providers.JsonRpcProvider(
+const blockchainProvider = new ethers.providers.JsonRpcProvider(
   process.env.GANACHE_URL
 );
 
@@ -78,9 +78,12 @@ describe("Lifecycle", async () => {
     multisigContractAddress = multisigContract.address;
   });
 
-  let walletA, walletB;
-  let connectionA, connectionB;
-  let clientA, clientB;
+  let walletA;
+  let walletB;
+  let connectionA;
+  let connectionB;
+  let clientA;
+  let clientB;
   beforeEach(async () => {
     walletA = new TestWallet();
     walletB = new TestWallet();
@@ -175,14 +178,14 @@ describe("Lifecycle", async () => {
   });
 
   it("Can deposit to a state channel", async () => {
-    let amountA = ethers.utils.parseEther("5");
-    let amountB = ethers.utils.parseEther("7");
+    const amountA = ethers.utils.parseEther("5");
+    const amountB = ethers.utils.parseEther("7");
 
-    let stateChannelAB = await clientA.setup(
+    const stateChannelAB = await clientA.setup(
       B_ADDRESS,
       multisigContractAddress
     );
-    let stateChannelBA = clientB.getOrCreateStateChannel(
+    const stateChannelBA = clientB.getOrCreateStateChannel(
       stateChannelAB.multisigAddress,
       A_ADDRESS
     );
@@ -437,7 +440,7 @@ async function validateMultisigBalance(
   aliceBalance: ethers.BigNumber,
   bobBalance: ethers.BigNumber
 ) {
-  let multisigAmount = await blockchainProvider.getBalance(
+  const multisigAmount = await blockchainProvider.getBalance(
     multisigContractAddress
   );
   expect(ethers.utils.bigNumberify(multisigAmount).toString()).toBe(
@@ -450,9 +453,9 @@ function validateFreebalance(
   aliceBalance: ethers.BigNumber,
   bobBalance: ethers.BigNumber
 ) {
-  let stateChannel =
+  const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
-  let freeBalance = stateChannel.freeBalance;
+  const freeBalance = stateChannel.freeBalance;
 
   expect(freeBalance.aliceBalance.toString()).toBe(aliceBalance.toString());
   expect(freeBalance.bobBalance.toString()).toBe(bobBalance.toString());
