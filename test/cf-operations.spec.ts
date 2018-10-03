@@ -74,9 +74,9 @@ describe("Setup Protocol", async () => {
     walletB.currentUser.io.peer = walletA;
 
     const peerBalances = PeerBalance.balances(
-      ethersWalletA.address,
+      await ethersWalletA.getAddress(),
       ethers.utils.bigNumberify(0),
-      ethersWalletB.address,
+      await ethersWalletB.getAddress(),
       ethers.utils.bigNumberify(0)
     );
     const signingKeys = [

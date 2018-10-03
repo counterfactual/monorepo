@@ -146,13 +146,13 @@
   async function mine() {
     const ethmoState = await ethmoContract.state();
     const finalizationBlockerNumber = ethmoState.finalizesAt.toString();
-    const currentBlockNumber = await wallet.currentUser.blockchainProvider.getBlockNumber();
+    const currentBlockNumber = await wallet.currentUser.ethersWallet.provider.getBlockNumber();
     for (
       let blockCount = 0;
       blockCount < (finalizationBlockerNumber - currentBlockNumber);
       blockCount++
     ) {
-      await wallet.currentUser.blockchainProvider.send("evm_mine", []);
+      await wallet.currentUser.ethersWallet.provider.send("evm_mine", []);
     }
     console.log(`⌛️ Waited for timeout`);
   }
