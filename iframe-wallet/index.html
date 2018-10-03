@@ -1,226 +1,30 @@
 <!DOCTYPE html>
 <html>
-
-
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
-<script charset="utf-8" type="text/javascript" src="../node_modules/ethers/dist/ethers.js"></script>
-<script id="cf_src" type="text/javascript" src="../build/js/counterfactual.min.js"></script>
-<script id="wa_src" type="text/javascript" src="../build/js/wallet.min.js"></script>
-<script id="ci_src" type="text/javascript" src="../build/js/client-interface.min.js"></script>
-
-<script>
-  const getSrc = async function (id) {
-    const response = await fetch(document.getElementById(`${id}_src`).src);
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let file = "";
-    let done = false;
-
-    while (!done) {
-      const segment = await reader.read();
-      file += decoder.decode(segment.value);
-      done = segment.done;
-    }
-
-    return file.replace(`var ${id} =`, `window.${id} =`);
-  };
-
-  const injectScript = async function (event) {
-    const injectedScript = `
-			${await getSrc("ci")};
-		`;
-
-    event.source.postMessage({ type: "cf:init-reply", source: injectedScript }, "*");
-  };
-
-
-  window.addEventListener("message", (event) => {
-    if (event.data.type === "cf:init") {
-      injectScript(event);
-    }
-  });
-
-
-  function sendMessageToChild(msg) {
-    document.querySelectorAll("iframe").forEach((el) => {
-      el.contentWindow.postMessage(msg, "*");
-    });
-  }
-
-  const wallet = new wa.TestWallet();
-  let ethmoContract;
-  let multisigContract;
-  let nonceRegistry;
-  const listeners = [];
-
-  async function pickUser(pkey) {
-    // TODO figure out a way to access process.env within rollup and use `test/constants.ts`
-    // currently can't rollup envvars: https://github.com/calvinmetcalf/rollup-plugin-node-globals/issues/7
-    const key = new ethers.Wallet(pkey).address;
-
-    wallet.setUser(key, pkey);
-    await wallet.initUser(key);
-
-    wallet.onMessage((msg) => {
-      const message = {
-        type: "cf:io-send",
-        data: msg
-      };
-      sendMessageToChild(message);
-    });
-
-    wallet.onResponse((message) => {
-      console.log("onResponse", message);
-      sendMessageToChild(message);
-    });
-
-    listeners.forEach((listener) => window.removeEventListener("message", listener));
-
-    const listener = (event) => {
-      if (event.data.type === "cf:default") {
-        wallet.receiveMessageFromClient(event.data);
-      }
-    };
-
-    listeners.push(listener);
-
-    window.addEventListener("message", listener);
-
-    sendMessageToChild({ type: "cf:user-picked", key, pkey });
-  }
-
-  function getApps() {
-    const openChannelAddress = Object.keys(wallet.currentUser.vm.cfState.channelStates)[0];
-    return wallet.currentUser.vm.cfState.channelStates[openChannelAddress].appChannels;
-  }
-
-  function getStateChannels() {
-    return wallet.currentUser.vm.cfState.channelStates;
-  }
-
-  function getCurrentUserApps() {
-    const apps = getApps();
-    // This assumes the current user has only one channel open
-    let appList = "<ul>";
-    for (var appId in apps) {
-      console.log(apps[appId]);
-      appList += "<li>" + appId + "</li>";
-    }
-    appList += "<ul>";
-    document.getElementById("apps").innerHTML = appList;
-  }
-
-  async function deployFreeBalanceStateChannel() {
-    const stateChannels = getStateChannels();
-    const stateChannel = Object.values(stateChannels)[0];
-    const contract = await ci.ClientInterface.deployFreeBalanceContract(
-      wallet.defaultNetwork(),
-      stateChannel,
-      wallet.currentUser.ethersWallet
-    );
-    console.log(`📄 FreeBalance contract deployed: ${contract.address}`);
-  }
-
-  async function deployEthmoStateChannel() {
-    const apps = getApps();
-    const ethmoApplication = Object.values(apps)[0];
-    const stateChannels = getStateChannels();
-    const stateChannel = Object.values(stateChannels)[0];
-    ethmoContract = await ci.ClientInterface.deployApplicationStateChannel(
-      wallet.defaultNetwork(),
-      stateChannel,
-      ethmoApplication,
-      wallet.currentUser.ethersWallet
-    );
-    console.log(`📄 Ethmo contract deployed: ${ethmoContract.address}`);
-    return ethmoContract;
-  }
-
-  async function submitLatestStateForEthmo() {
-    const apps = getApps();
-    const ethmoAppId = Object.keys(apps)[0];
-    const res = await ci.ClientInterface.setState(ethmoAppId, wallet);
-    console.log(`📝 Latest state submitted to Ethmo: TX hash=${(await res.wait()).transactionHash}`);
-  }
-
-  async function mine() {
-    const ethmoState = await ethmoContract.state();
-    const finalizationBlockerNumber = ethmoState.finalizesAt.toString();
-    const currentBlockNumber = await wallet.currentUser.ethersWallet.provider.getBlockNumber();
-    for (
-      let blockCount = 0;
-      blockCount < (finalizationBlockerNumber - currentBlockNumber);
-      blockCount++
-    ) {
-      await wallet.currentUser.ethersWallet.provider.send("evm_mine", []);
-    }
-    console.log(`⌛️ Waited for timeout`);
-  }
-
-  async function setResolution() {
-    const apps = getApps();
-    const ethmoApplication = Object.values(apps)[0];
-    const { cfApp: app, terms, encodedState } = ethmoApplication;
-    const appData = [
-      app.address,
-      app.applyAction,
-      app.resolve,
-      app.getTurnTaker,
-      app.isStateTerminal
-    ];
-    const termsData = ethers.utils.defaultAbiCoder.encode(
-      ["bytes1", "uint8", "uint256", "address"],
-      ["0x19", terms.assetType, terms.limit, terms.token]
-    );
-    await ethmoContract.setResolution(
-      appData, encodedState, termsData
-    );
-    console.log(`✅ State channel resolved`);
-  }
-
-  async function everythingUptoWithdraw() {
-    await deployEthmoStateChannel();
-    await deployFreeBalanceStateChannel();
-    await submitLatestStateForEthmo();
-    await mine();
-    await setResolution();
-  }
-
-  async function withdraw() {
-    const apps = getApps();
-    const ethmoAppId = Object.keys(apps)[0];
-    const res = await ci.ClientInterface.withdrawUnilateral(ethmoAppId, wallet);
-    console.log(`💸 Money withdrawn: ${(await res.wait()).transactionHash}`);
-  }
-
-</script>
-
-
-<div>
-  <div style="float: left">
+  <head>
+  </head>
+  <body>
     <div>
-      Pick user
+      <div style="float: left">
+        <div>
+          Pick user
+        </div>
+        <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
+        <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
+      </div>
+      <button onclick="deployEthmoStateChannel()">Deploy State Channel Contract (Ethmo App)</button>
+      <button onclick="deployFreeBalanceStateChannel()">Deploy State Channel Contract (Free Balance)</button>
+      <button onclick="submitLatestStateForEthmo()">Submit latest state</button>
+      <button onclick="mine()">Wait for timeout</button>
+      <button onclick="setResolution()">Set Resolution</button>
+      <button style="border: 2px solid black;" onclick="everythingUptoWithdraw()">Everything Upto Withdraw</button>
+      <button onclick="withdraw()">Withdraw</button>
     </div>
-    <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e')">(A)</button>
-    <button onclick="pickUser('0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f')">(B)</button>
-  </div>
-  <div style="float: right">
-    <div>
-      List apps for current user's current open channel
-    </div>
-    <button onclick="getCurrentUserApps()">User Apps</button>
-    <div id="apps">
-    </div>
-  </div>
-  <button onclick="deployEthmoStateChannel()">Deploy State Channel Contract (Ethmo App)</button>
-  <button onclick="deployFreeBalanceStateChannel()">Deploy State Channel Contract (Free Balance)</button>
-  <button onclick="submitLatestStateForEthmo()">Submit latest state</button>
-  <button onclick="mine()">Wait for timeout</button>
-  <button onclick="setResolution()">Set Resolution</button>
-  <button style="border: 2px solid black;" onclick="everythingUptoWithdraw()">Everything Upto Withdraw</button>
-  <button onclick="withdraw()">Withdraw</button>
-</div>
-
-<iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>
-
+    <iframe id=ethmo width=500 height=800 src="http://localhost:4200"></iframe>
+  </body>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+  <script charset="utf-8" type="text/javascript" src="../node_modules/ethers/dist/ethers.js"></script>
+  <script id="cf_src" type="text/javascript" src="../build/js/counterfactual.min.js"></script>
+  <script id="wa_src" type="text/javascript" src="../build/js/wallet.min.js"></script>
+  <script id="ci_src" type="text/javascript" src="../build/js/client-interface.min.js"></script>
+  <script type="text/javascript" src="./index.js"></script>
 </html>
