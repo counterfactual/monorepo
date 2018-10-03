@@ -209,8 +209,8 @@ async function signMyUpdate(
   ).value;
   const digest = operation.hashToSign();
   const sig = user.signingKey.signDigest(digest);
-  console.log(
-    `🔑 Signing ${message.actionName} message: ${digest.substr(0, 16)}`
+  console.debug(
+    `🔑  Signing ${message.actionName} message: ${digest.substr(0, 16)}...`
   );
   return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }

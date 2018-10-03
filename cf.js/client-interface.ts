@@ -1,26 +1,10 @@
 import * as ethers from "ethers";
-
 import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
-import NonceRegistry from "../contracts/build/contracts/NonceRegistry.json";
-import Registry from "../contracts/build/contracts/Registry.json";
-import Signatures from "../contracts/build/contracts/Signatures.json";
-import StateChannel from "../contracts/build/contracts/StateChannel.json";
 import networkFile from "../contracts/networks/7777777.json";
-
-import {
-  CfAppInterface,
-  CfFreeBalance,
-  Terms,
-  Transaction
-} from "../src/middleware/cf-operation/types";
 import { applyMixins } from "../src/mixins/apply";
 import { NotificationType, Observable } from "../src/mixins/observable";
-import { StateChannelInfoImpl } from "../src/state";
-
 import {
   ActionName,
-  Address,
-  AppChannelInfo,
   ClientActionMessage,
   ClientMessage,
   ClientQuery,
@@ -33,7 +17,6 @@ import {
   WalletMessaging,
   WalletResponse
 } from "../src/types";
-import { TestWallet } from "../test/wallet/wallet";
 import { StateChannelClient } from "./state-channel-client";
 
 export class ClientInterface implements Observable {
@@ -57,130 +40,6 @@ export class ClientInterface implements Observable {
     });
     await contract.functions.setup(owners);
     return contract;
-  }
-
-  public static async deployFreeBalanceContract(
-    networkContext: NetworkContext,
-    stateChannel: StateChannelInfoImpl,
-    wallet: ethers.Wallet
-  ): Promise<ethers.Contract> {
-    const signingKeys = [
-      stateChannel.freeBalance.alice,
-      stateChannel.freeBalance.bob
-    ];
-    const salt = 0;
-    const app = CfFreeBalance.contractInterface(networkContext);
-    const terms = CfFreeBalance.terms();
-    const timeout = 100;
-    return this.deployAppInstance(
-      networkContext,
-      stateChannel,
-      wallet,
-      salt,
-      signingKeys,
-      app,
-      terms,
-      timeout
-    );
-  }
-
-  public static async deployApplicationStateChannel(
-    networkContext: NetworkContext,
-    stateChannel: StateChannelInfoImpl,
-    application: AppChannelInfo,
-    wallet: ethers.Wallet
-  ) {
-    return this.deployAppInstance(
-      networkContext,
-      stateChannel,
-      wallet,
-      application.uniqueId,
-      [application.peerA.address, application.peerB.address],
-      application.cfApp,
-      application.terms,
-      application.timeout
-    );
-  }
-
-  public static async setState(appId: string, wallet: TestWallet) {
-    const setStateTransaction: Transaction = wallet.currentUser.store.getTransaction(
-      appId,
-      ActionName.UPDATE
-    );
-    return wallet.currentUser.ethersWallet.sendTransaction({
-      ...setStateTransaction,
-      gasLimit: ClientInterface.GAS_LIMITS.SET_STATE_COMMITMENT
-    });
-  }
-
-  public static async withdrawUnilateral(appId: string, wallet: TestWallet) {
-    const installTransaction: Transaction = wallet.currentUser.store.getTransaction(
-      appId,
-      ActionName.INSTALL
-    );
-    return wallet.currentUser.ethersWallet.sendTransaction({
-      ...installTransaction,
-      gasLimit: ClientInterface.GAS_LIMITS.INSTALL_COMMITMENT
-    });
-  }
-
-  private static GAS_LIMITS = {
-    DEPLOY_APP_INSTANCE: 4e6,
-    SET_STATE_COMMITMENT: 0.5e6,
-    INSTALL_COMMITMENT: 0.5e6
-  };
-
-  private static async deployAppInstance(
-    networkContext: NetworkContext,
-    stateChannel: StateChannelInfoImpl,
-    wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
-    salt: ethers.types.BigNumberish,
-    signingKeys: Address[],
-    app: CfAppInterface,
-    terms: Terms,
-    timeout: ethers.types.BigNumberish
-  ): Promise<ethers.Contract> {
-    const registry = ClientInterface.getRegistry(networkContext, wallet);
-    const initcode = new ethers.Interface(
-      StateChannel.abi
-    ).deployFunction.encode(this.getStateChannelByteCode(networkContext), [
-      stateChannel.multisigAddress,
-      signingKeys,
-      app.hash(),
-      terms.hash(),
-      timeout
-    ]);
-    await registry.functions.deploy(initcode, salt, {
-      gasLimit: ClientInterface.GAS_LIMITS.DEPLOY_APP_INSTANCE
-    });
-    const cfAddress = ethers.utils.solidityKeccak256(
-      ["bytes1", "bytes", "uint256"],
-      ["0x19", initcode, salt]
-    );
-
-    const address = await registry.functions.resolver(cfAddress);
-    return new ethers.Contract(address, StateChannel.abi, wallet);
-  }
-
-  private static getRegistry(
-    networkContext: NetworkContext,
-    wallet: ethers.types.Signer
-  ): ethers.Contract {
-    return new ethers.Contract(networkContext.Registry, Registry.abi, wallet);
-  }
-
-  private static getStateChannelByteCode(
-    networkContext: NetworkContext
-  ): string {
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__Signatures_+/g,
-      networkContext.Signatures.substr(2)
-    );
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__StaticCall_+/g,
-      networkContext.StaticCall.substr(2)
-    );
-    return StateChannel.bytecode;
   }
 
   public wallet: WalletMessaging;
@@ -270,7 +129,7 @@ export class ClientInterface implements Observable {
     return channelInfo.data.stateChannel.multisigAddress;
   }
 
-  // TODO Add type here
+  // TODO: Add type here
   public async sendMessage(message: ClientMessage): Promise<ClientResponse> {
     const id = message.requestId;
     let resolve;
@@ -285,7 +144,7 @@ export class ClientInterface implements Observable {
     return promise;
   }
 
-  // TODO Add type here
+  // TODO: Add type here
   public processMessage(
     message: WalletMessage | WalletResponse | Notification
   ) {
@@ -382,7 +241,7 @@ export class ClientInterface implements Observable {
     return this.getStateChannel(multisigAddress);
   }
 
-  // TODO pass in actual multisig address and requestId
+  // TODO: pass in actual multisig address and requestId
   public async setup(
     toAddr: string,
     multisigAddress: string
