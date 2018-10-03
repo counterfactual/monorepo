@@ -13,13 +13,12 @@ import {
   StateChannelInfo,
   WalletResponse
 } from "./types";
-import { CfVmWal } from "./wal";
+import { CfVmWal, Log } from "./wal";
 
 export class CfVmConfig {
   constructor(
     readonly responseHandler: ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
-    readonly wal: CfVmWal,
     readonly network: NetworkContext,
     readonly state?: ChannelStates
   ) {}
@@ -39,15 +38,8 @@ export class CounterfactualVM implements Observable {
    * a completed and commited protocol.
    */
   public cfState: CfState;
-  /**
-   * The write ahead log is used to keep track of protocol executions.
-   * Specifically, whenever an instruction in a protocol is executed,
-   * we write to the log so that, if the machine crashes, we can resume
-   * by reading the last log entry and starting where the protocol left off.
-   */
-  public writeAheadLog: CfVmWal;
 
-  // Obserable
+  // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
   constructor(config: CfVmConfig) {
@@ -57,25 +49,44 @@ export class CounterfactualVM implements Observable {
       config.network
     );
     this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
-    this.writeAheadLog = config.wal;
   }
-
   public registerObserver(type: NotificationType, callback: Function) {}
-
   public unregisterObserver(type: NotificationType, callback: Function) {}
-
   public notifyObservers(type: NotificationType, data: object) {}
-
   /**
    * Restarts all protocols that were stopped mid execution, and returns when
    * they all finish.
    */
-  public async resume() {
-    const executions = this.writeAheadLog.read(this);
+  public async resume(log: Log) {
+    const executions = this.buildExecutionsFromLog(log);
     return executions.reduce(
       (promise, exec) => promise.then(_ => this.run(exec)),
       Promise.resolve()
     );
+  }
+
+  /**
+   * @returns all unfinished protocol executions read from the db.
+   */
+  public buildExecutionsFromLog(log: Log): ActionExecution[] {
+    return Object.keys(log).map(key => {
+      const entry = log[key];
+      const action = new Action(
+        entry.requestId,
+        entry.actionName,
+        entry.clientMessage,
+        entry.isAckSide
+      );
+      const execution = new ActionExecution(
+        action,
+        entry.instructionPointer,
+        entry.clientMessage,
+        this
+      );
+      execution.results = entry.results;
+      action.execution = execution;
+      return execution;
+    });
   }
 
   public startAck(message: ClientActionMessage) {
@@ -105,7 +116,6 @@ export class CounterfactualVM implements Observable {
 
   public async execute(action: Action) {
     const execution = action.makeExecution(this);
-    this.writeAheadLog.write(execution);
     await this.run(execution);
 
     this.notifyObservers("actionCompleted", {
@@ -125,10 +135,8 @@ export class CounterfactualVM implements Observable {
       // temporary error handling for testing resuming protocols
       let val;
       for await (val of execution) {
-        this.writeAheadLog.write(execution);
       }
       this.sendResponse(execution, ResponseStatus.COMPLETED);
-      this.writeAheadLog.clear(execution);
     } catch (e) {
       console.error(e);
       this.sendResponse(execution, ResponseStatus.ERROR);

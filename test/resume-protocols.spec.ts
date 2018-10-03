@@ -1,7 +1,3 @@
-// TODO: Figure out how to ignore this linting warning for test files.
-// tslint:disable-next-line:no-implicit-dependencies
-import * as chai from "chai";
-
 import { Instruction, Instructions } from "../src/instructions";
 import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../src/middleware/state-transition/state-transition";
@@ -35,7 +31,6 @@ abstract class SetupProtocolTestCase {
   public walletA: TestWallet;
   public walletB: TestWallet;
   public executedInstructions: Instruction[];
-
   constructor() {
     this.db = new MemDb();
     this.walletA = new TestWallet();
@@ -48,9 +43,11 @@ abstract class SetupProtocolTestCase {
   }
 
   public async run() {
+    await this.walletA.initUser(A_ADDRESS);
+    await this.walletB.initUser(B_ADDRESS);
     this.setupWallet(this.walletA, true);
     const resp = await this.walletA.runProtocol(this.msg());
-    chai.expect(resp.status).to.eql(ResponseStatus.ERROR);
+    expect(resp.status).toEqual(ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }
@@ -68,15 +65,17 @@ abstract class SetupProtocolTestCase {
     walletA2.currentUser.io.peer = this.walletB;
     this.walletB.currentUser.io.peer = walletA2;
     this.setupWallet(walletA2, false);
-    await walletA2.currentUser.vm.resume();
+    await walletA2.initUser(A_ADDRESS);
   }
 
   public abstract setupWallet(wallet: TestWallet, shouldError: boolean);
-
   /**
    * @returns the msg to start the setup protocol.
    */
-  public msg(): ClientActionMessage {
+  public abstract description(): string;
+  public abstract validate();
+
+  private msg(): ClientActionMessage {
     return {
       requestId: "0",
       appId: undefined,
@@ -89,10 +88,6 @@ abstract class SetupProtocolTestCase {
       seq: 0
     };
   }
-
-  public abstract description(): string;
-
-  public abstract validate();
 }
 
 class ResumeFirstInstructionTest extends SetupProtocolTestCase {
@@ -140,9 +135,9 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
-    chai
-      .expect(JSON.stringify(setupInstructions))
-      .to.eql(JSON.stringify(this.executedInstructions));
+    expect(JSON.stringify(setupInstructions)).toEqual(
+      JSON.stringify(this.executedInstructions)
+    );
   }
 }
 
@@ -190,9 +185,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
-    chai
-      .expect(JSON.stringify(setupInstructions))
-      .to.eql(JSON.stringify(this.executedInstructions));
+    expect(JSON.stringify(setupInstructions)).toEqual(
+      JSON.stringify(this.executedInstructions)
+    );
   }
 }
 
@@ -241,9 +236,9 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
-    chai
-      .expect(JSON.stringify(setupInstructions))
-      .to.eql(JSON.stringify(this.executedInstructions));
+    expect(JSON.stringify(setupInstructions)).toEqual(
+      JSON.stringify(this.executedInstructions)
+    );
   }
 }
 

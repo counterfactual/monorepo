@@ -1,6 +1,6 @@
 import { Action, ActionExecution } from "../src/action";
 import { Instruction } from "../src/instructions";
-import { ActionName, ClientActionMessage, ClientMessage } from "../src/types";
+import { ActionName, ClientActionMessage } from "../src/types";
 import { CfVmConfig, CounterfactualVM } from "../src/vm";
 import { CfVmWal, MemDb } from "../src/wal";
 
@@ -10,13 +10,15 @@ describe("Write ahead log", () => {
     const vm = new CounterfactualVM(
       new CfVmConfig(null!, null!, null!, undefined!)
     );
-    const wal1 = new CfVmWal(db);
+    const wal1 = new CfVmWal(db, "test-user");
     makeExecutions(vm).forEach(execution => {
-      wal1.write(execution);
+      const internalMessage = execution.createInternalMessage();
+      const context = execution.createContext();
+      wal1.write(internalMessage, context);
     });
     validateWal(wal1, vm);
-    const wal2 = new CfVmWal(db);
-    const wal3 = new CfVmWal(db);
+    const wal2 = new CfVmWal(db, "test-user");
+    const wal3 = new CfVmWal(db, "test-user");
     validateWal(wal2, vm);
     validateWal(wal3, vm);
   });
@@ -79,7 +81,8 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 }
 
 function validateWal(wal: CfVmWal, vm: CounterfactualVM) {
-  const executions = wal.read(vm);
+  const log = wal.readLog();
+  const executions = vm.buildExecutionsFromLog(log);
   const expectedExecutions = makeExecutions(vm);
   for (let k = 0; k < expectedExecutions.length; k += 1) {
     const expected = expectedExecutions[k];

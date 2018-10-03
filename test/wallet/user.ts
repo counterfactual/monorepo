@@ -35,7 +35,6 @@ export class User implements Observable, ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
-
   public blockchainProvider: ethers.providers.BaseProvider;
   public signer: ethers.SigningKey;
   public ethersWallet: ethers.Wallet;
@@ -43,6 +42,14 @@ export class User implements Observable, ResponseSink {
   public io: IoProvider;
   public address: string;
   public store: CommitmentStore;
+
+  /**
+   * The write ahead log is used to keep track of protocol executions.
+   * Specifically, whenever an instruction in a protocol is executed,
+   * we write to the log so that, if the machine crashes, we can resume
+   * by reading the last log entry and starting where the protocol left off.
+   */
+  public wal: CfVmWal;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
@@ -63,14 +70,9 @@ export class User implements Observable, ResponseSink {
     this.address = address;
     this.io = new IoProvider(this);
     this.vm = new CounterfactualVM(
-      new CfVmConfig(
-        this,
-        new EthCfOpGenerator(),
-        new CfVmWal(db !== undefined ? db : new MemDb()),
-        networkContext,
-        states
-      )
+      new CfVmConfig(this, new EthCfOpGenerator(), networkContext, states)
     );
+    this.wal = new CfVmWal(db !== undefined ? db : new MemDb(), this.address);
     this.store = new CommitmentStore();
     this.io.ackMethod = this.vm.startAck.bind(this.vm);
     this.registerMiddlewares();
@@ -85,6 +87,9 @@ export class User implements Observable, ResponseSink {
 
     this.ethersWallet = new ethers.Wallet(privateKey, this.blockchainProvider);
   }
+  public registerObserver(type: NotificationType, callback: Function) {}
+  public unregisterObserver(type: NotificationType, callback: Function) {}
+  public notifyObservers(type: NotificationType, data: object) {}
 
   public async deposit(options) {
     await this.ethersWallet.sendTransaction({
@@ -93,11 +98,17 @@ export class User implements Observable, ResponseSink {
     });
   }
 
-  public registerObserver(type: NotificationType, callback: Function) {}
+  // Load the previously saved data if any, and continue executing protocols
+  public async init() {
+    const savedLog = this.wal.readLog();
+    if (Object.keys(savedLog).length === 0) {
+      console.info("WAL is empty. Starting machine from clean state.");
+    } else {
+      console.info("WAL is not empty. Starting machine from persisted state.");
+    }
 
-  public unregisterObserver(type: NotificationType, callback: Function) {}
-
-  public notifyObservers(type: NotificationType, data: object) {}
+    await this.vm.resume(savedLog);
+  }
 
   public handleActionCompletion(notification: Notification) {
     this.notifyObservers(`${notification.data.name}Completed`, {
@@ -147,6 +158,13 @@ export class User implements Observable, ResponseSink {
   }
 
   private registerMiddlewares() {
+    this.vm.register(
+      Instruction.ALL,
+      async (message: InternalMessage, next: Function, context: Context) => {
+        this.wal.write(message, context);
+      }
+    );
+
     this.vm.register(
       Instruction.OP_SIGN,
       async (message: InternalMessage, next: Function, context: Context) => {
