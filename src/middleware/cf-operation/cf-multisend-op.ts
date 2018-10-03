@@ -14,6 +14,7 @@ import {
   Operation,
   Transaction
 } from "./types";
+
 const { keccak256 } = ethers.utils;
 
 export abstract class CfMultiSendOp extends CfOperation {
@@ -27,14 +28,8 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public transaction(sigs: Signature[]): Transaction {
-    const digest = this.hashToSign();
-    sigs.sort((sigA: Signature, sigB: Signature) => {
-      const addrA = sigA.recoverAddress(digest);
-      const addrB = sigB.recoverAddress(digest);
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
     const multisigInput = this.multisigInput();
-    const signatureBytes = Signature.toBytes(sigs);
+    const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
     const txData = new ethers.Interface(
       Multisig.abi
     ).functions.execTransaction.encode([

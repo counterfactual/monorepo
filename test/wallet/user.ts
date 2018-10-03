@@ -184,7 +184,6 @@ async function signMyUpdate(
   ).value;
   const digest = operation.hashToSign();
   const sig = user.signer.signDigest(digest);
-  const signer = user.signer.address;
   return new Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 

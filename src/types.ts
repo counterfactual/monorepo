@@ -346,8 +346,14 @@ export class Signature {
     return true;
   }
 
-  public static toBytes(signatures: Signature[]): Bytes {
-    const signatureStrings = signatures.map(sig => {
+  public static toSortedBytes(signatures: Signature[], digest: H256): Bytes {
+    const sigs = signatures.slice();
+    sigs.sort((sigA, sigB) => {
+      const addrA = sigA.recoverAddress(digest);
+      const addrB = sigB.recoverAddress(digest);
+      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
+    const signatureStrings = sigs.map(sig => {
       return (
         ethers.utils.hexlify(ethers.utils.padZeros(sig.r, 32)).substring(2) +
         ethers.utils.hexlify(ethers.utils.padZeros(sig.s, 32)).substring(2) +

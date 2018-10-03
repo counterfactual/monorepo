@@ -62,7 +62,7 @@ export class CfOpSetState extends CfOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      Signature.toBytes(sigs),
+      Signature.toSortedBytes(sigs, this.hashToSign()),
       this.ctx.Registry
     );
     return new Transaction(to, val, data);
