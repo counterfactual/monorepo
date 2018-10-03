@@ -45,14 +45,12 @@ library Signatures {
   {
     address lastSigner = address(0);
     for (uint256 i = 0; i < signers.length; i++) {
-      if (signers[i] == recoverKey(signatures, txHash, i)) {
-        require(signers[i] > lastSigner);
-        lastSigner = signers[i];
-      } else {
+      if (signers[i] != recoverKey(signatures, txHash, i)) {
         return false;
       }
+      require(signers[i] > lastSigner, "Signers not in ascending order");
+      lastSigner = signers[i];
     }
-    return true;
   }
 
   /// @dev divides bytes signature into `uint8 v, bytes32 r, bytes32 s`

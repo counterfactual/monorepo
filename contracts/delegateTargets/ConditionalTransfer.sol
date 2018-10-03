@@ -48,14 +48,14 @@ contract ConditionalTransfer is Conditional {
 
     address channelAddr = Registry(registry).resolver(channelCfAddress);
     StateChannel channel = StateChannel(channelAddr);
-    Transfer.Details memory details = channel.getResolution();
+    Transfer.Transaction memory itx = channel.getResolution();
 
     require(
-      Transfer.meetsTerms(details, terms),
+      Transfer.meetsTerms(itx, terms),
       "Transfer details do not meet terms"
     );
 
-    details.executeTransfer();
+    itx.execute();
   }
 
 }
