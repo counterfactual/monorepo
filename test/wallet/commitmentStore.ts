@@ -167,12 +167,12 @@ export class CommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    let signature: Signature = getFirstResult(
+    const signature: Signature = getFirstResult(
       Instruction.OP_SIGN,
       context.results
     ).value;
 
-    let counterpartySignature = incomingMessage!.signature;
+    const counterpartySignature = incomingMessage!.signature;
     if (
       counterpartySignature === undefined ||
       signature.toString() === counterpartySignature.toString()
@@ -185,23 +185,12 @@ export class CommitmentStore {
       );
     }
 
-    if (signature instanceof Signature === false) {
-      signature = new Signature(signature.v, signature.r, signature.s);
-    }
-    if (counterpartySignature instanceof Signature === false) {
-      counterpartySignature = new Signature(
-        counterpartySignature.v,
-        counterpartySignature.r,
-        counterpartySignature.s
-      );
-    }
-
-    const digest = op.hashToSign();
-    const sigs = [signature, counterpartySignature];
-    sigs.sort((sigA: Signature, sigB: Signature) => {
-      const addrA = sigA.recoverAddress(digest);
-      const addrB = sigB.recoverAddress(digest);
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    const sigs = [signature, counterpartySignature].map(sig => {
+      if (!(sig instanceof Signature)) {
+        const { v, r, s } = sig as any;
+        return new Signature(v, r, s);
+      }
+      return sig;
     });
 
     appCommitments.addCommitment(action, op, sigs);
@@ -231,13 +220,6 @@ export class CommitmentStore {
         return incomingMessageResult.value;
       }
     }
-  }
-
-  public getCommitments(appId: string): AppCommitments {
-    if (!this.store.has(appId)) {
-      throw Error("Invalid app id: " + appId);
-    }
-    return AppCommitments.deserialize(appId, this.store.get(appId));
   }
 
   /**
