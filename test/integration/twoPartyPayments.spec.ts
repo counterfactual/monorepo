@@ -102,7 +102,7 @@ contract("PaymentApp", (accounts: string[]) => {
     pc = await Utils.deployContract(PaymentApp, unlockedAccount);
 
     // Specifically for the StateChannel
-    const StateChannel = artifacts.require("StateChannel");
+    const StateChannel = artifacts.require("AppInstance");
     const StaticCall = artifacts.require("StaticCall");
     const Signatures = artifacts.require("Signatures");
     const Transfer = artifacts.require("Transfer");

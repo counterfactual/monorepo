@@ -11,11 +11,11 @@ import * as ethers from "ethers";
 import {
   abiEncodingForStruct,
   AbstractContract,
+  AppInstance,
   AssetType,
   buildArtifacts,
   computeNonceRegistryKey,
   Multisig,
-  StateChannel,
   TransferTerms
 } from "../../utils";
 
@@ -90,7 +90,7 @@ async function deployStateChannel(
 ) {
   const registry = await Registry.getDeployed(masterAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
-  const stateChannel = new StateChannel(
+  const stateChannel = new AppInstance(
     signers,
     multisig,
     appContract,
@@ -135,7 +135,7 @@ async function setChannelNonceAndWait(
 }
 
 async function executeStateChannelTransfer(
-  stateChannel: StateChannel,
+  stateChannel: AppInstance,
   multisig: Multisig,
   channelNonceKey: string,
   channelNonceValue: ethers.BigNumber,
@@ -152,7 +152,7 @@ async function executeStateChannelTransfer(
 
   await multisig.execDelegatecall(
     conditionalTransfer,
-    "executeStateChannelConditionalTransfer",
+    "executeAppConditionalTransfer",
     [
       registry.address,
       nonceRegistry.address,

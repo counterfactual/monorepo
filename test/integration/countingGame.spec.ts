@@ -90,7 +90,7 @@ contract("CountingApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const StateChannel = artifacts.require("StateChannel");
+    const StateChannel = artifacts.require("AppInstance");
     const StaticCall = artifacts.require("StaticCall");
     const Signatures = artifacts.require("Signatures");
     const Transfer = artifacts.require("Transfer");
