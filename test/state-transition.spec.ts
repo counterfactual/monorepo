@@ -174,7 +174,7 @@ function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
   expect(app.localNonce).toEqual(1);
   expect(app.timeout).toEqual(100);
   expect(app.terms.assetType).toEqual(0);
-  expect(app.terms.limit).toEqual(8);
+  expect(app.terms.limit).toEqual(ethers.utils.bigNumberify(8));
   expect(app.terms.token).toEqual(TOKEN_ADDRESS);
   expect(app.cfApp.address).toEqual(APP_ADDRESS);
   expect(app.cfApp.applyAction).toEqual(APPLY_ACTION);
