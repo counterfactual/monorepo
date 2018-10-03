@@ -74,13 +74,15 @@ export class CfMiddleware {
         }
       }
     }
-
     return this.middlewares[opCode][0].method(msg, callback, context);
   }
 
   /**
    * Runs the middlewares for Instruction.ALL.
    */
+  // TODO currently this method seems to be passing null as the middleware callback and
+  // just iterating through all the middlewares. We should pass the callback similarly to how
+  // run does it, and rely on that for middleware cascading
   private executeAllMiddlewares(msg, context) {
     const all = this.middlewares[Instruction.ALL];
     if (all && all.length > 0) {

@@ -59,6 +59,7 @@
     const key = new ethers.Wallet(pkey).address;
 
     wallet.setUser(key, pkey);
+    await wallet.initUser(key);
 
     wallet.onMessage((msg) => {
       const message = {

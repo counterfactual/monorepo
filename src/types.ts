@@ -421,7 +421,8 @@ export class InternalMessage {
   constructor(
     public actionName: ActionName,
     public opCode: Instruction,
-    public clientMessage: ClientActionMessage
+    public clientMessage: ClientActionMessage,
+    public isAckSide: boolean
   ) {}
 }
 

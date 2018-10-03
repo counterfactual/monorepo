@@ -65,6 +65,14 @@ export class TestWallet implements ResponseSink {
       networkContext !== undefined ? networkContext : this.defaultNetwork();
   }
 
+  public async initUser(address: string) {
+    let user: User | undefined;
+    user = this.users.get(address);
+    if (user) {
+      await user.init();
+    }
+  }
+
   public setUser(
     address: string,
     privateKey: string,
