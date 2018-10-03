@@ -22,7 +22,12 @@ export class SetupProposer {
     const toAddress = message.clientMessage.toAddress;
     const fromAddress = message.clientMessage.fromAddress;
 
-    const balances = PeerBalance.balances(toAddress, 0, fromAddress, 0);
+    const balances = PeerBalance.balances(
+      toAddress,
+      ethers.utils.bigNumberify(0),
+      fromAddress,
+      ethers.utils.bigNumberify(0)
+    );
     const localNonce = 0;
     const freeBalance = new CfFreeBalance(
       balances.peerA.address,

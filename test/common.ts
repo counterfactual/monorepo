@@ -1,3 +1,5 @@
+import * as ethers from "ethers";
+
 import { ActionName, ClientActionMessage, PeerBalance } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 import { MULTISIG_ADDRESS } from "./environment";
@@ -43,8 +45,18 @@ export class SetupProtocol {
    * Asserts the setup protocol modifies the machine state correctly.
    */
   public static validate(walletA: TestWallet, walletB: TestWallet) {
-    SetupProtocol.validateWallet(walletA, walletB, 0, 0);
-    SetupProtocol.validateWallet(walletB, walletA, 0, 0);
+    SetupProtocol.validateWallet(
+      walletA,
+      walletB,
+      ethers.utils.bigNumberify(0),
+      ethers.utils.bigNumberify(0)
+    );
+    SetupProtocol.validateWallet(
+      walletB,
+      walletA,
+      ethers.utils.bigNumberify(0),
+      ethers.utils.bigNumberify(0)
+    );
   }
 
   /**
@@ -53,8 +65,8 @@ export class SetupProtocol {
   public static validateWallet(
     walletA: TestWallet,
     walletB: TestWallet,
-    amountA: number,
-    amountB: number
+    amountA: ethers.BigNumber,
+    amountB: ethers.BigNumber
   ) {
     // todo: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;

@@ -107,8 +107,8 @@ class Depositor {
     threshold: ethers.BigNumber
   ) {
     const msg = Depositor.startInstallBalanceRefundMsg(
-      walletA.address,
-      walletB.address,
+      walletA.address!,
+      walletB.address!,
       threshold
     );
     const response = await walletA.runProtocol(msg);
@@ -131,7 +131,12 @@ class Depositor {
     to: string,
     threshold: ethers.BigNumber
   ): ClientActionMessage {
-    const canon = PeerBalance.balances(from, 0, to, 0);
+    const canon = PeerBalance.balances(
+      from,
+      ethers.utils.bigNumberify(0),
+      to,
+      ethers.utils.bigNumberify(0)
+    );
     const terms = new Terms(
       0,
       new ethers.BigNumber(10),
@@ -206,8 +211,8 @@ class Depositor {
   ) {
     const msg = Depositor.startUninstallBalanceRefundMsg(
       cfAddr,
-      walletA.address,
-      walletB.address,
+      walletA.address!,
+      walletB.address!,
       amountA
     );
     const response = await walletA.runProtocol(msg);
@@ -228,9 +233,9 @@ class Depositor {
     // todo: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
     const canon = PeerBalance.balances(
-      walletA.address,
+      walletA.address!,
       amountA,
-      walletB.address,
+      walletB.address!,
       amountB
     );
 
@@ -281,7 +286,7 @@ class Ttt {
   }
 
   public static async installTtt(walletA: TestWallet, walletB: TestWallet) {
-    const msg = Ttt.installMsg(walletA.address, walletB.address);
+    const msg = Ttt.installMsg(walletA.address!, walletB.address!);
     const response = await walletA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
     return Ttt.validateInstall(walletA, walletB);
@@ -398,8 +403,8 @@ class Ttt {
     const msg = Ttt.updateMsg(
       state,
       cell,
-      walletA.address,
-      walletB.address,
+      walletA.address!,
+      walletB.address!,
       cfAddr
     );
     const response = await walletA.runProtocol(msg);
@@ -459,9 +464,9 @@ class Ttt {
   ) {
     const msg = Ttt.uninstallStartMsg(
       cfAddr,
-      walletA.address,
+      walletA.address!,
       ethers.utils.bigNumberify(4),
-      walletB.address,
+      walletB.address!,
       ethers.utils.bigNumberify(0)
     );
     const response = await walletA.runProtocol(msg);

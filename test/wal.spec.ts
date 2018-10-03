@@ -1,6 +1,6 @@
 import { Action, ActionExecution } from "../src/action";
 import { Instruction } from "../src/instructions";
-import { ActionName, ClientMessage } from "../src/types";
+import { ActionName, ClientActionMessage, ClientMessage } from "../src/types";
 import { CfVmConfig, CounterfactualVM } from "../src/vm";
 import { CfVmWal, MemDb } from "../src/wal";
 
@@ -8,7 +8,7 @@ describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
     const db = new MemDb();
     const vm = new CounterfactualVM(
-      new CfVmConfig(null, null, null, undefined)
+      new CfVmConfig(null!, null!, null!, undefined!)
     );
     const wal1 = new CfVmWal(db);
     makeExecutions(vm).forEach(execution => {
@@ -28,7 +28,7 @@ describe("Write ahead log", () => {
 function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
   const actions = [ActionName.INSTALL, ActionName.UPDATE, ActionName.UNINSTALL];
-  const msgs: ClientMessage[] = [
+  const msgs: ClientActionMessage[] = [
     {
       requestId: "1",
       action: ActionName.INSTALL,
@@ -65,7 +65,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   ];
   const isAckSide = [true, true, false];
 
-  const executions = [];
+  const executions: ActionExecution[] = [];
   for (let k = 0; k < requestIds.length; k += 1) {
     const execution = new ActionExecution(
       new Action(requestIds[k], actions[k], msgs[k], isAckSide[k]),

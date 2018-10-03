@@ -6,6 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
+    "clean": "rm -rf jest-cache build dist && cd contracts && yarn clean",
     "build": "tsc -p tsconfig.json",
     "docker:run": "docker-compose up -d machine && yarn test:buildContracts",
     "docker:build": "docker-compose build",
@@ -20,8 +21,8 @@
     "rollup": "tsc && ./scripts/rollup.sh",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "prettier": "prettier -l 'src/*/**'",
-    "prettier:fix": "prettier --write 'src/*/**'"
+    "prettier": "prettier -l '{src,test,cf.js}/{**/*,*}'",
+    "prettier:fix": "prettier --write '{src,test,cf.js}/{**/*,*}'"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
@@ -30,9 +31,11 @@
     "etherBalance": "1000000000000000000000000"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.6",
     "@types/jest": "^23.3.2",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.9.3",
+    "chai": "^4.2.0",
     "coveralls": "3.0.1",
     "ganache-cli": "^6.1.6",
     "husky": "^1.0.0-rc.14",
@@ -47,7 +50,7 @@
     "tslint": "5.11.0",
     "tslint-config-prettier": "1.14.0",
     "tslint-plugin-prettier": "1.3.0",
-    "typescript": "^2.9.2"
+    "typescript": "3.0.1"
   },
   "dependencies": {
     "@counterfactual/configs": "https://github.com/counterfactual/configs.git#dc5d086",

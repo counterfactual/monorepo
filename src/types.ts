@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as _ from "lodash";
+import _ from "lodash";
 import { Instruction } from "./instructions";
 import {
   CfAppInterface,
@@ -10,7 +10,8 @@ import {
 import { Response, ResponseStatus } from "./vm";
 
 /**
- * Aliases to help code readability. Byte arrays and addresses are represented as hex-encoded strings.
+ * Aliases to help code readability.
+ * Byte arrays and addresses are represented as hex-encoded strings.
  * Should think about actually changing these to be non strings.
  */
 export type Bytes = string; // dynamically-sized byte array
@@ -168,9 +169,9 @@ export class PeerBalance {
    */
   public static balances(
     address1: Address,
-    balance1: number | ethers.BigNumber,
+    balance1: ethers.BigNumber,
     address2: Address,
-    balance2: number | ethers.BigNumber
+    balance2: ethers.BigNumber
   ): CanonicalPeerBalance {
     if (address2.localeCompare(address1) < 0) {
       return new CanonicalPeerBalance(
@@ -335,15 +336,6 @@ const S_LENGTH = 64;
 export class Signature {
   get recoveryParam() {
     return this.v - 27;
-  }
-
-  public static matches(
-    hash: string,
-    signature: Signature,
-    address: string
-  ): boolean {
-    // FIXME: Use real signatures in tests
-    return true;
   }
 
   public static toSortedBytes(signatures: Signature[], digest: H256): Bytes {

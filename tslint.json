@@ -2,7 +2,10 @@
 	"defaultSeverity": "error",
 	"extends": [
 		"@counterfactual/configs/tslints/base-tslint"
-	],
+  ],
+  "linterOptions": {
+    "exclude": ["**/*.json"]
+  },
 	"rules": {
 		"class-name": true,
 		"comment-format": [false, "check-space"],
@@ -26,5 +29,5 @@
 		"object-literal-sort-keys": false,
 		"triple-equals": [true, "allow-null-check"],
 		"variable-name": [true, "ban-keywords"]
-	}
+  }
 }

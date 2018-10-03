@@ -25,7 +25,6 @@ import {
 } from "./environment";
 import { TestWallet } from "./wallet/wallet";
 
-import { AddressZero } from "ethers/utils/constants";
 import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
 import Registry from "../contracts/build/contracts/Registry.json";
 import StateChannel from "../contracts/build/contracts/StateChannel.json";
@@ -76,9 +75,9 @@ describe("Setup Protocol", async () => {
 
     const peerBalances = PeerBalance.balances(
       ethersWalletA.address,
-      0,
+      ethers.utils.bigNumberify(0),
       ethersWalletB.address,
-      0
+      ethers.utils.bigNumberify(0)
     );
     const signingKeys = [
       peerBalances.peerA.address,
@@ -413,7 +412,11 @@ function startInstallBalanceRefundMsg(
     peerA = peerB;
     peerB = tmp;
   }
-  const terms = new Terms(0, 10, AddressZero); // todo
+  const terms = new Terms(
+    0,
+    ethers.utils.bigNumberify(10),
+    ethers.constants.AddressZero
+  ); // todo
 
   const app = new CfAppInterface(
     "0x0",

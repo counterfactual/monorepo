@@ -1,11 +1,12 @@
-import { expect } from "chai";
+// TODO: Figure out how to ignore this linting warning for test files.
+// tslint:disable-next-line:no-implicit-dependencies
+import * as chai from "chai";
 
 import { Instruction, Instructions } from "../src/instructions";
 import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../src/middleware/state-transition/state-transition";
 import { Context } from "../src/state";
-import { ActionName, InternalMessage } from "../src/types";
-import { ClientActionMessage } from "../src/types";
+import { ActionName, ClientActionMessage, InternalMessage } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 import { MemDb } from "../src/wal";
 import {
@@ -49,7 +50,7 @@ abstract class SetupProtocolTestCase {
   public async run() {
     this.setupWallet(this.walletA, true);
     const resp = await this.walletA.runProtocol(this.msg());
-    expect(resp.status).to.eql(ResponseStatus.ERROR);
+    chai.expect(resp.status).to.eql(ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }
@@ -139,9 +140,9 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
-    expect(JSON.stringify(setupInstructions)).to.eql(
-      JSON.stringify(this.executedInstructions)
-    );
+    chai
+      .expect(JSON.stringify(setupInstructions))
+      .to.eql(JSON.stringify(this.executedInstructions));
   }
 }
 
@@ -189,9 +190,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
-    expect(JSON.stringify(setupInstructions)).to.eql(
-      JSON.stringify(this.executedInstructions)
-    );
+    chai
+      .expect(JSON.stringify(setupInstructions))
+      .to.eql(JSON.stringify(this.executedInstructions));
   }
 }
 
@@ -240,9 +241,9 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
       JSON.stringify(Instructions[ActionName.SETUP])
     );
     setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
-    expect(JSON.stringify(setupInstructions)).to.eql(
-      JSON.stringify(this.executedInstructions)
-    );
+    chai
+      .expect(JSON.stringify(setupInstructions))
+      .to.eql(JSON.stringify(this.executedInstructions));
   }
 }
 
