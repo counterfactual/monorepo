@@ -120,9 +120,7 @@ export class Transaction {
   constructor(
     readonly to: Address,
     readonly value: number,
-    readonly data: string,
-    // TODO: use HIGH_GAS_LIMIT
-    public gasLimit: number = 6e9
+    readonly data: string
   ) {}
 }
 
