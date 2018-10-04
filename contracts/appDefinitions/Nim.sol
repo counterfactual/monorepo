@@ -60,24 +60,12 @@ contract Nim {
     returns (Transfer.Transaction)
   {
     require(isWin(state));
-    address loser = state.players[state.turnNum % 2];
     address winner = state.players[1 - (state.turnNum % 2)];
 
-    uint256[] memory amounts = new uint256[](2);
-    amounts[0] = terms.limit;
-    amounts[1] = 0;
-
-    address[] memory to = new address[](2);
-    to[0] = loser;
-    to[1] = winner;
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
+    return Transfer.make2PTransaction(
+      terms,
+      winner,
+      terms.amount
     );
   }
 

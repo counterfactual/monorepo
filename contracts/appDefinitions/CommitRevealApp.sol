@@ -100,10 +100,6 @@ contract CommitRevealApp {
     pure
     returns (Transfer.Transaction)
   {
-    uint256[] memory amounts = new uint256[](1);
-    amounts[0] = terms.limit;
-
-    address[] memory to = new address[](1);
     uint256 player;
     if (state.stage == Stage.DONE) {
       player = uint256(state.winner);
@@ -111,16 +107,11 @@ contract CommitRevealApp {
       // The player who is not the turn taker
       player = 1 - uint256(getTurnTaker(state));
     }
-    to[0] = state.playerAddrs[player];
 
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
+    return Transfer.make2PTransaction(
+      terms,
+      state.playerAddrs[player],
+      terms.amount
     );
   }
 }

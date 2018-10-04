@@ -23,7 +23,7 @@ library Transfer {
   struct TransactionLimit {
     uint8 assetType;
     address token;
-    uint256 limitAmount;
+    uint256 amount;
   }
 
   struct Transaction {
@@ -67,6 +67,23 @@ library Transfer {
       sum += txn.value[i];
     }
     return sum <= terms.limit;
+  }
+
+  /// Convenience functions
+
+  function make1PTransaction(
+    Transfer.TransactionLimit terms, address to, uint256 amount
+  ) public returns (Transfer.Transaction) {
+
+    bytes[] memory data = new bytes[](2);
+
+    return Transfer.Transaction(
+      terms.assetType,
+      terms.token,
+      [to],
+      [amounts],
+      data
+    );
   }
 
 }
