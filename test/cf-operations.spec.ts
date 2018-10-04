@@ -5,7 +5,8 @@ import {
   CfAppInterface,
   CfFreeBalance,
   CfStateChannel,
-  Terms
+  Terms,
+  Transaction
 } from "../src/middleware/cf-operation/types";
 import {
   ActionName,
@@ -130,7 +131,7 @@ describe("Setup Protocol", async () => {
       ]
     );
     await registry.functions.deploy(initcode, 0, HIGH_GAS_LIMIT);
-    const uninstallTx = walletA.currentUser.store.getTransaction(
+    const uninstallTx: Transaction = await walletA.currentUser.store.getTransaction(
       balanceRefundAppId,
       ActionName.UNINSTALL
     );
@@ -195,7 +196,7 @@ describe("Setup Protocol", async () => {
     );
 
     // STEP 7 -- DEPLOY SETUP COMMITMENT TO WITHDRAW FROM FREE BALANCE
-    const setupTx = walletA.currentUser.store.getTransaction(
+    const setupTx: Transaction = await walletA.currentUser.store.getTransaction(
       multisig.address,
       ActionName.SETUP
     );

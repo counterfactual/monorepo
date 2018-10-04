@@ -1,4 +1,3 @@
-import * as ethers from "ethers";
 import { Instruction } from "../../src/instructions";
 import {
   CfOperation,
@@ -28,9 +27,6 @@ interface Commitments {
 
   getTransaction(action: ActionName);
 }
-
-// NOTE: this can't actually be used until we setup the Registry and the Multisig
-// wallets for the tests to use
 
 /**
  * AppCommitment holds the Commitments for install, update, and uninstall of apps
@@ -70,7 +66,7 @@ export class AppCommitments implements Commitments {
    * @param cfOperation
    * @param signatures
    */
-  public addCommitment(
+  public async addCommitment(
     action: ActionName,
     cfOperation: CfOperation,
     signatures: Signature[]
@@ -79,7 +75,7 @@ export class AppCommitments implements Commitments {
     if (action !== ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
-      // throw Error("Can't reset setup/install/uninstall commitments");
+      throw Error("Can't reset setup/install/uninstall commitments");
     }
     this.commitments.set(action, commitment);
   }
@@ -88,7 +84,7 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public hasCommitment(action: ActionName): boolean {
+  public async hasCommitment(action: ActionName): Promise<boolean> {
     return this.commitments.has(action);
   }
 
@@ -96,7 +92,7 @@ export class AppCommitments implements Commitments {
    * Gets an action's commitment for this app
    * @param action
    */
-  public getTransaction(action: ActionName): Transaction {
+  public async getTransaction(action: ActionName): Promise<Transaction> {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
@@ -132,7 +128,7 @@ export class CommitmentStore {
    * @param context
    * @throws Error if the counterparty's signature is not set
    */
-  public setCommitment(
+  public async setCommitment(
     internalMessage: InternalMessage,
     next: Function,
     context: Context
@@ -193,7 +189,7 @@ export class CommitmentStore {
       return sig;
     });
 
-    appCommitments.addCommitment(action, op, sigs);
+    await appCommitments.addCommitment(action, op, sigs);
     this.store.put(appId, Object(appCommitments.serialize()));
     next();
   }
@@ -230,7 +226,10 @@ export class CommitmentStore {
    * @throws Error If appId doesn't exist in the store
    * @throws Error if action doesn't exist for the app
    */
-  public getTransaction(appId: string, action: ActionName): Transaction {
+  public async getTransaction(
+    appId: string,
+    action: ActionName
+  ): Promise<Transaction> {
     if (!this.store.has(appId)) {
       throw Error("Invalid app id");
     }
@@ -250,7 +249,10 @@ export class CommitmentStore {
     return this.store.has(appId);
   }
 
-  public appHasCommitment(appId: string, action: ActionName): boolean {
+  public async appHasCommitment(
+    appId: string,
+    action: ActionName
+  ): Promise<boolean> {
     const appCommitments = AppCommitments.deserialize(
       appId,
       this.store.get(appId)
