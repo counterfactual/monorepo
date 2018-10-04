@@ -5,6 +5,7 @@ import { applyMixins } from "../src/mixins/apply";
 import { NotificationType, Observable } from "../src/mixins/observable";
 import {
   ActionName,
+  Address,
   ClientActionMessage,
   ClientMessage,
   ClientQuery,
@@ -27,17 +28,17 @@ export class ClientInterface implements Observable {
 
   public static async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
-    owners: string[]
+    owners: Address[]
   ): Promise<ethers.Contract> {
-    Multisig.bytecode = Multisig.bytecode.replace(
-      /__Signatures_+/g,
-      NetworkContext.fromNetworkFile(networkFile).Signatures.substr(2)
+    const networkContext = NetworkContext.fromNetworkFile(networkFile);
+    const contract = await new ethers.ContractFactory(
+      Multisig.abi,
+      networkContext.linkBytecode(Multisig.bytecode),
+      wallet
+    ).deploy();
+    owners.sort(
+      (addrA, addrB) => (new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1)
     );
-    const multisig = new ethers.Contract("", Multisig.abi, wallet);
-    const contract = await multisig.deploy(Multisig.bytecode);
-    owners.sort((addrA: string, addrB: string) => {
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
     await contract.functions.setup(owners);
     return contract;
   }

@@ -65,8 +65,8 @@ export class SetupProtocol {
   public static validateWallet(
     walletA: TestWallet,
     walletB: TestWallet,
-    amountA: ethers.BigNumber,
-    amountB: ethers.BigNumber
+    amountA: ethers.utils.BigNumber,
+    amountB: ethers.utils.BigNumber
   ) {
     // todo: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;

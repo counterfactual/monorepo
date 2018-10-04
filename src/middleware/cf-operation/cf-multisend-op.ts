@@ -30,7 +30,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public transaction(sigs: Signature[]): Transaction {
     const multisigInput = this.multisigInput();
     const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
-    const txData = new ethers.Interface(
+    const txData = new ethers.utils.Interface(
       Multisig.abi
     ).functions.execTransaction.encode([
       multisigInput.to,
@@ -108,9 +108,13 @@ export abstract class CfMultiSendOp extends CfOperation {
     const timeout = 0; // FIXME: new NonceRegistry design will obviate timeout
     const to = this.ctx.NonceRegistry;
     const val = 0;
-    const data = new ethers.Interface([Abi.setNonce]).functions.setNonce.encode(
-      [timeout, this.dependencyNonce.salt, this.dependencyNonce.nonceValue]
-    );
+    const data = new ethers.utils.Interface([
+      Abi.setNonce
+    ]).functions.setNonce.encode([
+      timeout,
+      this.dependencyNonce.salt,
+      this.dependencyNonce.nonceValue
+    ]);
     const op = Operation.Call;
     return new MultisigInput(to, val, data, op);
   }

@@ -49,7 +49,10 @@ export class StateChannelClient {
     this.fromAddress = fromAddress;
   }
 
-  public async deposit(amount: ethers.BigNumber, threshold: ethers.BigNumber) {
+  public async deposit(
+    amount: ethers.utils.BigNumber,
+    threshold: ethers.utils.BigNumber
+  ) {
     const stateChannelInfo = await this.queryStateChannel();
     const isPeerA =
       stateChannelInfo.data.stateChannel.freeBalance.alice === this.fromAddress;
@@ -97,7 +100,7 @@ export class StateChannelClient {
     const timeout = 100;
     const signingKeys = [this.toAddress, this.fromAddress];
     signingKeys.sort((addrA: string, addrB: string) => {
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
     const installData: InstallData = {
@@ -194,7 +197,7 @@ export class StateChannelClient {
       contract && _.keys(contract.networks).length > 0
         ? contract.networks[_.keys(contract.networks)[0]].address
         : "0x0";
-    const abiInterface = new ethers.Interface(
+    const abiInterface = new ethers.utils.Interface(
       contract ? contract.abi : abiEncoding
     );
 
@@ -209,7 +212,7 @@ export class StateChannelClient {
     return appInterface;
   }
 
-  private async depositToMultisig(value: ethers.BigNumber) {
+  private async depositToMultisig(value: ethers.utils.BigNumber) {
     const depositMessage = {
       action: ActionName.DEPOSIT,
       requestId: this.clientInterface.requestId(),

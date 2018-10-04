@@ -56,7 +56,7 @@
     "@counterfactual/configs": "https://github.com/counterfactual/configs.git#dc5d086",
     "@counterfactual/test-utils": "https://github.com/counterfactual/test-utils.git",
     "@counterfactual/typescript-typings": "https://github.com/counterfactual/typescript-typings.git",
-    "ethers": "4.0.0-beta.14",
+    "ethers": "4.0.1",
     "sha3": "^1.2.2"
   },
   "prettier": {

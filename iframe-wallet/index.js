@@ -5,13 +5,19 @@ let ethmoContract;
 let multisigContract;
 let nonceRegistry;
 
+const GAS_LIMITS = {
+  DEPLOY_APP_INSTANCE: 4e6,
+  SET_STATE_COMMITMENT: 0.5e6,
+  INSTALL_COMMITMENT: 0.5e6
+};
+
 window.addEventListener("message", event => {
   if (event.data.type === "cf:init") {
     injectScript(event);
   }
 });
 
-async function getSourceCode (id) {
+async function getSourceCode(id) {
   const response = await fetch(document.getElementById(`${id}_src`).src);
   const reader = response.body.getReader();
   const decoder = new TextDecoder("utf-8");
@@ -25,16 +31,16 @@ async function getSourceCode (id) {
   }
 
   return file.replace(`var ${id} =`, `window.${id} =`);
-};
+}
 
-async function injectScript (event) {
+async function injectScript(event) {
   const injectedScript = `${await getSourceCode("ci")};`;
 
   event.source.postMessage(
     { type: "cf:init-reply", source: injectedScript },
     "*"
   );
-};
+}
 
 function sendMessageToChild(msg) {
   document.querySelectorAll("iframe").forEach(el => {
@@ -125,10 +131,10 @@ async function submitLatestStateForEthmo() {
 
   const setStateTransaction = wallet.currentUser.store.getTransaction(
     ethmoAppId,
-    ActionName.UPDATE
+    "update" // ActionName.UPDATE
   );
 
-  const res = wallet.currentUser.ethersWallet.sendTransaction({
+  const res = await wallet.currentUser.ethersWallet.sendTransaction({
     ...setStateTransaction,
     gasLimit: GAS_LIMITS.SET_STATE_COMMITMENT
   });
@@ -185,10 +191,10 @@ async function withdraw() {
 
   const installTransaction = wallet.currentUser.store.getTransaction(
     ethmoAppId,
-    ActionName.INSTALL
+    "install" // ActionName.INSTALL
   );
 
-  const res = wallet.currentUser.ethersWallet.sendTransaction({
+  const res = await wallet.currentUser.ethersWallet.sendTransaction({
     ...installTransaction,
     gasLimit: GAS_LIMITS.INSTALL_COMMITMENT
   });
@@ -196,97 +202,132 @@ async function withdraw() {
   console.log(`💸 Money withdrawn: ${(await res.wait()).transactionHash}`);
 }
 
-const GAS_LIMITS = {
-  DEPLOY_APP_INSTANCE: 4e6,
-  SET_STATE_COMMITMENT: 0.5e6,
-  INSTALL_COMMITMENT: 0.5e6
-};
-
-function deployFreeBalanceContract (networkContext, stateChannel, wallet) {
+function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
   const signingKeys = [
     stateChannel.freeBalance.alice,
     stateChannel.freeBalance.bob
   ];
   const salt = 0;
-  const app = CfFreeBalance.contractInterface(networkContext);
-  const terms = CfFreeBalance.terms();
+  // FIXME: Hard-coded, based on CfFreeBalance.contractInterface
+  const appHash = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(
+      ["tuple(address, bytes4, bytes4, bytes4, bytes4)"],
+      [
+        [
+          networkContext.PaymentApp,
+          "0x00000000",
+          "0x860032b3",
+          "0x00000000",
+          "0x00000000"
+        ]
+      ]
+    )
+  );
+  // FIXME: Hard-coded, based on CfFreeBalance.terms()
+  const termsHash = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(
+      ["bytes1", "uint8", "uint256", "address"],
+      [
+        "0x19",
+        0,
+        ethers.utils.parseEther("0.001"),
+        ethers.constants.AddressZero
+      ]
+    )
+  );
   const timeout = 100;
-  return this.deployAppInstance(
+  return deployAppInstance(
     networkContext,
     stateChannel,
     wallet,
     salt,
     signingKeys,
-    app,
-    terms,
+    appHash,
+    termsHash,
     timeout
   );
-};
+}
 
-async function deployApplicationStateChannel (
+async function deployApplicationStateChannel(
   networkContext,
   stateChannel,
   application,
   wallet
 ) {
-  return this.deployAppInstance(
+  return deployAppInstance(
     networkContext,
     stateChannel,
     wallet,
     application.uniqueId,
     [application.peerA.address, application.peerB.address],
-    application.cfApp,
-    application.terms,
+    application.cfApp.hash(),
+    application.terms.hash(),
     application.timeout
   );
-};
+}
 
-async function deployAppInstance (
+async function loadStateChannelArtifact() {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("GET", "/contracts/build/contracts/StateChannel.json", true);
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        resolve(JSON.parse(request.responseText));
+      } else {
+        reject(request);
+      }
+    };
+
+    request.onerror = reject;
+
+    request.send();
+  });
+}
+
+async function deployAppInstance(
   networkContext,
   stateChannel,
   wallet,
   salt,
   signingKeys,
-  app,
-  terms,
+  appHash,
+  termsHash,
   timeout
 ) {
   const registry = new ethers.Contract(
     networkContext.Registry,
-    Registry.abi,
+    [
+      "function deploy(bytes, uint256)",
+      "function resolver(bytes32) view returns (address)"
+    ],
     wallet
   );
-  const initcode = new ethers.Interface(StateChannel.abi).deployFunction.encode(
-    this.getStateChannelByteCode(networkContext),
-    [
-      stateChannel.multisigAddress,
-      signingKeys,
-      app.hash(),
-      terms.hash(),
-      timeout
-    ]
-  );
+
+  const StateChannel = await loadStateChannelArtifact();
+
+  const initcode = new ethers.utils.Interface(
+    StateChannel.abi
+  ).deployFunction.encode(networkContext.linkBytecode(StateChannel.bytecode), [
+    stateChannel.multisigAddress,
+    signingKeys,
+    appHash,
+    termsHash,
+    timeout
+  ]);
+
   await registry.functions.deploy(initcode, salt, {
-    gasLimit: ClientInterface.GAS_LIMITS.DEPLOY_APP_INSTANCE
+    gasLimit: GAS_LIMITS.DEPLOY_APP_INSTANCE
   });
-  const cfAddress = ethers.utils.solidityKeccak256(
-    ["bytes1", "bytes", "uint256"],
-    ["0x19", initcode, salt]
+
+  const cfAddress = ethers.utils.keccak256(
+    ethers.utils.solidityPack(
+      ["bytes1", "bytes", "uint256"],
+      ["0x19", initcode, salt]
+    )
   );
 
   const address = await registry.functions.resolver(cfAddress);
 
   return new ethers.Contract(address, StateChannel.abi, wallet);
-};
-
-function getStateChannelByteCode (networkContext) {
-  StateChannel.bytecode = StateChannel.bytecode.replace(
-    /__Signatures_+/g,
-    networkContext.Signatures.substr(2)
-  );
-  StateChannel.bytecode = StateChannel.bytecode.replace(
-    /__StaticCall_+/g,
-    networkContext.StaticCall.substr(2)
-  );
-  return StateChannel.bytecode;
-};
+}

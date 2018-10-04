@@ -41,7 +41,7 @@ export abstract class CfOperation {
 
 export class CfAppInterface {
   public static generateSighash(
-    abiInterface: ethers.Interface,
+    abiInterface: ethers.utils.Interface,
     functionName: string
   ): string {
     return abiInterface.functions[functionName]
@@ -97,7 +97,7 @@ export class CfAppInterface {
 export class Terms {
   constructor(
     readonly assetType: number,
-    readonly limit: ethers.BigNumber,
+    readonly limit: ethers.utils.BigNumber,
     readonly token: Address
   ) {}
 
@@ -159,7 +159,7 @@ export class MultiSend {
         .substr(2);
     }
 
-    const data = new ethers.Interface([
+    const data = new ethers.utils.Interface([
       Abi.multiSend
     ]).functions.multiSend.encode([txs]);
     return new MultisigInput(multisend, 0, data, Operation.Delegatecall);
@@ -183,7 +183,7 @@ export class CfFreeBalance {
   public static contractInterface(ctx: NetworkContext): CfAppInterface {
     const address = ctx.PaymentApp;
     const applyAction = "0x00000000"; // not used
-    const resolver = new ethers.Interface([
+    const resolver = new ethers.utils.Interface([
       // TODO: Put this somewhere eh
       "resolve(tuple(address,address,uint256,uint256),tuple(uint8,uint256,address))"
     ]).functions.resolve.sighash;
@@ -201,9 +201,9 @@ export class CfFreeBalance {
 
   constructor(
     readonly alice: Address, // first person in free balance object
-    readonly aliceBalance: ethers.BigNumber,
+    readonly aliceBalance: ethers.utils.BigNumber,
     readonly bob: Address, // second person in free balance object
-    readonly bobBalance: ethers.BigNumber,
+    readonly bobBalance: ethers.utils.BigNumber,
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,
@@ -239,19 +239,9 @@ export class CfStateChannel {
   ) {}
 
   public cfAddress(): H256 {
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__Signatures_+/g,
-      this.ctx.Signatures.substr(2)
-    );
-
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__StaticCall_+/g,
-      this.ctx.StaticCall.substr(2)
-    );
-
-    const initcode = new ethers.Interface(
+    const initcode = new ethers.utils.Interface(
       StateChannel.abi
-    ).deployFunction.encode(StateChannel.bytecode, [
+    ).deployFunction.encode(this.ctx.linkBytecode(StateChannel.bytecode), [
       this.owner,
       this.signingKeys,
       this.cfApp.hash(),

@@ -369,8 +369,8 @@ describe("Lifecycle", async () => {
 function validateNoAppsAndFreeBalance(
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: ethers.BigNumber,
-  amountB: ethers.BigNumber
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -427,8 +427,8 @@ function validateInstalledBalanceRefund(wallet: TestWallet, amount: number) {
 async function validateDeposit(
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: ethers.BigNumber,
-  amountB: ethers.BigNumber
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
 ) {
   await validateMultisigBalance(amountA, amountB);
   validateFreebalance(walletB, amountA, amountB);
@@ -436,8 +436,8 @@ async function validateDeposit(
 }
 
 async function validateMultisigBalance(
-  aliceBalance: ethers.BigNumber,
-  bobBalance: ethers.BigNumber
+  aliceBalance: ethers.utils.BigNumber,
+  bobBalance: ethers.utils.BigNumber
 ) {
   const multisigAmount = await blockchainProvider.getBalance(
     multisigContractAddress
@@ -449,8 +449,8 @@ async function validateMultisigBalance(
 
 function validateFreebalance(
   wallet: TestWallet,
-  aliceBalance: ethers.BigNumber,
-  bobBalance: ethers.BigNumber
+  aliceBalance: ethers.utils.BigNumber,
+  bobBalance: ethers.utils.BigNumber
 ) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
