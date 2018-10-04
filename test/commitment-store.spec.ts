@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as abi from "../src/abi";
 import { CfOpSetup } from "../src/middleware/cf-operation/cf-op-setup";
-import { Abi } from "../src/middleware/cf-operation/types";
+import { Abi, Transaction } from "../src/middleware/cf-operation/types";
 import { ActionName, Signature } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 import { SetupProtocol } from "./common";
@@ -41,16 +41,16 @@ describe.skip("should have one commitment for the setup protocol", () => {
     await setup(walletA, walletB);
     expect(walletA.currentUser.store.appExists(MULTISIG_ADDRESS)).toEqual(true);
     expect(
-      walletA.currentUser.store.appHasCommitment(
+      await walletA.currentUser.store.appHasCommitment(
         MULTISIG_ADDRESS,
         ActionName.SETUP
       )
     ).toEqual(true);
   });
 
-  let setupTransaction;
-  it("the transaction should be sent to the multisig address", () => {
-    setupTransaction = walletA.currentUser.store.getTransaction(
+  let setupTransaction: Transaction;
+  it("the transaction should be sent to the multisig address", async () => {
+    setupTransaction = await walletA.currentUser.store.getTransaction(
       MULTISIG_ADDRESS,
       ActionName.SETUP
     );
