@@ -36,7 +36,7 @@ contract CountingApp {
     return state.turnNum % 2;
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.TransactionLimit terms)
     public
     pure
     returns (Transfer.Transaction)

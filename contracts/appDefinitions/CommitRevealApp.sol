@@ -95,7 +95,7 @@ contract CommitRevealApp {
     return abi.encode(nextState);
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.TransactionLimit terms)
     public
     pure
     returns (Transfer.Transaction)

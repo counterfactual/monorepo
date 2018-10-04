@@ -172,7 +172,7 @@ export function computeNonceRegistryKey(
 }
 
 /**
- * Solidity struct type for the Transfer.Terms struct
+ * Solidity struct type for the Transfer.TransactionLimit struct
  */
 export const termsEncoding = abiEncodingForStruct(`
   uint8 assetType;

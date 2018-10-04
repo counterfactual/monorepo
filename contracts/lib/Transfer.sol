@@ -7,9 +7,10 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /// @title Transfer - A library to encode a generic asset transfer data type
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice This library defines `Transfer.Transaction` and `Transfer.Terms`, two structures
-/// which are used in state channel applications to represent a kind of "resolution" and
-/// a commitment to how much can be resolved respectively. A `Transfer.Transaction` object
+/// @notice This library defines `Transfer.Transaction` and
+/// `Transfer.TransactionLimit`, two structures which are used in state channel
+/// applications to represent a kind of "resolution" and a commitment to how
+/// much can be resolved respectively. A `Transfer.Transaction` object
 /// should be able to encode any arbitrary Ethereum-based asset transfer.
 library Transfer {
 
@@ -18,10 +19,11 @@ library Transfer {
     ERC20
   }
 
-  struct Terms {
+  // Represents an upper bound on the value a of a transaction
+  struct TransactionLimit {
     uint8 assetType;
-    uint256 limit;
     address token;
+    uint256 limitAmount;
   }
 
   struct Transaction {
@@ -49,12 +51,12 @@ library Transfer {
   }
 
   /// @notice Verifies whether or not a `Transfer.Transaction` meets the terms set by a
-  /// `Transfer.Terms` object based on the limit information of how much can be transferred
-  /// @param txn A `Transfer.Transaction` struct
+  /// `Transfer.TransactionLimit` object based on the limit information of how much can be transferred
+  /// @param tx A `Transfer.Transaction` struct
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
     Transfer.Transaction memory txn,
-    Transfer.Terms terms
+    Transfer.TransactionLimit terms
   )
     public
     pure

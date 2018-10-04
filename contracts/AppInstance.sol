@@ -104,7 +104,7 @@ contract AppInstance {
   /// @param owner An address which is allowed to set state. Typically an address off a multisig wallet.
   /// @param signingKeys An array of addresses which can set state with unanimous consent
   /// @param app Hash of the application's interface
-  /// @param terms Hash of a `Transfer.Terms` object commiting to the terms of the app
+  /// @param terms Hash of a `Transfer.TransactionLimit` object commiting to the terms of the app; the resolution is not allowed to exceed this limit
   /// @param timeout The default timeout (in blocks) in case of dispute
   constructor(
     address owner,

@@ -9,12 +9,12 @@ import "../Registry.sol";
 contract VirtualAppAgreement {
 
   using Transfer for Transfer.Transaction;
-  using Transfer for Transfer.Terms;
+  using Transfer for Transfer.TransactionLimit;
 
   struct Agreement {
     Registry registry;
     NonceRegistry nonceRegistry;
-    Transfer.Terms terms;
+    Transfer.TransactionLimit terms;
     uint256 capitalProvided;
     uint256 loanDuration;
     bytes32 virtualStateDeposit;

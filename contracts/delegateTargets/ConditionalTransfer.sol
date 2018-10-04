@@ -37,7 +37,7 @@ contract ConditionalTransfer is Conditional {
     bytes32 key,
     uint256 expectedNonce,
     bytes32 appCfAddress,
-    Transfer.Terms terms
+    Transfer.TransactionLimit terms
   )
     public
   {

@@ -12,7 +12,7 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState state, Transfer.TransactionLimit terms)
     public
     view
     returns (Transfer.Transaction)
