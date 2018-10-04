@@ -909,9 +909,9 @@ ethers@4.0.0-beta.12:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.0-beta.14:
-  version "4.0.0-beta.14"
-  resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.0-beta.14.tgz#76aa9257b9c93a7604ff4dc11f2a445d07f6459d"
+ethers@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.1.tgz#7ea8b21b554fb4ad49300146d9300954b9a8c013"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"

@@ -15,14 +15,16 @@ export function proxyCallSetStateData(
   signatures: Bytes,
   registry: Address
 ): Bytes {
-  return new ethers.Interface([Abi.proxyCall]).functions.proxyCall.encode([
-    registry,
-    appCfAddr,
-    new ethers.Interface([Abi.setState]).functions.setState.encode([
-      appStateHash,
-      appLocalNonce,
-      timeout,
-      signatures
-    ])
-  ]);
+  return new ethers.utils.Interface([Abi.proxyCall]).functions.proxyCall.encode(
+    [
+      registry,
+      appCfAddr,
+      new ethers.utils.Interface([Abi.setState]).functions.setState.encode([
+        appStateHash,
+        appLocalNonce,
+        timeout,
+        signatures
+      ])
+    ]
+  );
 }

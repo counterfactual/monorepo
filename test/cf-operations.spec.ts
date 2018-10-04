@@ -63,6 +63,7 @@ describe("Setup Protocol", async () => {
 
     const masterWallet = new TestWallet();
     masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
+    const networkContext = masterWallet.network;
     const ethersWalletA = walletA.currentUser.ethersWallet;
     const ethersWalletB = walletB.currentUser.ethersWallet;
     const ethersMasterWallet = masterWallet.currentUser.ethersWallet;
@@ -93,15 +94,11 @@ describe("Setup Protocol", async () => {
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
-    Multisig.bytecode = Multisig.bytecode.replace(
-      /__Signatures_+/g,
-      network.Signatures.substr(2)
-    );
-    const multisig = await new ethers.Contract(
-      "",
+    const multisig = await new ethers.ContractFactory(
       Multisig.abi,
+      networkContext.linkBytecode(Multisig.bytecode),
       masterWallet.currentUser.ethersWallet
-    ).deploy(Multisig.bytecode);
+    ).deploy();
 
     await multisig.functions.setup(signingKeys);
 
@@ -116,27 +113,22 @@ describe("Setup Protocol", async () => {
     } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
 
     // STEP 4 -- DEPLOY SIGNED COMMITMENT TO SET FREE BALANCE
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__Signatures_+/g,
-      network.Signatures.substr(2)
-    );
-    StateChannel.bytecode = StateChannel.bytecode.replace(
-      /__StaticCall_+/g,
-      network.StaticCall.substr(2)
-    );
     const app = CfFreeBalance.contractInterface(network);
     const terms = CfFreeBalance.terms();
-    const initcode = new ethers.Interface(
+    const initcode = new ethers.utils.Interface(
       StateChannel.abi
-    ).deployFunction.encode(StateChannel.bytecode, [
-      multisig.address,
-      signingKeys,
-      app.hash(),
-      terms.hash(),
-      // FIXME: Don't hard-code the timeout, make it dependant on some
-      // function(blockchain) to in the future check for congestion... :)
-      100
-    ]);
+    ).deployFunction.encode(
+      networkContext.linkBytecode(StateChannel.bytecode),
+      [
+        multisig.address,
+        signingKeys,
+        app.hash(),
+        terms.hash(),
+        // FIXME: Don't hard-code the timeout, make it dependant on some
+        // function(blockchain) to in the future check for congestion... :)
+        100
+      ]
+    );
     await registry.functions.deploy(initcode, 0, HIGH_GAS_LIMIT);
     const uninstallTx = walletA.currentUser.store.getTransaction(
       balanceRefundAppId,
@@ -293,8 +285,8 @@ function validateNoAppsAndFreeBalance(
   multisigAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: ethers.BigNumber,
-  amountB: ethers.BigNumber
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -328,11 +320,11 @@ async function makeDeposits(
   multisigAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  depositAmount: ethers.BigNumber
+  depositAmount: ethers.utils.BigNumber
 ): Promise<{
   cfAddr: string;
-  txFeeA: ethers.BigNumber;
-  txFeeB: ethers.BigNumber;
+  txFeeA: ethers.utils.BigNumber;
+  txFeeB: ethers.utils.BigNumber;
 }> {
   const { txFee: txFeeA } = await deposit(
     multisigAddr,
@@ -355,9 +347,9 @@ async function deposit(
   multisigAddr: string,
   depositor: TestWallet,
   counterparty: TestWallet,
-  amountToDeposit: ethers.BigNumber,
-  counterpartyBalance: ethers.BigNumber
-): Promise<{ cfAddr: string; txFee: ethers.BigNumber }> {
+  amountToDeposit: ethers.utils.BigNumber,
+  counterpartyBalance: ethers.utils.BigNumber
+): Promise<{ cfAddr: string; txFee: ethers.utils.BigNumber }> {
   const cfAddr = await installBalanceRefund(
     multisigAddr,
     depositor,
@@ -380,7 +372,7 @@ async function installBalanceRefund(
   multisigAddr: string,
   depositor: TestWallet,
   counterparty: TestWallet,
-  threshold: ethers.BigNumber
+  threshold: ethers.utils.BigNumber
 ) {
   const msg = startInstallBalanceRefundMsg(
     multisigAddr,
@@ -403,7 +395,7 @@ function startInstallBalanceRefundMsg(
   multisigAddr: string,
   from: string,
   to: string,
-  threshold: ethers.BigNumber
+  threshold: ethers.utils.BigNumber
 ): ClientActionMessage {
   let peerA = from;
   let peerB = to;
@@ -452,7 +444,7 @@ function startInstallBalanceRefundMsg(
 function validateInstalledBalanceRefund(
   multisigAddr: string,
   wallet: TestWallet,
-  amount: ethers.BigNumber
+  amount: ethers.utils.BigNumber
 ) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigAddr];
@@ -480,8 +472,8 @@ function validateInstalledBalanceRefund(
 async function depositOnChain(
   multisigAddress: string,
   wallet: TestWallet,
-  value: ethers.BigNumber
-): Promise<ethers.BigNumber> {
+  value: ethers.utils.BigNumber
+): Promise<ethers.utils.BigNumber> {
   const { ethersWallet } = wallet.currentUser;
   const balanceBefore = await ethersWallet.getBalance();
   await ethersWallet.sendTransaction({
@@ -498,8 +490,8 @@ async function uninstallBalanceRefund(
   cfAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: ethers.BigNumber,
-  amountB: ethers.BigNumber
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
 ) {
   const msg = startUninstallBalanceRefundMsg(
     multisigAddr,
@@ -538,8 +530,8 @@ function validateUninstalledAndFreeBalance(
   cfAddr: string,
   walletA: TestWallet,
   walletB: TestWallet,
-  amountA: ethers.BigNumber,
-  amountB: ethers.BigNumber
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.currentUser.vm.cfState;
@@ -577,7 +569,7 @@ function startUninstallBalanceRefundMsg(
   appId: string,
   from: string,
   to: string,
-  amount: ethers.BigNumber
+  amount: ethers.utils.BigNumber
 ): ClientActionMessage {
   const uninstallData = {
     peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]

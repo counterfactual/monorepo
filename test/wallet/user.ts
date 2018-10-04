@@ -35,7 +35,7 @@ export class User implements Observable, ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
-  public signingKey: ethers.SigningKey;
+  public signingKey: ethers.utils.SigningKey;
   public ethersWallet: ethers.Wallet | ethers.providers.JsonRpcSigner;
   public vm: CounterfactualVM;
   public io: IoProvider;
@@ -80,7 +80,7 @@ export class User implements Observable, ResponseSink {
       this.handleActionCompletion.bind(this)
     );
 
-    this.signingKey = new ethers.SigningKey(privateKey);
+    this.signingKey = new ethers.utils.SigningKey(privateKey);
     this.address = this.signingKey.address;
     const { web3 } = window as any;
     if (web3) {

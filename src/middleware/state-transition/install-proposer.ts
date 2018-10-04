@@ -95,7 +95,7 @@ export class InstallProposer {
     }
 
     signingKeys.sort((addrA: Address, addrB: Address) => {
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
     return signingKeys;
   }

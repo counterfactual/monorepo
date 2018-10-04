@@ -94,7 +94,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       message.clientMessage.toAddress
     ];
     signingKeys.sort((addrA: Address, addrB: Address) => {
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
     return new CfOpSetState(

@@ -47,7 +47,7 @@ export class CfOpSetup extends CfMultiSendOp {
       )
     );
 
-    const multisigCalldata = new ethers.Interface([
+    const multisigCalldata = new ethers.utils.Interface([
       Abi.executeStateChannelConditionalTransfer
     ]).functions.executeStateChannelConditionalTransfer.encode([
       this.ctx.Registry,
@@ -70,8 +70,8 @@ export class CfOpSetup extends CfMultiSendOp {
 function sanitizeMultisigInput(multisigInput: any): MultisigInput {
   return new MultisigInput(
     multisigInput.to,
-    new ethers.BigNumber(multisigInput.value).toNumber(),
+    new ethers.utils.BigNumber(multisigInput.value).toNumber(),
     multisigInput.data,
-    new ethers.BigNumber(multisigInput.operation).toNumber()
+    new ethers.utils.BigNumber(multisigInput.operation).toNumber()
   );
 }

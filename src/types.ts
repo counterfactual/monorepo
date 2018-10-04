@@ -134,16 +134,16 @@ export interface UpdateOptions {
 }
 
 export interface UninstallOptions {
-  peerABalance: ethers.BigNumber;
-  peerBBalance: ethers.BigNumber;
+  peerABalance: ethers.utils.BigNumber;
+  peerBBalance: ethers.utils.BigNumber;
 }
 
 export interface InstallOptions {
   stateEncoding: string;
   abiEncoding: string;
   state: object;
-  peerABalance: ethers.BigNumber;
-  peerBBalance: ethers.BigNumber;
+  peerABalance: ethers.utils.BigNumber;
+  peerBBalance: ethers.utils.BigNumber;
 }
 
 /**
@@ -169,9 +169,9 @@ export class PeerBalance {
    */
   public static balances(
     address1: Address,
-    balance1: ethers.BigNumber,
+    balance1: ethers.utils.BigNumber,
     address2: Address,
-    balance2: ethers.BigNumber
+    balance2: ethers.utils.BigNumber
   ): CanonicalPeerBalance {
     if (address2.localeCompare(address1) < 0) {
       return new CanonicalPeerBalance(
@@ -223,9 +223,12 @@ export class PeerBalance {
       ];
     }
   }
-  public balance: ethers.BigNumber;
+  public balance: ethers.utils.BigNumber;
 
-  constructor(readonly address: Address, balance: number | ethers.BigNumber) {
+  constructor(
+    readonly address: Address,
+    balance: number | ethers.utils.BigNumber
+  ) {
     this.balance = ethers.utils.bigNumberify(balance.toString());
   }
 }
@@ -252,6 +255,16 @@ export class NetworkContext {
     );
   }
 
+  private static ALL_CONTRACT_NAMES = [
+    "Registry",
+    "PaymentApp",
+    "ConditionalTransfer",
+    "MultiSend",
+    "NonceRegistry",
+    "Signatures",
+    "StaticCall"
+  ];
+
   constructor(
     readonly Registry: Address,
     readonly PaymentApp: Address,
@@ -261,6 +274,16 @@ export class NetworkContext {
     readonly Signatures: Address,
     readonly StaticCall: Address
   ) {}
+
+  public linkBytecode(unlinkedBytecode: string): string {
+    let bytecode = unlinkedBytecode;
+    for (const contractName of NetworkContext.ALL_CONTRACT_NAMES) {
+      const regex = new RegExp(`__${contractName}_+`, "g");
+      const address = this[contractName].substr(2);
+      bytecode = bytecode.replace(regex, address);
+    }
+    return bytecode;
+  }
 }
 
 // Tree of all the stateChannel and appChannel state
@@ -343,7 +366,7 @@ export class Signature {
     sigs.sort((sigA, sigB) => {
       const addrA = sigA.recoverAddress(digest);
       const addrB = sigB.recoverAddress(digest);
-      return new ethers.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
     const signatureStrings = sigs.map(sig => {
       return (
