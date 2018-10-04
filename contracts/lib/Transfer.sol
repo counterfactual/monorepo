@@ -72,7 +72,22 @@ library Transfer {
   /// Convenience functions
 
   function make1PTransaction(
-    Transfer.TransactionLimit terms, address to, uint256 amount
+    Transfer.TransactionLimit terms, address to
+  ) public returns (Transfer.Transaction) {
+
+    bytes[] memory data = new bytes[](2);
+
+    return Transfer.Transaction(
+      terms.assetType,
+      terms.token,
+      [to],
+      [terms.amount],
+      data
+    );
+  }
+
+  function make2PTransaction(
+    Transfer.TransactionLimit terms, address[2] to, uint256[2] amount
   ) public returns (Transfer.Transaction) {
 
     bytes[] memory data = new bytes[](2);

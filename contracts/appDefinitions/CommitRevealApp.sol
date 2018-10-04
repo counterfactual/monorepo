@@ -108,10 +108,9 @@ contract CommitRevealApp {
       player = 1 - uint256(getTurnTaker(state));
     }
 
-    return Transfer.make2PTransaction(
+    return Transfer.make1PTransaction(
       terms,
       state.playerAddrs[player],
-      terms.amount
     );
   }
 }

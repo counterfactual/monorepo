@@ -90,43 +90,18 @@ contract TicTacToe {
     pure
     returns (Transfer.Transaction)
   {
-    require(state.winner != 0);
+    require(state.winner != GAME_IN_PROGRESS);
 
-    uint256[] memory amounts = new uint256[](2);
-    address[] memory to = new address[](2);
-    bytes[] memory data = new bytes[](2);
-
-    if (state.winner == 3) {
-      amounts[0] = terms.limit / 2;
-      amounts[1] = terms.limit / 2;
-
-      to[0] = state.players[0];
-      to[1] = state.players[1];
-
-      return Transfer.Transaction(
-        terms.assetType,
-        terms.token,
-        to,
-        amounts,
-        data
+    if (state.winner == GAME_DRAWN) {
+      return Transfer.make2PTransaction(
+        terms,
+        [ terms.limit / 2, terms.limit / 2],
+        state.players
       );
-
     } else {
-      address loser = state.players[state.winner - 1];
-      address winner = state.players[2 - state.winner];
-
-      amounts[0] = terms.limit;
-      amounts[1] = 0;
-
-      to[0] = winner;
-      to[1] = loser;
-
-      return Transfer.Transaction(
-        terms.assetType,
-        terms.token,
-        to,
-        amounts,
-        data
+      return Transfer.make1PTransaction(
+        terms,
+        state.players[2 - state.winner],
       );
     }
 

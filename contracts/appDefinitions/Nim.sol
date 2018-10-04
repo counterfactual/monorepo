@@ -62,10 +62,9 @@ contract Nim {
     require(isWin(state));
     address winner = state.players[1 - (state.turnNum % 2)];
 
-    return Transfer.make2PTransaction(
+    return Transfer.make1PTransaction(
       terms,
       winner,
-      terms.amount
     );
   }
 

@@ -41,21 +41,10 @@ contract CountingApp {
     pure
     returns (Transfer.Transaction)
   {
-    uint256[] memory amounts = new uint256[](2);
-    amounts[0] = terms.limit;
-    amounts[1] = 0;
-
-    address[] memory to = new address[](2);
-    to[0] = state.player1;
-    to[1] = state.player2;
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
+    // todo(ldct): wait what
+    return Transfer.make1PTransaction(
+      terms,
+      state.player1,
     );
   }
 
