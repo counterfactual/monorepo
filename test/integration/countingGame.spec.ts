@@ -19,9 +19,11 @@ const [A, B] = [
 ];
 
 const computeStateHash = (stateHash: string, nonce: number, timeout: number) =>
-  ethers.utils.solidityKeccak256(
-    ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
-    ["0x19", [A.address, B.address], nonce, timeout, stateHash]
+  ethers.utils.keccak256(
+    ethers.utils.solidityPack(
+      ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+      ["0x19", [A.address, B.address], nonce, timeout, stateHash]
+    )
   );
 
 const computeActionHash = (
@@ -31,9 +33,11 @@ const computeActionHash = (
   setStateNonce: number,
   disputeNonce: number
 ) =>
-  ethers.utils.solidityKeccak256(
-    ["bytes1", "address", "bytes32", "bytes", "uint256", "uint256"],
-    ["0x19", turn, prevState, action, setStateNonce, disputeNonce]
+  ethers.utils.keccak256(
+    ethers.utils.solidityPack(
+      ["bytes1", "address", "bytes32", "bytes", "uint256", "uint256"],
+      ["0x19", turn, prevState, action, setStateNonce, disputeNonce]
+    )
   );
 
 contract("CountingApp", (accounts: string[]) => {
@@ -56,6 +60,9 @@ contract("CountingApp", (accounts: string[]) => {
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
 
+  const encodePacked = (encoding: string, state: any) =>
+    ethers.utils.solidityPack([encoding], [state]);
+
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
@@ -69,8 +76,7 @@ contract("CountingApp", (accounts: string[]) => {
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
-  const keccak256 = (bytes: string) =>
-    ethers.utils.solidityKeccak256(["bytes"], [bytes]);
+  const { keccak256 } = ethers.utils;
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
     stateChannel.functions.setState(
@@ -117,10 +123,13 @@ contract("CountingApp", (accounts: string[]) => {
       token: Utils.ZERO_ADDRESS
     };
 
-    const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
-
-    stateChannel = await contract.deploy(
+    const contractFactory = new ethers.ContractFactory(
+      StateChannel.abi,
       StateChannel.binary,
+      unlockedAccount
+    );
+
+    stateChannel = await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),

@@ -16,9 +16,13 @@ contract("Nim", (accounts: string[]) => {
     "tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)";
 
   beforeEach(async () => {
-    const contract = new ethers.Contract("", Nim.abi, unlockedAccount);
     Nim.link("StaticCall", StaticCall.address);
-    game = await contract.deploy(Nim.binary);
+    const contractFactory = new ethers.ContractFactory(
+      Nim.abi,
+      Nim.binary,
+      unlockedAccount
+    );
+    game = await contractFactory.deploy();
   });
 
   describe("applyAction", () => {

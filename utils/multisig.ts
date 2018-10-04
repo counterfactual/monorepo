@@ -42,7 +42,7 @@ export class Multisig {
    * Deploy Multisig contract on-chain
    * @param signer The signer (with provider) for the on-chain transaction
    */
-  public async deploy(signer: ethers.types.Signer) {
+  public async deploy(signer: ethers.Signer) {
     this.contract = await MinimumViableMultisig.deploy(signer);
     await this.contract.functions.setup(this.owners);
   }
@@ -59,9 +59,11 @@ export class Multisig {
     funcName: string,
     args: any[],
     signers: ethers.Wallet[]
-  ): Promise<ethers.types.Transaction> {
+  ): Promise<any> {
     if (toContract.interface.functions[funcName] === undefined) {
-      throw new Error(`Tried to execute delegateCall to ${funcName} but no such function exists on the target contract`)
+      throw new Error(
+        `Tried to execute delegateCall to ${funcName} but no such function exists on the target contract`
+      );
     }
     return this.execTransaction(
       toContract,
@@ -84,9 +86,11 @@ export class Multisig {
     funcName: string,
     args: any[],
     signers: ethers.Wallet[]
-  ): Promise<ethers.types.Transaction> {
+  ): Promise<any> {
     if (toContract.interface.functions[funcName] === undefined) {
-      throw new Error(`Tried to execute call to ${funcName} but no such function exists on the target contract`)
+      throw new Error(
+        `Tried to execute call to ${funcName} but no such function exists on the target contract`
+      );
     }
     return this.execTransaction(
       toContract,
@@ -103,7 +107,7 @@ export class Multisig {
     args: any[],
     operation: Operation,
     wallets: ethers.Wallet[]
-  ): Promise<ethers.types.Transaction> {
+  ): Promise<any> {
     if (!this.contract) {
       throw new Error("Must deploy Multisig contract first");
     }
