@@ -124,10 +124,13 @@ contract("PaymentApp", (accounts: string[]) => {
       token: Utils.ZERO_ADDRESS
     };
 
-    const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
-
-    stateChannel = await contract.deploy(
+    const contractFactory = new ethers.ContractFactory(
+      StateChannel.abi,
       StateChannel.binary,
+      unlockedAccount
+    );
+
+    stateChannel = await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),

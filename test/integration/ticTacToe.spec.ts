@@ -16,9 +16,13 @@ contract("TicTacToe", (accounts: string[]) => {
     "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
 
   before(async () => {
-    const contract = new ethers.Contract("", TicTacToe.abi, unlockedAccount);
     TicTacToe.link("StaticCall", StaticCall.address);
-    game = await contract.deploy(TicTacToe.binary);
+    const contractFactory = new ethers.ContractFactory(
+      TicTacToe.abi,
+      TicTacToe.binary,
+      unlockedAccount
+    );
+    game = await contractFactory.deploy();
   });
 
   describe("applyAction", () => {

@@ -48,14 +48,14 @@ contract ConditionalTransfer is Conditional {
 
     address appAddr = Registry(registry).resolver(appCfAddress);
     AppInstance app = AppInstance(appAddr);
-    Transfer.Transaction memory tx = app.getResolution();
+    Transfer.Transaction memory itx = app.getResolution();
 
     require(
-      Transfer.meetsTerms(tx, terms),
+      Transfer.meetsTerms(itx, terms),
       "Transfer details do not meet terms"
     );
 
-    tx.execute();
+    itx.execute();
   }
 
 }
