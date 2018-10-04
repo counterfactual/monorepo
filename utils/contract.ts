@@ -70,7 +70,7 @@ export class AbstractContract {
    * @param signer Signer (with provider) to use for contract calls
    * @throws Error if AbstractContract has no deployed address
    */
-  public async getDeployed(signer: ethers.types.Signer): Promise<Contract> {
+  public async getDeployed(signer: ethers.Signer): Promise<Contract> {
     if (!signer.provider) {
       throw new Error("Signer requires provider");
     }
@@ -85,18 +85,19 @@ export class AbstractContract {
    * @param args Optional arguments to pass to contract constructor
    * @returns New contract instance
    */
-  public async deploy(
-    signer: ethers.types.Signer,
-    args?: any[]
-  ): Promise<Contract> {
+  public async deploy(signer: ethers.Signer, args?: any[]): Promise<Contract> {
     if (!signer.provider) {
       throw new Error("Signer requires provider");
     }
 
     const networkId = (await signer.provider.getNetwork()).chainId;
     const bytecode = this.generateLinkedBytecode(networkId);
-    const contract = new Contract("", this.abi, signer);
-    return contract.deploy(bytecode, ...(args || []));
+    const contractFactory = new ethers.ContractFactory(
+      this.abi,
+      bytecode,
+      signer
+    );
+    return contractFactory.deploy(...(args || []));
   }
 
   /**
@@ -106,7 +107,7 @@ export class AbstractContract {
    * @returns Contract instance
    */
   public async connect(
-    signer: ethers.types.Signer,
+    signer: ethers.Signer,
     address: string
   ): Promise<Contract> {
     return new Contract(address, this.abi, signer);
@@ -121,7 +122,7 @@ export class AbstractContract {
    * @returns Contract instance
    */
   public async deployViaRegistry(
-    signer: ethers.types.Signer,
+    signer: ethers.Signer,
     registry: ethers.Contract,
     args?: any[],
     salt?: string
@@ -138,7 +139,7 @@ export class AbstractContract {
     }
     const networkId = (await signer.provider.getNetwork()).chainId;
     const bytecode = this.generateLinkedBytecode(networkId);
-    const initcode = new ethers.Interface(this.abi).deployFunction.encode(
+    const initcode = new ethers.utils.Interface(this.abi).deployFunction.encode(
       bytecode,
       args || []
     );

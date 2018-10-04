@@ -67,7 +67,7 @@ const appStateEncoding = abiEncodingForStruct(`
 
 async function createMultisig(
   sender: ethers.Wallet,
-  initialFunding: ethers.BigNumber,
+  initialFunding: ethers.utils.BigNumber,
   owners: ethers.Wallet[]
 ): Promise<Multisig> {
   const multisig = new Multisig(owners.map(w => w.address));
@@ -108,7 +108,7 @@ async function deployStateChannel(
 /// and then wait 10 blocks, hence finalizing the nonce.
 async function setChannelNonceAndWait(
   multisig: Multisig,
-  channelNonceValue: ethers.BigNumber,
+  channelNonceValue: ethers.utils.BigNumber,
   channelNonceSalt: string,
   signers: ethers.Wallet[]
 ) {
@@ -116,14 +116,14 @@ async function setChannelNonceAndWait(
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
-    [new ethers.BigNumber(10), channelNonceSalt, channelNonceValue],
+    [new ethers.utils.BigNumber(10), channelNonceSalt, channelNonceValue],
     signers
   );
 
   await mineBlocks(10);
 
   const channelNonceKey = computeNonceRegistryKey(
-    new ethers.BigNumber(10),
+    new ethers.utils.BigNumber(10),
     multisig.address,
     channelNonceSalt
   );
@@ -138,7 +138,7 @@ async function executeStateChannelTransfer(
   stateChannel: AppInstance,
   multisig: Multisig,
   channelNonceKey: string,
-  channelNonceValue: ethers.BigNumber,
+  channelNonceValue: ethers.utils.BigNumber,
   signers: ethers.Wallet[]
 ) {
   if (!stateChannel.contract) {
@@ -209,7 +209,7 @@ describe("CommitReveal", async () => {
     await stateChannel.setResolution(appState);
 
     // 6. Call setNonce on NonceRegistry. Salt is arbitrarily chosen.
-    const channelNonceValue = new ethers.BigNumber(1);
+    const channelNonceValue = new ethers.utils.BigNumber(1);
     const channelNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
