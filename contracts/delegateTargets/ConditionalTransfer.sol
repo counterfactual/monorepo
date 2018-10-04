@@ -18,12 +18,12 @@ contract ConditionalTransfer is Conditional {
 
   function executeSimpleConditionalTransfer(
     Condition condition,
-    Transfer.Transaction memory tx
+    Transfer.Transaction memory txn
   )
     public
   {
     require(Conditional.isSatisfied(condition));
-    tx.execute();
+    txn.execute();
   }
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
