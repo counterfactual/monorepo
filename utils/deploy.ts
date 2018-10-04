@@ -13,6 +13,7 @@ export function deployTruffleArtifacts(
   const StaticCall = loader.require("StaticCall");
   const Transfer = loader.require("Transfer");
   const VirtualAppAgreement = loader.require("VirtualAppAgreement");
+  const ETHBalanceRefundApp = loader.require("ETHBalanceRefundApp");
 
   deployer.deploy(Transfer).then(() => {
     deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
@@ -25,6 +26,7 @@ export function deployTruffleArtifacts(
   deployer.deploy(MultiSend);
   deployer.deploy(NonceRegistry);
   deployer.deploy(PaymentApp);
+  deployer.deploy(ETHBalanceRefundApp);
   deployer.deploy(ProxyFactory);
   deployer.deploy(Registry);
   deployer.deploy(Signatures);
