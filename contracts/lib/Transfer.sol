@@ -50,10 +50,10 @@ library Transfer {
 
   /// @notice Verifies whether or not a `Transfer.Transaction` meets the terms set by a
   /// `Transfer.Terms` object based on the limit information of how much can be transferred
-  /// @param tx A `Transfer.Transaction` struct
+  /// @param txn A `Transfer.Transaction` struct
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
-    Transfer.Transaction memory tx,
+    Transfer.Transaction memory txn,
     Transfer.Terms terms
   )
     public
@@ -61,8 +61,8 @@ library Transfer {
     returns (bool)
   {
     uint256 sum = 0;
-    for (uint256 i = 0; i < tx.value.length; i++) {
-      sum += tx.value[i];
+    for (uint256 i = 0; i < txn.value.length; i++) {
+      sum += txn.value[i];
     }
     return sum <= terms.limit;
   }
