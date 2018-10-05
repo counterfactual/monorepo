@@ -72,7 +72,7 @@ export class User implements Observable, ResponseSink {
       new CfVmConfig(this, new EthCfOpGenerator(), networkContext, states)
     );
     this.wal = new CfVmWal(db !== undefined ? db : new MemDb(), this.address);
-    this.store = new CommitmentStore();
+    this.store = new CommitmentStore(this.address);
     this.io.ackMethod = this.vm.startAck.bind(this.vm);
     this.registerMiddlewares();
     this.vm.registerObserver(
