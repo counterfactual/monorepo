@@ -33,7 +33,7 @@ library Transfer {
   }
 
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
-  /// @param tx A `Transfer.Transaction` struct
+  /// @param txn A `Transfer.Transaction` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
   function execute(Transfer.Transaction memory txn) public {
     for (uint256 i = 0; i < txn.to.length; i++) {
