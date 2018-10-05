@@ -116,7 +116,7 @@ export class CommitmentStore {
   public store: LocalStorage;
   private appCount: number;
 
-  constructor() {
+  constructor(readonly userId: string) {
     this.appCount = 0;
     this.store = new LocalStorageImpl();
   }
@@ -155,12 +155,15 @@ export class CommitmentStore {
       appId = internalMessage.clientMessage.appId;
     }
 
-    if (this.store.has(appId)) {
-      appCommitments = AppCommitments.deserialize(appId, this.store.get(appId));
+    if (this.store.has(this.getDbKey(appId))) {
+      appCommitments = AppCommitments.deserialize(
+        appId,
+        this.store.get(this.getDbKey(appId))
+      );
     } else {
       appCommitments = new AppCommitments(appId);
       this.appCount += 1;
-      this.store.put(appId, Object(appCommitments.serialize()));
+      this.store.put(this.getDbKey(appId), Object(appCommitments.serialize()));
     }
 
     const signature: Signature = getFirstResult(
@@ -190,7 +193,7 @@ export class CommitmentStore {
     });
 
     await appCommitments.addCommitment(action, op, sigs);
-    this.store.put(appId, Object(appCommitments.serialize()));
+    this.store.put(this.getDbKey(appId), Object(appCommitments.serialize()));
     next();
   }
 
@@ -230,12 +233,12 @@ export class CommitmentStore {
     appId: string,
     action: ActionName
   ): Promise<Transaction> {
-    if (!this.store.has(appId)) {
+    if (!this.store.has(this.getDbKey(appId))) {
       throw Error("Invalid app id");
     }
     const appCommitments = AppCommitments.deserialize(
       appId,
-      this.store.get(appId)
+      this.store.get(this.getDbKey(appId))
     );
 
     return appCommitments.getTransaction(action);
@@ -246,7 +249,7 @@ export class CommitmentStore {
   }
 
   public appExists(appId: string): boolean {
-    return this.store.has(appId);
+    return this.store.has(this.getDbKey(appId));
   }
 
   public async appHasCommitment(
@@ -255,8 +258,15 @@ export class CommitmentStore {
   ): Promise<boolean> {
     const appCommitments = AppCommitments.deserialize(
       appId,
-      this.store.get(appId)
+      this.store.get(this.getDbKey(appId))
     );
-    return this.store.has(appId) && appCommitments.hasCommitment(action);
+    return (
+      this.store.has(this.getDbKey(appId)) &&
+      appCommitments.hasCommitment(action)
+    );
+  }
+
+  private getDbKey(appId: string): string {
+    return `Commitments||${this.userId}||${appId}`;
   }
 }
