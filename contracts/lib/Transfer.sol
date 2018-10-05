@@ -33,17 +33,17 @@ library Transfer {
   }
 
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
-  /// @param tx A `Transfer.Transaction` struct
+  /// @param txn A `Transfer.Transaction` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
-  function execute(Transfer.Transaction memory tx) public {
-    for (uint256 i = 0; i < tx.to.length; i++) {
-      address to = tx.to[i];
-      uint256 value = tx.value[i];
+  function execute(Transfer.Transaction memory txn) public {
+    for (uint256 i = 0; i < txn.to.length; i++) {
+      address to = txn.to[i];
+      uint256 value = txn.value[i];
 
-      if (tx.assetType == uint8(Transfer.Asset.ETH)) {
+      if (txn.assetType == uint8(Transfer.Asset.ETH)) {
         to.transfer(value);
-      } else if (tx.assetType == uint8(Transfer.Asset.ERC20)) {
-        require(ERC20(tx.token).transfer(to, value));
+      } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
+        require(ERC20(txn.token).transfer(to, value));
       }
     }
   }
