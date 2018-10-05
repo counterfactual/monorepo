@@ -4,8 +4,6 @@ pragma experimental "ABIEncoderV2";
 import "../lib/Transfer.sol";
 
 
-// Enums in libraries or calls to libraries using ABI encoded structs are broken in Solidity
-// Therefore, we are forced to use contracts
 contract CommitRevealApp {
 
   enum ActionType {
