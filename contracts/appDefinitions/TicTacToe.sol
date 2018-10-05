@@ -101,7 +101,7 @@ contract TicTacToe {
     } else {
       return Transfer.make1PTransaction(
         terms,
-        state.players[2 - state.winner],
+        state.players[2 - state.winner]
       );
     }
 

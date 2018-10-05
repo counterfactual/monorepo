@@ -64,7 +64,7 @@ contract Nim {
 
     return Transfer.make1PTransaction(
       terms,
-      winner,
+      winner
     );
   }
 

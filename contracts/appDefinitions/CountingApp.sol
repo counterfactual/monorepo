@@ -41,10 +41,9 @@ contract CountingApp {
     pure
     returns (Transfer.Transaction)
   {
-    // todo(ldct): wait what
     return Transfer.make1PTransaction(
       terms,
-      state.player1,
+      state.player1
     );
   }
 

@@ -110,7 +110,7 @@ contract CommitRevealApp {
 
     return Transfer.make1PTransaction(
       terms,
-      state.playerAddrs[player],
+      state.playerAddrs[player]
     );
   }
 }
