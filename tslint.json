@@ -1,3 +1,7 @@
 {
-  "extends": ["@counterfactual/configs/tslints/base-tslint"]
+  "extends": ["@counterfactual/configs/tslints/base-tslint"],
+  "rules": {
+    "no-submodule-imports": [true, "openzeppelin-solidity/test/helpers/merkleTree.js"]
+  }
+  
 }
