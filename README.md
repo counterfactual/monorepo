@@ -34,17 +34,13 @@ Note that section 6 of the paper specifies a concrete implementation that differ
 
 These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
 
-### Proposed Changes
-
-Sometimes, there are multiple designs that provide the same features but with different tradeoffs. We describe these designs in the [proposed](proposed) folder, in order to have a single place to reference them, but with the understanding that they are not currently being implemented. We also place here designs that add new features when they are still in the evaluation phase.
-
-### Criteria
-
-The file [proposed/criteria.md](proposed/criteria.md) contains criteria for proposed protocol designs. A criteria is a predicate that a protocol design either satisfies or does not.
-
 ## Design
 
 A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
+
+### Criteria
+
+The file [criteria.md](criteria.md) contains criteria for that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
 
 ### Commitments
 
