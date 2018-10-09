@@ -4,17 +4,19 @@ This is a list of criteria for proposed protocol designs, i.e., predicates that 
 
 ### One round trip communication
 
-In a 2-party channel, 2 messages suffices to safely change the counterfactual state of the GSC 
-    - to install an application,
-    - to uninstall an application, and 
-    - to update the state of an application
+In a 2-party channel, 2 messages suffices to safely change the counterfactual state of the GSC
+
+- to install an application.
+- to uninstall an application.
+- to update the state of an application.
 
 ### Constant sized communication
 
 The total size of messages that we need to exchange to do the following has a constant size, in particular, independent of number of active or historical apps.
-    - to install an application,
-    - to uninstall an application, and 
-    - to update the state of an application
+
+- to install an application.
+- to uninstall an application.
+- to update the state of an application.
 
 Note: this criteria does not preclude a "cleanup phase" following the one round trip
 

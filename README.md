@@ -66,7 +66,7 @@ One key feature of state channels we support is that multiple applications can b
 
 An app that is installed but not uninstalled is called an active app.
 
-The state deposit locked in the multisig should be equal to the sum of the state deposit held by all apps in the channel. This property is called *conservation of balance*. There is a special app called the Free Balance app that is the "default place" to hold state deposit. The app logic is implement by `PaymentChannel.sol`.
+The state deposit locked in the multisig should be equal to the sum of the state deposit held by all apps in the channel. This property is called **conservation of balance**. There is a special app called the Free Balance app that is the "default place" to hold state deposit. The app logic is implement by `PaymentChannel.sol`.
 
 To support easy uninstallation of apps, each app has its own dependency nonce.
 
