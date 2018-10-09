@@ -46,7 +46,7 @@ The file [proposed/criteria.md](proposed/criteria.md) contains criteria for prop
 
 A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
 
-### Commitments 
+### Commitments
 
 We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
 
@@ -74,10 +74,6 @@ The state deposit locked in the multisig should be equal to the sum of the state
 
 To support easy uninstallation of apps, each app has its own dependency nonce.
 
-### Cleanup
-
-TBD
-
 ## Protocols
 
 ### Setup
@@ -103,13 +99,9 @@ The uninstall commitment is a multisend that
 - sets the app dependency nonce to 2
 - sets the freebalance state to a new state with some balance added
 
-### Cleanup
-
-TBD
-
 ## Formal Specification
 
-The files in the [`protocol`](protocol) folder specify the protocols above more formally.
+The files in the [`protocols`](protocols) folder specify the protocols above more formally.
 
 We assume the existence of a well-known pure function `KECCAK256`, and of a registry contract deployed at `REGISTRY_ADDRESS`.
 

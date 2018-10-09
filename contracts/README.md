@@ -1,16 +1,10 @@
-![](https://img.shields.io/badge/status-wip-orange.svg?style=flat-square) Counterfactual Architecture Overview
+Contracts Architecture Overview
 ====================================================================================================
 
 Authors:
 
 - [Liam Horne](https://github.com/snario)
-- [Xuanji Li](https://github.com/ldct)
-
-Reviewers:
-
-* * *
-
-This spec document defines the Counterfactual protocol stack, the subsystems, the interfaces, and how it all fits together. It delegates non-interface details to other specs as much as possible. This is meant as a top-level view of the protocol and how the system fits together.
+- [Xuanji Li](https://github.com/IIIIllllIIIIllllIIIIllllIIIIllllIIIIll)
 
 # Table of Contents
 

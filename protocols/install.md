@@ -1,18 +1,20 @@
 # Install Protocol
 
-(For ease of explanation, assume the multisig is now magically owning 20 ETH and that the Free Balance has recorded a balance of 10, 10 for Alice and Bob. We will explain how depositing is implemented by using the `Install` and `Uninstall` protocols at the end.)
+Assume the multisig owns 20 ETH and that the Free Balance has recorded a balance of 10, 10 for Alice and Bob.
 
 Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
 ![install](../images/install.png)
 
-Notice how the funds move out of the free balance and into the tic-tac-toe application.
+The funds available in the free balance decrease and the funds committed to the tic-tac-toe application increase by the corresponding amount.
 
 ## Commitment
 
-- updates the free balance state, decrementing both parties by the amount they contribute to the application install
-- sets the nonce registry entry to 1, ensuring the "condition" in the Conditional Transfer is true
-- executes the conditional transfer via delegatecall, withdrawing the funds from the multisig and distributing them according to the state of the application which the conditional transfer points to.
+Let `c_1`, `c_2` be the amount that parties 1 and 2 wish to contribute towards the application. The commitment
+
+- updates the free balance state to one where party 1's balance is reduced by `c_1` and party 2's balance is reduced by `c_2`.
+- sets the nonce registry entry to 1.
+- calls `executeAppConditionalTransfer` with a limit of `c_1 + c_2`.
 
 ## Handshake
 
@@ -88,7 +90,7 @@ see also: `MultiSend.sol` for how multisend transactions are decoded
 ### Parameters
 
 - `freeBalance.cfAddress`
-- `freeBalance.stateHash`
+- `freeBalance.appStateHash`
 - `freeBalance.localNonce`
 - `freeBalance.timeout`
 - `salt`
@@ -118,7 +120,7 @@ delegatecall(
                     encode(
                         "setState(bytes32,uint256,uint256,bytes)",
                         [
-                            appStateHash,
+                            freebalance.appStateHash,
                             freeBalance.localNonce,
                             freeBalance.timeout,
                             0x00
