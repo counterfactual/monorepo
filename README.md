@@ -26,7 +26,7 @@ We recapitulate some relevant definitions. In some cases we use definitions that
 - **counterfactual address**: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
 - **commitment**: a signed transaction (piece of data) that allows the owner to perform a certain action
 - **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
-- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true; hence one may speak of a commitment to a conditional transfer.
+- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true.
 
 Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
 
