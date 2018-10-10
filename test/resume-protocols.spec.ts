@@ -1,3 +1,4 @@
+import * as wallet from "@counterfactual/wallet";
 import { Instruction, Instructions } from "../src/instructions";
 import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../src/middleware/state-transition/state-transition";
@@ -5,6 +6,7 @@ import { Context } from "../src/state";
 import { ActionName, ClientActionMessage, InternalMessage } from "../src/types";
 import { ResponseStatus } from "../src/vm";
 import { MemDb } from "../src/wal";
+import { defaultNetwork } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -12,7 +14,6 @@ import {
   B_PRIVATE_KEY,
   MULTISIG_ADDRESS
 } from "./environment";
-import { TestWallet } from "./wallet/wallet";
 
 /**
  * See run() for the entry point to the test. The basic structure
@@ -28,13 +29,13 @@ abstract class SetupProtocolTestCase {
    * recreate a new machine and resume protocols.
    */
   public db: MemDb;
-  public walletA: TestWallet;
-  public walletB: TestWallet;
+  public walletA: wallet.IframeWallet;
+  public walletB: wallet.IframeWallet;
   public executedInstructions: Instruction[];
   constructor() {
     this.db = new MemDb();
-    this.walletA = new TestWallet();
-    this.walletB = new TestWallet();
+    this.walletA = new wallet.IframeWallet(defaultNetwork());
+    this.walletB = new wallet.IframeWallet(defaultNetwork());
     this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
     this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, undefined, new MemDb());
     this.walletA.currentUser.io.peer = this.walletB;
@@ -60,7 +61,7 @@ abstract class SetupProtocolTestCase {
   public async resumeNewMachine() {
     // make a new wallet with the exact same state
     // i.e., the same WAL db and the same channelStates
-    const walletA2 = new TestWallet();
+    const walletA2 = new wallet.IframeWallet();
     walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
     walletA2.currentUser.io.peer = this.walletB;
     this.walletB.currentUser.io.peer = walletA2;
@@ -68,7 +69,10 @@ abstract class SetupProtocolTestCase {
     await walletA2.initUser(A_ADDRESS);
   }
 
-  public abstract setupWallet(wallet: TestWallet, shouldError: boolean);
+  public abstract setupWallet(
+    wallet: wallet.IframeWallet,
+    shouldError: boolean
+  );
   /**
    * @returns the msg to start the setup protocol.
    */
@@ -95,7 +99,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the beginning if it crashes during the first instruction";
   }
 
-  public setupWallet(wallet: TestWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,
@@ -146,7 +150,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the second instruction if it crashes during the second instruction";
   }
 
-  public setupWallet(wallet: TestWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,
@@ -196,7 +200,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the second instruction if it crashes during the second instruction";
   }
 
-  public setupWallet(wallet: TestWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,

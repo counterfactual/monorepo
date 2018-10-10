@@ -21,8 +21,8 @@ import {
   StateChannelInfos
 } from "../src/types";
 
+import { defaultNetwork } from "./common";
 import { A_ADDRESS, B_ADDRESS, MULTISIG_ADDRESS } from "./environment";
-import { TestWallet } from "./wallet/wallet";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
@@ -54,7 +54,7 @@ describe("State transition", () => {
       false
     );
     const expectedCfAddr = new CfStateChannel(
-      TestWallet.testNetwork(),
+      defaultNetwork(),
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -104,7 +104,7 @@ function setupInstallCfState(): CfState {
     freeBalance
   );
   const channelStates: ChannelStates = { [MULTISIG_ADDRESS]: info };
-  return new CfState(channelStates, TestWallet.testNetwork());
+  return new CfState(channelStates, defaultNetwork());
 }
 
 function validateSetupInfos(infos: StateChannelInfos) {

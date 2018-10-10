@@ -3,7 +3,6 @@ import * as abi from "../../abi";
 import { Address, H256, NetworkContext } from "../../types";
 import { CfMultiSendOp } from "./cf-multisend-op";
 import {
-  Abi,
   CfFreeBalance,
   CfNonce,
   CfStateChannel,
@@ -36,7 +35,7 @@ export class CfOpInstall extends CfMultiSendOp {
   }
 
   private conditionalTransferInput(): MultisigInput {
-    const to = this.ctx.ConditionalTransfer;
+    const to = this.ctx.ConditionalTransfer.address;
     const val = 0;
     const terms = [
       this.app.terms.assetType,
@@ -49,11 +48,11 @@ export class CfOpInstall extends CfMultiSendOp {
         [this.multisig, 0, this.dependencyNonce.salt]
       )
     );
-    const data = new ethers.utils.Interface([
-      Abi.executeStateChannelConditionalTransfer
-    ]).functions.executeStateChannelConditionalTransfer.encode([
-      this.ctx.Registry,
-      this.ctx.NonceRegistry,
+    const data = new ethers.utils.Interface(
+      this.ctx.ConditionalTransfer.abi
+    ).functions.executeAppConditionalTransfer.encode([
+      this.ctx.Registry.address,
+      this.ctx.NonceRegistry.address,
       depNonceKey,
       this.dependencyNonce.nonceValue,
       this.appCfAddress,

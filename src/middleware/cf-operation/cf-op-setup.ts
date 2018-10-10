@@ -2,7 +2,6 @@ import * as ethers from "ethers";
 import * as abi from "../../abi";
 import { Address, NetworkContext } from "../../types";
 import {
-  Abi,
   CfFreeBalance,
   CfNonce,
   CfStateChannel,
@@ -47,11 +46,11 @@ export class CfOpSetup extends CfMultiSendOp {
       )
     );
 
-    const multisigCalldata = new ethers.utils.Interface([
-      Abi.executeStateChannelConditionalTransfer
-    ]).functions.executeStateChannelConditionalTransfer.encode([
-      this.ctx.Registry,
-      this.ctx.NonceRegistry,
+    const multisigCalldata = new ethers.utils.Interface(
+      this.ctx.ConditionalTransfer.abi
+    ).functions.executeAppConditionalTransfer.encode([
+      this.ctx.Registry.address,
+      this.ctx.NonceRegistry.address,
       depNonceKey,
       this.dependencyNonce.nonceValue,
       this.freeBalanceStateChannel.cfAddress(),
@@ -59,19 +58,10 @@ export class CfOpSetup extends CfMultiSendOp {
     ]);
 
     return new MultisigInput(
-      this.ctx.ConditionalTransfer,
+      this.ctx.ConditionalTransfer.address,
       0,
       multisigCalldata,
       Operation.Delegatecall
     );
   }
-}
-
-function sanitizeMultisigInput(multisigInput: any): MultisigInput {
-  return new MultisigInput(
-    multisigInput.to,
-    new ethers.utils.BigNumber(multisigInput.value).toNumber(),
-    multisigInput.data,
-    new ethers.utils.BigNumber(multisigInput.operation).toNumber()
-  );
 }
