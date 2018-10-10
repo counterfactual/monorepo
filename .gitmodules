@@ -1,4 +1,4 @@
 [submodule "contracts"]
-	path = contracts
+	path = packages/machine/contracts
 	url = https://github.com/counterfactual/contracts
     ignore = dirty 
