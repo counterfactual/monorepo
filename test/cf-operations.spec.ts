@@ -1,4 +1,5 @@
 import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
+import * as wallet from "@counterfactual/wallet";
 import * as ethers from "ethers";
 import * as abi from "../src/abi";
 import {
@@ -15,7 +16,7 @@ import {
   PeerBalance
 } from "../src/types";
 import { ResponseStatus } from "../src/vm";
-import { sleep } from "./common";
+import { defaultNetwork, sleep } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -24,11 +25,6 @@ import {
   MULTISIG_ADDRESS,
   MULTISIG_PRIVATE_KEY
 } from "./environment";
-import { TestWallet } from "./wallet/wallet";
-
-import Multisig from "../contracts/build/contracts/MinimumViableMultisig.json";
-import Registry from "../contracts/build/contracts/Registry.json";
-import StateChannel from "../contracts/build/contracts/StateChannel.json";
 
 export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
   return provider.send("evm_mine", []);
@@ -56,15 +52,14 @@ describe("Setup Protocol", async () => {
   it("should have the correct funds on chain", async () => {
     const depositAmount = ethers.utils.parseEther("0.0005");
 
-    const walletA = new TestWallet();
+    const walletA = new wallet.IframeWallet(defaultNetwork());
     walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    const walletB = new TestWallet();
+    const walletB = new wallet.IframeWallet(defaultNetwork());
     walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     const network = walletA.network;
 
-    const masterWallet = new TestWallet();
+    const masterWallet = new wallet.IframeWallet();
     masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
-    const networkContext = masterWallet.network;
     const ethersWalletA = walletA.currentUser.ethersWallet;
     const ethersWalletB = walletB.currentUser.ethersWallet;
     const ethersMasterWallet = masterWallet.currentUser.ethersWallet;
@@ -88,16 +83,16 @@ describe("Setup Protocol", async () => {
 
     // STEP 1 -- DEPLOY MULTISIG :)
     const registry = await new ethers.Contract(
-      network.Registry,
-      Registry.abi,
+      network.Registry.address,
+      network.Registry.abi,
       masterWallet.currentUser.ethersWallet
     );
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
     const multisig = await new ethers.ContractFactory(
-      Multisig.abi,
-      networkContext.linkBytecode(Multisig.bytecode),
+      network.Multisig.abi,
+      network.linkBytecode(network.Multisig.bytecode),
       masterWallet.currentUser.ethersWallet
     ).deploy();
 
@@ -117,9 +112,9 @@ describe("Setup Protocol", async () => {
     const app = CfFreeBalance.contractInterface(network);
     const terms = CfFreeBalance.terms();
     const initcode = new ethers.utils.Interface(
-      StateChannel.abi
+      network.AppInstance.abi
     ).deployFunction.encode(
-      networkContext.linkBytecode(StateChannel.bytecode),
+      network.linkBytecode(network.AppInstance.bytecode),
       [
         multisig.address,
         signingKeys,
@@ -175,7 +170,7 @@ describe("Setup Protocol", async () => {
     const channelAddr = await registry.functions.resolver(channelCfAddr);
     const stateChannel = new ethers.Contract(
       channelAddr,
-      StateChannel.abi,
+      network.AppInstance.abi,
       masterWallet.currentUser.ethersWallet
     );
     const appData = [
@@ -220,8 +215,8 @@ describe("Setup Protocol", async () => {
 
 async function setup(
   multisigAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet
 ) {
   validatePresetup(walletA, walletB);
   const msg = setupStartMsg(
@@ -234,7 +229,10 @@ async function setup(
   validateSetup(multisigAddr, walletA, walletB);
 }
 
-function validatePresetup(walletA: TestWallet, walletB: TestWallet) {
+function validatePresetup(
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet
+) {
   expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
   expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
 }
@@ -260,8 +258,8 @@ function setupStartMsg(
 
 function validateSetup(
   multisigAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet
 ) {
   validateNoAppsAndFreeBalance(
     multisigAddr,
@@ -284,8 +282,8 @@ function validateSetup(
  */
 function validateNoAppsAndFreeBalance(
   multisigAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet,
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -319,8 +317,8 @@ function validateNoAppsAndFreeBalance(
 
 async function makeDeposits(
   multisigAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet,
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet,
   depositAmount: ethers.utils.BigNumber
 ): Promise<{
   cfAddr: string;
@@ -346,8 +344,8 @@ async function makeDeposits(
 
 async function deposit(
   multisigAddr: string,
-  depositor: TestWallet,
-  counterparty: TestWallet,
+  depositor: wallet.IframeWallet,
+  counterparty: wallet.IframeWallet,
   amountToDeposit: ethers.utils.BigNumber,
   counterpartyBalance: ethers.utils.BigNumber
 ): Promise<{ cfAddr: string; txFee: ethers.utils.BigNumber }> {
@@ -371,8 +369,8 @@ async function deposit(
 
 async function installBalanceRefund(
   multisigAddr: string,
-  depositor: TestWallet,
-  counterparty: TestWallet,
+  depositor: wallet.IframeWallet,
+  counterparty: wallet.IframeWallet,
   threshold: ethers.utils.BigNumber
 ) {
   const msg = startInstallBalanceRefundMsg(
@@ -444,7 +442,7 @@ function startInstallBalanceRefundMsg(
 
 function validateInstalledBalanceRefund(
   multisigAddr: string,
-  wallet: TestWallet,
+  wallet: wallet.IframeWallet,
   amount: ethers.utils.BigNumber
 ) {
   const stateChannel =
@@ -472,7 +470,7 @@ function validateInstalledBalanceRefund(
 
 async function depositOnChain(
   multisigAddress: string,
-  wallet: TestWallet,
+  wallet: wallet.IframeWallet,
   value: ethers.utils.BigNumber
 ): Promise<ethers.utils.BigNumber> {
   const { ethersWallet } = wallet.currentUser;
@@ -489,8 +487,8 @@ async function depositOnChain(
 async function uninstallBalanceRefund(
   multisigAddr: string,
   cfAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet,
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -529,8 +527,8 @@ async function uninstallBalanceRefund(
 function validateUninstalledAndFreeBalance(
   multisigAddr: string,
   cfAddr: string,
-  walletA: TestWallet,
-  walletB: TestWallet,
+  walletA: wallet.IframeWallet,
+  walletB: wallet.IframeWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {

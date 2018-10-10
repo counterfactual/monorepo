@@ -1,3 +1,4 @@
+import * as wallet from "@counterfactual/wallet";
 import * as ethers from "ethers";
 import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
 import {
@@ -8,7 +9,7 @@ import {
   UpdateData
 } from "../src/types";
 import { ResponseStatus } from "../src/vm";
-import { SetupProtocol, sleep } from "./common";
+import { defaultNetwork, SetupProtocol, sleep } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -16,7 +17,6 @@ import {
   B_PRIVATE_KEY,
   MULTISIG_ADDRESS
 } from "./environment";
-import { TestWallet } from "./wallet/wallet";
 
 /**
  * Tests that the machine's CfState is correctly modified during the lifecycle
@@ -30,7 +30,7 @@ describe("Machine State Lifecycle", async () => {
   jest.setTimeout(50000);
 
   it("should modify machine state during the lifecycle of TTT", async () => {
-    const [walletA, walletB]: TestWallet[] = getWallets();
+    const [walletA, walletB]: wallet.IframeWallet[] = getWallets();
     await SetupProtocol.run(walletA, walletB);
     await Depositor.makeDeposits(walletA, walletB);
     await Ttt.play(walletA, walletB);
@@ -40,11 +40,11 @@ describe("Machine State Lifecycle", async () => {
 /**
  * @returns the wallets containing the machines that will be used for the test.
  */
-function getWallets(): TestWallet[] {
-  const walletA = new TestWallet();
+function getWallets(): wallet.IframeWallet[] {
+  const walletA = new wallet.IframeWallet(defaultNetwork());
   walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
 
-  const walletB = new TestWallet();
+  const walletB = new wallet.IframeWallet(defaultNetwork());
   walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
 
   walletA.currentUser.io.peer = walletB;
@@ -59,8 +59,8 @@ function getWallets(): TestWallet[] {
  */
 class Depositor {
   public static async makeDeposits(
-    walletA: TestWallet,
-    walletB: TestWallet
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet
   ): Promise<any> {
     await Depositor.deposit(
       walletA,
@@ -82,8 +82,8 @@ class Depositor {
    *        i.e., the threshold for the balance refund.
    */
   public static async deposit(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     amountA: ethers.utils.BigNumber,
     amountBCumlative: ethers.utils.BigNumber
   ) {
@@ -102,8 +102,8 @@ class Depositor {
   }
 
   public static async installBalanceRefund(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     threshold: ethers.utils.BigNumber
   ) {
     const msg = Depositor.startInstallBalanceRefundMsg(
@@ -141,7 +141,7 @@ class Depositor {
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
-    ); // todo
+    ); // TODO:
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -149,7 +149,7 @@ class Depositor {
       "0x11111111",
       "0x11111111",
       ""
-    ); // todo
+    ); // TODO:
     const timeout = 100;
     const installData: InstallData = {
       peerA: canon.peerA,
@@ -174,8 +174,8 @@ class Depositor {
   }
 
   public static validateInstalledBalanceRefund(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     amount: ethers.utils.BigNumber
   ) {
     const stateChannel =
@@ -204,8 +204,8 @@ class Depositor {
 
   public static async uninstallBalanceRefund(
     cfAddr: string,
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
@@ -225,12 +225,12 @@ class Depositor {
 
   public static validateUninstall(
     cfAddr: string,
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
-    // todo: add nonce and uniqueId params and check them
+    // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
     const canon = PeerBalance.balances(
       walletA.address!,
@@ -278,14 +278,20 @@ class Depositor {
 }
 
 class Ttt {
-  public static async play(walletA: TestWallet, walletB: TestWallet) {
+  public static async play(
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet
+  ) {
     const cfAddr = await Ttt.installTtt(walletA, walletB);
     await Ttt.makeMoves(walletA, walletB, cfAddr);
     await Ttt.uninstall(walletA, walletB, cfAddr);
     return cfAddr;
   }
 
-  public static async installTtt(walletA: TestWallet, walletB: TestWallet) {
+  public static async installTtt(
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet
+  ) {
     const msg = Ttt.installMsg(walletA.address!, walletB.address!);
     const response = await walletA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
@@ -304,7 +310,7 @@ class Ttt {
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
-    ); // todo
+    ); // TODO:
     const app = new CfAppInterface(
       "0x0",
       "0x11111111",
@@ -312,7 +318,7 @@ class Ttt {
       "0x11111111",
       "0x11111111",
       ""
-    ); // todo
+    ); // TODO:
     const timeout = 100;
     const installData: InstallData = {
       peerA: new PeerBalance(peerA, 2),
@@ -337,8 +343,8 @@ class Ttt {
   }
 
   public static async validateInstall(
-    walletA: TestWallet,
-    walletB: TestWallet
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet
   ): Promise<string> {
     Ttt.validateInstallWallet(walletA, walletB);
     // wait for other client to finish, since the machine is async
@@ -347,8 +353,8 @@ class Ttt {
   }
 
   public static validateInstallWallet(
-    walletA: TestWallet,
-    walletB: TestWallet
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet
   ): string {
     const stateChannel =
       walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
@@ -374,8 +380,8 @@ class Ttt {
    * Game is over at the end of this functon call and is ready to be uninstalled.
    */
   public static async makeMoves(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     cfAddr: string
   ) {
     const state = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -390,8 +396,8 @@ class Ttt {
   }
 
   public static async makeMove(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     cfAddr: string,
     appState: number[],
     cell: number,
@@ -399,7 +405,7 @@ class Ttt {
     moveNumber: number
   ) {
     appState[cell] = side;
-    const state = appState + ""; // todo: this should be encodedc
+    const state = appState + ""; // TODO: this should be encodedc
     const msg = Ttt.updateMsg(
       state,
       cell,
@@ -423,7 +429,7 @@ class Ttt {
   ): ClientActionMessage {
     const updateData: UpdateData = {
       encodedAppState: state,
-      appStateHash: ethers.constants.HashZero // todo
+      appStateHash: ethers.constants.HashZero // TODO:
     };
     return {
       requestId: "1",
@@ -438,8 +444,8 @@ class Ttt {
   }
 
   public static validateMakeMove(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     cfAddr,
     appState: string,
     moveNumber: number
@@ -458,8 +464,8 @@ class Ttt {
   }
 
   public static async uninstall(
-    walletA: TestWallet,
-    walletB: TestWallet,
+    walletA: wallet.IframeWallet,
+    walletB: wallet.IframeWallet,
     cfAddr: string
   ) {
     const msg = Ttt.uninstallStartMsg(
@@ -514,7 +520,7 @@ class Ttt {
 
   public static validateUninstall(
     cfAddr: string,
-    wallet: TestWallet,
+    wallet: wallet.IframeWallet,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {

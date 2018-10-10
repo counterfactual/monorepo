@@ -24,10 +24,11 @@ ganache.log
 .node-gyp
 .npm
 tmp
-dist
 jest-cache
 deployedContracts
-contracts/
+contracts
+.rpt2_cache
+dist
 
 # editors
 .vscode

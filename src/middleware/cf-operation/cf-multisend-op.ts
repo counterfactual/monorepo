@@ -1,10 +1,8 @@
 import * as ethers from "ethers";
-import Multisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
 import * as abi from "../../abi";
 import { Address, Bytes, NetworkContext, Signature } from "../../types";
 import * as common from "./common";
 import {
-  Abi,
   CfFreeBalance,
   CfNonce,
   CfOperation,
@@ -31,7 +29,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     const multisigInput = this.multisigInput();
     const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
     const txData = new ethers.utils.Interface(
-      Multisig.abi
+      this.ctx.Multisig.abi
     ).functions.execTransaction.encode([
       multisigInput.to,
       multisigInput.val,
@@ -61,7 +59,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public freeBalanceInput(): MultisigInput {
-    const to = this.ctx.Registry;
+    const to = this.ctx.Registry.address;
     const val = 0;
     const data = this.freeBalanceData();
     const op = Operation.Delegatecall;
@@ -95,22 +93,22 @@ export abstract class CfMultiSendOp extends CfOperation {
     // don't need signatures since the multisig is the owner
     const signatures = "0x0";
     return common.proxyCallSetStateData(
+      this.ctx,
       appStateHash,
       freeBalanceCfAddress,
       this.cfFreeBalance.localNonce,
       this.cfFreeBalance.timeout,
-      signatures,
-      this.ctx.Registry
+      signatures
     );
   }
 
   public dependencyNonceInput(): MultisigInput {
     const timeout = 0; // FIXME: new NonceRegistry design will obviate timeout
-    const to = this.ctx.NonceRegistry;
+    const to = this.ctx.NonceRegistry.address;
     const val = 0;
-    const data = new ethers.utils.Interface([
-      Abi.setNonce
-    ]).functions.setNonce.encode([
+    const data = new ethers.utils.Interface(
+      this.ctx.NonceRegistry.abi
+    ).functions.setNonce.encode([
       timeout,
       this.dependencyNonce.salt,
       this.dependencyNonce.nonceValue
@@ -126,6 +124,8 @@ export abstract class CfMultiSendOp extends CfOperation {
    *          a multisend transaction.
    */
   private multisigInput(): MultisigInput {
-    return new MultiSend(this.eachMultisigInput()).input(this.ctx.MultiSend);
+    return new MultiSend(this.eachMultisigInput(), this.ctx).input(
+      this.ctx.MultiSend.address
+    );
   }
 }

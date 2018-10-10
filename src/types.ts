@@ -139,6 +139,7 @@ export interface UninstallOptions {
 }
 
 export interface InstallOptions {
+  appAddress: string;
   stateEncoding: string;
   abiEncoding: string;
   state: object;
@@ -233,53 +234,93 @@ export class PeerBalance {
   }
 }
 
+export interface ContractInfo {
+  readonly abi: string;
+  readonly bytecode: string;
+  readonly address: Address;
+}
+
 /**
- * A network context is a set of addresses where global contracts are deployed.
- * A global contract provides functionality in such a way that all channels can
- * use the same global contract, hence they only need to be deployed once.
+ * A network context is a set of contract wrappers of the global contracts that
+ * are deployed. A global contract provides functionality in such a way that all
+ * channels can use the same global contract, hence they only need to be
+ * deployed once. The exceptions to the global contracts are the Multisig
+ * and the AppInstance contracts.
+ *
+ * @Param contractArtifacts Mapping of contract name to string list of
+ * [abi, bytecode]
  */
 export class NetworkContext {
-  public static fromNetworkFile(networkFile: any): NetworkContext {
+  public static CONTRACTS = {
+    Registry: "Registry",
+    PaymentApp: "PaymentApp",
+    ConditionalTransfer: "ConditionalTransfer",
+    MultiSend: "MultiSend",
+    NonceRegistry: "NonceRegistry",
+    Signatures: "Signatures",
+    StaticCall: "StaticCall",
+    ETHBalanceRefundApp: "ETHBalanceRefundApp",
+    Multisig: "Multisig",
+    AppInstance: "AppInstance"
+  };
+
+  public static fromDeployment(
+    networkFile: any,
+    contractArtifacts: Map<string, string[]>
+  ): NetworkContext {
     const networkMap = _.mapValues(
       _.keyBy(networkFile.contracts, "contractName"),
       "address"
     );
+
+    const contracts: Map<string, ContractInfo> = new Map();
+    for (const contract of _.keys(NetworkContext.CONTRACTS)) {
+      contracts[contract] = {
+        abi: contractArtifacts[contract][0],
+        bytecode: contractArtifacts[contract][1],
+        address: networkMap[contract]
+      };
+    }
+
     return new NetworkContext(
-      networkMap.Registry,
-      networkMap.PaymentApp,
-      networkMap.ConditionalTransfer,
-      networkMap.MultiSend,
-      networkMap.NonceRegistry,
-      networkMap.Signatures,
-      networkMap.StaticCall
+      contracts[this.CONTRACTS.Registry],
+      contracts[this.CONTRACTS.PaymentApp],
+      contracts[this.CONTRACTS.ConditionalTransfer],
+      contracts[this.CONTRACTS.MultiSend],
+      contracts[this.CONTRACTS.NonceRegistry],
+      contracts[this.CONTRACTS.Signatures],
+      contracts[this.CONTRACTS.StaticCall],
+      contracts[this.CONTRACTS.ETHBalanceRefundApp],
+      contracts[this.CONTRACTS.Multisig],
+      contracts[this.CONTRACTS.AppInstance]
     );
   }
 
-  private static ALL_CONTRACT_NAMES = [
-    "Registry",
-    "PaymentApp",
-    "ConditionalTransfer",
-    "MultiSend",
-    "NonceRegistry",
-    "Signatures",
-    "StaticCall"
-  ];
-
   constructor(
-    readonly Registry: Address,
-    readonly PaymentApp: Address,
-    readonly ConditionalTransfer: Address,
-    readonly MultiSend: Address,
-    readonly NonceRegistry: Address,
-    readonly Signatures: Address,
-    readonly StaticCall: Address
+    readonly Registry: ContractInfo,
+    readonly PaymentApp: ContractInfo,
+    readonly ConditionalTransfer: ContractInfo,
+    readonly MultiSend: ContractInfo,
+    readonly NonceRegistry: ContractInfo,
+    readonly Signatures: ContractInfo,
+    readonly StaticCall: ContractInfo,
+    readonly ETHBalanceRefundApp: ContractInfo,
+    readonly Multisig: ContractInfo,
+    readonly AppInstance: ContractInfo
   ) {}
 
   public linkBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
-    for (const contractName of NetworkContext.ALL_CONTRACT_NAMES) {
+    for (const contractName of _.keys(NetworkContext.CONTRACTS)) {
+      // skipping these as they're not global contracts
+      if (
+        contractName === NetworkContext.CONTRACTS.AppInstance ||
+        contractName === NetworkContext.CONTRACTS.Multisig
+      ) {
+        continue;
+      }
       const regex = new RegExp(`__${contractName}_+`, "g");
-      const address = this[contractName].substr(2);
+      const address = this[contractName].address.substr(2);
       bytecode = bytecode.replace(regex, address);
     }
     return bytecode;
@@ -402,7 +443,7 @@ export class Signature {
     return signatures;
   }
 
-  // todo: fix types
+  // TODO: fix types
   constructor(readonly v: number, readonly r: string, readonly s: string) {}
 
   public recoverAddress(digest: H256): Address {

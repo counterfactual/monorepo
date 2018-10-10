@@ -15,21 +15,16 @@
     "esModuleInterop": true,
     "lib": ["es2015", "es2017", "dom", "esnext.asynciterable"],
     "target": "es2017",
-    // FIXME: We're in a bit of a weird spot right now where the codebase uses
-    // rollup for three distinct pieces of software all of which have their
-    // own characteristics that would warrant a different module value.
-    // "module": "commonjs",
+    "module": "es6",
     "sourceMap": true,
     "outDir": "dist/",
     "sourceRoot": ".",
     "typeRoots": [
       "./node_modules/@types",
-      "./node_modules/@counterfactual/typescript-typings/types",
-      "./node_modules/ethers/index.d.ts",
-      "./node_modules/json-d-ts"
+      "./node_modules/@counterfactual/typescript-typings/types"
     ],
     "strict": true
   },
-  "include": ["src", "test", "cf.js"],
+  "include": ["src", "test"],
   "exclude": ["node_modules"]
 }

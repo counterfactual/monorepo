@@ -13,7 +13,7 @@ import {
   StateChannelInfo,
   WalletResponse
 } from "./types";
-import { CfVmWal, Log } from "./wal";
+import { Log } from "./wal";
 
 export class CfVmConfig {
   constructor(

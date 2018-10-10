@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import StateChannel from "../../../contracts/build/contracts/StateChannel.json";
 import * as abi from "../../abi";
 import {
   Address,
@@ -12,26 +11,6 @@ import {
 } from "../../types";
 
 const { keccak256 } = ethers.utils;
-
-// todo: remove this and fetch the abi's from the build artifacts
-export const Abi = {
-  // ConditionalTranfer.sol
-  executeStateChannelConditionalTransfer:
-    "executeStateChannelConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
-  // MinimumViableMultisig.sol
-  execTransaction:
-    "tuple(address to, uint256 value, bytes data, uint8 operation, bytes signatures)",
-  // Multisend.sol
-  multiSend: "multiSend(bytes)",
-  // Registry.sol
-  proxyCall: "proxyCall(address,bytes32,bytes)",
-  setResolution:
-    "setResolution(tuple(address, bytes4, bytes4, bytes4, bytes4) app, bytes finalState, bytes terms)",
-  // StateChannel.sol
-  setState: "setState(bytes32,uint256,uint256,bytes)",
-  // NonceRegistry.sol
-  setNonce: "setNonce(uint256,bytes32,uint256)"
-};
 
 export abstract class CfOperation {
   public abstract hashToSign(): H256;
@@ -146,7 +125,10 @@ export class MultisigInput {
 }
 
 export class MultiSend {
-  constructor(readonly transactions: MultisigInput[]) {}
+  constructor(
+    readonly transactions: MultisigInput[],
+    readonly networkContext: NetworkContext
+  ) {}
 
   public input(multisend: Address): MultisigInput {
     let txs: string = "0x";
@@ -159,9 +141,9 @@ export class MultiSend {
         .substr(2);
     }
 
-    const data = new ethers.utils.Interface([
-      Abi.multiSend
-    ]).functions.multiSend.encode([txs]);
+    const data = new ethers.utils.Interface(
+      this.networkContext.MultiSend.abi
+    ).functions.multiSend.encode([txs]);
     return new MultisigInput(multisend, 0, data, Operation.Delegatecall);
   }
 }
@@ -181,7 +163,7 @@ export class CfFreeBalance {
   }
 
   public static contractInterface(ctx: NetworkContext): CfAppInterface {
-    const address = ctx.PaymentApp;
+    const address = ctx.PaymentApp.address;
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
       // TODO: Put this somewhere eh
@@ -240,14 +222,17 @@ export class CfStateChannel {
 
   public cfAddress(): H256 {
     const initcode = new ethers.utils.Interface(
-      StateChannel.abi
-    ).deployFunction.encode(this.ctx.linkBytecode(StateChannel.bytecode), [
-      this.owner,
-      this.signingKeys,
-      this.cfApp.hash(),
-      this.terms.hash(),
-      this.timeout
-    ]);
+      this.ctx.AppInstance.abi
+    ).deployFunction.encode(
+      this.ctx.linkBytecode(this.ctx.AppInstance.bytecode),
+      [
+        this.owner,
+        this.signingKeys,
+        this.cfApp.hash(),
+        this.terms.hash(),
+        this.timeout
+      ]
+    );
 
     return keccak256(
       abi.encodePacked(

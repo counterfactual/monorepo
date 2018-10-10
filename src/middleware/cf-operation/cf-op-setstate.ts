@@ -55,23 +55,16 @@ export class CfOpSetState extends CfOperation {
       this.timeout,
       this.appUniqueId
     ).cfAddress();
-    const to = this.ctx.Registry;
+    const to = this.ctx.Registry.address;
     const val = 0;
     const data = common.proxyCallSetStateData(
+      this.ctx,
       this.appStateHash,
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      Signature.toSortedBytes(sigs, this.hashToSign()),
-      this.ctx.Registry
+      Signature.toSortedBytes(sigs, this.hashToSign())
     );
     return new Transaction(to, val, data);
-  }
-
-  // not slated for this sprint, since we are only focusing on unanimous consent
-  // and not unilateral moves
-  public disputeWithUnilateralAction(sig: Signature): Transaction {
-    // todo
-    return Object.create(Transaction);
   }
 }

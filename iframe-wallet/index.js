@@ -34,10 +34,15 @@ async function getSourceCode(id) {
 }
 
 async function injectScript(event) {
-  const injectedScript = `${await getSourceCode("ci")};`;
+  const injectedClientInterfaceScript = `${await getSourceCode("ci")};`;
+  const injectedWalletScript = `${await getSourceCode("wa")};`;
 
   event.source.postMessage(
-    { type: "cf:init-reply", source: injectedScript },
+    { type: "cf:init-reply", source: injectedClientInterfaceScript },
+    "*"
+  );
+  event.source.postMessage(
+    { type: "cf:init-reply", source: injectedWalletScript },
     "*"
   );
 }
@@ -129,7 +134,7 @@ async function submitLatestStateForEthmo() {
   const apps = getApps();
   const ethmoAppId = Object.keys(apps)[0];
 
-  const setStateTransaction = wallet.currentUser.store.getTransaction(
+  const setStateTransaction = await wallet.currentUser.store.getTransaction(
     ethmoAppId,
     "update" // ActionName.UPDATE
   );
@@ -189,7 +194,7 @@ async function withdraw() {
   const apps = getApps();
   const ethmoAppId = Object.keys(apps)[0];
 
-  const installTransaction = wallet.currentUser.store.getTransaction(
+  const installTransaction = await wallet.currentUser.store.getTransaction(
     ethmoAppId,
     "install" // ActionName.INSTALL
   );
