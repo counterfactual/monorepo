@@ -1,0 +1,32 @@
+{
+  "extends": "./node_modules/@counterfactual/configs/tsconfigs/base-tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noLib": false,
+    "removeComments": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["es2015", "es2017", "dom", "esnext.asynciterable"],
+    "target": "es2017",
+    "module": "es6",
+    "sourceMap": true,
+    "outDir": "dist/",
+    "sourceRoot": ".",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@counterfactual/typescript-typings/types",
+      "./node_modules/ethers/index.d.ts",
+      "./node_modules/json-d-ts"
+    ],
+    "strict": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "wallet",
+  "version": "0.0.1",
+  "description": "A wrapper around the Counterfactual Machine to facilitate State Channel usage for users.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/counterfactual/wallet",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "docker:build": "docker-compose build",
+    "docker:run": "docker-compose up -d wallet && yarn test:buildContracts",
+    "shell": "docker-compose run wallet sh",
+    "test:buildContracts": "docker-compose exec wallet /bin/sh -c \"cd contracts && yarn && yarn build\"",
+    "test:deployContracts": "docker-compose exec wallet sh /wallet/bin/deploy_contracts",
+    "test": "docker-compose exec wallet sh /wallet/bin/test",
+    "test:jest": "./node_modules/.bin/jest --runInBand --detectOpenHandles --bail",
+    "test-debug:jest": "node --inspect-brk node_modules/.bin/jest --runInBand"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.3",
+    "jest": "^23.6.0",
+    "rollup": "^0.66.4",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-typescript2": "^0.17.1",
+    "ts-jest": "^23.1.4",
+    "typescript": "^3.1.1"
+  },
+  "dependencies": {
+    "ethers": "^4.0.4",
+    "@counterfactual/cf.js": "git+https://5e05773a1e89743bbbe9dfcf9c3d040cbbce8517:x-oauth-basic@github.com/counterfactual/cf.js.git",
+    "@counterfactual/configs": "https://github.com/counterfactual/configs",
+    "@counterfactual/machine": "git+https://5e05773a1e89743bbbe9dfcf9c3d040cbbce8517:x-oauth-basic@github.com/counterfactual/machine.git#fffc536a0f8c4985238097eda14f178dd2b34f94"
+  },
+  "config": {
+    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
+    "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e",
+    "unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f",
+    "etherBalance": "1000000000000000000000000"
+  },
+  "jest": {
+    "verbose": false,
+    "bail": true,
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "src",
+      "node_modules",
+      "dist"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
+  }
+}

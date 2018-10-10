@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+inputArgs=$@
+yarn run test:jest ${inputArgs:-test/*.spec.ts}

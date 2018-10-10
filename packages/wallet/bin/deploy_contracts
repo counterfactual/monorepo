@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+cd /wallet/contracts
+rm -rf ./networks
+./node_modules/.bin/truffle-migrate-off-chain --network docker
+cd /wallet
