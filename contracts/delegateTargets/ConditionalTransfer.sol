@@ -27,23 +27,29 @@ contract ConditionalTransfer is Conditional {
   }
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
-  /// @param key The key in the nonce registry
+  /// @param uninstallKey The key of the uninstallation lock dependency nonce in the nonce registry
   /// @param expectedNonce The expected nonce in the nonce registry
   /// @param appCfAddress Counterfactual address of the app contract
   /// @param terms The pre-agreed upon terms of the funds transfer
   function executeAppConditionalTransfer(
     address registry,
     address nonceRegistry,
-    bytes32 key,
-    uint256 expectedNonce,
+    bytes32 uninstallKey,
+    bytes32 rootNonceKey,
+    uint256 rootNonceExpectedValue,
     bytes32 appCfAddress,
     Transfer.Terms terms
   )
     public
   {
     require(
-      NonceRegistry(nonceRegistry).isFinalized(key, expectedNonce),
-      "State Channel nonce is either not finalized or finalized at an incorrect nonce"
+      !NonceRegistry(nonceRegistry).isFinalized(uninstallKey, 1),
+      "App has been uninstalled"
+    );
+
+    require(
+      NonceRegistry(nonceRegistry).isFinalized(rootNonceKey, rootNonceExpectedValue),
+      "Root nonce not finalized or finalized at an incorrect value"
     );
 
     address appAddr = Registry(registry).resolver(appCfAddress);
