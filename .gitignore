@@ -26,8 +26,6 @@ ganache.log
 .npm
 tmp
 jest-cache
-deployedContracts
-contracts
 .rpt2_cache
 dist
 lerna-debug.log
