@@ -8,13 +8,15 @@ export const ZERO_BYTES32 =
 
 export const deployContract = async (
   contract: any,
-  providerOrSigner: ethers.Wallet | ethers.providers.Provider,
+  wallet: ethers.Wallet,
   args?: any[]
 ): Promise<ethers.Contract> => {
-  return new ethers.Contract("", contract.abi, providerOrSigner).deploy(
+  const contractFactory = new ethers.ContractFactory(
+    contract.abi,
     contract.binary,
-    ...(args || [])
+    wallet
   );
+  return contractFactory.deploy(...(args || []));
 };
 
 export const getDeployedContract = async (
