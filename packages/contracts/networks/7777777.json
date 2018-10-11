@@ -1,0 +1,49 @@
+{
+  "migrationVersion": 2,
+  "contracts": [
+    {
+      "contractName": "Migrations",
+      "address": "0x0d8b0dd11f5d34ed41d556def5f841900d5b1c6b"
+    },
+    {
+      "contractName": "Transfer",
+      "address": "0x38ef19fdf8e8415f18c307ed71967e19aac28ba1"
+    },
+    {
+      "contractName": "StaticCall",
+      "address": "0xc4df27466183c0fe2a5924d6ea56e334deff146a"
+    },
+    {
+      "contractName": "ConditionalTransfer",
+      "address": "0xf23276778860e420acfc18ebeebf7e829b06965c"
+    },
+    {
+      "contractName": "MultiSend",
+      "address": "0x8a063452f7df2614db1bca3a85ef35da40cf0835"
+    },
+    {
+      "contractName": "NonceRegistry",
+      "address": "0x59adefa01843c627ba5d6aa350292b4b7ccae67a"
+    },
+    {
+      "contractName": "PaymentApp",
+      "address": "0xf96b018e8de3a229dbaced8439df9e3034e263c1"
+    },
+    {
+      "contractName": "ETHBalanceRefundApp",
+      "address": "0xd8ca39d276c05a370174ce872b7278fcf734afac"
+    },
+    {
+      "contractName": "ProxyFactory",
+      "address": "0x609acc8b356894a937fc58f3411f9528de96ecb1"
+    },
+    {
+      "contractName": "Registry",
+      "address": "0xca9717a4a6e8009b3518648c9f3e7676255471a1"
+    },
+    {
+      "contractName": "Signatures",
+      "address": "0x4586649629f699f9a4b61d0e962dc3c9025fe488"
+    }
+  ]
+}
