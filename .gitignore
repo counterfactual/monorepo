@@ -30,6 +30,7 @@ deployedContracts
 contracts
 .rpt2_cache
 dist
+lerna-debug.log
 
 # editors
 .vscode

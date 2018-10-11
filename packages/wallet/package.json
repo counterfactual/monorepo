@@ -1,5 +1,5 @@
 {
-  "name": "wallet",
+  "name": "@counterfactual/wallet",
   "version": "0.0.1",
   "description": "A wrapper around the Counterfactual Machine to facilitate State Channel usage for users.",
   "main": "dist/index.js",
@@ -28,13 +28,13 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.17.1",
     "ts-jest": "^23.1.4",
-    "typescript": "^3.1.1"
+    "typescript": "^3.1.2"
   },
   "dependencies": {
     "ethers": "^4.0.4",
-    "@counterfactual/cf.js": "git+https://5e05773a1e89743bbbe9dfcf9c3d040cbbce8517:x-oauth-basic@github.com/counterfactual/cf.js.git",
-    "@counterfactual/configs": "https://github.com/counterfactual/configs",
-    "@counterfactual/machine": "git+https://5e05773a1e89743bbbe9dfcf9c3d040cbbce8517:x-oauth-basic@github.com/counterfactual/machine.git#fffc536a0f8c4985238097eda14f178dd2b34f94"
+    "@counterfactual/cf.js": "0.0.1",
+    "@counterfactual/configs": "0.0.1",
+    "@counterfactual/machine": "0.0.1"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
