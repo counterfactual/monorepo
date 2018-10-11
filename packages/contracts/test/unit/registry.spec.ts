@@ -25,7 +25,7 @@ contract("Registry", accounts => {
     }`;
 
   // @ts-ignore
-  before(async () => {
+  beforeEach(async () => {
     ProxyContract = await AbstractContract.loadBuildArtifact("Proxy");
     const Registry = await AbstractContract.loadBuildArtifact("Registry");
 
@@ -38,7 +38,7 @@ contract("Registry", accounts => {
     );
   });
 
-  it.skip("deploys a contract", done => {
+  it("deploys a contract", done => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const bytecode = "0x" + output.contracts[":Test"].bytecode;
@@ -61,7 +61,7 @@ contract("Registry", accounts => {
     registryContract.deploy(bytecode, 2);
   });
 
-  it.skip("deploys a contract using msg.sender", done => {
+  it("deploys a contract using msg.sender", done => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const bytecode = "0x" + output.contracts[":Test"].bytecode;
@@ -85,7 +85,7 @@ contract("Registry", accounts => {
     registryContract.deploy(bytecode, 3);
   });
 
-  it.skip("deploys a ProxyContract contract through as owner", done => {
+  it("deploys a ProxyContract contract through as owner", done => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const initcode =
@@ -114,7 +114,7 @@ contract("Registry", accounts => {
     registryContract.deploy(initcode, 3);
   });
 
-  it.skip("deploys a contract and passes arguments", async () => {
+  it("deploys a contract and passes arguments", done => {
     const source = `
         contract Test {
             address whatToSay;
@@ -125,28 +125,31 @@ contract("Registry", accounts => {
                 return whatToSay;
             }
         }`;
-    const output = await (solc as any).compile(source, 0);
+    const output = (solc as any).compile(source, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const bytecode = "0x" + output.contracts[":Test"].bytecode;
 
-    const code =
+    const initcode =
       bytecode +
       ethers.utils.defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
 
-    const TestContract = web3.eth.contract(iface);
-    const tx = await registry.deploy(code, 4);
-    const testContract = Utils.getParamFromTxEvent(
-      tx,
-      "ContractCreated",
-      "deployedAddress",
-      registry.address,
-      TestContract
-    );
+    const filter = registry.filters.ContractCreated(null, null);
+    const callback = async (from, to, value, event) => {
+      const deployedAddress = value.args.deployedAddress;
+      expect(deployedAddress).to.eql(
+        await registry.resolver(cfaddress(initcode, 4))
+      );
 
-    await testContract.address.should.eql(
-      await registry.resolver(cfaddress(code, 4))
-    );
+      const contract = new ethers.Contract(
+        deployedAddress,
+        iface,
+        unlockedAccount
+      );
+      expect(await contract.sayHello()).to.equalIgnoreCase(accounts[0]);
+      done();
+    };
 
-    await testContract.sayHello().should.eql(accounts[0]);
+    const registryContract = registry.on(filter, callback);
+    registryContract.deploy(initcode, 4);
   });
 });

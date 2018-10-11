@@ -3039,7 +3039,7 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^4.0.4:
+ethers@^4.0.1, ethers@^4.0.4:
   version "4.0.4"
   resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.4.tgz#d3f85e8b27f4b59537e06526439b0fb15b44dc65"
   integrity sha512-nTdddHA2ndBzx0VGKzzKcsaj/66GxGFT6aO2x/xREYUjXMHTME7UTV9LTmMj/Bga+xaM23v2PM+DFWd9fg5P9Q==
