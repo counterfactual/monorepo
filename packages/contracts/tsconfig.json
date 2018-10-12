@@ -8,6 +8,5 @@
       "../../node_modules/@counterfactual/typescript-typings/types"
     ]
   },
-  "include": ["utils", "test"],
-  "exclude": ["../../node_modules"]
+  "include": ["utils", "test"]
 }
