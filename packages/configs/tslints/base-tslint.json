@@ -1,0 +1,21 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:latest",
+    "tslint-plugin-prettier",
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "prettier": true,
+    "no-implicit-dependencies": [true, "dev"],
+    "interface-name": false,
+    "prefer-const": true,
+    "ban-types": false,
+    "no-empty": false,
+    "indent": [true, "spaces", 2],
+    "prefer-conditional-expression": false,
+    "object-literal-sort-keys": false,
+    "max-classes-per-file": false,
+    "no-console": false
+  }
+}

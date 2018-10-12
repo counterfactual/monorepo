@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import PaymentApp from "../contracts/build/contracts/PaymentApp.json";
+import PaymentApp from "../../contracts/build/contracts/PaymentApp.json";
 
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
@@ -13,13 +13,14 @@ import {
   MULTISIG_PRIVATE_KEY
 } from "./environment";
 import { IframeWallet } from "../src/iframe/wallet";
+import { ganacheURL } from "../src/iframe/user";
 
 const BALANCE_REFUND_STATE_ENCODING =
   "tuple(address recipient, address multisig, uint256 threshold)";
 const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentApp.abi);
-const INSTALL_OPTIONS: InstallOptions = {
+const INSTALL_OPTIONS: machine.types.InstallOptions = {
   appAddress: ethers.constants.AddressZero,
   peerABalance: ethers.utils.bigNumberify(0),
   peerBBalance: ethers.utils.bigNumberify(0),
@@ -33,18 +34,16 @@ const INSTALL_OPTIONS: InstallOptions = {
   }
 };
 
-const blockchainProvider = new ethers.providers.JsonRpcProvider(
-  process.env.GANACHE_URL
-);
+const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
-class ClientInterfaceBridge implements WalletMessaging {
+class ClientInterfaceBridge implements machine.types.WalletMessaging {
   public client: IframeWallet;
 
   constructor(client: IframeWallet) {
     this.client = client;
   }
 
-  public postMessage(message: ClientActionMessage, to: string) {
+  public postMessage(message: machine.types.ClientActionMessage, to: string) {
     // TODO move this into a setTimeout to enfore asyncness of the call
     this.client.receiveMessageFromClient(message);
   }
@@ -110,6 +109,7 @@ describe("Lifecycle", async () => {
       multisigContractAddress
     );
     clientInterfaceB.addObserver("installCompleted", data => {
+      console.log("got here", data);
       expect(true).toBeTruthy();
     });
     await stateChannelA.install("paymentApp", INSTALL_OPTIONS);

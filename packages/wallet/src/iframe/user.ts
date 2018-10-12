@@ -5,12 +5,14 @@ import { CommitmentStore } from "../commitmentStore";
 import { IframeIoProvider } from "./ioProvider";
 import { IframeWallet } from "./wallet";
 
-let ganacheURL;
+export let ganacheURL;
 
 try {
   ganacheURL = process.env.GANACHE_URL || "http://localhost:9545";
+  console.info(`Using the specified blockchain URL: ${ganacheURL}`);
 } catch (e) {
   ganacheURL = "http://localhost:9545";
+  console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
 export class User
@@ -78,14 +80,17 @@ export class User
     this.address = this.signingKey.address;
     const { web3 } = window as any;
     if (web3) {
+      console.info("using web3");
       this.ethersWallet = new ethers.providers.Web3Provider(
         web3.currentProvider
       ).getSigner();
     } else {
+      console.info("using json rpc provider");
       this.ethersWallet = new ethers.Wallet(
         privateKey,
         new ethers.providers.JsonRpcProvider(ganacheURL)
       );
+      console.log(this.ethersWallet);
     }
   }
   public registerObserver(

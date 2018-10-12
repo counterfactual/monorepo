@@ -1,6 +1,7 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+// consume build artifacts from build artifacts repo
 import Registry from "../../../contracts/build/contracts/Registry.json";
 import PaymentApp from "../../../contracts/build/contracts/PaymentApp.json";
 import ConditionalTransfer from "../../../contracts/build/contracts/ConditionalTransfer.json";
@@ -24,7 +25,7 @@ export class IframeWallet implements machine.types.ResponseSink {
   ): Promise<ethers.Contract> {
     const contractArtifacts = IframeWallet.getContractArtifacts();
 
-    const networkContext: machine.types.NetworkContext = machine.types.NetworkContext.fromDeployment(
+    const networkContext = machine.types.NetworkContext.fromDeployment(
       networkFile,
       contractArtifacts
     );
@@ -39,6 +40,18 @@ export class IframeWallet implements machine.types.ResponseSink {
     );
     await contract.functions.setup(owners);
     return contract;
+  }
+
+  /**
+   * It's the wallet's responsibility to construct a machine.types.NetworkContext
+   * and pass that to the VM.
+   */
+  public static defaultNetwork(): machine.types.NetworkContext {
+    const contractArtifacts = IframeWallet.getContractArtifacts();
+    return machine.types.NetworkContext.fromDeployment(
+      networkFile,
+      contractArtifacts
+    );
   }
 
   public static getContractArtifacts() {
@@ -109,7 +122,9 @@ export class IframeWallet implements machine.types.ResponseSink {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
     this.networkContext =
-      networkContext !== undefined ? networkContext : this.defaultNetwork();
+      networkContext !== undefined
+        ? networkContext
+        : IframeWallet.defaultNetwork();
   }
 
   public async initUser(address: string) {
@@ -324,17 +339,5 @@ export class IframeWallet implements machine.types.ResponseSink {
       }
       this.sendResponseToClient(incoming);
     }
-  }
-
-  /**
-   * It's the wallet's responsibility to construct a machine.types.NetworkContext
-   * and pass that to the VM.
-   */
-  private defaultNetwork(): machine.types.NetworkContext {
-    const contractArtifacts = IframeWallet.getContractArtifacts();
-    return machine.types.NetworkContext.fromDeployment(
-      networkFile,
-      contractArtifacts
-    );
   }
 }
