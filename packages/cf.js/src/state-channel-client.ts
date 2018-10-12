@@ -1,6 +1,6 @@
+import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
-import * as machine from "@counterfactual/machine";
 
 import { AppChannelClient } from "./app-channel-client";
 import { ClientInterface } from "./client-interface";
@@ -42,8 +42,8 @@ export class StateChannelClient {
         multisig: this.multisigAddress,
         threshold
       },
-      abiEncoding: abiEncoding,
-      stateEncoding: stateEncoding
+      abiEncoding,
+      stateEncoding
     };
 
     const balanceRefund = await this.install("ETHBalanceRefundApp", options);

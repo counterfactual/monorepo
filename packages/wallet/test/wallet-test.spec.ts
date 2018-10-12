@@ -1,8 +1,10 @@
 import * as ethers from "ethers";
-import PaymentApp from "../../contracts/build/contracts/PaymentApp.json";
+import { PaymentApp } from "../src/iframe/contracts";
 
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
+import { ganacheURL } from "../src/iframe/user";
+import { IframeWallet } from "../src/iframe/wallet";
 import { sleep } from "./common";
 import {
   A_ADDRESS,
@@ -12,8 +14,6 @@ import {
   MULTISIG_ADDRESS,
   MULTISIG_PRIVATE_KEY
 } from "./environment";
-import { IframeWallet } from "../src/iframe/wallet";
-import { ganacheURL } from "../src/iframe/user";
 
 const BALANCE_REFUND_STATE_ENCODING =
   "tuple(address recipient, address multisig, uint256 threshold)";

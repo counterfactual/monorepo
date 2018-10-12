@@ -16,8 +16,8 @@
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "prettier": "prettier -l '{src,test,cf.js}/{**/*,*}'",
-    "prettier:fix": "prettier --write '{src,test,cf.js}/{**/*,*}'"
+    "prettier": "prettier -l '{src,test}/{**/*,*}'",
+    "prettier:fix": "prettier --write '{src,test}/{**/*,*}'"
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.1",

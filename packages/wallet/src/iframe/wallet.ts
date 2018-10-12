@@ -1,21 +1,9 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-// consume build artifacts from build artifacts repo
-import Registry from "../../../contracts/build/contracts/Registry.json";
-import PaymentApp from "../../../contracts/build/contracts/PaymentApp.json";
-import ConditionalTransfer from "../../../contracts/build/contracts/ConditionalTransfer.json";
-import MultiSend from "../../../contracts/build/contracts/MultiSend.json";
-import NonceRegistry from "../../../contracts/build/contracts/NonceRegistry.json";
-import Signatures from "../../../contracts/build/contracts/Signatures.json";
-import StaticCall from "../../../contracts/build/contracts/StaticCall.json";
-import ETHBalanceRefundApp from "../../../contracts/build/contracts/ETHBalanceRefundApp.json";
-import MinimumViableMultisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
-import AppInstance from "../../../contracts/build/contracts/AppInstance.json";
-import networkFile from "../../../contracts/networks/7777777.json";
-
-import * as machine from "@counterfactual/machine";
 import * as cf from "@counterfactual/cf.js";
+import * as machine from "@counterfactual/machine";
+import * as contracts from "./contracts";
 import { User } from "./user";
 
 export class IframeWallet implements machine.types.ResponseSink {
@@ -26,7 +14,7 @@ export class IframeWallet implements machine.types.ResponseSink {
     const contractArtifacts = IframeWallet.getContractArtifacts();
 
     const networkContext = machine.types.NetworkContext.fromDeployment(
-      networkFile,
+      contracts.networkFile,
       contractArtifacts
     );
 
@@ -49,7 +37,7 @@ export class IframeWallet implements machine.types.ResponseSink {
   public static defaultNetwork(): machine.types.NetworkContext {
     const contractArtifacts = IframeWallet.getContractArtifacts();
     return machine.types.NetworkContext.fromDeployment(
-      networkFile,
+      contracts.networkFile,
       contractArtifacts
     );
   }
@@ -57,43 +45,43 @@ export class IframeWallet implements machine.types.ResponseSink {
   public static getContractArtifacts() {
     const artifacts = new Map();
     artifacts[machine.types.NetworkContext.CONTRACTS.Registry] = [
-      JSON.stringify(Registry.abi),
-      Registry.bytecode
+      JSON.stringify(contracts.Registry.abi),
+      contracts.Registry.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.PaymentApp] = [
-      JSON.stringify(PaymentApp.abi),
-      PaymentApp.bytecode
+      JSON.stringify(contracts.PaymentApp.abi),
+      contracts.PaymentApp.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.ConditionalTransfer] = [
-      JSON.stringify(ConditionalTransfer.abi),
-      ConditionalTransfer.bytecode
+      JSON.stringify(contracts.ConditionalTransfer.abi),
+      contracts.ConditionalTransfer.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.MultiSend] = [
-      JSON.stringify(MultiSend.abi),
-      MultiSend.bytecode
+      JSON.stringify(contracts.MultiSend.abi),
+      contracts.MultiSend.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.NonceRegistry] = [
-      JSON.stringify(NonceRegistry.abi),
-      NonceRegistry.bytecode
+      JSON.stringify(contracts.NonceRegistry.abi),
+      contracts.NonceRegistry.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.Signatures] = [
-      JSON.stringify(Signatures.abi),
-      Signatures.bytecode
+      JSON.stringify(contracts.Signatures.abi),
+      contracts.Signatures.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.StaticCall] = [
-      JSON.stringify(StaticCall.abi),
-      StaticCall.bytecode
+      JSON.stringify(contracts.StaticCall.abi),
+      contracts.StaticCall.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.ETHBalanceRefundApp] = [
-      JSON.stringify(ETHBalanceRefundApp.abi),
-      ETHBalanceRefundApp.bytecode
+      JSON.stringify(contracts.ETHBalanceRefundApp.abi),
+      contracts.ETHBalanceRefundApp.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.Multisig] = [
-      JSON.stringify(MinimumViableMultisig.abi),
-      MinimumViableMultisig.bytecode
+      JSON.stringify(contracts.MinimumViableMultisig.abi),
+      contracts.MinimumViableMultisig.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.AppInstance] = [
-      JSON.stringify(AppInstance.abi),
+      JSON.stringify(contracts.AppInstance.abi),
       AppInstance.bytecode
     ];
     return artifacts;

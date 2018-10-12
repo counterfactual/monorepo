@@ -15,8 +15,8 @@
     "clean": "shx rm -rf lib node_modules",
     "lint:all:fix": "yarn lint:fix",
     "lint:all": "yarn lint",
-    "lint:fix": "tsc --noEmit --project tsconfig.json && tslint -c tslint.json src/**/*.ts --fix",
-    "lint": "tsc --noEmit --project tsconfig.json && tslint -c tslint.json src/**/*.ts",
+    "lint:fix": "tslint -c tslint.json src/**/*.ts --fix",
+    "lint": "tslint -c tslint.json src/**/*.ts",
     "precommit": "yarn build && lint-staged"
   },
   "include": [
