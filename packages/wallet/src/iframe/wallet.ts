@@ -1,17 +1,17 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import Registry from "../../contracts/build/contracts/Registry.json";
-import PaymentApp from "../../contracts/build/contracts/PaymentApp.json";
-import ConditionalTransfer from "../../contracts/build/contracts/ConditionalTransfer.json";
-import MultiSend from "../../contracts/build/contracts/MultiSend.json";
-import NonceRegistry from "../../contracts/build/contracts/NonceRegistry.json";
-import Signatures from "../../contracts/build/contracts/Signatures.json";
-import StaticCall from "../../contracts/build/contracts/StaticCall.json";
-import ETHBalanceRefundApp from "../../contracts/build/contracts/ETHBalanceRefundApp.json";
-import MinimumViableMultisig from "../../contracts/build/contracts/MinimumViableMultisig.json";
-import AppInstance from "../../contracts/build/contracts/AppInstance.json";
-import networkFile from "../../contracts/networks/7777777.json";
+import Registry from "../../../contracts/build/contracts/Registry.json";
+import PaymentApp from "../../../contracts/build/contracts/PaymentApp.json";
+import ConditionalTransfer from "../../../contracts/build/contracts/ConditionalTransfer.json";
+import MultiSend from "../../../contracts/build/contracts/MultiSend.json";
+import NonceRegistry from "../../../contracts/build/contracts/NonceRegistry.json";
+import Signatures from "../../../contracts/build/contracts/Signatures.json";
+import StaticCall from "../../../contracts/build/contracts/StaticCall.json";
+import ETHBalanceRefundApp from "../../../contracts/build/contracts/ETHBalanceRefundApp.json";
+import MinimumViableMultisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
+import AppInstance from "../../../contracts/build/contracts/AppInstance.json";
+import networkFile from "../../../contracts/networks/7777777.json";
 
 import * as machine from "@counterfactual/machine";
 import * as cf from "@counterfactual/cf.js";

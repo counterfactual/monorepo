@@ -1,7 +1,7 @@
 import * as machine from "@counterfactual/machine";
 
 import { User } from "./user";
-import { IframeWallet } from "./client";
+import { IframeWallet } from "./wallet";
 
 export class IframeIoProvider {
   public messages: machine.types.ClientActionMessage[];

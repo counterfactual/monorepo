@@ -29,6 +29,8 @@ jest-cache
 .rpt2_cache
 dist
 lerna-debug.log
+package-lock.json
+packages/**/package-lock.json
 
 # editors
 .vscode

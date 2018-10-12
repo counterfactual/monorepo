@@ -8,10 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "ganache": "docker-compose up -d docker_devnet",
-    "ganache:ci": "ganache-cli --networkId 7777777 --gasLimit 0xfffffffffff --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\"",
+    "ganache": "ganache-cli --networkId 7777777 --gasLimit 0xfffffffffff --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\"",
     "wsrun": "wsrun",
-    "build": "docker-compose build && wsrun build $PKG --fast-exit -r --stages --exclude-missing"
+    "build": "wsrun build $PKG --fast-exit -r --stages --exclude-missing",
+    "test": "wsrun test $PKG --fast-exit -r --stages --exclude-missing"
   },
   "config": {
     "ganachePort": 9545,

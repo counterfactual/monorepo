@@ -3,7 +3,7 @@ import * as machine from "@counterfactual/machine";
 
 import { CommitmentStore } from "../commitmentStore";
 import { IframeIoProvider } from "./ioProvider";
-import { IframeWallet } from "./client";
+import { IframeWallet } from "./wallet";
 
 let ganacheURL;
 

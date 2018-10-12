@@ -18,7 +18,7 @@ export default {
   external: ["@counterfactual/machine", "ethers"],
   plugins: [
     json({
-      include: ["contracts/build/contracts/*", "contracts/networks/*"],
+      include: ["../contracts/build/contracts/*", "../contracts/networks/*"],
       preferConst: true
     }),
     typescript({

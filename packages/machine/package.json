@@ -9,13 +9,10 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf jest-cache build dist && cd contracts && yarn clean",
+    "clean": "rm -rf jest-cache build dist && yarn clean",
     "build": "tsc",
     "prepare": "rollup -c",
-    "docker:run": "docker-compose up -d machine && yarn test:buildContracts",
-    "docker:build": "docker-compose build",
-    "shell": "docker-compose run machine sh",
-    "test": "docker-compose exec machine sh /machine/bin/test",
+    "test": "jest --runInBand --detectOpenHandles --bail",
     "test:buildContracts": "docker-compose exec machine /bin/sh -c \"cd contracts && yarn && yarn build\"",
     "test:deployContracts": "docker-compose exec machine sh /machine/bin/deploy_contracts",
     "test:jest": "./node_modules/.bin/jest --runInBand --detectOpenHandles --bail",
@@ -88,11 +85,6 @@
       "js",
       "json"
     ],
-    "testURL": "http://localhost/",
-    "globals": {
-      "ts-jest": {
-        "skipBabel": true
-      }
-    }
+    "testURL": "http://localhost/"
   }
 }

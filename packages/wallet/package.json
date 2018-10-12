@@ -17,7 +17,6 @@
     "shell": "docker-compose run wallet sh",
     "test:buildContracts": "docker-compose exec wallet /bin/sh -c \"cd contracts && yarn && yarn build\"",
     "test:deployContracts": "docker-compose exec wallet sh /wallet/bin/deploy_contracts",
-    "test": "docker-compose exec wallet sh /wallet/bin/test",
     "test:jest": "./node_modules/.bin/jest --runInBand --detectOpenHandles --bail",
     "test-debug:jest": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
