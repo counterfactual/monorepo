@@ -34,8 +34,9 @@
     "state channels",
     "off chain"
   ],
-  "devDependencies": {
+  "dependencies": {
     "ganache-cli": "^6.1.8",
+    "lerna": "^3.4.3",
     "typescript": "^3.1.2",
     "wsrun": "^2.2.1"
   }

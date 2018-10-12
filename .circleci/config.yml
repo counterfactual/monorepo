@@ -8,6 +8,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
       - run: yarn
+      - run: ./node_modules/.bin/lerna bootstrap
       - save_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
@@ -20,12 +21,7 @@ jobs:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
-      - ? run
-        command: yarn ganache
-        name: "Spin up ganache"
-        background: true
-      - run: yarn build
-      - run: yarn test
+      - run: yarn ganache &> /dev/null && yarn build && yarn test
 
   run-tslint:
     docker:
