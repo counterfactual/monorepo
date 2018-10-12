@@ -1,6 +1,6 @@
-import * as wallet from "@counterfactual/wallet";
-import { ethers } from "ethers";
 import * as machine from "@counterfactual/machine";
+import { ethers } from "ethers";
+import { IframeWallet } from "../src/iframe/wallet";
 import { SetupProtocol } from "./common";
 import {
   A_ADDRESS,
@@ -10,13 +10,13 @@ import {
   MULTISIG_ADDRESS
 } from "./environment";
 
-let walletA: wallet.IframeWallet;
-let walletB: wallet.IframeWallet;
+let walletA: IframeWallet;
+let walletB: IframeWallet;
 let network: machine.types.NetworkContext;
 
 beforeAll(() => {
-  walletA = new wallet.IframeWallet();
-  walletB = new wallet.IframeWallet();
+  walletA = new IframeWallet();
+  walletB = new IframeWallet();
   network = walletA.network;
   walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
   walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
@@ -79,10 +79,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
   // TODO: add more tests confirming if the transaction's data are correct
 });
 
-async function setup(
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet
-) {
+async function setup(walletA: IframeWallet, walletB: IframeWallet) {
   const msg = SetupProtocol.setupStartMsg(walletA.address!, walletB.address!);
   const response = await walletA.runProtocol(msg);
   expect(response.status).toEqual(machine.vm.ResponseStatus.COMPLETED);

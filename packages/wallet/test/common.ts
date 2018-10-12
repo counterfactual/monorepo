@@ -1,8 +1,8 @@
 import * as ethers from "ethers";
 
 import * as machine from "@counterfactual/machine";
-import { MULTISIG_ADDRESS } from "./environment";
 import { IframeWallet } from "../src/iframe/wallet";
+import { MULTISIG_ADDRESS } from "./environment";
 
 export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

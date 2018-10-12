@@ -24,18 +24,16 @@ contract MinimumViableMultisig {
     DelegateCall
   }
 
+  function ()
+    external
+    payable
+  {}
+
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
   function setup(address[] owners) public {
     require(_owners.length == 0); // Contract hasn't been set up before
     _owners = owners;
-  }
-
-  function ()
-    external
-    payable
-  {
-
   }
 
   /// @notice Execute an n-of-n signed transaction specified by a (to, value, data, op) tuple

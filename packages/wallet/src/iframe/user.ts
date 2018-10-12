@@ -1,5 +1,5 @@
-import * as ethers from "ethers";
 import * as machine from "@counterfactual/machine";
+import * as ethers from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
 import { IframeIoProvider } from "./ioProvider";
@@ -80,17 +80,14 @@ export class User
     this.address = this.signingKey.address;
     const { web3 } = window as any;
     if (web3) {
-      console.info("using web3");
       this.ethersWallet = new ethers.providers.Web3Provider(
         web3.currentProvider
       ).getSigner();
     } else {
-      console.info("using json rpc provider");
       this.ethersWallet = new ethers.Wallet(
         privateKey,
         new ethers.providers.JsonRpcProvider(ganacheURL)
       );
-      console.log(this.ethersWallet);
     }
   }
   public registerObserver(

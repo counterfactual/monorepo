@@ -8,14 +8,18 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "yarn compile && yarn bundle",
+    "bundle": "yarn wsrun prepare $PKG --fast-exit -r --stages --exclude-missing",
+    "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing",
+    "compile": "yarn wsrun build $PKG --fast-exit -r --stages --exclude-missing",
     "ganache": "ganache-cli --networkId 7777777 --verbose --gasLimit 0xfffffffffff --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
-    "wsrun": "wsrun",
-    "build": "yarn compile && yarn bundle",
-    "compile": "yarn wsrun build $PKG --fast-exit -r --stages --exclude-missing",
-    "bundle": "yarn wsrun prepare $PKG --fast-exit -r --stages --exclude-missing",
+    "lint": "yarn wsrun lint $PKG --fast-exit -r --stages --exclude-missing",
+    "lint:fix": "yarn wsrun lint:fix $PKG --fast-exit -r --stages --exclude-missing",
+    "prettier": "yarn wsrun prettier $PKG --fast-exit -r --stages --exclude-missing",
+    "prettier:fix": "yarn wsrun prettier:fix $PKG --fast-exit -r --stages --exclude-missing",
     "test": "yarn wsrun test $PKG --fast-exit -r --stages --exclude-missing",
-    "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing"
+    "wsrun": "wsrun"
   },
   "config": {
     "ganachePort": 9545,
