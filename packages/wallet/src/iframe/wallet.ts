@@ -82,7 +82,7 @@ export class IframeWallet implements machine.types.ResponseSink {
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.AppInstance] = [
       JSON.stringify(contracts.AppInstance.abi),
-      AppInstance.bytecode
+      contracts.AppInstance.bytecode
     ];
     return artifacts;
   }
