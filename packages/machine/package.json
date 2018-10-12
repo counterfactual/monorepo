@@ -11,7 +11,7 @@
   "scripts": {
     "clean": "rm -rf jest-cache build dist && yarn clean",
     "build": "tsc",
-    "prepare": "rollup -c",
+    "rollup": "rollup -c",
     "test": "jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint": "tslint -c tslint.json -p tsconfig.json",

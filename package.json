@@ -8,8 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn compile && yarn bundle",
-    "bundle": "yarn wsrun prepare $PKG --fast-exit -r --stages --exclude-missing",
+    "build": "yarn compile && yarn rollup",
+    "rollup": "yarn wsrun rollup $PKG --fast-exit -r --stages --exclude-missing",
     "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing",
     "compile": "yarn wsrun build $PKG --fast-exit -r --stages --exclude-missing",
     "ganache": "ganache-cli --networkId 7777777 --verbose --gasLimit 0xfffffffffff --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &",
