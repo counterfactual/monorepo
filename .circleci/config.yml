@@ -8,8 +8,6 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
       - run: yarn
-      - run: ./node_modules/.bin/lerna bootstrap --hoist
-      - run: yarn
       - save_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
