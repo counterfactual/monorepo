@@ -66,7 +66,6 @@
     "decimal.js": "10.0.1",
     "eth-gas-reporter": "0.1.9",
     "ganache-cli": "^6.1.8",
-    "husky": "0.14.3",
     "lint-staged": "7.1.2",
     "shx": "^0.3.2",
     "solidity-coverage": "0.5.4",
