@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prepare": "rollup -c",
+    "rollup": "rollup -c",
     "clean": "shx rm -rf lib node_modules",
     "lint:all:fix": "yarn lint:fix",
     "lint:all": "yarn lint",

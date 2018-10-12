@@ -13,7 +13,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "prepare": "rollup -c",
+    "rollup": "rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "prettier": "prettier -l '{src,test}/{**/*,*}'",

@@ -14,7 +14,7 @@
     "build": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "prepare": "rollup -c",
+    "rollup": "rollup -c",
     "prettier": "prettier -l '{src,test}/{**/*,*}'",
     "prettier:fix": "prettier --write '{src,test}/{**/*,*}'",
     "test": "jest --runInBand --detectOpenHandles --bail",

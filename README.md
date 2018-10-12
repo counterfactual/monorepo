@@ -53,6 +53,14 @@ Otherwise, `cd` into the package directory and run the script directly there.
 
 ---
 
+`yarn build` creates distributions for each package. If you want to create a distribution for a specific package, run:
+
+```shell
+PKG=<package-name> yarn rollup
+```
+
+---
+
 To test the packages, run:
 
 ```shell
