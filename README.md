@@ -18,21 +18,18 @@ To install the dependencies, run:
 
 ```shell
 yarn
+lerna bootstrap
 ```
 
-The build environment expects a ganache instance to be running in the background so in a separate terminal run:
-
-```shell
-yarn ganache
-```
-
-To build all the packages, run:
+To build all the packages, make sure port 9545 is free and run:
 
 ```shell
 yarn build
 ```
 
 This builds the packages in the order of specified dependencies.
+
+Note: The build script also spins up a ganache instance in the background on port 9545.
 
 ---
 

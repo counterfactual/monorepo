@@ -8,11 +8,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn compile && yarn rollup",
+    "build": "yarn ganache && yarn compile && yarn rollup",
     "rollup": "yarn wsrun rollup $PKG --fast-exit -r --stages --exclude-missing",
     "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing",
     "compile": "yarn wsrun build $PKG --fast-exit -r --stages --exclude-missing",
-    "ganache": "ganache-cli --networkId 7777777 --verbose --gasLimit 0xfffffffffff --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &",
+    "ganache": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &> /dev/null &",
+    "ganache:test": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "lint": "yarn wsrun lint $PKG --fast-exit -r --stages --exclude-missing",
     "lint:fix": "yarn wsrun lint:fix $PKG --fast-exit -r --stages --exclude-missing",
@@ -22,7 +23,10 @@
     "wsrun": "wsrun"
   },
   "config": {
+    "ganacheNetworkID": 7777777,
     "ganachePort": 9545,
+    "ganacheGasLimit": "0xfffffffffff",
+    "ganacheGasPrice": "0x01",
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
     "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e",
     "unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f",
