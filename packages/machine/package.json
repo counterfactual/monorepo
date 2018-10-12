@@ -26,7 +26,6 @@
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.9.3",
     "chai": "^4.2.0",
-    "coveralls": "3.0.1",
     "ganache-cli": "^6.1.8",
     "jest": "^23.6.0",
     "lerna": "^2.11.0",
