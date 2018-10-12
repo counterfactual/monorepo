@@ -18,7 +18,7 @@ scTopics
 
 # truffle build artifacts
 ganache.log
-packages/contracts/networks
+packages/contracts/networks/7777777.json
 packages/contracts/build/
 
 .config

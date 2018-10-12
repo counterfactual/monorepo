@@ -1,25 +1,13 @@
+const pkg = require("../../package.json");
+
 module.exports = {
   networks: {
     ganache: {
-      network_id: "*",
+      network_id: pkg.config.ganacheNetworkID,
       host: "127.0.0.1",
-      port: 9545,
-      gas: 0xffffffffff,
-      gasPrice: 0x01
-    },
-    docker: {
-      network_id: "*",
-      host: "docker_devnet",
-      port: 9545,
-      gas: 0xffffffffff,
-      gasPrice: 0x01
-    },
-    coverage: {
-      host: "localhost",
-      network_id: "*",
-      port: 8555,
-      gas: 0xffffffffff,
-      gasPrice: 0x01
+      port: pkg.config.ganachePort,
+      gas: pkg.config.ganacheGasLimit,
+      gasPrice: pkg.config.ganaceGasPrice
     }
   },
   solc: {
@@ -30,7 +18,7 @@ module.exports = {
   },
   mocha: {
     reporter: "eth-gas-reporter",
-    reporterOptions : {
+    reporterOptions: {
       currency: "USD",
       gasPrice: 21,
       outputFile: "/dev/null",
