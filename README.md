@@ -18,7 +18,6 @@ To install the dependencies, run:
 
 ```shell
 yarn
-lerna bootstrap --hoist
 ```
 
 The build environment expects a ganache instance to be running in the background so in a separate terminal run:

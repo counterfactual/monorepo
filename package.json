@@ -31,11 +31,11 @@
   "keywords": [
     "ethereum",
     "counterfactual",
-    "state channels"
+    "state channels",
+    "off chain"
   ],
   "devDependencies": {
     "ganache-cli": "^6.1.8",
-    "lerna": "^2.11.0",
     "typescript": "^3.1.2",
     "wsrun": "^2.2.1"
   }
