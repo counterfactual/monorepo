@@ -21,13 +21,13 @@ yarn
 lerna bootstrap --hoist
 ```
 
-The build environment expects a ganache instance to be running in the background so run:
+The build environment expects a ganache instance to be running in the background so in a separate terminal run:
 
 ```shell
 yarn ganache
 ```
 
-To build, run:
+To build all the packages, run:
 
 ```shell
 yarn build
@@ -35,9 +35,9 @@ yarn build
 
 This builds the packages in the order of specified dependencies.
 
-_Note_: Because the monorepo uses workspaces and `wsrun`, running the build/test script on a specific package will run that script for all the packages in the monorepo that are dependencies of that package. If you want to run the script for that specific package, `cd` into its directory and run the script in there.
+---
 
-To build a specific package, run:
+To build a specific package, _as well as build its Counterfactual package dependencies_, run:
 
 ```shell
 PKG=<package-name> yarn build
@@ -48,6 +48,10 @@ For example,
 ```shell
 PKG=@counterfactual/contracts yarn build
 ```
+
+Otherwise, `cd` into the package directory and run the script directly there.
+
+---
 
 To test the packages, run:
 
