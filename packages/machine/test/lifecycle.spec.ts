@@ -1,3 +1,4 @@
+// until the machine has its base wallet for testing purposes, it'll import this
 import * as wallet from "@counterfactual/wallet";
 import * as ethers from "ethers";
 import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";

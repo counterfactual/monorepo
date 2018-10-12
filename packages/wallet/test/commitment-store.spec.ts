@@ -1,9 +1,7 @@
 import * as wallet from "@counterfactual/wallet";
 import { ethers } from "ethers";
-import { Transaction } from "../src/middleware/cf-operation/types";
-import { ActionName, NetworkContext } from "../src/types";
-import { ResponseStatus } from "../src/vm";
-import { defaultNetwork, SetupProtocol } from "./common";
+import * as machine from "@counterfactual/machine";
+import { SetupProtocol } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -14,11 +12,11 @@ import {
 
 let walletA: wallet.IframeWallet;
 let walletB: wallet.IframeWallet;
-let network: NetworkContext;
+let network: machine.types.NetworkContext;
 
 beforeAll(() => {
-  walletA = new wallet.IframeWallet(defaultNetwork());
-  walletB = new wallet.IframeWallet(defaultNetwork());
+  walletA = new wallet.IframeWallet();
+  walletB = new wallet.IframeWallet();
   network = walletA.network;
   walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
   walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
@@ -43,16 +41,16 @@ describe.skip("should have one commitment for the setup protocol", () => {
     expect(
       await walletA.currentUser.store.appHasCommitment(
         MULTISIG_ADDRESS,
-        ActionName.SETUP
+        machine.types.ActionName.SETUP
       )
     ).toEqual(true);
   });
 
-  let setupTransaction: Transaction;
+  let setupTransaction: machine.cfTypes.Transaction;
   it("the transaction should be sent to the multisig address", async () => {
     setupTransaction = await walletA.currentUser.store.getTransaction(
       MULTISIG_ADDRESS,
-      ActionName.SETUP
+      machine.types.ActionName.SETUP
     );
     expect(setupTransaction.to).toEqual(MULTISIG_ADDRESS);
   });
@@ -87,5 +85,5 @@ async function setup(
 ) {
   const msg = SetupProtocol.setupStartMsg(walletA.address!, walletB.address!);
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(machine.vm.ResponseStatus.COMPLETED);
 }

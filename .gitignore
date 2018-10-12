@@ -17,9 +17,9 @@ allFiredEvents
 scTopics
 
 # truffle build artifacts
-build/
-abis.json
 ganache.log
+packages/contracts/networks
+packages/contracts/build/
 
 .config
 .node-gyp
@@ -31,6 +31,7 @@ dist
 lerna-debug.log
 package-lock.json
 packages/**/package-lock.json
+packages/**/src/*.{d.ts,js,js.map}
 
 # editors
 .vscode
