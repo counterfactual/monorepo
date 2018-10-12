@@ -13,7 +13,6 @@
     "lint:ts": "tsc --noEmit --project tsconfig.json && tslint -c tslint.json test/**/*.ts",
     "lint:ts:fix": "tsc --noEmit --project tsconfig.json && tslint -c tslint.json test/**/*.ts --fix",
     "precommit": "lint-staged",
-    "test": "yarn build && yarn truffle:test",
     "testfiles": "yarn build && yarn truffle:testfiles",
     "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage",
