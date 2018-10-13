@@ -1,11 +1,9 @@
 import {
   generateEthWallets,
   mineBlocks,
-  setupTestEnv,
-  signMessage,
-  UNIT_ETH,
-  ZERO_ADDRESS
+  setupTestEnv
 } from "@counterfactual/test-utils";
+import { expect } from "chai";
 import * as ethers from "ethers";
 
 import {
@@ -80,7 +78,7 @@ async function createMultisig(
 }
 
 async function deployApp(): Promise<ethers.Contract> {
-  return CommitRevealApp.deploy(masterAccount);
+  return (await CommitRevealApp).deploy(masterAccount);
 }
 
 async function deployStateChannel(
@@ -88,7 +86,7 @@ async function deployStateChannel(
   appContract: ethers.Contract,
   terms: TransferTerms
 ) {
-  const registry = await Registry.getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(masterAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const stateChannel = new AppInstance(
     signers,
@@ -112,7 +110,7 @@ async function setChannelNonceAndWait(
   channelNonceSalt: string,
   signers: ethers.Wallet[]
 ) {
-  const nonceRegistry = await NonceRegistry.getDeployed(masterAccount);
+  const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
   await multisig.execCall(
     nonceRegistry,
     "setNonce",
@@ -127,10 +125,12 @@ async function setChannelNonceAndWait(
     multisig.address,
     channelNonceSalt
   );
-  (await nonceRegistry.functions.isFinalized(
-    channelNonceKey,
-    channelNonceValue
-  )).should.be.equal(true);
+  expect(
+    await nonceRegistry.functions.isFinalized(
+      channelNonceKey,
+      channelNonceValue
+    )
+  ).to.eql(true);
   return channelNonceKey;
 }
 
@@ -144,11 +144,11 @@ async function executeStateChannelTransfer(
   if (!stateChannel.contract) {
     throw new Error("Deploy failed");
   }
-  const conditionalTransfer = await ConditionalTransfer.getDeployed(
+  const conditionalTransfer = await (await ConditionalTransfer).getDeployed(
     masterAccount
   );
-  const registry = await Registry.getDeployed(masterAccount);
-  const nonceRegistry = await NonceRegistry.getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(masterAccount);
+  const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
 
   await multisig.execDelegatecall(
     conditionalTransfer,
@@ -167,6 +167,7 @@ async function executeStateChannelTransfer(
 
 describe("CommitReveal", async () => {
   it("should pay out to the winner", async function() {
+    // @ts-ignore
     this.timeout(4000);
 
     const [alice, bob] = generateEthWallets(2, provider);
@@ -230,7 +231,9 @@ describe("CommitReveal", async () => {
     );
 
     // 8. Verify balance of A and B
-    (await alice.getBalance()).should.be.bignumber.eq(parseEther("2"));
-    (await bob.getBalance()).should.be.bignumber.eq(0);
+    expect(await alice.getBalance()).to.eql(parseEther("2"));
+    expect((await bob.getBalance()).toString()).to.eql(
+      parseEther("0").toString()
+    );
   });
 });

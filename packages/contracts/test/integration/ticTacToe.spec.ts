@@ -1,10 +1,7 @@
+import * as Utils from "@counterfactual/test-utils";
 import * as ethers from "ethers";
 
-import * as Utils from "@counterfactual/test-utils";
-
-const TicTacToe = artifacts.require("TicTacToe");
-
-const StaticCall = artifacts.require("StaticCall");
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
@@ -15,14 +12,13 @@ contract("TicTacToe", (accounts: string[]) => {
   const stateEncoding =
     "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
 
+  // @ts-ignore
   before(async () => {
-    TicTacToe.link("StaticCall", StaticCall.address);
-    const contractFactory = new ethers.ContractFactory(
-      TicTacToe.abi,
-      TicTacToe.binary,
-      unlockedAccount
-    );
-    game = await contractFactory.deploy();
+    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const TicTacToe = await AbstractContract.loadBuildArtifact("TicTacToe", {
+      StaticCall
+    });
+    game = await TicTacToe.deploy(unlockedAccount);
   });
 
   describe("applyAction", () => {
@@ -51,8 +47,8 @@ contract("TicTacToe", (accounts: string[]) => {
         ret
       )[0];
 
-      state.board[0][0].should.be.bignumber.eq(1);
-      state.turnNum.should.be.bignumber.eq(1);
+      expect(state.board[0][0]).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(state.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
     });
 
     it("can place into an empty square", async () => {
@@ -80,8 +76,8 @@ contract("TicTacToe", (accounts: string[]) => {
         ret
       )[0];
 
-      state.board[1][1].should.be.bignumber.eq(2);
-      state.turnNum.should.be.bignumber.eq(2);
+      expect(state.board[1][1]).to.be.eql(new ethers.utils.BigNumber(2));
+      expect(state.turnNum).to.be.eql(new ethers.utils.BigNumber(2));
     });
 
     it("cannot placeinto an occupied square", async () => {
@@ -130,7 +126,7 @@ contract("TicTacToe", (accounts: string[]) => {
         ret
       )[0];
 
-      state.winner.should.be.bignumber.eq(3); // DRAWN
+      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(3)); // DRAWN
     });
 
     it("cannot draw from a non-full board", async () => {
@@ -179,7 +175,7 @@ contract("TicTacToe", (accounts: string[]) => {
         ret
       )[0];
 
-      state.winner.should.be.bignumber.eq(3); // DRAWN
+      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(3)); // DRAWN
     });
 
     it("can notplay_and_draw from a sparse board", async () => {
@@ -228,7 +224,7 @@ contract("TicTacToe", (accounts: string[]) => {
         ret
       )[0];
 
-      state.winner.should.be.bignumber.eq(1); // WON
+      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(1)); // WON
     });
 
     it("cannot play_and_win from a non winning position", async () => {

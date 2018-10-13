@@ -103,24 +103,6 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/configs@https://github.com/counterfactual/configs.git":
-  version "0.0.1"
-  resolved "https://github.com/counterfactual/configs.git#8f2babafabc7fb982f1fa354648b3058b87c7fe5"
-  dependencies:
-    prettier "1.14.2"
-    tslint "5.11.0"
-    tslint-config-prettier "1.14.0"
-    tslint-plugin-prettier "1.3.0"
-
-"@counterfactual/run-with-ganache@https://github.com/counterfactual/run-with-ganache.git":
-  version "0.0.1"
-  resolved "https://github.com/counterfactual/run-with-ganache.git#d36765f46e43498289ee19b9c17fb2d397d8b5d5"
-  dependencies:
-    "@counterfactual/configs" "https://github.com/counterfactual/configs.git"
-    ganache-cli "6.1.3"
-    solidity-coverage "0.5.4"
-    truffle "4.1.12"
-
 "@lerna/add@^3.4.1":
   version "3.4.1"
   resolved "https://registry.npmjs.org/@lerna/add/-/add-3.4.1.tgz#d41068317e30f530df48220d256b5e79690b1877"
@@ -4492,14 +4474,6 @@ ganache-cli@6.1.0-beta.4:
   version "6.1.0-beta.4"
   resolved "https://registry.npmjs.org/ganache-cli/-/ganache-cli-6.1.0-beta.4.tgz#658dac95913adf80c88214deab38adcad46973b3"
   integrity sha512-0a22Ma8NqPvo5g8o86q0TatBi+oPIBydAnwJ8FKtU97I/CYZZVSJTPlsFRwWE2EgaMSTw5LHOqeG9694+xbASw==
-  dependencies:
-    source-map-support "^0.5.3"
-    webpack-cli "^2.0.9"
-
-ganache-cli@6.1.3:
-  version "6.1.3"
-  resolved "https://registry.npmjs.org/ganache-cli/-/ganache-cli-6.1.3.tgz#40323e56c878b5c7275830cb8a4fa75a32f6d468"
-  integrity sha512-6g/jPkhEMBlefOUQR0AXQooTCsLFD4iOvTDmsqi/B3XOktB9KGSioDaEy5lCcgzJczzUHT1YCZXhrZcUgtNkkg==
   dependencies:
     source-map-support "^0.5.3"
     webpack-cli "^2.0.9"
@@ -10713,15 +10687,6 @@ truffle-workflow-compile@^1.0.3, truffle-workflow-compile@^1.0.6:
     truffle-config "^1.0.6"
     truffle-expect "^0.0.4"
     truffle-resolver "^4.0.4"
-
-truffle@4.1.12:
-  version "4.1.12"
-  resolved "https://registry.npmjs.org/truffle/-/truffle-4.1.12.tgz#f45f4b6c1ce15865fcd7bbf5f63340f5e16e2950"
-  integrity sha1-9F9LbBzhWGX817v19jNA9eFuKVA=
-  dependencies:
-    mocha "^4.1.0"
-    original-require "1.0.1"
-    solc "0.4.24"
 
 truffle@4.1.14:
   version "4.1.14"
