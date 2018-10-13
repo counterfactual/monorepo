@@ -1,8 +1,6 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const NonceRegistry = artifacts.require("NonceRegistry");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
@@ -16,8 +14,12 @@ contract("NonceRegistry", accounts => {
       [accounts[0], timeout, salt]
     );
 
-  beforeEach(async () => {
-    registry = await Utils.deployContract(NonceRegistry, unlockedAccount);
+  // @ts-ignore
+  before(async () => {
+    const NonceRegistry = await AbstractContract.loadBuildArtifact(
+      "NonceRegistry"
+    );
+    registry = await NonceRegistry.deploy(unlockedAccount);
   });
 
   it("getFirstNBits works for 8", async () => {
@@ -25,8 +27,10 @@ contract("NonceRegistry", accounts => {
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       8
     );
-    ret.should.be.bignumber.eq(
-      "0xff00000000000000000000000000000000000000000000000000000000000000"
+    expect(ret).to.be.eql(
+      new ethers.utils.BigNumber(
+        "0xff00000000000000000000000000000000000000000000000000000000000000"
+      )
     );
   });
 
@@ -36,8 +40,10 @@ contract("NonceRegistry", accounts => {
       9
     );
     // 0x8 == 0b1000
-    ret.should.be.bignumber.eq(
-      "0xff80000000000000000000000000000000000000000000000000000000000000"
+    expect(ret).to.be.eql(
+      new ethers.utils.BigNumber(
+        "0xff80000000000000000000000000000000000000000000000000000000000000"
+      )
     );
   });
 
@@ -47,9 +53,9 @@ contract("NonceRegistry", accounts => {
     const ret = await registry.functions.table(
       computeKey(timeout, Utils.ZERO_BYTES32)
     );
-    ret.nonceValue.should.be.bignumber.eq(1);
-    ret.finalizesAt.should.be.bignumber.eq(
-      (await provider.getBlockNumber()) + 10
+    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(1));
+    expect(ret.finalizesAt).to.be.eql(
+      new ethers.utils.BigNumber((await provider.getBlockNumber()) + 10)
     );
   });
 
@@ -70,12 +76,14 @@ contract("NonceRegistry", accounts => {
     const ret = await registry.functions.table(
       computeKey(timeout, Utils.ZERO_BYTES32)
     );
-    ret.nonceValue.should.be.bignumber.eq(nonceValue);
-    ret.finalizesAt.should.be.bignumber.eq(await provider.getBlockNumber());
+    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
+    expect(ret.finalizesAt).to.be.eql(
+      new ethers.utils.BigNumber(await provider.getBlockNumber())
+    );
     const isFinal = await registry.functions.isFinalized(
       computeKey(timeout, Utils.ZERO_BYTES32),
       nonceValue
     );
-    isFinal.should.be.equal(true);
+    expect(isFinal).to.be.eql(true);
   });
 });

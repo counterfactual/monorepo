@@ -1,23 +1,23 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const StaticCall = artifacts.require("StaticCall");
-const TestCaller = artifacts.require("TestCaller");
-const Echo = artifacts.require("Echo");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
-
-TestCaller.link("StaticCall", StaticCall.address);
 
 contract("StaticCall", (accounts: string[]) => {
   let testCaller: ethers.Contract;
   let echo: ethers.Contract;
 
+  // @ts-ignore
   before(async () => {
-    testCaller = await Utils.deployContract(TestCaller, unlockedAccount);
-    echo = await Utils.deployContract(Echo, unlockedAccount);
+    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const TestCaller = await AbstractContract.loadBuildArtifact("TestCaller", {
+      StaticCall
+    });
+    const Echo = await AbstractContract.loadBuildArtifact("Echo");
+    testCaller = await TestCaller.deploy(unlockedAccount);
+    echo = await Echo.deploy(unlockedAccount);
   });
 
   describe("execStaticCall", () => {
@@ -32,7 +32,7 @@ contract("StaticCall", (accounts: string[]) => {
         "0x"
       );
 
-      ret.should.be.equal(helloWorldString);
+      expect(ret).to.eql(helloWorldString);
     });
 
     it("retrieves true bool from external pure function", async () => {
@@ -41,7 +41,7 @@ contract("StaticCall", (accounts: string[]) => {
         echo.interface.functions.returnArg.sighash,
         ethers.utils.defaultAbiCoder.encode(["bool"], [true])
       );
-      ret.should.be.equal(true);
+      expect(ret).to.eql(true);
     });
 
     it("retrieves false bool from external pure function", async () => {
@@ -50,7 +50,7 @@ contract("StaticCall", (accounts: string[]) => {
         echo.interface.functions.returnArg.sighash,
         ethers.utils.defaultAbiCoder.encode(["bool"], [false])
       );
-      ret.should.be.equal(false);
+      expect(ret).to.eql(false);
     });
 
     it("retrieves argument from external pure function", async () => {
@@ -65,7 +65,7 @@ contract("StaticCall", (accounts: string[]) => {
         helloWorldString
       );
 
-      ret.should.be.equal(
+      expect(ret).to.eql(
         ethers.utils.hexlify(ethers.utils.toUtf8Bytes("hello world"))
       );
     });

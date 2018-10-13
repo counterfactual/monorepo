@@ -59,7 +59,7 @@ export class AppInstance {
   public async deploy(sender: ethers.Wallet, registry: ethers.Contract) {
     const appHash = keccak256(encodeStruct(appEncoding, this.app));
     const termsHash = keccak256(encodeStruct(termsEncoding, this.terms));
-    this.contract = await artifacts.AppInstance.deployViaRegistry(
+    this.contract = await (await artifacts.AppInstance).deployViaRegistry(
       sender,
       registry,
       [

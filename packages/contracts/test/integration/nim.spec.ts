@@ -1,13 +1,9 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const Nim = artifacts.require("Nim");
-
-const StaticCall = artifacts.require("StaticCall");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("Nim", (accounts: string[]) => {
   let game: ethers.Contract;
@@ -16,13 +12,9 @@ contract("Nim", (accounts: string[]) => {
     "tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)";
 
   beforeEach(async () => {
-    Nim.link("StaticCall", StaticCall.address);
-    const contractFactory = new ethers.ContractFactory(
-      Nim.abi,
-      Nim.binary,
-      unlockedAccount
-    );
-    game = await contractFactory.deploy();
+    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const Nim = await AbstractContract.loadBuildArtifact("Nim", { StaticCall });
+    game = await Nim.deploy(unlockedAccount);
   });
 
   describe("applyAction", () => {
@@ -45,10 +37,12 @@ contract("Nim", (accounts: string[]) => {
         ret
       )[0];
 
-      postState.pileHeights[0].should.be.bignumber.eq(1);
-      postState.pileHeights[1].should.be.bignumber.eq(5);
-      postState.pileHeights[2].should.be.bignumber.eq(12);
-      postState.turnNum.should.be.bignumber.eq(1);
+      expect(postState.pileHeights[0]).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(postState.pileHeights[1]).to.be.eql(new ethers.utils.BigNumber(5));
+      expect(postState.pileHeights[2]).to.be.eql(
+        new ethers.utils.BigNumber(12)
+      );
+      expect(postState.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
     });
 
     it("can take to produce an empty pile", async () => {
@@ -70,10 +64,12 @@ contract("Nim", (accounts: string[]) => {
         ret
       )[0];
 
-      postState.pileHeights[0].should.be.bignumber.eq(0);
-      postState.pileHeights[1].should.be.bignumber.eq(5);
-      postState.pileHeights[2].should.be.bignumber.eq(12);
-      postState.turnNum.should.be.bignumber.eq(1);
+      expect(postState.pileHeights[0]).to.be.eql(new ethers.utils.BigNumber(0));
+      expect(postState.pileHeights[1]).to.be.eql(new ethers.utils.BigNumber(5));
+      expect(postState.pileHeights[2]).to.be.eql(
+        new ethers.utils.BigNumber(12)
+      );
+      expect(postState.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
     });
 
     it("should fail for taking too much", async () => {
@@ -100,7 +96,7 @@ contract("Nim", (accounts: string[]) => {
         pileHeights: [0, 0, 0]
       };
       const ret = await game.functions.isStateTerminal(preState);
-      ret.should.be.eq(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("nonempty state is not final", async () => {
@@ -110,7 +106,7 @@ contract("Nim", (accounts: string[]) => {
         pileHeights: [0, 1, 0]
       };
       const ret = await game.functions.isStateTerminal(preState);
-      ret.should.be.eq(false);
+      expect(ret).to.be.eql(false);
     });
   });
 });

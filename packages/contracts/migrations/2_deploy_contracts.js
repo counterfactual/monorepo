@@ -1,3 +1,3 @@
-const {deployTruffleArtifacts} = require("../lib/utils/deploy");
+const { deployTruffleArtifacts } = require("../dist/utils/deploy");
 
 module.exports = deployer => deployTruffleArtifacts(artifacts, deployer);

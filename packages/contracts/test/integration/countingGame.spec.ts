@@ -1,8 +1,6 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const CountingApp = artifacts.require("CountingApp");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
@@ -60,9 +58,6 @@ contract("CountingApp", (accounts: string[]) => {
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
 
-  const encodePacked = (encoding: string, state: any) =>
-    ethers.utils.solidityPack([encoding], [state]);
-
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
   // TODO: Wait for this to work:
@@ -96,18 +91,26 @@ contract("CountingApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const StateChannel = artifacts.require("AppInstance");
-    const StaticCall = artifacts.require("StaticCall");
-    const Signatures = artifacts.require("Signatures");
-    const Transfer = artifacts.require("Transfer");
+    const networkID = await AbstractContract.getNetworkID(unlockedAccount);
+    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const Signatures = AbstractContract.loadBuildArtifact("Signatures");
+    const Transfer = AbstractContract.loadBuildArtifact("Transfer");
+    const AppInstance = await AbstractContract.loadBuildArtifact(
+      "AppInstance",
+      {
+        Signatures,
+        StaticCall,
+        Transfer
+      }
+    );
+    const CountingApp = await AbstractContract.loadBuildArtifact(
+      "CountingApp",
+      {
+        StaticCall
+      }
+    );
 
-    CountingApp.link("StaticCall", StaticCall.address);
-
-    game = await Utils.deployContract(CountingApp, unlockedAccount);
-
-    StateChannel.link("Signatures", Signatures.address);
-    StateChannel.link("StaticCall", StaticCall.address);
-    StateChannel.link("Transfer", Transfer.address);
+    game = await CountingApp.deploy(unlockedAccount);
 
     app = {
       addr: game.address,
@@ -124,8 +127,8 @@ contract("CountingApp", (accounts: string[]) => {
     };
 
     const contractFactory = new ethers.ContractFactory(
-      StateChannel.abi,
-      StateChannel.binary,
+      AppInstance.abi,
+      await AppInstance.generateLinkedBytecode(networkID),
       unlockedAccount
     );
 
@@ -140,12 +143,12 @@ contract("CountingApp", (accounts: string[]) => {
 
   it("should resolve to some balance", async () => {
     const ret = await game.functions.resolve(exampleState, terms);
-    ret.assetType.should.be.equal(AssetType.ETH);
-    ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
-    ret.to[0].should.be.equalIgnoreCase(A.address);
-    ret.to[1].should.be.equalIgnoreCase(B.address);
-    ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
-    ret.value[1].should.be.bignumber.eq(0);
+    expect(ret.assetType).to.eql(AssetType.ETH);
+    expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+    expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
+    expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
+    expect(ret.value[0].toString()).to.be.eql(Utils.UNIT_ETH.mul(2).toString());
+    expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(0));
   });
 
   describe("setting a resolution", async () => {
@@ -168,12 +171,14 @@ contract("CountingApp", (accounts: string[]) => {
         encode(termsEncoding, terms)
       );
       const ret = await stateChannel.functions.getResolution();
-      ret.assetType.should.be.equal(AssetType.ETH);
-      ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
-      ret.to[0].should.be.equalIgnoreCase(A.address);
-      ret.to[1].should.be.equalIgnoreCase(B.address);
-      ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH.mul(2));
-      ret.value[1].should.be.bignumber.eq(0);
+      expect(ret.assetType).to.be.eql(AssetType.ETH);
+      expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+      expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
+      expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
+      expect(ret.value[0].toString()).to.be.eql(
+        Utils.UNIT_ETH.mul(2).toString()
+      );
+      expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(0));
     });
   });
 
@@ -225,13 +230,15 @@ contract("CountingApp", (accounts: string[]) => {
       const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
       const expectedFinalizeBlock = (await provider.getBlockNumber()) + 10;
 
-      onchain.status.should.be.bignumber.eq(Status.DISPUTE);
-      onchain.appStateHash.should.be.equalIgnoreCase(expectedStateHash);
-      onchain.latestSubmitter.should.be.equalIgnoreCase(accounts[0]);
-      onchain.nonce.should.be.bignumber.eq(1);
-      onchain.disputeNonce.should.be.bignumber.eq(0);
-      onchain.disputeCounter.should.be.bignumber.eq(1);
-      onchain.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
+      expect(onchain.status).to.be.eql(Status.DISPUTE);
+      expect(onchain.appStateHash).to.be.equalIgnoreCase(expectedStateHash);
+      expect(onchain.latestSubmitter).to.be.equalIgnoreCase(accounts[0]);
+      expect(onchain.nonce).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(onchain.disputeNonce).to.be.eql(new ethers.utils.BigNumber(0));
+      expect(onchain.disputeCounter).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(onchain.finalizesAt).to.be.eql(
+        new ethers.utils.BigNumber(expectedFinalizeBlock)
+      );
     });
 
     it("should update and finalize state based on applyAction", async () => {
@@ -266,13 +273,21 @@ contract("CountingApp", (accounts: string[]) => {
       const expectedStateHash = keccak256(encode(gameEncoding, expectedState));
       const expectedFinalizeBlock = await provider.getBlockNumber();
 
-      channelState.status.should.be.bignumber.eq(Status.OFF);
-      channelState.appStateHash.should.be.equalIgnoreCase(expectedStateHash);
-      channelState.latestSubmitter.should.be.equalIgnoreCase(accounts[0]);
-      channelState.nonce.should.be.bignumber.eq(1);
-      channelState.disputeNonce.should.be.bignumber.eq(0);
-      channelState.disputeCounter.should.be.bignumber.eq(1);
-      channelState.finalizesAt.should.be.bignumber.eq(expectedFinalizeBlock);
+      expect(channelState.status).to.be.eql(Status.OFF);
+      expect(channelState.appStateHash).to.be.equalIgnoreCase(
+        expectedStateHash
+      );
+      expect(channelState.latestSubmitter).to.be.equalIgnoreCase(accounts[0]);
+      expect(channelState.nonce).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(channelState.disputeNonce).to.be.eql(
+        new ethers.utils.BigNumber(0)
+      );
+      expect(channelState.disputeCounter).to.be.eql(
+        new ethers.utils.BigNumber(1)
+      );
+      expect(channelState.finalizesAt).to.be.eql(
+        new ethers.utils.BigNumber(expectedFinalizeBlock)
+      );
     });
 
     it("should fail when trying to finalize a non-final state", async () => {

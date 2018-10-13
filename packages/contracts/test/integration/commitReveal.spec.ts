@@ -231,7 +231,9 @@ describe("CommitReveal", async () => {
     );
 
     // 8. Verify balance of A and B
-    expect(await alice.getBalance()).to.eql(parseEther("2"));
+    expect((await alice.getBalance()).toString()).to.eql(
+      parseEther("2").toString()
+    );
     expect((await bob.getBalance()).toString()).to.eql(
       parseEther("0").toString()
     );

@@ -1,25 +1,28 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const ExampleCondition = artifacts.require("ExampleCondition");
-const Conditional = artifacts.require("Conditional");
-const StaticCall = artifacts.require("StaticCall");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("Conditional", (accounts: string[]) => {
   let example: ethers.Contract;
   let conditionContract: ethers.Contract;
 
+  // @ts-ignore
   before(async () => {
-    Conditional.link("StaticCall", StaticCall.address);
-    example = await Utils.deployContract(ExampleCondition, unlockedAccount);
-    conditionContract = await Utils.deployContract(
-      Conditional,
-      unlockedAccount
+    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const Conditional = await AbstractContract.loadBuildArtifact(
+      "Conditional",
+      {
+        StaticCall
+      }
     );
+    const ExampleCondition = await AbstractContract.loadBuildArtifact(
+      "ExampleCondition"
+    );
+    example = await ExampleCondition.deploy(unlockedAccount);
+    conditionContract = await Conditional.deploy(unlockedAccount);
   });
 
   describe("asserts conditions with no params", () => {
@@ -37,7 +40,7 @@ contract("Conditional", (accounts: string[]) => {
     it("returns true if function did not fail", async () => {
       const condition = makeCondition(Utils.ZERO_BYTES32, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("returns true if function returns expected result", async () => {
@@ -46,13 +49,13 @@ contract("Conditional", (accounts: string[]) => {
         false
       );
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("returns false if function returns unexpected result", async () => {
       const condition = makeCondition(Utils.ZERO_BYTES32, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(false);
+      expect(ret).to.be.eql(false);
     });
   });
 
@@ -81,13 +84,13 @@ contract("Conditional", (accounts: string[]) => {
     it("returns true if function did not fail", async () => {
       const condition = makeCondition(Utils.ZERO_BYTES32, trueParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("returns true if function did not fail but returned false", async () => {
       const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("returns true if function returns expected result", async () => {
@@ -97,13 +100,13 @@ contract("Conditional", (accounts: string[]) => {
         false
       );
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(true);
+      expect(ret).to.be.eql(true);
     });
 
     it("returns false if function returns unexpected result", async () => {
       const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
-      ret.should.be.equal(false);
+      expect(ret).to.be.eql(false);
     });
   });
 });

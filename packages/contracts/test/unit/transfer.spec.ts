@@ -1,11 +1,7 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const Transfer = artifacts.require("Transfer");
-const ExampleTransfer = artifacts.require("ExampleTransfer");
-const DelegateProxy = artifacts.require("DelegateProxy");
-const DolphinCoin = artifacts.require("DolphinCoin");
+import { expect } from "chai";
+import * as ethers from "ethers";
+import { AbstractContract } from "../../utils/contract";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
@@ -21,11 +17,22 @@ contract("Transfer", (accounts: string[]) => {
     ANY
   }
 
+  // @ts-ignore
   before(async () => {
-    ExampleTransfer.link("Transfer", Transfer.address);
-    transfer = await Utils.deployContract(ExampleTransfer, unlockedAccount);
-    delegateProxy = await Utils.deployContract(DelegateProxy, unlockedAccount);
-    dolphinCoin = await Utils.deployContract(DolphinCoin, unlockedAccount);
+    const Transfer = AbstractContract.loadBuildArtifact("Transfer");
+    const ExampleTransfer = await AbstractContract.loadBuildArtifact(
+      "ExampleTransfer",
+      {
+        Transfer
+      }
+    );
+    const DelegateProxy = await AbstractContract.loadBuildArtifact(
+      "DelegateProxy"
+    );
+    const DolphinCoin = await AbstractContract.loadBuildArtifact("DolphinCoin");
+    transfer = await ExampleTransfer.deploy(unlockedAccount);
+    delegateProxy = await DelegateProxy.deploy(unlockedAccount);
+    dolphinCoin = await DolphinCoin.deploy(unlockedAccount);
   });
 
   describe("Executes delegated transfers for ETH", () => {
@@ -55,7 +62,7 @@ contract("Transfer", (accounts: string[]) => {
 
       const balTarget = await provider.getBalance(randomTarget);
 
-      balTarget.should.be.bignumber.equal(Utils.UNIT_ETH);
+      expect(balTarget.toString()).to.deep.equal(Utils.UNIT_ETH.toString());
     });
 
     it("for many addresses", async () => {
@@ -79,7 +86,7 @@ contract("Transfer", (accounts: string[]) => {
 
       for (let i = 0; i < 10; i++) {
         const bal = await provider.getBalance(randomTargets[i]);
-        bal.should.be.bignumber.equal(Utils.UNIT_ETH.div(10));
+        expect(bal.toString()).to.deep.equal(Utils.UNIT_ETH.div(10).toString());
       }
     });
   });
@@ -108,7 +115,7 @@ contract("Transfer", (accounts: string[]) => {
 
       const balTarget = await dolphinCoin.functions.balanceOf(randomTarget);
 
-      balTarget.should.be.bignumber.equal(10);
+      expect(balTarget).to.be.eql(new ethers.utils.BigNumber(10));
     });
 
     it("for many addresses", async () => {
@@ -132,7 +139,7 @@ contract("Transfer", (accounts: string[]) => {
 
       for (let i = 0; i < 10; i++) {
         const bal = await dolphinCoin.functions.balanceOf(randomTargets[i]);
-        bal.should.be.bignumber.equal(1);
+        expect(bal).to.be.eql(new ethers.utils.BigNumber(1));
       }
     });
   });

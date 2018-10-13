@@ -24,14 +24,15 @@ export class AbstractContract {
    * @param links Optional AbstractContract libraries to link.
    * @returns Truffle artifact wrapped in an AbstractContract.
    */
-  public static loadBuildArtifact(
+  public static async loadBuildArtifact(
     artifactName: string,
-    links?: { [name: string]: AbstractContract }
-  ): AbstractContract {
+    links?: { [name: string]: Promise<AbstractContract> }
+  ): Promise<AbstractContract> {
     // TODO: Load build artifacts manually once we move away from Truffle
     // TODO: Load production artifacts when imported
-    const truffleContract: BuildArtifact = artifacts.require(artifactName);
-    return AbstractContract.fromBuildArtifact(truffleContract, links);
+    const contract: BuildArtifact = await import(`../../build/contracts/${artifactName}.json`);
+    // const truffleContract: BuildArtifact = artifacts.require(artifactName);
+    return AbstractContract.fromBuildArtifact(contract, links);
   }
 
   /**
@@ -40,16 +41,20 @@ export class AbstractContract {
    * @param links Optional AbstractContract libraries to link.
    * @returns Truffle artifact wrapped in an AbstractContract.
    */
-  public static fromBuildArtifact(
+  public static async fromBuildArtifact(
     buildArtifact: BuildArtifact,
-    links?: { [name: string]: AbstractContract }
-  ): AbstractContract {
+    links?: { [name: string]: Promise<AbstractContract> }
+  ): Promise<AbstractContract> {
     return new AbstractContract(
       buildArtifact.abi,
       buildArtifact.bytecode,
       buildArtifact.networks,
       links
     );
+  }
+
+  public static async getNetworkID(wallet: ethers.Wallet): Promise<number> {
+    return (await wallet.provider.getNetwork()).chainId;
   }
 
   /**
@@ -62,40 +67,42 @@ export class AbstractContract {
     readonly abi: string[] | string,
     readonly bytecode: string,
     readonly networks: NetworkMapping,
-    readonly links?: { [contractName: string]: AbstractContract }
+    readonly links?: { [contractName: string]: Promise<AbstractContract> }
   ) {}
 
   /**
    * Get the deployed singleton instance of this abstract contract, if it exists
-   * @param signer Signer (with provider) to use for contract calls
+   * @param Signer (with provider) to use for contract calls
    * @throws Error if AbstractContract has no deployed address
    */
-  public async getDeployed(signer: ethers.Signer): Promise<Contract> {
-    if (!signer.provider) {
+  public async getDeployed(wallet: ethers.Wallet): Promise<Contract> {
+    if (!wallet.provider) {
       throw new Error("Signer requires provider");
     }
-    const networkId = (await signer.provider.getNetwork()).chainId;
+    const networkId = (await wallet.provider.getNetwork()).chainId;
     const address = this.getDeployedAddress(networkId);
-    return new Contract(address, this.abi, signer);
+    return new Contract(address, this.abi, wallet);
   }
 
   /**
    * Deploy new instance of contract
-   * @param signer Signer (with provider) to use for contract calls
+   * @param wallet Wallet (with provider) to use for contract calls
    * @param args Optional arguments to pass to contract constructor
    * @returns New contract instance
    */
-  public async deploy(signer: ethers.Signer, args?: any[]): Promise<Contract> {
-    if (!signer.provider) {
+  public async deploy(wallet: ethers.Wallet, args?: any[]): Promise<Contract> {
+    if (!wallet.provider) {
       throw new Error("Signer requires provider");
     }
 
-    const networkId = (await signer.provider.getNetwork()).chainId;
-    const bytecode = this.generateLinkedBytecode(networkId);
+    const networkId = (await wallet.provider.getNetwork()).chainId;
+    const bytecode = (await this.links)
+      ? await this.generateLinkedBytecode(networkId)
+      : this.bytecode;
     const contractFactory = new ethers.ContractFactory(
       this.abi,
       bytecode,
-      signer
+      wallet
     );
     return contractFactory.deploy(...(args || []));
   }
@@ -138,7 +145,7 @@ export class AbstractContract {
       );
     }
     const networkId = (await signer.provider.getNetwork()).chainId;
-    const bytecode = this.generateLinkedBytecode(networkId);
+    const bytecode = await this.generateLinkedBytecode(networkId);
     const initcode = new ethers.utils.Interface(this.abi).deployFunction.encode(
       bytecode,
       args || []
@@ -157,26 +164,26 @@ export class AbstractContract {
     return contract;
   }
 
-  private generateLinkedBytecode(networkId: number): string {
-    if (!this.links) {
+  public getDeployedAddress(networkId: number): string {
+    const info = this.networks[networkId];
+    if (!info) {
+      throw new Error(`Abstract contract not deployed on network ${networkId}`);
+    }
+    return info.address;
+  }
+
+  public async generateLinkedBytecode(networkId: number): Promise<string> {
+    if (this.links === undefined) {
       throw new Error("Nothing to link");
     }
     let bytecode = this.bytecode;
     for (const name of Object.keys(this.links)) {
       const library = this.links[name];
       const regex = new RegExp(`__${name}_+`, "g");
-      const address = library.getDeployedAddress(networkId);
+      const address = (await library).getDeployedAddress(networkId);
       const addressHex = address.replace("0x", "");
       bytecode = bytecode.replace(regex, addressHex);
     }
     return bytecode;
-  }
-
-  private getDeployedAddress(networkId: number): string {
-    const info = this.networks[networkId];
-    if (!info) {
-      throw new Error(`Abstract contract not deployed on network ${networkId}`);
-    }
-    return info.address;
   }
 }

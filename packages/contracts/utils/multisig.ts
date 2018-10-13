@@ -1,10 +1,7 @@
-import {
-  deployContract,
-  HIGH_GAS_LIMIT,
-  signMessage
-} from "@counterfactual/test-utils";
+import { HIGH_GAS_LIMIT, signMessage } from "@counterfactual/test-utils";
 import * as ethers from "ethers";
-import { MinimumViableMultisig } from "./buildArtifacts";
+import { Signatures } from "./buildArtifacts";
+import { AbstractContract } from "./contract";
 
 const enum Operation {
   Call = 0,
@@ -40,10 +37,16 @@ export class Multisig {
 
   /**
    * Deploy Multisig contract on-chain
-   * @param signer The signer (with provider) for the on-chain transaction
+   * @param wallet The wallet (with provider) for the on-chain transaction
    */
-  public async deploy(signer: ethers.Signer) {
-    this.contract = await MinimumViableMultisig.deploy(signer);
+  public async deploy(wallet: ethers.Wallet) {
+    const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
+      "MinimumViableMultisig",
+      {
+        Signatures
+      }
+    );
+    this.contract = await (await MinimumViableMultisig).deploy(wallet);
     await this.contract.functions.setup(this.owners);
   }
 

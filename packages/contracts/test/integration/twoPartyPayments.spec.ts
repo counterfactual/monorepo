@@ -1,11 +1,9 @@
-import * as ethers from "ethers";
-
 import * as Utils from "@counterfactual/test-utils";
-
-const PaymentApp = artifacts.require("PaymentApp");
+import * as ethers from "ethers";
+import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 const [A, B] = [
   // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
@@ -43,9 +41,6 @@ contract("PaymentApp", (accounts: string[]) => {
 
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
-
-  const decode = (encoding: string, state: any) =>
-    ethers.utils.defaultAbiCoder.decode([encoding], state);
 
   const latestNonce = async () => stateChannel.functions.latestNonce();
 
@@ -99,7 +94,8 @@ contract("PaymentApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    pc = await Utils.deployContract(PaymentApp, unlockedAccount);
+    const PaymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
+    pc = await PaymentApp.deploy(unlockedAccount);
 
     // Specifically for the StateChannel
     const StateChannel = artifacts.require("AppInstance");
@@ -141,12 +137,12 @@ contract("PaymentApp", (accounts: string[]) => {
 
   it("should resolve to payments", async () => {
     const ret = await pc.functions.resolve(exampleState, terms);
-    ret.assetType.should.be.equal(AssetType.ETH);
-    ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
-    ret.to[0].should.be.equalIgnoreCase(A.address);
-    ret.to[1].should.be.equalIgnoreCase(B.address);
-    ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH);
-    ret.value[1].should.be.bignumber.eq(Utils.UNIT_ETH);
+    expect(ret.assetType).to.be.eql(AssetType.ETH);
+    expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+    expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
+    expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
+    expect(ret.value[0]).to.be.eql(new ethers.utils.BigNumber(Utils.UNIT_ETH));
+    expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(Utils.UNIT_ETH));
   });
 
   describe("setting a resolution", async () => {
@@ -169,12 +165,16 @@ contract("PaymentApp", (accounts: string[]) => {
         encode(termsEncoding, terms)
       );
       const ret = await stateChannel.functions.getResolution();
-      ret.assetType.should.be.equal(AssetType.ETH);
-      ret.token.should.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
-      ret.to[0].should.be.equalIgnoreCase(A.address);
-      ret.to[1].should.be.equalIgnoreCase(B.address);
-      ret.value[0].should.be.bignumber.eq(Utils.UNIT_ETH);
-      ret.value[1].should.be.bignumber.eq(Utils.UNIT_ETH);
+      expect(ret.assetType).to.be.eql(AssetType.ETH);
+      expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+      expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
+      expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
+      expect(ret.value[0]).to.be.eql(
+        new ethers.utils.BigNumber(Utils.UNIT_ETH)
+      );
+      expect(ret.value[1]).to.be.eql(
+        new ethers.utils.BigNumber(Utils.UNIT_ETH)
+      );
     });
   });
 });
