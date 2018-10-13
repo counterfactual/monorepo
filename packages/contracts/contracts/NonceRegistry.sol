@@ -5,7 +5,7 @@ pragma experimental "ABIEncoderV2";
 /// @title NonceRegistry - A global nonce time-lock registry. Maps nonce keys to nonce values.
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports a global mapping of sender, timeout and salt based keys to sequential nonces
-/// A nonce (aka "dependency nonce") is a mapping from a nonce key to a nonce value which can be set 
+/// A nonce (aka "dependency nonce") is a mapping from a nonce key to a nonce value which can be set
 /// under certain circumstances (to be defined later). A nonce is parametrized by the sender, the salt,
 /// and the timeout. These parameters determine the nonce key. A nonce can only be set by its sender.
 /// When a nonce is first set, a timer of length `timeout` starts. During this timeout period, it may
@@ -39,6 +39,30 @@ contract NonceRegistry {
       "Nonce value is not equal to expected nonce value"
     );
     return true;
+  }
+
+  function isNonceSet(bytes32 key) external view returns (bool) {
+    return table[key].finalizesAt > 0;
+  }
+
+  /// @notice Set a nonce in the mapping.
+  /// Trigger the timeout period to begin if the nonce is set for the first time.
+  /// @param salt A salt used to generate the nonce key
+  /// @param nonceValue A nonce at which to set the computed key's value in the mapping
+  function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue) external {
+    bytes32 key = computeKey(msg.sender, timeout, salt);
+    require(
+      table[key].nonceValue < nonceValue,
+      "Cannot set nonce to a smaller value");
+    require(
+      table[key].finalizesAt == 0 || block.number < table[key].finalizesAt,
+      "Nonce is already finalized"
+    );
+    table[key].nonceValue = nonceValue;
+    if (table[key].finalizesAt == 0) {
+      table[key].finalizesAt = block.number + timeout;
+    }
+    emit NonceSet(key, nonceValue);
   }
 
   /// @notice Return the N highest-order bits from the input.
@@ -92,30 +116,6 @@ contract NonceRegistry {
       "Nonce is not equal to expectedNonce"
     );
     return true;
-  }
-
-  function isNonceSet(bytes32 key) external view returns (bool) {
-    return table[key].finalizesAt > 0;
-  }
-
-  /// @notice Set a nonce in the mapping.
-  /// Trigger the timeout period to begin if the nonce is set for the first time.
-  /// @param salt A salt used to generate the nonce key
-  /// @param nonceValue A nonce at which to set the computed key's value in the mapping
-  function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue) external {
-    bytes32 key = computeKey(msg.sender, timeout, salt);
-    require(
-      table[key].nonceValue < nonceValue,
-      "Cannot set nonce to a smaller value");
-    require(
-      table[key].finalizesAt == 0 || block.number < table[key].finalizesAt,
-      "Nonce is already finalized"
-    );
-    table[key].nonceValue = nonceValue;
-    if (table[key].finalizesAt == 0) {
-      table[key].finalizesAt = block.number + timeout;
-    }
-    emit NonceSet(key, nonceValue);
   }
 
   /// @notice Computes a unique key for the particular salt and msg.sender
