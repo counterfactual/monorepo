@@ -1,0 +1,12 @@
+{
+  "extends": "../configs/tsconfigs/base-tsconfig",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/",
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../node_modules/@counterfactual/typescript-typings/types"
+    ]
+  },
+  "include": ["utils", "test"]
+}

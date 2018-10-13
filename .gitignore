@@ -3,6 +3,7 @@
 
 # Dependencies
 node_modules
+packages/**/node_modules
 
 # Yarn
 yarn-error.log
@@ -16,19 +17,21 @@ allFiredEvents
 scTopics
 
 # truffle build artifacts
-build/
-abis.json
 ganache.log
+packages/contracts/networks/7777777.json
+packages/contracts/build/
 
 .config
 .node-gyp
 .npm
 tmp
 jest-cache
-deployedContracts
-contracts
 .rpt2_cache
 dist
+lerna-debug.log
+package-lock.json
+packages/**/package-lock.json
+packages/**/src/*.{d.ts,js,js.map}
 
 # editors
 .vscode

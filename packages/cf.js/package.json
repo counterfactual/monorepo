@@ -1,0 +1,42 @@
+{
+  "name": "@counterfactual/cf.js",
+  "version": "0.0.1",
+  "description": "The bridge between web applications and Counterfactual wallets.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/counterfactual/cf.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "rollup": "rollup -c",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
+    "prettier": "prettier -l '{src,test}/{**/*,*}'",
+    "prettier:fix": "prettier --write '{src,test}/{**/*,*}'"
+  },
+  "devDependencies": {
+    "prettier": "1.14.2",
+    "rollup": "^0.66.4",
+    "rollup-plugin-typescript2": "^0.17.1",
+    "tslint": "5.11.0",
+    "tslint-config-prettier": "1.14.0",
+    "tslint-plugin-prettier": "1.3.0",
+    "typescript": "^3.1.2"
+  },
+  "peerDependencies": {
+    "@counterfactual/machine": "0.0.1",
+    "ethers": "^4.0.4"
+  },
+  "dependencies": {
+    "@counterfactual/configs": "0.0.1",
+    "@counterfactual/machine": "0.0.1",
+    "@types/lodash": "^4.14.116",
+    "ethers": "^4.0.4",
+    "lodash": "^4.17.10"
+  }
+}

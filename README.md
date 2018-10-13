@@ -1,76 +1,70 @@
-# machine
+<img src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810" width="200px" height="200px"/>
 
-[![CircleCI](https://circleci.com/gh/counterfactual/machine/tree/master.svg?style=svg&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c)](https://circleci.com/gh/counterfactual/machine/tree/master)
+---
 
-## Usage
+# [Counterfactual](https://counterfactual.com) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE)
 
-This repo uses the yarn package manager. To install the dependencies, run:
+Counterfactual is a general framework for building state channel applications.
+
+This repository is a monorepo containing all the packages that comprise the implementation of the Counterfactual framework.
+
+Each sub-package is an independent npm package.
+
+## Building and Testing
+
+Make sure you have Yarn v1.10.1+.
+
+To install the dependencies, run:
 
 ```shell
 yarn
-git submodule update --init --recursive
+lerna bootstrap
 ```
 
-## Testing
-
-To build the Docker containers, run:
+To build all the packages, make sure port 9545 is free and run:
 
 ```shell
-yarn docker:build
+yarn build
 ```
 
-Make sure no other ganache instance is running on port 9545, then to get a persisent machine container that you can reuse across tests, run:
+This builds the packages in the order of specified dependencies.
+
+Note: The build script also spins up a ganache instance in the background on port 9545.
+
+---
+
+To build a specific package, _as well as build its Counterfactual package dependencies_, run:
 
 ```shell
-yarn docker:run
+PKG=<package-name> yarn build
 ```
 
-To deploy the contracts that are used in testing, run:
+For example,
 
 ```shell
-yarn test:deployContracts
+PKG=@counterfactual/contracts yarn build
 ```
 
-And to run the test suites, simply run:
+Otherwise, `cd` into the package directory and run the script directly there.
+
+---
+
+`yarn build` creates distributions for each package. If you want to create a distribution for a specific package, run:
+
+```shell
+PKG=<package-name> yarn rollup
+```
+
+---
+
+To test the packages, run:
 
 ```shell
 yarn test
 ```
 
-If you want to run a specific test suite (i.e. `.spec.ts` file), you can specify that via a regex that would capture the file name:
+To test a specific package, run:
 
 ```shell
-yarn test <regex>
+PKG=<package-name> yarn test
 ```
-
-for eg:
-
-```shell
-yarn test lifecycle.spec.ts
-```
-
-If you need to go inside the machine container, run:
-
-```shell
-yarn shell
-```
-
-## Ethmo
-
-Serve iframe-wallet
-```bash
-docker-compose up -d serve_files 
-```
-Then navigate to [http://127.0.0.1:8000/iframe-wallet/](http://127.0.0.1:8000/iframe-wallet/).
-
-Then follow steps in the Ethmo repo to get Ethmo up and running.
-
-### Rebuilding
-
-- `yarn rollup`
-
-### Running / Development
-
-- install/run the `multi-app-wallet` branch of the venmo app, following the instructions [here](https://github.com/ebryn/venmo/tree/multi-app-wallet#installation)
-- `python -m SimpleHTTPServer`
-- visit your app at [http://localhost:8000/src/examples/wallet/](http://localhost:8000/src/examples/wallet/)

@@ -1,0 +1,73 @@
+{
+  "name": "@counterfactual/wallet",
+  "version": "0.0.1",
+  "description": "A wrapper around the Counterfactual Machine to facilitate State Channel usage for users.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/counterfactual/wallet",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
+    "rollup": "rollup -c",
+    "prettier": "prettier -l '{src,test}/{**/*,*}'",
+    "prettier:fix": "prettier --write '{src,test}/{**/*,*}'",
+    "test": "jest --runInBand --detectOpenHandles --bail",
+    "test-debug": "node --inspect-brk jest --runInBand"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.3",
+    "jest": "^23.6.0",
+    "lodash": "^4.17.10",
+    "prettier": "1.14.2",
+    "rollup": "^0.66.4",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-typescript2": "^0.17.1",
+    "tslint": "5.11.0",
+    "tslint-config-prettier": "1.14.0",
+    "tslint-plugin-prettier": "1.3.0",
+    "ts-jest": "^23.1.4",
+    "typescript": "^3.1.2"
+  },
+  "dependencies": {
+    "ethers": "^4.0.4",
+    "@counterfactual/contracts": "0.0.1",
+    "@counterfactual/cf.js": "0.0.1",
+    "@counterfactual/configs": "0.0.1",
+    "@counterfactual/machine": "0.0.1"
+  },
+  "config": {
+    "GANACHE_URL": "http://localhost:9545",
+    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
+    "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257e",
+    "unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257f",
+    "etherBalance": "1000000000000000000000000"
+  },
+  "jest": {
+    "verbose": false,
+    "bail": true,
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(ts?)$",
+    "testPathIgnorePatterns": [
+      "src",
+      "node_modules",
+      "dist"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
+  }
+}

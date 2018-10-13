@@ -1,0 +1,91 @@
+{
+  "name": "@counterfactual/contracts",
+  "version": "0.0.1",
+  "description": "Collection of smart contracts for use by the Counterfactual framework.",
+  "license": "MIT",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "build": "yarn compile && yarn deploy",
+    "clean": "shx rm -rf dist",
+    "compile": "tsc",
+    "deploy": "yarn truffle:migrate-off-chain",
+    "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
+    "lint": "yarn lint:ts && yarn lint:sol",
+    "lint:sol:fix": "solium -d contracts/ --fix",
+    "lint:sol": "solium -d .",
+    "lint:ts": "tslint -c tslint.json test/**/*.ts",
+    "lint:ts:fix": "tslint -c tslint.json test/**/*.ts --fix",
+    "precommit": "lint-staged",
+    "test": "yarn truffle:test",
+    "testfiles": "yarn build && yarn truffle:testfiles",
+    "test:circleci": "yarn test",
+    "test:coverage": "solidity-coverage",
+    "truffle:compile": "truffle compile --all",
+    "truffle:console": "truffle console",
+    "truffle:migrate-off-chain": "rm -f networks/*.json && truffle-migrate-off-chain --network ganache",
+    "truffle:migrate": "truffle migrate --network ganache",
+    "truffle:test": "truffle test --network ganache $npm_package_config_testFiles"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "yarn lint:fix",
+      "git add"
+    ],
+    "contracts/**/*.sol": [
+      "yarn lint:sol:fix",
+      "git add"
+    ]
+  },
+  "config": {
+    "testFiles": "dist/**/**/*.spec.js",
+    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d"
+  },
+  "keywords": [
+    "ethereum",
+    "counterfactual",
+    "state channels",
+    "solidity"
+  ],
+  "devDependencies": {
+    "@counterfactual/configs": "0.0.1",
+    "@counterfactual/typescript-typings": "0.0.1",
+    "@types/bignumber.js": "4.0.2",
+    "@types/chai": "^4.1.6",
+    "@types/chai-string": "^1.4.1",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/node": "^10.9.3",
+    "babel-eslint": "8.2.5",
+    "bignumber.js": "7.2.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "chai-string": "^1.5.0",
+    "decimal.js": "10.0.1",
+    "eth-gas-reporter": "0.1.9",
+    "ganache-cli": "^6.1.8",
+    "lint-staged": "7.1.2",
+    "shx": "^0.3.2",
+    "solidity-coverage": "0.5.4",
+    "solium": "1.1.7",
+    "truffle": "4.1.14",
+    "truffle-migrate-off-chain": "0.1.4",
+    "ts-node": "^7.0.0",
+    "tslint": "5.11.0",
+    "typescript": "^3.1.2"
+  },
+  "dependencies": {
+    "@counterfactual/test-utils": "0.0.1",
+    "ethers": "^4.0.4",
+    "openzeppelin-solidity": "^1.10.0",
+    "solc": "0.4.24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/contracts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/counterfactual/contracts/issues"
+  },
+  "homepage": "https://github.com/counterfactual/contracts#readme"
+}

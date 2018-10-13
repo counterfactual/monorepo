@@ -2,36 +2,26 @@ version: 2
 jobs:
   build:
     docker:
-        - image: circleci/node:9.11
+      - image: circleci/node:9.11
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run: yarn install
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run: yarn
+      - run: ./node_modules/.bin/lerna bootstrap
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
 
   run-node-tests:
-    machine: true
+    docker:
+      - image: circleci/node:9.11
     steps:
       - checkout
-      - run:
-          name: "Pull submodules"
-          command: git submodule update --init --recursive
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: "Yarn install"
-          command: |
-              curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-              echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-              sudo apt-get update && sudo apt-get install yarn
-              yarn install
-      - run: yarn docker:build # Pull in image instead of building once image is deployed to hub
-      - run: yarn docker:run
-      - run: yarn test:ci
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run: yarn build && yarn test
 
   run-tslint:
     docker:
@@ -39,8 +29,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run: yarn run lint
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run: yarn lint
 
   run-prettier:
     docker:
@@ -48,8 +38,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run: yarn run prettier
+          key: dependency-cache-{{ checksum "yarn.lock" }}
+      - run: yarn prettier
 
 workflows:
   version: 2

@@ -1,0 +1,55 @@
+{
+  "name": "@counterfactual/test-utils",
+  "version": "0.0.1",
+  "description": "Miscellaneous utility functions.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "rollup": "rollup -c",
+    "clean": "shx rm -rf lib node_modules",
+    "lint:all:fix": "yarn lint:fix",
+    "lint:all": "yarn lint",
+    "lint:fix": "tslint -c tslint.json src/**/*.ts --fix",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "precommit": "yarn build && lint-staged"
+  },
+  "include": [
+    "src"
+  ],
+  "lint-staged": {
+    "linters": {
+      "*.ts": [
+        "yarn lint:fix",
+        "git add"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "ethers": "^4.0.4"
+  },
+  "devDependencies": {
+    "@counterfactual/configs": "0.0.1",
+    "@counterfactual/typescript-typings": "0.0.1",
+    "@types/bignumber.js": "4.0.2",
+    "@types/jest": "^23.3.3",
+    "@types/node": "^10.9.3",
+    "jest": "^23.6.0",
+    "lint-staged": "7.1.2",
+    "rollup": "^0.66.4",
+    "rollup-plugin-typescript2": "^0.17.1",
+    "shx": "^0.3.2",
+    "truffle": "4.1.14",
+    "tslint": "5.11.0",
+    "typescript": "^3.1.2"
+  },
+  "dependencies": {
+    "bignumber.js": "7.2.1",
+    "ethers": "^4.0.4"
+  }
+}
