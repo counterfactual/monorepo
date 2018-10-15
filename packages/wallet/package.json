@@ -4,6 +4,7 @@
   "description": "A wrapper around the Counterfactual Machine to facilitate State Channel usage for users.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "iife": "dist/index-iife.js",
   "files": [
     "dist"
   ],

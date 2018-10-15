@@ -1,4 +1,4 @@
-const wallet = new wa.TestWallet();
+const wallet = new counterfactualWallet.IframeWallet();
 const listeners = [];
 
 let ethmoContract;
@@ -34,9 +34,14 @@ async function getSourceCode(id) {
 }
 
 async function injectScript(event) {
+  const injectedMachineScript = `${await getSourceCode("machine")};`;
   const injectedClientInterfaceScript = `${await getSourceCode("ci")};`;
   const injectedWalletScript = `${await getSourceCode("wa")};`;
 
+  event.source.postMessage(
+    { type: "cf:init-reply", source: injectedMachineScript },
+    "*"
+  );
   event.source.postMessage(
     { type: "cf:init-reply", source: injectedClientInterfaceScript },
     "*"
