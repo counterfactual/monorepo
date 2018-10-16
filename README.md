@@ -18,7 +18,7 @@ To install the dependencies, run:
 
 ```shell
 yarn
-lerna bootstrap
+yarn bootstrap
 ```
 
 To build all the packages, make sure port 9545 is free and run:
