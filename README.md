@@ -1,14 +1,33 @@
-<img src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810" width="200px" height="200px"/>
+<h1 align="center">
+  <br>
+  <a href="https://counterfactual.com"><img src="./counterfactual_logo.svg" alt="Counterfactual" width="150"></a>
+  <br>
+  Counterfactual
+  <br>
+  <br>
+</h1>
 
----
+<h4 align="center">Simple off-chain applications framework for Ethereum.</h4>
 
-# [Counterfactual](https://counterfactual.com) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE)[![CircleCI](https://circleci.com/gh/counterfactual/monorepo.svg?style=svg&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c)](https://circleci.com/gh/counterfactual/monorepo)
+<p align="center">
+  <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
+  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
+  <a href="https://solidity.readthedocs.io/en/develop/index.html"><img src="https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg" /></a>
+</p>
+<br>
 
-Counterfactual is a general framework for building state channel applications.
+**Counterfactual** is a simple off-chain framework for building **state channel applications** on top of the Ethereum blockchain. It aims to make it simpler to build permisionless applications that have instant finality with zero-fee transactions.
 
-This repository is a monorepo containing all the packages that comprise the implementation of the Counterfactual framework.
+You can learn more about what state channels are by reading [our whitepaper](https://counterfactual.com/statechannels) or a less technical written [description](https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4).
 
-Each sub-package is an independent npm package.
+### Ways to help
+
+- **Join us in [Discord][counterfactual-discord-url]** to help
+  with development or to hang out with some ethereum hackers :)
+- **[Create a new issue](https://github.com/counterfactual/monorepo/issues/new)** to report bugs
+- **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
+  is an [Open Source Project](CONTRIBUTING.md)!
+
 
 ## Building and Testing
 
@@ -68,3 +87,5 @@ To test a specific package, run:
 ```shell
 PKG=<package-name> yarn test
 ```
+
+[counterfactual-discord-url]: https://discord.gg/VcTn7fh
