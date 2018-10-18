@@ -3,7 +3,7 @@ import * as ethers from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
 import { IframeIoProvider } from "./ioProvider";
-import { IframeWallet } from "./wallet";
+import { IFrameWallet } from "./wallet";
 
 export let ganacheURL;
 
@@ -46,7 +46,7 @@ export class User
   >();
 
   constructor(
-    readonly wallet: IframeWallet,
+    readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
     networkContext: machine.types.NetworkContext,
@@ -78,17 +78,8 @@ export class User
 
     this.signingKey = new ethers.utils.SigningKey(privateKey);
     this.address = this.signingKey.address;
-    const { web3 } = window as any;
-    if (web3) {
-      this.ethersWallet = new ethers.providers.Web3Provider(
-        web3.currentProvider
-      ).getSigner();
-    } else {
-      this.ethersWallet = new ethers.Wallet(
-        privateKey,
-        new ethers.providers.JsonRpcProvider(ganacheURL)
-      );
-    }
+    this.ethersWallet = this.generateEthersWallet(privateKey);
+    this.initializeWallet(privateKey);
   }
   public registerObserver(
     type: machine.mixins.NotificationType,
@@ -105,6 +96,36 @@ export class User
       to: options.multisig,
       value: options.value
     });
+  }
+
+  private async initializeWallet(privateKey) {
+    const { web3 } = window as any;
+
+    this.ethersWallet = web3
+      ? await this.generateJsonRpcSigner(web3, privateKey)
+      : this.generateEthersWallet(privateKey);
+  }
+
+  private async generateJsonRpcSigner(
+    web3,
+    privateKey
+  ): Promise<ethers.Wallet | ethers.providers.JsonRpcSigner> {
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    const ethersWallet = provider.getSigner();
+    const accounts = await ethersWallet.provider.listAccounts();
+
+    // TODO handle when metamask client isn't signed in;
+    // currently just defaulting to an ethers wallet
+    return accounts.length > 0
+      ? ethersWallet
+      : this.generateEthersWallet(privateKey);
+  }
+
+  private generateEthersWallet(privateKey): ethers.Wallet {
+    return new ethers.Wallet(
+      privateKey,
+      new ethers.providers.JsonRpcProvider(ganacheURL)
+    );
   }
 
   // Load the previously saved data if any, and continue executing protocols

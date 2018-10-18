@@ -52,13 +52,13 @@ describe("Setup Protocol", async () => {
   it("should have the correct funds on chain", async () => {
     const depositAmount = ethers.utils.parseEther("0.0005");
 
-    const walletA = new wallet.IframeWallet(defaultNetwork());
+    const walletA = new wallet.IFrameWallet(defaultNetwork());
     walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    const walletB = new wallet.IframeWallet(defaultNetwork());
+    const walletB = new wallet.IFrameWallet(defaultNetwork());
     walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     const network = walletA.network;
 
-    const masterWallet = new wallet.IframeWallet();
+    const masterWallet = new wallet.IFrameWallet();
     masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
     const ethersWalletA = walletA.currentUser.ethersWallet;
     const ethersWalletB = walletB.currentUser.ethersWallet;
@@ -215,8 +215,8 @@ describe("Setup Protocol", async () => {
 
 async function setup(
   multisigAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet
 ) {
   validatePresetup(walletA, walletB);
   const msg = setupStartMsg(
@@ -230,8 +230,8 @@ async function setup(
 }
 
 function validatePresetup(
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet
 ) {
   expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
   expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
@@ -258,8 +258,8 @@ function setupStartMsg(
 
 function validateSetup(
   multisigAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet
 ) {
   validateNoAppsAndFreeBalance(
     multisigAddr,
@@ -282,8 +282,8 @@ function validateSetup(
  */
 function validateNoAppsAndFreeBalance(
   multisigAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet,
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -317,8 +317,8 @@ function validateNoAppsAndFreeBalance(
 
 async function makeDeposits(
   multisigAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet,
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet,
   depositAmount: ethers.utils.BigNumber
 ): Promise<{
   cfAddr: string;
@@ -344,8 +344,8 @@ async function makeDeposits(
 
 async function deposit(
   multisigAddr: string,
-  depositor: wallet.IframeWallet,
-  counterparty: wallet.IframeWallet,
+  depositor: wallet.IFrameWallet,
+  counterparty: wallet.IFrameWallet,
   amountToDeposit: ethers.utils.BigNumber,
   counterpartyBalance: ethers.utils.BigNumber
 ): Promise<{ cfAddr: string; txFee: ethers.utils.BigNumber }> {
@@ -369,8 +369,8 @@ async function deposit(
 
 async function installBalanceRefund(
   multisigAddr: string,
-  depositor: wallet.IframeWallet,
-  counterparty: wallet.IframeWallet,
+  depositor: wallet.IFrameWallet,
+  counterparty: wallet.IFrameWallet,
   threshold: ethers.utils.BigNumber
 ) {
   const msg = startInstallBalanceRefundMsg(
@@ -442,7 +442,7 @@ function startInstallBalanceRefundMsg(
 
 function validateInstalledBalanceRefund(
   multisigAddr: string,
-  wallet: wallet.IframeWallet,
+  wallet: wallet.IFrameWallet,
   amount: ethers.utils.BigNumber
 ) {
   const stateChannel =
@@ -470,7 +470,7 @@ function validateInstalledBalanceRefund(
 
 async function depositOnChain(
   multisigAddress: string,
-  wallet: wallet.IframeWallet,
+  wallet: wallet.IFrameWallet,
   value: ethers.utils.BigNumber
 ): Promise<ethers.utils.BigNumber> {
   const { ethersWallet } = wallet.currentUser;
@@ -487,8 +487,8 @@ async function depositOnChain(
 async function uninstallBalanceRefund(
   multisigAddr: string,
   cfAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet,
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -527,8 +527,8 @@ async function uninstallBalanceRefund(
 function validateUninstalledAndFreeBalance(
   multisigAddr: string,
   cfAddr: string,
-  walletA: wallet.IframeWallet,
-  walletB: wallet.IframeWallet,
+  walletA: wallet.IFrameWallet,
+  walletB: wallet.IFrameWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {

@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 
 import * as machine from "@counterfactual/machine";
-import { IframeWallet } from "../src/iframe/wallet";
+import { IFrameWallet } from "../src/iframe/wallet";
 import { MULTISIG_ADDRESS } from "./environment";
 
 export async function sleep(ms) {
@@ -13,7 +13,7 @@ export async function sleep(ms) {
  * and asserting the machine state was correctly modified.
  */
 export class SetupProtocol {
-  public static async run(walletA: IframeWallet, walletB: IframeWallet) {
+  public static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validatePresetup(walletA, walletB);
     await SetupProtocol._run(walletA, walletB);
     SetupProtocol.validate(walletA, walletB);
@@ -22,7 +22,7 @@ export class SetupProtocol {
   /**
    * Asserts the state of the given wallets is empty.
    */
-  public static validatePresetup(walletA: IframeWallet, walletB: IframeWallet) {
+  public static validatePresetup(walletA: IFrameWallet, walletB: IFrameWallet) {
     expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
     expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
   }
@@ -46,7 +46,7 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the machine state correctly.
    */
-  public static validate(walletA: IframeWallet, walletB: IframeWallet) {
+  public static validate(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validateWallet(
       walletA,
       walletB,
@@ -65,8 +65,8 @@ export class SetupProtocol {
    * Validates the correctness of walletAs free balance *not* walletBs.
    */
   public static validateWallet(
-    walletA: IframeWallet,
-    walletB: IframeWallet,
+    walletA: IFrameWallet,
+    walletB: IFrameWallet,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
@@ -91,7 +91,7 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  private static async _run(walletA: IframeWallet, walletB: IframeWallet) {
+  private static async _run(walletA: IFrameWallet, walletB: IFrameWallet) {
     const msg = SetupProtocol.setupStartMsg(
       walletA.currentUser.address,
       walletB.currentUser.address

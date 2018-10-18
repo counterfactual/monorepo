@@ -126,13 +126,14 @@ export class StateChannelClient {
 
   public restore(
     appName: string,
+    appAddress: machine.types.Address,
     appId: string,
     abiEncoding: string,
     stateEncoding: string,
-    options: object
+    options?: object
   ): AppChannelClient {
     const appInterface = this.buildAppInterface(
-      appName,
+      appAddress,
       abiEncoding,
       stateEncoding
     );

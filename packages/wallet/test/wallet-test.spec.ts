@@ -4,7 +4,7 @@ import { PaymentApp } from "../src/iframe/contracts";
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 import { ganacheURL } from "../src/iframe/user";
-import { IframeWallet } from "../src/iframe/wallet";
+import { IFrameWallet } from "../src/iframe/wallet";
 import { sleep } from "./common";
 import {
   A_ADDRESS,
@@ -37,9 +37,9 @@ const INSTALL_OPTIONS: machine.types.InstallOptions = {
 const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
 class ClientInterfaceBridge implements machine.types.WalletMessaging {
-  public client: IframeWallet;
+  public client: IFrameWallet;
 
-  constructor(client: IframeWallet) {
+  constructor(client: IFrameWallet) {
     this.client = client;
   }
 
@@ -62,10 +62,10 @@ describe("Lifecycle", async () => {
   let multisigContract;
   const owners = [A_ADDRESS, B_ADDRESS];
   beforeAll(async () => {
-    const multisigWallet = new IframeWallet();
+    const multisigWallet = new IFrameWallet();
     multisigWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
 
-    multisigContract = await IframeWallet.deployMultisig(
+    multisigContract = await IFrameWallet.deployMultisig(
       multisigWallet.currentUser.ethersWallet,
       owners
     );
@@ -74,15 +74,15 @@ describe("Lifecycle", async () => {
     multisigContractAddress = multisigContract.address;
   });
 
-  let clientA: IframeWallet;
-  let clientB: IframeWallet;
+  let clientA: IFrameWallet;
+  let clientB: IFrameWallet;
   let connectionA;
   let connectionB;
   let clientInterfaceA: cf.ClientInterface;
   let clientInterfaceB: cf.ClientInterface;
   beforeEach(async () => {
-    clientA = new IframeWallet();
-    clientB = new IframeWallet();
+    clientA = new IFrameWallet();
+    clientB = new IFrameWallet();
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     connectionA = new ClientInterfaceBridge(clientA);
@@ -144,8 +144,8 @@ describe("Lifecycle", async () => {
     // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
 
-    const clientA = new IframeWallet();
-    const clientB = new IframeWallet();
+    const clientA = new IFrameWallet();
+    const clientB = new IFrameWallet();
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     const connectionA = new ClientInterfaceBridge(clientA);
@@ -395,8 +395,8 @@ describe("Lifecycle", async () => {
  * Validates the correctness of clientA's free balance *not* clientB's.
  */
 function validateNoAppsAndFreeBalance(
-  clientA: IframeWallet,
-  clientB: IframeWallet,
+  clientA: IFrameWallet,
+  clientB: IFrameWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -430,7 +430,7 @@ function validateNoAppsAndFreeBalance(
   });
 }
 
-function validateInstalledBalanceRefund(wallet: IframeWallet, amount: number) {
+function validateInstalledBalanceRefund(wallet: IFrameWallet, amount: number) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
   const appChannels = stateChannel.appChannels;
@@ -453,8 +453,8 @@ function validateInstalledBalanceRefund(wallet: IframeWallet, amount: number) {
 }
 
 async function validateDeposit(
-  clientA: IframeWallet,
-  clientB: IframeWallet,
+  clientA: IFrameWallet,
+  clientB: IFrameWallet,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
@@ -476,7 +476,7 @@ async function validateMultisigBalance(
 }
 
 function validateFreebalance(
-  wallet: IframeWallet,
+  wallet: IFrameWallet,
   aliceBalance: ethers.utils.BigNumber,
   bobBalance: ethers.utils.BigNumber
 ) {
@@ -489,8 +489,8 @@ function validateFreebalance(
 }
 
 async function makePayments(
-  clientA: IframeWallet,
-  clientB: IframeWallet,
+  clientA: IFrameWallet,
+  clientB: IFrameWallet,
   appChannel: cf.AppChannelClient
 ) {
   await makePayment(clientA, clientB, appChannel, "5", "15", 1);
@@ -501,8 +501,8 @@ async function makePayments(
 }
 
 async function makePayment(
-  clientA: IframeWallet,
-  clientB: IframeWallet,
+  clientA: IFrameWallet,
+  clientB: IFrameWallet,
   appChannel: cf.AppChannelClient,
   aliceBalance: string,
   bobBalance: string,
@@ -519,8 +519,8 @@ async function makePayment(
 }
 
 function validateUpdatePayment(
-  clientA: IframeWallet,
-  clientB: IframeWallet,
+  clientA: IFrameWallet,
+  clientB: IFrameWallet,
   appChannel: cf.AppChannelClient,
   appState: object,
   totalUpdates: number

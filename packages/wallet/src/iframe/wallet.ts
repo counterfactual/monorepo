@@ -6,12 +6,12 @@ import * as machine from "@counterfactual/machine";
 import * as contracts from "./contracts";
 import { User } from "./user";
 
-export class IframeWallet implements machine.types.ResponseSink {
+export class IFrameWallet implements machine.types.ResponseSink {
   public static async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
     owners: machine.types.Address[]
   ): Promise<ethers.Contract> {
-    const contractArtifacts = IframeWallet.getContractArtifacts();
+    const contractArtifacts = IFrameWallet.getContractArtifacts();
 
     const networkContext = machine.types.NetworkContext.fromDeployment(
       contracts.networkFile,
@@ -35,7 +35,7 @@ export class IframeWallet implements machine.types.ResponseSink {
    * and pass that to the VM.
    */
   public static defaultNetwork(): machine.types.NetworkContext {
-    const contractArtifacts = IframeWallet.getContractArtifacts();
+    const contractArtifacts = IFrameWallet.getContractArtifacts();
     return machine.types.NetworkContext.fromDeployment(
       contracts.networkFile,
       contractArtifacts
@@ -112,7 +112,7 @@ export class IframeWallet implements machine.types.ResponseSink {
     this.networkContext =
       networkContext !== undefined
         ? networkContext
-        : IframeWallet.defaultNetwork();
+        : IFrameWallet.defaultNetwork();
   }
 
   public async initUser(address: string) {
@@ -302,6 +302,14 @@ export class IframeWallet implements machine.types.ResponseSink {
       switch (incoming.action) {
         case machine.types.ActionName.DEPOSIT: {
           await this.currentUser.deposit(incoming.data);
+          break;
+        }
+        case machine.types.ActionName.DEPLOY_MULTISIG: {
+          const multisigContract = await IFrameWallet.deployMultisig(
+            this.currentUser.ethersWallet,
+            incoming.data.owners
+          );
+          incoming.data = multisigContract.address;
           break;
         }
         case machine.types.ActionName.ADD_OBSERVER: {

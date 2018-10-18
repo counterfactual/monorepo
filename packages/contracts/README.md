@@ -30,13 +30,14 @@ The main purpose of this repository is to continue to evolve Counterfactual's co
 
 ## Development
 
-1.  Install node v8.x or v10.x
-2.  `yarn`
+1. Install node v10.12.0
+2. `yarn`
 
 To run the tests:
 
-3.  Run `yarn ganache` in a separate terminal
-4.  `yarn test`
+3. Make sure ganache is running by running `yarn ganache` in the root of the repo, in a separate terminal.
+4. `yarn build`
+5. `yarn test`
 
 ## License
 

@@ -1,3 +1,3 @@
-import { IframeWallet } from "./src/iframe/wallet";
+import { IFrameWallet } from "./src/iframe/wallet";
 
-export { IframeWallet };
+export { IFrameWallet };

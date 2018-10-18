@@ -1,12 +1,12 @@
 import * as machine from "@counterfactual/machine";
 
 import { User } from "./user";
-import { IframeWallet } from "./wallet";
+import { IFrameWallet } from "./wallet";
 
 export class IframeIoProvider {
   public messages: machine.types.ClientActionMessage[];
   public user: User = Object.create(null);
-  public peer: IframeWallet = Object.create(null);
+  public peer: IFrameWallet = Object.create(null);
   public clientHandlesIO: Boolean;
   // TODO Refactor this into using an EventEmitter class so we don't do
   // this manually

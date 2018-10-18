@@ -29,13 +29,13 @@ abstract class SetupProtocolTestCase {
    * recreate a new machine and resume protocols.
    */
   public db: MemDb;
-  public walletA: wallet.IframeWallet;
-  public walletB: wallet.IframeWallet;
+  public walletA: wallet.IFrameWallet;
+  public walletB: wallet.IFrameWallet;
   public executedInstructions: Instruction[];
   constructor() {
     this.db = new MemDb();
-    this.walletA = new wallet.IframeWallet(defaultNetwork());
-    this.walletB = new wallet.IframeWallet(defaultNetwork());
+    this.walletA = new wallet.IFrameWallet(defaultNetwork());
+    this.walletB = new wallet.IFrameWallet(defaultNetwork());
     this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
     this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, undefined, new MemDb());
     this.walletA.currentUser.io.peer = this.walletB;
@@ -61,7 +61,7 @@ abstract class SetupProtocolTestCase {
   public async resumeNewMachine() {
     // make a new wallet with the exact same state
     // i.e., the same WAL db and the same channelStates
-    const walletA2 = new wallet.IframeWallet();
+    const walletA2 = new wallet.IFrameWallet();
     walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
     walletA2.currentUser.io.peer = this.walletB;
     this.walletB.currentUser.io.peer = walletA2;
@@ -70,7 +70,7 @@ abstract class SetupProtocolTestCase {
   }
 
   public abstract setupWallet(
-    wallet: wallet.IframeWallet,
+    wallet: wallet.IFrameWallet,
     shouldError: boolean
   );
   /**
@@ -99,7 +99,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the beginning if it crashes during the first instruction";
   }
 
-  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,
@@ -150,7 +150,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the second instruction if it crashes during the second instruction";
   }
 
-  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,
@@ -200,7 +200,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the second instruction if it crashes during the second instruction";
   }
 
-  public setupWallet(wallet: wallet.IframeWallet, shouldError: boolean) {
+  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     wallet.currentUser.vm.register(
       Instruction.ALL,

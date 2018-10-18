@@ -33,6 +33,16 @@ export class ClientInterface implements Observable {
     this.observerCallbacks = new Map<string, Function>();
     this.stateChannels = {};
   }
+  public async deployMultisig(owners: string[]) {
+    const message = {
+      requestId: this.requestId(),
+      action: machine.types.ActionName.DEPLOY_MULTISIG,
+      data: {
+        owners
+      }
+    };
+    return this.sendMessage(message);
+  }
 
   public registerObserver(type: NotificationType, callback: Function) {}
 

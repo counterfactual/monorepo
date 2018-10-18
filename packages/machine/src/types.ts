@@ -471,7 +471,8 @@ export enum ActionName {
   REMOVE_OBSERVER = "removeObserver",
   REGISTER_IO = "registerIo",
   RECEIVE_IO = "receiveIo",
-  QUERY = "query"
+  QUERY = "query",
+  DEPLOY_MULTISIG = "deployMultisig"
 }
 
 export interface Addressable {

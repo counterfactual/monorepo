@@ -84,8 +84,8 @@ export function defaultNetwork(): NetworkContext {
  */
 export class SetupProtocol {
   public static async run(
-    walletA: wallet.IframeWallet,
-    walletB: wallet.IframeWallet
+    walletA: wallet.IFrameWallet,
+    walletB: wallet.IFrameWallet
   ) {
     SetupProtocol.validatePresetup(walletA, walletB);
     await SetupProtocol._run(walletA, walletB);
@@ -96,8 +96,8 @@ export class SetupProtocol {
    * Asserts the state of the given wallets is empty.
    */
   public static validatePresetup(
-    walletA: wallet.IframeWallet,
-    walletB: wallet.IframeWallet
+    walletA: wallet.IFrameWallet,
+    walletB: wallet.IFrameWallet
   ) {
     expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
     expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
@@ -120,8 +120,8 @@ export class SetupProtocol {
    * Asserts the setup protocol modifies the machine state correctly.
    */
   public static validate(
-    walletA: wallet.IframeWallet,
-    walletB: wallet.IframeWallet
+    walletA: wallet.IFrameWallet,
+    walletB: wallet.IFrameWallet
   ) {
     SetupProtocol.validateWallet(
       walletA,
@@ -141,8 +141,8 @@ export class SetupProtocol {
    * Validates the correctness of walletAs free balance *not* walletBs.
    */
   public static validateWallet(
-    walletA: wallet.IframeWallet,
-    walletB: wallet.IframeWallet,
+    walletA: wallet.IFrameWallet,
+    walletB: wallet.IFrameWallet,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
@@ -168,8 +168,8 @@ export class SetupProtocol {
   }
 
   private static async _run(
-    walletA: wallet.IframeWallet,
-    walletB: wallet.IframeWallet
+    walletA: wallet.IFrameWallet,
+    walletB: wallet.IFrameWallet
   ) {
     const msg = SetupProtocol.setupStartMsg(
       walletA.currentUser.address,

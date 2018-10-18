@@ -1,9 +1,10 @@
-const wallet = new counterfactualWallet.IframeWallet();
+const wallet = new counterfactualWallet.IFrameWallet();
 const listeners = [];
 
 let ethmoContract;
 let multisigContract;
 let nonceRegistry;
+let registry;
 
 const GAS_LIMITS = {
   DEPLOY_APP_INSTANCE: 4e6,
@@ -36,7 +37,9 @@ async function getSourceCode(id) {
 async function injectScript(event) {
   const injectedMachineScript = `${await getSourceCode("machine")};`;
   const injectedClientInterfaceScript = `${await getSourceCode("ci")};`;
-  const injectedWalletScript = `${await getSourceCode("wa")};`;
+  const injectedWalletScript = `${await getSourceCode(
+    "counterfactualWallet"
+  )};`;
 
   event.source.postMessage(
     { type: "cf:init-reply", source: injectedMachineScript },
@@ -113,7 +116,7 @@ async function deployFreeBalanceStateChannel() {
   const stateChannels = getStateChannels();
   const stateChannel = Object.values(stateChannels)[0];
   const contract = await deployFreeBalanceContract(
-    wallet.defaultNetwork(),
+    counterfactualWallet.IFrameWallet.defaultNetwork(),
     stateChannel,
     wallet.currentUser.ethersWallet
   );
@@ -126,7 +129,7 @@ async function deployEthmoStateChannel() {
   const stateChannels = getStateChannels();
   const stateChannel = Object.values(stateChannels)[0];
   ethmoContract = await deployApplicationStateChannel(
-    wallet.defaultNetwork(),
+    counterfactualWallet.IFrameWallet.defaultNetwork(),
     stateChannel,
     ethmoApplication,
     wallet.currentUser.ethersWallet
@@ -224,7 +227,7 @@ function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
       ["tuple(address, bytes4, bytes4, bytes4, bytes4)"],
       [
         [
-          networkContext.PaymentApp,
+          networkContext.PaymentApp.address,
           "0x00000000",
           "0x860032b3",
           "0x00000000",
@@ -276,25 +279,6 @@ async function deployApplicationStateChannel(
   );
 }
 
-async function loadStateChannelArtifact() {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("GET", "/contracts/build/contracts/StateChannel.json", true);
-
-    request.onload = function() {
-      if (request.status >= 200 && request.status < 400) {
-        resolve(JSON.parse(request.responseText));
-      } else {
-        reject(request);
-      }
-    };
-
-    request.onerror = reject;
-
-    request.send();
-  });
-}
-
 async function deployAppInstance(
   networkContext,
   stateChannel,
@@ -305,8 +289,8 @@ async function deployAppInstance(
   termsHash,
   timeout
 ) {
-  const registry = new ethers.Contract(
-    networkContext.Registry,
+  registry = new ethers.Contract(
+    networkContext.Registry.address,
     [
       "function deploy(bytes, uint256)",
       "function resolver(bytes32) view returns (address)"
@@ -314,11 +298,11 @@ async function deployAppInstance(
     wallet
   );
 
-  const StateChannel = await loadStateChannelArtifact();
+  const AppInstance = networkContext.AppInstance;
 
   const initcode = new ethers.utils.Interface(
-    StateChannel.abi
-  ).deployFunction.encode(networkContext.linkBytecode(StateChannel.bytecode), [
+    AppInstance.abi
+  ).deployFunction.encode(networkContext.linkBytecode(AppInstance.bytecode), [
     stateChannel.multisigAddress,
     signingKeys,
     appHash,
@@ -339,5 +323,5 @@ async function deployAppInstance(
 
   const address = await registry.functions.resolver(cfAddress);
 
-  return new ethers.Contract(address, StateChannel.abi, wallet);
+  return new ethers.Contract(address, AppInstance.abi, wallet);
 }
