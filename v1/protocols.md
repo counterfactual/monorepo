@@ -42,7 +42,7 @@ Assume there exists a multisig shared by two parties, Alice and Bob.
 
 The state of our state channel looks like this (note everything above the line is "on-chain" and everything below the line is "off-chain"):
 
-![multisig](../img/multisig.png)
+![multisig](./img/multisig.png)
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
 
@@ -80,7 +80,7 @@ The very first protocol every state channel must run is the Setup Protocol. As t
 
 Completing the Setup Protocol transitions the counterfactual state to:
 
-![setup](../img/setup.png)
+![setup](./img/setup.png)
 
 **Handshake:**
 
@@ -127,7 +127,7 @@ Assume the multisig owns 20 ETH and that the Free Balance has recorded a balance
 
 Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
-![install](../img/install.png)
+![install](./img/install.png)
 
 The funds available in the free balance decrease and the funds committed to the tic-tac-toe application increase by the corresponding amount.
 
@@ -285,7 +285,7 @@ And so as the underlying state of the application changes, the result of the pay
 
 Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alice would run the Update Protocol, transitioning our state to
 
-![update](../img/update.png)
+![update](./img/update.png)
 
 Notice how both the board changes and the _local_ nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 
@@ -378,7 +378,7 @@ Now, both parties could simply broadcast the application on chain, wait the disp
 
 Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declaring X the winner. If Alice runs the Uninstall Protocol, then the Counterfactual state transitions to
 
-![uninstall](../img/uninstall.png)
+![uninstall](./img/uninstall.png)
 
 Notice the two operations here:
 

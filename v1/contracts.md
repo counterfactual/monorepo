@@ -42,7 +42,7 @@ In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing 
 
 The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
 
-![statechannel statuses](../img/statechannel-statuses.svg)
+![statechannel statuses](./img/statechannel-statuses.svg)
 
 To transition between these states, Counterfactual defines an interface to an AppInstance that can be used to transition between the logical states defined above.
 
