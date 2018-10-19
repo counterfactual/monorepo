@@ -14,7 +14,7 @@ Let `c_1`, `c_2` be the amount that parties 1 and 2 wish to contribute towards t
 
 - updates the free balance state to one where party 1's balance is reduced by `c_1` and party 2's balance is reduced by `c_2`.
 - sets the nonce registry entry to 1.
-- calls `executeAppConditionalTransfer` with a limit of `c_1 + c_2`.
+- calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2`.
 
 ## Handshake
 
@@ -149,7 +149,7 @@ delegatecall(
             CONDITIONAL_TRANSFER,
             0,
             encode(
-                "executeAppConditionalTransfer(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
+                "executeAppConditionalTransaction(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
                 [
                     NONCE_REGISTRY,
                     key,
