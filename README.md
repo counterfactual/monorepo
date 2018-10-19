@@ -41,7 +41,7 @@ We want channels that can be easily incorporated into new applications without t
 
 We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](/protocols).
 
-### Upgradeability
+### Upgradeable
 
 We want to support deploying or upgrading channel designs without requiring the user to make a single on-chain operation. There are multiple ways that we are able to achieve this and that we are designing for. For the purposes of _trustless_ off-chain upgradability, we are able to support counterfactually instantiated smart contracts as applications. To upgrade a contract trustlessly, state channel participants simply agree to a new version of bytecode their applications pertains to and move on with that. With trust, state channel participants can use an application that is defined using [ZeppelinOS's upgradeable contracts](https://docs.zeppelinos.org/docs/building.html).
 
