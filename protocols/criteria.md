@@ -23,4 +23,3 @@ Note: this criteria does not preclude a "cleanup phase" following the one round 
 ### O(1) response
 
 It is possible to arrive at a state where any stale-state-griefing attack can be responded to with a single transaction of constant size, in particular, independent of number of active or historical apps.
-

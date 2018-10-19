@@ -1,0 +1,34 @@
+
+For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
+
+We recapitulate some relevant definitions. In some cases we use definitions that are more specialized (less general) than in the paper.
+
+- **state deposit**: blockchain state locked into a state channel
+- **state deposit holder**: the on-chain multisignature wallet that holds the state deposit
+- **counterfactual instantiation**: the process by which parties in a state channel agree to be bound by the terms of some off-chain contract
+- **counterfactual address**: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
+- **commitment**: a signed transaction (piece of data) that allows the owner to perform a certain action
+- **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
+- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true.
+
+Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
+
+## Organization
+
+These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
+
+## Design
+
+A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
+
+### Criteria
+
+The file [criteria.md](criteria.md) contains criteria for that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
+
+### Commitments
+
+We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
+
+An simple example of an action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
+
+Many actions are simply delegate calls a contract in the `delegateTargets` folder. These contracts execute 

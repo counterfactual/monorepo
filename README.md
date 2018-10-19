@@ -1,6 +1,6 @@
 # Specifications
 
-[![](https://img.shields.io/badge/made%20by-L4-black.svg?style=flat-square)](http://l4v.io)
+![Discord](https://img.shields.io/discord/500370633901735947.svg)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 > This repository contains the specs for the Counterfactual Protocol and associated subsystems.
@@ -14,99 +14,148 @@
 - [Protocols](#protocols)
 - [Roadmap](#roadmap)
 
+## Architecture
+
+Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. Within their scope of applicability, they allow users to transact with each other without paying blockchain transaction fees and with instant finality, and are the only technique that securely realises the latter property.
+
+With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they proceed to exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](/protocol) section.
+
+Through a challenge-response mechanism, on-chain contracts implement a method for participants to ensure the latest signed valid state update that pertains to their commitment can be submitted to the blockchain to guarantee fair adjudication of the state.
+
+Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explainer of the contracts layer, please read the [contracts](/contracts) subsection.
+
+## Limitations
+
+1. Turn based games
+2. Public auditability
+
+## Contracts
+
+### Multisignature Wallet
+
+A multisignature wallet is the only required on-chain component for a state channel to work. Although we provide an example implementation, we believe the following properties should become standards in any multisignature wallet on Ethereum and Counterfactual will work with any wallet that implements them.
+
+1. Execution of arbtirary transaction of the form `(address to, uint256 value, bytes data, uint8 op)` where `op` is a switch for defining either a `CALL` or `DELEGATECALL` internal transaction.
+
+2. Hash-bashed replay protection as opposed to nonce-based.
+
+3. Supports n-of-n unanimous consent.
+
+4. Deterministic signature verification that does _not_ use the on-chain address of the contract.
+
+### AppInstance
+
+We refer to the contract that adjudicates a dispute in a state channel application as an [`AppInstance`](#appinstance). This is the most fundamental contract for providing the security guarantees that off-chain state updates of the latest nonce and valid update status can be considered "final". It does this by implementing the challenge-response mechanism.
+
+An AppInstance exists in three main states or “statuses”, namely `ON`, `OFF` and `DISPUTE`. The `ON` state represents the state where a dispute has not started, while the `OFF` state represents one where a dispute has finished (typically through moving to a terminal app state). In the Solidity code this is implemented as an `enum`:
+
+```solidity
+enum Status {
+  ON,
+  DISPUTE,
+  OFF
+}
+```
+
+In the stored state channel `State` struct, which is the encapsulation of all the information needed to know what is the "final" state pertaining to an application, the `Status` variable is included in addition to the hash of the application's state and a nonce.
+
+```solidity
+struct State {
+  Status status;
+  bytes32 appStateHash;
+  uint256 nonce;
+  uint256 finalizesAt;
+  ...
+}
+```
+
+In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing the block height before which a responding `progressDispute` call must be made. Hence, the functions in `AppInstance.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
+
+The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
+
+![statechannel statuses](../images/statechannel-statuses.svg)
+
+To transition between these states, Counterfactual defines an interface to an AppInstance that can be used to transition between the logical states defined above.
+
+- [`setState`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L161) (`ON` to `DISPUTE`): Supports submitting the latest signed state and turning on the timer.
+- [`createDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L214) (`ON` to `DISPUTE`): Supports submitting latest state _and_ a valid action on the state.
+- [`progressDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L301) (`DISPUTE` to `DISPUTE`): Supports submitting a valid action that progresses the state.
+- [`cancelDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L359) (`DISPUTE` to `ON`): Supports unanimously cancelling the dispute and resuming off-chain.
+
+There is additionally a final function that sets the resolution of an off-chain application to be determined if the AppInstance is in an `OFF` state (after a timeout has occured).
+
+- [`setResolution`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L387)
+
+### AppDefinitions
+
+Counterfactual is opinionated in terms of which types of applications it supports being installed by strictly supporting stateless contracts that implement the interface for an `App` as defined in the [`AppInstance`](#appinstance) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
+
+The actual `App` functionality is isolated and defined in a single stateless contract. This contract defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-state-modifying functions. By non-state-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `STATICCALL` opcode in the [`AppInstance`](#appinstance) contract.
+
+Up to four functions can be implemented. The signatures are as follows:
+
+- `isStateTerminal: AppState → bool`
+- `getTurnTaker: AppState → uint256`
+- `applyAction: (AppState, Action) → AppState`
+- `resolve: AppState → Transfer.Transaction`
+
+In designing the framework we must try to achieve two sometimes contradictory goals. One the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
+
+Another limitation is that the return type of `resolve` is actually `bytes`. We expect that application developers simply end their `resolve` function with something like
+
+`return abi.encode(nextState);`
+
+where `nextState` has type `AppState`.
+
+#### `applyAction` and `getTurnTaker`: The Application State Transition Function
+
+If `AppState` defines the data structure needed to represent the state of an app instance, `applyAction` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `applyAction` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `applyAction` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
+
+<center>
+    <br />
+    <img src="./images/applyAction.svg" height="300">
+    <br />
+</center>
+
+#### resolve
+
+From certain app states, `resolve` can be called to return a value of type `struct Transfer.Transaction` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
+
+<center>
+    <br/>
+    <img src="./images/resolve.svg" height="250">
+    <br/>
+</center>
+
+#### isStateTerminal
+
+Some app states are marked terminal. An app state `a` is terminal if there does not exist an action `c` such that `applyAction(a, c)` returns without throwing. In other words, the app state transition graph has no outgoing edges from `a`. Since we cannot statically check this property, the app developer can manually mark these states by making `isStateTerminal` return true for them, allowing us to skip one step of dispute resolution.
+
+Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
+
+### ConditionalTransfer
+
+WIP
+
 ## Specs
 
-For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
+The specs contained in this repository are:
 
-We recapitulate some relevant definitions. In some cases we use definitions that are more specialized (less general) than in the paper.
+**Counterfactual Protocol:**
 
-- **state deposit**: blockchain state locked into a state channel
-- **state deposit holder**: the on-chain multisignature wallet that holds the state deposit
-- **counterfactual instantiation**: the process by which parties in a state channel agree to be bound by the terms of some off-chain contract
-- **counterfactual address**: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
-- **commitment**: a signed transaction (piece of data) that allows the owner to perform a certain action
-- **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
-- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true.
+- [protocol](/protocols) - the top-level spec and the stack
+- [overviews](/overviews) - quick overviews of the various parts of IPFS
 
-Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
+**Ethereum Smart Contracts Layer:**
 
-## Organization
+- [contracts](/contracts) - the on-chain smart contracts that implement properties of Counterfactual
 
-These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
+**Research Criteria:**
 
-## Design
+- [criteria](/criteria) - the research the protocol makes use of
 
-A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
+## Contribute
 
-### Criteria
+Suggestions, contributions, criticisms are welcome. Though please make sure to familiarize yourself deeply with Counterfactual, the models it adopts, and the principles it follows.
 
-The file [criteria.md](criteria.md) contains criteria for that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
-
-### Commitments
-
-We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
-
-An simple example of an action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
-
-Many actions are simply delegate calls a contract in the `delegateTargets` folder. These contracts execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
-
-### Apps
-
-A state channel application (app) is a collection of counterfactual state and functionality that holds the right to allocate some portion of the state deposit of the state channel that it belongs to. An example of a state channel app is a chess game. Multiple apps of the same type (e.g., multiple chess games) can be installed into the same channel.
-
-An app is also the interface that developers wishing to write channelized code deals with, in that they write an app that encapsulates the functionality that they want to offer users, which can then be installed by users into a channel. Hence, there is a mixing of framework code (written by us) and code written by app developers. See the [contracts](contracts/README.md) folder for details about how this is managed.
-
-### Nonces
-
-There are two types of nonces, or sequence numbers, used in the code. The first is used by an app and is linked to an app state, and is used to determine which signed state is more recent. The second type is called a dependency nonce and is implemented by the `NonceRegistry` contract. Its purpose is simply that certain commitments depend on them being a certain value. We explain why this is useful in the next section.
-
-### Multiple Apps
-
-One key feature of state channels we support is that multiple applications can be installed without any on-chain transactions, and multiple applications may run simultaneously. When users are done with an application (e.g., one player wins a chess game, or the expiry time on a financial option has passed), the app can be uninstalled and the state deposit assigned to it freed up to be assigned to other apps.
-
-An app that is installed but not uninstalled is called an active app.
-
-The state deposit locked in the multisig should be equal to the sum of the state deposit held by all apps in the channel. This property is called **conservation of balance**. There is a special app called the Free Balance app that is the "default place" to hold state deposit. The app logic is implement by `PaymentChannel.sol`.
-
-To support easy uninstallation of apps, each app has its own dependency nonce.
-
-## Protocols
-
-### Setup
-
-TBD
-
-### Install
-
-The install commitment is a multisend that
-
-- sets the free balance state to a new state with some balance removed
-- sets the app dependency nonce to 1
-- does a conditional transfer, which checks that the the dependency nonce is set to 1
-
-### Update
-
-The update commitment sets the app state hash.
-
-### Uninstall
-
-The uninstall commitment is a multisend that
-
-- sets the app dependency nonce to 2
-- sets the freebalance state to a new state with some balance added
-
-## Formal Specification
-
-The files in the [`protocols`](protocols) folder specify the protocols above more formally.
-
-We assume the existence of a well-known pure function `KECCAK256`, and of a registry contract deployed at `REGISTRY_ADDRESS`.
-
-## Roadmap
-
-Here is a list of future features we wish to support someday (TM).
-
-- Protocol message specification for multi-party channels
-- Designs for metachannels
-- Designs for onion-routed metachannels
-- Designs for hash nonces and merkelized multisigs
-- Designs for watchtowers
+Feel free to join in and open an issue or chat with us on [discord](https://counterfactual.com/chat)!

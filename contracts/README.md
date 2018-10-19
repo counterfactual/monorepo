@@ -1,31 +1,39 @@
-Contracts Architecture Overview
-====================================================================================================
+# Contracts Architecture
 
 Authors:
 
 - [Liam Horne](https://github.com/snario)
 - [Xuanji Li](https://github.com/IIIIllllIIIIllllIIIIllllIIIIllllIIIIll)
 
-# Table of Contents
+## Table of Contents
 
-- 1. Overview
-- 2. Applications
-- 3. State Channel Framework
-- 4. Multisignature Wallets
+- [Criteria](#criteria)
+- [Overview](#overview)
+- [AppInstances](#apps)
+- [State Channel Applications](#statechannelapps)
+- [Multisig Wallets](#multisigs)
 
+## Criteria
 
-# 1. State Channel Logic
+The Counterfactual framework is intended to be able to support applications that deal with arbitrary state transitions. Thus, the on-chain contracts must be able to support each of the following:
 
-Application-specific code is isolated in a stateless contract.
+- Handling arbitrary state deposits (e.g., ETH, ERC20, ERC721, etc)
+- Resolving disputes of arbitrary state using a challenge-response mechanism
 
-The framework code lives in more places. We know that in case of a dispute, individual counterfactually instantiated contracts must be put on chain and their storage modified throughout the dispute. This storage must contain:
+## Overview
 
-- application-specific state such as the state of a chess board, as well as
-- other state not specific to the application, such as the state nonce and how long a dispute has been going on for
+- What is state?
+- What is a state deposit?
+-  
 
-The layout of this storage is defined in `StateChannel.sol`. The application-specific state is stored through the `StateChannel.state.appStateHash` storage field. This is a hash of the application-specific state (aka "app state"), whose data structure is defined by the dapp developer (e.g. see `PaymentApp::AppState`). When the current app state needs to actually be read, it must be passed in as an argument, and the framework code ensures that the hash matches; this way, the app state is only ever stored in calldata/stack/memory, never storage, saving gas.
+Firstly, for state channel applications we explicitly isolate its code inside of a stateless contract. The contrac code that supports disputes is distinctly separated from the application logic. This contract however, for handling disputes, needs to be aware of the following pieces of information:
 
-Upon conclusion of a dispute, apps return a struct called `Transfer.Details`, which specifies what happens to the state deposit assigned to the app. For state deposits which are ether and ERC20 tokens, the framework ensures that the returned transfer details transfer less tokens than a precomitted `Transfer.Terms`, allowing us to limit the impact of bugs in application code.
+- The hash of the application-specific state
+- Metadata such as the state nonce and timeout information
+
+The layout of this storage is defined in [`AppInstance.sol`](https://github.com/counterfactual/monorepo/tree/master/packages/contracts/contracts/AppInstance.sol). The application-specific state is stored through the `AppInstance.state.appStateHash` storage field. This is a hash of the application-specific state, whose data structure is defined by the dapp developer (e.g., see `PaymentApp::AppState`). When the current app state needs to actually be read, it must be passed in as an argument, and the framework code ensures that the hash matches; this way, the app state is only ever stored in calldata / stack / memory, never storage, saving gas.
+
+Upon conclusion of a dispute, apps return a struct called `Transfer.Transaction`, which specifies what happens to the state deposit assigned to the app. For state deposits which are ether and ERC20 tokens, the framework ensures that the returned `Transfer.Transaction` transfers less tokens than a precomitted `Transfer.Terms`, allowing us to limit the impact of bugs in application code.
 
 # 2. Applications
 
@@ -36,7 +44,7 @@ Up to four functions can be implemented. The signatures are as follows:
 - `isStateTerminal: AppState → bool`
 - `getTurnTaker: AppState → uint256`
 - `applyAction: (AppState, Action) → AppState`
-- `resolve: AppState → Transfer.Details`
+- `resolve: AppState → Transfer.Transaction`
 
 In designing the framework we must try to achieve two sometimes contradictory goals. One the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
 
@@ -54,7 +62,7 @@ If `AppState` defines the data structure needed to represent the state of an app
 
 ### resolve
 
-From certain app states, `resolve` can be called to return a value of type `struct Transfer.Details` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
+From certain app states, `resolve` can be called to return a value of type `struct Transfer.Transaction` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
 ![resolve](../images/resolve.svg)
 
@@ -84,7 +92,7 @@ struct State {
 }
 ```
 
-In addition, an app in a DISPUTE state has a `finalizesAt` field representing the block height before which a responding `progressDispute` call must be made. Hence, the functions in `StateChannel.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
+In addition, an app in a DISPUTE state has a `finalizesAt` field representing the block height before which a responding `progressDispute` call must be made. Hence, the functions in `AppInstance.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
 
 The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
 
@@ -106,14 +114,14 @@ The framework state transition function is defined by the functions
 
 These functions contain docstrings docummenting their purpose and what states they start from (`DISPUTE`, open, etc).
 
-# `StateChannel.sol`: Implementation Details
+# `AppInstance.sol`: Implementation Transaction
 
 ## Storage
 
 ```
 Auth public auth;
 State public state;
-Transfer.Details public resolution;
+Transfer.Transaction public resolution;
 bytes32 private appHash;
 bytes32 private termsHash;
 uint256 private defaultTimeout;
@@ -157,10 +165,10 @@ This specifies the four functions that define an app by specifying the contract 
 
 ### resolution
 
-An instance of the struct `Transfer.Details`
+An instance of the struct `Transfer.Transaction`
 
 ```
-struct Details {
+struct Transaction {
   uint8 assetType;
   address token;
   address[] to;
@@ -171,11 +179,11 @@ struct Details {
 
 This struct represents a locked blockchain state ("state deposit") such as eth, erc20, or any other arbitrary right. `assetType` describes common classes such as eth. State deposits that do not fit into a predefined type will be represented by an `OTHER` type which specifies an address and a message call to the address.
 
-When a dispute is resolved, this storage field is set to an instance of `Transfer.Details`, which specifies what happens the state deposit assigned to the app (e.g., given to the winner).
+When a dispute is resolved, this storage field is set to an instance of `Transfer.Transaction`, which specifies what happens the state deposit assigned to the app (e.g., given to the winner).
 
 ### termsHash
 
-This is the hash of the struct `Transfer.Term`. When an app is installed, a term is precommitted to; for eth and erc20 asset types, a term specifies a bound on the resolution details that may be returned from an app. This way, if an app contains bugs (and assuming the framework code does not), the loss of funds from the bug is limited.
+This is the hash of the struct `Transfer.Term`. When an app is installed, a term is precommitted to; for eth and erc20 asset types, a term specifies a bound on the resolution Transaction that may be returned from an app. This way, if an app contains bugs (and assuming the framework code does not), the loss of funds from the bug is limited.
 
 # Commitments, Conditional Transfers and the Multisig
 
