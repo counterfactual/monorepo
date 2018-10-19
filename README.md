@@ -47,7 +47,7 @@ We want to support deploying or upgrading channel designs without requiring the 
 
 ### Standardized
 
-We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we've worked closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
+We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we've worked closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](http://eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
 
 ## Limitations
 
