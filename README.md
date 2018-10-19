@@ -1,4 +1,4 @@
-# Counterfactual 1.0.0 Specification
+# Counterfactual Specification
 
 ![](https://img.shields.io/badge/status-wip-orange.svg?style=svg)
 ![Discord](https://img.shields.io/discord/500370633901735947.svg)
