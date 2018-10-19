@@ -7,12 +7,8 @@
 
 ## Table of Contents
 
+- [Architecture](#architecture)
 - [Specs](#specs)
-- [Organization](#organization)
-- [Specs](#specs)
-- [Design](#design)
-- [Protocols](#protocols)
-- [Roadmap](#roadmap)
 
 ## Architecture
 
@@ -31,12 +27,6 @@ The specs contained in this repository are:
 - [protocols](/protocols) - The Counterfactual protocol for off-chain applications
 - [contracts](/contracts) - The on-chain smart contracts that implement properties of Counterfactual
 - [research](/research) - The research the protocol makes use of
-
-## Limitations
-
-1. **Conflict-free data structures.** Since state updates happen off-chain in state channels, there is a need to replicate the ordering property of a blockchain through a conflict-free data structure. In Counterfactual, we currently support turn-based state machines where the participant authorized to take their take (an action) is defined as a function of the state of an `App`.
-
-2. **Public auditability.** State channel applications cannot declare the state within the application to the public in a way that can be considered by the public as the latest state. For example, there is no equivalent to Etherscan for off-chain state since it is always possible for the participants of a state channel to falsify their claims.
 
 ## Contribute
 

@@ -1,10 +1,5 @@
 # Contracts Architecture
 
-Authors:
-
-- [Liam Horne](https://github.com/snario)
-- [Xuanji Li](https://github.com/IIIIllllIIIIllllIIIIllllIIIIllllIIIIll)
-
 ## Multisignature Wallet
 
 A multisignature wallet is the only required on-chain component for a state channel to work. Although we provide an example implementation, we believe the following properties should become standards in any multisignature wallet on Ethereum and Counterfactual will work with any wallet that implements them.
