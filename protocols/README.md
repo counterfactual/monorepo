@@ -44,7 +44,7 @@ Assume there exists a multisig shared by two parties, Alice and Bob.
 
 The state of our GSC looks like this (note everything above the line is "on-chain" and everything below the line is "off-chain"):
 
-![multisig](../images/multisig.png)
+![multisig](../img/multisig.png)
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
 

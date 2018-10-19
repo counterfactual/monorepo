@@ -6,7 +6,7 @@ And so as the underlying state of the application changes, the result of the pay
 
 Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alice would run the Update Protocol, transitioning our state to
 
-![update](../images/update.png)
+![update](../img/update.png)
 
 Notice how both the board changes and the *local* nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 

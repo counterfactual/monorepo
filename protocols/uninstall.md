@@ -6,7 +6,7 @@ Now, both parties could simply broadcast the application on chain, wait the disp
 
 Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declaring X the winner. If Alice runs the Uninstall Protocol, then the Counterfactual state transitions to
 
-![uninstall](../images/uninstall.png)
+![uninstall](../img/uninstall.png)
 
 Notice the two operations here:
 

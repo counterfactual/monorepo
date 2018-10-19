@@ -4,7 +4,7 @@ Assume the multisig owns 20 ETH and that the Free Balance has recorded a balance
 
 Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
-![install](../images/install.png)
+![install](../img/install.png)
 
 The funds available in the free balance decrease and the funds committed to the tic-tac-toe application increase by the corresponding amount.
 

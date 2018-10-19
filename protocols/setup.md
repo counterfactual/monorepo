@@ -4,7 +4,7 @@ The very first protocol every GSC must run is the Setup Protocol. As the name su
 
 Completing the Setup Protocol transitions the counterfactual state to
 
-![setup](../images/setup.png)
+![setup](../img/setup.png)
 
 **Handshake:**
 
