@@ -12,7 +12,5 @@ export {
   signMessage,
   signMessageBytes,
   signMessageVRS,
-  UNIT_ETH,
-  ZERO_ADDRESS,
-  ZERO_BYTES32
+  UNIT_ETH
 } from "./utils";
