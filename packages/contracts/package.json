@@ -23,7 +23,7 @@
     "test:coverage": "solidity-coverage",
     "truffle:compile": "truffle compile --all",
     "truffle:console": "truffle console",
-    "truffle:migrate-off-chain": "rm -f networks/*.json && truffle-migrate-off-chain --network ganache",
+    "truffle:migrate-off-chain": "rm -f networks/*.json && truffle migrate --network ganache",
     "truffle:migrate": "truffle migrate --network ganache",
     "truffle:test": "truffle test --network ganache $npm_package_config_testFiles"
   },
