@@ -281,6 +281,21 @@ export class IFrameWallet implements machine.types.ResponseSink {
     this.sendResponseToClient(response);
   }
 
+  private getMultisigAddressByToAddress(toAddress: string): string | undefined {
+    const cfState = this.currentUser.vm.cfState;
+    return Object.keys(cfState.channelStates).find(multisig => {
+      return cfState.channelStates[multisig].counterParty === toAddress;
+    });
+  }
+
+  private async connect(toAddress: string): Promise<string> {
+    const multisigContract = await IFrameWallet.deployMultisig(
+      this.currentUser.ethersWallet,
+      [this.currentUser.address, toAddress].sort()
+    );
+    return multisigContract.address;
+  }
+
   public async receiveMessageFromClient(
     incoming: machine.types.ClientActionMessage | machine.types.ClientQuery
   ) {
@@ -304,12 +319,17 @@ export class IFrameWallet implements machine.types.ResponseSink {
           await this.currentUser.deposit(incoming.data);
           break;
         }
-        case machine.types.ActionName.DEPLOY_MULTISIG: {
-          const multisigContract = await IFrameWallet.deployMultisig(
-            this.currentUser.ethersWallet,
-            incoming.data.owners
+        case machine.types.ActionName.CONNECT: {
+          const toAddress = incoming.data.toAddress;
+          incoming.data.multisigAddress = this.getMultisigAddressByToAddress(
+            toAddress
           );
-          incoming.data = multisigContract.address;
+
+          if (!incoming.data.multisigAddress) {
+            incoming.data.generatedNewMultisig = true;
+            incoming.data.multisigAddress = await this.connect(toAddress);
+          }
+
           break;
         }
         case machine.types.ActionName.ADD_OBSERVER: {

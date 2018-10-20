@@ -3,10 +3,10 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import { AppChannelClient } from "./app-channel-client";
-import { ClientInterface } from "./client-interface";
+import { Client } from "./client";
 
 export class StateChannelClient {
-  public clientInterface: ClientInterface;
+  public client: Client;
   public toAddress: string;
   public fromAddress: string;
   public multisigAddress: string;
@@ -15,9 +15,9 @@ export class StateChannelClient {
     toAddress: string,
     fromAddress: string,
     multisigAddress: string,
-    clientInterface: ClientInterface
+    client: Client
   ) {
-    this.clientInterface = clientInterface;
+    this.client = client;
     this.multisigAddress = multisigAddress;
     this.toAddress = toAddress;
     this.fromAddress = fromAddress;
@@ -94,7 +94,7 @@ export class StateChannelClient {
       app,
       timeout
     };
-    const requestId = this.clientInterface.requestId();
+    const requestId = this.client.requestId();
     const message = {
       requestId,
       appName,
@@ -118,9 +118,9 @@ export class StateChannelClient {
         );
       };
 
-      await this.clientInterface.addObserver("installCompleted", cb);
-      await this.clientInterface.sendMessage(message);
-      this.clientInterface.removeObserver("installCompleted", cb);
+      await this.client.addObserver("installCompleted", cb);
+      await this.client.sendMessage(message);
+      this.client.removeObserver("installCompleted", cb);
     });
   }
 
@@ -144,12 +144,12 @@ export class StateChannelClient {
     machine.types.FreeBalanceClientResponse
   > {
     const freeBalanceQuery: machine.types.ClientQuery = {
-      requestId: this.clientInterface.requestId(),
+      requestId: this.client.requestId(),
       action: machine.types.ActionName.QUERY,
       query: machine.types.ClientQueryType.FreeBalance,
       multisigAddress: this.multisigAddress
     };
-    const freeBalanceData = (await this.clientInterface.sendMessage(
+    const freeBalanceData = (await this.client.sendMessage(
       freeBalanceQuery
     )) as machine.types.FreeBalanceClientResponse;
 
@@ -161,11 +161,11 @@ export class StateChannelClient {
   > {
     const stateChannelQuery: machine.types.ClientQuery = {
       action: machine.types.ActionName.QUERY,
-      requestId: this.clientInterface.requestId(),
+      requestId: this.client.requestId(),
       query: machine.types.ClientQueryType.StateChannel,
       multisigAddress: this.multisigAddress
     };
-    const stateChannelData = (await this.clientInterface.sendMessage(
+    const stateChannelData = (await this.client.sendMessage(
       stateChannelQuery
     )) as machine.types.StateChannelDataClientResponse;
 
@@ -193,13 +193,13 @@ export class StateChannelClient {
   private async depositToMultisig(value: ethers.utils.BigNumber) {
     const depositMessage = {
       action: machine.types.ActionName.DEPOSIT,
-      requestId: this.clientInterface.requestId(),
+      requestId: this.client.requestId(),
       data: {
         multisig: this.multisigAddress,
         value
       }
     };
 
-    await this.clientInterface.sendMessage(depositMessage);
+    await this.client.sendMessage(depositMessage);
   }
 }

@@ -31,7 +31,7 @@ export class AppChannelClient {
       appStateHash
     };
     const message = {
-      requestId: this.stateChannel.clientInterface.requestId(),
+      requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
       action: machine.types.ActionName.UPDATE,
@@ -42,7 +42,7 @@ export class AppChannelClient {
       stateChannel: undefined,
       seq: 0
     };
-    return this.stateChannel.clientInterface.sendMessage(message);
+    return this.stateChannel.client.sendMessage(message);
   }
 
   public async uninstall(
@@ -59,7 +59,7 @@ export class AppChannelClient {
     };
 
     const message = {
-      requestId: this.stateChannel.clientInterface.requestId(),
+      requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
       action: machine.types.ActionName.UNINSTALL,
@@ -70,6 +70,6 @@ export class AppChannelClient {
       stateChannel: undefined,
       seq: 0
     };
-    return this.stateChannel.clientInterface.sendMessage(message);
+    return this.stateChannel.client.sendMessage(message);
   }
 }

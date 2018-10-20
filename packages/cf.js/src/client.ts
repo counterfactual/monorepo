@@ -6,14 +6,13 @@ import { StateChannelClient } from "./state-channel-client";
 type WalletMessage = machine.types.WalletMessage;
 type WalletResponse = machine.types.WalletResponse;
 
-export class ClientInterface implements Observable {
+export class Client implements Observable {
   get address(): string {
     // TODO cleanup
     return this.userAddress || "";
   }
 
   public wallet: machine.types.WalletMessaging;
-  public userId: string;
   public userAddress?: string;
   public ioHandler?: Function;
 
@@ -26,22 +25,11 @@ export class ClientInterface implements Observable {
   public observers: Map<NotificationType, Function[]> = new Map();
   private observerCallbacks: Map<string, Function>;
 
-  constructor(userId: string, wallet: machine.types.WalletMessaging) {
-    this.userId = userId;
+  constructor(wallet: machine.types.WalletMessaging) {
     this.wallet = wallet;
     this.outstandingRequests = {};
     this.observerCallbacks = new Map<string, Function>();
     this.stateChannels = {};
-  }
-  public async deployMultisig(owners: string[]) {
-    const message = {
-      requestId: this.requestId(),
-      action: machine.types.ActionName.DEPLOY_MULTISIG,
-      data: {
-        owners
-      }
-    };
-    return this.sendMessage(message);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -65,8 +53,7 @@ export class ClientInterface implements Observable {
     const userQuery: machine.types.ClientQuery = {
       requestId: this.requestId(),
       action: machine.types.ActionName.QUERY,
-      query: machine.types.ClientQueryType.User,
-      userId: this.userId
+      query: machine.types.ClientQueryType.User
     };
     const userData = (await this.sendMessage(
       userQuery
@@ -103,7 +90,7 @@ export class ClientInterface implements Observable {
     toAddress: string,
     multisigAddress: string
   ): Promise<string> {
-    const channel = await this.setup(toAddress, multisigAddress);
+    const channel = await this.connect(toAddress);
     const channelInfo = await channel.queryStateChannel();
 
     return channelInfo.data.stateChannel.multisigAddress;
@@ -111,7 +98,7 @@ export class ClientInterface implements Observable {
 
   // TODO: Add type here
   public async sendMessage(
-    message: machine.types.ClientMessage
+    message: machine.types.ClientMessage | machine.types.ClientActionMessage
   ): Promise<machine.types.ClientResponse> {
     const id = message.requestId;
     let resolve;
@@ -124,7 +111,7 @@ export class ClientInterface implements Observable {
     );
 
     this.outstandingRequests[id] = { resolve, reject };
-    this.wallet.postMessage(message, "*");
+    this.wallet.postMessage(message);
     return promise;
   }
 
@@ -147,12 +134,9 @@ export class ClientInterface implements Observable {
   }
 
   public setupListener() {
-    this.wallet.onMessage(
-      this.userId,
-      (message: WalletMessage | WalletResponse) => {
-        this.processMessage(message);
-      }
-    );
+    this.wallet.onMessage((message: WalletMessage | WalletResponse) => {
+      this.processMessage(message);
+    });
   }
 
   // TODO add methods also on stateChannel and appChannel objects
@@ -211,40 +195,50 @@ export class ClientInterface implements Observable {
     return this.stateChannels[multisigAddress];
   }
 
-  public getOrCreateStateChannel(
-    multisigAddress: string,
-    toAddr: string
-  ): StateChannelClient {
-    if (!this.stateChannels[multisigAddress]) {
-      this.stateChannels[multisigAddress] = new StateChannelClient(
-        toAddr,
-        this.address,
-        multisigAddress,
-        this
-      );
-    }
-    return this.getStateChannel(multisigAddress);
+  public async connect(toAddress: string): Promise<StateChannelClient> {
+    const {
+      data: { multisigAddress, generatedNewMultisig }
+    } = await this.sendMessage({
+      requestId: this.requestId(),
+      action: machine.types.ActionName.CONNECT,
+      data: {
+        toAddress
+      }
+    });
+
+    if (generatedNewMultisig) await this.setup(multisigAddress, toAddress);
+
+    return this.instantiateStateChannel(multisigAddress, toAddress);
   }
 
-  // TODO: pass in actual multisig address and requestId
-  public async setup(
-    toAddr: string,
-    multisigAddress: string
-  ): Promise<StateChannelClient> {
-    const message: machine.types.ClientActionMessage = {
+  private async setup(multisigAddress: string, toAddress: string) {
+    await this.sendMessage({
       requestId: this.requestId(),
       appId: undefined,
       action: machine.types.ActionName.SETUP,
       data: {},
       multisigAddress,
-      toAddress: toAddr,
+      toAddress,
       fromAddress: this.address,
       stateChannel: undefined,
       seq: 0
-    };
-    await this.sendMessage(message);
+    });
+  }
 
-    return this.getOrCreateStateChannel(message.multisigAddress, toAddr);
+  private instantiateStateChannel(
+    multisigAddress,
+    toAddress
+  ): StateChannelClient {
+    if (!this.stateChannels[multisigAddress]) {
+      this.stateChannels[multisigAddress] = new StateChannelClient(
+        toAddress,
+        this.address,
+        multisigAddress,
+        this
+      );
+    }
+
+    return this.getStateChannel(multisigAddress);
   }
 
   private clearObservers() {
@@ -253,4 +247,4 @@ export class ClientInterface implements Observable {
   }
 }
 
-applyMixins(ClientInterface, [Observable]);
+applyMixins(Client, [Observable]);

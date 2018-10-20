@@ -36,59 +36,44 @@ const INSTALL_OPTIONS: machine.types.InstallOptions = {
 
 const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
-class ClientInterfaceBridge implements machine.types.WalletMessaging {
+class ClientBridge implements machine.types.WalletMessaging {
   public client: IFrameWallet;
 
   constructor(client: IFrameWallet) {
     this.client = client;
   }
 
-  public postMessage(message: machine.types.ClientActionMessage, to: string) {
+  public postMessage(message: machine.types.ClientActionMessage) {
     // TODO move this into a setTimeout to enfore asyncness of the call
     this.client.receiveMessageFromClient(message);
   }
 
-  public onMessage(userId: string, callback: Function) {
+  public onMessage(callback: Function) {
     this.client.onResponse(callback);
   }
 }
-
-let multisigContractAddress;
 
 describe("Lifecycle", async () => {
   // extending the timeout to allow the async machines to finish
   jest.setTimeout(30000);
 
-  let multisigContract;
   const owners = [A_ADDRESS, B_ADDRESS];
-  beforeAll(async () => {
-    const multisigWallet = new IFrameWallet();
-    multisigWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
-
-    multisigContract = await IFrameWallet.deployMultisig(
-      multisigWallet.currentUser.ethersWallet,
-      owners
-    );
-    expect(multisigContract.address).not.toBe(null);
-    expect(await multisigContract.functions.getOwners()).toEqual(owners);
-    multisigContractAddress = multisigContract.address;
-  });
 
   let clientA: IFrameWallet;
   let clientB: IFrameWallet;
   let connectionA;
   let connectionB;
-  let clientInterfaceA: cf.ClientInterface;
-  let clientInterfaceB: cf.ClientInterface;
+  let clientInterfaceA: cf.Client;
+  let clientInterfaceB: cf.Client;
   beforeEach(async () => {
     clientA = new IFrameWallet();
     clientB = new IFrameWallet();
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-    connectionA = new ClientInterfaceBridge(clientA);
-    connectionB = new ClientInterfaceBridge(clientB);
-    clientInterfaceA = new cf.ClientInterface("some-user-id", connectionA);
-    clientInterfaceB = new cf.ClientInterface("some-user-id", connectionB);
+    connectionA = new ClientBridge(clientA);
+    connectionB = new ClientBridge(clientB);
+    clientInterfaceA = new cf.Client(connectionA);
+    clientInterfaceB = new cf.Client(connectionB);
     await clientInterfaceA.init();
     await clientInterfaceB.init();
 
@@ -100,14 +85,8 @@ describe("Lifecycle", async () => {
     // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
 
-    const stateChannelA = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
-    await clientInterfaceB.getOrCreateStateChannel(
-      A_ADDRESS,
-      multisigContractAddress
-    );
+    const stateChannelA = await clientInterfaceA.connect(B_ADDRESS);
+    await clientInterfaceB.connect(A_ADDRESS);
     clientInterfaceB.addObserver("installCompleted", data => {
       console.log("got here", data);
       expect(true).toBeTruthy();
@@ -121,14 +100,8 @@ describe("Lifecycle", async () => {
     // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
 
-    const stateChannelA = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
-    await clientInterfaceB.getOrCreateStateChannel(
-      A_ADDRESS,
-      multisigContractAddress
-    );
+    const stateChannelA = await clientInterfaceA.connect(B_ADDRESS);
+    await clientInterfaceB.connect(A_ADDRESS);
     const falsyCallback = () => expect(false).toBeTruthy();
     clientInterfaceB.addObserver("installCompleted", data => {
       expect(true).toBeTruthy();
@@ -148,16 +121,10 @@ describe("Lifecycle", async () => {
     const clientB = new IFrameWallet();
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-    const connectionA = new ClientInterfaceBridge(clientA);
-    const connectionB = new ClientInterfaceBridge(clientB);
-    const clientInterfaceA = new cf.ClientInterface(
-      "some-user-id",
-      connectionA
-    );
-    const clientInterfaceB = new cf.ClientInterface(
-      "some-user-id",
-      connectionB
-    );
+    const connectionA = new ClientBridge(clientA);
+    const connectionB = new ClientBridge(clientB);
+    const clientInterfaceA = new cf.Client(connectionA);
+    const clientInterfaceB = new cf.Client(connectionB);
 
     clientInterfaceB.addObserver("installCompleted", data => {
       expect(false).toBeTruthy();
@@ -171,14 +138,8 @@ describe("Lifecycle", async () => {
     clientA.currentUser.io.peer = clientB;
     clientB.currentUser.io.peer = clientA;
 
-    const stateChannelAB = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
-    await clientInterfaceB.getOrCreateStateChannel(
-      multisigContractAddress,
-      A_ADDRESS
-    );
+    const stateChannelAB = await clientInterfaceA.connect(B_ADDRESS);
+    await clientInterfaceB.connect(A_ADDRESS);
 
     clientInterfaceB.addObserver("installCompleted", data => {
       expect(true).toBeTruthy();
@@ -193,14 +154,8 @@ describe("Lifecycle", async () => {
     const amountA = ethers.utils.parseEther("5");
     const amountB = ethers.utils.parseEther("7");
 
-    const stateChannelAB = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
-    const stateChannelBA = clientInterfaceB.getOrCreateStateChannel(
-      stateChannelAB.multisigAddress,
-      A_ADDRESS
-    );
+    const stateChannelAB = await clientInterfaceA.connect(B_ADDRESS);
+    const stateChannelBA = await clientInterfaceB.connect(A_ADDRESS);
 
     await stateChannelAB.deposit(
       clientA.network.ETHBalanceRefundApp.address,
@@ -213,7 +168,8 @@ describe("Lifecycle", async () => {
       clientA,
       clientB,
       amountA,
-      ethers.utils.bigNumberify(0)
+      ethers.utils.bigNumberify(0),
+      stateChannelAB.multisigAddress
     );
     await stateChannelBA.deposit(
       clientB.network.ETHBalanceRefundApp.address,
@@ -222,33 +178,47 @@ describe("Lifecycle", async () => {
       amountB,
       amountA
     );
-    await validateDeposit(clientA, clientB, amountA, amountB);
+    await validateDeposit(
+      clientA,
+      clientB,
+      amountA,
+      amountB,
+      stateChannelAB.multisigAddress
+    );
   });
 
   it("Can install an app", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const client = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const client = new cf.Client(connection);
     await client.init();
     clientA.currentUser.io.peer = clientB;
     clientB.currentUser.io.peer = clientA;
     const threshold = 10;
 
-    const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
+    const stateChannel = await client.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
 
     await sleep(50);
     // check B's client
-    validateInstalledBalanceRefund(clientB, threshold);
+    validateInstalledBalanceRefund(
+      clientB,
+      threshold,
+      stateChannel.multisigAddress
+    );
     // check A's client and return the newly created cf address
-    validateInstalledBalanceRefund(clientA, threshold);
+    validateInstalledBalanceRefund(
+      clientA,
+      threshold,
+      stateChannel.multisigAddress
+    );
   });
 
   it("Can uninstall an app", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const client = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const client = new cf.Client(connection);
     await client.init();
 
-    const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
+    const stateChannel = await client.connect(B_ADDRESS);
     const appChannel = await stateChannel.install(
       "paymentApp",
       INSTALL_OPTIONS
@@ -267,44 +237,55 @@ describe("Lifecycle", async () => {
       clientA,
       clientB,
       uninstallAmountA,
-      uninstallAmountB
+      uninstallAmountB,
+      stateChannel.multisigAddress
     );
     // validate clientB
     validateNoAppsAndFreeBalance(
       clientB,
       clientA,
       uninstallAmountB,
-      uninstallAmountA
+      uninstallAmountA,
+      stateChannel.multisigAddress
     );
   });
 
   it("Can update an app", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const client = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const client = new cf.Client(connection);
     await client.init();
 
-    const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
+    const stateChannel = await client.connect(B_ADDRESS);
     const appChannel = await stateChannel.install(
       "paymentApp",
       INSTALL_OPTIONS
     );
 
-    await makePayments(clientA, clientB, appChannel);
+    await makePayments(
+      clientA,
+      clientB,
+      appChannel,
+      stateChannel.multisigAddress
+    );
   });
 
   it("Can change users", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const client = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const client = new cf.Client(connection);
     await client.init();
 
     const threshold = 10;
 
-    const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
+    const stateChannel = await client.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
 
     await sleep(50);
 
-    validateInstalledBalanceRefund(clientA, threshold);
+    validateInstalledBalanceRefund(
+      clientA,
+      threshold,
+      stateChannel.multisigAddress
+    );
 
     const C_ADDRESS = "0xB37ABb9F5CCc5Ce5f2694CE0720216B786cad61D";
     clientA.setUser(C_ADDRESS, A_PRIVATE_KEY);
@@ -314,15 +295,19 @@ describe("Lifecycle", async () => {
 
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
 
-    validateInstalledBalanceRefund(clientA, threshold);
+    validateInstalledBalanceRefund(
+      clientA,
+      threshold,
+      stateChannel.multisigAddress
+    );
   });
 
   it("Can query freeBalance", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const client = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const client = new cf.Client(connection);
     await client.init();
 
-    const stateChannel = await client.setup(B_ADDRESS, multisigContractAddress);
+    const stateChannel = await client.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
     const freeBalance = await stateChannel.queryFreeBalance();
 
@@ -331,14 +316,11 @@ describe("Lifecycle", async () => {
   });
 
   it("Can query stateChannel", async () => {
-    const connection = new ClientInterfaceBridge(clientA);
-    const clientInterfaceA = new cf.ClientInterface("some-user-id", connection);
+    const connection = new ClientBridge(clientA);
+    const clientInterfaceA = new cf.Client(connection);
     await clientInterfaceA.init();
 
-    const stateChannelAB = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
+    const stateChannelAB = await clientInterfaceA.connect(B_ADDRESS);
     await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
     const stateChannelInfo = await stateChannelAB.queryStateChannel();
 
@@ -349,16 +331,13 @@ describe("Lifecycle", async () => {
       stateChannelAB.fromAddress
     );
     expect(stateChannelInfo.data.stateChannel.multisigAddress).toBe(
-      multisigContractAddress
+      stateChannelAB.multisigAddress
     );
   });
 
   it("Allows apps to communicate directly with each other", async () => {
-    const connectionA = new ClientInterfaceBridge(clientA);
-    const clientInterfaceA = new cf.ClientInterface(
-      "some-user-id",
-      connectionA
-    );
+    const connectionA = new ClientBridge(clientA);
+    const clientInterfaceA = new cf.Client(connectionA);
     clientA.onMessage(msg => {
       clientInterfaceA.sendIOMessage(msg);
     });
@@ -376,18 +355,23 @@ describe("Lifecycle", async () => {
     await clientInterfaceA.init();
     await clientInterfaceB.init();
 
-    const stateChannel = await clientInterfaceA.setup(
-      B_ADDRESS,
-      multisigContractAddress
-    );
+    const stateChannel = await clientInterfaceA.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
 
     const threshold = 10;
 
     await sleep(50);
 
-    validateInstalledBalanceRefund(clientB, threshold);
-    validateInstalledBalanceRefund(clientA, threshold);
+    validateInstalledBalanceRefund(
+      clientB,
+      threshold,
+      stateChannel.multisigAddress
+    );
+    validateInstalledBalanceRefund(
+      clientA,
+      threshold,
+      stateChannel.multisigAddress
+    );
   });
 });
 
@@ -398,7 +382,8 @@ function validateNoAppsAndFreeBalance(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
   amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber
+  amountB: ethers.utils.BigNumber,
+  multisigContractAddress: string
 ) {
   // TODO: add nonce and uniqueId params and check them
   const state = clientA.currentUser.vm.cfState;
@@ -430,7 +415,11 @@ function validateNoAppsAndFreeBalance(
   });
 }
 
-function validateInstalledBalanceRefund(wallet: IFrameWallet, amount: number) {
+function validateInstalledBalanceRefund(
+  wallet: IFrameWallet,
+  amount: number,
+  multisigContractAddress: string
+) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
   const appChannels = stateChannel.appChannels;
@@ -456,16 +445,18 @@ async function validateDeposit(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
   amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber
+  amountB: ethers.utils.BigNumber,
+  multisigContractAddress: string
 ) {
-  await validateMultisigBalance(amountA, amountB);
-  validateFreebalance(clientB, amountA, amountB);
-  validateFreebalance(clientA, amountA, amountB);
+  await validateMultisigBalance(amountA, amountB, multisigContractAddress);
+  validateFreebalance(clientB, amountA, amountB, multisigContractAddress);
+  validateFreebalance(clientA, amountA, amountB, multisigContractAddress);
 }
 
 async function validateMultisigBalance(
   aliceBalance: ethers.utils.BigNumber,
-  bobBalance: ethers.utils.BigNumber
+  bobBalance: ethers.utils.BigNumber,
+  multisigContractAddress: string
 ) {
   const multisigAmount = await blockchainProvider.getBalance(
     multisigContractAddress
@@ -478,7 +469,8 @@ async function validateMultisigBalance(
 function validateFreebalance(
   wallet: IFrameWallet,
   aliceBalance: ethers.utils.BigNumber,
-  bobBalance: ethers.utils.BigNumber
+  bobBalance: ethers.utils.BigNumber,
+  multisigContractAddress: string
 ) {
   const stateChannel =
     wallet.currentUser.vm.cfState.channelStates[multisigContractAddress];
@@ -491,16 +483,58 @@ function validateFreebalance(
 async function makePayments(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppChannelClient
+  appChannel: cf.AppChannelClient,
+  multisigContractAddress: string
 ) {
-  await makePayment(clientA, clientB, appChannel, "5", "15", 1);
-  await makePayment(clientA, clientB, appChannel, "7", "12", 2);
-  await makePayment(clientA, clientB, appChannel, "13", "6", 3);
-  await makePayment(clientA, clientB, appChannel, "17", "2", 4);
-  await makePayment(clientA, clientB, appChannel, "12", "8", 5);
+  await makePayment(
+    multisigContractAddress,
+    clientA,
+    clientB,
+    appChannel,
+    "5",
+    "15",
+    1
+  );
+  await makePayment(
+    multisigContractAddress,
+    clientA,
+    clientB,
+    appChannel,
+    "7",
+    "12",
+    2
+  );
+  await makePayment(
+    multisigContractAddress,
+    clientA,
+    clientB,
+    appChannel,
+    "13",
+    "6",
+    3
+  );
+  await makePayment(
+    multisigContractAddress,
+    clientA,
+    clientB,
+    appChannel,
+    "17",
+    "2",
+    4
+  );
+  await makePayment(
+    multisigContractAddress,
+    clientA,
+    clientB,
+    appChannel,
+    "12",
+    "8",
+    5
+  );
 }
 
 async function makePayment(
+  multisigContractAddress: string,
   clientA: IFrameWallet,
   clientB: IFrameWallet,
   appChannel: cf.AppChannelClient,
@@ -515,7 +549,14 @@ async function makePayment(
   };
 
   await appChannel.update({ state: newState });
-  validateUpdatePayment(clientA, clientB, appChannel, newState, totalUpdates);
+  validateUpdatePayment(
+    clientA,
+    clientB,
+    appChannel,
+    newState,
+    totalUpdates,
+    multisigContractAddress
+  );
 }
 
 function validateUpdatePayment(
@@ -523,7 +564,8 @@ function validateUpdatePayment(
   clientB: IFrameWallet,
   appChannel: cf.AppChannelClient,
   appState: object,
-  totalUpdates: number
+  totalUpdates: number,
+  multisigContractAddress: string
 ) {
   const appA =
     clientA.currentUser.vm.cfState.channelStates[multisigContractAddress]

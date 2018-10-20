@@ -1,5 +1,5 @@
 import { AppChannelClient } from "./app-channel-client";
-import { ClientInterface } from "./client-interface";
+import { Client } from "./client";
 import { NotificationType } from "./mixins/observable";
 
-export { AppChannelClient, ClientInterface, NotificationType };
+export { AppChannelClient, Client, NotificationType };

@@ -26,9 +26,9 @@ export interface MiddlewareResult {
 }
 
 export interface WalletMessaging {
-  postMessage(message: Object, to: string);
+  postMessage(message: Object);
 
-  onMessage(userId: string, callback: Function);
+  onMessage(callback: Function);
 }
 
 export interface ClientMessage {
@@ -472,7 +472,7 @@ export enum ActionName {
   REGISTER_IO = "registerIo",
   RECEIVE_IO = "receiveIo",
   QUERY = "query",
-  DEPLOY_MULTISIG = "deployMultisig"
+  CONNECT = "connect"
 }
 
 export interface Addressable {
