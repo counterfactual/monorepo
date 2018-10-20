@@ -8,7 +8,7 @@
   "scripts": {
     "build": "yarn compile && yarn deploy",
     "clean": "shx rm -rf dist",
-    "compile": "tsc",
+    "compile": "truffle compile && apply-registry build/contracts",
     "deploy": "yarn truffle:migrate-off-chain",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
@@ -69,7 +69,7 @@
     "solidity-coverage": "0.5.4",
     "solium": "1.1.7",
     "truffle": "4.1.14",
-    "truffle-migrate-off-chain": "0.1.4",
+    "truffle-deploy-registry": "^0.4.1",
     "ts-node": "^7.0.0",
     "tslint": "5.11.0",
     "typescript": "^3.1.2"
