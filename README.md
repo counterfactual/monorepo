@@ -18,7 +18,7 @@
 
 For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
 
-We recapitulate some relevant definitions. In some cases we use definitions that are more specialized (less general) than in the paper.
+Below is a summary of some important definitions. Some of these definitions are more specialized (less general) than those in the paper.
 
 - **state deposit**: blockchain state locked into a state channel
 - **state deposit holder**: the on-chain multisignature wallet that holds the state deposit
@@ -28,11 +28,11 @@ We recapitulate some relevant definitions. In some cases we use definitions that
 - **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
 - **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true.
 
-Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
+Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation here. The reason for this divergence is explained later.
 
 ## Organization
 
-These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
+These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well as the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
 
 ## Design
 
@@ -40,21 +40,21 @@ A state channel is an on-chain multisig state deposit holder, a set of counterfa
 
 ### Criteria
 
-The file [criteria.md](criteria.md) contains criteria for that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
+The file [criteria.md](criteria.md) contains criteria that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
 
 ### Commitments
 
 We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
 
-An simple example of an action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
+A simple example of an action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
 
-Many actions are simply delegate calls a contract in the `delegateTargets` folder. These contracts execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
+Many actions are simply delegate calls to a contract in the `delegateTargets` folder. These contracts execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
 
 ### Apps
 
 A state channel application (app) is a collection of counterfactual state and functionality that holds the right to allocate some portion of the state deposit of the state channel that it belongs to. An example of a state channel app is a chess game. Multiple apps of the same type (e.g., multiple chess games) can be installed into the same channel.
 
-An app is also the interface that developers wishing to write channelized code deals with, in that they write an app that encapsulates the functionality that they want to offer users, which can then be installed by users into a channel. Hence, there is a mixing of framework code (written by us) and code written by app developers. See the [contracts](contracts/README.md) folder for details about how this is managed.
+An app is also the interface used by developers wishing to write channelized code, in that they write an app that encapsulates the functionality that they want to offer users, which can then be installed by users into a channel. Hence, there is a mixing of framework code (written by us) and code written by app developers. See the [contracts](contracts/README.md) folder for details about how this is managed.
 
 ### Nonces
 
@@ -62,7 +62,7 @@ There are two types of nonces, or sequence numbers, used in the code. The first 
 
 ### Multiple Apps
 
-One key feature of state channels we support is that multiple applications can be installed without any on-chain transactions, and multiple applications may run simultaneously. When users are done with an application (e.g., one player wins a chess game, or the expiry time on a financial option has passed), the app can be uninstalled and the state deposit assigned to it freed up to be assigned to other apps.
+One key feature of the state channels we support is that multiple applications can be installed without any on-chain transactions, and multiple applications may run simultaneously. When users are done with an application (e.g., one player wins a chess game, or the expiry time on a financial option has passed), the app can be uninstalled and the state deposit assigned to it freed up to be assigned to other apps.
 
 An app that is installed but not uninstalled is called an active app.
 
@@ -78,7 +78,7 @@ TBD
 
 ### Install
 
-The install commitment is a multisend that
+The install commitment is a multisend that:
 
 - sets the free balance state to a new state with some balance removed
 - sets the app dependency nonce to 1
