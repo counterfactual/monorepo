@@ -34,7 +34,7 @@ contract("ConditionalTransaction", (accounts: string[]) => {
         [expectedValue]
       ),
       onlyCheckForSuccess,
-      parameters: Utils.ZERO_BYTES32,
+      parameters: ethers.constants.HashZero,
       selector: condition.interface.functions.isSatisfiedNoParam.sighash,
       to: condition.address
     });
@@ -71,12 +71,12 @@ contract("ConditionalTransaction", (accounts: string[]) => {
       const randomTarget = Utils.randomETHAddress();
       const tx = ct.interface.functions.executeSimpleConditionalTransaction.encode(
         [
-          makeCondition(Utils.ZERO_BYTES32, true),
+          makeCondition(ethers.constants.HashZero, true),
           {
             value: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.ZERO_ADDRESS,
+            token: ethers.constants.AddressZero,
             data: []
           }
         ]
@@ -109,7 +109,7 @@ contract("ConditionalTransaction", (accounts: string[]) => {
             value: [Utils.UNIT_ETH],
             assetType: 0,
             to: [randomTarget],
-            token: Utils.ZERO_ADDRESS,
+            token: ethers.constants.AddressZero,
             data: []
           }
         ]

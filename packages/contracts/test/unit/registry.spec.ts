@@ -33,8 +33,8 @@ contract("Registry", accounts => {
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
-    expect(cfaddress(Utils.ZERO_BYTES32, 1)).to.eql(
-      await registry.cfaddress(Utils.ZERO_BYTES32, 1)
+    expect(cfaddress(ethers.constants.HashZero, 1)).to.eql(
+      await registry.cfaddress(ethers.constants.HashZero, 1)
     );
   });
 

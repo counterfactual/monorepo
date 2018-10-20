@@ -63,7 +63,7 @@ contract("PaymentApp", (accounts: string[]) => {
 
   const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.ZERO_BYTES32,
+      appState || ethers.constants.HashZero,
       nonce,
       10,
       "0x"
@@ -71,11 +71,11 @@ contract("PaymentApp", (accounts: string[]) => {
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
     stateChannel.functions.setState(
-      appState || Utils.ZERO_BYTES32,
+      appState || ethers.constants.HashZero,
       nonce,
       10,
       Utils.signMessage(
-        getUpdateHash(appState || Utils.ZERO_BYTES32, nonce, 10),
+        getUpdateHash(appState || ethers.constants.HashZero, nonce, 10),
         unlockedAccount
       )
     );
@@ -86,7 +86,7 @@ contract("PaymentApp", (accounts: string[]) => {
       await latestNonce(),
       0,
       Utils.signMessage(
-        getUpdateHash(stateHash || Utils.ZERO_BYTES32, await latestNonce(), 0),
+        getUpdateHash(stateHash || ethers.constants.HashZero, await latestNonce(), 0),
         unlockedAccount
       )
     );
@@ -117,7 +117,7 @@ contract("PaymentApp", (accounts: string[]) => {
     terms = {
       assetType: AssetType.ETH,
       limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.ZERO_ADDRESS
+      token: ethers.constants.AddressZero
     };
 
     const contractFactory = new ethers.ContractFactory(
@@ -138,7 +138,7 @@ contract("PaymentApp", (accounts: string[]) => {
   it("should resolve to payments", async () => {
     const ret = await pc.functions.resolve(exampleState, terms);
     expect(ret.assetType).to.be.eql(AssetType.ETH);
-    expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+    expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
     expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
     expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
     expect(ret.value[0]).to.be.eql(new ethers.utils.BigNumber(Utils.UNIT_ETH));
@@ -166,7 +166,7 @@ contract("PaymentApp", (accounts: string[]) => {
       );
       const ret = await stateChannel.functions.getResolution();
       expect(ret.assetType).to.be.eql(AssetType.ETH);
-      expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+      expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
       expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
       expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
       expect(ret.value[0]).to.be.eql(

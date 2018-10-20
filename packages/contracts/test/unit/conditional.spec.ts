@@ -32,13 +32,13 @@ contract("Conditional", (accounts: string[]) => {
         [expectedValue]
       ),
       onlyCheckForSuccess,
-      parameters: Utils.ZERO_BYTES32,
+      parameters: ethers.constants.HashZero,
       selector: example.interface.functions.isSatisfiedNoParam.sighash,
       to: example.address
     });
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(Utils.ZERO_BYTES32, true);
+      const condition = makeCondition(ethers.constants.HashZero, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(true);
     });
@@ -53,7 +53,7 @@ contract("Conditional", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(Utils.ZERO_BYTES32, false);
+      const condition = makeCondition(ethers.constants.HashZero, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(false);
     });
@@ -82,13 +82,13 @@ contract("Conditional", (accounts: string[]) => {
     );
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(Utils.ZERO_BYTES32, trueParam, true);
+      const condition = makeCondition(ethers.constants.HashZero, trueParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(true);
     });
 
     it("returns true if function did not fail but returned false", async () => {
-      const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, true);
+      const condition = makeCondition(ethers.constants.HashZero, falseParam, true);
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(true);
     });
@@ -104,7 +104,7 @@ contract("Conditional", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(Utils.ZERO_BYTES32, falseParam, false);
+      const condition = makeCondition(ethers.constants.HashZero, falseParam, false);
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(false);
     });

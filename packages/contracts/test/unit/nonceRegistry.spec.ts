@@ -49,9 +49,9 @@ contract("NonceRegistry", accounts => {
 
   it("can set nonces", async () => {
     const timeout = new ethers.utils.BigNumber(10);
-    await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, 1);
+    await registry.functions.setNonce(timeout, ethers.constants.HashZero, 1);
     const ret = await registry.functions.table(
-      computeKey(timeout, Utils.ZERO_BYTES32)
+      computeKey(timeout, ethers.constants.HashZero)
     );
     expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(1));
     expect(ret.finalizesAt).to.be.eql(
@@ -63,7 +63,7 @@ contract("NonceRegistry", accounts => {
     await Utils.assertRejects(
       registry.functions.setNonce(
         new ethers.utils.BigNumber(10),
-        Utils.ZERO_BYTES32,
+        ethers.constants.HashZero,
         0
       )
     );
@@ -72,16 +72,20 @@ contract("NonceRegistry", accounts => {
   it("can insta-finalize nonces", async () => {
     const timeout = new ethers.utils.BigNumber(0);
     const nonceValue = new ethers.utils.BigNumber(1);
-    const nonceKey = computeKey(timeout, Utils.ZERO_BYTES32);
+    const nonceKey = computeKey(timeout, ethers.constants.HashZero);
 
-    await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, nonceValue);
+    await registry.functions.setNonce(
+      timeout,
+      ethers.constants.HashZero,
+      nonceValue
+    );
     const ret = await registry.functions.table(nonceKey);
     expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
     expect(ret.finalizesAt).to.be.eql(
       new ethers.utils.BigNumber(await provider.getBlockNumber())
     );
     const isFinal = await registry.functions.isFinalized(
-      computeKey(timeout, Utils.ZERO_BYTES32),
+      computeKey(timeout, ethers.constants.HashZero),
       nonceValue
     );
     expect(isFinal).to.be.eql(true);

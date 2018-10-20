@@ -50,7 +50,7 @@ contract("Transfer", (accounts: string[]) => {
         value: [Utils.UNIT_ETH],
         assetType: AssetType.ETH,
         to: [randomTarget],
-        token: Utils.ZERO_ADDRESS,
+        token: ethers.constants.AddressZero,
         data: []
       };
 
@@ -74,7 +74,7 @@ contract("Transfer", (accounts: string[]) => {
         value: randomTargets.map(_ => Utils.UNIT_ETH.div(10)),
         assetType: AssetType.ETH,
         to: randomTargets,
-        token: Utils.ZERO_ADDRESS,
+        token: ethers.constants.AddressZero,
         data: []
       };
 

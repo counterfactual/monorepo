@@ -64,7 +64,7 @@ contract("AppInstance", (accounts: string[]) => {
 
     sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
       stateChannel.functions.setState(
-        appState || Utils.ZERO_BYTES32,
+        appState || ethers.constants.HashZero,
         nonce,
         TIMEOUT,
         "0x"
@@ -72,11 +72,11 @@ contract("AppInstance", (accounts: string[]) => {
 
     sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
       stateChannel.functions.setState(
-        appState || Utils.ZERO_BYTES32,
+        appState || ethers.constants.HashZero,
         nonce,
         TIMEOUT,
         Utils.signMessage(
-          computeHash(appState || Utils.ZERO_BYTES32, nonce, TIMEOUT),
+          computeHash(appState || ethers.constants.HashZero, nonce, TIMEOUT),
           unlockedAccount
         )
       );
@@ -102,8 +102,8 @@ contract("AppInstance", (accounts: string[]) => {
     stateChannel = await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
-      Utils.ZERO_BYTES32,
-      Utils.ZERO_BYTES32,
+      ethers.constants.HashZero,
+      ethers.constants.HashZero,
       10
     );
   });
@@ -200,7 +200,7 @@ contract("AppInstance", (accounts: string[]) => {
         await latestState(),
         await latestNonce(),
         0,
-        Utils.ZERO_BYTES32
+        ethers.constants.HashZero
       );
       expect(await stateChannel.functions.isClosed()).to.eql(true);
     });

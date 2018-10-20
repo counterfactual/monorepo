@@ -24,7 +24,7 @@ contract("TicTacToe", (accounts: string[]) => {
   describe("applyAction", () => {
     it("can place into an empty board", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -53,7 +53,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("can place into an empty square", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 1,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -82,7 +82,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("cannot placeinto an occupied square", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -103,7 +103,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("can draw from a full board", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 2, 2], [2, 1, 2]]
@@ -131,7 +131,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("cannot draw from a non-full board", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 0, 2], [2, 1, 2]]
@@ -152,7 +152,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("can play_and_draw from an almost full board", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 1, 2]]
@@ -180,7 +180,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("can notplay_and_draw from a sparse board", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 0, 0]]
@@ -201,7 +201,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("can play_and_win from a winning position", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 1, 0], [0, 0, 0], [0, 0, 0]]
@@ -229,7 +229,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
     it("cannot play_and_win from a non winning position", async () => {
       const preState = {
-        players: [Utils.ZERO_ADDRESS, Utils.ZERO_ADDRESS],
+        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]

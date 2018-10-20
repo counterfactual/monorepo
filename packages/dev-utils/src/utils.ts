@@ -2,9 +2,6 @@ import * as ethers from "ethers";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
 export const HIGH_GAS_LIMIT = { gasLimit: 6e9 };
-export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-export const ZERO_BYTES32 =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export const deployContract = async (
   contract: any,

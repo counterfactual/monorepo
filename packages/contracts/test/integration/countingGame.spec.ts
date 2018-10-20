@@ -80,7 +80,7 @@ contract("CountingApp", (accounts: string[]) => {
       0,
       Utils.signMessage(
         computeStateHash(
-          stateHash || Utils.ZERO_BYTES32,
+          stateHash || ethers.constants.HashZero,
           await latestNonce(),
           0
         ),
@@ -123,7 +123,7 @@ contract("CountingApp", (accounts: string[]) => {
     terms = {
       assetType: AssetType.ETH,
       limit: Utils.UNIT_ETH.mul(2),
-      token: Utils.ZERO_ADDRESS
+      token: ethers.constants.AddressZero
     };
 
     const contractFactory = new ethers.ContractFactory(
@@ -144,7 +144,7 @@ contract("CountingApp", (accounts: string[]) => {
   it("should resolve to some balance", async () => {
     const ret = await game.functions.resolve(exampleState, terms);
     expect(ret.assetType).to.eql(AssetType.ETH);
-    expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+    expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
     expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
     expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
     expect(ret.value[0].toString()).to.be.eql(Utils.UNIT_ETH.mul(2).toString());
@@ -172,7 +172,7 @@ contract("CountingApp", (accounts: string[]) => {
       );
       const ret = await stateChannel.functions.getResolution();
       expect(ret.assetType).to.be.eql(AssetType.ETH);
-      expect(ret.token).to.be.equalIgnoreCase(Utils.ZERO_ADDRESS);
+      expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
       expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
       expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
       expect(ret.value[0].toString()).to.be.eql(
