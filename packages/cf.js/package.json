@@ -34,7 +34,6 @@
     "ethers": "^4.0.4"
   },
   "dependencies": {
-    "@counterfactual/configs": "0.0.1",
     "@counterfactual/machine": "0.0.1",
     "@types/lodash": "^4.14.116",
     "ethers": "^4.0.4",

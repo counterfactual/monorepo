@@ -37,9 +37,8 @@
   },
   "dependencies": {
     "ethers": "^4.0.4",
-    "@counterfactual/contracts": "0.0.1",
+    "@counterfactual/contracts": "0.0.2",
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/configs": "0.0.1",
     "@counterfactual/machine": "0.0.1"
   },
   "config": {

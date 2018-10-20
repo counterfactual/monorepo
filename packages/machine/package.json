@@ -21,7 +21,7 @@
     "prettier:fix": "prettier --write '{src,test}/{**/*,*}'"
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.0.1",
+    "@counterfactual/contracts": "0.0.2",
     "@types/chai": "^4.1.6",
     "@types/jest": "^23.3.3",
     "@types/lodash": "^4.14.116",
@@ -48,7 +48,6 @@
     "rollup-plugin-typescript2": "^0.17.1"
   },
   "dependencies": {
-    "@counterfactual/configs": "0.0.1",
     "@counterfactual/dev-utils": "0.0.2",
     "@counterfactual/typescript-typings": "0.0.1",
     "ethers": "^4.0.4",

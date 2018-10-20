@@ -18,8 +18,8 @@
     "module": "es6",
     "sourceMap": true,
     "typeRoots": [
-      "../../../node_modules/@types",
-      "../../../node_modules/@counterfactual/typescript-typings/types"
+      "./node_modules/@types",
+      "./node_modules/@counterfactual/typescript-typings/types"
     ],
     "strict": true
   }

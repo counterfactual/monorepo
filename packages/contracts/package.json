@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/contracts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Collection of smart contracts for use by the Counterfactual framework.",
   "license": "MIT",
   "main": "./index.js",
@@ -48,7 +48,6 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/configs": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/bignumber.js": "4.0.2",
     "@types/chai": "^4.1.6",
@@ -66,6 +65,7 @@
     "ganache-cli": "^6.1.8",
     "lint-staged": "7.1.2",
     "shx": "^0.3.2",
+    "solc": "^0.4.25",
     "solidity-coverage": "0.5.4",
     "solium": "1.1.7",
     "truffle": "4.1.14",
@@ -77,9 +77,7 @@
   "dependencies": {
     "@counterfactual/dev-utils": "0.0.2",
     "ethers": "^4.0.4",
-    "openzeppelin-solidity": "^1.10.0",
-    "solc": "^0.4.25",
-    "truffle": "^4.1.14"
+    "openzeppelin-solidity": "^1.10.0"
   },
   "repository": {
     "type": "git",
