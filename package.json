@@ -8,7 +8,6 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap",
     "build": "yarn ganache && yarn compile && yarn rollup",
     "rollup": "yarn wsrun rollup $PKG --fast-exit -r --stages --exclude-missing",
     "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing",
