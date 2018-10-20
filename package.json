@@ -1,9 +1,5 @@
 {
-  "name": "counterfactual-monorepo",
   "private": true,
-  "engines": {
-    "node": ">=8.0"
-  },
   "workspaces": [
     "packages/*"
   ],
@@ -38,7 +34,7 @@
     "state channels",
     "off chain"
   ],
-  "dependencies": {
+  "devDependencies": {
     "ganache-cli": "^6.1.8",
     "lerna": "^3.4.3",
     "typescript": "^3.1.2",

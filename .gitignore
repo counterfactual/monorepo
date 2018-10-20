@@ -1,41 +1,23 @@
-# Miscellaneous
-.DS_Store
-
-# Build artifacts
-lib/
-
-# Dependencies
+# dependencies
 node_modules
-packages/**/node_modules
 
-# Yarn
-yarn-error.log
+# production
+build/
+dist/
+
+# cache
+.rpt2_cache
 
 # coverage
-coverage.json
-coverage/
-coverageEnv/
-coverage.json
-allFiredEvents
-scTopics
+coverage
 
-# truffle build artifacts
-ganache.log
-packages/contracts/networks/7777777.json
-packages/contracts/build/
-
-.config
-.node-gyp
-.npm
-tmp
-jest-cache
-.rpt2_cache
-dist
-lerna-debug.log
-package-lock.json
-packages/**/package-lock.json
-packages/**/src/*.{d.ts,js,js.map}
-
-# editors
+# misc
+.DS_Store
 .vscode
-.vim*
+.idea/
+*.iml
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
