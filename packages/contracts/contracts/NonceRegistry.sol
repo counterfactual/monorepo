@@ -30,15 +30,7 @@ contract NonceRegistry {
     view
     returns (bool)
   {
-    require(
-      table[key].finalizesAt <= block.number,
-      "Nonce is not yet finalized"
-    );
-    require(
-      table[key].nonceValue == expectedNonceValue,
-      "Nonce value is not equal to expected nonce value"
-    );
-    return true;
+    return (table[key].finalizesAt <= block.number) && (table[key].nonceValue == expectedNonceValue);
   }
 
   function isNonceSet(bytes32 key) external view returns (bool) {

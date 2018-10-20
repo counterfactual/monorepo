@@ -94,7 +94,7 @@ function setupInstallCfState(): CfState {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new CfNonce(0, 0) // nonce
+    new CfNonce(true, 0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
@@ -122,8 +122,8 @@ function validateSetupInfos(infos: StateChannelInfos) {
 
   const expectedSalt = ethers.utils.solidityKeccak256(["uint256"], [0]);
 
-  expect(info.freeBalance.nonce.nonceValue).toEqual(1);
-  expect(info.freeBalance.nonce.salt).toEqual(expectedSalt);
+  expect(info.freeBalance.dependencyNonce.nonceValue).toEqual(0);
+  expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
 }
 
 function installClientMsg(): ClientActionMessage {
@@ -184,5 +184,5 @@ function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
   expect(app.cfApp.getTurnTaker).toEqual(TURN);
   expect(app.cfApp.isStateTerminal).toEqual(IS_STATE_TERMINAL);
   expect(app.dependencyNonce.salt).toEqual(expectedSalt);
-  expect(app.dependencyNonce.nonceValue).toEqual(1);
+  expect(app.dependencyNonce.nonceValue).toEqual(0);
 }

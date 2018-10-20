@@ -72,10 +72,10 @@ contract("NonceRegistry", accounts => {
   it("can insta-finalize nonces", async () => {
     const timeout = new ethers.utils.BigNumber(0);
     const nonceValue = new ethers.utils.BigNumber(1);
+    const nonceKey = computeKey(timeout, Utils.ZERO_BYTES32);
+
     await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, nonceValue);
-    const ret = await registry.functions.table(
-      computeKey(timeout, Utils.ZERO_BYTES32)
-    );
+    const ret = await registry.functions.table(nonceKey);
     expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
     expect(ret.finalizesAt).to.be.eql(
       new ethers.utils.BigNumber(await provider.getBlockNumber())

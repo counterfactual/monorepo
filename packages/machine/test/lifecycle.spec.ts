@@ -253,7 +253,7 @@ class Depositor {
     expect(channel.freeBalance.aliceBalance).toEqual(canon.peerA.balance);
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
     expect(channel.freeBalance.uniqueId).toEqual(0);
-    expect(app.dependencyNonce.nonceValue).toEqual(2);
+    expect(app.dependencyNonce.nonceValue).toEqual(1);
   }
 
   public static startUninstallBalanceRefundMsg(
@@ -531,6 +531,6 @@ class Ttt {
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);
     expect(channel.freeBalance.uniqueId).toEqual(0);
-    expect(app.dependencyNonce.nonceValue).toEqual(2);
+    expect(app.dependencyNonce.nonceValue).toEqual(1);
   }
 }

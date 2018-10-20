@@ -118,8 +118,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
     proposedSetup: any
   ): CfOperation {
     const multisig: Address = message.clientMessage.multisigAddress;
-    const freeBalance = proposedSetup[multisig].freeBalance;
-    const nonce = freeBalance.nonce;
+    const freeBalance: CfFreeBalance = proposedSetup[multisig].freeBalance;
+    const nonce = freeBalance.dependencyNonce;
     const cfFreeBalance = new CfFreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
@@ -128,7 +128,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       freeBalance.uniqueId,
       freeBalance.localNonce,
       freeBalance.timeout,
-      freeBalance.nonce
+      freeBalance.dependencyNonce
     );
     const canon = CanonicalPeerBalance.canonicalize(
       new PeerBalance(message.clientMessage.fromAddress, 0),

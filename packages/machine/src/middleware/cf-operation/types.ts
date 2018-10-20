@@ -189,15 +189,17 @@ export class CfFreeBalance {
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,
-    readonly nonce: CfNonce
+    readonly dependencyNonce: CfNonce
   ) {}
 }
 
 export class CfNonce {
+  public isSet: boolean;
   public salt: Bytes32;
   public nonceValue: number;
 
-  constructor(uniqueId: number, nonceValue: number) {
+  constructor(isSet: boolean, uniqueId: number, nonceValue: number) {
+    this.isSet = isSet;
     this.salt = keccak256(abi.encodePacked(["uint256"], [uniqueId]));
     this.nonceValue = nonceValue;
   }

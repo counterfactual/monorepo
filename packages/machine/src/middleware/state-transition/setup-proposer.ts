@@ -37,7 +37,7 @@ export class SetupProposer {
       FREE_BALANCE_UNIQUE_ID,
       localNonce,
       FREE_BALANCE_TIMEOUT,
-      new CfNonce(FREE_BALANCE_UNIQUE_ID, 1)
+      new CfNonce(false, FREE_BALANCE_UNIQUE_ID, 0)
     );
     const stateChannel = new StateChannelInfoImpl(
       toAddress,

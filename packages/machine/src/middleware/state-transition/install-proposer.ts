@@ -68,7 +68,7 @@ export class InstallProposer {
       existingFreeBalance.uniqueId,
       existingFreeBalance.localNonce + 1,
       data.timeout,
-      existingFreeBalance.nonce
+      existingFreeBalance.dependencyNonce
     );
     const updatedStateChannel = new StateChannelInfoImpl(
       message.clientMessage.toAddress,
@@ -120,7 +120,7 @@ export class InstallProposer {
       timeout: data.timeout,
       terms,
       cfApp: app,
-      dependencyNonce: new CfNonce(uniqueId, 1)
+      dependencyNonce: new CfNonce(false, uniqueId, 0)
     };
   }
 

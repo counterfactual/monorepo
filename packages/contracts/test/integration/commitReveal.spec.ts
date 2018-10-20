@@ -102,43 +102,10 @@ async function deployStateChannel(
   return stateChannel;
 }
 
-/// Set channel nonce with key corresponding to (multisig.address, channelNonceSalt),
-/// and then wait 10 blocks, hence finalizing the nonce.
-async function setChannelNonceAndWait(
-  multisig: Multisig,
-  channelNonceValue: ethers.utils.BigNumber,
-  channelNonceSalt: string,
-  signers: ethers.Wallet[]
-) {
-  const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
-  await multisig.execCall(
-    nonceRegistry,
-    "setNonce",
-    [new ethers.utils.BigNumber(10), channelNonceSalt, channelNonceValue],
-    signers
-  );
-
-  await mineBlocks(10);
-
-  const channelNonceKey = computeNonceRegistryKey(
-    new ethers.utils.BigNumber(10),
-    multisig.address,
-    channelNonceSalt
-  );
-  expect(
-    await nonceRegistry.functions.isFinalized(
-      channelNonceKey,
-      channelNonceValue
-    )
-  ).to.eql(true);
-  return channelNonceKey;
-}
-
-async function executeStateChannelTransfer(
+async function executeStateChannelTransaction(
   stateChannel: AppInstance,
   multisig: Multisig,
-  channelNonceKey: string,
-  channelNonceValue: ethers.utils.BigNumber,
+  uninstallNonceKey: string,
   signers: ethers.Wallet[]
 ) {
   if (!stateChannel.contract) {
@@ -156,8 +123,7 @@ async function executeStateChannelTransfer(
     [
       registry.address,
       nonceRegistry.address,
-      channelNonceKey,
-      channelNonceValue,
+      uninstallNonceKey,
       stateChannel.contract.cfAddress,
       stateChannel.terms
     ],
@@ -209,24 +175,22 @@ describe("CommitReveal", async () => {
     // 5. Call setResolution() on StateChannel
     await stateChannel.setResolution(appState);
 
-    // 6. Call setNonce on NonceRegistry. Salt is arbitrarily chosen.
-    const channelNonceValue = new ethers.utils.BigNumber(1);
+    // 6. Compute channel nonce key
+    // TODO: @scalefree Document source of this string.
     const channelNonceSalt =
       "0x3004efe76b684aef3c1b29448e84d461ff211ddba19cdf75eb5e31eebbb6999b";
 
-    const channelNonceKey = await setChannelNonceAndWait(
-      multisig,
-      channelNonceValue,
-      channelNonceSalt,
-      [alice, bob]
+    const channelNonceKey = computeNonceRegistryKey(
+      new ethers.utils.BigNumber(0),
+      multisig.address,
+      channelNonceSalt
     );
 
     // 7. Call executeStateChannelConditionalTransaction on ConditionalTransaction from multisig
-    await executeStateChannelTransfer(
+    await executeStateChannelTransaction(
       stateChannel,
       multisig,
       channelNonceKey,
-      channelNonceValue,
       [alice, bob]
     );
 

@@ -24,6 +24,7 @@ export class UninstallProposer {
     }
     // delete the app by bumping the nonce
     channels[multisig].appChannels[appId].dependencyNonce.nonceValue += 1;
+    channels[multisig].appChannels[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
     const canon = CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
@@ -38,7 +39,7 @@ export class UninstallProposer {
       oldFreeBalance.uniqueId,
       oldFreeBalance.localNonce + 1,
       oldFreeBalance.timeout,
-      oldFreeBalance.nonce
+      oldFreeBalance.dependencyNonce
     );
     const chan = channels[multisig];
     // now replace the state channel with a newly updated one

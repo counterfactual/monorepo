@@ -27,14 +27,10 @@ export class CfOpInstall extends CfMultiSendOp {
    * @override common.CfMultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
-    return [
-      this.freeBalanceInput(),
-      this.dependencyNonceInput(),
-      this.ConditionalTransactionInput()
-    ];
+    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
   }
 
-  private ConditionalTransactionInput(): MultisigInput {
+  private conditionalTransactionInput(): MultisigInput {
     const to = this.ctx.ConditionalTransaction.address;
     const val = 0;
     const terms = [
@@ -54,7 +50,6 @@ export class CfOpInstall extends CfMultiSendOp {
       this.ctx.Registry.address,
       this.ctx.NonceRegistry.address,
       depNonceKey,
-      this.dependencyNonce.nonceValue,
       this.appCfAddress,
       terms
     ]);
