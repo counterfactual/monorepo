@@ -3,7 +3,7 @@ export function deployTruffleArtifacts(
   deployer: TruffleDeployer
 ) {
   const Conditional = loader.require("Conditional");
-  const ConditionalTransfer = loader.require("ConditionalTransfer");
+  const ConditionalTransaction = loader.require("ConditionalTransaction");
   const MultiSend = loader.require("MultiSend");
   const NonceRegistry = loader.require("NonceRegistry");
   const PaymentApp = loader.require("PaymentApp");
@@ -16,13 +16,13 @@ export function deployTruffleArtifacts(
   const ETHBalanceRefundApp = loader.require("ETHBalanceRefundApp");
 
   deployer.deploy(Transfer).then(() => {
-    deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransfer]);
+    deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransaction]);
   });
   deployer.deploy(StaticCall).then(() => {
-    deployer.link(StaticCall, [ConditionalTransfer, Conditional]);
+    deployer.link(StaticCall, [ConditionalTransaction, Conditional]);
   });
 
-  deployer.deploy(ConditionalTransfer);
+  deployer.deploy(ConditionalTransaction);
   deployer.deploy(MultiSend);
   deployer.deploy(NonceRegistry);
   deployer.deploy(PaymentApp);

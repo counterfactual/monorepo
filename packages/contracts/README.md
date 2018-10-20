@@ -16,7 +16,7 @@ Counterfactual provides a small and clean API for application developers to prog
 
 When disputes occur, an instance of the contract [`StateChannel.sol`](./contracts/StateChannel.sol) is placed on chain together with a small amount of state. This contract also manages the dispute flow. Upon resolution of a dispute, apps return a struct called `Transfer.Transaction` to determine who gets the value-at-stake, and for common types of value-at-stake, the framework enforces a maximum amount of value transferable.
 
-State deposit is stored in a [multisig wallet](./contracts/MinimumViableMultisig.sol). Apps are installed by signing [commitments](./contracts/delegateTargets/ConditionalTransfer.sol) from the multisig. Deterministic addressing for counterfactually instantiated objects is provided through a [registry](./contracts/Registry.sol).
+State deposit is stored in a [multisig wallet](./contracts/MinimumViableMultisig.sol). Apps are installed by signing [commitments](./contracts/delegateTargets/ConditionalTransaction.sol) from the multisig. Deterministic addressing for counterfactually instantiated objects is provided through a [registry](./contracts/Registry.sol).
 
 For a more detailed description of contract architecture, please see [the specs repository](https://github.com/counterfactual/specs/tree/master/contracts).
 

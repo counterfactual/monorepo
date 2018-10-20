@@ -22,7 +22,7 @@ const { web3 } = global as any;
 const {
   Registry,
   NonceRegistry,
-  ConditionalTransfer,
+  ConditionalTransaction,
   StaticCall
 } = buildArtifacts;
 
@@ -144,15 +144,15 @@ async function executeStateChannelTransfer(
   if (!stateChannel.contract) {
     throw new Error("Deploy failed");
   }
-  const conditionalTransfer = await (await ConditionalTransfer).getDeployed(
+  const conditionalTransaction = await (await ConditionalTransaction).getDeployed(
     masterAccount
   );
   const registry = await (await Registry).getDeployed(masterAccount);
   const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
 
   await multisig.execDelegatecall(
-    conditionalTransfer,
-    "executeAppConditionalTransfer",
+    conditionalTransaction,
+    "executeAppConditionalTransaction",
     [
       registry.address,
       nonceRegistry.address,
@@ -221,7 +221,7 @@ describe("CommitReveal", async () => {
       [alice, bob]
     );
 
-    // 7. Call executeStateChannelConditionalTransfer on ConditionalTransfer from multisig
+    // 7. Call executeStateChannelConditionalTransaction on ConditionalTransaction from multisig
     await executeStateChannelTransfer(
       stateChannel,
       multisig,

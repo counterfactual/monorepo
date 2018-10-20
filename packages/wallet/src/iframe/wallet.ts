@@ -52,9 +52,9 @@ export class IFrameWallet implements machine.types.ResponseSink {
       JSON.stringify(contracts.PaymentApp.abi),
       contracts.PaymentApp.bytecode
     ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.ConditionalTransfer] = [
-      JSON.stringify(contracts.ConditionalTransfer.abi),
-      contracts.ConditionalTransfer.bytecode
+    artifacts[machine.types.NetworkContext.CONTRACTS.ConditionalTransaction] = [
+      JSON.stringify(contracts.ConditionalTransaction.abi),
+      contracts.ConditionalTransaction.bytecode
     ];
     artifacts[machine.types.NetworkContext.CONTRACTS.MultiSend] = [
       JSON.stringify(contracts.MultiSend.abi),

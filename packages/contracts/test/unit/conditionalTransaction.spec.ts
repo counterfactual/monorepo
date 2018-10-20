@@ -5,7 +5,7 @@ import { AbstractContract, expect } from "../../utils";
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
-contract("ConditionalTransfer", (accounts: string[]) => {
+contract("ConditionalTransaction", (accounts: string[]) => {
   let condition: ethers.Contract;
   let delegateProxy: ethers.Contract;
   let ct: ethers.Contract;
@@ -18,13 +18,13 @@ contract("ConditionalTransfer", (accounts: string[]) => {
     const DelegateProxy = await AbstractContract.loadBuildArtifact(
       "DelegateProxy"
     );
-    const ConditionalTransfer = await AbstractContract.loadBuildArtifact(
-      "ConditionalTransfer"
+    const ConditionalTransaction = await AbstractContract.loadBuildArtifact(
+      "ConditionalTransaction"
     );
 
     condition = await ExampleCondition.deploy(unlockedAccount);
     delegateProxy = await DelegateProxy.deploy(unlockedAccount);
-    ct = await ConditionalTransfer.getDeployed(unlockedAccount);
+    ct = await ConditionalTransaction.getDeployed(unlockedAccount);
   });
 
   describe("Pre-commit to transfer details", () => {
@@ -69,7 +69,7 @@ contract("ConditionalTransfer", (accounts: string[]) => {
 
     it("transfers the funds conditionally if true", async () => {
       const randomTarget = Utils.randomETHAddress();
-      const tx = ct.interface.functions.executeSimpleConditionalTransfer.encode(
+      const tx = ct.interface.functions.executeSimpleConditionalTransaction.encode(
         [
           makeCondition(Utils.ZERO_BYTES32, true),
           {
@@ -102,7 +102,7 @@ contract("ConditionalTransfer", (accounts: string[]) => {
 
     it("does not transfer the funds conditionally if false", async () => {
       const randomTarget = Utils.randomETHAddress();
-      const tx = ct.interface.functions.executeSimpleConditionalTransfer.encode(
+      const tx = ct.interface.functions.executeSimpleConditionalTransaction.encode(
         [
           makeConditionParam(trueParam, falseParam),
           {

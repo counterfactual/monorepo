@@ -1,6 +1,6 @@
 // TODO: consume build artifacts from build artifacts repo
 import AppInstance from "../../../contracts/build/contracts/AppInstance.json";
-import ConditionalTransfer from "../../../contracts/build/contracts/ConditionalTransfer.json";
+import ConditionalTransaction from "../../../contracts/build/contracts/ConditionalTransaction.json";
 import ETHBalanceRefundApp from "../../../contracts/build/contracts/ETHBalanceRefundApp.json";
 import MinimumViableMultisig from "../../../contracts/build/contracts/MinimumViableMultisig.json";
 import MultiSend from "../../../contracts/build/contracts/MultiSend.json";
@@ -13,7 +13,7 @@ import networkFile from "../../../contracts/networks/7777777.json";
 
 export {
   AppInstance,
-  ConditionalTransfer,
+  ConditionalTransaction,
   ETHBalanceRefundApp,
   MinimumViableMultisig,
   MultiSend,

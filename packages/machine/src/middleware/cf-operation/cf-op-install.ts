@@ -30,12 +30,12 @@ export class CfOpInstall extends CfMultiSendOp {
     return [
       this.freeBalanceInput(),
       this.dependencyNonceInput(),
-      this.conditionalTransferInput()
+      this.ConditionalTransactionInput()
     ];
   }
 
-  private conditionalTransferInput(): MultisigInput {
-    const to = this.ctx.ConditionalTransfer.address;
+  private ConditionalTransactionInput(): MultisigInput {
+    const to = this.ctx.ConditionalTransaction.address;
     const val = 0;
     const terms = [
       this.app.terms.assetType,
@@ -49,8 +49,8 @@ export class CfOpInstall extends CfMultiSendOp {
       )
     );
     const data = new ethers.utils.Interface(
-      this.ctx.ConditionalTransfer.abi
-    ).functions.executeAppConditionalTransfer.encode([
+      this.ctx.ConditionalTransaction.abi
+    ).functions.executeAppConditionalTransaction.encode([
       this.ctx.Registry.address,
       this.ctx.NonceRegistry.address,
       depNonceKey,

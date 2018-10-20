@@ -1,5 +1,5 @@
 import AppInstance from "../../contracts/build/contracts/AppInstance.json";
-import ConditionalTransfer from "../../contracts/build/contracts/ConditionalTransfer.json";
+import ConditionalTransaction from "../../contracts/build/contracts/ConditionalTransaction.json";
 import ETHBalanceRefundApp from "../../contracts/build/contracts/ETHBalanceRefundApp.json";
 import MinimumViableMultisig from "../../contracts/build/contracts/MinimumViableMultisig.json";
 import MultiSend from "../../contracts/build/contracts/MultiSend.json";
@@ -37,9 +37,9 @@ function getContractArtifacts() {
     JSON.stringify(PaymentApp.abi),
     PaymentApp.bytecode
   ];
-  artifacts[NetworkContext.CONTRACTS.ConditionalTransfer] = [
-    JSON.stringify(ConditionalTransfer.abi),
-    ConditionalTransfer.bytecode
+  artifacts[NetworkContext.CONTRACTS.ConditionalTransaction] = [
+    JSON.stringify(ConditionalTransaction.abi),
+    ConditionalTransaction.bytecode
   ];
   artifacts[NetworkContext.CONTRACTS.MultiSend] = [
     JSON.stringify(MultiSend.abi),

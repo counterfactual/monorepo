@@ -1,7 +1,7 @@
 import { AbstractContract } from "./contract";
 
-export const ConditionalTransfer = AbstractContract.loadBuildArtifact(
-  "ConditionalTransfer"
+export const ConditionalTransaction = AbstractContract.loadBuildArtifact(
+  "ConditionalTransaction"
 );
 export const NonceRegistry = AbstractContract.loadBuildArtifact(
   "NonceRegistry"
@@ -25,7 +25,7 @@ export const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
 );
 
 export default {
-  ConditionalTransfer,
+  ConditionalTransaction,
   NonceRegistry,
   Registry,
   StaticCall,

@@ -254,7 +254,7 @@ export class NetworkContext {
   public static CONTRACTS = {
     Registry: "Registry",
     PaymentApp: "PaymentApp",
-    ConditionalTransfer: "ConditionalTransfer",
+    ConditionalTransaction: "ConditionalTransaction",
     MultiSend: "MultiSend",
     NonceRegistry: "NonceRegistry",
     Signatures: "Signatures",
@@ -285,7 +285,7 @@ export class NetworkContext {
     return new NetworkContext(
       contracts[this.CONTRACTS.Registry],
       contracts[this.CONTRACTS.PaymentApp],
-      contracts[this.CONTRACTS.ConditionalTransfer],
+      contracts[this.CONTRACTS.ConditionalTransaction],
       contracts[this.CONTRACTS.MultiSend],
       contracts[this.CONTRACTS.NonceRegistry],
       contracts[this.CONTRACTS.Signatures],
@@ -299,7 +299,7 @@ export class NetworkContext {
   constructor(
     readonly Registry: ContractInfo,
     readonly PaymentApp: ContractInfo,
-    readonly ConditionalTransfer: ContractInfo,
+    readonly ConditionalTransaction: ContractInfo,
     readonly MultiSend: ContractInfo,
     readonly NonceRegistry: ContractInfo,
     readonly Signatures: ContractInfo,

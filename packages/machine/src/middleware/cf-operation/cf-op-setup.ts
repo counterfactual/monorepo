@@ -33,10 +33,10 @@ export class CfOpSetup extends CfMultiSendOp {
    * @override common.CfMultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
-    return [this.dependencyNonceInput(), this.conditionalTransferInput()];
+    return [this.dependencyNonceInput(), this.ConditionalTransactionInput()];
   }
 
-  public conditionalTransferInput(): MultisigInput {
+  public ConditionalTransactionInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
     const depNonceKey = keccak256(
@@ -47,8 +47,8 @@ export class CfOpSetup extends CfMultiSendOp {
     );
 
     const multisigCalldata = new ethers.utils.Interface(
-      this.ctx.ConditionalTransfer.abi
-    ).functions.executeAppConditionalTransfer.encode([
+      this.ctx.ConditionalTransaction.abi
+    ).functions.executeAppConditionalTransaction.encode([
       this.ctx.Registry.address,
       this.ctx.NonceRegistry.address,
       depNonceKey,
@@ -58,7 +58,7 @@ export class CfOpSetup extends CfMultiSendOp {
     ]);
 
     return new MultisigInput(
-      this.ctx.ConditionalTransfer.address,
+      this.ctx.ConditionalTransaction.address,
       0,
       multisigCalldata,
       Operation.Delegatecall

@@ -52,8 +52,8 @@
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/bignumber.js": "4.0.2",
     "@types/chai": "^4.1.6",
-    "@types/chai-string": "^1.4.1",
     "@types/chai-as-promised": "^7.1.0",
+    "@types/chai-string": "^1.4.1",
     "@types/node": "^10.9.3",
     "babel-eslint": "8.2.5",
     "bignumber.js": "7.2.1",
@@ -78,7 +78,8 @@
     "@counterfactual/test-utils": "0.0.1",
     "ethers": "^4.0.4",
     "openzeppelin-solidity": "^1.10.0",
-    "solc": "0.4.24"
+    "solc": "^0.4.25",
+    "truffle": "^4.1.14"
   },
   "repository": {
     "type": "git",
