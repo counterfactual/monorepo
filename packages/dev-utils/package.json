@@ -31,7 +31,6 @@
     }
   },
   "devDependencies": {
-    "@counterfactual/configs": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/bignumber.js": "4.0.2",
     "@types/jest": "^23.3.3",
