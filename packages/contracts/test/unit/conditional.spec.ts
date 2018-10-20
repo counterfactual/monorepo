@@ -82,13 +82,21 @@ contract("Conditional", (accounts: string[]) => {
     );
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(ethers.constants.HashZero, trueParam, true);
+      const condition = makeCondition(
+        ethers.constants.HashZero,
+        trueParam,
+        true
+      );
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(true);
     });
 
     it("returns true if function did not fail but returned false", async () => {
-      const condition = makeCondition(ethers.constants.HashZero, falseParam, true);
+      const condition = makeCondition(
+        ethers.constants.HashZero,
+        falseParam,
+        true
+      );
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(true);
     });
@@ -104,7 +112,11 @@ contract("Conditional", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(ethers.constants.HashZero, falseParam, false);
+      const condition = makeCondition(
+        ethers.constants.HashZero,
+        falseParam,
+        false
+      );
       const ret = await conditionContract.functions.isSatisfied(condition);
       expect(ret).to.be.eql(false);
     });

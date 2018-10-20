@@ -2253,7 +2253,7 @@ external-editor@^3.0.0:
   integrity sha512-bn71H9+qWoOQKyZDo25mOMVpSmXROAsTJVVVYzrrtol3d4y+AsKjf4Iwl2Q+IuT0kFSQ1qo166UuIwqYq7mGnA==
   dependencies:
     chardet "^0.7.0"
-    iconv-lite "^0.4.24"
+    iconv-lite "^0.4.25"
     tmp "^0.0.33"
 
 extglob@^0.3.1:
@@ -2865,9 +2865,9 @@ iconv-lite@0.4.23:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-iconv-lite@^0.4.24, iconv-lite@^0.4.4, iconv-lite@~0.4.13:
-  version "0.4.24"
-  resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
+iconv-lite@^0.4.25, iconv-lite@^0.4.4, iconv-lite@~0.4.13:
+  version "0.4.25"
+  resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.25.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
   dependencies:
     safer-buffer ">= 2.1.2 < 3"

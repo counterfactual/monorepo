@@ -68,7 +68,7 @@
     "solc": "^0.4.25",
     "solidity-coverage": "0.5.4",
     "solium": "1.1.7",
-    "truffle": "4.1.14",
+    "truffle": "5.0.0-beta.1",
     "truffle-deploy-registry": "^0.4.1",
     "ts-node": "^7.0.0",
     "tslint": "5.11.0",

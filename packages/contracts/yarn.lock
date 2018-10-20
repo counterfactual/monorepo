@@ -2435,7 +2435,7 @@ external-editor@^3.0.0:
   resolved "https://registry.yarnpkg.com/external-editor/-/external-editor-3.0.3.tgz#5866db29a97826dbe4bf3afd24070ead9ea43a27"
   dependencies:
     chardet "^0.7.0"
-    iconv-lite "^0.4.24"
+    iconv-lite "^0.4.25"
     tmp "^0.0.33"
 
 extglob@^0.3.1:
@@ -3225,9 +3225,9 @@ iconv-lite@0.4.23:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-iconv-lite@0.4.24, iconv-lite@^0.4.17, iconv-lite@^0.4.24, iconv-lite@^0.4.4:
-  version "0.4.24"
-  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
+iconv-lite@0.4.25, iconv-lite@^0.4.17, iconv-lite@^0.4.25, iconv-lite@^0.4.4:
+  version "0.4.25"
+  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.25.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
@@ -5937,9 +5937,9 @@ sol-explore@^1.6.2:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
 
-solc@0.4.24:
-  version "0.4.24"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.24.tgz#354f14b269b38cbaa82a47d1ff151723502b954e"
+solc@0.4.25:
+  version "0.4.25"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.25.tgz#354f14b269b38cbaa82a47d1ff151723502b954e"
   dependencies:
     fs-extra "^0.30.0"
     memorystream "^0.3.1"
@@ -6484,7 +6484,7 @@ truffle-compile@^3.0.13:
     colors "^1.1.2"
     debug "^3.1.0"
     graphlib "^2.1.1"
-    solc "0.4.24"
+    solc "0.4.25"
     truffle-config "^1.0.6"
     truffle-contract-sources "^0.0.2"
     truffle-error "^0.0.3"
@@ -6736,7 +6736,7 @@ truffle@4.1.12:
   dependencies:
     mocha "^4.1.0"
     original-require "1.0.1"
-    solc "0.4.24"
+    solc "0.4.25"
 
 ts-node@7.0.0:
   version "7.0.0"
@@ -7136,7 +7136,7 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz#5abacf777c32166a51d085d6b4f3e7d27113ddb0"
   dependencies:
-    iconv-lite "0.4.24"
+    iconv-lite "0.4.25"
 
 whatwg-mimetype@^2.1.0:
   version "2.2.0"

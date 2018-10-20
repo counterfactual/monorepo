@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
-  <a href="https://solidity.readthedocs.io/en/develop/index.html"><img src="https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg" /></a>
+  <a href="https://solidity.readthedocs.io/en/develop/index.html"><img src="https://img.shields.io/badge/SOLIDITY-0.4.25-orange.svg" /></a>
 </p>
 <br>
 

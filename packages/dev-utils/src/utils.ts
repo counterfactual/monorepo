@@ -116,7 +116,7 @@ export const mineOneBlock = () => {
   // @ts-ignore
   const web3 = (global as any).web3;
   return new Promise((resolve, reject) => {
-    web3.currentProvider.sendAsync(
+    web3.currentProvider.send(
       {
         id: new Date().getTime(),
         jsonrpc: "2.0",

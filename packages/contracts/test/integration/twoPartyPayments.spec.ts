@@ -86,7 +86,11 @@ contract("PaymentApp", (accounts: string[]) => {
       await latestNonce(),
       0,
       Utils.signMessage(
-        getUpdateHash(stateHash || ethers.constants.HashZero, await latestNonce(), 0),
+        getUpdateHash(
+          stateHash || ethers.constants.HashZero,
+          await latestNonce(),
+          0
+        ),
         unlockedAccount
       )
     );
