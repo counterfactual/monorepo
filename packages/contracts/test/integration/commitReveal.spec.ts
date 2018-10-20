@@ -2,7 +2,7 @@ import {
   generateEthWallets,
   mineBlocks,
   setupTestEnv
-} from "@counterfactual/test-utils";
+} from "@counterfactual/dev-utils";
 import { expect } from "chai";
 import * as ethers from "ethers";
 

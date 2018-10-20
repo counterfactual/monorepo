@@ -51,14 +51,14 @@
   resolved "git+https://5e05773a1e89743bbbe9dfcf9c3d040cbbce8517:x-oauth-basic@github.com/counterfactual/machine.git#0a6b1a1a158363e3ca7607493b1c66d4193ccc50"
   dependencies:
     "@counterfactual/configs" "https://github.com/counterfactual/configs.git#dc5d086"
-    "@counterfactual/test-utils" "https://github.com/counterfactual/test-utils.git"
+    "@counterfactual/dev-utils" "https://github.com/counterfactual/dev-utils.git"
     "@counterfactual/typescript-typings" "https://github.com/counterfactual/typescript-typings.git"
     ethers "^4.0.4"
     sha3 "^1.2.2"
 
-"@counterfactual/test-utils@https://github.com/counterfactual/test-utils.git":
+"@counterfactual/dev-utils@https://github.com/counterfactual/dev-utils.git":
   version "0.0.1"
-  resolved "https://github.com/counterfactual/test-utils.git#dfc160b7d3143c0648cfb2e6a5edf5d169e90160"
+  resolved "https://github.com/counterfactual/dev-utils.git#dfc160b7d3143c0648cfb2e6a5edf5d169e90160"
   dependencies:
     bignumber.js "7.2.1"
     chai "4.1.2"

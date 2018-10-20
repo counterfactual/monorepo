@@ -1,4 +1,4 @@
-import { HIGH_GAS_LIMIT } from "@counterfactual/test-utils";
+import { HIGH_GAS_LIMIT } from "@counterfactual/dev-utils";
 import * as wallet from "@counterfactual/wallet";
 import * as ethers from "ethers";
 import * as abi from "../src/abi";

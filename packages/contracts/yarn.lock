@@ -119,9 +119,9 @@
     solidity-coverage "0.5.4"
     truffle "4.1.12"
 
-"@counterfactual/test-utils@https://github.com/counterfactual/test-utils.git":
+"@counterfactual/dev-utils@https://github.com/counterfactual/dev-utils.git":
   version "0.0.2"
-  resolved "https://github.com/counterfactual/test-utils.git#1400b544de6ab7801581559be551080fb2b3fc04"
+  resolved "https://github.com/counterfactual/dev-utils.git#1400b544de6ab7801581559be551080fb2b3fc04"
   dependencies:
     bignumber.js "7.2.1"
     chai "4.1.2"

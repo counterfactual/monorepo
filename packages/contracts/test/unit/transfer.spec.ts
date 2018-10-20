@@ -1,4 +1,4 @@
-import * as Utils from "@counterfactual/test-utils";
+import * as Utils from "@counterfactual/dev-utils";
 import { expect } from "chai";
 import * as ethers from "ethers";
 import { AbstractContract } from "../../utils/contract";

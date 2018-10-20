@@ -4,7 +4,7 @@ import pkg from "./package.json";
 const globals = {
   ethers: "ethers",
   lodash: "_",
-  testUtils: "test-utils"
+  testUtils: "dev-utils"
 };
 
 export default {

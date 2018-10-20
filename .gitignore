@@ -1,6 +1,9 @@
 # Miscellaneous
 .DS_Store
 
+# Build artifacts
+lib/
+
 # Dependencies
 node_modules
 packages/**/node_modules

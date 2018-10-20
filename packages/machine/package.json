@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@counterfactual/configs": "0.0.1",
-    "@counterfactual/test-utils": "0.0.1",
+    "@counterfactual/dev-utils": "0.0.2",
     "@counterfactual/typescript-typings": "0.0.1",
     "ethers": "^4.0.4",
     "sha3": "^1.2.2"

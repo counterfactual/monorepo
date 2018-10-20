@@ -1,9 +1,0 @@
-{
-  "extends": "../configs/tsconfigs/base-tsconfig",
-  "compilerOptions": {
-    "sourceRoot": ".",
-    "declarationDir": "dist/",
-    "outDir": "dist/"
-  },
-  "include": ["**/**/*.ts"]
-}
