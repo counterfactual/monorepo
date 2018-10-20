@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf jest-cache build dist && yarn clean",
+    "clean": "rm -rf jest-cache build dist",
     "build": "tsc",
     "rollup": "rollup -c",
     "test": "jest --runInBand --detectOpenHandles --bail",
