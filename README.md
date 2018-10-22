@@ -1,112 +1,70 @@
-# Specifications
+# Counterfactual Specification
 
-[![](https://img.shields.io/badge/made%20by-L4-black.svg?style=flat-square)](http://l4v.io)
+![](https://img.shields.io/badge/status-wip-orange.svg?style=svg)
+![Discord](https://img.shields.io/discord/500370633901735947.svg)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 > This repository contains the specs for the Counterfactual Protocol and associated subsystems.
 
 ## Table of Contents
 
+- [Architecture](#architecture)
+- [Properties](#properties)
 - [Specs](#specs)
-- [Organization](#organization)
-- [Specs](#specs)
-- [Design](#design)
-- [Protocols](#protocols)
-- [Roadmap](#roadmap)
+
+## Architecture
+
+Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. Within their scope of applicability, they allow users to transact with each other without paying blockchain transaction fees and with instant finality, and are the only technique that securely realises the latter property.
+
+With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they proceed to exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](/v1/protocol.md) section.
+
+Through a challenge-response mechanism, on-chain contracts implement a method for participants to ensure the latest signed valid state update that pertains to their commitment can be submitted to the blockchain to guarantee fair adjudication of the state.
+
+Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explainer of the contracts layer, please read the [contracts](/v1/contracts.md) subsection.
+
+## Properties
+
+Counterfactual has been designed to attain the following properties.
+
+### Minimized on-chain footprint
+
+We don’t want to put anything on the chain that doesn’t need to be. In our designs, we have aimed to make the only necessary on-chain object for a state channel to be a generic multisignature wallet.
+
+### Maximized privacy
+
+We want to achieve a level of privacy where state channel operations are indistinguishable from other common types of on-chain activities. Using a state channel should not reveal any information about the applications that are being used, the state being used within them, or even the fact that a state channel is being used at all. To achieve this property, we assume that the on-chain component is a generic multisignature wallet which looks the same as any other multisignature wallet on Ethereum.
+
+### Ease-of-use
+
+We want channels that can be easily incorporated into new applications without the requirement for those developers to also be state channel experts. For this property we have defined an abstraction for state channel applications that we call "Apps". These "Apps" are simple stateless contracts which just define the state machine for an application including valid transitions and turn-taking logic. We restrict the kinds of applications that are written to be the kinds that fit within the [limitations](#limitations) of state channels.
+
+### Parallel operations
+
+We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](/v1/protocols).
+
+### Upgradeable
+
+We want to support deploying or upgrading channel designs without requiring the user to make a single on-chain operation. There are multiple ways that we are able to achieve this and that we are designing for. For the purposes of _trustless_ off-chain upgradability, we are able to support counterfactually instantiated smart contracts as applications. To upgrade a contract trustlessly, state channel participants simply agree to a new version of bytecode their applications pertains to and move on with that. With trust, state channel participants can use an application that is defined using [ZeppelinOS's upgradeable contracts](https://docs.zeppelinos.org/docs/building.html).
+
+### Standardized
+
+We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we've worked closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](http://eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
+
+## Limitations
+
+1. **Conflict-free data structures.** Since state updates happen off-chain in state channels, there is a need to replicate the ordering property of a blockchain through a conflict-free data structure. In Counterfactual, we currently support turn-based state machines where the participant authorized to take their take (an action) is defined as a function of the state of an `App`.
+
+2. **Public auditability.** State channel applications cannot declare the state within the application to the public in a way that can be considered by the public as the latest state. For example, there is no equivalent to Etherscan for off-chain state since it is always possible for the participants of a state channel to falsify their claims.
 
 ## Specs
 
-For an introduction to concepts and terminology behind state channels, please see [this paper](https://counterfactual.com/statechannels).
+The specs contained in this repository are:
 
-Below is a summary of some important definitions. Some of these definitions are more specialized (less general) than those in the paper.
+- [protocols](/v1/protocols.md) - The Counterfactual protocol for off-chain applications
+- [contracts](/v1/contracts.md) - The on-chain smart contracts that implement properties of Counterfactual
 
-- **state deposit**: blockchain state locked into a state channel
-- **state deposit holder**: the on-chain multisignature wallet that holds the state deposit
-- **counterfactual instantiation**: the process by which parties in a state channel agree to be bound by the terms of some off-chain contract
-- **counterfactual address**: an identifier of a counterfactually instantiated contract that is deterministically computed from the code and the channel in which the contract is instantiated
-- **commitment**: a signed transaction (piece of data) that allows the owner to perform a certain action
-- **action**: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
-- **conditional transfer**: the action of transferring part of the state deposit to a given address if a certain condition is true.
+## Contribute
 
-Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation here. The reason for this divergence is explained later.
+Suggestions, contributions, criticisms are welcome. Though please make sure to familiarize yourself deeply with Counterfactual, the models it adopts, and the principles it follows.
 
-## Organization
-
-These documents include a high-level design overview of the protocols. A high-level design specifies the actions that parties commit to and dependencies between commitments, as well as the contract functionality necessary to enforce these commitments. In addition, there are separate specs that specify the contract behaviour and interface in more detail, as well as a specification of the data format of the commitments and protocol messages.
-
-## Design
-
-A state channel is an on-chain multisig state deposit holder, a set of counterfactually instantiated state channel apps, the set of dependency nonces, the set of signed commitments (stored by each participant locally), and any other state needed for disputes or to perform operations in the channel.
-
-### Criteria
-
-The file [criteria.md](criteria.md) contains criteria that all our designs aim to achieve. A criteria is a predicate that a protocol design either satisfies or does not.
-
-### Commitments
-
-We recall the definition of a commitment as a signed transaction (piece of data) that allows the owner to perform a certain action. More precisely, all our commitments consist of the parameters that should be passed to `MinimumViableMultisig::execTransaction` and cause it to perform the action, which is to call the internal `MinimumViableMultisig::execute` function, which performs a message call originating from the multisig.
-
-A simple example of an action is `execute(a, n, 0, 0)`, which transfers the `n` wei to the address `a`; this action is used in unanimous withdrawals.
-
-Many actions are simply delegate calls to a contract in the `delegateTargets` folder. These contracts execute "on behalf of" the multisig. The `Multisend` delegate target executes a set of `execute` statements atomically (i.e., if any of them fail, the whole transaction reverts). The `ConditionalTransfer` delegate target provides functionality that calls another contract to receive a `Transfer` object that represents some allocation of blockchain assets (either ether or ERC20 tokens), checks it against a limit, and then transfers assets.
-
-### Apps
-
-A state channel application (app) is a collection of counterfactual state and functionality that holds the right to allocate some portion of the state deposit of the state channel that it belongs to. An example of a state channel app is a chess game. Multiple apps of the same type (e.g., multiple chess games) can be installed into the same channel.
-
-An app is also the interface used by developers wishing to write channelized code, in that they write an app that encapsulates the functionality that they want to offer users, which can then be installed by users into a channel. Hence, there is a mixing of framework code (written by us) and code written by app developers. See the [contracts](contracts/README.md) folder for details about how this is managed.
-
-### Nonces
-
-There are two types of nonces, or sequence numbers, used in the code. The first is used by an app and is linked to an app state, and is used to determine which signed state is more recent. The second type is called a dependency nonce and is implemented by the `NonceRegistry` contract. Its purpose is simply that certain commitments depend on them being a certain value. We explain why this is useful in the next section.
-
-### Multiple Apps
-
-One key feature of the state channels we support is that multiple applications can be installed without any on-chain transactions, and multiple applications may run simultaneously. When users are done with an application (e.g., one player wins a chess game, or the expiry time on a financial option has passed), the app can be uninstalled and the state deposit assigned to it freed up to be assigned to other apps.
-
-An app that is installed but not uninstalled is called an active app.
-
-The state deposit locked in the multisig should be equal to the sum of the state deposit held by all apps in the channel. This property is called **conservation of balance**. There is a special app called the Free Balance app that is the "default place" to hold state deposit. The app logic is implement by `PaymentChannel.sol`.
-
-To support easy uninstallation of apps, each app has its own dependency nonce.
-
-## Protocols
-
-### Setup
-
-TBD
-
-### Install
-
-The install commitment is a multisend that:
-
-- sets the free balance state to a new state with some balance removed
-- sets the app dependency nonce to 1
-- does a conditional transfer, which checks that the the dependency nonce is set to 1
-
-### Update
-
-The update commitment sets the app state hash.
-
-### Uninstall
-
-The uninstall commitment is a multisend that
-
-- sets the app dependency nonce to 2
-- sets the freebalance state to a new state with some balance added
-
-## Formal Specification
-
-The files in the [`protocols`](protocols) folder specify the protocols above more formally.
-
-We assume the existence of a well-known pure function `KECCAK256`, and of a registry contract deployed at `REGISTRY_ADDRESS`.
-
-## Roadmap
-
-Here is a list of future features we wish to support someday (TM).
-
-- Protocol message specification for multi-party channels
-- Designs for metachannels
-- Designs for onion-routed metachannels
-- Designs for hash nonces and merkelized multisigs
-- Designs for watchtowers
+Feel free to join in and open an issue or chat with us on [discord](https://counterfactual.com/chat)!
