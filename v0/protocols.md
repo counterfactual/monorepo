@@ -52,7 +52,7 @@ This is a list of criteria for proposed protocol designs, i.e., predicates that 
 
 ### One round trip communication
 
-In a 2-party channel, 2 messages suffices to safely change the counterfactual state of the GSC
+In a 2-party channel, 2 messages suffice to safely change the counterfactual state of the GSC
 
 - to install an application.
 - to uninstall an application.
