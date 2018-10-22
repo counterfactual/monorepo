@@ -252,16 +252,6 @@ delegatecall(
       ]
     ) +
     encodeArgs(
-      /* set dependency nonce */
-      ("uint256", "address", "uint256", "bytes"),
-      [
-        0,
-        NONCE_REGISTRY,
-        0,
-        encode("setNonce(uint256,byets32,uint256)", [0, salt, 1])
-      ]
-    ) +
-    encodeArgs(
       /* do conditional transfer */
       ("uint256", "address", "uint256", "bytes"),
       [
@@ -270,7 +260,7 @@ delegatecall(
         0,
         encode(
           "executeAppConditionalTransaction(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
-          [NONCE_REGISTRY, key, 1, app.cfAddress(assetType, limit, token)]
+          [REGISTRY, NONCE_REGISTRY, key, app.cfAddress(assetType, limit, token)]
         )
       ]
     ))
@@ -453,7 +443,7 @@ delegatecall(
         0,
         NONCE_REGISTRY,
         0,
-        encode("setNonce(uint256,byets32,uint256)", [0, salt, 2])
+        encode("setNonce(uint256,byets32,uint256)", [0, salt, 1])
       ]
     ))
 );
