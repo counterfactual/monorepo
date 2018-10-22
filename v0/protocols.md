@@ -26,7 +26,7 @@ A protocol consists of the following components:
 
 ### Commitments
 
-In our codebase, a `CfOperation` is a class that specifies a commitment type, in other word, a type of transaction. A given `CfOperation` will fix most of the structure of the transaction but accept a small number of parameters (passed into the constructor). Given a `CfOperation` instance, the `hashToSign` function will return a `bytes32` digest that all signatories must sign, and those signatures can be passed into the `transaction` function, to return a transaction.
+In our codebase, a `CfOperation` is a class that specifies a commitment type, in other words, a type of transaction. A given `CfOperation` will fix most of the structure of the transaction but accept a small number of parameters (passed into the constructor). Given a `CfOperation` instance, the `hashToSign` function will return a `bytes32` digest that all signatories must sign, and those signatures can be passed into the `transaction` function, to return a transaction.
 
 ### Commitment Structrue
 
