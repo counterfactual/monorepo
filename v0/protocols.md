@@ -1,6 +1,6 @@
 # Counterfactual Protocol
 
-The Counterfactual protocol set is the set of all protocols that can communicated to handle the usage of off-chain applicaitions pertaining to an on-chain state deposit. The current most up-to-date list of protocols is: [`setup`](#setup), [`install`](#install), [`setstate`](#setstate), [`uninstall`](#uninstall).
+Counterfactual is the set of all protocols that can be communicated to handle the usage of off-chain applications pertaining to an on-chain state deposit. The current most up-to-date list of protocols is: [`setup`](#setup), [`install`](#install), [`setstate`](#setstate), [`uninstall`](#uninstall).
 
 A protocol consists of the following components:
 
