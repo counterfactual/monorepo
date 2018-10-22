@@ -40,7 +40,7 @@ We want channels that can be easily incorporated into new applications without t
 
 ### Parallel operations
 
-We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](/v0/protocols).
+We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](/v0/protocols.md).
 
 ### Upgradeable
 
