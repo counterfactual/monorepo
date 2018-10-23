@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import _ from "lodash";
 import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { deserialize } from "./serializer";
 import {
@@ -28,8 +28,8 @@ export class CfState {
   }
 
   public stateChannelFromAddress(toAddress: Address): StateChannelInfo {
-    const multisig = Object.keys(this.channelStates).find(multisig => {
-      return this.channelStates[multisig].me === toAddress;
+    const multisig = _.keys(this.channelStates).find(ms => {
+      return this.channelStates[ms].me === toAddress;
     });
 
     if (multisig) {
@@ -78,8 +78,8 @@ export class CfState {
 
   public appChannelInfos(): AppChannelInfos {
     const infos = {};
-    for (const channel of Object.keys(this.channelStates)) {
-      for (const appChannel of Object.keys(
+    for (const channel of _.keys(this.channelStates)) {
+      for (const appChannel of _.keys(
         this.channelStates[channel].appChannels
       )) {
         infos[appChannel] = this.channelStates[channel].appChannels[appChannel];

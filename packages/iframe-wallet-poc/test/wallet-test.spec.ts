@@ -1,18 +1,22 @@
 import * as ethers from "ethers";
-import { PaymentApp } from "../src/iframe/contracts";
+
+// TODO: Don't import from the contracts repo for this, there should be some kind of
+// "counterfactual app store" registry that we can pull from. Additionally, the below two
+// apps should be considered "default" somewhere. Probably inside the machine, as they're
+// often reused and critical infrastructure for ETH payments and deposits.
+import ETHBalanceRefundApp from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
+import PaymentApp from "@counterfactual/contracts/build/contracts/PaymentApp.json";
 
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 import { ganacheURL } from "../src/iframe/user";
 import { IFrameWallet } from "../src/iframe/wallet";
-import { sleep } from "./common";
+import { sleep, EMPTY_NETWORK_CONTEXT } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
   B_ADDRESS,
-  B_PRIVATE_KEY,
-  MULTISIG_ADDRESS,
-  MULTISIG_PRIVATE_KEY
+  B_PRIVATE_KEY
 } from "./environment";
 
 const BALANCE_REFUND_STATE_ENCODING =
@@ -44,7 +48,7 @@ class ClientBridge implements machine.types.WalletMessaging {
   }
 
   public postMessage(message: machine.types.ClientActionMessage) {
-    // TODO move this into a setTimeout to enfore asyncness of the call
+    //  TODO: move this into a setTimeout to enfore asyncness of the call
     this.client.receiveMessageFromClient(message);
   }
 
@@ -57,17 +61,16 @@ describe("Lifecycle", async () => {
   // extending the timeout to allow the async machines to finish
   jest.setTimeout(30000);
 
-  const owners = [A_ADDRESS, B_ADDRESS];
-
   let clientA: IFrameWallet;
   let clientB: IFrameWallet;
   let connectionA;
   let connectionB;
   let clientInterfaceA: cf.Client;
   let clientInterfaceB: cf.Client;
+
   beforeEach(async () => {
-    clientA = new IFrameWallet();
-    clientB = new IFrameWallet();
+    clientA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
+    clientB = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     connectionA = new ClientBridge(clientA);
@@ -88,12 +91,9 @@ describe("Lifecycle", async () => {
     const stateChannelA = await clientInterfaceA.connect(B_ADDRESS);
     await clientInterfaceB.connect(A_ADDRESS);
     clientInterfaceB.addObserver("installCompleted", data => {
-      console.log("got here", data);
       expect(true).toBeTruthy();
     });
     await stateChannelA.install("paymentApp", INSTALL_OPTIONS);
-
-    await sleep(50);
   });
 
   it("Can remove observers", async () => {
@@ -109,16 +109,14 @@ describe("Lifecycle", async () => {
     clientInterfaceB.addObserver("installCompleted", falsyCallback);
     clientInterfaceB.removeObserver("installCompleted", falsyCallback);
     await stateChannelA.install("paymentApp", INSTALL_OPTIONS);
-
-    await sleep(50);
   });
 
   it("Will notify only the current user", async () => {
     // hasAssertions to ensure that the "installCompleted" observer fires
     expect.hasAssertions();
 
-    const clientA = new IFrameWallet();
-    const clientB = new IFrameWallet();
+    const clientA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
+    const clientB = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     const connectionA = new ClientBridge(clientA);
@@ -146,8 +144,6 @@ describe("Lifecycle", async () => {
     });
 
     await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
-
-    await sleep(50);
   });
 
   it("Can deposit to a state channel", async () => {
@@ -158,12 +154,13 @@ describe("Lifecycle", async () => {
     const stateChannelBA = await clientInterfaceB.connect(A_ADDRESS);
 
     await stateChannelAB.deposit(
-      clientA.network.ETHBalanceRefundApp.address,
-      JSON.stringify(clientA.network.ETHBalanceRefundApp.abi),
+      clientA.network.ETHBalanceRefundApp,
+      JSON.stringify([ETHBalanceRefundApp.abi]),
       BALANCE_REFUND_STATE_ENCODING,
       amountA,
       ethers.utils.bigNumberify(0)
     );
+
     await validateDeposit(
       clientA,
       clientB,
@@ -171,13 +168,15 @@ describe("Lifecycle", async () => {
       ethers.utils.bigNumberify(0),
       stateChannelAB.multisigAddress
     );
+
     await stateChannelBA.deposit(
-      clientB.network.ETHBalanceRefundApp.address,
-      JSON.stringify(clientB.network.ETHBalanceRefundApp.abi),
+      clientB.network.ETHBalanceRefundApp,
+      JSON.stringify([ETHBalanceRefundApp.abi]),
       BALANCE_REFUND_STATE_ENCODING,
       amountB,
       amountA
     );
+
     await validateDeposit(
       clientA,
       clientB,
@@ -197,8 +196,6 @@ describe("Lifecycle", async () => {
 
     const stateChannel = await client.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
-
-    await sleep(50);
     // check B's client
     validateInstalledBalanceRefund(
       clientB,
@@ -279,8 +276,6 @@ describe("Lifecycle", async () => {
     const stateChannel = await client.connect(B_ADDRESS);
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
 
-    await sleep(50);
-
     validateInstalledBalanceRefund(
       clientA,
       threshold,
@@ -359,8 +354,6 @@ describe("Lifecycle", async () => {
     await stateChannel.install("paymentApp", INSTALL_OPTIONS);
 
     const threshold = 10;
-
-    await sleep(50);
 
     validateInstalledBalanceRefund(
       clientB,

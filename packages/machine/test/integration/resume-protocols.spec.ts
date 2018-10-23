@@ -1,19 +1,33 @@
-import * as wallet from "@counterfactual/wallet";
-import { Instruction, Instructions } from "../src/instructions";
-import { EthCfOpGenerator } from "../src/middleware/cf-operation/cf-op-generator";
-import { StateTransition } from "../src/middleware/state-transition/state-transition";
-import { Context } from "../src/state";
-import { ActionName, ClientActionMessage, InternalMessage } from "../src/types";
-import { ResponseStatus } from "../src/vm";
-import { MemDb } from "../src/wal";
-import { defaultNetwork } from "./common";
+import { ethers } from "ethers";
+import { Instruction, Instructions } from "../../src/instructions";
+import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
+import { StateTransition } from "../../src/middleware/state-transition/state-transition";
+import { Context } from "../../src/state";
+import {
+  ActionName,
+  ClientActionMessage,
+  InternalMessage
+} from "../../src/types";
+import { ResponseStatus } from "../../src/vm";
+import {
+  SimpleStringMapSyncDB,
+  WriteAheadLog
+} from "../../src/write-ahead-log";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
   MULTISIG_ADDRESS
-} from "./environment";
+} from "../utils/environment";
+import { TestResponseSink } from "./test-response-sink";
+
+const ADDR_A = ethers.utils.hexlify(ethers.utils.randomBytes(20));
+const ADDR_B = ethers.utils.hexlify(ethers.utils.randomBytes(20));
+
+// FIXME: These tests throw Errors which, when running the tests, makes it look
+// like they're failing because of the massive call stack that shows on the terminal.
+// We should find a way to prevent the error from showing up even though the test passes.
 
 /**
  * See run() for the entry point to the test. The basic structure
@@ -25,54 +39,50 @@ import {
  */
 abstract class SetupProtocolTestCase {
   /**
-   * WAL db for walletA. This is the persistence we'll use to
+   * WAL db for peerA. This is the persistence we'll use to
    * recreate a new machine and resume protocols.
    */
-  public db: MemDb;
-  public walletA: wallet.IFrameWallet;
-  public walletB: wallet.IFrameWallet;
+  public db: SimpleStringMapSyncDB;
+  public peerA: TestResponseSink;
+  public peerB: TestResponseSink;
   public executedInstructions: Instruction[];
+
   constructor() {
-    this.db = new MemDb();
-    this.walletA = new wallet.IFrameWallet(defaultNetwork());
-    this.walletB = new wallet.IFrameWallet(defaultNetwork());
-    this.walletA.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
-    this.walletB.setUser(B_ADDRESS, B_PRIVATE_KEY, undefined, new MemDb());
-    this.walletA.currentUser.io.peer = this.walletB;
-    this.walletB.currentUser.io.peer = this.walletA;
+    this.db = new SimpleStringMapSyncDB();
+    this.peerA = new TestResponseSink(A_PRIVATE_KEY);
+    this.peerA.writeAheadLog = new WriteAheadLog(this.db, ADDR_A);
+    this.peerB = new TestResponseSink(B_PRIVATE_KEY);
+    this.peerA.io.peer = this.peerB;
+    this.peerB.io.peer = this.peerA;
     this.executedInstructions = [];
   }
 
   public async run() {
-    await this.walletA.initUser(A_ADDRESS);
-    await this.walletB.initUser(B_ADDRESS);
-    this.setupWallet(this.walletA, true);
-    const resp = await this.walletA.runProtocol(this.msg());
+    await this.peerA.vm.resume(this.peerA.writeAheadLog.readLog());
+    this.setupWallet(this.peerA, true);
+    const resp = await this.peerA.runProtocol(this.msg());
     expect(resp.status).toEqual(ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }
 
   /**
-   * Creates a new wallet with the same underlyin WAL db,
+   * Creates a new peer with the same underlyin WAL db,
    * and then resumes the protocols from where they left
    * off.
    */
   public async resumeNewMachine() {
-    // make a new wallet with the exact same state
+    // make a new peer with the exact same state
     // i.e., the same WAL db and the same channelStates
-    const walletA2 = new wallet.IFrameWallet();
-    walletA2.setUser(A_ADDRESS, A_PRIVATE_KEY, undefined, this.db);
-    walletA2.currentUser.io.peer = this.walletB;
-    this.walletB.currentUser.io.peer = walletA2;
-    this.setupWallet(walletA2, false);
-    await walletA2.initUser(A_ADDRESS);
+    const peerARebooted = new TestResponseSink(A_PRIVATE_KEY);
+    peerARebooted.writeAheadLog = new WriteAheadLog(this.db, ADDR_A);
+    peerARebooted.io.peer = this.peerB;
+    this.peerB.io.peer = peerARebooted;
+    this.setupWallet(peerARebooted, false);
+    await peerARebooted.vm.resume(peerARebooted.writeAheadLog.readLog());
   }
 
-  public abstract setupWallet(
-    wallet: wallet.IFrameWallet,
-    shouldError: boolean
-  );
+  public abstract setupWallet(peer: TestResponseSink, shouldError: boolean);
   /**
    * @returns the msg to start the setup protocol.
    */
@@ -99,9 +109,9 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the beginning if it crashes during the first instruction";
   }
 
-  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
+  public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    wallet.currentUser.vm.register(
+    peer.vm.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -110,21 +120,14 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    wallet.currentUser.vm.middleware.middlewares[
-      Instruction.STATE_TRANSITION_PROPOSE
-    ] = [];
-    wallet.currentUser.vm.middleware.add(
+    peer.vm.middleware.middlewares[Instruction.STATE_TRANSITION_PROPOSE] = [];
+    peer.vm.middleware.add(
       Instruction.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.propose(
-          message,
-          next,
-          context,
-          wallet.currentUser.vm.cfState
-        );
+        return StateTransition.propose(message, next, context, peer.vm.cfState);
       }
     );
   }
@@ -150,9 +153,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
     return "should resume a protocol from the second instruction if it crashes during the second instruction";
   }
 
-  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
+  public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    wallet.currentUser.vm.register(
+    peer.vm.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -161,27 +164,22 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    wallet.currentUser.vm.middleware.middlewares[Instruction.OP_GENERATE] = [];
-    wallet.currentUser.vm.middleware.add(
+    peer.vm.middleware.middlewares[Instruction.OP_GENERATE] = [];
+    peer.vm.middleware.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
         const cfOpGenerator = new EthCfOpGenerator();
-        return cfOpGenerator.generate(
-          message,
-          next,
-          context,
-          wallet.currentUser.vm.cfState
-        );
+        return cfOpGenerator.generate(message, next, context, peer.vm.cfState);
       }
     );
   }
 
   /**
-   * Test force crashes the machine at first instruction of setup protocol,
-   * so expect to see the first instruction twice and then the rest of
+   * Test force crashes the machine at second instruction of setup protocol,
+   * so expect to see the second instruction twice and then the rest of
    * the setup protocol.
    */
   public validate() {
@@ -197,12 +195,12 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
 class ResumeLastInstructionTest extends SetupProtocolTestCase {
   public description(): string {
-    return "should resume a protocol from the second instruction if it crashes during the second instruction";
+    return "should resume a protocol from the last instruction if it crashes during the last instruction";
   }
 
-  public setupWallet(wallet: wallet.IFrameWallet, shouldError: boolean) {
+  public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    wallet.currentUser.vm.register(
+    peer.vm.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -211,28 +209,21 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    wallet.currentUser.vm.middleware.middlewares[
-      Instruction.STATE_TRANSITION_COMMIT
-    ] = [];
-    wallet.currentUser.vm.middleware.add(
+    peer.vm.middleware.middlewares[Instruction.STATE_TRANSITION_COMMIT] = [];
+    peer.vm.middleware.add(
       Instruction.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.commit(
-          message,
-          next,
-          context,
-          wallet.currentUser.vm.cfState
-        );
+        return StateTransition.commit(message, next, context, peer.vm.cfState);
       }
     );
   }
 
   /**
-   * Test force crashes the machine at first instruction of setup protocol,
-   * so expect to see the first instruction twice and then the rest of
+   * Test force crashes the machine at last instruction of setup protocol,
+   * so expect to see the second last instruction twice and then the rest of
    * the setup protocol.
    */
   public validate() {

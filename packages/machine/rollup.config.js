@@ -1,4 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
+import json from "rollup-plugin-json";
 
 import pkg from "./package.json";
 const globals = {
@@ -38,7 +39,8 @@ export default [
     plugins: [
       typescript({
         typescript: require("typescript")
-      })
+      }),
+      json({ compact: true })
     ]
   }
 ];

@@ -1,27 +1,28 @@
-// until the machine has its base wallet for testing purposes, it'll import this
-import * as wallet from "@counterfactual/wallet";
+import { TestResponseSink } from "./test-response-sink";
+
 import * as ethers from "ethers";
-import { CfAppInterface, Terms } from "../src/middleware/cf-operation/types";
+import { CfAppInterface, Terms } from "../../src/middleware/cf-operation/types";
 import {
   ActionName,
   ClientActionMessage,
   InstallData,
   PeerBalance,
   UpdateData
-} from "../src/types";
-import { ResponseStatus } from "../src/vm";
-import { defaultNetwork, SetupProtocol, sleep } from "./common";
+} from "../../src/types";
+import { ResponseStatus } from "../../src/vm";
+import { sleep } from "../utils/common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
   MULTISIG_ADDRESS
-} from "./environment";
+} from "../utils/environment";
+import { SetupProtocol } from "./test-setup";
 
 /**
  * Tests that the machine's CfState is correctly modified during the lifecycle
- * of a state channel application, TTT, running the setup, install, update,
+ * of a state channel application, TicTacToeSimulator, running the setup, install, update,
  * and uninstall protocols.
  */
 describe("Machine State Lifecycle", async () => {
@@ -30,27 +31,31 @@ describe("Machine State Lifecycle", async () => {
   // for setting commitments
   jest.setTimeout(50000);
 
-  it("should modify machine state during the lifecycle of TTT", async () => {
-    const [walletA, walletB]: wallet.IFrameWallet[] = getWallets();
-    await SetupProtocol.run(walletA, walletB);
-    await Depositor.makeDeposits(walletA, walletB);
-    await Ttt.play(walletA, walletB);
+  it("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
+    const [peerA, peerB]: TestResponseSink[] = getCommunicatingPeers();
+    await SetupProtocol.run(peerA, peerB);
+    await Depositor.makeDeposits(peerA, peerB);
+    await TicTacToeSimulator.simulatePlayingGame(peerA, peerB);
   });
 });
 
 /**
  * @returns the wallets containing the machines that will be used for the test.
  */
-function getWallets(): wallet.IFrameWallet[] {
-  const walletA = new wallet.IFrameWallet(defaultNetwork());
-  walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
+function getCommunicatingPeers(): TestResponseSink[] {
+  // TODO: Document somewhere that the .signingKey.address" *must* be a hex otherwise
+  // machine/src/middleware/state-transition/install-proposer.ts:98:14
+  // will throw an error when doing BigNumber.gt check.
+  // TODO: Furthermore document that these will eventually be used to generate
+  // the `signingKeys` in any proposals e.g., InstallProposer, thus the proposal
+  // will fail if they are not valid Ethereum addresses
+  const peerA = new TestResponseSink(A_PRIVATE_KEY);
+  const peerB = new TestResponseSink(B_PRIVATE_KEY);
 
-  const walletB = new wallet.IFrameWallet(defaultNetwork());
-  walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
+  peerA.io.peer = peerB;
+  peerB.io.peer = peerA;
 
-  walletA.currentUser.io.peer = walletB;
-  walletB.currentUser.io.peer = walletA;
-  return [walletA, walletB];
+  return [peerA, peerB];
 }
 
 /**
@@ -60,18 +65,18 @@ function getWallets(): wallet.IFrameWallet[] {
  */
 class Depositor {
   public static async makeDeposits(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
   ): Promise<any> {
     await Depositor.deposit(
-      walletA,
-      walletB,
+      peerA,
+      peerB,
       ethers.utils.bigNumberify(10),
       ethers.utils.bigNumberify(0)
     );
     await Depositor.deposit(
-      walletB,
-      walletA,
+      peerB,
+      peerA,
       ethers.utils.bigNumberify(5),
       ethers.utils.bigNumberify(10)
     );
@@ -83,48 +88,44 @@ class Depositor {
    *        i.e., the threshold for the balance refund.
    */
   public static async deposit(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     amountA: ethers.utils.BigNumber,
     amountBCumlative: ethers.utils.BigNumber
   ) {
     const cfAddr = await Depositor.installBalanceRefund(
-      walletA,
-      walletB,
+      peerA,
+      peerB,
       amountBCumlative
     );
     await Depositor.uninstallBalanceRefund(
       cfAddr,
-      walletA,
-      walletB,
+      peerA,
+      peerB,
       amountA,
       amountBCumlative
     );
   }
 
   public static async installBalanceRefund(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     threshold: ethers.utils.BigNumber
   ) {
     const msg = Depositor.startInstallBalanceRefundMsg(
-      walletA.address!,
-      walletB.address!,
+      peerA.signingKey.address!,
+      peerB.signingKey.address!,
       threshold
     );
-    const response = await walletA.runProtocol(msg);
+    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
-    // since the machine is async, we need to wait for walletB to finish up its
+    // since the machine is async, we need to wait for peerB to finish up its
     // side of the protocol before inspecting it's state
     await sleep(50);
     // check B's client
-    Depositor.validateInstalledBalanceRefund(walletA, walletB, threshold);
-    // check A's client and return the newly created cf address
-    return Depositor.validateInstalledBalanceRefund(
-      walletA,
-      walletB,
-      threshold
-    );
+    Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
+    // check A's client and return the newly created cf.signingKey.address
+    return Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
   }
 
   public static startInstallBalanceRefundMsg(
@@ -175,14 +176,13 @@ class Depositor {
   }
 
   public static validateInstalledBalanceRefund(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     amount: ethers.utils.BigNumber
   ) {
-    const stateChannel =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
-    expect(stateChannel.me).toEqual(walletA.address);
-    expect(stateChannel.counterParty).toEqual(walletB.address);
+    const stateChannel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    expect(stateChannel.me).toEqual(peerA.signingKey.address);
+    expect(stateChannel.counterParty).toEqual(peerB.signingKey.address);
 
     const appChannels = stateChannel.appChannels;
     const cfAddrs = Object.keys(appChannels);
@@ -205,48 +205,47 @@ class Depositor {
 
   public static async uninstallBalanceRefund(
     cfAddr: string,
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
     const msg = Depositor.startUninstallBalanceRefundMsg(
       cfAddr,
-      walletA.address!,
-      walletB.address!,
+      peerA.signingKey.address!,
+      peerB.signingKey.address!,
       amountA
     );
-    const response = await walletA.runProtocol(msg);
+    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
-    // validate walletA
-    Depositor.validateUninstall(cfAddr, walletA, walletB, amountA, amountB);
-    // validate walletB
-    Depositor.validateUninstall(cfAddr, walletB, walletA, amountB, amountA);
+    // validate peerA
+    Depositor.validateUninstall(cfAddr, peerA, peerB, amountA, amountB);
+    // validate peerB
+    Depositor.validateUninstall(cfAddr, peerB, peerA, amountB, amountA);
   }
 
   public static validateUninstall(
     cfAddr: string,
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
-    const state = walletA.currentUser.vm.cfState;
+    const state = peerA.vm.cfState;
     const canon = PeerBalance.balances(
-      walletA.address!,
+      peerA.signingKey.address!,
       amountA,
-      walletB.address!,
+      peerB.signingKey.address!,
       amountB
     );
 
-    const channel =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
     const app = channel.appChannels[cfAddr];
 
     expect(Object.keys(state.channelStates).length).toEqual(1);
-    expect(channel.me).toEqual(walletA.address);
-    expect(channel.counterParty).toEqual(walletB.address);
+    expect(channel.me).toEqual(peerA.signingKey.address);
+    expect(channel.counterParty).toEqual(peerB.signingKey.address);
     expect(channel.multisigAddress).toEqual(MULTISIG_ADDRESS);
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);
@@ -278,25 +277,28 @@ class Depositor {
   }
 }
 
-class Ttt {
-  public static async play(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet
+class TicTacToeSimulator {
+  public static async simulatePlayingGame(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
   ) {
-    const cfAddr = await Ttt.installTtt(walletA, walletB);
-    await Ttt.makeMoves(walletA, walletB, cfAddr);
-    await Ttt.uninstall(walletA, walletB, cfAddr);
+    const cfAddr = await TicTacToeSimulator.installTtt(peerA, peerB);
+    await TicTacToeSimulator.makeMoves(peerA, peerB, cfAddr);
+    await TicTacToeSimulator.uninstall(peerA, peerB, cfAddr);
     return cfAddr;
   }
 
   public static async installTtt(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
   ) {
-    const msg = Ttt.installMsg(walletA.address!, walletB.address!);
-    const response = await walletA.runProtocol(msg);
+    const msg = TicTacToeSimulator.installMsg(
+      peerA.signingKey.address!,
+      peerB.signingKey.address!
+    );
+    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
-    return Ttt.validateInstall(walletA, walletB);
+    return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
   public static installMsg(to: string, from: string): ClientActionMessage {
@@ -344,21 +346,20 @@ class Ttt {
   }
 
   public static async validateInstall(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
   ): Promise<string> {
-    Ttt.validateInstallWallet(walletA, walletB);
-    // wait for other client to finish, since the machine is async
+    TicTacToeSimulator.validateInstallWallet(peerA, peerB);
+    // Wait for other client to finish, since the machine is async
     await sleep(50);
-    return Ttt.validateInstallWallet(walletB, walletA);
+    return TicTacToeSimulator.validateInstallWallet(peerB, peerA);
   }
 
   public static validateInstallWallet(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
   ): string {
-    const stateChannel =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const stateChannel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
     const appChannels = stateChannel.appChannels;
     const cfAddrs = Object.keys(appChannels);
     expect(cfAddrs.length).toEqual(1);
@@ -369,9 +370,8 @@ class Ttt {
     expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(2);
 
     // now validate the free balance
-    const channel =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
-    // start with 10, 5 and both parties deposit 2 into TTT.
+    const channel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
     expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
     expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
     return cfAddr;
@@ -381,24 +381,24 @@ class Ttt {
    * Game is over at the end of this functon call and is ready to be uninstalled.
    */
   public static async makeMoves(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     cfAddr: string
   ) {
     const state = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     const X = 1;
     const O = 2;
 
-    await Ttt.makeMove(walletA, walletB, cfAddr, state, 0, X, 1);
-    await Ttt.makeMove(walletB, walletA, cfAddr, state, 4, O, 2);
-    await Ttt.makeMove(walletA, walletB, cfAddr, state, 1, X, 3);
-    await Ttt.makeMove(walletB, walletA, cfAddr, state, 5, O, 4);
-    await Ttt.makeMove(walletA, walletB, cfAddr, state, 2, X, 5);
+    await TicTacToeSimulator.makeMove(peerA, peerB, cfAddr, state, 0, X, 1);
+    await TicTacToeSimulator.makeMove(peerB, peerA, cfAddr, state, 4, O, 2);
+    await TicTacToeSimulator.makeMove(peerA, peerB, cfAddr, state, 1, X, 3);
+    await TicTacToeSimulator.makeMove(peerB, peerA, cfAddr, state, 5, O, 4);
+    await TicTacToeSimulator.makeMove(peerA, peerB, cfAddr, state, 2, X, 5);
   }
 
   public static async makeMove(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     cfAddr: string,
     appState: number[],
     cell: number,
@@ -407,18 +407,30 @@ class Ttt {
   ) {
     appState[cell] = side;
     const state = appState + ""; // TODO: this should be encodedc
-    const msg = Ttt.updateMsg(
+    const msg = TicTacToeSimulator.updateMsg(
       state,
       cell,
-      walletA.address!,
-      walletB.address!,
+      peerA.signingKey.address!,
+      peerB.signingKey.address!,
       cfAddr
     );
-    const response = await walletA.runProtocol(msg);
+    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
-    Ttt.validateMakeMove(walletA, walletB, cfAddr, state, moveNumber);
+    TicTacToeSimulator.validateMakeMove(
+      peerA,
+      peerB,
+      cfAddr,
+      state,
+      moveNumber
+    );
     await sleep(50);
-    Ttt.validateMakeMove(walletB, walletA, cfAddr, state, moveNumber);
+    TicTacToeSimulator.validateMakeMove(
+      peerB,
+      peerA,
+      cfAddr,
+      state,
+      moveNumber
+    );
   }
 
   public static updateMsg(
@@ -445,18 +457,16 @@ class Ttt {
   }
 
   public static validateMakeMove(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     cfAddr,
     appState: string,
     moveNumber: number
   ) {
     const appA =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS]
-        .appChannels[cfAddr];
+      peerA.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
     const appB =
-      walletB.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS]
-        .appChannels[cfAddr];
+      peerB.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
 
     expect(appA.encodedState).toEqual(appState);
     expect(appA.localNonce).toEqual(moveNumber + 1);
@@ -465,30 +475,30 @@ class Ttt {
   }
 
   public static async uninstall(
-    walletA: wallet.IFrameWallet,
-    walletB: wallet.IFrameWallet,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink,
     cfAddr: string
   ) {
-    const msg = Ttt.uninstallStartMsg(
+    const msg = TicTacToeSimulator.uninstallStartMsg(
       cfAddr,
-      walletA.address!,
+      peerA.signingKey.address!,
       ethers.utils.bigNumberify(4),
-      walletB.address!,
+      peerB.signingKey.address!,
       ethers.utils.bigNumberify(0)
     );
-    const response = await walletA.runProtocol(msg);
+    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
-    Ttt.validateUninstall(
+    TicTacToeSimulator.validateUninstall(
       cfAddr,
-      walletA,
+      peerA,
       ethers.utils.bigNumberify(12),
       ethers.utils.bigNumberify(3)
     );
     await sleep(50);
-    Ttt.validateUninstall(
+    TicTacToeSimulator.validateUninstall(
       cfAddr,
-      walletB,
+      peerB,
       ethers.utils.bigNumberify(12),
       ethers.utils.bigNumberify(3)
     );
@@ -521,12 +531,11 @@ class Ttt {
 
   public static validateUninstall(
     cfAddr: string,
-    wallet: wallet.IFrameWallet,
+    wallet: TestResponseSink,
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
-    const channel =
-      wallet.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = wallet.vm.cfState.channelStates[MULTISIG_ADDRESS];
     const app = channel.appChannels[cfAddr];
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);

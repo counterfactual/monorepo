@@ -12,18 +12,18 @@ import {
  * machine closes or crashes mid protocol. Effectively a wrapper for the
  * underlying persistence DB to read/write protocol executions at any point.
  */
-export class CfVmWal {
+export class WriteAheadLog {
   /**
    * The record name of the wal in the database given to the constructor.
    */
   get dbKey(): string {
-    return "CfVmWal||" + this.userId;
+    return `WriteAheadLog.${this.uid}`;
   }
 
   /**
-   * @param `db`` is the underlying persistence layer the log is written to.
+   * @param `db` is the underlying persistence layer the log is written to.
    */
-  constructor(readonly db: SyncDb, readonly userId: string) {}
+  constructor(readonly db: SyncDb, readonly uid: string) {}
 
   /**
    * Persists the given `execution` to the underlying db.
@@ -117,7 +117,7 @@ export interface SyncDb {
 /**
  * In memory db. Useful for testing.
  */
-export class MemDb implements SyncDb {
+export class SimpleStringMapSyncDB implements SyncDb {
   public data: Map<string, string>;
 
   constructor() {

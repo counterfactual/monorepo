@@ -1,35 +1,46 @@
-import { Action, ActionExecution } from "../src/action";
-import { Instruction } from "../src/instructions";
-import { ActionName, ClientActionMessage } from "../src/types";
-import { CfVmConfig, CounterfactualVM } from "../src/vm";
-import { CfVmWal, MemDb } from "../src/wal";
+import { Action, ActionExecution } from "../../src/action";
+import { Instruction } from "../../src/instructions";
+import { ActionName, ClientActionMessage } from "../../src/types";
+import { CfVmConfig, CounterfactualVM } from "../../src/vm";
+import {
+  SimpleStringMapSyncDB,
+  WriteAheadLog
+} from "../../src/write-ahead-log";
 
 describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
-    const db = new MemDb();
+    const db = new SimpleStringMapSyncDB();
+
     const vm = new CounterfactualVM(
       new CfVmConfig(null!, null!, null!, undefined!)
     );
-    const wal1 = new CfVmWal(db, "test-user");
+
+    const log1 = new WriteAheadLog(db, "test-unique-id");
+
     makeExecutions(vm).forEach(execution => {
       const internalMessage = execution.createInternalMessage();
       const context = execution.createContext();
-      wal1.write(internalMessage, context);
+      log1.write(internalMessage, context);
     });
-    validateWal(wal1, vm);
-    const wal2 = new CfVmWal(db, "test-user");
-    const wal3 = new CfVmWal(db, "test-user");
-    validateWal(wal2, vm);
-    validateWal(wal3, vm);
+
+    validatelog(log1, vm);
+
+    const log2 = new WriteAheadLog(db, "test-unique-id");
+    const log3 = new WriteAheadLog(db, "test-unique-id");
+
+    validatelog(log2, vm);
+    validatelog(log3, vm);
   });
 });
 
 /**
- * @returns the entires to load into the write ahead log for the test.
+ * @returns The entries to load into the write ahead log for the test.
  */
 function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
+
   const actions = [ActionName.INSTALL, ActionName.UPDATE, ActionName.UNINSTALL];
+
   const msgs: ClientActionMessage[] = [
     {
       requestId: "1",
@@ -60,14 +71,18 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
     }
   ];
   const instructionPointers = [0, 3, 2];
+
+  // FIXME: This isn't used, why?
   const results = [
     [{ op: Instruction.OP_GENERATE, val: "generate" }],
     [{ op: Instruction.OP_SIGN, val: "sign" }],
     [{ op: Instruction.OP_SIGN_VALIDATE, val: "sign_validate" }]
   ];
+
   const isAckSide = [true, true, false];
 
   const executions: ActionExecution[] = [];
+
   for (let k = 0; k < requestIds.length; k += 1) {
     const execution = new ActionExecution(
       new Action(requestIds[k], actions[k], msgs[k], isAckSide[k]),
@@ -77,12 +92,12 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
     );
     executions.push(execution);
   }
+
   return executions;
 }
 
-function validateWal(wal: CfVmWal, vm: CounterfactualVM) {
-  const log = wal.readLog();
-  const executions = vm.buildExecutionsFromLog(log);
+function validatelog(log: WriteAheadLog, vm: CounterfactualVM) {
+  const executions = vm.buildExecutionsFromLog(log.readLog());
   const expectedExecutions = makeExecutions(vm);
   for (let k = 0; k < expectedExecutions.length; k += 1) {
     const expected = expectedExecutions[k];

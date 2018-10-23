@@ -1,6 +1,6 @@
 import * as machine from "@counterfactual/machine";
 
-export class LocalStoragePolyfill {
+export class InMemoryKeyValueStorePolyfill {
   public inMemoryStorage: object;
 
   constructor() {
@@ -8,7 +8,7 @@ export class LocalStoragePolyfill {
   }
 
   public setItem(key: string, value: any) {
-    return (this.inMemoryStorage[key] = value);
+    this.inMemoryStorage[key] = value;
   }
 
   public getItem(key: string) {
@@ -16,7 +16,7 @@ export class LocalStoragePolyfill {
   }
 }
 
-export interface LocalStorage {
+export interface InMemoryKeyValueStore {
   get(key: string);
 
   put(key: string, value: object);
@@ -24,34 +24,34 @@ export interface LocalStorage {
   has(key: string);
 }
 
-export function getLocalStorage() {
+export function getInMemoryKeyValueStore() {
   try {
     // localStorage is not available in Node
     // @ts-ignore
     return window.localStorage;
   } catch (e) {
-    return new LocalStoragePolyfill();
+    return new InMemoryKeyValueStorePolyfill();
   }
 }
 
-export class LocalStorageImpl implements LocalStorage {
-  public localStorage;
+export class InMemoryKeyValueStoreImpl implements InMemoryKeyValueStore {
+  public store;
 
   constructor() {
-    this.localStorage = getLocalStorage();
+    this.store = getInMemoryKeyValueStore();
   }
 
   public get(key: string) {
     return machine.serializer.deserialize(
-      JSON.parse(this.localStorage.getItem(key) || "")
+      JSON.parse(this.store.getItem(key) || "")
     );
   }
 
   public put(key: string, value: object) {
-    return this.localStorage.setItem(key, JSON.stringify(value));
+    return this.store.setItem(key, JSON.stringify(value));
   }
 
   public has(key: string): boolean {
-    return this.localStorage.getItem(key) !== null;
+    return this.store.getItem(key) !== null;
   }
 }

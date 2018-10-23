@@ -9,6 +9,7 @@ import {
   Terms,
   Transaction
 } from "./types";
+
 const { keccak256 } = ethers.utils;
 
 export class CfOpSetState extends CfOperation {
@@ -55,7 +56,7 @@ export class CfOpSetState extends CfOperation {
       this.timeout,
       this.appUniqueId
     ).cfAddress();
-    const to = this.ctx.Registry.address;
+    const to = this.ctx.Registry;
     const val = 0;
     const data = common.proxyCallSetStateData(
       this.ctx,

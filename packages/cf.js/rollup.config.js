@@ -28,7 +28,6 @@ export default {
       globals: globals
     }
   ],
-  external: ["@counterfactual/machine", "ethers"],
   plugins: [
     typescript({
       typescript: require("typescript")

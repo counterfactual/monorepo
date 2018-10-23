@@ -56,13 +56,14 @@ export class ActionExecution {
     action: Action,
     instruction: number,
     clientMessage: ClientActionMessage,
-    vm: CounterfactualVM
+    vm: CounterfactualVM,
+    results: MiddlewareResult[] = []
   ) {
     this.action = action;
     this.instructionPointer = instruction;
     this.clientMessage = clientMessage;
     this.vm = vm;
-    this.results = [];
+    this.results = results;
   }
 
   // Public only for test purposes
@@ -80,8 +81,8 @@ export class ActionExecution {
     return {
       results: this.results,
       instructionPointer: this.instructionPointer,
-      //TODO Should probably not pass the whole VM in, it breaks the encapsulation
-      //We should figure out what others args from the VM are used and copy those over
+      // TODO: Should probably not pass the whole VM in, it breaks the encapsulation
+      // We should figure out what others args from the VM are used and copy those over
       vm: this.vm
     };
   }

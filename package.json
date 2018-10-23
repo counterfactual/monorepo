@@ -4,19 +4,14 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn ganache && yarn compile && yarn rollup",
-    "rollup": "yarn wsrun rollup $PKG --fast-exit -r --stages --exclude-missing",
-    "clean": "yarn wsrun clean $PKG --fast-exit -r --stages --exclude-missing",
-    "compile": "yarn wsrun build $PKG --fast-exit -r --stages --exclude-missing",
+    "build": "lerna run build --sort",
+    "clean": "lerna run clean --parallel --no-bail",
+    "test": "lerna run test",
     "ganache": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &> /dev/null &",
-    "ganache:test": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\"",
+    "ganache:ci": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\"",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
-    "lint": "yarn wsrun lint $PKG --fast-exit -r --stages --exclude-missing",
-    "lint:fix": "yarn wsrun lint:fix $PKG --fast-exit -r --stages --exclude-missing",
-    "prettier": "yarn wsrun prettier $PKG --fast-exit -r --stages --exclude-missing",
-    "prettier:fix": "yarn wsrun prettier:fix $PKG --fast-exit -r --stages --exclude-missing",
-    "test": "yarn wsrun test $PKG --fast-exit -r --stages --exclude-missing",
-    "wsrun": "wsrun"
+    "lint": "lerna run lint --parallel --no-bail",
+    "lint:fix": "lerna run lint:fix --parallel --no-bail"
   },
   "config": {
     "ganacheNetworkID": 7777777,
@@ -36,8 +31,6 @@
   ],
   "devDependencies": {
     "ganache-cli": "^6.1.8",
-    "lerna": "^3.4.3",
-    "typescript": "^3.1.2",
-    "wsrun": "^2.2.1"
+    "lerna": "^3.4.3"
   }
 }

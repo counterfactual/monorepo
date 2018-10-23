@@ -90,7 +90,7 @@ export interface StateProposal {
 
 export interface ClientResponse {
   requestId: string;
-  // TODO tighten the type
+  //  TODO: tighten the type
   status?: any;
   data?: any;
   appId?: string;
@@ -99,6 +99,7 @@ export interface ClientResponse {
 export interface UserDataClientResponse extends ClientResponse {
   data: {
     userAddress: string;
+    networkContext: Map<string, string>;
   };
 }
 
@@ -234,12 +235,6 @@ export class PeerBalance {
   }
 }
 
-export interface ContractInfo {
-  readonly abi: string;
-  readonly bytecode: string;
-  readonly address: Address;
-}
-
 /**
  * A network context is a set of contract wrappers of the global contracts that
  * are deployed. A global contract provides functionality in such a way that all
@@ -264,49 +259,15 @@ export class NetworkContext {
     AppInstance: "AppInstance"
   };
 
-  public static fromDeployment(
-    networkFile: any,
-    contractArtifacts: Map<string, string[]>
-  ): NetworkContext {
-    const networkMap = _.mapValues(
-      _.keyBy(networkFile.contracts, "contractName"),
-      "address"
-    );
-
-    const contracts: Map<string, ContractInfo> = new Map();
-    for (const contract of _.keys(NetworkContext.CONTRACTS)) {
-      contracts[contract] = {
-        abi: contractArtifacts[contract][0],
-        bytecode: contractArtifacts[contract][1],
-        address: networkMap[contract]
-      };
-    }
-
-    return new NetworkContext(
-      contracts[this.CONTRACTS.Registry],
-      contracts[this.CONTRACTS.PaymentApp],
-      contracts[this.CONTRACTS.ConditionalTransaction],
-      contracts[this.CONTRACTS.MultiSend],
-      contracts[this.CONTRACTS.NonceRegistry],
-      contracts[this.CONTRACTS.Signatures],
-      contracts[this.CONTRACTS.StaticCall],
-      contracts[this.CONTRACTS.ETHBalanceRefundApp],
-      contracts[this.CONTRACTS.Multisig],
-      contracts[this.CONTRACTS.AppInstance]
-    );
-  }
-
   constructor(
-    readonly Registry: ContractInfo,
-    readonly PaymentApp: ContractInfo,
-    readonly ConditionalTransaction: ContractInfo,
-    readonly MultiSend: ContractInfo,
-    readonly NonceRegistry: ContractInfo,
-    readonly Signatures: ContractInfo,
-    readonly StaticCall: ContractInfo,
-    readonly ETHBalanceRefundApp: ContractInfo,
-    readonly Multisig: ContractInfo,
-    readonly AppInstance: ContractInfo
+    readonly Registry: Address,
+    readonly PaymentApp: Address,
+    readonly ConditionalTransaction: Address,
+    readonly MultiSend: Address,
+    readonly NonceRegistry: Address,
+    readonly Signatures: Address,
+    readonly StaticCall: Address,
+    readonly ETHBalanceRefundApp: Address
   ) {}
 
   public linkBytecode(unlinkedBytecode: string): string {
@@ -320,7 +281,7 @@ export class NetworkContext {
         continue;
       }
       const regex = new RegExp(`__${contractName}_+`, "g");
-      const address = this[contractName].address.substr(2);
+      const address = this[contractName].substr(2);
       bytecode = bytecode.replace(regex, address);
     }
     return bytecode;
@@ -339,7 +300,7 @@ export interface StateChannelInfo {
   appChannels: AppChannelInfos;
   freeBalance: CfFreeBalance;
 
-  // TODO Move this out of the datastructure
+  //  TODO: Move this out of the datastructure
   /**
    * @returns the addresses of the owners of this state channel sorted
    *          in alphabetical order.
@@ -366,7 +327,7 @@ export interface AppChannelInfo {
   cfApp: CfAppInterface;
   dependencyNonce: CfNonce;
 
-  //TODO move this into a method that is outside the data structure
+  // TODO: Move this into a method that is outside the data structure
   stateChannel?: StateChannelInfo;
 }
 
@@ -383,6 +344,7 @@ export interface OpCodeResult {
   value: any;
 }
 
+// TODO: document what this is
 export interface ResponseSink {
   sendResponse(res: Response);
 }

@@ -1,5 +1,8 @@
 import * as machine from "@counterfactual/machine";
-import { LocalStorage, LocalStorageImpl } from "./localStorage";
+import {
+  InMemoryKeyValueStore,
+  InMemoryKeyValueStoreImpl
+} from "./localStorage";
 
 interface Commitments {
   appId: string;
@@ -108,7 +111,14 @@ export class AppCommitments implements Commitments {
   }
 
   public serialize(): string {
-    return JSON.stringify([...this.commitments]);
+    // FIXME: This is absurd, we shouldn't even be using a Map for this use case
+    // considering that the keys are all strings anyway.
+    // https://stackoverflow.com/a/29085474/2680092
+    const pairs: [machine.types.ActionName, machine.cfTypes.Transaction][] = [];
+    this.commitments.forEach((v, k) => {
+      pairs.push([k, v]);
+    });
+    return JSON.stringify(pairs);
   }
 }
 
@@ -121,12 +131,12 @@ export class AppCommitments implements Commitments {
  * operation and the data that's being operated on.
  */
 export class CommitmentStore {
-  public store: LocalStorage;
+  public store: InMemoryKeyValueStore;
   private appCount: number;
 
   constructor() {
     this.appCount = 0;
-    this.store = new LocalStorageImpl();
+    this.store = new InMemoryKeyValueStoreImpl();
   }
 
   /**

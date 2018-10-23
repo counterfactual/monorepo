@@ -1,16 +1,16 @@
 import * as ethers from "ethers";
 
-import { Instruction } from "../src/instructions";
+import { Instruction } from "../../src/instructions";
 import {
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
   CfStateChannel,
   Terms
-} from "../src/middleware/cf-operation/types";
-import { InstallProposer } from "../src/middleware/state-transition/install-proposer";
-import { SetupProposer } from "../src/middleware/state-transition/setup-proposer";
-import { CfState, Context, StateChannelInfoImpl } from "../src/state";
+} from "../../src/middleware/cf-operation/types";
+import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
+import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
+import { CfState, Context, StateChannelInfoImpl } from "../../src/state";
 import {
   ActionName,
   ChannelStates,
@@ -19,10 +19,10 @@ import {
   InternalMessage,
   PeerBalance,
   StateChannelInfos
-} from "../src/types";
+} from "../../src/types";
 
-import { defaultNetwork } from "./common";
-import { A_ADDRESS, B_ADDRESS, MULTISIG_ADDRESS } from "./environment";
+import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
+import { A_ADDRESS, B_ADDRESS, MULTISIG_ADDRESS } from "../utils/environment";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
@@ -54,7 +54,7 @@ describe("State transition", () => {
       false
     );
     const expectedCfAddr = new CfStateChannel(
-      defaultNetwork(),
+      EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -104,7 +104,7 @@ function setupInstallCfState(): CfState {
     freeBalance
   );
   const channelStates: ChannelStates = { [MULTISIG_ADDRESS]: info };
-  return new CfState(channelStates, defaultNetwork());
+  return new CfState(channelStates, EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: StateChannelInfos) {

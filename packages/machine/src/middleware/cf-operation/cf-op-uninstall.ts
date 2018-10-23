@@ -4,12 +4,12 @@ import { CfFreeBalance, CfNonce, MultisigInput } from "./types";
 
 export class CfOpUninstall extends CfMultiSendOp {
   constructor(
-    readonly ctx: NetworkContext,
+    readonly networkContext: NetworkContext,
     readonly multisig: Address,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
-    super(ctx, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
 
   /**

@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://counterfactual.com"><img src="./counterfactual_logo.svg" alt="Counterfactual" width="150"></a>
+  <a href="https://counterfactual.com"><img src="./logo.svg" alt="Counterfactual" width="150"></a>
   <br>
   Counterfactual
   <br>

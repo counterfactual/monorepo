@@ -1,4 +1,18 @@
-const wallet = new counterfactualWallet.IFrameWallet();
+let iframeWallet;
+
+fetch('../../../node_modules/@counterfactual/contracts/networks/7777777.json')
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    const networkContext = _.mapValues(
+      _.keyBy(myJson, "contractName"),
+      "address"
+    );
+    iframeWallet = new counterfactualWallet.IFrameWallet(networkContext);
+    console.log(`📄 Fetched development mode network context!`);
+  });
+
 const listeners = [];
 
 let ethmoContract;
@@ -66,11 +80,11 @@ async function pickUser(pkey) {
   // currently can't rollup envvars: https://github.com/calvinmetcalf/rollup-plugin-node-globals/issues/7
   const key = new ethers.Wallet(pkey).address;
 
-  wallet.setUser(key, pkey);
+  iframeWallet.setUser(key, pkey);
 
-  await wallet.initUser(key);
+  await iframeWallet.initUser(key);
 
-  wallet.onMessage(msg => {
+  iframeWallet.onMessage(msg => {
     const message = {
       type: "cf:io-send",
       data: msg
@@ -78,7 +92,7 @@ async function pickUser(pkey) {
     sendMessageToChild(message);
   });
 
-  wallet.onResponse(message => {
+  iframeWallet.onResponse(message => {
     console.log("onResponse", message);
     sendMessageToChild(message);
   });
@@ -89,7 +103,7 @@ async function pickUser(pkey) {
 
   const listener = event => {
     if (event.data.type === "cf:default") {
-      wallet.receiveMessageFromClient(event.data);
+      iframeWallet.receiveMessageFromClient(event.data);
     }
   };
 
@@ -102,23 +116,23 @@ async function pickUser(pkey) {
 
 function getApps() {
   const openChannelAddress = Object.keys(
-    wallet.currentUser.vm.cfState.channelStates
+    iframeWallet.currentUser.vm.cfState.channelStates
   )[0];
-  return wallet.currentUser.vm.cfState.channelStates[openChannelAddress]
+  return iframeWallet.currentUser.vm.cfState.channelStates[openChannelAddress]
     .appChannels;
 }
 
 function getStateChannels() {
-  return wallet.currentUser.vm.cfState.channelStates;
+  return iframeWallet.currentUser.vm.cfState.channelStates;
 }
 
 async function deployFreeBalanceStateChannel() {
   const stateChannels = getStateChannels();
   const stateChannel = Object.values(stateChannels)[0];
   const contract = await deployFreeBalanceContract(
-    counterfactualWallet.IFrameWallet.defaultNetwork(),
+    iframeWallet.networkContext,
     stateChannel,
-    wallet.currentUser.ethersWallet
+    iframeWallet.currentUser.ethersWallet
   );
   console.log(`📄 FreeBalance contract deployed: ${contract.address}`);
 }
@@ -129,10 +143,10 @@ async function deployEthmoStateChannel() {
   const stateChannels = getStateChannels();
   const stateChannel = Object.values(stateChannels)[0];
   ethmoContract = await deployApplicationStateChannel(
-    counterfactualWallet.IFrameWallet.defaultNetwork(),
+    iframeWallet.networkContext,
     stateChannel,
     ethmoApplication,
-    wallet.currentUser.ethersWallet
+    iframeWallet.currentUser.ethersWallet
   );
   console.log(`📄 Ethmo contract deployed: ${ethmoContract.address}`);
   return ethmoContract;
@@ -142,12 +156,12 @@ async function submitLatestStateForEthmo() {
   const apps = getApps();
   const ethmoAppId = Object.keys(apps)[0];
 
-  const setStateTransaction = await wallet.currentUser.store.getTransaction(
+  const setStateTransaction = await iframeWallet.currentUser.store.getTransaction(
     ethmoAppId,
     "update" // ActionName.UPDATE
   );
 
-  const res = await wallet.currentUser.ethersWallet.sendTransaction({
+  const res = await iframeWallet.currentUser.ethersWallet.sendTransaction({
     ...setStateTransaction,
     gasLimit: GAS_LIMITS.SET_STATE_COMMITMENT
   });
@@ -160,13 +174,13 @@ async function submitLatestStateForEthmo() {
 async function mine() {
   const ethmoState = await ethmoContract.state();
   const finalizationBlockerNumber = ethmoState.finalizesAt.toString();
-  const currentBlockNumber = await wallet.currentUser.ethersWallet.provider.getBlockNumber();
+  const currentBlockNumber = await iframeWallet.currentUser.ethersWallet.provider.getBlockNumber();
   for (
     let blockCount = 0;
     blockCount < finalizationBlockerNumber - currentBlockNumber;
     blockCount++
   ) {
-    await wallet.currentUser.ethersWallet.provider.send("evm_mine", []);
+    await iframeWallet.currentUser.ethersWallet.provider.send("evm_mine", []);
   }
   console.log(`⌛️ Waited for timeout`);
 }
@@ -202,12 +216,12 @@ async function withdraw() {
   const apps = getApps();
   const ethmoAppId = Object.keys(apps)[0];
 
-  const installTransaction = await wallet.currentUser.store.getTransaction(
+  const installTransaction = await iframeWallet.currentUser.store.getTransaction(
     ethmoAppId,
     "install" // ActionName.INSTALL
   );
 
-  const res = await wallet.currentUser.ethersWallet.sendTransaction({
+  const res = await iframeWallet.currentUser.ethersWallet.sendTransaction({
     ...installTransaction,
     gasLimit: GAS_LIMITS.INSTALL_COMMITMENT
   });
@@ -227,7 +241,7 @@ function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
       ["tuple(address, bytes4, bytes4, bytes4, bytes4)"],
       [
         [
-          networkContext.PaymentApp.address,
+          networkContext.PaymentApp,
           "0x00000000",
           "0x860032b3",
           "0x00000000",
@@ -265,12 +279,12 @@ async function deployApplicationStateChannel(
   networkContext,
   stateChannel,
   application,
-  wallet
+  ethersWallet
 ) {
   return deployAppInstance(
     networkContext,
     stateChannel,
-    wallet,
+    ethersWallet,
     application.uniqueId,
     [application.peerA.address, application.peerB.address],
     application.cfApp.hash(),
@@ -282,7 +296,7 @@ async function deployApplicationStateChannel(
 async function deployAppInstance(
   networkContext,
   stateChannel,
-  wallet,
+  ethersWallet,
   salt,
   signingKeys,
   appHash,
@@ -290,25 +304,20 @@ async function deployAppInstance(
   timeout
 ) {
   registry = new ethers.Contract(
-    networkContext.Registry.address,
+    networkContext.Registry,
     [
       "function deploy(bytes, uint256)",
       "function resolver(bytes32) view returns (address)"
     ],
-    wallet
+    ethersWallet
   );
 
-  const AppInstance = networkContext.AppInstance;
-
   const initcode = new ethers.utils.Interface(
-    AppInstance.abi
-  ).deployFunction.encode(networkContext.linkBytecode(AppInstance.bytecode), [
-    stateChannel.multisigAddress,
-    signingKeys,
-    appHash,
-    termsHash,
-    timeout
-  ]);
+    iframeWallet.appInstanceArtifact.abi
+  ).deployFunction.encode(
+    networkContext.linkBytecode(iframeWallet.appInstanceArtifact.bytecode),
+    [stateChannel.multisigAddress, signingKeys, appHash, termsHash, timeout]
+  );
 
   await registry.functions.deploy(initcode, salt, {
     gasLimit: GAS_LIMITS.DEPLOY_APP_INSTANCE
@@ -323,5 +332,5 @@ async function deployAppInstance(
 
   const address = await registry.functions.resolver(cfAddress);
 
-  return new ethers.Contract(address, AppInstance.abi, wallet);
+  return new ethers.Contract(address, iframeWallet.appInstanceArtifact.abi, ethersWallet);
 }

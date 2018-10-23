@@ -2,9 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "sourceRoot": ".",
+    // TODO: Document why we need declarationDir here
     "declarationDir": "dist/",
     "outDir": "dist/"
   },
   "include": ["src"],
-  "exclude": ["../../node_modules"]
+  "exclude": ["node_modules"]
 }

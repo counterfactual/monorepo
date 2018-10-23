@@ -94,9 +94,11 @@ export class InstallProposer {
       signingKeys = [data.keyA!, data.keyB!];
     }
 
+    // TODO: Feels like this is the wrong place for this sorting...
     signingKeys.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
+
     return signingKeys;
   }
 

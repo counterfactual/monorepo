@@ -33,7 +33,7 @@ export class User
    * we write to the log so that, if the machine crashes, we can resume
    * by reading the last log entry and starting where the protocol left off.
    */
-  public wal: machine.wal.CfVmWal;
+  public wal: machine.writeAheadLog.WriteAheadLog;
 
   // Observable
   public observers: Map<
@@ -50,7 +50,7 @@ export class User
     address: string,
     privateKey: string,
     networkContext: machine.types.NetworkContext,
-    db?: machine.wal.SyncDb,
+    db?: machine.writeAheadLog.SyncDb,
     states?: machine.types.ChannelStates
   ) {
     this.wallet = wallet;
@@ -64,8 +64,8 @@ export class User
         states
       )
     );
-    this.wal = new machine.wal.CfVmWal(
-      db !== undefined ? db : new machine.wal.MemDb(),
+    this.wal = new machine.writeAheadLog.WriteAheadLog(
+      db !== undefined ? db : new machine.writeAheadLog.SimpleStringMapSyncDB(),
       this.address
     );
     this.store = new CommitmentStore();
@@ -114,7 +114,7 @@ export class User
     const ethersWallet = provider.getSigner();
     const accounts = await ethersWallet.provider.listAccounts();
 
-    // TODO handle when metamask client isn't signed in;
+    // TODO: handle when metamask client isn't signed in;
     // currently just defaulting to an ethers wallet
     return accounts.length > 0
       ? ethersWallet
@@ -257,9 +257,6 @@ async function signMyUpdate(
   ).value;
   const digest = operation.hashToSign();
   const sig = user.signingKey.signDigest(digest);
-  console.debug(
-    `🔑  Signing ${message.actionName} message: ${digest.substr(0, 16)}...`
-  );
   return new machine.types.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 

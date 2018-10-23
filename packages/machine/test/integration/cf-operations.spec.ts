@@ -1,46 +1,58 @@
-import { HIGH_GAS_LIMIT } from "@counterfactual/dev-utils";
-import * as wallet from "@counterfactual/wallet";
 import * as ethers from "ethers";
-import * as abi from "../src/abi";
+import * as _ from "lodash";
+import * as abi from "../../src/abi";
 import {
   CfAppInterface,
   CfFreeBalance,
   CfStateChannel,
   Terms,
   Transaction
-} from "../src/middleware/cf-operation/types";
+} from "../../src/middleware/cf-operation/types";
 import {
   ActionName,
   ClientActionMessage,
   InstallData,
+  NetworkContext,
   PeerBalance
-} from "../src/types";
-import { ResponseStatus } from "../src/vm";
-import { defaultNetwork, sleep } from "./common";
+} from "../../src/types";
+import { ResponseStatus } from "../../src/vm";
+import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_ADDRESS,
   MULTISIG_PRIVATE_KEY
-} from "./environment";
+} from "../utils/environment";
 
-export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
-  return provider.send("evm_mine", []);
-}
+import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import Registry from "@counterfactual/contracts/build/contracts/Registry.json";
+import networkFile from "@counterfactual/contracts/networks/7777777.json";
 
-export async function mineBlocks(
-  num: number,
-  provider: ethers.providers.JsonRpcProvider
-) {
-  for (let i = 0; i < num; i++) {
-    await mineOneBlock(provider);
-  }
-}
+import { TestResponseSink } from "./test-response-sink";
+
+// FIXME: Remove this dependency!
+const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
+
+  let networkMap;
+  let devEnvNetworkContext7777777: NetworkContext;
+  beforeAll(() => {
+    networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
+    devEnvNetworkContext7777777 = new NetworkContext(
+      networkMap.Registry,
+      networkMap.PaymentApp,
+      networkMap.ConditionalTransaction,
+      networkMap.MultiSend,
+      networkMap.NonceRegistry,
+      networkMap.Signatures,
+      networkMap.StaticCall,
+      networkMap.ETHBalanceRefundApp
+    );
+  });
 
   /**
    * The following happens in this test:
@@ -52,113 +64,117 @@ describe("Setup Protocol", async () => {
   it("should have the correct funds on chain", async () => {
     const depositAmount = ethers.utils.parseEther("0.0005");
 
-    const walletA = new wallet.IFrameWallet(defaultNetwork());
-    walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
-    const walletB = new wallet.IFrameWallet(defaultNetwork());
-    walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
-    const network = walletA.network;
+    const walletA = new TestResponseSink(
+      A_PRIVATE_KEY,
+      devEnvNetworkContext7777777
+    );
+    const walletB = new TestResponseSink(
+      B_PRIVATE_KEY,
+      devEnvNetworkContext7777777
+    );
 
-    const masterWallet = new wallet.IFrameWallet();
-    masterWallet.setUser(MULTISIG_ADDRESS, MULTISIG_PRIVATE_KEY);
-    const ethersWalletA = walletA.currentUser.ethersWallet;
-    const ethersWalletB = walletB.currentUser.ethersWallet;
-    const ethersMasterWallet = masterWallet.currentUser.ethersWallet;
+    const startingBalanceA = await ganache.getBalance(A_ADDRESS);
+    const startingBalanceB = await ganache.getBalance(B_ADDRESS);
 
-    const startBalanceA = await ethersWalletA.getBalance();
-    const startBalanceB = await ethersWalletB.getBalance();
+    // TODO: What is a MULTISIG_PRIVATE_KEY 🤔
+    const ethersMasterWallet = new ethers.Wallet(MULTISIG_PRIVATE_KEY, ganache);
 
-    walletA.currentUser.io.peer = walletB;
-    walletB.currentUser.io.peer = walletA;
+    walletA.io.peer = walletB;
+    walletB.io.peer = walletA;
 
     const peerBalances = PeerBalance.balances(
-      await ethersWalletA.getAddress(),
+      A_ADDRESS,
       ethers.utils.bigNumberify(0),
-      await ethersWalletB.getAddress(),
+      B_ADDRESS,
       ethers.utils.bigNumberify(0)
     );
+
     const signingKeys = [
       peerBalances.peerA.address,
       peerBalances.peerB.address
     ];
 
-    // STEP 1 -- DEPLOY MULTISIG :)
     const registry = await new ethers.Contract(
-      network.Registry.address,
-      network.Registry.abi,
-      masterWallet.currentUser.ethersWallet
+      devEnvNetworkContext7777777.Registry,
+      Registry.abi,
+      ethersMasterWallet
     );
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
     const multisig = await new ethers.ContractFactory(
-      network.Multisig.abi,
-      network.linkBytecode(network.Multisig.bytecode),
-      masterWallet.currentUser.ethersWallet
+      MinimumViableMultisig.abi,
+      devEnvNetworkContext7777777.linkBytecode(MinimumViableMultisig.bytecode),
+      ethersMasterWallet
     ).deploy();
 
     await multisig.functions.setup(signingKeys);
 
-    // STEP 2 -- GENERATE COMMITMENTS
     await setup(multisig.address, walletA, walletB);
 
-    // STEP 3 -- FUND THE MULTISIG
     const {
       cfAddr: balanceRefundAppId,
       txFeeA: depositTxFeeA,
       txFeeB: depositTxFeeB
     } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
 
-    // STEP 4 -- DEPLOY SIGNED COMMITMENT TO SET FREE BALANCE
-    const app = CfFreeBalance.contractInterface(network);
+    const app = CfFreeBalance.contractInterface(devEnvNetworkContext7777777);
+
     const terms = CfFreeBalance.terms();
+
     const initcode = new ethers.utils.Interface(
-      network.AppInstance.abi
+      AppInstance.abi
     ).deployFunction.encode(
-      network.linkBytecode(network.AppInstance.bytecode),
+      devEnvNetworkContext7777777.linkBytecode(AppInstance.bytecode),
       [
         multisig.address,
         signingKeys,
         app.hash(),
         terms.hash(),
-        // FIXME: Don't hard-code the timeout, make it dependant on some
+        // TODO: Don't hard-code the timeout, make it dependant on some
         // function(blockchain) to in the future check for congestion... :)
         100
       ]
     );
-    await registry.functions.deploy(initcode, 0, HIGH_GAS_LIMIT);
-    const uninstallTx: Transaction = await walletA.currentUser.store.getTransaction(
+
+    // TODO: Figure out how to not have to put the insanely high gasLimit here
+    await registry.functions.deploy(initcode, 0, { gasLimit: 6e9 });
+
+    const uninstallTx: Transaction = await walletA.store.getTransaction(
       balanceRefundAppId,
       ActionName.UNINSTALL
     );
+
     await ethersMasterWallet.sendTransaction({
       to: uninstallTx.to,
       value: `0x${uninstallTx.value.toString(16)}`,
       data: uninstallTx.data,
-      ...HIGH_GAS_LIMIT
+      gasLimit: 6e9
     });
 
-    // STEP 5 -- WAIT FOR CHANNEL TO FINALIZE
     await mineBlocks(
-      200,
+      200, // FIXME: Should be 100. Please test and verify.
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
 
-    // STEP 6 -- RESOLVE STATE CHANNEL
-    const cfFreeBalance = walletA.currentUser.vm.cfState.freeBalanceFromMultisigAddress(
+    const cfFreeBalance = walletA.vm.cfState.freeBalanceFromMultisigAddress(
       multisig.address
     );
+
     const values = [
       cfFreeBalance.alice,
       cfFreeBalance.bob,
       cfFreeBalance.aliceBalance,
       cfFreeBalance.bobBalance
     ];
+
     const freeBalanceFinalState = abi.encode(
       ["address", "address", "uint256", "uint256"],
       values
     );
+
     const cfStateChannel = new CfStateChannel(
-      network,
+      devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
       app,
@@ -166,13 +182,17 @@ describe("Setup Protocol", async () => {
       100,
       0
     );
+
     const channelCfAddr = cfStateChannel.cfAddress();
+
     const channelAddr = await registry.functions.resolver(channelCfAddr);
+
     const stateChannel = new ethers.Contract(
       channelAddr,
-      network.AppInstance.abi,
-      masterWallet.currentUser.ethersWallet
+      AppInstance.abi,
+      ethersMasterWallet
     );
+
     const appData = [
       app.address,
       app.applyAction,
@@ -180,34 +200,38 @@ describe("Setup Protocol", async () => {
       app.getTurnTaker,
       app.isStateTerminal
     ];
+
     const termsData = abi.encode(
       ["bytes1", "uint8", "uint256", "address"],
       ["0x19", terms.assetType, terms.limit, terms.token]
     );
+
     await stateChannel.functions.setResolution(
       appData,
       freeBalanceFinalState,
       termsData
     );
 
-    // STEP 7 -- DEPLOY SETUP COMMITMENT TO WITHDRAW FROM FREE BALANCE
-    const setupTx: Transaction = await walletA.currentUser.store.getTransaction(
+    const setupTx: Transaction = await walletA.store.getTransaction(
       multisig.address,
       ActionName.SETUP
     );
-    await masterWallet.currentUser.ethersWallet.sendTransaction({
+
+    await ethersMasterWallet.sendTransaction({
       to: setupTx.to,
       value: `0x${setupTx.value.toString(16)}`,
       data: setupTx.data
     });
 
-    // STEP 8 -- CONFIRM EXPECTED BALANCES
-    const endBalanceA = await ethersWalletA.getBalance();
-    const endBalanceB = await ethersWalletB.getBalance();
-    expect(endBalanceA.sub(startBalanceA).toNumber()).toEqual(
+    const endBalanceA = await ganache.getBalance(A_ADDRESS);
+
+    const endBalanceB = await ganache.getBalance(B_ADDRESS);
+
+    expect(endBalanceA.sub(startingBalanceA).toNumber()).toEqual(
       depositTxFeeA.toNumber()
     );
-    expect(endBalanceB.sub(startBalanceB).toNumber()).toEqual(
+
+    expect(endBalanceB.sub(startingBalanceB).toNumber()).toEqual(
       depositTxFeeB.toNumber()
     );
   });
@@ -215,14 +239,14 @@ describe("Setup Protocol", async () => {
 
 async function setup(
   multisigAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet
+  walletA: TestResponseSink,
+  walletB: TestResponseSink
 ) {
   validatePresetup(walletA, walletB);
   const msg = setupStartMsg(
     multisigAddr,
-    walletA.currentUser.address,
-    walletB.currentUser.address
+    walletA.signingKey.address,
+    walletB.signingKey.address
   );
   const response = await walletA.runProtocol(msg);
   expect(response.status).toEqual(ResponseStatus.COMPLETED);
@@ -230,11 +254,11 @@ async function setup(
 }
 
 function validatePresetup(
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet
+  walletA: TestResponseSink,
+  walletB: TestResponseSink
 ) {
-  expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
-  expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
+  expect(walletA.vm.cfState.channelStates).toEqual({});
+  expect(walletB.vm.cfState.channelStates).toEqual({});
 }
 
 function setupStartMsg(
@@ -258,8 +282,8 @@ function setupStartMsg(
 
 function validateSetup(
   multisigAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet
+  walletA: TestResponseSink,
+  walletB: TestResponseSink
 ) {
   validateNoAppsAndFreeBalance(
     multisigAddr,
@@ -282,16 +306,16 @@ function validateSetup(
  */
 function validateNoAppsAndFreeBalance(
   multisigAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet,
+  walletA: TestResponseSink,
+  walletB: TestResponseSink,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
-  const state = walletA.currentUser.vm.cfState;
+  const state = walletA.vm.cfState;
 
-  let peerA = walletA.currentUser.address;
-  let peerB = walletB.currentUser.address;
+  let peerA = walletA.signingKey.address;
+  let peerB = walletB.signingKey.address;
   if (peerB.localeCompare(peerA) < 0) {
     const tmp = peerA;
     peerA = peerB;
@@ -301,10 +325,10 @@ function validateNoAppsAndFreeBalance(
     amountB = tmpAmount;
   }
 
-  const channel = walletA.currentUser.vm.cfState.channelStates[multisigAddr];
+  const channel = walletA.vm.cfState.channelStates[multisigAddr];
   expect(Object.keys(state.channelStates).length).toEqual(1);
-  expect(channel.counterParty).toEqual(walletB.currentUser.address);
-  expect(channel.me).toEqual(walletA.currentUser.address);
+  expect(channel.counterParty).toEqual(walletB.signingKey.address);
+  expect(channel.me).toEqual(walletA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);
   expect(channel.appChannels).toEqual({});
   expect(channel.freeBalance.alice).toEqual(peerA);
@@ -317,8 +341,8 @@ function validateNoAppsAndFreeBalance(
 
 async function makeDeposits(
   multisigAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet,
+  walletA: TestResponseSink,
+  walletB: TestResponseSink,
   depositAmount: ethers.utils.BigNumber
 ): Promise<{
   cfAddr: string;
@@ -344,8 +368,8 @@ async function makeDeposits(
 
 async function deposit(
   multisigAddr: string,
-  depositor: wallet.IFrameWallet,
-  counterparty: wallet.IFrameWallet,
+  depositor: TestResponseSink,
+  counterparty: TestResponseSink,
   amountToDeposit: ethers.utils.BigNumber,
   counterpartyBalance: ethers.utils.BigNumber
 ): Promise<{ cfAddr: string; txFee: ethers.utils.BigNumber }> {
@@ -369,14 +393,14 @@ async function deposit(
 
 async function installBalanceRefund(
   multisigAddr: string,
-  depositor: wallet.IFrameWallet,
-  counterparty: wallet.IFrameWallet,
+  depositor: TestResponseSink,
+  counterparty: TestResponseSink,
   threshold: ethers.utils.BigNumber
 ) {
   const msg = startInstallBalanceRefundMsg(
     multisigAddr,
-    depositor.currentUser.address,
-    counterparty.currentUser.address,
+    depositor.signingKey.address,
+    counterparty.signingKey.address,
     threshold
   );
   const response = await depositor.runProtocol(msg);
@@ -388,6 +412,64 @@ async function installBalanceRefund(
   validateInstalledBalanceRefund(multisigAddr, counterparty, threshold);
   // check A's client and return the newly created cf address
   return validateInstalledBalanceRefund(multisigAddr, depositor, threshold);
+}
+
+async function depositOnChain(
+  multisigAddress: string,
+  wallet: TestResponseSink,
+  value: ethers.utils.BigNumber
+): Promise<ethers.utils.BigNumber> {
+  const address = wallet.signingKey.address;
+  const balanceBefore = await ganache.getBalance(address);
+
+  await new ethers.Wallet(
+    wallet.signingKey.privateKey,
+    ganache
+  ).sendTransaction({
+    to: multisigAddress,
+    value
+  });
+
+  const balanceAfter = await ganache.getBalance(address);
+  // Calculate transaction fee
+  return balanceAfter.sub(balanceBefore).add(value);
+}
+
+async function uninstallBalanceRefund(
+  multisigAddr: string,
+  cfAddr: string,
+  walletA: TestResponseSink,
+  walletB: TestResponseSink,
+  amountA: ethers.utils.BigNumber,
+  amountB: ethers.utils.BigNumber
+) {
+  const msg = startUninstallBalanceRefundMsg(
+    multisigAddr,
+    cfAddr,
+    walletA.signingKey.address,
+    walletB.signingKey.address,
+    amountA
+  );
+  const response = await walletA.runProtocol(msg);
+  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  // validate walletA
+  validateUninstalledAndFreeBalance(
+    multisigAddr,
+    cfAddr,
+    walletA,
+    walletB,
+    amountA,
+    amountB
+  );
+  // validate walletB
+  validateUninstalledAndFreeBalance(
+    multisigAddr,
+    cfAddr,
+    walletB,
+    walletA,
+    amountB,
+    amountA
+  );
 }
 
 function startInstallBalanceRefundMsg(
@@ -442,11 +524,10 @@ function startInstallBalanceRefundMsg(
 
 function validateInstalledBalanceRefund(
   multisigAddr: string,
-  wallet: wallet.IFrameWallet,
+  wallet: TestResponseSink,
   amount: ethers.utils.BigNumber
 ) {
-  const stateChannel =
-    wallet.currentUser.vm.cfState.channelStates[multisigAddr];
+  const stateChannel = wallet.vm.cfState.channelStates[multisigAddr];
   const appChannels = stateChannel.appChannels;
   const cfAddrs = Object.keys(appChannels);
   expect(cfAddrs.length).toEqual(1);
@@ -468,75 +549,22 @@ function validateInstalledBalanceRefund(
   return cfAddr;
 }
 
-async function depositOnChain(
-  multisigAddress: string,
-  wallet: wallet.IFrameWallet,
-  value: ethers.utils.BigNumber
-): Promise<ethers.utils.BigNumber> {
-  const { ethersWallet } = wallet.currentUser;
-  const balanceBefore = await ethersWallet.getBalance();
-  await ethersWallet.sendTransaction({
-    to: multisigAddress,
-    value
-  });
-  const balanceAfter = await ethersWallet.getBalance();
-  // Calculate transaction fee
-  return balanceAfter.sub(balanceBefore).add(value);
-}
-
-async function uninstallBalanceRefund(
-  multisigAddr: string,
-  cfAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet,
-  amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber
-) {
-  const msg = startUninstallBalanceRefundMsg(
-    multisigAddr,
-    cfAddr,
-    walletA.currentUser.address,
-    walletB.currentUser.address,
-    amountA
-  );
-  const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
-  // validate walletA
-  validateUninstalledAndFreeBalance(
-    multisigAddr,
-    cfAddr,
-    walletA,
-    walletB,
-    amountA,
-    amountB
-  );
-  // validate walletB
-  validateUninstalledAndFreeBalance(
-    multisigAddr,
-    cfAddr,
-    walletB,
-    walletA,
-    amountB,
-    amountA
-  );
-}
-
 /**
  * Validates the correctness of walletA's free balance *not* walletB's.
  */
 function validateUninstalledAndFreeBalance(
   multisigAddr: string,
   cfAddr: string,
-  walletA: wallet.IFrameWallet,
-  walletB: wallet.IFrameWallet,
+  walletA: TestResponseSink,
+  walletB: TestResponseSink,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
-  const state = walletA.currentUser.vm.cfState;
+  const state = walletA.vm.cfState;
 
-  let peerA = walletA.currentUser.address;
-  let peerB = walletB.currentUser.address;
+  let peerA = walletA.signingKey.address;
+  let peerB = walletB.signingKey.address;
   if (peerB.localeCompare(peerA) < 0) {
     const tmp = peerA;
     peerA = peerB;
@@ -546,12 +574,12 @@ function validateUninstalledAndFreeBalance(
     amountB = tmpAmount;
   }
 
-  const channel = walletA.currentUser.vm.cfState.channelStates[multisigAddr];
+  const channel = walletA.vm.cfState.channelStates[multisigAddr];
   const app = channel.appChannels[cfAddr];
 
   expect(Object.keys(state.channelStates).length).toEqual(1);
-  expect(channel.counterParty).toEqual(walletB.currentUser.address);
-  expect(channel.me).toEqual(walletA.currentUser.address);
+  expect(channel.counterParty).toEqual(walletB.signingKey.address);
+  expect(channel.me).toEqual(walletA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);
   expect(channel.freeBalance.alice).toEqual(peerA);
   expect(channel.freeBalance.bob).toEqual(peerB);

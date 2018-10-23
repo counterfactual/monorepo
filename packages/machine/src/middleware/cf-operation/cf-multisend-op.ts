@@ -13,11 +13,14 @@ import {
   Transaction
 } from "./types";
 
+import Multisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+
 const { keccak256 } = ethers.utils;
 
 export abstract class CfMultiSendOp extends CfOperation {
   constructor(
-    readonly ctx: NetworkContext,
+    readonly networkContext: NetworkContext,
     readonly multisig: Address,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
@@ -29,7 +32,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     const multisigInput = this.multisigInput();
     const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
     const txData = new ethers.utils.Interface(
-      this.ctx.Multisig.abi
+      Multisig.abi
     ).functions.execTransaction.encode([
       multisigInput.to,
       multisigInput.val,
@@ -59,7 +62,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public freeBalanceInput(): MultisigInput {
-    const to = this.ctx.Registry.address;
+    const to = this.networkContext.Registry;
     const val = 0;
     const data = this.freeBalanceData();
     const op = Operation.Delegatecall;
@@ -68,9 +71,9 @@ export abstract class CfMultiSendOp extends CfOperation {
 
   public freeBalanceData(): Bytes {
     const terms = CfFreeBalance.terms();
-    const app = CfFreeBalance.contractInterface(this.ctx);
+    const app = CfFreeBalance.contractInterface(this.networkContext);
     const freeBalanceCfAddress = new CfStateChannel(
-      this.ctx,
+      this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
       app,
@@ -93,7 +96,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     // don't need signatures since the multisig is the owner
     const signatures = "0x0";
     return common.proxyCallSetStateData(
-      this.ctx,
+      this.networkContext,
       appStateHash,
       freeBalanceCfAddress,
       this.cfFreeBalance.localNonce,
@@ -104,10 +107,10 @@ export abstract class CfMultiSendOp extends CfOperation {
 
   public dependencyNonceInput(): MultisigInput {
     const timeout = 0; // FIXME: new NonceRegistry design will obviate timeout
-    const to = this.ctx.NonceRegistry.address;
+    const to = this.networkContext.NonceRegistry;
     const val = 0;
     const data = new ethers.utils.Interface(
-      this.ctx.NonceRegistry.abi
+      NonceRegistry.abi
     ).functions.setNonce.encode([
       timeout,
       this.dependencyNonce.salt,
@@ -124,8 +127,8 @@ export abstract class CfMultiSendOp extends CfOperation {
    *          a multisend transaction.
    */
   private multisigInput(): MultisigInput {
-    return new MultiSend(this.eachMultisigInput(), this.ctx).input(
-      this.ctx.MultiSend.address
+    return new MultiSend(this.eachMultisigInput(), this.networkContext).input(
+      this.networkContext.MultiSend
     );
   }
 }

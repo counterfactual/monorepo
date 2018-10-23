@@ -74,13 +74,18 @@ export class CfMiddleware {
         }
       }
     }
+
+    // TODO: Document or throw error about the fact that you _need_ to have
+    // a middleware otherwise this will error with:
+    // `TypeError: Cannot read property '0' of undefined`
+
     return this.middlewares[opCode][0].method(msg, callback, context);
   }
 
   /**
    * Runs the middlewares for Instruction.ALL.
    */
-  // TODO currently this method seems to be passing null as the middleware callback and
+  // TODO: currently this method seems to be passing null as the middleware callback and
   // just iterating through all the middlewares. We should pass the callback similarly to how
   // run does it, and rely on that for middleware cascading
   private executeAllMiddlewares(msg, context) {
@@ -170,16 +175,16 @@ export class KeyGenerator {
    * After generating this machine's app/ephemeral key, mutate the
    * client message by placing the ephemeral key on it for my address.
    */
-  public static generate(message: InternalMessage, next: Function, Context) {
+  public static generate(message: InternalMessage, next: Function) {
     const wallet = ethers.Wallet.createRandom();
     const installData = message.clientMessage.data;
     // FIXME: properly assign ephemeral keys
-    //if (installData.peerA.address === message.clientMessage.fromAddress) {
+    // if (installData.peerA.address === message.clientMessage.fromAddress) {
     //  installData.keyA = wallet.address;
-    //} else {
+    // } else {
     //  installData.keyB = wallet.address;
-    //}
-    //return wallet;
+    // }
+    // return wallet;
   }
 }
 

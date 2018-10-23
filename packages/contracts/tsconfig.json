@@ -2,11 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "outDir": "dist/",
-    "typeRoots": [
-      "../../node_modules/@types",
-      "../../node_modules/@counterfactual/typescript-typings/types"
-    ]
+    "outDir": "dist/"
   },
   "include": ["utils", "test"]
 }

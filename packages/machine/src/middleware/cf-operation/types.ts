@@ -10,6 +10,9 @@ import {
   Signature
 } from "../../types";
 
+import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MultiSendContract from "@counterfactual/contracts/build/contracts/MultiSend.json";
+
 const { keccak256 } = ethers.utils;
 
 export abstract class CfOperation {
@@ -142,7 +145,7 @@ export class MultiSend {
     }
 
     const data = new ethers.utils.Interface(
-      this.networkContext.MultiSend.abi
+      MultiSendContract.abi
     ).functions.multiSend.encode([txs]);
     return new MultisigInput(multisend, 0, data, Operation.Delegatecall);
   }
@@ -163,7 +166,7 @@ export class CfFreeBalance {
   }
 
   public static contractInterface(ctx: NetworkContext): CfAppInterface {
-    const address = ctx.PaymentApp.address;
+    const address = ctx.PaymentApp;
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
       // TODO: Put this somewhere eh
@@ -224,17 +227,14 @@ export class CfStateChannel {
 
   public cfAddress(): H256 {
     const initcode = new ethers.utils.Interface(
-      this.ctx.AppInstance.abi
-    ).deployFunction.encode(
-      this.ctx.linkBytecode(this.ctx.AppInstance.bytecode),
-      [
-        this.owner,
-        this.signingKeys,
-        this.cfApp.hash(),
-        this.terms.hash(),
-        this.timeout
-      ]
-    );
+      AppInstance.abi
+    ).deployFunction.encode(this.ctx.linkBytecode(AppInstance.bytecode), [
+      this.owner,
+      this.signingKeys,
+      this.cfApp.hash(),
+      this.terms.hash(),
+      this.timeout
+    ]);
 
     return keccak256(
       abi.encodePacked(

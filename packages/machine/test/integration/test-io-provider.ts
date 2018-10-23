@@ -1,15 +1,26 @@
-import * as machine from "@counterfactual/machine";
+import { Context } from "../../src/state";
+import {
+  ActionName,
+  ClientActionMessage,
+  InternalMessage
+} from "../../src/types";
+import { TestResponseSink } from "./test-response-sink";
 
-import { User } from "./user";
-import { IFrameWallet } from "./wallet";
+// FIXME: Don't import functions from source code.
+import { getLastResult } from "../../src/middleware/middleware";
 
-export class IframeIoProvider {
-  public messages: machine.types.ClientActionMessage[];
-  public user: User = Object.create(null);
-  public peer: IFrameWallet = Object.create(null);
-  public clientHandlesIO: Boolean;
-  // TODO Refactor this into using an EventEmitter class so we don't do
-  // this manually
+// FIXME: Don't import functions from source code.
+import { deserialize } from "../../src/serializer";
+
+// FIXME: Don't import functions from source code.
+import { Instruction } from "../../src/instructions";
+
+export class TestIOProvider {
+  public messages: ClientActionMessage[];
+
+  // FIXME: Don't just initialize it as a null object
+  public peer: TestResponseSink = Object.create(null);
+
   public listeners: Array<{
     appId: string;
     multisig: string;
@@ -17,29 +28,21 @@ export class IframeIoProvider {
     method: Function;
   }>;
 
-  /**
-   * Called when receivng a message with seqno = 1.
-   */
   public ackMethod: Function = Object.create(null);
 
-  constructor(user) {
-    // setup websockets
-    this.user = user;
+  constructor() {
     this.messages = [];
     this.listeners = [];
-    this.clientHandlesIO = false;
   }
 
-  public receiveMessageFromPeer(message: machine.types.ClientActionMessage) {
-    message = machine.serializer.deserialize(
-      message
-    ) as machine.types.ClientActionMessage;
+  public receiveMessageFromPeer(message: ClientActionMessage) {
+    message = deserialize(message) as ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
     let count = 0;
 
-    // invoke all listeners waiting for a response to resolve their promise
+    // Invoke all listeners waiting for a response to resolve their promise
     this.listeners.forEach(listener => {
       if (
         listener.appId === message.appId ||
@@ -50,7 +53,8 @@ export class IframeIoProvider {
         executedListeners.push(count++);
       }
     });
-    // now remove all listeners we just invoked
+
+    // Now remove all listeners we just invoked
     executedListeners.forEach(index => this.listeners.splice(index, 1));
 
     // initiate ack side if needed
@@ -63,13 +67,10 @@ export class IframeIoProvider {
     }
   }
 
-  public findMessage(
-    multisig?: string,
-    appId?: string
-  ): machine.types.ClientActionMessage {
-    let message: machine.types.ClientActionMessage;
+  public findMessage(multisig?: string, appId?: string): ClientActionMessage {
+    let message: ClientActionMessage;
     if (appId) {
-      // FIXME: these shouldn't be ignored. refactor for type safety
+      // FIXME: These shouldn't be ignored. Refactor for type safety.
       message = this.messages.find(m => m.appId === appId)!;
     } else {
       message = this.messages.find(m => m.multisigAddress === multisig)!;
@@ -106,47 +107,35 @@ export class IframeIoProvider {
     this.ackMethod = method;
   }
 
-  public setClientToHandleIO() {
-    this.clientHandlesIO = true;
-  }
-
   public async ioSendMessage(
-    internalMessage: machine.types.InternalMessage,
+    internalMessage: InternalMessage,
     next: Function,
-    context: machine.state.Context
+    context: Context
   ) {
-    const msg = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_PREPARE_SEND,
-      context.results
-    );
+    const msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
+
     // FIXME: (ts-strict) msg should never be null here
     const value = msg.value;
 
-    if (this.clientHandlesIO) {
-      this.user.sendIoMessageToClient(value);
-    } else {
-      // Hack for testing and demo purposes, full IO handling by client goes here
-      this.peer.receiveMessageFromPeer(value);
-    }
+    // Hack for testing and demo purposes, full IO handling by client goes here
+    this.peer.receiveMessageFromPeer(value);
   }
 
   public async waitForIo(
-    message: machine.types.InternalMessage,
+    message: InternalMessage,
     next: Function
-  ): Promise<machine.types.ClientActionMessage> {
-    // has websocket received a message for this appId/multisig
-    // if yes, return the message, if not wait until it does
+  ): Promise<ClientActionMessage> {
+    // Has websocket received a message for this appId/multisig
+    // If yes, return the message, if not wait until it does
     let resolve: Function;
-    const promise = new Promise<machine.types.ClientActionMessage>(
-      r => (resolve = r)
-    );
+    const promise = new Promise<ClientActionMessage>(r => (resolve = r));
 
     let multisig: string = "";
     let appId: string = "";
 
     if (
-      message.actionName === machine.types.ActionName.SETUP ||
-      message.actionName === machine.types.ActionName.INSTALL
+      message.actionName === ActionName.SETUP ||
+      message.actionName === ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {
@@ -159,16 +148,12 @@ export class IframeIoProvider {
     }
 
     this.listenOnce(
-      message => {
-        resolve(message);
+      msg => {
+        resolve(msg);
       },
       multisig,
       appId
     );
     return promise;
-  }
-
-  private needsAppId(message: machine.types.InternalMessage) {
-    return message.actionName !== machine.types.ActionName.SETUP;
   }
 }

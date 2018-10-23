@@ -10,8 +10,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf lib",
-    "lint:fix": "tslint --project --fix",
-    "lint": "tslint --project .",
+    "lint:fix": "yarn lint --fix",
+    "lint": "tslint -c tslint.json -p .",
     "precommit": "lint-staged"
   },
   "license": "MIT",

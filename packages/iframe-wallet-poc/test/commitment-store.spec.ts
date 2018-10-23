@@ -1,7 +1,7 @@
 import * as machine from "@counterfactual/machine";
 import { ethers } from "ethers";
 import { IFrameWallet } from "../src/iframe/wallet";
-import { SetupProtocol } from "./common";
+import { SetupProtocol, EMPTY_NETWORK_CONTEXT } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -10,13 +10,15 @@ import {
   MULTISIG_ADDRESS
 } from "./environment";
 
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
 let network: machine.types.NetworkContext;
 
 beforeAll(() => {
-  walletA = new IFrameWallet();
-  walletB = new IFrameWallet();
+  walletA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
+  walletB = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
   network = walletA.network;
   walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
   walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
@@ -58,7 +60,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
   let multisigInput;
   it("the transaction's call data should be another transaction being sent to the multisend address", () => {
     multisigInput = new ethers.utils.Interface(
-      network.Multisig.abi
+      MinimumViableMultisig.abi
     ).functions.execTransaction.decode(setupTransaction.data);
 
     expect(multisigInput.to.toLowerCase()).toEqual(

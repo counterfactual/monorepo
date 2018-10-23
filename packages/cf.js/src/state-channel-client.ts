@@ -110,7 +110,9 @@ export class StateChannelClient {
 
     return new Promise<AppChannelClient>(async resolve => {
       const cb = data => {
-        if (data.data.requestId !== requestId) return;
+        if (data.data.requestId !== requestId) {
+          return;
+        }
         const appId = data.data.result.cfAddr;
 
         return resolve(

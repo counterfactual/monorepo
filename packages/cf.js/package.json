@@ -13,14 +13,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "rollup": "rollup -c",
+    "clean": "shx rm -rf .rpt2_cache dist",
+    "build": "rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "prettier": "prettier -l '{src,test}/{**/*,*}'",
-    "prettier:fix": "prettier --write '{src,test}/{**/*,*}'"
+    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix"
   },
   "devDependencies": {
+    "@counterfactual/machine": "0.0.1",
     "prettier": "1.14.2",
     "rollup": "^0.66.4",
     "rollup-plugin-typescript2": "^0.17.1",
@@ -30,11 +29,9 @@
     "typescript": "^3.1.2"
   },
   "peerDependencies": {
-    "@counterfactual/machine": "0.0.1",
     "ethers": "^4.0.4"
   },
   "dependencies": {
-    "@counterfactual/machine": "0.0.1",
     "@types/lodash": "^4.14.116",
     "ethers": "^4.0.4",
     "lodash": "^4.17.10"

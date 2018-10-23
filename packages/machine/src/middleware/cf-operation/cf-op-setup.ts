@@ -11,6 +11,8 @@ import {
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
+import ConditionalTransaction from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+
 const { keccak256 } = ethers.utils;
 
 export class CfOpSetup extends CfMultiSendOp {
@@ -20,13 +22,13 @@ export class CfOpSetup extends CfMultiSendOp {
    * @param multisigInput
    */
   public constructor(
-    readonly ctx: NetworkContext,
+    readonly networkContext: NetworkContext,
     readonly multisig: Address,
     readonly freeBalanceStateChannel: CfStateChannel,
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
-    super(ctx, multisig, freeBalance, dependencyNonce);
+    super(networkContext, multisig, freeBalance, dependencyNonce);
     if (dependencyNonce === undefined) {
       throw new Error("Undefined dependency nonce");
     }
@@ -50,17 +52,17 @@ export class CfOpSetup extends CfMultiSendOp {
     );
 
     const multisigCalldata = new ethers.utils.Interface(
-      this.ctx.ConditionalTransaction.abi
+      ConditionalTransaction.abi
     ).functions.executeAppConditionalTransaction.encode([
-      this.ctx.Registry.address,
-      this.ctx.NonceRegistry.address,
+      this.networkContext.Registry,
+      this.networkContext.NonceRegistry,
       depNonceKey,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);
 
     return new MultisigInput(
-      this.ctx.ConditionalTransaction.address,
+      this.networkContext.ConditionalTransaction,
       0,
       multisigCalldata,
       Operation.Delegatecall

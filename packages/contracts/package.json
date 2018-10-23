@@ -1,31 +1,28 @@
 {
   "name": "@counterfactual/contracts",
   "version": "0.0.2",
-  "description": "Collection of smart contracts for use by the Counterfactual framework.",
+  "description": "Smart contracts for Counterfactual",
   "license": "MIT",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "files": [
+    "build",
+    "contracts",
+    "networks"
+  ],
   "scripts": {
-    "build": "yarn compile && yarn deploy",
-    "clean": "shx rm -rf dist",
-    "compile": "truffle compile && apply-registry build/contracts",
-    "deploy": "yarn truffle:migrate-off-chain",
+    "build": "truffle compile --all",
+    "migrate": "truffle migrate --reset --network ganache",
+    "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
+    "clean": "shx rm -rf dist build",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:sol": "solium -d .",
-    "lint:ts": "tslint -c tslint.json test/**/*.ts",
-    "lint:ts:fix": "tslint -c tslint.json test/**/*.ts --fix",
+    "lint:ts:fix": "yarn lint --fix",
+    "lint:ts": "tslint -c tslint.json -p .",
     "precommit": "lint-staged",
-    "test": "yarn truffle:test",
     "testfiles": "yarn build && yarn truffle:testfiles",
     "test:circleci": "yarn test",
-    "test:coverage": "solidity-coverage",
-    "truffle:compile": "truffle compile --all",
-    "truffle:console": "truffle console",
-    "truffle:migrate-off-chain": "rm -f networks/*.json && truffle migrate --network ganache",
-    "truffle:migrate": "truffle migrate --network ganache",
-    "truffle:test": "truffle test --network ganache $npm_package_config_testFiles"
+    "test:coverage": "solidity-coverage"
   },
   "lint-staged": {
     "**/*.ts": [
@@ -50,7 +47,6 @@
   "devDependencies": {
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/bignumber.js": "4.0.2",
-    "@types/chai": "^4.1.6",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-string": "^1.4.1",
     "@types/node": "^10.9.3",

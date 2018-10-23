@@ -13,7 +13,7 @@ import {
   StateChannelInfo,
   WalletResponse
 } from "./types";
-import { Log } from "./wal";
+import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
   constructor(
@@ -93,7 +93,7 @@ export class CounterfactualVM implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  // TODO add support for not appID
+  //  TODO: add support for not appID
   public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
     if (data.appId) {
       return this.cfState.appChannelInfos[data.appId].stateChannel;
@@ -132,8 +132,9 @@ export class CounterfactualVM implements Observable {
 
   public async run(execution: ActionExecution) {
     try {
-      // temporary error handling for testing resuming protocols
+      // Temporary error handling for testing resuming protocols
       let val;
+      // TODO: Bizarre syntax...
       for await (val of execution) {
       }
       this.sendResponse(execution, ResponseStatus.COMPLETED);

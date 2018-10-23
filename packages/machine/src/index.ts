@@ -7,7 +7,7 @@ import * as serializer from "./serializer";
 import * as state from "./state";
 import * as types from "./types";
 import * as vm from "./vm";
-import * as wal from "./wal";
+import * as writeAheadLog from "./write-ahead-log";
 
 export {
   cfOperations,
@@ -19,5 +19,5 @@ export {
   state,
   types,
   vm,
-  wal
+  writeAheadLog
 };

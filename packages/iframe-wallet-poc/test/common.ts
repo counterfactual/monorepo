@@ -8,6 +8,17 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export const EMPTY_NETWORK_CONTEXT = new machine.types.NetworkContext(
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero
+);
+
 /**
  * A collection of static methods responsible for running the setup potocol
  * and asserting the machine state was correctly modified.

@@ -1,3 +1,5 @@
+import ConditionalTransaction from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+
 import * as ethers from "ethers";
 import * as abi from "../../abi";
 import { Address, H256, NetworkContext } from "../../types";
@@ -14,13 +16,13 @@ const { keccak256 } = ethers.utils;
 
 export class CfOpInstall extends CfMultiSendOp {
   constructor(
-    readonly ctx: NetworkContext,
+    readonly networkContext: NetworkContext,
     readonly multisig: Address,
     readonly app: CfStateChannel,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
-    super(ctx, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
 
   /**
@@ -31,7 +33,7 @@ export class CfOpInstall extends CfMultiSendOp {
   }
 
   private conditionalTransactionInput(): MultisigInput {
-    const to = this.ctx.ConditionalTransaction.address;
+    const to = this.networkContext.ConditionalTransaction;
     const val = 0;
     const terms = [
       this.app.terms.assetType,
@@ -45,10 +47,10 @@ export class CfOpInstall extends CfMultiSendOp {
       )
     );
     const data = new ethers.utils.Interface(
-      this.ctx.ConditionalTransaction.abi
+      ConditionalTransaction.abi
     ).functions.executeAppConditionalTransaction.encode([
-      this.ctx.Registry.address,
-      this.ctx.NonceRegistry.address,
+      this.networkContext.Registry,
+      this.networkContext.NonceRegistry,
       depNonceKey,
       this.appCfAddress,
       terms

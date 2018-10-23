@@ -2,56 +2,54 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:9.11
+      - image: circleci/node:10
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: $CACHE_VERSION-dependency-cache-{{ checksum "yarn.lock" }}
       - run: yarn
-      - run: ./node_modules/.bin/lerna bootstrap
       - save_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: $CACHE_VERSION-dependency-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
+            - packages/contracts/node_modules
+            - packages/iframe-wallet-poc/node_modules
+            - packages/machine/node_modules
+            - packages/cf.js/node_modules
+            - packages/dev-utils/node_modules
 
-  run-node-tests:
+  run-tests:
     docker:
-      - image: circleci/node:9.11
+      - image: circleci/node:10
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
-      - run: yarn build && yarn test
+          key: $CACHE_VERSION-dependency-cache-{{ checksum "yarn.lock" }}
+      - run: yarn build
+      - run:
+          name: "Run ganache"
+          command: yarn ganache:ci
+          background: true
+      - run: cd packages/contracts/ && yarn migrate
+      - run: yarn test
 
   run-tslint:
     docker:
-      - image: circleci/node:9.11
+      - image: circleci/node:10
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: $CACHE_VERSION-dependency-cache-{{ checksum "yarn.lock" }}
       - run: yarn lint
-
-  run-prettier:
-    docker:
-      - image: circleci/node:9.11
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
-      - run: yarn prettier
 
 workflows:
   version: 2
-  run-node-tests:
+  run-tests:
     jobs:
       - build
       - run-tslint:
           requires:
             - build
-      - run-prettier:
-          requires:
-            - build
-      - run-node-tests:
+      - run-tests:
           requires:
             - build

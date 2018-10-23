@@ -1,90 +1,46 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+// TODO: Remove requirement of contracts repo. The preferred way to fix this is
+// to change the implementation of "deployMultisig" to make a call to a ProxyFactory
+// vs creating the entire multisig itself.
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+
+// TODO: We shouldn't need this after we change AppInstance.sol to be a global
+// channel manager contract as opposed to each instance being counterfactual
+import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
+
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
-import * as contracts from "./contracts";
 import { User } from "./user";
 
+// TODO: This file, and all other files with `class` definitions, should be linted
+// to follow a style with properties first, then constructor, then getters,
+// public methods, private methods, etc. This should then be added as a project-wide
+// linting rule.
+
 export class IFrameWallet implements machine.types.ResponseSink {
-  public static async deployMultisig(
+  // TODO: We shouldn't need this after we change AppInstance.sol to be a global
+  // channel manager contract as opposed to each instance being counterfactual
+  public readonly appInstanceArtifact = AppInstance;
+
+  public async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
     owners: machine.types.Address[]
   ): Promise<ethers.Contract> {
-    const contractArtifacts = IFrameWallet.getContractArtifacts();
-
-    const networkContext = machine.types.NetworkContext.fromDeployment(
-      contracts.networkFile,
-      contractArtifacts
-    );
-
     const contract = await new ethers.ContractFactory(
-      networkContext.Multisig.abi,
-      networkContext.linkBytecode(networkContext.Multisig.bytecode),
+      MinimumViableMultisig.abi,
+      this.networkContext.linkBytecode(MinimumViableMultisig.bytecode),
       wallet
     ).deploy();
+
     owners.sort(
       (addrA, addrB) => (new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1)
     );
+
     await contract.functions.setup(owners);
+
     return contract;
-  }
-
-  /**
-   * It's the wallet's responsibility to construct a machine.types.NetworkContext
-   * and pass that to the VM.
-   */
-  public static defaultNetwork(): machine.types.NetworkContext {
-    const contractArtifacts = IFrameWallet.getContractArtifacts();
-    return machine.types.NetworkContext.fromDeployment(
-      contracts.networkFile,
-      contractArtifacts
-    );
-  }
-
-  public static getContractArtifacts() {
-    const artifacts = new Map();
-    artifacts[machine.types.NetworkContext.CONTRACTS.Registry] = [
-      JSON.stringify(contracts.Registry.abi),
-      contracts.Registry.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.PaymentApp] = [
-      JSON.stringify(contracts.PaymentApp.abi),
-      contracts.PaymentApp.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.ConditionalTransaction] = [
-      JSON.stringify(contracts.ConditionalTransaction.abi),
-      contracts.ConditionalTransaction.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.MultiSend] = [
-      JSON.stringify(contracts.MultiSend.abi),
-      contracts.MultiSend.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.NonceRegistry] = [
-      JSON.stringify(contracts.NonceRegistry.abi),
-      contracts.NonceRegistry.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.Signatures] = [
-      JSON.stringify(contracts.Signatures.abi),
-      contracts.Signatures.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.StaticCall] = [
-      JSON.stringify(contracts.StaticCall.abi),
-      contracts.StaticCall.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.ETHBalanceRefundApp] = [
-      JSON.stringify(contracts.ETHBalanceRefundApp.abi),
-      contracts.ETHBalanceRefundApp.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.Multisig] = [
-      JSON.stringify(contracts.MinimumViableMultisig.abi),
-      contracts.MinimumViableMultisig.bytecode
-    ];
-    artifacts[machine.types.NetworkContext.CONTRACTS.AppInstance] = [
-      JSON.stringify(contracts.AppInstance.abi),
-      contracts.AppInstance.bytecode
-    ];
-    return artifacts;
   }
 
   get currentUser(): User {
@@ -106,13 +62,21 @@ export class IFrameWallet implements machine.types.ResponseSink {
   private responseListener?: Function;
   private messageListener?: Function;
 
-  constructor(networkContext?: machine.types.NetworkContext) {
+  constructor(
+    networkContext: Map<string, string> | machine.types.NetworkContext
+  ) {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
-    this.networkContext =
-      networkContext !== undefined
-        ? networkContext
-        : IFrameWallet.defaultNetwork();
+    this.networkContext = new machine.types.NetworkContext(
+      networkContext["Registry"],
+      networkContext["PaymentApp"],
+      networkContext["ConditionalTransaction"],
+      networkContext["MultiSend"],
+      networkContext["NonceRegistry"],
+      networkContext["Signatures"],
+      networkContext["StaticCall"],
+      networkContext["ETHBalanceRefundApp"]
+    );
   }
 
   public async initUser(address: string) {
@@ -127,7 +91,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     address: string,
     privateKey: string,
     networkContext?: machine.types.NetworkContext,
-    db?: machine.wal.SyncDb,
+    db?: machine.writeAheadLog.SimpleStringMapSyncDB,
     states?: machine.types.ChannelStates
   ) {
     this.address = address;
@@ -157,7 +121,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
         this.requests[msg.requestId] = resolve;
       }
     );
-    const response = this.currentUser.vm.receive(msg);
+    this.currentUser.vm.receive(msg);
     return promise;
   }
 
@@ -183,7 +147,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     this.currentUser.io.receiveMessageFromPeer(incoming);
   }
 
-  // TODO figure out which client to send the response to
+  //  TODO: figure out which client to send the response to
   public sendResponseToClient(response: machine.types.ClientResponse) {
     if (this.responseListener) {
       this.responseListener(response);
@@ -198,20 +162,20 @@ export class IFrameWallet implements machine.types.ResponseSink {
     }
   }
 
-  // TODO make responseListener a map/array
+  //  TODO: make responseListener a map/array
   public onResponse(callback: Function) {
     this.responseListener = callback;
   }
 
-  // TODO figure out which client to send the response to
-  // TODO refactor to clarify difference with sendMessageToClient
+  //  TODO: figure out which client to send the response to
+  //  TODO: refactor to clarify difference with sendMessageToClient
   public sendIoMessageToClient(message: machine.types.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }
   }
 
-  // TODO make messageListener a map/array
+  //  TODO: make messageListener a map/array
   public onMessage(callback: Function) {
     this.messageListener = callback;
   }
@@ -274,7 +238,8 @@ export class IFrameWallet implements machine.types.ResponseSink {
     const response = {
       requestId: query.requestId,
       data: {
-        userAddress: this.address
+        userAddress: this.address,
+        networkContext: this.networkContext
       }
     };
 
@@ -289,7 +254,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
   }
 
   private async connect(toAddress: string): Promise<string> {
-    const multisigContract = await IFrameWallet.deployMultisig(
+    const multisigContract = await this.deployMultisig(
       this.currentUser.ethersWallet,
       [this.currentUser.address, toAddress].sort()
     );

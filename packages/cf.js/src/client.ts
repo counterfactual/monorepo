@@ -8,12 +8,13 @@ type WalletResponse = machine.types.WalletResponse;
 
 export class Client implements Observable {
   get address(): string {
-    // TODO cleanup
+    //  TODO: cleanup
     return this.userAddress || "";
   }
 
   public wallet: machine.types.WalletMessaging;
   public userAddress?: string;
+  public networkContext: Map<string, string>;
   public ioHandler?: Function;
 
   public outstandingRequests: {
@@ -30,6 +31,7 @@ export class Client implements Observable {
     this.outstandingRequests = {};
     this.observerCallbacks = new Map<string, Function>();
     this.stateChannels = {};
+    this.networkContext = new Map<string, string>();
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -43,6 +45,7 @@ export class Client implements Observable {
     this.setupListener();
     const userData = await this.queryUser();
     this.userAddress = userData.data.userAddress;
+    this.networkContext = userData.data.networkContext;
   }
 
   public requestId(): string {
@@ -119,7 +122,7 @@ export class Client implements Observable {
   public processMessage(
     message: WalletMessage | WalletResponse | Notification
   ) {
-    // TODO handle not finished states
+    //  TODO: handle not finished states
     if ("requestId" in message) {
       if (this.outstandingRequests[message.requestId]) {
         this.outstandingRequests[message.requestId].resolve(message);
@@ -130,7 +133,7 @@ export class Client implements Observable {
       this.notifyObservers(message.notificationType, message);
     }
 
-    // TODO handle failure
+    //  TODO: handle failure
   }
 
   public setupListener() {
@@ -139,7 +142,7 @@ export class Client implements Observable {
     });
   }
 
-  // TODO add methods also on stateChannel and appChannel objects
+  //  TODO: add methods also on stateChannel and appChannel objects
   public addObserver(
     notificationType: string,
     callback: Function
@@ -206,7 +209,9 @@ export class Client implements Observable {
       }
     });
 
-    if (generatedNewMultisig) await this.setup(multisigAddress, toAddress);
+    if (generatedNewMultisig) {
+      await this.setup(multisigAddress, toAddress);
+    }
 
     return this.instantiateStateChannel(multisigAddress, toAddress);
   }
