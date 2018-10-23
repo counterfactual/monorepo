@@ -30,7 +30,7 @@ export class AbstractContract {
   ): Promise<AbstractContract> {
     // TODO: Load build artifacts manually once we move away from Truffle
     // TODO: Load production artifacts when imported
-    const contract: BuildArtifact = await import(`../../build/contracts/${artifactName}.json`);
+    const contract = await import(`@counterfactual/contracts/build/contracts/${artifactName}.json`);
     // const truffleContract: BuildArtifact = artifacts.require(artifactName);
     return AbstractContract.fromBuildArtifact(contract, links);
   }
@@ -42,7 +42,7 @@ export class AbstractContract {
    * @returns Truffle artifact wrapped in an AbstractContract.
    */
   public static async fromBuildArtifact(
-    buildArtifact: BuildArtifact,
+    buildArtifact: any,
     links?: { [name: string]: Promise<AbstractContract> }
   ): Promise<AbstractContract> {
     return new AbstractContract(
@@ -66,7 +66,7 @@ export class AbstractContract {
   constructor(
     readonly abi: string[] | string,
     readonly bytecode: string,
-    readonly networks: NetworkMapping,
+    readonly networks: any,
     readonly links?: { [contractName: string]: Promise<AbstractContract> }
   ) {}
 
@@ -90,7 +90,7 @@ export class AbstractContract {
    * @param args Optional arguments to pass to contract constructor
    * @returns New contract instance
    */
-  public async deploy(wallet: ethers.Wallet, args?: any[]): Promise<Contract> {
+  public async deploy(wallet: ethers.Signer, args?: any[]): Promise<Contract> {
     if (!wallet.provider) {
       throw new Error("Signer requires provider");
     }

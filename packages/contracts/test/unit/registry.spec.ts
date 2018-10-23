@@ -3,10 +3,10 @@ import * as ethers from "ethers";
 import * as solc from "solc";
 import { AbstractContract, expect } from "../../utils";
 
-contract("Registry", accounts => {
-  const web3 = (global as any).web3;
-  const { unlockedAccount } = Utils.setupTestEnv(web3);
+const web3 = (global as any).web3;
+const { unlockedAccount } = Utils.setupTestEnv(web3);
 
+describe("Registry", () => {
   let testRegistry: ethers.Contract;
   let simpleContract: ethers.Contract;
   let proxyContract: AbstractContract;
