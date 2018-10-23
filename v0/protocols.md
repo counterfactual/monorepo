@@ -123,7 +123,7 @@ TBD
 
 ## Install
 
-Assume the multisig owns 20 ETH and that the Free Balance has recorded a balance of 10, 10 for Alice and Bob.
+Assume the multisig owns 20 ETH and that the Free Balance has recorded a balance of 10 ETH for both for Alice and Bob.
 
 Running the install protocol to play a game of Tic-Tac-Toe where Alice and Bob both bet 1 ETH transitions the counterfactual state to
 
