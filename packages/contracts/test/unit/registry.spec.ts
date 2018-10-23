@@ -1,13 +1,14 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 import * as solc from "solc";
+import { Registry } from "../../types/ethers-contracts/Registry";
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
 
-describe("Registry", () => {
-  let testRegistry: ethers.Contract;
+contract("Registry", accounts => {
+  let testRegistry: Registry;
   let simpleContract: ethers.Contract;
   let proxyContract: AbstractContract;
 
@@ -29,7 +30,7 @@ describe("Registry", () => {
     proxyContract = await AbstractContract.loadBuildArtifact("Proxy");
     const registry = await AbstractContract.loadBuildArtifact("Registry");
 
-    testRegistry = await registry.deploy(unlockedAccount);
+    testRegistry = await registry.functions.deploy(unlockedAccount);
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
@@ -47,7 +48,7 @@ describe("Registry", () => {
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await testRegistry.resolver(cfaddress(bytecode, 2))
+        await testRegistry.functions.resolver(cfaddress(bytecode, 2))
       );
       simpleContract = new ethers.Contract(
         deployedAddress,
@@ -58,7 +59,7 @@ describe("Registry", () => {
       done();
     };
     const registryContract = testRegistry.on(filter, callback);
-    registryContract.deploy(bytecode, 2);
+    registryContract.functions.deploy(bytecode, 2);
   });
 
   it("deploys a contract using msg.sender", done => {
@@ -70,7 +71,7 @@ describe("Registry", () => {
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await testRegistry.resolver(cfaddress(bytecode, 3))
+        await testRegistry.functions.resolver(cfaddress(bytecode, 3))
       );
 
       simpleContract = new ethers.Contract(
@@ -82,7 +83,7 @@ describe("Registry", () => {
       done();
     };
     const registryContract = testRegistry.on(filter, callback);
-    registryContract.deploy(bytecode, 3);
+    registryContract.functions.deploy(bytecode, 3);
   });
 
   it("deploys a ProxyContract contract through as owner", done => {
@@ -98,7 +99,7 @@ describe("Registry", () => {
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await testRegistry.resolver(cfaddress(initcode, 3))
+        await testRegistry.functions.resolver(cfaddress(initcode, 3))
       );
 
       const contract = new ethers.Contract(
@@ -111,7 +112,7 @@ describe("Registry", () => {
     };
 
     const registryContract = testRegistry.on(filter, callback);
-    registryContract.deploy(initcode, 3);
+    registryContract.functions.deploy(initcode, 3);
   });
 
   it("deploys a contract and passes arguments", done => {
@@ -137,7 +138,7 @@ describe("Registry", () => {
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await testRegistry.resolver(cfaddress(initcode, 4))
+        await testRegistry.functions.resolver(cfaddress(initcode, 4))
       );
 
       const contract = new ethers.Contract(
@@ -150,6 +151,6 @@ describe("Registry", () => {
     };
 
     const registryContract = testRegistry.on(filter, callback);
-    registryContract.deploy(initcode, 4);
+    registryContract.functions.deploy(initcode, 4);
   });
 });
