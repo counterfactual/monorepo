@@ -64,6 +64,24 @@ async function injectScript(event) {
     { type: "cf:init-reply", source: injectedWalletScript },
     "*"
   );
+
+  /**
+   * Injects contract addresses into the app. These addresses can then be used
+   * as the `address` property of an `AppDefinition`, which can be provided to the
+   * ChannelInterface to install an app.
+   *
+   * @event cf:inject-address
+   */
+  event.source.postMessage(
+    {
+      type: "cf:inject-address",
+      addresses: {
+        PaymentApp: iframeWallet.network.paymentAppAddr,
+        ETHBalanceRefundApp: iframeWallet.network.ethBalanceRefundAppAddr
+      }
+    },
+    "*"
+  );
 }
 
 function sendMessageToChild(msg) {
