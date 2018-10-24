@@ -28,63 +28,48 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 - **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
   is an [Open Source Project](CONTRIBUTING.md)!
 
-
 ## Building and Testing
 
-Make sure you have Yarn v1.10.1+.
+**Make sure you have Yarn v1.10.1+**, since if you want to change any dependencies, versions <1.10 do not have integrity checks placed in the `yarn.lock`.
 
-To install the dependencies, run:
+To install the dependencies and build the packages, run:
 
 ```shell
 yarn
-```
-
-To build all the packages, make sure port 9545 is free and run:
-
-```shell
 yarn build
 ```
 
-This builds the packages in the order of specified dependencies.
+`yarn build` also creates distributions for each package.
 
-Note: The build script also spins up a ganache instance in the background on port 9545.
-
----
-
-To build a specific package, _as well as build its Counterfactual package dependencies_, run:
-
-```shell
-PKG=<package-name> yarn build
-```
-
-For example,
-
-```shell
-PKG=@counterfactual/contracts yarn build
-```
-
-Otherwise, `cd` into the package directory and run the script directly there.
+To build a specific package, go into its directory and do `yarn build`.
 
 ---
 
-`yarn build` creates distributions for each package. If you want to create a distribution for a specific package, run:
+## Testing
+
+For some integration tests, a ganache instance is expected to be running in the background. Run:
 
 ```shell
-PKG=<package-name> yarn rollup
+yarn ganache
 ```
 
----
+which will spin up Ganache in the background.
 
-To test the packages, run:
+### Migrating the contracts
+
+The packages' tests depend on some contracts being migrated. To do this, run:
+
+```shell
+cd packages/contracts
+yarn migrate
+```
+
+To test all of the packages, from the root run:
 
 ```shell
 yarn test
 ```
 
-To test a specific package, run:
-
-```shell
-PKG=<package-name> yarn test
-```
+To test a specific package, go into its directory and run `yarn test`.
 
 [counterfactual-discord-url]: https://discord.gg/VcTn7fh
