@@ -451,6 +451,17 @@ export interface Addressable {
   fromAddress?: Address;
 }
 
+export type AddressableLookupResolver = {
+  (state: CfState, data: string): StateChannelInfo;
+};
+
+export type AddressableLookupResolverHash = {
+  appId: AddressableLookupResolver;
+  multisigAddress: AddressableLookupResolver;
+  toAddress: AddressableLookupResolver;
+  fromAddress?: AddressableLookupResolver;
+};
+
 export class InternalMessage {
   constructor(
     public actionName: ActionName,

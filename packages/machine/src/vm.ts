@@ -11,7 +11,10 @@ import {
   NetworkContext,
   ResponseSink,
   StateChannelInfo,
-  WalletResponse
+  WalletResponse,
+  AddressableLookupResolverHash,
+  H256,
+  Address
 } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -23,6 +26,22 @@ export class CfVmConfig {
     readonly state?: ChannelStates
   ) {}
 }
+
+/**
+ * This resolver hash is used in the getStateChannelFromAddressable method. According
+ * to any key available in the Addressable interface, it'll fetch an instance of
+ * StateChannelInfo from the corresponding source.
+ */
+const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
+  appId: (cfState: CfState, appId: H256) =>
+    cfState.appChannelInfos[appId].stateChannel,
+
+  multisigAddress: (cfState: CfState, multisigAddress: Address) =>
+    cfState.stateChannelFromMultisigAddress(multisigAddress),
+
+  toAddress: (cfState: CfState, toAddress: Address) =>
+    cfState.stateChannelFromAddress(toAddress)
+};
 
 export class CounterfactualVM implements Observable {
   /**
@@ -93,13 +112,17 @@ export class CounterfactualVM implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  // TODO: add support for not appID
-  // https://github.com/counterfactual/monorepo/issues/167
   public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
-    if (data.appId) {
-      return this.cfState.appChannelInfos[data.appId].stateChannel;
+    const [lookupKey] = Object.keys(data).filter(key => Boolean(data[key]));
+    const lookup = ADDRESSABLE_LOOKUP_RESOLVERS[lookupKey];
+
+    if (!lookup) {
+      throw Error(
+        "Cannot get state channel info without appID, multisigAddress or toAddress"
+      );
     }
-    throw Error("No app id available");
+
+    return lookup(this.cfState, data[lookupKey]);
   }
 
   public receive(msg: ClientActionMessage): WalletResponse {
