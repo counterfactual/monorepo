@@ -19,8 +19,8 @@ library Signatures {
     bytes32 txHash,
     uint256 pos
   )
-    pure
     public
+    pure
     returns (address)
   {
     uint8 v;
@@ -39,8 +39,8 @@ library Signatures {
     bytes32 txHash,
     address[] signers
   )
-    pure
     public
+    pure
     returns (bool)
   {
     address lastSigner = address(0);
@@ -58,8 +58,8 @@ library Signatures {
   /// @param pos which signature to read
   /// @param signatures concatenated rsv signatures
   function signatureSplit(bytes memory signatures, uint256 pos)
-    pure
     public
+    pure
     returns (uint8 v, bytes32 r, bytes32 s)
   {
     // The signature format is a compact form of:

@@ -269,7 +269,10 @@ contract AppInstance {
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newAppState));
+      require(
+        isAppStateTerminal(app, newAppState),
+        "Attempted to claimFinal on a non-terminal state"
+      );
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 
@@ -332,7 +335,10 @@ contract AppInstance {
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newAppState));
+      require(
+        isAppStateTerminal(app, newAppState),
+        "Attempted to claimFinal on a non-terminal state"
+      );
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 

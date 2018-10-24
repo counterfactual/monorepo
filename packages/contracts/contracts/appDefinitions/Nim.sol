@@ -42,9 +42,9 @@ contract Nim {
     pure
     returns (bytes)
   {
-    require(0 <= action.pileIdx);
-    require(action.pileIdx < 3);
-    require(state.pileHeights[action.pileIdx] >= action.takeAmnt);
+    require(0 <= action.pileIdx, "pileIdx was invalid");
+    require(action.pileIdx < 3, "pileIdx was < 3");
+    require(state.pileHeights[action.pileIdx] >= action.takeAmnt, "invalid pileIdx");
 
     AppState memory ret = state;
 
@@ -59,7 +59,7 @@ contract Nim {
     pure
     returns (Transfer.Transaction)
   {
-    require(isWin(state));
+    require(isWin(state), "Resolution state was not in a winning position");
     address loser = state.players[state.turnNum % 2];
     address winner = state.players[1 - (state.turnNum % 2)];
 

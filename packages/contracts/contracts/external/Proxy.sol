@@ -14,7 +14,7 @@ contract Proxy {
   constructor(address _masterCopy)
     public
   {
-    require(_masterCopy != 0);
+    require(_masterCopy != 0, "Proxy masterCopy address was 0x0");
     masterCopy = _masterCopy;
   }
 

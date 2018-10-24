@@ -22,7 +22,10 @@ contract ConditionalTransaction is Conditional {
   )
     public
   {
-    require(Conditional.isSatisfied(condition));
+    require(
+      Conditional.isSatisfied(condition),
+      "Condition was not satisfied for conditional transaction"
+    );
     txn.execute();
   }
 
