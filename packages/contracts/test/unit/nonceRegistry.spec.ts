@@ -1,14 +1,17 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { NonceRegistry } from "../../types/ethers-contracts/NonceRegistry";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("NonceRegistry", accounts => {
-  let registry: ethers.Contract;
+  let nonceRegistry: NonceRegistry;
 
-  const computeKey = (timeout: ethers.utils.BigNumber, salt: string) =>
+  const computeKey = (timeout: number, salt: string) =>
     ethers.utils.solidityKeccak256(
       ["address", "uint256", "bytes32"],
       [accounts[0], timeout, salt]
@@ -16,14 +19,12 @@ contract("NonceRegistry", accounts => {
 
   // @ts-ignore
   before(async () => {
-    const nonceRegistry = await AbstractContract.loadBuildArtifact(
-      "NonceRegistry"
-    );
-    registry = await nonceRegistry.deploy(unlockedAccount);
+    const contract = await AbstractContract.loadBuildArtifact("NonceRegistry");
+    nonceRegistry = (await contract.deploy(unlockedAccount)) as NonceRegistry;
   });
 
   it("getFirstNBits works for 8", async () => {
-    const ret = await registry.functions.getFirstNBits(
+    const ret = await nonceRegistry.functions.getFirstNBits(
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       8
     );
@@ -35,7 +36,7 @@ contract("NonceRegistry", accounts => {
   });
 
   it("getFirstNBits works for 9", async () => {
-    const ret = await registry.functions.getFirstNBits(
+    const ret = await nonceRegistry.functions.getFirstNBits(
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       9
     );
@@ -48,9 +49,13 @@ contract("NonceRegistry", accounts => {
   });
 
   it("can set nonces", async () => {
-    const timeout = new ethers.utils.BigNumber(10);
-    await registry.functions.setNonce(timeout, ethers.constants.HashZero, 1);
-    const ret = await registry.functions.table(
+    const timeout = 10;
+    await nonceRegistry.functions.setNonce(
+      timeout,
+      ethers.constants.HashZero,
+      1
+    );
+    const ret = await nonceRegistry.functions.table(
       computeKey(timeout, ethers.constants.HashZero)
     );
     expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(1));
@@ -61,30 +66,26 @@ contract("NonceRegistry", accounts => {
 
   it("fails if nonce increment is not positive", async () => {
     await Utils.assertRejects(
-      registry.functions.setNonce(
-        new ethers.utils.BigNumber(10),
-        ethers.constants.HashZero,
-        0
-      )
+      nonceRegistry.functions.setNonce(10, ethers.constants.HashZero, 0)
     );
   });
 
   it("can insta-finalize nonces", async () => {
-    const timeout = new ethers.utils.BigNumber(0);
-    const nonceValue = new ethers.utils.BigNumber(1);
+    const timeout = 0;
+    const nonceValue = 1;
     const nonceKey = computeKey(timeout, ethers.constants.HashZero);
 
-    await registry.functions.setNonce(
+    await nonceRegistry.functions.setNonce(
       timeout,
       ethers.constants.HashZero,
       nonceValue
     );
-    const ret = await registry.functions.table(nonceKey);
+    const ret = await nonceRegistry.functions.table(nonceKey);
     expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
     expect(ret.finalizesAt).to.be.eql(
       new ethers.utils.BigNumber(await provider.getBlockNumber())
     );
-    const isFinal = await registry.functions.isFinalized(
+    const isFinal = await nonceRegistry.functions.isFinalized(
       computeKey(timeout, ethers.constants.HashZero),
       nonceValue
     );

@@ -1,12 +1,15 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { Nim } from "../../types/ethers-contracts/Nim";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("Nim", (accounts: string[]) => {
-  let game: ethers.Contract;
+  let game: Nim;
 
   const stateEncoding =
     "tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)";
@@ -16,7 +19,7 @@ contract("Nim", (accounts: string[]) => {
     const nim = await AbstractContract.loadBuildArtifact("Nim", {
       StaticCall: staticCall
     });
-    game = await nim.deploy(unlockedAccount);
+    game = (await nim.deploy(unlockedAccount)) as Nim;
   });
 
   describe("applyAction", () => {

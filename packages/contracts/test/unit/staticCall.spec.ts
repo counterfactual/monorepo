@@ -1,13 +1,17 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { Echo } from "../../types/ethers-contracts/Echo";
+import { TestCaller } from "../../types/ethers-contracts/TestCaller";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("StaticCall", (accounts: string[]) => {
-  let testCaller: ethers.Contract;
-  let echo: ethers.Contract;
+  let testCaller: TestCaller;
+  let echo: Echo;
 
   // @ts-ignore
   before(async () => {
@@ -19,8 +23,10 @@ contract("StaticCall", (accounts: string[]) => {
       }
     );
     const echoArtifact = await AbstractContract.loadBuildArtifact("Echo");
-    testCaller = await testCallerArtifact.deploy(unlockedAccount);
-    echo = await echoArtifact.deploy(unlockedAccount);
+    testCaller = (await testCallerArtifact.deploy(
+      unlockedAccount
+    )) as TestCaller;
+    echo = (await echoArtifact.deploy(unlockedAccount)) as Echo;
   });
 
   describe("execStaticCall", () => {

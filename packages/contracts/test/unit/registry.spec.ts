@@ -1,7 +1,9 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 import * as solc from "solc";
+
 import { Registry } from "../../types/ethers-contracts/Registry";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
@@ -30,7 +32,7 @@ contract("Registry", accounts => {
     proxyContract = await AbstractContract.loadBuildArtifact("Proxy");
     const registry = await AbstractContract.loadBuildArtifact("Registry");
 
-    testRegistry = await registry.functions.deploy(unlockedAccount);
+    testRegistry = (await registry.deploy(unlockedAccount)) as Registry;
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {

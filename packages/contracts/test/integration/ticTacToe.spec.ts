@@ -1,13 +1,16 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 
+import { TicTacToe } from "../../types/ethers-contracts/TicTacToe";
+import { AppInstance } from "../../types/ethers-contracts/AppInstance";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("TicTacToe", (accounts: string[]) => {
-  let game: ethers.Contract;
+  let game: TicTacToe;
 
   const stateEncoding =
     "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
@@ -18,7 +21,7 @@ contract("TicTacToe", (accounts: string[]) => {
     const ticTacToe = await AbstractContract.loadBuildArtifact("TicTacToe", {
       StaticCall: staticCall
     });
-    game = await ticTacToe.deploy(unlockedAccount);
+    game = (await ticTacToe.deploy(unlockedAccount)) as TicTacToe;
   });
 
   describe("applyAction", () => {

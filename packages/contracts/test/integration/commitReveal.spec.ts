@@ -6,6 +6,8 @@ import {
 import { expect } from "chai";
 import * as ethers from "ethers";
 
+import { CommitRevealApp } from "../../types/ethers-contracts/CommitRevealApp";
+
 import {
   abiEncodingForStruct,
   AbstractContract,
@@ -85,7 +87,7 @@ async function deployStateChannel(
   multisig: Multisig,
   appContract: ethers.Contract,
   terms: TransferTerms
-) {
+): Promise<AppInstance> {
   const registry = await (await Registry).getDeployed(masterAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const stateChannel = new AppInstance(
@@ -145,7 +147,7 @@ describe("CommitReveal", async () => {
     ]);
 
     // 2. Deploy CommitRevealApp app
-    const appContract = await deployApp();
+    const appContract = (await deployApp()) as CommitRevealApp;
 
     // 3. Deploy StateChannel
     const terms = {

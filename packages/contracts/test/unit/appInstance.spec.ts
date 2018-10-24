@@ -1,5 +1,8 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { AppInstance } from "../../types/ethers-contracts/AppInstance";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
@@ -32,7 +35,7 @@ const computeHash = (stateHash: string, nonce: number, timeout: number) =>
 
 contract("AppInstance", (accounts: string[]) => {
   let appInstance: AbstractContract;
-  let stateChannel: ethers.Contract;
+  let stateChannel: AppInstance;
   let networkID;
 
   let sendUpdateToChainWithNonce: (
@@ -50,7 +53,8 @@ contract("AppInstance", (accounts: string[]) => {
   const latestState = async () => {
     return (await stateChannel.functions.state()).appStateHash;
   };
-  const latestNonce = async () => stateChannel.functions.latestNonce();
+  const latestNonce = async () =>
+    (await stateChannel.functions.latestNonce()).toNumber();
 
   // @ts-ignore
   before(async () => {
@@ -99,13 +103,13 @@ contract("AppInstance", (accounts: string[]) => {
       await appInstance.generateLinkedBytecode(networkID),
       unlockedAccount
     );
-    stateChannel = await contractFactory.deploy(
+    stateChannel = (await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       ethers.constants.HashZero,
       ethers.constants.HashZero,
       10
-    );
+    )) as AppInstance;
   });
 
   it("constructor sets initial state", async () => {

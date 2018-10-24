@@ -1,13 +1,17 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { Conditional } from "../../types/ethers-contracts/Conditional";
+import { DelegateProxy } from "../../types/ethers-contracts/DelegateProxy";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("ConditionalTransaction", (accounts: string[]) => {
-  let testCondition: ethers.Contract;
-  let testDelegateProxy: ethers.Contract;
+  let testCondition: Conditional;
+  let testDelegateProxy: DelegateProxy;
   let ct: ethers.Contract;
 
   // @ts-ignore
@@ -22,8 +26,12 @@ contract("ConditionalTransaction", (accounts: string[]) => {
       "ConditionalTransaction"
     );
 
-    testCondition = await exampleCondition.deploy(unlockedAccount);
-    testDelegateProxy = await delegateProxy.deploy(unlockedAccount);
+    testCondition = (await exampleCondition.deploy(
+      unlockedAccount
+    )) as Conditional;
+    testDelegateProxy = (await delegateProxy.deploy(
+      unlockedAccount
+    )) as DelegateProxy;
     ct = await conditionalTransaction.getDeployed(unlockedAccount);
   });
 

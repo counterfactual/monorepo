@@ -1,5 +1,9 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { CountingApp } from "../../types/ethers-contracts/CountingApp";
+import { AppInstance } from "../../types/ethers-contracts/AppInstance";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
@@ -38,9 +42,18 @@ const computeActionHash = (
     )
   );
 
+// FIXME: This is a placeholder until typechain adds support for return structs
+// https://github.com/ethereum-ts/TypeChain/issues/119
+type Transaction = {
+  assetType: string;
+  token: string;
+  to: string[];
+  value: number[];
+};
+
 contract("CountingApp", (accounts: string[]) => {
-  let game: ethers.Contract;
-  let stateChannel: ethers.Contract;
+  let game: CountingApp;
+  let stateChannel: AppInstance;
 
   const exampleState = {
     player1: A.address,
@@ -110,7 +123,7 @@ contract("CountingApp", (accounts: string[]) => {
       }
     );
 
-    game = await countingApp.deploy(unlockedAccount);
+    game = (await countingApp.deploy(unlockedAccount)) as CountingApp;
 
     app = {
       addr: game.address,
@@ -132,17 +145,20 @@ contract("CountingApp", (accounts: string[]) => {
       unlockedAccount
     );
 
-    stateChannel = await contractFactory.deploy(
+    stateChannel = (await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),
       keccak256(encode(termsEncoding, terms)),
       10
-    );
+    )) as AppInstance;
   });
 
   it("should resolve to some balance", async () => {
-    const ret = await game.functions.resolve(exampleState, terms);
+    const ret = ((await game.functions.resolve(
+      exampleState,
+      terms
+    )) as unknown) as Transaction;
     expect(ret.assetType).to.eql(AssetType.ETH);
     expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
     expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
@@ -170,7 +186,7 @@ contract("CountingApp", (accounts: string[]) => {
         finalState,
         encode(termsEncoding, terms)
       );
-      const ret = await stateChannel.functions.getResolution();
+      const ret = ((await stateChannel.functions.getResolution()) as unknown) as Transaction;
       expect(ret.assetType).to.be.eql(AssetType.ETH);
       expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
       expect(ret.to[0]).to.be.equalIgnoreCase(A.address);

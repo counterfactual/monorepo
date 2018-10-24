@@ -1,16 +1,21 @@
-import * as Utils from "@counterfactual/dev-utils";
-import { expect } from "chai";
-import * as ethers from "ethers";
-import { AbstractContract } from "../../utils/contract";
 import lodash = require("lodash");
+import { expect } from "chai";
+import ethers from "ethers";
+
+import { DelegateProxy } from "../../types/ethers-contracts/DelegateProxy";
+import { DolphinCoin } from "../../types/ethers-contracts/DolphinCoin";
+
+import * as Utils from "@counterfactual/dev-utils";
+
+import { AbstractContract } from "../../utils/contract";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 contract("Transfer", (accounts: string[]) => {
   let transfer: ethers.Contract;
-  let delegateProxy: ethers.Contract;
-  let dolphinCoin: ethers.Contract;
+  let delegateProxy: DelegateProxy;
+  let dolphinCoin: DolphinCoin;
 
   enum AssetType {
     ETH,
@@ -34,8 +39,12 @@ contract("Transfer", (accounts: string[]) => {
       "DolphinCoin"
     );
     transfer = await exampleTransfer.deploy(unlockedAccount);
-    delegateProxy = await delegateProxyArtifact.deploy(unlockedAccount);
-    dolphinCoin = await dolphinCoinArtifact.deploy(unlockedAccount);
+    delegateProxy = (await delegateProxyArtifact.deploy(
+      unlockedAccount
+    )) as DelegateProxy;
+    dolphinCoin = (await dolphinCoinArtifact.deploy(
+      unlockedAccount
+    )) as DolphinCoin;
   });
 
   describe("Executes delegated transfers for ETH", () => {

@@ -1,5 +1,9 @@
 import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
+import { PaymentApp } from "../../types/ethers-contracts/PaymentApp";
+import { AppInstance } from "../../types/ethers-contracts/AppInstance";
+
 import { AbstractContract, expect } from "../../utils";
 
 const web3 = (global as any).web3;
@@ -22,9 +26,18 @@ const getUpdateHash = (stateHash: string, nonce: number, timeout: number) =>
     ["0x19", [A.address, B.address], nonce, timeout, stateHash]
   );
 
+// FIXME: This is a placeholder until typechain adds support for return structs
+// https://github.com/ethereum-ts/TypeChain/issues/119
+type Transaction = {
+  assetType: string;
+  token: string;
+  to: string[];
+  value: number[];
+};
+
 contract("PaymentApp", (accounts: string[]) => {
-  let pc: ethers.Contract;
-  let testAppInstance: ethers.Contract;
+  let pc: PaymentApp;
+  let testAppInstance: AppInstance;
 
   enum AssetType {
     ETH,
@@ -42,7 +55,8 @@ contract("PaymentApp", (accounts: string[]) => {
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
 
-  const latestNonce = async () => testAppInstance.functions.latestNonce();
+  const latestNonce = async () =>
+    (await testAppInstance.functions.latestNonce()).toNumber();
 
   // TODO: Wait for this to work:
   // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
@@ -99,7 +113,7 @@ contract("PaymentApp", (accounts: string[]) => {
   let terms;
   beforeEach(async () => {
     const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
-    pc = await paymentApp.deploy(unlockedAccount);
+    pc = (await paymentApp.deploy(unlockedAccount)) as PaymentApp;
 
     // Specifically for the StateChannel
     const appInstance = artifacts.require("AppInstance");
@@ -130,13 +144,13 @@ contract("PaymentApp", (accounts: string[]) => {
       unlockedAccount
     );
 
-    testAppInstance = await contractFactory.deploy(
+    testAppInstance = (await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),
       keccak256(encode(termsEncoding, terms)),
       10
-    );
+    )) as AppInstance;
   });
 
   it("should resolve to payments", async () => {
@@ -168,7 +182,7 @@ contract("PaymentApp", (accounts: string[]) => {
         finalState,
         encode(termsEncoding, terms)
       );
-      const ret = await testAppInstance.functions.getResolution();
+      const ret = ((await testAppInstance.functions.getResolution()) as unknown) as Transaction;
       expect(ret.assetType).to.be.eql(AssetType.ETH);
       expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
       expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
