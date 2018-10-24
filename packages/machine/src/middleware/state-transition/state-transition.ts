@@ -1,11 +1,8 @@
 import { Instruction } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
 import { CfState, Context } from "../../state";
-import { ActionName, InternalMessage, StateProposal } from "../../types";
-import { InstallProposer } from "./install-proposer";
-import { SetupProposer } from "./setup-proposer";
-import { UninstallProposer } from "./uninstall-proposer";
-import { UpdateProposer } from "./update-proposer";
+import { InternalMessage, StateProposal } from "../../types";
+import { ProposerActions } from "./proposer-actions";
 
 export class StateTransition {
   /**
@@ -19,17 +16,13 @@ export class StateTransition {
     context: Context,
     cfState: CfState
   ): StateProposal {
-    if (message.actionName === ActionName.UPDATE) {
-      return UpdateProposer.propose(message, context, cfState);
-    } else if (message.actionName === ActionName.INSTALL) {
-      return InstallProposer.propose(message, context, cfState);
-    } else if (message.actionName === ActionName.UNINSTALL) {
-      return UninstallProposer.propose(message, context, cfState);
-    } else if (message.actionName === ActionName.SETUP) {
-      return SetupProposer.propose(message);
-    } else {
+    const proposer = ProposerActions[message.actionName];
+
+    if (!proposer) {
       throw Error("Action name not supported");
     }
+
+    return proposer.propose(message, context, cfState);
   }
 
   public static commit(

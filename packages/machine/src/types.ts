@@ -7,6 +7,7 @@ import {
   CfNonce,
   Terms
 } from "./middleware/cf-operation/types";
+import { CfState, Context } from "./state";
 import { Response, ResponseStatus } from "./vm";
 
 /**
@@ -86,6 +87,18 @@ export interface InstallData {
 export interface StateProposal {
   state: StateChannelInfos;
   cfAddr?: H256;
+}
+
+export type ProposerActionsHash = {
+  [Name in ActionName]?: ContextualizedStateProposer
+};
+
+export interface ContextualizedStateProposer {
+  propose(
+    message: InternalMessage,
+    context: Context,
+    state: CfState
+  ): StateProposal;
 }
 
 export interface ClientResponse {
