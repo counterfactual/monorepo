@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
+  <a href="https://counterfactual.com/chat"><img src="https://img.shields.io/discord/500370633901735947.svg"/></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
-  <a href="https://solidity.readthedocs.io/en/develop/index.html"><img src="https://img.shields.io/badge/SOLIDITY-0.4.25-orange.svg" /></a>
 </p>
 <br>
 
@@ -20,7 +20,7 @@
 
 You can learn more about what state channels are by reading [our whitepaper](https://counterfactual.com/statechannels) or a less technical written [description](https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4#c353).
 
-### Ways to help
+## Contributing
 
 - **Join us in [Discord][counterfactual-discord-url]** to help
   with development or to hang out with some ethereum hackers :)
@@ -28,48 +28,69 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 - **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
   is an [Open Source Project](CONTRIBUTING.md)!
 
-## Building and Testing
+### Installing dependenciess
 
-**Make sure you have Yarn v1.10.1+**, since if you want to change any dependencies, versions <1.10 do not have integrity checks placed in the `yarn.lock`.
+**Make sure you have Yarn v1.10.1**. To install using [`brew`](https://brew.sh/):
 
-To install the dependencies and build the packages, run:
+```shell
+brew install yarn
+```
+
+To install the dependencies:
 
 ```shell
 yarn
+```
+
+### Building packages
+
+To build all packages:
+
+```shell
 yarn build
 ```
 
-`yarn build` also creates distributions for each package.
+### Clean
 
-To build a specific package, go into its directory and do `yarn build`.
+To clean all packages:
 
----
+```shell
+yarn clean
+```
 
-## Testing
+### Lint
 
-For some integration tests, a ganache instance is expected to be running in the background. Run:
+To lint all packages:
+
+```shell
+yarn lint
+```
+
+To also apply automatic fixes:
+
+```shell
+yarn lint:fix
+```
+
+### Tests
+
+Presently for some of the tests to work, you need to have a `ganache-cli` instance running in the background. To do this, run using:
 
 ```shell
 yarn ganache
 ```
 
-which will spin up Ganache in the background.
-
-### Migrating the contracts
-
-The packages' tests depend on some contracts being migrated. To do this, run:
+You also need to migrate the contracts in the contracts package to generate a `networks` file which the `machine` and `iframe-wallet-poc` packages directly consume (for now).
 
 ```shell
 cd packages/contracts
 yarn migrate
 ```
 
-To test all of the packages, from the root run:
+Finally, to run all tests:
 
 ```shell
 yarn test
 ```
 
-To test a specific package, go into its directory and run `yarn test`.
-
-[counterfactual-discord-url]: https://discord.gg/VcTn7fh
+[counterfactual-discord-url]: https://counterfactual.com/chat
