@@ -161,7 +161,7 @@ describe("Setup Protocol", async () => {
     });
 
     await mineBlocks(
-      200, // FIXME: Should be 100. Please test and verify.
+      100,
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
 
