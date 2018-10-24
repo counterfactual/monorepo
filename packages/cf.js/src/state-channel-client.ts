@@ -42,8 +42,8 @@ export class StateChannelClient {
       state: {
         threshold,
         recipient: this.fromAddress,
-        multisig: this.multisigAddress,
-      },
+        multisig: this.multisigAddress
+      }
     };
 
     const balanceRefund = await this.install("ETHBalanceRefundApp", options);

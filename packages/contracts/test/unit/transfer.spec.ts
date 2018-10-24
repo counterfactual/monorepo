@@ -30,7 +30,9 @@ contract("Transfer", (accounts: string[]) => {
     const delegateProxyArtifact = await AbstractContract.loadBuildArtifact(
       "DelegateProxy"
     );
-    const dolphinCoinArtifact = await AbstractContract.loadBuildArtifact("DolphinCoin");
+    const dolphinCoinArtifact = await AbstractContract.loadBuildArtifact(
+      "DolphinCoin"
+    );
     transfer = await exampleTransfer.deploy(unlockedAccount);
     delegateProxy = await delegateProxyArtifact.deploy(unlockedAccount);
     dolphinCoin = await dolphinCoinArtifact.deploy(unlockedAccount);

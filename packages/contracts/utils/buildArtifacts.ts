@@ -32,16 +32,16 @@ export const Transfer = AbstractContract.loadBuildArtifact("Transfer");
 
 // tslint:disable-next-line
 export const AppInstance = AbstractContract.loadBuildArtifact("AppInstance", {
-  "StaticCall": StaticCall,
-  "Signatures": Signatures,
-  "Transfer": Transfer
+  StaticCall,
+  Signatures,
+  Transfer
 });
 
 // tslint:disable-next-line
 export const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
   "MinimumViableMultisig",
   {
-    "Signatures": Signatures
+    Signatures
   }
 );
 

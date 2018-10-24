@@ -70,10 +70,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
 
   // FIXME: Remove this method and refactor the network context data type.
   public static networkFileToNetworkContext(json: Object) {
-    const tmp = _.mapValues(
-      _.keyBy(json, "contractName"),
-      "address"
-    );
+    const tmp = _.mapValues(_.keyBy(json, "contractName"), "address");
     return new machine.types.NetworkContext(
       tmp["Registry"],
       tmp["PaymentApp"],

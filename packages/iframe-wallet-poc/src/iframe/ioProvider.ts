@@ -30,7 +30,9 @@ export class IframeIoProvider {
     this.clientHandlesIO = false;
   }
 
-  public receiveMessageFromPeer(serializedMessage: machine.types.ClientActionMessage) {
+  public receiveMessageFromPeer(
+    serializedMessage: machine.types.ClientActionMessage
+  ) {
     const message = machine.serializer.deserialize(
       serializedMessage
     ) as machine.types.ClientActionMessage;

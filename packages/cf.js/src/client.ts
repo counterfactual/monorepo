@@ -58,7 +58,9 @@ export class Client implements Observable {
       action: machine.types.ActionName.QUERY,
       query: machine.types.ClientQueryType.User
     };
-    return await this.sendMessage(userQuery) as machine.types.UserDataClientResponse;
+    return (await this.sendMessage(
+      userQuery
+    )) as machine.types.UserDataClientResponse;
   }
 
   public registerIOSendMessage(callback: Function) {

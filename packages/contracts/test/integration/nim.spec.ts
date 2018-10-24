@@ -13,7 +13,9 @@ contract("Nim", (accounts: string[]) => {
 
   beforeEach(async () => {
     const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const nim = await AbstractContract.loadBuildArtifact("Nim", { StaticCall: staticCall });
+    const nim = await AbstractContract.loadBuildArtifact("Nim", {
+      StaticCall: staticCall
+    });
     game = await nim.deploy(unlockedAccount);
   });
 

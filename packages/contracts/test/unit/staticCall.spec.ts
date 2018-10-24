@@ -12,9 +12,12 @@ contract("StaticCall", (accounts: string[]) => {
   // @ts-ignore
   before(async () => {
     const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const testCallerArtifact = await AbstractContract.loadBuildArtifact("TestCaller", {
-      StaticCall: staticCall
-    });
+    const testCallerArtifact = await AbstractContract.loadBuildArtifact(
+      "TestCaller",
+      {
+        StaticCall: staticCall
+      }
+    );
     const echoArtifact = await AbstractContract.loadBuildArtifact("Echo");
     testCaller = await testCallerArtifact.deploy(unlockedAccount);
     echo = await echoArtifact.deploy(unlockedAccount);
