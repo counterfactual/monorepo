@@ -83,6 +83,7 @@ export class ActionExecution {
       instructionPointer: this.instructionPointer,
       // TODO: Should probably not pass the whole VM in, it breaks the encapsulation
       // We should figure out what others args from the VM are used and copy those over
+      // https://github.com/counterfactual/monorepo/issues/152
       vm: this.vm
     };
   }
@@ -111,6 +112,7 @@ export class ActionExecution {
   }
 
   // TODO: Figure out the correct structure to be compliant with linter
+  // https://github.com/counterfactual/monorepo/issues/153
   // tslint:disable
   public [Symbol.asyncIterator]() {
     return {

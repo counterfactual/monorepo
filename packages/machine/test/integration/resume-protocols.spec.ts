@@ -28,6 +28,7 @@ const ADDR_B = ethers.utils.hexlify(ethers.utils.randomBytes(20));
 // FIXME: These tests throw Errors which, when running the tests, makes it look
 // like they're failing because of the massive call stack that shows on the terminal.
 // We should find a way to prevent the error from showing up even though the test passes.
+// https://github.com/counterfactual/monorepo/issues/200
 
 /**
  * See run() for the entry point to the test. The basic structure

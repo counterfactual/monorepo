@@ -106,7 +106,9 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public dependencyNonceInput(): MultisigInput {
-    const timeout = 0; // FIXME: new NonceRegistryJson design will obviate timeout
+    // FIXME: new NonceRegistryJson design will obviate timeout
+    // https://github.com/counterfactual/monorepo/issues/169
+    const timeout = 0;
     const to = this.networkContext.nonceRegistryAddr;
     const val = 0;
     const data = new ethers.utils.Interface(

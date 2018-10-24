@@ -68,6 +68,7 @@ export class SetupProtocol {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
+    // https://github.com/counterfactual/monorepo/issues/189
     const state = peerA.vm.cfState;
     const canon = PeerBalance.balances(
       peerA.signingKey.address,
@@ -88,6 +89,7 @@ export class SetupProtocol {
   }
 
   // TODO: Better name
+  // https://github.com/counterfactual/monorepo/issues/197
   private static async run2(peerA: TestResponseSink, peerB: TestResponseSink) {
     const msg = SetupProtocol.setupStartMsg(
       peerA.signingKey.address,

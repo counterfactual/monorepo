@@ -73,6 +73,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   const instructionPointers = [0, 3, 2];
 
   // FIXME: This isn't used, why?
+  // https://github.com/counterfactual/monorepo/issues/213
   const results = [
     [{ op: Instruction.OP_GENERATE, val: "generate" }],
     [{ op: Instruction.OP_SIGN, val: "sign" }],

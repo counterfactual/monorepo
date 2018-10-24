@@ -32,6 +32,7 @@ import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.jso
 import { TestResponseSink } from "./test-response-sink";
 
 // FIXME: Remove this dependency!
+// https://github.com/counterfactual/monorepo/issues/198
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
 describe("Setup Protocol", async () => {
@@ -41,12 +42,13 @@ describe("Setup Protocol", async () => {
   let devEnvNetworkContext7777777: NetworkContext;
 
   beforeAll(() => {
-    // TODO: This isn't a TODO so much as a note, but this `require` statement is
-    // explicitly in side the `beforeAll` and not at the file scope because we need
-    // it to do the file lookup at runtime and not buildtime otheriwse the build process
-    // will fail if the contracts haven't been migrated yet.
+    // This `require` statement is explicitly in side the `beforeAll` and not at the file
+    // scope because we need it to do the file lookup at runtime and not buildtime otherwise
+    // the build process will fail if the contracts haven't been migrated yet.
+
     // TODO: The linter can't handle files with numbers as names. This should be fixed
     // when we have a different method for retrieving the network addresses anyway.
+    // https://github.com/counterfactual/monorepo/issues/180
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
@@ -112,6 +114,7 @@ describe("Setup Protocol", async () => {
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
+    // https://github.com/counterfactual/monorepo/issues/185
     const multisig = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
       devEnvNetworkContext7777777.linkBytecode(
@@ -145,11 +148,13 @@ describe("Setup Protocol", async () => {
         terms.hash(),
         // TODO: Don't hard-code the timeout, make it dependant on some
         // function(blockchain) to in the future check for congestion... :)
+        // https://github.com/counterfactual/monorepo/issues/187
         100
       ]
     );
 
     // TODO: Figure out how to not have to put the insanely high gasLimit here
+    // https://github.com/counterfactual/monorepo/issues/188
     await registry.functions.deploy(initcode, 0, { gasLimit: 6e9 });
 
     const uninstallTx: Transaction = await walletA.store.getTransaction(
@@ -324,6 +329,7 @@ function validateNoAppsAndFreeBalance(
   amountBgiven: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
+  // https://github.com/counterfactual/monorepo/issues/189
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;
@@ -577,6 +583,7 @@ function validateUninstalledAndFreeBalance(
   amountBgiven: ethers.utils.BigNumber
 ) {
   // TODO: add nonce and uniqueId params and check them
+  // https://github.com/counterfactual/monorepo/issues/189
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;

@@ -52,6 +52,7 @@ export class CfAppInterface {
   public hash(): string {
     if (this.address === "0x0") {
       // FIXME:
+      // https://github.com/counterfactual/monorepo/issues/172
       console.error(
         "WARNING: Can't compute hash for AppInterface because its address is 0x0"
       );
@@ -158,9 +159,10 @@ export class MultiSend {
 export class CfFreeBalance {
   public static terms(): Terms {
     // FIXME: Change implementation of free balance on contracts layer
+    // https://github.com/counterfactual/monorepo/issues/173
     return new Terms(
       0, // 0 means ETH
-      ethers.utils.parseEther("0.001"), // FIXME: un-hardcode
+      ethers.utils.parseEther("0.001"), // FIXME: un-hardcode (https://github.com/counterfactual/monorepo/issues/174)
       ethers.constants.AddressZero
     );
   }
@@ -170,6 +172,7 @@ export class CfFreeBalance {
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
       // TODO: Put this somewhere eh
+      // https://github.com/counterfactual/monorepo/issues/155
       "resolve(tuple(address,address,uint256,uint256),tuple(uint8,uint256,address))"
     ]).functions.resolve.sighash;
     const turn = "0x00000000"; // not used

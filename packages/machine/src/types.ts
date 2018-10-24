@@ -103,7 +103,8 @@ export interface ContextualizedStateProposer {
 
 export interface ClientResponse {
   requestId: string;
-  //  TODO: tighten the type
+  // TODO: tighten the type
+  // https://github.com/counterfactual/monorepo/issues/162
   status?: any;
   data?: any;
   appId?: string;
@@ -259,6 +260,7 @@ export class PeerBalance {
  */
 export class NetworkContext {
   // FIXME: This is just bad practice :S
+  // https://github.com/counterfactual/monorepo/issues/177
   private contractToVar = {
     Registry: "registryAddr",
     PaymentApp: "paymentAppAddr",
@@ -304,7 +306,8 @@ export interface StateChannelInfo {
   appChannels: AppChannelInfos;
   freeBalance: CfFreeBalance;
 
-  //  TODO: Move this out of the datastructure
+  // TODO: Move this out of the datastructure
+  // https://github.com/counterfactual/monorepo/issues/163
   /**
    * @returns the addresses of the owners of this state channel sorted
    *          in alphabetical order.
@@ -332,6 +335,7 @@ export interface AppChannelInfo {
   dependencyNonce: CfNonce;
 
   // TODO: Move this into a method that is outside the data structure
+  // https://github.com/counterfactual/monorepo/issues/164
   stateChannel?: StateChannelInfo;
 }
 
@@ -349,6 +353,7 @@ export interface OpCodeResult {
 }
 
 // TODO: document what this is
+// https://github.com/counterfactual/monorepo/issues/165
 export interface ResponseSink {
   sendResponse(res: Response);
 }
@@ -409,6 +414,7 @@ export class Signature {
   }
 
   // TODO: fix types
+  // https://github.com/counterfactual/monorepo/issues/166
   constructor(readonly v: number, readonly r: string, readonly s: string) {}
 
   public recoverAddress(digest: H256): Address {
@@ -423,6 +429,7 @@ export class Signature {
 }
 
 // FIXME: move operation action names away from client action names
+// https://github.com/counterfactual/monorepo/issues/178
 export enum ActionName {
   SETUP = "setup",
   INSTALL = "install",

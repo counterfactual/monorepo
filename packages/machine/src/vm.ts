@@ -93,7 +93,8 @@ export class CounterfactualVM implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  //  TODO: add support for not appID
+  // TODO: add support for not appID
+  // https://github.com/counterfactual/monorepo/issues/167
   public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
     if (data.appId) {
       return this.cfState.appChannelInfos[data.appId].stateChannel;
@@ -134,6 +135,7 @@ export class CounterfactualVM implements Observable {
       // Temporary error handling for testing resuming protocols
       let val;
       // TODO: Bizarre syntax...
+      // https://github.com/counterfactual/monorepo/issues/168
       for await (val of execution) {
       }
       this.sendResponse(execution, ResponseStatus.COMPLETED);

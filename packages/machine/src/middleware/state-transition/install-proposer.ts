@@ -95,6 +95,7 @@ export class InstallProposer {
     }
 
     // TODO: Feels like this is the wrong place for this sorting...
+    // https://github.com/counterfactual/monorepo/issues/161
     signingKeys.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });

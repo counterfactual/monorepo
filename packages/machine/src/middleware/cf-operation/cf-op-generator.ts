@@ -67,6 +67,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     const multisig: Address = message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
+      // https://github.com/counterfactual/monorepo/issues/170
       throw Error("update message must have appId set");
     }
     const appChannel =
@@ -74,6 +75,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
+    // https://github.com/counterfactual/monorepo/issues/154
     appChannel.cfApp = new CfAppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
@@ -101,6 +103,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       cfState.networkContext,
       multisig,
       // FIXME: signing keys should be app-specific ephemeral keys
+      // https://github.com/counterfactual/monorepo/issues/171
       signingKeys,
       appChannel.appStateHash,
       appChannel.uniqueId,
