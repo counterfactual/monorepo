@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 import { ActionName, ClientActionMessage, PeerBalance } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
-import { MULTISIG_ADDRESS } from "../utils/environment";
+import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 import { TestResponseSink } from "./test-response-sink";
 
 /**
@@ -33,7 +33,7 @@ export class SetupProtocol {
       appId: "",
       action: ActionName.SETUP,
       data: {},
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
       fromAddress: from,
       seq: 0
@@ -75,11 +75,11 @@ export class SetupProtocol {
       peerB.signingKey.address,
       amountB
     );
-    const channel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.counterParty).toEqual(peerB.signingKey.address);
     expect(channel.me).toEqual(peerA.signingKey.address);
-    expect(channel.multisigAddress).toEqual(MULTISIG_ADDRESS);
+    expect(channel.multisigAddress).toEqual(UNUSED_FUNDED_ACCOUNT);
     expect(channel.appChannels).toEqual({});
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);

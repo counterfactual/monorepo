@@ -22,7 +22,7 @@ import {
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_PRIVATE_KEY
+  UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY
 } from "../utils/environment";
 
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
@@ -84,8 +84,10 @@ describe("Setup Protocol", async () => {
     const startingBalanceA = await ganache.getBalance(A_ADDRESS);
     const startingBalanceB = await ganache.getBalance(B_ADDRESS);
 
-    // TODO: What is a MULTISIG_PRIVATE_KEY 🤔
-    const ethersMasterWallet = new ethers.Wallet(MULTISIG_PRIVATE_KEY, ganache);
+    const ethersMasterWallet = new ethers.Wallet(
+      UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY,
+      ganache
+    );
 
     walletA.io.peer = walletB;
     walletB.io.peer = walletA;
@@ -112,7 +114,9 @@ describe("Setup Protocol", async () => {
     //       so we have to do it manually. Will fix later of course :)
     const multisig = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
-      devEnvNetworkContext7777777.linkBytecode(MinimumViableMultisigJson.bytecode),
+      devEnvNetworkContext7777777.linkBytecode(
+        MinimumViableMultisigJson.bytecode
+      ),
       ethersMasterWallet
     ).deploy();
 

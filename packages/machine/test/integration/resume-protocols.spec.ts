@@ -18,7 +18,7 @@ import {
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_ADDRESS
+  UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";
 import { TestResponseSink } from "./test-response-sink";
 
@@ -95,7 +95,7 @@ abstract class SetupProtocolTestCase {
       appId: undefined,
       action: ActionName.SETUP,
       data: {},
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: A_ADDRESS,
       fromAddress: B_ADDRESS,
       stateChannel: undefined,
