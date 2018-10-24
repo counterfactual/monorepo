@@ -111,8 +111,9 @@ export class InstallProposer {
     uniqueId: number
   ): AppChannelInfo {
     return {
-      id: cfAddr,
       uniqueId,
+      terms,
+      id: cfAddr,
       peerA: data.peerA,
       peerB: data.peerB,
       keyA: signingKeys[0],
@@ -120,7 +121,6 @@ export class InstallProposer {
       encodedState: data.encodedAppState,
       localNonce: 1,
       timeout: data.timeout,
-      terms,
       cfApp: app,
       dependencyNonce: new CfNonce(false, uniqueId, 0)
     };

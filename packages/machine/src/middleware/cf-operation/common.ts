@@ -1,8 +1,8 @@
 import * as ethers from "ethers";
 import { Bytes, H256, NetworkContext } from "../../types";
 
-import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import Registry from "@counterfactual/contracts/build/contracts/Registry.json";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 
 /**
  * Returns the calldata for a call to `registry` that looks up `appCfAddr` and
@@ -17,10 +17,12 @@ export function proxyCallSetStateData(
   timeout: number,
   signatures: Bytes
 ): Bytes {
-  return new ethers.utils.Interface(Registry.abi).functions.proxyCall.encode([
-    networkContext.Registry,
+  return new ethers.utils.Interface(
+    RegistryJson.abi
+  ).functions.proxyCall.encode([
+    networkContext.registryAddr,
     appCfAddr,
-    new ethers.utils.Interface(AppInstance.abi).functions.setState.encode([
+    new ethers.utils.Interface(AppInstanceJson.abi).functions.setState.encode([
       appStateHash,
       appLocalNonce,
       timeout,

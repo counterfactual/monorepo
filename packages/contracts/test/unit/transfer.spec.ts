@@ -2,6 +2,7 @@ import * as Utils from "@counterfactual/dev-utils";
 import { expect } from "chai";
 import * as ethers from "ethers";
 import { AbstractContract } from "../../utils/contract";
+import lodash = require("lodash");
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
@@ -19,20 +20,20 @@ contract("Transfer", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const Transfer = AbstractContract.loadBuildArtifact("Transfer");
-    const ExampleTransfer = await AbstractContract.loadBuildArtifact(
+    const transferArtifact = AbstractContract.loadBuildArtifact("Transfer");
+    const exampleTransfer = await AbstractContract.loadBuildArtifact(
       "ExampleTransfer",
       {
-        Transfer
+        Transfer: transferArtifact
       }
     );
-    const DelegateProxy = await AbstractContract.loadBuildArtifact(
+    const delegateProxyArtifact = await AbstractContract.loadBuildArtifact(
       "DelegateProxy"
     );
-    const DolphinCoin = await AbstractContract.loadBuildArtifact("DolphinCoin");
-    transfer = await ExampleTransfer.deploy(unlockedAccount);
-    delegateProxy = await DelegateProxy.deploy(unlockedAccount);
-    dolphinCoin = await DolphinCoin.deploy(unlockedAccount);
+    const dolphinCoinArtifact = await AbstractContract.loadBuildArtifact("DolphinCoin");
+    transfer = await exampleTransfer.deploy(unlockedAccount);
+    delegateProxy = await delegateProxyArtifact.deploy(unlockedAccount);
+    dolphinCoin = await dolphinCoinArtifact.deploy(unlockedAccount);
   });
 
   describe("Executes delegated transfers for ETH", () => {
@@ -84,10 +85,10 @@ contract("Transfer", (accounts: string[]) => {
         Utils.HIGH_GAS_LIMIT
       );
 
-      for (let i = 0; i < 10; i++) {
+      lodash.times(10, async (i: number) => {
         const bal = await provider.getBalance(randomTargets[i]);
         expect(bal.toString()).to.deep.equal(Utils.UNIT_ETH.div(10).toString());
-      }
+      });
     });
   });
 
@@ -137,10 +138,10 @@ contract("Transfer", (accounts: string[]) => {
         Utils.HIGH_GAS_LIMIT
       );
 
-      for (let i = 0; i < 10; i++) {
+      lodash.times(10, async (i: number) => {
         const bal = await dolphinCoin.functions.balanceOf(randomTargets[i]);
         expect(bal).to.be.eql(new ethers.utils.BigNumber(1));
-      }
+      });
     });
   });
 });

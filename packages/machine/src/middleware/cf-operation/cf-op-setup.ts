@@ -11,7 +11,7 @@ import {
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
-import ConditionalTransaction from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 
 const { keccak256 } = ethers.utils;
 
@@ -52,17 +52,17 @@ export class CfOpSetup extends CfMultiSendOp {
     );
 
     const multisigCalldata = new ethers.utils.Interface(
-      ConditionalTransaction.abi
+      ConditionalTransactionJson.abi
     ).functions.executeAppConditionalTransaction.encode([
-      this.networkContext.Registry,
-      this.networkContext.NonceRegistry,
+      this.networkContext.registryAddr,
+      this.networkContext.nonceRegistryAddr,
       depNonceKey,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);
 
     return new MultisigInput(
-      this.networkContext.ConditionalTransaction,
+      this.networkContext.conditionalTransactionAddr,
       0,
       multisigCalldata,
       Operation.Delegatecall

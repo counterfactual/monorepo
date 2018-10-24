@@ -134,32 +134,30 @@ export class AbstractContract {
     args?: any[],
     salt?: string
   ): Promise<Contract> {
+    const definitelySalt =
+      salt ||
+      solidityKeccak256(["uint256"], [Math.round(Math.random() * 2e10)]);
+
     if (!signer.provider) {
       throw new Error("Signer requires provider");
     }
 
-    if (salt === undefined) {
-      salt = solidityKeccak256(
-        ["uint256"],
-        [Math.round(Math.random() * 4294967296)]
-      );
-    }
     const networkId = (await signer.provider.getNetwork()).chainId;
     const bytecode = await this.generateLinkedBytecode(networkId);
     const initcode = new ethers.utils.Interface(this.abi).deployFunction.encode(
       bytecode,
       args || []
     );
-    await registry.functions.deploy(initcode, salt, HIGH_GAS_LIMIT);
+    await registry.functions.deploy(initcode, definitelySalt, HIGH_GAS_LIMIT);
     const cfAddress = solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
-      ["0x19", initcode, salt]
+      ["0x19", initcode, definitelySalt]
     );
 
     const address = await registry.functions.resolver(cfAddress);
     const contract = new Contract(address, this.abi, signer);
     contract.cfAddress = cfAddress;
-    contract.salt = salt;
+    contract.salt = definitelySalt;
     contract.registry = registry;
     return contract;
   }

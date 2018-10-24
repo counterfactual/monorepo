@@ -12,9 +12,9 @@ contract("Nim", (accounts: string[]) => {
     "tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)";
 
   beforeEach(async () => {
-    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const Nim = await AbstractContract.loadBuildArtifact("Nim", { StaticCall });
-    game = await Nim.deploy(unlockedAccount);
+    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const nim = await AbstractContract.loadBuildArtifact("Nim", { StaticCall: staticCall });
+    game = await nim.deploy(unlockedAccount);
   });
 
   describe("applyAction", () => {

@@ -154,14 +154,14 @@ class Depositor {
     ); // TODO:
     const timeout = 100;
     const installData: InstallData = {
+      terms,
+      app,
+      timeout,
       peerA: canon.peerA,
       peerB: canon.peerB,
       keyA: from,
       keyB: to,
-      encodedAppState: "0x1234",
-      terms,
-      app,
-      timeout
+      encodedAppState: "0x1234"
     };
     return {
       requestId: "1",
@@ -265,8 +265,8 @@ class Depositor {
       peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
     };
     return {
-      requestId: "2",
       appId,
+      requestId: "2",
       action: ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: MULTISIG_ADDRESS,
@@ -324,14 +324,14 @@ class TicTacToeSimulator {
     ); // TODO:
     const timeout = 100;
     const installData: InstallData = {
+      terms,
+      app,
+      timeout,
       peerA: new PeerBalance(peerA, 2),
       peerB: new PeerBalance(peerB, 2),
       keyA: peerA,
       keyB: peerB,
-      encodedAppState: "0x1234",
-      terms,
-      app,
-      timeout
+      encodedAppState: "0x1234"
     };
     return {
       requestId: "5",
@@ -406,7 +406,7 @@ class TicTacToeSimulator {
     moveNumber: number
   ) {
     appState[cell] = side;
-    const state = appState + ""; // TODO: this should be encodedc
+    const state = appState.toString();
     const msg = TicTacToeSimulator.updateMsg(
       state,
       cell,

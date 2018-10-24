@@ -49,7 +49,7 @@ export class Client implements Observable {
   }
 
   public requestId(): string {
-    return Math.random() + "";
+    return Math.random().toString();
   }
 
   public async queryUser(): Promise<machine.types.UserDataClientResponse> {
@@ -58,10 +58,7 @@ export class Client implements Observable {
       action: machine.types.ActionName.QUERY,
       query: machine.types.ClientQueryType.User
     };
-    const userData = (await this.sendMessage(
-      userQuery
-    )) as machine.types.UserDataClientResponse;
-    return userData;
+    return await this.sendMessage(userQuery) as machine.types.UserDataClientResponse;
   }
 
   public registerIOSendMessage(callback: Function) {
@@ -112,7 +109,6 @@ export class Client implements Observable {
         reject = rj;
       }
     );
-
     this.outstandingRequests[id] = { resolve, reject };
     this.wallet.postMessage(message);
     return promise;
@@ -218,12 +214,12 @@ export class Client implements Observable {
 
   private async setup(multisigAddress: string, toAddress: string) {
     await this.sendMessage({
+      multisigAddress,
+      toAddress,
       requestId: this.requestId(),
       appId: undefined,
       action: machine.types.ActionName.SETUP,
       data: {},
-      multisigAddress,
-      toAddress,
       fromAddress: this.address,
       stateChannel: undefined,
       seq: 0

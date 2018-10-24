@@ -14,7 +14,7 @@
   "private": true,
   "scripts": {
     "clean": "shx rm -rf .rpt2_cache dist",
-    "build": "rollup -c",
+    "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix"
   },

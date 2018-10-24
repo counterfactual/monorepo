@@ -10,7 +10,7 @@ import {
   MULTISIG_ADDRESS
 } from "./environment";
 
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
@@ -60,11 +60,11 @@ describe.skip("should have one commitment for the setup protocol", () => {
   let multisigInput;
   it("the transaction's call data should be another transaction being sent to the multisend address", () => {
     multisigInput = new ethers.utils.Interface(
-      MinimumViableMultisig.abi
+      MinimumViableMultisigJson.abi
     ).functions.execTransaction.decode(setupTransaction.data);
 
     expect(multisigInput.to.toLowerCase()).toEqual(
-      walletA.currentUser.vm.cfState.networkContext.MultiSend
+      walletA.currentUser.vm.cfState.networkContext.multiSendAddr
     );
   });
 

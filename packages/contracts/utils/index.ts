@@ -1,6 +1,6 @@
 import * as chai from "chai";
-import chaiPromised from "chai-as-promised";
-import chaiBigNumber from "chai-bignumber";
+import chaiAsPromised from "chai-as-promised";
+import chaiBignumber from "chai-bignumber";
 import chaiString from "chai-string";
 import * as ethers from "ethers";
 
@@ -13,5 +13,5 @@ export { default as buildArtifacts } from "./buildArtifacts";
 
 export const expect = chai
   .use(chaiString)
-  .use(chaiPromised)
-  .use(chaiBigNumber(ethers.utils.BigNumber)).expect;
+  .use(chaiAsPromised)
+  .use(chaiBignumber(ethers.utils.BigNumber)).expect;

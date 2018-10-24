@@ -4,7 +4,7 @@ import { SetupProposer } from "./setup-proposer";
 import { UninstallProposer } from "./uninstall-proposer";
 import { UpdateProposer } from "./update-proposer";
 
-export const ProposerActions: ProposerActionsHash = {
+export const PROPOSER_ACTIONS: ProposerActionsHash = {
   [ActionName.UPDATE]: UpdateProposer,
   [ActionName.INSTALL]: InstallProposer,
   [ActionName.UNINSTALL]: UninstallProposer,

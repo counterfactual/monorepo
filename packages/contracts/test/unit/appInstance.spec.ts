@@ -31,7 +31,7 @@ const computeHash = (stateHash: string, nonce: number, timeout: number) =>
   );
 
 contract("AppInstance", (accounts: string[]) => {
-  let AppInstance: AbstractContract;
+  let appInstance: AbstractContract;
   let stateChannel: ethers.Contract;
   let networkID;
 
@@ -55,11 +55,11 @@ contract("AppInstance", (accounts: string[]) => {
   // @ts-ignore
   before(async () => {
     networkID = await AbstractContract.getNetworkID(unlockedAccount);
-    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const Signatures = AbstractContract.loadBuildArtifact("Signatures");
-    AppInstance = await AbstractContract.loadBuildArtifact("AppInstance", {
-      StaticCall,
-      Signatures
+    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const signatures = AbstractContract.loadBuildArtifact("Signatures");
+    appInstance = await AbstractContract.loadBuildArtifact("AppInstance", {
+      StaticCall: staticCall,
+      Signatures: signatures
     });
 
     sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
@@ -95,8 +95,8 @@ contract("AppInstance", (accounts: string[]) => {
 
   beforeEach(async () => {
     const contractFactory = new ethers.ContractFactory(
-      AppInstance.abi,
-      await AppInstance.generateLinkedBytecode(networkID),
+      appInstance.abi,
+      await appInstance.generateLinkedBytecode(networkID),
       unlockedAccount
     );
     stateChannel = await contractFactory.deploy(

@@ -100,14 +100,14 @@ export class AppCommitments implements Commitments {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
-    throw Error("App ID: " + this.appId + " has no " + action + " commitment");
+    throw Error(`App ID: ${this.appId} has no ${action} commitment`);
   }
 
   public serialize(): string {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    const pairs: Array<[ActionName, Transaction]> = [];
+    const pairs: [ActionName, Transaction][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });
@@ -213,19 +213,17 @@ export class TestCommitmentStore {
   ): ClientActionMessage | null {
     if (internalMessage.actionName === ActionName.INSTALL) {
       return getLastResult(Instruction.IO_WAIT, context.results).value;
-    } else {
-      const incomingMessageResult = getLastResult(
-        Instruction.IO_WAIT,
-        context.results
-      );
-      if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
-        // receiver since non installs should have no io_WAIT
-        return internalMessage.clientMessage;
-      } else {
-        // sender so grab out the response
-        return incomingMessageResult.value;
-      }
     }
+    const incomingMessageResult = getLastResult(
+      Instruction.IO_WAIT,
+      context.results
+    );
+    if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
+      // receiver since non installs should have no io_WAIT
+      return internalMessage.clientMessage;
+    }
+    // sender so grab out the response
+    return incomingMessageResult.value;
   }
 
   /**

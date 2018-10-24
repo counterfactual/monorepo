@@ -14,11 +14,11 @@ contract("TicTacToe", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const TicTacToe = await AbstractContract.loadBuildArtifact("TicTacToe", {
-      StaticCall
+    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const ticTacToe = await AbstractContract.loadBuildArtifact("TicTacToe", {
+      StaticCall: staticCall
     });
-    game = await TicTacToe.deploy(unlockedAccount);
+    game = await ticTacToe.deploy(unlockedAccount);
   });
 
   describe("applyAction", () => {

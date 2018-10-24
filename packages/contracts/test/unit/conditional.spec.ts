@@ -11,27 +11,27 @@ contract("Conditional", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const Conditional = await AbstractContract.loadBuildArtifact(
+    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const conditional = await AbstractContract.loadBuildArtifact(
       "Conditional",
       {
-        StaticCall
+        StaticCall: staticCall
       }
     );
-    const ExampleCondition = await AbstractContract.loadBuildArtifact(
+    const exampleCondition = await AbstractContract.loadBuildArtifact(
       "ExampleCondition"
     );
-    example = await ExampleCondition.deploy(unlockedAccount);
-    conditionContract = await Conditional.deploy(unlockedAccount);
+    example = await exampleCondition.deploy(unlockedAccount);
+    conditionContract = await conditional.deploy(unlockedAccount);
   });
 
   describe("asserts conditions with no params", () => {
     const makeCondition = (expectedValue, onlyCheckForSuccess) => ({
+      onlyCheckForSuccess,
       expectedValueHash: ethers.utils.solidityKeccak256(
         ["bytes"],
         [expectedValue]
       ),
-      onlyCheckForSuccess,
       parameters: ethers.constants.HashZero,
       selector: example.interface.functions.isSatisfiedNoParam.sighash,
       to: example.address
@@ -61,12 +61,12 @@ contract("Conditional", (accounts: string[]) => {
 
   describe("asserts conditions with params", () => {
     const makeCondition = (expectedValue, parameters, onlyCheckForSuccess) => ({
+      onlyCheckForSuccess,
+      parameters,
       expectedValueHash: ethers.utils.solidityKeccak256(
         ["bytes"],
         [expectedValue]
       ),
-      onlyCheckForSuccess,
-      parameters,
       selector: example.interface.functions.isSatisfiedNoParam.sighash,
       to: example.address
     });

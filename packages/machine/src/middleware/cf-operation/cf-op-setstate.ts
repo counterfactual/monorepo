@@ -56,7 +56,7 @@ export class CfOpSetState extends CfOperation {
       this.timeout,
       this.appUniqueId
     ).cfAddress();
-    const to = this.ctx.Registry;
+    const to = this.ctx.registryAddr;
     const val = 0;
     const data = common.proxyCallSetStateData(
       this.ctx,

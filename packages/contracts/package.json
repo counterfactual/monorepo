@@ -9,7 +9,7 @@
     "networks"
   ],
   "scripts": {
-    "build": "truffle compile --all",
+    "build": "truffle compile --all && tsc -b",
     "migrate": "truffle migrate --reset --network ganache",
     "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
     "clean": "shx rm -rf dist build",

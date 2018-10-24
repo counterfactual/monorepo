@@ -13,8 +13,8 @@ import {
   Transaction
 } from "./types";
 
-import Multisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 
 const { keccak256 } = ethers.utils;
 
@@ -32,7 +32,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     const multisigInput = this.multisigInput();
     const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
     const txData = new ethers.utils.Interface(
-      Multisig.abi
+      MinimumViableMultisigJson.abi
     ).functions.execTransaction.encode([
       multisigInput.to,
       multisigInput.val,
@@ -62,7 +62,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public freeBalanceInput(): MultisigInput {
-    const to = this.networkContext.Registry;
+    const to = this.networkContext.registryAddr;
     const val = 0;
     const data = this.freeBalanceData();
     const op = Operation.Delegatecall;
@@ -106,11 +106,11 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public dependencyNonceInput(): MultisigInput {
-    const timeout = 0; // FIXME: new NonceRegistry design will obviate timeout
-    const to = this.networkContext.NonceRegistry;
+    const timeout = 0; // FIXME: new NonceRegistryJson design will obviate timeout
+    const to = this.networkContext.nonceRegistryAddr;
     const val = 0;
     const data = new ethers.utils.Interface(
-      NonceRegistry.abi
+      NonceRegistryJson.abi
     ).functions.setNonce.encode([
       timeout,
       this.dependencyNonce.salt,
@@ -128,7 +128,7 @@ export abstract class CfMultiSendOp extends CfOperation {
    */
   private multisigInput(): MultisigInput {
     return new MultiSend(this.eachMultisigInput(), this.networkContext).input(
-      this.networkContext.MultiSend
+      this.networkContext.multiSendAddr
     );
   }
 }

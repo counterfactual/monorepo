@@ -12,7 +12,7 @@ import { TestResponseSink } from "./test-response-sink";
 export class SetupProtocol {
   public static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
     SetupProtocol.validatePresetup(peerA, peerB);
-    await SetupProtocol._run(peerA, peerB);
+    await SetupProtocol.run2(peerA, peerB);
     SetupProtocol.validate(peerA, peerB);
   }
 
@@ -87,7 +87,8 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  private static async _run(peerA: TestResponseSink, peerB: TestResponseSink) {
+  // TODO: Better name
+  private static async run2(peerA: TestResponseSink, peerB: TestResponseSink) {
     const msg = SetupProtocol.setupStartMsg(
       peerA.signingKey.address,
       peerB.signingKey.address

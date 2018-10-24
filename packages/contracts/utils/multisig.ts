@@ -40,13 +40,13 @@ export class Multisig {
    * @param wallet The wallet (with provider) for the on-chain transaction
    */
   public async deploy(wallet: ethers.Wallet) {
-    const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
+    const minimumViableMultisig = await AbstractContract.loadBuildArtifact(
       "MinimumViableMultisig",
       {
         Signatures
       }
     );
-    this.contract = await (await MinimumViableMultisig).deploy(wallet);
+    this.contract = await minimumViableMultisig.deploy(wallet);
     await this.contract.functions.setup(this.owners);
   }
 

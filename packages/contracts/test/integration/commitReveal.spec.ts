@@ -49,7 +49,7 @@ enum Player {
 }
 
 const { parseEther } = ethers.utils;
-const CommitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
+const commitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
   StaticCall
 });
 
@@ -78,7 +78,7 @@ async function createMultisig(
 }
 
 async function deployApp(): Promise<ethers.Contract> {
-  return (await CommitRevealApp).deploy(masterAccount);
+  return (await commitRevealApp).deploy(masterAccount);
 }
 
 async function deployStateChannel(
@@ -163,12 +163,12 @@ describe("CommitReveal", async () => {
     const commitHash = computeCommitHash(numberSalt, chosenNumber);
 
     const appState = {
+      commitHash,
       playerAddrs: [alice.address, bob.address],
       stage: Stage.DONE,
       maximum: 10,
       guessedNumber: 1,
-      winner: Player.CHOOSING,
-      commitHash
+      winner: Player.CHOOSING
     };
     await stateChannel.setState(appState, [alice, bob]);
 

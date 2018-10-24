@@ -1,4 +1,4 @@
-import _ from "lodash";
+import lodash from "lodash";
 import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { deserialize } from "./serializer";
 import {
@@ -28,15 +28,14 @@ export class CfState {
   }
 
   public stateChannelFromAddress(toAddress: Address): StateChannelInfo {
-    const multisig = _.keys(this.channelStates).find(ms => {
+    const multisig = lodash.keys(this.channelStates).find(ms => {
       return this.channelStates[ms].me === toAddress;
     });
 
     if (multisig) {
       return this.channelStates[multisig];
-    } else {
-      throw Error(`Could not find multisig for address ${toAddress}`);
     }
+    throw Error(`Could not find multisig for address ${toAddress}`);
   }
 
   public stateChannelFromMultisigAddress(
@@ -45,9 +44,8 @@ export class CfState {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress];
-    } else {
-      throw Error(`Could not find multisig of address ${multisigAddress}`);
     }
+    throw Error(`Could not find multisig of address ${multisigAddress}`);
   }
 
   public app(multisig: Address, cfAddr: H256): AppChannelInfo {
@@ -64,22 +62,21 @@ export class CfState {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress].freeBalance;
-    } else {
-      throw Error(`Could not find multisig of address ${multisigAddress}`);
     }
+    throw Error(`Could not find multisig of address ${multisigAddress}`);
   }
 
   /**
    * @returns a deep copy of the StateChannelInfos.
    */
   public stateChannelInfosCopy(): StateChannelInfos {
-    return deserialize(_.cloneDeep(this.channelStates));
+    return deserialize(lodash.cloneDeep(this.channelStates));
   }
 
   public appChannelInfos(): AppChannelInfos {
     const infos = {};
-    for (const channel of _.keys(this.channelStates)) {
-      for (const appChannel of _.keys(
+    for (const channel of lodash.keys(this.channelStates)) {
+      for (const appChannel of lodash.keys(
         this.channelStates[channel].appChannels
       )) {
         infos[appChannel] = this.channelStates[channel].appChannels[appChannel];

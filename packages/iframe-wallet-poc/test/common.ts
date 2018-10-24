@@ -26,7 +26,7 @@ export const EMPTY_NETWORK_CONTEXT = new machine.types.NetworkContext(
 export class SetupProtocol {
   public static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validatePresetup(walletA, walletB);
-    await SetupProtocol._run(walletA, walletB);
+    await SetupProtocol.run2(walletA, walletB);
     SetupProtocol.validate(walletA, walletB);
   }
 
@@ -102,7 +102,8 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  private static async _run(walletA: IFrameWallet, walletB: IFrameWallet) {
+  // TODO: Better naming
+  private static async run2(walletA: IFrameWallet, walletB: IFrameWallet) {
     const msg = SetupProtocol.setupStartMsg(
       walletA.currentUser.address,
       walletB.currentUser.address

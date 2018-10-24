@@ -7,9 +7,9 @@ contract("Registry", accounts => {
   const web3 = (global as any).web3;
   const { unlockedAccount } = Utils.setupTestEnv(web3);
 
-  let registry: ethers.Contract;
+  let testRegistry: ethers.Contract;
   let simpleContract: ethers.Contract;
-  let ProxyContract: AbstractContract;
+  let proxyContract: AbstractContract;
 
   function cfaddress(initcode, i) {
     return ethers.utils.solidityKeccak256(
@@ -26,28 +26,28 @@ contract("Registry", accounts => {
 
   // @ts-ignore
   beforeEach(async () => {
-    ProxyContract = await AbstractContract.loadBuildArtifact("Proxy");
-    const Registry = await AbstractContract.loadBuildArtifact("Registry");
+    proxyContract = await AbstractContract.loadBuildArtifact("Proxy");
+    const registry = await AbstractContract.loadBuildArtifact("Registry");
 
-    registry = await Registry.deploy(unlockedAccount);
+    testRegistry = await registry.deploy(unlockedAccount);
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
     expect(cfaddress(ethers.constants.HashZero, 1)).to.eql(
-      await registry.cfaddress(ethers.constants.HashZero, 1)
+      await testRegistry.cfaddress(ethers.constants.HashZero, 1)
     );
   });
 
   it("deploys a contract", done => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = "0x" + output.contracts[":Test"].bytecode;
+    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
-    const filter = registry.filters.ContractCreated(null, null);
+    const filter = testRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await registry.resolver(cfaddress(bytecode, 2))
+        await testRegistry.resolver(cfaddress(bytecode, 2))
       );
       simpleContract = new ethers.Contract(
         deployedAddress,
@@ -57,20 +57,20 @@ contract("Registry", accounts => {
       expect(await simpleContract.sayHello()).to.eql("hi");
       done();
     };
-    const registryContract = registry.on(filter, callback);
+    const registryContract = testRegistry.on(filter, callback);
     registryContract.deploy(bytecode, 2);
   });
 
   it("deploys a contract using msg.sender", done => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = "0x" + output.contracts[":Test"].bytecode;
+    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
-    const filter = registry.filters.ContractCreated(null, null);
+    const filter = testRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await registry.resolver(cfaddress(bytecode, 3))
+        await testRegistry.resolver(cfaddress(bytecode, 3))
       );
 
       simpleContract = new ethers.Contract(
@@ -81,7 +81,7 @@ contract("Registry", accounts => {
       expect(await simpleContract.sayHello()).to.eql("hi");
       done();
     };
-    const registryContract = registry.on(filter, callback);
+    const registryContract = testRegistry.on(filter, callback);
     registryContract.deploy(bytecode, 3);
   });
 
@@ -89,16 +89,16 @@ contract("Registry", accounts => {
     const output = (solc as any).compile(simpleContractSource, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const initcode =
-      ProxyContract.bytecode +
+      proxyContract.bytecode +
       ethers.utils.defaultAbiCoder
         .encode(["address"], [simpleContract.address])
         .substr(2);
 
-    const filter = registry.filters.ContractCreated(null, null);
+    const filter = testRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await registry.resolver(cfaddress(initcode, 3))
+        await testRegistry.resolver(cfaddress(initcode, 3))
       );
 
       const contract = new ethers.Contract(
@@ -110,7 +110,7 @@ contract("Registry", accounts => {
       done();
     };
 
-    const registryContract = registry.on(filter, callback);
+    const registryContract = testRegistry.on(filter, callback);
     registryContract.deploy(initcode, 3);
   });
 
@@ -127,17 +127,17 @@ contract("Registry", accounts => {
         }`;
     const output = (solc as any).compile(source, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = "0x" + output.contracts[":Test"].bytecode;
+    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
     const initcode =
       bytecode +
       ethers.utils.defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
 
-    const filter = registry.filters.ContractCreated(null, null);
+    const filter = testRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
       expect(deployedAddress).to.eql(
-        await registry.resolver(cfaddress(initcode, 4))
+        await testRegistry.resolver(cfaddress(initcode, 4))
       );
 
       const contract = new ethers.Contract(
@@ -149,7 +149,7 @@ contract("Registry", accounts => {
       done();
     };
 
-    const registryContract = registry.on(filter, callback);
+    const registryContract = testRegistry.on(filter, callback);
     registryContract.deploy(initcode, 4);
   });
 });

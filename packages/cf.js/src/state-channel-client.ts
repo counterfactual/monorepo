@@ -34,16 +34,16 @@ export class StateChannelClient {
     const isPeerA =
       stateChannelInfo.data.stateChannel.freeBalance.alice === this.fromAddress;
     const options: machine.types.InstallOptions = {
+      abiEncoding,
+      stateEncoding,
       appAddress: balanceRefundAddress,
       peerABalance: ethers.utils.bigNumberify(0),
       peerBBalance: ethers.utils.bigNumberify(0),
       state: {
+        threshold,
         recipient: this.fromAddress,
         multisig: this.multisigAddress,
-        threshold
       },
-      abiEncoding,
-      stateEncoding
     };
 
     const balanceRefund = await this.install("ETHBalanceRefundApp", options);
@@ -84,15 +84,15 @@ export class StateChannelClient {
     });
 
     const installData: machine.types.InstallData = {
+      encodedAppState,
+      terms,
+      app,
+      timeout,
       peerA: new machine.types.PeerBalance(peerA, options.peerABalance),
       peerB: new machine.types.PeerBalance(peerB, options.peerBBalance),
       // TODO: provide actual signing keys
       keyA: signingKeys[0],
-      keyB: signingKeys[1],
-      encodedAppState,
-      terms,
-      app,
-      timeout
+      keyB: signingKeys[1]
     };
     const requestId = this.client.requestId();
     const message = {
@@ -197,8 +197,8 @@ export class StateChannelClient {
       action: machine.types.ActionName.DEPOSIT,
       requestId: this.client.requestId(),
       data: {
-        multisig: this.multisigAddress,
-        value
+        value,
+        multisig: this.multisigAddress
       }
     };
 

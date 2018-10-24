@@ -6,7 +6,7 @@
   "scripts": {
     "build": "lerna run build --sort",
     "clean": "lerna run clean --parallel --no-bail",
-    "test": "lerna run test",
+    "test": "lerna run test --stream",
     "ganache": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" &> /dev/null &",
     "ganache:ci": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\"",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
@@ -31,6 +31,7 @@
   ],
   "devDependencies": {
     "ganache-cli": "^6.1.8",
-    "lerna": "^3.4.3"
+    "lerna": "^3.4.3",
+    "tslint-config-airbnb": "^5.11.0"
   }
 }

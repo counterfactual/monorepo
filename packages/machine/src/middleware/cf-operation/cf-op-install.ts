@@ -1,4 +1,4 @@
-import ConditionalTransaction from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 
 import * as ethers from "ethers";
 import * as abi from "../../abi";
@@ -33,7 +33,7 @@ export class CfOpInstall extends CfMultiSendOp {
   }
 
   private conditionalTransactionInput(): MultisigInput {
-    const to = this.networkContext.ConditionalTransaction;
+    const to = this.networkContext.conditionalTransactionAddr;
     const val = 0;
     const terms = [
       this.app.terms.assetType,
@@ -47,10 +47,10 @@ export class CfOpInstall extends CfMultiSendOp {
       )
     );
     const data = new ethers.utils.Interface(
-      ConditionalTransaction.abi
+      ConditionalTransactionJson.abi
     ).functions.executeAppConditionalTransaction.encode([
-      this.networkContext.Registry,
-      this.networkContext.NonceRegistry,
+      this.networkContext.registryAddr,
+      this.networkContext.nonceRegistryAddr,
       depNonceKey,
       this.appCfAddress,
       terms

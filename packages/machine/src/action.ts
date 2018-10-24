@@ -1,4 +1,4 @@
-import { AckInstructions, Instruction, Instructions } from "./instructions";
+import { ackInstructions, Instruction, instructions } from "./instructions";
 import { Context } from "./state";
 import {
   ActionName,
@@ -32,9 +32,9 @@ export class Action {
     this.isAckSide = isAckSide;
 
     if (isAckSide) {
-      this.instructions = AckInstructions[action];
+      this.instructions = ackInstructions[action];
     } else {
-      this.instructions = Instructions[action];
+      this.instructions = instructions[action];
     }
   }
 
@@ -97,8 +97,8 @@ export class ActionExecution {
 
     try {
       const value = await this.vm.middleware.run(internalMessage, context);
-      this.instructionPointer++;
-      this.results.push({ opCode: internalMessage.opCode, value });
+      this.instructionPointer += 1;
+      this.results.push({ value, opCode: internalMessage.opCode });
 
       return { value, done: false };
     } catch (e) {
@@ -110,6 +110,8 @@ export class ActionExecution {
     }
   }
 
+  // TODO: Figure out the correct structure to be compliant with linter
+  // tslint:disable
   public [Symbol.asyncIterator]() {
     return {
       next: () => this.next()

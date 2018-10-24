@@ -57,7 +57,7 @@ export enum Instruction {
  * Instructions executed on the intiating end of a protocol, i.e., a peer who
  * starts a protocol with a peer out of nowhere.
  */
-export let Instructions = {
+export const instructions = {
   [ActionName.UPDATE]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
@@ -107,7 +107,7 @@ export let Instructions = {
  * Instructions executed on the receiving end of a protocol, i.e., by a peer
  * who did not initiate a given protocol.
  */
-export let AckInstructions = {
+export const ackInstructions = {
   [ActionName.UPDATE]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,

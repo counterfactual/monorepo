@@ -63,16 +63,14 @@ export class CfMiddleware {
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {
         return Promise.resolve(null);
-      } else {
-        // This is hacky, prevents next from being called more than once
-        counter++;
-        const middleware = middlewares[opCode][counter];
-        if (opCode === Instruction.ALL || middleware.scope === opCode) {
-          return middleware.method(msg, callback, context);
-        } else {
-          return callback();
-        }
       }
+      // This is hacky, prevents next from being called more than once
+      counter += 1;
+      const middleware = middlewares[opCode][counter];
+      if (opCode === Instruction.ALL || middleware.scope === opCode) {
+        return middleware.method(msg, callback, context);
+      }
+      return callback();
     }
 
     // TODO: Document or throw error about the fact that you _need_ to have
@@ -122,6 +120,7 @@ export class NextMsgGenerator {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     const msg: ClientActionMessage = {
+      signature,
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,
       appName: lastMsg.appName,
@@ -130,8 +129,7 @@ export class NextMsgGenerator {
       multisigAddress: lastMsg.multisigAddress,
       toAddress: lastMsg.fromAddress, // swap to/from here since sending to peer
       fromAddress: lastMsg.toAddress,
-      seq: lastMsg.seq + 1,
-      signature
+      seq: lastMsg.seq + 1
     };
     return msg;
   }
@@ -209,7 +207,7 @@ export class SignatureValidator {
  */
 export function getFirstResult(
   toFindOpCode: Instruction,
-  results: Array<{ value: any; opCode }>
+  results: { value: any; opCode }[]
 ): OpCodeResult {
   // FIXME: (ts-strict) we should change the results data structure or design
   return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
@@ -217,7 +215,7 @@ export function getFirstResult(
 
 export function getLastResult(
   toFindOpCode: Instruction,
-  results: Array<{ value: any; opCode }>
+  results: { value: any; opCode }[]
 ): OpCodeResult {
   for (let k = results.length - 1; k >= 0; k -= 1) {
     if (results[k].opCode === toFindOpCode) {

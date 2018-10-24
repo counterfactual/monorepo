@@ -39,9 +39,8 @@ export class WriteAheadLog {
     const logStr = this.db.get(this.dbKey);
     if (logStr === undefined) {
       return {};
-    } else {
-      return JSON.parse(logStr);
     }
+    return JSON.parse(logStr);
   }
 
   /**

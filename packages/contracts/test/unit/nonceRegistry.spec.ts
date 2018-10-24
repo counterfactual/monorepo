@@ -16,10 +16,10 @@ contract("NonceRegistry", accounts => {
 
   // @ts-ignore
   before(async () => {
-    const NonceRegistry = await AbstractContract.loadBuildArtifact(
+    const nonceRegistry = await AbstractContract.loadBuildArtifact(
       "NonceRegistry"
     );
-    registry = await NonceRegistry.deploy(unlockedAccount);
+    registry = await nonceRegistry.deploy(unlockedAccount);
   });
 
   it("getFirstNBits works for 8", async () => {

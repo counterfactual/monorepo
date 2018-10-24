@@ -2,7 +2,7 @@ import { Instruction } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
 import { CfState, Context } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
-import { ProposerActions } from "./proposer-actions";
+import { PROPOSER_ACTIONS } from "./proposer-actions";
 
 export class StateTransition {
   /**
@@ -16,7 +16,7 @@ export class StateTransition {
     context: Context,
     cfState: CfState
   ): StateProposal {
-    const proposer = ProposerActions[message.actionName];
+    const proposer = PROPOSER_ACTIONS[message.actionName];
 
     if (!proposer) {
       throw Error("Action name not supported");

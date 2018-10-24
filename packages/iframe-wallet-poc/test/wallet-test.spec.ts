@@ -4,14 +4,14 @@ import * as ethers from "ethers";
 // "counterfactual app store" registry that we can pull from. Additionally, the below two
 // apps should be considered "default" somewhere. Probably inside the machine, as they're
 // often reused and critical infrastructure for ETH payments and deposits.
-import ETHBalanceRefundApp from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
-import PaymentApp from "@counterfactual/contracts/build/contracts/PaymentApp.json";
+import ETHBalanceRefundAppJson from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
+import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
 
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 import { ganacheURL } from "../src/iframe/user";
 import { IFrameWallet } from "../src/iframe/wallet";
-import { sleep, EMPTY_NETWORK_CONTEXT } from "./common";
+import { EMPTY_NETWORK_CONTEXT } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -23,7 +23,7 @@ const BALANCE_REFUND_STATE_ENCODING =
   "tuple(address recipient, address multisig, uint256 threshold)";
 const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
-const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentApp.abi);
+const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentAppJson.abi);
 const INSTALL_OPTIONS: machine.types.InstallOptions = {
   appAddress: ethers.constants.AddressZero,
   peerABalance: ethers.utils.bigNumberify(0),
@@ -71,12 +71,16 @@ describe("Lifecycle", async () => {
   beforeEach(async () => {
     clientA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
     clientB = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
+
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
+
     connectionA = new ClientBridge(clientA);
     connectionB = new ClientBridge(clientB);
+
     clientInterfaceA = new cf.Client(connectionA);
     clientInterfaceB = new cf.Client(connectionB);
+
     await clientInterfaceA.init();
     await clientInterfaceB.init();
 
@@ -108,7 +112,7 @@ describe("Lifecycle", async () => {
     });
     clientInterfaceB.addObserver("installCompleted", falsyCallback);
     clientInterfaceB.removeObserver("installCompleted", falsyCallback);
-    await stateChannelA.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannelA.install("PaymentApp", INSTALL_OPTIONS);
   });
 
   it("Will notify only the current user", async () => {
@@ -143,7 +147,7 @@ describe("Lifecycle", async () => {
       expect(true).toBeTruthy();
     });
 
-    await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannelAB.install("PaymentApp", INSTALL_OPTIONS);
   });
 
   it("Can deposit to a state channel", async () => {
@@ -154,8 +158,8 @@ describe("Lifecycle", async () => {
     const stateChannelBA = await clientInterfaceB.connect(A_ADDRESS);
 
     await stateChannelAB.deposit(
-      clientA.network.ETHBalanceRefundApp,
-      JSON.stringify([ETHBalanceRefundApp.abi]),
+      clientA.network.ethBalanceRefundAppAddr,
+      JSON.stringify([ETHBalanceRefundAppJson.abi]),
       BALANCE_REFUND_STATE_ENCODING,
       amountA,
       ethers.utils.bigNumberify(0)
@@ -170,8 +174,8 @@ describe("Lifecycle", async () => {
     );
 
     await stateChannelBA.deposit(
-      clientB.network.ETHBalanceRefundApp,
-      JSON.stringify([ETHBalanceRefundApp.abi]),
+      clientB.network.ethBalanceRefundAppAddr,
+      JSON.stringify([ETHBalanceRefundAppJson.abi]),
       BALANCE_REFUND_STATE_ENCODING,
       amountB,
       amountA
@@ -195,7 +199,7 @@ describe("Lifecycle", async () => {
     const threshold = 10;
 
     const stateChannel = await client.connect(B_ADDRESS);
-    await stateChannel.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannel.install("PaymentApp", INSTALL_OPTIONS);
     // check B's client
     validateInstalledBalanceRefund(
       clientB,
@@ -217,7 +221,7 @@ describe("Lifecycle", async () => {
 
     const stateChannel = await client.connect(B_ADDRESS);
     const appChannel = await stateChannel.install(
-      "paymentApp",
+      "PaymentApp",
       INSTALL_OPTIONS
     );
 
@@ -374,8 +378,8 @@ describe("Lifecycle", async () => {
 function validateNoAppsAndFreeBalance(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber,
+  amountAgiven: ethers.utils.BigNumber,
+  amountBgiven: ethers.utils.BigNumber,
   multisigContractAddress: string
 ) {
   // TODO: add nonce and uniqueId params and check them
@@ -383,6 +387,10 @@ function validateNoAppsAndFreeBalance(
 
   let peerA = clientA.address;
   let peerB = clientB.address;
+
+  let amountA = amountAgiven;
+  let amountB = amountBgiven;
+
   if (peerB!.localeCompare(peerA!) < 0) {
     const tmp = peerA;
     peerA = peerB;

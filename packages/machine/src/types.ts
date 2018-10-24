@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import _ from "lodash";
+import lodash from "lodash";
 import { Instruction } from "./instructions";
 import {
   CfAppInterface,
@@ -225,18 +225,17 @@ export class PeerBalance {
           oldBals[1].balance.sub(newBals[1].balance)
         )
       ];
-    } else {
-      return [
-        new PeerBalance(
-          oldBals[0].address,
-          oldBals[0].balance.sub(newBals[1].balance)
-        ),
-        new PeerBalance(
-          oldBals[1].address,
-          oldBals[1].balance.sub(newBals[0].balance)
-        )
-      ];
     }
+    return [
+      new PeerBalance(
+        oldBals[0].address,
+        oldBals[0].balance.sub(newBals[1].balance)
+      ),
+      new PeerBalance(
+        oldBals[1].address,
+        oldBals[1].balance.sub(newBals[0].balance)
+      )
+    ];
   }
   public balance: ethers.utils.BigNumber;
 
@@ -259,42 +258,34 @@ export class PeerBalance {
  * [abi, bytecode]
  */
 export class NetworkContext {
-  public static CONTRACTS = {
-    Registry: "Registry",
-    PaymentApp: "PaymentApp",
-    ConditionalTransaction: "ConditionalTransaction",
-    MultiSend: "MultiSend",
-    NonceRegistry: "NonceRegistry",
-    Signatures: "Signatures",
-    StaticCall: "StaticCall",
-    ETHBalanceRefundApp: "ETHBalanceRefundApp",
-    Multisig: "Multisig",
-    AppInstance: "AppInstance"
+  // FIXME: This is just bad practice :S
+  private contractToVar = {
+    Registry: "registryAddr",
+    PaymentApp: "paymentAppAddr",
+    ConditionalTransaction: "conditionalTransactionAddr",
+    MultiSend: "multiSendAddr",
+    NonceRegistry: "nonceRegistryAddr",
+    Signatures: "signaturesAddr",
+    StaticCall: "staticCallAddr",
+    ETHBalanceRefundApp: "ethBalanceRefundAppAddr"
   };
 
   constructor(
-    readonly Registry: Address,
-    readonly PaymentApp: Address,
-    readonly ConditionalTransaction: Address,
-    readonly MultiSend: Address,
-    readonly NonceRegistry: Address,
-    readonly Signatures: Address,
-    readonly StaticCall: Address,
-    readonly ETHBalanceRefundApp: Address
+    readonly registryAddr: Address,
+    readonly paymentAppAddr: Address,
+    readonly conditionalTransactionAddr: Address,
+    readonly multiSendAddr: Address,
+    readonly nonceRegistryAddr: Address,
+    readonly signaturesAddr: Address,
+    readonly staticCallAddr: Address,
+    readonly ethBalanceRefundAppAddr: Address
   ) {}
 
   public linkBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
-    for (const contractName of _.keys(NetworkContext.CONTRACTS)) {
-      // skipping these as they're not global contracts
-      if (
-        contractName === NetworkContext.CONTRACTS.AppInstance ||
-        contractName === NetworkContext.CONTRACTS.Multisig
-      ) {
-        continue;
-      }
+    for (const contractName of lodash.keys(this.contractToVar)) {
       const regex = new RegExp(`__${contractName}_+`, "g");
-      const address = this[contractName].substr(2);
+      const address = this[this.contractToVar[contractName]].substr(2);
       bytecode = bytecode.replace(regex, address);
     }
     return bytecode;
@@ -398,24 +389,23 @@ export class Signature {
    * Helper method in verifying signatures in transactions
    * @param signatures
    */
-  public static fromBytes(sigs: Bytes): Signature[] {
+  public static fromBytes(signatures: Bytes): Signature[] {
     // chop off the 0x prefix
-    sigs = sigs.substr(2);
+    let sigs = signatures.substr(2);
     if (sigs.length % SIGNATURE_LENGTH_WITHOUT_PREFIX !== 0) {
       throw Error("The bytes string representing the signatures is malformed.");
     }
-    const signatures = new Array<Signature>();
+    const signaturesList: Signature[] = [];
     while (sigs.length !== 0) {
       const sig = sigs.substr(0, SIGNATURE_LENGTH_WITHOUT_PREFIX);
       sigs = sigs.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX);
       // note: +<string> is syntactic sugar for parsing a number from a string
       const v = +sig.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX - V_LENGTH);
-      const r = "0x" + sig.substr(0, R_LENGTH);
-      const s = "0x" + sig.substr(R_LENGTH, S_LENGTH);
-      signatures.push(new Signature(v, r, s));
+      const r = `0x${sig.substr(0, R_LENGTH)}`;
+      const s = `0x${sig.substr(R_LENGTH, S_LENGTH)}`;
+      signaturesList.push(new Signature(v, r, s));
     }
-
-    return signatures;
+    return signaturesList;
   }
 
   // TODO: fix types
@@ -426,12 +416,9 @@ export class Signature {
   }
 
   public toString(): string {
-    return (
-      "0x" +
-      this.r.substr(2) +
-      this.s.substr(2) +
-      ethers.utils.hexlify(this.v).substr(2)
-    );
+    return `0x${this.r.substr(2)}${this.s.substr(2)}${ethers.utils
+      .hexlify(this.v)
+      .substr(2)}`;
   }
 }
 

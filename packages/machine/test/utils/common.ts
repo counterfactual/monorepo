@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import _ from "lodash";
+import lodash from "lodash";
 import { NetworkContext } from "../../src/types";
 
 export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
@@ -21,11 +21,6 @@ export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
   return provider.send("evm_mine", []);
 }
 
-export async function mineBlocks(
-  num: number,
-  provider: ethers.providers.JsonRpcProvider
-) {
-  for (let i = 0; i < num; i++) {
-    await mineOneBlock(provider);
-  }
+export async function mineBlocks (n: number, provider: ethers.providers.JsonRpcProvider) {
+  lodash.times(n, async () => await mineOneBlock(provider))
 }

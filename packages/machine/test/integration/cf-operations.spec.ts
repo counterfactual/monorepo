@@ -25,10 +25,9 @@ import {
   MULTISIG_PRIVATE_KEY
 } from "../utils/environment";
 
-import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import Registry from "@counterfactual/contracts/build/contracts/Registry.json";
-import networkFile from "@counterfactual/contracts/networks/7777777.json";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 
 import { TestResponseSink } from "./test-response-sink";
 
@@ -40,17 +39,26 @@ describe("Setup Protocol", async () => {
 
   let networkMap;
   let devEnvNetworkContext7777777: NetworkContext;
+
   beforeAll(() => {
+    // TODO: This isn't a TODO so much as a note, but this `require` statement is
+    // explicitly in side the `beforeAll` and not at the file scope because we need
+    // it to do the file lookup at runtime and not buildtime otheriwse the build process
+    // will fail if the contracts haven't been migrated yet.
+    // TODO: The linter can't handle files with numbers as names. This should be fixed
+    // when we have a different method for retrieving the network addresses anyway.
+    // tslint:disable-next-line
+    const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
     devEnvNetworkContext7777777 = new NetworkContext(
-      networkMap.Registry,
-      networkMap.PaymentApp,
-      networkMap.ConditionalTransaction,
-      networkMap.MultiSend,
-      networkMap.NonceRegistry,
-      networkMap.Signatures,
-      networkMap.StaticCall,
-      networkMap.ETHBalanceRefundApp
+      networkMap["Registry"],
+      networkMap["PaymentApp"],
+      networkMap["ConditionalTransaction"],
+      networkMap["MultiSend"],
+      networkMap["NonceRegistry"],
+      networkMap["Signatures"],
+      networkMap["StaticCall"],
+      networkMap["ETHBalanceRefundApp"]
     );
   });
 
@@ -95,16 +103,16 @@ describe("Setup Protocol", async () => {
     ];
 
     const registry = await new ethers.Contract(
-      devEnvNetworkContext7777777.Registry,
-      Registry.abi,
+      devEnvNetworkContext7777777.registryAddr,
+      RegistryJson.abi,
       ethersMasterWallet
     );
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
     const multisig = await new ethers.ContractFactory(
-      MinimumViableMultisig.abi,
-      devEnvNetworkContext7777777.linkBytecode(MinimumViableMultisig.bytecode),
+      MinimumViableMultisigJson.abi,
+      devEnvNetworkContext7777777.linkBytecode(MinimumViableMultisigJson.bytecode),
       ethersMasterWallet
     ).deploy();
 
@@ -123,9 +131,9 @@ describe("Setup Protocol", async () => {
     const terms = CfFreeBalance.terms();
 
     const initcode = new ethers.utils.Interface(
-      AppInstance.abi
+      AppInstanceJson.abi
     ).deployFunction.encode(
-      devEnvNetworkContext7777777.linkBytecode(AppInstance.bytecode),
+      devEnvNetworkContext7777777.linkBytecode(AppInstanceJson.bytecode),
       [
         multisig.address,
         signingKeys,
@@ -189,7 +197,7 @@ describe("Setup Protocol", async () => {
 
     const stateChannel = new ethers.Contract(
       channelAddr,
-      AppInstance.abi,
+      AppInstanceJson.abi,
       ethersMasterWallet
     );
 
@@ -267,11 +275,11 @@ function setupStartMsg(
   to: string
 ): ClientActionMessage {
   return {
+    multisigAddress,
     requestId: "0",
     appId: "",
     action: ActionName.SETUP,
     data: {},
-    multisigAddress,
     toAddress: to,
     fromAddress: from,
     stateChannel: undefined,
@@ -308,14 +316,18 @@ function validateNoAppsAndFreeBalance(
   multisigAddr: string,
   walletA: TestResponseSink,
   walletB: TestResponseSink,
-  amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber
+  amountAgiven: ethers.utils.BigNumber,
+  amountBgiven: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
+
+  let amountA = amountAgiven;
+  let amountB = amountBgiven;
+
   if (peerB.localeCompare(peerA) < 0) {
     const tmp = peerA;
     peerA = peerB;
@@ -426,8 +438,8 @@ async function depositOnChain(
     wallet.signingKey.privateKey,
     ganache
   ).sendTransaction({
-    to: multisigAddress,
-    value
+    value,
+    to: multisigAddress
   });
 
   const balanceAfter = await ganache.getBalance(address);
@@ -501,14 +513,14 @@ function startInstallBalanceRefundMsg(
   ); // todo
   const timeout = 100;
   const installData: InstallData = {
+    terms,
+    app,
+    timeout,
     peerA: new PeerBalance(peerA, 0),
     peerB: new PeerBalance(peerB, 0),
     keyA: peerA,
     keyB: peerB,
-    encodedAppState: "0x1234",
-    terms,
-    app,
-    timeout
+    encodedAppState: "0x1234"
   };
   return {
     requestId: "1",
@@ -557,14 +569,18 @@ function validateUninstalledAndFreeBalance(
   cfAddr: string,
   walletA: TestResponseSink,
   walletB: TestResponseSink,
-  amountA: ethers.utils.BigNumber,
-  amountB: ethers.utils.BigNumber
+  amountAgiven: ethers.utils.BigNumber,
+  amountBgiven: ethers.utils.BigNumber
 ) {
-  // todo: add nonce and uniqueId params and check them
+  // TODO: add nonce and uniqueId params and check them
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
+
+  let amountA = amountAgiven;
+  let amountB = amountBgiven;
+
   if (peerB.localeCompare(peerA) < 0) {
     const tmp = peerA;
     peerA = peerB;
@@ -602,8 +618,8 @@ function startUninstallBalanceRefundMsg(
     peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
   };
   return {
-    requestId: "2",
     appId,
+    requestId: "2",
     action: ActionName.UNINSTALL,
     data: uninstallData,
     multisigAddress: multisigAddr,

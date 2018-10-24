@@ -24,7 +24,7 @@ const getUpdateHash = (stateHash: string, nonce: number, timeout: number) =>
 
 contract("PaymentApp", (accounts: string[]) => {
   let pc: ethers.Contract;
-  let stateChannel: ethers.Contract;
+  let testAppInstance: ethers.Contract;
 
   enum AssetType {
     ETH,
@@ -42,7 +42,7 @@ contract("PaymentApp", (accounts: string[]) => {
   const encode = (encoding: string, state: any) =>
     ethers.utils.defaultAbiCoder.encode([encoding], [state]);
 
-  const latestNonce = async () => stateChannel.functions.latestNonce();
+  const latestNonce = async () => testAppInstance.functions.latestNonce();
 
   // TODO: Wait for this to work:
   // ethers.utils.formatParamType(iface.functions.resolve.inputs[0])
@@ -62,7 +62,7 @@ contract("PaymentApp", (accounts: string[]) => {
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
 
   const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
+    testAppInstance.functions.setState(
       appState || ethers.constants.HashZero,
       nonce,
       10,
@@ -70,7 +70,7 @@ contract("PaymentApp", (accounts: string[]) => {
     );
 
   const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    stateChannel.functions.setState(
+    testAppInstance.functions.setState(
       appState || ethers.constants.HashZero,
       nonce,
       10,
@@ -81,7 +81,7 @@ contract("PaymentApp", (accounts: string[]) => {
     );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
-    stateChannel.functions.setState(
+    testAppInstance.functions.setState(
       stateHash,
       await latestNonce(),
       0,
@@ -98,17 +98,17 @@ contract("PaymentApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const PaymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
-    pc = await PaymentApp.deploy(unlockedAccount);
+    const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
+    pc = await paymentApp.deploy(unlockedAccount);
 
     // Specifically for the StateChannel
-    const StateChannel = artifacts.require("AppInstance");
-    const StaticCall = artifacts.require("StaticCall");
-    const Signatures = artifacts.require("Signatures");
-    const Transfer = artifacts.require("Transfer");
-    StateChannel.link("Signatures", Signatures.address);
-    StateChannel.link("StaticCall", StaticCall.address);
-    StateChannel.link("Transfer", Transfer.address);
+    const appInstance = artifacts.require("AppInstance");
+    const staticCall = artifacts.require("StaticCall");
+    const signatures = artifacts.require("Signatures");
+    const transfer = artifacts.require("Transfer");
+    appInstance.link("Signatures", signatures.address);
+    appInstance.link("StaticCall", staticCall.address);
+    appInstance.link("Transfer", transfer.address);
 
     app = {
       addr: pc.address,
@@ -125,12 +125,12 @@ contract("PaymentApp", (accounts: string[]) => {
     };
 
     const contractFactory = new ethers.ContractFactory(
-      StateChannel.abi,
-      StateChannel.binary,
+      appInstance.abi,
+      appInstance.binary,
       unlockedAccount
     );
 
-    stateChannel = await contractFactory.deploy(
+    testAppInstance = await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       keccak256(encode(appEncoding, app)),
@@ -153,7 +153,7 @@ contract("PaymentApp", (accounts: string[]) => {
     it("should fail before state is settled", async () => {
       const finalState = encode(pcEncoding, exampleState);
       await Utils.assertRejects(
-        stateChannel.functions.setResolution(
+        testAppInstance.functions.setResolution(
           app,
           finalState,
           encode(termsEncoding, terms)
@@ -163,12 +163,12 @@ contract("PaymentApp", (accounts: string[]) => {
     it("should succeed after state is settled", async () => {
       const finalState = encode(pcEncoding, exampleState);
       await sendSignedFinalizationToChain(keccak256(finalState));
-      await stateChannel.functions.setResolution(
+      await testAppInstance.functions.setResolution(
         app,
         finalState,
         encode(termsEncoding, terms)
       );
-      const ret = await stateChannel.functions.getResolution();
+      const ret = await testAppInstance.functions.getResolution();
       expect(ret.assetType).to.be.eql(AssetType.ETH);
       expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
       expect(ret.to[0]).to.be.equalIgnoreCase(A.address);

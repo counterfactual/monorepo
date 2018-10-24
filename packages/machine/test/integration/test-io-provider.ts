@@ -21,12 +21,12 @@ export class TestIOProvider {
   // FIXME: Don't just initialize it as a null object
   public peer: TestResponseSink = Object.create(null);
 
-  public listeners: Array<{
+  public listeners: {
     appId: string;
     multisig: string;
     seq: number;
     method: Function;
-  }>;
+  }[];
 
   public ackMethod: Function = Object.create(null);
 
@@ -35,8 +35,8 @@ export class TestIOProvider {
     this.listeners = [];
   }
 
-  public receiveMessageFromPeer(message: ClientActionMessage) {
-    message = deserialize(message) as ClientActionMessage;
+  public receiveMessageFromPeer(serializedMessage: ClientActionMessage) {
+    const message = deserialize(serializedMessage) as ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
@@ -50,7 +50,8 @@ export class TestIOProvider {
       ) {
         listener.method(message);
         done = true;
-        executedListeners.push(count++);
+        executedListeners.push(count);
+        count += 1;
       }
     });
 

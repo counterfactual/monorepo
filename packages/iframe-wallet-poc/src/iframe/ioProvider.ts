@@ -10,12 +10,12 @@ export class IframeIoProvider {
   public clientHandlesIO: Boolean;
   //  TODO: Refactor this into using an EventEmitter class so we don't do
   // this manually
-  public listeners: Array<{
+  public listeners: {
     appId: string;
     multisig: string;
     seq: number;
     method: Function;
-  }>;
+  }[];
 
   /**
    * Called when receivng a message with seqno = 1.
@@ -30,9 +30,9 @@ export class IframeIoProvider {
     this.clientHandlesIO = false;
   }
 
-  public receiveMessageFromPeer(message: machine.types.ClientActionMessage) {
-    message = machine.serializer.deserialize(
-      message
+  public receiveMessageFromPeer(serializedMessage: machine.types.ClientActionMessage) {
+    const message = machine.serializer.deserialize(
+      serializedMessage
     ) as machine.types.ClientActionMessage;
 
     let done = false;
@@ -47,7 +47,8 @@ export class IframeIoProvider {
       ) {
         listener.method(message);
         done = true;
-        executedListeners.push(count++);
+        executedListeners.push(count);
+        count += 1;
       }
     });
     // now remove all listeners we just invoked

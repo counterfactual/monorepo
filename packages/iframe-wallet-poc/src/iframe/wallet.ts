@@ -4,11 +4,11 @@ import * as _ from "lodash";
 // TODO: Remove requirement of contracts repo. The preferred way to fix this is
 // to change the implementation of "deployMultisig" to make a call to a ProxyFactory
 // vs creating the entire multisig itself.
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 
-// TODO: We shouldn't need this after we change AppInstance.sol to be a global
+// TODO: We shouldn't need this after we change AppInstanceJson.sol to be a global
 // channel manager contract as opposed to each instance being counterfactual
-import AppInstance from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
@@ -22,15 +22,15 @@ import { User } from "./user";
 export class IFrameWallet implements machine.types.ResponseSink {
   // TODO: We shouldn't need this after we change AppInstance.sol to be a global
   // channel manager contract as opposed to each instance being counterfactual
-  public readonly appInstanceArtifact = AppInstance;
+  public readonly appInstanceArtifact = AppInstanceJson;
 
   public async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
     owners: machine.types.Address[]
   ): Promise<ethers.Contract> {
     const contract = await new ethers.ContractFactory(
-      MinimumViableMultisig.abi,
-      this.networkContext.linkBytecode(MinimumViableMultisig.bytecode),
+      MinimumViableMultisigJson.abi,
+      this.networkContext.linkBytecode(MinimumViableMultisigJson.bytecode),
       wallet
     ).deploy();
 
@@ -62,20 +62,27 @@ export class IFrameWallet implements machine.types.ResponseSink {
   private responseListener?: Function;
   private messageListener?: Function;
 
-  constructor(
-    networkContext: Map<string, string> | machine.types.NetworkContext
-  ) {
+  constructor(networkContext: machine.types.NetworkContext) {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
-    this.networkContext = new machine.types.NetworkContext(
-      networkContext["Registry"],
-      networkContext["PaymentApp"],
-      networkContext["ConditionalTransaction"],
-      networkContext["MultiSend"],
-      networkContext["NonceRegistry"],
-      networkContext["Signatures"],
-      networkContext["StaticCall"],
-      networkContext["ETHBalanceRefundApp"]
+    this.networkContext = networkContext;
+  }
+
+  // FIXME: Remove this method and refactor the network context data type.
+  public static networkFileToNetworkContext(json: Object) {
+    const tmp = _.mapValues(
+      _.keyBy(json, "contractName"),
+      "address"
+    );
+    return new machine.types.NetworkContext(
+      tmp["Registry"],
+      tmp["PaymentApp"],
+      tmp["ConditionalTransaction"],
+      tmp["MultiSend"],
+      tmp["NonceRegistry"],
+      tmp["Signatures"],
+      tmp["StaticCall"],
+      tmp["ETHBalanceRefundApp"]
     );
   }
 
@@ -96,14 +103,17 @@ export class IFrameWallet implements machine.types.ResponseSink {
   ) {
     this.address = address;
 
-    if (networkContext === undefined) {
-      networkContext = this.networkContext;
-    }
-
     if (!this.users.has(address)) {
       this.users.set(
         address,
-        new User(this, address, privateKey, networkContext, db, states)
+        new User(
+          this,
+          address,
+          privateKey,
+          networkContext || this.network,
+          db,
+          states
+        )
       );
     }
   }
@@ -198,9 +208,9 @@ export class IFrameWallet implements machine.types.ResponseSink {
 
   public sendNotification(type: cf.NotificationType, data: object) {
     const message: machine.types.Notification = {
+      data,
       type: "machine.types.Notification",
-      notificationType: type,
-      data
+      notificationType: type
     };
 
     this.sendResponse(message);
@@ -262,9 +272,11 @@ export class IFrameWallet implements machine.types.ResponseSink {
   }
 
   public async receiveMessageFromClient(
-    incoming: machine.types.ClientActionMessage | machine.types.ClientQuery
+    serializedIncoming:
+      | machine.types.ClientActionMessage
+      | machine.types.ClientQuery
   ) {
-    incoming = machine.serializer.deserialize(incoming);
+    const incoming = machine.serializer.deserialize(serializedIncoming);
 
     if ("query" in incoming) {
       switch (incoming.query) {

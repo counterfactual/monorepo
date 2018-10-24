@@ -92,25 +92,25 @@ contract("CountingApp", (accounts: string[]) => {
   let terms;
   beforeEach(async () => {
     const networkID = await AbstractContract.getNetworkID(unlockedAccount);
-    const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const Signatures = AbstractContract.loadBuildArtifact("Signatures");
-    const Transfer = AbstractContract.loadBuildArtifact("Transfer");
-    const AppInstance = await AbstractContract.loadBuildArtifact(
+    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
+    const signatures = AbstractContract.loadBuildArtifact("Signatures");
+    const transfer = AbstractContract.loadBuildArtifact("Transfer");
+    const appInstance = await AbstractContract.loadBuildArtifact(
       "AppInstance",
       {
-        Signatures,
-        StaticCall,
-        Transfer
+        Signatures: signatures,
+        StaticCall: staticCall,
+        Transfer: transfer
       }
     );
-    const CountingApp = await AbstractContract.loadBuildArtifact(
+    const countingApp = await AbstractContract.loadBuildArtifact(
       "CountingApp",
       {
-        StaticCall
+        StaticCall: staticCall
       }
     );
 
-    game = await CountingApp.deploy(unlockedAccount);
+    game = await countingApp.deploy(unlockedAccount);
 
     app = {
       addr: game.address,
@@ -127,8 +127,8 @@ contract("CountingApp", (accounts: string[]) => {
     };
 
     const contractFactory = new ethers.ContractFactory(
-      AppInstance.abi,
-      await AppInstance.generateLinkedBytecode(networkID),
+      appInstance.abi,
+      await appInstance.generateLinkedBytecode(networkID),
       unlockedAccount
     );
 

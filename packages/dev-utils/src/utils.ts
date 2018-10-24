@@ -1,3 +1,4 @@
+import lodash from "lodash";
 import * as ethers from "ethers";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
@@ -34,15 +35,13 @@ export function generateEthWallets(
   count: number,
   provider?: ethers.providers.Provider
 ): ethers.Wallet[] {
-  const wallets: ethers.Wallet[] = [];
-  for (let i = 0; i < count; i++) {
+  return lodash.range(count).map(x => {
     let wallet = ethers.Wallet.createRandom();
     if (provider) {
-      wallet = wallet.connect(provider); // @ts-ignore
+      wallet = wallet.connect(provider);
     }
-    wallets.push(wallet);
-  }
-  return wallets;
+    return wallet;
+  });
 }
 
 export const setupTestEnv = (web3: any) => {
@@ -91,11 +90,7 @@ export function getParamFromTxEvent(
   }
   chai.assert.equal(logs.length, 1, "too many logs found!");
   const param = logs[0].args[paramName];
-  if (contractFactory != null) {
-    return contractFactory.at(param);
-  } else {
-    return param;
-  }
+  return contractFactory != null ? contractFactory.at(param) : param;
 }
 
 export async function assertRejects(q, msg?) {
@@ -113,7 +108,6 @@ export async function assertRejects(q, msg?) {
 }
 
 export const mineOneBlock = () => {
-  // @ts-ignore
   const web3 = (global as any).web3;
   return new Promise((resolve, reject) => {
     web3.currentProvider.send(
@@ -133,8 +127,5 @@ export const mineOneBlock = () => {
   });
 };
 
-export const mineBlocks = async blocks => {
-  for (let i = 0; i < blocks; i++) {
-    await mineOneBlock();
-  }
-};
+export const mineBlocks = async (n: number) =>
+  lodash.times(n, await mineOneBlock);

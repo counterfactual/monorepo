@@ -97,9 +97,8 @@ export class CounterfactualVM implements Observable {
   public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
     if (data.appId) {
       return this.cfState.appChannelInfos[data.appId].stateChannel;
-    } else {
-      throw Error("No app id available");
     }
+    throw Error("No app id available");
   }
 
   public receive(msg: ClientActionMessage): WalletResponse {

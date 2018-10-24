@@ -107,7 +107,7 @@ export class AppCommitments implements Commitments {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
-    throw Error("App ID: " + this.appId + " has no " + action + " commitment");
+    throw Error(`App ID: ${this.appId} has no ${action} commitment`);
   }
 
   public serialize(): string {
@@ -193,9 +193,7 @@ export class CommitmentStore {
     ) {
       // FIXME: these errors should be handled more gracefully
       throw Error(
-        "Cannot make commitment for operation: " +
-          action +
-          ". The counterparty hasn't signed the commitment"
+        `Cannot make commitment for operation: ${action}. The counterparty hasn't signed the commitment`
       );
     }
 
@@ -224,19 +222,17 @@ export class CommitmentStore {
         machine.instructions.Instruction.IO_WAIT,
         context.results
       ).value;
-    } else {
-      const incomingMessageResult = machine.middleware.getLastResult(
-        machine.instructions.Instruction.IO_WAIT,
-        context.results
-      );
-      if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
-        // receiver since non installs should have no io_WAIT
-        return internalMessage.clientMessage;
-      } else {
-        // sender so grab out the response
-        return incomingMessageResult.value;
-      }
     }
+    const incomingMessageResult = machine.middleware.getLastResult(
+      machine.instructions.Instruction.IO_WAIT,
+      context.results
+    );
+    if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
+      // receiver since non installs should have no io_WAIT
+      return internalMessage.clientMessage;
+    }
+    // sender so grab out the response
+    return incomingMessageResult.value;
   }
 
   /**

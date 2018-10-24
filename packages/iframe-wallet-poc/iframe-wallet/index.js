@@ -5,10 +5,7 @@ fetch('../../../node_modules/@counterfactual/contracts/networks/7777777.json')
     return response.json();
   })
   .then(function(myJson) {
-    const networkContext = _.mapValues(
-      _.keyBy(myJson, "contractName"),
-      "address"
-    );
+    const networkContext = counterfactualWallet.IFrameWallet.networkFileToNetworkContext(myJson);
     iframeWallet = new counterfactualWallet.IFrameWallet(networkContext);
     console.log(`📄 Fetched development mode network context!`);
   });
