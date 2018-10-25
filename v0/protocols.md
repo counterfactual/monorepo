@@ -197,9 +197,14 @@ InstallAck = {
 
 ### Notes
 
+It's important to observe that both peers on the `InstallData` object hold the following relationship:
+
 ```
 InstallData.peer1.address < InstallData.peer2.address;
 ```
+
+Why? When transactions are submitted, it is necessary to ensure that the on-chain signatures are from all the multisig's owners. In order to prevent a potential attack (by submitting an array of _n_ signatures by _m < n_ people with non-unique values and no exact mapping to the set of _n_ owners of the multisig), the `<` relation enforces ordering the signatures.
+
 
 ### Main Files
 
