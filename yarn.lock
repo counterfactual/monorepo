@@ -6412,17 +6412,6 @@ sol-explore@^1.6.2:
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.4.24:
-  version "0.4.24"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.24.tgz#354f14b269b38cbaa82a47d1ff151723502b954e"
-  integrity sha512-2xd7Cf1HeVwrIb6Bu1cwY2/TaLRodrppCq3l7rhLimFQgmxptXhTC3+/wesVLpB09F1A2kZgvbMOgH7wvhFnBQ==
-  dependencies:
-    fs-extra "^0.30.0"
-    memorystream "^0.3.1"
-    require-from-string "^1.1.0"
-    semver "^5.3.0"
-    yargs "^4.7.1"
-
 solc@0.4.25, solc@^0.4.25:
   version "0.4.25"
   resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.25.tgz#06b8321f7112d95b4b903639b1138a4d292f5faa"
@@ -7045,15 +7034,6 @@ truffle-error@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/truffle-error/-/truffle-error-0.0.3.tgz#4bf55242e14deee1c7194932709182deff2c97ca"
   integrity sha1-S/VSQuFN7uHHGUkycJGC3v8sl8o=
-
-truffle@4.1.14:
-  version "4.1.14"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.14.tgz#8d2c298e29abf9b1e486e44ff9faca6d34bb9030"
-  integrity sha512-e7tTLvKP3bN9dE7MagfWyFjy4ZgoEGbeujECy1me1ENBzbj/aO/+45gs72qsL3+3IkCNNcWNOJjjrm8BYZZNNg==
-  dependencies:
-    mocha "^4.1.0"
-    original-require "1.0.1"
-    solc "0.4.24"
 
 truffle@5.0.0-beta.1:
   version "5.0.0-beta.1"

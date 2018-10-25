@@ -1,8 +1,4 @@
-import {
-  generateEthWallets,
-  mineBlocks,
-  setupTestEnv
-} from "@counterfactual/dev-utils";
+import { generateEthWallets, mineBlocks, setupTestEnv } from "../../utils/misc";
 import { expect } from "chai";
 import * as ethers from "ethers";
 

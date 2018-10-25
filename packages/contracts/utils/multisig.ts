@@ -1,4 +1,4 @@
-import { HIGH_GAS_LIMIT, signMessage } from "@counterfactual/dev-utils";
+import { HIGH_GAS_LIMIT, signMessage } from "./misc";
 import * as ethers from "ethers";
 import { Signatures } from "./buildArtifacts";
 import { AbstractContract } from "./contract";

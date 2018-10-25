@@ -45,7 +45,6 @@
     "rollup-plugin-typescript2": "^0.17.1"
   },
   "dependencies": {
-    "@counterfactual/dev-utils": "0.0.2",
     "@counterfactual/typescript-typings": "0.0.1",
     "ethers": "^4.0.4",
     "sha3": "^1.2.2"

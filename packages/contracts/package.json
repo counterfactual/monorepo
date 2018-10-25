@@ -71,7 +71,6 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@counterfactual/dev-utils": "0.0.2",
     "ethers": "^4.0.4",
     "openzeppelin-solidity": "^2.0.0"
   },

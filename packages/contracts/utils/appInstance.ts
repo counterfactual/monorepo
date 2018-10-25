@@ -1,4 +1,4 @@
-import { signMessage } from "@counterfactual/dev-utils";
+import { signMessage } from "./misc";
 import * as ethers from "ethers";
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";

@@ -1,4 +1,4 @@
-import { HIGH_GAS_LIMIT } from "@counterfactual/dev-utils";
+import { HIGH_GAS_LIMIT } from "./misc";
 import * as ethers from "ethers";
 
 const { solidityKeccak256 } = ethers.utils;
