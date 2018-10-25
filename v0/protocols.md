@@ -450,3 +450,68 @@ delegatecall(
     ))
 );
 ```
+
+## Cleanup
+
+### Handshake
+
+| A                     | B                       |
+| -----------           | --------------          |
+| `CleanupInstall`      |                         |
+|                       | `CleanupInstallAck`     |
+| `IncrementRootNonce`  |                         |
+|                       | `IncrementRootNonceAck` |
+
+### Message
+
+```typescript
+CleanupInstall = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 0,
+  signatures: mapping(appId => install commitment signature)
+};
+CleanupInstallAck = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 1,
+  signatures: mapping(appId => install commitment signature)
+};
+IncrementRootNonce = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 2,
+  signatures: mapping(appId => install commitment signature)
+};
+IncrementRootNonceAck = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 3,
+  signatures: mapping(appId => install commitment signature)
+};
+```
+
+### Install Metachannel App
+
+### Handshake
+
+| A                     | B                       |
+| -----------           | --------------          |
+| `InstallTarget`       |                         |
+|                       | `InstallTargetAck`      |
+| `InstallProxy1`       |                         |
+|                       | `InstallProxy1Ack`      |
+| `InstallProxy2`       |                         |
+|                       | `InstallProxy2Ack`      |
+| `setAuth`             |                         |
+|                       | `setAuthAck`            |
+
+### Commitments
+
+- A commitment to proxy1
+- A commitment to proxy2
+- A commitment to setAuth in the target app
