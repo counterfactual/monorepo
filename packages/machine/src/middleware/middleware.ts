@@ -6,7 +6,9 @@ import {
   ClientActionMessage,
   InternalMessage,
   OpCodeResult,
-  Signature
+  Signature,
+  InstructionMiddlewares,
+  InstructionMiddlewareCallback
 } from "../types";
 import { StateTransition } from "./state-transition/state-transition";
 
@@ -18,10 +20,24 @@ export class CfMiddleware {
   /**
    * Maps instruction to list of middleware that will process the instruction.
    */
-  public middlewares: Object;
+  public middlewares: InstructionMiddlewares = {
+    [Instruction.ALL]: [],
+    [Instruction.IO_PREPARE_SEND]: [],
+    [Instruction.IO_SEND]: [],
+    [Instruction.IO_WAIT]: [],
+    [Instruction.KEY_GENERATE]: [],
+    [Instruction.OP_GENERATE]: [],
+    [Instruction.OP_SIGN]: [],
+    [Instruction.OP_SIGN_VALIDATE]: [],
+    [Instruction.STATE_TRANSITION_COMMIT]: [],
+    [Instruction.STATE_TRANSITION_PROPOSE]: []
+  };
 
   constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
-    this.middlewares = {};
+    this.initializeMiddlewares(cfOpGenerator);
+  }
+
+  private initializeMiddlewares(cfOpGenerator) {
     this.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
@@ -45,12 +61,8 @@ export class CfMiddleware {
     this.add(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
   }
 
-  public add(scope: Instruction, method: Function) {
-    if (scope in this.middlewares) {
-      this.middlewares[scope].push({ scope, method });
-    } else {
-      this.middlewares[scope] = [{ scope, method }];
-    }
+  public add(scope: Instruction, method: InstructionMiddlewareCallback) {
+    this.middlewares[scope].push({ scope, method });
   }
 
   public async run(msg: InternalMessage, context: Context) {
@@ -89,12 +101,9 @@ export class CfMiddleware {
   // run does it, and rely on that for middleware cascading
   // https://github.com/counterfactual/monorepo/issues/158
   private executeAllMiddlewares(msg, context) {
-    const all = this.middlewares[Instruction.ALL];
-    if (all && all.length > 0) {
-      all.forEach(middleware => {
-        middleware.method(msg, null, context);
-      });
-    }
+    this.middlewares[Instruction.ALL].forEach(middleware => {
+      middleware.method(msg, () => {}, context);
+    });
   }
 }
 

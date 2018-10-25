@@ -483,3 +483,16 @@ export class WalletResponse {
     error?: string
   ) {}
 }
+
+export type InstructionMiddlewareCallback = {
+  (message: InternalMessage, next: Function, context: Context);
+};
+
+export interface InstructionMiddleware {
+  scope: Instruction;
+  method: InstructionMiddlewareCallback;
+}
+
+export type InstructionMiddlewares = {
+  [I in Instruction]: InstructionMiddleware[]
+};

@@ -14,7 +14,8 @@ import {
   WalletResponse,
   AddressableLookupResolverHash,
   H256,
-  Address
+  Address,
+  InstructionMiddlewareCallback
 } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -180,7 +181,7 @@ export class CounterfactualVM implements Observable {
     Object.assign(this.cfState.channelStates, state);
   }
 
-  public register(scope: Instruction, method: Function) {
+  public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
 }
