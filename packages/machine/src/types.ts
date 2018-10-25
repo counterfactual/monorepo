@@ -381,11 +381,7 @@ export class Signature {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
     const signatureStrings = sigs.map(sig => {
-      return (
-        ethers.utils.hexlify(ethers.utils.padZeros(sig.r, 32)).substring(2) +
-        ethers.utils.hexlify(ethers.utils.padZeros(sig.s, 32)).substring(2) +
-        sig.v.toString(16)
-      );
+      return sig.toString().substr(2);
     });
     return `0x${signatureStrings.join("")}`;
   }
