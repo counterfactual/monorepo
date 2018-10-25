@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/status-wip-orange.svg?style=svg)
 [![Discord](https://img.shields.io/discord/500370633901735947.svg)](https://counterfactual.com/chat)
-[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=svg)](https://github.com/RichardLitt/standard-readme)
 
 > This repository contains the specs for the Counterfactual Protocol and associated subsystems.
 
