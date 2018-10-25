@@ -31,11 +31,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Installing dependenciess
 
-**Make sure you have Yarn v1.10.1**. To install using [`brew`](https://brew.sh/):
-
-```shell
-brew install yarn
-```
+**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
 
 To install the dependencies:
 

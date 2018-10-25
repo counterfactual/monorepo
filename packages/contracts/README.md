@@ -30,6 +30,8 @@ The main purpose of this repository is to continue to evolve Counterfactual's co
 
 ## Development
 
+**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+
 1. Install node v10.12.0
 2. `yarn`
 

@@ -1,5 +1,7 @@
 ## Development
 
+**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+
 1. Run `yarn` and `yarn bootstrap` from the root of the repo.
 2. In this directory, run the following:
 
