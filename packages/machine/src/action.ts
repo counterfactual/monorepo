@@ -111,9 +111,6 @@ export class ActionExecution {
     }
   }
 
-  // TODO: Figure out the correct structure to be compliant with linter
-  // https://github.com/counterfactual/monorepo/issues/153
-  // tslint:disable
   public [Symbol.asyncIterator]() {
     return {
       next: () => this.next()
