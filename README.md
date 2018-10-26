@@ -16,19 +16,19 @@
 
 Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. Within their scope of applicability, they allow users to transact with each other without paying blockchain transaction fees and with instant finality, and are the only technique that securely realises the latter property.
 
-With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they proceed to exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](/v0/protocols.md) section.
+With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](/v0/protocols.md) section.
 
 Through a challenge-response mechanism, on-chain contracts implement a method for participants to ensure the latest signed valid state update that pertains to their commitment can be submitted to the blockchain to guarantee fair adjudication of the state.
 
 Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explainer of the contracts layer, please read the [contracts](/v0/contracts.md) subsection.
 
-## Properties
+## Design Goals
 
-Counterfactual has been designed to attain the following properties.
+Counterfactual has been designed to satisfy the following goals.
 
 ### Minimized on-chain footprint
 
-We don’t want to put anything on the chain that doesn’t need to be. In our designs, we have aimed to make the only necessary on-chain object for a state channel to be a generic multisignature wallet.
+We don’t want to put anything on the chain that doesn’t need to be. We aim to make a a generic multisignature wallet the only necessary on-chain object for a state channel.
 
 ### Maximized privacy
 
@@ -48,7 +48,7 @@ We want to support deploying or upgrading channel designs without requiring the 
 
 ### Standardized
 
-We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we've worked closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](http://eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
+We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we work closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](http://eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
 
 ## Limitations
 

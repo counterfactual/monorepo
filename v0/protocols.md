@@ -1,6 +1,6 @@
 # Counterfactual Protocol
 
-Counterfactual is the set of all protocols that can be communicated to handle the usage of off-chain applications pertaining to an on-chain state deposit. The current most up-to-date list of protocols is: [`setup`](#setup), [`install`](#install), [`setstate`](#setstate), [`uninstall`](#uninstall).
+Counterfactual specifies a set of protocols that channel participants run. The list of protocols is: [`setup`](#setup), [`install`](#install), [`setstate`](#setstate), [`uninstall`](#uninstall).
 
 A protocol consists of the following components:
 
@@ -165,7 +165,7 @@ PeerBalance = {
 InstallData = {
   peer1: PeerBalance,
   peer2: PeerBalance,
-  keyA: address, // app-specific ephemeral key
+  keyA: address,
   keyB: address,
   terms: Terms,
   app: CfAppInterface,
@@ -201,6 +201,7 @@ InstallData.peer1.address < InstallData.peer2.address;
 
 Why? When transactions are submitted, it is necessary to ensure that the on-chain signatures are from all the multisig's owners. In order to prevent a potential attack (by submitting an array of _n_ signatures by _m < n_ people with non-unique values and no exact mapping to the set of _n_ owners of the multisig), the `<` relation enforces ordering the signatures.
 
+`InstallData::keyA` and `InstallData::keyB` are app-specific ephemeral keys.
 
 ### Main Files
 
