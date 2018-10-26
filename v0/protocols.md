@@ -403,7 +403,7 @@ Uninstall = {
   seq: 0,
   signature: signature
 };
-AckUninstall = {
+UninstallAck = {
   protocol: 4,
   cfAddress: bytes32,
   fromAddress: address,
