@@ -8,11 +8,10 @@
   "description": "Counterfactual Types",
   "scripts": {
     "watch_without_deps": "tsc -w",
-    "clean": "shx rm -rf scripts"
+    "clean": "rm -rf scripts"
   },
   "devDependencies": {
     "copyfiles": "^2.0.0",
-    "shx": "^0.3.2",
     "tslint": "5.11.0",
     "typescript": "^3.1.2"
   },
