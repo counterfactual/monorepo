@@ -470,28 +470,28 @@ CleanupInstall = {
   fromAddress: address,
   toAddress: address,
   seq: 0,
-  signatures: mapping(appId => install commitment signature)
+  signatures: mapping(int => signature)
 };
 CleanupInstallAck = {
   protocol: 5,
   fromAddress: address,
   toAddress: address,
   seq: 1,
-  signatures: mapping(appId => install commitment signature)
+  signatures: mapping(int => signature)
 };
 IncrementRootNonce = {
   protocol: 5,
   fromAddress: address,
   toAddress: address,
   seq: 2,
-  signatures: mapping(appId => install commitment signature)
+  signature: signature
 };
 IncrementRootNonceAck = {
   protocol: 5,
   fromAddress: address,
   toAddress: address,
   seq: 3,
-  signatures: mapping(appId => install commitment signature)
+  signature: signature
 };
 ```
 
