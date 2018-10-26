@@ -110,9 +110,6 @@ let SetupAck = {
   seq: 1,
   signature: signature
 };
-
-Setup.fromAddress === SetupAck.toAddress;
-Setup.toAddress === SetupAck.fromAddress;
 ```
 
 Unlike the rest of the protocols, there is no extra message data for the Setup protocol because it is deterministic. It always installs a Free Balance contract with starting balances of 0, and so no extra data is required to be passed in from outside the context of the protocol execution.
@@ -136,7 +133,6 @@ The funds available in the free balance decrease and the funds committed to the 
 Let `c_1`, `c_2` be the amount that parties 1 and 2 wish to contribute towards the application. The commitment
 
 - updates the free balance state to one where party 1's balance is reduced by `c_1` and party 2's balance is reduced by `c_2`.
-- sets the nonce registry entry to 1.
 - calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2`.
 
 ### Handshake
@@ -378,9 +374,9 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 Notice the two operations here:
 
 - set a new state on the Free Balance. Alice's balance in the Free Balance object was incremented by 2 ETH, repurposing the funds once owned by the Tic-Tac-Toe application.
-- set a new nonce on the Nonce Registry. As a result, the Conditional Transfer pointing at Tic-Tac-Toe was invalidated, because we changed its associated entry in the NonceRegistry to 2.
+- set a new nonce on the Nonce Registry. As a result, the Conditional Transfer pointing at Tic-Tac-Toe was invalidated, because we changed its associated entry in the NonceRegistry to 1.
 
-Specifically, when we exchange commitments on the Conditional Transfer in the Install Protocol, we are exchanging signatures allowing us to execute a Conditional Transfer if and only if the nonce equals 1. _If the Nonce is ever not 1_, then the conditional transfer will fail, as desired in the Uninstall Protocol.
+Specifically, the Conditional Transfer commitment created by the Install Protocol checks that the dependency nonce does not equal 1. _If the nonce is ever 1_, then the conditional transfer will fail. Hence setting the nonce to 1 invalidates the conditional transfer, which is desired behaviour.
 
 ### Handshake
 
