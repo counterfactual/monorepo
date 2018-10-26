@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-eth/contracts/token/ERC20/ERC20.sol";
 
 
 /// @title Transfer - A library to encode a generic asset transfer data type
