@@ -37,14 +37,24 @@ contract ConditionalTransaction is Conditional {
     address registry,
     address nonceRegistry,
     bytes32 uninstallKey,
+    bytes32 rootNonceKey,
+    uint256 rootNonceExpectedValue,
     bytes32 appCfAddress,
     Transfer.Terms terms
   )
     public
   {
+
+    // todo(ldct): combine the following two CALLs into one
+
     require(
       !NonceRegistry(nonceRegistry).isFinalized(uninstallKey, 1),
       "App has been uninstalled"
+    );
+
+    require(
+      NonceRegistry(nonceRegistry).isFinalized(rootNonceKey, rootNonceExpectedValue),
+      "Root nonce not finalized or finalized at an incorrect value"
     );
 
     address appAddr = Registry(registry).resolver(appCfAddress);
