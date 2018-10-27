@@ -1,16 +1,12 @@
-import * as ethers from "ethers";
-
-// TODO: Don't import from the contracts repo for this, there should be some kind of
-// "counterfactual app store" registry that we can pull from. Additionally, the below two
-// apps should be considered "default" somewhere. Probably inside the machine, as they're
-// often reused and critical infrastructure for ETH payments and deposits.
+import * as cf from "@counterfactual/cf.js";
 import ETHBalanceRefundAppJson from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
-
-import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
+import * as ethers from "ethers";
+
 import { ganacheURL } from "../src/iframe/user";
 import { IFrameWallet } from "../src/iframe/wallet";
+
 import { EMPTY_NETWORK_CONTEXT } from "./common";
 import {
   A_ADDRESS,

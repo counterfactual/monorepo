@@ -1,8 +1,9 @@
+import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import * as machine from "@counterfactual/machine";
+import * as ethers from "ethers";
+
 import { AppInstance } from "./app-instance";
 import { AppDefinition } from "./types";
-import * as ethers from "ethers";
-import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 
 export class ETHBalanceRefundApp extends AppInstance {
   constructor(appAddress: string, signingKeys: string[]) {

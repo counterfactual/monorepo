@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
   Address,

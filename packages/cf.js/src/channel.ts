@@ -1,5 +1,4 @@
 import * as machine from "@counterfactual/machine";
-import * as types from "./types";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
@@ -7,6 +6,7 @@ import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
+import * as types from "./types";
 
 export class Channel {
   public client: Client;

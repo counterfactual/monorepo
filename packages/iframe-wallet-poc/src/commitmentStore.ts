@@ -1,4 +1,5 @@
 import * as machine from "@counterfactual/machine";
+
 import {
   InMemoryKeyValueStore,
   InMemoryKeyValueStoreImpl

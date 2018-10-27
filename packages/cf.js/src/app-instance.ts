@@ -1,7 +1,8 @@
 import * as machine from "@counterfactual/machine";
-import { AppDefinition, AbiEncodings } from "./types";
 import * as ethers from "ethers";
 import * as _ from "lodash";
+
+import { AbiEncodings, AppDefinition } from "./types";
 
 export class AppInstance {
   constructor(

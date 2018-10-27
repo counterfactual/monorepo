@@ -2,6 +2,7 @@ import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
+
 import { IframeIoProvider } from "./ioProvider";
 import { IFrameWallet } from "./wallet";
 

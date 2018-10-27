@@ -1,7 +1,8 @@
 import * as machine from "@counterfactual/machine";
+
+import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { Channel } from "./channel";
 
 type WalletMessage = machine.types.WalletMessage;
 type WalletResponse = machine.types.WalletResponse;

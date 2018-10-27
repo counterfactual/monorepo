@@ -1,5 +1,6 @@
-import { AppInstance } from "../src/app-instance";
 import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
+
+import { AppInstance } from "../src/app-instance";
 
 describe("AppInstance", async () => {
   it("generateAbiEncodings correctly generates a appStateEncoding and appActionEncoding", () => {

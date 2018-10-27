@@ -17,7 +17,7 @@
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:sol": "solium -d .",
-    "lint:ts:fix": "yarn lint --fix",
+    "lint:ts:fix": "tslint -c tslint.json -p . --fix",
     "lint:ts": "tslint -c tslint.json -p .",
     "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage"

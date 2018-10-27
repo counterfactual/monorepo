@@ -1,6 +1,10 @@
+import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
 import { Address, NetworkContext } from "../../types";
+
+import { CfMultiSendOp } from "./cf-multisend-op";
 import {
   CfFreeBalance,
   CfNonce,
@@ -8,10 +12,6 @@ import {
   MultisigInput,
   Operation
 } from "./types";
-
-import { CfMultiSendOp } from "./cf-multisend-op";
-
-import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 
 const { keccak256 } = ethers.utils;
 

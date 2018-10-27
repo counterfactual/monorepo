@@ -14,6 +14,11 @@
       "protected-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
       "static-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
       "function-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$"
-    }]
+    }],
+    // NOTE: Added by Liam. I just prefer this rule to be on. Looks clean.
+    "ordered-imports": [
+      true,
+      {"grouped-imports": true}
+    ]
   }
 }

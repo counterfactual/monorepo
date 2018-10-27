@@ -5,17 +5,17 @@ import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { CfState } from "./state";
 import {
+  Address,
   Addressable,
+  AddressableLookupResolverHash,
   ChannelStates,
   ClientActionMessage,
+  H256,
+  InstructionMiddlewareCallback,
   NetworkContext,
   ResponseSink,
   StateChannelInfo,
-  WalletResponse,
-  AddressableLookupResolverHash,
-  H256,
-  Address,
-  InstructionMiddlewareCallback
+  WalletResponse
 } from "./types";
 import { Log } from "./write-ahead-log";
 

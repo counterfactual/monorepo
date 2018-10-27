@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
 import {
@@ -10,6 +11,7 @@ import {
   PeerBalance
 } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
+
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";

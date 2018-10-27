@@ -1,7 +1,8 @@
+import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
-import * as machine from "@counterfactual/machine";
 import { IFrameWallet } from "../src/iframe/wallet";
+
 import { UNUSED_FUNDED_ACCOUNT } from "./environment";
 
 export async function sleep(ms) {

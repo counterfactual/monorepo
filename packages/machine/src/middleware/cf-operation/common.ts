@@ -1,8 +1,8 @@
-import * as ethers from "ethers";
-import { Bytes, H256, NetworkContext } from "../../types";
-
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
+import * as ethers from "ethers";
+
+import { Bytes, H256, NetworkContext } from "../../types";
 
 /**
  * Returns the calldata for a call to `registry` that looks up `appCfAddr` and

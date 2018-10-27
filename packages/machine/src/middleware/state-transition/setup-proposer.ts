@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import { InternalMessage, PeerBalance, StateProposal } from "../../types";
 import { CfFreeBalance, CfNonce } from "../cf-operation/types";

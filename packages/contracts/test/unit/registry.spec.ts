@@ -1,7 +1,8 @@
-import * as Utils from "../../utils/misc";
 import * as ethers from "ethers";
 import * as solc from "solc";
+
 import { AbstractContract, expect } from "../../utils";
+import * as Utils from "../../utils/misc";
 
 contract("Registry", accounts => {
   const web3 = (global as any).web3;

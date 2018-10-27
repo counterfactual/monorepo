@@ -1,4 +1,7 @@
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
 import {
   Address,
@@ -9,9 +12,6 @@ import {
   NetworkContext,
   Signature
 } from "../../types";
-
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 
 const { keccak256 } = ethers.utils;
 

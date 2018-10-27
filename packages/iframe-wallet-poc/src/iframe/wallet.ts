@@ -1,17 +1,10 @@
+import * as cf from "@counterfactual/cf.js";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-// TODO: Remove requirement of contracts repo. The preferred way to fix this is
-// to change the implementation of "deployMultisig" to make a call to a ProxyFactory
-// vs creating the entire multisig itself.
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-
-// TODO: We shouldn't need this after we change AppInstanceJson.sol to be a global
-// channel manager contract as opposed to each instance being counterfactual
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-
-import * as cf from "@counterfactual/cf.js";
-import * as machine from "@counterfactual/machine";
 import { User } from "./user";
 
 // TODO: This file, and all other files with `class` definitions, should be linted
