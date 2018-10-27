@@ -116,7 +116,26 @@ Unlike the rest of the protocols, there is no extra message data for the Setup p
 
 ### Commitment
 
-TBD
+```typescript
+delegatecall(
+  (to = MULTISEND_ADDRESS),
+  (val = 0),
+  (data =
+    encodeArgs(
+      /* do conditional transfer */
+      ("uint256", "address", "uint256", "bytes"),
+      [
+        1,
+        CONDITIONAL_TRANSFER,
+        0,
+        encode(
+          "executeAppConditionalTransaction(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
+          [REGISTRY, NONCE_REGISTRY, key, app.cfAddress(assetType, limit, token)]
+        )
+      ]
+    ))
+);
+```
 
 ## Install
 
@@ -127,13 +146,6 @@ Running the install protocol allows them to play a game of Tic-Tac-Toe where Ali
 ![install](./img/install.png)
 
 The funds available in the free balance decrease and the funds committed to the tic-tac-toe application increase by the corresponding amount.
-
-### Commitment
-
-Let `c_1`, `c_2` be the amount that parties 1 and 2 wish to contribute towards the application. The commitment
-
-- updates the free balance state to one where party 1's balance is reduced by `c_1` and party 2's balance is reduced by `c_2`.
-- calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2`.
 
 ### Handshake
 
@@ -211,6 +223,11 @@ Why? When transactions are submitted, it is necessary to ensure that the on-chai
 see also: `MultiSend.sol` for how multisend transactions are decoded
 
 ### Commitment
+
+Let `c_1`, `c_2` be the amount that parties 1 and 2 wish to contribute towards the application. The commitment
+
+- updates the free balance state to one where party 1's balance is reduced by `c_1` and party 2's balance is reduced by `c_2`.
+- calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2`.
 
 #### Parameters
 
@@ -410,7 +427,7 @@ UninstallAck = {
 };
 ```
 
-### Transaction
+### Commitment
 
 ```typescript
 delegatecall(
