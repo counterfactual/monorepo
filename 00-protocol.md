@@ -278,8 +278,8 @@ delegatecall(
         CONDITIONAL_TRANSFER,
         0,
         encode(
-          "executeAppConditionalTransaction(address,address,bytes32,uint256,bytes32,tuple(uint8,uint256,address))",
-          [REGISTRY, NONCE_REGISTRY, key, app.cfAddress(assetType, limit, token)]
+          "executeAppConditionalTransaction(address,address,bytes32,bytes32,uint256,uint256,bytes32,tuple(uint8,uint256,address))",
+          [REGISTRY, NONCE_REGISTRY, key, rootNonceKey, r, app.cfAddress, tuple(assetType, limit, token)]
         )
       ]
     ))
@@ -467,3 +467,96 @@ delegatecall(
     ))
 );
 ```
+
+## Cleanup
+
+### Handshake
+
+| A                     | B                       |
+| -----------           | --------------          |
+| `CleanupInstall`      |                         |
+|                       | `CleanupInstallAck`     |
+| `IncrementRootNonce`  |                         |
+|                       | `IncrementRootNonceAck` |
+
+### Message
+
+```typescript
+CleanupInstall = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 0,
+  signatures: mapping(int => signature)
+};
+CleanupInstallAck = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 1,
+  signatures: mapping(int => signature)
+};
+IncrementRootNonce = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 2,
+  signature: signature
+};
+IncrementRootNonceAck = {
+  protocol: 5,
+  fromAddress: address,
+  toAddress: address,
+  seq: 3,
+  signature: signature
+};
+```
+
+### Commitments
+
+For each active app, the following commitment must be created
+
+- calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2` and a expected root nonce key of `r + 1`
+
+Note that this is different from the install commitment in that it is not a multisend and does not set the free balance. Note that the free balance is also considered an active app.
+
+A commitment to increment the root nonce is created.
+
+Note that the dependency in the handshake is important; it is not safe to sign the root nonce commitment without possession of all the active app commitments.
+
+### Transaction
+
+Active app conditional transfer:
+
+```typescript
+delegatecall(
+  (to = CONDITIONAL_TRANSFER),
+  (val = 0),
+  (data =
+    encode(
+      "executeAppConditionalTransaction(address,address,bytes32,bytes32,uint256,uint256,bytes32,tuple(uint8,uint256,address))",
+      [REGISTRY, NONCE_REGISTRY, key, rootNonceKey, r+1, app.cfAddress, tuple(assetType, limit, token)]
+    )
+);
+```
+
+### Install Metachannel App
+
+### Handshake
+
+| A                     | B                       |
+| -----------           | --------------          |
+| `InstallTarget`       |                         |
+|                       | `InstallTargetAck`      |
+| `InstallProxy1`       |                         |
+|                       | `InstallProxy1Ack`      |
+| `InstallProxy2`       |                         |
+|                       | `InstallProxy2Ack`      |
+| `setAuth`             |                         |
+|                       | `setAuthAck`            |
+
+### Commitments
+
+- A commitment to proxy1
+- A commitment to proxy2
+- A commitment to setAuth in the target app
