@@ -57,9 +57,9 @@ There is additionally a final function that sets the resolution of an off-chain 
 
 ## AppDefinitions
 
-Counterfactual is opinionated in terms of which types of applications it supports being installed by strictly supporting stateless contracts that implement the interface for an `App` as defined in the [`AppInstance`](#appinstance) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
+Counterfactual is opinionated in terms of which types of applications it supports being installed by supporting stateless contracts that implement the interface for an `App` as defined in the [`AppInstance`](#appinstance) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
 
-The actual `App` functionality is isolated and defined in a single stateless contract. This contract defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-state-modifying functions. By non-state-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `STATICCALL` opcode in the [`AppInstance`](#appinstance) contract.
+The actual `App` functionality is isolated and defined in a single stateless contract. This contract defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-storage-modifying functions. By non-storage-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `STATICCALL` opcode in the [`AppInstance`](#appinstance) contract.
 
 Up to four functions can be implemented. The signatures are as follows:
 
@@ -68,9 +68,9 @@ Up to four functions can be implemented. The signatures are as follows:
 - `applyAction: (AppState, Action) → AppState`
 - `resolve: AppState → Transfer.Transaction`
 
-In designing the framework we must try to achieve two sometimes contradictory goals. On the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as abi.decode will allow us to remove these and other restrictions and move to a cleaner API.
+In designing the framework we must try to achieve two sometimes contradictory goals. On the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as `abi.decode` will allow us to remove these and other restrictions and move to a cleaner API.
 
-Another limitation is that the return type of `resolve` is actually `bytes`. We expect that application developers simply end their `resolve` function with something like
+Another consequence is that the return type of `resolve` is actually `bytes`. We expect that application developers simply end their `resolve` function with something like
 
 `return abi.encode(nextState);`
 
@@ -78,7 +78,7 @@ where `nextState` has type `AppState`.
 
 ### `applyAction` and `getTurnTaker`: The Application State Transition Function
 
-If `AppState` defines the data structure needed to represent the state of an app instance, `applyAction` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `applyAction` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address who can unilaterally update the app state. This update is done through the `applyAction` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
+If `AppState` defines the data structure needed to represent the state of an app instance, `applyAction` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `applyAction` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address which can unilaterally update the app state. This update is done through the `applyAction` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
 
 <center>
     <br />
