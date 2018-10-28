@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import { Signature } from "./types";
+import { Signature } from "./utils/signature";
 
 /**
  * reconstitute a freshly `JSON.parse`d payload, ensuring that objects

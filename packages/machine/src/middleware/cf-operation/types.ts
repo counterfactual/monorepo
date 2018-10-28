@@ -3,15 +3,9 @@ import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.j
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-import {
-  Address,
-  Bytes,
-  Bytes32,
-  Bytes4,
-  H256,
-  NetworkContext,
-  Signature
-} from "../../types";
+import { Address, Bytes, Bytes32, Bytes4, H256 } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
 
 const { keccak256 } = ethers.utils;
 

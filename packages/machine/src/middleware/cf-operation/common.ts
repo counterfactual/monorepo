@@ -2,7 +2,8 @@ import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstan
 import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 import * as ethers from "ethers";
 
-import { Bytes, H256, NetworkContext } from "../../types";
+import { Bytes, H256 } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
 
 /**
  * Returns the calldata for a call to `registry` that looks up `appCfAddr` and

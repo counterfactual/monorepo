@@ -1,7 +1,10 @@
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-import { Address, NetworkContext, Signature } from "../../types";
+
+import { Address } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {

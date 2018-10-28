@@ -8,9 +8,10 @@ import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
   InternalMessage,
-  OpCodeResult,
-  Signature
+  OpCodeResult
 } from "../types";
+
+import { Signature } from "../utils/signature";
 
 import { StateTransition } from "./state-transition/state-transition";
 

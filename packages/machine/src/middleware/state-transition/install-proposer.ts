@@ -8,9 +8,9 @@ import {
   H256,
   InstallData,
   InternalMessage,
-  PeerBalance,
   StateProposal
 } from "../../types";
+import { PeerBalance } from "../../utils/peer-balance";
 import {
   CfAppInterface,
   CfFreeBalance,

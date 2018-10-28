@@ -52,8 +52,8 @@ export class AppChannelClient {
 
     const uninstallData = {
       peerAmounts: [
-        new machine.types.PeerBalance(freeBalance.alice, options.peerABalance),
-        new machine.types.PeerBalance(freeBalance.bob, options.peerBBalance)
+        new machine.utils.PeerBalance(freeBalance.alice, options.peerABalance),
+        new machine.utils.PeerBalance(freeBalance.bob, options.peerBBalance)
       ]
     };
 

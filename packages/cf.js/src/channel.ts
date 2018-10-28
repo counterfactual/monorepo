@@ -77,8 +77,8 @@ export class Channel {
       app,
       terms: appInstance.terms,
       timeout: appInstance.timeout,
-      peerA: new machine.types.PeerBalance(peerA, deposits[peerA]),
-      peerB: new machine.types.PeerBalance(peerB, deposits[peerB]),
+      peerA: new machine.utils.PeerBalance(peerA, deposits[peerA]),
+      peerB: new machine.utils.PeerBalance(peerB, deposits[peerB]),
       keyA: appInstance.signingKeys[0],
       keyB: appInstance.signingKeys[1]
     };

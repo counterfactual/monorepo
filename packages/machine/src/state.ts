@@ -8,11 +8,11 @@ import {
   AppChannelInfos,
   ChannelStates,
   H256,
-  NetworkContext,
   OpCodeResult,
   StateChannelInfo,
   StateChannelInfos
 } from "./types";
+import { NetworkContext } from "./utils/network-context";
 import { CounterfactualVM } from "./vm";
 
 export class CfState {

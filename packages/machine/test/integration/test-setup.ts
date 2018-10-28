@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 
-import { ActionName, ClientActionMessage, PeerBalance } from "../../src/types";
+import { ActionName, ClientActionMessage } from "../../src/types";
+import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 import { TestResponseSink } from "./test-response-sink";

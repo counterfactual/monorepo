@@ -7,9 +7,9 @@ import {
   Address,
   CanonicalPeerBalance,
   H256,
-  InternalMessage,
-  PeerBalance
+  InternalMessage
 } from "../../types";
+import { PeerBalance } from "../../utils/peer-balance";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";

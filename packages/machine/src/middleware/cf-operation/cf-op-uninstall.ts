@@ -1,4 +1,5 @@
-import { Address, NetworkContext } from "../../types";
+import { Address } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 import { CfFreeBalance, CfNonce, MultisigInput } from "./types";

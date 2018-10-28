@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new machine.types.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new machine.utils.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -84,7 +84,7 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
-    const canon = machine.types.PeerBalance.balances(
+    const canon = machine.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,

@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "rm -rf .rpt2_cache dist",
     "build": "rollup -c",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "tslint -c tslint.json -p .",
     "lint": "tslint -c tslint.json -p .",
     "test": "jest --runInBand --detectOpenHandles --bail"
   },

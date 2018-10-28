@@ -15,7 +15,7 @@ import {
 
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
-let network: machine.types.NetworkContext;
+let network: machine.utils.NetworkContext;
 
 beforeAll(() => {
   walletA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);

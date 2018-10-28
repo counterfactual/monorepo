@@ -8,13 +8,9 @@ import {
   Terms,
   Transaction
 } from "../../src/middleware/cf-operation/types";
-import {
-  ActionName,
-  ClientActionMessage,
-  InstallData,
-  NetworkContext,
-  PeerBalance
-} from "../../src/types";
+import { ActionName, ClientActionMessage, InstallData } from "../../src/types";
+import { NetworkContext } from "../../src/utils/network-context";
+import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {

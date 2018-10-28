@@ -3,7 +3,10 @@ import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRe
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-import { Address, Bytes, NetworkContext, Signature } from "../../types";
+
+import { Address, Bytes } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {

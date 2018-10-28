@@ -12,11 +12,11 @@ import {
   ClientActionMessage,
   H256,
   InstructionMiddlewareCallback,
-  NetworkContext,
   ResponseSink,
   StateChannelInfo,
   WalletResponse
 } from "./types";
+import { NetworkContext } from "./utils/network-context";
 import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
