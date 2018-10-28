@@ -8,11 +8,11 @@ Counterfactual is a state channels based protocol for off-chain blockchain-based
 
 Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. State channels allow users to transact with each other without paying blockchain transaction fees and with instant finality. They are the only technique that securely realises the latter property.
 
-With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](/v0/protocols.md) section.
+With this approach, participants begin by depositing blockchain state into the possession of an n-of-n multisignature wallet. Then, they exchange cryptographically signed messages through an arbitrary communication channel. These messages are either pre-signed transactions to distribute the blockchain state or state updates relevant to those commitments that change the distribution. The protocol that defines what kinds of messages are exchanged to ensure secure off-chain state updates is described in depth in the [protocol](./00-protocols.md) section.
 
 Through a challenge-response mechanism, on-chain contracts implement a method for participants to ensure the latest signed valid state update that pertains to their commitment can be submitted to the blockchain to guarantee fair adjudication of the state.
 
-Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explainer of the contracts layer, please read the [contracts](/v0/contracts.md) subsection.
+Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explainer of the contracts layer, please read the [contracts](./01-contracts.md) subsection.
 
 Counterfactual has been designed to satisfy the following goals.
 
@@ -30,7 +30,7 @@ We want channels that can be easily incorporated into new applications without t
 
 ### Parallel operations
 
-We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](/v0/protocols.md).
+We want to see support for multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to be kinds of running off-chain applications that have state assigned to them completely independently of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](./00-protocols.md).
 
 ### Upgradeable
 
