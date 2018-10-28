@@ -18,12 +18,12 @@ contract ConditionalTransfer is Conditional {
 
   function executeSimpleConditionalTransfer(
     Condition condition,
-    Transfer.Transaction memory tx
+    Transfer.Transaction memory txn
   )
     public
   {
     require(Conditional.isSatisfied(condition));
-    tx.execute();
+    txn.execute();
   }
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
@@ -48,14 +48,14 @@ contract ConditionalTransfer is Conditional {
 
     address appAddr = Registry(registry).resolver(appCfAddress);
     AppInstance app = AppInstance(appAddr);
-    Transfer.Transaction memory tx = app.getResolution();
+    Transfer.Transaction memory txn = app.getResolution();
 
     require(
-      Transfer.meetsTerms(tx, terms),
+      Transfer.meetsTerms(txn, terms),
       "Transfer details do not meet terms"
     );
 
-    tx.execute();
+    txn.execute();
   }
 
 }

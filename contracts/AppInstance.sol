@@ -247,7 +247,7 @@ contract AppInstance {
 
     bytes32 actionHash = computeActionHash(
       turnTaker,
-      keccak256(appState),
+      appStateHash,
       action,
       nonce,
       state.disputeNonce

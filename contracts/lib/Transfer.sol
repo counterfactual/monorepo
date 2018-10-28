@@ -33,27 +33,27 @@ library Transfer {
   }
 
   /// @notice A delegate target for executing transfers of an arbitrary Transfer.Detail
-  /// @param tx A `Transfer.Transaction` struct
+  /// @param txn A `Transfer.Transaction` struct
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
-  function execute(Transfer.Transaction memory tx) public {
-    for (uint256 i = 0; i < tx.to.length; i++) {
-      address to = tx.to[i];
-      uint256 value = tx.value[i];
+  function execute(Transfer.Transaction memory txn) public {
+    for (uint256 i = 0; i < txn.to.length; i++) {
+      address to = txn.to[i];
+      uint256 value = txn.value[i];
 
-      if (tx.assetType == uint8(Transfer.Asset.ETH)) {
+      if (txn.assetType == uint8(Transfer.Asset.ETH)) {
         to.transfer(value);
-      } else if (tx.assetType == uint8(Transfer.Asset.ERC20)) {
-        require(ERC20(tx.token).transfer(to, value));
+      } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
+        require(ERC20(txn.token).transfer(to, value));
       }
     }
   }
 
   /// @notice Verifies whether or not a `Transfer.Transaction` meets the terms set by a
   /// `Transfer.Terms` object based on the limit information of how much can be transferred
-  /// @param tx A `Transfer.Transaction` struct
+  /// @param txn A `Transfer.Transaction` struct
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
-    Transfer.Transaction memory tx,
+    Transfer.Transaction memory txn,
     Transfer.Terms terms
   )
     public
@@ -61,8 +61,8 @@ library Transfer {
     returns (bool)
   {
     uint256 sum = 0;
-    for (uint256 i = 0; i < tx.value.length; i++) {
-      sum += tx.value[i];
+    for (uint256 i = 0; i < txn.value.length; i++) {
+      sum += txn.value[i];
     }
     return sum <= terms.limit;
   }

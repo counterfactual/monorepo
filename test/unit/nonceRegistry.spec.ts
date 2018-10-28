@@ -10,7 +10,7 @@ const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 contract("NonceRegistry", accounts => {
   let registry: ethers.Contract;
 
-  const computeKey = (timeout: ethers.BigNumber, salt: string) =>
+  const computeKey = (timeout: ethers.utils.BigNumber, salt: string) =>
     ethers.utils.solidityKeccak256(
       ["address", "uint256", "bytes32"],
       [accounts[0], timeout, salt]
@@ -42,7 +42,7 @@ contract("NonceRegistry", accounts => {
   });
 
   it("can set nonces", async () => {
-    const timeout = new ethers.BigNumber(10);
+    const timeout = new ethers.utils.BigNumber(10);
     await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, 1);
     const ret = await registry.functions.table(
       computeKey(timeout, Utils.ZERO_BYTES32)
@@ -56,7 +56,7 @@ contract("NonceRegistry", accounts => {
   it("fails if nonce increment is not positive", async () => {
     await Utils.assertRejects(
       registry.functions.setNonce(
-        new ethers.BigNumber(10),
+        new ethers.utils.BigNumber(10),
         Utils.ZERO_BYTES32,
         0
       )
@@ -64,8 +64,8 @@ contract("NonceRegistry", accounts => {
   });
 
   it("can insta-finalize nonces", async () => {
-    const timeout = new ethers.BigNumber(0);
-    const nonceValue = new ethers.BigNumber(1);
+    const timeout = new ethers.utils.BigNumber(0);
+    const nonceValue = new ethers.utils.BigNumber(1);
     await registry.functions.setNonce(timeout, Utils.ZERO_BYTES32, nonceValue);
     const ret = await registry.functions.table(
       computeKey(timeout, Utils.ZERO_BYTES32)

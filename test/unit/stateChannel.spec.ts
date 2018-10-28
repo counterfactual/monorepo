@@ -91,9 +91,12 @@ contract("AppInstance", (accounts: string[]) => {
   });
 
   beforeEach(async () => {
-    const contract = new ethers.Contract("", StateChannel.abi, unlockedAccount);
-    stateChannel = await contract.deploy(
+    const contractFactory = new ethers.ContractFactory(
+      StateChannel.abi,
       StateChannel.binary,
+      unlockedAccount
+    );
+    stateChannel = await contractFactory.deploy(
       accounts[0],
       [A.address, B.address],
       Utils.ZERO_BYTES32,

@@ -14,7 +14,7 @@ export enum AssetType {
 
 export interface TransferTerms {
   assetType: AssetType;
-  limit: ethers.types.BigNumberish;
+  limit: ethers.utils.BigNumber;
   token?: string;
 }
 
@@ -161,7 +161,7 @@ export function computeActionHash(
  * @returns string 32-byte keccak256 hash
  */
 export function computeNonceRegistryKey(
-  timeout: ethers.BigNumber,
+  timeout: ethers.utils.BigNumber,
   multisigAddress: string,
   nonceSalt: string
 ) {
