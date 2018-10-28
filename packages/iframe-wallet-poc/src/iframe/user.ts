@@ -2,6 +2,7 @@ import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
+
 import { IframeIoProvider } from "./ioProvider";
 import { IFrameWallet } from "./wallet";
 
@@ -49,7 +50,7 @@ export class User
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: machine.types.NetworkContext,
+    networkContext: machine.utils.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
     states?: machine.types.ChannelStates
   ) {
@@ -250,14 +251,14 @@ async function signMyUpdate(
   next: Function,
   context: machine.state.Context,
   user: User
-): Promise<machine.types.Signature> {
+): Promise<machine.utils.Signature> {
   const operation: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
   const sig = user.signingKey.signDigest(digest);
-  return new machine.types.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
+  return new machine.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 
 async function validateSignatures(

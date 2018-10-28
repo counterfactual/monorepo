@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
@@ -7,9 +8,9 @@ import {
   H256,
   InstallData,
   InternalMessage,
-  PeerBalance,
   StateProposal
 } from "../../types";
+import { PeerBalance } from "../../utils/peer-balance";
 import {
   CfAppInterface,
   CfFreeBalance,

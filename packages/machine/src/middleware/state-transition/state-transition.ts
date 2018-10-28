@@ -2,6 +2,7 @@ import { Instruction } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
 import { CfState, Context } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
+
 import { PROPOSER_ACTIONS } from "./proposer-actions";
 
 export class StateTransition {

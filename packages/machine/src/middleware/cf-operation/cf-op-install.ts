@@ -1,8 +1,11 @@
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
-
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
-import { Address, H256, NetworkContext } from "../../types";
+
+import { Address, H256 } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+
 import { CfMultiSendOp } from "./cf-multisend-op";
 import {
   CfFreeBalance,

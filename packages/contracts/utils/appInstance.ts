@@ -1,7 +1,8 @@
-import { signMessage } from "./misc";
 import * as ethers from "ethers";
+
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
+import { signMessage } from "./misc";
 import { Multisig } from "./multisig";
 import { abiEncodingForStruct, encodeStruct } from "./structEncoding";
 

@@ -1,7 +1,8 @@
 import * as machine from "@counterfactual/machine";
+
+import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { StateChannelClient } from "./state-channel-client";
 
 type WalletMessage = machine.types.WalletMessage;
 type WalletResponse = machine.types.WalletResponse;
@@ -20,7 +21,7 @@ export class Client implements Observable {
   public outstandingRequests: {
     [key: string]: { resolve: Function; reject: Function };
   };
-  public stateChannels: { [key: string]: StateChannelClient };
+  public stateChannels: { [key: string]: Channel };
 
   // Obserable
   public observers: Map<NotificationType, Function[]> = new Map();
@@ -192,11 +193,11 @@ export class Client implements Observable {
     return this.sendMessage(message);
   }
 
-  public getStateChannel(multisigAddress: string): StateChannelClient {
+  public getStateChannel(multisigAddress: string): Channel {
     return this.stateChannels[multisigAddress];
   }
 
-  public async connect(toAddress: string): Promise<StateChannelClient> {
+  public async connect(toAddress: string): Promise<Channel> {
     const {
       data: { multisigAddress, generatedNewMultisig }
     } = await this.sendMessage({
@@ -228,12 +229,9 @@ export class Client implements Observable {
     });
   }
 
-  private instantiateStateChannel(
-    multisigAddress,
-    toAddress
-  ): StateChannelClient {
+  private instantiateStateChannel(multisigAddress, toAddress): Channel {
     if (!this.stateChannels[multisigAddress]) {
-      this.stateChannels[multisigAddress] = new StateChannelClient(
+      this.stateChannels[multisigAddress] = new Channel(
         toAddress,
         this.address,
         multisigAddress,

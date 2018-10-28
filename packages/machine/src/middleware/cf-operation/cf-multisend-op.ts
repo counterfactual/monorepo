@@ -1,6 +1,13 @@
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
-import { Address, Bytes, NetworkContext, Signature } from "../../types";
+
+import { Address, Bytes } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
+
 import * as common from "./common";
 import {
   CfFreeBalance,
@@ -12,9 +19,6 @@ import {
   Operation,
   Transaction
 } from "./types";
-
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 
 const { keccak256 } = ethers.utils;
 

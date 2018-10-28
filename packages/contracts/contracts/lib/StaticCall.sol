@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "openzeppelin-eth/contracts/utils/Address.sol";
 import "../lib/Transfer.sol";
 
 

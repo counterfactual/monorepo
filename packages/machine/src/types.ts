@@ -1,5 +1,6 @@
 import * as ethers from "ethers";
 import lodash from "lodash";
+
 import { Instruction } from "./instructions";
 import {
   CfAppInterface,
@@ -8,6 +9,8 @@ import {
   Terms
 } from "./middleware/cf-operation/types";
 import { CfState, Context } from "./state";
+import { PeerBalance } from "./utils/peer-balance";
+import { Signature } from "./utils/signature";
 import { Response, ResponseStatus } from "./vm";
 
 /**
@@ -179,121 +182,6 @@ export class CanonicalPeerBalance {
   constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
 }
 
-export class PeerBalance {
-  /**
-   * Returns an array of peer balance objects sorted by address ascendi.
-   */
-  public static balances(
-    address1: Address,
-    balance1: ethers.utils.BigNumber,
-    address2: Address,
-    balance2: ethers.utils.BigNumber
-  ): CanonicalPeerBalance {
-    if (address2.localeCompare(address1) < 0) {
-      return new CanonicalPeerBalance(
-        new PeerBalance(address2, balance2),
-        new PeerBalance(address1, balance1)
-      );
-    }
-    return new CanonicalPeerBalance(
-      new PeerBalance(address1, balance1),
-      new PeerBalance(address2, balance2)
-    );
-  }
-
-  public static add(bals: PeerBalance[], inc: PeerBalance[]): PeerBalance[] {
-    return [
-      new PeerBalance(bals[0].address, bals[0].balance.add(inc[0].balance)),
-      new PeerBalance(bals[1].address, bals[1].balance.add(inc[1].balance))
-    ];
-  }
-
-  /**
-   * @assume each array is of length 2.
-   */
-  public static subtract(
-    oldBals: PeerBalance[],
-    newBals: PeerBalance[]
-  ): PeerBalance[] {
-    if (oldBals[0].address === newBals[0].address) {
-      return [
-        new PeerBalance(
-          oldBals[0].address,
-          oldBals[0].balance.sub(newBals[0].balance)
-        ),
-        new PeerBalance(
-          oldBals[1].address,
-          oldBals[1].balance.sub(newBals[1].balance)
-        )
-      ];
-    }
-    return [
-      new PeerBalance(
-        oldBals[0].address,
-        oldBals[0].balance.sub(newBals[1].balance)
-      ),
-      new PeerBalance(
-        oldBals[1].address,
-        oldBals[1].balance.sub(newBals[0].balance)
-      )
-    ];
-  }
-  public balance: ethers.utils.BigNumber;
-
-  constructor(
-    readonly address: Address,
-    balance: number | ethers.utils.BigNumber
-  ) {
-    this.balance = ethers.utils.bigNumberify(balance.toString());
-  }
-}
-
-/**
- * A network context is a set of contract wrappers of the global contracts that
- * are deployed. A global contract provides functionality in such a way that all
- * channels can use the same global contract, hence they only need to be
- * deployed once. The exceptions to the global contracts are the Multisig
- * and the AppInstance contracts.
- *
- * @Param contractArtifacts Mapping of contract name to string list of
- * [abi, bytecode]
- */
-export class NetworkContext {
-  // FIXME: This is just bad practice :S
-  // https://github.com/counterfactual/monorepo/issues/177
-  private contractToVar = {
-    Registry: "registryAddr",
-    PaymentApp: "paymentAppAddr",
-    ConditionalTransaction: "conditionalTransactionAddr",
-    MultiSend: "multiSendAddr",
-    NonceRegistry: "nonceRegistryAddr",
-    Signatures: "signaturesAddr",
-    StaticCall: "staticCallAddr",
-    ETHBalanceRefundApp: "ethBalanceRefundAppAddr"
-  };
-
-  constructor(
-    readonly registryAddr: Address,
-    readonly paymentAppAddr: Address,
-    readonly conditionalTransactionAddr: Address,
-    readonly multiSendAddr: Address,
-    readonly nonceRegistryAddr: Address,
-    readonly signaturesAddr: Address,
-    readonly staticCallAddr: Address,
-    readonly ethBalanceRefundAppAddr: Address
-  ) {}
-
-  public linkBytecode(unlinkedBytecode: string): string {
-    let bytecode = unlinkedBytecode;
-    for (const contractName of lodash.keys(this.contractToVar)) {
-      const regex = new RegExp(`__${contractName}_+`, "g");
-      const address = this[this.contractToVar[contractName]].substr(2);
-      bytecode = bytecode.replace(regex, address);
-    }
-    return bytecode;
-  }
-}
-
 // Tree of all the stateChannel and appChannel state
 export interface ChannelStates {
   [s: string]: StateChannelInfo;
@@ -362,68 +250,6 @@ export class CfPeerAmount {
   constructor(readonly addr: string, public amount: number) {}
 }
 
-// eg. 'dfee8149d73c19def9cfaf3ea73e95f4f7606826de8d3355eeaf1fd992b2b0f302616ad09ccee8025e5ba345763ee0de9a75b423bbb0ea8da2b2cc34391bc7e628'
-const SIGNATURE_LENGTH_WITHOUT_PREFIX = 130;
-const V_LENGTH = 2;
-const R_LENGTH = 64;
-const S_LENGTH = 64;
-
-export class Signature {
-  get recoveryParam() {
-    return this.v - 27;
-  }
-
-  public static toSortedBytes(signatures: Signature[], digest: H256): Bytes {
-    const sigs = signatures.slice();
-    sigs.sort((sigA, sigB) => {
-      const addrA = sigA.recoverAddress(digest);
-      const addrB = sigB.recoverAddress(digest);
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
-    const signatureStrings = sigs.map(sig => {
-      return sig.toString().substr(2);
-    });
-    return `0x${signatureStrings.join("")}`;
-  }
-
-  /**
-   * Helper method in verifying signatures in transactions
-   * @param signatures
-   */
-  public static fromBytes(signatures: Bytes): Signature[] {
-    // chop off the 0x prefix
-    let sigs = signatures.substr(2);
-    if (sigs.length % SIGNATURE_LENGTH_WITHOUT_PREFIX !== 0) {
-      throw Error("The bytes string representing the signatures is malformed.");
-    }
-    const signaturesList: Signature[] = [];
-    while (sigs.length !== 0) {
-      const sig = sigs.substr(0, SIGNATURE_LENGTH_WITHOUT_PREFIX);
-      sigs = sigs.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX);
-      // note: +<string> is syntactic sugar for parsing a number from a string
-      const v = +sig.substr(SIGNATURE_LENGTH_WITHOUT_PREFIX - V_LENGTH);
-      const r = `0x${sig.substr(0, R_LENGTH)}`;
-      const s = `0x${sig.substr(R_LENGTH, S_LENGTH)}`;
-      signaturesList.push(new Signature(v, r, s));
-    }
-    return signaturesList;
-  }
-
-  // TODO: fix types
-  // https://github.com/counterfactual/monorepo/issues/166
-  constructor(readonly v: number, readonly r: string, readonly s: string) {}
-
-  public recoverAddress(digest: H256): Address {
-    return ethers.utils.recoverAddress(digest, this.toString());
-  }
-
-  public toString(): string {
-    return `0x${this.r.substr(2)}${this.s.substr(2)}${ethers.utils
-      .hexlify(this.v)
-      .substr(2)}`;
-  }
-}
-
 // FIXME: move operation action names away from client action names
 // https://github.com/counterfactual/monorepo/issues/178
 export enum ActionName {
@@ -479,3 +305,16 @@ export class WalletResponse {
     error?: string
   ) {}
 }
+
+export type InstructionMiddlewareCallback = {
+  (message: InternalMessage, next: Function, context: Context);
+};
+
+export interface InstructionMiddleware {
+  scope: Instruction;
+  method: InstructionMiddlewareCallback;
+}
+
+export type InstructionMiddlewares = {
+  [I in Instruction]: InstructionMiddleware[]
+};

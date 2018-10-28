@@ -1,14 +1,15 @@
 import * as ethers from "ethers";
 
+import * as abi from "../../../src/abi";
 import { CfOpSetState } from "../../../src/middleware/cf-operation/cf-op-setstate";
 import {
-  Terms,
   CfAppInterface,
-  CfStateChannel
+  CfStateChannel,
+  Terms
 } from "../../../src/middleware/cf-operation/types";
-import * as abi from "../../../src/abi";
 
-import { Signature, NetworkContext } from "../../../src/types";
+import { NetworkContext } from "../../../src/utils/network-context";
+import { Signature } from "../../../src/utils/signature";
 
 describe("CfOpSetState", () => {
   const TEST_NETWORK_CONTEXT = new NetworkContext(

@@ -9,11 +9,11 @@ import { Context } from "../../src/state";
 import {
   ClientActionMessage,
   InternalMessage,
-  NetworkContext,
   ResponseSink,
-  Signature,
   WalletResponse
 } from "../../src/types";
+import { Signature } from "../../src/utils/signature";
+import { NetworkContext } from "../../src/utils/network-context";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,

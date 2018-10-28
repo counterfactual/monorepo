@@ -1,8 +1,9 @@
-import * as Utils from "../../utils/misc";
 import { expect } from "chai";
 import * as ethers from "ethers";
-import { AbstractContract } from "../../utils/contract";
 import lodash = require("lodash");
+
+import { AbstractContract } from "../../utils/contract";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);

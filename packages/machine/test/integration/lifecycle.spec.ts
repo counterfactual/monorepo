@@ -6,9 +6,9 @@ import {
   ActionName,
   ClientActionMessage,
   InstallData,
-  PeerBalance,
   UpdateData
 } from "../../src/types";
+import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {

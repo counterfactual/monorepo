@@ -12,27 +12,15 @@
     "build": "truffle compile --all && tsc -b",
     "migrate": "truffle migrate --reset --network ganache",
     "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
-    "clean": "shx rm -rf dist build",
+    "clean": "rm -rf dist build",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "lint:sol": "solium -d .",
-    "lint:ts:fix": "yarn lint --fix",
+    "lint:ts:fix": "tslint -c tslint.json -p . --fix",
     "lint:ts": "tslint -c tslint.json -p .",
-    "precommit": "lint-staged",
-    "testfiles": "yarn build && yarn truffle:testfiles",
     "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage"
-  },
-  "lint-staged": {
-    "**/*.ts": [
-      "yarn lint:fix",
-      "git add"
-    ],
-    "contracts/**/*.sol": [
-      "yarn lint:sol:fix",
-      "git add"
-    ]
   },
   "config": {
     "testFiles": "dist/test/**/*.spec.js",
@@ -50,16 +38,16 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-string": "^1.4.1",
     "@types/node": "^10.9.3",
-    "babel-eslint": "10.0.1",
     "bignumber.js": "7.2.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "chai-string": "^1.5.0",
-    "decimal.js": "10.0.1",
     "eth-gas-reporter": "0.1.12",
+    "ethers": "^4.0.4",
     "ganache-cli": "^6.1.8",
     "lint-staged": "7.3.0",
+    "openzeppelin-eth": "^2.0.2",
     "shx": "^0.3.2",
     "solc": "^0.4.25",
     "solidity-coverage": "0.5.11",
@@ -68,11 +56,8 @@
     "truffle-deploy-registry": "^0.4.1",
     "ts-node": "^7.0.0",
     "tslint": "5.11.0",
-    "typescript": "^3.1.2"
-  },
-  "dependencies": {
-    "ethers": "^4.0.4",
-    "openzeppelin-solidity": "^2.0.0"
+    "typescript": "^3.1.2",
+    "zos-lib": "^2.0.0"
   },
   "repository": {
     "type": "git",

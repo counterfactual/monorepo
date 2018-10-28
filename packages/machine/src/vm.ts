@@ -5,17 +5,18 @@ import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { CfState } from "./state";
 import {
+  Address,
   Addressable,
+  AddressableLookupResolverHash,
   ChannelStates,
   ClientActionMessage,
-  NetworkContext,
+  H256,
+  InstructionMiddlewareCallback,
   ResponseSink,
   StateChannelInfo,
-  WalletResponse,
-  AddressableLookupResolverHash,
-  H256,
-  Address
+  WalletResponse
 } from "./types";
+import { NetworkContext } from "./utils/network-context";
 import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
@@ -180,7 +181,7 @@ export class CounterfactualVM implements Observable {
     Object.assign(this.cfState.channelStates, state);
   }
 
-  public register(scope: Instruction, method: Function) {
+  public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
 }

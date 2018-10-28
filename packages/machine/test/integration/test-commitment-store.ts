@@ -8,9 +8,9 @@ import { Context } from "../../src/state";
 import {
   ActionName,
   ClientActionMessage,
-  InternalMessage,
-  Signature
+  InternalMessage
 } from "../../src/types";
+import { Signature } from "../../src/utils/signature";
 
 import {
   InMemoryKeyValueStore,
