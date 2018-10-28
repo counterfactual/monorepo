@@ -1,5 +1,6 @@
 import * as ethers from "ethers";
 import lodash from "lodash";
+
 import { NetworkContext } from "../../src/utils/network-context";
 
 export const EMPTY_NETWORK_CONTEXT = new NetworkContext(

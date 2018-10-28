@@ -12,14 +12,15 @@ import {
   ResponseSink,
   WalletResponse
 } from "../../src/types";
-import { Signature } from "../../src/utils/signature";
 import { NetworkContext } from "../../src/utils/network-context";
+import { Signature } from "../../src/utils/signature";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
 } from "../../src/write-ahead-log";
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
+
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
