@@ -4,7 +4,9 @@ Counterfactual specifies a set of protocols that channel participants run. The l
 
 A protocol consists of the following components:
 
-- **Handshake**. The protocol handshake is the series of messages exchanged between all parties in the state channel, as well as dependencies between messages. We write the handshake in a table; each message depends on the rows above it (i.e., the sender will not send the message until all the above messages have been sent/received), and each column represents the sender of the message.
+- **Handshake**. The protocol handshake is the series of messages exchanged between all parties in the state channel, as well as dependencies between messages. 
+
+> We write the handshake in a table; each message depends on the rows above it (i.e., the sender will not send the message until all the above messages have been sent/received), and each column denotes the sender of the message.
 - **Message**. A message is the set of information that must be exchanged by the parties to recreate (and validate) the commitment signatures and associated transactions that those signatures enable. Each protocol may in general contain multiple message types.
 - **Commitments**. A protocol produces one or more commitments. The commitments (both the signature and the data) must be stored.
 
