@@ -46,9 +46,7 @@ The state of our state channel looks like this (note everything above the line i
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
 
-## Criteria
-
-This is a list of criteria for proposed protocol designs, i.e., predicates that a protocol design either satisfies or does not.
+## Design Goals
 
 ### One round trip communication
 
@@ -65,8 +63,6 @@ The total size of messages that we need to exchange to do the following has a co
 - to install an application.
 - to uninstall an application.
 - to update the state of an application.
-
-Note: this criteria does not preclude a "cleanup phase" following the one round trip
 
 ### O(1) response
 

@@ -105,7 +105,3 @@ Note that this is an optimization; this function can always safely be omitted, a
 ## ConditionalTransaction
 
 The `ConditionalTransaction` contract is a target contract for a multisignature wallet to call using `DELEGATECALL`. Its purpose is to define logic for resolving a conditional transaction that adheres to the protocol.
-
-## NonceRegistry
-
-TODO
