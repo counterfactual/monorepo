@@ -62,7 +62,7 @@ In our codebase, a `CfOperation` is a class that specifies a commitment type, in
 - **Transaction digest**. The transaction digest is the hash that is signed by each party, enabling the protocol's transaction to be executed on-chain. The calldata, if present, is used to generate the digest.
 - **Transaction**. The transaction is the `(to, val, data, op)` tuple that a given protocol allows one to broadcast on-chain. These transactions enforce commitments created from the calldata and signature digests, manifesting the off-chain counterfactual state into the on-chain reality.
 
-### Multisig Creation
+## Protocols
 
 Assume there exists a multisig shared by two parties, Alice and Bob.
 
@@ -71,8 +71,6 @@ The state of our state channel looks like this (note everything above the line i
 ![multisig](./img/multisig.png)
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
-
-## Protocols
 
 ### Setup
 
