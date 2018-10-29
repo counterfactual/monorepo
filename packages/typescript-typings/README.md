@@ -15,4 +15,3 @@ Add the following line within an `compilerOptions` section of your `tsconfig.jso
 ```json
 "typeRoots": ["node_modules/@counterfactual/typescript-typings/types", "node_modules/@types"]
 ```
-

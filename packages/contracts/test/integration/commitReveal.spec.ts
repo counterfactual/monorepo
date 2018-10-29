@@ -11,7 +11,7 @@ import {
   Multisig,
   TransferTerms
 } from "../../utils";
-import { generateEthWallets, mineBlocks, setupTestEnv } from "../../utils/misc";
+import { generateEthWallets, setupTestEnv } from "../../utils/misc";
 
 const { web3 } = global as any;
 

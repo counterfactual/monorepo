@@ -1,7 +1,4 @@
-# [Machine](https://counterfactual.com) &middot; <img align="right" src="../../logo.svg" height="80px" />
-[![Discord](https://img.shields.io/discord/500370633901735947.svg)](https://counterfactual.com/chat)
-[![CircleCI](https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c)](https://circleci.com/gh/counterfactual/monorepo)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/master/LICENSE)
+# [Machine](https://counterfactual.com) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
 
 This is the typescript implementation of the [Counterfactual protocol](https://github.com/counterfactual/specs/blob/master/v0/protocols.md). It's responsible for executing these protocols, _producing state commitments_, and thereby effectively facilitating user interaction for off-chain channelized applications.
 
