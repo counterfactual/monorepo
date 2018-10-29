@@ -8,7 +8,7 @@ import "../lib/Transfer.sol";
 contract Battleship {
   enum ActionType {
     PLAY,
-    PLAY_AND_WIN
+    WIN
   }
 
   enum MoveType {
@@ -76,12 +76,12 @@ contract Battleship {
   pure
   returns (bytes)
   {
-    require(state.winner==0, "Game has already been won");
+    require(state.winner==GAME_IN_PROGRESS, "Game has already been won");
     AppState memory nextState;
     if (action.actionType == ActionType.PLAY) {
       nextState = playMove(state, action);
     }
-    else if (action.actionType == ActionType.PLAY_AND_WIN) {
+    else if (action.actionType == ActionType.WIN) {
       assertWin(state, state.turnNum % 2);
       // Also need to assert that the winner placed the ships correctly.
       // Option1: Give a merkle proof for every unopened square.
@@ -177,7 +177,7 @@ contract Battleship {
     pure
     returns (Transfer.Transaction)
   {
-    require(state.winner != 0, "Game still in progress");
+    require(state.winner != GAME_IN_PROGRESS, "Game still in progress");
 
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
