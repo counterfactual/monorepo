@@ -4,9 +4,10 @@ Counterfactual specifies a set of protocols that channel participants run. The l
 
 A protocol consists of the following components:
 
-- **Handshake**. The protocol handshake is the series of messages exchanged between all parties in the state channel, as well as dependencies between messages. 
+- **Handshake**. The protocol handshake is the series of messages exchanged between all parties in the state channel, as well as dependencies between messages.
 
 > We write the handshake in a table; each message depends on the rows above it (i.e., the sender will not send the message until all the above messages have been sent/received), and each column denotes the sender of the message.
+
 - **Message**. A message is the set of information that must be exchanged by the parties to recreate (and validate) the commitment signatures and associated transactions that those signatures enable. Each protocol may in general contain multiple message types.
 - **Commitments**. A protocol produces one or more commitments. The commitments (both the signature and the data) must be stored.
 
@@ -16,13 +17,36 @@ A protocol consists of the following components:
 
 ## Table of Contents
 
+- [Design Goals](#design-goals)
 - [Structure](#structure)
-- [Criteria](#criteria)
 - [Protocols](#protocols)
   - [Setup](#setup)
   - [Install](#install)
   - [SetState](#setstate)
   - [Uninstall](#uninstall)
+
+
+## Design Goals
+
+### One round trip communication
+
+In a 2-party channel, 2 messages suffice to safely change the counterfactual state of the GSC
+
+- to install an application.
+- to uninstall an application.
+- to update the state of an application.
+
+### Constant sized communication
+
+The total size of messages that we need to exchange to do the following has a constant size, in particular, independent of number of active or historical apps.
+
+- to install an application.
+- to uninstall an application.
+- to update the state of an application.
+
+### O(1) response
+
+It is possible to arrive at a state where any stale-state-griefing attack can be responded to with a single transaction of constant size, in particular, independent of number of active or historical apps.
 
 ## Structure
 
@@ -47,28 +71,6 @@ The state of our state channel looks like this (note everything above the line i
 ![multisig](./img/multisig.png)
 
 With this multisig, we can begin running the Counterfactual Protocols to update our off-chain state.
-
-## Design Goals
-
-### One round trip communication
-
-In a 2-party channel, 2 messages suffice to safely change the counterfactual state of the GSC
-
-- to install an application.
-- to uninstall an application.
-- to update the state of an application.
-
-### Constant sized communication
-
-The total size of messages that we need to exchange to do the following has a constant size, in particular, independent of number of active or historical apps.
-
-- to install an application.
-- to uninstall an application.
-- to update the state of an application.
-
-### O(1) response
-
-It is possible to arrive at a state where any stale-state-griefing attack can be responded to with a single transaction of constant size, in particular, independent of number of active or historical apps.
 
 ## Protocols
 
