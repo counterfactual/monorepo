@@ -3,9 +3,12 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import { AppChannelClient } from "./app-channel-client";
+import { AppInstance } from "./app-instance";
 import { Client } from "./client";
+import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
+import * as types from "./types";
 
-export class StateChannelClient {
+export class Channel {
   public client: Client;
   public toAddress: string;
   public fromAddress: string;
@@ -24,29 +27,28 @@ export class StateChannelClient {
   }
 
   public async deposit(
-    balanceRefundAddress: machine.types.Address,
-    abiEncoding: string,
-    stateEncoding: string,
+    address: machine.types.Address,
     amount: ethers.utils.BigNumber,
     threshold: ethers.utils.BigNumber
   ) {
     const stateChannelInfo = await this.queryStateChannel();
     const isPeerA =
       stateChannelInfo.data.stateChannel.freeBalance.alice === this.fromAddress;
-    const options: machine.types.InstallOptions = {
-      abiEncoding,
-      stateEncoding,
-      appAddress: balanceRefundAddress,
-      peerABalance: ethers.utils.bigNumberify(0),
-      peerBBalance: ethers.utils.bigNumberify(0),
-      state: {
-        threshold,
-        recipient: this.fromAddress,
-        multisig: this.multisigAddress
-      }
-    };
 
-    const balanceRefund = await this.install("ETHBalanceRefundApp", options);
+    const signingKeys = [this.toAddress, this.fromAddress];
+    const appInstance = new ETHBalanceRefundApp(address, signingKeys);
+    const deposits = {
+      [this.fromAddress]: ethers.utils.bigNumberify("0"),
+      [this.toAddress]: ethers.utils.bigNumberify("0")
+    };
+    const state = [this.fromAddress, this.multisigAddress, threshold];
+
+    const balanceRefund = await this.install(
+      "ETHBalanceRefundApp",
+      appInstance,
+      deposits,
+      state
+    );
     await this.depositToMultisig(amount);
     await balanceRefund.uninstall({
       peerABalance: isPeerA ? amount : ethers.utils.bigNumberify(0),
@@ -55,8 +57,10 @@ export class StateChannelClient {
   }
 
   public async install(
-    appName: string,
-    options: machine.types.InstallOptions
+    name: string,
+    appInstance: AppInstance,
+    deposits: types.Deposits,
+    initialState: Object
   ): Promise<AppChannelClient> {
     let peerA = this.fromAddress;
     let peerB = this.toAddress;
@@ -65,39 +69,24 @@ export class StateChannelClient {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new machine.cfTypes.Terms(
-      0,
-      options.peerABalance.add(options.peerBBalance),
-      ethers.constants.AddressZero
-    );
-    const app = this.buildAppInterface(
-      options.appAddress,
-      options.abiEncoding,
-      options.stateEncoding
-    );
-    const state = options.state;
-    const encodedAppState = app.encode(state);
-    const timeout = 100;
-    const signingKeys = [this.toAddress, this.fromAddress];
-    signingKeys.sort((addrA: string, addrB: string) => {
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
+    const app = this.buildAppInterface(appInstance.app);
+    const encodedAppState = app.encode(initialState);
 
     const installData: machine.types.InstallData = {
       encodedAppState,
-      terms,
       app,
-      timeout,
-      peerA: new machine.types.PeerBalance(peerA, options.peerABalance),
-      peerB: new machine.types.PeerBalance(peerB, options.peerBBalance),
-      // TODO: provide actual signing keys
-      keyA: signingKeys[0],
-      keyB: signingKeys[1]
+      terms: appInstance.terms,
+      timeout: appInstance.timeout,
+      peerA: new machine.utils.PeerBalance(peerA, deposits[peerA]),
+      peerB: new machine.utils.PeerBalance(peerB, deposits[peerB]),
+      keyA: appInstance.signingKeys[0],
+      keyB: appInstance.signingKeys[1]
     };
+
     const requestId = this.client.requestId();
     const message = {
       requestId,
-      appName,
+      appName: name,
       appId: undefined,
       action: machine.types.ActionName.INSTALL,
       data: installData,
@@ -115,9 +104,7 @@ export class StateChannelClient {
         }
         const appId = data.data.result.cfAddr;
 
-        return resolve(
-          new AppChannelClient(this, appName, appId, app, options)
-        );
+        return resolve(new AppChannelClient(this, name, appId, app));
       };
 
       await this.client.addObserver("installCompleted", cb);
@@ -126,20 +113,19 @@ export class StateChannelClient {
     });
   }
 
-  public restore(
-    appName: string,
-    appAddress: machine.types.Address,
+  public async getAppInstance(
     appId: string,
-    abiEncoding: string,
-    stateEncoding: string,
-    options?: object
-  ): AppChannelClient {
-    const appInterface = this.buildAppInterface(
-      appAddress,
-      abiEncoding,
-      stateEncoding
-    );
-    return new AppChannelClient(this, appName, appId, appInterface, options);
+    name: string,
+    appDefinition: types.AppDefinition
+  ): Promise<AppChannelClient> {
+    const {
+      data: {
+        stateChannel: { appChannels }
+      }
+    } = await this.queryStateChannel();
+    const appChannel = appChannels[appId];
+    const appInterface = this.buildAppInterface(appDefinition);
+    return new AppChannelClient(this, name, appId, appInterface);
   }
 
   public async queryFreeBalance(): Promise<
@@ -174,20 +160,18 @@ export class StateChannelClient {
     return stateChannelData;
   }
   private buildAppInterface(
-    appAddress: machine.types.Address,
-    abiEncoding: string,
-    stateEncoding: string
+    appDefinition: types.AppDefinition
   ): machine.cfTypes.CfAppInterface {
-    const encoding = JSON.parse(abiEncoding);
+    const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
     const appInterface = new machine.cfTypes.CfAppInterface(
-      appAddress,
+      appDefinition.address,
       machine.cfTypes.CfAppInterface.generateSighash(abi, "applyAction"),
       machine.cfTypes.CfAppInterface.generateSighash(abi, "resolve"),
       machine.cfTypes.CfAppInterface.generateSighash(abi, "getTurnTaker"),
       machine.cfTypes.CfAppInterface.generateSighash(abi, "isStateTerminal"),
-      stateEncoding
+      appDefinition.appStateEncoding
     );
     return appInterface;
   }

@@ -1,7 +1,10 @@
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as machine from "@counterfactual/machine";
 import { ethers } from "ethers";
+
 import { IFrameWallet } from "../src/iframe/wallet";
-import { SetupProtocol, EMPTY_NETWORK_CONTEXT } from "./common";
+
+import { EMPTY_NETWORK_CONTEXT, SetupProtocol } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -10,11 +13,9 @@ import {
   UNUSED_FUNDED_ACCOUNT
 } from "./environment";
 
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
-let network: machine.types.NetworkContext;
+let network: machine.utils.NetworkContext;
 
 beforeAll(() => {
   walletA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);

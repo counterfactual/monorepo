@@ -1,15 +1,18 @@
 import * as ethers from "ethers";
+
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
   ActionName,
   ClientActionMessage,
-  InternalMessage,
-  OpCodeResult,
-  Signature,
+  InstructionMiddlewareCallback,
   InstructionMiddlewares,
-  InstructionMiddlewareCallback
+  InternalMessage,
+  OpCodeResult
 } from "../types";
+
+import { Signature } from "../utils/signature";
+
 import { StateTransition } from "./state-transition/state-transition";
 
 /**

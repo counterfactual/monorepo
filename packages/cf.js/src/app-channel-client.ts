@@ -1,19 +1,18 @@
 import * as machine from "@counterfactual/machine";
 
-import { StateChannelClient } from "./state-channel-client";
+import { Channel } from "./channel";
 
 export class AppChannelClient {
-  public stateChannel: StateChannelClient;
+  public stateChannel: Channel;
   public appName: string;
   public appId: string;
   public appInterface: machine.cfTypes.CfAppInterface;
 
   constructor(
-    stateChannel: StateChannelClient,
+    stateChannel: Channel,
     appName: string,
     appId: string,
-    appInterface: machine.cfTypes.CfAppInterface,
-    options
+    appInterface: machine.cfTypes.CfAppInterface
   ) {
     this.stateChannel = stateChannel;
     this.appName = appName;
@@ -53,8 +52,8 @@ export class AppChannelClient {
 
     const uninstallData = {
       peerAmounts: [
-        new machine.types.PeerBalance(freeBalance.alice, options.peerABalance),
-        new machine.types.PeerBalance(freeBalance.bob, options.peerBBalance)
+        new machine.utils.PeerBalance(freeBalance.alice, options.peerABalance),
+        new machine.utils.PeerBalance(freeBalance.bob, options.peerBBalance)
       ]
     };
 

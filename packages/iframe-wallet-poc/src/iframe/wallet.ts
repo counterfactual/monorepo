@@ -1,17 +1,10 @@
+import * as cf from "@counterfactual/cf.js";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-// TODO: Remove requirement of contracts repo. The preferred way to fix this is
-// to change the implementation of "deployMultisig" to make a call to a ProxyFactory
-// vs creating the entire multisig itself.
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-
-// TODO: We shouldn't need this after we change AppInstanceJson.sol to be a global
-// channel manager contract as opposed to each instance being counterfactual
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-
-import * as cf from "@counterfactual/cf.js";
-import * as machine from "@counterfactual/machine";
 import { User } from "./user";
 
 // TODO: This file, and all other files with `class` definitions, should be linted
@@ -51,18 +44,18 @@ export class IFrameWallet implements machine.types.ResponseSink {
     return this.users.get(this.address)!;
   }
 
-  get network(): machine.types.NetworkContext {
+  get network(): machine.utils.NetworkContext {
     return this.networkContext;
   }
 
   public users: Map<string, User>;
   public address?: string;
-  private networkContext: machine.types.NetworkContext;
+  private networkContext: machine.utils.NetworkContext;
   private requests: Map<string, Function>;
   private responseListener?: Function;
   private messageListener?: Function;
 
-  constructor(networkContext: machine.types.NetworkContext) {
+  constructor(networkContext: machine.utils.NetworkContext) {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
     this.networkContext = networkContext;
@@ -71,7 +64,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
   // FIXME: Remove this method and refactor the network context data type.
   public static networkFileToNetworkContext(json: Object) {
     const tmp = _.mapValues(_.keyBy(json, "contractName"), "address");
-    return new machine.types.NetworkContext(
+    return new machine.utils.NetworkContext(
       tmp["Registry"],
       tmp["PaymentApp"],
       tmp["ConditionalTransaction"],
@@ -94,7 +87,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
   public setUser(
     address: string,
     privateKey: string,
-    networkContext?: machine.types.NetworkContext,
+    networkContext?: machine.utils.NetworkContext,
     db?: machine.writeAheadLog.SimpleStringMapSyncDB,
     states?: machine.types.ChannelStates
   ) {

@@ -17,9 +17,9 @@ import {
   ClientActionMessage,
   H256,
   InternalMessage,
-  PeerBalance,
   StateChannelInfos
 } from "../../src/types";
+import { PeerBalance } from "../../src/utils/peer-balance";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import {
