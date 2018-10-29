@@ -45,7 +45,7 @@ contract ConditionalTransaction is Conditional {
     public
   {
 
-    // todo(ldct): combine the following two CALLs into one
+    // TODO: combine the following two CALLs into one
 
     require(
       !NonceRegistry(nonceRegistry).isFinalized(uninstallKey, 1),
