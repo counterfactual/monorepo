@@ -542,16 +542,16 @@ delegatecall(
 
 ### Handshake
 
-| A                     | B                       |
-| -----------           | --------------          |
-| `InstallTarget`       |                         |
-|                       | `InstallTargetAck`      |
-| `InstallProxy1`       |                         |
-|                       | `InstallProxy1Ack`      |
-| `InstallProxy2`       |                         |
-|                       | `InstallProxy2Ack`      |
-| `setAuth`             |                         |
-|                       | `setAuthAck`            |
+| A                     | I                       | B                       |
+| -----------           | --------------          | --------------          |
+| `InstallTarget`       |                         |                         |
+|                       | `InstallTargetAck1`     |                         |
+|                       |                         |`InstallTargetAck2`      |
+| `InstallProxy1`       |                         |                         |
+|                       | `InstallProxy1Ack`      |                         |
+|                       | `InstallProxy2`         |`InstallProxy2Ack`       |
+|                       |                         |                         |
+|                       | `setAuth`               |                         |
 
 ### Commitments
 
