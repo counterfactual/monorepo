@@ -201,7 +201,6 @@ export class KeyGenerator {
   }
 }
 
-
 export class SignatureValidator {
   public static async validate(
     message: InternalMessage,
