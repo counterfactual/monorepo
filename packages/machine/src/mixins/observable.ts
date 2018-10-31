@@ -3,6 +3,10 @@ export type NotificationType = string;
 export class Observable {
   public observers: Map<NotificationType, Function[]> = new Map();
 
+  private getObservers(type: NotificationType): Function[] {
+    return this.observers.get(type) || [];
+  }
+
   public registerObserver(type: NotificationType, callback: Function) {
     if (!this.observers[type]) {
       this.observers[type] = [];
