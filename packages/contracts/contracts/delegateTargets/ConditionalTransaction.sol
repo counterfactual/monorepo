@@ -44,9 +44,6 @@ contract ConditionalTransaction is Conditional {
   )
     public
   {
-
-    // TODO: combine the following two CALLs into one
-
     require(
       !NonceRegistry(nonceRegistry).isFinalized(uninstallKey, 1),
       "App has been uninstalled"
