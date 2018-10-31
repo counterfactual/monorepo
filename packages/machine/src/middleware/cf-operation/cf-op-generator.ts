@@ -155,7 +155,9 @@ export class EthCfOpGenerator extends CfOpGenerator {
       multisig,
       cfStateChannel,
       cfFreeBalance,
-      nonce
+      nonce,
+      ethers.utils.keccak256(multisig),
+      0
     );
   }
 
@@ -164,6 +166,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     context: Context,
     cfState: CfState,
     proposedInstall: any,
+    rootNonceExpectedValue: number,
     cfAddr: H256
   ) {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
@@ -182,6 +185,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
+
     const cfFreeBalance = new CfFreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
@@ -193,14 +197,15 @@ export class EthCfOpGenerator extends CfOpGenerator {
       freeBalance.nonce
     );
 
-    const op = new CfOpInstall(
+    return new CfOpInstall(
       cfState.networkContext,
       multisig,
       app,
       cfFreeBalance,
-      appChannel.dependencyNonce
+      appChannel.dependencyNonce,
+      ethers.utils.keccak256(multisig),
+      rootNonceExpectedValue
     );
-    return op;
   }
 
   public uninstall(

@@ -23,7 +23,9 @@ export class CfOpInstall extends CfMultiSendOp {
     readonly multisig: Address,
     readonly app: CfStateChannel,
     readonly cfFreeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly dependencyNonce: CfNonce,
+    readonly rootNonceKey: string,
+    readonly rootNonceKeyExpectedValue: number
   ) {
     super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
@@ -55,6 +57,8 @@ export class CfOpInstall extends CfMultiSendOp {
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
       depNonceKey,
+      this.rootNonceKey,
+      this.rootNonceKeyExpectedValue,
       this.appCfAddress,
       terms
     ]);

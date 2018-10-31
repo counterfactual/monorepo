@@ -70,6 +70,7 @@ export class Channel {
       peerB = tmp;
     }
     const app = this.buildAppInterface(appInstance.app);
+
     const encodedAppState = app.encode(initialState);
 
     const installData: machine.types.InstallData = {
@@ -84,6 +85,7 @@ export class Channel {
     };
 
     const requestId = this.client.requestId();
+
     const message = {
       requestId,
       appName: name,
@@ -108,7 +110,9 @@ export class Channel {
       };
 
       await this.client.addObserver("installCompleted", cb);
+
       await this.client.sendMessage(message);
+
       this.client.removeObserver("installCompleted", cb);
     });
   }

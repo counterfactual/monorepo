@@ -29,7 +29,9 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly multisig: Address,
     readonly freeBalanceStateChannel: CfStateChannel,
     readonly freeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly dependencyNonce: CfNonce,
+    readonly rootNonceKey: string,
+    readonly rootNonceKeyExpectedValue: number
   ) {
     super(networkContext, multisig, freeBalance, dependencyNonce);
     if (dependencyNonce === undefined) {
@@ -60,6 +62,8 @@ export class CfOpSetup extends CfMultiSendOp {
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
       depNonceKey,
+      this.rootNonceKey,
+      this.rootNonceKeyExpectedValue,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);
