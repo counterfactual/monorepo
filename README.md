@@ -59,7 +59,8 @@ For an introduction to concepts and terminology behind state channels, please se
 - _Commitment_:
   - A signed transaction (piece of data) that allows the owner to perform a certain action
  
-- _Action_: a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
+- _Action_: 
+  - a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
 conditional transfer: the action of transferring part of the state deposit to a given address if a certain condition is true.
 
 Note that section 6 of the paper specifies a concrete implementation that differs from the design of our implementation. The reason for this divergence is explained later.
