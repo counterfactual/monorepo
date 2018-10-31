@@ -3,7 +3,6 @@ import {
   Address,
   H256,
   InternalMessage,
-  StateChannelInfos,
   StateProposal,
   UpdateData
 } from "../../types";

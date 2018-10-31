@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import lodash from "lodash";
 
 import { Instruction } from "./instructions";
 import {

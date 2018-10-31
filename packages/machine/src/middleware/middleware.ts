@@ -1,5 +1,3 @@
-import * as ethers from "ethers";
-
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
@@ -36,7 +34,7 @@ export class CfMiddleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
+  constructor(readonly cfState: CfState, cfOpGenerator: CfOpGenerator) {
     this.initializeMiddlewares(cfOpGenerator);
   }
 
@@ -189,10 +187,10 @@ export class KeyGenerator {
    * client message by placing the ephemeral key on it for my address.
    */
   public static generate(message: InternalMessage, next: Function) {
-    const wallet = ethers.Wallet.createRandom();
-    const installData = message.clientMessage.data;
-    // FIXME: properly assign ephemeral keys
+    // TODO: properly assign ephemeral keys
     // https://github.com/counterfactual/monorepo/issues/175
+    // const wallet = ethers.Wallet.createRandom();
+    // const installData = message.clientMessage.data;
     //
     // if (installData.peerA.address === message.clientMessage.fromAddress) {
     //  installData.keyA = wallet.address;
@@ -203,17 +201,18 @@ export class KeyGenerator {
   }
 }
 
+
 export class SignatureValidator {
   public static async validate(
     message: InternalMessage,
     next: Function,
     context: Context
   ) {
-    const incomingMessage = getFirstResult(
-      Instruction.IO_WAIT,
-      context.results
-    );
-    const op = getFirstResult(Instruction.OP_GENERATE, context.results);
+    // const incomingMessage = getFirstResult(
+    //   Instruction.IO_WAIT,
+    //   context.results
+    // );
+    // const op = getFirstResult(Instruction.OP_GENERATE, context.results);
     // TODO: now validate the signature against the op hash
     // https://github.com/counterfactual/monorepo/issues/160
     next();
