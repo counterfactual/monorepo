@@ -30,7 +30,7 @@ contract NonceRegistry {
     view
     returns (bool)
   {
-    return (table[key].finalizesAt <= block.number) && (table[key].nonceValue == expectedNonceValue);
+    return (block.number >= table[key].finalizesAt) && (table[key].nonceValue == expectedNonceValue);
   }
 
   function isNonceSet(bytes32 key) external view returns (bool) {

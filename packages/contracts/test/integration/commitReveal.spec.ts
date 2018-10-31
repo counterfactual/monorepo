@@ -120,6 +120,8 @@ async function executeStateChannelTransaction(
       registry.address,
       nonceRegistry.address,
       uninstallNonceKey,
+      ethers.constants.HashZero,
+      ethers.constants.Zero,
       stateChannel.contract.cfAddress,
       stateChannel.terms
     ],
