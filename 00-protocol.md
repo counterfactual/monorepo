@@ -82,37 +82,72 @@ Completing the Setup Protocol transitions the counterfactual state to:
 
 **Handshake:**
 
-| A       | B          |
-| ------- | ---------- |
-| `Setup` |            |
-|         | `SetupAck` |
+|       A        |         B         |
+|----------------|-------------------|
+| `SetRootNonce` |                   |
+|                | `SetRootNonceAck` |
+| `Setup`        |                   |
+|                | `SetupAck`        |
 
 **Message:**
 
 ```typescript
-let Setup = {
+let SetRootNonce = {
   protocol: 1,
-  multisig: address,
-  data: None,
   fromAddress: address,
   toAddress: address,
   seq: 0,
   signature: signature
-};
-let SetupAck = {
+}
+let SetRootNonceAck = {
   protocol: 1,
+  fromAddress: address,
+  toAddress: address,
+  seq: 1,
+  signature: signature
+}
+let Setup = {
+  protocol: 3,
   multisig: address,
   data: None,
   fromAddress: address,
   toAddress: address,
-  seq: 1,
+  seq: 2,
+  signature: signature
+};
+let SetupAck = {
+  protocol: 4,
+  multisig: address,
+  data: None,
+  fromAddress: address,
+  toAddress: address,
+  seq: 3,
   signature: signature
 };
 ```
 
 Unlike the rest of the protocols, there is no extra message data for the Setup protocol because it is deterministic. It always installs a Free Balance contract with starting balances of 0, and so no extra data is required to be passed in from outside the context of the protocol execution.
 
-### Commitment
+### Parameters
+
+- rootNonceTimeout
+- rootNonceSalt
+
+### Commitment 1
+
+```typescript
+delegatecall(
+  (to = NONCE_REGISTRY),
+  (val = 0),
+  (data =
+    encode(
+      "setNonce(uint256,bytes32,uint256)",
+      [rootNonceTimeout, rootNonceSalt, 1]
+    ))
+);
+```
+
+### Commitment 2
 
 ```typescript
 delegatecall(
