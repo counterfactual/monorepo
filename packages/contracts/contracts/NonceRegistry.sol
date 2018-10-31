@@ -73,43 +73,6 @@ contract NonceRegistry {
     return self >> index & 1 == 1;
   }
 
-  /// @return
-  ///   - nonce[0:120] == expectedR
-  ///   - nonce[128+i] == 1
-  function isFinalized120i(bytes32 key, uint256 expectedR, uint8 i) public view returns (bool) {
-    State storage state = table[key];
-
-    require(
-      table[key].finalizesAt <= block.number,
-      "Nonce is not yet finalized"
-    );
-    require(
-      getFirstNBits(state.nonceValue, 120) == getFirstNBits(expectedR, 120),
-      "nonce[0:120] is not equal to expectedR[0:120]"
-    );
-    require(
-      bitSet(state.nonceValue, 128 + i),
-      "nonce[128+i] is not equal to 1"
-    );
-    return true;
-  }
-
-  /// @return
-  ///   - nonce[0:128] == expectedR
-  function isFinalized128(bytes32 key, uint256 expectedR) public view returns (bool) {
-    State storage state = table[key];
-
-    require(
-      table[key].finalizesAt <= block.number,
-      "Nonce is not yet finalized"
-    );
-    require(
-      getFirstNBits(state.nonceValue, 128) == getFirstNBits(expectedR, 128),
-      "Nonce is not equal to expectedNonce"
-    );
-    return true;
-  }
-
   /// @notice Computes a unique key for the particular salt and msg.sender
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
