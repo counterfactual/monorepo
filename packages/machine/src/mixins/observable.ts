@@ -8,22 +8,18 @@ export class Observable {
   }
 
   public registerObserver(type: NotificationType, callback: Function) {
-    if (!this.observers[type]) {
-      this.observers[type] = [];
-    }
-    this.observers[type].push(callback);
+    this.observers.set(type, this.getObservers(type).concat(callback));
   }
 
   public unregisterObserver(type: NotificationType, callback: Function) {
-    const index = this.observers[type].indexOf(callback);
-    this.observers[type].splice(index, 1);
+    const observers = this.getObservers(type);
+    const index = observers.indexOf(callback);
+    this.observers.set(type, observers.splice(index, 1));
   }
 
   public notifyObservers(type: NotificationType, data: object) {
-    if (this.observers[type]) {
-      this.observers[type].forEach(callback => {
-        callback(data);
-      });
-    }
+    this.getObservers(type).forEach(callback => {
+      callback(data);
+    });
   }
 }
