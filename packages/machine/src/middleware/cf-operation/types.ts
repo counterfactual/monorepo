@@ -225,7 +225,7 @@ export class CfStateChannel {
   public cfAddress(): H256 {
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
-    ).deployFunction.encode(this.ctx.linkBytecode(AppInstanceJson.bytecode), [
+    ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [
       this.owner,
       this.signingKeys,
       this.cfApp.hash(),
