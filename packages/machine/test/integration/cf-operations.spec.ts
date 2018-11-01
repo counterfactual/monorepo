@@ -113,7 +113,7 @@ describe("Setup Protocol", async () => {
     // https://github.com/counterfactual/monorepo/issues/185
     const multisig = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
-      devEnvNetworkContext7777777.linkBytecode(
+      devEnvNetworkContext7777777.linkedBytecode(
         MinimumViableMultisigJson.bytecode
       ),
       ethersMasterWallet
@@ -136,7 +136,7 @@ describe("Setup Protocol", async () => {
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
     ).deployFunction.encode(
-      devEnvNetworkContext7777777.linkBytecode(AppInstanceJson.bytecode),
+      devEnvNetworkContext7777777.linkedBytecode(AppInstanceJson.bytecode),
       [
         multisig.address,
         signingKeys,
