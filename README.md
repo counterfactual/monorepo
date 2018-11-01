@@ -27,7 +27,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
   with development or to hang out with some ethereum hackers :)
 - **[Create a new issue](https://github.com/counterfactual/monorepo/issues/new)** to report bugs
 - **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
-  is an [Open Source Project](CONTRIBUTING.md)!
+  is an [Open Source Project](.github/CONTRIBUTING.md)!
 
 ### Installing dependenciess
 
