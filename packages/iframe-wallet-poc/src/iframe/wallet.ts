@@ -23,7 +23,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
   ): Promise<ethers.Contract> {
     const contract = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
-      this.networkContext.linkBytecode(MinimumViableMultisigJson.bytecode),
+      this.networkContext.linkedBytecode(MinimumViableMultisigJson.bytecode),
       wallet
     ).deploy();
 
