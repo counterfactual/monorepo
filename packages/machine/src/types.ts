@@ -107,7 +107,7 @@ export interface ContextualizedStateProposer {
 export interface ClientResponse {
   requestId: string;
   // TODO: tighten the type
-  // https://github.com/counterfactual/monorepo/issues/162
+  // https://github.com/counterfactual/monorepo/issues/128
   status?: any;
   data?: any;
   appId?: string;
@@ -195,7 +195,7 @@ export interface StateChannelInfo {
   freeBalance: CfFreeBalance;
 
   // TODO: Move this out of the datastructure
-  // https://github.com/counterfactual/monorepo/issues/163
+  // https://github.com/counterfactual/monorepo/issues/127
   /**
    * @returns the addresses of the owners of this state channel sorted
    *          in alphabetical order.
@@ -223,7 +223,7 @@ export interface AppChannelInfo {
   dependencyNonce: CfNonce;
 
   // TODO: Move this into a method that is outside the data structure
-  // https://github.com/counterfactual/monorepo/issues/164
+  // https://github.com/counterfactual/monorepo/issues/126
   stateChannel?: StateChannelInfo;
 }
 
@@ -241,7 +241,7 @@ export interface OpCodeResult {
 }
 
 // TODO: document what this is
-// https://github.com/counterfactual/monorepo/issues/165
+// https://github.com/counterfactual/monorepo/issues/125
 export interface ResponseSink {
   sendResponse(res: Response);
 }
@@ -251,7 +251,7 @@ export class CfPeerAmount {
 }
 
 // FIXME: move operation action names away from client action names
-// https://github.com/counterfactual/monorepo/issues/178
+// https://github.com/counterfactual/monorepo/issues/144
 export enum ActionName {
   SETUP = "setup",
   INSTALL = "install",

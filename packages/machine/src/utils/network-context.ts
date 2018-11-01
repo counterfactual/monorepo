@@ -17,7 +17,7 @@ import { Address } from "../types";
  */
 export class NetworkContext {
   // FIXME: This is just bad practice :S
-  // https://github.com/counterfactual/monorepo/issues/177
+  // https://github.com/counterfactual/monorepo/issues/143
   private contractToVar = {
     Registry: "registryAddr",
     PaymentApp: "paymentAppAddr",
