@@ -2,9 +2,9 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 import * as abi from "../../src/abi";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
-  CfStateChannel,
   Terms,
   Transaction
 } from "../../src/middleware/cf-operation/types";
@@ -186,7 +186,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new CfStateChannel(
+    const cfStateChannel = new CfAppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,

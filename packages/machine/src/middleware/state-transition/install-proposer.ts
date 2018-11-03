@@ -12,10 +12,10 @@ import {
 } from "../../types";
 import { PeerBalance } from "../../utils/peer-balance";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   Terms
 } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
@@ -136,7 +136,7 @@ export class InstallProposer {
     signingKeys: string[],
     uniqueId: number
   ): H256 {
-    return new CfStateChannel(
+    return new CfAppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,

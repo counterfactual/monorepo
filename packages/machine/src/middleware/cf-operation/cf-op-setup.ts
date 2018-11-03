@@ -9,9 +9,9 @@ import { NetworkContext } from "../../utils/network-context";
 import { CfMultiSendOp } from "./cf-multisend-op";
 
 import {
+  CfAppInstance,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   MultisigInput,
   Operation
 } from "./types";
@@ -27,7 +27,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,
-    readonly freeBalanceStateChannel: CfStateChannel,
+    readonly freeBalanceStateChannel: CfAppInstance,
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
