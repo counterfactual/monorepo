@@ -8,9 +8,9 @@ import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfOperation,
-  CfStateChannel,
   Terms,
   Transaction
 } from "./types";
@@ -52,7 +52,7 @@ export class CfOpSetState extends CfOperation {
    *          `setState` on StateChannel.sol.
    */
   public transaction(sigs: Signature[]): Transaction {
-    const appCfAddr = new CfStateChannel(
+    const appCfAddr = new CfAppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,

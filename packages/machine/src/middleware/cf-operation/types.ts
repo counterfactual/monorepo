@@ -206,12 +206,12 @@ export class CfNonce {
 }
 
 /**
- * Maps 1-1 with StateChannel.sol (with the addition of the uniqueId, which
+ * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
  * is used to calculate the cf address).
  *
  * @param signingKeys *must* be in sorted lexicographic order.
  */
-export class CfStateChannel {
+export class CfAppInstance {
   constructor(
     readonly ctx: NetworkContext,
     readonly owner: Address,

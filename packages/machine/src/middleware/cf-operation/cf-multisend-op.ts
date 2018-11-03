@@ -10,10 +10,10 @@ import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {
+  CfAppInstance,
   CfFreeBalance,
   CfNonce,
   CfOperation,
-  CfStateChannel,
   MultiSend,
   MultisigInput,
   Operation,
@@ -76,7 +76,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public freeBalanceData(): Bytes {
     const terms = CfFreeBalance.terms();
     const app = CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new CfStateChannel(
+    const freeBalanceCfAddress = new CfAppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],

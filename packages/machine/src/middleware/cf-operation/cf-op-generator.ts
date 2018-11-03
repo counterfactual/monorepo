@@ -20,7 +20,7 @@ import {
   CfAppInterface,
   CfFreeBalance,
   CfOperation,
-  CfStateChannel,
+  CfAppInstance,
   Terms
 } from "./types";
 
@@ -140,7 +140,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       new PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const cfStateChannel = new CfStateChannel(
+    const freeBalanceAppInstance = new CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,
@@ -153,7 +153,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     return new CfOpSetup(
       cfState.networkContext,
       multisig,
-      cfStateChannel,
+      freeBalanceAppInstance,
       cfFreeBalance,
       nonce
     );
@@ -173,7 +173,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
-    const app = new CfStateChannel(
+    const app = new CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,
