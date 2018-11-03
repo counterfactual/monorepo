@@ -12,11 +12,11 @@ import {
 } from "../../types";
 import { PeerBalance } from "../../utils/peer-balance";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
-  Terms,
-  CfAppInstance
+  Terms
 } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
 

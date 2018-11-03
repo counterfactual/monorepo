@@ -17,10 +17,10 @@ import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfOperation,
-  CfAppInstance,
   Terms
 } from "./types";
 

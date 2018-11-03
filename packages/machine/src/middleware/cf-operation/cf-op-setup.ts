@@ -9,9 +9,9 @@ import { NetworkContext } from "../../utils/network-context";
 import { CfMultiSendOp } from "./cf-multisend-op";
 
 import {
+  CfAppInstance,
   CfFreeBalance,
   CfNonce,
-  CfAppInstance,
   MultisigInput,
   Operation
 } from "./types";
