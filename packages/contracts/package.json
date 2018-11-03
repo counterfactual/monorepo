@@ -38,7 +38,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-string": "^1.4.1",
     "@types/node": "^10.9.3",
-    "bignumber.js": "8.0.0",
+    "bignumber.js": "8.0.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
