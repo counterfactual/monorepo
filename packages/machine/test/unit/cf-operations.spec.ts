@@ -1,3 +1,4 @@
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import { AssetType } from "@counterfactual/contracts/dist/utils";
 import * as ethers from "ethers";
 
@@ -65,7 +66,11 @@ describe("CFOperation subclasses", async () => {
       const transaction = op.transaction([]);
       expect(transaction.to).toBe(multisig);
       expect(transaction.value).toBe(0);
-      // TODO: verify transaction data
+      const txSighash = transaction.data.slice(0, 10);
+      const expectedSighash = new ethers.utils.Interface(
+        MinimumViableMultisigJson.abi
+      ).functions.execTransaction.sighash;
+      expect(txSighash).toBe(expectedSighash);
     });
   });
 });
