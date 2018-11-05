@@ -146,7 +146,12 @@ contract AppInstance {
 
   /// @notice A getter function for the resolution if one is set
   /// @return A `Transfer.Transaction` object representing the resolution of the channel
-  function getResolution() public view returns (Transfer.Transaction) {
+  function getResolution()
+      public
+      view
+      onlyWhenChannelClosed
+      returns (Transfer.Transaction)
+  {
     return resolution;
   }
 
@@ -269,7 +274,10 @@ contract AppInstance {
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newAppState));
+      require(
+        isAppStateTerminal(app, newAppState),
+        "Attempted to claimFinal on a non-terminal state"
+      );
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 
@@ -332,7 +340,10 @@ contract AppInstance {
     state.latestSubmitter = msg.sender;
 
     if (claimFinal) {
-      require(isAppStateTerminal(app, newAppState));
+      require(
+        isAppStateTerminal(app, newAppState),
+        "Attempted to claimFinal on a non-terminal state"
+      );
       state.finalizesAt = block.number;
       state.status = Status.OFF;
 

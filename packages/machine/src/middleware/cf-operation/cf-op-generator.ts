@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
 import {
@@ -6,19 +7,20 @@ import {
   Address,
   CanonicalPeerBalance,
   H256,
-  InternalMessage,
-  PeerBalance
+  InternalMessage
 } from "../../types";
+import { PeerBalance } from "../../utils/peer-balance";
 import { CfOpGenerator, getFirstResult } from "../middleware";
+
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfOperation,
-  CfStateChannel,
   Terms
 } from "./types";
 
@@ -67,6 +69,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     const multisig: Address = message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
+      // https://github.com/counterfactual/monorepo/issues/121
       throw Error("update message must have appId set");
     }
     const appChannel =
@@ -74,6 +77,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
+    // https://github.com/counterfactual/monorepo/issues/135
     appChannel.cfApp = new CfAppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
@@ -101,6 +105,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       cfState.networkContext,
       multisig,
       // FIXME: signing keys should be app-specific ephemeral keys
+      // https://github.com/counterfactual/monorepo/issues/120
       signingKeys,
       appChannel.appStateHash,
       appChannel.uniqueId,
@@ -135,7 +140,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       new PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const cfStateChannel = new CfStateChannel(
+    const freeBalanceAppInstance = new CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,
@@ -148,7 +153,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     return new CfOpSetup(
       cfState.networkContext,
       multisig,
-      cfStateChannel,
+      freeBalanceAppInstance,
       cfFreeBalance,
       nonce
     );
@@ -168,7 +173,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
-    const app = new CfStateChannel(
+    const app = new CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,

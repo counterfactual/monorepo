@@ -1,10 +1,10 @@
-import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 
-import { PaymentApp } from "../../types/ethers-contracts/PaymentApp";
 import { AppInstance } from "../../types/ethers-contracts/AppInstance";
+import { PaymentApp } from "../../types/ethers-contracts/PaymentApp";
 
 import { AbstractContract, expect } from "../../utils";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
@@ -115,7 +115,7 @@ contract("PaymentApp", (accounts: string[]) => {
     const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
     pc = (await paymentApp.deploy(unlockedAccount)) as PaymentApp;
 
-    // Specifically for the StateChannel
+    // Specifically for the AppInstance
     const appInstance = artifacts.require("AppInstance");
     const staticCall = artifacts.require("StaticCall");
     const signatures = artifacts.require("Signatures");

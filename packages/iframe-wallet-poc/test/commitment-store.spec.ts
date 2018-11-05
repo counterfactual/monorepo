@@ -1,20 +1,21 @@
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as machine from "@counterfactual/machine";
 import { ethers } from "ethers";
+
 import { IFrameWallet } from "../src/iframe/wallet";
-import { SetupProtocol, EMPTY_NETWORK_CONTEXT } from "./common";
+
+import { EMPTY_NETWORK_CONTEXT, SetupProtocol } from "./common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_ADDRESS
+  UNUSED_FUNDED_ACCOUNT
 } from "./environment";
-
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
-let network: machine.types.NetworkContext;
+let network: machine.utils.NetworkContext;
 
 beforeAll(() => {
   walletA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
@@ -39,10 +40,12 @@ describe("should have empty commitment stores", async () => {
 describe.skip("should have one commitment for the setup protocol", () => {
   it("should have the setup commitments in store", async () => {
     await setup(walletA, walletB);
-    expect(walletA.currentUser.store.appExists(MULTISIG_ADDRESS)).toEqual(true);
+    expect(walletA.currentUser.store.appExists(UNUSED_FUNDED_ACCOUNT)).toEqual(
+      true
+    );
     expect(
       await walletA.currentUser.store.appHasCommitment(
-        MULTISIG_ADDRESS,
+        UNUSED_FUNDED_ACCOUNT,
         machine.types.ActionName.SETUP
       )
     ).toEqual(true);
@@ -51,10 +54,10 @@ describe.skip("should have one commitment for the setup protocol", () => {
   let setupTransaction: machine.cfTypes.Transaction;
   it("the transaction should be sent to the multisig address", async () => {
     setupTransaction = await walletA.currentUser.store.getTransaction(
-      MULTISIG_ADDRESS,
+      UNUSED_FUNDED_ACCOUNT,
       machine.types.ActionName.SETUP
     );
-    expect(setupTransaction.to).toEqual(MULTISIG_ADDRESS);
+    expect(setupTransaction.to).toEqual(UNUSED_FUNDED_ACCOUNT);
   });
 
   let multisigInput;
@@ -71,7 +74,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
   // FIXME: the operation hash generated is wrong
   // it.skip("the transaction's signatures should be signed by wallet A and wallet B", () => {
   //   const signatures = Signature.fromBytes(multisigInput.signatures);
-  //   const operationHash = CfOpSetup.toHash(MULTISIG_ADDRESS, multisigInput);
+  //   const operationHash = CfOpSetup.toHash(UNUSED_FUNDED_ACCOUNT, multisigInput);
   //   const addressA = ethers.utils.recoverAddress(operationHash, signatures[0]);
   //   const addressB = ethers.utils.recoverAddress(operationHash, signatures[1]);
   //   expect(addressA).toEqual(walletA.currentUser.signer.address);

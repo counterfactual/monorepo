@@ -1,9 +1,9 @@
-import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 
 import { AppInstance } from "../../types/ethers-contracts/AppInstance";
 
 import { AbstractContract, expect } from "../../utils";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);

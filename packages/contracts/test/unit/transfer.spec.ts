@@ -1,13 +1,11 @@
-import lodash = require("lodash");
 import { expect } from "chai";
-import ethers from "ethers";
+import * as ethers from "ethers";
+import lodash = require("lodash");
 
 import { DelegateProxy } from "../../types/ethers-contracts/DelegateProxy";
 import { DolphinCoin } from "../../types/ethers-contracts/DolphinCoin";
-
-import * as Utils from "@counterfactual/dev-utils";
-
 import { AbstractContract } from "../../utils/contract";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);

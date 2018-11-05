@@ -1,16 +1,12 @@
-import * as ethers from "ethers";
-
-// TODO: Don't import from the contracts repo for this, there should be some kind of
-// "counterfactual app store" registry that we can pull from. Additionally, the below two
-// apps should be considered "default" somewhere. Probably inside the machine, as they're
-// often reused and critical infrastructure for ETH payments and deposits.
+import * as cf from "@counterfactual/cf.js";
 import ETHBalanceRefundAppJson from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
-
-import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
+import * as ethers from "ethers";
+
 import { ganacheURL } from "../src/iframe/user";
 import { IFrameWallet } from "../src/iframe/wallet";
+
 import { EMPTY_NETWORK_CONTEXT } from "./common";
 import {
   A_ADDRESS,
@@ -24,18 +20,31 @@ const BALANCE_REFUND_STATE_ENCODING =
 const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentAppJson.abi);
-const INSTALL_OPTIONS: machine.types.InstallOptions = {
-  appAddress: ethers.constants.AddressZero,
-  peerABalance: ethers.utils.bigNumberify(0),
-  peerBBalance: ethers.utils.bigNumberify(0),
-  abiEncoding: PAYMENT_APP_ABI_ENCODING,
-  stateEncoding: PAYMENT_APP_STATE_ENCODING,
-  state: {
-    alice: A_ADDRESS,
-    bob: B_ADDRESS,
-    aliceBalance: ethers.utils.bigNumberify(10),
-    bobBalance: ethers.utils.bigNumberify(10)
-  }
+
+const APP_NAME = "PaymentApp";
+const APP_INSTANCE = new cf.AppInstance(
+  [A_ADDRESS, B_ADDRESS].sort(),
+  {
+    address: ethers.constants.AddressZero,
+    appActionEncoding: PAYMENT_APP_ABI_ENCODING,
+    appStateEncoding: PAYMENT_APP_STATE_ENCODING
+  },
+  new machine.cfTypes.Terms(
+    0,
+    ethers.utils.bigNumberify(0),
+    ethers.constants.AddressZero
+  ),
+  100
+);
+const APP_DEPOSITS: cf.types.Deposits = {
+  [A_ADDRESS]: ethers.utils.bigNumberify(0),
+  [B_ADDRESS]: ethers.utils.bigNumberify(0)
+};
+const APP_INITIAL_STATE = {
+  alice: A_ADDRESS,
+  bob: B_ADDRESS,
+  aliceBalance: ethers.utils.bigNumberify(10),
+  bobBalance: ethers.utils.bigNumberify(10)
 };
 
 const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
@@ -97,7 +106,12 @@ describe("Lifecycle", async () => {
     clientInterfaceB.addObserver("installCompleted", data => {
       expect(true).toBeTruthy();
     });
-    await stateChannelA.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannelA.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
   });
 
   it("Can remove observers", async () => {
@@ -112,7 +126,12 @@ describe("Lifecycle", async () => {
     });
     clientInterfaceB.addObserver("installCompleted", falsyCallback);
     clientInterfaceB.removeObserver("installCompleted", falsyCallback);
-    await stateChannelA.install("PaymentApp", INSTALL_OPTIONS);
+    await stateChannelA.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
   });
 
   it("Will notify only the current user", async () => {
@@ -147,7 +166,12 @@ describe("Lifecycle", async () => {
       expect(true).toBeTruthy();
     });
 
-    await stateChannelAB.install("PaymentApp", INSTALL_OPTIONS);
+    await stateChannelAB.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
   });
 
   it("Can deposit to a state channel", async () => {
@@ -159,8 +183,6 @@ describe("Lifecycle", async () => {
 
     await stateChannelAB.deposit(
       clientA.network.ethBalanceRefundAppAddr,
-      JSON.stringify([ETHBalanceRefundAppJson.abi]),
-      BALANCE_REFUND_STATE_ENCODING,
       amountA,
       ethers.utils.bigNumberify(0)
     );
@@ -175,8 +197,6 @@ describe("Lifecycle", async () => {
 
     await stateChannelBA.deposit(
       clientB.network.ethBalanceRefundAppAddr,
-      JSON.stringify([ETHBalanceRefundAppJson.abi]),
-      BALANCE_REFUND_STATE_ENCODING,
       amountB,
       amountA
     );
@@ -199,7 +219,12 @@ describe("Lifecycle", async () => {
     const threshold = 10;
 
     const stateChannel = await client.connect(B_ADDRESS);
-    await stateChannel.install("PaymentApp", INSTALL_OPTIONS);
+    await stateChannel.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
     // check B's client
     validateInstalledBalanceRefund(
       clientB,
@@ -221,8 +246,10 @@ describe("Lifecycle", async () => {
 
     const stateChannel = await client.connect(B_ADDRESS);
     const appChannel = await stateChannel.install(
-      "PaymentApp",
-      INSTALL_OPTIONS
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
     );
 
     const uninstallAmountA = ethers.utils.bigNumberify(10);
@@ -258,8 +285,10 @@ describe("Lifecycle", async () => {
 
     const stateChannel = await client.connect(B_ADDRESS);
     const appChannel = await stateChannel.install(
-      "paymentApp",
-      INSTALL_OPTIONS
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
     );
 
     await makePayments(
@@ -278,7 +307,12 @@ describe("Lifecycle", async () => {
     const threshold = 10;
 
     const stateChannel = await client.connect(B_ADDRESS);
-    await stateChannel.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannel.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
 
     validateInstalledBalanceRefund(
       clientA,
@@ -307,7 +341,12 @@ describe("Lifecycle", async () => {
     await client.init();
 
     const stateChannel = await client.connect(B_ADDRESS);
-    await stateChannel.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannel.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
     const freeBalance = await stateChannel.queryFreeBalance();
 
     expect(freeBalance.data.freeBalance.aliceBalance.toNumber()).toBe(0);
@@ -320,7 +359,12 @@ describe("Lifecycle", async () => {
     await clientInterfaceA.init();
 
     const stateChannelAB = await clientInterfaceA.connect(B_ADDRESS);
-    await stateChannelAB.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannelAB.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
     const stateChannelInfo = await stateChannelAB.queryStateChannel();
 
     expect(stateChannelInfo.data.stateChannel.counterParty).toBe(
@@ -355,7 +399,12 @@ describe("Lifecycle", async () => {
     await clientInterfaceB.init();
 
     const stateChannel = await clientInterfaceA.connect(B_ADDRESS);
-    await stateChannel.install("paymentApp", INSTALL_OPTIONS);
+    await stateChannel.install(
+      APP_NAME,
+      APP_INSTANCE,
+      APP_DEPOSITS,
+      APP_INITIAL_STATE
+    );
 
     const threshold = 10;
 
@@ -544,7 +593,7 @@ async function makePayment(
   totalUpdates: number
 ) {
   const newState = {
-    ...INSTALL_OPTIONS.state,
+    ...APP_INITIAL_STATE,
     aliceBalance: ethers.utils.bigNumberify(aliceBalance),
     bobBalance: ethers.utils.bigNumberify(bobBalance)
   };

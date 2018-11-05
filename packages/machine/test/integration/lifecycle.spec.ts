@@ -6,9 +6,9 @@ import {
   ActionName,
   ClientActionMessage,
   InstallData,
-  PeerBalance,
   UpdateData
 } from "../../src/types";
+import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
@@ -16,7 +16,7 @@ import {
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_ADDRESS
+  UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";
 import { SetupProtocol } from "./test-setup";
 
@@ -46,9 +46,12 @@ function getCommunicatingPeers(): TestResponseSink[] {
   // TODO: Document somewhere that the .signingKey.address" *must* be a hex otherwise
   // machine/src/middleware/state-transition/install-proposer.ts:98:14
   // will throw an error when doing BigNumber.gt check.
+  // https://github.com/counterfactual/monorepo/issues/110
+
   // TODO: Furthermore document that these will eventually be used to generate
   // the `signingKeys` in any proposals e.g., InstallProposer, thus the proposal
   // will fail if they are not valid Ethereum addresses
+  // https://github.com/counterfactual/monorepo/issues/109
   const peerA = new TestResponseSink(A_PRIVATE_KEY);
   const peerB = new TestResponseSink(B_PRIVATE_KEY);
 
@@ -168,7 +171,7 @@ class Depositor {
       appId: "",
       action: ActionName.INSTALL,
       data: installData,
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
       fromAddress: from,
       seq: 0
@@ -180,7 +183,7 @@ class Depositor {
     peerB: TestResponseSink,
     amount: ethers.utils.BigNumber
   ) {
-    const stateChannel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const stateChannel = peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(stateChannel.me).toEqual(peerA.signingKey.address);
     expect(stateChannel.counterParty).toEqual(peerB.signingKey.address);
 
@@ -232,6 +235,7 @@ class Depositor {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
+    // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.vm.cfState;
     const canon = PeerBalance.balances(
       peerA.signingKey.address!,
@@ -240,13 +244,13 @@ class Depositor {
       amountB
     );
 
-    const channel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appChannels[cfAddr];
 
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.me).toEqual(peerA.signingKey.address);
     expect(channel.counterParty).toEqual(peerB.signingKey.address);
-    expect(channel.multisigAddress).toEqual(MULTISIG_ADDRESS);
+    expect(channel.multisigAddress).toEqual(UNUSED_FUNDED_ACCOUNT);
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);
     expect(channel.freeBalance.aliceBalance).toEqual(canon.peerA.balance);
@@ -269,7 +273,7 @@ class Depositor {
       requestId: "2",
       action: ActionName.UNINSTALL,
       data: uninstallData,
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: from,
       toAddress: to,
       seq: 0
@@ -338,7 +342,7 @@ class TicTacToeSimulator {
       appId: "",
       action: ActionName.INSTALL,
       data: installData,
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
       fromAddress: from,
       seq: 0
@@ -359,7 +363,7 @@ class TicTacToeSimulator {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ): string {
-    const stateChannel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const stateChannel = peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     const appChannels = stateChannel.appChannels;
     const cfAddrs = Object.keys(appChannels);
     expect(cfAddrs.length).toEqual(1);
@@ -370,7 +374,7 @@ class TicTacToeSimulator {
     expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(2);
 
     // now validate the free balance
-    const channel = peerA.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
     expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
     expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
@@ -449,7 +453,7 @@ class TicTacToeSimulator {
       appId: cfAddr,
       action: ActionName.UPDATE,
       data: updateData,
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
       fromAddress: from,
       seq: 0
@@ -464,9 +468,9 @@ class TicTacToeSimulator {
     moveNumber: number
   ) {
     const appA =
-      peerA.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+      peerA.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT].appChannels[cfAddr];
     const appB =
-      peerB.vm.cfState.channelStates[MULTISIG_ADDRESS].appChannels[cfAddr];
+      peerB.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT].appChannels[cfAddr];
 
     expect(appA.encodedState).toEqual(appState);
     expect(appA.localNonce).toEqual(moveNumber + 1);
@@ -522,7 +526,7 @@ class TicTacToeSimulator {
       appId: cfAddr,
       action: ActionName.UNINSTALL,
       data: uninstallData,
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: addressA,
       toAddress: addressB,
       seq: 0
@@ -535,7 +539,7 @@ class TicTacToeSimulator {
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
-    const channel = wallet.vm.cfState.channelStates[MULTISIG_ADDRESS];
+    const channel = wallet.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appChannels[cfAddr];
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);

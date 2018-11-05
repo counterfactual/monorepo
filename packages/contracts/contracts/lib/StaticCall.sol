@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
+import "openzeppelin-eth/contracts/utils/Address.sol";
 import "../lib/Transfer.sol";
 
 
@@ -11,7 +11,7 @@ import "../lib/Transfer.sol";
 /// calls to contracts with unknown ABIs without exposing assembly code in the contract.
 library StaticCall {
 
-  using AddressUtils for address;
+  using Address for address;
 
   /// @notice Execute a STATICCALL without regard for the return value
   /// @param to The address the call is being made to
@@ -22,7 +22,7 @@ library StaticCall {
     view
     returns (bool success)
   {
-    require(to.isContract());
+    require(to.isContract(), "StaticCall to address is not a contract.");
     assembly {
       let success := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
     }
@@ -100,7 +100,7 @@ library StaticCall {
     private
     view
   {
-    require(to.isContract());
+    require(to.isContract(), "Attempted to make a static call on non-conract address");
     assembly {
       let result := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
       let size := returndatasize

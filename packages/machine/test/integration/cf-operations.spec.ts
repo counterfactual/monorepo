@@ -2,19 +2,15 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 import * as abi from "../../src/abi";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
-  CfStateChannel,
   Terms,
   Transaction
 } from "../../src/middleware/cf-operation/types";
-import {
-  ActionName,
-  ClientActionMessage,
-  InstallData,
-  NetworkContext,
-  PeerBalance
-} from "../../src/types";
+import { ActionName, ClientActionMessage, InstallData } from "../../src/types";
+import { NetworkContext } from "../../src/utils/network-context";
+import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {
@@ -22,7 +18,7 @@ import {
   A_PRIVATE_KEY,
   B_ADDRESS,
   B_PRIVATE_KEY,
-  MULTISIG_PRIVATE_KEY
+  UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY
 } from "../utils/environment";
 
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
@@ -32,6 +28,7 @@ import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.jso
 import { TestResponseSink } from "./test-response-sink";
 
 // FIXME: Remove this dependency!
+// https://github.com/counterfactual/monorepo/issues/103
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
 describe("Setup Protocol", async () => {
@@ -41,12 +38,13 @@ describe("Setup Protocol", async () => {
   let devEnvNetworkContext7777777: NetworkContext;
 
   beforeAll(() => {
-    // TODO: This isn't a TODO so much as a note, but this `require` statement is
-    // explicitly in side the `beforeAll` and not at the file scope because we need
-    // it to do the file lookup at runtime and not buildtime otheriwse the build process
-    // will fail if the contracts haven't been migrated yet.
+    // This `require` statement is explicitly in side the `beforeAll` and not at the file
+    // scope because we need it to do the file lookup at runtime and not buildtime otherwise
+    // the build process will fail if the contracts haven't been migrated yet.
+
     // TODO: The linter can't handle files with numbers as names. This should be fixed
     // when we have a different method for retrieving the network addresses anyway.
+    // https://github.com/counterfactual/monorepo/issues/114
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
@@ -84,8 +82,10 @@ describe("Setup Protocol", async () => {
     const startingBalanceA = await ganache.getBalance(A_ADDRESS);
     const startingBalanceB = await ganache.getBalance(B_ADDRESS);
 
-    // TODO: What is a MULTISIG_PRIVATE_KEY 🤔
-    const ethersMasterWallet = new ethers.Wallet(MULTISIG_PRIVATE_KEY, ganache);
+    const ethersMasterWallet = new ethers.Wallet(
+      UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY,
+      ganache
+    );
 
     walletA.io.peer = walletB;
     walletB.io.peer = walletA;
@@ -110,9 +110,12 @@ describe("Setup Protocol", async () => {
 
     // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
     //       so we have to do it manually. Will fix later of course :)
+    // https://github.com/counterfactual/monorepo/issues/113
     const multisig = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
-      devEnvNetworkContext7777777.linkBytecode(MinimumViableMultisigJson.bytecode),
+      devEnvNetworkContext7777777.linkedBytecode(
+        MinimumViableMultisigJson.bytecode
+      ),
       ethersMasterWallet
     ).deploy();
 
@@ -133,7 +136,7 @@ describe("Setup Protocol", async () => {
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
     ).deployFunction.encode(
-      devEnvNetworkContext7777777.linkBytecode(AppInstanceJson.bytecode),
+      devEnvNetworkContext7777777.linkedBytecode(AppInstanceJson.bytecode),
       [
         multisig.address,
         signingKeys,
@@ -141,11 +144,13 @@ describe("Setup Protocol", async () => {
         terms.hash(),
         // TODO: Don't hard-code the timeout, make it dependant on some
         // function(blockchain) to in the future check for congestion... :)
+        // https://github.com/counterfactual/monorepo/issues/112
         100
       ]
     );
 
     // TODO: Figure out how to not have to put the insanely high gasLimit here
+    // https://github.com/counterfactual/monorepo/issues/146
     await registry.functions.deploy(initcode, 0, { gasLimit: 6e9 });
 
     const uninstallTx: Transaction = await walletA.store.getTransaction(
@@ -181,7 +186,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new CfStateChannel(
+    const cfStateChannel = new CfAppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
@@ -320,6 +325,7 @@ function validateNoAppsAndFreeBalance(
   amountBgiven: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
+  // https://github.com/counterfactual/monorepo/issues/111
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;
@@ -573,6 +579,7 @@ function validateUninstalledAndFreeBalance(
   amountBgiven: ethers.utils.BigNumber
 ) {
   // TODO: add nonce and uniqueId params and check them
+  // https://github.com/counterfactual/monorepo/issues/111
   const state = walletA.vm.cfState;
 
   let peerA = walletA.signingKey.address;

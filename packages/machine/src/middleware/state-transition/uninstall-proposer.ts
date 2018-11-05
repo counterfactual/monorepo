@@ -1,13 +1,14 @@
 import * as ethers from "ethers";
+
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
   Address,
   CanonicalPeerBalance,
   InternalMessage,
-  PeerBalance,
   StateChannelInfos,
   StateProposal
 } from "../../types";
+import { PeerBalance } from "../../utils/peer-balance";
 import { CfFreeBalance } from "../cf-operation/types";
 
 export class UninstallProposer {

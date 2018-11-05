@@ -14,44 +14,27 @@
     "build": "tsc -b && rollup -c",
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.2",
-    "@types/chai": "^4.1.6",
     "@types/jest": "^23.3.3",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.9.3",
-    "chai": "^4.2.0",
-    "ganache-cli": "^6.1.8",
+    "ethers": "^4.0.4",
     "jest": "^23.6.0",
-    "lerna": "^2.11.0",
     "lodash": "^4.17.10",
-    "prettier": "1.14.2",
     "rollup": "^0.66.4",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.17.1",
     "ts-jest": "^23.1.4",
-    "ts-node": "^7.0.0",
-    "tslint": "5.11.0",
-    "tslint-config-prettier": "1.14.0",
-    "tslint-plugin-prettier": "1.3.0",
+    "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   },
-  "peerDependencies": {
-    "ethers": "^4.0.4",
-    "rollup-plugin-json": "^3.1.0",
-    "rollup-plugin-typescript2": "^0.17.1"
-  },
   "dependencies": {
-    "@counterfactual/dev-utils": "0.0.2",
     "@counterfactual/typescript-typings": "0.0.1",
-    "ethers": "^4.0.4",
-    "sha3": "^1.2.2"
-  },
-  "prettier": {
-    "useTabs": false
+    "ethers": "^4.0.4"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",

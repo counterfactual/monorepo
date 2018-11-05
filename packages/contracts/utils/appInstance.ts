@@ -1,7 +1,8 @@
-import { signMessage } from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
+
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
+import { signMessage } from "./misc";
 import { Multisig } from "./multisig";
 import { abiEncodingForStruct, encodeStruct } from "./structEncoding";
 
@@ -113,8 +114,8 @@ export class AppInstance {
 }
 
 /**
- * Compute the raw state hash for use in the StateChannel contract.
- * @param signingKeys Signing keys of the StateChannel
+ * Compute the raw state hash for use in the AppInstance contract.
+ * @param signingKeys Signing keys of the AppInstance
  * @param appStateHash App state hash
  * @param appStateNonce App state nonce
  * @param timeout Time until finalization.
@@ -133,7 +134,7 @@ export function computeStateHash(
 }
 
 /**
- * Compute the raw action hash for use in the StateChannel contract.
+ * Compute the raw action hash for use in the AppInstance contract.
  * @param turnTaker The address of the turn taker
  * @param prevStateHash The previous app state hash
  * @param action The action

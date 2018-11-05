@@ -1,8 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-solidity/contracts/AddressUtils.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-eth/contracts/token/ERC20/ERC20.sol";
 
 
 /// @title Transfer - A library to encode a generic asset transfer data type
@@ -43,7 +42,10 @@ library Transfer {
       if (txn.assetType == uint8(Transfer.Asset.ETH)) {
         to.transfer(value);
       } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
-        require(ERC20(txn.token).transfer(to, value));
+        require(
+          ERC20(txn.token).transfer(to, value),
+          "Execution of ERC20 Transaction failed."
+        );
       }
     }
   }

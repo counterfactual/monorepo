@@ -1,9 +1,10 @@
-import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 
 import { NonceRegistry } from "../../types/ethers-contracts/NonceRegistry";
 
+
 import { AbstractContract, expect } from "../../utils";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
@@ -21,31 +22,6 @@ contract("NonceRegistry", accounts => {
   before(async () => {
     const contract = await AbstractContract.loadBuildArtifact("NonceRegistry");
     nonceRegistry = (await contract.deploy(unlockedAccount)) as NonceRegistry;
-  });
-
-  it("getFirstNBits works for 8", async () => {
-    const ret = await nonceRegistry.functions.getFirstNBits(
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      8
-    );
-    expect(ret).to.be.eql(
-      new ethers.utils.BigNumber(
-        "0xff00000000000000000000000000000000000000000000000000000000000000"
-      )
-    );
-  });
-
-  it("getFirstNBits works for 9", async () => {
-    const ret = await nonceRegistry.functions.getFirstNBits(
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      9
-    );
-    // 0x8 == 0b1000
-    expect(ret).to.be.eql(
-      new ethers.utils.BigNumber(
-        "0xff80000000000000000000000000000000000000000000000000000000000000"
-      )
-    );
   });
 
   it("can set nonces", async () => {

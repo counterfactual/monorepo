@@ -1,8 +1,3 @@
-import {
-  generateEthWallets,
-  mineBlocks,
-  setupTestEnv
-} from "@counterfactual/dev-utils";
 import { expect } from "chai";
 import * as ethers from "ethers";
 
@@ -18,6 +13,7 @@ import {
   Multisig,
   TransferTerms
 } from "../../utils";
+import { generateEthWallets, setupTestEnv } from "../../utils/misc";
 
 const { web3 } = global as any;
 
@@ -51,9 +47,12 @@ enum Player {
 }
 
 const { parseEther } = ethers.utils;
-const commitRevealApp = AbstractContract.loadBuildArtifact("CommitRevealApp", {
-  StaticCall
-});
+const commitRevealAppDefinition = AbstractContract.loadBuildArtifact(
+  "CommitRevealApp",
+  {
+    StaticCall
+  }
+);
 
 const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
 const appStateEncoding = abiEncodingForStruct(`
@@ -79,29 +78,29 @@ async function createMultisig(
   return multisig;
 }
 
-async function deployApp(): Promise<ethers.Contract> {
-  return (await commitRevealApp).deploy(masterAccount);
+async function deployAppDefinition(): Promise<ethers.Contract> {
+  return (await commitRevealAppDefinition).deploy(masterAccount);
 }
 
-async function deployStateChannel(
+async function deployAppInstance(
   multisig: Multisig,
   appContract: ethers.Contract,
   terms: TransferTerms
 ): Promise<AppInstance> {
   const registry = await (await Registry).getDeployed(masterAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
-  const stateChannel = new AppInstance(
+  const appInstance = new AppInstance(
     signers,
     multisig,
     appContract,
     appStateEncoding,
     terms
   );
-  await stateChannel.deploy(masterAccount, registry);
-  if (!stateChannel.contract) {
+  await appInstance.deploy(masterAccount, registry);
+  if (!appInstance.contract) {
     throw new Error("Deploy failed");
   }
-  return stateChannel;
+  return appInstance;
 }
 
 async function executeStateChannelTransaction(
@@ -146,15 +145,15 @@ describe("CommitReveal", async () => {
       bob
     ]);
 
-    // 2. Deploy CommitRevealApp app
-    const appContract = (await deployApp()) as CommitRevealApp;
+    // 2. Deploy CommitRevealApp AppDefinition
+    const appContract = (await deployAppDefinition()) as CommitRevealApp;
 
     // 3. Deploy StateChannel
     const terms = {
       assetType: AssetType.ETH,
       limit: parseEther("2")
     };
-    const stateChannel = await deployStateChannel(multisig, appContract, terms);
+    const stateChannel = await deployAppInstance(multisig, appContract, terms);
 
     // 4. Call setState(claimFinal=true) on StateChannel with a final state
     const numberSalt =

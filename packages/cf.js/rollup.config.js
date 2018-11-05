@@ -1,10 +1,10 @@
 import typescript from "rollup-plugin-typescript2";
+import json from 'rollup-plugin-json';
 
 import pkg from "./package.json";
 const globals = {
   ethers: "ethers",
-  lodash: "_",
-  testUtils: "dev-utils"
+  lodash: "_"
 };
 
 export default {
@@ -31,6 +31,9 @@ export default {
   plugins: [
     typescript({
       typescript: require("typescript")
+    }),
+    json({
+      include: "../contracts/build/contracts/ETHBalanceRefundApp.json"
     })
   ]
 };

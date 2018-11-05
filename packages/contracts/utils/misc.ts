@@ -1,5 +1,5 @@
-import lodash from "lodash";
 import * as ethers from "ethers";
+import lodash from "lodash";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
 export const HIGH_GAS_LIMIT = { gasLimit: 6e9 };

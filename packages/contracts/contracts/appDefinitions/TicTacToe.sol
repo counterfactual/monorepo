@@ -90,7 +90,7 @@ contract TicTacToe {
     pure
     returns (Transfer.Transaction)
   {
-    require(state.winner != 0);
+    require(state.winner != 0, "Winner was set to 0; invalid");
 
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);

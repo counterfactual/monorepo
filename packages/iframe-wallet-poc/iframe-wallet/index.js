@@ -1,11 +1,13 @@
 let iframeWallet;
 
-fetch('../../../node_modules/@counterfactual/contracts/networks/7777777.json')
+fetch("../../../node_modules/@counterfactual/contracts/networks/7777777.json")
   .then(function(response) {
     return response.json();
   })
   .then(function(myJson) {
-    const networkContext = counterfactualWallet.IFrameWallet.networkFileToNetworkContext(myJson);
+    const networkContext = counterfactualWallet.IFrameWallet.networkFileToNetworkContext(
+      myJson
+    );
     iframeWallet = new counterfactualWallet.IFrameWallet(networkContext);
     console.log(`📄 Fetched development mode network context!`);
   });
@@ -62,6 +64,24 @@ async function injectScript(event) {
   );
   event.source.postMessage(
     { type: "cf:init-reply", source: injectedWalletScript },
+    "*"
+  );
+
+  /**
+   * Injects contract addresses into the app. These addresses can then be used
+   * as the `address` property of an `AppDefinition`, which can be provided to the
+   * ChannelInterface to install an app.
+   *
+   * @event cf:inject-address
+   */
+  event.source.postMessage(
+    {
+      type: "cf:inject-address",
+      addresses: {
+        PaymentApp: iframeWallet.network.paymentAppAddr,
+        ETHBalanceRefundApp: iframeWallet.network.ethBalanceRefundAppAddr
+      }
+    },
     "*"
   );
 }
@@ -238,7 +258,7 @@ function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
       ["tuple(address, bytes4, bytes4, bytes4, bytes4)"],
       [
         [
-          networkContext.PaymentApp,
+          networkContext.paymentAppAddr,
           "0x00000000",
           "0x860032b3",
           "0x00000000",
@@ -301,7 +321,7 @@ async function deployAppInstance(
   timeout
 ) {
   registry = new ethers.Contract(
-    networkContext.Registry,
+    networkContext.registryAddr,
     [
       "function deploy(bytes, uint256)",
       "function resolver(bytes32) view returns (address)"
@@ -312,7 +332,7 @@ async function deployAppInstance(
   const initcode = new ethers.utils.Interface(
     iframeWallet.appInstanceArtifact.abi
   ).deployFunction.encode(
-    networkContext.linkBytecode(iframeWallet.appInstanceArtifact.bytecode),
+    networkContext.linkedBytecode(iframeWallet.appInstanceArtifact.bytecode),
     [stateChannel.multisigAddress, signingKeys, appHash, termsHash, timeout]
   );
 
@@ -329,5 +349,9 @@ async function deployAppInstance(
 
   const address = await registry.functions.resolver(cfAddress);
 
-  return new ethers.Contract(address, iframeWallet.appInstanceArtifact.abi, ethersWallet);
+  return new ethers.Contract(
+    address,
+    iframeWallet.appInstanceArtifact.abi,
+    ethersWallet
+  );
 }

@@ -32,7 +32,7 @@ contract MinimumViableMultisig {
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
   function setup(address[] owners) public {
-    require(_owners.length == 0); // Contract hasn't been set up before
+    require(_owners.length == 0, "Contract hasn't been set up before");
     _owners = owners;
   }
 
@@ -104,9 +104,9 @@ contract MinimumViableMultisig {
     internal
   {
     if (operation == Operation.Call)
-      require(executeCall(to, value, data));
+      require(executeCall(to, value, data), "executeCall failed");
     else if (operation == Operation.DelegateCall)
-      require(executeDelegateCall(to, data));
+      require(executeDelegateCall(to, data), "executeDelegateCall failed");
   }
 
   /// @notice Execute a CALL on behalf of the multisignature wallet

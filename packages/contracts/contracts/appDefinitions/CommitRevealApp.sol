@@ -63,23 +63,23 @@ contract CommitRevealApp {
   {
     AppState memory nextState = state;
     if (action.actionType == ActionType.SET_MAX) {
-      require(state.stage == Stage.SETTING_MAX);
+      require(state.stage == Stage.SETTING_MAX, "Cannot apply SET_MAX on SETTING_MAX");
       nextState.stage = Stage.CHOOSING;
 
       nextState.maximum = action.number;
     } else if (action.actionType == ActionType.CHOOSE_NUMBER) {
-      require(state.stage == Stage.CHOOSING);
+      require(state.stage == Stage.CHOOSING, "Cannot apply CHOOSE_NUMBER on CHOOSING");
       nextState.stage = Stage.GUESSING;
 
       nextState.commitHash = action.hash;
     } else if (action.actionType == ActionType.GUESS_NUMBER) {
-      require(state.stage == Stage.GUESSING);
+      require(state.stage == Stage.GUESSING, "Cannot apply GUESS_NUMBER on GUESSING");
       nextState.stage = Stage.REVEALING;
 
-      require(action.number < state.maximum);
+      require(action.number < state.maximum, "Action number was >= state.maximum");
       nextState.guessedNumber = action.number;
     } else if (action.actionType == ActionType.REVEAL_NUMBER) {
-      require(state.stage == Stage.REVEALING);
+      require(state.stage == Stage.REVEALING, "Cannot apply REVEAL_NUMBER on REVEALING");
       nextState.stage = Stage.DONE;
 
       bytes32 salt = action.hash;

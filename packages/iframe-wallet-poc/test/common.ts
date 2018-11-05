@@ -1,14 +1,15 @@
+import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
-import * as machine from "@counterfactual/machine";
 import { IFrameWallet } from "../src/iframe/wallet";
-import { MULTISIG_ADDRESS } from "./environment";
+
+import { UNUSED_FUNDED_ACCOUNT } from "./environment";
 
 export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new machine.types.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new machine.utils.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -47,7 +48,7 @@ export class SetupProtocol {
       appId: "",
       action: machine.types.ActionName.SETUP,
       data: {},
-      multisigAddress: MULTISIG_ADDRESS,
+      multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
       fromAddress: from,
       seq: 0
@@ -83,18 +84,18 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
-    const canon = machine.types.PeerBalance.balances(
+    const canon = machine.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,
       amountB
     );
     const channel =
-      walletA.currentUser.vm.cfState.channelStates[MULTISIG_ADDRESS];
+      walletA.currentUser.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.counterParty).toEqual(walletB.address);
     expect(channel.me).toEqual(walletA.address);
-    expect(channel.multisigAddress).toEqual(MULTISIG_ADDRESS);
+    expect(channel.multisigAddress).toEqual(UNUSED_FUNDED_ACCOUNT);
     expect(channel.appChannels).toEqual({});
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);

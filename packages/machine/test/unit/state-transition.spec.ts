@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../src/instructions";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   Terms
 } from "../../src/middleware/cf-operation/types";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
@@ -17,12 +17,16 @@ import {
   ClientActionMessage,
   H256,
   InternalMessage,
-  PeerBalance,
   StateChannelInfos
 } from "../../src/types";
+import { PeerBalance } from "../../src/utils/peer-balance";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
-import { A_ADDRESS, B_ADDRESS, MULTISIG_ADDRESS } from "../utils/environment";
+import {
+  A_ADDRESS,
+  B_ADDRESS,
+  UNUSED_FUNDED_ACCOUNT
+} from "../utils/environment";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
@@ -53,7 +57,7 @@ describe("State transition", () => {
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new CfStateChannel(
+    const expectedCfAddr = new CfAppInstance(
       EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
@@ -77,7 +81,7 @@ function setupClientMsg(): ClientActionMessage {
     appId: "0",
     action: ActionName.SETUP,
     data: {},
-    multisigAddress: MULTISIG_ADDRESS,
+    multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: A_ADDRESS,
     toAddress: B_ADDRESS,
     stateChannel: undefined,
@@ -99,17 +103,17 @@ function setupInstallCfState(): CfState {
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
     A_ADDRESS,
-    MULTISIG_ADDRESS,
+    UNUSED_FUNDED_ACCOUNT,
     {},
     freeBalance
   );
-  const channelStates: ChannelStates = { [MULTISIG_ADDRESS]: info };
+  const channelStates: ChannelStates = { [UNUSED_FUNDED_ACCOUNT]: info };
   return new CfState(channelStates, EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: StateChannelInfos) {
   expect(Object.keys(infos).length).toEqual(1);
-  const info = infos[MULTISIG_ADDRESS];
+  const info = infos[UNUSED_FUNDED_ACCOUNT];
   expect(info.counterParty).toEqual(B_ADDRESS);
   expect(info.me).toEqual(A_ADDRESS);
   expect(Object.keys(info.appChannels).length).toEqual(0);
@@ -148,7 +152,7 @@ function installClientMsg(): ClientActionMessage {
       ),
       timeout: 100
     },
-    multisigAddress: MULTISIG_ADDRESS,
+    multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: B_ADDRESS,
     toAddress: A_ADDRESS,
     stateChannel: undefined,
@@ -157,12 +161,12 @@ function installClientMsg(): ClientActionMessage {
 }
 
 function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
-  const stateChannel = infos[MULTISIG_ADDRESS];
+  const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
 
   expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);
   expect(stateChannel.freeBalance.bobBalance.toNumber()).toEqual(17);
 
-  const app = infos[MULTISIG_ADDRESS].appChannels[expectedCfAddr];
+  const app = infos[UNUSED_FUNDED_ACCOUNT].appChannels[expectedCfAddr];
   const expectedSalt =
     "0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
 

@@ -1,17 +1,20 @@
+import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
-import { Address, NetworkContext } from "../../types";
-import {
-  CfFreeBalance,
-  CfNonce,
-  CfStateChannel,
-  MultisigInput,
-  Operation
-} from "./types";
+
+import { Address } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
-import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+import {
+  CfAppInstance,
+  CfFreeBalance,
+  CfNonce,
+  MultisigInput,
+  Operation
+} from "./types";
 
 const { keccak256 } = ethers.utils;
 
@@ -24,7 +27,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,
-    readonly freeBalanceStateChannel: CfStateChannel,
+    readonly freeBalanceStateChannel: CfAppInstance,
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
@@ -44,7 +47,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public conditionalTransactionInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
-    const depNonceKey = keccak256(
+    const uninstallKey = keccak256(
       abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
@@ -56,7 +59,7 @@ export class CfOpSetup extends CfMultiSendOp {
     ).functions.executeAppConditionalTransaction.encode([
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
-      depNonceKey,
+      uninstallKey,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);

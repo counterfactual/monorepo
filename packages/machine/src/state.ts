@@ -1,17 +1,18 @@
 import lodash from "lodash";
+
 import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { deserialize } from "./serializer";
 import {
   Address,
-  AppChannelInfo,
-  AppChannelInfos,
+  AppInstanceInfo,
+  AppInstanceInfos,
   ChannelStates,
   H256,
-  NetworkContext,
   OpCodeResult,
   StateChannelInfo,
   StateChannelInfos
 } from "./types";
+import { NetworkContext } from "./utils/network-context";
 import { CounterfactualVM } from "./vm";
 
 export class CfState {
@@ -48,7 +49,7 @@ export class CfState {
     throw Error(`Could not find multisig of address ${multisigAddress}`);
   }
 
-  public app(multisig: Address, cfAddr: H256): AppChannelInfo {
+  public app(multisig: Address, cfAddr: H256): AppInstanceInfo {
     return this.channelStates[multisig].appChannels[cfAddr];
   }
 
@@ -73,7 +74,7 @@ export class CfState {
     return deserialize(lodash.cloneDeep(this.channelStates));
   }
 
-  public appChannelInfos(): AppChannelInfos {
+  public appChannelInfos(): AppInstanceInfos {
     const infos = {};
     for (const channel of lodash.keys(this.channelStates)) {
       for (const appChannel of lodash.keys(
@@ -91,7 +92,7 @@ export class StateChannelInfoImpl implements StateChannelInfo {
     readonly counterParty: Address,
     readonly me: Address,
     readonly multisigAddress: Address,
-    readonly appChannels: AppChannelInfos = {},
+    readonly appChannels: AppInstanceInfos = {},
     readonly freeBalance: CfFreeBalance
   ) {}
 
@@ -101,19 +102,6 @@ export class StateChannelInfoImpl implements StateChannelInfo {
   public owners(): string[] {
     return [this.counterParty, this.me].sort((a, b) => (a < b ? -1 : 1));
   }
-}
-
-export class AppChannelInfoImpl {
-  public id?: H256;
-  public amount?: any;
-  public toSigningKey?: Address;
-  public fromSigningKey?: Address;
-  public stateChannel?: StateChannelInfo;
-  public rootNonce?: number;
-  public encodedState?: any;
-  public appStateHash?: H256;
-  public appState?: any;
-  public localNonce?: number;
 }
 
 export class Context {

@@ -1,0 +1,14 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "package.json",
+        "packages/cf.js/package.json",
+        "packages/contracts/package.json",
+        "packages/iframe-wallet-poc/package.json",
+        "packages/machine/package.json",
+        "packages/typescript-typings/package.json"
+      ]
+    }
+  }
+}

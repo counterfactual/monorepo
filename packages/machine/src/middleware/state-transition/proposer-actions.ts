@@ -1,4 +1,5 @@
 import { ActionName, ProposerActionsHash } from "../../types";
+
 import { InstallProposer } from "./install-proposer";
 import { SetupProposer } from "./setup-proposer";
 import { UninstallProposer } from "./uninstall-proposer";

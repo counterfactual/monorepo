@@ -29,7 +29,10 @@ contract VirtualAppAgreement {
     public
   {
 
-    require(agreement.nonceRegistry.isFinalized(salt, nonce));
+    require(
+      agreement.nonceRegistry.isFinalized(salt, nonce),
+      "VirtualAapp nonceRegistry was not finalized"
+    );
 
     address[] memory to = new address[](2);
     to[0] = agreement.registry.resolver(agreement.virtualStateDeposit);

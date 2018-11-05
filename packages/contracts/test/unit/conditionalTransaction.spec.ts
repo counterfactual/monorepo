@@ -1,10 +1,10 @@
-import * as Utils from "@counterfactual/dev-utils";
 import * as ethers from "ethers";
 
 import { Conditional } from "../../types/ethers-contracts/Conditional";
 import { DelegateProxy } from "../../types/ethers-contracts/DelegateProxy";
 
 import { AbstractContract, expect } from "../../utils";
+import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
 const { provider, unlockedAccount } = Utils.setupTestEnv(web3);

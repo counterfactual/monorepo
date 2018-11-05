@@ -16,7 +16,6 @@ jobs:
             - packages/iframe-wallet-poc/node_modules
             - packages/machine/node_modules
             - packages/cf.js/node_modules
-            - packages/dev-utils/node_modules
 
   run-tests:
     docker:

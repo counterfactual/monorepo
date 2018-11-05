@@ -1,20 +1,24 @@
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
-import { Address, Bytes, NetworkContext, Signature } from "../../types";
+
+import { Address, Bytes } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
+
 import * as common from "./common";
 import {
+  CfAppInstance,
   CfFreeBalance,
   CfNonce,
   CfOperation,
-  CfStateChannel,
   MultiSend,
   MultisigInput,
   Operation,
   Transaction
 } from "./types";
-
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 
 const { keccak256 } = ethers.utils;
 
@@ -72,7 +76,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public freeBalanceData(): Bytes {
     const terms = CfFreeBalance.terms();
     const app = CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new CfStateChannel(
+    const freeBalanceCfAddress = new CfAppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
@@ -106,7 +110,9 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public dependencyNonceInput(): MultisigInput {
-    const timeout = 0; // FIXME: new NonceRegistryJson design will obviate timeout
+    // FIXME: new NonceRegistryJson design will obviate timeout
+    // https://github.com/counterfactual/monorepo/issues/122
+    const timeout = 0;
     const to = this.networkContext.nonceRegistryAddr;
     const val = 0;
     const data = new ethers.utils.Interface(

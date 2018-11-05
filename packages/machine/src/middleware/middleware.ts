@@ -1,13 +1,18 @@
 import * as ethers from "ethers";
+
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
   ActionName,
   ClientActionMessage,
+  InstructionMiddlewareCallback,
+  InstructionMiddlewares,
   InternalMessage,
-  OpCodeResult,
-  Signature
+  OpCodeResult
 } from "../types";
+
+import { Signature } from "../utils/signature";
+
 import { StateTransition } from "./state-transition/state-transition";
 
 /**
@@ -18,10 +23,24 @@ export class CfMiddleware {
   /**
    * Maps instruction to list of middleware that will process the instruction.
    */
-  public middlewares: Object;
+  public middlewares: InstructionMiddlewares = {
+    [Instruction.ALL]: [],
+    [Instruction.IO_PREPARE_SEND]: [],
+    [Instruction.IO_SEND]: [],
+    [Instruction.IO_WAIT]: [],
+    [Instruction.KEY_GENERATE]: [],
+    [Instruction.OP_GENERATE]: [],
+    [Instruction.OP_SIGN]: [],
+    [Instruction.OP_SIGN_VALIDATE]: [],
+    [Instruction.STATE_TRANSITION_COMMIT]: [],
+    [Instruction.STATE_TRANSITION_PROPOSE]: []
+  };
 
   constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
-    this.middlewares = {};
+    this.initializeMiddlewares(cfOpGenerator);
+  }
+
+  private initializeMiddlewares(cfOpGenerator) {
     this.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
@@ -45,12 +64,8 @@ export class CfMiddleware {
     this.add(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
   }
 
-  public add(scope: Instruction, method: Function) {
-    if (scope in this.middlewares) {
-      this.middlewares[scope].push({ scope, method });
-    } else {
-      this.middlewares[scope] = [{ scope, method }];
-    }
+  public add(scope: Instruction, method: InstructionMiddlewareCallback) {
+    this.middlewares[scope].push({ scope, method });
   }
 
   public async run(msg: InternalMessage, context: Context) {
@@ -76,6 +91,7 @@ export class CfMiddleware {
     // TODO: Document or throw error about the fact that you _need_ to have
     // a middleware otherwise this will error with:
     // `TypeError: Cannot read property '0' of undefined`
+    // https://github.com/counterfactual/monorepo/issues/133
 
     return this.middlewares[opCode][0].method(msg, callback, context);
   }
@@ -86,13 +102,11 @@ export class CfMiddleware {
   // TODO: currently this method seems to be passing null as the middleware callback and
   // just iterating through all the middlewares. We should pass the callback similarly to how
   // run does it, and rely on that for middleware cascading
+  // https://github.com/counterfactual/monorepo/issues/132
   private executeAllMiddlewares(msg, context) {
-    const all = this.middlewares[Instruction.ALL];
-    if (all && all.length > 0) {
-      all.forEach(middleware => {
-        middleware.method(msg, null, context);
-      });
-    }
+    this.middlewares[Instruction.ALL].forEach(middleware => {
+      middleware.method(msg, () => {}, context);
+    });
   }
 }
 
@@ -146,6 +160,7 @@ export class NextMsgGenerator {
   ) {
     const res = getLastResult(Instruction.IO_WAIT, context.results);
     // TODO: make getLastResult's return value nullable
+    // https://github.com/counterfactual/monorepo/issues/131
     return JSON.stringify(res) === JSON.stringify({})
       ? internalMessage.clientMessage
       : res.value;
@@ -177,6 +192,8 @@ export class KeyGenerator {
     const wallet = ethers.Wallet.createRandom();
     const installData = message.clientMessage.data;
     // FIXME: properly assign ephemeral keys
+    // https://github.com/counterfactual/monorepo/issues/116
+    //
     // if (installData.peerA.address === message.clientMessage.fromAddress) {
     //  installData.keyA = wallet.address;
     // } else {
@@ -198,6 +215,7 @@ export class SignatureValidator {
     );
     const op = getFirstResult(Instruction.OP_GENERATE, context.results);
     // TODO: now validate the signature against the op hash
+    // https://github.com/counterfactual/monorepo/issues/130
     next();
   }
 }
@@ -210,6 +228,7 @@ export function getFirstResult(
   results: { value: any; opCode }[]
 ): OpCodeResult {
   // FIXME: (ts-strict) we should change the results data structure or design
+  // https://github.com/counterfactual/monorepo/issues/115
   return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
 }
 

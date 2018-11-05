@@ -1,11 +1,16 @@
 import * as ethers from "ethers";
+
 import * as abi from "../../abi";
-import { Address, NetworkContext, Signature } from "../../types";
+
+import { Address } from "../../types";
+import { NetworkContext } from "../../utils/network-context";
+import { Signature } from "../../utils/signature";
+
 import * as common from "./common";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfOperation,
-  CfStateChannel,
   Terms,
   Transaction
 } from "./types";
@@ -44,10 +49,10 @@ export class CfOpSetState extends CfOperation {
 
   /**
    * @returns a tx that executes a proxyCall through the registry to call
-   *          `setState` on StateChannel.sol.
+   *          `setState` on AppInstance.sol.
    */
   public transaction(sigs: Signature[]): Transaction {
-    const appCfAddr = new CfStateChannel(
+    const appCfAddr = new CfAppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,

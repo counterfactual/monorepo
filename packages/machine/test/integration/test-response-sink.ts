@@ -9,11 +9,11 @@ import { Context } from "../../src/state";
 import {
   ClientActionMessage,
   InternalMessage,
-  NetworkContext,
   ResponseSink,
-  Signature,
   WalletResponse
 } from "../../src/types";
+import { Signature } from "../../src/utils/signature";
+import { NetworkContext } from "../../src/utils/network-context";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -66,6 +66,7 @@ export class TestResponseSink implements ResponseSink {
     this.io = new TestIOProvider();
 
     // TODO: Document why this is needed.
+    // https://github.com/counterfactual/monorepo/issues/108
     this.io.ackMethod = this.vm.startAck.bind(this.vm);
 
     this.vm.register(
@@ -124,6 +125,7 @@ export class TestResponseSink implements ResponseSink {
       promise(res);
     } else {
       // FIXME: Understand better what this is supposed to do...
+      // https://github.com/counterfactual/monorepo/issues/141
       // throw Error(`Response ${res.type} not found in ResponseSink requests`);
     }
   }
@@ -136,12 +138,16 @@ export class TestResponseSink implements ResponseSink {
   }
 
   // TODO: Make responseListener a map/array
+  // https://github.com/counterfactual/monorepo/issues/107
   public onResponse(callback: Function) {
     this.responseListener = callback;
   }
 
   // TODO: Figure out which client to send the response to
+  // https://github.com/counterfactual/monorepo/issues/106
+  //
   // TODO: Refactor to clarify difference with sendMessageToClient
+  // https://github.com/counterfactual/monorepo/issues/105
   public sendIoMessageToClient(message: ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
@@ -149,6 +155,7 @@ export class TestResponseSink implements ResponseSink {
   }
 
   // TODO: Make messageListener a map/array
+  // https://github.com/counterfactual/monorepo/issues/147
   public onMessage(callback: Function) {
     this.messageListener = callback;
   }
@@ -203,6 +210,7 @@ export class TestResponseSink implements ResponseSink {
     });
     if (recoveredAddress !== expectedSigningAddress) {
       // FIXME: handle this more gracefully
+      // https://github.com/counterfactual/monorepo/issues/93
       throw Error("Invalid signature");
     }
   }

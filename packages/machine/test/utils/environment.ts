@@ -1,8 +1,10 @@
 import * as ethers from "ethers";
 
-export const MULTISIG_PRIVATE_KEY: string = process.env
+export const UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY: string = process.env
   .npm_package_config_unlockedAccount0!; // never null via test runtime
-export const MULTISIG_ADDRESS = new ethers.Wallet(MULTISIG_PRIVATE_KEY).address;
+export const UNUSED_FUNDED_ACCOUNT = new ethers.Wallet(
+  UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY
+).address;
 
 export const A_PRIVATE_KEY: string = process.env
   .npm_package_config_unlockedAccount1!;
