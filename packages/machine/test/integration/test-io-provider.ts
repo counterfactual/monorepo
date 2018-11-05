@@ -7,22 +7,22 @@ import {
 import { TestResponseSink } from "./test-response-sink";
 
 // FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/205
+// https://github.com/counterfactual/monorepo/issues/8
 import { getLastResult } from "../../src/middleware/middleware";
 
 // FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/205
+// https://github.com/counterfactual/monorepo/issues/98
 import { deserialize } from "../../src/serializer";
 
 // FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/205
+// https://github.com/counterfactual/monorepo/issues/98
 import { Instruction } from "../../src/instructions";
 
 export class TestIOProvider {
   public messages: ClientActionMessage[];
 
   // FIXME: Don't just initialize it as a null object
-  // https://github.com/counterfactual/monorepo/issues/206
+  // https://github.com/counterfactual/monorepo/issues/97
   public peer: TestResponseSink = Object.create(null);
 
   public listeners: {
@@ -76,7 +76,7 @@ export class TestIOProvider {
     let message: ClientActionMessage;
     if (appId) {
       // FIXME: These shouldn't be ignored. Refactor for type safety.
-      // https://github.com/counterfactual/monorepo/issues/208
+      // https://github.com/counterfactual/monorepo/issues/96
       message = this.messages.find(m => m.appId === appId)!;
     } else {
       message = this.messages.find(m => m.multisigAddress === multisig)!;
@@ -96,7 +96,7 @@ export class TestIOProvider {
     const message = this.findMessage(multisig, appId);
     if (!message) {
       // FIXME: (ts-strict) refactor for proper argument passing
-      // https://github.com/counterfactual/monorepo/issues/209
+      // https://github.com/counterfactual/monorepo/issues/95
       // @ts-ignore
       this.listeners.push({ appId, multisig, method, seq });
     } else {
@@ -122,7 +122,7 @@ export class TestIOProvider {
     const msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
 
     // FIXME: (ts-strict) msg should never be null here
-    // https://github.com/counterfactual/monorepo/issues/210
+    // https://github.com/counterfactual/monorepo/issues/94
     const value = msg.value;
 
     // Hack for testing and demo purposes, full IO handling by client goes here

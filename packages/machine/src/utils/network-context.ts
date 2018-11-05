@@ -3,18 +3,21 @@ import lodash from "lodash";
 import { Address } from "../types";
 
 /**
- * A network context is a set of contract wrappers of the global contracts that
- * are deployed. A global contract provides functionality in such a way that all
- * channels can use the same global contract, hence they only need to be
- * deployed once. The exceptions to the global contracts are the Multisig
- * and the AppInstance contracts.
+ * A network context is a set of addresses at which global contracts are
+ * deployed. A global contract provides functionality in such a way that
+ * all channels can use the same global contract, hence they only need to be
+ * deployed once. Examples of non-global contracts are the Multisig and
+ * the AppInstance contracts.
  *
- * @Param contractArtifacts Mapping of contract name to string list of
- * [abi, bytecode]
+ * @function linkedBytecode Given bytecode in solc's pre-linkage format (where
+ * global contract addresses are replaced with placeholders of the form
+ * `__<ContractName>______`; see the description of "placeholder" at
+ * https://solidity.readthedocs.io/en/v0.4.24/contracts.html#libraries), return
+ * the linked bytecode after linking with the list of addresses.
  */
 export class NetworkContext {
   // FIXME: This is just bad practice :S
-  // https://github.com/counterfactual/monorepo/issues/177
+  // https://github.com/counterfactual/monorepo/issues/143
   private contractToVar = {
     Registry: "registryAddr",
     PaymentApp: "paymentAppAddr",
@@ -37,7 +40,7 @@ export class NetworkContext {
     readonly ethBalanceRefundAppAddr: Address
   ) {}
 
-  public linkBytecode(unlinkedBytecode: string): string {
+  public linkedBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
     for (const contractName of lodash.keys(this.contractToVar)) {
       const regex = new RegExp(`__${contractName}_+`, "g");

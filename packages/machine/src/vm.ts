@@ -159,7 +159,7 @@ export class CounterfactualVM implements Observable {
       // Temporary error handling for testing resuming protocols
       let val;
       // TODO: Bizarre syntax...
-      // https://github.com/counterfactual/monorepo/issues/168
+      // https://github.com/counterfactual/monorepo/issues/123
       for await (val of execution) {
       }
       this.sendResponse(execution, ResponseStatus.COMPLETED);

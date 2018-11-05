@@ -83,7 +83,7 @@ export class ActionExecution {
       instructionPointer: this.instructionPointer,
       // TODO: Should probably not pass the whole VM in, it breaks the encapsulation
       // We should figure out what others args from the VM are used and copy those over
-      // https://github.com/counterfactual/monorepo/issues/152
+      // https://github.com/counterfactual/monorepo/issues/136
       vm: this.vm
     };
   }

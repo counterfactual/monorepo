@@ -9,9 +9,9 @@ import { NetworkContext } from "../../utils/network-context";
 import { CfMultiSendOp } from "./cf-multisend-op";
 
 import {
+  CfAppInstance,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   MultisigInput,
   Operation
 } from "./types";
@@ -27,7 +27,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,
-    readonly freeBalanceStateChannel: CfStateChannel,
+    readonly freeBalanceStateChannel: CfAppInstance,
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce,
     readonly rootNonceKey: string,
@@ -49,7 +49,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public conditionalTransactionInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
-    const depNonceKey = keccak256(
+    const uninstallKey = keccak256(
       abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
@@ -61,7 +61,7 @@ export class CfOpSetup extends CfMultiSendOp {
     ).functions.executeAppConditionalTransaction.encode([
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
-      depNonceKey,
+      uninstallKey,
       this.rootNonceKey,
       this.rootNonceKeyExpectedValue,
       this.freeBalanceStateChannel.cfAddress(),

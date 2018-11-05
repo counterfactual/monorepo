@@ -23,31 +23,6 @@ contract("NonceRegistry", accounts => {
     registry = await nonceRegistry.deploy(unlockedAccount);
   });
 
-  it("getFirstNBits works for 8", async () => {
-    const ret = await registry.functions.getFirstNBits(
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      8
-    );
-    expect(ret).to.be.eql(
-      new ethers.utils.BigNumber(
-        "0xff00000000000000000000000000000000000000000000000000000000000000"
-      )
-    );
-  });
-
-  it("getFirstNBits works for 9", async () => {
-    const ret = await registry.functions.getFirstNBits(
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      9
-    );
-    // 0x8 == 0b1000
-    expect(ret).to.be.eql(
-      new ethers.utils.BigNumber(
-        "0xff80000000000000000000000000000000000000000000000000000000000000"
-      )
-    );
-  });
-
   it("can set nonces", async () => {
     const timeout = new ethers.utils.BigNumber(10);
     await registry.functions.setNonce(timeout, ethers.constants.HashZero, 1);
