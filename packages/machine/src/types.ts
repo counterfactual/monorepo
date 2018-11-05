@@ -191,7 +191,7 @@ export interface StateChannelInfo {
   counterParty: Address;
   me: Address;
   multisigAddress: Address;
-  appChannels: AppChannelInfos;
+  appChannels: AppInstanceInfos;
   freeBalance: CfFreeBalance;
 
   // TODO: Move this out of the datastructure
@@ -203,7 +203,7 @@ export interface StateChannelInfo {
   owners(): string[];
 }
 
-export interface AppChannelInfo {
+export interface AppInstanceInfo {
   // cf address
   id: H256;
   // used to generate cf address
@@ -231,8 +231,8 @@ export interface StateChannelInfos {
   [s: string]: StateChannelInfo;
 }
 
-export interface AppChannelInfos {
-  [s: string]: AppChannelInfo;
+export interface AppInstanceInfos {
+  [s: string]: AppInstanceInfo;
 }
 
 export interface OpCodeResult {

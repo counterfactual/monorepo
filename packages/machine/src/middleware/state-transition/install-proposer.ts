@@ -4,7 +4,7 @@ import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
   Address,
-  AppChannelInfo,
+  AppInstanceInfo,
   H256,
   InstallData,
   InternalMessage,
@@ -111,7 +111,7 @@ export class InstallProposer {
     terms: Terms,
     signingKeys: string[],
     uniqueId: number
-  ): AppChannelInfo {
+  ): AppInstanceInfo {
     return {
       uniqueId,
       terms,
