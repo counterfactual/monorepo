@@ -56,17 +56,17 @@ The goal of having one round trip for each protocol execution is purely an optim
 
 ### Constant sized communication
 
-The aim of the protocol is to execute without any variability in any of:
+The number of messages an message sizes for an operation are independent of
 
 - Total number of active off-chain applications
 - Total number of inactive off-chain applications
 - Total number of sequential state updates to an application
 
-That is to say, the design aims for **parallelizability** in general, ensuring that historical use of the protocol has a constant factor implication with regards to size of messages being transmitted on future use of the protocol.
+That is to say, the design aims for **parallelizability** in general, ensuring that historical use of the protocol does not impact the size of messages being transmitted on future use of the protocol.
 
-### O(1) response to griefing attacks
+### O(1) response to stale state
 
-It is possible to arrive at a state where any stale-state-griefing attack can be responded to with a single transaction of constant size, in particular, independent of number of active or historical apps. This goal is to ensure that any kind of inevitable griefing vectors that are impossible to fully disqualify off-chain are resolvable with the minimum amount of cost to the person being griefed on-chain.
+It is possible to arrive at a state where any placement of stale state on chain can be responded to with a single transaction of constant size, in particular, independent of number of active or historical apps. This goal is to ensure that any kind of inevitable griefing vectors that are impossible to fully disqualify off-chain are resolvable with the minimum amount of cost to the person being griefed on-chain.
 
 ## Protocol Structure
 
