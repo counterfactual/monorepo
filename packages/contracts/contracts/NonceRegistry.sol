@@ -57,22 +57,6 @@ contract NonceRegistry {
     emit NonceSet(key, nonceValue);
   }
 
-  /// @notice Return the N highest-order bits from the input.
-  /// @param input A uint256 treated as a bitfield from which to get the high-order bits
-  /// @param N the number of bits to get from input
-  /// @return A uint256 where the N highest-order bits are the same as in input, and
-  /// the other bits are 0
-  function getFirstNBits(uint256 input, uint8 N) public pure returns (uint256) {
-    uint256 nOnes = uint256(2) ** N - 1;
-    uint256 mask = nOnes << (uint8(256) - N); // uint8(256) == uint8(0)
-    return uint256(bytes32(input) & bytes32(mask));
-  }
-
-  /// @return Whether the Nth highest-order bit in input is set
-  function bitSet(uint256 self, uint8 index) public pure returns (bool) {
-    return self >> index & 1 == 1;
-  }
-
   /// @notice Computes a unique key for the particular salt and msg.sender
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
