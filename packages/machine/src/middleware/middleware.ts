@@ -89,7 +89,7 @@ export class CfMiddleware {
     // TODO: Document or throw error about the fact that you _need_ to have
     // a middleware otherwise this will error with:
     // `TypeError: Cannot read property '0' of undefined`
-    // https://github.com/counterfactual/monorepo/issues/156
+    // https://github.com/counterfactual/monorepo/issues/133
 
     return this.middlewares[opCode][0].method(msg, callback, context);
   }
@@ -100,7 +100,7 @@ export class CfMiddleware {
   // TODO: currently this method seems to be passing null as the middleware callback and
   // just iterating through all the middlewares. We should pass the callback similarly to how
   // run does it, and rely on that for middleware cascading
-  // https://github.com/counterfactual/monorepo/issues/158
+  // https://github.com/counterfactual/monorepo/issues/132
   private executeAllMiddlewares(msg, context) {
     this.middlewares[Instruction.ALL].forEach(middleware => {
       middleware.method(msg, () => {}, context);
@@ -158,7 +158,7 @@ export class NextMsgGenerator {
   ) {
     const res = getLastResult(Instruction.IO_WAIT, context.results);
     // TODO: make getLastResult's return value nullable
-    // https://github.com/counterfactual/monorepo/issues/159
+    // https://github.com/counterfactual/monorepo/issues/131
     return JSON.stringify(res) === JSON.stringify({})
       ? internalMessage.clientMessage
       : res.value;
@@ -187,10 +187,10 @@ export class KeyGenerator {
    * client message by placing the ephemeral key on it for my address.
    */
   public static generate(message: InternalMessage, next: Function) {
-    // TODO: properly assign ephemeral keys
-    // https://github.com/counterfactual/monorepo/issues/175
     // const wallet = ethers.Wallet.createRandom();
     // const installData = message.clientMessage.data;
+    // FIXME: properly assign ephemeral keys
+    // https://github.com/counterfactual/monorepo/issues/116
     //
     // if (installData.peerA.address === message.clientMessage.fromAddress) {
     //  installData.keyA = wallet.address;
@@ -213,7 +213,7 @@ export class SignatureValidator {
     // );
     // const op = getFirstResult(Instruction.OP_GENERATE, context.results);
     // TODO: now validate the signature against the op hash
-    // https://github.com/counterfactual/monorepo/issues/160
+    // https://github.com/counterfactual/monorepo/issues/130
     next();
   }
 }
@@ -226,7 +226,7 @@ export function getFirstResult(
   results: { value: any; opCode }[]
 ): OpCodeResult {
   // FIXME: (ts-strict) we should change the results data structure or design
-  // https://github.com/counterfactual/monorepo/issues/176
+  // https://github.com/counterfactual/monorepo/issues/115
   return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
 }
 

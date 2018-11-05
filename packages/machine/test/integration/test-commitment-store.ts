@@ -79,7 +79,7 @@ export class AppCommitments implements Commitments {
     if (action !== ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
-      // https://github.com/counterfactual/monorepo/issues/201
+      // https://github.com/counterfactual/monorepo/issues/101
       throw Error("Can't reset setup/install/uninstall commitments");
     }
     this.commitments.set(action, commitment);
@@ -108,7 +108,7 @@ export class AppCommitments implements Commitments {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    // https://github.com/counterfactual/monorepo/issues/202
+    // https://github.com/counterfactual/monorepo/issues/100
     const pairs: [ActionName, Transaction][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
@@ -187,7 +187,7 @@ export class TestCommitmentStore {
       signature.toString() === counterpartySignature.toString()
     ) {
       // FIXME: these errors should be handled more gracefully
-      // https://github.com/counterfactual/monorepo/issues/203
+      // https://github.com/counterfactual/monorepo/issues/99
       throw Error(
         `Cannot make commitment for operation ${action}.
         The counterparty hasn't signed the commitment.`

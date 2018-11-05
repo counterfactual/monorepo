@@ -332,7 +332,7 @@ async function deployAppInstance(
   const initcode = new ethers.utils.Interface(
     iframeWallet.appInstanceArtifact.abi
   ).deployFunction.encode(
-    networkContext.linkBytecode(iframeWallet.appInstanceArtifact.bytecode),
+    networkContext.linkedBytecode(iframeWallet.appInstanceArtifact.bytecode),
     [stateChannel.multisigAddress, signingKeys, appHash, termsHash, timeout]
   );
 

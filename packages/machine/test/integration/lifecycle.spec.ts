@@ -45,12 +45,12 @@ function getCommunicatingPeers(): TestResponseSink[] {
   // TODO: Document somewhere that the .signingKey.address" *must* be a hex otherwise
   // machine/src/middleware/state-transition/install-proposer.ts:98:14
   // will throw an error when doing BigNumber.gt check.
-  // https://github.com/counterfactual/monorepo/issues/190
+  // https://github.com/counterfactual/monorepo/issues/110
 
   // TODO: Furthermore document that these will eventually be used to generate
   // the `signingKeys` in any proposals e.g., InstallProposer, thus the proposal
   // will fail if they are not valid Ethereum addresses
-  // https://github.com/counterfactual/monorepo/issues/191
+  // https://github.com/counterfactual/monorepo/issues/109
   const peerA = new TestResponseSink(A_PRIVATE_KEY);
   const peerB = new TestResponseSink(B_PRIVATE_KEY);
 
@@ -234,7 +234,7 @@ class Depositor {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
-    // https://github.com/counterfactual/monorepo/issues/189
+    // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.vm.cfState;
     const canon = PeerBalance.balances(
       peerA.signingKey.address!,

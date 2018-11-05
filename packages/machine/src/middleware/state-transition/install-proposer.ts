@@ -4,7 +4,7 @@ import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
   Address,
-  AppChannelInfo,
+  AppInstanceInfo,
   H256,
   InstallData,
   InternalMessage,
@@ -12,10 +12,10 @@ import {
 } from "../../types";
 import { PeerBalance } from "../../utils/peer-balance";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   Terms
 } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
@@ -96,7 +96,7 @@ export class InstallProposer {
     }
 
     // TODO: Feels like this is the wrong place for this sorting...
-    // https://github.com/counterfactual/monorepo/issues/161
+    // https://github.com/counterfactual/monorepo/issues/129
     signingKeys.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
@@ -111,7 +111,7 @@ export class InstallProposer {
     terms: Terms,
     signingKeys: string[],
     uniqueId: number
-  ): AppChannelInfo {
+  ): AppInstanceInfo {
     return {
       uniqueId,
       terms,
@@ -136,7 +136,7 @@ export class InstallProposer {
     signingKeys: string[],
     uniqueId: number
   ): H256 {
-    return new CfStateChannel(
+    return new CfAppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,
