@@ -4,10 +4,9 @@ import * as ethers from "ethers";
 import * as abi from "../../abi";
 
 import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
+import { NetworkContext } from "../../utils";
 
-import { CfMultiSendOp } from "./cf-multisend-op";
-
+import { CfMultisigTxOp } from "./cf-multisig-tx-op";
 import {
   CfAppInstance,
   CfFreeBalance,
@@ -18,11 +17,14 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-export class CfOpSetup extends CfMultiSendOp {
+export class CfOpSetup extends CfMultisigTxOp {
   /**
    * Helper method to get hash of an input calldata
+   * @param networkContext
    * @param multisig
-   * @param multisigInput
+   * @param freeBalanceStateChannel
+   * @param freeBalance
+   * @param dependencyNonce
    */
   public constructor(
     readonly networkContext: NetworkContext,
@@ -31,20 +33,13 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
-    super(networkContext, multisig, freeBalance, dependencyNonce);
+    super(multisig, freeBalance);
     if (dependencyNonce === undefined) {
       throw new Error("Undefined dependency nonce");
     }
   }
 
-  /**
-   * @override common.CfMultiSendOp
-   */
-  public eachMultisigInput(): MultisigInput[] {
-    return [this.conditionalTransactionInput()];
-  }
-
-  public conditionalTransactionInput(): MultisigInput {
+  multisigInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
     const uninstallKey = keccak256(

@@ -8,6 +8,7 @@ import { Address, Bytes } from "../../types";
 import { NetworkContext } from "../../utils/network-context";
 import { Signature } from "../../utils/signature";
 
+import { CfMultisigTxOp } from "./cf-multisig-tx-op";
 import * as common from "./common";
 import {
   CfAppInstance,
@@ -22,47 +23,14 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-export abstract class CfMultiSendOp extends CfOperation {
+export abstract class CfMultiSendOp extends CfMultisigTxOp {
   constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
-    super();
-  }
-
-  public transaction(sigs: Signature[]): Transaction {
-    const multisigInput = this.multisigInput();
-    const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
-    const txData = new ethers.utils.Interface(
-      MinimumViableMultisigJson.abi
-    ).functions.execTransaction.encode([
-      multisigInput.to,
-      multisigInput.val,
-      multisigInput.data,
-      multisigInput.op,
-      signatureBytes
-    ]);
-    return new Transaction(this.multisig, 0, txData);
-  }
-
-  public hashToSign(): string {
-    const multisigInput = this.multisigInput();
-    const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
-    return keccak256(
-      abi.encodePacked(
-        ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
-        [
-          "0x19",
-          owners,
-          multisigInput.to,
-          multisigInput.val,
-          multisigInput.data,
-          multisigInput.op
-        ]
-      )
-    );
+    super(multisig, cfFreeBalance);
   }
 
   public freeBalanceInput(): MultisigInput {
@@ -132,7 +100,7 @@ export abstract class CfMultiSendOp extends CfOperation {
    * @returns the input for the transaction from the multisig that will trigger
    *          a multisend transaction.
    */
-  private multisigInput(): MultisigInput {
+  multisigInput(): MultisigInput {
     return new MultiSend(this.eachMultisigInput(), this.networkContext).input(
       this.networkContext.multiSendAddr
     );
