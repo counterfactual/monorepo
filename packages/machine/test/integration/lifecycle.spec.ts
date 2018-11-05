@@ -1,6 +1,5 @@
-import { TestResponseSink } from "./test-response-sink";
-
 import * as ethers from "ethers";
+
 import { CfAppInterface, Terms } from "../../src/middleware/cf-operation/types";
 import {
   ActionName,
@@ -12,12 +11,12 @@ import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
-  A_ADDRESS,
   A_PRIVATE_KEY,
-  B_ADDRESS,
   B_PRIVATE_KEY,
   UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";
+
+import { TestResponseSink } from "./test-response-sink";
 import { SetupProtocol } from "./test-setup";
 
 /**

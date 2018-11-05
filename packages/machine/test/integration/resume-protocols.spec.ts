@@ -23,7 +23,6 @@ import {
 import { TestResponseSink } from "./test-response-sink";
 
 const ADDR_A = ethers.utils.hexlify(ethers.utils.randomBytes(20));
-const ADDR_B = ethers.utils.hexlify(ethers.utils.randomBytes(20));
 
 // FIXME: These tests throw Errors which, when running the tests, makes it look
 // like they're failing because of the massive call stack that shows on the terminal.
