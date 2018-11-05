@@ -146,7 +146,12 @@ contract AppInstance {
 
   /// @notice A getter function for the resolution if one is set
   /// @return A `Transfer.Transaction` object representing the resolution of the channel
-  function getResolution() public view returns (Transfer.Transaction) {
+  function getResolution()
+      public
+      view
+      onlyWhenChannelClosed
+      returns (Transfer.Transaction)
+  {
     return resolution;
   }
 

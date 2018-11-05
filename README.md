@@ -13,7 +13,7 @@
   <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
   <a href="https://counterfactual.com/chat"><img src="https://img.shields.io/discord/500370633901735947.svg"/></a>
   <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/counterfactual/monorepo.svg?token=62c4bef4c3c26412e67360cc4a193492b9561901a499761d65b76a22b65efb16&ts=1540411566259"/></a>
-  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
 </p>
 <br>
 
@@ -27,7 +27,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
   with development or to hang out with some ethereum hackers :)
 - **[Create a new issue](https://github.com/counterfactual/monorepo/issues/new)** to report bugs
 - **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
-  is an [Open Source Project](CONTRIBUTING.md)!
+  is an [Open Source Project](.github/CONTRIBUTING.md)!
 
 ### Installing dependenciess
 

@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../src/instructions";
 import {
+  CfAppInstance,
   CfAppInterface,
   CfFreeBalance,
   CfNonce,
-  CfStateChannel,
   Terms
 } from "../../src/middleware/cf-operation/types";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
@@ -57,7 +57,7 @@ describe("State transition", () => {
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new CfStateChannel(
+    const expectedCfAddr = new CfAppInstance(
       EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],

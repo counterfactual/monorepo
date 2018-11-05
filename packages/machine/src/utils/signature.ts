@@ -50,7 +50,7 @@ export class Signature {
   }
 
   // TODO: fix types
-  // https://github.com/counterfactual/monorepo/issues/166
+  // https://github.com/counterfactual/monorepo/issues/124
   constructor(readonly v: number, readonly r: string, readonly s: string) {}
 
   public recoverAddress(digest: H256): Address {
