@@ -20,7 +20,7 @@ Counterfactual uses a generic system of Ethereum smart contracts to support artb
 
 ## Framework Design Goals
 
-Counterfactual has been designed to satisfy the following design goals.
+Counterfactual has been designed to satisfy the following criteria:
 
 ### Minimized on-chain footprint
 
