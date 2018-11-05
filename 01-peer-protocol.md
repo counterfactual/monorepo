@@ -136,10 +136,10 @@ The commitments that these two messages rely on have the following explicit para
 
 Additionally, the following parameters are implicitly computed:
 
-| Parameter          | Type      | Description                                                                                                                            |
-| ------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **`terms`**        | `Terms`   | Set to the default value                                                                                                               |
-| **`appCfAddress`** | `bytes32` | Set to the computed value for a counterfactual address of a `PaymentApp` with the initial signing keys of both users and default terms |
+| Parameter                   | Type      | Description                                                                                                                            |
+| --------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **`terms`**                 | `Terms`   | Set to the default value                                                                                                               |
+| **`freeBalanceCfAddress`**  | `bytes32` | Set to the computed value for a counterfactual address of a `PaymentApp` with the initial signing keys of both users and default terms |
 
 The commitment can be visually represented like:
 
