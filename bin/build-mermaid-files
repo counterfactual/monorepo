@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# A simple utility to convert the mermaid files into images.
+#
+# FIXME: Gitbook.com cannot render SVG files for some reason, so we use PNG instead. It's supposed to be possible (https://docs.gitbook.com/changelog#2018-10-09-2-0-2).
+
+for filename in diagrams/*.mmd; do
+    [ -e "$filename" ] || continue
+    mmdc -t neutral -i $filename -o build/$(basename "$filename" .mmd).png
+done

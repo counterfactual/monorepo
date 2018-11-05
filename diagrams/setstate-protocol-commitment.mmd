@@ -1,0 +1,12 @@
+graph LR
+    subgraph Registry
+        proxyCall
+    end
+    subgraph AppInstance
+        setState
+        proxyCall-->setState
+        setState-->appStateHash
+        setState-->nonce
+        setState-->timeout
+        setState-->signatures
+    end
