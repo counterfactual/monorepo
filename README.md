@@ -39,28 +39,3 @@ We want to support deploying or upgrading channel designs without requiring the 
 ### Standardized
 
 We want to establish clear standards for how all of these generalized state channels will fit together into a global, multi-blockchain network where any user can easily connect to any other. To achieve this goal, we work closely with great researchers from [Celer](https://celer.network), [Magmo](https://magmo.com), [Ethereum Research](http://eth.sg) and several others. We hope to amplify these efforts to work towards blockchain standards for off-chain channelized applications more broadly.
-
-## Glossary and Terminology Guide
-
-For an introduction to the concepts and terminology behind state channels, please see the [original paper](https://l4.ventures/papers/statechannels.pdf).
-
-- _State Deposit_:
-  - Any kind of blockchain state controlled directly by a state channel. This could be an ETH balance, ownership of an ERC20 token, control over an ENS name registration, or any other kind of state.
-  
-- _State Deposit Holder_:
-  - The on-chain multisignature wallet smart contract that is the "owner" of a given state deposit
-
-- _Counterfactual Instantiation_:
-  - The process by which parties in a state channel agree to be bound by the terms of some off-chain contract
-  
-- _Counterfactual Address_:
-  - An identifier of a counterfactually instantiated contract, which can be deterministically computed from the code and the channel in which the contract is instantiated
-
-- _Commitment_:
-  - A signed transaction (piece of data) that allows the owner to perform a certain action
- 
-- _Action_: 
-  - a type of commitment; an action specifies a subset of transactions from the set of all possible transactions
-conditional transfer: the action of transferring part of the state deposit to a given address if a certain condition is true.
-
-Note that section 6 of the paper specifies a concrete implementation that differs in certain respects from the protocol described here. The reason for this divergence is explained later.

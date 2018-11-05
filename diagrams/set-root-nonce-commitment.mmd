@@ -1,0 +1,10 @@
+graph LR
+    subgraph NonceRegistry
+        setNonce
+        setNonce.->rootNonceTimeout
+        setNonce.->rootNonceSalt
+        setNonce.->one["1"]
+    end
+    subgraph Multisig
+        execTransaction-->setNonce
+    end

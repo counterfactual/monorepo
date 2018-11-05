@@ -1,16 +1,11 @@
-# Contracts Architecture
+# State Machine Based Applications
 
-## Multisignature Wallet
+The following is a loose description of the concepts we use for an off-chain application. Most importantly, an `AppInstance` is the actual contract that is responsible for adjudicating a challenge on-chain and it uses an `App` (defined using an `AppDefinition`) to handle cases where adjudication requires on-chain logic to determine state validity.
 
-A multisignature wallet is the only required on-chain component for a state channel to work. Although we provide an example implementation, we believe the following properties should become standards in any multisignature wallet on Ethereum and Counterfactual will work with any wallet that implements them.
+# Table of Contents
 
-1. Execution of arbtirary transaction of the form `(address to, uint256 value, bytes data, uint8 op)` where `op` is a switch for defining either a `CALL` or `DELEGATECALL` internal transaction.
-
-2. Hash-bashed replay protection as opposed to nonce-based.
-
-3. Supports n-of-n unanimous consent.
-
-4. Deterministic signature verification that does _not_ use the on-chain address of the contract.
+- [AppInstance](#appinstance)
+- [AppDefinition](#appdefinitions)
 
 ## AppInstance
 
@@ -101,7 +96,3 @@ From certain app states, `resolve` can be called to return a value of type `stru
 Some app states are marked terminal. An app state `a` is terminal if there does not exist an action `c` such that `applyAction(a, c)` returns without throwing. In other words, the app state transition graph has no outgoing edges from `a`. Since we cannot statically check this property, the app developer can manually mark these states by making `isStateTerminal` return true for them, allowing us to skip one step of dispute resolution.
 
 Note that this is an optimization; this function can always safely be omitted, at the cost that sometimes disputes would take longer than strictly necessary.
-
-## ConditionalTransaction
-
-The `ConditionalTransaction` contract is a target contract for a multisignature wallet to call using `DELEGATECALL`. Its purpose is to define logic for resolving a conditional transaction that adheres to the protocol.

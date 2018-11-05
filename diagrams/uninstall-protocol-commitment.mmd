@@ -1,0 +1,26 @@
+graph LR
+    subgraph NonceRegistry
+        setNonce
+        setNonce.->0
+        setNonce.->salt
+        setNonce.->1
+    end
+    subgraph Registry
+        proxyCall
+    end
+    subgraph Free Balance AppInstance
+        setState
+        proxyCall-->setState
+        setState-->appStateHash
+        setState-->nonce
+        setState-->timeout
+        setState-->0x0
+    end
+    subgraph MultiSend
+        multiSend
+        multiSend-->proxyCall
+        multiSend-->setNonce
+    end
+    subgraph Multisig
+        execTransaction-->multiSend
+    end

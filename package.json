@@ -1,0 +1,15 @@
+{
+  "name": "specs",
+  "version": "0.0.1-alpha",
+  "description": "Counterfactual protocol specifications",
+  "repository": "git@github.com:counterfactual/specs.git",
+  "author": "Liam Horne <liam@l4v.io>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "./bin/build-mermaid-files"
+  },
+  "dependencies": {
+    "mermaid.cli": "^0.5.1"
+  }
+}
