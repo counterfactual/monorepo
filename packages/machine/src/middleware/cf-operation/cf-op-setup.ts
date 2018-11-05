@@ -47,7 +47,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public conditionalTransactionInput(): MultisigInput {
     const terms = CfFreeBalance.terms();
 
-    const depNonceKey = keccak256(
+    const uninstallKey = keccak256(
       abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
@@ -59,7 +59,7 @@ export class CfOpSetup extends CfMultiSendOp {
     ).functions.executeAppConditionalTransaction.encode([
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
-      depNonceKey,
+      uninstallKey,
       this.freeBalanceStateChannel.cfAddress(),
       [terms.assetType, terms.limit, terms.token]
     ]);

@@ -43,7 +43,7 @@ export class CfOpInstall extends CfMultiSendOp {
       this.app.terms.limit,
       this.app.terms.token
     ];
-    const depNonceKey = keccak256(
+    const uninstallKey = keccak256(
       abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
@@ -54,7 +54,7 @@ export class CfOpInstall extends CfMultiSendOp {
     ).functions.executeAppConditionalTransaction.encode([
       this.networkContext.registryAddr,
       this.networkContext.nonceRegistryAddr,
-      depNonceKey,
+      uninstallKey,
       this.appCfAddress,
       terms
     ]);

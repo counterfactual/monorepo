@@ -5,8 +5,8 @@ pragma experimental "ABIEncoderV2";
 /// @title NonceRegistry - A global nonce time-lock registry. Maps nonce keys to nonce values.
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports a global mapping of sender, timeout and salt based keys to sequential nonces
-/// A nonce (aka "dependency nonce") is a mapping from a nonce key to a nonce value which can be set
-/// under certain circumstances (to be defined later). A nonce is parametrized by the sender, the salt,
+/// A nonce is a mapping from a nonce key to a nonce value which can be set
+/// if certain conditions (to be defined later) are satisfied. A nonce is parametrized by the sender, the salt,
 /// and the timeout. These parameters determine the nonce key. A nonce can only be set by its sender.
 /// When a nonce is first set, a timer of length `timeout` starts. During this timeout period, it may
 /// only be set to higher values. When the timer expires, the nonce may no longer be set.
