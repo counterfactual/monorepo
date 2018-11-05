@@ -55,7 +55,7 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 > NOTE: All of the protocols below specify a 2-party interaction but can be generalized to the multi-party case in the future.
 
-<img src="./build/setup-protocol-state.svg" />
+![](./build/setup-protocol-state.png)
 
 ## Messages
 
@@ -63,7 +63,7 @@ After authentication and initializing a connection, channel establishment may be
 
 Specifically, the Setup Protocol exchanges a commitment allowing a particular off-chain application to withdraw funds from the multisignature wallet. We call this application the Free Balance application, representating the available funds for any new application to be installed into the state channel.
 
-<img src="./build/setup-protocol-exchange.svg" />
+![](./build/setup-protocol-exchange.png)
 
 Unlike other protocols, there is no extra message data for the Setup Protocol because the commitment digests are deterministic on the addresses of the participants of the state channel. In every case, the protocol effectively installs the Free Balance application with starting balances of 0 for each participant. Thus, no extra data is required to be passed in from outside the context of the protocol execution.
 
@@ -124,7 +124,7 @@ The commitments that these two messages rely on have the following parameters:
 
 The commitment can be visually represented like:
 
-<img src="./build/set-root-nonce-commitment.svg" />
+![](./build/set-root-nonce-commitment.png)
 
 **Commitment for `Setup` and `SetupAck`**:
 
@@ -143,7 +143,7 @@ Additionally, the following parameters are implicitly computed:
 
 The commitment can be visually represented like:
 
-<img src="./build/setup-commitment.svg" />
+![](./build/setup-commitment.png)
 
 > NOTE: The usage of `MultiSend` in this commitment is redundant and should be removed.
 
@@ -153,14 +153,14 @@ To illustrate the install protocol, first assume that the multisignature wallet 
 
 In this example, the application is Tic-Tac-Toe. You can see with the visual representation below that the funds available in the free balance decrease and the funds committed to the Tic-Tac-Toe application increase by the corresponding amount.
 
-<img src="./build/install-protocol-state.svg" />
+![](./build/install-protocol-state.png)
 
 
 ## Messages
 
 When the application has been decided between both parties and a connection is established, the protocol for installing the application into the state channel is a single round-trip exchange of `Install` and `InstallAck` messages which include all information pertaining to the chosen deposit amounts of both parties, a pointer to the application being requested to be installed, and metadata such as the timeout and terms being agreed to.
 
-<img src="./build/install-protocol-exchange.svg" />
+![](./build/install-protocol-exchange.png)
 
 ### Types
 
@@ -224,14 +224,14 @@ The following parameters are included in the commitment:
 
 The commitment can be visually represented like:
 
-<img src="./build/install-protocol-commitment.svg" />
+![](./build/install-protocol-commitment.png)
 
 
 > NOTE: Although not shown in the visualization, the order of transactions is important. The `multiSend` must encode the call to `proxyCall` **before** the call to `executeAppConditionalTransaction`.
 
 # SetState Protocol
 
-<img src="./build/setstate-protocol-state.svg" />
+![](./build/setstate-protocol-state.png)
 
 Once an application has been installed into the state channel, the multisignature wallet has transferred control over the installed amount from the free balance to the application's `resolve` function, a mapping from application state to funds distribution. For example, in the case of Tic-Tac-Toe, a possible payout function is: if X wins, Alice gets 2 ETH, else if O wins Bob gets 2 ETH, else send 1 ETH to Alice and Bob.
 
@@ -241,7 +241,7 @@ Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alic
 
 ## Messages
 
-<img src="./build/setstate-protocol-exchange.svg" />
+![](./build/setstate-protocol-exchange.png)
 
 For the below messages, the digest that is signed is represented as the following:
 
@@ -292,13 +292,13 @@ keccak256(
 
 The commitment can be visually represented like:
 
-<img src="./build/setstate-protocol-commitment.svg" />
+![](./build/setstate-protocol-commitment.png)
 
 This transaction uses the global, on-chain Registry contract to translate the counterfactual address of the application into an on-chain address, and subsequently invoke the `setState` function with the signatures exchanged during the protocol.
 
 # Uninstall Protocol
 
-<img src="./build/uninstall-protocol-state.svg" />
+![](./build/uninstall-protocol-state.png)
 
 The lifecycle of an application completes when it reaches some type of end or "terminal" state, at which point both parties know the finalized distribution of funds in the application-specific state channel.
 
@@ -308,7 +308,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 ## Messages
 
-<img src="./build/uninstall-protocol-exchange.svg" />
+![](./build/uninstall-protocol-exchange.png)
 
 ### The **`Uninstall`** Message
 
@@ -345,11 +345,11 @@ There are two key operations required for a successful uninstall.
 
 Specifically, the Conditional Transfer commitment created by the Install Protocol checks that the dependency nonce does not equal 1. _If the nonce is ever 1_, then the conditional transfer will fail. Hence setting the nonce to 1 invalidates the conditional transfer, which is desired behaviour.
 
-<img src="./build/uninstall-protocol-commitment.svg" />
+![](./build/uninstall-protocol-commitment.png)
 
 # Cleanup Protocol
 
-<img src="./build/cleanup-protocol-state.svg" />
+![](./build/cleanup-protocol-state.png)
 
 > NOTE: Notice that the `stale-invalid state` object has been removed from the previous figure shown in the [Uninstall Protocol](#uninstall-protocol) representing the effective "garbage collection" phenomena of the cleanup protocol
 
@@ -357,7 +357,7 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 
 ## Messages
 
-<img src="./build/cleanup-protocol-exchange.svg" />
+![](./build/cleanup-protocol-exchange.png)
 
 > NOTE: The dependency in the message exchange is important; it is not safe to sign the root nonce commitment without possession of all the active app commitments.
 
@@ -387,8 +387,8 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 
 For each active application, a similar commitment to the one described in the [Install Protocol](#install-protocol) must be generated. The commitment calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2` and a expected root nonce key of `r + 1`. Note that this is different from the install commitment in that it is not a multisend and does not set the free balance. Note that the free balance is also considered an active app. Here is an example of a commitment for a given app:
 
-<img src="./build/cleanup-protocol-commitment1.svg" />
+![](./build/cleanup-protocol-commitment1.png)
 
 Then, finally, the commitment update the root nonce is simply:
 
-<img src="./build/cleanup-protocol-commitment2.svg" />
+![](./build/cleanup-protocol-commitment2.png)
