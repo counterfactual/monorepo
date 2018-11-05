@@ -3,7 +3,7 @@ graph LR
         executeAppConditionalTransaction
         executeAppConditionalTransaction.->REGISTRY
         executeAppConditionalTransaction.->NONCE_REGISTRY
-        executeAppConditionalTransaction.->depNonceKey
+        executeAppConditionalTransaction.->uninstallKey
         executeAppConditionalTransaction.->rootNonceKey
         executeAppConditionalTransaction.->rootKey["rootNonce (r + 1)"]
         executeAppConditionalTransaction.->appCfAddress

@@ -130,9 +130,9 @@ The commitment can be visually represented like:
 
 The commitments that these two messages rely on have the following explicit parameters:
 
-| Parameter         | Type      | Description                                                                                                        |
-| ----------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| **`depNonceKey`** | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the Nonce Registry |
+| Parameter           | Type      | Description                                                                                                        |
+| ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| **`uninstallKey`**  | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the Nonce Registry |
 
 Additionally, the following parameters are implicitly computed:
 
@@ -219,7 +219,7 @@ The following parameters are included in the commitment:
 
 | Parameter          | Type      | Description                                                                                           |
 | ------------------ | --------- | ----------------------------------------------------------------------------------------------------- |
-| **`depNonceKey`**  | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the Nonce Registry |
+| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the Nonce Registry |
 | **`appStateHash`** | `bytes32` | The computed `keccak256` hash of the initial ABIEncoderV2 encoded state of the application            |
 
 The commitment can be visually represented like:
