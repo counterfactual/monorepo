@@ -62,7 +62,7 @@ contract NonceRegistry {
   /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(address sender, uint256 timeout, bytes32 salt)
     internal
-    view
+    pure
     returns (bytes32)
   {
     return keccak256(abi.encodePacked(sender, timeout, salt));
