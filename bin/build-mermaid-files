@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# A simple utility to convert the mermaid files into images.
 
 for filename in diagrams/*.mmd; do
     [ -e "$filename" ] || continue
