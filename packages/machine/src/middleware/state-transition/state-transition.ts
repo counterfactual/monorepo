@@ -8,7 +8,7 @@ import { PROPOSER_ACTIONS } from "./proposer-actions";
 export class StateTransition {
   /**
    * The proposed state transitions do not complete a state update. They give
-   * a "proposed" state update that should not be enacted until both
+   * a "proposed" state update that should not be committed until both
    * STATE_TRANSITION_COMMIT instructions have been executed.
    */
   public static propose(

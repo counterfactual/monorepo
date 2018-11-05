@@ -102,7 +102,7 @@ contract("PaymentApp", (accounts: string[]) => {
     const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
     pc = await paymentApp.deploy(unlockedAccount);
 
-    // Specifically for the StateChannel
+    // Specifically for the AppInstance
     const appInstance = artifacts.require("AppInstance");
     const staticCall = artifacts.require("StaticCall");
     const signatures = artifacts.require("Signatures");
