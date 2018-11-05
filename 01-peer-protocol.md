@@ -15,10 +15,10 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 **Global Variables**:
 
-| Parameter            | Type      | Description                                                    |
-| -------------------- | --------- | -------------------------------------------------------------- |
-| **`REGISTRY`**       | `address` | The address of the deployed on-chain `Registry` singleton      |
-| **`NONCE_REGISTRY`** | `address` | The address of the deployed on-chain `NonceRegistry` singleton |
+| Variable Name        | Type      | Description                                                              |
+| -------------------- | --------- | -------------------------------------------------------------------------|
+| **`REGISTRY`**       | `address` | The deployed on-chain address of the `Registry` singleton contract       |
+| **`NONCE_REGISTRY`** | `address` | The deployed on-chain address of the `NonceRegistry` singleton contract  |
 
 **Type: `Terms`**
 
