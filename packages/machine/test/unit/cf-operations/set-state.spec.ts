@@ -3,8 +3,8 @@ import * as ethers from "ethers";
 import * as abi from "../../../src/abi";
 import { CfOpSetState } from "../../../src/middleware/cf-operation/cf-op-setstate";
 import {
+  CfAppInstance,
   CfAppInterface,
-  CfStateChannel,
   Terms
 } from "../../../src/middleware/cf-operation/types";
 
@@ -84,7 +84,7 @@ describe("CfOpSetState", () => {
 
     const tx = op.transaction([sig1, sig2]);
 
-    const app = new CfStateChannel(
+    const app = new CfAppInstance(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,

@@ -186,7 +186,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new CfAppInstance(
+    const appInstance = new CfAppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
@@ -196,7 +196,7 @@ describe("Setup Protocol", async () => {
       0
     );
 
-    const channelCfAddr = cfStateChannel.cfAddress();
+    const channelCfAddr = appInstance.cfAddress();
 
     const channelAddr = await registry.functions.resolver(channelCfAddr);
 
