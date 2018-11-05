@@ -49,7 +49,7 @@ export class CfOpSetState extends CfOperation {
 
   /**
    * @returns a tx that executes a proxyCall through the registry to call
-   *          `setState` on StateChannel.sol.
+   *          `setState` on AppInstance.sol.
    */
   public transaction(sigs: Signature[]): Transaction {
     const appCfAddr = new CfAppInstance(
