@@ -7,9 +7,6 @@ graph LR
         executeAppConditionalTransaction.->freeBalanceCfAddress
         executeAppConditionalTransaction.->terms
     end
-    subgraph MultiSend
-        multiSend-->executeAppConditionalTransaction
-    end
     subgraph Multisig
-        execTransaction-->multiSend
+        execTransaction-->executeAppConditionalTransaction
     end
