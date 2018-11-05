@@ -39,7 +39,7 @@
   },
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
-    "build": "tsc -b && rollup -c",
+    "build": "tsc -b",
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
@@ -49,9 +49,6 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "devDependencies": {
-    "rollup": "^0.66.4",
-    "rollup-plugin-json": "^3.1.0",
-    "rollup-plugin-typescript2": "^0.17.1",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2",
