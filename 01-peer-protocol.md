@@ -32,11 +32,11 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 | Field             | Type      | Description                                                                                          |
 | ----------------- | --------- | ---------------------------------------------------------------------------------------------------- |
-| `address`         | `address` | The on-chain address of the application logic                                                        |
-| `applyAction`     | `bytes4`  | The sighash of the `applyAction` function on the application                                         |
-| `resolve`         | `bytes4`  | The sighash of the `resolve` function on the application                                             |
-| `isStateTerminal` | `bytes4`  | The sighash of the `isStateTerminal` function on the application                                     |
-| `getTurnTaken`    | `bytes4`  | The sighash of the `getTurnTaken` function on the application                                        |
+| `address`         | `address` | The on-chain address of the `AppDefinition` contract implementing the application logic              |
+| `applyAction`     | `bytes4`  | The sighash of the `applyAction` method on the `AppDefinition` contract                              |
+| `resolve`         | `bytes4`  | The sighash of the `resolve` method on the `AppDefinition` contract                                  |
+| `isStateTerminal` | `bytes4`  | The sighash of the `isStateTerminal` method on the `AppDefinition` contract                          |
+| `getTurnTaken`    | `bytes4`  | The sighash of the `getTurnTaken` method on the `AppDefinition` contract                             |
 | `token`           | `address` | If `assetType` is `ERC20` then the address of the token                                              |
 | `abiEncoding`     | `bytes4`  | The ABIEncoderV2 representation of the application's state encoding (e.g., `"tuple(address,uint8)"`) |
 
@@ -74,7 +74,7 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 | `protocol`    | `1`                              |
 | `fromAddress` | The address of Alice             |
 | `toAddress`   | The address of Bob               |
-| `seq`         | 0                                |
+| `seq`         | `0`                              |
 | `signature`   | Alice's signed commitment digest |
 
 ### The **`SetRootNonceAck`** Message
@@ -84,7 +84,7 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 | `protocol`    | `1`                            |
 | `fromAddress` | The address of Alice           |
 | `toAddress`   | The address of Bob             |
-| `seq`         | 1                              |
+| `seq`         | `1`                            |
 | `signature`   | Bob's signed commitment digest |
 
 ### The **`Setup`** Message
@@ -96,7 +96,7 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 | `data`        | `""`                                                        |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | 2                                                           |
+| `seq`         | `2`                                                         |
 | `signature`   | Alice's signed commitment digest                            |
 
 ### The **`SetupAck`** Message
@@ -108,7 +108,7 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 | `data`        | `""`                                                        |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | 3                                                           |
+| `seq`         | `3`                                                         |
 | `signature`   | Bob's signed commitment digest                              |
 
 ## Commitments
@@ -191,7 +191,7 @@ First we introduce a new type which we label `InstallData`.
 | `data`        | An `InstallData` object describing the proposed app         |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | 0                                                           |
+| `seq`         | `0`                                                         |
 | `signature`   | Alice's signed commitment digest                            |
 
 ### The **`InstallAck`** Message
@@ -203,7 +203,7 @@ First we introduce a new type which we label `InstallData`.
 | `data`        | An `InstallData` object describing the proposed app         |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | 1                                                           |
+| `seq`         | `1`                                                         |
 | `signature`   | Bob's signed commitment digest                              |
 
 ## Commitments
@@ -267,7 +267,7 @@ keccak256(
 | `data`        | An object containing the `bytes32` representation of the `appStateHash`     |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | 0                                                                           |
+| `seq`         | `0`                                                                         |
 | `signature`   | Alice's signed commitment digest                                            |
 
 > TODO: Use the ABIEncoderV2 encoded application state instead of the `appStateHash`; without it the receiving client can't decode the message to determine whether or not to sign
@@ -283,7 +283,7 @@ keccak256(
 | `data`        | `""`                                                                        |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | 1                                                                           |
+| `seq`         | `1`                                                                         |
 | `signature`   | Bob's signed commitment digest                                              |
 
 ## Commitments
@@ -319,7 +319,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 | `data`        | A object representing the updated balances of the of the free balance application |
 | `fromAddress` | The address of Alice                                                              |
 | `toAddress`   | The address of Bob                                                                |
-| `seq`         | 0                                                                                 |
+| `seq`         | `0`                                                                               |
 | `signature`   | Alice's signed commitment digest                                                  |
 
 ### The **`UninstallAck`** Message
@@ -331,7 +331,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 | `data`        | `""`                                                                        |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | 1                                                                           |
+| `seq`         | `1`                                                                         |
 | `signature`   | Bob's signed commitment digest                                              |
 
 ## Commitments
@@ -368,7 +368,7 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 | `protocol`    | `5`                              |
 | `fromAddress` | The address of Alice             |
 | `toAddress`   | The address of Bob               |
-| `seq`         | 0                                |
+| `seq`         | `0`                              |
 | `signature`   | Alice's signed commitment digest |
 
 ### The **`CleanupInstallAck`** Message
@@ -378,7 +378,7 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 | `protocol`    | `5`                            |
 | `fromAddress` | The address of Alice           |
 | `toAddress`   | The address of Bob             |
-| `seq`         | 1                              |
+| `seq`         | `1`                            |
 | `signature`   | Bob's signed commitment digest |
 
 ## Commitments
