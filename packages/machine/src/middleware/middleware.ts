@@ -32,7 +32,7 @@ export class Middleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly state: State, cfOpGenerator: CfOpGenerator) {
+  constructor(readonly state: State, cfOpGenerator: OpGenerator) {
     this.initializeMiddlewares(cfOpGenerator);
   }
 
@@ -108,11 +108,11 @@ export class Middleware {
 
 /**
  * Interface to dependency inject blockchain commitments. The middleware
- * should be constructed with a CfOpGenerator, which is responsible for
+ * should be constructed with a OpGenerator, which is responsible for
  * creating CfOperations, i.e. commitments, to be stored, used, and signed
  * in the state channel system.
  */
-export abstract class CfOpGenerator {
+export abstract class OpGenerator {
   public abstract generate(
     message: InternalMessage,
     next: Function,

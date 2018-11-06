@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
-import { CfOpGenerator, Middleware } from "./middleware/middleware";
+import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { State } from "./state";
@@ -16,7 +16,7 @@ import { Log } from "./write-ahead-log";
 export class VmConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
-    readonly cfOpGenerator: CfOpGenerator,
+    readonly cfOpGenerator: OpGenerator,
     readonly network: cf.utils.NetworkContext,
     readonly state?: cf.channel.ChannelStates
   ) {}

@@ -60,7 +60,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.vm = new machine.vm.VM(
       new machine.vm.VmConfig(
         this,
-        new machine.cfOperations.EthCfOpGenerator(),
+        new machine.cfOperations.EthOpGenerator(),
         networkContext,
         states
       )

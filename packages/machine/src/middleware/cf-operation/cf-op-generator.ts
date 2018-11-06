@@ -4,7 +4,7 @@ import * as ethers from "ethers";
 import { Instruction } from "../../instructions";
 import { Context, State } from "../../state";
 import { InternalMessage } from "../../types";
-import { CfOpGenerator, getFirstResult } from "../middleware";
+import { getFirstResult, OpGenerator } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
@@ -18,7 +18,7 @@ import { CfOperation } from "./types";
  * in the state channel, the CfOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
-export class EthCfOpGenerator extends CfOpGenerator {
+export class EthOpGenerator extends OpGenerator {
   public generate(
     message: InternalMessage,
     next: Function,

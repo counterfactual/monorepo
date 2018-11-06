@@ -3,7 +3,7 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import { Instruction } from "../../src/instructions";
-import { EthCfOpGenerator } from "../../src/middleware/cf-operation";
+import { EthOpGenerator } from "../../src/middleware/cf-operation";
 import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
@@ -50,7 +50,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     this.vm = new VM(
       new VmConfig(
         this,
-        new EthCfOpGenerator(),
+        new EthOpGenerator(),
         networkContext || EMPTY_NETWORK_CONTEXT
       )
     );
