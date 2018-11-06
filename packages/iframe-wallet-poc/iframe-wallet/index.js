@@ -252,7 +252,7 @@ function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
     stateChannel.freeBalance.bob
   ];
   const salt = 0;
-  // FIXME: Hard-coded, based on CfFreeBalance.contractInterface
+  // FIXME: Hard-coded, based on FreeBalance.contractInterface
   const appHash = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
       ["tuple(address, bytes4, bytes4, bytes4, bytes4)"],
@@ -267,7 +267,7 @@ function deployFreeBalanceContract(networkContext, stateChannel, wallet) {
       ]
     )
   );
-  // FIXME: Hard-coded, based on CfFreeBalance.terms()
+  // FIXME: Hard-coded, based on FreeBalance.terms()
   const termsHash = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
       ["bytes1", "uint8", "uint256", "address"],

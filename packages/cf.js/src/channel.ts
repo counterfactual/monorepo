@@ -14,7 +14,7 @@ import {
   StateChannelDataClientResponse
 } from "./node";
 import * as types from "./types";
-import { Address, CfFreeBalance, PeerBalance } from "./utils";
+import { Address, FreeBalance, PeerBalance } from "./utils";
 
 export class Channel {
   public client: Client;
@@ -157,9 +157,7 @@ export class Channel {
 
     return stateChannelData;
   }
-  private buildAppInterface(
-    appDefinition: types.AppDefinition
-  ): AppInterface {
+  private buildAppInterface(appDefinition: types.AppDefinition): AppInterface {
     const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
@@ -193,7 +191,7 @@ export interface StateChannelInfo {
   me: Address;
   multisigAddress: Address;
   appChannels: AppInstanceInfos;
-  freeBalance: CfFreeBalance;
+  freeBalance: FreeBalance;
 
   // TODO: Move this out of the datastructure
   // https://github.com/counterfactual/monorepo/issues/127

@@ -1,5 +1,5 @@
 import * as abi from "./abi";
-import { CfFreeBalance } from "./free-balance";
+import { FreeBalance } from "./free-balance";
 import { NetworkContext } from "./network-context";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
@@ -8,7 +8,7 @@ import { Signature } from "./signature";
 export {
   abi,
   CanonicalPeerBalance,
-  CfFreeBalance,
+  FreeBalance,
   Nonce,
   NetworkContext,
   PeerBalance,

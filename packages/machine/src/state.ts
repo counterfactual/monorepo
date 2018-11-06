@@ -53,13 +53,13 @@ export class CfState {
 
   public freeBalanceFromAddress(
     toAddress: cf.utils.Address
-  ): cf.utils.CfFreeBalance {
+  ): cf.utils.FreeBalance {
     return this.stateChannelFromAddress(toAddress).freeBalance;
   }
 
   public freeBalanceFromMultisigAddress(
     multisigAddress: cf.utils.Address
-  ): cf.utils.CfFreeBalance {
+  ): cf.utils.FreeBalance {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress].freeBalance;
@@ -93,7 +93,7 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
     readonly me: cf.utils.Address,
     readonly multisigAddress: cf.utils.Address,
     readonly appChannels: cf.app.AppInstanceInfos = {},
-    readonly freeBalance: cf.utils.CfFreeBalance
+    readonly freeBalance: cf.utils.FreeBalance
   ) {}
 
   /**

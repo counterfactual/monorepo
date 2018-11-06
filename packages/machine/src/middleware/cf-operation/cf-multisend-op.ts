@@ -19,7 +19,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.CfFreeBalance,
+    readonly cfFreeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
     super();
@@ -70,8 +70,8 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public freeBalanceData(): cf.utils.Bytes {
-    const terms = cf.utils.CfFreeBalance.terms();
-    const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
+    const terms = cf.utils.FreeBalance.terms();
+    const app = cf.utils.FreeBalance.contractInterface(this.networkContext);
     const freeBalanceCfAddress = new cf.app.AppInstance(
       this.networkContext,
       this.multisig,

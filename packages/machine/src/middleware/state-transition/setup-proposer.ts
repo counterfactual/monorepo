@@ -29,7 +29,7 @@ export class SetupProposer {
       ethers.utils.bigNumberify(0)
     );
     const localNonce = 0;
-    const freeBalance = new cf.utils.CfFreeBalance(
+    const freeBalance = new cf.utils.FreeBalance(
       balances.peerA.address,
       balances.peerA.balance,
       balances.peerB.address,

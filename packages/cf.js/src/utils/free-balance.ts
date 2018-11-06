@@ -10,7 +10,7 @@ import { Nonce } from "./nonce";
  * The state of a free balance object. Passing this into an install or uninstall
  * will update the free balance object to the values given here.
  */
-export class CfFreeBalance {
+export class FreeBalance {
   public static terms(): Terms {
     // FIXME: Change implementation of free balance on contracts layer
     // https://github.com/counterfactual/monorepo/issues/118

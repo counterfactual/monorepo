@@ -122,11 +122,11 @@ describe("Setup Protocol", async () => {
       txFeeB: depositTxFeeB
     } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
 
-    const app = cf.utils.CfFreeBalance.contractInterface(
+    const app = cf.utils.FreeBalance.contractInterface(
       devEnvNetworkContext7777777
     );
 
-    const terms = cf.utils.CfFreeBalance.terms();
+    const terms = cf.utils.FreeBalance.terms();
 
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi

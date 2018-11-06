@@ -24,7 +24,7 @@ export class UninstallProposer {
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new cf.utils.CfFreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,

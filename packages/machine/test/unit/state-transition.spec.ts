@@ -76,7 +76,7 @@ function setupClientMsg(): cf.node.ClientActionMessage {
 }
 
 function setupInstallCfState(): CfState {
-  const freeBalance = new cf.utils.CfFreeBalance(
+  const freeBalance = new cf.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
     B_ADDRESS,

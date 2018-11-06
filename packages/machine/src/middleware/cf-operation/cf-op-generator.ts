@@ -111,10 +111,10 @@ export class EthCfOpGenerator extends CfOpGenerator {
     proposedSetup: any
   ): CfOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const freeBalance: cf.utils.CfFreeBalance =
+    const freeBalance: cf.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
-    const cfFreeBalance = new cf.utils.CfFreeBalance(
+    const cfFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -133,8 +133,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
       cfState.networkContext,
       multisig,
       signingKeys,
-      cf.utils.CfFreeBalance.contractInterface(cfState.networkContext),
-      cf.utils.CfFreeBalance.terms(),
+      cf.utils.FreeBalance.contractInterface(cfState.networkContext),
+      cf.utils.FreeBalance.terms(),
       freeBalance.timeout,
       freeBalance.uniqueId
     );
@@ -171,7 +171,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
-    const cfFreeBalance = new cf.utils.CfFreeBalance(
+    const cfFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -207,7 +207,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appChannels[cfAddr];
 
-    const cfFreeBalance = new cf.utils.CfFreeBalance(
+    const cfFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,

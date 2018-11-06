@@ -19,7 +19,7 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly freeBalanceStateChannel: cf.app.AppInstance,
-    readonly freeBalance: cf.utils.CfFreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
     super(networkContext, multisig, freeBalance, dependencyNonce);
@@ -36,7 +36,7 @@ export class CfOpSetup extends CfMultiSendOp {
   }
 
   public conditionalTransactionInput(): MultisigInput {
-    const terms = cf.utils.CfFreeBalance.terms();
+    const terms = cf.utils.FreeBalance.terms();
 
     const uninstallKey = keccak256(
       abi.encodePacked(

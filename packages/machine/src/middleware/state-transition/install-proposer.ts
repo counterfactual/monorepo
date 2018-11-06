@@ -47,7 +47,7 @@ export class InstallProposer {
       uniqueId
     );
     const [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
-    const freeBalance = new cf.utils.CfFreeBalance(
+    const freeBalance = new cf.utils.FreeBalance(
       peerA.address,
       peerA.balance,
       peerB.address,
@@ -137,7 +137,7 @@ export class InstallProposer {
   }
 
   private static newPeers(
-    existingFreeBalance: cf.utils.CfFreeBalance,
+    existingFreeBalance: cf.utils.FreeBalance,
     data: cf.app.InstallData
   ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
     const peerA = new cf.utils.PeerBalance(
