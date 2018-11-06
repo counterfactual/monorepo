@@ -20,7 +20,7 @@
     "test": "jest --runInBand --detectOpenHandles --bail"
   },
   "devDependencies": {
-    "@counterfactual/machine": "0.0.1",
+    "@counterfactual/contracts": "0.0.2",
     "jest": "^23.6.0",
     "@types/lodash": "^4.14.116",
     "rollup": "^0.66.4",
