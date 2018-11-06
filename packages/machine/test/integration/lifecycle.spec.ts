@@ -11,9 +11,7 @@ import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
-  A_ADDRESS,
   A_PRIVATE_KEY,
-  B_ADDRESS,
   B_PRIVATE_KEY,
   UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";

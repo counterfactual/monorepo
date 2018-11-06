@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "sourceRoot": ".",
+    "outDir": "dist/",
+    "module": "es2015"
+  },
+  "awesomeTypeScriptLoaderOptions": {
+    "transpileOnly": true
+  }
+}

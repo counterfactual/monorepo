@@ -15,12 +15,10 @@ import {
 
 let walletA: IFrameWallet;
 let walletB: IFrameWallet;
-let network: machine.utils.NetworkContext;
 
 beforeAll(() => {
   walletA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
   walletB = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
-  network = walletA.network;
   walletA.setUser(A_ADDRESS, A_PRIVATE_KEY);
   walletB.setUser(B_ADDRESS, B_PRIVATE_KEY);
   walletA.currentUser.io.peer = walletB;

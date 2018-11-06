@@ -32,7 +32,6 @@ export class TestResponseSink implements ResponseSink {
   public signingKey: ethers.utils.SigningKey;
 
   private requests: Map<string, Function>;
-  private responseListener?: Function;
   private messageListener?: Function;
 
   constructor(readonly privateKey: string, networkContext?: NetworkContext) {
@@ -136,12 +135,6 @@ export class TestResponseSink implements ResponseSink {
    */
   public receiveMessageFromPeer(incoming: ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
-  }
-
-  // TODO: Make responseListener a map/array
-  // https://github.com/counterfactual/monorepo/issues/107
-  public onResponse(callback: Function) {
-    this.responseListener = callback;
   }
 
   // TODO: Figure out which client to send the response to

@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import ETHBalanceRefundAppJson from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
 import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
@@ -15,8 +14,6 @@ import {
   B_PRIVATE_KEY
 } from "./environment";
 
-const BALANCE_REFUND_STATE_ENCODING =
-  "tuple(address recipient, address multisig, uint256 threshold)";
 const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentAppJson.abi);

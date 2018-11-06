@@ -11,9 +11,10 @@ import {
   Multisig,
   TransferTerms
 } from "../../utils";
-import { generateEthWallets, setupTestEnv } from "../../utils/misc";
+import * as Utils from "../../utils/misc";
 
-const { web3 } = global as any;
+const web3 = (global as any).web3;
+const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 const {
   Registry,
@@ -52,7 +53,6 @@ const commitRevealAppDefinition = AbstractContract.loadBuildArtifact(
   }
 );
 
-const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
 const appStateEncoding = abiEncodingForStruct(`
   address[2] playerAddrs;
   uint256 stage;
@@ -77,7 +77,7 @@ async function createMultisig(
 }
 
 async function deployAppDefinition(): Promise<ethers.Contract> {
-  return (await commitRevealAppDefinition).deploy(masterAccount);
+  return (await commitRevealAppDefinition).deploy(unlockedAccount);
 }
 
 async function deployAppInstance(
@@ -85,7 +85,7 @@ async function deployAppInstance(
   appContract: ethers.Contract,
   terms: TransferTerms
 ) {
-  const registry = await (await Registry).getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(unlockedAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const appInstance = new AppInstance(
     signers,
@@ -94,7 +94,7 @@ async function deployAppInstance(
     appStateEncoding,
     terms
   );
-  await appInstance.deploy(masterAccount, registry);
+  await appInstance.deploy(unlockedAccount, registry);
   if (!appInstance.contract) {
     throw new Error("Deploy failed");
   }
@@ -111,10 +111,12 @@ async function executeStateChannelTransaction(
     throw new Error("Deploy failed");
   }
   const conditionalTransaction = await (await ConditionalTransaction).getDeployed(
-    masterAccount
+    unlockedAccount
   );
-  const registry = await (await Registry).getDeployed(masterAccount);
-  const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(unlockedAccount);
+  const nonceRegistry = await (await NonceRegistry).getDeployed(
+    unlockedAccount
+  );
 
   await multisig.execDelegatecall(
     conditionalTransaction,
@@ -135,10 +137,10 @@ describe("CommitReveal", async () => {
     // @ts-ignore
     this.timeout(4000);
 
-    const [alice, bob] = generateEthWallets(2, provider);
+    const [alice, bob] = Utils.generateEthWallets(2, provider);
 
     // 1. Deploy & fund multisig
-    const multisig = await createMultisig(masterAccount, parseEther("2"), [
+    const multisig = await createMultisig(unlockedAccount, parseEther("2"), [
       alice,
       bob
     ]);
