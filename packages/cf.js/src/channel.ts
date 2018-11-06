@@ -1,12 +1,20 @@
-import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+import { AppInstanceInfos, CfAppInterface, InstallData } from "./app";
 import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
+import {
+  ActionName,
+  ClientQuery,
+  ClientQueryType,
+  FreeBalanceClientResponse,
+  StateChannelDataClientResponse
+} from "./node";
 import * as types from "./types";
+import { Address, CfFreeBalance, PeerBalance } from "./utils";
 
 export class Channel {
   public client: Client;
@@ -27,7 +35,7 @@ export class Channel {
   }
 
   public async deposit(
-    address: machine.types.Address,
+    address: Address,
     amount: ethers.utils.BigNumber,
     threshold: ethers.utils.BigNumber
   ) {
@@ -72,13 +80,13 @@ export class Channel {
     const app = this.buildAppInterface(appInstance.app);
     const encodedAppState = app.encode(initialState);
 
-    const installData: machine.types.InstallData = {
+    const installData: InstallData = {
       encodedAppState,
       app,
       terms: appInstance.terms,
       timeout: appInstance.timeout,
-      peerA: new machine.utils.PeerBalance(peerA, deposits[peerA]),
-      peerB: new machine.utils.PeerBalance(peerB, deposits[peerB]),
+      peerA: new PeerBalance(peerA, deposits[peerA]),
+      peerB: new PeerBalance(peerB, deposits[peerB]),
       keyA: appInstance.signingKeys[0],
       keyB: appInstance.signingKeys[1]
     };
@@ -88,7 +96,7 @@ export class Channel {
       requestId,
       appName: name,
       appId: undefined,
-      action: machine.types.ActionName.INSTALL,
+      action: ActionName.INSTALL,
       data: installData,
       multisigAddress: this.multisigAddress,
       toAddress: this.toAddress,
@@ -122,49 +130,45 @@ export class Channel {
     return new AppChannelClient(this, name, appId, appInterface);
   }
 
-  public async queryFreeBalance(): Promise<
-    machine.types.FreeBalanceClientResponse
-  > {
-    const freeBalanceQuery: machine.types.ClientQuery = {
+  public async queryFreeBalance(): Promise<FreeBalanceClientResponse> {
+    const freeBalanceQuery: ClientQuery = {
       requestId: this.client.requestId(),
-      action: machine.types.ActionName.QUERY,
-      query: machine.types.ClientQueryType.FreeBalance,
+      action: ActionName.QUERY,
+      query: ClientQueryType.FreeBalance,
       multisigAddress: this.multisigAddress
     };
     const freeBalanceData = (await this.client.sendMessage(
       freeBalanceQuery
-    )) as machine.types.FreeBalanceClientResponse;
+    )) as FreeBalanceClientResponse;
 
     return freeBalanceData;
   }
 
-  public async queryStateChannel(): Promise<
-    machine.types.StateChannelDataClientResponse
-  > {
-    const stateChannelQuery: machine.types.ClientQuery = {
-      action: machine.types.ActionName.QUERY,
+  public async queryStateChannel(): Promise<StateChannelDataClientResponse> {
+    const stateChannelQuery: ClientQuery = {
+      action: ActionName.QUERY,
       requestId: this.client.requestId(),
-      query: machine.types.ClientQueryType.StateChannel,
+      query: ClientQueryType.StateChannel,
       multisigAddress: this.multisigAddress
     };
     const stateChannelData = (await this.client.sendMessage(
       stateChannelQuery
-    )) as machine.types.StateChannelDataClientResponse;
+    )) as StateChannelDataClientResponse;
 
     return stateChannelData;
   }
   private buildAppInterface(
     appDefinition: types.AppDefinition
-  ): machine.cfTypes.CfAppInterface {
+  ): CfAppInterface {
     const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
-    const appInterface = new machine.cfTypes.CfAppInterface(
+    const appInterface = new CfAppInterface(
       appDefinition.address,
-      machine.cfTypes.CfAppInterface.generateSighash(abi, "applyAction"),
-      machine.cfTypes.CfAppInterface.generateSighash(abi, "resolve"),
-      machine.cfTypes.CfAppInterface.generateSighash(abi, "getTurnTaker"),
-      machine.cfTypes.CfAppInterface.generateSighash(abi, "isStateTerminal"),
+      CfAppInterface.generateSighash(abi, "applyAction"),
+      CfAppInterface.generateSighash(abi, "resolve"),
+      CfAppInterface.generateSighash(abi, "getTurnTaker"),
+      CfAppInterface.generateSighash(abi, "isStateTerminal"),
       appDefinition.appStateEncoding
     );
     return appInterface;
@@ -172,7 +176,7 @@ export class Channel {
 
   private async depositToMultisig(value: ethers.utils.BigNumber) {
     const depositMessage = {
-      action: machine.types.ActionName.DEPOSIT,
+      action: ActionName.DEPOSIT,
       requestId: this.client.requestId(),
       data: {
         value,
@@ -182,4 +186,29 @@ export class Channel {
 
     await this.client.sendMessage(depositMessage);
   }
+}
+
+export interface StateChannelInfo {
+  counterParty: Address;
+  me: Address;
+  multisigAddress: Address;
+  appChannels: AppInstanceInfos;
+  freeBalance: CfFreeBalance;
+
+  // TODO: Move this out of the datastructure
+  // https://github.com/counterfactual/monorepo/issues/127
+  /**
+   * @returns the addresses of the owners of this state channel sorted
+   *          in alphabetical order.
+   */
+  owners(): string[];
+}
+
+export interface StateChannelInfos {
+  [s: string]: StateChannelInfo;
+}
+
+// Tree of all the stateChannel and appChannel state
+export interface ChannelStates {
+  [s: string]: StateChannelInfo;
 }

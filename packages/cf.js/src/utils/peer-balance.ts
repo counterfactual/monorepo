@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { Address, CanonicalPeerBalance } from "../types";
+import { Address } from "./index";
 
 export class PeerBalance {
   /**
@@ -69,4 +69,21 @@ export class PeerBalance {
   ) {
     this.balance = ethers.utils.bigNumberify(balance.toString());
   }
+}
+
+/**
+ * peerA is always the address first in alphabetical order.
+ */
+export class CanonicalPeerBalance {
+  public static canonicalize(
+    peer1: PeerBalance,
+    peer2: PeerBalance
+  ): CanonicalPeerBalance {
+    if (peer2.address.localeCompare(peer1.address) < 0) {
+      return new CanonicalPeerBalance(peer2, peer1);
+    }
+    return new CanonicalPeerBalance(peer1, peer2);
+  }
+
+  constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
 }

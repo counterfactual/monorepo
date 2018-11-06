@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as machine from "@counterfactual/machine";
 import { ethers } from "ethers";
@@ -44,7 +45,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
     expect(
       await walletA.currentUser.store.appHasCommitment(
         UNUSED_FUNDED_ACCOUNT,
-        machine.types.ActionName.SETUP
+        cf.node.ActionName.SETUP
       )
     ).toEqual(true);
   });
@@ -53,7 +54,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
   it("the transaction should be sent to the multisig address", async () => {
     setupTransaction = await walletA.currentUser.store.getTransaction(
       UNUSED_FUNDED_ACCOUNT,
-      machine.types.ActionName.SETUP
+      cf.node.ActionName.SETUP
     );
     expect(setupTransaction.to).toEqual(UNUSED_FUNDED_ACCOUNT);
   });
@@ -85,5 +86,5 @@ describe.skip("should have one commitment for the setup protocol", () => {
 async function setup(walletA: IFrameWallet, walletB: IFrameWallet) {
   const msg = SetupProtocol.setupStartMsg(walletA.address!, walletB.address!);
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(machine.vm.ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
 }

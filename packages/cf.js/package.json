@@ -2,13 +2,13 @@
   "name": "@counterfactual/cf.js",
   "version": "0.0.1",
   "description": "The bridge between web applications and Counterfactual wallets.",
+  "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "iife": "dist/index-iife.js",
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "repository": "https://github.com/counterfactual/cf.js",
   "license": "MIT",
   "private": true,
@@ -20,7 +20,7 @@
     "test": "jest --runInBand --detectOpenHandles --bail"
   },
   "devDependencies": {
-    "@counterfactual/machine": "0.0.1",
+    "@counterfactual/contracts": "0.0.2",
     "jest": "^23.6.0",
     "@types/lodash": "^4.14.116",
     "rollup": "^0.66.4",

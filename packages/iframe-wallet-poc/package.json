@@ -13,7 +13,7 @@
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .rpt2_cache dist",
-    "build": "rollup -c",
+    "build": "tsc -p tsconfig.test.json && rollup -c",
     "lint:fix": "tslint -c tslint.json -p .",
     "lint": "tslint -c tslint.json -p .",
     "test": "jest --runInBand --detectOpenHandles --bail"

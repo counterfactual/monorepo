@@ -1,9 +1,8 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Context } from "../../src/state";
-import {
-  ActionName,
-  ClientActionMessage,
-  InternalMessage
-} from "../../src/types";
+import { InternalMessage } from "../../src/types";
+
 import { TestResponseSink } from "./test-response-sink";
 
 // FIXME: Don't import functions from source code.
@@ -19,7 +18,7 @@ import { deserialize } from "../../src/serializer";
 import { Instruction } from "../../src/instructions";
 
 export class TestIOProvider {
-  public messages: ClientActionMessage[];
+  public messages: cf.node.ClientActionMessage[];
 
   // FIXME: Don't just initialize it as a null object
   // https://github.com/counterfactual/monorepo/issues/97
@@ -39,8 +38,12 @@ export class TestIOProvider {
     this.listeners = [];
   }
 
-  public receiveMessageFromPeer(serializedMessage: ClientActionMessage) {
-    const message = deserialize(serializedMessage) as ClientActionMessage;
+  public receiveMessageFromPeer(
+    serializedMessage: cf.node.ClientActionMessage
+  ) {
+    const message = deserialize(
+      serializedMessage
+    ) as cf.node.ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
@@ -72,8 +75,11 @@ export class TestIOProvider {
     }
   }
 
-  public findMessage(multisig?: string, appId?: string): ClientActionMessage {
-    let message: ClientActionMessage;
+  public findMessage(
+    multisig?: string,
+    appId?: string
+  ): cf.node.ClientActionMessage {
+    let message: cf.node.ClientActionMessage;
     if (appId) {
       // FIXME: These shouldn't be ignored. Refactor for type safety.
       // https://github.com/counterfactual/monorepo/issues/96
@@ -132,18 +138,20 @@ export class TestIOProvider {
   public async waitForIo(
     message: InternalMessage,
     next: Function
-  ): Promise<ClientActionMessage> {
+  ): Promise<cf.node.ClientActionMessage> {
     // Has websocket received a message for this appId/multisig
     // If yes, return the message, if not wait until it does
     let resolve: Function;
-    const promise = new Promise<ClientActionMessage>(r => (resolve = r));
+    const promise = new Promise<cf.node.ClientActionMessage>(
+      r => (resolve = r)
+    );
 
     let multisig: string = "";
     let appId: string = "";
 
     if (
-      message.actionName === ActionName.SETUP ||
-      message.actionName === ActionName.INSTALL
+      message.actionName === cf.node.ActionName.SETUP ||
+      message.actionName === cf.node.ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {

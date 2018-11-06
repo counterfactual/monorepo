@@ -1,14 +1,6 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { CfAppInterface, Terms } from "../../src/middleware/cf-operation/types";
-import {
-  ActionName,
-  ClientActionMessage,
-  InstallData,
-  UpdateData
-} from "../../src/types";
-import { PeerBalance } from "../../src/utils/peer-balance";
-import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
   A_PRIVATE_KEY,
@@ -120,7 +112,7 @@ class Depositor {
       threshold
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // since the machine is async, we need to wait for peerB to finish up its
     // side of the protocol before inspecting it's state
     await sleep(50);
@@ -134,19 +126,19 @@ class Depositor {
     from: string,
     to: string,
     threshold: ethers.utils.BigNumber
-  ): ClientActionMessage {
-    const canon = PeerBalance.balances(
+  ): cf.node.ClientActionMessage {
+    const canon = cf.utils.PeerBalance.balances(
       from,
       ethers.utils.bigNumberify(0),
       to,
       ethers.utils.bigNumberify(0)
     );
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new CfAppInterface(
+    const app = new cf.app.CfAppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",
@@ -155,7 +147,7 @@ class Depositor {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: InstallData = {
+    const installData: cf.app.InstallData = {
       terms,
       app,
       timeout,
@@ -168,7 +160,7 @@ class Depositor {
     return {
       requestId: "1",
       appId: "",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -219,7 +211,7 @@ class Depositor {
       amountA
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // validate peerA
     Depositor.validateUninstall(cfAddr, peerA, peerB, amountA, amountB);
     // validate peerB
@@ -236,7 +228,7 @@ class Depositor {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.vm.cfState;
-    const canon = PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       peerA.signingKey.address!,
       amountA,
       peerB.signingKey.address!,
@@ -263,14 +255,17 @@ class Depositor {
     from: string,
     to: string,
     amount: ethers.utils.BigNumber
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const uninstallData = {
-      peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
+      peerAmounts: [
+        new cf.utils.PeerBalance(from, amount),
+        new cf.utils.PeerBalance(to, 0)
+      ]
     };
     return {
       appId,
       requestId: "2",
-      action: ActionName.UNINSTALL,
+      action: cf.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: from,
@@ -300,11 +295,14 @@ class TicTacToeSimulator {
       peerB.signingKey.address!
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
-  public static installMsg(to: string, from: string): ClientActionMessage {
+  public static installMsg(
+    to: string,
+    from: string
+  ): cf.node.ClientActionMessage {
     let peerA = from;
     let peerB = to;
     if (peerB.localeCompare(peerA) < 0) {
@@ -312,12 +310,12 @@ class TicTacToeSimulator {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new CfAppInterface(
+    const app = new cf.app.CfAppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",
@@ -326,12 +324,12 @@ class TicTacToeSimulator {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: InstallData = {
+    const installData: cf.app.InstallData = {
       terms,
       app,
       timeout,
-      peerA: new PeerBalance(peerA, 2),
-      peerB: new PeerBalance(peerB, 2),
+      peerA: new cf.utils.PeerBalance(peerA, 2),
+      peerB: new cf.utils.PeerBalance(peerB, 2),
       keyA: peerA,
       keyB: peerB,
       encodedAppState: "0x1234"
@@ -339,7 +337,7 @@ class TicTacToeSimulator {
     return {
       requestId: "5",
       appId: "",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -418,7 +416,7 @@ class TicTacToeSimulator {
       cfAddr
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     TicTacToeSimulator.validateMakeMove(
       peerA,
       peerB,
@@ -442,15 +440,15 @@ class TicTacToeSimulator {
     to: string,
     from: string,
     cfAddr: string
-  ): ClientActionMessage {
-    const updateData: UpdateData = {
+  ): cf.node.ClientActionMessage {
+    const updateData: cf.app.UpdateData = {
       encodedAppState: state,
       appStateHash: ethers.constants.HashZero // TODO:
     };
     return {
       requestId: "1",
       appId: cfAddr,
-      action: ActionName.UPDATE,
+      action: cf.node.ActionName.UPDATE,
       data: updateData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -490,7 +488,7 @@ class TicTacToeSimulator {
       ethers.utils.bigNumberify(0)
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
     TicTacToeSimulator.validateUninstall(
       cfAddr,
@@ -513,17 +511,17 @@ class TicTacToeSimulator {
     amountA: ethers.utils.BigNumber,
     addressB: string,
     amountB: ethers.utils.BigNumber
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
-        new PeerBalance(addressA, amountA),
-        new PeerBalance(addressB, amountB)
+        new cf.utils.PeerBalance(addressA, amountA),
+        new cf.utils.PeerBalance(addressB, amountB)
       ]
     };
     return {
       requestId: "2",
       appId: cfAddr,
-      action: ActionName.UNINSTALL,
+      action: cf.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: addressA,

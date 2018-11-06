@@ -1,31 +1,21 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-import { Signature } from "../../utils/signature";
-
 import * as common from "./common";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfOperation,
-  Terms,
-  Transaction
-} from "./types";
+import { CfOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
 export class CfOpSetState extends CfOperation {
   constructor(
-    readonly ctx: NetworkContext,
-    readonly multisig: Address,
-    readonly signingKeys: Address[],
+    readonly ctx: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly signingKeys: cf.utils.Address[],
     readonly appStateHash: string,
     readonly appUniqueId: number,
-    readonly terms: Terms,
-    readonly app: CfAppInterface,
+    readonly terms: cf.app.Terms,
+    readonly app: cf.app.CfAppInterface,
     readonly appLocalNonce: number,
     readonly timeout: number
   ) {
@@ -51,8 +41,8 @@ export class CfOpSetState extends CfOperation {
    * @returns a tx that executes a proxyCall through the registry to call
    *          `setState` on AppInstance.sol.
    */
-  public transaction(sigs: Signature[]): Transaction {
-    const appCfAddr = new CfAppInstance(
+  public transaction(sigs: cf.utils.Signature[]): Transaction {
+    const appCfAddr = new cf.app.CfAppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,
@@ -69,7 +59,7 @@ export class CfOpSetState extends CfOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      Signature.toSortedBytes(sigs, this.hashToSign())
+      cf.utils.Signature.toSortedBytes(sigs, this.hashToSign())
     );
     return new Transaction(to, val, data);
   }
