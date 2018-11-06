@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
-import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
+import { Middleware, CfOpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { CfState } from "./state";
@@ -42,7 +42,7 @@ export class CounterfactualVM implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
-  public middleware: CfMiddleware;
+  public middleware: Middleware;
   /**
    * The delegate handler we send responses to.
    */
@@ -62,7 +62,7 @@ export class CounterfactualVM implements Observable {
       config.state ? config.state : Object.create(null),
       config.network
     );
-    this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
+    this.middleware = new Middleware(this.cfState, config.cfOpGenerator);
   }
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}

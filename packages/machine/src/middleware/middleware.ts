@@ -12,10 +12,10 @@ import {
 import { StateTransition } from "./state-transition/state-transition";
 
 /**
- * CfMiddleware is the container holding the groups of middleware responsible
+ * Middleware is the container holding the groups of middleware responsible
  * for executing a given instruction in the Counterfactual VM.
  */
-export class CfMiddleware {
+export class Middleware {
   /**
    * Maps instruction to list of middleware that will process the instruction.
    */
