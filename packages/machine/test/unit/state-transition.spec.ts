@@ -84,7 +84,7 @@ function setupInstallCfState(): CfState {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new cf.utils.CfNonce(true, 0, 0) // nonce
+    new cf.utils.Nonce(true, 0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,

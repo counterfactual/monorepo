@@ -11,7 +11,7 @@ import {
   PeerBalance
 } from "../utils";
 import * as abi from "../utils/abi";
-import { CfNonce } from "../utils/nonce";
+import { Nonce } from "../utils/nonce";
 
 const { keccak256 } = ethers.utils;
 
@@ -180,7 +180,7 @@ export interface AppInstanceInfo {
   timeout: number;
   terms: Terms;
   cfApp: AppInterface;
-  dependencyNonce: CfNonce;
+  dependencyNonce: Nonce;
 
   // TODO: Move this into a method that is outside the data structure
   // https://github.com/counterfactual/monorepo/issues/126

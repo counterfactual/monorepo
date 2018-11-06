@@ -20,7 +20,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly cfFreeBalance: cf.utils.CfFreeBalance,
-    readonly dependencyNonce: cf.utils.CfNonce
+    readonly dependencyNonce: cf.utils.Nonce
   ) {
     super();
   }

@@ -4,7 +4,7 @@ import { AppInterface, Terms } from "../app";
 
 import { Address } from "./index";
 import { NetworkContext } from "./network-context";
-import { CfNonce } from "./nonce";
+import { Nonce } from "./nonce";
 
 /**
  * The state of a free balance object. Passing this into an install or uninstall
@@ -49,6 +49,6 @@ export class CfFreeBalance {
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,
-    readonly dependencyNonce: CfNonce
+    readonly dependencyNonce: Nonce
   ) {}
 }

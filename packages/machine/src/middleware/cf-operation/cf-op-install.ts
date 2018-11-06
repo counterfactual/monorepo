@@ -14,7 +14,7 @@ export class CfOpInstall extends CfMultiSendOp {
     readonly multisig: cf.utils.Address,
     readonly app: cf.app.CfAppInstance,
     readonly cfFreeBalance: cf.utils.CfFreeBalance,
-    readonly dependencyNonce: cf.utils.CfNonce
+    readonly dependencyNonce: cf.utils.Nonce
   ) {
     super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
