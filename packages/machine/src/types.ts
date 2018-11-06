@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "./instructions";
-import { CfState, Context } from "./state";
+import { State, Context } from "./state";
 
 export interface MiddlewareResult {
   opCode: Instruction;
@@ -24,7 +24,7 @@ export interface ContextualizedStateProposer {
   propose(
     message: InternalMessage,
     context: Context,
-    state: CfState
+    state: State
   ): StateProposal;
 }
 
@@ -45,7 +45,7 @@ export interface Addressable {
 }
 
 export type AddressableLookupResolver = {
-  (state: CfState, data: string): cf.channel.StateChannelInfo;
+  (state: State, data: string): cf.channel.StateChannelInfo;
 };
 
 export type AddressableLookupResolverHash = {

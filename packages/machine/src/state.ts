@@ -5,7 +5,7 @@ import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
 import { CounterfactualVM } from "./vm";
 
-export class CfState {
+export class State {
   public channelStates: cf.channel.ChannelStates;
   public networkContext: cf.utils.NetworkContext;
 

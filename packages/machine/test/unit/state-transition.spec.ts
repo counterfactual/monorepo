@@ -4,7 +4,7 @@ import * as ethers from "ethers";
 import { Instruction } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { CfState, Context, StateChannelInfoImpl } from "../../src/state";
+import { State, Context, StateChannelInfoImpl } from "../../src/state";
 import { InternalMessage } from "../../src/types";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
@@ -55,7 +55,7 @@ describe("State transition", () => {
     const proposal = InstallProposer.propose(
       message,
       new Context(),
-      setupInstallCfState()
+      setupInstallState()
     );
     validateInstallInfos(proposal.state, expectedCfAddr);
   });
@@ -75,7 +75,7 @@ function setupClientMsg(): cf.node.ClientActionMessage {
   };
 }
 
-function setupInstallCfState(): CfState {
+function setupInstallState(): State {
   const freeBalance = new cf.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
@@ -96,7 +96,7 @@ function setupInstallCfState(): CfState {
   const channelStates: cf.channel.ChannelStates = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new CfState(channelStates, EMPTY_NETWORK_CONTEXT);
+  return new State(channelStates, EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: cf.channel.StateChannelInfos) {

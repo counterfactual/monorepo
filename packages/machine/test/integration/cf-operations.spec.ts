@@ -165,7 +165,7 @@ describe("Setup Protocol", async () => {
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
 
-    const cfFreeBalance = walletA.vm.cfState.freeBalanceFromMultisigAddress(
+    const cfFreeBalance = walletA.vm.state.freeBalanceFromMultisigAddress(
       multisig.address
     );
 
@@ -181,7 +181,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new cf.app.AppInstance(
+    const appInstance = new cf.app.AppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
@@ -191,12 +191,14 @@ describe("Setup Protocol", async () => {
       0
     );
 
-    const channelCfAddr = cfStateChannel.cfAddress();
+    const appInstanceCfAddr = appInstance.cfAddress();
 
-    const channelAddr = await registry.functions.resolver(channelCfAddr);
+    const appInstanceAddr = await registry.functions.resolver(
+      appInstanceCfAddr
+    );
 
     const stateChannel = new ethers.Contract(
-      channelAddr,
+      appInstanceAddr,
       AppInstanceJson.abi,
       ethersMasterWallet
     );
@@ -265,8 +267,8 @@ function validatePresetup(
   walletA: TestResponseSink,
   walletB: TestResponseSink
 ) {
-  expect(walletA.vm.cfState.channelStates).toEqual({});
-  expect(walletB.vm.cfState.channelStates).toEqual({});
+  expect(walletA.vm.state.channelStates).toEqual({});
+  expect(walletB.vm.state.channelStates).toEqual({});
 }
 
 function setupStartMsg(
@@ -321,7 +323,7 @@ function validateNoAppsAndFreeBalance(
 ) {
   // todo: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.vm.cfState;
+  const state = walletA.vm.state;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
@@ -338,7 +340,7 @@ function validateNoAppsAndFreeBalance(
     amountB = tmpAmount;
   }
 
-  const channel = walletA.vm.cfState.channelStates[multisigAddr];
+  const channel = walletA.vm.state.channelStates[multisigAddr];
   expect(Object.keys(state.channelStates).length).toEqual(1);
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
   expect(channel.me).toEqual(walletA.signingKey.address);
@@ -540,7 +542,7 @@ function validateInstalledBalanceRefund(
   wallet: TestResponseSink,
   amount: ethers.utils.BigNumber
 ) {
-  const stateChannel = wallet.vm.cfState.channelStates[multisigAddr];
+  const stateChannel = wallet.vm.state.channelStates[multisigAddr];
   const appChannels = stateChannel.appChannels;
   const cfAddrs = Object.keys(appChannels);
   expect(cfAddrs.length).toEqual(1);
@@ -575,7 +577,7 @@ function validateUninstalledAndFreeBalance(
 ) {
   // TODO: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.vm.cfState;
+  const state = walletA.vm.state;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
@@ -592,7 +594,7 @@ function validateUninstalledAndFreeBalance(
     amountB = tmpAmount;
   }
 
-  const channel = walletA.vm.cfState.channelStates[multisigAddr];
+  const channel = walletA.vm.state.channelStates[multisigAddr];
   const app = channel.appChannels[cfAddr];
 
   expect(Object.keys(state.channelStates).length).toEqual(1);

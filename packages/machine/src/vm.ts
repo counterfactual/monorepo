@@ -5,7 +5,7 @@ import { Instruction } from "./instructions";
 import { Middleware, CfOpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { CfState } from "./state";
+import { State } from "./state";
 import {
   Addressable,
   AddressableLookupResolverHash,
@@ -28,14 +28,14 @@ export class CfVmConfig {
  * StateChannelInfo from the corresponding source.
  */
 const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (cfState: CfState, appId: cf.utils.H256) =>
-    cfState.appChannelInfos[appId].stateChannel,
+  appId: (state: State, appId: cf.utils.H256) =>
+    state.appChannelInfos[appId].stateChannel,
 
-  multisigAddress: (cfState: CfState, multisigAddress: cf.utils.Address) =>
-    cfState.stateChannelFromMultisigAddress(multisigAddress),
+  multisigAddress: (state: State, multisigAddress: cf.utils.Address) =>
+    state.stateChannelFromMultisigAddress(multisigAddress),
 
-  toAddress: (cfState: CfState, toAddress: cf.utils.Address) =>
-    cfState.stateChannelFromAddress(toAddress)
+  toAddress: (state: State, toAddress: cf.utils.Address) =>
+    state.stateChannelFromAddress(toAddress)
 };
 
 export class CounterfactualVM implements Observable {
@@ -51,18 +51,18 @@ export class CounterfactualVM implements Observable {
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
    */
-  public cfState: CfState;
+  public state: State;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
   constructor(config: CfVmConfig) {
     this.responseHandler = config.responseHandler;
-    this.cfState = new CfState(
+    this.state = new State(
       config.state ? config.state : Object.create(null),
       config.network
     );
-    this.middleware = new Middleware(this.cfState, config.cfOpGenerator);
+    this.middleware = new Middleware(this.state, config.cfOpGenerator);
   }
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
@@ -119,7 +119,7 @@ export class CounterfactualVM implements Observable {
       );
     }
 
-    return lookup(this.cfState, data[lookupKey]);
+    return lookup(this.state, data[lookupKey]);
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
@@ -180,7 +180,7 @@ export class CounterfactualVM implements Observable {
   }
 
   public mutateState(state: cf.channel.ChannelStates) {
-    Object.assign(this.cfState.channelStates, state);
+    Object.assign(this.state.channelStates, state);
   }
 
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {

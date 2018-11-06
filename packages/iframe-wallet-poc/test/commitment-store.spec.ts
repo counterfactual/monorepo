@@ -66,7 +66,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
     ).functions.execTransaction.decode(setupTransaction.data);
 
     expect(multisigInput.to.toLowerCase()).toEqual(
-      walletA.currentUser.vm.cfState.networkContext.multiSendAddr
+      walletA.currentUser.vm.state.networkContext.multiSendAddr
     );
   });
 

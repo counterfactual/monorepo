@@ -125,7 +125,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.propose(message, next, context, peer.vm.cfState);
+        return StateTransition.propose(message, next, context, peer.vm.state);
       }
     );
   }
@@ -170,7 +170,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
           throw new Error("Crashing the machine on purpose");
         }
         const cfOpGenerator = new EthCfOpGenerator();
-        return cfOpGenerator.generate(message, next, context, peer.vm.cfState);
+        return cfOpGenerator.generate(message, next, context, peer.vm.state);
       }
     );
   }
@@ -214,7 +214,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.commit(message, next, context, peer.vm.cfState);
+        return StateTransition.commit(message, next, context, peer.vm.state);
       }
     );
   }

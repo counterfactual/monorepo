@@ -1,13 +1,13 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { CfState, Context } from "../../state";
+import { State, Context } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UpdateProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    state: CfState
+    state: State
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const channels = state.stateChannelInfosCopy();

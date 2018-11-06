@@ -1,6 +1,6 @@
 import { Instruction } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
-import { CfState, Context } from "../../state";
+import { State, Context } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
 
 import { PROPOSER_ACTIONS } from "./proposer-actions";
@@ -15,7 +15,7 @@ export class StateTransition {
     message: InternalMessage,
     next: Function,
     context: Context,
-    cfState: CfState
+    state: State
   ): StateProposal {
     const proposer = PROPOSER_ACTIONS[message.actionName];
 
@@ -23,14 +23,14 @@ export class StateTransition {
       throw Error("Action name not supported");
     }
 
-    return proposer.propose(message, context, cfState);
+    return proposer.propose(message, context, state);
   }
 
   public static commit(
     message: InternalMessage,
     next: Function,
     context: Context,
-    cfState: CfState
+    state: State
   ) {
     const newState = getFirstResult(
       Instruction.STATE_TRANSITION_PROPOSE,

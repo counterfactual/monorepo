@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
-import { CfState, Context, StateChannelInfoImpl } from "../../state";
+import { State, Context, StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 
@@ -10,7 +10,7 @@ export class InstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    state: CfState
+    state: State
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: cf.app.InstallData = message.clientMessage.data;
@@ -118,7 +118,7 @@ export class InstallProposer {
   }
 
   private static proposedCfAddress(
-    state: CfState,
+    state: State,
     message: InternalMessage,
     app: cf.app.AppInterface,
     terms: cf.app.Terms,
@@ -152,7 +152,7 @@ export class InstallProposer {
   }
 
   private static nextUniqueId(
-    state: CfState,
+    state: State,
     multisig: cf.utils.Address
   ): number {
     const channel = state.channelStates[multisig];

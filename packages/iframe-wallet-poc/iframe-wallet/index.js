@@ -133,14 +133,14 @@ async function pickUser(pkey) {
 
 function getApps() {
   const openChannelAddress = Object.keys(
-    iframeWallet.currentUser.vm.cfState.channelStates
+    iframeWallet.currentUser.vm.state.channelStates
   )[0];
-  return iframeWallet.currentUser.vm.cfState.channelStates[openChannelAddress]
+  return iframeWallet.currentUser.vm.state.channelStates[openChannelAddress]
     .appChannels;
 }
 
 function getStateChannels() {
-  return iframeWallet.currentUser.vm.cfState.channelStates;
+  return iframeWallet.currentUser.vm.state.channelStates;
 }
 
 async function deployFreeBalanceStateChannel() {
