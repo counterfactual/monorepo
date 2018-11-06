@@ -11,9 +11,10 @@ import {
   Multisig,
   TransferTerms
 } from "../../utils";
-import { generateEthWallets, setupTestEnv } from "../../utils/misc";
+import * as Utils from "../../utils/misc";
 
-const { web3 } = global as any;
+const web3 = (global as any).web3;
+const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
 
 const {
   Registry,
@@ -52,7 +53,6 @@ const commitRevealAppDefinition = AbstractContract.loadBuildArtifact(
   }
 );
 
-const { provider, unlockedAccount: masterAccount } = setupTestEnv(web3);
 const appStateEncoding = abiEncodingForStruct(`
   address[2] playerAddrs;
   uint256 stage;
@@ -77,7 +77,7 @@ async function createMultisig(
 }
 
 async function deployAppDefinition(): Promise<ethers.Contract> {
-  return (await commitRevealAppDefinition).deploy(masterAccount);
+  return (await commitRevealAppDefinition).deploy(unlockedAccount);
 }
 
 async function deployAppInstance(
@@ -85,7 +85,7 @@ async function deployAppInstance(
   appContract: ethers.Contract,
   terms: TransferTerms
 ) {
-  const registry = await (await Registry).getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(unlockedAccount);
   const signers = multisig.owners; // TODO: generate new signing keys for each state channel
   const appInstance = new AppInstance(
     signers,
