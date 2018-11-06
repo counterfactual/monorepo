@@ -4,11 +4,7 @@ import * as ethers from "ethers";
 
 import * as common from "./common";
 import { MultisigTxOp } from "./multisig-tx-op";
-import {
-  MultiSend,
-  MultisigInput,
-  Operation,
-} from "./types";
+import { MultiSend, MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 
