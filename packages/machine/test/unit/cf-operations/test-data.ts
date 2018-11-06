@@ -1,7 +1,10 @@
 import * as ethers from "ethers";
 
 import {
+  CfAppInstance,
   CfAppInterface,
+  CfFreeBalance,
+  CfNonce,
   Terms
 } from "../../../src/middleware/cf-operation/types";
 import { NetworkContext } from "../../../src/utils";
@@ -52,3 +55,24 @@ export const TEST_APP_STATE_HASH = ethers.utils.hexlify(
 );
 export const TEST_LOCAL_NONCE = 0;
 export const TEST_TIMEOUT = 100;
+
+export const TEST_FREE_BALANCE_APP_INSTANCE = new CfAppInstance(
+  TEST_NETWORK_CONTEXT,
+  TEST_MULTISIG_ADDRESS,
+  TEST_PARTICIPANTS,
+  TEST_APP_INTERFACE,
+  TEST_TERMS,
+  TEST_TIMEOUT,
+  0
+);
+
+export const TEST_FREE_BALANCE = new CfFreeBalance(
+  TEST_SIGNING_KEYS[0].address,
+  ethers.utils.parseEther("0.5"),
+  TEST_SIGNING_KEYS[1].address,
+  ethers.utils.parseEther("0.5"),
+  0,
+  10,
+  100,
+  new CfNonce(true, 0, 5)
+);

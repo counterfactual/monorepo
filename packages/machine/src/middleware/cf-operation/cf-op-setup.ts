@@ -19,11 +19,6 @@ import {
 const { keccak256 } = ethers.utils;
 
 export class CfOpSetup extends CfMultiSendOp {
-  /**
-   * Helper method to get hash of an input calldata
-   * @param multisig
-   * @param multisigInput
-   */
   public constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,
