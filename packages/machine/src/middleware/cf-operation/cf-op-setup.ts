@@ -4,13 +4,7 @@ import * as ethers from "ethers";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  MultisigInput,
-  Operation
-} from "./types";
+import { CfAppInstance, MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 
@@ -24,8 +18,8 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly freeBalanceStateChannel: CfAppInstance,
-    readonly freeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly freeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super(networkContext, multisig, freeBalance, dependencyNonce);
     if (dependencyNonce === undefined) {
@@ -41,7 +35,7 @@ export class CfOpSetup extends CfMultiSendOp {
   }
 
   public conditionalTransactionInput(): MultisigInput {
-    const terms = CfFreeBalance.terms();
+    const terms = cf.utils.CfFreeBalance.terms();
 
     const uninstallKey = keccak256(
       cf.utils.abi.encodePacked(

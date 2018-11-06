@@ -3,6 +3,7 @@ import * as machine from "@counterfactual/machine";
 import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
+import { ActionName } from "./node";
 
 type WalletMessage = machine.types.WalletMessage;
 type WalletResponse = machine.types.WalletResponse;
@@ -56,7 +57,7 @@ export class Client implements Observable {
   public async queryUser(): Promise<machine.types.UserDataClientResponse> {
     const userQuery: machine.types.ClientQuery = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.QUERY,
+      action: ActionName.QUERY,
       query: machine.types.ClientQueryType.User
     };
     return (await this.sendMessage(
@@ -68,7 +69,7 @@ export class Client implements Observable {
     this.ioHandler = callback;
     this.sendMessage({
       requestId: this.requestId(),
-      action: machine.types.ActionName.REGISTER_IO
+      action: ActionName.REGISTER_IO
     });
   }
 
@@ -80,7 +81,7 @@ export class Client implements Observable {
 
   public receiveIOMessage(msg: machine.types.ClientMessage) {
     const message = {
-      action: machine.types.ActionName.RECEIVE_IO,
+      action: ActionName.RECEIVE_IO,
       data: msg,
       requestId: this.requestId()
     };
@@ -153,7 +154,7 @@ export class Client implements Observable {
 
     const message = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.ADD_OBSERVER,
+      action: ActionName.ADD_OBSERVER,
       data: {
         observerId,
         notificationType
@@ -183,7 +184,7 @@ export class Client implements Observable {
 
     const message = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.REMOVE_OBSERVER,
+      action: ActionName.REMOVE_OBSERVER,
       data: {
         observerId,
         notificationType
@@ -202,7 +203,7 @@ export class Client implements Observable {
       data: { multisigAddress, generatedNewMultisig }
     } = await this.sendMessage({
       requestId: this.requestId(),
-      action: machine.types.ActionName.CONNECT,
+      action: ActionName.CONNECT,
       data: {
         toAddress
       }
@@ -221,7 +222,7 @@ export class Client implements Observable {
       toAddress,
       requestId: this.requestId(),
       appId: undefined,
-      action: machine.types.ActionName.SETUP,
+      action: ActionName.SETUP,
       data: {},
       fromAddress: this.address,
       stateChannel: undefined,

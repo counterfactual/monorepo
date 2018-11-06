@@ -1,9 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Context } from "../../src/state";
-import {
-  ActionName,
-  ClientActionMessage,
-  InternalMessage
-} from "../../src/types";
+import { ClientActionMessage, InternalMessage } from "../../src/types";
 
 import { TestResponseSink } from "./test-response-sink";
 
@@ -143,8 +141,8 @@ export class TestIOProvider {
     let appId: string = "";
 
     if (
-      message.actionName === ActionName.SETUP ||
-      message.actionName === ActionName.INSTALL
+      message.actionName === cf.node.ActionName.SETUP ||
+      message.actionName === cf.node.ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {

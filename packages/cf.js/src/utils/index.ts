@@ -1,9 +1,19 @@
 import * as abi from "./abi";
+import { CfFreeBalance } from "./free-balance";
 import { NetworkContext } from "./network-context";
+import { CfNonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
 import { Signature } from "./signature";
 
-export { abi, CanonicalPeerBalance, PeerBalance, Signature, NetworkContext };
+export {
+  abi,
+  CanonicalPeerBalance,
+  CfFreeBalance,
+  CfNonce,
+  NetworkContext,
+  PeerBalance,
+  Signature
+};
 
 /**
  * Aliases to help code readability.

@@ -1,5 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Action, ActionExecution } from "../../src/action";
-import { ActionName, ClientActionMessage } from "../../src/types";
+import { ClientActionMessage } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -38,12 +40,16 @@ describe("Write ahead log", () => {
 function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
 
-  const actions = [ActionName.INSTALL, ActionName.UPDATE, ActionName.UNINSTALL];
+  const actions = [
+    cf.node.ActionName.INSTALL,
+    cf.node.ActionName.UPDATE,
+    cf.node.ActionName.UNINSTALL
+  ];
 
   const msgs: ClientActionMessage[] = [
     {
       requestId: "1",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",
@@ -52,7 +58,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
     },
     {
       requestId: "2",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",
@@ -61,7 +67,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
     },
     {
       requestId: "3",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",

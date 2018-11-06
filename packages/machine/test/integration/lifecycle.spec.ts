@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { ActionName, ClientActionMessage } from "../../src/types";
+import { ClientActionMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
@@ -162,7 +162,7 @@ class Depositor {
     return {
       requestId: "1",
       appId: "",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -267,7 +267,7 @@ class Depositor {
     return {
       appId,
       requestId: "2",
-      action: ActionName.UNINSTALL,
+      action: cf.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: from,
@@ -336,7 +336,7 @@ class TicTacToeSimulator {
     return {
       requestId: "5",
       appId: "",
-      action: ActionName.INSTALL,
+      action: cf.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -447,7 +447,7 @@ class TicTacToeSimulator {
     return {
       requestId: "1",
       appId: cfAddr,
-      action: ActionName.UPDATE,
+      action: cf.node.ActionName.UPDATE,
       data: updateData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -520,7 +520,7 @@ class TicTacToeSimulator {
     return {
       requestId: "2",
       appId: cfAddr,
-      action: ActionName.UNINSTALL,
+      action: cf.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: addressA,

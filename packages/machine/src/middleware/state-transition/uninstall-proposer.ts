@@ -2,7 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
-import { CfFreeBalance } from "../cf-operation/types";
 
 export class UninstallProposer {
   public static propose(
@@ -25,7 +24,7 @@ export class UninstallProposer {
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new CfFreeBalance(
+    const newFreeBalance = new cf.utils.CfFreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,

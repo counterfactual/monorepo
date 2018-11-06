@@ -6,8 +6,6 @@ import * as ethers from "ethers";
 import * as common from "./common";
 import {
   CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
   CfOperation,
   MultiSend,
   MultisigInput,
@@ -21,8 +19,8 @@ export abstract class CfMultiSendOp extends CfOperation {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly cfFreeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super();
   }
@@ -72,8 +70,8 @@ export abstract class CfMultiSendOp extends CfOperation {
   }
 
   public freeBalanceData(): cf.utils.Bytes {
-    const terms = CfFreeBalance.terms();
-    const app = CfFreeBalance.contractInterface(this.networkContext);
+    const terms = cf.utils.CfFreeBalance.terms();
+    const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
     const freeBalanceCfAddress = new CfAppInstance(
       this.networkContext,
       this.multisig,

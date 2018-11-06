@@ -3,7 +3,6 @@ import * as ethers from "ethers";
 
 import { StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
-import { CfFreeBalance, CfNonce } from "../cf-operation/types";
 
 const FREE_BALANCE_TIMEOUT = 100;
 /**
@@ -30,7 +29,7 @@ export class SetupProposer {
       ethers.utils.bigNumberify(0)
     );
     const localNonce = 0;
-    const freeBalance = new CfFreeBalance(
+    const freeBalance = new cf.utils.CfFreeBalance(
       balances.peerA.address,
       balances.peerA.balance,
       balances.peerB.address,
@@ -38,7 +37,7 @@ export class SetupProposer {
       FREE_BALANCE_UNIQUE_ID,
       localNonce,
       FREE_BALANCE_TIMEOUT,
-      new CfNonce(false, FREE_BALANCE_UNIQUE_ID, 0)
+      new cf.utils.CfNonce(false, FREE_BALANCE_UNIQUE_ID, 0)
     );
     const stateChannel = new StateChannelInfoImpl(
       toAddress,

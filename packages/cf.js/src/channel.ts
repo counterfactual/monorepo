@@ -2,11 +2,14 @@ import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+import { AppInstanceInfos } from "./app";
 import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import * as types from "./types";
+import { Address, CfFreeBalance } from "./utils";
+import { ActionName } from "./node";
 
 export class Channel {
   public client: Client;
@@ -88,7 +91,7 @@ export class Channel {
       requestId,
       appName: name,
       appId: undefined,
-      action: machine.types.ActionName.INSTALL,
+      action: ActionName.INSTALL,
       data: installData,
       multisigAddress: this.multisigAddress,
       toAddress: this.toAddress,
@@ -127,7 +130,7 @@ export class Channel {
   > {
     const freeBalanceQuery: machine.types.ClientQuery = {
       requestId: this.client.requestId(),
-      action: machine.types.ActionName.QUERY,
+      action: ActionName.QUERY,
       query: machine.types.ClientQueryType.FreeBalance,
       multisigAddress: this.multisigAddress
     };
@@ -142,7 +145,7 @@ export class Channel {
     machine.types.StateChannelDataClientResponse
   > {
     const stateChannelQuery: machine.types.ClientQuery = {
-      action: machine.types.ActionName.QUERY,
+      action: ActionName.QUERY,
       requestId: this.client.requestId(),
       query: machine.types.ClientQueryType.StateChannel,
       multisigAddress: this.multisigAddress
@@ -172,7 +175,7 @@ export class Channel {
 
   private async depositToMultisig(value: ethers.utils.BigNumber) {
     const depositMessage = {
-      action: machine.types.ActionName.DEPOSIT,
+      action: ActionName.DEPOSIT,
       requestId: this.client.requestId(),
       data: {
         value,
@@ -182,4 +185,29 @@ export class Channel {
 
     await this.client.sendMessage(depositMessage);
   }
+}
+
+export interface StateChannelInfo {
+  counterParty: Address;
+  me: Address;
+  multisigAddress: Address;
+  appChannels: AppInstanceInfos;
+  freeBalance: CfFreeBalance;
+
+  // TODO: Move this out of the datastructure
+  // https://github.com/counterfactual/monorepo/issues/127
+  /**
+   * @returns the addresses of the owners of this state channel sorted
+   *          in alphabetical order.
+   */
+  owners(): string[];
+}
+
+export interface StateChannelInfos {
+  [s: string]: StateChannelInfo;
+}
+
+// Tree of all the stateChannel and appChannel state
+export interface ChannelStates {
+  [s: string]: StateChannelInfo;
 }

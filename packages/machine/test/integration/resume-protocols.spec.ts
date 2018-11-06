@@ -1,14 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Instruction, instructions } from "../../src/instructions";
 import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { Context } from "../../src/state";
-import {
-  ActionName,
-  ClientActionMessage,
-  InternalMessage
-} from "../../src/types";
+import { ClientActionMessage, InternalMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -95,7 +92,7 @@ abstract class SetupProtocolTestCase {
     return {
       requestId: "0",
       appId: undefined,
-      action: ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: A_ADDRESS,
@@ -141,7 +138,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
     expect(JSON.stringify(setupInstructions)).toEqual(
@@ -186,7 +183,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
     expect(JSON.stringify(setupInstructions)).toEqual(
@@ -230,7 +227,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
     expect(JSON.stringify(setupInstructions)).toEqual(

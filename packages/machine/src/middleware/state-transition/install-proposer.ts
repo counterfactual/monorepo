@@ -3,8 +3,8 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
-import { AppInstanceInfo, InternalMessage, StateProposal } from "../../types";
-import { CfAppInstance, CfFreeBalance, CfNonce } from "../cf-operation/types";
+import { InternalMessage, StateProposal } from "../../types";
+import { CfAppInstance } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
 
 export class InstallProposer {
@@ -48,7 +48,7 @@ export class InstallProposer {
       uniqueId
     );
     const [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
-    const freeBalance = new CfFreeBalance(
+    const freeBalance = new cf.utils.CfFreeBalance(
       peerA.address,
       peerA.balance,
       peerB.address,
@@ -101,7 +101,7 @@ export class InstallProposer {
     terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
-  ): AppInstanceInfo {
+  ): cf.app.AppInstanceInfo {
     return {
       uniqueId,
       terms,
@@ -114,7 +114,7 @@ export class InstallProposer {
       localNonce: 1,
       timeout: data.timeout,
       cfApp: app,
-      dependencyNonce: new CfNonce(false, uniqueId, 0)
+      dependencyNonce: new cf.utils.CfNonce(false, uniqueId, 0)
     };
   }
 
@@ -138,7 +138,7 @@ export class InstallProposer {
   }
 
   private static newPeers(
-    existingFreeBalance: CfFreeBalance,
+    existingFreeBalance: cf.utils.CfFreeBalance,
     data: cf.app.InstallData
   ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
     const peerA = new cf.utils.PeerBalance(

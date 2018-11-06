@@ -4,10 +4,9 @@ import * as _ from "lodash";
 
 import {
   CfAppInstance,
-  CfFreeBalance,
   Transaction
 } from "../../src/middleware/cf-operation/types";
-import { ActionName, ClientActionMessage } from "../../src/types";
+import { ClientActionMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {
@@ -126,9 +125,11 @@ describe("Setup Protocol", async () => {
       txFeeB: depositTxFeeB
     } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
 
-    const app = CfFreeBalance.contractInterface(devEnvNetworkContext7777777);
+    const app = cf.utils.CfFreeBalance.contractInterface(
+      devEnvNetworkContext7777777
+    );
 
-    const terms = CfFreeBalance.terms();
+    const terms = cf.utils.CfFreeBalance.terms();
 
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
@@ -152,7 +153,7 @@ describe("Setup Protocol", async () => {
 
     const uninstallTx: Transaction = await walletA.store.getTransaction(
       balanceRefundAppId,
-      ActionName.UNINSTALL
+      cf.node.ActionName.UNINSTALL
     );
 
     await ethersMasterWallet.sendTransaction({
@@ -224,7 +225,7 @@ describe("Setup Protocol", async () => {
 
     const setupTx: Transaction = await walletA.store.getTransaction(
       multisig.address,
-      ActionName.SETUP
+      cf.node.ActionName.SETUP
     );
 
     await ethersMasterWallet.sendTransaction({
@@ -280,7 +281,7 @@ function setupStartMsg(
     multisigAddress,
     requestId: "0",
     appId: "",
-    action: ActionName.SETUP,
+    action: cf.node.ActionName.SETUP,
     data: {},
     toAddress: to,
     fromAddress: from,
@@ -528,7 +529,7 @@ function startInstallBalanceRefundMsg(
   return {
     requestId: "1",
     appId: "",
-    action: ActionName.INSTALL,
+    action: cf.node.ActionName.INSTALL,
     data: installData,
     multisigAddress: multisigAddr,
     toAddress: to,
@@ -627,7 +628,7 @@ function startUninstallBalanceRefundMsg(
   return {
     appId,
     requestId: "2",
-    action: ActionName.UNINSTALL,
+    action: cf.node.ActionName.UNINSTALL,
     data: uninstallData,
     multisigAddress: multisigAddr,
     fromAddress: from,

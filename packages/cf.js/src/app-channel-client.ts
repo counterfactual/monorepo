@@ -2,6 +2,7 @@ import * as machine from "@counterfactual/machine";
 
 import { CfAppInterface } from "./app";
 import { Channel } from "./channel";
+import { ActionName } from "./node";
 
 export class AppChannelClient {
   public stateChannel: Channel;
@@ -34,7 +35,7 @@ export class AppChannelClient {
       requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
-      action: machine.types.ActionName.UPDATE,
+      action: ActionName.UPDATE,
       data: updateData,
       multisigAddress: this.stateChannel.multisigAddress,
       fromAddress: this.stateChannel.fromAddress,
@@ -62,7 +63,7 @@ export class AppChannelClient {
       requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
-      action: machine.types.ActionName.UNINSTALL,
+      action: ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: this.stateChannel.multisigAddress,
       fromAddress: this.stateChannel.fromAddress,

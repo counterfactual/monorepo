@@ -3,7 +3,6 @@ import * as cf from "@counterfactual/cf.js";
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
-  ActionName,
   ClientActionMessage,
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -172,7 +171,7 @@ export class NextMsgGenerator {
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     if (
-      internalMessage.actionName === ActionName.INSTALL &&
+      internalMessage.actionName === cf.node.ActionName.INSTALL &&
       lastMsg.seq === 0
     ) {
       return undefined;

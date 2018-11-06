@@ -1,7 +1,9 @@
 import * as ethers from "ethers";
 
+import { StateChannelInfo } from "../channel";
 import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import * as abi from "../utils/abi";
+import { CfNonce } from "../utils/nonce";
 
 export class CfAppInterface {
   public static generateSighash(
@@ -111,4 +113,32 @@ export interface InstallOptions {
   state: object;
   peerABalance: ethers.utils.BigNumber;
   peerBBalance: ethers.utils.BigNumber;
+}
+
+export interface AppInstanceInfo {
+  // cf address
+  id: H256;
+  // used to generate cf address
+  uniqueId: number;
+  peerA: PeerBalance;
+  peerB: PeerBalance;
+  // ephemeral keys
+  keyA?: Address;
+  keyB?: Address;
+  encodedState: any;
+  appState?: any;
+  appStateHash?: H256;
+  localNonce: number;
+  timeout: number;
+  terms: Terms;
+  cfApp: CfAppInterface;
+  dependencyNonce: CfNonce;
+
+  // TODO: Move this into a method that is outside the data structure
+  // https://github.com/counterfactual/monorepo/issues/126
+  stateChannel?: StateChannelInfo;
+}
+
+export interface AppInstanceInfos {
+  [s: string]: AppInstanceInfo;
 }

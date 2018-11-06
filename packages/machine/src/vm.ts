@@ -9,11 +9,9 @@ import { CfState } from "./state";
 import {
   Addressable,
   AddressableLookupResolverHash,
-  ChannelStates,
   ClientActionMessage,
   InstructionMiddlewareCallback,
   ResponseSink,
-  StateChannelInfo,
   WalletResponse
 } from "./types";
 import { Log } from "./write-ahead-log";
@@ -23,7 +21,7 @@ export class CfVmConfig {
     readonly responseHandler: ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
     readonly network: cf.utils.NetworkContext,
-    readonly state?: ChannelStates
+    readonly state?: cf.channel.ChannelStates
   ) {}
 }
 
@@ -112,7 +110,9 @@ export class CounterfactualVM implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
+  public getStateChannelFromAddressable(
+    data: Addressable
+  ): cf.channel.StateChannelInfo {
     const [lookupKey] = Object.keys(data).filter(key => Boolean(data[key]));
     const lookup = ADDRESSABLE_LOOKUP_RESOLVERS[lookupKey];
 
@@ -176,7 +176,7 @@ export class CounterfactualVM implements Observable {
     }
   }
 
-  public mutateState(state: ChannelStates) {
+  public mutateState(state: cf.channel.ChannelStates) {
     Object.assign(this.cfState.channelStates, state);
   }
 

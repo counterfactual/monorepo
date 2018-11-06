@@ -3,14 +3,14 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
-import { ActionName, InternalMessage } from "../../types";
+import { InternalMessage } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfAppInstance, CfFreeBalance, CfOperation } from "./types";
+import { CfAppInstance, CfOperation } from "./types";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -30,11 +30,11 @@ export class EthCfOpGenerator extends CfOpGenerator {
       context.results
     ).value;
     let op;
-    if (message.actionName === ActionName.UPDATE) {
+    if (message.actionName === cf.node.ActionName.UPDATE) {
       op = this.update(message, context, cfState, proposedState.state);
-    } else if (message.actionName === ActionName.SETUP) {
+    } else if (message.actionName === cf.node.ActionName.SETUP) {
       op = this.setup(message, context, cfState, proposedState.state);
-    } else if (message.actionName === ActionName.INSTALL) {
+    } else if (message.actionName === cf.node.ActionName.INSTALL) {
       op = this.install(
         message,
         context,
@@ -42,7 +42,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
         proposedState.state,
         proposedState.cfAddr
       );
-    } else if (message.actionName === ActionName.UNINSTALL) {
+    } else if (message.actionName === cf.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, cfState, proposedState.state);
     }
     return op;
@@ -111,9 +111,10 @@ export class EthCfOpGenerator extends CfOpGenerator {
     proposedSetup: any
   ): CfOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const freeBalance: CfFreeBalance = proposedSetup[multisig].freeBalance;
+    const freeBalance: cf.utils.CfFreeBalance =
+      proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
-    const cfFreeBalance = new CfFreeBalance(
+    const cfFreeBalance = new cf.utils.CfFreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -132,8 +133,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
       cfState.networkContext,
       multisig,
       signingKeys,
-      CfFreeBalance.contractInterface(cfState.networkContext),
-      CfFreeBalance.terms(),
+      cf.utils.CfFreeBalance.contractInterface(cfState.networkContext),
+      cf.utils.CfFreeBalance.terms(),
       freeBalance.timeout,
       freeBalance.uniqueId
     );
@@ -170,7 +171,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
-    const cfFreeBalance = new CfFreeBalance(
+    const cfFreeBalance = new cf.utils.CfFreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -206,7 +207,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appChannels[cfAddr];
 
-    const cfFreeBalance = new CfFreeBalance(
+    const cfFreeBalance = new cf.utils.CfFreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,

@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { ActionName, ClientActionMessage } from "../../src/types";
+import { ClientActionMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 
@@ -33,7 +33,7 @@ export class SetupProtocol {
     return {
       requestId: "0",
       appId: "",
-      action: ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,

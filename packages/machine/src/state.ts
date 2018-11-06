@@ -1,34 +1,29 @@
 import * as cf from "@counterfactual/cf.js";
 import lodash from "lodash";
 
-import { CfFreeBalance } from "./middleware/cf-operation/types";
 import { deserialize } from "./serializer";
-import {
-  AppInstanceInfo,
-  AppInstanceInfos,
-  ChannelStates,
-  OpCodeResult,
-  StateChannelInfo,
-  StateChannelInfos
-} from "./types";
+import { OpCodeResult } from "./types";
 import { CounterfactualVM } from "./vm";
 
 export class CfState {
-  public channelStates: ChannelStates;
+  public channelStates: cf.channel.ChannelStates;
   public networkContext: cf.utils.NetworkContext;
 
-  constructor(channelStates: ChannelStates, network: cf.utils.NetworkContext) {
+  constructor(
+    channelStates: cf.channel.ChannelStates,
+    network: cf.utils.NetworkContext
+  ) {
     this.channelStates = channelStates;
     this.networkContext = network;
   }
 
-  public stateChannel(multisig: cf.utils.Address): StateChannelInfo {
+  public stateChannel(multisig: cf.utils.Address): cf.channel.StateChannelInfo {
     return this.channelStates[multisig];
   }
 
   public stateChannelFromAddress(
     toAddress: cf.utils.Address
-  ): StateChannelInfo {
+  ): cf.channel.StateChannelInfo {
     const multisig = lodash.keys(this.channelStates).find(ms => {
       return this.channelStates[ms].me === toAddress;
     });
@@ -41,7 +36,7 @@ export class CfState {
 
   public stateChannelFromMultisigAddress(
     multisigAddress: cf.utils.Address
-  ): StateChannelInfo {
+  ): cf.channel.StateChannelInfo {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress];
@@ -52,17 +47,19 @@ export class CfState {
   public app(
     multisig: cf.utils.Address,
     cfAddr: cf.utils.H256
-  ): AppInstanceInfo {
+  ): cf.app.AppInstanceInfo {
     return this.channelStates[multisig].appChannels[cfAddr];
   }
 
-  public freeBalanceFromAddress(toAddress: cf.utils.Address): CfFreeBalance {
+  public freeBalanceFromAddress(
+    toAddress: cf.utils.Address
+  ): cf.utils.CfFreeBalance {
     return this.stateChannelFromAddress(toAddress).freeBalance;
   }
 
   public freeBalanceFromMultisigAddress(
     multisigAddress: cf.utils.Address
-  ): CfFreeBalance {
+  ): cf.utils.CfFreeBalance {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress].freeBalance;
@@ -73,11 +70,11 @@ export class CfState {
   /**
    * @returns a deep copy of the StateChannelInfos.
    */
-  public stateChannelInfosCopy(): StateChannelInfos {
+  public stateChannelInfosCopy(): cf.channel.StateChannelInfos {
     return deserialize(lodash.cloneDeep(this.channelStates));
   }
 
-  public appChannelInfos(): AppInstanceInfos {
+  public appChannelInfos(): cf.app.AppInstanceInfos {
     const infos = {};
     for (const channel of lodash.keys(this.channelStates)) {
       for (const appChannel of lodash.keys(
@@ -90,13 +87,13 @@ export class CfState {
   }
 }
 
-export class StateChannelInfoImpl implements StateChannelInfo {
+export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
   constructor(
     readonly counterParty: cf.utils.Address,
     readonly me: cf.utils.Address,
     readonly multisigAddress: cf.utils.Address,
-    readonly appChannels: AppInstanceInfos = {},
-    readonly freeBalance: CfFreeBalance
+    readonly appChannels: cf.app.AppInstanceInfos = {},
+    readonly freeBalance: cf.utils.CfFreeBalance
   ) {}
 
   /**

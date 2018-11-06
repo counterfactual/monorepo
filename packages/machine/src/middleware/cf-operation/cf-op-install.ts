@@ -3,21 +3,15 @@ import ConditionalTransactionJson from "@counterfactual/contracts/build/contract
 import * as ethers from "ethers";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  MultisigInput,
-  Operation
-} from "./types";
+import { CfAppInstance, MultisigInput, Operation } from "./types";
 
 export class CfOpInstall extends CfMultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly app: CfAppInstance,
-    readonly cfFreeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly cfFreeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
