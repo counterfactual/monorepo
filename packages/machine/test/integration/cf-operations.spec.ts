@@ -1,4 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
+import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
@@ -11,10 +14,6 @@ import {
   B_PRIVATE_KEY,
   UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY
 } from "../utils/environment";
-
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 
 import { TestResponseSink } from "./test-response-sink";
 

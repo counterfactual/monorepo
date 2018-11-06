@@ -2,19 +2,13 @@ import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import { CfMultiSendOp } from "./cf-multisend-op";
-
+import { MultisigTxOp } from "./multisig-tx-op";
 import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export class CfOpSetup extends CfMultiSendOp {
-  /**
-   * Helper method to get hash of an input calldata
-   * @param multisig
-   * @param multisigInput
-   */
+export class CfOpSetup extends MultisigTxOp {
   public constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
@@ -22,20 +16,13 @@ export class CfOpSetup extends CfMultiSendOp {
     readonly freeBalance: cf.utils.CfFreeBalance,
     readonly dependencyNonce: cf.utils.CfNonce
   ) {
-    super(networkContext, multisig, freeBalance, dependencyNonce);
+    super(multisig, freeBalance);
     if (dependencyNonce === undefined) {
       throw new Error("Undefined dependency nonce");
     }
   }
 
-  /**
-   * @override common.CfMultiSendOp
-   */
-  public eachMultisigInput(): MultisigInput[] {
-    return [this.conditionalTransactionInput()];
-  }
-
-  public conditionalTransactionInput(): MultisigInput {
+  multisigInput(): MultisigInput {
     const terms = cf.utils.CfFreeBalance.terms();
 
     const uninstallKey = keccak256(
