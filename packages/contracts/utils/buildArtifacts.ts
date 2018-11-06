@@ -9,36 +9,36 @@
 import { AbstractContract } from "./contract";
 
 // tslint:disable-next-line
-export const ConditionalTransaction = AbstractContract.loadBuildArtifact(
+export const ConditionalTransaction = AbstractContract.fromArtifactName(
   "ConditionalTransaction"
 );
 
 // tslint:disable-next-line
-export const NonceRegistry = AbstractContract.loadBuildArtifact(
+export const NonceRegistry = AbstractContract.fromArtifactName(
   "NonceRegistry"
 );
 
 // tslint:disable-next-line
-export const Registry = AbstractContract.loadBuildArtifact("Registry");
+export const Registry = AbstractContract.fromArtifactName("Registry");
 
 // tslint:disable-next-line
-export const StaticCall = AbstractContract.loadBuildArtifact("StaticCall");
+export const StaticCall = AbstractContract.fromArtifactName("StaticCall");
 
 // tslint:disable-next-line
-export const Signatures = AbstractContract.loadBuildArtifact("Signatures");
+export const Signatures = AbstractContract.fromArtifactName("Signatures");
 
 // tslint:disable-next-line
-export const Transfer = AbstractContract.loadBuildArtifact("Transfer");
+export const Transfer = AbstractContract.fromArtifactName("Transfer");
 
 // tslint:disable-next-line
-export const AppInstance = AbstractContract.loadBuildArtifact("AppInstance", {
+export const AppInstance = AbstractContract.fromArtifactName("AppInstance", {
   StaticCall,
   Signatures,
   Transfer
 });
 
 // tslint:disable-next-line
-export const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
+export const MinimumViableMultisig = AbstractContract.fromArtifactName(
   "MinimumViableMultisig",
   {
     Signatures
@@ -46,12 +46,12 @@ export const MinimumViableMultisig = AbstractContract.loadBuildArtifact(
 );
 
 export default {
+  AppInstance,
   ConditionalTransaction,
+  MinimumViableMultisig,
   NonceRegistry,
   Registry,
-  StaticCall,
-  MinimumViableMultisig,
   Signatures,
+  StaticCall,
   Transfer,
-  AppInstance
 };

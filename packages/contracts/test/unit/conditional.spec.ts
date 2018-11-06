@@ -12,14 +12,14 @@ contract("Conditional", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const conditional = await AbstractContract.loadBuildArtifact(
+    const staticCall = AbstractContract.fromArtifactName("StaticCall");
+    const conditional = await AbstractContract.fromArtifactName(
       "Conditional",
       {
         StaticCall: staticCall
       }
     );
-    const exampleCondition = await AbstractContract.loadBuildArtifact(
+    const exampleCondition = await AbstractContract.fromArtifactName(
       "ExampleCondition"
     );
     example = await exampleCondition.deploy(unlockedAccount);

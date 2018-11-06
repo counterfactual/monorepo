@@ -77,7 +77,7 @@ contract("PaymentApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
+    const paymentApp = await AbstractContract.fromArtifactName("PaymentApp");
     pc = await paymentApp.deploy(unlockedAccount);
 
     // Specifically for the AppInstance

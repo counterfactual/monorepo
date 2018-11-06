@@ -21,17 +21,17 @@ contract("Transfer", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const transferArtifact = AbstractContract.loadBuildArtifact("Transfer");
-    const exampleTransfer = await AbstractContract.loadBuildArtifact(
+    const transferArtifact = AbstractContract.fromArtifactName("Transfer");
+    const exampleTransfer = await AbstractContract.fromArtifactName(
       "ExampleTransfer",
       {
         Transfer: transferArtifact
       }
     );
-    const delegateProxyArtifact = await AbstractContract.loadBuildArtifact(
+    const delegateProxyArtifact = await AbstractContract.fromArtifactName(
       "DelegateProxy"
     );
-    const dolphinCoinArtifact = await AbstractContract.loadBuildArtifact(
+    const dolphinCoinArtifact = await AbstractContract.fromArtifactName(
       "DolphinCoin"
     );
     transfer = await exampleTransfer.deploy(unlockedAccount);

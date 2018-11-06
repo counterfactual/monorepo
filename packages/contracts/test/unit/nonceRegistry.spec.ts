@@ -17,7 +17,7 @@ contract("NonceRegistry", accounts => {
 
   // @ts-ignore
   before(async () => {
-    const nonceRegistry = await AbstractContract.loadBuildArtifact(
+    const nonceRegistry = await AbstractContract.fromArtifactName(
       "NonceRegistry"
     );
     registry = await nonceRegistry.deploy(unlockedAccount);

@@ -46,7 +46,7 @@ enum Player {
 }
 
 const { parseEther } = ethers.utils;
-const commitRevealAppDefinition = AbstractContract.loadBuildArtifact(
+const commitRevealAppDefinition = AbstractContract.fromArtifactName(
   "CommitRevealApp",
   {
     StaticCall
