@@ -1,3 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Instruction } from "../../src/instructions";
 import {
   CfOperation,
@@ -5,12 +7,7 @@ import {
 } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
-import {
-  ActionName,
-  ClientActionMessage,
-  InternalMessage
-} from "../../src/types";
-import { Signature } from "../../src/utils/signature";
+import { InternalMessage } from "../../src/types";
 
 import {
   InMemoryKeyValueStore,
@@ -19,17 +16,17 @@ import {
 
 interface Commitments {
   appId: string;
-  commitments: Map<ActionName, Transaction>;
+  commitments: Map<cf.node.ActionName, Transaction>;
 
   addCommitment(
-    action: ActionName,
+    action: cf.node.ActionName,
     cfOperation: CfOperation,
-    signatures: Signature[]
+    signatures: cf.utils.Signature[]
   );
 
-  hasCommitment(action: ActionName);
+  hasCommitment(action: cf.node.ActionName);
 
-  getTransaction(action: ActionName);
+  getTransaction(action: cf.node.ActionName);
 }
 
 /**
@@ -42,11 +39,11 @@ export class AppCommitments implements Commitments {
     appId: string,
     serializedCommitments: string
   ): AppCommitments {
-    const commitments = new Map<ActionName, Transaction>();
+    const commitments = new Map<cf.node.ActionName, Transaction>();
     const commitmentObjects = new Map(JSON.parse(serializedCommitments));
     commitmentObjects.forEach((commitment: any, action) => {
       commitments.set(
-        action as ActionName,
+        action as cf.node.ActionName,
         new Transaction(commitment.to, commitment.value, commitment.data)
       );
     });
@@ -54,11 +51,11 @@ export class AppCommitments implements Commitments {
   }
 
   public readonly appId: string;
-  public readonly commitments: Map<ActionName, Transaction>;
+  public readonly commitments: Map<cf.node.ActionName, Transaction>;
 
   constructor(
     appId: string,
-    commitments: Map<ActionName, Transaction> = new Map()
+    commitments: Map<cf.node.ActionName, Transaction> = new Map()
   ) {
     this.appId = appId;
     this.commitments = commitments;
@@ -71,12 +68,12 @@ export class AppCommitments implements Commitments {
    * @param signatures
    */
   public async addCommitment(
-    action: ActionName,
+    action: cf.node.ActionName,
     cfOperation: CfOperation,
-    signatures: Signature[]
+    signatures: cf.utils.Signature[]
   ) {
     const commitment = cfOperation.transaction(signatures);
-    if (action !== ActionName.UPDATE && this.commitments.has(action)) {
+    if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
       // https://github.com/counterfactual/monorepo/issues/101
@@ -89,7 +86,7 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public async hasCommitment(action: ActionName): Promise<boolean> {
+  public async hasCommitment(action: cf.node.ActionName): Promise<boolean> {
     return this.commitments.has(action);
   }
 
@@ -97,7 +94,9 @@ export class AppCommitments implements Commitments {
    * Gets an action's commitment for this app
    * @param action
    */
-  public async getTransaction(action: ActionName): Promise<Transaction> {
+  public async getTransaction(
+    action: cf.node.ActionName
+  ): Promise<Transaction> {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
@@ -109,7 +108,7 @@ export class AppCommitments implements Commitments {
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
     // https://github.com/counterfactual/monorepo/issues/100
-    const pairs: [ActionName, Transaction][] = [];
+    const pairs: [cf.node.ActionName, Transaction][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });
@@ -147,7 +146,7 @@ export class TestCommitmentStore {
     context: Context
   ) {
     let appId;
-    const action: ActionName = internalMessage.actionName;
+    const action: cf.node.ActionName = internalMessage.actionName;
     const op: CfOperation = getFirstResult(
       Instruction.OP_GENERATE,
       context.results
@@ -156,9 +155,9 @@ export class TestCommitmentStore {
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
 
-    if (action === ActionName.SETUP) {
+    if (action === cf.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
-    } else if (action === ActionName.INSTALL) {
+    } else if (action === cf.node.ActionName.INSTALL) {
       const proposal = getFirstResult(
         Instruction.STATE_TRANSITION_PROPOSE,
         context.results
@@ -176,7 +175,7 @@ export class TestCommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: Signature = getFirstResult(
+    const signature: cf.utils.Signature = getFirstResult(
       Instruction.OP_SIGN,
       context.results
     ).value;
@@ -195,9 +194,9 @@ export class TestCommitmentStore {
     }
 
     const sigs = [signature, counterpartySignature].map(sig => {
-      if (!(sig instanceof Signature)) {
+      if (!(sig instanceof cf.utils.Signature)) {
         const { v, r, s } = sig as any;
-        return new Signature(v, r, s);
+        return new cf.utils.Signature(v, r, s);
       }
       return sig;
     });
@@ -213,8 +212,8 @@ export class TestCommitmentStore {
   public incomingMessage(
     internalMessage: InternalMessage,
     context: Context
-  ): ClientActionMessage | null {
-    if (internalMessage.actionName === ActionName.INSTALL) {
+  ): cf.node.ClientActionMessage | null {
+    if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return getLastResult(Instruction.IO_WAIT, context.results).value;
     }
     const incomingMessageResult = getLastResult(
@@ -239,7 +238,7 @@ export class TestCommitmentStore {
    */
   public async getTransaction(
     appId: string,
-    action: ActionName
+    action: cf.node.ActionName
   ): Promise<Transaction> {
     if (!this.store.has(appId)) {
       throw Error("Invalid app id");
@@ -262,7 +261,7 @@ export class TestCommitmentStore {
 
   public async appHasCommitment(
     appId: string,
-    action: ActionName
+    action: cf.node.ActionName
   ): Promise<boolean> {
     const appCommitments = AppCommitments.deserialize(
       appId,

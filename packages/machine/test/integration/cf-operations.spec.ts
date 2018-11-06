@@ -1,21 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import * as abi from "../../src/abi";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfFreeBalance,
-  Terms,
-  Transaction
-} from "../../src/middleware/cf-operation/types";
-import { ActionName, ClientActionMessage, InstallData } from "../../src/types";
-import { NetworkContext } from "../../src/utils/network-context";
-import { PeerBalance } from "../../src/utils/peer-balance";
-import { ResponseStatus } from "../../src/vm";
+import { Transaction } from "../../src/middleware/cf-operation/types";
 import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
@@ -31,11 +21,13 @@ import { TestResponseSink } from "./test-response-sink";
 // https://github.com/counterfactual/monorepo/issues/103
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
+const { abi } = cf.utils;
+
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
   let networkMap;
-  let devEnvNetworkContext7777777: NetworkContext;
+  let devEnvNetworkContext7777777: cf.utils.NetworkContext;
 
   beforeAll(() => {
     // This `require` statement is explicitly in side the `beforeAll` and not at the file
@@ -48,7 +40,7 @@ describe("Setup Protocol", async () => {
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
-    devEnvNetworkContext7777777 = new NetworkContext(
+    devEnvNetworkContext7777777 = new cf.utils.NetworkContext(
       networkMap["Registry"],
       networkMap["PaymentApp"],
       networkMap["ConditionalTransaction"],
@@ -90,7 +82,7 @@ describe("Setup Protocol", async () => {
     walletA.io.peer = walletB;
     walletB.io.peer = walletA;
 
-    const peerBalances = PeerBalance.balances(
+    const peerBalances = cf.utils.PeerBalance.balances(
       A_ADDRESS,
       ethers.utils.bigNumberify(0),
       B_ADDRESS,
@@ -129,9 +121,11 @@ describe("Setup Protocol", async () => {
       txFeeB: depositTxFeeB
     } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
 
-    const app = CfFreeBalance.contractInterface(devEnvNetworkContext7777777);
+    const app = cf.utils.CfFreeBalance.contractInterface(
+      devEnvNetworkContext7777777
+    );
 
-    const terms = CfFreeBalance.terms();
+    const terms = cf.utils.CfFreeBalance.terms();
 
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
@@ -155,7 +149,7 @@ describe("Setup Protocol", async () => {
 
     const uninstallTx: Transaction = await walletA.store.getTransaction(
       balanceRefundAppId,
-      ActionName.UNINSTALL
+      cf.node.ActionName.UNINSTALL
     );
 
     await ethersMasterWallet.sendTransaction({
@@ -186,7 +180,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const appInstance = new CfAppInstance(
+    const cfStateChannel = new cf.app.CfAppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
@@ -196,7 +190,7 @@ describe("Setup Protocol", async () => {
       0
     );
 
-    const channelCfAddr = appInstance.cfAddress();
+    const channelCfAddr = cfStateChannel.cfAddress();
 
     const channelAddr = await registry.functions.resolver(channelCfAddr);
 
@@ -227,7 +221,7 @@ describe("Setup Protocol", async () => {
 
     const setupTx: Transaction = await walletA.store.getTransaction(
       multisig.address,
-      ActionName.SETUP
+      cf.node.ActionName.SETUP
     );
 
     await ethersMasterWallet.sendTransaction({
@@ -262,7 +256,7 @@ async function setup(
     walletB.signingKey.address
   );
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   validateSetup(multisigAddr, walletA, walletB);
 }
 
@@ -278,12 +272,12 @@ function setupStartMsg(
   multisigAddress: string,
   from: string,
   to: string
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   return {
     multisigAddress,
     requestId: "0",
     appId: "",
-    action: ActionName.SETUP,
+    action: cf.node.ActionName.SETUP,
     data: {},
     toAddress: to,
     fromAddress: from,
@@ -422,7 +416,7 @@ async function installBalanceRefund(
     threshold
   );
   const response = await depositor.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   // since the machine is async, we need to wait for walletB to finish up its
   // side of the protocol before inspecting it's state
   await sleep(50);
@@ -469,7 +463,7 @@ async function uninstallBalanceRefund(
     amountA
   );
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   // validate walletA
   validateUninstalledAndFreeBalance(
     multisigAddr,
@@ -495,7 +489,7 @@ function startInstallBalanceRefundMsg(
   from: string,
   to: string,
   threshold: ethers.utils.BigNumber
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   let peerA = from;
   let peerB = to;
   if (peerB.localeCompare(peerA) < 0) {
@@ -503,13 +497,13 @@ function startInstallBalanceRefundMsg(
     peerA = peerB;
     peerB = tmp;
   }
-  const terms = new Terms(
+  const terms = new cf.app.Terms(
     0,
     ethers.utils.bigNumberify(10),
     ethers.constants.AddressZero
   ); // todo
 
-  const app = new CfAppInterface(
+  const app = new cf.app.CfAppInterface(
     "0x0",
     "0x00000000",
     "0x00000000",
@@ -518,12 +512,12 @@ function startInstallBalanceRefundMsg(
     ""
   ); // todo
   const timeout = 100;
-  const installData: InstallData = {
+  const installData: cf.app.InstallData = {
     terms,
     app,
     timeout,
-    peerA: new PeerBalance(peerA, 0),
-    peerB: new PeerBalance(peerB, 0),
+    peerA: new cf.utils.PeerBalance(peerA, 0),
+    peerB: new cf.utils.PeerBalance(peerB, 0),
     keyA: peerA,
     keyB: peerB,
     encodedAppState: "0x1234"
@@ -531,7 +525,7 @@ function startInstallBalanceRefundMsg(
   return {
     requestId: "1",
     appId: "",
-    action: ActionName.INSTALL,
+    action: cf.node.ActionName.INSTALL,
     data: installData,
     multisigAddress: multisigAddr,
     toAddress: to,
@@ -620,14 +614,17 @@ function startUninstallBalanceRefundMsg(
   from: string,
   to: string,
   amount: ethers.utils.BigNumber
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   const uninstallData = {
-    peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
+    peerAmounts: [
+      new cf.utils.PeerBalance(from, amount),
+      new cf.utils.PeerBalance(to, 0)
+    ]
   };
   return {
     appId,
     requestId: "2",
-    action: ActionName.UNINSTALL,
+    action: cf.node.ActionName.UNINSTALL,
     data: uninstallData,
     multisigAddress: multisigAddr,
     fromAddress: from,

@@ -1,9 +1,8 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import lodash from "lodash";
 
-import { NetworkContext } from "../../src/utils/network-context";
-
-export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,

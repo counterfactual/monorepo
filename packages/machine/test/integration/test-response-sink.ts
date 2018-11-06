@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
@@ -6,14 +7,7 @@ import { EthCfOpGenerator } from "../../src/middleware/cf-operation";
 import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
-import {
-  ClientActionMessage,
-  InternalMessage,
-  ResponseSink,
-  WalletResponse
-} from "../../src/types";
-import { NetworkContext } from "../../src/utils/network-context";
-import { Signature } from "../../src/utils/signature";
+import { InternalMessage } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -24,7 +18,7 @@ import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-export class TestResponseSink implements ResponseSink {
+export class TestResponseSink implements cf.node.ResponseSink {
   public vm: CounterfactualVM;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
@@ -34,7 +28,10 @@ export class TestResponseSink implements ResponseSink {
   private requests: Map<string, Function>;
   private messageListener?: Function;
 
-  constructor(readonly privateKey: string, networkContext?: NetworkContext) {
+  constructor(
+    readonly privateKey: string,
+    networkContext?: cf.utils.NetworkContext
+  ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
     this.store = new TestCommitmentStore();
@@ -107,8 +104,10 @@ export class TestResponseSink implements ResponseSink {
    * Returns a promise that resolves with a Response object when
    * the protocol has completed execution.
    */
-  public async runProtocol(msg: ClientActionMessage): Promise<WalletResponse> {
-    const promise = new Promise<WalletResponse>((resolve, reject) => {
+  public async runProtocol(
+    msg: cf.node.ClientActionMessage
+  ): Promise<cf.node.WalletResponse> {
+    const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
     this.vm.receive(msg);
@@ -118,7 +117,7 @@ export class TestResponseSink implements ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: WalletResponse) {
+  public sendResponse(res: cf.node.WalletResponse) {
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -133,7 +132,7 @@ export class TestResponseSink implements ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: cf.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
   }
 
@@ -142,7 +141,7 @@ export class TestResponseSink implements ResponseSink {
   //
   // TODO: Refactor to clarify difference with sendMessageToClient
   // https://github.com/counterfactual/monorepo/issues/105
-  public sendIoMessageToClient(message: ClientActionMessage) {
+  public sendIoMessageToClient(message: cf.node.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }
@@ -158,7 +157,7 @@ export class TestResponseSink implements ResponseSink {
     message: InternalMessage,
     next: Function,
     context: Context
-  ): Promise<Signature> {
+  ): Promise<cf.utils.Signature> {
     const operation: CfOperation = getFirstResult(
       Instruction.OP_GENERATE,
       context.results
@@ -166,7 +165,7 @@ export class TestResponseSink implements ResponseSink {
     const digest = operation.hashToSign();
     const sig = this.signingKey.signDigest(digest);
     return Promise.resolve(
-      new Signature(sig.recoveryParam! + 27, sig.r, sig.s)
+      new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s)
     );
   }
 

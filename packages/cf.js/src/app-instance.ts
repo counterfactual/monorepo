@@ -1,14 +1,14 @@
-import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+import { Terms } from "./app";
 import { AbiEncodings, AppDefinition } from "./types";
 
 export class AppInstance {
   constructor(
     public signingKeys: string[],
     public app: AppDefinition,
-    public terms: machine.cfTypes.Terms,
+    public terms: Terms,
     public timeout: number
   ) {}
 

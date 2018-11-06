@@ -1,3 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
@@ -5,26 +7,18 @@ import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { CfState } from "./state";
 import {
-  Address,
   Addressable,
   AddressableLookupResolverHash,
-  ChannelStates,
-  ClientActionMessage,
-  H256,
-  InstructionMiddlewareCallback,
-  ResponseSink,
-  StateChannelInfo,
-  WalletResponse
+  InstructionMiddlewareCallback
 } from "./types";
-import { NetworkContext } from "./utils/network-context";
 import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
   constructor(
-    readonly responseHandler: ResponseSink,
+    readonly responseHandler: cf.node.ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
-    readonly network: NetworkContext,
-    readonly state?: ChannelStates
+    readonly network: cf.utils.NetworkContext,
+    readonly state?: cf.channel.ChannelStates
   ) {}
 }
 
@@ -34,13 +28,13 @@ export class CfVmConfig {
  * StateChannelInfo from the corresponding source.
  */
 const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (cfState: CfState, appId: H256) =>
+  appId: (cfState: CfState, appId: cf.utils.H256) =>
     cfState.appChannelInfos[appId].stateChannel,
 
-  multisigAddress: (cfState: CfState, multisigAddress: Address) =>
+  multisigAddress: (cfState: CfState, multisigAddress: cf.utils.Address) =>
     cfState.stateChannelFromMultisigAddress(multisigAddress),
 
-  toAddress: (cfState: CfState, toAddress: Address) =>
+  toAddress: (cfState: CfState, toAddress: cf.utils.Address) =>
     cfState.stateChannelFromAddress(toAddress)
 };
 
@@ -52,7 +46,7 @@ export class CounterfactualVM implements Observable {
   /**
    * The delegate handler we send responses to.
    */
-  public responseHandler: ResponseSink;
+  public responseHandler: cf.node.ResponseSink;
   /**
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
@@ -109,11 +103,13 @@ export class CounterfactualVM implements Observable {
     });
   }
 
-  public startAck(message: ClientActionMessage) {
+  public startAck(message: cf.node.ClientActionMessage) {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  public getStateChannelFromAddressable(data: Addressable): StateChannelInfo {
+  public getStateChannelFromAddressable(
+    data: Addressable
+  ): cf.channel.StateChannelInfo {
     const [lookupKey] = Object.keys(data).filter(key => Boolean(data[key]));
     const lookup = ADDRESSABLE_LOOKUP_RESOLVERS[lookupKey];
 
@@ -126,14 +122,17 @@ export class CounterfactualVM implements Observable {
     return lookup(this.cfState, data[lookupKey]);
   }
 
-  public receive(msg: ClientActionMessage): WalletResponse {
+  public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
     this.validateMessage(msg);
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
-    return new WalletResponse(action.requestId, ResponseStatus.STARTED);
+    return new cf.node.WalletResponse(
+      action.requestId,
+      cf.node.ResponseStatus.STARTED
+    );
   }
 
-  public validateMessage(msg: ClientActionMessage) {
+  public validateMessage(msg: cf.node.ClientActionMessage) {
     // TODO;
     return true;
   }
@@ -162,42 +161,31 @@ export class CounterfactualVM implements Observable {
       // https://github.com/counterfactual/monorepo/issues/123
       for await (val of execution) {
       }
-      this.sendResponse(execution, ResponseStatus.COMPLETED);
+      this.sendResponse(execution, cf.node.ResponseStatus.COMPLETED);
     } catch (e) {
       console.error(e);
-      this.sendResponse(execution, ResponseStatus.ERROR);
+      this.sendResponse(execution, cf.node.ResponseStatus.ERROR);
     }
   }
 
-  public sendResponse(execution: ActionExecution, status: ResponseStatus) {
+  public sendResponse(
+    execution: ActionExecution,
+    status: cf.node.ResponseStatus
+  ) {
     if (!execution.action.isAckSide) {
       this.responseHandler.sendResponse(
-        new Response(execution.action.requestId, status)
+        new cf.node.Response(execution.action.requestId, status)
       );
     }
   }
 
-  public mutateState(state: ChannelStates) {
+  public mutateState(state: cf.channel.ChannelStates) {
     Object.assign(this.cfState.channelStates, state);
   }
 
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
-}
-
-export class Response {
-  constructor(
-    readonly requestId: string,
-    readonly status: ResponseStatus,
-    error?: string
-  ) {}
-}
-
-export enum ResponseStatus {
-  STARTED,
-  ERROR,
-  COMPLETED
 }
 
 applyMixins(CounterfactualVM, [Observable]);

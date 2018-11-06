@@ -1,46 +1,29 @@
+import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-
-import { CfMultiSendOp } from "./cf-multisend-op";
-
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  MultisigInput,
-  Operation
-} from "./types";
+import { MultisigTxOp } from "./multisig-tx-op";
+import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
-export class CfOpSetup extends CfMultiSendOp {
+export class CfOpSetup extends MultisigTxOp {
   public constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
-    readonly freeBalanceStateChannel: CfAppInstance,
-    readonly freeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly freeBalanceStateChannel: cf.app.CfAppInstance,
+    readonly freeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
-    super(networkContext, multisig, freeBalance, dependencyNonce);
+    super(multisig, freeBalance);
     if (dependencyNonce === undefined) {
       throw new Error("Undefined dependency nonce");
     }
   }
 
-  /**
-   * @override common.CfMultiSendOp
-   */
-  public eachMultisigInput(): MultisigInput[] {
-    return [this.conditionalTransactionInput()];
-  }
-
-  public conditionalTransactionInput(): MultisigInput {
-    const terms = CfFreeBalance.terms();
+  multisigInput(): MultisigInput {
+    const terms = cf.utils.CfFreeBalance.terms();
 
     const uninstallKey = keccak256(
       abi.encodePacked(
