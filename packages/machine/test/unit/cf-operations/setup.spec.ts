@@ -4,21 +4,17 @@ import * as ethers from "ethers";
 import { CfOpSetup } from "../../../src/middleware/cf-operation";
 
 import {
-  TEST_APP_INTERFACE,
-  TEST_APP_STATE_HASH,
-  TEST_APP_UNIQUE_ID,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
-  TEST_LOCAL_NONCE,
   TEST_MULTISIG_ADDRESS,
   TEST_NETWORK_CONTEXT,
-  TEST_PARTICIPANTS,
-  TEST_SIGNING_KEYS,
-  TEST_TERMS,
-  TEST_TIMEOUT
+  TEST_SIGNING_KEYS
 } from "./test-data";
 
+const { keccak256 } = ethers.utils;
+
 describe("CfOpSetup", () => {
+  const TEST_NONCE_UNIQUE_ID = 1;
   let op: CfOpSetup;
 
   beforeEach(() => {
@@ -27,7 +23,7 @@ describe("CfOpSetup", () => {
       TEST_MULTISIG_ADDRESS,
       TEST_FREE_BALANCE_APP_INSTANCE,
       TEST_FREE_BALANCE,
-      new cf.utils.CfNonce(true, 144, 2)
+      new cf.utils.CfNonce(true, TEST_NONCE_UNIQUE_ID, 2)
     );
   });
 
@@ -47,33 +43,37 @@ describe("CfOpSetup", () => {
     );
 
     const tx = op.transaction([sig1, sig2]);
-
-    const app = new cf.app.CfAppInstance(
-      TEST_NETWORK_CONTEXT,
-      TEST_MULTISIG_ADDRESS,
-      TEST_PARTICIPANTS,
-      TEST_APP_INTERFACE,
-      TEST_TERMS,
-      TEST_TIMEOUT,
-      TEST_APP_UNIQUE_ID
+    const salt = keccak256(
+      cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
     );
+    const uninstallKey = keccak256(
+      cf.utils.abi.encodePacked(
+        ["address", "uint256", "uint256"],
+        [TEST_MULTISIG_ADDRESS, 0, salt]
+      )
+    );
+
+    const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
 
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
       new ethers.utils.Interface([
-        "proxyCall(address,bytes32,bytes)"
-      ]).functions.proxyCall.encode([
-        TEST_NETWORK_CONTEXT.registryAddr,
-        app.cfAddress(),
+        "execTransaction(address, uint256, bytes, uint8, bytes)"
+      ]).functions.execTransaction.encode([
+        TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+        0,
         new ethers.utils.Interface([
-          "setState(bytes32,uint256,uint256,bytes)"
-        ]).functions.setState.encode([
-          TEST_APP_STATE_HASH,
-          TEST_LOCAL_NONCE,
-          TEST_TIMEOUT,
-          `0x${sig1.toString().substr(2)}${sig2.toString().substr(2)}`
-        ])
+          "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))"
+        ]).functions.executeAppConditionalTransaction.encode([
+          TEST_NETWORK_CONTEXT.registryAddr,
+          TEST_NETWORK_CONTEXT.nonceRegistryAddr,
+          uninstallKey,
+          TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
+          [terms.assetType, terms.limit, terms.token]
+        ]),
+        1,
+        `0x${sig1.toString().substr(2)}${sig2.toString().substr(2)}`
       ])
     );
   });

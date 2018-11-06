@@ -53,7 +53,7 @@ export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.app.CfAppInstance(
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
   TEST_APP_INTERFACE,
-  TEST_TERMS,
+  cf.utils.CfFreeBalance.terms(),
   TEST_TIMEOUT,
   0
 );
