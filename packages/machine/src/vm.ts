@@ -128,7 +128,7 @@ export class CounterfactualVM implements Observable {
 
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
-    
+
     return new cf.node.WalletResponse(
       action.requestId,
       cf.node.ResponseStatus.STARTED
@@ -176,10 +176,12 @@ export class CounterfactualVM implements Observable {
     status: cf.node.ResponseStatus
   ) {
     if (!execution.action.isAckSide) {
-      this.responseHandler.sendResponse(
-        new cf.node.Response(execution.action.requestId, status)
-      );
+      return;
     }
+
+    this.responseHandler.sendResponse(
+      new cf.node.Response(execution.action.requestId, status)
+    );
   }
 
   public mutateState(state: cf.channel.ChannelStates) {
