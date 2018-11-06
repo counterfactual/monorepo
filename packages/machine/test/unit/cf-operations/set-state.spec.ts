@@ -1,9 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import * as abi from "../../../src/abi";
 import { CfOpSetState } from "../../../src/middleware/cf-operation";
-import { CfAppInstance } from "../../../src/middleware/cf-operation/types";
-import { Signature } from "../../../src/utils";
 
 import {
   TEST_APP_INTERFACE,
@@ -39,12 +37,20 @@ describe("CfOpSetState", () => {
     const digest = op.hashToSign();
     const vra1 = TEST_SIGNING_KEYS[0].signDigest(digest);
     const vra2 = TEST_SIGNING_KEYS[1].signDigest(digest);
-    const sig1 = new Signature(vra1.recoveryParam as number, vra1.r, vra1.s);
-    const sig2 = new Signature(vra2.recoveryParam as number, vra2.r, vra2.s);
+    const sig1 = new cf.utils.Signature(
+      vra1.recoveryParam as number,
+      vra1.r,
+      vra1.s
+    );
+    const sig2 = new cf.utils.Signature(
+      vra2.recoveryParam as number,
+      vra2.r,
+      vra2.s
+    );
 
     const tx = op.transaction([sig1, sig2]);
 
-    const app = new CfAppInstance(
+    const app = new cf.app.CfAppInstance(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
@@ -56,6 +62,8 @@ describe("CfOpSetState", () => {
 
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
+    const sig1Raw = sig1.toString().substr(2);
+    const sig2Raw = sig2.toString().substr(2);
     expect(tx.data).toBe(
       new ethers.utils.Interface([
         "proxyCall(address,bytes32,bytes)"
@@ -68,7 +76,7 @@ describe("CfOpSetState", () => {
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
-          `0x${sig1.toString().substr(2)}${sig2.toString().substr(2)}`
+          `0x${sig1Raw}${sig2Raw}`
         ])
       ])
     );
@@ -78,7 +86,7 @@ describe("CfOpSetState", () => {
   it("Should compute the correct hash to sign", () => {
     expect(op.hashToSign()).toBe(
       ethers.utils.keccak256(
-        abi.encodePacked(
+        cf.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
           [
             "0x19",

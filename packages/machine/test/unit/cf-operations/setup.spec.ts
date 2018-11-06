@@ -1,11 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { CfOpSetup } from "../../../src/middleware/cf-operation";
-import {
-  CfAppInstance,
-  CfNonce
-} from "../../../src/middleware/cf-operation/types";
-import { Signature } from "../../../src/utils";
 
 import {
   TEST_APP_INTERFACE,
@@ -31,7 +27,7 @@ describe("CfOpSetup", () => {
       TEST_MULTISIG_ADDRESS,
       TEST_FREE_BALANCE_APP_INSTANCE,
       TEST_FREE_BALANCE,
-      new CfNonce(true, 144, 2)
+      new cf.utils.CfNonce(true, 144, 2)
     );
   });
 
@@ -39,12 +35,20 @@ describe("CfOpSetup", () => {
     const digest = op.hashToSign();
     const vra1 = TEST_SIGNING_KEYS[0].signDigest(digest);
     const vra2 = TEST_SIGNING_KEYS[1].signDigest(digest);
-    const sig1 = new Signature(vra1.recoveryParam as number, vra1.r, vra1.s);
-    const sig2 = new Signature(vra2.recoveryParam as number, vra2.r, vra2.s);
+    const sig1 = new cf.utils.Signature(
+      vra1.recoveryParam as number,
+      vra1.r,
+      vra1.s
+    );
+    const sig2 = new cf.utils.Signature(
+      vra2.recoveryParam as number,
+      vra2.r,
+      vra2.s
+    );
 
     const tx = op.transaction([sig1, sig2]);
 
-    const app = new CfAppInstance(
+    const app = new cf.app.CfAppInstance(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
