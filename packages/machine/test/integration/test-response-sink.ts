@@ -8,7 +8,7 @@ import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
 import { InternalMessage } from "../../src/types";
-import { VmConfig, CounterfactualVM } from "../../src/vm";
+import { VM, VmConfig } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -19,7 +19,7 @@ import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
 export class TestResponseSink implements cf.node.ResponseSink {
-  public vm: CounterfactualVM;
+  public vm: VM;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
   public store: TestCommitmentStore;
@@ -46,8 +46,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
       );
     }
 
-    // An instance of a CounterfactualVM that will execute protocols.
-    this.vm = new CounterfactualVM(
+    // An instance of a VM that will execute protocols.
+    this.vm = new VM(
       new VmConfig(
         this,
         new EthCfOpGenerator(),

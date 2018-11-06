@@ -3,7 +3,7 @@ import lodash from "lodash";
 
 import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
-import { CounterfactualVM } from "./vm";
+import { VM } from "./vm";
 
 export class State {
   public channelStates: cf.channel.ChannelStates;
@@ -107,5 +107,5 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
 export class Context {
   public results: OpCodeResult[] = Object.create(null);
   public instructionPointer: number = Object.create(null);
-  public vm: CounterfactualVM = Object.create(null);
+  public vm: VM = Object.create(null);
 }

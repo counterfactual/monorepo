@@ -23,7 +23,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   }
   public signingKey: ethers.utils.SigningKey;
   public ethersWallet: ethers.Wallet | ethers.providers.JsonRpcSigner;
-  public vm: machine.vm.CounterfactualVM;
+  public vm: machine.vm.VM;
   public io: IframeIoProvider;
   public address: string;
   public store: CommitmentStore;
@@ -57,7 +57,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.wallet = wallet;
     this.address = address;
     this.io = new IframeIoProvider(this);
-    this.vm = new machine.vm.CounterfactualVM(
+    this.vm = new machine.vm.VM(
       new machine.vm.VmConfig(
         this,
         new machine.cfOperations.EthCfOpGenerator(),

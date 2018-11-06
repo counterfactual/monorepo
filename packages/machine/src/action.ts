@@ -3,7 +3,7 @@ import * as cf from "@counterfactual/cf.js";
 import { ackInstructions, Instruction, instructions } from "./instructions";
 import { Context } from "./state";
 import { InternalMessage, MiddlewareResult } from "./types";
-import { CounterfactualVM } from "./vm";
+import { VM } from "./vm";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -35,7 +35,7 @@ export class Action {
     }
   }
 
-  public makeExecution(vm: CounterfactualVM): ActionExecution {
+  public makeExecution(vm: VM): ActionExecution {
     const exe = new ActionExecution(this, 0, this.clientMessage, vm);
     this.execution = exe;
     return exe;
@@ -46,14 +46,14 @@ export class ActionExecution {
   public action: Action;
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
-  public vm: CounterfactualVM;
+  public vm: VM;
   public results: MiddlewareResult[];
 
   constructor(
     action: Action,
     instruction: number,
     clientMessage: cf.node.ClientActionMessage,
-    vm: CounterfactualVM,
+    vm: VM,
     results: MiddlewareResult[] = []
   ) {
     this.action = action;

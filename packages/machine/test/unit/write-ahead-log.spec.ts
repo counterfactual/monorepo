@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "../../src/action";
-import { VmConfig, CounterfactualVM } from "../../src/vm";
+import { VmConfig, VM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -11,9 +11,7 @@ describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
     const db = new SimpleStringMapSyncDB();
 
-    const vm = new CounterfactualVM(
-      new VmConfig(null!, null!, null!, undefined!)
-    );
+    const vm = new VM(new VmConfig(null!, null!, null!, undefined!));
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
 
@@ -36,7 +34,7 @@ describe("Write ahead log", () => {
 /**
  * @returns The entries to load into the write ahead log for the test.
  */
-function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
+function makeExecutions(vm: VM): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
 
   const actions = [
@@ -101,7 +99,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   return executions;
 }
 
-function validatelog(log: WriteAheadLog, vm: CounterfactualVM) {
+function validatelog(log: WriteAheadLog, vm: VM) {
   const executions = vm.buildExecutionsFromLog(log.readLog());
   const expectedExecutions = makeExecutions(vm);
   for (let k = 0; k < expectedExecutions.length; k += 1) {

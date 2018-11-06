@@ -38,7 +38,7 @@ const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
     state.stateChannelFromAddress(toAddress)
 };
 
-export class CounterfactualVM implements Observable {
+export class VM implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
@@ -188,4 +188,4 @@ export class CounterfactualVM implements Observable {
   }
 }
 
-applyMixins(CounterfactualVM, [Observable]);
+applyMixins(VM, [Observable]);
