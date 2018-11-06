@@ -13,6 +13,8 @@ import {
 import * as abi from "../utils/abi";
 import { CfNonce } from "../utils/nonce";
 
+const { keccak256 } = ethers.utils;
+
 /**
  * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
  * is used to calculate the cf address).
@@ -31,6 +33,7 @@ export class CfAppInstance {
   ) {}
 
   public cfAddress(): H256 {
+    // FIXME: shouldn't have to require abi and bytecode here
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
     ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [
@@ -41,7 +44,7 @@ export class CfAppInstance {
       this.timeout
     ]);
 
-    return abi.keccak256(
+    return keccak256(
       abi.encodePacked(
         ["bytes1", "bytes", "uint256"],
         ["0x19", initcode, this.uniqueId]
@@ -75,7 +78,7 @@ export class CfAppInterface {
 
   public stateHash(state: object): string {
     // assumes encoding "tuple(type key, type key, type key)"
-    return abi.keccak256(this.encode(state));
+    return keccak256(this.encode(state));
   }
 
   public hash(): string {
@@ -87,7 +90,7 @@ export class CfAppInterface {
       );
       return ethers.constants.HashZero;
     }
-    return abi.keccak256(
+    return keccak256(
       abi.encode(
         [
           "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
@@ -114,7 +117,7 @@ export class Terms {
   ) {}
 
   public hash(): string {
-    return abi.keccak256(
+    return keccak256(
       abi.encode(
         ["bytes1", "uint8", "uint256", "address"],
         ["0x19", this.assetType, this.limit, this.token]

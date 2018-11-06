@@ -6,6 +6,9 @@ import { CfMultiSendOp } from "./cf-multisend-op";
 
 import { MultisigInput, Operation } from "./types";
 
+const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
+
 export class CfOpSetup extends CfMultiSendOp {
   /**
    * Helper method to get hash of an input calldata
@@ -35,8 +38,8 @@ export class CfOpSetup extends CfMultiSendOp {
   public conditionalTransactionInput(): MultisigInput {
     const terms = cf.utils.CfFreeBalance.terms();
 
-    const uninstallKey = cf.utils.abi.keccak256(
-      cf.utils.abi.encodePacked(
+    const uninstallKey = keccak256(
+      abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
       )

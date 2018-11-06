@@ -11,7 +11,3 @@ export function decode(types: string[], data: ethers.utils.Arrayish) {
 export function encodePacked(types: string[], values: any[]) {
   return ethers.utils.solidityPack(types, values);
 }
-
-export function keccak256(encodePacked: string): string {
-  return ethers.utils.keccak256(encodePacked);
-}

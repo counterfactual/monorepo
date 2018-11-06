@@ -22,6 +22,8 @@ import { TestResponseSink } from "./test-response-sink";
 // https://github.com/counterfactual/monorepo/issues/103
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
+const { abi } = cf.utils;
+
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
@@ -174,7 +176,7 @@ describe("Setup Protocol", async () => {
       cfFreeBalance.bobBalance
     ];
 
-    const freeBalanceFinalState = cf.utils.abi.encode(
+    const freeBalanceFinalState = abi.encode(
       ["address", "address", "uint256", "uint256"],
       values
     );
@@ -207,7 +209,7 @@ describe("Setup Protocol", async () => {
       app.isStateTerminal
     ];
 
-    const termsData = cf.utils.abi.encode(
+    const termsData = abi.encode(
       ["bytes1", "uint8", "uint256", "address"],
       ["0x19", terms.assetType, terms.limit, terms.token]
     );

@@ -1,4 +1,8 @@
+import * as ethers from "ethers";
+
 import { abi, Bytes32 } from "./index";
+
+const { keccak256 } = ethers.utils;
 
 export class CfNonce {
   public isSet: boolean;
@@ -7,7 +11,7 @@ export class CfNonce {
 
   constructor(isSet: boolean, uniqueId: number, nonceValue: number) {
     this.isSet = isSet;
-    this.salt = abi.keccak256(abi.encodePacked(["uint256"], [uniqueId]));
+    this.salt = keccak256(abi.encodePacked(["uint256"], [uniqueId]));
     this.nonceValue = nonceValue;
   }
 }

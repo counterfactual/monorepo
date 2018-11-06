@@ -5,6 +5,9 @@ import * as ethers from "ethers";
 import { CfMultiSendOp } from "./cf-multisend-op";
 import { MultisigInput, Operation } from "./types";
 
+const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
+
 export class CfOpInstall extends CfMultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
@@ -31,8 +34,8 @@ export class CfOpInstall extends CfMultiSendOp {
       this.app.terms.limit,
       this.app.terms.token
     ];
-    const uninstallKey = cf.utils.abi.keccak256(
-      cf.utils.abi.encodePacked(
+    const uninstallKey = keccak256(
+      abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
       )

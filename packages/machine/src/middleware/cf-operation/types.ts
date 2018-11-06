@@ -8,6 +8,8 @@ export abstract class CfOperation {
   public abstract transaction(sigs: cf.utils.Signature[]): Transaction;
 }
 
+const { abi } = cf.utils;
+
 export enum Operation {
   Call = 0,
   Delegatecall = 1
@@ -51,7 +53,7 @@ export class MultiSend {
   public input(multisend: cf.utils.Address): MultisigInput {
     let txs: string = "0x";
     for (const transaction of this.transactions) {
-      txs += cf.utils.abi
+      txs += abi
         .encode(
           ["uint256", "address", "uint256", "bytes"],
           [transaction.op, transaction.to, transaction.val, transaction.data]

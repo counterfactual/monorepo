@@ -12,6 +12,9 @@ import {
   Transaction
 } from "./types";
 
+const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
+
 export abstract class CfMultiSendOp extends CfOperation {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
@@ -43,8 +46,8 @@ export abstract class CfMultiSendOp extends CfOperation {
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
     const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
-    return cf.utils.abi.keccak256(
-      cf.utils.abi.encodePacked(
+    return keccak256(
+      abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
         [
           "0x19",
@@ -79,8 +82,8 @@ export abstract class CfMultiSendOp extends CfOperation {
       this.cfFreeBalance.uniqueId
     ).cfAddress();
 
-    const appStateHash = cf.utils.abi.keccak256(
-      cf.utils.abi.encode(
+    const appStateHash = keccak256(
+      abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.cfFreeBalance.alice,

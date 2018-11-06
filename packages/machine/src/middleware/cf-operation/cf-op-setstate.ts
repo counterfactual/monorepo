@@ -1,7 +1,11 @@
 import * as cf from "@counterfactual/cf.js";
+import * as ethers from "ethers";
 
 import * as common from "./common";
 import { CfOperation, Transaction } from "./types";
+
+const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
 export class CfOpSetState extends CfOperation {
   constructor(
@@ -19,8 +23,8 @@ export class CfOpSetState extends CfOperation {
   }
 
   public hashToSign(): string {
-    return cf.utils.abi.keccak256(
-      cf.utils.abi.encodePacked(
+    return keccak256(
+      abi.encodePacked(
         ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
         [
           "0x19",
