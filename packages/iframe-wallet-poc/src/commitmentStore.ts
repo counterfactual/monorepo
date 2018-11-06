@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 
 import {
@@ -12,7 +13,7 @@ interface Commitments {
   addCommitment(
     action: machine.types.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
-    signatures: machine.utils.Signature[]
+    signatures: cf.utils.Signature[]
   );
 
   hasCommitment(action: machine.types.ActionName);
@@ -74,7 +75,7 @@ export class AppCommitments implements Commitments {
   public async addCommitment(
     action: machine.types.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
-    signatures: machine.utils.Signature[]
+    signatures: cf.utils.Signature[]
   ) {
     const commitment = cfOperation.transaction(signatures);
     if (
@@ -182,7 +183,7 @@ export class CommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: machine.utils.Signature = machine.middleware.getFirstResult(
+    const signature: cf.utils.Signature = machine.middleware.getFirstResult(
       machine.instructions.Instruction.OP_SIGN,
       context.results
     ).value;
@@ -199,9 +200,9 @@ export class CommitmentStore {
     }
 
     const sigs = [signature, counterpartySignature].map(sig => {
-      if (!(sig instanceof machine.utils.Signature)) {
+      if (!(sig instanceof cf.utils.Signature)) {
         const { v, r, s } = sig as any;
-        return new machine.utils.Signature(v, r, s);
+        return new cf.utils.Signature(v, r, s);
       }
       return sig;
     });

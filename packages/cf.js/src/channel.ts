@@ -1,16 +1,16 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, InstallData, CfAppInterface } from "./app";
+import { AppInstanceInfos, CfAppInterface, InstallData } from "./app";
 import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import {
   ActionName,
-  FreeBalanceClientResponse,
-  ClientQueryType,
   ClientQuery,
+  ClientQueryType,
+  FreeBalanceClientResponse,
   StateChannelDataClientResponse
 } from "./node";
 import * as types from "./types";

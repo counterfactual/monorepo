@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
@@ -9,7 +10,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new machine.utils.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -84,7 +85,7 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
-    const canon = machine.utils.PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,
