@@ -1,15 +1,9 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
-import {
-  ActionName,
-  Address,
-  CanonicalPeerBalance,
-  H256,
-  InternalMessage
-} from "../../types";
-import { PeerBalance } from "../../utils/peer-balance";
+import { ActionName, CanonicalPeerBalance, InternalMessage } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";
@@ -66,7 +60,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     cfState: CfState,
     proposedUpdate: any
   ): CfOperation {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
       // https://github.com/counterfactual/monorepo/issues/121
@@ -97,7 +91,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       message.clientMessage.fromAddress,
       message.clientMessage.toAddress
     ];
-    signingKeys.sort((addrA: Address, addrB: Address) => {
+    signingKeys.sort((addrA: cf.utils.Address, addrB: cf.utils.Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
@@ -122,7 +116,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     cfState: CfState,
     proposedSetup: any
   ): CfOperation {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const freeBalance: CfFreeBalance = proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
     const cfFreeBalance = new CfFreeBalance(
@@ -136,8 +130,8 @@ export class EthCfOpGenerator extends CfOpGenerator {
       freeBalance.dependencyNonce
     );
     const canon = CanonicalPeerBalance.canonicalize(
-      new PeerBalance(message.clientMessage.fromAddress, 0),
-      new PeerBalance(message.clientMessage.toAddress, 0)
+      new cf.utils.PeerBalance(message.clientMessage.fromAddress, 0),
+      new cf.utils.PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
     const freeBalanceAppInstance = new CfAppInstance(
@@ -164,11 +158,11 @@ export class EthCfOpGenerator extends CfOpGenerator {
     context: Context,
     cfState: CfState,
     proposedInstall: any,
-    cfAddr: H256
+    cfAddr: cf.utils.H256
   ) {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
     const freeBalance = channel.freeBalance;
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const appChannel = channel.appChannels[cfAddr];
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
@@ -209,7 +203,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     cfState: CfState,
     proposedUninstall: any
   ): CfOperation {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appId;
     if (cfAddr === undefined) {
       throw new Error("update message must have appId set");

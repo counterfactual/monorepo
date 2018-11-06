@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { CfAppInterface, Terms } from "../../src/middleware/cf-operation/types";
@@ -7,7 +8,6 @@ import {
   InstallData,
   UpdateData
 } from "../../src/types";
-import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
@@ -135,7 +135,7 @@ class Depositor {
     to: string,
     threshold: ethers.utils.BigNumber
   ): ClientActionMessage {
-    const canon = PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       from,
       ethers.utils.bigNumberify(0),
       to,
@@ -236,7 +236,7 @@ class Depositor {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.vm.cfState;
-    const canon = PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       peerA.signingKey.address!,
       amountA,
       peerB.signingKey.address!,
@@ -265,7 +265,10 @@ class Depositor {
     amount: ethers.utils.BigNumber
   ): ClientActionMessage {
     const uninstallData = {
-      peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
+      peerAmounts: [
+        new cf.utils.PeerBalance(from, amount),
+        new cf.utils.PeerBalance(to, 0)
+      ]
     };
     return {
       appId,
@@ -330,8 +333,8 @@ class TicTacToeSimulator {
       terms,
       app,
       timeout,
-      peerA: new PeerBalance(peerA, 2),
-      peerB: new PeerBalance(peerB, 2),
+      peerA: new cf.utils.PeerBalance(peerA, 2),
+      peerB: new cf.utils.PeerBalance(peerB, 2),
       keyA: peerA,
       keyB: peerB,
       encodedAppState: "0x1234"
@@ -516,8 +519,8 @@ class TicTacToeSimulator {
   ): ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
-        new PeerBalance(addressA, amountA),
-        new PeerBalance(addressB, amountB)
+        new cf.utils.PeerBalance(addressA, amountA),
+        new cf.utils.PeerBalance(addressB, amountB)
       ]
     };
     return {

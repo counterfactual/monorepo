@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../src/instructions";
@@ -15,11 +16,9 @@ import {
   ActionName,
   ChannelStates,
   ClientActionMessage,
-  H256,
   InternalMessage,
   StateChannelInfos
 } from "../../src/types";
-import { PeerBalance } from "../../src/utils/peer-balance";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import {
@@ -136,8 +135,8 @@ function installClientMsg(): ClientActionMessage {
     appId: "0",
     action: ActionName.INSTALL,
     data: {
-      peerA: new PeerBalance(A_ADDRESS, 5),
-      peerB: new PeerBalance(B_ADDRESS, 3),
+      peerA: new cf.utils.PeerBalance(A_ADDRESS, 5),
+      peerB: new cf.utils.PeerBalance(B_ADDRESS, 3),
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
@@ -160,7 +159,10 @@ function installClientMsg(): ClientActionMessage {
   };
 }
 
-function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
+function validateInstallInfos(
+  infos: StateChannelInfos,
+  expectedCfAddr: cf.utils.H256
+) {
   const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
 
   expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);

@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+
 import { Instruction, instructions } from "../../src/instructions";
 import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
@@ -20,6 +21,7 @@ import {
   B_PRIVATE_KEY,
   UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";
+
 import { TestResponseSink } from "./test-response-sink";
 
 const ADDR_A = ethers.utils.hexlify(ethers.utils.randomBytes(20));

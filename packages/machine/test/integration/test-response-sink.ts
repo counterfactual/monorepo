@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
@@ -12,8 +13,6 @@ import {
   ResponseSink,
   WalletResponse
 } from "../../src/types";
-import { NetworkContext } from "../../src/utils/network-context";
-import { Signature } from "../../src/utils/signature";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -34,7 +33,10 @@ export class TestResponseSink implements ResponseSink {
   private requests: Map<string, Function>;
   private messageListener?: Function;
 
-  constructor(readonly privateKey: string, networkContext?: NetworkContext) {
+  constructor(
+    readonly privateKey: string,
+    networkContext?: cf.utils.NetworkContext
+  ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
     this.store = new TestCommitmentStore();
@@ -158,7 +160,7 @@ export class TestResponseSink implements ResponseSink {
     message: InternalMessage,
     next: Function,
     context: Context
-  ): Promise<Signature> {
+  ): Promise<cf.utils.Signature> {
     const operation: CfOperation = getFirstResult(
       Instruction.OP_GENERATE,
       context.results
@@ -166,7 +168,7 @@ export class TestResponseSink implements ResponseSink {
     const digest = operation.hashToSign();
     const sig = this.signingKey.signDigest(digest);
     return Promise.resolve(
-      new Signature(sig.recoveryParam! + 27, sig.r, sig.s)
+      new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s)
     );
   }
 

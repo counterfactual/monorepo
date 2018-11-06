@@ -1,6 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
-  Address,
   CanonicalPeerBalance,
   InternalMessage,
   StateProposal
@@ -13,7 +14,7 @@ export class UninstallProposer {
     context: Context,
     state: CfState
   ): StateProposal {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const channels = state.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {

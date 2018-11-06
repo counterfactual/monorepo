@@ -1,18 +1,15 @@
+import * as cf from "@counterfactual/cf.js";
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-import { Address, Bytes, Bytes32, Bytes4, H256 } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-import { Signature } from "../../utils/signature";
-
 const { keccak256 } = ethers.utils;
 
 export abstract class CfOperation {
-  public abstract hashToSign(): H256;
+  public abstract hashToSign(): cf.utils.H256;
 
-  public abstract transaction(sigs: Signature[]): Transaction;
+  public abstract transaction(sigs: cf.utils.Signature[]): Transaction;
 }
 
 export class CfAppInterface {
@@ -26,11 +23,11 @@ export class CfAppInterface {
   }
 
   constructor(
-    readonly address: Address,
-    readonly applyAction: Bytes4,
-    readonly resolve: Bytes4,
-    readonly getTurnTaker: Bytes4,
-    readonly isStateTerminal: Bytes4,
+    readonly address: cf.utils.Address,
+    readonly applyAction: cf.utils.Bytes4,
+    readonly resolve: cf.utils.Bytes4,
+    readonly getTurnTaker: cf.utils.Bytes4,
+    readonly isStateTerminal: cf.utils.Bytes4,
     readonly stateEncoding: string
   ) {}
 
@@ -75,7 +72,7 @@ export class Terms {
   constructor(
     readonly assetType: number,
     readonly limit: ethers.utils.BigNumber,
-    readonly token: Address
+    readonly token: cf.utils.Address
   ) {}
 
   public hash(): string {
@@ -95,7 +92,7 @@ export enum Operation {
 
 export class Transaction {
   constructor(
-    readonly to: Address,
+    readonly to: cf.utils.Address,
     readonly value: number,
     readonly data: string
   ) {}
@@ -103,9 +100,9 @@ export class Transaction {
 
 export class MultisigTransaction extends Transaction {
   constructor(
-    readonly to: Address,
+    readonly to: cf.utils.Address,
     readonly value: number,
-    readonly data: Bytes,
+    readonly data: cf.utils.Bytes,
     readonly operation: Operation
   ) {
     super(to, value, data);
@@ -114,21 +111,21 @@ export class MultisigTransaction extends Transaction {
 
 export class MultisigInput {
   constructor(
-    readonly to: Address,
+    readonly to: cf.utils.Address,
     readonly val: number,
-    readonly data: Bytes,
+    readonly data: cf.utils.Bytes,
     readonly op: Operation,
-    readonly signatures?: Signature[]
+    readonly signatures?: cf.utils.Signature[]
   ) {}
 }
 
 export class MultiSend {
   constructor(
     readonly transactions: MultisigInput[],
-    readonly networkContext: NetworkContext
+    readonly networkContext: cf.utils.NetworkContext
   ) {}
 
-  public input(multisend: Address): MultisigInput {
+  public input(multisend: cf.utils.Address): MultisigInput {
     let txs: string = "0x";
     for (const transaction of this.transactions) {
       txs += abi
@@ -161,7 +158,9 @@ export class CfFreeBalance {
     );
   }
 
-  public static contractInterface(ctx: NetworkContext): CfAppInterface {
+  public static contractInterface(
+    ctx: cf.utils.NetworkContext
+  ): CfAppInterface {
     const address = ctx.paymentAppAddr;
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
@@ -182,9 +181,9 @@ export class CfFreeBalance {
   }
 
   constructor(
-    readonly alice: Address, // first person in free balance object
+    readonly alice: cf.utils.Address, // first person in free balance object
     readonly aliceBalance: ethers.utils.BigNumber,
-    readonly bob: Address, // second person in free balance object
+    readonly bob: cf.utils.Address, // second person in free balance object
     readonly bobBalance: ethers.utils.BigNumber,
     readonly uniqueId: number,
     readonly localNonce: number,
@@ -195,7 +194,7 @@ export class CfFreeBalance {
 
 export class CfNonce {
   public isSet: boolean;
-  public salt: Bytes32;
+  public salt: cf.utils.Bytes32;
   public nonceValue: number;
 
   constructor(isSet: boolean, uniqueId: number, nonceValue: number) {
@@ -213,16 +212,16 @@ export class CfNonce {
  */
 export class CfAppInstance {
   constructor(
-    readonly ctx: NetworkContext,
-    readonly owner: Address,
-    readonly signingKeys: Address[],
+    readonly ctx: cf.utils.NetworkContext,
+    readonly owner: cf.utils.Address,
+    readonly signingKeys: cf.utils.Address[],
     readonly cfApp: CfAppInterface,
     readonly terms: Terms,
     readonly timeout: number,
     readonly uniqueId: number
   ) {}
 
-  public cfAddress(): H256 {
+  public cfAddress(): cf.utils.H256 {
     const initcode = new ethers.utils.Interface(
       AppInstanceJson.abi
     ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [

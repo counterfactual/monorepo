@@ -1,7 +1,8 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Context } from "./state";
 import {
   ActionName,
-  Address,
   ClientActionMessage,
   InternalMessage,
   MiddlewareResult
@@ -94,8 +95,8 @@ export interface Log {
  */
 interface LogRecord {
   actionName: ActionName;
-  to: Address;
-  from: Address;
+  to: cf.utils.Address;
+  from: cf.utils.Address;
   requestId: string;
   clientMessage: ClientActionMessage;
   isAckSide: boolean;

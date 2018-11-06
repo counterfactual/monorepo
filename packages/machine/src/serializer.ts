@@ -1,6 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
-
-import { Signature } from "./utils/signature";
 
 /**
  * reconstitute a freshly `JSON.parse`d payload, ensuring that objects
@@ -21,7 +20,7 @@ export function deserialize(data: any): any {
       ["v", "r", "s"].every(key => keys.indexOf(key) > -1)
     ) {
       // Signatures
-      return new Signature(data.v, data.r, data.s);
+      return new cf.utils.Signature(data.v, data.r, data.s);
     }
     return keys.reduce((deserializedData: object, key: string) => {
       deserializedData[key] = deserialize(data[key]);

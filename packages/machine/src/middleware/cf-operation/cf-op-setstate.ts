@@ -1,10 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {
@@ -19,9 +16,9 @@ const { keccak256 } = ethers.utils;
 
 export class CfOpSetState extends CfOperation {
   constructor(
-    readonly ctx: NetworkContext,
-    readonly multisig: Address,
-    readonly signingKeys: Address[],
+    readonly ctx: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly signingKeys: cf.utils.Address[],
     readonly appStateHash: string,
     readonly appUniqueId: number,
     readonly terms: Terms,
@@ -51,7 +48,7 @@ export class CfOpSetState extends CfOperation {
    * @returns a tx that executes a proxyCall through the registry to call
    *          `setState` on AppInstance.sol.
    */
-  public transaction(sigs: Signature[]): Transaction {
+  public transaction(sigs: cf.utils.Signature[]): Transaction {
     const appCfAddr = new CfAppInstance(
       this.ctx,
       this.multisig,
@@ -69,7 +66,7 @@ export class CfOpSetState extends CfOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      Signature.toSortedBytes(sigs, this.hashToSign())
+      cf.utils.Signature.toSortedBytes(sigs, this.hashToSign())
     );
     return new Transaction(to, val, data);
   }

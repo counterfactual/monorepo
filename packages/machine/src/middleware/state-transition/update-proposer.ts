@@ -1,11 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { CfState, Context } from "../../state";
-import {
-  Address,
-  H256,
-  InternalMessage,
-  StateProposal,
-  UpdateData
-} from "../../types";
+import { InternalMessage, StateProposal, UpdateData } from "../../types";
 
 export class UpdateProposer {
   public static propose(
@@ -13,14 +9,14 @@ export class UpdateProposer {
     context: Context,
     state: CfState
   ): StateProposal {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const channels = state.stateChannelInfosCopy();
 
     if (message.clientMessage.appId === undefined) {
       throw new Error("update message must have appId set");
     }
 
-    const appId: H256 = message.clientMessage.appId;
+    const appId: cf.utils.H256 = message.clientMessage.appId;
     const updateData: UpdateData = message.clientMessage.data;
 
     const app = channels[multisig].appChannels[appId];

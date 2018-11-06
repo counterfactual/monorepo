@@ -1,5 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
+
 import * as abi from "../../src/abi";
 import {
   CfAppInstance,
@@ -9,8 +11,6 @@ import {
   Transaction
 } from "../../src/middleware/cf-operation/types";
 import { ActionName, ClientActionMessage, InstallData } from "../../src/types";
-import { NetworkContext } from "../../src/utils/network-context";
-import { PeerBalance } from "../../src/utils/peer-balance";
 import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {
@@ -35,7 +35,7 @@ describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
   let networkMap;
-  let devEnvNetworkContext7777777: NetworkContext;
+  let devEnvNetworkContext7777777: cf.utils.NetworkContext;
 
   beforeAll(() => {
     // This `require` statement is explicitly in side the `beforeAll` and not at the file
@@ -48,7 +48,7 @@ describe("Setup Protocol", async () => {
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
-    devEnvNetworkContext7777777 = new NetworkContext(
+    devEnvNetworkContext7777777 = new cf.utils.NetworkContext(
       networkMap["Registry"],
       networkMap["PaymentApp"],
       networkMap["ConditionalTransaction"],
@@ -90,7 +90,7 @@ describe("Setup Protocol", async () => {
     walletA.io.peer = walletB;
     walletB.io.peer = walletA;
 
-    const peerBalances = PeerBalance.balances(
+    const peerBalances = cf.utils.PeerBalance.balances(
       A_ADDRESS,
       ethers.utils.bigNumberify(0),
       B_ADDRESS,
@@ -522,8 +522,8 @@ function startInstallBalanceRefundMsg(
     terms,
     app,
     timeout,
-    peerA: new PeerBalance(peerA, 0),
-    peerB: new PeerBalance(peerB, 0),
+    peerA: new cf.utils.PeerBalance(peerA, 0),
+    peerB: new cf.utils.PeerBalance(peerB, 0),
     keyA: peerA,
     keyB: peerB,
     encodedAppState: "0x1234"
@@ -622,7 +622,10 @@ function startUninstallBalanceRefundMsg(
   amount: ethers.utils.BigNumber
 ): ClientActionMessage {
   const uninstallData = {
-    peerAmounts: [new PeerBalance(from, amount), new PeerBalance(to, 0)]
+    peerAmounts: [
+      new cf.utils.PeerBalance(from, amount),
+      new cf.utils.PeerBalance(to, 0)
+    ]
   };
   return {
     appId,

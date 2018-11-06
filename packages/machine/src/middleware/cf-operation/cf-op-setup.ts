@@ -1,10 +1,8 @@
+import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 
@@ -25,8 +23,8 @@ export class CfOpSetup extends CfMultiSendOp {
    * @param multisigInput
    */
   public constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
     readonly freeBalanceStateChannel: CfAppInstance,
     readonly freeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce

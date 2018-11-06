@@ -1,16 +1,14 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import {
-  Address,
   AppInstanceInfo,
-  H256,
   InstallData,
   InternalMessage,
   StateProposal
 } from "../../types";
-import { PeerBalance } from "../../utils/peer-balance";
 import {
   CfAppInstance,
   CfAppInterface,
@@ -26,7 +24,7 @@ export class InstallProposer {
     context: Context,
     state: CfState
   ): StateProposal {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: InstallData = message.clientMessage.data;
     const app = new CfAppInterface(
       data.app.address,
@@ -97,7 +95,7 @@ export class InstallProposer {
 
     // TODO: Feels like this is the wrong place for this sorting...
     // https://github.com/counterfactual/monorepo/issues/129
-    signingKeys.sort((addrA: Address, addrB: Address) => {
+    signingKeys.sort((addrA: cf.utils.Address, addrB: cf.utils.Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
@@ -105,7 +103,7 @@ export class InstallProposer {
   }
 
   private static newAppChannel(
-    cfAddr: H256,
+    cfAddr: cf.utils.H256,
     data: InstallData,
     app: CfAppInterface,
     terms: Terms,
@@ -135,7 +133,7 @@ export class InstallProposer {
     terms: Terms,
     signingKeys: string[],
     uniqueId: number
-  ): H256 {
+  ): cf.utils.H256 {
     return new CfAppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
@@ -150,19 +148,22 @@ export class InstallProposer {
   private static newPeers(
     existingFreeBalance: CfFreeBalance,
     data: InstallData
-  ): [PeerBalance, PeerBalance] {
-    const peerA = new PeerBalance(
+  ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
+    const peerA = new cf.utils.PeerBalance(
       existingFreeBalance.alice,
       existingFreeBalance.aliceBalance.sub(data.peerA.balance)
     );
-    const peerB = new PeerBalance(
+    const peerB = new cf.utils.PeerBalance(
       existingFreeBalance.bob,
       existingFreeBalance.bobBalance.sub(data.peerB.balance)
     );
     return [peerA, peerB];
   }
 
-  private static nextUniqueId(state: CfState, multisig: Address): number {
+  private static nextUniqueId(
+    state: CfState,
+    multisig: cf.utils.Address
+  ): number {
     const channel = state.channelStates[multisig];
     // + 1 for the free balance
     return Object.keys(channel.appChannels).length + 1;

@@ -1,3 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
 import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
@@ -5,25 +7,22 @@ import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { CfState } from "./state";
 import {
-  Address,
   Addressable,
   AddressableLookupResolverHash,
   ChannelStates,
   ClientActionMessage,
-  H256,
   InstructionMiddlewareCallback,
   ResponseSink,
   StateChannelInfo,
   WalletResponse
 } from "./types";
-import { NetworkContext } from "./utils/network-context";
 import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
   constructor(
     readonly responseHandler: ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
-    readonly network: NetworkContext,
+    readonly network: cf.utils.NetworkContext,
     readonly state?: ChannelStates
   ) {}
 }
@@ -34,13 +33,13 @@ export class CfVmConfig {
  * StateChannelInfo from the corresponding source.
  */
 const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (cfState: CfState, appId: H256) =>
+  appId: (cfState: CfState, appId: cf.utils.H256) =>
     cfState.appChannelInfos[appId].stateChannel,
 
-  multisigAddress: (cfState: CfState, multisigAddress: Address) =>
+  multisigAddress: (cfState: CfState, multisigAddress: cf.utils.Address) =>
     cfState.stateChannelFromMultisigAddress(multisigAddress),
 
-  toAddress: (cfState: CfState, toAddress: Address) =>
+  toAddress: (cfState: CfState, toAddress: cf.utils.Address) =>
     cfState.stateChannelFromAddress(toAddress)
 };
 

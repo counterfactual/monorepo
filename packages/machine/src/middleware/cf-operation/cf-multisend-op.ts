@@ -1,12 +1,9 @@
+import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
 
 import * as abi from "../../abi";
-
-import { Address, Bytes } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-import { Signature } from "../../utils/signature";
 
 import * as common from "./common";
 import {
@@ -24,17 +21,20 @@ const { keccak256 } = ethers.utils;
 
 export abstract class CfMultiSendOp extends CfOperation {
   constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {
     super();
   }
 
-  public transaction(sigs: Signature[]): Transaction {
+  public transaction(sigs: cf.utils.Signature[]): Transaction {
     const multisigInput = this.multisigInput();
-    const signatureBytes = Signature.toSortedBytes(sigs, this.hashToSign());
+    const signatureBytes = cf.utils.Signature.toSortedBytes(
+      sigs,
+      this.hashToSign()
+    );
     const txData = new ethers.utils.Interface(
       MinimumViableMultisigJson.abi
     ).functions.execTransaction.encode([
@@ -73,7 +73,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     return new MultisigInput(to, val, data, op);
   }
 
-  public freeBalanceData(): Bytes {
+  public freeBalanceData(): cf.utils.Bytes {
     const terms = CfFreeBalance.terms();
     const app = CfFreeBalance.contractInterface(this.networkContext);
     const freeBalanceCfAddress = new CfAppInstance(

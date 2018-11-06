@@ -1,8 +1,8 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
-import { PeerBalance } from "../../utils/peer-balance";
 import { CfFreeBalance, CfNonce } from "../cf-operation/types";
 
 const FREE_BALANCE_TIMEOUT = 100;
@@ -23,7 +23,7 @@ export class SetupProposer {
     const toAddress = message.clientMessage.toAddress;
     const fromAddress = message.clientMessage.fromAddress;
 
-    const balances = PeerBalance.balances(
+    const balances = cf.utils.PeerBalance.balances(
       toAddress,
       ethers.utils.bigNumberify(0),
       fromAddress,

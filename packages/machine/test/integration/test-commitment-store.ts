@@ -1,3 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Instruction } from "../../src/instructions";
 import {
   CfOperation,
@@ -10,7 +12,6 @@ import {
   ClientActionMessage,
   InternalMessage
 } from "../../src/types";
-import { Signature } from "../../src/utils/signature";
 
 import {
   InMemoryKeyValueStore,
@@ -24,7 +25,7 @@ interface Commitments {
   addCommitment(
     action: ActionName,
     cfOperation: CfOperation,
-    signatures: Signature[]
+    signatures: cf.utils.Signature[]
   );
 
   hasCommitment(action: ActionName);
@@ -73,7 +74,7 @@ export class AppCommitments implements Commitments {
   public async addCommitment(
     action: ActionName,
     cfOperation: CfOperation,
-    signatures: Signature[]
+    signatures: cf.utils.Signature[]
   ) {
     const commitment = cfOperation.transaction(signatures);
     if (action !== ActionName.UPDATE && this.commitments.has(action)) {
@@ -176,7 +177,7 @@ export class TestCommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: Signature = getFirstResult(
+    const signature: cf.utils.Signature = getFirstResult(
       Instruction.OP_SIGN,
       context.results
     ).value;
@@ -195,9 +196,9 @@ export class TestCommitmentStore {
     }
 
     const sigs = [signature, counterpartySignature].map(sig => {
-      if (!(sig instanceof Signature)) {
+      if (!(sig instanceof cf.utils.Signature)) {
         const { v, r, s } = sig as any;
-        return new Signature(v, r, s);
+        return new cf.utils.Signature(v, r, s);
       }
       return sig;
     });

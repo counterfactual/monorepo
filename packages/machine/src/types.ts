@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "./instructions";
@@ -8,20 +9,7 @@ import {
   Terms
 } from "./middleware/cf-operation/types";
 import { CfState, Context } from "./state";
-import { PeerBalance } from "./utils/peer-balance";
-import { Signature } from "./utils/signature";
 import { Response, ResponseStatus } from "./vm";
-
-/**
- * Aliases to help code readability.
- * Byte arrays and addresses are represented as hex-encoded strings.
- * Should think about actually changing these to be non strings.
- */
-export type Bytes = string; // dynamically-sized byte array
-export type Bytes4 = string; // fixed-size byte arrays
-export type Bytes32 = string;
-export type Address = string; // ethereum address (i.e. rightmost 20 bytes of keccak256 of ECDSA pubkey)
-export type H256 = string; // a bytes32 which is the output of the keccak256 hash function
 
 export interface MiddlewareResult {
   opCode: Instruction;
@@ -55,7 +43,7 @@ export interface ClientActionMessage extends ClientMessage {
   fromAddress: string;
   stateChannel?: StateChannelInfo; // we should remove this from this object
   seq: number;
-  signature?: Signature;
+  signature?: cf.utils.Signature;
 }
 
 export enum ClientQueryType {
@@ -69,15 +57,15 @@ export interface ClientQuery extends ClientMessage {
   query: ClientQueryType;
   data?: any;
   userId?: string;
-  multisigAddress?: Address;
+  multisigAddress?: cf.utils.Address;
 }
 
 export interface InstallData {
-  peerA: PeerBalance;
-  peerB: PeerBalance;
-  keyA?: Address;
-  keyB?: Address;
-  encodedAppState: Bytes;
+  peerA: cf.utils.PeerBalance;
+  peerB: cf.utils.PeerBalance;
+  keyA?: cf.utils.Address;
+  keyB?: cf.utils.Address;
+  encodedAppState: cf.utils.Bytes;
   terms: Terms;
   app: CfAppInterface;
   timeout: number;
@@ -88,7 +76,7 @@ export interface InstallData {
  */
 export interface StateProposal {
   state: StateChannelInfos;
-  cfAddr?: H256;
+  cfAddr?: cf.utils.H256;
 }
 
 export type ProposerActionsHash = {
@@ -143,7 +131,7 @@ export interface UpdateData {
   /**
    * Hash of the State struct specific to a given application.
    */
-  appStateHash: H256;
+  appStateHash: cf.utils.H256;
 }
 
 export interface UpdateOptions {
@@ -169,8 +157,8 @@ export interface InstallOptions {
  */
 export class CanonicalPeerBalance {
   public static canonicalize(
-    peer1: PeerBalance,
-    peer2: PeerBalance
+    peer1: cf.utils.PeerBalance,
+    peer2: cf.utils.PeerBalance
   ): CanonicalPeerBalance {
     if (peer2.address.localeCompare(peer1.address) < 0) {
       return new CanonicalPeerBalance(peer2, peer1);
@@ -178,7 +166,10 @@ export class CanonicalPeerBalance {
     return new CanonicalPeerBalance(peer1, peer2);
   }
 
-  constructor(readonly peerA: PeerBalance, readonly peerB: PeerBalance) {}
+  constructor(
+    readonly peerA: cf.utils.PeerBalance,
+    readonly peerB: cf.utils.PeerBalance
+  ) {}
 }
 
 // Tree of all the stateChannel and appChannel state
@@ -187,9 +178,9 @@ export interface ChannelStates {
 }
 
 export interface StateChannelInfo {
-  counterParty: Address;
-  me: Address;
-  multisigAddress: Address;
+  counterParty: cf.utils.Address;
+  me: cf.utils.Address;
+  multisigAddress: cf.utils.Address;
   appChannels: AppInstanceInfos;
   freeBalance: CfFreeBalance;
 
@@ -204,17 +195,17 @@ export interface StateChannelInfo {
 
 export interface AppInstanceInfo {
   // cf address
-  id: H256;
+  id: cf.utils.H256;
   // used to generate cf address
   uniqueId: number;
-  peerA: PeerBalance;
-  peerB: PeerBalance;
+  peerA: cf.utils.PeerBalance;
+  peerB: cf.utils.PeerBalance;
   // ephemeral keys
-  keyA?: Address;
-  keyB?: Address;
+  keyA?: cf.utils.Address;
+  keyB?: cf.utils.Address;
   encodedState: any;
   appState?: any;
-  appStateHash?: H256;
+  appStateHash?: cf.utils.H256;
   localNonce: number;
   timeout: number;
   terms: Terms;
@@ -266,10 +257,10 @@ export enum ActionName {
 }
 
 export interface Addressable {
-  appId?: H256;
-  multisigAddress?: Address;
-  toAddress?: Address;
-  fromAddress?: Address;
+  appId?: cf.utils.H256;
+  multisigAddress?: cf.utils.Address;
+  toAddress?: cf.utils.Address;
+  fromAddress?: cf.utils.Address;
 }
 
 export type AddressableLookupResolver = {

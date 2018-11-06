@@ -33,6 +33,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
+    "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "ethers": "^4.0.4"
   },

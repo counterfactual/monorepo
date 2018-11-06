@@ -6,7 +6,6 @@ import * as mixins from "./mixins";
 import * as serializer from "./serializer";
 import * as state from "./state";
 import * as types from "./types";
-import * as utils from "./utils";
 import * as vm from "./vm";
 import * as writeAheadLog from "./write-ahead-log";
 
@@ -19,7 +18,6 @@ export {
   serializer,
   state,
   types,
-  utils,
   vm,
   writeAheadLog
 };

@@ -1,13 +1,12 @@
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
+import * as cf from "@counterfactual/cf.js";
 
 import { CfMultiSendOp } from "./cf-multisend-op";
 import { CfFreeBalance, CfNonce, MultisigInput } from "./types";
 
 export class CfOpUninstall extends CfMultiSendOp {
   constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
     readonly cfFreeBalance: CfFreeBalance,
     readonly dependencyNonce: CfNonce
   ) {

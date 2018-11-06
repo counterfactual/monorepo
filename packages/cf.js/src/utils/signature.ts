@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { Address, Bytes, H256 } from "../types";
+import { Address, Bytes, H256 } from "./index";
 
 // eg. 'dfee8149d73c19def9cfaf3ea73e95f4f7606826de8d3355eeaf1fd992b2b0f302616ad09ccee8025e5ba345763ee0de9a75b423bbb0ea8da2b2cc34391bc7e628'
 const SIGNATURE_LENGTH_WITHOUT_PREFIX = 130;

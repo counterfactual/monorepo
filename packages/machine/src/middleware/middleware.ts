@@ -1,3 +1,5 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
@@ -8,8 +10,6 @@ import {
   InternalMessage,
   OpCodeResult
 } from "../types";
-
-import { Signature } from "../utils/signature";
 
 import { StateTransition } from "./state-transition/state-transition";
 
@@ -167,7 +167,7 @@ export class NextMsgGenerator {
   public static signature(
     internalMessage: InternalMessage,
     context: Context
-  ): Signature | undefined {
+  ): cf.utils.Signature | undefined {
     // first time we send an install message (from non-ack side) we don't have
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
