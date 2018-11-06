@@ -2,11 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "sourceRoot": ".",
-    // TODO: Document why we need declarationDir here
-    "declarationDir": "dist/",
-    "outDir": "dist/"
+    "outDir": "dist/",
+    "module": "es2015"
   },
-  // TODO: Figure out how to add "test" here so they get linted by tslint when using
-  // the -p flag but *also* such that rollup doesn't include tests in the build.
-  "include": ["src"]
+  "awesomeTypeScriptLoaderOptions": {
+    "transpileOnly": true
+  }
 }
