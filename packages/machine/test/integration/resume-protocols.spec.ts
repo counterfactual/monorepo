@@ -6,7 +6,6 @@ import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-genera
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { Context } from "../../src/state";
 import { ClientActionMessage, InternalMessage } from "../../src/types";
-import { ResponseStatus } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -60,7 +59,7 @@ abstract class SetupProtocolTestCase {
     await this.peerA.vm.resume(this.peerA.writeAheadLog.readLog());
     this.setupWallet(this.peerA, true);
     const resp = await this.peerA.runProtocol(this.msg());
-    expect(resp.status).toEqual(ResponseStatus.ERROR);
+    expect(resp.status).toEqual(cf.node.ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }

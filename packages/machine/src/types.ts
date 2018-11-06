@@ -2,7 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "./instructions";
 import { CfState, Context } from "./state";
-import { Response, ResponseStatus } from "./vm";
 
 export interface MiddlewareResult {
   opCode: Instruction;
@@ -113,12 +112,6 @@ export interface OpCodeResult {
   value: any;
 }
 
-// TODO: document what this is
-// https://github.com/counterfactual/monorepo/issues/125
-export interface ResponseSink {
-  sendResponse(res: Response);
-}
-
 export class CfPeerAmount {
   constructor(readonly addr: string, public amount: number) {}
 }
@@ -151,13 +144,17 @@ export class InternalMessage {
 }
 
 export class WalletMessage {
-  constructor(id: string, status: ResponseStatus, readonly type?: string) {}
+  constructor(
+    id: string,
+    status: cf.node.ResponseStatus,
+    readonly type?: string
+  ) {}
 }
 
 export class WalletResponse {
   constructor(
     readonly requestId: string,
-    readonly status: ResponseStatus,
+    readonly status: cf.node.ResponseStatus,
     readonly type?: string,
     error?: string
   ) {}

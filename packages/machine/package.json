@@ -2,12 +2,12 @@
   "name": "@counterfactual/machine",
   "version": "0.0.1",
   "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
   "iife": "dist/index-iife.js",
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",

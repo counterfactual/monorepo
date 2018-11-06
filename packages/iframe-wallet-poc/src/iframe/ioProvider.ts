@@ -1,10 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 
 import { User } from "./user";
 import { IFrameWallet } from "./wallet";
 
 export class IframeIoProvider {
-  public messages: machine.types.ClientActionMessage[];
+  public messages: cf.node.ClientActionMessage[];
   public user: User = Object.create(null);
   public peer: IFrameWallet = Object.create(null);
   public clientHandlesIO: Boolean;
@@ -148,8 +149,8 @@ export class IframeIoProvider {
     let appId: string = "";
 
     if (
-      message.actionName === machine.types.ActionName.SETUP ||
-      message.actionName === machine.types.ActionName.INSTALL
+      message.actionName === cf.node.ActionName.SETUP ||
+      message.actionName === cf.node.ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {

@@ -17,6 +17,12 @@ export enum ActionName {
   CONNECT = "connect"
 }
 
+// TODO: document what this is
+// https://github.com/counterfactual/monorepo/issues/125
+export interface ResponseSink {
+  sendResponse(res: Response);
+}
+
 export class Response {
   constructor(
     readonly requestId: string,

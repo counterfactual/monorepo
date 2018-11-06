@@ -10,7 +10,6 @@ import { Context } from "../../src/state";
 import {
   ClientActionMessage,
   InternalMessage,
-  ResponseSink,
   WalletResponse
 } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
@@ -23,7 +22,7 @@ import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-export class TestResponseSink implements ResponseSink {
+export class TestResponseSink implements cf.node.ResponseSink {
   public vm: CounterfactualVM;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;

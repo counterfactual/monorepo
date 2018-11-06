@@ -2,7 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { ClientActionMessage } from "../../src/types";
-import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
   A_PRIVATE_KEY,
@@ -114,7 +113,7 @@ class Depositor {
       threshold
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // since the machine is async, we need to wait for peerB to finish up its
     // side of the protocol before inspecting it's state
     await sleep(50);
@@ -213,7 +212,7 @@ class Depositor {
       amountA
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // validate peerA
     Depositor.validateUninstall(cfAddr, peerA, peerB, amountA, amountB);
     // validate peerB
@@ -297,7 +296,7 @@ class TicTacToeSimulator {
       peerB.signingKey.address!
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
@@ -415,7 +414,7 @@ class TicTacToeSimulator {
       cfAddr
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     TicTacToeSimulator.validateMakeMove(
       peerA,
       peerB,
@@ -487,7 +486,7 @@ class TicTacToeSimulator {
       ethers.utils.bigNumberify(0)
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
     TicTacToeSimulator.validateUninstall(
       cfAddr,

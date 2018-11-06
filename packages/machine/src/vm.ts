@@ -11,14 +11,13 @@ import {
   AddressableLookupResolverHash,
   ClientActionMessage,
   InstructionMiddlewareCallback,
-  ResponseSink,
   WalletResponse
 } from "./types";
 import { Log } from "./write-ahead-log";
 
 export class CfVmConfig {
   constructor(
-    readonly responseHandler: ResponseSink,
+    readonly responseHandler: cf.node.ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
     readonly network: cf.utils.NetworkContext,
     readonly state?: cf.channel.ChannelStates
@@ -49,7 +48,7 @@ export class CounterfactualVM implements Observable {
   /**
    * The delegate handler we send responses to.
    */
-  public responseHandler: ResponseSink;
+  public responseHandler: cf.node.ResponseSink;
   /**
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
@@ -129,7 +128,7 @@ export class CounterfactualVM implements Observable {
     this.validateMessage(msg);
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
-    return new WalletResponse(action.requestId, ResponseStatus.STARTED);
+    return new WalletResponse(action.requestId, cf.node.ResponseStatus.STARTED);
   }
 
   public validateMessage(msg: ClientActionMessage) {
@@ -161,17 +160,20 @@ export class CounterfactualVM implements Observable {
       // https://github.com/counterfactual/monorepo/issues/123
       for await (val of execution) {
       }
-      this.sendResponse(execution, ResponseStatus.COMPLETED);
+      this.sendResponse(execution, cf.node.ResponseStatus.COMPLETED);
     } catch (e) {
       console.error(e);
-      this.sendResponse(execution, ResponseStatus.ERROR);
+      this.sendResponse(execution, cf.node.ResponseStatus.ERROR);
     }
   }
 
-  public sendResponse(execution: ActionExecution, status: ResponseStatus) {
+  public sendResponse(
+    execution: ActionExecution,
+    status: cf.node.ResponseStatus
+  ) {
     if (!execution.action.isAckSide) {
       this.responseHandler.sendResponse(
-        new Response(execution.action.requestId, status)
+        new cf.node.Response(execution.action.requestId, status)
       );
     }
   }
@@ -183,20 +185,6 @@ export class CounterfactualVM implements Observable {
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
-}
-
-export class Response {
-  constructor(
-    readonly requestId: string,
-    readonly status: ResponseStatus,
-    error?: string
-  ) {}
-}
-
-export enum ResponseStatus {
-  STARTED,
-  ERROR,
-  COMPLETED
 }
 
 applyMixins(CounterfactualVM, [Observable]);

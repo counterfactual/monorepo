@@ -2,7 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { ClientActionMessage } from "../../src/types";
-import { ResponseStatus } from "../../src/vm";
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 
 import { TestResponseSink } from "./test-response-sink";
@@ -98,6 +97,6 @@ export class SetupProtocol {
       peerB.signingKey.address
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   }
 }

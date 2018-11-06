@@ -7,7 +7,6 @@ import {
   Transaction
 } from "../../src/middleware/cf-operation/types";
 import { ClientActionMessage } from "../../src/types";
-import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
@@ -260,7 +259,7 @@ async function setup(
     walletB.signingKey.address
   );
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   validateSetup(multisigAddr, walletA, walletB);
 }
 
@@ -420,7 +419,7 @@ async function installBalanceRefund(
     threshold
   );
   const response = await depositor.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   // since the machine is async, we need to wait for walletB to finish up its
   // side of the protocol before inspecting it's state
   await sleep(50);
@@ -467,7 +466,7 @@ async function uninstallBalanceRefund(
     amountA
   );
   const response = await walletA.runProtocol(msg);
-  expect(response.status).toEqual(ResponseStatus.COMPLETED);
+  expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   // validate walletA
   validateUninstalledAndFreeBalance(
     multisigAddr,

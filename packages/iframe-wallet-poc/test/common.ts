@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
 import { IFrameWallet } from "../src/iframe/wallet";
@@ -43,11 +42,11 @@ export class SetupProtocol {
   public static setupStartMsg(
     from: string,
     to: string
-  ): machine.types.ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: machine.types.ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -111,6 +110,6 @@ export class SetupProtocol {
       walletB.currentUser.address
     );
     const response = await walletA.runProtocol(msg);
-    expect(response.status).toEqual(machine.vm.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   }
 }

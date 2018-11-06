@@ -8,17 +8,17 @@ import {
 
 interface Commitments {
   appId: string;
-  commitments: Map<machine.types.ActionName, machine.cfTypes.Transaction>;
+  commitments: Map<cf.node.ActionName, machine.cfTypes.Transaction>;
 
   addCommitment(
-    action: machine.types.ActionName,
+    action: cf.node.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
     signatures: cf.utils.Signature[]
   );
 
-  hasCommitment(action: machine.types.ActionName);
+  hasCommitment(action: cf.node.ActionName);
 
-  getTransaction(action: machine.types.ActionName);
+  getTransaction(action: cf.node.ActionName);
 }
 
 /**
@@ -32,13 +32,13 @@ export class AppCommitments implements Commitments {
     serializedCommitments: string
   ): AppCommitments {
     const commitments = new Map<
-      machine.types.ActionName,
+      cf.node.ActionName,
       machine.cfTypes.Transaction
     >();
     const commitmentObjects = new Map(JSON.parse(serializedCommitments));
     commitmentObjects.forEach((commitment: any, action) => {
       commitments.set(
-        action as machine.types.ActionName,
+        action as cf.node.ActionName,
         new machine.cfTypes.Transaction(
           commitment.to,
           commitment.value,
@@ -51,14 +51,14 @@ export class AppCommitments implements Commitments {
 
   public readonly appId: string;
   public readonly commitments: Map<
-    machine.types.ActionName,
+    cf.node.ActionName,
     machine.cfTypes.Transaction
   >;
 
   constructor(
     appId: string,
     commitments: Map<
-      machine.types.ActionName,
+      cf.node.ActionName,
       machine.cfTypes.Transaction
     > = new Map()
   ) {
@@ -73,15 +73,12 @@ export class AppCommitments implements Commitments {
    * @param signatures
    */
   public async addCommitment(
-    action: machine.types.ActionName,
+    action: cf.node.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
     signatures: cf.utils.Signature[]
   ) {
     const commitment = cfOperation.transaction(signatures);
-    if (
-      action !== machine.types.ActionName.UPDATE &&
-      this.commitments.has(action)
-    ) {
+    if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
       throw Error("Can't reset setup/install/uninstall commitments");
@@ -93,9 +90,7 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public async hasCommitment(
-    action: machine.types.ActionName
-  ): Promise<boolean> {
+  public async hasCommitment(action: cf.node.ActionName): Promise<boolean> {
     return this.commitments.has(action);
   }
 
@@ -104,7 +99,7 @@ export class AppCommitments implements Commitments {
    * @param action
    */
   public async getTransaction(
-    action: machine.types.ActionName
+    action: cf.node.ActionName
   ): Promise<machine.cfTypes.Transaction> {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
@@ -116,7 +111,7 @@ export class AppCommitments implements Commitments {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    const pairs: [machine.types.ActionName, machine.cfTypes.Transaction][] = [];
+    const pairs: [cf.node.ActionName, machine.cfTypes.Transaction][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });
@@ -154,7 +149,7 @@ export class CommitmentStore {
     context: machine.state.Context
   ) {
     let appId;
-    const action: machine.types.ActionName = internalMessage.actionName;
+    const action: cf.node.ActionName = internalMessage.actionName;
     const op: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
       machine.instructions.Instruction.OP_GENERATE,
       context.results
@@ -163,9 +158,9 @@ export class CommitmentStore {
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
 
-    if (action === machine.types.ActionName.SETUP) {
+    if (action === cf.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
-    } else if (action === machine.types.ActionName.INSTALL) {
+    } else if (action === cf.node.ActionName.INSTALL) {
       const proposal = machine.middleware.getFirstResult(
         machine.instructions.Instruction.STATE_TRANSITION_PROPOSE,
         context.results
@@ -219,7 +214,7 @@ export class CommitmentStore {
     internalMessage: machine.types.InternalMessage,
     context: machine.state.Context
   ): machine.types.ClientActionMessage | null {
-    if (internalMessage.actionName === machine.types.ActionName.INSTALL) {
+    if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(
         machine.instructions.Instruction.IO_WAIT,
         context.results
@@ -247,7 +242,7 @@ export class CommitmentStore {
    */
   public async getTransaction(
     appId: string,
-    action: machine.types.ActionName
+    action: cf.node.ActionName
   ): Promise<machine.cfTypes.Transaction> {
     if (!this.store.has(appId)) {
       throw Error("Invalid app id");
@@ -270,7 +265,7 @@ export class CommitmentStore {
 
   public async appHasCommitment(
     appId: string,
-    action: machine.types.ActionName
+    action: cf.node.ActionName
   ): Promise<boolean> {
     const appCommitments = AppCommitments.deserialize(
       appId,

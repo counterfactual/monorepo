@@ -12,14 +12,14 @@ import { User } from "./user";
 // public methods, private methods, etc. This should then be added as a project-wide
 // linting rule.
 
-export class IFrameWallet implements machine.types.ResponseSink {
+export class IFrameWallet implements cf.node.ResponseSink {
   // TODO: We shouldn't need this after we change AppInstance.sol to be a global
   // channel manager contract as opposed to each instance being counterfactual
   public readonly appInstanceArtifact = AppInstanceJson;
 
   public async deployMultisig(
     wallet: ethers.Wallet | ethers.providers.JsonRpcSigner,
-    owners: machine.types.Address[]
+    owners: cf.utils.Address[]
   ): Promise<ethers.Contract> {
     const contract = await new ethers.ContractFactory(
       MinimumViableMultisigJson.abi,
@@ -89,7 +89,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     privateKey: string,
     networkContext?: cf.utils.NetworkContext,
     db?: machine.writeAheadLog.SimpleStringMapSyncDB,
-    states?: machine.types.ChannelStates
+    states?: cf.channel.ChannelStates
   ) {
     this.address = address;
 
@@ -114,13 +114,11 @@ export class IFrameWallet implements machine.types.ResponseSink {
    * the protocol has completed execution.
    */
   public async runProtocol(
-    msg: machine.types.ClientActionMessage
-  ): Promise<machine.types.WalletResponse> {
-    const promise = new Promise<machine.types.WalletResponse>(
-      (resolve, reject) => {
-        this.requests[msg.requestId] = resolve;
-      }
-    );
+    msg: cf.node.ClientActionMessage
+  ): Promise<cf.node.WalletResponse> {
+    const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
+      this.requests[msg.requestId] = resolve;
+    });
     this.currentUser.vm.receive(msg);
     return promise;
   }
@@ -128,9 +126,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(
-    res: machine.types.WalletResponse | machine.types.Notification
-  ) {
+  public sendResponse(res: cf.node.WalletResponse | cf.node.Notification) {
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -143,19 +139,19 @@ export class IFrameWallet implements machine.types.ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: machine.types.ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: cf.node.ClientActionMessage) {
     this.currentUser.io.receiveMessageFromPeer(incoming);
   }
 
   //  TODO: figure out which client to send the response to
-  public sendResponseToClient(response: machine.types.ClientResponse) {
+  public sendResponseToClient(response: cf.node.ClientResponse) {
     if (this.responseListener) {
       this.responseListener(response);
     }
   }
 
   public sendMessageToClient(
-    msg: machine.types.ClientResponse | machine.types.Notification
+    msg: cf.node.ClientResponse | cf.node.Notification
   ) {
     if (this.responseListener) {
       this.responseListener(msg);
@@ -169,7 +165,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
 
   //  TODO: figure out which client to send the response to
   //  TODO: refactor to clarify difference with sendMessageToClient
-  public sendIoMessageToClient(message: machine.types.ClientActionMessage) {
+  public sendIoMessageToClient(message: cf.node.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }
@@ -180,7 +176,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     this.messageListener = callback;
   }
 
-  public handleFreeBalanceQuery(query: machine.types.ClientQuery) {
+  public handleFreeBalanceQuery(query: cf.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
       const freeBalance = this.currentUser.vm.cfState.freeBalanceFromMultisigAddress(
         query.multisigAddress
@@ -197,20 +193,20 @@ export class IFrameWallet implements machine.types.ResponseSink {
   }
 
   public sendNotification(type: cf.NotificationType, data: object) {
-    const message: machine.types.Notification = {
+    const message: cf.node.Notification = {
       data,
-      type: "machine.types.Notification",
+      type: "cf.node.Notification",
       notificationType: type
     };
 
     this.sendResponse(message);
   }
 
-  public addObserver(message: machine.types.ClientActionMessage) {
+  public addObserver(message: cf.node.ClientActionMessage) {
     this.currentUser.addObserver(message);
   }
 
-  public removeObserver(message: machine.types.ClientActionMessage) {
+  public removeObserver(message: cf.node.ClientActionMessage) {
     this.currentUser.removeObserver(message);
   }
 
@@ -218,7 +214,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     this.currentUser.io.setClientToHandleIO();
   }
 
-  public handleStateChannelQuery(query: machine.types.ClientQuery) {
+  public handleStateChannelQuery(query: cf.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
       const stateChannel = this.currentUser.vm.cfState.stateChannelFromMultisigAddress(
         query.multisigAddress
@@ -234,7 +230,7 @@ export class IFrameWallet implements machine.types.ResponseSink {
     }
   }
 
-  public handleUserQuery(query: machine.types.ClientQuery) {
+  public handleUserQuery(query: cf.node.ClientQuery) {
     const response = {
       requestId: query.requestId,
       data: {
@@ -262,31 +258,29 @@ export class IFrameWallet implements machine.types.ResponseSink {
   }
 
   public async receiveMessageFromClient(
-    serializedIncoming:
-      | machine.types.ClientActionMessage
-      | machine.types.ClientQuery
+    serializedIncoming: cf.node.ClientActionMessage | cf.node.ClientQuery
   ) {
     const incoming = machine.serializer.deserialize(serializedIncoming);
 
     if ("query" in incoming) {
       switch (incoming.query) {
-        case machine.types.ClientQueryType.FreeBalance:
+        case cf.node.ClientQueryType.FreeBalance:
           this.handleFreeBalanceQuery(incoming);
           break;
-        case machine.types.ClientQueryType.StateChannel:
+        case cf.node.ClientQueryType.StateChannel:
           this.handleStateChannelQuery(incoming);
           break;
-        case machine.types.ClientQueryType.User:
+        case cf.node.ClientQueryType.User:
           this.handleUserQuery(incoming);
           break;
       }
     } else if (incoming.action) {
       switch (incoming.action) {
-        case machine.types.ActionName.DEPOSIT: {
+        case cf.node.ActionName.DEPOSIT: {
           await this.currentUser.deposit(incoming.data);
           break;
         }
-        case machine.types.ActionName.CONNECT: {
+        case cf.node.ActionName.CONNECT: {
           const toAddress = incoming.data.toAddress;
           incoming.data.multisigAddress = this.getMultisigAddressByToAddress(
             toAddress
@@ -299,19 +293,19 @@ export class IFrameWallet implements machine.types.ResponseSink {
 
           break;
         }
-        case machine.types.ActionName.ADD_OBSERVER: {
+        case cf.node.ActionName.ADD_OBSERVER: {
           this.addObserver(incoming);
           break;
         }
-        case machine.types.ActionName.REMOVE_OBSERVER: {
+        case cf.node.ActionName.REMOVE_OBSERVER: {
           this.removeObserver(incoming);
           break;
         }
-        case machine.types.ActionName.REGISTER_IO: {
+        case cf.node.ActionName.REGISTER_IO: {
           this.setClientToHandleIO();
           break;
         }
-        case machine.types.ActionName.RECEIVE_IO: {
+        case cf.node.ActionName.RECEIVE_IO: {
           this.currentUser.io.receiveMessageFromPeer(incoming.data);
           break;
         }

@@ -17,8 +17,7 @@ try {
   console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
-export class User
-  implements machine.mixins.Observable, machine.types.ResponseSink {
+export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
@@ -53,7 +52,7 @@ export class User
     privateKey: string,
     networkContext: cf.utils.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: machine.types.ChannelStates
+    states?: cf.channel.ChannelStates
   ) {
     this.wallet = wallet;
     this.address = address;
