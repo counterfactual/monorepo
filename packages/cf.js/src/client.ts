@@ -1,11 +1,18 @@
-import * as machine from "@counterfactual/machine";
-
 import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-
-type WalletMessage = machine.types.WalletMessage;
-type WalletResponse = machine.types.WalletResponse;
+import {
+  ActionName,
+  ClientActionMessage,
+  ClientMessage,
+  ClientQuery,
+  ClientQueryType,
+  ClientResponse,
+  UserDataClientResponse,
+  WalletMessage,
+  WalletMessaging,
+  WalletResponse
+} from "./node";
 
 export class Client implements Observable {
   get address(): string {
@@ -13,7 +20,7 @@ export class Client implements Observable {
     return this.userAddress || "";
   }
 
-  public wallet: machine.types.WalletMessaging;
+  public wallet: WalletMessaging;
   public userAddress?: string;
   public networkContext: Map<string, string>;
   public ioHandler?: Function;
@@ -27,7 +34,7 @@ export class Client implements Observable {
   public observers: Map<NotificationType, Function[]> = new Map();
   private observerCallbacks: Map<string, Function>;
 
-  constructor(wallet: machine.types.WalletMessaging) {
+  constructor(wallet: WalletMessaging) {
     this.wallet = wallet;
     this.outstandingRequests = {};
     this.observerCallbacks = new Map<string, Function>();
@@ -53,34 +60,32 @@ export class Client implements Observable {
     return Math.random().toString();
   }
 
-  public async queryUser(): Promise<machine.types.UserDataClientResponse> {
-    const userQuery: machine.types.ClientQuery = {
+  public async queryUser(): Promise<UserDataClientResponse> {
+    const userQuery: ClientQuery = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.QUERY,
-      query: machine.types.ClientQueryType.User
+      action: ActionName.QUERY,
+      query: ClientQueryType.User
     };
-    return (await this.sendMessage(
-      userQuery
-    )) as machine.types.UserDataClientResponse;
+    return (await this.sendMessage(userQuery)) as UserDataClientResponse;
   }
 
   public registerIOSendMessage(callback: Function) {
     this.ioHandler = callback;
     this.sendMessage({
       requestId: this.requestId(),
-      action: machine.types.ActionName.REGISTER_IO
+      action: ActionName.REGISTER_IO
     });
   }
 
-  public sendIOMessage(msg: machine.types.ClientMessage) {
+  public sendIOMessage(msg: ClientMessage) {
     if (this.ioHandler) {
       this.ioHandler(msg);
     }
   }
 
-  public receiveIOMessage(msg: machine.types.ClientMessage) {
+  public receiveIOMessage(msg: ClientMessage) {
     const message = {
-      action: machine.types.ActionName.RECEIVE_IO,
+      action: ActionName.RECEIVE_IO,
       data: msg,
       requestId: this.requestId()
     };
@@ -101,17 +106,15 @@ export class Client implements Observable {
 
   // TODO: Add type here
   public async sendMessage(
-    message: machine.types.ClientMessage | machine.types.ClientActionMessage
-  ): Promise<machine.types.ClientResponse> {
+    message: ClientMessage | ClientActionMessage
+  ): Promise<ClientResponse> {
     const id = message.requestId;
     let resolve;
     let reject;
-    const promise: Promise<machine.types.ClientResponse> = new Promise(
-      (re, rj) => {
-        resolve = re;
-        reject = rj;
-      }
-    );
+    const promise: Promise<ClientResponse> = new Promise((re, rj) => {
+      resolve = re;
+      reject = rj;
+    });
     this.outstandingRequests[id] = { resolve, reject };
     this.wallet.postMessage(message);
     return promise;
@@ -145,7 +148,7 @@ export class Client implements Observable {
   public addObserver(
     notificationType: string,
     callback: Function
-  ): Promise<machine.types.ClientResponse> {
+  ): Promise<ClientResponse> {
     const observerId = this.requestId();
 
     this.observerCallbacks.set(observerId, callback);
@@ -153,7 +156,7 @@ export class Client implements Observable {
 
     const message = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.ADD_OBSERVER,
+      action: ActionName.ADD_OBSERVER,
       data: {
         observerId,
         notificationType
@@ -166,7 +169,7 @@ export class Client implements Observable {
   public removeObserver(
     notificationType: string,
     callback: Function
-  ): Promise<machine.types.ClientResponse> {
+  ): Promise<ClientResponse> {
     let observerId;
 
     this.observerCallbacks.forEach((value: Function, key: string) => {
@@ -183,7 +186,7 @@ export class Client implements Observable {
 
     const message = {
       requestId: this.requestId(),
-      action: machine.types.ActionName.REMOVE_OBSERVER,
+      action: ActionName.REMOVE_OBSERVER,
       data: {
         observerId,
         notificationType
@@ -202,7 +205,7 @@ export class Client implements Observable {
       data: { multisigAddress, generatedNewMultisig }
     } = await this.sendMessage({
       requestId: this.requestId(),
-      action: machine.types.ActionName.CONNECT,
+      action: ActionName.CONNECT,
       data: {
         toAddress
       }
@@ -221,7 +224,7 @@ export class Client implements Observable {
       toAddress,
       requestId: this.requestId(),
       appId: undefined,
-      action: machine.types.ActionName.SETUP,
+      action: ActionName.SETUP,
       data: {},
       fromAddress: this.address,
       stateChannel: undefined,

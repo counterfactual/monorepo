@@ -1,9 +1,8 @@
-import { ethers } from "ethers";
+import * as cf from "@counterfactual/cf.js";
+import * as ethers from "ethers";
 
-import { ActionName, ClientActionMessage } from "../../src/types";
-import { PeerBalance } from "../../src/utils/peer-balance";
-import { ResponseStatus } from "../../src/vm";
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
+
 import { TestResponseSink } from "./test-response-sink";
 
 /**
@@ -28,11 +27,14 @@ export class SetupProtocol {
     expect(peerB.vm.cfState.channelStates).toEqual({});
   }
 
-  public static setupStartMsg(from: string, to: string): ClientActionMessage {
+  public static setupStartMsg(
+    from: string,
+    to: string
+  ): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -71,7 +73,7 @@ export class SetupProtocol {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.vm.cfState;
-    const canon = PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       peerA.signingKey.address,
       amountA,
       peerB.signingKey.address,
@@ -97,6 +99,6 @@ export class SetupProtocol {
       peerB.signingKey.address
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   }
 }

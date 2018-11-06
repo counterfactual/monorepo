@@ -1,17 +1,13 @@
-import * as ethers from "ethers";
+import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
-  ActionName,
-  ClientActionMessage,
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
   InternalMessage,
   OpCodeResult
 } from "../types";
-
-import { Signature } from "../utils/signature";
 
 import { StateTransition } from "./state-transition/state-transition";
 
@@ -36,7 +32,7 @@ export class CfMiddleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly cfState: CfState, private cfOpGenerator: CfOpGenerator) {
+  constructor(readonly cfState: CfState, cfOpGenerator: CfOpGenerator) {
     this.initializeMiddlewares(cfOpGenerator);
   }
 
@@ -133,7 +129,7 @@ export class NextMsgGenerator {
   ) {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
-    const msg: ClientActionMessage = {
+    const msg: cf.node.ClientActionMessage = {
       signature,
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,
@@ -169,12 +165,12 @@ export class NextMsgGenerator {
   public static signature(
     internalMessage: InternalMessage,
     context: Context
-  ): Signature | undefined {
+  ): cf.utils.Signature | undefined {
     // first time we send an install message (from non-ack side) we don't have
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     if (
-      internalMessage.actionName === ActionName.INSTALL &&
+      internalMessage.actionName === cf.node.ActionName.INSTALL &&
       lastMsg.seq === 0
     ) {
       return undefined;
@@ -189,8 +185,8 @@ export class KeyGenerator {
    * client message by placing the ephemeral key on it for my address.
    */
   public static generate(message: InternalMessage, next: Function) {
-    const wallet = ethers.Wallet.createRandom();
-    const installData = message.clientMessage.data;
+    // const wallet = ethers.Wallet.createRandom();
+    // const installData = message.clientMessage.data;
     // FIXME: properly assign ephemeral keys
     // https://github.com/counterfactual/monorepo/issues/116
     //
@@ -209,11 +205,11 @@ export class SignatureValidator {
     next: Function,
     context: Context
   ) {
-    const incomingMessage = getFirstResult(
-      Instruction.IO_WAIT,
-      context.results
-    );
-    const op = getFirstResult(Instruction.OP_GENERATE, context.results);
+    // const incomingMessage = getFirstResult(
+    //   Instruction.IO_WAIT,
+    //   context.results
+    // );
+    // const op = getFirstResult(Instruction.OP_GENERATE, context.results);
     // TODO: now validate the signature against the op hash
     // https://github.com/counterfactual/monorepo/issues/130
     next();

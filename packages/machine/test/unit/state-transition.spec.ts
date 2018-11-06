@@ -1,25 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../src/instructions";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfFreeBalance,
-  CfNonce,
-  Terms
-} from "../../src/middleware/cf-operation/types";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
 import { CfState, Context, StateChannelInfoImpl } from "../../src/state";
-import {
-  ActionName,
-  ChannelStates,
-  ClientActionMessage,
-  H256,
-  InternalMessage,
-  StateChannelInfos
-} from "../../src/types";
-import { PeerBalance } from "../../src/utils/peer-balance";
+import { InternalMessage } from "../../src/types";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import {
@@ -42,7 +28,7 @@ const ABI_ENCODING = "";
 describe("State transition", () => {
   it("should propose a new setup state", () => {
     const message = new InternalMessage(
-      ActionName.SETUP,
+      cf.node.ActionName.SETUP,
       Instruction.STATE_TRANSITION_PROPOSE,
       setupClientMsg(),
       false
@@ -52,12 +38,12 @@ describe("State transition", () => {
   });
   it("should propose a new install state", () => {
     const message = new InternalMessage(
-      ActionName.INSTALL,
+      cf.node.ActionName.INSTALL,
       Instruction.STATE_TRANSITION_PROPOSE,
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new CfAppInstance(
+    const expectedCfAddr = new cf.app.CfAppInstance(
       EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
@@ -75,11 +61,11 @@ describe("State transition", () => {
   });
 });
 
-function setupClientMsg(): ClientActionMessage {
+function setupClientMsg(): cf.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",
-    action: ActionName.SETUP,
+    action: cf.node.ActionName.SETUP,
     data: {},
     multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: A_ADDRESS,
@@ -90,7 +76,7 @@ function setupClientMsg(): ClientActionMessage {
 }
 
 function setupInstallCfState(): CfState {
-  const freeBalance = new CfFreeBalance(
+  const freeBalance = new cf.utils.CfFreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
     B_ADDRESS,
@@ -98,7 +84,7 @@ function setupInstallCfState(): CfState {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new CfNonce(true, 0, 0) // nonce
+    new cf.utils.CfNonce(true, 0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
@@ -107,11 +93,13 @@ function setupInstallCfState(): CfState {
     {},
     freeBalance
   );
-  const channelStates: ChannelStates = { [UNUSED_FUNDED_ACCOUNT]: info };
+  const channelStates: cf.channel.ChannelStates = {
+    [UNUSED_FUNDED_ACCOUNT]: info
+  };
   return new CfState(channelStates, EMPTY_NETWORK_CONTEXT);
 }
 
-function validateSetupInfos(infos: StateChannelInfos) {
+function validateSetupInfos(infos: cf.channel.StateChannelInfos) {
   expect(Object.keys(infos).length).toEqual(1);
   const info = infos[UNUSED_FUNDED_ACCOUNT];
   expect(info.counterParty).toEqual(B_ADDRESS);
@@ -130,19 +118,19 @@ function validateSetupInfos(infos: StateChannelInfos) {
   expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
 }
 
-function installClientMsg(): ClientActionMessage {
+function installClientMsg(): cf.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",
-    action: ActionName.INSTALL,
+    action: cf.node.ActionName.INSTALL,
     data: {
-      peerA: new PeerBalance(A_ADDRESS, 5),
-      peerB: new PeerBalance(B_ADDRESS, 3),
+      peerA: new cf.utils.PeerBalance(A_ADDRESS, 5),
+      peerB: new cf.utils.PeerBalance(B_ADDRESS, 3),
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
-      app: new CfAppInterface(
+      terms: new cf.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
+      app: new cf.app.CfAppInterface(
         APP_ADDRESS,
         APPLY_ACTION,
         RESOLVE,
@@ -160,7 +148,10 @@ function installClientMsg(): ClientActionMessage {
   };
 }
 
-function validateInstallInfos(infos: StateChannelInfos, expectedCfAddr: H256) {
+function validateInstallInfos(
+  infos: cf.channel.StateChannelInfos,
+  expectedCfAddr: cf.utils.H256
+) {
   const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
 
   expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);

@@ -1,15 +1,7 @@
-import * as ethers from "ethers";
+import * as cf from "@counterfactual/cf.js";
 
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
-import {
-  Address,
-  CanonicalPeerBalance,
-  InternalMessage,
-  StateChannelInfos,
-  StateProposal
-} from "../../types";
-import { PeerBalance } from "../../utils/peer-balance";
-import { CfFreeBalance } from "../cf-operation/types";
+import { InternalMessage, StateProposal } from "../../types";
 
 export class UninstallProposer {
   public static propose(
@@ -17,7 +9,7 @@ export class UninstallProposer {
     context: Context,
     state: CfState
   ): StateProposal {
-    const multisig: Address = message.clientMessage.multisigAddress;
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const channels = state.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
@@ -27,12 +19,12 @@ export class UninstallProposer {
     channels[multisig].appChannels[appId].dependencyNonce.nonceValue += 1;
     channels[multisig].appChannels[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
-    const canon = CanonicalPeerBalance.canonicalize(
+    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new CfFreeBalance(
+    const newFreeBalance = new cf.utils.CfFreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,

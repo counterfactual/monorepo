@@ -1,23 +1,9 @@
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
-import {
-  Address,
-  AppInstanceInfo,
-  H256,
-  InstallData,
-  InternalMessage,
-  StateProposal
-} from "../../types";
-import { PeerBalance } from "../../utils/peer-balance";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfFreeBalance,
-  CfNonce,
-  Terms
-} from "../cf-operation/types";
+import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 
 export class InstallProposer {
@@ -26,9 +12,9 @@ export class InstallProposer {
     context: Context,
     state: CfState
   ): StateProposal {
-    const multisig: Address = message.clientMessage.multisigAddress;
-    const data: InstallData = message.clientMessage.data;
-    const app = new CfAppInterface(
+    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const data: cf.app.InstallData = message.clientMessage.data;
+    const app = new cf.app.CfAppInterface(
       data.app.address,
       data.app.applyAction,
       data.app.resolve,
@@ -36,7 +22,7 @@ export class InstallProposer {
       data.app.isStateTerminal,
       data.app.stateEncoding
     );
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       data.terms.assetType,
       data.terms.limit,
       data.terms.token
@@ -61,7 +47,7 @@ export class InstallProposer {
       uniqueId
     );
     const [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
-    const freeBalance = new CfFreeBalance(
+    const freeBalance = new cf.utils.CfFreeBalance(
       peerA.address,
       peerA.balance,
       peerB.address,
@@ -85,7 +71,10 @@ export class InstallProposer {
     };
   }
 
-  private static newSigningKeys(context: Context, data: InstallData): string[] {
+  private static newSigningKeys(
+    context: Context,
+    data: cf.app.InstallData
+  ): string[] {
     const lastResult = getLastResult(Instruction.IO_WAIT, context.results);
 
     let signingKeys;
@@ -97,7 +86,7 @@ export class InstallProposer {
 
     // TODO: Feels like this is the wrong place for this sorting...
     // https://github.com/counterfactual/monorepo/issues/129
-    signingKeys.sort((addrA: Address, addrB: Address) => {
+    signingKeys.sort((addrA: cf.utils.Address, addrB: cf.utils.Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
@@ -105,13 +94,13 @@ export class InstallProposer {
   }
 
   private static newAppChannel(
-    cfAddr: H256,
-    data: InstallData,
-    app: CfAppInterface,
-    terms: Terms,
+    cfAddr: cf.utils.H256,
+    data: cf.app.InstallData,
+    app: cf.app.CfAppInterface,
+    terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
-  ): AppInstanceInfo {
+  ): cf.app.AppInstanceInfo {
     return {
       uniqueId,
       terms,
@@ -124,19 +113,19 @@ export class InstallProposer {
       localNonce: 1,
       timeout: data.timeout,
       cfApp: app,
-      dependencyNonce: new CfNonce(false, uniqueId, 0)
+      dependencyNonce: new cf.utils.CfNonce(false, uniqueId, 0)
     };
   }
 
   private static proposedCfAddress(
     state: CfState,
     message: InternalMessage,
-    app: CfAppInterface,
-    terms: Terms,
+    app: cf.app.CfAppInterface,
+    terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
-  ): H256 {
-    return new CfAppInstance(
+  ): cf.utils.H256 {
+    return new cf.app.CfAppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,
@@ -148,21 +137,24 @@ export class InstallProposer {
   }
 
   private static newPeers(
-    existingFreeBalance: CfFreeBalance,
-    data: InstallData
-  ): [PeerBalance, PeerBalance] {
-    const peerA = new PeerBalance(
+    existingFreeBalance: cf.utils.CfFreeBalance,
+    data: cf.app.InstallData
+  ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
+    const peerA = new cf.utils.PeerBalance(
       existingFreeBalance.alice,
       existingFreeBalance.aliceBalance.sub(data.peerA.balance)
     );
-    const peerB = new PeerBalance(
+    const peerB = new cf.utils.PeerBalance(
       existingFreeBalance.bob,
       existingFreeBalance.bobBalance.sub(data.peerB.balance)
     );
     return [peerA, peerB];
   }
 
-  private static nextUniqueId(state: CfState, multisig: Address): number {
+  private static nextUniqueId(
+    state: CfState,
+    multisig: cf.utils.Address
+  ): number {
     const channel = state.channelStates[multisig];
     // + 1 for the free balance
     return Object.keys(channel.appChannels).length + 1;

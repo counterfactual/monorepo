@@ -1,19 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
-import { Address, Bytes } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-import { Signature } from "../../utils/signature";
-
 import * as common from "./common";
 import { MultisigTxOp } from "./multisig-tx-op";
 import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
   CfOperation,
   MultiSend,
   MultisigInput,
@@ -22,13 +14,14 @@ import {
 } from "./types";
 
 const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
 export abstract class CfMultiSendOp extends MultisigTxOp {
   constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
-    readonly cfFreeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly cfFreeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super(multisig, cfFreeBalance);
   }
@@ -41,10 +34,10 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
     return new MultisigInput(to, val, data, op);
   }
 
-  public freeBalanceData(): Bytes {
-    const terms = CfFreeBalance.terms();
-    const app = CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new CfAppInstance(
+  public freeBalanceData(): cf.utils.Bytes {
+    const terms = cf.utils.CfFreeBalance.terms();
+    const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
+    const freeBalanceCfAddress = new cf.app.CfAppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],

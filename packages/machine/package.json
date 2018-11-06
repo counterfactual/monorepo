@@ -2,16 +2,16 @@
   "name": "@counterfactual/machine",
   "version": "0.0.1",
   "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
   "iife": "dist/index-iife.js",
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
-    "build": "tsc -b && rollup -c",
+    "build": "tsc -p tsconfig.test.json && rollup -c",
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
@@ -33,6 +33,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
+    "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "ethers": "^4.0.4"
   },

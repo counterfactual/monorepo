@@ -1,29 +1,20 @@
+import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
-import { Address, H256 } from "../../types";
-import { NetworkContext } from "../../utils/network-context";
-
 import { CfMultiSendOp } from "./cf-multisend-op";
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  MultisigInput,
-  Operation
-} from "./types";
+import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
 export class CfOpInstall extends CfMultiSendOp {
   constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
-    readonly app: CfAppInstance,
-    readonly cfFreeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly app: cf.app.CfAppInstance,
+    readonly cfFreeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super(networkContext, multisig, cfFreeBalance, dependencyNonce);
   }
@@ -62,7 +53,7 @@ export class CfOpInstall extends CfMultiSendOp {
     return new MultisigInput(to, val, data, op);
   }
 
-  get appCfAddress(): H256 {
+  get appCfAddress(): cf.utils.H256 {
     return this.app.cfAddress();
   }
 }

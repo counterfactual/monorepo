@@ -1,6 +1,6 @@
 import lodash from "lodash";
 
-import { Address } from "../types";
+import { Address } from "./index";
 
 /**
  * A network context is a set of addresses at which global contracts are

@@ -1,7 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import ETHBalanceRefundAppJson from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
-import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
 import { ganacheURL } from "../src/iframe/user";
@@ -15,8 +13,6 @@ import {
   B_PRIVATE_KEY
 } from "./environment";
 
-const BALANCE_REFUND_STATE_ENCODING =
-  "tuple(address recipient, address multisig, uint256 threshold)";
 const PAYMENT_APP_STATE_ENCODING =
   "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)";
 const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentAppJson.abi);
@@ -29,7 +25,7 @@ const APP_INSTANCE = new cf.AppInstance(
     appActionEncoding: PAYMENT_APP_ABI_ENCODING,
     appStateEncoding: PAYMENT_APP_STATE_ENCODING
   },
-  new machine.cfTypes.Terms(
+  new cf.app.Terms(
     0,
     ethers.utils.bigNumberify(0),
     ethers.constants.AddressZero
@@ -49,14 +45,14 @@ const APP_INITIAL_STATE = {
 
 const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
-class ClientBridge implements machine.types.WalletMessaging {
+class ClientBridge implements cf.node.WalletMessaging {
   public client: IFrameWallet;
 
   constructor(client: IFrameWallet) {
     this.client = client;
   }
 
-  public postMessage(message: machine.types.ClientActionMessage) {
+  public postMessage(message: cf.node.ClientActionMessage) {
     //  TODO: move this into a setTimeout to enfore asyncness of the call
     this.client.receiveMessageFromClient(message);
   }

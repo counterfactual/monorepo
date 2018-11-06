@@ -1,21 +1,14 @@
+import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
+import { CfMultiSendOp } from "./cf-multisend-op";
 
-import { Address } from "../../types";
-import { NetworkContext } from "../../utils";
-
+import { MultisigInput, Operation } from "./types";
 import { MultisigTxOp } from "./multisig-tx-op";
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  MultisigInput,
-  Operation
-} from "./types";
 
 const { keccak256 } = ethers.utils;
+const { abi } = cf.utils;
 
 export class CfOpSetup extends MultisigTxOp {
   /**
@@ -27,11 +20,11 @@ export class CfOpSetup extends MultisigTxOp {
    * @param dependencyNonce
    */
   public constructor(
-    readonly networkContext: NetworkContext,
-    readonly multisig: Address,
-    readonly freeBalanceStateChannel: CfAppInstance,
-    readonly freeBalance: CfFreeBalance,
-    readonly dependencyNonce: CfNonce
+    readonly networkContext: cf.utils.NetworkContext,
+    readonly multisig: cf.utils.Address,
+    readonly freeBalanceStateChannel: cf.app.CfAppInstance,
+    readonly freeBalance: cf.utils.CfFreeBalance,
+    readonly dependencyNonce: cf.utils.CfNonce
   ) {
     super(multisig, freeBalance);
     if (dependencyNonce === undefined) {
@@ -40,7 +33,7 @@ export class CfOpSetup extends MultisigTxOp {
   }
 
   multisigInput(): MultisigInput {
-    const terms = CfFreeBalance.terms();
+    const terms = cf.utils.CfFreeBalance.terms();
 
     const uninstallKey = keccak256(
       abi.encodePacked(
