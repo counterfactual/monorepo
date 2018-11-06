@@ -58,15 +58,14 @@ export class CounterfactualVM implements Observable {
 
   constructor(config: CfVmConfig) {
     this.responseHandler = config.responseHandler;
-    this.cfState = new CfState(
-      config.state ? config.state : Object.create(null),
-      config.network
-    );
+    this.cfState = new CfState(config.state || {}, config.network);
     this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
   }
+
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
   public notifyObservers(type: NotificationType, data: object) {}
+
   /**
    * Restarts all protocols that were stopped mid execution, and returns when
    * they all finish.
