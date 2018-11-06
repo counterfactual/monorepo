@@ -114,7 +114,9 @@ async function executeStateChannelTransaction(
     unlockedAccount
   );
   const registry = await (await Registry).getDeployed(unlockedAccount);
-  const nonceRegistry = await (await NonceRegistry).getDeployed(unlockedAccount);
+  const nonceRegistry = await (await NonceRegistry).getDeployed(
+    unlockedAccount
+  );
 
   await multisig.execDelegatecall(
     conditionalTransaction,
