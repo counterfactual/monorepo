@@ -1,5 +1,5 @@
 import typescript from "rollup-plugin-typescript2";
-import json from 'rollup-plugin-json';
+import json from "rollup-plugin-json";
 
 import pkg from "./package.json";
 const globals = {
@@ -33,7 +33,10 @@ export default {
       typescript: require("typescript")
     }),
     json({
-      include: "../contracts/build/contracts/ETHBalanceRefundApp.json"
+      include: [
+        "../contracts/build/contracts/ETHBalanceRefundApp.json",
+        "../contracts/build/contracts/AppInstance.json"
+      ]
     })
   ]
 };

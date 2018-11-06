@@ -2,11 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import {
-  CfAppInstance,
-  Transaction
-} from "../../src/middleware/cf-operation/types";
-import { ClientActionMessage } from "../../src/types";
+import { Transaction } from "../../src/middleware/cf-operation/types";
 import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
@@ -183,7 +179,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new CfAppInstance(
+    const cfStateChannel = new cf.app.CfAppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
@@ -275,7 +271,7 @@ function setupStartMsg(
   multisigAddress: string,
   from: string,
   to: string
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   return {
     multisigAddress,
     requestId: "0",
@@ -492,7 +488,7 @@ function startInstallBalanceRefundMsg(
   from: string,
   to: string,
   threshold: ethers.utils.BigNumber
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   let peerA = from;
   let peerB = to;
   if (peerB.localeCompare(peerA) < 0) {
@@ -617,7 +613,7 @@ function startUninstallBalanceRefundMsg(
   from: string,
   to: string,
   amount: ethers.utils.BigNumber
-): ClientActionMessage {
+): cf.node.ClientActionMessage {
   const uninstallData = {
     peerAmounts: [
       new cf.utils.PeerBalance(from, amount),

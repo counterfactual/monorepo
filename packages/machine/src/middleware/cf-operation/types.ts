@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import * as ethers from "ethers";
 
@@ -64,42 +63,5 @@ export class MultiSend {
       MultiSendJson.abi
     ).functions.multiSend.encode([txs]);
     return new MultisigInput(multisend, 0, data, Operation.Delegatecall);
-  }
-}
-
-/**
- * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
- * is used to calculate the cf address).
- *
- * @param signingKeys *must* be in sorted lexicographic order.
- */
-export class CfAppInstance {
-  constructor(
-    readonly ctx: cf.utils.NetworkContext,
-    readonly owner: cf.utils.Address,
-    readonly signingKeys: cf.utils.Address[],
-    readonly cfApp: cf.app.CfAppInterface,
-    readonly terms: cf.app.Terms,
-    readonly timeout: number,
-    readonly uniqueId: number
-  ) {}
-
-  public cfAddress(): cf.utils.H256 {
-    const initcode = new ethers.utils.Interface(
-      AppInstanceJson.abi
-    ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [
-      this.owner,
-      this.signingKeys,
-      this.cfApp.hash(),
-      this.terms.hash(),
-      this.timeout
-    ]);
-
-    return cf.utils.abi.keccak256(
-      cf.utils.abi.encodePacked(
-        ["bytes1", "bytes", "uint256"],
-        ["0x19", initcode, this.uniqueId]
-      )
-    );
   }
 }

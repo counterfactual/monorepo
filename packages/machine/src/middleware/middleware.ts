@@ -3,7 +3,6 @@ import * as cf from "@counterfactual/cf.js";
 import { Instruction } from "../instructions";
 import { CfState, Context } from "../state";
 import {
-  ClientActionMessage,
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
   InternalMessage,
@@ -130,7 +129,7 @@ export class NextMsgGenerator {
   ) {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
-    const msg: ClientActionMessage = {
+    const msg: cf.node.ClientActionMessage = {
       signature,
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,

@@ -1,9 +1,54 @@
+import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import * as ethers from "ethers";
 
 import { StateChannelInfo } from "../channel";
-import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
+import {
+  Address,
+  Bytes,
+  Bytes4,
+  H256,
+  NetworkContext,
+  PeerBalance
+} from "../utils";
 import * as abi from "../utils/abi";
 import { CfNonce } from "../utils/nonce";
+
+/**
+ * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
+ * is used to calculate the cf address).
+ *
+ * @param signingKeys *must* be in sorted lexicographic order.
+ */
+export class CfAppInstance {
+  constructor(
+    readonly ctx: NetworkContext,
+    readonly owner: Address,
+    readonly signingKeys: Address[],
+    readonly cfApp: CfAppInterface,
+    readonly terms: Terms,
+    readonly timeout: number,
+    readonly uniqueId: number
+  ) {}
+
+  public cfAddress(): H256 {
+    const initcode = new ethers.utils.Interface(
+      AppInstanceJson.abi
+    ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [
+      this.owner,
+      this.signingKeys,
+      this.cfApp.hash(),
+      this.terms.hash(),
+      this.timeout
+    ]);
+
+    return abi.keccak256(
+      abi.encodePacked(
+        ["bytes1", "bytes", "uint256"],
+        ["0x19", initcode, this.uniqueId]
+      )
+    );
+  }
+}
 
 export class CfAppInterface {
   public static generateSighash(

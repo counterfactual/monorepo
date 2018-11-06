@@ -1,7 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { ClientActionMessage } from "../../src/types";
 import { sleep } from "../utils/common";
 import {
   A_PRIVATE_KEY,
@@ -127,7 +126,7 @@ class Depositor {
     from: string,
     to: string,
     threshold: ethers.utils.BigNumber
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const canon = cf.utils.PeerBalance.balances(
       from,
       ethers.utils.bigNumberify(0),
@@ -256,7 +255,7 @@ class Depositor {
     from: string,
     to: string,
     amount: ethers.utils.BigNumber
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
         new cf.utils.PeerBalance(from, amount),
@@ -300,7 +299,10 @@ class TicTacToeSimulator {
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
-  public static installMsg(to: string, from: string): ClientActionMessage {
+  public static installMsg(
+    to: string,
+    from: string
+  ): cf.node.ClientActionMessage {
     let peerA = from;
     let peerB = to;
     if (peerB.localeCompare(peerA) < 0) {
@@ -438,7 +440,7 @@ class TicTacToeSimulator {
     to: string,
     from: string,
     cfAddr: string
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const updateData: cf.app.UpdateData = {
       encodedAppState: state,
       appStateHash: ethers.constants.HashZero // TODO:
@@ -509,7 +511,7 @@ class TicTacToeSimulator {
     amountA: ethers.utils.BigNumber,
     addressB: string,
     amountB: ethers.utils.BigNumber
-  ): ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
         new cf.utils.PeerBalance(addressA, amountA),

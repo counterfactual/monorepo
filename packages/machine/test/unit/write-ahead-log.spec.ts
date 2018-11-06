@@ -1,7 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "../../src/action";
-import { ClientActionMessage } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -46,7 +45,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
     cf.node.ActionName.UNINSTALL
   ];
 
-  const msgs: ClientActionMessage[] = [
+  const msgs: cf.node.ClientActionMessage[] = [
     {
       requestId: "1",
       action: cf.node.ActionName.INSTALL,

@@ -7,11 +7,7 @@ import { EthCfOpGenerator } from "../../src/middleware/cf-operation";
 import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
-import {
-  ClientActionMessage,
-  InternalMessage,
-  WalletResponse
-} from "../../src/types";
+import { InternalMessage } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
@@ -108,8 +104,10 @@ export class TestResponseSink implements cf.node.ResponseSink {
    * Returns a promise that resolves with a Response object when
    * the protocol has completed execution.
    */
-  public async runProtocol(msg: ClientActionMessage): Promise<WalletResponse> {
-    const promise = new Promise<WalletResponse>((resolve, reject) => {
+  public async runProtocol(
+    msg: cf.node.ClientActionMessage
+  ): Promise<cf.node.WalletResponse> {
+    const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
     this.vm.receive(msg);
@@ -119,7 +117,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: WalletResponse) {
+  public sendResponse(res: cf.node.WalletResponse) {
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -134,7 +132,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: cf.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
   }
 
@@ -143,7 +141,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   //
   // TODO: Refactor to clarify difference with sendMessageToClient
   // https://github.com/counterfactual/monorepo/issues/105
-  public sendIoMessageToClient(message: ClientActionMessage) {
+  public sendIoMessageToClient(message: cf.node.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }

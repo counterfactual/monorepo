@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import * as common from "./common";
-import { CfAppInstance, CfOperation, Transaction } from "./types";
+import { CfOperation, Transaction } from "./types";
 
 export class CfOpSetState extends CfOperation {
   constructor(
@@ -38,7 +38,7 @@ export class CfOpSetState extends CfOperation {
    *          `setState` on AppInstance.sol.
    */
   public transaction(sigs: cf.utils.Signature[]): Transaction {
-    const appCfAddr = new CfAppInstance(
+    const appCfAddr = new cf.app.CfAppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,

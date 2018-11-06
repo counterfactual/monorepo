@@ -7,7 +7,7 @@ import {
 } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
-import { ClientActionMessage, InternalMessage } from "../../src/types";
+import { InternalMessage } from "../../src/types";
 
 import {
   InMemoryKeyValueStore,
@@ -212,7 +212,7 @@ export class TestCommitmentStore {
   public incomingMessage(
     internalMessage: InternalMessage,
     context: Context
-  ): ClientActionMessage | null {
+  ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return getLastResult(Instruction.IO_WAIT, context.results).value;
     }

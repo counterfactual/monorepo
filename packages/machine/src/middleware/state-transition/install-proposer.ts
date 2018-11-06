@@ -4,7 +4,6 @@ import * as ethers from "ethers";
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
-import { CfAppInstance } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
 
 export class InstallProposer {
@@ -126,7 +125,7 @@ export class InstallProposer {
     signingKeys: string[],
     uniqueId: number
   ): cf.utils.H256 {
-    return new CfAppInstance(
+    return new cf.app.CfAppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,

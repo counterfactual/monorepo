@@ -2,11 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { ackInstructions, Instruction, instructions } from "./instructions";
 import { Context } from "./state";
-import {
-  ClientActionMessage,
-  InternalMessage,
-  MiddlewareResult
-} from "./types";
+import { InternalMessage, MiddlewareResult } from "./types";
 import { CounterfactualVM } from "./vm";
 
 if (!Symbol.asyncIterator) {
@@ -16,7 +12,7 @@ if (!Symbol.asyncIterator) {
 export class Action {
   public name: cf.node.ActionName;
   public requestId: string;
-  public clientMessage: ClientActionMessage;
+  public clientMessage: cf.node.ClientActionMessage;
   public execution: ActionExecution = Object.create(null);
   public instructions: Instruction[];
   public isAckSide: boolean;
@@ -24,7 +20,7 @@ export class Action {
   constructor(
     id: string,
     action: cf.node.ActionName,
-    clientMessage: ClientActionMessage,
+    clientMessage: cf.node.ClientActionMessage,
     isAckSide: boolean = false
   ) {
     this.requestId = id;
@@ -49,14 +45,14 @@ export class Action {
 export class ActionExecution {
   public action: Action;
   public instructionPointer: number;
-  public clientMessage: ClientActionMessage;
+  public clientMessage: cf.node.ClientActionMessage;
   public vm: CounterfactualVM;
   public results: MiddlewareResult[];
 
   constructor(
     action: Action,
     instruction: number,
-    clientMessage: ClientActionMessage,
+    clientMessage: cf.node.ClientActionMessage,
     vm: CounterfactualVM,
     results: MiddlewareResult[] = []
   ) {

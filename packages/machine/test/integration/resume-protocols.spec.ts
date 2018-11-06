@@ -5,7 +5,7 @@ import { Instruction, instructions } from "../../src/instructions";
 import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { Context } from "../../src/state";
-import { ClientActionMessage, InternalMessage } from "../../src/types";
+import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -87,7 +87,7 @@ abstract class SetupProtocolTestCase {
   public abstract description(): string;
   public abstract validate();
 
-  private msg(): ClientActionMessage {
+  private msg(): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: undefined,

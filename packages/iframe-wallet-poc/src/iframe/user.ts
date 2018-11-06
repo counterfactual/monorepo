@@ -141,7 +141,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     await this.vm.resume(savedLog);
   }
 
-  public handleActionCompletion(notification: machine.types.Notification) {
+  public handleActionCompletion(notification: cf.node.Notification) {
     this.notifyObservers(`${notification.data.name}Completed`, {
       requestId: notification.data.requestId,
       result: this.generateObserverNotification(notification),
@@ -149,13 +149,11 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     });
   }
 
-  public generateObserverNotification(
-    notification: machine.types.Notification
-  ): any {
+  public generateObserverNotification(notification: cf.node.Notification): any {
     return notification.data.results.find(result => result.opCode === 0).value;
   }
 
-  public addObserver(message: machine.types.ClientActionMessage) {
+  public addObserver(message: cf.node.ClientActionMessage) {
     const boundNotification = this.sendNotification.bind(
       this,
       message.data.notificationType
@@ -164,7 +162,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.registerObserver(message.data.notificationType, boundNotification);
   }
 
-  public removeObserver(message: machine.types.ClientActionMessage) {
+  public removeObserver(message: cf.node.ClientActionMessage) {
     const callback = this.observerCallbacks.get(message.data.observerId);
 
     if (callback) {
@@ -181,9 +179,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     }
   }
 
-  public sendResponse(
-    res: machine.types.WalletResponse | machine.types.Notification
-  ) {
+  public sendResponse(res: cf.node.WalletResponse | cf.node.Notification) {
     if (this.isCurrentUser) {
       this.wallet.sendResponse(res);
     }

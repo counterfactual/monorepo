@@ -213,7 +213,7 @@ export class CommitmentStore {
   public incomingMessage(
     internalMessage: machine.types.InternalMessage,
     context: machine.state.Context
-  ): machine.types.ClientActionMessage | null {
+  ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(
         machine.instructions.Instruction.IO_WAIT,

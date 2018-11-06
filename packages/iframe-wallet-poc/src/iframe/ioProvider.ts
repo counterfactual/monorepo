@@ -32,11 +32,11 @@ export class IframeIoProvider {
   }
 
   public receiveMessageFromPeer(
-    serializedMessage: machine.types.ClientActionMessage
+    serializedMessage: cf.node.ClientActionMessage
   ) {
     const message = machine.serializer.deserialize(
       serializedMessage
-    ) as machine.types.ClientActionMessage;
+    ) as cf.node.ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
@@ -70,8 +70,8 @@ export class IframeIoProvider {
   public findMessage(
     multisig?: string,
     appId?: string
-  ): machine.types.ClientActionMessage {
-    let message: machine.types.ClientActionMessage;
+  ): cf.node.ClientActionMessage {
+    let message: cf.node.ClientActionMessage;
     if (appId) {
       // FIXME: these shouldn't be ignored. refactor for type safety
       message = this.messages.find(m => m.appId === appId)!;
@@ -137,11 +137,11 @@ export class IframeIoProvider {
   public async waitForIo(
     message: machine.types.InternalMessage,
     next: Function
-  ): Promise<machine.types.ClientActionMessage> {
+  ): Promise<cf.node.ClientActionMessage> {
     // has websocket received a message for this appId/multisig
     // if yes, return the message, if not wait until it does
     let resolve: Function;
-    const promise = new Promise<machine.types.ClientActionMessage>(
+    const promise = new Promise<cf.node.ClientActionMessage>(
       r => (resolve = r)
     );
 

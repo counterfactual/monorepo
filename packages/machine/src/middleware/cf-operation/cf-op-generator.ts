@@ -10,7 +10,7 @@ import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfAppInstance, CfOperation } from "./types";
+import { CfOperation } from "./types";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -129,7 +129,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       new cf.utils.PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const freeBalanceAppInstance = new CfAppInstance(
+    const freeBalanceAppInstance = new cf.app.CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,
@@ -162,7 +162,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
-    const app = new CfAppInstance(
+    const app = new cf.app.CfAppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,

@@ -9,9 +9,7 @@ import { CfState } from "./state";
 import {
   Addressable,
   AddressableLookupResolverHash,
-  ClientActionMessage,
-  InstructionMiddlewareCallback,
-  WalletResponse
+  InstructionMiddlewareCallback
 } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -105,7 +103,7 @@ export class CounterfactualVM implements Observable {
     });
   }
 
-  public startAck(message: ClientActionMessage) {
+  public startAck(message: cf.node.ClientActionMessage) {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
@@ -124,14 +122,17 @@ export class CounterfactualVM implements Observable {
     return lookup(this.cfState, data[lookupKey]);
   }
 
-  public receive(msg: ClientActionMessage): WalletResponse {
+  public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
     this.validateMessage(msg);
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
-    return new WalletResponse(action.requestId, cf.node.ResponseStatus.STARTED);
+    return new cf.node.WalletResponse(
+      action.requestId,
+      cf.node.ResponseStatus.STARTED
+    );
   }
 
-  public validateMessage(msg: ClientActionMessage) {
+  public validateMessage(msg: cf.node.ClientActionMessage) {
     // TODO;
     return true;
   }

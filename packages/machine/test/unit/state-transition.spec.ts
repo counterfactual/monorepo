@@ -2,11 +2,10 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../src/instructions";
-import { CfAppInstance } from "../../src/middleware/cf-operation/types";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
 import { CfState, Context, StateChannelInfoImpl } from "../../src/state";
-import { ClientActionMessage, InternalMessage } from "../../src/types";
+import { InternalMessage } from "../../src/types";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import {
@@ -44,7 +43,7 @@ describe("State transition", () => {
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new CfAppInstance(
+    const expectedCfAddr = new cf.app.CfAppInstance(
       EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
@@ -62,7 +61,7 @@ describe("State transition", () => {
   });
 });
 
-function setupClientMsg(): ClientActionMessage {
+function setupClientMsg(): cf.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",
@@ -119,7 +118,7 @@ function validateSetupInfos(infos: cf.channel.StateChannelInfos) {
   expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
 }
 
-function installClientMsg(): ClientActionMessage {
+function installClientMsg(): cf.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",

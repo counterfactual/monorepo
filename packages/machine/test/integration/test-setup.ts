@@ -1,7 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { ClientActionMessage } from "../../src/types";
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 
 import { TestResponseSink } from "./test-response-sink";
@@ -28,7 +27,10 @@ export class SetupProtocol {
     expect(peerB.vm.cfState.channelStates).toEqual({});
   }
 
-  public static setupStartMsg(from: string, to: string): ClientActionMessage {
+  public static setupStartMsg(
+    from: string,
+    to: string
+  ): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",

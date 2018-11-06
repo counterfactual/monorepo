@@ -5,15 +5,12 @@ import * as ethers from "ethers";
 
 import * as common from "./common";
 import {
-  CfAppInstance,
   CfOperation,
   MultiSend,
   MultisigInput,
   Operation,
   Transaction
 } from "./types";
-
-const { keccak256 } = ethers.utils;
 
 export abstract class CfMultiSendOp extends CfOperation {
   constructor(
@@ -46,7 +43,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
     const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
-    return keccak256(
+    return cf.utils.abi.keccak256(
       cf.utils.abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
         [
@@ -72,7 +69,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public freeBalanceData(): cf.utils.Bytes {
     const terms = cf.utils.CfFreeBalance.terms();
     const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new CfAppInstance(
+    const freeBalanceCfAddress = new cf.app.CfAppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
@@ -82,7 +79,7 @@ export abstract class CfMultiSendOp extends CfOperation {
       this.cfFreeBalance.uniqueId
     ).cfAddress();
 
-    const appStateHash = keccak256(
+    const appStateHash = cf.utils.abi.keccak256(
       cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
