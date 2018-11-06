@@ -122,9 +122,13 @@ export class CounterfactualVM implements Observable {
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
-    this.validateMessage(msg);
+    if (!this.validateMessage(msg)) {
+      throw new Error("Cannot receive invalid message");
+    }
+
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
+    
     return new cf.node.WalletResponse(
       action.requestId,
       cf.node.ResponseStatus.STARTED
