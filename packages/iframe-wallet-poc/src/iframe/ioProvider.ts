@@ -170,8 +170,4 @@ export class IframeIoProvider {
     );
     return promise;
   }
-
-  private needsAppId(message: machine.types.InternalMessage) {
-    return message.actionName !== machine.types.ActionName.SETUP;
-  }
 }
