@@ -9,14 +9,6 @@ const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
 export class CfOpSetup extends MultisigTxOp {
-  /**
-   * Helper method to get hash of an input calldata
-   * @param networkContext
-   * @param multisig
-   * @param freeBalanceStateChannel
-   * @param freeBalance
-   * @param dependencyNonce
-   */
   public constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
