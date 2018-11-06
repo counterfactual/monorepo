@@ -175,7 +175,7 @@ export class CounterfactualVM implements Observable {
     execution: ActionExecution,
     status: cf.node.ResponseStatus
   ) {
-    if (!execution.action.isAckSide) {
+    if (execution.action.isAckSide) {
       return;
     }
 
