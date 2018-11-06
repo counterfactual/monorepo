@@ -58,15 +58,14 @@ export class CounterfactualVM implements Observable {
 
   constructor(config: CfVmConfig) {
     this.responseHandler = config.responseHandler;
-    this.cfState = new CfState(
-      config.state ? config.state : Object.create(null),
-      config.network
-    );
+    this.cfState = new CfState(config.state || {}, config.network);
     this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
   }
+
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
   public notifyObservers(type: NotificationType, data: object) {}
+
   /**
    * Restarts all protocols that were stopped mid execution, and returns when
    * they all finish.
@@ -123,9 +122,13 @@ export class CounterfactualVM implements Observable {
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
-    this.validateMessage(msg);
+    if (!this.validateMessage(msg)) {
+      throw new Error("Cannot receive invalid message");
+    }
+
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
+
     return new cf.node.WalletResponse(
       action.requestId,
       cf.node.ResponseStatus.STARTED
@@ -172,11 +175,13 @@ export class CounterfactualVM implements Observable {
     execution: ActionExecution,
     status: cf.node.ResponseStatus
   ) {
-    if (!execution.action.isAckSide) {
-      this.responseHandler.sendResponse(
-        new cf.node.Response(execution.action.requestId, status)
-      );
+    if (execution.action.isAckSide) {
+      return;
     }
+
+    this.responseHandler.sendResponse(
+      new cf.node.Response(execution.action.requestId, status)
+    );
   }
 
   public mutateState(state: cf.channel.ChannelStates) {
