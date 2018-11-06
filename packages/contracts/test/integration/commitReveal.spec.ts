@@ -94,7 +94,7 @@ async function deployAppInstance(
     appStateEncoding,
     terms
   );
-  await appInstance.deploy(masterAccount, registry);
+  await appInstance.deploy(unlockedAccount, registry);
   if (!appInstance.contract) {
     throw new Error("Deploy failed");
   }
@@ -111,10 +111,10 @@ async function executeStateChannelTransaction(
     throw new Error("Deploy failed");
   }
   const conditionalTransaction = await (await ConditionalTransaction).getDeployed(
-    masterAccount
+    unlockedAccount
   );
-  const registry = await (await Registry).getDeployed(masterAccount);
-  const nonceRegistry = await (await NonceRegistry).getDeployed(masterAccount);
+  const registry = await (await Registry).getDeployed(unlockedAccount);
+  const nonceRegistry = await (await NonceRegistry).getDeployed(unlockedAccount);
 
   await multisig.execDelegatecall(
     conditionalTransaction,
@@ -135,10 +135,10 @@ describe("CommitReveal", async () => {
     // @ts-ignore
     this.timeout(4000);
 
-    const [alice, bob] = generateEthWallets(2, provider);
+    const [alice, bob] = Utils.generateEthWallets(2, provider);
 
     // 1. Deploy & fund multisig
-    const multisig = await createMultisig(masterAccount, parseEther("2"), [
+    const multisig = await createMultisig(unlockedAccount, parseEther("2"), [
       alice,
       bob
     ]);
