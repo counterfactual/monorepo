@@ -6,7 +6,7 @@ import * as abi from "../../abi";
 import { Address } from "../../types";
 import { NetworkContext } from "../../utils";
 
-import { CfMultisigTxOp } from "./cf-multisig-tx-op";
+import { MultisigTxOp } from "./multisig-tx-op";
 import {
   CfAppInstance,
   CfFreeBalance,
@@ -17,7 +17,7 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-export class CfOpSetup extends CfMultisigTxOp {
+export class CfOpSetup extends MultisigTxOp {
   /**
    * Helper method to get hash of an input calldata
    * @param networkContext

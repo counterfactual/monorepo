@@ -8,8 +8,8 @@ import { Address, Bytes } from "../../types";
 import { NetworkContext } from "../../utils/network-context";
 import { Signature } from "../../utils/signature";
 
-import { CfMultisigTxOp } from "./cf-multisig-tx-op";
 import * as common from "./common";
+import { MultisigTxOp } from "./multisig-tx-op";
 import {
   CfAppInstance,
   CfFreeBalance,
@@ -23,7 +23,7 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-export abstract class CfMultiSendOp extends CfMultisigTxOp {
+export abstract class CfMultiSendOp extends MultisigTxOp {
   constructor(
     readonly networkContext: NetworkContext,
     readonly multisig: Address,

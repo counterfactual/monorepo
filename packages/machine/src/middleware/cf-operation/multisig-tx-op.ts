@@ -15,7 +15,7 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-export abstract class CfMultisigTxOp extends CfOperation {
+export abstract class MultisigTxOp extends CfOperation {
   abstract multisigInput(): MultisigInput;
 
   constructor(
