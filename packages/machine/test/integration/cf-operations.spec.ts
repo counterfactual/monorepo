@@ -2,10 +2,8 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import * as abi from "../../src/abi";
 import {
   CfAppInstance,
-  CfAppInterface,
   CfFreeBalance,
   Terms,
   Transaction
@@ -181,7 +179,7 @@ describe("Setup Protocol", async () => {
       cfFreeBalance.bobBalance
     ];
 
-    const freeBalanceFinalState = abi.encode(
+    const freeBalanceFinalState = cf.utils.abi.encode(
       ["address", "address", "uint256", "uint256"],
       values
     );
@@ -214,7 +212,7 @@ describe("Setup Protocol", async () => {
       app.isStateTerminal
     ];
 
-    const termsData = abi.encode(
+    const termsData = cf.utils.abi.encode(
       ["bytes1", "uint8", "uint256", "address"],
       ["0x19", terms.assetType, terms.limit, terms.token]
     );
@@ -509,7 +507,7 @@ function startInstallBalanceRefundMsg(
     ethers.constants.AddressZero
   ); // todo
 
-  const app = new CfAppInterface(
+  const app = new cf.app.CfAppInterface(
     "0x0",
     "0x00000000",
     "0x00000000",

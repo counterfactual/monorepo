@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { CfAppInterface, Terms } from "../../src/middleware/cf-operation/types";
+import { Terms } from "../../src/middleware/cf-operation/types";
 import {
   ActionName,
   ClientActionMessage,
@@ -146,7 +146,7 @@ class Depositor {
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new CfAppInterface(
+    const app = new cf.app.CfAppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",
@@ -320,7 +320,7 @@ class TicTacToeSimulator {
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new CfAppInterface(
+    const app = new cf.app.CfAppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",

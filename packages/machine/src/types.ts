@@ -2,12 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "./instructions";
-import {
-  CfAppInterface,
-  CfFreeBalance,
-  CfNonce,
-  Terms
-} from "./middleware/cf-operation/types";
+import { CfFreeBalance, CfNonce, Terms } from "./middleware/cf-operation/types";
 import { CfState, Context } from "./state";
 import { Response, ResponseStatus } from "./vm";
 
@@ -67,7 +62,7 @@ export interface InstallData {
   keyB?: cf.utils.Address;
   encodedAppState: cf.utils.Bytes;
   terms: Terms;
-  app: CfAppInterface;
+  app: cf.app.CfAppInterface;
   timeout: number;
 }
 
@@ -209,7 +204,7 @@ export interface AppInstanceInfo {
   localNonce: number;
   timeout: number;
   terms: Terms;
-  cfApp: CfAppInterface;
+  cfApp: cf.app.CfAppInterface;
   dependencyNonce: CfNonce;
 
   // TODO: Move this into a method that is outside the data structure

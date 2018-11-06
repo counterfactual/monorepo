@@ -2,8 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
 import { CfMultiSendOp } from "./cf-multisend-op";
 
 import {
@@ -46,7 +44,7 @@ export class CfOpSetup extends CfMultiSendOp {
     const terms = CfFreeBalance.terms();
 
     const uninstallKey = keccak256(
-      abi.encodePacked(
+      cf.utils.abi.encodePacked(
         ["address", "uint256", "uint256"],
         [this.multisig, 0, this.dependencyNonce.salt]
       )

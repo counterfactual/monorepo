@@ -3,69 +3,10 @@ import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstan
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-const { keccak256 } = ethers.utils;
-
 export abstract class CfOperation {
   public abstract hashToSign(): cf.utils.H256;
 
   public abstract transaction(sigs: cf.utils.Signature[]): Transaction;
-}
-
-export class CfAppInterface {
-  public static generateSighash(
-    abiInterface: ethers.utils.Interface,
-    functionName: string
-  ): string {
-    return abiInterface.functions[functionName]
-      ? abiInterface.functions[functionName].sighash
-      : "0x00000000";
-  }
-
-  constructor(
-    readonly address: cf.utils.Address,
-    readonly applyAction: cf.utils.Bytes4,
-    readonly resolve: cf.utils.Bytes4,
-    readonly getTurnTaker: cf.utils.Bytes4,
-    readonly isStateTerminal: cf.utils.Bytes4,
-    readonly stateEncoding: string
-  ) {}
-
-  public encode(state: object): string {
-    return abi.encode([this.stateEncoding], [state]);
-  }
-
-  public stateHash(state: object): string {
-    // assumes encoding "tuple(type key, type key, type key)"
-    return keccak256(this.encode(state));
-  }
-
-  public hash(): string {
-    if (this.address === "0x0") {
-      // FIXME:
-      // https://github.com/counterfactual/monorepo/issues/119
-      console.error(
-        "WARNING: Can't compute hash for AppInterface because its address is 0x0"
-      );
-      return ethers.constants.HashZero;
-    }
-    return keccak256(
-      abi.encode(
-        [
-          "tuple(address addr, bytes4 applyAction, bytes4 resolve, bytes4 getTurnTaker, bytes4 isStateTerminal)"
-        ],
-        [
-          {
-            addr: this.address,
-            applyAction: this.applyAction,
-            resolve: this.resolve,
-            getTurnTaker: this.getTurnTaker,
-            isStateTerminal: this.isStateTerminal
-          }
-        ]
-      )
-    );
-  }
 }
 
 export class Terms {
@@ -76,8 +17,8 @@ export class Terms {
   ) {}
 
   public hash(): string {
-    return keccak256(
-      abi.encode(
+    return cf.utils.abi.keccak256(
+      cf.utils.abi.encode(
         ["bytes1", "uint8", "uint256", "address"],
         ["0x19", this.assetType, this.limit, this.token]
       )
@@ -128,7 +69,7 @@ export class MultiSend {
   public input(multisend: cf.utils.Address): MultisigInput {
     let txs: string = "0x";
     for (const transaction of this.transactions) {
-      txs += abi
+      txs += cf.utils.abi
         .encode(
           ["uint256", "address", "uint256", "bytes"],
           [transaction.op, transaction.to, transaction.val, transaction.data]
@@ -160,7 +101,7 @@ export class CfFreeBalance {
 
   public static contractInterface(
     ctx: cf.utils.NetworkContext
-  ): CfAppInterface {
+  ): cf.app.CfAppInterface {
     const address = ctx.paymentAppAddr;
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
@@ -170,7 +111,7 @@ export class CfFreeBalance {
     ]).functions.resolve.sighash;
     const turn = "0x00000000"; // not used
     const isStateTerminal = "0x00000000"; // not used
-    return new CfAppInterface(
+    return new cf.app.CfAppInterface(
       address,
       applyAction,
       resolver,
@@ -199,7 +140,9 @@ export class CfNonce {
 
   constructor(isSet: boolean, uniqueId: number, nonceValue: number) {
     this.isSet = isSet;
-    this.salt = keccak256(abi.encodePacked(["uint256"], [uniqueId]));
+    this.salt = cf.utils.abi.keccak256(
+      cf.utils.abi.encodePacked(["uint256"], [uniqueId])
+    );
     this.nonceValue = nonceValue;
   }
 }
@@ -215,7 +158,7 @@ export class CfAppInstance {
     readonly ctx: cf.utils.NetworkContext,
     readonly owner: cf.utils.Address,
     readonly signingKeys: cf.utils.Address[],
-    readonly cfApp: CfAppInterface,
+    readonly cfApp: cf.app.CfAppInterface,
     readonly terms: Terms,
     readonly timeout: number,
     readonly uniqueId: number
@@ -232,8 +175,8 @@ export class CfAppInstance {
       this.timeout
     ]);
 
-    return keccak256(
-      abi.encodePacked(
+    return cf.utils.abi.keccak256(
+      cf.utils.abi.encodePacked(
         ["bytes1", "bytes", "uint256"],
         ["0x19", initcode, this.uniqueId]
       )

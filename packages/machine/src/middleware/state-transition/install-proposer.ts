@@ -11,7 +11,6 @@ import {
 } from "../../types";
 import {
   CfAppInstance,
-  CfAppInterface,
   CfFreeBalance,
   CfNonce,
   Terms
@@ -26,7 +25,7 @@ export class InstallProposer {
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: InstallData = message.clientMessage.data;
-    const app = new CfAppInterface(
+    const app = new cf.app.CfAppInterface(
       data.app.address,
       data.app.applyAction,
       data.app.resolve,
@@ -105,7 +104,7 @@ export class InstallProposer {
   private static newAppChannel(
     cfAddr: cf.utils.H256,
     data: InstallData,
-    app: CfAppInterface,
+    app: cf.app.CfAppInterface,
     terms: Terms,
     signingKeys: string[],
     uniqueId: number
@@ -129,7 +128,7 @@ export class InstallProposer {
   private static proposedCfAddress(
     state: CfState,
     message: InternalMessage,
-    app: CfAppInterface,
+    app: cf.app.CfAppInterface,
     terms: Terms,
     signingKeys: string[],
     uniqueId: number

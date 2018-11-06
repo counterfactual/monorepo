@@ -3,8 +3,6 @@ import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
 
-import * as abi from "../../abi";
-
 import * as common from "./common";
 import {
   CfAppInstance,
@@ -51,7 +49,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     const multisigInput = this.multisigInput();
     const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
     return keccak256(
-      abi.encodePacked(
+      cf.utils.abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
         [
           "0x19",
@@ -87,7 +85,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     ).cfAddress();
 
     const appStateHash = keccak256(
-      abi.encode(
+      cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.cfFreeBalance.alice,

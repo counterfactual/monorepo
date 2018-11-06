@@ -4,7 +4,6 @@ import * as ethers from "ethers";
 import { Instruction } from "../../src/instructions";
 import {
   CfAppInstance,
-  CfAppInterface,
   CfFreeBalance,
   CfNonce,
   Terms
@@ -141,7 +140,7 @@ function installClientMsg(): ClientActionMessage {
       keyB: KEY_B,
       encodedAppState: "0x0",
       terms: new Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
-      app: new CfAppInterface(
+      app: new cf.app.CfAppInterface(
         APP_ADDRESS,
         APPLY_ACTION,
         RESOLVE,

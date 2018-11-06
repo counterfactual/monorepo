@@ -1,8 +1,9 @@
+import * as abi from "./abi";
 import { NetworkContext } from "./network-context";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
 import { Signature } from "./signature";
 
-export { CanonicalPeerBalance, PeerBalance, Signature, NetworkContext };
+export { abi, CanonicalPeerBalance, PeerBalance, Signature, NetworkContext };
 
 /**
  * Aliases to help code readability.

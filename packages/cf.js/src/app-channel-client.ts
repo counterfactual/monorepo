@@ -1,12 +1,13 @@
 import * as machine from "@counterfactual/machine";
 
+import { CfAppInterface } from "./app";
 import { Channel } from "./channel";
 
 export class AppChannelClient {
   public stateChannel: Channel;
   public appName: string;
   public appId: string;
-  public appInterface: machine.cfTypes.CfAppInterface;
+  public appInterface: CfAppInterface;
 
   constructor(
     stateChannel: Channel,

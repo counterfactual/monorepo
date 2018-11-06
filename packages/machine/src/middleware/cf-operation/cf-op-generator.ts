@@ -10,13 +10,7 @@ import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfFreeBalance,
-  CfOperation,
-  Terms
-} from "./types";
+import { CfAppInstance, CfFreeBalance, CfOperation, Terms } from "./types";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -72,7 +66,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
     // https://github.com/counterfactual/monorepo/issues/135
-    appChannel.cfApp = new CfAppInterface(
+    appChannel.cfApp = new cf.app.CfAppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
       appChannel.cfApp.resolve,
