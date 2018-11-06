@@ -1,20 +1,16 @@
 import * as cf from "@counterfactual/cf.js";
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
 
 import * as common from "./common";
 import { MultisigTxOp } from "./multisig-tx-op";
 import {
-  CfOperation,
   MultiSend,
   MultisigInput,
   Operation,
-  Transaction
 } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.utils;
 
 export abstract class CfMultiSendOp extends MultisigTxOp {
   constructor(
@@ -48,7 +44,7 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
     ).cfAddress();
 
     const appStateHash = keccak256(
-      abi.encode(
+      cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.cfFreeBalance.alice,

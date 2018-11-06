@@ -2,10 +2,8 @@ import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import { CfMultiSendOp } from "./cf-multisend-op";
-
-import { MultisigInput, Operation } from "./types";
 import { MultisigTxOp } from "./multisig-tx-op";
+import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;

@@ -1,18 +1,12 @@
+import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import { AssetType } from "@counterfactual/contracts/dist/utils";
 import * as ethers from "ethers";
 
 import { CfOpSetup } from "../../src/middleware/cf-operation";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  CfFreeBalance,
-  CfNonce,
-  Terms
-} from "../../src/middleware/cf-operation/types";
-import { NetworkContext } from "../../src/utils";
+import "../../src/middleware/cf-operation/types";
 
-const fakeCtx = new NetworkContext(
+const fakeCtx = new cf.utils.NetworkContext(
   "0x1111111111111111111111111111111111111111",
   "0x2222222222222222222222222222222222222222",
   "0x3333333333333333333333333333333333333333",
@@ -29,7 +23,7 @@ const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 describe("CFOperation subclasses", async () => {
   describe("CfOpSetup", async () => {
     it("generates a correct transaction", async () => {
-      const appInterface = new CfAppInterface(
+      const appInterface = new cf.app.CfAppInterface(
         "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
         "0x00000000",
         "0x00000000",
@@ -37,12 +31,12 @@ describe("CFOperation subclasses", async () => {
         "0x00000000",
         "tuple()"
       );
-      const terms = new Terms(
+      const terms = new cf.app.Terms(
         AssetType.ETH,
         ethers.utils.parseEther("1"),
         ethers.constants.AddressZero
       );
-      const cfApp = new CfAppInstance(
+      const cfApp = new cf.app.CfAppInstance(
         fakeCtx,
         multisig,
         [alice, bob],
@@ -51,8 +45,8 @@ describe("CFOperation subclasses", async () => {
         100,
         0
       );
-      const fakeNonce = new CfNonce(false, 0, 0);
-      const freeBal = new CfFreeBalance(
+      const fakeNonce = new cf.utils.CfNonce(false, 0, 0);
+      const freeBal = new cf.utils.CfFreeBalance(
         alice,
         ethers.utils.parseEther("0.5"),
         bob,
