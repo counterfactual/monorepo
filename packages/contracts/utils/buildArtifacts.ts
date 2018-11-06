@@ -53,5 +53,5 @@ export default {
   Registry,
   Signatures,
   StaticCall,
-  Transfer,
+  Transfer
 };

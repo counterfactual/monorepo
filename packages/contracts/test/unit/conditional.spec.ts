@@ -13,12 +13,9 @@ contract("Conditional", (accounts: string[]) => {
   // @ts-ignore
   before(async () => {
     const staticCall = AbstractContract.fromArtifactName("StaticCall");
-    const conditional = await AbstractContract.fromArtifactName(
-      "Conditional",
-      {
-        StaticCall: staticCall
-      }
-    );
+    const conditional = await AbstractContract.fromArtifactName("Conditional", {
+      StaticCall: staticCall
+    });
     const exampleCondition = await AbstractContract.fromArtifactName(
       "ExampleCondition"
     );

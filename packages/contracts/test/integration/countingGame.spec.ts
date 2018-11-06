@@ -96,20 +96,14 @@ contract("CountingApp", (accounts: string[]) => {
     const staticCall = AbstractContract.fromArtifactName("StaticCall");
     const signatures = AbstractContract.fromArtifactName("Signatures");
     const transfer = AbstractContract.fromArtifactName("Transfer");
-    const appInstance = await AbstractContract.fromArtifactName(
-      "AppInstance",
-      {
-        Signatures: signatures,
-        StaticCall: staticCall,
-        Transfer: transfer
-      }
-    );
-    const countingApp = await AbstractContract.fromArtifactName(
-      "CountingApp",
-      {
-        StaticCall: staticCall
-      }
-    );
+    const appInstance = await AbstractContract.fromArtifactName("AppInstance", {
+      Signatures: signatures,
+      StaticCall: staticCall,
+      Transfer: transfer
+    });
+    const countingApp = await AbstractContract.fromArtifactName("CountingApp", {
+      StaticCall: staticCall
+    });
 
     game = await countingApp.deploy(unlockedAccount);
 
