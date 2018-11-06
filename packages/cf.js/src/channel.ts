@@ -118,12 +118,6 @@ export class Channel {
     name: string,
     appDefinition: types.AppDefinition
   ): Promise<AppChannelClient> {
-    const {
-      data: {
-        stateChannel: { appChannels }
-      }
-    } = await this.queryStateChannel();
-    const appChannel = appChannels[appId];
     const appInterface = this.buildAppInterface(appDefinition);
     return new AppChannelClient(this, name, appId, appInterface);
   }

@@ -5,8 +5,8 @@ pragma experimental "ABIEncoderV2";
 /// @title NonceRegistry - A global nonce time-lock registry. Maps nonce keys to nonce values.
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports a global mapping of sender, timeout and salt based keys to sequential nonces
-/// A nonce (aka "dependency nonce") is a mapping from a nonce key to a nonce value which can be set
-/// under certain circumstances (to be defined later). A nonce is parametrized by the sender, the salt,
+/// A nonce is a mapping from a nonce key to a nonce value which can be set
+/// if certain conditions (to be defined later) are satisfied. A nonce is parametrized by the sender, the salt,
 /// and the timeout. These parameters determine the nonce key. A nonce can only be set by its sender.
 /// When a nonce is first set, a timer of length `timeout` starts. During this timeout period, it may
 /// only be set to higher values. When the timer expires, the nonce may no longer be set.
@@ -57,28 +57,12 @@ contract NonceRegistry {
     emit NonceSet(key, nonceValue);
   }
 
-  /// @notice Return the N highest-order bits from the input.
-  /// @param input A uint256 treated as a bitfield from which to get the high-order bits
-  /// @param N the number of bits to get from input
-  /// @return A uint256 where the N highest-order bits are the same as in input, and
-  /// the other bits are 0
-  function getFirstNBits(uint256 input, uint8 N) public pure returns (uint256) {
-    uint256 nOnes = uint256(2) ** N - 1;
-    uint256 mask = nOnes << (uint8(256) - N); // uint8(256) == uint8(0)
-    return uint256(bytes32(input) & bytes32(mask));
-  }
-
-  /// @return Whether the Nth highest-order bit in input is set
-  function bitSet(uint256 self, uint8 index) public pure returns (bool) {
-    return self >> index & 1 == 1;
-  }
-
   /// @notice Computes a unique key for the particular salt and msg.sender
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(address sender, uint256 timeout, bytes32 salt)
     internal
-    view
+    pure
     returns (bytes32)
   {
     return keccak256(abi.encodePacked(sender, timeout, salt));

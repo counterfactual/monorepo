@@ -1,10 +1,9 @@
 import * as ethers from "ethers";
 
-import { CfState, Context, StateChannelInfoImpl } from "../../state";
+import { StateChannelInfoImpl } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
 import { PeerBalance } from "../../utils/peer-balance";
 import { CfFreeBalance, CfNonce } from "../cf-operation/types";
-import { getFirstResult } from "../middleware";
 
 const FREE_BALANCE_TIMEOUT = 100;
 /**

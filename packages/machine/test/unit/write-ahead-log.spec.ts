@@ -1,5 +1,4 @@
 import { Action, ActionExecution } from "../../src/action";
-import { Instruction } from "../../src/instructions";
 import { ActionName, ClientActionMessage } from "../../src/types";
 import { CfVmConfig, CounterfactualVM } from "../../src/vm";
 import {
@@ -74,11 +73,11 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
 
   // FIXME: This isn't used, why?
   // https://github.com/counterfactual/monorepo/issues/92
-  const results = [
-    [{ op: Instruction.OP_GENERATE, val: "generate" }],
-    [{ op: Instruction.OP_SIGN, val: "sign" }],
-    [{ op: Instruction.OP_SIGN_VALIDATE, val: "sign_validate" }]
-  ];
+  // const results = [
+  //   [{ op: Instruction.OP_GENERATE, val: "generate" }],
+  //   [{ op: Instruction.OP_SIGN, val: "sign" }],
+  //   [{ op: Instruction.OP_SIGN_VALIDATE, val: "sign_validate" }]
+  // ];
 
   const isAckSide = [true, true, false];
 
