@@ -1,0 +1,57 @@
+{
+  "name": "@counterfactual/playground",
+  "version": "0.0.1",
+  "description": "A staging enviroment to test dApps using the Counterfactual stack.",
+  "keywords": [
+    "counterfactual",
+    "state-channels",
+    "ethereum"
+  ],
+  "homepage": "https://counterfactual.com/",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "jest": {
+    "verbose": false,
+    "bail": true,
+    "rootDir": ".",
+    "cacheDirectory": "jest-cache",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/monorepo.git"
+  },
+  "scripts": {
+    "clean": "rm -rf .rpt2_cache jest-cache build dist",
+    "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
+    "test-debug": "node --inspect-brk jest --runInBand",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "bugs": {
+    "url": "https://github.com/counterfactual/monorepo/issues"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.3",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.2"
+  }
+}
