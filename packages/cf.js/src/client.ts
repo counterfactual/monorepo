@@ -1,3 +1,5 @@
+import { v1 as uuid } from "uuid";
+
 import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
@@ -57,7 +59,7 @@ export class Client implements Observable {
   }
 
   public requestId(): string {
-    return Math.random().toString();
+    return uuid();
   }
 
   public async queryUser(): Promise<UserDataClientResponse> {
