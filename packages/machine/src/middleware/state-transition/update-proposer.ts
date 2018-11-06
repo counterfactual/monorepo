@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { State, Context } from "../../state";
+import { Context, State } from "../../state";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UpdateProposer {

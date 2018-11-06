@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
-import { State, Context } from "../../state";
+import { Context, State } from "../../state";
 import { InternalMessage } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 

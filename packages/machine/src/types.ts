@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "./instructions";
-import { State, Context } from "./state";
+import { Context, State } from "./state";
 
 export interface MiddlewareResult {
   opCode: Instruction;
