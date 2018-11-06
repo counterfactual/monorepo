@@ -1,64 +1,24 @@
 import * as ethers from "ethers";
 
 import * as abi from "../../../src/abi";
-import { CfOpSetState } from "../../../src/middleware/cf-operation/cf-op-setstate";
-import {
-  CfAppInstance,
-  CfAppInterface,
-  Terms
-} from "../../../src/middleware/cf-operation/types";
+import { CfOpSetState } from "../../../src/middleware/cf-operation";
+import { CfAppInstance } from "../../../src/middleware/cf-operation/types";
+import { Signature } from "../../../src/utils";
 
-import { NetworkContext } from "../../../src/utils/network-context";
-import { Signature } from "../../../src/utils/signature";
+import {
+  TEST_APP_INTERFACE,
+  TEST_APP_STATE_HASH,
+  TEST_APP_UNIQUE_ID,
+  TEST_LOCAL_NONCE,
+  TEST_MULTISIG_ADDRESS,
+  TEST_NETWORK_CONTEXT,
+  TEST_PARTICIPANTS,
+  TEST_SIGNING_KEYS,
+  TEST_TERMS,
+  TEST_TIMEOUT
+} from "./test-data";
 
 describe("CfOpSetState", () => {
-  const TEST_NETWORK_CONTEXT = new NetworkContext(
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(20))
-  );
-  const TEST_MULTISIG_ADDRESS = ethers.utils.hexlify(
-    ethers.utils.randomBytes(20)
-  );
-  const TEST_SIGNING_KEYS = [
-    // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
-    new ethers.utils.SigningKey(
-      "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
-    ),
-    // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
-    new ethers.utils.SigningKey(
-      "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
-    )
-  ];
-  const TEST_PARTICIPANTS = [
-    TEST_SIGNING_KEYS[0].address,
-    TEST_SIGNING_KEYS[1].address
-  ];
-  const TEST_APP_UNIQUE_ID = Math.floor(1000 * Math.random());
-  const TEST_TERMS = new Terms(
-    0,
-    ethers.utils.bigNumberify(Math.floor(1000 * Math.random())),
-    ethers.constants.AddressZero
-  );
-  const TEST_APP_INTERFACE = new CfAppInterface(
-    ethers.constants.AddressZero,
-    ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-    ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-    "tuple(address,uint256)"
-  );
-  const TEST_APP_STATE_HASH = ethers.utils.hexlify(
-    ethers.utils.randomBytes(32)
-  );
-  const TEST_LOCAL_NONCE = Math.floor(1000 * Math.random());
-  const TEST_TIMEOUT = Math.floor(1000 * Math.random());
-
   let op: CfOpSetState;
 
   beforeEach(() => {
