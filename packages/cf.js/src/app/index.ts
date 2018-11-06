@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import { Address, Bytes4 } from "../utils";
+import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import * as abi from "../utils/abi";
 
 export class CfAppInterface {
@@ -57,4 +57,58 @@ export class CfAppInterface {
       )
     );
   }
+}
+
+export class Terms {
+  constructor(
+    readonly assetType: number,
+    readonly limit: ethers.utils.BigNumber,
+    readonly token: Address
+  ) {}
+
+  public hash(): string {
+    return abi.keccak256(
+      abi.encode(
+        ["bytes1", "uint8", "uint256", "address"],
+        ["0x19", this.assetType, this.limit, this.token]
+      )
+    );
+  }
+}
+
+export interface UpdateOptions {
+  state: object;
+}
+
+export interface UpdateData {
+  encodedAppState: string;
+  /**
+   * Hash of the State struct specific to a given application.
+   */
+  appStateHash: H256;
+}
+
+export interface UninstallOptions {
+  peerABalance: ethers.utils.BigNumber;
+  peerBBalance: ethers.utils.BigNumber;
+}
+
+export interface InstallData {
+  peerA: PeerBalance;
+  peerB: PeerBalance;
+  keyA?: Address;
+  keyB?: Address;
+  encodedAppState: Bytes;
+  terms: Terms;
+  app: CfAppInterface;
+  timeout: number;
+}
+
+export interface InstallOptions {
+  appAddress: string;
+  stateEncoding: string;
+  abiEncoding: string;
+  state: object;
+  peerABalance: ethers.utils.BigNumber;
+  peerBBalance: ethers.utils.BigNumber;
 }

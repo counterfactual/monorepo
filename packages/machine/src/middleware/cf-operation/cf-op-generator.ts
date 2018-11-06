@@ -3,14 +3,14 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context } from "../../state";
-import { ActionName, CanonicalPeerBalance, InternalMessage } from "../../types";
+import { ActionName, InternalMessage } from "../../types";
 import { CfOpGenerator, getFirstResult } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfAppInstance, CfFreeBalance, CfOperation, Terms } from "./types";
+import { CfAppInstance, CfFreeBalance, CfOperation } from "./types";
 
 /**
  * Middleware to be used and registered with the VM on OP_GENERATE instructions
@@ -75,7 +75,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       appChannel.cfApp.abiEncoding
     );
 
-    appChannel.terms = new Terms(
+    appChannel.terms = new cf.app.Terms(
       appChannel.terms.assetType,
       appChannel.terms.limit,
       appChannel.terms.token
@@ -123,7 +123,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       freeBalance.timeout,
       freeBalance.dependencyNonce
     );
-    const canon = CanonicalPeerBalance.canonicalize(
+    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
       new cf.utils.PeerBalance(message.clientMessage.fromAddress, 0),
       new cf.utils.PeerBalance(message.clientMessage.toAddress, 0)
     );

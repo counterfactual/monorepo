@@ -5,8 +5,7 @@ import { Instruction } from "../../src/instructions";
 import {
   CfAppInstance,
   CfFreeBalance,
-  CfNonce,
-  Terms
+  CfNonce
 } from "../../src/middleware/cf-operation/types";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
@@ -139,7 +138,7 @@ function installClientMsg(): ClientActionMessage {
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
+      terms: new cf.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
       app: new cf.app.CfAppInterface(
         APP_ADDRESS,
         APPLY_ACTION,

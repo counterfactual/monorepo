@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import * as common from "./common";
-import { CfAppInstance, CfOperation, Terms, Transaction } from "./types";
+import { CfAppInstance, CfOperation, Transaction } from "./types";
 
 export class CfOpSetState extends CfOperation {
   constructor(
@@ -10,7 +10,7 @@ export class CfOpSetState extends CfOperation {
     readonly signingKeys: cf.utils.Address[],
     readonly appStateHash: string,
     readonly appUniqueId: number,
-    readonly terms: Terms,
+    readonly terms: cf.app.Terms,
     readonly app: cf.app.CfAppInterface,
     readonly appLocalNonce: number,
     readonly timeout: number

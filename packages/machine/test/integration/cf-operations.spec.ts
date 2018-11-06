@@ -5,10 +5,9 @@ import * as _ from "lodash";
 import {
   CfAppInstance,
   CfFreeBalance,
-  Terms,
   Transaction
 } from "../../src/middleware/cf-operation/types";
-import { ActionName, ClientActionMessage, InstallData } from "../../src/types";
+import { ActionName, ClientActionMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import { mineBlocks, sleep } from "../utils/common";
 import {
@@ -501,7 +500,7 @@ function startInstallBalanceRefundMsg(
     peerA = peerB;
     peerB = tmp;
   }
-  const terms = new Terms(
+  const terms = new cf.app.Terms(
     0,
     ethers.utils.bigNumberify(10),
     ethers.constants.AddressZero
@@ -516,7 +515,7 @@ function startInstallBalanceRefundMsg(
     ""
   ); // todo
   const timeout = 100;
-  const installData: InstallData = {
+  const installData: cf.app.InstallData = {
     terms,
     app,
     timeout,

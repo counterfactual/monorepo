@@ -1,13 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { Terms } from "../../src/middleware/cf-operation/types";
-import {
-  ActionName,
-  ClientActionMessage,
-  InstallData,
-  UpdateData
-} from "../../src/types";
+import { ActionName, ClientActionMessage } from "../../src/types";
 import { ResponseStatus } from "../../src/vm";
 import { sleep } from "../utils/common";
 import {
@@ -141,7 +135,7 @@ class Depositor {
       to,
       ethers.utils.bigNumberify(0)
     );
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
@@ -155,7 +149,7 @@ class Depositor {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: InstallData = {
+    const installData: cf.app.InstallData = {
       terms,
       app,
       timeout,
@@ -315,7 +309,7 @@ class TicTacToeSimulator {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
@@ -329,7 +323,7 @@ class TicTacToeSimulator {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: InstallData = {
+    const installData: cf.app.InstallData = {
       terms,
       app,
       timeout,
@@ -446,7 +440,7 @@ class TicTacToeSimulator {
     from: string,
     cfAddr: string
   ): ClientActionMessage {
-    const updateData: UpdateData = {
+    const updateData: cf.app.UpdateData = {
       encodedAppState: state,
       appStateHash: ethers.constants.HashZero // TODO:
     };

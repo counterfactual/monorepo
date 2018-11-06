@@ -1,8 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
 
 import { Instruction } from "./instructions";
-import { CfFreeBalance, CfNonce, Terms } from "./middleware/cf-operation/types";
+import { CfFreeBalance, CfNonce } from "./middleware/cf-operation/types";
 import { CfState, Context } from "./state";
 import { Response, ResponseStatus } from "./vm";
 
@@ -53,17 +52,6 @@ export interface ClientQuery extends ClientMessage {
   data?: any;
   userId?: string;
   multisigAddress?: cf.utils.Address;
-}
-
-export interface InstallData {
-  peerA: cf.utils.PeerBalance;
-  peerB: cf.utils.PeerBalance;
-  keyA?: cf.utils.Address;
-  keyB?: cf.utils.Address;
-  encodedAppState: cf.utils.Bytes;
-  terms: Terms;
-  app: cf.app.CfAppInterface;
-  timeout: number;
 }
 
 /**
@@ -121,52 +109,6 @@ export interface InstallClientResponse extends ClientResponse {
   };
 }
 
-export interface UpdateData {
-  encodedAppState: string;
-  /**
-   * Hash of the State struct specific to a given application.
-   */
-  appStateHash: cf.utils.H256;
-}
-
-export interface UpdateOptions {
-  state: object;
-}
-
-export interface UninstallOptions {
-  peerABalance: ethers.utils.BigNumber;
-  peerBBalance: ethers.utils.BigNumber;
-}
-
-export interface InstallOptions {
-  appAddress: string;
-  stateEncoding: string;
-  abiEncoding: string;
-  state: object;
-  peerABalance: ethers.utils.BigNumber;
-  peerBBalance: ethers.utils.BigNumber;
-}
-
-/**
- * peerA is always the address first in alphabetical order.
- */
-export class CanonicalPeerBalance {
-  public static canonicalize(
-    peer1: cf.utils.PeerBalance,
-    peer2: cf.utils.PeerBalance
-  ): CanonicalPeerBalance {
-    if (peer2.address.localeCompare(peer1.address) < 0) {
-      return new CanonicalPeerBalance(peer2, peer1);
-    }
-    return new CanonicalPeerBalance(peer1, peer2);
-  }
-
-  constructor(
-    readonly peerA: cf.utils.PeerBalance,
-    readonly peerB: cf.utils.PeerBalance
-  ) {}
-}
-
 // Tree of all the stateChannel and appChannel state
 export interface ChannelStates {
   [s: string]: StateChannelInfo;
@@ -203,7 +145,7 @@ export interface AppInstanceInfo {
   appStateHash?: cf.utils.H256;
   localNonce: number;
   timeout: number;
-  terms: Terms;
+  terms: cf.app.Terms;
   cfApp: cf.app.CfAppInterface;
   dependencyNonce: CfNonce;
 

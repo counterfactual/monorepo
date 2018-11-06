@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { CfState, Context } from "../../state";
-import { InternalMessage, StateProposal, UpdateData } from "../../types";
+import { InternalMessage, StateProposal } from "../../types";
 
 export class UpdateProposer {
   public static propose(
@@ -17,7 +17,7 @@ export class UpdateProposer {
     }
 
     const appId: cf.utils.H256 = message.clientMessage.appId;
-    const updateData: UpdateData = message.clientMessage.data;
+    const updateData: cf.app.UpdateData = message.clientMessage.data;
 
     const app = channels[multisig].appChannels[appId];
     app.appStateHash = updateData.appStateHash;

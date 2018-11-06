@@ -1,11 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
-import {
-  CanonicalPeerBalance,
-  InternalMessage,
-  StateProposal
-} from "../../types";
+import { InternalMessage, StateProposal } from "../../types";
 import { CfFreeBalance } from "../cf-operation/types";
 
 export class UninstallProposer {
@@ -24,7 +20,7 @@ export class UninstallProposer {
     channels[multisig].appChannels[appId].dependencyNonce.nonceValue += 1;
     channels[multisig].appChannels[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
-    const canon = CanonicalPeerBalance.canonicalize(
+    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );

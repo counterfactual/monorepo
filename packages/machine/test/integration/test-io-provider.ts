@@ -4,6 +4,7 @@ import {
   ClientActionMessage,
   InternalMessage
 } from "../../src/types";
+
 import { TestResponseSink } from "./test-response-sink";
 
 // FIXME: Don't import functions from source code.

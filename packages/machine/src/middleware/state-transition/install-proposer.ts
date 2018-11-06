@@ -3,18 +3,8 @@ import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
 import { CfState, Context, StateChannelInfoImpl } from "../../state";
-import {
-  AppInstanceInfo,
-  InstallData,
-  InternalMessage,
-  StateProposal
-} from "../../types";
-import {
-  CfAppInstance,
-  CfFreeBalance,
-  CfNonce,
-  Terms
-} from "../cf-operation/types";
+import { AppInstanceInfo, InternalMessage, StateProposal } from "../../types";
+import { CfAppInstance, CfFreeBalance, CfNonce } from "../cf-operation/types";
 import { getLastResult } from "../middleware";
 
 export class InstallProposer {
@@ -24,7 +14,7 @@ export class InstallProposer {
     state: CfState
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const data: InstallData = message.clientMessage.data;
+    const data: cf.app.InstallData = message.clientMessage.data;
     const app = new cf.app.CfAppInterface(
       data.app.address,
       data.app.applyAction,
@@ -33,7 +23,7 @@ export class InstallProposer {
       data.app.isStateTerminal,
       data.app.stateEncoding
     );
-    const terms = new Terms(
+    const terms = new cf.app.Terms(
       data.terms.assetType,
       data.terms.limit,
       data.terms.token
@@ -82,7 +72,10 @@ export class InstallProposer {
     };
   }
 
-  private static newSigningKeys(context: Context, data: InstallData): string[] {
+  private static newSigningKeys(
+    context: Context,
+    data: cf.app.InstallData
+  ): string[] {
     const lastResult = getLastResult(Instruction.IO_WAIT, context.results);
 
     let signingKeys;
@@ -103,9 +96,9 @@ export class InstallProposer {
 
   private static newAppChannel(
     cfAddr: cf.utils.H256,
-    data: InstallData,
+    data: cf.app.InstallData,
     app: cf.app.CfAppInterface,
-    terms: Terms,
+    terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
   ): AppInstanceInfo {
@@ -129,7 +122,7 @@ export class InstallProposer {
     state: CfState,
     message: InternalMessage,
     app: cf.app.CfAppInterface,
-    terms: Terms,
+    terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
   ): cf.utils.H256 {
@@ -146,7 +139,7 @@ export class InstallProposer {
 
   private static newPeers(
     existingFreeBalance: CfFreeBalance,
-    data: InstallData
+    data: cf.app.InstallData
   ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
     const peerA = new cf.utils.PeerBalance(
       existingFreeBalance.alice,

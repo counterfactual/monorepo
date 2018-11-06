@@ -9,23 +9,6 @@ export abstract class CfOperation {
   public abstract transaction(sigs: cf.utils.Signature[]): Transaction;
 }
 
-export class Terms {
-  constructor(
-    readonly assetType: number,
-    readonly limit: ethers.utils.BigNumber,
-    readonly token: cf.utils.Address
-  ) {}
-
-  public hash(): string {
-    return cf.utils.abi.keccak256(
-      cf.utils.abi.encode(
-        ["bytes1", "uint8", "uint256", "address"],
-        ["0x19", this.assetType, this.limit, this.token]
-      )
-    );
-  }
-}
-
 export enum Operation {
   Call = 0,
   Delegatecall = 1
@@ -89,10 +72,10 @@ export class MultiSend {
  * will update the free balance object to the values given here.
  */
 export class CfFreeBalance {
-  public static terms(): Terms {
+  public static terms(): cf.app.Terms {
     // FIXME: Change implementation of free balance on contracts layer
     // https://github.com/counterfactual/monorepo/issues/118
-    return new Terms(
+    return new cf.app.Terms(
       0, // 0 means ETH
       ethers.utils.parseEther("0.001"), // FIXME: un-hardcode (https://github.com/counterfactual/monorepo/issues/117)
       ethers.constants.AddressZero
@@ -159,7 +142,7 @@ export class CfAppInstance {
     readonly owner: cf.utils.Address,
     readonly signingKeys: cf.utils.Address[],
     readonly cfApp: cf.app.CfAppInterface,
-    readonly terms: Terms,
+    readonly terms: cf.app.Terms,
     readonly timeout: number,
     readonly uniqueId: number
   ) {}
