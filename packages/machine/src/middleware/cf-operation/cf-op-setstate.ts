@@ -42,7 +42,7 @@ export class CfOpSetState extends CfOperation {
    *          `setState` on AppInstance.sol.
    */
   public transaction(sigs: cf.utils.Signature[]): Transaction {
-    const appCfAddr = new cf.app.CfAppInstance(
+    const appCfAddr = new cf.app.AppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,

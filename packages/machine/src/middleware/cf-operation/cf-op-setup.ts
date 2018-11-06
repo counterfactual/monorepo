@@ -18,7 +18,7 @@ export class CfOpSetup extends CfMultiSendOp {
   public constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly freeBalanceStateChannel: cf.app.CfAppInstance,
+    readonly freeBalanceStateChannel: cf.app.AppInstance,
     readonly freeBalance: cf.utils.CfFreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {

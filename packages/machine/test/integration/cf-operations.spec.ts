@@ -181,7 +181,7 @@ describe("Setup Protocol", async () => {
       values
     );
 
-    const cfStateChannel = new cf.app.CfAppInstance(
+    const cfStateChannel = new cf.app.AppInstance(
       devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,

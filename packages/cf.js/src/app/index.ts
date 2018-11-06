@@ -21,7 +21,7 @@ const { keccak256 } = ethers.utils;
  *
  * @param signingKeys *must* be in sorted lexicographic order.
  */
-export class CfAppInstance {
+export class AppInstance {
   constructor(
     readonly ctx: NetworkContext,
     readonly owner: Address,

@@ -125,7 +125,7 @@ export class InstallProposer {
     signingKeys: string[],
     uniqueId: number
   ): cf.utils.H256 {
-    return new cf.app.CfAppInstance(
+    return new cf.app.AppInstance(
       state.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,

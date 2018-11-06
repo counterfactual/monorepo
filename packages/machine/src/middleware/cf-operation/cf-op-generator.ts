@@ -129,7 +129,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
       new cf.utils.PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const freeBalanceAppInstance = new cf.app.CfAppInstance(
+    const freeBalanceAppInstance = new cf.app.AppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,
@@ -162,7 +162,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
-    const app = new cf.app.CfAppInstance(
+    const app = new cf.app.AppInstance(
       cfState.networkContext,
       multisig,
       signingKeys,

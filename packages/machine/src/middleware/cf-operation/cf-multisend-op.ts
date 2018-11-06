@@ -72,7 +72,7 @@ export abstract class CfMultiSendOp extends CfOperation {
   public freeBalanceData(): cf.utils.Bytes {
     const terms = cf.utils.CfFreeBalance.terms();
     const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new cf.app.CfAppInstance(
+    const freeBalanceCfAddress = new cf.app.AppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],

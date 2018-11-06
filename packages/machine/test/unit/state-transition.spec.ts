@@ -43,7 +43,7 @@ describe("State transition", () => {
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new cf.app.CfAppInstance(
+    const expectedCfAddr = new cf.app.AppInstance(
       EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],

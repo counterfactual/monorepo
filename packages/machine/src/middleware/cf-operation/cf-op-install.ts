@@ -12,7 +12,7 @@ export class CfOpInstall extends CfMultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly app: cf.app.CfAppInstance,
+    readonly app: cf.app.AppInstance,
     readonly cfFreeBalance: cf.utils.CfFreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
