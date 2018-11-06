@@ -6,5 +6,9 @@
 
 for filename in diagrams/*.mmd; do
     [ -e "$filename" ] || continue
-    mmdc -t neutral -i $filename -o build/$(basename "$filename" .mmd).png
+    mmdc \
+        -t neutral \
+        -i $filename \
+        -b transparent \
+        -o build/$(basename "$filename" .mmd).png
 done
