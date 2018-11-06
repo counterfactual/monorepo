@@ -8,7 +8,7 @@ import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
 import { InternalMessage } from "../../src/types";
-import { CfVmConfig, CounterfactualVM } from "../../src/vm";
+import { VmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -48,7 +48,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // An instance of a CounterfactualVM that will execute protocols.
     this.vm = new CounterfactualVM(
-      new CfVmConfig(
+      new VmConfig(
         this,
         new EthCfOpGenerator(),
         networkContext || EMPTY_NETWORK_CONTEXT

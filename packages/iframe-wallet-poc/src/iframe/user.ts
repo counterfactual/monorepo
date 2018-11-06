@@ -58,7 +58,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.address = address;
     this.io = new IframeIoProvider(this);
     this.vm = new machine.vm.CounterfactualVM(
-      new machine.vm.CfVmConfig(
+      new machine.vm.VmConfig(
         this,
         new machine.cfOperations.EthCfOpGenerator(),
         networkContext,

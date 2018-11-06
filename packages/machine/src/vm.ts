@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
-import { Middleware, CfOpGenerator } from "./middleware/middleware";
+import { CfOpGenerator, Middleware } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { State } from "./state";
@@ -13,7 +13,7 @@ import {
 } from "./types";
 import { Log } from "./write-ahead-log";
 
-export class CfVmConfig {
+export class VmConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
     readonly cfOpGenerator: CfOpGenerator,
@@ -56,7 +56,7 @@ export class CounterfactualVM implements Observable {
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
-  constructor(config: CfVmConfig) {
+  constructor(config: VmConfig) {
     this.responseHandler = config.responseHandler;
     this.state = new State(
       config.state ? config.state : Object.create(null),

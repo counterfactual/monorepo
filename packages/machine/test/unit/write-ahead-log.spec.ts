@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "../../src/action";
-import { CfVmConfig, CounterfactualVM } from "../../src/vm";
+import { VmConfig, CounterfactualVM } from "../../src/vm";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -12,7 +12,7 @@ describe("Write ahead log", () => {
     const db = new SimpleStringMapSyncDB();
 
     const vm = new CounterfactualVM(
-      new CfVmConfig(null!, null!, null!, undefined!)
+      new VmConfig(null!, null!, null!, undefined!)
     );
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
