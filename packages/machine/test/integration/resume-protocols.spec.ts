@@ -1,14 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
+
 import { Instruction, instructions } from "../../src/instructions";
 import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { Context } from "../../src/state";
-import {
-  ActionName,
-  ClientActionMessage,
-  InternalMessage
-} from "../../src/types";
-import { ResponseStatus } from "../../src/vm";
+import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -20,10 +17,10 @@ import {
   B_PRIVATE_KEY,
   UNUSED_FUNDED_ACCOUNT
 } from "../utils/environment";
+
 import { TestResponseSink } from "./test-response-sink";
 
 const ADDR_A = ethers.utils.hexlify(ethers.utils.randomBytes(20));
-const ADDR_B = ethers.utils.hexlify(ethers.utils.randomBytes(20));
 
 // FIXME: These tests throw Errors which, when running the tests, makes it look
 // like they're failing because of the massive call stack that shows on the terminal.
@@ -62,7 +59,7 @@ abstract class SetupProtocolTestCase {
     await this.peerA.vm.resume(this.peerA.writeAheadLog.readLog());
     this.setupWallet(this.peerA, true);
     const resp = await this.peerA.runProtocol(this.msg());
-    expect(resp.status).toEqual(ResponseStatus.ERROR);
+    expect(resp.status).toEqual(cf.node.ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }
@@ -90,11 +87,11 @@ abstract class SetupProtocolTestCase {
   public abstract description(): string;
   public abstract validate();
 
-  private msg(): ClientActionMessage {
+  private msg(): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: undefined,
-      action: ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: A_ADDRESS,
@@ -140,7 +137,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
     expect(JSON.stringify(setupInstructions)).toEqual(
@@ -185,7 +182,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
     expect(JSON.stringify(setupInstructions)).toEqual(
@@ -229,7 +226,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[ActionName.SETUP])
+      JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
     setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
     expect(JSON.stringify(setupInstructions)).toEqual(

@@ -69,30 +69,8 @@ contract("PaymentApp", (accounts: string[]) => {
 
   const termsEncoding = "tuple(uint8 assetType, uint256 limit, address token)";
 
-  const detailsEncoding =
-    "tuple(uint8 assetType, address token, address[] to, uint256[] amount, bytes data)";
-
   const keccak256 = (bytes: string) =>
     ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-
-  const sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    testAppInstance.functions.setState(
-      appState || ethers.constants.HashZero,
-      nonce,
-      10,
-      "0x"
-    );
-
-  const sendSignedUpdateToChainWithNonce = (nonce: number, appState?: string) =>
-    testAppInstance.functions.setState(
-      appState || ethers.constants.HashZero,
-      nonce,
-      10,
-      Utils.signMessage(
-        getUpdateHash(appState || ethers.constants.HashZero, nonce, 10),
-        unlockedAccount
-      )
-    );
 
   const sendSignedFinalizationToChain = async (stateHash: string) =>
     testAppInstance.functions.setState(
@@ -112,7 +90,7 @@ contract("PaymentApp", (accounts: string[]) => {
   let app;
   let terms;
   beforeEach(async () => {
-    const paymentApp = await AbstractContract.loadBuildArtifact("PaymentApp");
+    const paymentApp = await AbstractContract.fromArtifactName("PaymentApp");
     pc = (await paymentApp.deploy(unlockedAccount)) as PaymentApp;
 
     // Specifically for the AppInstance

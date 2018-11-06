@@ -1,3 +1,4 @@
+import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 
@@ -16,8 +17,7 @@ try {
   console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
-export class User
-  implements machine.mixins.Observable, machine.types.ResponseSink {
+export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
@@ -50,9 +50,9 @@ export class User
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: machine.utils.NetworkContext,
+    networkContext: cf.utils.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: machine.types.ChannelStates
+    states?: cf.channel.ChannelStates
   ) {
     this.wallet = wallet;
     this.address = address;
@@ -141,7 +141,7 @@ export class User
     await this.vm.resume(savedLog);
   }
 
-  public handleActionCompletion(notification: machine.types.Notification) {
+  public handleActionCompletion(notification: cf.node.Notification) {
     this.notifyObservers(`${notification.data.name}Completed`, {
       requestId: notification.data.requestId,
       result: this.generateObserverNotification(notification),
@@ -149,13 +149,11 @@ export class User
     });
   }
 
-  public generateObserverNotification(
-    notification: machine.types.Notification
-  ): any {
+  public generateObserverNotification(notification: cf.node.Notification): any {
     return notification.data.results.find(result => result.opCode === 0).value;
   }
 
-  public addObserver(message: machine.types.ClientActionMessage) {
+  public addObserver(message: cf.node.ClientActionMessage) {
     const boundNotification = this.sendNotification.bind(
       this,
       message.data.notificationType
@@ -164,7 +162,7 @@ export class User
     this.registerObserver(message.data.notificationType, boundNotification);
   }
 
-  public removeObserver(message: machine.types.ClientActionMessage) {
+  public removeObserver(message: cf.node.ClientActionMessage) {
     const callback = this.observerCallbacks.get(message.data.observerId);
 
     if (callback) {
@@ -181,9 +179,7 @@ export class User
     }
   }
 
-  public sendResponse(
-    res: machine.types.WalletResponse | machine.types.Notification
-  ) {
+  public sendResponse(res: cf.node.WalletResponse | cf.node.Notification) {
     if (this.isCurrentUser) {
       this.wallet.sendResponse(res);
     }
@@ -251,14 +247,14 @@ async function signMyUpdate(
   next: Function,
   context: machine.state.Context,
   user: User
-): Promise<machine.utils.Signature> {
+): Promise<cf.utils.Signature> {
   const operation: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
   const sig = user.signingKey.signDigest(digest);
-  return new machine.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
+  return new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
 }
 
 async function validateSignatures(

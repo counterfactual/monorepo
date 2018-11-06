@@ -16,13 +16,13 @@ contract("ConditionalTransaction", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const exampleCondition = await AbstractContract.loadBuildArtifact(
+    const exampleCondition = await AbstractContract.fromArtifactName(
       "ExampleCondition"
     );
-    const delegateProxy = await AbstractContract.loadBuildArtifact(
+    const delegateProxy = await AbstractContract.fromArtifactName(
       "DelegateProxy"
     );
-    const conditionalTransaction = await AbstractContract.loadBuildArtifact(
+    const conditionalTransaction = await AbstractContract.fromArtifactName(
       "ConditionalTransaction"
     );
 

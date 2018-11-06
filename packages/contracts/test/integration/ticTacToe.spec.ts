@@ -17,8 +17,8 @@ contract("TicTacToe", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const ticTacToe = await AbstractContract.loadBuildArtifact("TicTacToe", {
+    const staticCall = AbstractContract.fromArtifactName("StaticCall");
+    const ticTacToe = await AbstractContract.fromArtifactName("TicTacToe", {
       StaticCall: staticCall
     });
     game = (await ticTacToe.deploy(unlockedAccount)) as TicTacToe;

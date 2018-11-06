@@ -1,4 +1,4 @@
-import * as machine from "@counterfactual/machine";
+import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { IFrameWallet } from "../src/iframe/wallet";
@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new machine.utils.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -42,11 +42,11 @@ export class SetupProtocol {
   public static setupStartMsg(
     from: string,
     to: string
-  ): machine.types.ClientActionMessage {
+  ): cf.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: machine.types.ActionName.SETUP,
+      action: cf.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -84,7 +84,7 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.vm.cfState;
-    const canon = machine.utils.PeerBalance.balances(
+    const canon = cf.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,
@@ -110,6 +110,6 @@ export class SetupProtocol {
       walletB.currentUser.address
     );
     const response = await walletA.runProtocol(msg);
-    expect(response.status).toEqual(machine.vm.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   }
 }

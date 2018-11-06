@@ -29,8 +29,8 @@ contract("Registry", accounts => {
 
   // @ts-ignore
   beforeEach(async () => {
-    proxyContract = await AbstractContract.loadBuildArtifact("Proxy");
-    const registry = await AbstractContract.loadBuildArtifact("Registry");
+    proxyContract = await AbstractContract.fromArtifactName("Proxy");
+    const registry = await AbstractContract.fromArtifactName("Registry");
 
     testRegistry = (await registry.deploy(unlockedAccount)) as Registry;
   });

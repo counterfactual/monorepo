@@ -1,18 +1,24 @@
-import * as machine from "@counterfactual/machine";
-
+import {
+  CfAppInterface,
+  UninstallOptions,
+  UpdateData,
+  UpdateOptions
+} from "./app";
 import { Channel } from "./channel";
+import { ActionName, ClientResponse } from "./node";
+import { PeerBalance } from "./utils";
 
 export class AppChannelClient {
   public stateChannel: Channel;
   public appName: string;
   public appId: string;
-  public appInterface: machine.cfTypes.CfAppInterface;
+  public appInterface: CfAppInterface;
 
   constructor(
     stateChannel: Channel,
     appName: string,
     appId: string,
-    appInterface: machine.cfTypes.CfAppInterface
+    appInterface: CfAppInterface
   ) {
     this.stateChannel = stateChannel;
     this.appName = appName;
@@ -20,12 +26,10 @@ export class AppChannelClient {
     this.appInterface = appInterface;
   }
 
-  public async update(
-    options: machine.types.UpdateOptions
-  ): Promise<machine.types.ClientResponse> {
+  public async update(options: UpdateOptions): Promise<ClientResponse> {
     const encodedAppState = this.appInterface.encode(options.state);
     const appStateHash = this.appInterface.stateHash(options.state);
-    const updateData: machine.types.UpdateData = {
+    const updateData: UpdateData = {
       encodedAppState,
       appStateHash
     };
@@ -33,7 +37,7 @@ export class AppChannelClient {
       requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
-      action: machine.types.ActionName.UPDATE,
+      action: ActionName.UPDATE,
       data: updateData,
       multisigAddress: this.stateChannel.multisigAddress,
       fromAddress: this.stateChannel.fromAddress,
@@ -44,16 +48,14 @@ export class AppChannelClient {
     return this.stateChannel.client.sendMessage(message);
   }
 
-  public async uninstall(
-    options: machine.types.UninstallOptions
-  ): Promise<machine.types.ClientResponse> {
+  public async uninstall(options: UninstallOptions): Promise<ClientResponse> {
     const stateChannelInfo = await this.stateChannel.queryStateChannel();
     const freeBalance = stateChannelInfo.data.stateChannel.freeBalance;
 
     const uninstallData = {
       peerAmounts: [
-        new machine.utils.PeerBalance(freeBalance.alice, options.peerABalance),
-        new machine.utils.PeerBalance(freeBalance.bob, options.peerBBalance)
+        new PeerBalance(freeBalance.alice, options.peerABalance),
+        new PeerBalance(freeBalance.bob, options.peerBBalance)
       ]
     };
 
@@ -61,7 +63,7 @@ export class AppChannelClient {
       requestId: this.stateChannel.client.requestId(),
       appName: this.appName,
       appId: this.appId,
-      action: machine.types.ActionName.UNINSTALL,
+      action: ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: this.stateChannel.multisigAddress,
       fromAddress: this.stateChannel.fromAddress,

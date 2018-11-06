@@ -1,4 +1,4 @@
-import { ActionName } from "./types";
+import * as cf from "@counterfactual/cf.js";
 
 export enum Instruction {
   /**
@@ -58,7 +58,7 @@ export enum Instruction {
  * starts a protocol with a peer out of nowhere.
  */
 export const instructions = {
-  [ActionName.UPDATE]: [
+  [cf.node.ActionName.UPDATE]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN,
@@ -68,7 +68,7 @@ export const instructions = {
     Instruction.OP_SIGN_VALIDATE,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.SETUP]: [
+  [cf.node.ActionName.SETUP]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN,
@@ -78,7 +78,7 @@ export const instructions = {
     Instruction.OP_SIGN_VALIDATE,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.INSTALL]: [
+  [cf.node.ActionName.INSTALL]: [
     Instruction.KEY_GENERATE,
     Instruction.IO_PREPARE_SEND,
     Instruction.IO_SEND,
@@ -91,7 +91,7 @@ export const instructions = {
     Instruction.IO_SEND,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.UNINSTALL]: [
+  [cf.node.ActionName.UNINSTALL]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN,
@@ -108,7 +108,7 @@ export const instructions = {
  * who did not initiate a given protocol.
  */
 export const ackInstructions = {
-  [ActionName.UPDATE]: [
+  [cf.node.ActionName.UPDATE]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN_VALIDATE,
@@ -117,7 +117,7 @@ export const ackInstructions = {
     Instruction.IO_SEND,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.SETUP]: [
+  [cf.node.ActionName.SETUP]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN_VALIDATE,
@@ -126,7 +126,7 @@ export const ackInstructions = {
     Instruction.IO_SEND,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.INSTALL]: [
+  [cf.node.ActionName.INSTALL]: [
     Instruction.KEY_GENERATE,
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
@@ -137,7 +137,7 @@ export const ackInstructions = {
     Instruction.OP_SIGN_VALIDATE,
     Instruction.STATE_TRANSITION_COMMIT
   ],
-  [ActionName.UNINSTALL]: [
+  [cf.node.ActionName.UNINSTALL]: [
     Instruction.STATE_TRANSITION_PROPOSE,
     Instruction.OP_GENERATE,
     Instruction.OP_SIGN_VALIDATE,

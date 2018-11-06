@@ -59,9 +59,9 @@ contract("AppInstance", (accounts: string[]) => {
   // @ts-ignore
   before(async () => {
     networkID = await AbstractContract.getNetworkID(unlockedAccount);
-    const staticCall = AbstractContract.loadBuildArtifact("StaticCall");
-    const signatures = AbstractContract.loadBuildArtifact("Signatures");
-    appInstance = await AbstractContract.loadBuildArtifact("AppInstance", {
+    const staticCall = AbstractContract.fromArtifactName("StaticCall");
+    const signatures = AbstractContract.fromArtifactName("Signatures");
+    appInstance = await AbstractContract.fromArtifactName("AppInstance", {
       StaticCall: staticCall,
       Signatures: signatures
     });
