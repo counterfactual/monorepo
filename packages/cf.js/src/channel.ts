@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, CfAppInterface, InstallData } from "./app";
+import { AppInstanceInfos, AppInterface, InstallData } from "./app";
 import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
 import { Client } from "./client";
@@ -159,16 +159,16 @@ export class Channel {
   }
   private buildAppInterface(
     appDefinition: types.AppDefinition
-  ): CfAppInterface {
+  ): AppInterface {
     const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
-    const appInterface = new CfAppInterface(
+    const appInterface = new AppInterface(
       appDefinition.address,
-      CfAppInterface.generateSighash(abi, "applyAction"),
-      CfAppInterface.generateSighash(abi, "resolve"),
-      CfAppInterface.generateSighash(abi, "getTurnTaker"),
-      CfAppInterface.generateSighash(abi, "isStateTerminal"),
+      AppInterface.generateSighash(abi, "applyAction"),
+      AppInterface.generateSighash(abi, "resolve"),
+      AppInterface.generateSighash(abi, "getTurnTaker"),
+      AppInterface.generateSighash(abi, "isStateTerminal"),
       appDefinition.appStateEncoding
     );
     return appInterface;

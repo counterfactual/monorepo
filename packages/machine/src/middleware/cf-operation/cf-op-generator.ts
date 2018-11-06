@@ -66,7 +66,7 @@ export class EthCfOpGenerator extends CfOpGenerator {
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
     // https://github.com/counterfactual/monorepo/issues/135
-    appChannel.cfApp = new cf.app.CfAppInterface(
+    appChannel.cfApp = new cf.app.AppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
       appChannel.cfApp.resolve,

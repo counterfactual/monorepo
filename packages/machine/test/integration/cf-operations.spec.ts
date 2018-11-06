@@ -504,7 +504,7 @@ function startInstallBalanceRefundMsg(
     ethers.constants.AddressZero
   ); // todo
 
-  const app = new cf.app.CfAppInterface(
+  const app = new cf.app.AppInterface(
     "0x0",
     "0x00000000",
     "0x00000000",

@@ -1,5 +1,5 @@
 import {
-  CfAppInterface,
+  AppInterface,
   UninstallOptions,
   UpdateData,
   UpdateOptions
@@ -12,13 +12,13 @@ export class AppChannelClient {
   public stateChannel: Channel;
   public appName: string;
   public appId: string;
-  public appInterface: CfAppInterface;
+  public appInterface: AppInterface;
 
   constructor(
     stateChannel: Channel,
     appName: string,
     appId: string,
-    appInterface: CfAppInterface
+    appInterface: AppInterface
   ) {
     this.stateChannel = stateChannel;
     this.appName = appName;

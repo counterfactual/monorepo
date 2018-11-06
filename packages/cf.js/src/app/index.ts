@@ -26,7 +26,7 @@ export class CfAppInstance {
     readonly ctx: NetworkContext,
     readonly owner: Address,
     readonly signingKeys: Address[],
-    readonly cfApp: CfAppInterface,
+    readonly cfApp: AppInterface,
     readonly terms: Terms,
     readonly timeout: number,
     readonly uniqueId: number
@@ -53,7 +53,7 @@ export class CfAppInstance {
   }
 }
 
-export class CfAppInterface {
+export class AppInterface {
   public static generateSighash(
     abiInterface: ethers.utils.Interface,
     functionName: string
@@ -150,7 +150,7 @@ export interface InstallData {
   keyB?: Address;
   encodedAppState: Bytes;
   terms: Terms;
-  app: CfAppInterface;
+  app: AppInterface;
   timeout: number;
 }
 
@@ -179,7 +179,7 @@ export interface AppInstanceInfo {
   localNonce: number;
   timeout: number;
   terms: Terms;
-  cfApp: CfAppInterface;
+  cfApp: AppInterface;
   dependencyNonce: CfNonce;
 
   // TODO: Move this into a method that is outside the data structure

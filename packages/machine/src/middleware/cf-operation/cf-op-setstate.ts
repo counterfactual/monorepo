@@ -15,7 +15,7 @@ export class CfOpSetState extends CfOperation {
     readonly appStateHash: string,
     readonly appUniqueId: number,
     readonly terms: cf.app.Terms,
-    readonly app: cf.app.CfAppInterface,
+    readonly app: cf.app.AppInterface,
     readonly appLocalNonce: number,
     readonly timeout: number
   ) {

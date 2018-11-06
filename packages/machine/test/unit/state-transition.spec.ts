@@ -130,7 +130,7 @@ function installClientMsg(): cf.node.ClientActionMessage {
       keyB: KEY_B,
       encodedAppState: "0x0",
       terms: new cf.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
-      app: new cf.app.CfAppInterface(
+      app: new cf.app.AppInterface(
         APP_ADDRESS,
         APPLY_ACTION,
         RESOLVE,

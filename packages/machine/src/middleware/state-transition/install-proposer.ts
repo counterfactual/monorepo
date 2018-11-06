@@ -14,7 +14,7 @@ export class InstallProposer {
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: cf.app.InstallData = message.clientMessage.data;
-    const app = new cf.app.CfAppInterface(
+    const app = new cf.app.AppInterface(
       data.app.address,
       data.app.applyAction,
       data.app.resolve,
@@ -96,7 +96,7 @@ export class InstallProposer {
   private static newAppChannel(
     cfAddr: cf.utils.H256,
     data: cf.app.InstallData,
-    app: cf.app.CfAppInterface,
+    app: cf.app.AppInterface,
     terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
@@ -120,7 +120,7 @@ export class InstallProposer {
   private static proposedCfAddress(
     state: CfState,
     message: InternalMessage,
-    app: cf.app.CfAppInterface,
+    app: cf.app.AppInterface,
     terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
