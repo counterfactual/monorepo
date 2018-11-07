@@ -86,7 +86,7 @@ async function deployAppInstance(
   terms: TransferTerms
 ) {
   const registry = await (await Registry).getDeployed(unlockedAccount);
-  const signers = multisig.owners; // TODO: generate new signing keys for each state channel
+  const signers = multisig.owners;
   const appInstance = new AppInstance(
     signers,
     multisig,

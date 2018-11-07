@@ -2,8 +2,8 @@ pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
-import "../NonceRegistry.sol";
 import "../Registry.sol";
+import "../AppInstance.sol";
 
 
 contract VirtualAppAgreement {
@@ -13,46 +13,46 @@ contract VirtualAppAgreement {
 
   struct Agreement {
     Registry registry;
-    NonceRegistry nonceRegistry;
     Transfer.Terms terms;
-    uint256 capitalProvided;
-    uint256 loanDuration;
-    bytes32 virtualStateDeposit;
+    uint256 expiry;
+    bytes32 target;
     address intermediary;
+    uint256 capitalProvided;
+    address[2] beneficiaries;
   }
 
   function delegateTarget(
-    bytes32 salt,
-    uint256 nonce,
     Agreement agreement
   )
     public
   {
+    require(agreement.expiry <= block.number, "agreement has not expired yet");
+    address target = agreement.registry.resolver(agreement.target);
+    Transfer.Transaction memory resolution = AppInstance(target).getResolution();
 
-    require(
-      agreement.nonceRegistry.isFinalized(salt, nonce),
-      "VirtualAapp nonceRegistry was not finalized"
-    );
-
-    address[] memory to = new address[](2);
-    to[0] = agreement.registry.resolver(agreement.virtualStateDeposit);
-    to[1] = agreement.intermediary;
+    require(resolution.value.length == 1, "returned invalid resolution");
+    require(resolution.to.length == 1, "returned invalid resolution");
+    require(agreement.terms.assetType == resolution.assetType, "returned incompatible resolution");
+    require(agreement.terms.token == resolution.token, "returned incompatible resolution");
 
     uint256[] memory amount = new uint256[](2);
-    amount[0] = agreement.capitalProvided;
-    amount[1] = agreement.capitalProvided;
+    amount[0] = resolution.value[0];
+    amount[1] = agreement.capitalProvided - amount[0];
     bytes[] memory data = new bytes[](2);
+
+    address[] memory beneficiaries = new address[](2);
+    beneficiaries[0] = agreement.beneficiaries[0];
+    beneficiaries[1] = agreement.beneficiaries[1];
 
     Transfer.Transaction memory ret = Transfer.Transaction(
       agreement.terms.assetType,
       agreement.terms.token,
-      to,
+      beneficiaries,
       amount,
       data
     );
 
     ret.execute();
-
   }
 
 }

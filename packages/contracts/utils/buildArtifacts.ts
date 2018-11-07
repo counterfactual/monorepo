@@ -45,6 +45,15 @@ export const MinimumViableMultisig = AbstractContract.fromArtifactName(
   }
 );
 
+// tslint:disable-next-line
+export const VirtualAppAgreement = AbstractContract.fromArtifactName(
+  "VirtualAppAgreement",
+  {
+    Transfer,
+    Registry
+  }
+);
+
 export default {
   AppInstance,
   ConditionalTransaction,
@@ -53,5 +62,6 @@ export default {
   Registry,
   Signatures,
   StaticCall,
-  Transfer
+  Transfer,
+  VirtualAppAgreement
 };
