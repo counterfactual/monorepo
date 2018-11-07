@@ -12,7 +12,7 @@ export abstract class MultisigTxOp extends CfOperation {
 
   constructor(
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.CfFreeBalance
+    readonly cfFreeBalance: cf.utils.FreeBalance
   ) {
     super();
   }

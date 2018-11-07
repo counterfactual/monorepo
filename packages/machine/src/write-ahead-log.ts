@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "./state";
+import { Context } from "./node-state";
 import { InternalMessage, MiddlewareResult } from "./types";
 
 /**

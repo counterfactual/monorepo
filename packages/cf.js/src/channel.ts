@@ -1,9 +1,9 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, CfAppInterface, InstallData } from "./app";
-import { AppChannelClient } from "./app-channel-client";
+import { AppInstanceInfos, AppInterface, InstallData } from "./app";
 import { AppInstance } from "./app-instance";
+import { AppInstanceClient } from "./app-instance-client";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import {
@@ -14,7 +14,7 @@ import {
   StateChannelDataClientResponse
 } from "./node";
 import * as types from "./types";
-import { Address, CfFreeBalance, PeerBalance } from "./utils";
+import { Address, FreeBalance, PeerBalance } from "./utils";
 
 export class Channel {
   public client: Client;
@@ -69,7 +69,7 @@ export class Channel {
     appInstance: AppInstance,
     deposits: types.Deposits,
     initialState: Object
-  ): Promise<AppChannelClient> {
+  ): Promise<AppInstanceClient> {
     let peerA = this.fromAddress;
     let peerB = this.toAddress;
     if (peerB.localeCompare(peerA) < 0) {
@@ -105,14 +105,14 @@ export class Channel {
       seq: 0
     };
 
-    return new Promise<AppChannelClient>(async resolve => {
+    return new Promise<AppInstanceClient>(async resolve => {
       const cb = data => {
         if (data.data.requestId !== requestId) {
           return;
         }
         const appId = data.data.result.cfAddr;
 
-        return resolve(new AppChannelClient(this, name, appId, app));
+        return resolve(new AppInstanceClient(this, name, appId, app));
       };
 
       await this.client.addObserver("installCompleted", cb);
@@ -125,9 +125,9 @@ export class Channel {
     appId: string,
     name: string,
     appDefinition: types.AppDefinition
-  ): Promise<AppChannelClient> {
+  ): Promise<AppInstanceClient> {
     const appInterface = this.buildAppInterface(appDefinition);
-    return new AppChannelClient(this, name, appId, appInterface);
+    return new AppInstanceClient(this, name, appId, appInterface);
   }
 
   public async queryFreeBalance(): Promise<FreeBalanceClientResponse> {
@@ -157,18 +157,16 @@ export class Channel {
 
     return stateChannelData;
   }
-  private buildAppInterface(
-    appDefinition: types.AppDefinition
-  ): CfAppInterface {
+  private buildAppInterface(appDefinition: types.AppDefinition): AppInterface {
     const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
-    const appInterface = new CfAppInterface(
+    const appInterface = new AppInterface(
       appDefinition.address,
-      CfAppInterface.generateSighash(abi, "applyAction"),
-      CfAppInterface.generateSighash(abi, "resolve"),
-      CfAppInterface.generateSighash(abi, "getTurnTaker"),
-      CfAppInterface.generateSighash(abi, "isStateTerminal"),
+      AppInterface.generateSighash(abi, "applyAction"),
+      AppInterface.generateSighash(abi, "resolve"),
+      AppInterface.generateSighash(abi, "getTurnTaker"),
+      AppInterface.generateSighash(abi, "isStateTerminal"),
       appDefinition.appStateEncoding
     );
     return appInterface;
@@ -192,8 +190,8 @@ export interface StateChannelInfo {
   counterParty: Address;
   me: Address;
   multisigAddress: Address;
-  appChannels: AppInstanceInfos;
-  freeBalance: CfFreeBalance;
+  appInstances: AppInstanceInfos;
+  freeBalance: FreeBalance;
 
   // TODO: Move this out of the datastructure
   // https://github.com/counterfactual/monorepo/issues/127

@@ -1,11 +1,17 @@
 import * as cf from "@counterfactual/cf.js";
 import lodash from "lodash";
 
+import { InstructionExecutor } from "./instruction-executor";
 import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
-import { CounterfactualVM } from "./vm";
 
-export class CfState {
+/**
+ * // TODO: this can still be named better
+ * NodeState encapsulates the state of all the channels in the context of a node.
+ * It is not named InstructionExecutorNodeState because the InstructionExecutor is
+ * _only_ responsible for executing instructions and is inherently stateless.
+ */
+export class NodeState {
   public channelStates: cf.channel.ChannelStates;
   public networkContext: cf.utils.NetworkContext;
 
@@ -48,18 +54,18 @@ export class CfState {
     multisig: cf.utils.Address,
     cfAddr: cf.utils.H256
   ): cf.app.AppInstanceInfo {
-    return this.channelStates[multisig].appChannels[cfAddr];
+    return this.channelStates[multisig].appInstances[cfAddr];
   }
 
   public freeBalanceFromAddress(
     toAddress: cf.utils.Address
-  ): cf.utils.CfFreeBalance {
+  ): cf.utils.FreeBalance {
     return this.stateChannelFromAddress(toAddress).freeBalance;
   }
 
   public freeBalanceFromMultisigAddress(
     multisigAddress: cf.utils.Address
-  ): cf.utils.CfFreeBalance {
+  ): cf.utils.FreeBalance {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress].freeBalance;
@@ -78,9 +84,11 @@ export class CfState {
     const infos = {};
     for (const channel of lodash.keys(this.channelStates)) {
       for (const appChannel of lodash.keys(
-        this.channelStates[channel].appChannels
+        this.channelStates[channel].appInstances
       )) {
-        infos[appChannel] = this.channelStates[channel].appChannels[appChannel];
+        infos[appChannel] = this.channelStates[channel].appInstances[
+          appChannel
+        ];
       }
     }
     return infos;
@@ -92,8 +100,8 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
     readonly counterParty: cf.utils.Address,
     readonly me: cf.utils.Address,
     readonly multisigAddress: cf.utils.Address,
-    readonly appChannels: cf.app.AppInstanceInfos = {},
-    readonly freeBalance: cf.utils.CfFreeBalance
+    readonly appInstances: cf.app.AppInstanceInfos = {},
+    readonly freeBalance: cf.utils.FreeBalance
   ) {}
 
   /**
@@ -107,5 +115,5 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
 export class Context {
   public results: OpCodeResult[] = Object.create(null);
   public instructionPointer: number = Object.create(null);
-  public vm: CounterfactualVM = Object.create(null);
+  public instructionExecutor: InstructionExecutor = Object.create(null);
 }

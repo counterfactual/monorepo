@@ -4,7 +4,7 @@ import { abi, Bytes32 } from "./index";
 
 const { keccak256 } = ethers.utils;
 
-export class CfNonce {
+export class Nonce {
   public isSet: boolean;
   public salt: Bytes32;
   public nonceValue: number;

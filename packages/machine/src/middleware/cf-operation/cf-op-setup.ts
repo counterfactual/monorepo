@@ -12,9 +12,9 @@ export class CfOpSetup extends MultisigTxOp {
   public constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly freeBalanceStateChannel: cf.app.CfAppInstance,
-    readonly freeBalance: cf.utils.CfFreeBalance,
-    readonly dependencyNonce: cf.utils.CfNonce
+    readonly freeBalanceStateChannel: cf.app.AppInstance,
+    readonly freeBalance: cf.utils.FreeBalance,
+    readonly dependencyNonce: cf.utils.Nonce
   ) {
     super(multisig, freeBalance);
     if (dependencyNonce === undefined) {
@@ -23,7 +23,7 @@ export class CfOpSetup extends MultisigTxOp {
   }
 
   multisigInput(): MultisigInput {
-    const terms = cf.utils.CfFreeBalance.terms();
+    const terms = cf.utils.FreeBalance.terms();
 
     const uninstallKey = keccak256(
       abi.encodePacked(

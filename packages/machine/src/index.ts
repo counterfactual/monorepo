@@ -1,12 +1,12 @@
+import * as instructionExecutor from "./instruction-executor";
 import * as instructions from "./instructions";
 import * as cfOperations from "./middleware/cf-operation";
 import * as cfTypes from "./middleware/cf-operation/types";
 import * as middleware from "./middleware/middleware";
 import * as mixins from "./mixins";
+import * as state from "./node-state";
 import * as serializer from "./serializer";
-import * as state from "./state";
 import * as types from "./types";
-import * as vm from "./vm";
 import * as writeAheadLog from "./write-ahead-log";
 
 export {
@@ -18,6 +18,6 @@ export {
   serializer,
   state,
   types,
-  vm,
+  instructionExecutor,
   writeAheadLog
 };

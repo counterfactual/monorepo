@@ -1,3 +1,5 @@
+import { v1 as uuid } from "uuid";
+
 import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
@@ -57,7 +59,7 @@ export class Client implements Observable {
   }
 
   public requestId(): string {
-    return Math.random().toString();
+    return uuid();
   }
 
   public async queryUser(): Promise<UserDataClientResponse> {
@@ -172,11 +174,16 @@ export class Client implements Observable {
   ): Promise<ClientResponse> {
     let observerId;
 
-    this.observerCallbacks.forEach((value: Function, key: string) => {
+    const entries = this.observerCallbacks.entries();
+    let entry: IteratorResult<[string, Function]>;
+
+    while ((entry = entries.next())) {
+      const [key, value] = entry.value;
       if (value === callback) {
         observerId = key;
+        break;
       }
-    });
+    }
 
     if (!observerId) {
       throw Error(`unable to find observer for ${notificationType}`);

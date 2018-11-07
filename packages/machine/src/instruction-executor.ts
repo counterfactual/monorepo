@@ -2,10 +2,10 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
 import { Instruction } from "./instructions";
-import { CfMiddleware, CfOpGenerator } from "./middleware/middleware";
+import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { CfState } from "./state";
+import { NodeState } from "./node-state";
 import {
   Addressable,
   AddressableLookupResolverHash,
@@ -13,10 +13,10 @@ import {
 } from "./types";
 import { Log } from "./write-ahead-log";
 
-export class CfVmConfig {
+export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
-    readonly cfOpGenerator: CfOpGenerator,
+    readonly cfOpGenerator: OpGenerator,
     readonly network: cf.utils.NetworkContext,
     readonly state?: cf.channel.ChannelStates
   ) {}
@@ -28,21 +28,21 @@ export class CfVmConfig {
  * StateChannelInfo from the corresponding source.
  */
 const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (cfState: CfState, appId: cf.utils.H256) =>
-    cfState.appChannelInfos[appId].stateChannel,
+  appId: (nodeState: NodeState, appId: cf.utils.H256) =>
+    nodeState.appChannelInfos[appId].stateChannel,
 
-  multisigAddress: (cfState: CfState, multisigAddress: cf.utils.Address) =>
-    cfState.stateChannelFromMultisigAddress(multisigAddress),
+  multisigAddress: (nodeState: NodeState, multisigAddress: cf.utils.Address) =>
+    nodeState.stateChannelFromMultisigAddress(multisigAddress),
 
-  toAddress: (cfState: CfState, toAddress: cf.utils.Address) =>
-    cfState.stateChannelFromAddress(toAddress)
+  toAddress: (nodeState: NodeState, toAddress: cf.utils.Address) =>
+    nodeState.stateChannelFromAddress(toAddress)
 };
 
-export class CounterfactualVM implements Observable {
+export class InstructionExecutor implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
-  public middleware: CfMiddleware;
+  public middleware: Middleware;
   /**
    * The delegate handler we send responses to.
    */
@@ -51,22 +51,21 @@ export class CounterfactualVM implements Observable {
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
    */
-  public cfState: CfState;
+  public nodeState: NodeState;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
-  constructor(config: CfVmConfig) {
+  constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.cfState = new CfState(
-      config.state ? config.state : Object.create(null),
-      config.network
-    );
-    this.middleware = new CfMiddleware(this.cfState, config.cfOpGenerator);
+    this.nodeState = new NodeState(config.state || {}, config.network);
+    this.middleware = new Middleware(this.nodeState, config.cfOpGenerator);
   }
+
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
   public notifyObservers(type: NotificationType, data: object) {}
+
   /**
    * Restarts all protocols that were stopped mid execution, and returns when
    * they all finish.
@@ -119,13 +118,17 @@ export class CounterfactualVM implements Observable {
       );
     }
 
-    return lookup(this.cfState, data[lookupKey]);
+    return lookup(this.nodeState, data[lookupKey]);
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
-    this.validateMessage(msg);
+    if (!this.validateMessage(msg)) {
+      throw new Error("Cannot receive invalid message");
+    }
+
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
+
     return new cf.node.WalletResponse(
       action.requestId,
       cf.node.ResponseStatus.STARTED
@@ -172,15 +175,17 @@ export class CounterfactualVM implements Observable {
     execution: ActionExecution,
     status: cf.node.ResponseStatus
   ) {
-    if (!execution.action.isAckSide) {
-      this.responseHandler.sendResponse(
-        new cf.node.Response(execution.action.requestId, status)
-      );
+    if (execution.action.isAckSide) {
+      return;
     }
+
+    this.responseHandler.sendResponse(
+      new cf.node.Response(execution.action.requestId, status)
+    );
   }
 
   public mutateState(state: cf.channel.ChannelStates) {
-    Object.assign(this.cfState.channelStates, state);
+    Object.assign(this.nodeState.channelStates, state);
   }
 
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {
@@ -188,4 +193,4 @@ export class CounterfactualVM implements Observable {
   }
 }
 
-applyMixins(CounterfactualVM, [Observable]);
+applyMixins(InstructionExecutor, [Observable]);

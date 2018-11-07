@@ -1,16 +1,16 @@
 import * as ethers from "ethers";
 
-import { CfAppInterface, Terms } from "../app";
+import { AppInterface, Terms } from "../app";
 
 import { Address } from "./index";
 import { NetworkContext } from "./network-context";
-import { CfNonce } from "./nonce";
+import { Nonce } from "./nonce";
 
 /**
  * The state of a free balance object. Passing this into an install or uninstall
  * will update the free balance object to the values given here.
  */
-export class CfFreeBalance {
+export class FreeBalance {
   public static terms(): Terms {
     // FIXME: Change implementation of free balance on contracts layer
     // https://github.com/counterfactual/monorepo/issues/118
@@ -21,7 +21,7 @@ export class CfFreeBalance {
     );
   }
 
-  public static contractInterface(ctx: NetworkContext): CfAppInterface {
+  public static contractInterface(ctx: NetworkContext): AppInterface {
     const address = ctx.paymentAppAddr;
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
@@ -31,7 +31,7 @@ export class CfFreeBalance {
     ]).functions.resolve.sighash;
     const turn = "0x00000000"; // not used
     const isStateTerminal = "0x00000000"; // not used
-    return new CfAppInterface(
+    return new AppInterface(
       address,
       applyAction,
       resolver,
@@ -49,6 +49,6 @@ export class CfFreeBalance {
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,
-    readonly dependencyNonce: CfNonce
+    readonly dependencyNonce: Nonce
   ) {}
 }
