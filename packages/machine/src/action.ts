@@ -1,9 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 
+import { InstructionExecutor } from "./instruction-executor";
 import { ackInstructions, Instruction, instructions } from "./instructions";
 import { Context } from "./state";
 import { InternalMessage, MiddlewareResult } from "./types";
-import { InstructionExecutor } from "./instruction-executor";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -35,8 +35,15 @@ export class Action {
     }
   }
 
-  public makeExecution(instructionExecutor: InstructionExecutor): ActionExecution {
-    const exe = new ActionExecution(this, 0, this.clientMessage, instructionExecutor);
+  public makeExecution(
+    instructionExecutor: InstructionExecutor
+  ): ActionExecution {
+    const exe = new ActionExecution(
+      this,
+      0,
+      this.clientMessage,
+      instructionExecutor
+    );
     this.execution = exe;
     return exe;
   }
@@ -94,7 +101,10 @@ export class ActionExecution {
     const context = this.createContext();
 
     try {
-      const value = await this.instructionExecutor.middleware.run(internalMessage, context);
+      const value = await this.instructionExecutor.middleware.run(
+        internalMessage,
+        context
+      );
       this.instructionPointer += 1;
       this.results.push({ value, opCode: internalMessage.opCode });
 

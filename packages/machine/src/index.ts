@@ -1,3 +1,4 @@
+import * as instructionExecutor from "./instruction-executor";
 import * as instructions from "./instructions";
 import * as cfOperations from "./middleware/cf-operation";
 import * as cfTypes from "./middleware/cf-operation/types";
@@ -6,7 +7,6 @@ import * as mixins from "./mixins";
 import * as serializer from "./serializer";
 import * as state from "./state";
 import * as types from "./types";
-import * as instructionExecutor from "./instruction-executor";
 import * as writeAheadLog from "./write-ahead-log";
 
 export {
