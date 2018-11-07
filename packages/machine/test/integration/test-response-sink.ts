@@ -8,7 +8,7 @@ import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
 import { InternalMessage } from "../../src/types";
-import { InstructionExecutor, VmConfig } from "../../src/instruction-executor";
+import { InstructionExecutor, InstructionExecutorConfig } from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -48,7 +48,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // An instance of a InstructionExecutor that will execute protocols.
     this.instructionExecutor = new InstructionExecutor(
-      new VmConfig(
+      new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
         networkContext || EMPTY_NETWORK_CONTEXT

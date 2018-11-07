@@ -13,7 +13,7 @@ import {
 } from "./types";
 import { Log } from "./write-ahead-log";
 
-export class VmConfig {
+export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
     readonly cfOpGenerator: OpGenerator,
@@ -56,7 +56,7 @@ export class InstructionExecutor implements Observable {
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
-  constructor(config: VmConfig) {
+  constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
     this.state = new State(config.state || {}, config.network);
     this.middleware = new Middleware(this.state, config.cfOpGenerator);

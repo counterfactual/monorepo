@@ -58,7 +58,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.address = address;
     this.io = new IframeIoProvider(this);
     this.instructionExecutor = new machine.instructionExecutor.InstructionExecutor(
-      new machine.instructionExecutor.VmConfig(
+      new machine.instructionExecutor.InstructionExecutorConfig(
         this,
         new machine.cfOperations.EthOpGenerator(),
         networkContext,

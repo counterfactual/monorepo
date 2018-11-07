@@ -1,9 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 import lodash from "lodash";
 
+import { InstructionExecutor } from "./instruction-executor";
 import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
-import { InstructionExecutor } from "./instruction-executor";
 
 export class State {
   public channelStates: cf.channel.ChannelStates;
