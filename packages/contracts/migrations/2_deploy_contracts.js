@@ -12,6 +12,7 @@ const StaticCall = artifacts.require("StaticCall");
 const Transfer = artifacts.require("Transfer");
 const VirtualAppAgreement = artifacts.require("VirtualAppAgreement");
 const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
+const FixedResolutionApp = artifacts.require("FixedResolutionApp");
 
 module.exports = (deployer, network) => {
   deployer.deploy(Transfer).then(instance => {
@@ -77,6 +78,12 @@ module.exports = (deployer, network) => {
   });
 
   deployer.deploy(Signatures).then(instance => {
+    if (!tdr.isDryRunNetworkName(network)) {
+      return tdr.appendInstance(instance);
+    }
+  });
+
+  deployer.deploy(FixedResolutionApp).then(instance => {
     if (!tdr.isDryRunNetworkName(network)) {
       return tdr.appendInstance(instance);
     }
