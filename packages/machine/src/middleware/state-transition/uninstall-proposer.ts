@@ -16,8 +16,8 @@ export class UninstallProposer {
       throw new Error("uninstall message must have appId set");
     }
     // delete the app by bumping the nonce
-    channels[multisig].appChannels[appId].dependencyNonce.nonceValue += 1;
-    channels[multisig].appChannels[appId].dependencyNonce.isSet = true;
+    channels[multisig].appInstances[appId].dependencyNonce.nonceValue += 1;
+    channels[multisig].appInstances[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
     const canon = cf.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
@@ -40,7 +40,7 @@ export class UninstallProposer {
       chan.counterParty,
       chan.me,
       multisig,
-      chan.appChannels,
+      chan.appInstances,
       newFreeBalance
     );
     return { state: channels };

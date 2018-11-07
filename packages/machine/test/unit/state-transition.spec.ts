@@ -104,7 +104,7 @@ function validateSetupInfos(infos: cf.channel.StateChannelInfos) {
   const info = infos[UNUSED_FUNDED_ACCOUNT];
   expect(info.counterParty).toEqual(B_ADDRESS);
   expect(info.me).toEqual(A_ADDRESS);
-  expect(Object.keys(info.appChannels).length).toEqual(0);
+  expect(Object.keys(info.appInstances).length).toEqual(0);
   expect(info.freeBalance.alice).toEqual(A_ADDRESS);
   expect(info.freeBalance.aliceBalance.toNumber()).toEqual(0);
   expect(info.freeBalance.bob).toEqual(B_ADDRESS);
@@ -157,7 +157,7 @@ function validateInstallInfos(
   expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);
   expect(stateChannel.freeBalance.bobBalance.toNumber()).toEqual(17);
 
-  const app = infos[UNUSED_FUNDED_ACCOUNT].appChannels[expectedCfAddr];
+  const app = infos[UNUSED_FUNDED_ACCOUNT].appInstances[expectedCfAddr];
   const expectedSalt =
     "0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
 

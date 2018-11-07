@@ -136,7 +136,7 @@ function getApps() {
     iframeWallet.currentUser.vm.cfState.channelStates
   )[0];
   return iframeWallet.currentUser.vm.cfState.channelStates[openChannelAddress]
-    .appChannels;
+    .appInstances;
 }
 
 function getStateChannels() {
