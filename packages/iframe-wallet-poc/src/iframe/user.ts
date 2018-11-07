@@ -23,7 +23,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   }
   public signingKey: ethers.utils.SigningKey;
   public ethersWallet: ethers.Wallet | ethers.providers.JsonRpcSigner;
-  public vm: machine.vm.CounterfactualVM;
+  public instructionExecutor: machine.instructionExecutor.InstructionExecutor;
   public io: IframeIoProvider;
   public address: string;
   public store: CommitmentStore;
@@ -57,10 +57,10 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.wallet = wallet;
     this.address = address;
     this.io = new IframeIoProvider(this);
-    this.vm = new machine.vm.CounterfactualVM(
-      new machine.vm.CfVmConfig(
+    this.instructionExecutor = new machine.instructionExecutor.InstructionExecutor(
+      new machine.instructionExecutor.InstructionExecutorConfig(
         this,
-        new machine.cfOperations.EthCfOpGenerator(),
+        new machine.cfOperations.EthOpGenerator(),
         networkContext,
         states
       )
@@ -70,9 +70,11 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       this.address
     );
     this.store = new CommitmentStore();
-    this.io.ackMethod = this.vm.startAck.bind(this.vm);
+    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+      this.instructionExecutor
+    );
     this.registerMiddlewares();
-    this.vm.registerObserver(
+    this.instructionExecutor.registerObserver(
       "actionCompleted",
       this.handleActionCompletion.bind(this)
     );
@@ -138,7 +140,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       console.info("WAL is not empty. Starting machine from persisted state.");
     }
 
-    await this.vm.resume(savedLog);
+    await this.instructionExecutor.resume(savedLog);
   }
 
   public handleActionCompletion(notification: cf.node.Notification) {
@@ -192,7 +194,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   }
 
   private registerMiddlewares() {
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.ALL,
       async (
         message: machine.types.InternalMessage,
@@ -203,7 +205,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       }
     );
 
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.OP_SIGN,
       async (
         message: machine.types.InternalMessage,
@@ -213,7 +215,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
         return signMyUpdate(message, next, context, this);
       }
     );
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.OP_SIGN_VALIDATE,
       async (
         message: machine.types.InternalMessage,
@@ -223,15 +225,15 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
         return validateSignatures(message, next, context, this);
       }
     );
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.IO_SEND,
       this.io.ioSendMessage.bind(this.io)
     );
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.IO_WAIT,
       this.io.waitForIo.bind(this.io)
     );
-    this.vm.register(
+    this.instructionExecutor.register(
       machine.instructions.Instruction.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );

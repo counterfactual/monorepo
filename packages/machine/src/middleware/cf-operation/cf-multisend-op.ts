@@ -12,8 +12,8 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.CfFreeBalance,
-    readonly dependencyNonce: cf.utils.CfNonce
+    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly dependencyNonce: cf.utils.Nonce
   ) {
     super(multisig, cfFreeBalance);
   }
@@ -27,9 +27,9 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
   }
 
   public freeBalanceData(): cf.utils.Bytes {
-    const terms = cf.utils.CfFreeBalance.terms();
-    const app = cf.utils.CfFreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new cf.app.CfAppInstance(
+    const terms = cf.utils.FreeBalance.terms();
+    const app = cf.utils.FreeBalance.contractInterface(this.networkContext);
+    const freeBalanceCfAddress = new cf.app.AppInstance(
       this.networkContext,
       this.multisig,
       [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
