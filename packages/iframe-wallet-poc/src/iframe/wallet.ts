@@ -119,7 +119,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
-    this.currentUser.vm.receive(msg);
+    this.currentUser.instructionExecutor.receive(msg);
     return promise;
   }
 
@@ -178,7 +178,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
 
   public handleFreeBalanceQuery(query: cf.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
-      const freeBalance = this.currentUser.vm.cfState.freeBalanceFromMultisigAddress(
+      const freeBalance = this.currentUser.instructionExecutor.nodeState.freeBalanceFromMultisigAddress(
         query.multisigAddress
       );
       const response = {
@@ -216,7 +216,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
 
   public handleStateChannelQuery(query: cf.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
-      const stateChannel = this.currentUser.vm.cfState.stateChannelFromMultisigAddress(
+      const stateChannel = this.currentUser.instructionExecutor.nodeState.stateChannelFromMultisigAddress(
         query.multisigAddress
       );
       const response = {
@@ -243,9 +243,9 @@ export class IFrameWallet implements cf.node.ResponseSink {
   }
 
   private getMultisigAddressByToAddress(toAddress: string): string | undefined {
-    const cfState = this.currentUser.vm.cfState;
-    return Object.keys(cfState.channelStates).find(multisig => {
-      return cfState.channelStates[multisig].counterParty === toAddress;
+    const state = this.currentUser.instructionExecutor.nodeState;
+    return Object.keys(state.channelStates).find(multisig => {
+      return state.channelStates[multisig].counterParty === toAddress;
     });
   }
 

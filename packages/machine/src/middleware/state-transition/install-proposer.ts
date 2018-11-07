@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
-import { CfState, Context, StateChannelInfoImpl } from "../../state";
+import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 
@@ -10,11 +10,11 @@ export class InstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    state: CfState
+    nodeState: NodeState
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: cf.app.InstallData = message.clientMessage.data;
-    const app = new cf.app.CfAppInterface(
+    const app = new cf.app.AppInterface(
       data.app.address,
       data.app.applyAction,
       data.app.resolve,
@@ -27,18 +27,18 @@ export class InstallProposer {
       data.terms.limit,
       data.terms.token
     );
-    const uniqueId = InstallProposer.nextUniqueId(state, multisig);
+    const uniqueId = InstallProposer.nextUniqueId(nodeState, multisig);
     const signingKeys = InstallProposer.newSigningKeys(context, data);
     const cfAddr = InstallProposer.proposedCfAddress(
-      state,
+      nodeState,
       message,
       app,
       terms,
       signingKeys,
       uniqueId
     );
-    const existingFreeBalance = state.stateChannel(multisig).freeBalance;
-    const newAppChannel = InstallProposer.newAppChannel(
+    const existingFreeBalance = nodeState.stateChannel(multisig).freeBalance;
+    const newAppInstance = InstallProposer.newAppInstance(
       cfAddr,
       data,
       app,
@@ -47,7 +47,7 @@ export class InstallProposer {
       uniqueId
     );
     const [peerA, peerB] = InstallProposer.newPeers(existingFreeBalance, data);
-    const freeBalance = new cf.utils.CfFreeBalance(
+    const freeBalance = new cf.utils.FreeBalance(
       peerA.address,
       peerA.balance,
       peerB.address,
@@ -61,7 +61,7 @@ export class InstallProposer {
       message.clientMessage.toAddress,
       message.clientMessage.fromAddress,
       multisig,
-      { [newAppChannel.id]: newAppChannel },
+      { [newAppInstance.id]: newAppInstance },
       freeBalance
     );
 
@@ -93,10 +93,10 @@ export class InstallProposer {
     return signingKeys;
   }
 
-  private static newAppChannel(
+  private static newAppInstance(
     cfAddr: cf.utils.H256,
     data: cf.app.InstallData,
-    app: cf.app.CfAppInterface,
+    app: cf.app.AppInterface,
     terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
@@ -113,20 +113,20 @@ export class InstallProposer {
       localNonce: 1,
       timeout: data.timeout,
       cfApp: app,
-      dependencyNonce: new cf.utils.CfNonce(false, uniqueId, 0)
+      dependencyNonce: new cf.utils.Nonce(false, uniqueId, 0)
     };
   }
 
   private static proposedCfAddress(
-    state: CfState,
+    nodeState: NodeState,
     message: InternalMessage,
-    app: cf.app.CfAppInterface,
+    app: cf.app.AppInterface,
     terms: cf.app.Terms,
     signingKeys: string[],
     uniqueId: number
   ): cf.utils.H256 {
-    return new cf.app.CfAppInstance(
-      state.networkContext,
+    return new cf.app.AppInstance(
+      nodeState.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,
       app,
@@ -137,7 +137,7 @@ export class InstallProposer {
   }
 
   private static newPeers(
-    existingFreeBalance: cf.utils.CfFreeBalance,
+    existingFreeBalance: cf.utils.FreeBalance,
     data: cf.app.InstallData
   ): [cf.utils.PeerBalance, cf.utils.PeerBalance] {
     const peerA = new cf.utils.PeerBalance(
@@ -152,11 +152,11 @@ export class InstallProposer {
   }
 
   private static nextUniqueId(
-    state: CfState,
+    state: NodeState,
     multisig: cf.utils.Address
   ): number {
     const channel = state.channelStates[multisig];
     // + 1 for the free balance
-    return Object.keys(channel.appChannels).length + 1;
+    return Object.keys(channel.appInstances).length + 1;
   }
 }

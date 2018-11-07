@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "../../src/state";
+import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import { TestResponseSink } from "./test-response-sink";

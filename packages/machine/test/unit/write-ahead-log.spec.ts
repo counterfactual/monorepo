@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "../../src/action";
-import { CfVmConfig, CounterfactualVM } from "../../src/vm";
+import { InstructionExecutorConfig, InstructionExecutor } from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -11,32 +11,30 @@ describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
     const db = new SimpleStringMapSyncDB();
 
-    const vm = new CounterfactualVM(
-      new CfVmConfig(null!, null!, null!, undefined!)
-    );
+    const instructionExecutor = new InstructionExecutor(new InstructionExecutorConfig(null!, null!, null!, undefined!));
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
 
-    makeExecutions(vm).forEach(execution => {
+    makeExecutions(instructionExecutor).forEach(execution => {
       const internalMessage = execution.createInternalMessage();
       const context = execution.createContext();
       log1.write(internalMessage, context);
     });
 
-    validatelog(log1, vm);
+    validatelog(log1, instructionExecutor);
 
     const log2 = new WriteAheadLog(db, "test-unique-id");
     const log3 = new WriteAheadLog(db, "test-unique-id");
 
-    validatelog(log2, vm);
-    validatelog(log3, vm);
+    validatelog(log2, instructionExecutor);
+    validatelog(log3, instructionExecutor);
   });
 });
 
 /**
  * @returns The entries to load into the write ahead log for the test.
  */
-function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
+function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
 
   const actions = [
@@ -93,7 +91,7 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
       new Action(requestIds[k], actions[k], msgs[k], isAckSide[k]),
       instructionPointers[k],
       msgs[k],
-      vm
+      instructionExecutor
     );
     executions.push(execution);
   }
@@ -101,9 +99,9 @@ function makeExecutions(vm: CounterfactualVM): ActionExecution[] {
   return executions;
 }
 
-function validatelog(log: WriteAheadLog, vm: CounterfactualVM) {
-  const executions = vm.buildExecutionsFromLog(log.readLog());
-  const expectedExecutions = makeExecutions(vm);
+function validatelog(log: WriteAheadLog, instructionExecutor: InstructionExecutor) {
+  const executions = instructionExecutor.buildExecutionsFromLog(log.readLog());
+  const expectedExecutions = makeExecutions(instructionExecutor);
   for (let k = 0; k < expectedExecutions.length; k += 1) {
     const expected = expectedExecutions[k];
     const received = executions[k];

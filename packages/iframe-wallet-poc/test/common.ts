@@ -35,8 +35,12 @@ export class SetupProtocol {
    * Asserts the state of the given wallets is empty.
    */
   public static validatePresetup(walletA: IFrameWallet, walletB: IFrameWallet) {
-    expect(walletA.currentUser.vm.cfState.channelStates).toEqual({});
-    expect(walletB.currentUser.vm.cfState.channelStates).toEqual({});
+    expect(
+      walletA.currentUser.instructionExecutor.nodeState.channelStates
+    ).toEqual({});
+    expect(
+      walletB.currentUser.instructionExecutor.nodeState.channelStates
+    ).toEqual({});
   }
 
   public static setupStartMsg(
@@ -83,7 +87,7 @@ export class SetupProtocol {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
-    const state = walletA.currentUser.vm.cfState;
+    const state = walletA.currentUser.instructionExecutor.nodeState;
     const canon = cf.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
@@ -91,12 +95,14 @@ export class SetupProtocol {
       amountB
     );
     const channel =
-      walletA.currentUser.vm.cfState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      walletA.currentUser.instructionExecutor.nodeState.channelStates[
+        UNUSED_FUNDED_ACCOUNT
+      ];
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.counterParty).toEqual(walletB.address);
     expect(channel.me).toEqual(walletA.address);
     expect(channel.multisigAddress).toEqual(UNUSED_FUNDED_ACCOUNT);
-    expect(channel.appChannels).toEqual({});
+    expect(channel.appInstances).toEqual({});
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);
     expect(channel.freeBalance.aliceBalance).toEqual(canon.peerA.balance);

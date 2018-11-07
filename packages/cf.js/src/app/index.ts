@@ -11,7 +11,7 @@ import {
   PeerBalance
 } from "../utils";
 import * as abi from "../utils/abi";
-import { CfNonce } from "../utils/nonce";
+import { Nonce } from "../utils/nonce";
 
 const { keccak256 } = ethers.utils;
 
@@ -21,12 +21,12 @@ const { keccak256 } = ethers.utils;
  *
  * @param signingKeys *must* be in sorted lexicographic order.
  */
-export class CfAppInstance {
+export class AppInstance {
   constructor(
     readonly ctx: NetworkContext,
     readonly owner: Address,
     readonly signingKeys: Address[],
-    readonly cfApp: CfAppInterface,
+    readonly cfApp: AppInterface,
     readonly terms: Terms,
     readonly timeout: number,
     readonly uniqueId: number
@@ -53,7 +53,7 @@ export class CfAppInstance {
   }
 }
 
-export class CfAppInterface {
+export class AppInterface {
   public static generateSighash(
     abiInterface: ethers.utils.Interface,
     functionName: string
@@ -150,7 +150,7 @@ export interface InstallData {
   keyB?: Address;
   encodedAppState: Bytes;
   terms: Terms;
-  app: CfAppInterface;
+  app: AppInterface;
   timeout: number;
 }
 
@@ -179,8 +179,8 @@ export interface AppInstanceInfo {
   localNonce: number;
   timeout: number;
   terms: Terms;
-  cfApp: CfAppInterface;
-  dependencyNonce: CfNonce;
+  cfApp: AppInterface;
+  dependencyNonce: Nonce;
 
   // TODO: Move this into a method that is outside the data structure
   // https://github.com/counterfactual/monorepo/issues/126

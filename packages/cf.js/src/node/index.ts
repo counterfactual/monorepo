@@ -1,5 +1,5 @@
 import { StateChannelInfo } from "../channel";
-import { Address, CfFreeBalance, Signature } from "../utils";
+import { Address, FreeBalance, Signature } from "../utils";
 
 // FIXME: move operation action names away from client action names
 // https://github.com/counterfactual/monorepo/issues/144
@@ -106,7 +106,7 @@ export interface StateChannelDataClientResponse extends ClientResponse {
 export interface FreeBalanceClientResponse extends ClientResponse {
   requestId: string;
   data: {
-    freeBalance: CfFreeBalance;
+    freeBalance: FreeBalance;
   };
 }
 
