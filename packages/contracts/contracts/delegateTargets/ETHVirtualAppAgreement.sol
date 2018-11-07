@@ -37,9 +37,9 @@ contract ETHVirtualAppAgreement {
       agreement.expiry <= block.number,
       "agreement lockup time has not elapsed"
     );
-    
+
     address target = agreement.registry.resolver(agreement.target);
-    
+
     Transfer.Transaction memory resolution = AppInstance(target)
       .getResolution();
 
@@ -47,26 +47,25 @@ contract ETHVirtualAppAgreement {
       agreement.terms.assetType == resolution.assetType,
       "returned incompatible resolution"
     );
-    
+
     require(
       agreement.terms.token == resolution.token,
       "returned incompatible resolution"
     );
-    
+
     require(
       agreement.capitalProvided > resolution.value[0],
       "returned incompatible resolution"
     );
 
     uint256[] memory amount = new uint256[](2);
-    
+
     amount[0] = resolution.value[0];
     amount[1] = agreement.capitalProvided - amount[0];
 
     bytes[] memory data = new bytes[](2);
 
     address[] memory beneficiaries = new address[](2);
-    
     beneficiaries[0] = agreement.beneficiaries[0];
     beneficiaries[1] = agreement.beneficiaries[1];
 
