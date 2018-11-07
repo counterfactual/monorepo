@@ -178,21 +178,21 @@ class Depositor {
     expect(stateChannel.me).toEqual(peerA.signingKey.address);
     expect(stateChannel.counterParty).toEqual(peerB.signingKey.address);
 
-    const appChannels = stateChannel.appChannels;
-    const cfAddrs = Object.keys(appChannels);
+    const appInstances = stateChannel.appInstances;
+    const cfAddrs = Object.keys(appInstances);
     expect(cfAddrs.length).toEqual(1);
 
     const cfAddr = cfAddrs[0];
-    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
-    expect(appChannels[cfAddr].peerA.address).toEqual(
+    expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
+    expect(appInstances[cfAddr].peerA.address).toEqual(
       stateChannel.freeBalance.alice
     );
-    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
-    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
-    expect(appChannels[cfAddr].peerB.address).toEqual(
+    expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
+    expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
+    expect(appInstances[cfAddr].peerB.address).toEqual(
       stateChannel.freeBalance.bob
     );
-    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
+    expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
 
     return cfAddr;
   }
@@ -236,7 +236,7 @@ class Depositor {
     );
 
     const channel = peerA.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT];
-    const app = channel.appChannels[cfAddr];
+    const app = channel.appInstances[cfAddr];
 
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.me).toEqual(peerA.signingKey.address);
@@ -361,14 +361,14 @@ class TicTacToeSimulator {
     peerB: TestResponseSink
   ): string {
     const stateChannel = peerA.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT];
-    const appChannels = stateChannel.appChannels;
-    const cfAddrs = Object.keys(appChannels);
+    const appInstances = stateChannel.appInstances;
+    const cfAddrs = Object.keys(appInstances);
     expect(cfAddrs.length).toEqual(1);
 
     // first validate the app
     const cfAddr = cfAddrs[0];
-    expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(2);
-    expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(2);
+    expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(2);
+    expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(2);
 
     // now validate the free balance
     const channel = peerA.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT];
@@ -465,9 +465,9 @@ class TicTacToeSimulator {
     moveNumber: number
   ) {
     const appA =
-      peerA.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT].appChannels[cfAddr];
+      peerA.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT].appInstances[cfAddr];
     const appB =
-      peerB.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT].appChannels[cfAddr];
+      peerB.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT].appInstances[cfAddr];
 
     expect(appA.encodedState).toEqual(appState);
     expect(appA.localNonce).toEqual(moveNumber + 1);
@@ -537,7 +537,7 @@ class TicTacToeSimulator {
     amountB: ethers.utils.BigNumber
   ) {
     const channel = wallet.vm.state.channelStates[UNUSED_FUNDED_ACCOUNT];
-    const app = channel.appChannels[cfAddr];
+    const app = channel.appInstances[cfAddr];
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);
     expect(channel.freeBalance.uniqueId).toEqual(0);

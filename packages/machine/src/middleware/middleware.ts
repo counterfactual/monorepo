@@ -221,7 +221,7 @@ export class SignatureValidator {
  */
 export function getFirstResult(
   toFindOpCode: Instruction,
-  results: { value: any; opCode }[]
+  results: OpCodeResult[]
 ): OpCodeResult {
   // FIXME: (ts-strict) we should change the results data structure or design
   // https://github.com/counterfactual/monorepo/issues/115
@@ -230,7 +230,7 @@ export function getFirstResult(
 
 export function getLastResult(
   toFindOpCode: Instruction,
-  results: { value: any; opCode }[]
+  results: OpCodeResult[]
 ): OpCodeResult {
   for (let k = results.length - 1; k >= 0; k -= 1) {
     if (results[k].opCode === toFindOpCode) {

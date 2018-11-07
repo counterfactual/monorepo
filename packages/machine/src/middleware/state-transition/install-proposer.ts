@@ -38,7 +38,7 @@ export class InstallProposer {
       uniqueId
     );
     const existingFreeBalance = state.stateChannel(multisig).freeBalance;
-    const newAppChannel = InstallProposer.newAppChannel(
+    const newAppInstance = InstallProposer.newAppInstance(
       cfAddr,
       data,
       app,
@@ -61,7 +61,7 @@ export class InstallProposer {
       message.clientMessage.toAddress,
       message.clientMessage.fromAddress,
       multisig,
-      { [newAppChannel.id]: newAppChannel },
+      { [newAppInstance.id]: newAppInstance },
       freeBalance
     );
 
@@ -93,7 +93,7 @@ export class InstallProposer {
     return signingKeys;
   }
 
-  private static newAppChannel(
+  private static newAppInstance(
     cfAddr: cf.utils.H256,
     data: cf.app.InstallData,
     app: cf.app.AppInterface,
@@ -157,6 +157,6 @@ export class InstallProposer {
   ): number {
     const channel = state.channelStates[multisig];
     // + 1 for the free balance
-    return Object.keys(channel.appChannels).length + 1;
+    return Object.keys(channel.appInstances).length + 1;
   }
 }

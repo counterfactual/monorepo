@@ -61,7 +61,7 @@ export class EthOpGenerator extends OpGenerator {
       throw Error("update message must have appId set");
     }
     const appChannel =
-      proposedUpdate[multisig].appChannels[message.clientMessage.appId];
+      proposedUpdate[multisig].appInstances[message.clientMessage.appId];
 
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
@@ -158,7 +158,7 @@ export class EthOpGenerator extends OpGenerator {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
     const freeBalance = channel.freeBalance;
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const appChannel = channel.appChannels[cfAddr];
+    const appChannel = channel.appInstances[cfAddr];
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
@@ -205,7 +205,7 @@ export class EthOpGenerator extends OpGenerator {
     }
 
     const freeBalance = proposedUninstall[multisig].freeBalance;
-    const appChannel = proposedUninstall[multisig].appChannels[cfAddr];
+    const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
 
     const cfFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,

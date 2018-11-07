@@ -1,64 +1,21 @@
 import * as cf from "@counterfactual/cf.js";
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import * as ethers from "ethers";
 
 import * as common from "./common";
-import {
-  CfOperation,
-  MultiSend,
-  MultisigInput,
-  Operation,
-  Transaction
-} from "./types";
+import { MultisigTxOp } from "./multisig-tx-op";
+import { MultiSend, MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.utils;
 
-export abstract class CfMultiSendOp extends CfOperation {
+export abstract class CfMultiSendOp extends MultisigTxOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly cfFreeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super();
-  }
-
-  public transaction(sigs: cf.utils.Signature[]): Transaction {
-    const multisigInput = this.multisigInput();
-    const signatureBytes = cf.utils.Signature.toSortedBytes(
-      sigs,
-      this.hashToSign()
-    );
-    const txData = new ethers.utils.Interface(
-      MinimumViableMultisigJson.abi
-    ).functions.execTransaction.encode([
-      multisigInput.to,
-      multisigInput.val,
-      multisigInput.data,
-      multisigInput.op,
-      signatureBytes
-    ]);
-    return new Transaction(this.multisig, 0, txData);
-  }
-
-  public hashToSign(): string {
-    const multisigInput = this.multisigInput();
-    const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
-    return keccak256(
-      abi.encodePacked(
-        ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
-        [
-          "0x19",
-          owners,
-          multisigInput.to,
-          multisigInput.val,
-          multisigInput.data,
-          multisigInput.op
-        ]
-      )
-    );
+    super(multisig, cfFreeBalance);
   }
 
   public freeBalanceInput(): MultisigInput {
@@ -83,7 +40,7 @@ export abstract class CfMultiSendOp extends CfOperation {
     ).cfAddress();
 
     const appStateHash = keccak256(
-      abi.encode(
+      cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.cfFreeBalance.alice,
@@ -128,7 +85,7 @@ export abstract class CfMultiSendOp extends CfOperation {
    * @returns the input for the transaction from the multisig that will trigger
    *          a multisend transaction.
    */
-  private multisigInput(): MultisigInput {
+  multisigInput(): MultisigInput {
     return new MultiSend(this.eachMultisigInput(), this.networkContext).input(
       this.networkContext.multiSendAddr
     );

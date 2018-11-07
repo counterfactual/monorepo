@@ -190,7 +190,7 @@ export interface StateChannelInfo {
   counterParty: Address;
   me: Address;
   multisigAddress: Address;
-  appChannels: AppInstanceInfos;
+  appInstances: AppInstanceInfos;
   freeBalance: FreeBalance;
 
   // TODO: Move this out of the datastructure

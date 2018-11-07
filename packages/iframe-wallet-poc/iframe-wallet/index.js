@@ -135,8 +135,13 @@ function getApps() {
   const openChannelAddress = Object.keys(
     iframeWallet.currentUser.vm.state.channelStates
   )[0];
+<<<<<<< HEAD
   return iframeWallet.currentUser.vm.state.channelStates[openChannelAddress]
     .appChannels;
+=======
+  return iframeWallet.currentUser.vm.cfState.channelStates[openChannelAddress]
+    .appInstances;
+>>>>>>> master
 }
 
 function getStateChannels() {

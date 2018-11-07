@@ -58,15 +58,14 @@ export class VM implements Observable {
 
   constructor(config: VmConfig) {
     this.responseHandler = config.responseHandler;
-    this.state = new State(
-      config.state ? config.state : Object.create(null),
-      config.network
-    );
+    this.state = new State(config.state || {}, config.network);
     this.middleware = new Middleware(this.state, config.cfOpGenerator);
   }
+
   public registerObserver(type: NotificationType, callback: Function) {}
   public unregisterObserver(type: NotificationType, callback: Function) {}
   public notifyObservers(type: NotificationType, data: object) {}
+
   /**
    * Restarts all protocols that were stopped mid execution, and returns when
    * they all finish.
@@ -123,9 +122,13 @@ export class VM implements Observable {
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
-    this.validateMessage(msg);
+    if (!this.validateMessage(msg)) {
+      throw new Error("Cannot receive invalid message");
+    }
+
     const action = new Action(msg.requestId, msg.action, msg);
     this.execute(action);
+
     return new cf.node.WalletResponse(
       action.requestId,
       cf.node.ResponseStatus.STARTED
@@ -172,11 +175,13 @@ export class VM implements Observable {
     execution: ActionExecution,
     status: cf.node.ResponseStatus
   ) {
-    if (!execution.action.isAckSide) {
-      this.responseHandler.sendResponse(
-        new cf.node.Response(execution.action.requestId, status)
-      );
+    if (execution.action.isAckSide) {
+      return;
     }
+
+    this.responseHandler.sendResponse(
+      new cf.node.Response(execution.action.requestId, status)
+    );
   }
 
   public mutateState(state: cf.channel.ChannelStates) {

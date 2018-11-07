@@ -456,8 +456,8 @@ function validateNoAppsAndFreeBalance(
   expect(channel.freeBalance.aliceBalance.toNumber()).toBe(amountA.toNumber());
   expect(channel.freeBalance.bobBalance.toNumber()).toBe(amountB.toNumber());
 
-  Object.keys(channel.appChannels).forEach(appId => {
-    expect(channel.appChannels[appId].dependencyNonce.nonceValue).toBe(1);
+  Object.keys(channel.appInstances).forEach(appId => {
+    expect(channel.appInstances[appId].dependencyNonce.nonceValue).toBe(1);
   });
 }
 
@@ -468,21 +468,21 @@ function validateInstalledBalanceRefund(
 ) {
   const stateChannel =
     wallet.currentUser.vm.state.channelStates[multisigContractAddress];
-  const appChannels = stateChannel.appChannels;
-  const cfAddrs = Object.keys(appChannels);
+  const appInstances = stateChannel.appInstances;
+  const cfAddrs = Object.keys(appInstances);
   expect(cfAddrs.length).toBe(1);
 
   const cfAddr = cfAddrs[0];
 
-  expect(appChannels[cfAddr].peerA.balance.toNumber()).toBe(0);
-  expect(appChannels[cfAddr].peerA.address).toBe(
+  expect(appInstances[cfAddr].peerA.balance.toNumber()).toBe(0);
+  expect(appInstances[cfAddr].peerA.address).toBe(
     stateChannel.freeBalance.alice
   );
-  expect(appChannels[cfAddr].peerA.balance.toNumber()).toBe(0);
+  expect(appInstances[cfAddr].peerA.balance.toNumber()).toBe(0);
 
-  expect(appChannels[cfAddr].peerB.balance.toNumber()).toBe(0);
-  expect(appChannels[cfAddr].peerB.address).toBe(stateChannel.freeBalance.bob);
-  expect(appChannels[cfAddr].peerB.balance.toNumber()).toBe(0);
+  expect(appInstances[cfAddr].peerB.balance.toNumber()).toBe(0);
+  expect(appInstances[cfAddr].peerB.address).toBe(stateChannel.freeBalance.bob);
+  expect(appInstances[cfAddr].peerB.balance.toNumber()).toBe(0);
 
   return cfAddr;
 }
@@ -615,10 +615,10 @@ function validateUpdatePayment(
 ) {
   const appA =
     clientA.currentUser.vm.state.channelStates[multisigContractAddress]
-      .appChannels[appChannel.appId];
+      .appInstances[appChannel.appId];
   const appB =
     clientB.currentUser.vm.state.channelStates[multisigContractAddress]
-      .appChannels[appChannel.appId];
+      .appInstances[appChannel.appId];
 
   const encodedAppState = appChannel.appInterface.encode(appState);
   const appStateHash = appChannel.appInterface.stateHash(appState);
