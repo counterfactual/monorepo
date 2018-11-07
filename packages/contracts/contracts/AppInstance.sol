@@ -5,6 +5,7 @@ import "./lib/Signatures.sol";
 import "./lib/StaticCall.sol";
 import "./lib/Transfer.sol";
 
+import "./appDefinitions/StateChannelApp.sol";
 
 /// @title AppInstance - A contract that defines a state channel application
 /// @author Liam Horne - <liam@l4v.io>
@@ -546,6 +547,47 @@ contract AppInstance {
     return app.addr.staticcall_as_TransferDetails(
       abi.encodePacked(app.resolve, appState, terms)
     );
+  }
+
+  // THE FOLLOWING IS FOR ILLUSTRATING HOW `abi.decode` WORKS IN THIS FILE
+
+  function isAppStateTerminalWithAbiDecode(App app, bytes appState)
+    private
+    view
+    returns (bool)
+  {
+    return StateChannelApp(app.addr).isStateTerminal(appState);
+  }
+
+  function getAppTurnTakerWithAbiDecode(App app, bytes appState)
+    private
+    view
+    returns (address)
+  {
+    address ret = StateChannelApp(app.addr).getTurnTaker(appState, auth.signingKeys);
+
+    require(
+      ret != address(0),
+      "Application returned invalid turn taker index"
+    );
+
+    return ret;
+  }
+
+  function executeAppApplyActionWithAbiDecode(App app, bytes appState, bytes action)
+    private
+    view
+    returns (bytes)
+  {
+    return StateChannelApp(app.addr).applyAction(appState, action);
+  }
+
+  function getAppResolutionWithAbiDecode(App app, bytes appState, Transfer.Terms terms)
+    private
+    view
+    returns (Transfer.Transaction)
+  {
+    return StateChannelApp(app.addr).resolve(appState, terms);
   }
 
 }
