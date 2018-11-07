@@ -1,6 +1,6 @@
 import * as app from "./app";
-import { AppInstanceClient } from "./app-instance-client";
 import { AppInstance } from "./app-instance";
+import { AppInstanceClient } from "./app-instance-client";
 import * as channel from "./channel";
 import { Client } from "./client";
 import { NotificationType } from "./mixins/observable";
