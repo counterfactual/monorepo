@@ -8,7 +8,7 @@ import { Channel } from "./channel";
 import { ActionName, ClientResponse } from "./node";
 import { PeerBalance } from "./utils";
 
-export class AppChannelClient {
+export class AppInstanceClient {
   public stateChannel: Channel;
   public appName: string;
   public appId: string;
