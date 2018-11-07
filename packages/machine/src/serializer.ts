@@ -8,7 +8,10 @@ import { DeserializationCase } from "./types";
  */
 
 const isObject = data => typeof data === "object" && data !== null;
-const isBigNumber = data => isObject(data) && Object.keys(data).length === 1 && data._hex;
+
+const isBigNumber = data =>
+  isObject(data) && Object.keys(data).length === 1 && data._hex;
+
 const isSignature = data =>
   isObject(data) &&
   Object.keys(data).length === 3 &&
@@ -21,9 +24,12 @@ const isSignature = data =>
  */
 
 const deserializeArray = data => data.map(value => deserialize(value));
+
 const deserializeBigNumber = data => ethers.utils.bigNumberify(data._hex);
+
 const deserializeSignature = data =>
   new cf.utils.Signature(data.v, data.r, data.s);
+
 const deserializeObject = data =>
   Object.keys(data).reduce((deserializedData: object, key: string) => {
     deserializedData[key] = deserialize(data[key]);
