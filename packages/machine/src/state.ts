@@ -80,7 +80,9 @@ export class CfState {
       for (const appChannel of lodash.keys(
         this.channelStates[channel].appInstances
       )) {
-        infos[appChannel] = this.channelStates[channel].appInstances[appChannel];
+        infos[appChannel] = this.channelStates[channel].appInstances[
+          appChannel
+        ];
       }
     }
     return infos;
