@@ -2,8 +2,8 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import { AppInstanceInfos, AppInterface, InstallData } from "./app";
-import { AppChannelClient } from "./app-channel-client";
 import { AppInstance } from "./app-instance";
+import { AppInstanceClient } from "./app-instance-client";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import {
@@ -69,7 +69,7 @@ export class Channel {
     appInstance: AppInstance,
     deposits: types.Deposits,
     initialState: Object
-  ): Promise<AppChannelClient> {
+  ): Promise<AppInstanceClient> {
     let peerA = this.fromAddress;
     let peerB = this.toAddress;
     if (peerB.localeCompare(peerA) < 0) {
@@ -105,14 +105,14 @@ export class Channel {
       seq: 0
     };
 
-    return new Promise<AppChannelClient>(async resolve => {
+    return new Promise<AppInstanceClient>(async resolve => {
       const cb = data => {
         if (data.data.requestId !== requestId) {
           return;
         }
         const appId = data.data.result.cfAddr;
 
-        return resolve(new AppChannelClient(this, name, appId, app));
+        return resolve(new AppInstanceClient(this, name, appId, app));
       };
 
       await this.client.addObserver("installCompleted", cb);
@@ -125,9 +125,9 @@ export class Channel {
     appId: string,
     name: string,
     appDefinition: types.AppDefinition
-  ): Promise<AppChannelClient> {
+  ): Promise<AppInstanceClient> {
     const appInterface = this.buildAppInterface(appDefinition);
-    return new AppChannelClient(this, name, appId, appInterface);
+    return new AppInstanceClient(this, name, appId, appInterface);
   }
 
   public async queryFreeBalance(): Promise<FreeBalanceClientResponse> {
