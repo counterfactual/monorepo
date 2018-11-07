@@ -529,7 +529,7 @@ function validateFreebalance(
 async function makePayments(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppChannelClient,
+  appChannel: cf.AppInstanceClient,
   multisigContractAddress: string
 ) {
   await makePayment(
@@ -583,7 +583,7 @@ async function makePayment(
   multisigContractAddress: string,
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppChannelClient,
+  appChannel: cf.AppInstanceClient,
   aliceBalance: string,
   bobBalance: string,
   totalUpdates: number
@@ -608,7 +608,7 @@ async function makePayment(
 function validateUpdatePayment(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppChannelClient,
+  appChannel: cf.AppInstanceClient,
   appState: object,
   totalUpdates: number,
   multisigContractAddress: string
