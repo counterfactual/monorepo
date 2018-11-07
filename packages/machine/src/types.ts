@@ -76,3 +76,16 @@ export interface InstructionMiddleware {
 export type InstructionMiddlewares = {
   [I in Instruction]: InstructionMiddleware[]
 };
+
+export type DeserializationCondition = {
+  (data: [] | object): boolean;
+};
+
+export type DeserializationResolver = {
+  (data: [] | object): [] | object;
+};
+
+export interface DeserializationCase {
+  condition: DeserializationCondition;
+  resolve: DeserializationResolver;
+}
