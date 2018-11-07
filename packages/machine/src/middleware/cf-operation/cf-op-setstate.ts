@@ -15,7 +15,7 @@ export class CfOpSetState extends CfOperation {
     readonly appStateHash: string,
     readonly appUniqueId: number,
     readonly terms: cf.app.Terms,
-    readonly app: cf.app.CfAppInterface,
+    readonly app: cf.app.AppInterface,
     readonly appLocalNonce: number,
     readonly timeout: number
   ) {
@@ -42,7 +42,7 @@ export class CfOpSetState extends CfOperation {
    *          `setState` on AppInstance.sol.
    */
   public transaction(sigs: cf.utils.Signature[]): Transaction {
-    const appCfAddr = new cf.app.CfAppInstance(
+    const appCfAddr = new cf.app.AppInstance(
       this.ctx,
       this.multisig,
       this.signingKeys,

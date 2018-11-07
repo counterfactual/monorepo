@@ -2,9 +2,9 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Instruction, instructions } from "../../src/instructions";
-import { EthCfOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
+import { EthOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
-import { Context } from "../../src/state";
+import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -56,7 +56,9 @@ abstract class SetupProtocolTestCase {
   }
 
   public async run() {
-    await this.peerA.vm.resume(this.peerA.writeAheadLog.readLog());
+    await this.peerA.instructionExecutor.resume(
+      this.peerA.writeAheadLog.readLog()
+    );
     this.setupWallet(this.peerA, true);
     const resp = await this.peerA.runProtocol(this.msg());
     expect(resp.status).toEqual(cf.node.ResponseStatus.ERROR);
@@ -77,7 +79,9 @@ abstract class SetupProtocolTestCase {
     peerARebooted.io.peer = this.peerB;
     this.peerB.io.peer = peerARebooted;
     this.setupWallet(peerARebooted, false);
-    await peerARebooted.vm.resume(peerARebooted.writeAheadLog.readLog());
+    await peerARebooted.instructionExecutor.resume(
+      peerARebooted.writeAheadLog.readLog()
+    );
   }
 
   public abstract setupWallet(peer: TestResponseSink, shouldError: boolean);
@@ -109,7 +113,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    peer.vm.register(
+    peer.instructionExecutor.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -118,14 +122,21 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.vm.middleware.middlewares[Instruction.STATE_TRANSITION_PROPOSE] = [];
-    peer.vm.middleware.add(
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.STATE_TRANSITION_PROPOSE
+    ] = [];
+    peer.instructionExecutor.middleware.add(
       Instruction.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.propose(message, next, context, peer.vm.cfState);
+        return StateTransition.propose(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }
@@ -153,7 +164,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    peer.vm.register(
+    peer.instructionExecutor.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -162,15 +173,22 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.vm.middleware.middlewares[Instruction.OP_GENERATE] = [];
-    peer.vm.middleware.add(
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.OP_GENERATE
+    ] = [];
+    peer.instructionExecutor.middleware.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        const cfOpGenerator = new EthCfOpGenerator();
-        return cfOpGenerator.generate(message, next, context, peer.vm.cfState);
+        const cfOpGenerator = new EthOpGenerator();
+        return cfOpGenerator.generate(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }
@@ -198,7 +216,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
-    peer.vm.register(
+    peer.instructionExecutor.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
@@ -207,14 +225,21 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.vm.middleware.middlewares[Instruction.STATE_TRANSITION_COMMIT] = [];
-    peer.vm.middleware.add(
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.STATE_TRANSITION_COMMIT
+    ] = [];
+    peer.instructionExecutor.middleware.add(
       Instruction.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.commit(message, next, context, peer.vm.cfState);
+        return StateTransition.commit(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }

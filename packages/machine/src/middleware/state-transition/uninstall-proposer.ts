@@ -1,16 +1,16 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { CfState, Context, StateChannelInfoImpl } from "../../state";
+import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UninstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    state: CfState
+    nodeState: NodeState
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const channels = state.stateChannelInfosCopy();
+    const channels = nodeState.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
       throw new Error("uninstall message must have appId set");
@@ -24,7 +24,7 @@ export class UninstallProposer {
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new cf.utils.CfFreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,

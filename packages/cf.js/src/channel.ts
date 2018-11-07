@@ -1,7 +1,7 @@
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, CfAppInterface, InstallData } from "./app";
+import { AppInstanceInfos, AppInterface, InstallData } from "./app";
 import { AppInstance } from "./app-instance";
 import { AppInstanceClient } from "./app-instance-client";
 import { Client } from "./client";
@@ -14,7 +14,7 @@ import {
   StateChannelDataClientResponse
 } from "./node";
 import * as types from "./types";
-import { Address, CfFreeBalance, PeerBalance } from "./utils";
+import { Address, FreeBalance, PeerBalance } from "./utils";
 
 export class Channel {
   public client: Client;
@@ -157,18 +157,16 @@ export class Channel {
 
     return stateChannelData;
   }
-  private buildAppInterface(
-    appDefinition: types.AppDefinition
-  ): CfAppInterface {
+  private buildAppInterface(appDefinition: types.AppDefinition): AppInterface {
     const encoding = JSON.parse(appDefinition.appActionEncoding);
     const abi = new ethers.utils.Interface(encoding);
 
-    const appInterface = new CfAppInterface(
+    const appInterface = new AppInterface(
       appDefinition.address,
-      CfAppInterface.generateSighash(abi, "applyAction"),
-      CfAppInterface.generateSighash(abi, "resolve"),
-      CfAppInterface.generateSighash(abi, "getTurnTaker"),
-      CfAppInterface.generateSighash(abi, "isStateTerminal"),
+      AppInterface.generateSighash(abi, "applyAction"),
+      AppInterface.generateSighash(abi, "resolve"),
+      AppInterface.generateSighash(abi, "getTurnTaker"),
+      AppInterface.generateSighash(abi, "isStateTerminal"),
       appDefinition.appStateEncoding
     );
     return appInterface;
@@ -193,7 +191,7 @@ export interface StateChannelInfo {
   me: Address;
   multisigAddress: Address;
   appInstances: AppInstanceInfos;
-  freeBalance: CfFreeBalance;
+  freeBalance: FreeBalance;
 
   // TODO: Move this out of the datastructure
   // https://github.com/counterfactual/monorepo/issues/127

@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "../instructions";
-import { CfState, Context } from "../state";
+import { Context, NodeState } from "../node-state";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -12,10 +12,10 @@ import {
 import { StateTransition } from "./state-transition/state-transition";
 
 /**
- * CfMiddleware is the container holding the groups of middleware responsible
- * for executing a given instruction in the Counterfactual VM.
+ * Middleware is the container holding the groups of middleware responsible
+ * for executing a given instruction in the Counterfactual InstructionExecutor.
  */
-export class CfMiddleware {
+export class Middleware {
   /**
    * Maps instruction to list of middleware that will process the instruction.
    */
@@ -32,7 +32,7 @@ export class CfMiddleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly cfState: CfState, cfOpGenerator: CfOpGenerator) {
+  constructor(readonly nodeState: NodeState, cfOpGenerator: OpGenerator) {
     this.initializeMiddlewares(cfOpGenerator);
   }
 
@@ -40,19 +40,19 @@ export class CfMiddleware {
     this.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return cfOpGenerator.generate(message, next, context, this.cfState);
+        return cfOpGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
       Instruction.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.cfState);
+        return StateTransition.propose(message, next, context, this.nodeState);
       }
     );
     this.add(
       Instruction.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.cfState);
+        return StateTransition.commit(message, next, context, this.nodeState);
       }
     );
     this.add(Instruction.KEY_GENERATE, KeyGenerator.generate);
@@ -108,16 +108,16 @@ export class CfMiddleware {
 
 /**
  * Interface to dependency inject blockchain commitments. The middleware
- * should be constructed with a CfOpGenerator, which is responsible for
+ * should be constructed with a OpGenerator, which is responsible for
  * creating CfOperations, i.e. commitments, to be stored, used, and signed
  * in the state channel system.
  */
-export abstract class CfOpGenerator {
+export abstract class OpGenerator {
   public abstract generate(
     message: InternalMessage,
     next: Function,
     context: Context,
-    cfState: CfState
+    nodeState: NodeState
   );
 }
 

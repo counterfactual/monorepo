@@ -23,7 +23,7 @@ const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 describe("CFOperation subclasses", async () => {
   describe("CfOpSetup", async () => {
     it("generates a correct transaction", async () => {
-      const appInterface = new cf.app.CfAppInterface(
+      const appInterface = new cf.app.AppInterface(
         "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
         "0x00000000",
         "0x00000000",
@@ -36,7 +36,7 @@ describe("CFOperation subclasses", async () => {
         ethers.utils.parseEther("1"),
         ethers.constants.AddressZero
       );
-      const cfApp = new cf.app.CfAppInstance(
+      const cfApp = new cf.app.AppInstance(
         fakeCtx,
         multisig,
         [alice, bob],
@@ -45,8 +45,8 @@ describe("CFOperation subclasses", async () => {
         100,
         0
       );
-      const fakeNonce = new cf.utils.CfNonce(false, 0, 0);
-      const freeBal = new cf.utils.CfFreeBalance(
+      const fakeNonce = new cf.utils.Nonce(false, 0, 0);
+      const freeBal = new cf.utils.FreeBalance(
         alice,
         ethers.utils.parseEther("0.5"),
         bob,

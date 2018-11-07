@@ -6,7 +6,7 @@ import {
   Transaction
 } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { Context } from "../../src/state";
+import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import {
