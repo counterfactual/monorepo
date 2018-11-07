@@ -5,7 +5,13 @@ import { InstructionExecutor } from "./instruction-executor";
 import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
 
-export class State {
+/**
+ * // TODO: this can still be named better
+ * NodeState encapsulates the state of all the channels in the context of a node.
+ * It is not named InstructionExecutorNodeState because the InstructionExecutor is
+ * _only_ responsible for executing instructions and is inherently stateless.
+ */
+export class NodeState {
   public channelStates: cf.channel.ChannelStates;
   public networkContext: cf.utils.NetworkContext;
 

@@ -5,7 +5,7 @@ import { Instruction } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { State } from "./state";
+import { NodeState } from "./node-state";
 import {
   Addressable,
   AddressableLookupResolverHash,
@@ -28,14 +28,14 @@ export class InstructionExecutorConfig {
  * StateChannelInfo from the corresponding source.
  */
 const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (state: State, appId: cf.utils.H256) =>
-    state.appChannelInfos[appId].stateChannel,
+  appId: (nodeState: NodeState, appId: cf.utils.H256) =>
+    nodeState.appChannelInfos[appId].stateChannel,
 
-  multisigAddress: (state: State, multisigAddress: cf.utils.Address) =>
-    state.stateChannelFromMultisigAddress(multisigAddress),
+  multisigAddress: (nodeState: NodeState, multisigAddress: cf.utils.Address) =>
+    nodeState.stateChannelFromMultisigAddress(multisigAddress),
 
-  toAddress: (state: State, toAddress: cf.utils.Address) =>
-    state.stateChannelFromAddress(toAddress)
+  toAddress: (nodeState: NodeState, toAddress: cf.utils.Address) =>
+    nodeState.stateChannelFromAddress(toAddress)
 };
 
 export class InstructionExecutor implements Observable {
@@ -51,15 +51,15 @@ export class InstructionExecutor implements Observable {
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
    */
-  public state: State;
+  public nodeState: NodeState;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.state = new State(config.state || {}, config.network);
-    this.middleware = new Middleware(this.state, config.cfOpGenerator);
+    this.nodeState = new NodeState(config.state || {}, config.network);
+    this.middleware = new Middleware(this.nodeState, config.cfOpGenerator);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -118,7 +118,7 @@ export class InstructionExecutor implements Observable {
       );
     }
 
-    return lookup(this.state, data[lookupKey]);
+    return lookup(this.nodeState, data[lookupKey]);
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
@@ -185,7 +185,7 @@ export class InstructionExecutor implements Observable {
   }
 
   public mutateState(state: cf.channel.ChannelStates) {
-    Object.assign(this.state.channelStates, state);
+    Object.assign(this.nodeState.channelStates, state);
   }
 
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {

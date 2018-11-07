@@ -319,7 +319,7 @@ describe("Lifecycle", async () => {
     const C_ADDRESS = "0xB37ABb9F5CCc5Ce5f2694CE0720216B786cad61D";
     clientA.setUser(C_ADDRESS, A_PRIVATE_KEY);
 
-    const state = clientA.currentUser.instructionExecutor.state;
+    const state = clientA.currentUser.instructionExecutor.nodeState;
     expect(Object.keys(state.channelStates).length).toBe(0);
 
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
@@ -428,7 +428,7 @@ function validateNoAppsAndFreeBalance(
   multisigContractAddress: string
 ) {
   // TODO: add nonce and uniqueId params and check them
-  const state = clientA.currentUser.instructionExecutor.state;
+  const state = clientA.currentUser.instructionExecutor.nodeState;
 
   let peerA = clientA.address;
   let peerB = clientB.address;
@@ -446,7 +446,9 @@ function validateNoAppsAndFreeBalance(
   }
 
   const channel =
-    clientA.currentUser.instructionExecutor.state.channelStates[multisigContractAddress];
+    clientA.currentUser.instructionExecutor.nodeState.channelStates[
+      multisigContractAddress
+    ];
   expect(Object.keys(state.channelStates).length).toBe(1);
   expect(channel.counterParty).toBe(clientB.address);
   expect(channel.me).toBe(clientA.address);
@@ -467,7 +469,9 @@ function validateInstalledBalanceRefund(
   multisigContractAddress: string
 ) {
   const stateChannel =
-    wallet.currentUser.instructionExecutor.state.channelStates[multisigContractAddress];
+    wallet.currentUser.instructionExecutor.nodeState.channelStates[
+      multisigContractAddress
+    ];
   const appInstances = stateChannel.appInstances;
   const cfAddrs = Object.keys(appInstances);
   expect(cfAddrs.length).toBe(1);
@@ -519,7 +523,9 @@ function validateFreebalance(
   multisigContractAddress: string
 ) {
   const stateChannel =
-    wallet.currentUser.instructionExecutor.state.channelStates[multisigContractAddress];
+    wallet.currentUser.instructionExecutor.nodeState.channelStates[
+      multisigContractAddress
+    ];
   const freeBalance = stateChannel.freeBalance;
 
   expect(freeBalance.aliceBalance.toString()).toBe(aliceBalance.toString());
@@ -614,11 +620,13 @@ function validateUpdatePayment(
   multisigContractAddress: string
 ) {
   const appA =
-    clientA.currentUser.instructionExecutor.state.channelStates[multisigContractAddress]
-      .appInstances[appChannel.appId];
+    clientA.currentUser.instructionExecutor.nodeState.channelStates[
+      multisigContractAddress
+    ].appInstances[appChannel.appId];
   const appB =
-    clientB.currentUser.instructionExecutor.state.channelStates[multisigContractAddress]
-      .appInstances[appChannel.appId];
+    clientB.currentUser.instructionExecutor.nodeState.channelStates[
+      multisigContractAddress
+    ].appInstances[appChannel.appId];
 
   const encodedAppState = appChannel.appInterface.encode(appState);
   const appStateHash = appChannel.appInterface.stateHash(appState);

@@ -4,7 +4,7 @@ import * as ethers from "ethers";
 import { Instruction } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { State, Context, StateChannelInfoImpl } from "../../src/state";
+import { Context, NodeState, StateChannelInfoImpl } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
@@ -75,7 +75,7 @@ function setupClientMsg(): cf.node.ClientActionMessage {
   };
 }
 
-function setupInstallState(): State {
+function setupInstallState(): NodeState {
   const freeBalance = new cf.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
@@ -96,7 +96,7 @@ function setupInstallState(): State {
   const channelStates: cf.channel.ChannelStates = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new State(channelStates, EMPTY_NETWORK_CONTEXT);
+  return new NodeState(channelStates, EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: cf.channel.StateChannelInfos) {

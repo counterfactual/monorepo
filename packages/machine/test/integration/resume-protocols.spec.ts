@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { Instruction, instructions } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
-import { Context } from "../../src/state";
+import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -56,7 +56,9 @@ abstract class SetupProtocolTestCase {
   }
 
   public async run() {
-    await this.peerA.instructionExecutor.resume(this.peerA.writeAheadLog.readLog());
+    await this.peerA.instructionExecutor.resume(
+      this.peerA.writeAheadLog.readLog()
+    );
     this.setupWallet(this.peerA, true);
     const resp = await this.peerA.runProtocol(this.msg());
     expect(resp.status).toEqual(cf.node.ResponseStatus.ERROR);
@@ -77,7 +79,9 @@ abstract class SetupProtocolTestCase {
     peerARebooted.io.peer = this.peerB;
     this.peerB.io.peer = peerARebooted;
     this.setupWallet(peerARebooted, false);
-    await peerARebooted.instructionExecutor.resume(peerARebooted.writeAheadLog.readLog());
+    await peerARebooted.instructionExecutor.resume(
+      peerARebooted.writeAheadLog.readLog()
+    );
   }
 
   public abstract setupWallet(peer: TestResponseSink, shouldError: boolean);
@@ -118,14 +122,21 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.instructionExecutor.middleware.middlewares[Instruction.STATE_TRANSITION_PROPOSE] = [];
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.STATE_TRANSITION_PROPOSE
+    ] = [];
     peer.instructionExecutor.middleware.add(
       Instruction.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.propose(message, next, context, peer.instructionExecutor.state);
+        return StateTransition.propose(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }
@@ -162,7 +173,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.instructionExecutor.middleware.middlewares[Instruction.OP_GENERATE] = [];
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.OP_GENERATE
+    ] = [];
     peer.instructionExecutor.middleware.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
@@ -170,7 +183,12 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
           throw new Error("Crashing the machine on purpose");
         }
         const cfOpGenerator = new EthOpGenerator();
-        return cfOpGenerator.generate(message, next, context, peer.instructionExecutor.state);
+        return cfOpGenerator.generate(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }
@@ -207,14 +225,21 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.instructionExecutor.middleware.middlewares[Instruction.STATE_TRANSITION_COMMIT] = [];
+    peer.instructionExecutor.middleware.middlewares[
+      Instruction.STATE_TRANSITION_COMMIT
+    ] = [];
     peer.instructionExecutor.middleware.add(
       Instruction.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.commit(message, next, context, peer.instructionExecutor.state);
+        return StateTransition.commit(
+          message,
+          next,
+          context,
+          peer.instructionExecutor.nodeState
+        );
       }
     );
   }

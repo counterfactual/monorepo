@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
-import { Context, State } from "../../state";
+import { Context, NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
@@ -23,7 +23,7 @@ export class EthOpGenerator extends OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    state: State
+    nodeState: NodeState
   ): CfOperation {
     const proposedState = getFirstResult(
       Instruction.STATE_TRANSITION_PROPOSE,
@@ -31,19 +31,19 @@ export class EthOpGenerator extends OpGenerator {
     ).value;
     let op;
     if (message.actionName === cf.node.ActionName.UPDATE) {
-      op = this.update(message, context, state, proposedState.state);
+      op = this.update(message, context, nodeState, proposedState.state);
     } else if (message.actionName === cf.node.ActionName.SETUP) {
-      op = this.setup(message, context, state, proposedState.state);
+      op = this.setup(message, context, nodeState, proposedState.state);
     } else if (message.actionName === cf.node.ActionName.INSTALL) {
       op = this.install(
         message,
         context,
-        state,
+        nodeState,
         proposedState.state,
         proposedState.cfAddr
       );
     } else if (message.actionName === cf.node.ActionName.UNINSTALL) {
-      op = this.uninstall(message, context, state, proposedState.state);
+      op = this.uninstall(message, context, nodeState, proposedState.state);
     }
     return op;
   }
@@ -51,7 +51,7 @@ export class EthOpGenerator extends OpGenerator {
   public update(
     message: InternalMessage,
     context: Context,
-    state: State,
+    nodeState: NodeState,
     proposedUpdate: any
   ): CfOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
@@ -90,7 +90,7 @@ export class EthOpGenerator extends OpGenerator {
     });
 
     return new CfOpSetState(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       // FIXME: signing keys should be app-specific ephemeral keys
       // https://github.com/counterfactual/monorepo/issues/120
@@ -107,7 +107,7 @@ export class EthOpGenerator extends OpGenerator {
   public setup(
     message: InternalMessage,
     context: Context,
-    state: State,
+    nodeState: NodeState,
     proposedSetup: any
   ): CfOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
@@ -130,17 +130,17 @@ export class EthOpGenerator extends OpGenerator {
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
     const freeBalanceAppInstance = new cf.app.AppInstance(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       signingKeys,
-      cf.utils.FreeBalance.contractInterface(state.networkContext),
+      cf.utils.FreeBalance.contractInterface(nodeState.networkContext),
       cf.utils.FreeBalance.terms(),
       freeBalance.timeout,
       freeBalance.uniqueId
     );
 
     return new CfOpSetup(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       freeBalanceAppInstance,
       cfFreeBalance,
@@ -151,7 +151,7 @@ export class EthOpGenerator extends OpGenerator {
   public install(
     message: InternalMessage,
     context: Context,
-    state: State,
+    nodeState: NodeState,
     proposedInstall: any,
     cfAddr: cf.utils.H256
   ) {
@@ -163,7 +163,7 @@ export class EthOpGenerator extends OpGenerator {
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
     const app = new cf.app.AppInstance(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       signingKeys,
       appChannel.cfApp,
@@ -183,7 +183,7 @@ export class EthOpGenerator extends OpGenerator {
     );
 
     const op = new CfOpInstall(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       app,
       cfFreeBalance,
@@ -195,7 +195,7 @@ export class EthOpGenerator extends OpGenerator {
   public uninstall(
     message: InternalMessage,
     context: Context,
-    state: State,
+    nodeState: NodeState,
     proposedUninstall: any
   ): CfOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
@@ -219,7 +219,7 @@ export class EthOpGenerator extends OpGenerator {
     );
 
     const op = new CfOpUninstall(
-      state.networkContext,
+      nodeState.networkContext,
       multisig,
       cfFreeBalance,
       appChannel.dependencyNonce

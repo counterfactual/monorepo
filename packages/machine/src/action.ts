@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { InstructionExecutor } from "./instruction-executor";
 import { ackInstructions, Instruction, instructions } from "./instructions";
-import { Context } from "./state";
+import { Context } from "./node-state";
 import { InternalMessage, MiddlewareResult } from "./types";
 
 if (!Symbol.asyncIterator) {

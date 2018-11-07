@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Instruction } from "../instructions";
-import { Context, State } from "../state";
+import { Context, NodeState } from "../node-state";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -32,7 +32,7 @@ export class Middleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly state: State, cfOpGenerator: OpGenerator) {
+  constructor(readonly nodeState: NodeState, cfOpGenerator: OpGenerator) {
     this.initializeMiddlewares(cfOpGenerator);
   }
 
@@ -40,19 +40,19 @@ export class Middleware {
     this.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return cfOpGenerator.generate(message, next, context, this.state);
+        return cfOpGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
       Instruction.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.state);
+        return StateTransition.propose(message, next, context, this.nodeState);
       }
     );
     this.add(
       Instruction.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.state);
+        return StateTransition.commit(message, next, context, this.nodeState);
       }
     );
     this.add(Instruction.KEY_GENERATE, KeyGenerator.generate);
@@ -117,7 +117,7 @@ export abstract class OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    state: State
+    nodeState: NodeState
   );
 }
 

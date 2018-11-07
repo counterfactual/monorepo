@@ -6,7 +6,7 @@ import { Instruction } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/cf-operation";
 import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { Context } from "../../src/state";
+import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import { InstructionExecutor, InstructionExecutorConfig } from "../../src/instruction-executor";
 import {

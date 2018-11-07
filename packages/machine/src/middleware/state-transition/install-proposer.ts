@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Instruction } from "../../instructions";
-import { Context, State, StateChannelInfoImpl } from "../../state";
+import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 
@@ -10,7 +10,7 @@ export class InstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    state: State
+    nodeState: NodeState
   ): StateProposal {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const data: cf.app.InstallData = message.clientMessage.data;
@@ -27,17 +27,17 @@ export class InstallProposer {
       data.terms.limit,
       data.terms.token
     );
-    const uniqueId = InstallProposer.nextUniqueId(state, multisig);
+    const uniqueId = InstallProposer.nextUniqueId(nodeState, multisig);
     const signingKeys = InstallProposer.newSigningKeys(context, data);
     const cfAddr = InstallProposer.proposedCfAddress(
-      state,
+      nodeState,
       message,
       app,
       terms,
       signingKeys,
       uniqueId
     );
-    const existingFreeBalance = state.stateChannel(multisig).freeBalance;
+    const existingFreeBalance = nodeState.stateChannel(multisig).freeBalance;
     const newAppInstance = InstallProposer.newAppInstance(
       cfAddr,
       data,
@@ -118,7 +118,7 @@ export class InstallProposer {
   }
 
   private static proposedCfAddress(
-    state: State,
+    nodeState: NodeState,
     message: InternalMessage,
     app: cf.app.AppInterface,
     terms: cf.app.Terms,
@@ -126,7 +126,7 @@ export class InstallProposer {
     uniqueId: number
   ): cf.utils.H256 {
     return new cf.app.AppInstance(
-      state.networkContext,
+      nodeState.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,
       app,
@@ -152,7 +152,7 @@ export class InstallProposer {
   }
 
   private static nextUniqueId(
-    state: State,
+    state: NodeState,
     multisig: cf.utils.Address
   ): number {
     const channel = state.channelStates[multisig];
