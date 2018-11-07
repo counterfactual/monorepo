@@ -342,7 +342,7 @@ function validateNoAppsAndFreeBalance(
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
   expect(channel.me).toEqual(walletA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);
-  expect(channel.appChannels).toEqual({});
+  expect(channel.appInstances).toEqual({});
   expect(channel.freeBalance.alice).toEqual(peerA);
   expect(channel.freeBalance.bob).toEqual(peerB);
   expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(
@@ -540,23 +540,23 @@ function validateInstalledBalanceRefund(
   amount: ethers.utils.BigNumber
 ) {
   const stateChannel = wallet.vm.cfState.channelStates[multisigAddr];
-  const appChannels = stateChannel.appChannels;
-  const cfAddrs = Object.keys(appChannels);
+  const appInstances = stateChannel.appInstances;
+  const cfAddrs = Object.keys(appInstances);
   expect(cfAddrs.length).toEqual(1);
 
   const cfAddr = cfAddrs[0];
 
-  expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
-  expect(appChannels[cfAddr].peerA.address).toEqual(
+  expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
+  expect(appInstances[cfAddr].peerA.address).toEqual(
     stateChannel.freeBalance.alice
   );
-  expect(appChannels[cfAddr].peerA.balance.toNumber()).toEqual(0);
+  expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
 
-  expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
-  expect(appChannels[cfAddr].peerB.address).toEqual(
+  expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
+  expect(appInstances[cfAddr].peerB.address).toEqual(
     stateChannel.freeBalance.bob
   );
-  expect(appChannels[cfAddr].peerB.balance.toNumber()).toEqual(0);
+  expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
 
   return cfAddr;
 }
@@ -592,7 +592,7 @@ function validateUninstalledAndFreeBalance(
   }
 
   const channel = walletA.vm.cfState.channelStates[multisigAddr];
-  const app = channel.appChannels[cfAddr];
+  const app = channel.appInstances[cfAddr];
 
   expect(Object.keys(state.channelStates).length).toEqual(1);
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
