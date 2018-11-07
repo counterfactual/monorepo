@@ -157,6 +157,6 @@ export class InstallProposer {
   ): number {
     const channel = state.channelStates[multisig];
     // + 1 for the free balance
-    return Object.keys(channel.appChannels).length + 1;
+    return Object.keys(channel.appInstances).length + 1;
   }
 }

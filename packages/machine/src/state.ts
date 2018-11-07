@@ -48,7 +48,7 @@ export class CfState {
     multisig: cf.utils.Address,
     cfAddr: cf.utils.H256
   ): cf.app.AppInstanceInfo {
-    return this.channelStates[multisig].appChannels[cfAddr];
+    return this.channelStates[multisig].appInstances[cfAddr];
   }
 
   public freeBalanceFromAddress(
@@ -78,9 +78,9 @@ export class CfState {
     const infos = {};
     for (const channel of lodash.keys(this.channelStates)) {
       for (const appChannel of lodash.keys(
-        this.channelStates[channel].appChannels
+        this.channelStates[channel].appInstances
       )) {
-        infos[appChannel] = this.channelStates[channel].appChannels[appChannel];
+        infos[appChannel] = this.channelStates[channel].appInstances[appChannel];
       }
     }
     return infos;
@@ -92,7 +92,7 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
     readonly counterParty: cf.utils.Address,
     readonly me: cf.utils.Address,
     readonly multisigAddress: cf.utils.Address,
-    readonly appChannels: cf.app.AppInstanceInfos = {},
+    readonly appInstances: cf.app.AppInstanceInfos = {},
     readonly freeBalance: cf.utils.CfFreeBalance
   ) {}
 

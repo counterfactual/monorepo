@@ -19,7 +19,7 @@ export class UpdateProposer {
     const appId: cf.utils.H256 = message.clientMessage.appId;
     const updateData: cf.app.UpdateData = message.clientMessage.data;
 
-    const app = channels[multisig].appChannels[appId];
+    const app = channels[multisig].appInstances[appId];
     app.appStateHash = updateData.appStateHash;
     app.encodedState = updateData.encodedAppState;
     app.localNonce += 1;

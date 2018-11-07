@@ -84,7 +84,7 @@ export class SetupProtocol {
     expect(channel.counterParty).toEqual(peerB.signingKey.address);
     expect(channel.me).toEqual(peerA.signingKey.address);
     expect(channel.multisigAddress).toEqual(UNUSED_FUNDED_ACCOUNT);
-    expect(channel.appChannels).toEqual({});
+    expect(channel.appInstances).toEqual({});
     expect(channel.freeBalance.alice).toEqual(canon.peerA.address);
     expect(channel.freeBalance.bob).toEqual(canon.peerB.address);
     expect(channel.freeBalance.aliceBalance).toEqual(canon.peerA.balance);
