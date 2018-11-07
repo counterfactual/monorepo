@@ -34,7 +34,7 @@ export class IframeIoProvider {
   public receiveMessageFromPeer(
     serializedMessage: cf.node.ClientActionMessage
   ) {
-    const message = machine.serializer.deserialize(
+    const message = cf.utils.serializer.deserialize(
       serializedMessage
     ) as cf.node.ClientActionMessage;
 

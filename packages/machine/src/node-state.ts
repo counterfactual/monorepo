@@ -2,7 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 import lodash from "lodash";
 
 import { InstructionExecutor } from "./instruction-executor";
-import { deserialize } from "./serializer";
 import { OpCodeResult } from "./types";
 
 /**
@@ -77,7 +76,9 @@ export class NodeState {
    * @returns a deep copy of the StateChannelInfos.
    */
   public stateChannelInfosCopy(): cf.channel.StateChannelInfos {
-    return deserialize(lodash.cloneDeep(this.channelStates));
+    return cf.utils.serializer.deserialize(
+      lodash.cloneDeep(this.channelStates)
+    );
   }
 
   public appChannelInfos(): cf.app.AppInstanceInfos {
