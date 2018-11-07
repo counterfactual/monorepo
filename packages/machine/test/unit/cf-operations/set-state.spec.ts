@@ -17,10 +17,10 @@ import {
 } from "./test-data";
 
 describe("CfOpSetState", () => {
-  let operations: CfOpSetState;
+  let operation: CfOpSetState;
 
   beforeEach(() => {
-    operations = new CfOpSetState(
+    operation = new CfOpSetState(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
@@ -34,7 +34,7 @@ describe("CfOpSetState", () => {
   });
 
   it("Should be able to compute the correct tx to submit on-chain", () => {
-    const digest = operations.hashToSign();
+    const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
       cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
     );
@@ -49,7 +49,7 @@ describe("CfOpSetState", () => {
       TEST_APP_UNIQUE_ID
     );
 
-    const tx = operations.transaction([sig1, sig2]);
+    const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
@@ -72,7 +72,7 @@ describe("CfOpSetState", () => {
 
   // https://github.com/counterfactual/specs/blob/master/v0/protocols.md#digest
   it("Should compute the correct hash to sign", () => {
-    expect(operations.hashToSign()).toBe(
+    expect(operation.hashToSign()).toBe(
       ethers.utils.keccak256(
         cf.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
