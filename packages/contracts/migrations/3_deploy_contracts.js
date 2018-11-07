@@ -8,7 +8,7 @@ const PaymentApp = artifacts.require("PaymentApp");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const Registry = artifacts.require("Registry");
 const Signatures = artifacts.require("Signatures");
-const VirtualAppAgreement = artifacts.require("VirtualAppAgreement");
+const VirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
 const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 
 const ARTIFACTS = [
