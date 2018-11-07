@@ -15,34 +15,24 @@ const { keccak256 } = ethers.utils;
 
 describe("CfOpSetup", () => {
   const TEST_NONCE_UNIQUE_ID = 1;
-  let op: CfOpSetup;
+  let operation: CfOpSetup;
 
   beforeEach(() => {
-    op = new CfOpSetup(
+    operation = new CfOpSetup(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_FREE_BALANCE_APP_INSTANCE,
       TEST_FREE_BALANCE,
-      new cf.utils.CfNonce(true, TEST_NONCE_UNIQUE_ID, 2)
+      new cf.utils.CfNonce(true, TEST_NONCE_UNIQUE_ID, 0)
     );
   });
 
   it("Should be able to compute the correct tx to submit on-chain", () => {
-    const digest = op.hashToSign();
-    const vra1 = TEST_SIGNING_KEYS[0].signDigest(digest);
-    const vra2 = TEST_SIGNING_KEYS[1].signDigest(digest);
-    const sig1 = new cf.utils.Signature(
-      vra1.recoveryParam as number,
-      vra1.r,
-      vra1.s
-    );
-    const sig2 = new cf.utils.Signature(
-      vra2.recoveryParam as number,
-      vra2.r,
-      vra2.s
+    const digest = operation.hashToSign();
+    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
+      cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
     );
 
-    const tx = op.transaction([sig1, sig2]);
     const salt = keccak256(
       cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
     );
@@ -55,6 +45,7 @@ describe("CfOpSetup", () => {
 
     const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
 
+    const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
@@ -73,7 +64,7 @@ describe("CfOpSetup", () => {
           [terms.assetType, terms.limit, terms.token]
         ]),
         1,
-        `0x${sig1.toString().substr(2)}${sig2.toString().substr(2)}`
+        cf.utils.Signature.toSortedBytes([sig1, sig2], digest)
       ])
     );
   });

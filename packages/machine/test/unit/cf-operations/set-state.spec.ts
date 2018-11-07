@@ -17,10 +17,10 @@ import {
 } from "./test-data";
 
 describe("CfOpSetState", () => {
-  let op: CfOpSetState;
+  let operations: CfOpSetState;
 
   beforeEach(() => {
-    op = new CfOpSetState(
+    operations = new CfOpSetState(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
@@ -34,21 +34,10 @@ describe("CfOpSetState", () => {
   });
 
   it("Should be able to compute the correct tx to submit on-chain", () => {
-    const digest = op.hashToSign();
-    const vra1 = TEST_SIGNING_KEYS[0].signDigest(digest);
-    const vra2 = TEST_SIGNING_KEYS[1].signDigest(digest);
-    const sig1 = new cf.utils.Signature(
-      vra1.recoveryParam as number,
-      vra1.r,
-      vra1.s
+    const digest = operations.hashToSign();
+    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
+      cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
     );
-    const sig2 = new cf.utils.Signature(
-      vra2.recoveryParam as number,
-      vra2.r,
-      vra2.s
-    );
-
-    const tx = op.transaction([sig1, sig2]);
 
     const app = new cf.app.CfAppInstance(
       TEST_NETWORK_CONTEXT,
@@ -60,10 +49,9 @@ describe("CfOpSetState", () => {
       TEST_APP_UNIQUE_ID
     );
 
+    const tx = operations.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
-    const sig1Raw = sig1.toString().substr(2);
-    const sig2Raw = sig2.toString().substr(2);
     expect(tx.data).toBe(
       new ethers.utils.Interface([
         "proxyCall(address,bytes32,bytes)"
@@ -76,7 +64,7 @@ describe("CfOpSetState", () => {
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
-          `0x${sig1Raw}${sig2Raw}`
+          cf.utils.Signature.toSortedBytes([sig1, sig2], digest)
         ])
       ])
     );
@@ -84,7 +72,7 @@ describe("CfOpSetState", () => {
 
   // https://github.com/counterfactual/specs/blob/master/v0/protocols.md#digest
   it("Should compute the correct hash to sign", () => {
-    expect(op.hashToSign()).toBe(
+    expect(operations.hashToSign()).toBe(
       ethers.utils.keccak256(
         cf.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],

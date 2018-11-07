@@ -49,6 +49,10 @@ export class Signature {
     return signaturesList;
   }
 
+  public static fromEthersSignature(sig: ethers.utils.Signature): Signature {
+    return new Signature(sig.recoveryParam as number, sig.r, sig.s);
+  }
+
   // TODO: fix types
   // https://github.com/counterfactual/monorepo/issues/124
   constructor(readonly v: number, readonly r: string, readonly s: string) {}
