@@ -26,7 +26,8 @@ export class NetworkContext {
     NonceRegistry: "nonceRegistryAddr",
     Signatures: "signaturesAddr",
     StaticCall: "staticCallAddr",
-    ETHBalanceRefundApp: "ethBalanceRefundAppAddr"
+    ETHBalanceRefundApp: "ethBalanceRefundAppAddr",
+    VirtualAppAgreement: "virtualAppAgreementAddr",
   };
 
   constructor(
@@ -37,7 +38,8 @@ export class NetworkContext {
     readonly nonceRegistryAddr: Address,
     readonly signaturesAddr: Address,
     readonly staticCallAddr: Address,
-    readonly ethBalanceRefundAppAddr: Address
+    readonly ethBalanceRefundAppAddr: Address,
+    readonly virtualAppAgreementAddr: Address,
   ) {}
 
   public linkedBytecode(unlinkedBytecode: string): string {
@@ -52,6 +54,7 @@ export class NetworkContext {
 }
 
 export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
+  ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,

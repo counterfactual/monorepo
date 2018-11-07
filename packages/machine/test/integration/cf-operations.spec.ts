@@ -48,7 +48,8 @@ describe("Setup Protocol", async () => {
       addressOfContract.get("NonceRegistry")!,
       addressOfContract.get("Signatures")!,
       addressOfContract.get("StaticCall")!,
-      addressOfContract.get("ETHBalanceRefundApp")!
+      addressOfContract.get("ETHBalanceRefundApp")!,
+      addressOfContract.get("VirtualAppAgreement")!,
     );
   });
 
