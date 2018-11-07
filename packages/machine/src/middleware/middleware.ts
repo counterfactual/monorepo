@@ -13,7 +13,7 @@ import { StateTransition } from "./state-transition/state-transition";
 
 /**
  * Middleware is the container holding the groups of middleware responsible
- * for executing a given instruction in the Counterfactual VM.
+ * for executing a given instruction in the Counterfactual InstructionExecutor.
  */
 export class Middleware {
   /**

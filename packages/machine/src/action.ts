@@ -3,7 +3,7 @@ import * as cf from "@counterfactual/cf.js";
 import { ackInstructions, Instruction, instructions } from "./instructions";
 import { Context } from "./state";
 import { InternalMessage, MiddlewareResult } from "./types";
-import { VM } from "./vm";
+import { InstructionExecutor } from "./instruction-executor";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -35,8 +35,8 @@ export class Action {
     }
   }
 
-  public makeExecution(vm: VM): ActionExecution {
-    const exe = new ActionExecution(this, 0, this.clientMessage, vm);
+  public makeExecution(instructionExecutor: InstructionExecutor): ActionExecution {
+    const exe = new ActionExecution(this, 0, this.clientMessage, instructionExecutor);
     this.execution = exe;
     return exe;
   }
@@ -46,20 +46,20 @@ export class ActionExecution {
   public action: Action;
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
-  public vm: VM;
+  public instructionExecutor: InstructionExecutor;
   public results: MiddlewareResult[];
 
   constructor(
     action: Action,
     instruction: number,
     clientMessage: cf.node.ClientActionMessage,
-    vm: VM,
+    instructionExecutor: InstructionExecutor,
     results: MiddlewareResult[] = []
   ) {
     this.action = action;
     this.instructionPointer = instruction;
     this.clientMessage = clientMessage;
-    this.vm = vm;
+    this.instructionExecutor = instructionExecutor;
     this.results = results;
   }
 
@@ -78,10 +78,10 @@ export class ActionExecution {
     return {
       results: this.results,
       instructionPointer: this.instructionPointer,
-      // TODO: Should probably not pass the whole VM in, it breaks the encapsulation
-      // We should figure out what others args from the VM are used and copy those over
+      // TODO: Should probably not pass the whole InstructionExecutor in, it breaks the encapsulation
+      // We should figure out what others args from the InstructionExecutor are used and copy those over
       // https://github.com/counterfactual/monorepo/issues/136
-      vm: this.vm
+      instructionExecutor: this.instructionExecutor
     };
   }
 
@@ -94,7 +94,7 @@ export class ActionExecution {
     const context = this.createContext();
 
     try {
-      const value = await this.vm.middleware.run(internalMessage, context);
+      const value = await this.instructionExecutor.middleware.run(internalMessage, context);
       this.instructionPointer += 1;
       this.results.push({ value, opCode: internalMessage.opCode });
 

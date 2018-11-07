@@ -38,7 +38,7 @@ const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
     state.stateChannelFromAddress(toAddress)
 };
 
-export class VM implements Observable {
+export class InstructionExecutor implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
@@ -193,4 +193,4 @@ export class VM implements Observable {
   }
 }
 
-applyMixins(VM, [Observable]);
+applyMixins(InstructionExecutor, [Observable]);

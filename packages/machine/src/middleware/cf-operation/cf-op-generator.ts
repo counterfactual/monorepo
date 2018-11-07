@@ -13,7 +13,7 @@ import { CfOpUninstall } from "./cf-op-uninstall";
 import { CfOperation } from "./types";
 
 /**
- * Middleware to be used and registered with the VM on OP_GENERATE instructions
+ * Middleware to be used and registered with the InstructionExecutor on OP_GENERATE instructions
  * to generate CfOperations. When combined with signatures from all parties
  * in the state channel, the CfOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.

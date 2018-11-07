@@ -36,7 +36,7 @@ export class StateTransition {
       Instruction.STATE_TRANSITION_PROPOSE,
       context.results
     );
-    context.vm.mutateState(newState.value.state);
+    context.instructionExecutor.mutateState(newState.value.state);
     next();
   }
 }

@@ -8,7 +8,7 @@ import { CfOperation } from "../../src/middleware/cf-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/state";
 import { InternalMessage } from "../../src/types";
-import { VM, VmConfig } from "../../src/vm";
+import { InstructionExecutor, VmConfig } from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -19,7 +19,7 @@ import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
 export class TestResponseSink implements cf.node.ResponseSink {
-  public vm: VM;
+  public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
   public store: TestCommitmentStore;
@@ -46,8 +46,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
       );
     }
 
-    // An instance of a VM that will execute protocols.
-    this.vm = new VM(
+    // An instance of a InstructionExecutor that will execute protocols.
+    this.instructionExecutor = new InstructionExecutor(
       new VmConfig(
         this,
         new EthOpGenerator(),
@@ -64,16 +64,16 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.vm.startAck.bind(this.vm);
+    this.io.ackMethod = this.instructionExecutor.startAck.bind(this.instructionExecutor);
 
-    this.vm.register(
+    this.instructionExecutor.register(
       Instruction.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.writeAheadLog.write(message, context);
       }
     );
 
-    this.vm.register(
+    this.instructionExecutor.register(
       Instruction.OP_SIGN,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN middleware.");
@@ -81,7 +81,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       }
     );
 
-    this.vm.register(
+    this.instructionExecutor.register(
       Instruction.OP_SIGN_VALIDATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN_VALIDATE middleware.");
@@ -89,11 +89,11 @@ export class TestResponseSink implements cf.node.ResponseSink {
       }
     );
 
-    this.vm.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
+    this.instructionExecutor.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
 
-    this.vm.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
+    this.instructionExecutor.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
 
-    this.vm.register(
+    this.instructionExecutor.register(
       Instruction.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
@@ -110,7 +110,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
-    this.vm.receive(msg);
+    this.instructionExecutor.receive(msg);
     return promise;
   }
 
