@@ -260,7 +260,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
   public async receiveMessageFromClient(
     serializedIncoming: cf.node.ClientActionMessage | cf.node.ClientQuery
   ) {
-    const incoming = machine.serializer.deserialize(serializedIncoming);
+    const incoming = cf.utils.serializer.deserialize(serializedIncoming);
 
     if ("query" in incoming) {
       switch (incoming.query) {

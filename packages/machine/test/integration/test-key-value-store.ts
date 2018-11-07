@@ -1,4 +1,4 @@
-import { deserialize } from "../../src/serializer";
+import * as cf from "@counterfactual/cf.js";
 
 export class InMemoryKeyValueStorePolyfill {
   public inMemoryStorage: object;
@@ -42,7 +42,9 @@ export class InMemoryKeyValueStoreImpl implements InMemoryKeyValueStore {
   }
 
   public get(key: string) {
-    return deserialize(JSON.parse(this.store.getItem(key) || ""));
+    return cf.utils.serializer.deserialize(
+      JSON.parse(this.store.getItem(key) || "")
+    );
   }
 
   public put(key: string, value: object) {

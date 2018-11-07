@@ -11,10 +11,6 @@ import { getLastResult } from "../../src/middleware/middleware";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/98
-import { deserialize } from "../../src/serializer";
-
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/98
 import { Instruction } from "../../src/instructions";
 
 export class TestIOProvider {
@@ -41,7 +37,7 @@ export class TestIOProvider {
   public receiveMessageFromPeer(
     serializedMessage: cf.node.ClientActionMessage
   ) {
-    const message = deserialize(
+    const message = cf.utils.serializer.deserialize(
       serializedMessage
     ) as cf.node.ClientActionMessage;
 
