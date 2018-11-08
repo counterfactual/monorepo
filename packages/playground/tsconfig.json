@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es6",
     "resolveJsonModule": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "outDir": "dist"
   }
 }
