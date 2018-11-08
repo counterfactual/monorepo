@@ -5,7 +5,6 @@ import * as cfTypes from "./middleware/cf-operation/types";
 import * as middleware from "./middleware/middleware";
 import * as mixins from "./mixins";
 import * as state from "./node-state";
-import * as serializer from "./serializer";
 import * as types from "./types";
 import * as writeAheadLog from "./write-ahead-log";
 
@@ -15,7 +14,6 @@ export {
   instructions,
   middleware,
   mixins,
-  serializer,
   state,
   types,
   instructionExecutor,

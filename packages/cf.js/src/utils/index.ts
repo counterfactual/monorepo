@@ -3,6 +3,7 @@ import { FreeBalance } from "./free-balance";
 import { NetworkContext } from "./network-context";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
+import * as serializer from "./serializer";
 import { Signature } from "./signature";
 
 export {
@@ -12,6 +13,7 @@ export {
   Nonce,
   NetworkContext,
   PeerBalance,
+  serializer,
   Signature
 };
 
