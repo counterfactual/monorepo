@@ -7,7 +7,7 @@ import { ProtocolOperation, Transaction } from "./types";
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export class CfOpSetState extends ProtocolOperation {
+export class OpSetState extends ProtocolOperation {
   constructor(
     readonly ctx: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,

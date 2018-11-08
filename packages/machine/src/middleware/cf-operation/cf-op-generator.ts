@@ -7,9 +7,9 @@ import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
 import { OpInstall } from "./op-install";
-import { CfOpSetState } from "./cf-op-setstate";
+import { OpSetState } from "./op-set-state";
 import { OpSetup } from "./op-setup";
-import { CfOpUninstall } from "./cf-op-uninstall";
+import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
 /**
@@ -89,7 +89,7 @@ export class EthOpGenerator extends OpGenerator {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
-    return new CfOpSetState(
+    return new OpSetState(
       nodeState.networkContext,
       multisig,
       // FIXME: signing keys should be app-specific ephemeral keys
@@ -218,7 +218,7 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.nonce
     );
 
-    const op = new CfOpUninstall(
+    const op = new OpUninstall(
       nodeState.networkContext,
       multisig,
       cfFreeBalance,

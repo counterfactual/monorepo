@@ -1,7 +1,7 @@
 import { EthOpGenerator } from "./cf-op-generator";
 import { OpInstall } from "./op-install";
-import { CfOpSetState } from "./cf-op-setstate";
+import { OpSetState } from "./op-set-state";
 import { OpSetup } from "./op-setup";
-import { CfOpUninstall } from "./cf-op-uninstall";
+import { OpUninstall } from "./op-uninstall";
 
-export { OpInstall, CfOpSetState, OpSetup, CfOpUninstall, EthOpGenerator };
+export { OpInstall, OpSetState, OpSetup, OpUninstall, EthOpGenerator };
