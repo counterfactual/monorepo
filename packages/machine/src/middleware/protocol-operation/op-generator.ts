@@ -114,7 +114,7 @@ export class EthOpGenerator extends OpGenerator {
     const freeBalance: cf.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -143,7 +143,7 @@ export class EthOpGenerator extends OpGenerator {
       nodeState.networkContext,
       multisig,
       freeBalanceAppInstance,
-      cfFreeBalance,
+      newFreeBalance,
       nonce
     );
   }
@@ -171,7 +171,7 @@ export class EthOpGenerator extends OpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -186,7 +186,7 @@ export class EthOpGenerator extends OpGenerator {
       nodeState.networkContext,
       multisig,
       app,
-      cfFreeBalance,
+      newFreeBalance,
       appChannel.dependencyNonce
     );
     return op;
@@ -207,7 +207,7 @@ export class EthOpGenerator extends OpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
 
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -221,7 +221,7 @@ export class EthOpGenerator extends OpGenerator {
     const op = new OpUninstall(
       nodeState.networkContext,
       multisig,
-      cfFreeBalance,
+      newFreeBalance,
       appChannel.dependencyNonce
     );
     return op;

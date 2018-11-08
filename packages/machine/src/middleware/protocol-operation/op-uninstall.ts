@@ -7,10 +7,10 @@ export class OpUninstall extends MultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, freeBalance, dependencyNonce);
   }
 
   /**

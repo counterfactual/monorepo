@@ -13,10 +13,10 @@ export class OpInstall extends MultiSendOp {
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly app: cf.app.AppInstance,
-    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, freeBalance, dependencyNonce);
   }
 
   /**

@@ -12,7 +12,7 @@ export abstract class MultisigTxOp extends ProtocolOperation {
 
   constructor(
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.FreeBalance
+    readonly freeBalance: cf.utils.FreeBalance
   ) {
     super();
   }
@@ -37,7 +37,7 @@ export abstract class MultisigTxOp extends ProtocolOperation {
 
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
-    const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
+    const owners = [this.freeBalance.alice, this.freeBalance.bob];
     return keccak256(
       abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
