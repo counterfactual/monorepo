@@ -2,13 +2,13 @@
   "name": "@counterfactual/playground",
   "version": "0.0.1",
   "license": "MIT",
-  "scripts": {
+    "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
     "build": "yarn clean && mkdir dist/ && node build.js && webpack",
     "start": "nodemon --watch src/components -e *.html,*.css --exec 'yarn build && webpack-dev-server --no-inline'",
-    "serve": "webpack-dev-server --no-inline &",
+    "serve": "webpack-dev-server --no-inline",
     "serve:stop": "kill -9 $(lsof -t -i :8080)",
-    "test": "yarn serve && jest --runInBand --detectOpenHandles --bail && yarn serve:stop",
+    "test": "jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."

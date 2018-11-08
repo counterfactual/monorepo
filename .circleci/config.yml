@@ -29,6 +29,10 @@ jobs:
           name: "Run ganache"
           command: yarn ganache:ci
           background: true
+      - run:
+          name: "Run playground webpack-dev-server"
+          command: cd packages/playground && yarn serve
+          background: true
       - run: cd packages/contracts/ && yarn migrate
       - run: yarn test
 
