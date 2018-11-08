@@ -1,4 +1,4 @@
-import { EthOpGenerator } from "./cf-op-generator";
+import { EthOpGenerator } from "./op-generator";
 import { OpInstall } from "./op-install";
 import { OpSetState } from "./op-set-state";
 import { OpSetup } from "./op-setup";
