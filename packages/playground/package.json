@@ -7,7 +7,7 @@
     "build": "yarn clean && mkdir dist/ && node build.js && webpack",
     "start": "nodemon --watch src/components -e *.html,*.css --exec 'yarn build && webpack-dev-server --no-inline'",
     "serve": "webpack-dev-server --no-inline &",
-    "test": "jest --runInBand --detectOpenHandles --bail",
+    "test": "yarn serve && jest --runInBand --detectOpenHandles --bail",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
