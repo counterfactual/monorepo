@@ -250,7 +250,7 @@ async function signMyUpdate(
   context: machine.state.Context,
   user: User
 ): Promise<cf.utils.Signature> {
-  const operation: machine.cfTypes.ProtocolOperation = machine.middleware.getFirstResult(
+  const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
@@ -265,7 +265,7 @@ async function validateSignatures(
   context: machine.state.Context,
   user: User
 ) {
-  const op: machine.cfTypes.ProtocolOperation = machine.middleware.getLastResult(
+  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;

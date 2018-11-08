@@ -1,7 +1,7 @@
 import * as instructionExecutor from "./instruction-executor";
 import * as instructions from "./instructions";
 import * as protocolOperations from "./middleware/protocol-operation";
-import * as cfTypes from "./middleware/protocol-operation/types";
+import * as protocolTypes from "./middleware/protocol-operation/types";
 import * as middleware from "./middleware/middleware";
 import * as mixins from "./mixins";
 import * as state from "./node-state";
@@ -10,7 +10,7 @@ import * as writeAheadLog from "./write-ahead-log";
 
 export {
   protocolOperations,
-  cfTypes,
+  protocolTypes,
   instructions,
   middleware,
   mixins,

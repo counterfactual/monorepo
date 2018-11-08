@@ -50,7 +50,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
     ).toEqual(true);
   });
 
-  let setupTransaction: machine.cfTypes.Transaction;
+  let setupTransaction: machine.protocolTypes.Transaction;
   it("the transaction should be sent to the multisig address", async () => {
     setupTransaction = await walletA.currentUser.store.getTransaction(
       UNUSED_FUNDED_ACCOUNT,
