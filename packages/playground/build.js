@@ -1,5 +1,7 @@
 const concat = require("concat");
+const fs = require("fs");
 const glob = require("glob");
+const path = require("path");
 
 glob("src/components/**/*.html", (err, matches) => {
   if (err) return;
@@ -10,5 +12,5 @@ glob("src/components/**/*.html", (err, matches) => {
 glob("src/components/**/*.css", (err, matches) => {
   if (err) return;
 
-  concat(matches, "./dist/web-components.css");
+  matches.forEach(match => fs.copyFileSync(match, "./dist/" + path.basename(match)));
 })
