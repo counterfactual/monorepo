@@ -1,0 +1,53 @@
+{
+  "name": "@counterfactual/playground",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf .rpt2_cache jest-cache build dist",
+    "build": "yarn clean && mkdir dist/ && node build.js && webpack",
+    "start": "yarn build && webpack-dev-server --no-inline --open",
+    "serve": "webpack-dev-server --no-inline &",
+    "serve:stop": "kill -9 webpack-dev-server",
+    "test": "yarn build && tsc -b && jest --runInBand --detectOpenHandles --bail",
+    "test-debug": "node --inspect-brk jest --runInBand",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "devDependencies": {
+    "concat": "^1.0.3",
+    "glob": "^7.1.3",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.1.4",
+    "ts-loader": "^5.3.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.2",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  },
+  "jest": {
+    "preset": "jest-puppeteer",
+    "verbose": false,
+    "bail": true,
+    "rootDir": ".",
+    "cacheDirectory": "jest-cache",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
+  }
+}
