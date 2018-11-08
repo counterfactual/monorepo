@@ -4,7 +4,7 @@ import { Instruction } from "../../src/instructions";
 import {
   ProtocolOperation,
   Transaction
-} from "../../src/middleware/cf-operation/types";
+} from "../../src/middleware/protocol-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";

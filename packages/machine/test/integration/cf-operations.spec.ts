@@ -5,7 +5,7 @@ import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.jso
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { Transaction } from "../../src/middleware/cf-operation/types";
+import { Transaction } from "../../src/middleware/protocol-operation/types";
 import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,

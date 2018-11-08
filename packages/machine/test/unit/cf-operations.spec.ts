@@ -3,8 +3,8 @@ import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts
 import { AssetType } from "@counterfactual/contracts/dist/utils";
 import * as ethers from "ethers";
 
-import { OpSetup } from "../../src/middleware/cf-operation";
-import "../../src/middleware/cf-operation/types";
+import { OpSetup } from "../../src/middleware/protocol-operation";
+import "../../src/middleware/protocol-operation/types";
 
 const fakeCtx = new cf.utils.NetworkContext(
   "0x1111111111111111111111111111111111111111",

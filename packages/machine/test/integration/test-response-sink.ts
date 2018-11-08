@@ -3,8 +3,8 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import { Instruction } from "../../src/instructions";
-import { EthOpGenerator } from "../../src/middleware/cf-operation";
-import { ProtocolOperation } from "../../src/middleware/cf-operation/types";
+import { EthOpGenerator } from "../../src/middleware/protocol-operation";
+import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
