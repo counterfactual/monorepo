@@ -1,14 +1,36 @@
 export default abstract class Component extends HTMLElement {
+  protected boundAttributes: string[] = [];
+
   public getComponentName() {
     return "my-component";
   }
 
   protected connectedCallback() {
-    this.renderTemplate(this.getComponentName());
+    this.cacheObservedAttributes();
+    this.render();
+  }
+
+  protected attributeChangedCallback(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ) {
+    if (!this.shadowRoot) {
+      return;
+    }
+
+    this.setChildNodeValue(
+      this.getBoundAttributeNode(this.shadowRoot, name),
+      newValue
+    );
+  }
+
+  protected getShadowDom(): ShadowRoot {
+    return this.shadowRoot || this.attachShadow({ mode: "open" });
   }
 
   protected renderTemplate(name: string) {
-    const shadowDom = this.attachShadow({ mode: "open" });
+    const shadowDom = this.getShadowDom();
     const document = shadowDom.ownerDocument as Document;
     const template = document.querySelector(
       `template#${name}`
@@ -19,26 +41,35 @@ export default abstract class Component extends HTMLElement {
     return shadowDom;
   }
 
-  protected bindAttribute(attributeName: string, targetSelector: string) {
-    const shadowDom = this.shadowRoot as ShadowRoot;
-    const targetElement = shadowDom.querySelector(
-      targetSelector
-    ) as HTMLElement;
-
-    if (!targetElement || !this.hasAttribute(attributeName)) {
-      return;
-    }
-
-    const mutationCallback = () => this.renderAttribute(attributeName, targetElement);
-
-    const attributeObserver = new MutationObserver(mutationCallback);
-    attributeObserver.observe(this, { attributes: true });
-
-    mutationCallback();
+  protected setChildNodeValue(targetElement: HTMLElement, value: string) {
+    targetElement.innerText = value;
   }
 
-  renderAttribute(attributeName: string, targetElement: HTMLElement) {
-    targetElement.innerText = this.getAttribute(attributeName) as string;
+  protected getBoundAttributeNode(
+    shadowDom: ShadowRoot,
+    attributeName: string
+  ): HTMLElement {
+    return shadowDom.querySelector(
+      `[data-bind="${attributeName}"`
+    ) as HTMLElement;
+  }
+
+  protected cacheObservedAttributes() {
+    this.boundAttributes = [].concat(
+      Object.getPrototypeOf(this).constructor.observedAttributes
+    );
+  }
+
+  protected render() {
+    const shadowDom = this.renderTemplate(this.getComponentName());
+    this.boundAttributes.forEach(attribute => {
+      const childNode = this.getBoundAttributeNode(shadowDom, attribute);
+
+      if (childNode) {
+        const value = this.getAttribute(attribute) as string;
+        this.setChildNodeValue(childNode, value);
+      }
+    });
   }
 
   private static register(...components: Component[]) {

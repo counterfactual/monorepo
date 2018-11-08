@@ -1,12 +1,11 @@
 import { Component } from "../../utils";
 
 export default class Title extends Component {
-  getComponentName() {
-    return "playground-title";
+  static get observedAttributes() {
+    return ["text"];
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.bindAttribute("text", ".playground-title");
+  getComponentName() {
+    return "playground-title";
   }
 }
