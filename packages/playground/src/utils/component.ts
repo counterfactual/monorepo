@@ -3,9 +3,7 @@ type ComponentContainer = { [index: string]: Function };
 export default abstract class Component extends HTMLElement {
   protected boundAttributes: string[] = [];
 
-  public getComponentName() {
-    return "my-component";
-  }
+  public abstract getComponentName();
 
   protected connectedCallback() {
     this.cacheObservedAttributes();
