@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as ethers from "ethers";
 
-import { ProtocolOperation, MultisigInput, Transaction } from "./types";
+import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
