@@ -1,3 +1,5 @@
+type ComponentContainer = { [index: string]: Function };
+
 export default abstract class Component extends HTMLElement {
   protected boundAttributes: string[] = [];
 
@@ -73,21 +75,21 @@ export default abstract class Component extends HTMLElement {
   }
 
   private static register(...components: Component[]) {
-    if ("customElements" in window) {
-      components.forEach(component => {
-        window.customElements.define(
-          component.getComponentName(),
-          component.constructor
-        );
-      });
-    }
+    components.forEach(component => {
+      window.customElements.define(
+        component.getComponentName(),
+        component.constructor
+      );
+    });
   }
 
-  static registerAll(container: { [index: string]: Function }) {
-    Component.register(
-      ...Object.keys(container).map(
-        component => container[component].prototype as Component
-      )
-    );
+  static registerAll(container: ComponentContainer) {
+    if ("customElements" in window) {
+      Component.register(
+        ...Object.keys(container).map(
+          component => container[component].prototype as Component
+        )
+      );
+    }
   }
 }
