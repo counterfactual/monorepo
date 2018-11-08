@@ -249,14 +249,14 @@ async function signMyUpdate(
   next: Function,
   context: machine.state.Context,
   user: User
-): Promise<cf.utils.Signature> {
+): Promise<ethers.utils.Signature> {
   const operation: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
-  const sig = user.signingKey.signDigest(digest);
-  return new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
+  const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
+  return { r, s, v: recoveryParam! + 27 };
 }
 
 async function validateSignatures(

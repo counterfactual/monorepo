@@ -1,5 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
+import { ethers } from "ethers";
 
 import {
   InMemoryKeyValueStore,
@@ -13,7 +14,7 @@ interface Commitments {
   addCommitment(
     action: cf.node.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
-    signatures: cf.utils.Signature[]
+    signatures: ethers.utils.Signature[]
   );
 
   hasCommitment(action: cf.node.ActionName);
@@ -75,7 +76,7 @@ export class AppCommitments implements Commitments {
   public async addCommitment(
     action: cf.node.ActionName,
     cfOperation: machine.cfTypes.CfOperation,
-    signatures: cf.utils.Signature[]
+    signatures: ethers.utils.Signature[]
   ) {
     const commitment = cfOperation.transaction(signatures);
     if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
@@ -178,7 +179,7 @@ export class CommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: cf.utils.Signature = machine.middleware.getFirstResult(
+    const signature: ethers.utils.Signature = machine.middleware.getFirstResult(
       machine.instructions.Instruction.OP_SIGN,
       context.results
     ).value;
@@ -186,7 +187,8 @@ export class CommitmentStore {
     const counterpartySignature = incomingMessage!.signature;
     if (
       counterpartySignature === undefined ||
-      signature.toString() === counterpartySignature.toString()
+      cf.utils.signaturesToBytes(signature) ===
+        cf.utils.signaturesToBytes(counterpartySignature)
     ) {
       // FIXME: these errors should be handled more gracefully
       throw Error(
@@ -194,13 +196,7 @@ export class CommitmentStore {
       );
     }
 
-    const sigs = [signature, counterpartySignature].map(sig => {
-      if (!(sig instanceof cf.utils.Signature)) {
-        const { v, r, s } = sig as any;
-        return new cf.utils.Signature(v, r, s);
-      }
-      return sig;
-    });
+    const sigs = [signature, counterpartySignature];
 
     await appCommitments.addCommitment(action, op, sigs);
     this.store.put(appId, Object(appCommitments.serialize()));

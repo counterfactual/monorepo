@@ -5,7 +5,7 @@ import * as ethers from "ethers";
 export abstract class CfOperation {
   public abstract hashToSign(): cf.utils.H256;
 
-  public abstract transaction(sigs: cf.utils.Signature[]): Transaction;
+  public abstract transaction(sigs: ethers.utils.Signature[]): Transaction;
 }
 
 const { abi } = cf.utils;
@@ -40,7 +40,7 @@ export class MultisigInput {
     readonly val: number,
     readonly data: cf.utils.Bytes,
     readonly op: Operation,
-    readonly signatures?: cf.utils.Signature[]
+    readonly signatures?: ethers.utils.Signature[]
   ) {}
 }
 
