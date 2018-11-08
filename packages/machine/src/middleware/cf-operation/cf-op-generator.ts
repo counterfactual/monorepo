@@ -6,7 +6,7 @@ import { Context, NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
-import { CfOpInstall } from "./cf-op-install";
+import { OpInstall } from "./op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { OpSetup } from "./op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
@@ -182,7 +182,7 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.nonce
     );
 
-    const op = new CfOpInstall(
+    const op = new OpInstall(
       nodeState.networkContext,
       multisig,
       app,
