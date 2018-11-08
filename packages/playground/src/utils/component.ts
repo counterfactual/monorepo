@@ -4,10 +4,12 @@ export default abstract class Component extends HTMLElement {
   protected boundAttributes: string[] = [];
 
   public abstract getComponentName();
+  public abstract bindEvents();
 
   protected connectedCallback() {
     this.cacheObservedAttributes();
     this.render();
+    this.bindEvents();
   }
 
   protected attributeChangedCallback(
