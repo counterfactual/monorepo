@@ -74,7 +74,7 @@ describe.skip("should have one commitment for the setup protocol", () => {
   // FIXME: the operation hash generated is wrong
   // it.skip("the transaction's signatures should be signed by wallet A and wallet B", () => {
   //   const signatures = Signature.fromBytes(multisigInput.signatures);
-  //   const operationHash = CfOpSetup.toHash(UNUSED_FUNDED_ACCOUNT, multisigInput);
+  //   const operationHash = OpSetup.toHash(UNUSED_FUNDED_ACCOUNT, multisigInput);
   //   const addressA = ethers.utils.recoverAddress(operationHash, signatures[0]);
   //   const addressB = ethers.utils.recoverAddress(operationHash, signatures[1]);
   //   expect(addressA).toEqual(walletA.currentUser.signer.address);
