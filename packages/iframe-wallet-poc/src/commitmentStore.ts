@@ -12,7 +12,7 @@ interface Commitments {
 
   addCommitment(
     action: cf.node.ActionName,
-    cfOperation: machine.cfTypes.CfOperation,
+    protocolOperation: machine.cfTypes.ProtocolOperation,
     signatures: cf.utils.Signature[]
   );
 
@@ -69,15 +69,15 @@ export class AppCommitments implements Commitments {
   /**
    * Adds a commitment for some action on this app.
    * @param action
-   * @param cfOperation
+   * @param protocolOperation
    * @param signatures
    */
   public async addCommitment(
     action: cf.node.ActionName,
-    cfOperation: machine.cfTypes.CfOperation,
+    protocolOperation: machine.cfTypes.ProtocolOperation,
     signatures: cf.utils.Signature[]
   ) {
-    const commitment = cfOperation.transaction(signatures);
+    const commitment = protocolOperation.transaction(signatures);
     if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
@@ -150,7 +150,7 @@ export class CommitmentStore {
   ) {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
-    const op: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
+    const op: machine.cfTypes.ProtocolOperation = machine.middleware.getFirstResult(
       machine.instructions.Instruction.OP_GENERATE,
       context.results
     ).value;

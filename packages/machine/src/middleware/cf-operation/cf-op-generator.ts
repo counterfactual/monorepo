@@ -10,12 +10,12 @@ import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
 import { CfOpSetup } from "./cf-op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfOperation } from "./types";
+import { ProtocolOperation } from "./types";
 
 /**
  * Middleware to be used and registered with the InstructionExecutor on OP_GENERATE instructions
- * to generate CfOperations. When combined with signatures from all parties
- * in the state channel, the CfOperation transitions the state to that
+ * to generate ProtocolOperations. When combined with signatures from all parties
+ * in the state channel, the ProtocolOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
 export class EthOpGenerator extends OpGenerator {
@@ -24,7 +24,7 @@ export class EthOpGenerator extends OpGenerator {
     next: Function,
     context: Context,
     nodeState: NodeState
-  ): CfOperation {
+  ): ProtocolOperation {
     const proposedState = getFirstResult(
       Instruction.STATE_TRANSITION_PROPOSE,
       context.results
@@ -53,7 +53,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedUpdate: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
@@ -109,7 +109,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedSetup: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const freeBalance: cf.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
@@ -197,7 +197,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedUninstall: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appId;
     if (cfAddr === undefined) {

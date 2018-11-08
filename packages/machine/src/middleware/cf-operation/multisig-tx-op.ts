@@ -2,12 +2,12 @@ import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as ethers from "ethers";
 
-import { CfOperation, MultisigInput, Transaction } from "./types";
+import { ProtocolOperation, MultisigInput, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export abstract class MultisigTxOp extends CfOperation {
+export abstract class MultisigTxOp extends ProtocolOperation {
   abstract multisigInput(): MultisigInput;
 
   constructor(

@@ -20,7 +20,7 @@ const alice = "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const bob = "0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
 const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
-describe("CFOperation subclasses", async () => {
+describe("ProtocolOperation subclasses", async () => {
   describe("CfOpSetup", async () => {
     it("generates a correct transaction", async () => {
       const appInterface = new cf.app.AppInterface(

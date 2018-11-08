@@ -109,7 +109,7 @@ export class Middleware {
 /**
  * Interface to dependency inject blockchain commitments. The middleware
  * should be constructed with a OpGenerator, which is responsible for
- * creating CfOperations, i.e. commitments, to be stored, used, and signed
+ * creating ProtocolOperations, i.e. commitments, to be stored, used, and signed
  * in the state channel system.
  */
 export abstract class OpGenerator {
