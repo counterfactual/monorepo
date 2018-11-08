@@ -8,7 +8,7 @@ import { getFirstResult, OpGenerator } from "../middleware";
 
 import { CfOpInstall } from "./cf-op-install";
 import { CfOpSetState } from "./cf-op-setstate";
-import { OpSetup } from "./cf-op-setup";
+import { OpSetup } from "./op-setup";
 import { CfOpUninstall } from "./cf-op-uninstall";
 import { ProtocolOperation } from "./types";
 
