@@ -70,7 +70,7 @@ describe("CfOpSetState", () => {
     );
   });
 
-  // https://github.com/counterfactual/specs/blob/master/v0/protocols.md#digest
+  // https://specs.counterfactual.com/06-update-protocol#commitments
   it("Should compute the correct hash to sign", () => {
     expect(operation.hashToSign()).toBe(
       ethers.utils.keccak256(

@@ -27,6 +27,7 @@ describe("CfOpSetup", () => {
     );
   });
 
+  // https://specs.counterfactual.com/04-setup-protocol#commitments
   it("Should be able to compute the correct tx to submit on-chain", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
