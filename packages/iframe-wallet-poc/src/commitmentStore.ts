@@ -184,11 +184,14 @@ export class CommitmentStore {
       context.results
     ).value;
 
-    const counterpartySignature = incomingMessage!.signature;
+    const counterpartySignature = incomingMessage!.signature!;
+    const signatureHex = cf.utils.signaturesToBytes(signature);
+    const counterpartySignatureHex = cf.utils.signaturesToBytes(
+      counterpartySignature
+    );
     if (
       counterpartySignature === undefined ||
-      cf.utils.signaturesToBytes(signature) ===
-        cf.utils.signaturesToBytes(counterpartySignature)
+      signatureHex === counterpartySignatureHex
     ) {
       // FIXME: these errors should be handled more gracefully
       throw Error(
