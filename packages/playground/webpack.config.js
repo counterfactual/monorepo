@@ -1,6 +1,7 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const fs = require("fs");
+
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -20,7 +21,7 @@ module.exports = {
     modules: ["src", "node_modules"]
   },
   devServer: {
-    contentBase: ["./dist", "./src/components/**/*.css", "./src/components/**/*.html"],
+    contentBase: ["./dist"],
     watchContentBase: true
   },
   output: {
@@ -29,9 +30,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Playground',
-      template: 'public/index.html',
-      webComponents: fs.readFileSync('./dist/web-components.html')
+      title: "Playground",
+      template: "public/index.html",
+      webComponents: fs.readFileSync("./dist/web-components.html")
     })
   ]
 };

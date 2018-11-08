@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
     "build": "yarn clean && mkdir dist/ && node build.js && webpack",
-    "start": "yarn build && webpack-dev-server --no-inline --open",
+    "start": "nodemon --watch src/components -e *.html --exec 'yarn build && webpack-dev-server --no-inline'",
     "serve": "webpack-dev-server --no-inline &",
     "serve:stop": "kill -9 webpack-dev-server",
     "test": "yarn build && tsc -b && jest --runInBand --detectOpenHandles --bail",
@@ -18,6 +18,7 @@
     "glob": "^7.1.3",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^23.6.0",
+    "nodemon": "^1.18.6",
     "ts-jest": "^23.1.4",
     "ts-loader": "^5.3.0",
     "tslint": "^5.11.0",
