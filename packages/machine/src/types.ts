@@ -33,10 +33,6 @@ export interface OpCodeResult {
   value: any;
 }
 
-export class CfPeerAmount {
-  constructor(readonly addr: string, public amount: number) {}
-}
-
 export interface Addressable {
   appId?: cf.utils.H256;
   multisigAddress?: cf.utils.Address;

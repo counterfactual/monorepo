@@ -8,7 +8,7 @@ import { MultisigInput, Operation } from "./types";
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export class CfOpSetup extends MultisigTxOp {
+export class OpSetup extends MultisigTxOp {
   public constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,

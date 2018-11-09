@@ -16,7 +16,7 @@ import { Log } from "./write-ahead-log";
 export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
-    readonly cfOpGenerator: OpGenerator,
+    readonly opGenerator: OpGenerator,
     readonly network: cf.utils.NetworkContext,
     readonly state?: cf.channel.ChannelStates
   ) {}
@@ -59,7 +59,7 @@ export class InstructionExecutor implements Observable {
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
     this.nodeState = new NodeState(config.state || {}, config.network);
-    this.middleware = new Middleware(this.nodeState, config.cfOpGenerator);
+    this.middleware = new Middleware(this.nodeState, config.opGenerator);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}

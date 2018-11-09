@@ -60,7 +60,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.instructionExecutor = new machine.instructionExecutor.InstructionExecutor(
       new machine.instructionExecutor.InstructionExecutorConfig(
         this,
-        new machine.cfOperations.EthOpGenerator(),
+        new machine.protocolOperations.EthOpGenerator(),
         networkContext,
         states
       )
@@ -250,7 +250,7 @@ async function signMyUpdate(
   context: machine.state.Context,
   user: User
 ): Promise<cf.utils.Signature> {
-  const operation: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
+  const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
@@ -265,7 +265,7 @@ async function validateSignatures(
   context: machine.state.Context,
   user: User
 ) {
-  const op: machine.cfTypes.CfOperation = machine.middleware.getLastResult(
+  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
     machine.instructions.Instruction.OP_GENERATE,
     context.results
   ).value;
