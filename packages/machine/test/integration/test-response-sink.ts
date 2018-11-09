@@ -2,13 +2,16 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
+import {
+  InstructionExecutor,
+  InstructionExecutorConfig
+} from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
-import { InstructionExecutor, InstructionExecutorConfig } from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -64,7 +67,9 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(this.instructionExecutor);
+    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+      this.instructionExecutor
+    );
 
     this.instructionExecutor.register(
       Instruction.ALL,
@@ -89,9 +94,15 @@ export class TestResponseSink implements cf.node.ResponseSink {
       }
     );
 
-    this.instructionExecutor.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
+    this.instructionExecutor.register(
+      Instruction.IO_SEND,
+      this.io.ioSendMessage.bind(this.io)
+    );
 
-    this.instructionExecutor.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
+    this.instructionExecutor.register(
+      Instruction.IO_WAIT,
+      this.io.waitForIo.bind(this.io)
+    );
 
     this.instructionExecutor.register(
       Instruction.STATE_TRANSITION_COMMIT,
@@ -157,16 +168,14 @@ export class TestResponseSink implements cf.node.ResponseSink {
     message: InternalMessage,
     next: Function,
     context: Context
-  ): Promise<cf.utils.Signature> {
+  ): Promise<ethers.utils.Signature> {
     const operation: ProtocolOperation = getFirstResult(
       Instruction.OP_GENERATE,
       context.results
     ).value;
     const digest = operation.hashToSign();
-    const sig = this.signingKey.signDigest(digest);
-    return Promise.resolve(
-      new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s)
-    );
+    const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
+    return Promise.resolve({ r, s, v: recoveryParam! + 27 });
   }
 
   private validateSignatures(
