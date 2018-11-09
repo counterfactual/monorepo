@@ -1,6 +1,6 @@
 {
-  "name": "Stencil Starter",
-  "short_name": "Stencil",
+  "name": "Counterfactual Playground",
+  "short_name": "Playground",
   "start_url": "/",
   "display": "standalone",
   "icons": [{
