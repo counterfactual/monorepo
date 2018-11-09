@@ -35,9 +35,7 @@ describe("OpSetState", () => {
 
   it("Should be able to compute the correct tx to submit on-chain", () => {
     const digest = operation.hashToSign();
-    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
-      cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
-    );
+    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
     const app = new cf.app.AppInstance(
       TEST_NETWORK_CONTEXT,
@@ -64,7 +62,7 @@ describe("OpSetState", () => {
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
-          cf.utils.Signature.toSortedBytes([sig1, sig2], digest)
+          cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
         ])
       ])
     );

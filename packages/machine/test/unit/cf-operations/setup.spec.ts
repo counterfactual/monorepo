@@ -30,9 +30,7 @@ describe("OpSetup", () => {
   // https://specs.counterfactual.com/04-setup-protocol#commitments
   it("Should be able to compute the correct tx to submit on-chain", () => {
     const digest = operation.hashToSign();
-    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key =>
-      cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
-    );
+    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
     const salt = keccak256(
       cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
@@ -65,7 +63,7 @@ describe("OpSetup", () => {
           [terms.assetType, terms.limit, terms.token]
         ]),
         1,
-        cf.utils.Signature.toSortedBytes([sig1, sig2], digest)
+        cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
       ])
     );
   });
