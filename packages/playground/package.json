@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo"
   },
-  "homepage": "https://counterfactual.com"
+  "homepage": "https://counterfactual.com",
+  "devDependencies": {
+    "@types/puppeteer": "1.10.0",
+    "puppeteer": "1.8.0"
+  }
 }

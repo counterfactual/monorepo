@@ -7,6 +7,11 @@ import { Component } from "@stencil/core";
 })
 export class AppHome {
   render() {
-    return <div class="app-home" />;
+    // tslint:disable-next-line:prettier
+    return (
+      <div class="app-home">
+        <span>Soon, we'll have some dApps for you!</span>
+      </div>
+    );
   }
 }
