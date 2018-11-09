@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import { ethers } from "ethers";
+import * as ethers from "ethers";
 
 import { Instruction, instructions } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation/op-generator";
