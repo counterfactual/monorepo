@@ -1,11 +1,12 @@
 import * as cf from "@counterfactual/cf.js";
+import { ethers } from "ethers";
 
 import { Instruction } from "../../src/instructions";
+import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
 } from "../../src/middleware/protocol-operation/types";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
@@ -21,7 +22,7 @@ interface Commitments {
   addCommitment(
     action: cf.node.ActionName,
     protocolOperation: ProtocolOperation,
-    signatures: cf.utils.Signature[]
+    signatures: ethers.utils.Signature[]
   );
 
   hasCommitment(action: cf.node.ActionName);
@@ -70,7 +71,7 @@ export class AppCommitments implements Commitments {
   public async addCommitment(
     action: cf.node.ActionName,
     protocolOperation: ProtocolOperation,
-    signatures: cf.utils.Signature[]
+    signatures: ethers.utils.Signature[]
   ) {
     const commitment = protocolOperation.transaction(signatures);
     if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
@@ -175,15 +176,16 @@ export class TestCommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: cf.utils.Signature = getFirstResult(
+    const signature: ethers.utils.Signature = getFirstResult(
       Instruction.OP_SIGN,
       context.results
     ).value;
 
-    const counterpartySignature = incomingMessage!.signature;
+    const counterpartySignature = incomingMessage!.signature!;
     if (
       counterpartySignature === undefined ||
-      signature.toString() === counterpartySignature.toString()
+      cf.utils.signaturesToBytes(signature) ===
+        cf.utils.signaturesToBytes(counterpartySignature)
     ) {
       // FIXME: these errors should be handled more gracefully
       // https://github.com/counterfactual/monorepo/issues/99
@@ -193,15 +195,10 @@ export class TestCommitmentStore {
       );
     }
 
-    const sigs = [signature, counterpartySignature].map(sig => {
-      if (!(sig instanceof cf.utils.Signature)) {
-        const { v, r, s } = sig as any;
-        return new cf.utils.Signature(v, r, s);
-      }
-      return sig;
-    });
-
-    await appCommitments.addCommitment(action, op, sigs);
+    await appCommitments.addCommitment(action, op, [
+      signature,
+      counterpartySignature
+    ]);
     this.store.put(appId, Object(appCommitments.serialize()));
     next();
   }

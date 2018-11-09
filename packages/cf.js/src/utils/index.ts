@@ -4,7 +4,7 @@ import { NetworkContext } from "./network-context";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
 import * as serializer from "./serializer";
-import { Signature } from "./signature";
+import { signaturesToBytes, signaturesToSortedBytes } from "./signature";
 
 export {
   abi,
@@ -14,7 +14,8 @@ export {
   NetworkContext,
   PeerBalance,
   serializer,
-  Signature
+  signaturesToSortedBytes,
+  signaturesToBytes
 };
 
 /**
