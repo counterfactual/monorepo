@@ -26,7 +26,7 @@ const deserializeArray = data => data.map(value => deserialize(value));
 
 const deserializeBigNumber = data => ethers.utils.bigNumberify(data._hex);
 
-const deserializeSignature = data => data;
+const identity = data => data;
 
 const deserializeObject = data =>
   Object.keys(data).reduce((deserializedData: object, key: string) => {
@@ -53,7 +53,7 @@ const deserializeCases: DeserializationCase[] = [
   },
   {
     condition: isSignature,
-    resolve: deserializeSignature
+    resolve: identity
   },
   {
     condition: isObject,
