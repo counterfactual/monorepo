@@ -3,8 +3,8 @@ import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts
 import { AssetType } from "@counterfactual/contracts/dist/utils";
 import * as ethers from "ethers";
 
-import { CfOpSetup } from "../../src/middleware/cf-operation";
-import "../../src/middleware/cf-operation/types";
+import { OpSetup } from "../../src/middleware/protocol-operation";
+import "../../src/middleware/protocol-operation/types";
 
 const fakeCtx = new cf.utils.NetworkContext(
   "0x1111111111111111111111111111111111111111",
@@ -20,8 +20,8 @@ const alice = "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const bob = "0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
 const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 
-describe("CFOperation subclasses", async () => {
-  describe("CfOpSetup", async () => {
+describe("ProtocolOperation subclasses", async () => {
+  describe("OpSetup", async () => {
     it("generates a correct transaction", async () => {
       const appInterface = new cf.app.AppInterface(
         "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
@@ -56,7 +56,7 @@ describe("CFOperation subclasses", async () => {
         100,
         fakeNonce
       );
-      const op = new CfOpSetup(fakeCtx, multisig, cfApp, freeBal, fakeNonce);
+      const op = new OpSetup(fakeCtx, multisig, cfApp, freeBal, fakeNonce);
       const transaction = op.transaction([]);
       expect(transaction.to).toBe(multisig);
       expect(transaction.value).toBe(0);

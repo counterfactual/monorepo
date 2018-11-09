@@ -1,20 +1,20 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { CfMultiSendOp } from "./cf-multisend-op";
+import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput } from "./types";
 
-export class CfOpUninstall extends CfMultiSendOp {
+export class OpUninstall extends MultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, freeBalance, dependencyNonce);
   }
 
   /**
-   * @override common.CfMultiSendOp
+   * @override common.MultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
     return [this.freeBalanceInput(), this.dependencyNonceInput()];
