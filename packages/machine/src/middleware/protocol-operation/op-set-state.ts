@@ -41,7 +41,7 @@ export class OpSetState extends ProtocolOperation {
    * @returns a tx that executes a proxyCall through the registry to call
    *          `setState` on AppInstance.sol.
    */
-  public transaction(sigs: cf.utils.Signature[]): Transaction {
+  public transaction(sigs: ethers.utils.Signature[]): Transaction {
     const appCfAddr = new cf.app.AppInstance(
       this.ctx,
       this.multisig,
@@ -59,7 +59,7 @@ export class OpSetState extends ProtocolOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      cf.utils.Signature.toSortedBytes(sigs, this.hashToSign())
+      cf.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
     );
     return new Transaction(to, val, data);
   }

@@ -1,4 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
+import { ethers } from "ethers";
 
 import { Instruction } from "../instructions";
 import { Context, NodeState } from "../node-state";
@@ -165,7 +166,7 @@ export class NextMsgGenerator {
   public static signature(
     internalMessage: InternalMessage,
     context: Context
-  ): cf.utils.Signature | undefined {
+  ): ethers.utils.Signature | undefined {
     // first time we send an install message (from non-ack side) we don't have
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
