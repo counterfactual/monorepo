@@ -1,0 +1,56 @@
+# API V0.0.2
+## `cf.js`
+
+- `Client`
+    - Properties
+        - `nodeProvider`
+    - Instance methods
+        - `getAppInfos(): AppInfo[]`
+        - `createAppFactory(appDefinition: AppDefinition): AppFactory`
+    - Client lifecycle
+        - `on(eventType, callback)`
+            - EventType: proposeInstall, install, rejectInstall
+- `AppFactory`
+    - Properties
+        - `appDefinition: AppDefinition`
+    - Instance methods
+        - `async proposeInstall(peerAddress, terms): Promise<AppID>`
+        - `async install(appId: AppID): Promise<AppInstance>`
+- `AppInstance`
+    - Properties
+        - `nodeProvider`
+        - `id: string` — Identifier for this specific app instance
+        - `definition: AppDefinition`
+    - Instance methods
+        - `async applyAction(action): AppState`
+            - `action`: JSON-encoded object congruent with AppAction struct
+            - Returns ABI decoded representation of the latest signed state of the app.
+        - `async proposeState(state)`: Propose a state to countersign
+        - `async uninstall()`
+            - Uninstall the app
+        - `async getTerms(): [assetType, limit, tokenAddress]`
+    - App lifecycle
+        - `on(eventType, callback)`
+            - EventType: stateUpdate, uninstall
+- `AppDefinition`
+    - `address`: on-chain address for the app definition contract
+    - `appStateEncoding`: ABI encoding for App State
+    - `appActionEncoding`: ABI encoding for App Action
+- `AppManifest`
+    - `name`: human-readable name of app e.g. "TicTacToe"
+    - `version`: semantic version of app definition contract
+    - `definition: AppDefinition`
+    - (perhaps?) `background_color: string`
+    - (perhaps?) `description: string`
+- `AppInfo`
+    - `definition: AppDefinition`
+    - `appId: AppId`
+    - `terms: [assetType, limit, tokenAddress]`
+    - `addresses: Address[]`
+    - `name: string`
+    - `version: string`
+- `NodeProvider` (external)
+    - (Injected into webpage)
+    - Instance methods
+        - `postMessage(message)`
+        - `onMessage(callback)`
