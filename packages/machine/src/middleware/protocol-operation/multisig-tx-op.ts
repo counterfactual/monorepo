@@ -2,17 +2,17 @@ import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as ethers from "ethers";
 
-import { CfOperation, MultisigInput, Transaction } from "./types";
+import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export abstract class MultisigTxOp extends CfOperation {
+export abstract class MultisigTxOp extends ProtocolOperation {
   abstract multisigInput(): MultisigInput;
 
   constructor(
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.FreeBalance
+    readonly freeBalance: cf.utils.FreeBalance
   ) {
     super();
   }
@@ -37,7 +37,7 @@ export abstract class MultisigTxOp extends CfOperation {
 
   public hashToSign(): string {
     const multisigInput = this.multisigInput();
-    const owners = [this.cfFreeBalance.alice, this.cfFreeBalance.bob];
+    const owners = [this.freeBalance.alice, this.freeBalance.bob];
     return keccak256(
       abi.encodePacked(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],

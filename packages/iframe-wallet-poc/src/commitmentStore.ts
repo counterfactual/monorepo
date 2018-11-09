@@ -9,11 +9,11 @@ import {
 
 interface Commitments {
   appId: string;
-  commitments: Map<cf.node.ActionName, machine.cfTypes.Transaction>;
+  commitments: Map<cf.node.ActionName, machine.protocolTypes.Transaction>;
 
   addCommitment(
     action: cf.node.ActionName,
-    cfOperation: machine.cfTypes.CfOperation,
+    protocolOperation: machine.protocolTypes.ProtocolOperation,
     signatures: ethers.utils.Signature[]
   );
 
@@ -34,13 +34,13 @@ export class AppCommitments implements Commitments {
   ): AppCommitments {
     const commitments = new Map<
       cf.node.ActionName,
-      machine.cfTypes.Transaction
+      machine.protocolTypes.Transaction
     >();
     const commitmentObjects = new Map(JSON.parse(serializedCommitments));
     commitmentObjects.forEach((commitment: any, action) => {
       commitments.set(
         action as cf.node.ActionName,
-        new machine.cfTypes.Transaction(
+        new machine.protocolTypes.Transaction(
           commitment.to,
           commitment.value,
           commitment.data
@@ -53,14 +53,14 @@ export class AppCommitments implements Commitments {
   public readonly appId: string;
   public readonly commitments: Map<
     cf.node.ActionName,
-    machine.cfTypes.Transaction
+    machine.protocolTypes.Transaction
   >;
 
   constructor(
     appId: string,
     commitments: Map<
       cf.node.ActionName,
-      machine.cfTypes.Transaction
+      machine.protocolTypes.Transaction
     > = new Map()
   ) {
     this.appId = appId;
@@ -70,15 +70,15 @@ export class AppCommitments implements Commitments {
   /**
    * Adds a commitment for some action on this app.
    * @param action
-   * @param cfOperation
+   * @param protocolOperation
    * @param signatures
    */
   public async addCommitment(
     action: cf.node.ActionName,
-    cfOperation: machine.cfTypes.CfOperation,
+    protocolOperation: machine.protocolTypes.ProtocolOperation,
     signatures: ethers.utils.Signature[]
   ) {
-    const commitment = cfOperation.transaction(signatures);
+    const commitment = protocolOperation.transaction(signatures);
     if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
       return;
       // FIXME: we should never non-maliciously get to this state
@@ -101,7 +101,7 @@ export class AppCommitments implements Commitments {
    */
   public async getTransaction(
     action: cf.node.ActionName
-  ): Promise<machine.cfTypes.Transaction> {
+  ): Promise<machine.protocolTypes.Transaction> {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
     }
@@ -112,7 +112,7 @@ export class AppCommitments implements Commitments {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    const pairs: [cf.node.ActionName, machine.cfTypes.Transaction][] = [];
+    const pairs: [cf.node.ActionName, machine.protocolTypes.Transaction][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });
@@ -151,7 +151,7 @@ export class CommitmentStore {
   ) {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
-    const op: machine.cfTypes.CfOperation = machine.middleware.getFirstResult(
+    const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
       machine.instructions.Instruction.OP_GENERATE,
       context.results
     ).value;
@@ -242,7 +242,7 @@ export class CommitmentStore {
   public async getTransaction(
     appId: string,
     action: cf.node.ActionName
-  ): Promise<machine.cfTypes.Transaction> {
+  ): Promise<machine.protocolTypes.Transaction> {
     if (!this.store.has(appId)) {
       throw Error("Invalid app id");
     }

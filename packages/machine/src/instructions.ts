@@ -14,12 +14,12 @@ export enum Instruction {
    */
   STATE_TRANSITION_COMMIT,
   /**
-   * Returns a CfOperation, giving the ability to create a hash to sign
+   * Returns a ProtocolOperation, giving the ability to create a hash to sign
    * or construct a transaction to be broadcast on chain.
    */
   OP_GENERATE,
   /**
-   * Requests a signature on the hash of a previously generated CfOperation.
+   * Requests a signature on the hash of a previously generated ProtocolOperation.
    */
   OP_SIGN,
   /**

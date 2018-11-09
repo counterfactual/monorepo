@@ -7,8 +7,8 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
-import { EthOpGenerator } from "../../src/middleware/cf-operation";
-import { CfOperation } from "../../src/middleware/cf-operation/types";
+import { EthOpGenerator } from "../../src/middleware/protocol-operation";
+import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
@@ -169,7 +169,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     next: Function,
     context: Context
   ): Promise<ethers.utils.Signature> {
-    const operation: CfOperation = getFirstResult(
+    const operation: ProtocolOperation = getFirstResult(
       Instruction.OP_GENERATE,
       context.results
     ).value;
@@ -183,7 +183,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     next: Function,
     context: Context
   ) {
-    const op: CfOperation = getLastResult(
+    const op: ProtocolOperation = getLastResult(
       Instruction.OP_GENERATE,
       context.results
     ).value;
