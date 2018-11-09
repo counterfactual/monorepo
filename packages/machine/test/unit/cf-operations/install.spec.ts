@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
 
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 
@@ -12,7 +11,7 @@ import {
   TEST_SIGNING_KEYS
 } from "./fixture";
 
-const { keccak256 } = ethers.utils;
+// const { keccak256 } = ethers.utils;
 
 describe("OpSetup", () => {
   const TEST_NONCE_UNIQUE_ID = 1;
@@ -33,34 +32,17 @@ describe("OpSetup", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const salt = keccak256(
-      cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
-    );
-    const uninstallKey = keccak256(
-      cf.utils.abi.encodePacked(
-        ["address", "uint256", "uint256"],
-        [TEST_MULTISIG_ADDRESS, 0, salt]
-      )
-    );
-
-    const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
+    // [this.freeBalanceInput(), this.conditionalTransactionInput()];
+    const transactions = ["0x"].map(t => t.substr(2));
 
     const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
       contractCall("execTransaction(address, uint256, bytes, uint8, bytes)")(
-        TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+        TEST_NETWORK_CONTEXT.multiSendAddr,
         0,
-        contractCall(
-          "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))"
-        )(
-          TEST_NETWORK_CONTEXT.registryAddr,
-          TEST_NETWORK_CONTEXT.nonceRegistryAddr,
-          uninstallKey,
-          TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-          [terms.assetType, terms.limit, terms.token]
-        ),
+        contractCall("multiSend(bytes)")(`0x${transactions.join("")}`),
         1,
         cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
       )

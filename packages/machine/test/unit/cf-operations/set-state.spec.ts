@@ -4,6 +4,7 @@ import * as ethers from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
+  contractCall,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
@@ -14,7 +15,7 @@ import {
   TEST_SIGNING_KEYS,
   TEST_TERMS,
   TEST_TIMEOUT
-} from "./test-data";
+} from "./fixture";
 
 describe("OpSetState", () => {
   let operation: OpSetState;
@@ -51,20 +52,16 @@ describe("OpSetState", () => {
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      new ethers.utils.Interface([
-        "proxyCall(address,bytes32,bytes)"
-      ]).functions.proxyCall.encode([
+      contractCall("proxyCall(address,bytes32,bytes)")(
         TEST_NETWORK_CONTEXT.registryAddr,
         app.cfAddress(),
-        new ethers.utils.Interface([
-          "setState(bytes32,uint256,uint256,bytes)"
-        ]).functions.setState.encode([
+        contractCall("setState(bytes32,uint256,uint256,bytes)")(
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
           cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
-        ])
-      ])
+        )
+      )
     );
   });
 

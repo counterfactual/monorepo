@@ -68,3 +68,9 @@ export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
   100,
   new cf.utils.Nonce(true, 0, 5)
 );
+
+export function contractCall(funcSig: string): (...args: any[]) => string {
+  const [funcName] = funcSig.split("(");
+  return (...args) =>
+    new ethers.utils.Interface([funcSig]).functions[funcName].encode(args);
+}
