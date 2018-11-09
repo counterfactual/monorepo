@@ -18,8 +18,7 @@
         - `async install(appId: AppID): Promise<AppInstance>`
 - `AppInstance`
     - Properties
-        - `nodeProvider`
-        - `id: string` — Identifier for this specific app instance
+        - `id: AppID` — Identifier for this specific app instance
         - `definition: AppDefinition`
     - Instance methods
         - `async applyAction(action): AppState`
@@ -32,25 +31,24 @@
     - App lifecycle
         - `on(eventType, callback)`
             - EventType: stateUpdate, uninstall
-- `AppDefinition`
-    - `address`: on-chain address for the app definition contract
-    - `appStateEncoding`: ABI encoding for App State
-    - `appActionEncoding`: ABI encoding for App Action
-- `AppManifest`
-    - `name`: human-readable name of app e.g. "TicTacToe"
-    - `version`: semantic version of app definition contract
-    - `definition: AppDefinition`
-    - (perhaps?) `background_color: string`
-    - (perhaps?) `description: string`
-- `AppInfo`
-    - `definition: AppDefinition`
-    - `appId: AppId`
-    - `terms: [assetType, limit, tokenAddress]`
-    - `addresses: Address[]`
-    - `name: string`
-    - `version: string`
-- `NodeProvider` (external)
-    - (Injected into webpage)
-    - Instance methods
-        - `postMessage(message)`
-        - `onMessage(callback)`
+- `types`
+    - `NodeProvider` (external)
+        - (Injected into webpage)
+        - Instance methods
+            - `postMessage(message)`
+            - `onMessage(callback)`
+    - `AppDefinition`
+        - `address`: on-chain address for the app definition contract
+        - `appStateEncoding`: ABI encoding for App State
+        - `appActionEncoding`: ABI encoding for App Action
+    - `AppManifest`
+        - `name`: human-readable name of app e.g. "TicTacToe"
+        - `version`: semantic version of app definition contract
+        - `definition: AppDefinition`
+    - `AppInfo`
+        - `definition: AppDefinition`
+        - `appId: AppId`
+        - `terms: [assetType, limit, tokenAddress]`
+        - `addresses: Address[]`
+        - `name: string`
+        - `version: string`    
