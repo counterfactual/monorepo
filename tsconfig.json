@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noLib": false,
     "removeComments": true,
