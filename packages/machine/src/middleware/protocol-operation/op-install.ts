@@ -2,25 +2,25 @@ import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
 import * as ethers from "ethers";
 
-import { CfMultiSendOp } from "./cf-multisend-op";
+import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export class CfOpInstall extends CfMultiSendOp {
+export class OpInstall extends MultiSendOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly app: cf.app.AppInstance,
-    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super(networkContext, multisig, cfFreeBalance, dependencyNonce);
+    super(networkContext, multisig, freeBalance, dependencyNonce);
   }
 
   /**
-   * @override common.CfMultiSendOp
+   * @override common.MultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
     return [this.freeBalanceInput(), this.conditionalTransactionInput()];

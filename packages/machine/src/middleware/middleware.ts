@@ -32,15 +32,15 @@ export class Middleware {
     [Instruction.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly nodeState: NodeState, cfOpGenerator: OpGenerator) {
-    this.initializeMiddlewares(cfOpGenerator);
+  constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
+    this.initializeMiddlewares(opGenerator);
   }
 
-  private initializeMiddlewares(cfOpGenerator) {
+  private initializeMiddlewares(opGenerator) {
     this.add(
       Instruction.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return cfOpGenerator.generate(message, next, context, this.nodeState);
+        return opGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
@@ -109,7 +109,7 @@ export class Middleware {
 /**
  * Interface to dependency inject blockchain commitments. The middleware
  * should be constructed with a OpGenerator, which is responsible for
- * creating CfOperations, i.e. commitments, to be stored, used, and signed
+ * creating ProtocolOperations, i.e. commitments, to be stored, used, and signed
  * in the state channel system.
  */
 export abstract class OpGenerator {

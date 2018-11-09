@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import * as ethers from "ethers";
 
-export abstract class CfOperation {
+export abstract class ProtocolOperation {
   public abstract hashToSign(): cf.utils.H256;
 
   public abstract transaction(sigs: cf.utils.Signature[]): Transaction;

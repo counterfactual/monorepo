@@ -2,12 +2,12 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import * as common from "./common";
-import { CfOperation, Transaction } from "./types";
+import { ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
 const { abi } = cf.utils;
 
-export class CfOpSetState extends CfOperation {
+export class OpSetState extends ProtocolOperation {
   constructor(
     readonly ctx: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,

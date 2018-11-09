@@ -5,7 +5,7 @@ import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.jso
 import * as ethers from "ethers";
 import * as _ from "lodash";
 
-import { Transaction } from "../../src/middleware/cf-operation/types";
+import { Transaction } from "../../src/middleware/protocol-operation/types";
 import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
@@ -164,15 +164,15 @@ describe("Setup Protocol", async () => {
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
 
-    const cfFreeBalance = walletA.instructionExecutor.nodeState.freeBalanceFromMultisigAddress(
+    const freeBalance = walletA.instructionExecutor.nodeState.freeBalanceFromMultisigAddress(
       multisig.address
     );
 
     const values = [
-      cfFreeBalance.alice,
-      cfFreeBalance.bob,
-      cfFreeBalance.aliceBalance,
-      cfFreeBalance.bobBalance
+      freeBalance.alice,
+      freeBalance.bob,
+      freeBalance.aliceBalance,
+      freeBalance.bobBalance
     ];
 
     const freeBalanceFinalState = abi.encode(

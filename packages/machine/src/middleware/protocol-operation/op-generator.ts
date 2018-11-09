@@ -6,16 +6,16 @@ import { Context, NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
-import { CfOpInstall } from "./cf-op-install";
-import { CfOpSetState } from "./cf-op-setstate";
-import { CfOpSetup } from "./cf-op-setup";
-import { CfOpUninstall } from "./cf-op-uninstall";
-import { CfOperation } from "./types";
+import { OpInstall } from "./op-install";
+import { OpSetState } from "./op-set-state";
+import { OpSetup } from "./op-setup";
+import { OpUninstall } from "./op-uninstall";
+import { ProtocolOperation } from "./types";
 
 /**
  * Middleware to be used and registered with the InstructionExecutor on OP_GENERATE instructions
- * to generate CfOperations. When combined with signatures from all parties
- * in the state channel, the CfOperation transitions the state to that
+ * to generate ProtocolOperations. When combined with signatures from all parties
+ * in the state channel, the ProtocolOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
 export class EthOpGenerator extends OpGenerator {
@@ -24,7 +24,7 @@ export class EthOpGenerator extends OpGenerator {
     next: Function,
     context: Context,
     nodeState: NodeState
-  ): CfOperation {
+  ): ProtocolOperation {
     const proposedState = getFirstResult(
       Instruction.STATE_TRANSITION_PROPOSE,
       context.results
@@ -53,7 +53,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedUpdate: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
@@ -89,7 +89,7 @@ export class EthOpGenerator extends OpGenerator {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
-    return new CfOpSetState(
+    return new OpSetState(
       nodeState.networkContext,
       multisig,
       // FIXME: signing keys should be app-specific ephemeral keys
@@ -109,12 +109,12 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedSetup: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const freeBalance: cf.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -139,11 +139,11 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.uniqueId
     );
 
-    return new CfOpSetup(
+    return new OpSetup(
       nodeState.networkContext,
       multisig,
       freeBalanceAppInstance,
-      cfFreeBalance,
+      newFreeBalance,
       nonce
     );
   }
@@ -171,7 +171,7 @@ export class EthOpGenerator extends OpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -182,11 +182,11 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.nonce
     );
 
-    const op = new CfOpInstall(
+    const op = new OpInstall(
       nodeState.networkContext,
       multisig,
       app,
-      cfFreeBalance,
+      newFreeBalance,
       appChannel.dependencyNonce
     );
     return op;
@@ -197,7 +197,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedUninstall: any
-  ): CfOperation {
+  ): ProtocolOperation {
     const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appId;
     if (cfAddr === undefined) {
@@ -207,7 +207,7 @@ export class EthOpGenerator extends OpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
 
-    const cfFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -218,10 +218,10 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.nonce
     );
 
-    const op = new CfOpUninstall(
+    const op = new OpUninstall(
       nodeState.networkContext,
       multisig,
-      cfFreeBalance,
+      newFreeBalance,
       appChannel.dependencyNonce
     );
     return op;

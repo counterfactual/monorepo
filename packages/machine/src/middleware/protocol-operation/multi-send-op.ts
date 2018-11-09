@@ -8,14 +8,14 @@ import { MultiSend, MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
 
-export abstract class CfMultiSendOp extends MultisigTxOp {
+export abstract class MultiSendOp extends MultisigTxOp {
   constructor(
     readonly networkContext: cf.utils.NetworkContext,
     readonly multisig: cf.utils.Address,
-    readonly cfFreeBalance: cf.utils.FreeBalance,
+    readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce
   ) {
-    super(multisig, cfFreeBalance);
+    super(multisig, freeBalance);
   }
 
   public freeBalanceInput(): MultisigInput {
@@ -32,21 +32,21 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
     const freeBalanceCfAddress = new cf.app.AppInstance(
       this.networkContext,
       this.multisig,
-      [this.cfFreeBalance.alice, this.cfFreeBalance.bob],
+      [this.freeBalance.alice, this.freeBalance.bob],
       app,
       terms,
-      this.cfFreeBalance.timeout,
-      this.cfFreeBalance.uniqueId
+      this.freeBalance.timeout,
+      this.freeBalance.uniqueId
     ).cfAddress();
 
     const appStateHash = keccak256(
       cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
-          this.cfFreeBalance.alice,
-          this.cfFreeBalance.bob,
-          this.cfFreeBalance.aliceBalance,
-          this.cfFreeBalance.bobBalance
+          this.freeBalance.alice,
+          this.freeBalance.bob,
+          this.freeBalance.aliceBalance,
+          this.freeBalance.bobBalance
         ]
       )
     );
@@ -56,8 +56,8 @@ export abstract class CfMultiSendOp extends MultisigTxOp {
       this.networkContext,
       appStateHash,
       freeBalanceCfAddress,
-      this.cfFreeBalance.localNonce,
-      this.cfFreeBalance.timeout,
+      this.freeBalance.localNonce,
+      this.freeBalance.timeout,
       signatures
     );
   }

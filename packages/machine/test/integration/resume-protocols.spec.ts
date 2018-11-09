@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Instruction, instructions } from "../../src/instructions";
-import { EthOpGenerator } from "../../src/middleware/cf-operation/cf-op-generator";
+import { EthOpGenerator } from "../../src/middleware/protocol-operation/op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
@@ -182,8 +182,8 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        const cfOpGenerator = new EthOpGenerator();
-        return cfOpGenerator.generate(
+        const opGenerator = new EthOpGenerator();
+        return opGenerator.generate(
           message,
           next,
           context,
