@@ -2,11 +2,11 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Instruction } from "../../src/instructions";
+import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
 } from "../../src/middleware/protocol-operation/types";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
@@ -195,9 +195,10 @@ export class TestCommitmentStore {
       );
     }
 
-    const sigs = [signature, counterpartySignature];
-
-    await appCommitments.addCommitment(action, op, sigs);
+    await appCommitments.addCommitment(action, op, [
+      signature,
+      counterpartySignature
+    ]);
     this.store.put(appId, Object(appCommitments.serialize()));
     next();
   }

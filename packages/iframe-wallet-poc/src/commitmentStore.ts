@@ -199,9 +199,10 @@ export class CommitmentStore {
       );
     }
 
-    const sigs = [signature, counterpartySignature];
-
-    await appCommitments.addCommitment(action, op, sigs);
+    await appCommitments.addCommitment(action, op, [
+      signature,
+      counterpartySignature
+    ]);
     this.store.put(appId, Object(appCommitments.serialize()));
     next();
   }
