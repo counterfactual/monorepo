@@ -1,0 +1,23 @@
+{
+  "name": "@counterfactual/playground",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "stencil build --prerender",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test:watch": "stencil test --spec --e2e --watchAll"
+  },
+  "dependencies": {
+    "@stencil/core": "~0.15.1",
+    "@stencil/router": "~0.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/monorepo"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/counterfactual/monorepo"
+  },
+  "homepage": "https://counterfactual.com"
+}
