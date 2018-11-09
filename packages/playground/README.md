@@ -21,3 +21,9 @@ yarn start
 ```
 
 This will build the application and open a `stencil` dev server instance in your preferred browser, while watching the source files for any changes.
+
+If using Firefox or any browsers without full support to Custom Elements, you can run the project with ES5 transpiling enabled (it'll slow down the live rebuilding a bit but it'll work):
+
+```shell
+yarn start --es5
+```
