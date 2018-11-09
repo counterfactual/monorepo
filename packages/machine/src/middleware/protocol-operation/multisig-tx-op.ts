@@ -17,11 +17,11 @@ export abstract class MultisigTxOp extends ProtocolOperation {
     super();
   }
 
-  public transaction(sigs: cf.utils.Signature[]): Transaction {
+  public transaction(sigs: ethers.utils.Signature[]): Transaction {
     const multisigInput = this.multisigInput();
-    const signatureBytes = cf.utils.Signature.toSortedBytes(
-      sigs,
-      this.hashToSign()
+    const signatureBytes = cf.utils.signaturesToSortedBytes(
+      this.hashToSign(),
+      ...sigs
     );
     const txData = new ethers.utils.Interface(
       MinimumViableMultisigJson.abi

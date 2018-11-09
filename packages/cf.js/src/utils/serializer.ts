@@ -1,8 +1,6 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { DeserializationCase } from "../types";
-
-import { Signature } from "./signature";
 
 /**
  * Condition functions, used to determine the deserialization resolver
@@ -28,7 +26,7 @@ const deserializeArray = data => data.map(value => deserialize(value));
 
 const deserializeBigNumber = data => ethers.utils.bigNumberify(data._hex);
 
-const deserializeSignature = data => new Signature(data.v, data.r, data.s);
+const identity = data => data;
 
 const deserializeObject = data =>
   Object.keys(data).reduce((deserializedData: object, key: string) => {
@@ -55,7 +53,7 @@ const deserializeCases: DeserializationCase[] = [
   },
   {
     condition: isSignature,
-    resolve: deserializeSignature
+    resolve: identity
   },
   {
     condition: isObject,
