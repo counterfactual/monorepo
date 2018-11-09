@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { CfOpSetState } from "../../../src/middleware/cf-operation";
+import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
   TEST_APP_INTERFACE,
@@ -16,11 +16,11 @@ import {
   TEST_TIMEOUT
 } from "./test-data";
 
-describe("CfOpSetState", () => {
-  let operation: CfOpSetState;
+describe("OpSetState", () => {
+  let operation: OpSetState;
 
   beforeEach(() => {
-    operation = new CfOpSetState(
+    operation = new OpSetState(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
@@ -39,7 +39,7 @@ describe("CfOpSetState", () => {
       cf.utils.Signature.fromEthersSignature(key.signDigest(digest))
     );
 
-    const app = new cf.app.CfAppInstance(
+    const app = new cf.app.AppInstance(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,

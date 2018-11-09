@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
-import { CfOpSetup } from "../../../src/middleware/cf-operation";
+import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
   TEST_FREE_BALANCE,
@@ -13,17 +13,17 @@ import {
 
 const { keccak256 } = ethers.utils;
 
-describe("CfOpSetup", () => {
+describe("OpSetup", () => {
   const TEST_NONCE_UNIQUE_ID = 1;
-  let operation: CfOpSetup;
+  let operation: OpSetup;
 
   beforeEach(() => {
-    operation = new CfOpSetup(
+    operation = new OpSetup(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_FREE_BALANCE_APP_INSTANCE,
       TEST_FREE_BALANCE,
-      new cf.utils.CfNonce(true, TEST_NONCE_UNIQUE_ID, 0)
+      new cf.utils.Nonce(true, TEST_NONCE_UNIQUE_ID, 0)
     );
   });
 

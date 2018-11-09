@@ -34,7 +34,7 @@ export const TEST_TERMS = new cf.app.Terms(
   ethers.utils.parseEther("1.0"),
   ethers.constants.AddressZero
 );
-export const TEST_APP_INTERFACE = new cf.app.CfAppInterface(
+export const TEST_APP_INTERFACE = new cf.app.AppInterface(
   ethers.constants.AddressZero,
   "0x00000000",
   "0x00000000",
@@ -48,17 +48,17 @@ export const TEST_APP_STATE_HASH = ethers.utils.hexlify(
 export const TEST_LOCAL_NONCE = 0;
 export const TEST_TIMEOUT = 100;
 
-export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.app.CfAppInstance(
+export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.app.AppInstance(
   TEST_NETWORK_CONTEXT,
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
   TEST_APP_INTERFACE,
-  cf.utils.CfFreeBalance.terms(),
+  cf.utils.FreeBalance.terms(),
   TEST_TIMEOUT,
   0
 );
 
-export const TEST_FREE_BALANCE = new cf.utils.CfFreeBalance(
+export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
   TEST_SIGNING_KEYS[0].address,
   ethers.utils.parseEther("0.5"),
   TEST_SIGNING_KEYS[1].address,
@@ -66,5 +66,5 @@ export const TEST_FREE_BALANCE = new cf.utils.CfFreeBalance(
   0,
   10,
   100,
-  new cf.utils.CfNonce(true, 0, 5)
+  new cf.utils.Nonce(true, 0, 5)
 );
