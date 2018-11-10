@@ -3,14 +3,14 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import {
+  Context,
   InstructionExecutor,
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
+import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,

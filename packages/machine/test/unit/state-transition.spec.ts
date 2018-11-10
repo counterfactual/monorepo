@@ -1,10 +1,11 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
+import { Context } from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { Context, NodeState, StateChannelInfoImpl } from "../../src/node-state";
+import { NodeState, StateChannelInfoImpl } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import { EMPTY_NETWORK_CONTEXT } from "../utils/common";

@@ -1,9 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import lodash from "lodash";
 
-import { InstructionExecutor } from "./instruction-executor";
-import { OpCodeResult } from "./types";
-
 /**
  * // TODO: this can still be named better
  * NodeState encapsulates the state of all the channels in the context of a node.
@@ -111,10 +108,4 @@ export class StateChannelInfoImpl implements cf.channel.StateChannelInfo {
   public owners(): string[] {
     return [this.counterParty, this.me].sort((a, b) => (a < b ? -1 : 1));
   }
-}
-
-export class Context {
-  public results: OpCodeResult[] = Object.create(null);
-  public instructionPointer: number = Object.create(null);
-  public instructionExecutor: InstructionExecutor = Object.create(null);
 }

@@ -9,7 +9,8 @@ import { NodeState } from "./node-state";
 import {
   Addressable,
   AddressableLookupResolverHash,
-  InstructionMiddlewareCallback
+  InstructionMiddlewareCallback,
+  OpCodeResult
 } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -191,6 +192,12 @@ export class InstructionExecutor implements Observable {
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
+}
+
+export class Context {
+  public results: OpCodeResult[] = Object.create(null);
+  public instructionPointer: number = Object.create(null);
+  public instructionExecutor: InstructionExecutor = Object.create(null);
 }
 
 applyMixins(InstructionExecutor, [Observable]);

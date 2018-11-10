@@ -1,17 +1,17 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "../../src/node-state";
-import { InternalMessage } from "../../src/types";
-
-import { TestResponseSink } from "./test-response-sink";
-
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/8
-import { getLastResult } from "../../src/middleware/middleware";
+import { Context } from "../../src/instruction-executor";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/98
 import { Instruction } from "../../src/instructions";
+
+// FIXME: Don't import functions from source code.
+// https://github.com/counterfactual/monorepo/issues/8
+import { getLastResult } from "../../src/middleware/middleware";
+import { InternalMessage } from "../../src/types";
+
+import { TestResponseSink } from "./test-response-sink";
 
 export class TestIOProvider {
   public messages: cf.node.ClientActionMessage[];
