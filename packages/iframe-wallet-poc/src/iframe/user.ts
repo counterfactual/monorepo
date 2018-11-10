@@ -199,7 +199,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         this.wal.write(message, context);
       }
@@ -210,7 +210,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return signMyUpdate(message, next, context, this);
       }
@@ -220,7 +220,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return validateSignatures(message, next, context, this);
       }
@@ -247,7 +247,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 async function signMyUpdate(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
 ): Promise<ethers.utils.Signature> {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
@@ -262,7 +262,7 @@ async function signMyUpdate(
 async function validateSignatures(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
 ) {
   const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(

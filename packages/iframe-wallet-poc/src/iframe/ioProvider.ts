@@ -117,7 +117,7 @@ export class IframeIoProvider {
   public async ioSendMessage(
     internalMessage: machine.types.InternalMessage,
     next: Function,
-    context: machine.state.Context
+    context: machine.instructionExecutor.Context
   ) {
     const msg = machine.middleware.getLastResult(
       machine.instructions.Instruction.IO_PREPARE_SEND,
