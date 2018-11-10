@@ -8,7 +8,6 @@ import { SetupProposer } from "../../src/middleware/state-transition/setup-propo
 import { NodeState, StateChannelInfoImpl } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
-import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 import {
   A_ADDRESS,
   B_ADDRESS,
@@ -45,7 +44,7 @@ describe("State transition", () => {
       false
     );
     const expectedCfAddr = new cf.app.AppInstance(
-      EMPTY_NETWORK_CONTEXT,
+      cf.network.EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -97,7 +96,7 @@ function setupInstallState(): NodeState {
   const channelStates: cf.channel.ChannelStates = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new NodeState(channelStates, EMPTY_NETWORK_CONTEXT);
+  return new NodeState(channelStates, cf.network.EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: cf.channel.StateChannelInfos) {

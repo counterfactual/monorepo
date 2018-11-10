@@ -18,7 +18,7 @@ export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
     readonly opGenerator: OpGenerator,
-    readonly network: cf.utils.NetworkContext,
+    readonly network: cf.network.NetworkContext,
     readonly state?: cf.channel.ChannelStates
   ) {}
 }

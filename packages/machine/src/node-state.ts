@@ -9,11 +9,11 @@ import lodash from "lodash";
  */
 export class NodeState {
   public channelStates: cf.channel.ChannelStates;
-  public networkContext: cf.utils.NetworkContext;
+  public networkContext: cf.network.NetworkContext;
 
   constructor(
     channelStates: cf.channel.ChannelStates,
-    network: cf.utils.NetworkContext
+    network: cf.network.NetworkContext
   ) {
     this.channelStates = channelStates;
     this.networkContext = network;

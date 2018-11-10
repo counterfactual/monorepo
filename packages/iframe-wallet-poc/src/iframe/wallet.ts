@@ -44,18 +44,18 @@ export class IFrameWallet implements cf.node.ResponseSink {
     return this.users.get(this.address)!;
   }
 
-  get network(): cf.utils.NetworkContext {
+  get network(): cf.network.NetworkContext {
     return this.networkContext;
   }
 
   public users: Map<string, User>;
   public address?: string;
-  private networkContext: cf.utils.NetworkContext;
+  private networkContext: cf.network.NetworkContext;
   private requests: Map<string, Function>;
   private responseListener?: Function;
   private messageListener?: Function;
 
-  constructor(networkContext: cf.utils.NetworkContext) {
+  constructor(networkContext: cf.network.NetworkContext) {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
     this.networkContext = networkContext;
@@ -64,7 +64,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
   // FIXME: Remove this method and refactor the network context data type.
   public static networkFileToNetworkContext(json: Object) {
     const tmp = _.mapValues(_.keyBy(json, "contractName"), "address");
-    return new cf.utils.NetworkContext(
+    return new cf.network.NetworkContext(
       tmp["Registry"],
       tmp["PaymentApp"],
       tmp["ConditionalTransaction"],
@@ -87,7 +87,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
   public setUser(
     address: string,
     privateKey: string,
-    networkContext?: cf.utils.NetworkContext,
+    networkContext?: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SimpleStringMapSyncDB,
     states?: cf.channel.ChannelStates
   ) {

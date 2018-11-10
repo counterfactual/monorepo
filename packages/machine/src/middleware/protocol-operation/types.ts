@@ -47,7 +47,7 @@ export class MultisigInput {
 export class MultiSend {
   constructor(
     readonly transactions: MultisigInput[],
-    readonly networkContext: cf.utils.NetworkContext
+    readonly networkContext: cf.network.NetworkContext
   ) {}
 
   public input(multisend: cf.utils.Address): MultisigInput {

@@ -6,7 +6,7 @@ import * as ethers from "ethers";
 import { OpSetup } from "../../src/middleware/protocol-operation";
 import "../../src/middleware/protocol-operation/types";
 
-const fakeCtx = new cf.utils.NetworkContext(
+const fakeCtx = new cf.network.NetworkContext(
   "0x1111111111111111111111111111111111111111",
   "0x2222222222222222222222222222222222222222",
   "0x3333333333333333333333333333333333333333",

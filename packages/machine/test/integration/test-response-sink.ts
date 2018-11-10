@@ -16,7 +16,6 @@ import {
   SimpleStringMapSyncDB,
   WriteAheadLog
 } from "../../src/write-ahead-log";
-import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
@@ -33,7 +32,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
   constructor(
     readonly privateKey: string,
-    networkContext?: cf.utils.NetworkContext
+    networkContext?: cf.network.NetworkContext
   ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
@@ -54,7 +53,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
-        networkContext || EMPTY_NETWORK_CONTEXT
+        networkContext || cf.network.EMPTY_NETWORK_CONTEXT
       )
     );
 

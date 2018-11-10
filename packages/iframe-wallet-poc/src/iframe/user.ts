@@ -50,7 +50,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: cf.utils.NetworkContext,
+    networkContext: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
     states?: cf.channel.ChannelStates
   ) {
