@@ -7,8 +7,6 @@ import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { NodeState } from "./node-state";
 import {
-  Addressable,
-  AddressableLookupResolverHash,
   InstructionMiddlewareCallback,
   OpCodeResult
 } from "./types";

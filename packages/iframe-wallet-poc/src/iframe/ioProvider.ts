@@ -101,15 +101,6 @@ export class IframeIoProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public setClientToHandleIO() {
     this.clientHandlesIO = true;
   }
