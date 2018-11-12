@@ -52,7 +52,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     privateKey: string,
     networkContext: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: cf.channel.ChannelStates
+    states?: cf.channel.StateChannelInfos
   ) {
     this.wallet = wallet;
     this.address = address;

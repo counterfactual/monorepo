@@ -202,11 +202,8 @@ export interface StateChannelInfo {
   owners(): string[];
 }
 
+// a mapping from multisig address to a StateChannelInfo struct containing
+// details about the channel associated with that multisig
 export interface StateChannelInfos {
-  [s: string]: StateChannelInfo;
-}
-
-// Tree of all the stateChannel and appChannel state
-export interface ChannelStates {
   [s: string]: StateChannelInfo;
 }
