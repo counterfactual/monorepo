@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.network.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,

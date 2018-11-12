@@ -10,7 +10,7 @@ const { keccak256 } = ethers.utils;
 
 export abstract class MultiSendOp extends MultisigTxOp {
   constructor(
-    readonly networkContext: cf.utils.NetworkContext,
+    readonly networkContext: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly freeBalance: cf.utils.FreeBalance,
     readonly dependencyNonce: cf.utils.Nonce

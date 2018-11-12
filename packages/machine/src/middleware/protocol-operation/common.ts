@@ -9,7 +9,7 @@ import * as ethers from "ethers";
  * `appLocalNonce`, `timeout` and `signatures`
  */
 export function proxyCallSetStateData(
-  networkContext: cf.utils.NetworkContext,
+  networkContext: cf.network.NetworkContext,
   appStateHash: cf.utils.H256,
   appCfAddr: cf.utils.H256,
   appLocalNonce: number,

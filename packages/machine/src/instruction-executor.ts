@@ -9,7 +9,8 @@ import { NodeState } from "./node-state";
 import {
   Addressable,
   AddressableLookupResolverHash,
-  InstructionMiddlewareCallback
+  InstructionMiddlewareCallback,
+  OpCodeResult
 } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -17,7 +18,7 @@ export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
     readonly opGenerator: OpGenerator,
-    readonly network: cf.utils.NetworkContext,
+    readonly network: cf.network.NetworkContext,
     readonly state?: cf.channel.ChannelStates
   ) {}
 }
@@ -191,6 +192,12 @@ export class InstructionExecutor implements Observable {
   public register(scope: Instruction, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
+}
+
+export class Context {
+  public results: OpCodeResult[] = Object.create(null);
+  public instructionPointer: number = Object.create(null);
+  public instructionExecutor: InstructionExecutor = Object.create(null);
 }
 
 applyMixins(InstructionExecutor, [Observable]);

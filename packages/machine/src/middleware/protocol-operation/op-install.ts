@@ -10,7 +10,7 @@ const { abi } = cf.utils;
 
 export class OpInstall extends MultiSendOp {
   constructor(
-    readonly networkContext: cf.utils.NetworkContext,
+    readonly networkContext: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly app: cf.app.AppInstance,
     readonly freeBalance: cf.utils.FreeBalance,

@@ -1,9 +1,9 @@
 import * as ethers from "ethers";
 
 import { AppInterface, Terms } from "../app";
+import { NetworkContext } from "../network";
 
 import { Address } from "./index";
-import { NetworkContext } from "./network-context";
 import { Nonce } from "./nonce";
 
 /**

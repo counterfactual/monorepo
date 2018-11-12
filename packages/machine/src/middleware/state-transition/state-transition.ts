@@ -1,6 +1,7 @@
+import { Context } from "../../instruction-executor";
 import { Instruction } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
-import { Context, NodeState } from "../../node-state";
+import { NodeState } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 
 import { PROPOSER_ACTIONS } from "./proposer-actions";

@@ -9,7 +9,7 @@ const { abi } = cf.utils;
 
 export class OpSetState extends ProtocolOperation {
   constructor(
-    readonly ctx: cf.utils.NetworkContext,
+    readonly ctx: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly signingKeys: cf.utils.Address[],
     readonly appStateHash: string,
