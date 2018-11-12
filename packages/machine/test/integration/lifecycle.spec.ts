@@ -23,7 +23,7 @@ describe("Machine State Lifecycle", async () => {
 
   it.only("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
     const [peerA, peerB]: TestResponseSink[] = getCommunicatingPeers();
-    await SetupProtocol.run(peerA, peerB);
+    await SetupProtocol.validateAndRun(peerA, peerB);
     await Depositor.makeDeposits(peerA, peerB);
     await TicTacToeSimulator.simulatePlayingGame(peerA, peerB);
   });
