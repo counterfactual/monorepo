@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import {
   A_PRIVATE_KEY,

@@ -1,5 +1,5 @@
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { StateChannelInfo } from "../channel";
 import { NetworkContext } from "../network";

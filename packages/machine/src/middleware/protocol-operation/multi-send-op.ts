@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as common from "./common";
 import { MultisigTxOp } from "./multisig-tx-op";

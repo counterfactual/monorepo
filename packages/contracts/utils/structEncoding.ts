@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 export function abiEncodingForStruct(structDefinition: string): string {
   const definitions: string[] = [];

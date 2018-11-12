@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 
