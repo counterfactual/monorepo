@@ -152,7 +152,7 @@ export class CommitmentStore {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
     const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-      machine.instructions.Instruction.OP_GENERATE,
+      machine.instructions.Opcode.OP_GENERATE,
       context.results
     ).value;
     let appCommitments: AppCommitments;
@@ -163,7 +163,7 @@ export class CommitmentStore {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.node.ActionName.INSTALL) {
       const proposal = machine.middleware.getFirstResult(
-        machine.instructions.Instruction.STATE_TRANSITION_PROPOSE,
+        machine.instructions.Opcode.STATE_TRANSITION_PROPOSE,
         context.results
       ).value;
       appId = proposal.cfAddr;
@@ -180,7 +180,7 @@ export class CommitmentStore {
     }
 
     const signature: ethers.utils.Signature = machine.middleware.getFirstResult(
-      machine.instructions.Instruction.OP_SIGN,
+      machine.instructions.Opcode.OP_SIGN,
       context.results
     ).value;
 
@@ -216,12 +216,12 @@ export class CommitmentStore {
   ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(
-        machine.instructions.Instruction.IO_WAIT,
+        machine.instructions.Opcode.IO_WAIT,
         context.results
       ).value;
     }
     const incomingMessageResult = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       context.results
     );
     if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
