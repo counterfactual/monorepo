@@ -93,7 +93,7 @@ function setupInstallState(): NodeState {
     {},
     freeBalance
   );
-  const channelStates: cf.channel.ChannelStates = {
+  const channelStates: cf.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
   return new NodeState(channelStates, cf.network.EMPTY_NETWORK_CONTEXT);

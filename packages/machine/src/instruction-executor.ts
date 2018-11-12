@@ -19,7 +19,7 @@ export class InstructionExecutorConfig {
     readonly responseHandler: cf.node.ResponseSink,
     readonly opGenerator: OpGenerator,
     readonly network: cf.network.NetworkContext,
-    readonly state?: cf.channel.ChannelStates
+    readonly state?: cf.channel.StateChannelInfos
   ) {}
 }
 
@@ -185,7 +185,7 @@ export class InstructionExecutor implements Observable {
     );
   }
 
-  public mutateState(state: cf.channel.ChannelStates) {
+  public mutateState(state: cf.channel.StateChannelInfos) {
     Object.assign(this.nodeState.channelStates, state);
   }
 
