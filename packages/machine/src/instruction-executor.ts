@@ -1,17 +1,12 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
-import { Instruction } from "./instructions";
+import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { NodeState } from "./node-state";
-import {
-  Addressable,
-  AddressableLookupResolverHash,
-  InstructionMiddlewareCallback,
-  OpCodeResult
-} from "./types";
+import { InstructionMiddlewareCallback, OpCodeResult } from "./types";
 import { Log } from "./write-ahead-log";
 
 export class InstructionExecutorConfig {
@@ -22,22 +17,6 @@ export class InstructionExecutorConfig {
     readonly state?: cf.channel.StateChannelInfos
   ) {}
 }
-
-/**
- * This resolver hash is used in the getStateChannelFromAddressable method. According
- * to any key available in the Addressable interface, it'll fetch an instance of
- * StateChannelInfo from the corresponding source.
- */
-const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (nodeState: NodeState, appId: cf.utils.H256) =>
-    nodeState.appChannelInfos[appId].stateChannel,
-
-  multisigAddress: (nodeState: NodeState, multisigAddress: cf.utils.Address) =>
-    nodeState.stateChannelFromMultisigAddress(multisigAddress),
-
-  toAddress: (nodeState: NodeState, toAddress: cf.utils.Address) =>
-    nodeState.stateChannelFromAddress(toAddress)
-};
 
 export class InstructionExecutor implements Observable {
   /**
@@ -107,21 +86,6 @@ export class InstructionExecutor implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  public getStateChannelFromAddressable(
-    data: Addressable
-  ): cf.channel.StateChannelInfo {
-    const [lookupKey] = Object.keys(data).filter(key => Boolean(data[key]));
-    const lookup = ADDRESSABLE_LOOKUP_RESOLVERS[lookupKey];
-
-    if (!lookup) {
-      throw Error(
-        "Cannot get state channel info without appID, multisigAddress or toAddress"
-      );
-    }
-
-    return lookup(this.nodeState, data[lookupKey]);
-  }
-
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
     if (!this.validateMessage(msg)) {
       throw new Error("Cannot receive invalid message");
@@ -189,7 +153,7 @@ export class InstructionExecutor implements Observable {
     Object.assign(this.nodeState.channelStates, state);
   }
 
-  public register(scope: Instruction, method: InstructionMiddlewareCallback) {
+  public register(scope: Opcode, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
 }

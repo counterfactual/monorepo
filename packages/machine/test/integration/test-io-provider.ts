@@ -4,7 +4,7 @@ import { Context } from "../../src/instruction-executor";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/98
-import { Instruction } from "../../src/instructions";
+import { Opcode } from "../../src/instructions";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/8
@@ -107,21 +107,12 @@ export class TestIOProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public async ioSendMessage(
     internalMessage: InternalMessage,
     next: Function,
     context: Context
   ) {
-    const msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
+    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results);
 
     // FIXME: (ts-strict) msg should never be null here
     // https://github.com/counterfactual/monorepo/issues/94

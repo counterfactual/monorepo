@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../src/instruction-executor";
-import { Instruction, instructions } from "../../src/instructions";
+import { Opcode, instructions } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation/op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
 import { InternalMessage } from "../../src/types";
@@ -43,7 +43,7 @@ abstract class SetupProtocolTestCase {
   public db: SimpleStringMapSyncDB;
   public peerA: TestResponseSink;
   public peerB: TestResponseSink;
-  public executedInstructions: Instruction[];
+  public executedInstructions: Opcode[];
 
   constructor() {
     this.db = new SimpleStringMapSyncDB();
@@ -114,7 +114,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -123,10 +123,10 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
     peer.instructionExecutor.middleware.middlewares[
-      Instruction.STATE_TRANSITION_PROPOSE
+      Opcode.STATE_TRANSITION_PROPOSE
     ] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -150,7 +150,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     const setupInstructions = JSON.parse(
       JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
-    setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
+    setupInstructions.unshift(Opcode.STATE_TRANSITION_PROPOSE);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );
@@ -165,7 +165,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -174,10 +174,10 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
     peer.instructionExecutor.middleware.middlewares[
-      Instruction.OP_GENERATE
+      Opcode.OP_GENERATE
     ] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -202,7 +202,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
     const setupInstructions = JSON.parse(
       JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
-    setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
+    setupInstructions.splice(1, 0, Opcode.OP_GENERATE);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );
@@ -217,7 +217,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -226,10 +226,10 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
     peer.instructionExecutor.middleware.middlewares[
-      Instruction.STATE_TRANSITION_COMMIT
+      Opcode.STATE_TRANSITION_COMMIT
     ] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.STATE_TRANSITION_COMMIT,
+      Opcode.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -253,7 +253,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
     const setupInstructions = JSON.parse(
       JSON.stringify(instructions[cf.node.ActionName.SETUP])
     );
-    setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
+    setupInstructions.push(Opcode.STATE_TRANSITION_COMMIT);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );

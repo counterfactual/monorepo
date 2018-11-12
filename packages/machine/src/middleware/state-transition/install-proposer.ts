@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
-import { Instruction } from "../../instructions";
+import { Opcode } from "../../instructions";
 import { NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
@@ -76,7 +76,7 @@ export class InstallProposer {
     context: Context,
     data: cf.app.InstallData
   ): string[] {
-    const lastResult = getLastResult(Instruction.IO_WAIT, context.results);
+    const lastResult = getLastResult(Opcode.IO_WAIT, context.results);
 
     let signingKeys;
     if (lastResult && lastResult.value && lastResult.value.data) {

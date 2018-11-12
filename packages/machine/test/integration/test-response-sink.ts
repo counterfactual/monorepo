@@ -7,7 +7,7 @@ import {
   InstructionExecutor,
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
-import { Instruction } from "../../src/instructions";
+import { Opcode } from "../../src/instructions";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
@@ -71,14 +71,14 @@ export class TestResponseSink implements cf.node.ResponseSink {
     );
 
     this.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.writeAheadLog.write(message, context);
       }
     );
 
     this.instructionExecutor.register(
-      Instruction.OP_SIGN,
+      Opcode.OP_SIGN,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN middleware.");
         return this.signMyUpdate(message, next, context);
@@ -86,7 +86,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     );
 
     this.instructionExecutor.register(
-      Instruction.OP_SIGN_VALIDATE,
+      Opcode.OP_SIGN_VALIDATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN_VALIDATE middleware.");
         return this.validateSignatures(message, next, context);
@@ -94,17 +94,17 @@ export class TestResponseSink implements cf.node.ResponseSink {
     );
 
     this.instructionExecutor.register(
-      Instruction.IO_SEND,
+      Opcode.IO_SEND,
       this.io.ioSendMessage.bind(this.io)
     );
 
     this.instructionExecutor.register(
-      Instruction.IO_WAIT,
+      Opcode.IO_WAIT,
       this.io.waitForIo.bind(this.io)
     );
 
     this.instructionExecutor.register(
-      Instruction.STATE_TRANSITION_COMMIT,
+      Opcode.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
   }
@@ -169,7 +169,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     context: Context
   ): Promise<ethers.utils.Signature> {
     const operation: ProtocolOperation = getFirstResult(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       context.results
     ).value;
     const digest = operation.hashToSign();
@@ -183,7 +183,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     context: Context
   ) {
     const op: ProtocolOperation = getLastResult(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       context.results
     ).value;
     const digest = op.hashToSign();
@@ -195,7 +195,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     if (message.clientMessage.signature === undefined) {
       // initiator
       const incomingMessage = getLastResult(
-        Instruction.IO_WAIT,
+        Opcode.IO_WAIT,
         context.results
       ).value;
       sig = incomingMessage.signature;
