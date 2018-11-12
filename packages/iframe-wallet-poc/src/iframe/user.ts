@@ -195,7 +195,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 
   private registerMiddlewares() {
     this.instructionExecutor.register(
-      machine.instructions.Instruction.ALL,
+      machine.instructions.Opcode.ALL,
       async (
         message: machine.types.InternalMessage,
         next: Function,
@@ -206,7 +206,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     );
 
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN,
+      machine.instructions.Opcode.OP_SIGN,
       async (
         message: machine.types.InternalMessage,
         next: Function,
@@ -216,7 +216,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN_VALIDATE,
+      machine.instructions.Opcode.OP_SIGN_VALIDATE,
       async (
         message: machine.types.InternalMessage,
         next: Function,
@@ -226,15 +226,15 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_SEND,
+      machine.instructions.Opcode.IO_SEND,
       this.io.ioSendMessage.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       this.io.waitForIo.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.STATE_TRANSITION_COMMIT,
+      machine.instructions.Opcode.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
   }
@@ -251,7 +251,7 @@ async function signMyUpdate(
   user: User
 ): Promise<ethers.utils.Signature> {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
@@ -266,7 +266,7 @@ async function validateSignatures(
   user: User
 ) {
   const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = op.hashToSign();
@@ -278,7 +278,7 @@ async function validateSignatures(
   if (message.clientMessage.signature === undefined) {
     // initiator
     const incomingMessage = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       context.results
     ).value;
     sig = incomingMessage.signature;

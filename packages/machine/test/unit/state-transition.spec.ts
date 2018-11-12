@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
 import { Context } from "../../src/instruction-executor";
-import { Instruction } from "../../src/instructions";
+import { Opcode } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
 import { NodeState, StateChannelInfoImpl } from "../../src/node-state";
@@ -29,7 +29,7 @@ describe("State transition", () => {
   it("should propose a new setup state", () => {
     const message = new InternalMessage(
       cf.node.ActionName.SETUP,
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       setupClientMsg(),
       false
     );
@@ -39,7 +39,7 @@ describe("State transition", () => {
   it("should propose a new install state", () => {
     const message = new InternalMessage(
       cf.node.ActionName.INSTALL,
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       installClientMsg(),
       false
     );
