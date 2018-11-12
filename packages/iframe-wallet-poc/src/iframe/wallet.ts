@@ -27,8 +27,8 @@ export class IFrameWallet implements cf.node.ResponseSink {
       wallet
     ).deploy();
 
-    owners.sort(
-      (addrA, addrB) => (new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1)
+    owners.sort((addrA, addrB) =>
+      new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1
     );
 
     await contract.functions.setup(owners);
