@@ -1,15 +1,9 @@
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { StateChannelInfo } from "../channel";
-import {
-  Address,
-  Bytes,
-  Bytes4,
-  H256,
-  NetworkContext,
-  PeerBalance
-} from "../utils";
+import { NetworkContext } from "../network";
+import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import * as abi from "../utils/abi";
 import { Nonce } from "../utils/nonce";
 

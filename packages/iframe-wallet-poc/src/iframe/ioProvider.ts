@@ -101,15 +101,6 @@ export class IframeIoProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public setClientToHandleIO() {
     this.clientHandlesIO = true;
   }
@@ -117,10 +108,10 @@ export class IframeIoProvider {
   public async ioSendMessage(
     internalMessage: machine.types.InternalMessage,
     next: Function,
-    context: machine.state.Context
+    context: machine.instructionExecutor.Context
   ) {
     const msg = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_PREPARE_SEND,
+      machine.instructions.Opcode.IO_PREPARE_SEND,
       context.results
     );
     // FIXME: (ts-strict) msg should never be null here

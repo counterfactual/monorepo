@@ -2,11 +2,10 @@ import * as cf from "@counterfactual/cf.js";
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
 import { Transaction } from "../../src/middleware/protocol-operation/types";
-import { mineBlocks, sleep } from "../utils/common";
 import {
   A_ADDRESS,
   A_PRIVATE_KEY,
@@ -27,7 +26,7 @@ describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
   let networkMap;
-  let devEnvNetworkContext7777777: cf.utils.NetworkContext;
+  let devEnvNetworkContext7777777: cf.network.NetworkContext;
 
   beforeAll(() => {
     // This `require` statement is explicitly in side the `beforeAll` and not at the file
@@ -40,7 +39,7 @@ describe("Setup Protocol", async () => {
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
     networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
-    devEnvNetworkContext7777777 = new cf.utils.NetworkContext(
+    devEnvNetworkContext7777777 = new cf.network.NetworkContext(
       networkMap["Registry"],
       networkMap["PaymentApp"],
       networkMap["ConditionalTransaction"],
@@ -159,7 +158,7 @@ describe("Setup Protocol", async () => {
       gasLimit: 6e9
     });
 
-    await mineBlocks(
+    await cf.utils.mineBlocks(
       100,
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
@@ -422,7 +421,7 @@ async function installBalanceRefund(
   expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
   // since the machine is async, we need to wait for walletB to finish up its
   // side of the protocol before inspecting it's state
-  await sleep(50);
+  await cf.utils.sleep(50);
   // check B's client
   validateInstalledBalanceRefund(multisigAddr, counterparty, threshold);
   // check A's client and return the newly created cf address

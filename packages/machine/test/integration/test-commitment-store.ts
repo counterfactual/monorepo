@@ -1,13 +1,13 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { Instruction } from "../../src/instructions";
+import { Context } from "../../src/instruction-executor";
+import { Opcode } from "../../src/instructions";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
 } from "../../src/middleware/protocol-operation/types";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import {
@@ -149,7 +149,7 @@ export class TestCommitmentStore {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
     const op: ProtocolOperation = getFirstResult(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       context.results
     ).value;
     let appCommitments: AppCommitments;
@@ -160,7 +160,7 @@ export class TestCommitmentStore {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.node.ActionName.INSTALL) {
       const proposal = getFirstResult(
-        Instruction.STATE_TRANSITION_PROPOSE,
+        Opcode.STATE_TRANSITION_PROPOSE,
         context.results
       ).value;
       appId = proposal.cfAddr;
@@ -177,7 +177,7 @@ export class TestCommitmentStore {
     }
 
     const signature: ethers.utils.Signature = getFirstResult(
-      Instruction.OP_SIGN,
+      Opcode.OP_SIGN,
       context.results
     ).value;
 
@@ -211,10 +211,10 @@ export class TestCommitmentStore {
     context: Context
   ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
-      return getLastResult(Instruction.IO_WAIT, context.results).value;
+      return getLastResult(Opcode.IO_WAIT, context.results).value;
     }
     const incomingMessageResult = getLastResult(
-      Instruction.IO_WAIT,
+      Opcode.IO_WAIT,
       context.results
     );
     if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {

@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
 
@@ -50,9 +50,9 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: cf.utils.NetworkContext,
+    networkContext: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: cf.channel.ChannelStates
+    states?: cf.channel.StateChannelInfos
   ) {
     this.wallet = wallet;
     this.address = address;
@@ -195,46 +195,46 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 
   private registerMiddlewares() {
     this.instructionExecutor.register(
-      machine.instructions.Instruction.ALL,
+      machine.instructions.Opcode.ALL,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         this.wal.write(message, context);
       }
     );
 
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN,
+      machine.instructions.Opcode.OP_SIGN,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return signMyUpdate(message, next, context, this);
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN_VALIDATE,
+      machine.instructions.Opcode.OP_SIGN_VALIDATE,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return validateSignatures(message, next, context, this);
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_SEND,
+      machine.instructions.Opcode.IO_SEND,
       this.io.ioSendMessage.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       this.io.waitForIo.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.STATE_TRANSITION_COMMIT,
+      machine.instructions.Opcode.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
   }
@@ -247,11 +247,11 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 async function signMyUpdate(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
 ): Promise<ethers.utils.Signature> {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
@@ -262,11 +262,11 @@ async function signMyUpdate(
 async function validateSignatures(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
 ) {
   const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = op.hashToSign();
@@ -278,7 +278,7 @@ async function validateSignatures(
   if (message.clientMessage.signature === undefined) {
     // initiator
     const incomingMessage = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       context.results
     ).value;
     sig = incomingMessage.signature;
