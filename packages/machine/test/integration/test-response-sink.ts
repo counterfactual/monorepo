@@ -80,7 +80,6 @@ export class TestResponseSink implements cf.node.ResponseSink {
     this.instructionExecutor.register(
       Opcode.OP_SIGN,
       async (message: InternalMessage, next: Function, context: Context) => {
-        console.debug("TestResponseSink: Running OP_SIGN middleware.");
         return this.signMyUpdate(message, next, context);
       }
     );
@@ -88,7 +87,6 @@ export class TestResponseSink implements cf.node.ResponseSink {
     this.instructionExecutor.register(
       Opcode.OP_SIGN_VALIDATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        console.debug("TestResponseSink: Running OP_SIGN_VALIDATE middleware.");
         return this.validateSignatures(message, next, context);
       }
     );
@@ -117,6 +115,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   public async runProtocol(
     msg: cf.node.ClientActionMessage
   ): Promise<cf.node.WalletResponse> {
+    console.log("writing to requests");
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
@@ -128,6 +127,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
    * Resolves the registered promise so the test can continue.
    */
   public sendResponse(res: cf.node.WalletResponse) {
+    console.log("deleting from requests");
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -170,7 +170,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   ): Promise<ethers.utils.Signature> {
     const operation: ProtocolOperation = getFirstResult(
       Opcode.OP_GENERATE,
-      context.results
+      context.results2
     ).value;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
@@ -184,7 +184,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   ) {
     const op: ProtocolOperation = getLastResult(
       Opcode.OP_GENERATE,
-      context.results
+      context.results2
     ).value;
     const digest = op.hashToSign();
     let sig;
@@ -196,7 +196,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       // initiator
       const incomingMessage = getLastResult(
         Opcode.IO_WAIT,
-        context.results
+        context.results2
       ).value;
       sig = incomingMessage.signature;
     } else {
