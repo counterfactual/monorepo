@@ -119,7 +119,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
-    this.currentUser.instructionExecutor.receive(msg);
+    this.currentUser.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 

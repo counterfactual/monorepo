@@ -71,8 +71,7 @@ export class ActionExecution {
     this.intermediateResults = intermediateResults;
   }
 
-  // Public only for test purposes
-  public createInternalMessage(): InternalMessage {
+  private createInternalMessage(): InternalMessage {
     const op = this.action.instructions[this.instructionPointer];
     return new InternalMessage(
       this.action.name,
@@ -82,7 +81,7 @@ export class ActionExecution {
     );
   }
 
-  public createContext(): Context {
+  private createContext(): Context {
     return {
       results2: this.results2,
       intermediateResults: this.intermediateResults,
@@ -94,7 +93,7 @@ export class ActionExecution {
     };
   }
 
-  public async next(): Promise<{ done: boolean; value: number }> {
+  private async next(): Promise<{ done: boolean; value: number }> {
     if (this.instructionPointer === this.action.instructions.length) {
       return { done: true, value: 0 };
     }

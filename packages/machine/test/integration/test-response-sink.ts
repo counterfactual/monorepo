@@ -66,7 +66,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
       this.instructionExecutor
     );
 
@@ -119,7 +119,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
-    this.instructionExecutor.receive(msg);
+    this.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 

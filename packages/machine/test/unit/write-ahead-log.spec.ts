@@ -16,8 +16,8 @@ describe("Write ahead log", () => {
     const log1 = new WriteAheadLog(db, "test-unique-id");
 
     makeExecutions(instructionExecutor).forEach(execution => {
-      const internalMessage = execution.createInternalMessage();
-      const context = execution.createContext();
+      const internalMessage = execution["createInternalMessage"](); // access private method
+      const context = execution["createContext"](); // access private method
       log1.write(internalMessage, context);
     });
 
@@ -92,7 +92,8 @@ function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecuti
 }
 
 function validatelog(log: WriteAheadLog, instructionExecutor: InstructionExecutor) {
-  const executions = instructionExecutor.buildExecutionsFromLog(log.readLog());
+  // access private method
+  const executions = instructionExecutor["buildExecutionsFromLog"](log.readLog());
   const expectedExecutions = makeExecutions(instructionExecutor);
   for (let k = 0; k < expectedExecutions.length; k += 1) {
     const expected = expectedExecutions[k];
