@@ -70,6 +70,4 @@ export interface InstructionMiddleware {
   method: InstructionMiddlewareCallback;
 }
 
-export type InstructionMiddlewares = {
-  [I in Opcode]: InstructionMiddleware[]
-};
+export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };

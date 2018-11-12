@@ -2,6 +2,7 @@ pragma solidity 0.4.25;
 
 import "openzeppelin-eth/contracts/utils/Address.sol";
 
+
 /// @title Registry - A global Ethereum deterministic address translator
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports deployment of contract initcode with the ability to deterministically reference the address before the actual contract is deployed regardless of msg.sender or transaction nonce

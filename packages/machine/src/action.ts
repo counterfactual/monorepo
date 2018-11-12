@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Context, InstructionExecutor } from "./instruction-executor";
-import { ackInstructions, Opcode, instructions } from "./instructions";
+import { ackInstructions, instructions, Opcode } from "./instructions";
 import { InternalMessage, MiddlewareResult } from "./types";
 
 if (!Symbol.asyncIterator) {
