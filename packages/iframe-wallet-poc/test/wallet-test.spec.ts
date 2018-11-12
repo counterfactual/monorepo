@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import PaymentAppJson from "@counterfactual/contracts/build/contracts/PaymentApp.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { ganacheURL } from "../src/iframe/user";
 import { IFrameWallet } from "../src/iframe/wallet";

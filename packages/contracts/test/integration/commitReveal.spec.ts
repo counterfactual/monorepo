@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import {
   abiEncodingForStruct,

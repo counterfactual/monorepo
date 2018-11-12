@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { MultisigTxOp } from "./multisig-tx-op";
 import { MultisigInput, Operation } from "./types";
@@ -10,7 +10,7 @@ const { abi } = cf.utils;
 
 export class OpSetup extends MultisigTxOp {
   public constructor(
-    readonly networkContext: cf.utils.NetworkContext,
+    readonly networkContext: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly freeBalanceStateChannel: cf.app.AppInstance,
     readonly freeBalance: cf.utils.FreeBalance,

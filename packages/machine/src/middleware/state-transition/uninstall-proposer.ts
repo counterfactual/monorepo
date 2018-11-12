@@ -1,6 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
+import { Context } from "../../instruction-executor";
+import { NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UninstallProposer {

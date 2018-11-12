@@ -1,8 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
-import { Instruction } from "../../instructions";
-import { Context, NodeState } from "../../node-state";
+import { Context } from "../../instruction-executor";
+import { Opcode } from "../../instructions";
+import { NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
@@ -26,7 +27,7 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState
   ): ProtocolOperation {
     const proposedState = getFirstResult(
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       context.results
     ).value;
     let op;

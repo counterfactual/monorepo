@@ -1,17 +1,17 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "../../src/node-state";
-import { InternalMessage } from "../../src/types";
+import { Context } from "../../src/instruction-executor";
 
-import { TestResponseSink } from "./test-response-sink";
+// FIXME: Don't import functions from source code.
+// https://github.com/counterfactual/monorepo/issues/98
+import { Opcode } from "../../src/instructions";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/8
 import { getLastResult } from "../../src/middleware/middleware";
+import { InternalMessage } from "../../src/types";
 
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/98
-import { Instruction } from "../../src/instructions";
+import { TestResponseSink } from "./test-response-sink";
 
 export class TestIOProvider {
   public messages: cf.node.ClientActionMessage[];
@@ -107,21 +107,12 @@ export class TestIOProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public async ioSendMessage(
     internalMessage: InternalMessage,
     next: Function,
     context: Context
   ) {
-    const msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
+    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results);
 
     // FIXME: (ts-strict) msg should never be null here
     // https://github.com/counterfactual/monorepo/issues/94

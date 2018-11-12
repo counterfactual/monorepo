@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
-export const TEST_NETWORK_CONTEXT = new cf.utils.NetworkContext(
+export const TEST_NETWORK_CONTEXT = new cf.network.NetworkContext(
   "0x1111111111111111111111111111111111111111",
   "0x2222222222222222222222222222222222222222",
   "0x3333333333333333333333333333333333333333",
