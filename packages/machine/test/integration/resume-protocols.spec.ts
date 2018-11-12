@@ -131,12 +131,13 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.propose(
+        const proposal = StateTransition.propose(
           message,
           next,
           context,
           peer.instructionExecutor.node
         );
+        context.intermediateResults.proposedStateTransition = proposal;
       }
     );
   }
@@ -180,13 +181,13 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        const opGenerator = new EthOpGenerator();
-        return opGenerator.generate(
+        const operation = EthOpGenerator.generate(
           message,
           next,
           context,
           peer.instructionExecutor.node
         );
+        context.intermediateResults.operation = operation;
       }
     );
   }
@@ -232,12 +233,8 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
         }
-        return StateTransition.commit(
-          message,
-          next,
-          context,
-          peer.instructionExecutor.node
-        );
+        const newState = context.intermediateResults.proposedStateTransition!;
+        context.instructionExecutor.mutateState(newState.state);
       }
     );
   }

@@ -7,10 +7,10 @@ import { Node } from "../node";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
-  InternalMessage,
-  OpCodeResult
+  InternalMessage
 } from "../types";
 
+import { EthOpGenerator } from "./protocol-operation";
 import { StateTransition } from "./state-transition/state-transition";
 
 /**
@@ -23,43 +23,67 @@ export class Middleware {
    */
   public middlewares: InstructionMiddlewares = {
     [Opcode.ALL]: [],
-    [Opcode.IO_PREPARE_SEND]: [],
+    [Opcode.IO_PREPARE_SEND]: [
+      {
+        scope: Opcode.IO_PREPARE_SEND,
+        method: (internalMessage, next, context) => {
+          const ret = NextMsgGenerator.generate(internalMessage, context);
+          context.intermediateResults.outbox = ret;
+        }
+      }
+    ],
     [Opcode.IO_SEND]: [],
     [Opcode.IO_WAIT]: [],
     [Opcode.KEY_GENERATE]: [],
-    [Opcode.OP_GENERATE]: [],
+    [Opcode.OP_GENERATE]: [
+      {
+        scope: Opcode.OP_GENERATE,
+        method: (message, next, context) => {
+          const operation = EthOpGenerator.generate(
+            message,
+            next,
+            context,
+            this.node
+          );
+          context.intermediateResults.operation = operation;
+        }
+      }
+    ],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
-    [Opcode.STATE_TRANSITION_COMMIT]: [],
-    [Opcode.STATE_TRANSITION_PROPOSE]: []
+    [Opcode.STATE_TRANSITION_COMMIT]: [
+      {
+        scope: Opcode.STATE_TRANSITION_COMMIT,
+        method: (message, next, context) => {
+          const newState = context.intermediateResults.proposedStateTransition!;
+          context.instructionExecutor.mutateState(newState.state);
+          next();
+        }
+      }
+    ],
+    [Opcode.STATE_TRANSITION_PROPOSE]: [
+      {
+        scope: Opcode.STATE_TRANSITION_PROPOSE,
+        method: (message, next, context) => {
+          const proposal = StateTransition.propose(
+            message,
+            next,
+            context,
+            this.node
+          );
+          context.intermediateResults.proposedStateTransition = proposal;
+        }
+      }
+    ]
   };
 
-  constructor(readonly node: Node, opGenerator: OpGenerator) {
-    this.initializeMiddlewares(opGenerator);
+  constructor(readonly node: Node) {
+    this.initializeMiddlewares();
   }
 
-  private initializeMiddlewares(opGenerator) {
-    this.add(
-      Opcode.OP_GENERATE,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.node);
-      }
-    );
-    this.add(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.node);
-      }
-    );
-    this.add(
-      Opcode.STATE_TRANSITION_COMMIT,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.node);
-      }
-    );
+  private initializeMiddlewares() {
     this.add(Opcode.KEY_GENERATE, KeyGenerator.generate);
     this.add(Opcode.OP_SIGN_VALIDATE, SignatureValidator.validate);
-    this.add(Opcode.IO_PREPARE_SEND, NextMsgGenerator.generate);
   }
 
   public add(scope: Opcode, method: InstructionMiddlewareCallback) {
@@ -108,27 +132,8 @@ export class Middleware {
   }
 }
 
-/**
- * Interface to dependency inject blockchain commitments. The middleware
- * should be constructed with a OpGenerator, which is responsible for
- * creating ProtocolOperations, i.e. commitments, to be stored, used, and signed
- * in the state channel system.
- */
-export abstract class OpGenerator {
-  public abstract generate(
-    message: InternalMessage,
-    next: Function,
-    context: Context,
-    node: Node
-  );
-}
-
 export class NextMsgGenerator {
-  public static generate(
-    internalMessage: InternalMessage,
-    next: Function,
-    context: Context
-  ) {
+  public static generate(internalMessage: InternalMessage, context: Context) {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     const msg: cf.legacy.node.ClientActionMessage = {
@@ -156,12 +161,8 @@ export class NextMsgGenerator {
     internalMessage: InternalMessage,
     context: Context
   ) {
-    const res = getLastResult(Opcode.IO_WAIT, context.results);
-    // TODO: make getLastResult's return value nullable
-    // https://github.com/counterfactual/monorepo/issues/131
-    return JSON.stringify(res) === JSON.stringify({})
-      ? internalMessage.clientMessage
-      : res.value;
+    const res = context.intermediateResults.inbox;
+    return res || internalMessage.clientMessage;
   }
 
   public static signature(
@@ -177,7 +178,7 @@ export class NextMsgGenerator {
     ) {
       return undefined;
     }
-    return getFirstResult(Opcode.OP_SIGN, context.results).value;
+    return context.intermediateResults.signature!;
   }
 }
 
@@ -207,37 +208,6 @@ export class SignatureValidator {
     next: Function,
     context: Context
   ) {
-    // const incomingMessage = getFirstResult(
-    //   Opcode.IO_WAIT,
-    //   context.results
-    // );
-    // const op = getFirstResult(Opcode.OP_GENERATE, context.results);
-    // TODO: now validate the signature against the op hash
-    // https://github.com/counterfactual/monorepo/issues/130
     next();
   }
-}
-
-/**
- * Utilitiy for middleware to access return values of other middleware.
- */
-export function getFirstResult(
-  toFindOpCode: Opcode,
-  results: OpCodeResult[]
-): OpCodeResult {
-  // FIXME: (ts-strict) we should change the results data structure or design
-  // https://github.com/counterfactual/monorepo/issues/115
-  return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
-}
-
-export function getLastResult(
-  toFindOpCode: Opcode,
-  results: OpCodeResult[]
-): OpCodeResult {
-  for (let k = results.length - 1; k >= 0; k -= 1) {
-    if (results[k].opCode === toFindOpCode) {
-      return results[k];
-    }
-  }
-  return Object.create(null);
 }

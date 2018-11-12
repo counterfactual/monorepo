@@ -1,18 +1,19 @@
 import * as cf from "@counterfactual/cf.js";
+import { ProtocolOperation } from "@counterfactual/machine/src/middleware/protocol-operation/types";
+import { ethers } from "ethers";
 
-import { Action, ActionExecution } from "./action";
+import { ActionExecution, instructionGroupFromProtocolName } from "./action";
 import { Opcode } from "./instructions";
-import { Middleware, OpGenerator } from "./middleware/middleware";
+import { Middleware } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { Node } from "./node";
-import { InstructionMiddlewareCallback, OpCodeResult } from "./types";
+import { InstructionMiddlewareCallback, StateProposal } from "./types";
 import { Log } from "./write-ahead-log";
 
 export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.legacy.node.ResponseSink,
-    readonly opGenerator: OpGenerator,
     readonly network: cf.legacy.network.NetworkContext,
     readonly state?: cf.legacy.channel.StateChannelInfos
   ) {}
@@ -39,7 +40,7 @@ export class InstructionExecutor implements Observable {
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
     this.node = new Node(config.state || {}, config.network);
-    this.middleware = new Middleware(this.node, config.opGenerator);
+    this.middleware = new Middleware(this.node);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -64,20 +65,16 @@ export class InstructionExecutor implements Observable {
   public buildExecutionsFromLog(log: Log): ActionExecution[] {
     return Object.keys(log).map(key => {
       const entry = log[key];
-      const action = new Action(
-        entry.requestId,
-        entry.actionName,
-        entry.clientMessage,
-        entry.isAckSide
-      );
       const execution = new ActionExecution(
-        action,
+        entry.actionName,
+        instructionGroupFromProtocolName(entry.actionName, entry.isAckSide),
         entry.instructionPointer,
         entry.clientMessage,
-        this
+        this,
+        entry.isAckSide,
+        entry.requestId,
+        entry.intermediateResults
       );
-      execution.results = entry.results;
-      action.execution = execution;
       return execution;
     });
   }
@@ -85,25 +82,47 @@ export class InstructionExecutor implements Observable {
   public receiveClientActionMessageAck(
     msg: cf.legacy.node.ClientActionMessage
   ) {
-    this.execute(new Action(msg.requestId, msg.action, msg, true));
+    this.execute(
+      new ActionExecution(
+        msg.action,
+        instructionGroupFromProtocolName(msg.action, true),
+        0,
+        msg,
+        this,
+        true,
+        msg.requestId,
+        {}
+      )
+    );
   }
 
   public receiveClientActionMessage(msg: cf.legacy.node.ClientActionMessage) {
-    this.execute(new Action(msg.requestId, msg.action, msg, false));
+    this.execute(
+      new ActionExecution(
+        msg.action,
+        instructionGroupFromProtocolName(msg.action, false),
+        0,
+        msg,
+        this,
+        false,
+        msg.requestId,
+        {}
+      )
+    );
   }
 
-  public async execute(action: Action) {
-    const execution = action.makeExecution(this);
+  public async execute(execution: ActionExecution) {
     await this.run(execution);
 
     this.notifyObservers("actionCompleted", {
       type: "notification",
       NotificationType: "actionCompleted",
       data: {
-        requestId: action.requestId,
-        name: action.name,
-        results: execution.results,
-        clientMessage: action.clientMessage
+        requestId: execution.requestId,
+        name: execution.actionName,
+        proposedStateTransition:
+          execution.intermediateResults.proposedStateTransition,
+        clientMessage: execution.clientMessage
       }
     });
   }
@@ -116,23 +135,25 @@ export class InstructionExecutor implements Observable {
       // https://github.com/counterfactual/monorepo/issues/123
       for await (val of execution) {
       }
-      this.sendResponse(execution, cf.legacy.node.ResponseStatus.COMPLETED);
+      this.sendResponse(
+        execution.requestId,
+        cf.legacy.node.ResponseStatus.COMPLETED
+      );
     } catch (e) {
       console.error(e);
-      this.sendResponse(execution, cf.legacy.node.ResponseStatus.ERROR);
+      this.sendResponse(
+        execution.requestId,
+        cf.legacy.node.ResponseStatus.ERROR
+      );
     }
   }
 
   public sendResponse(
-    execution: ActionExecution,
+    requestId: string,
     status: cf.legacy.node.ResponseStatus
   ) {
-    if (execution.action.isAckSide) {
-      return;
-    }
-
     this.responseHandler.sendResponse(
-      new cf.legacy.node.Response(execution.action.requestId, status)
+      new cf.legacy.node.Response(requestId, status)
     );
   }
 
@@ -145,8 +166,19 @@ export class InstructionExecutor implements Observable {
   }
 }
 
+export interface IntermediateResults {
+  outbox?: cf.legacy.node.ClientActionMessage;
+  proposedStateTransition?: StateProposal;
+  operation?: ProtocolOperation;
+  signature?: ethers.utils.Signature;
+  inbox?: cf.legacy.node.ClientActionMessage;
+}
+
 export class Context {
-  public results: OpCodeResult[] = Object.create(null);
+  public intermediateResults: IntermediateResults = {};
+
+  // TODO: @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll the following fields are very special-purpose and only accessed
+  // in one place; it would be nice to get rid of them
   public instructionPointer: number = Object.create(null);
   public instructionExecutor: InstructionExecutor = Object.create(null);
 }
