@@ -69,6 +69,16 @@ export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
   new cf.utils.Nonce(true, 0, 5)
 );
 
+export const TEST_APP_INSTANCE = new cf.app.AppInstance(
+  TEST_NETWORK_CONTEXT,
+  TEST_MULTISIG_ADDRESS,
+  TEST_PARTICIPANTS,
+  TEST_APP_INTERFACE,
+  TEST_TERMS,
+  TEST_TIMEOUT,
+  TEST_APP_UNIQUE_ID
+);
+
 export function ethContractCall(funcSig: string, ...args: any): string {
   const [funcName] = funcSig.split("(");
   return new ethers.utils.Interface([funcSig]).functions[funcName].encode(args);
@@ -77,7 +87,7 @@ export function ethContractCall(funcSig: string, ...args: any): string {
 export function ethMultiSendCall(subcalls: string[]): string {
   return ethContractCall(
     "multiSend(bytes)",
-    `0x${subcalls.map(call => call.substr(2))}`
+    `0x${subcalls.map(call => call.substr(2)).join("")}`
   );
 }
 
@@ -90,7 +100,7 @@ export function ethMultiSendSubCall(
 ): string {
   const data = ethContractCall(funcSig, ...args);
   return ethers.utils.defaultAbiCoder.encode(
-    ["tuple(uint8,address,uint256,bytes)"],
-    [[operation === "delegatecall" ? 1 : 0, to, value, data]]
+    ["uint8", "address", "uint256", "bytes"],
+    [operation === "delegatecall" ? 1 : 0, to, value, data]
   );
 }

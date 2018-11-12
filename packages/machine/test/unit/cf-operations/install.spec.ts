@@ -1,11 +1,13 @@
 import * as cf from "@counterfactual/cf.js";
+import { keccak256 } from "ethers/utils";
 
-import { OpSetup } from "../../../src/middleware/protocol-operation";
+import { OpInstall } from "../../../src/middleware/protocol-operation";
 
 import {
   ethContractCall,
   ethMultiSendCall,
   ethMultiSendSubCall,
+  TEST_APP_INSTANCE,
   TEST_APP_STATE_HASH,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
@@ -13,20 +15,21 @@ import {
   TEST_MULTISIG_ADDRESS,
   TEST_NETWORK_CONTEXT,
   TEST_SIGNING_KEYS,
+  TEST_TERMS,
   TEST_TIMEOUT
 } from "./fixture";
 
 // const { keccak256 } = ethers.utils;
 
-describe("OpSetup", () => {
+describe("OpInstall", () => {
   const TEST_NONCE_UNIQUE_ID = 1;
-  let operation: OpSetup;
+  let operation: OpInstall;
 
   beforeEach(() => {
-    operation = new OpSetup(
+    operation = new OpInstall(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
-      TEST_FREE_BALANCE_APP_INSTANCE,
+      TEST_APP_INSTANCE,
       TEST_FREE_BALANCE,
       new cf.utils.Nonce(true, TEST_NONCE_UNIQUE_ID, 0)
     );
@@ -37,35 +40,58 @@ describe("OpSetup", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    // const app = new cf.app.AppInstance(
-    //   TEST_NETWORK_CONTEXT,
-    //   TEST_MULTISIG_ADDRESS,
-    //   TEST_PARTICIPANTS,
-    //   TEST_APP_INTERFACE,
-    //   TEST_TERMS,
-    //   TEST_TIMEOUT,
-    //   TEST_APP_UNIQUE_ID
-    // );
-
-    // [this.freeBalanceInput(), this.conditionalTransactionInput()];
-    const multiSend = ethMultiSendCall([
-      ethMultiSendSubCall(
-        "call",
-        TEST_NETWORK_CONTEXT.registryAddr,
-        0,
-        "proxyCall(address,bytes32,bytes)",
-        [
-          TEST_NETWORK_CONTEXT.registryAddr,
-          TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-          ethContractCall(
-            "setState(bytes32,uint256,uint256,bytes)",
-            TEST_APP_STATE_HASH,
-            TEST_LOCAL_NONCE,
-            TEST_TIMEOUT,
-            cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
-          )
-        ]
+    const salt = keccak256(
+      cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
+    );
+    const uninstallKey = keccak256(
+      cf.utils.abi.encodePacked(
+        ["address", "uint256", "uint256"],
+        [TEST_MULTISIG_ADDRESS, 0, salt]
       )
+    );
+
+    const stateHash = keccak256(
+      cf.utils.abi.encodePacked(
+        [TEST_APP_STATE_HASH, TEST_LOCAL_NONCE, TEST_TIMEOUT]
+      )
+    )
+
+    // @ts-ignore
+    const freeBalanceInput = ethMultiSendSubCall(
+      "delegatecall",
+      TEST_NETWORK_CONTEXT.registryAddr,
+      0,
+      "proxyCall(address,bytes32,bytes)",
+      [
+        TEST_NETWORK_CONTEXT.registryAddr,
+        TEST_APP_INSTANCE.cfAddress(),
+        ethContractCall(
+          "setState(bytes32,uint256,uint256,bytes)",
+          TEST_APP_STATE_HASH,
+          TEST_LOCAL_NONCE,
+          TEST_TIMEOUT,
+          "0x0"
+        )
+      ]
+    );
+    const { assetType, limit, token } = TEST_TERMS;
+    // @ts-ignore
+    const conditionalTransactionInput = ethMultiSendSubCall(
+      "delegatecall",
+      TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+      0,
+      "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
+      [
+        TEST_NETWORK_CONTEXT.registryAddr,
+        TEST_NETWORK_CONTEXT.nonceRegistryAddr,
+        uninstallKey,
+        TEST_APP_INSTANCE.cfAddress(),
+        [assetType, limit, token]
+      ]
+    );
+    const multiSend = ethMultiSendCall([
+      freeBalanceInput,
+      conditionalTransactionInput
     ]);
     const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
@@ -77,7 +103,7 @@ describe("OpSetup", () => {
         0,
         multiSend,
         1,
-        cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
+        cf.utils.signaturesToBytes(sig1, sig2)
       )
     );
   });
