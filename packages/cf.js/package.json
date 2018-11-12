@@ -25,7 +25,7 @@
     "@types/uuid": "^3.4.4",
     "jest": "^23.6.0",
     "rollup": "^0.67.0",
-    "rollup-plugin-typescript2": "^0.17.1",
+    "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   },
