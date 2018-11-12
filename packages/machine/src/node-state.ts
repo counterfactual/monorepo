@@ -8,11 +8,11 @@ import lodash from "lodash";
  * _only_ responsible for executing instructions and is inherently stateless.
  */
 export class NodeState {
-  public channelStates: cf.channel.ChannelStates;
+  public channelStates: cf.channel.StateChannelInfos;
   public networkContext: cf.network.NetworkContext;
 
   constructor(
-    channelStates: cf.channel.ChannelStates,
+    channelStates: cf.channel.StateChannelInfos,
     network: cf.network.NetworkContext
   ) {
     this.channelStates = channelStates;

@@ -89,7 +89,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
     privateKey: string,
     networkContext?: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SimpleStringMapSyncDB,
-    states?: cf.channel.ChannelStates
+    states?: cf.channel.StateChannelInfos
   ) {
     this.address = address;
 
