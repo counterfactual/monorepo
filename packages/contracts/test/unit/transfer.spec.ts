@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import lodash = require("lodash");
 
 import { AbstractContract } from "../../utils/contract";

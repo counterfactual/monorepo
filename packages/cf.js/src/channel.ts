@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
 import { AppInstanceInfos, AppInterface, InstallData } from "./app";
