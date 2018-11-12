@@ -5,17 +5,13 @@ import { OpSetup } from "../../../src/middleware/protocol-operation";
 import {
   ethContractCall,
   ethMultiSendSubCall,
-  TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
-  TEST_APP_UNIQUE_ID,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
   TEST_LOCAL_NONCE,
   TEST_MULTISIG_ADDRESS,
   TEST_NETWORK_CONTEXT,
-  TEST_PARTICIPANTS,
   TEST_SIGNING_KEYS,
-  TEST_TERMS,
   TEST_TIMEOUT
 } from "./fixture";
 
@@ -40,15 +36,15 @@ describe("OpSetup", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const app = new cf.app.AppInstance(
-      TEST_NETWORK_CONTEXT,
-      TEST_MULTISIG_ADDRESS,
-      TEST_PARTICIPANTS,
-      TEST_APP_INTERFACE,
-      TEST_TERMS,
-      TEST_TIMEOUT,
-      TEST_APP_UNIQUE_ID
-    );
+    // const app = new cf.app.AppInstance(
+    //   TEST_NETWORK_CONTEXT,
+    //   TEST_MULTISIG_ADDRESS,
+    //   TEST_PARTICIPANTS,
+    //   TEST_APP_INTERFACE,
+    //   TEST_TERMS,
+    //   TEST_TIMEOUT,
+    //   TEST_APP_UNIQUE_ID
+    // );
 
     // [this.freeBalanceInput(), this.conditionalTransactionInput()];
     const multiSendTxs = [
@@ -71,7 +67,7 @@ describe("OpSetup", () => {
         "delegatecall",
         TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
         0,
-        ethContractCall("")()
+        ethContractCall("yolo()")()
       )
     ];
     const tx = operation.transaction([sig1, sig2]);

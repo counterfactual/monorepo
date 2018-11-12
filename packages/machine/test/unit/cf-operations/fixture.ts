@@ -83,6 +83,6 @@ export function ethMultiSendSubCall(
 ): string {
   return ethers.utils.defaultAbiCoder.encode(
     ["tuple(uint8,address,uint256,bytes)"],
-    [operation === "delegatecall" ? 1 : 0, to, value, data]
+    [[operation === "delegatecall" ? 1 : 0, to, value, data]]
   );
 }
