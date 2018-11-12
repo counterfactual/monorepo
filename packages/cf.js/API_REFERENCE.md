@@ -5,7 +5,7 @@
     - Properties
         - `nodeProvider`
     - Instance methods
-        - `getAppInfos(): AppInfo[]`
+        - `getApps(): AppInstance[]`
         - `createAppFactory(appDefinition: AppDefinition): AppFactory`
     - Client lifecycle
         - `on(eventType, callback)`
@@ -20,6 +20,9 @@
     - Properties
         - `id: AppID` — Identifier for this specific app instance
         - `definition: AppDefinition`
+        - `state: object` - the decoded app state, updated automatically during `stateUpdate` notifications
+        - `terms: [assetType, limit, tokenAddress]`
+        - `manifestAddress: URL`
     - Instance methods
         - `async applyAction(action): AppState`
             - `action`: JSON-encoded object congruent with AppAction struct
@@ -27,7 +30,7 @@
         - `async proposeState(state)`: Propose a state to countersign
         - `async uninstall()`
             - Uninstall the app
-        - `async getTerms(): [assetType, limit, tokenAddress]`
+        - `async getManifest(): AppManifest`
     - App lifecycle
         - `on(eventType, callback)`
             - EventType: stateUpdate, uninstall
@@ -45,10 +48,3 @@
         - `name`: human-readable name of app e.g. "TicTacToe"
         - `version`: semantic version of app definition contract
         - `definition: AppDefinition`
-    - `AppInfo`
-        - `definition: AppDefinition`
-        - `appId: AppId`
-        - `terms: [assetType, limit, tokenAddress]`
-        - `addresses: Address[]`
-        - `name: string`
-        - `version: string`    
