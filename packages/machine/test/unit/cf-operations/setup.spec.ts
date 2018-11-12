@@ -49,12 +49,12 @@ describe("OpSetup", () => {
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      ethContractCall("execTransaction(address, uint256, bytes, uint8, bytes)")(
+      ethContractCall(
+        "execTransaction(address, uint256, bytes, uint8, bytes)",
         TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
         0,
         ethContractCall(
-          "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))"
-        )(
+          "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
           TEST_NETWORK_CONTEXT.registryAddr,
           TEST_NETWORK_CONTEXT.nonceRegistryAddr,
           uninstallKey,

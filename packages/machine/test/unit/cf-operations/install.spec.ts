@@ -4,6 +4,7 @@ import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
   ethContractCall,
+  ethMultiSendCall,
   ethMultiSendSubCall,
   TEST_APP_STATE_HASH,
   TEST_FREE_BALANCE,
@@ -47,39 +48,34 @@ describe("OpSetup", () => {
     // );
 
     // [this.freeBalanceInput(), this.conditionalTransactionInput()];
-    const multiSendTxs = [
+    const multiSend = ethMultiSendCall([
       ethMultiSendSubCall(
         "call",
         TEST_NETWORK_CONTEXT.registryAddr,
         0,
-        ethContractCall("proxyCall(address,bytes32,bytes)")(
+        "proxyCall(address,bytes32,bytes)",
+        [
           TEST_NETWORK_CONTEXT.registryAddr,
           TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-          ethContractCall("setState(bytes32,uint256,uint256,bytes)")(
+          ethContractCall(
+            "setState(bytes32,uint256,uint256,bytes)",
             TEST_APP_STATE_HASH,
             TEST_LOCAL_NONCE,
             TEST_TIMEOUT,
             cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
           )
-        )
-      ),
-      ethMultiSendSubCall(
-        "delegatecall",
-        TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
-        0,
-        ethContractCall("yolo()")()
+        ]
       )
-    ];
+    ]);
     const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      ethContractCall("execTransaction(address, uint256, bytes, uint8, bytes)")(
+      ethContractCall(
+        "execTransaction(address, uint256, bytes, uint8, bytes)",
         TEST_NETWORK_CONTEXT.multiSendAddr,
         0,
-        ethContractCall("multiSend(bytes)")(
-          `0x${multiSendTxs.map(t => t.substr(2)).join("")}`
-        ),
+        multiSend,
         1,
         cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
       )

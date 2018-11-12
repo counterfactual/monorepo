@@ -52,10 +52,12 @@ describe("OpSetState", () => {
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      ethContractCall("proxyCall(address,bytes32,bytes)")(
+      ethContractCall(
+        "proxyCall(address,bytes32,bytes)",
         TEST_NETWORK_CONTEXT.registryAddr,
         app.cfAddress(),
-        ethContractCall("setState(bytes32,uint256,uint256,bytes)")(
+        ethContractCall(
+          "setState(bytes32,uint256,uint256,bytes)",
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
