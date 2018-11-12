@@ -8,76 +8,57 @@ if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
 }
 
-export class Action {
-  public name: cf.node.ActionName;
-  public requestId: string;
-  public clientMessage: cf.node.ClientActionMessage;
-  public execution: ActionExecution = Object.create(null);
-  public instructions: Opcode[];
-  public isAckSide: boolean;
-
-  constructor(
-    id: string,
-    action: cf.node.ActionName,
-    clientMessage: cf.node.ClientActionMessage,
-    isAckSide: boolean = false
-  ) {
-    this.requestId = id;
-    this.clientMessage = clientMessage;
-    this.name = action;
-    this.isAckSide = isAckSide;
-
-    if (isAckSide) {
-      this.instructions = ackInstructions[action];
-    } else {
-      this.instructions = instructions[action];
-    }
-  }
-
-  public makeExecution(
-    instructionExecutor: InstructionExecutor
-  ): ActionExecution {
-    const exe = new ActionExecution(
-      this,
-      0,
-      this.clientMessage,
-      instructionExecutor
-    );
-    this.execution = exe;
-    return exe;
+export function instructionGroupFromProtocolName(
+  protocolName: cf.node.ActionName,
+  isAckSide: boolean
+) : Opcode[] {
+  if (isAckSide) {
+    return ackInstructions[protocolName];
+  } else {
+    return instructions[protocolName];
   }
 }
 
 export class ActionExecution {
-  public action: Action;
+  public actionName: cf.node.ActionName;
+  public instructions: Opcode[];
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
   public results2: OpCodeResult[];
+  public isAckSide: boolean;
   public intermediateResults: { [s: string] : any };
+  public requestId: string;
 
   constructor(
-    action: Action,
-    instruction: Opcode,
+    actionName: cf.node.ActionName,
+    instructions: Opcode[],
+    instructionPointer: number,
     clientMessage: cf.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
-    results2: OpCodeResult[] = []
+    isAckSide: boolean,
+    requestId: string,
+    results2: OpCodeResult[] = [],
+    intermediateResults = {}
   ) {
-    this.action = action;
-    this.instructionPointer = instruction;
+    this.actionName = actionName;
+    this.instructions = instructions;
+    this.instructionPointer = instructionPointer;
     this.clientMessage = clientMessage;
     this.instructionExecutor = instructionExecutor;
+    this.isAckSide = isAckSide;
+    this.requestId = requestId;
     this.results2 = results2;
     this.intermediateResults = intermediateResults;
   }
 
   private createInternalMessage(): InternalMessage {
-    const op = this.action.instructions[this.instructionPointer];
+    const op = this.instructions[this.instructionPointer];
     return new InternalMessage(
-      this.action.name,
+      this.actionName,
       op,
       this.clientMessage,
-      this.action.isAckSide
+      this.isAckSide
     );
   }
 
@@ -93,8 +74,10 @@ export class ActionExecution {
     };
   }
 
+  // support https://github.com/tc39/proposal-async-iteration syntax
+
   private async next(): Promise<{ done: boolean; value: number }> {
-    if (this.instructionPointer === this.action.instructions.length) {
+    if (this.instructionPointer === this.instructions.length) {
       return { done: true, value: 0 };
     }
 
