@@ -144,7 +144,7 @@ function getUniqueStateChannelInfo() {
 }
 
 function getStateChannels() {
-  return iframeWallet.currentUser.instructionExecutor.state.channelStates;
+  return iframeWallet.currentUser.instructionExecutor.nodeState.channelStates;
 }
 
 async function deployFreeBalanceStateChannel() {

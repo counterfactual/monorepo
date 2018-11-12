@@ -243,9 +243,9 @@ export class IFrameWallet implements cf.node.ResponseSink {
   }
 
   private getMultisigAddressByToAddress(toAddress: string): string | undefined {
-    const state = this.currentUser.instructionExecutor.nodeState;
-    return Object.keys(state.channelStates).find(multisig => {
-      return state.channelStates[multisig].counterParty === toAddress;
+    const nodeState = this.currentUser.instructionExecutor.nodeState;
+    return Object.keys(nodeState.channelStates).find(multisig => {
+      return nodeState.channelStates[multisig].counterParty === toAddress;
     });
   }
 
