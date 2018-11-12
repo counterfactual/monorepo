@@ -3,12 +3,20 @@ import * as cf from "@counterfactual/cf.js";
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
-  contractCall,
+  ethContractCall,
+  ethMultiSendSubCall,
+  TEST_APP_INTERFACE,
+  TEST_APP_STATE_HASH,
+  TEST_APP_UNIQUE_ID,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
+  TEST_LOCAL_NONCE,
   TEST_MULTISIG_ADDRESS,
   TEST_NETWORK_CONTEXT,
-  TEST_SIGNING_KEYS
+  TEST_PARTICIPANTS,
+  TEST_SIGNING_KEYS,
+  TEST_TERMS,
+  TEST_TIMEOUT
 } from "./fixture";
 
 // const { keccak256 } = ethers.utils;
@@ -32,17 +40,50 @@ describe("OpSetup", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    // [this.freeBalanceInput(), this.conditionalTransactionInput()];
-    const transactions = ["0x"].map(t => t.substr(2));
+    const app = new cf.app.AppInstance(
+      TEST_NETWORK_CONTEXT,
+      TEST_MULTISIG_ADDRESS,
+      TEST_PARTICIPANTS,
+      TEST_APP_INTERFACE,
+      TEST_TERMS,
+      TEST_TIMEOUT,
+      TEST_APP_UNIQUE_ID
+    );
 
+    // [this.freeBalanceInput(), this.conditionalTransactionInput()];
+    const multiSendTxs = [
+      ethMultiSendSubCall(
+        "call",
+        TEST_NETWORK_CONTEXT.registryAddr,
+        0,
+        ethContractCall("proxyCall(address,bytes32,bytes)")(
+          TEST_NETWORK_CONTEXT.registryAddr,
+          TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
+          ethContractCall("setState(bytes32,uint256,uint256,bytes)")(
+            TEST_APP_STATE_HASH,
+            TEST_LOCAL_NONCE,
+            TEST_TIMEOUT,
+            cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
+          )
+        )
+      ),
+      ethMultiSendSubCall(
+        "delegatecall",
+        TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+        0,
+        ethContractCall("")()
+      )
+    ];
     const tx = operation.transaction([sig1, sig2]);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      contractCall("execTransaction(address, uint256, bytes, uint8, bytes)")(
+      ethContractCall("execTransaction(address, uint256, bytes, uint8, bytes)")(
         TEST_NETWORK_CONTEXT.multiSendAddr,
         0,
-        contractCall("multiSend(bytes)")(`0x${transactions.join("")}`),
+        ethContractCall("multiSend(bytes)")(
+          `0x${multiSendTxs.map(t => t.substr(2)).join("")}`
+        ),
         1,
         cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
       )

@@ -4,7 +4,7 @@ import * as ethers from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
-  contractCall,
+  ethContractCall,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
@@ -52,10 +52,10 @@ describe("OpSetState", () => {
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
     expect(tx.data).toBe(
-      contractCall("proxyCall(address,bytes32,bytes)")(
+      ethContractCall("proxyCall(address,bytes32,bytes)")(
         TEST_NETWORK_CONTEXT.registryAddr,
         app.cfAddress(),
-        contractCall("setState(bytes32,uint256,uint256,bytes)")(
+        ethContractCall("setState(bytes32,uint256,uint256,bytes)")(
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,

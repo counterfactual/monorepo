@@ -69,8 +69,20 @@ export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
   new cf.utils.Nonce(true, 0, 5)
 );
 
-export function contractCall(funcSig: string): (...args: any[]) => string {
+export function ethContractCall(funcSig: string): (...args: any[]) => string {
   const [funcName] = funcSig.split("(");
   return (...args) =>
     new ethers.utils.Interface([funcSig]).functions[funcName].encode(args);
+}
+
+export function ethMultiSendSubCall(
+  operation: "delegatecall" | "call",
+  to: string,
+  value: string | number,
+  data: string
+): string {
+  return ethers.utils.defaultAbiCoder.encode(
+    ["tuple(uint8,address,uint256,bytes)"],
+    [operation === "delegatecall" ? 1 : 0, to, value, data]
+  );
 }
