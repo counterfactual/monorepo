@@ -1,11 +1,11 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Context } from "./instruction-executor";
-import { Instruction } from "./instructions";
+import { Opcode } from "./instructions";
 import { NodeState } from "./node-state";
 
 export interface MiddlewareResult {
-  opCode: Instruction;
+  opCode: Opcode;
   value: any;
 }
 
@@ -30,14 +30,14 @@ export interface ContextualizedStateProposer {
 }
 
 export interface OpCodeResult {
-  opCode: Instruction;
+  opCode: Opcode;
   value: any;
 }
 
 export class InternalMessage {
   constructor(
     public actionName: cf.node.ActionName,
-    public opCode: Instruction,
+    public opCode: Opcode,
     public clientMessage: cf.node.ClientActionMessage,
     public isAckSide: boolean
   ) {}
@@ -48,10 +48,8 @@ export type InstructionMiddlewareCallback = {
 };
 
 export interface InstructionMiddleware {
-  scope: Instruction;
+  scope: Opcode;
   method: InstructionMiddlewareCallback;
 }
 
-export type InstructionMiddlewares = {
-  [I in Instruction]: InstructionMiddleware[]
-};
+export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };

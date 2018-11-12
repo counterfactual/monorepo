@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "./action";
-import { Instruction } from "./instructions";
+import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
@@ -156,7 +156,7 @@ export class InstructionExecutor implements Observable {
     Object.assign(this.nodeState.channelStates, state);
   }
 
-  public register(scope: Instruction, method: InstructionMiddlewareCallback) {
+  public register(scope: Opcode, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
 }

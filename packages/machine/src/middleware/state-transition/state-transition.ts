@@ -1,5 +1,5 @@
 import { Context } from "../../instruction-executor";
-import { Instruction } from "../../instructions";
+import { Opcode } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
 import { NodeState } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
@@ -34,7 +34,7 @@ export class StateTransition {
     state: NodeState
   ) {
     const newState = getFirstResult(
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       context.results
     );
     context.instructionExecutor.mutateState(newState.value.state);
