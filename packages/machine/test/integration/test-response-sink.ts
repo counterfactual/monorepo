@@ -3,20 +3,19 @@ import * as ethers from "ethers";
 import * as _ from "lodash";
 
 import {
+  Context,
   InstructionExecutor,
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
+import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
 } from "../../src/write-ahead-log";
-import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
@@ -33,7 +32,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
   constructor(
     readonly privateKey: string,
-    networkContext?: cf.utils.NetworkContext
+    networkContext?: cf.network.NetworkContext
   ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
@@ -54,7 +53,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
-        networkContext || EMPTY_NETWORK_CONTEXT
+        networkContext || cf.network.EMPTY_NETWORK_CONTEXT
       )
     );
 

@@ -147,7 +147,7 @@ export class CommitmentStore {
   public async setCommitment(
     internalMessage: machine.types.InternalMessage,
     next: Function,
-    context: machine.state.Context
+    context: machine.instructionExecutor.Context
   ) {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
@@ -212,7 +212,7 @@ export class CommitmentStore {
    */
   public incomingMessage(
     internalMessage: machine.types.InternalMessage,
-    context: machine.state.Context
+    context: machine.instructionExecutor.Context
   ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(

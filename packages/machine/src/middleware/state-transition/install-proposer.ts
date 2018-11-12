@@ -1,8 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
+import { Context } from "../../instruction-executor";
 import { Instruction } from "../../instructions";
-import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
+import { NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 

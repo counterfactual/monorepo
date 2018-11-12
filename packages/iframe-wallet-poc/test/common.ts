@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.network.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -25,10 +25,10 @@ export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
  * and asserting the machine state was correctly modified.
  */
 export class SetupProtocol {
-  public static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
+  public static async validateAndRun(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validatePresetup(walletA, walletB);
-    await SetupProtocol.run2(walletA, walletB);
-    SetupProtocol.validate(walletA, walletB);
+    await SetupProtocol.run(walletA, walletB);
+    SetupProtocol.validatePostsetup(walletA, walletB);
   }
 
   /**
@@ -62,7 +62,7 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the machine state correctly.
    */
-  public static validate(walletA: IFrameWallet, walletB: IFrameWallet) {
+  public static validatePostsetup(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validateWallet(
       walletA,
       walletB,
@@ -109,8 +109,7 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  // TODO: Better naming
-  private static async run2(walletA: IFrameWallet, walletB: IFrameWallet) {
+  private static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
     const msg = SetupProtocol.setupStartMsg(
       walletA.currentUser.address,
       walletB.currentUser.address

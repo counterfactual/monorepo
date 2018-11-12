@@ -1,10 +1,10 @@
 import * as cf from "@counterfactual/cf.js";
 import * as ethers from "ethers";
 
+import { Context } from "../../src/instruction-executor";
 import { Instruction, instructions } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation/op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,

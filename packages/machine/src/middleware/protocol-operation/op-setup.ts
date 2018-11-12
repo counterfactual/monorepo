@@ -10,7 +10,7 @@ const { abi } = cf.utils;
 
 export class OpSetup extends MultisigTxOp {
   public constructor(
-    readonly networkContext: cf.utils.NetworkContext,
+    readonly networkContext: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly freeBalanceStateChannel: cf.app.AppInstance,
     readonly freeBalance: cf.utils.FreeBalance,

@@ -1,13 +1,13 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
+import { Context } from "../../src/instruction-executor";
 import { Instruction } from "../../src/instructions";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
 } from "../../src/middleware/protocol-operation/types";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 
 import {

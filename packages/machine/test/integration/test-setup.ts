@@ -10,10 +10,10 @@ import { TestResponseSink } from "./test-response-sink";
  * and asserting the internally stored state was correctly modified.
  */
 export class SetupProtocol {
-  public static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static async validateAndRun(peerA: TestResponseSink, peerB: TestResponseSink) {
     SetupProtocol.validatePresetup(peerA, peerB);
-    await SetupProtocol.run2(peerA, peerB);
-    SetupProtocol.validate(peerA, peerB);
+    await SetupProtocol.run(peerA, peerB);
+    SetupProtocol.validatePostsetup(peerA, peerB);
   }
 
   /**
@@ -23,8 +23,13 @@ export class SetupProtocol {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ) {
+    console.log("printing everything");
+    console.log(peerA);
+    console.log(peerA.instructionExecutor);
+    console.log(peerA.instructionExecutor.nodeState);
     expect(peerA.instructionExecutor.nodeState.channelStates).toEqual({});
     expect(peerB.instructionExecutor.nodeState.channelStates).toEqual({});
+    console.log("passed...");
   }
 
   public static setupStartMsg(
@@ -46,7 +51,7 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the internally stored state correctly.
    */
-  public static validate(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static validatePostsetup(peerA: TestResponseSink, peerB: TestResponseSink) {
     SetupProtocol.validateWallet(
       peerA,
       peerB,
@@ -92,9 +97,7 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  // TODO: Better name
-  // https://github.com/counterfactual/monorepo/issues/104
-  private static async run2(peerA: TestResponseSink, peerB: TestResponseSink) {
+  private static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
     const msg = SetupProtocol.setupStartMsg(
       peerA.signingKey.address,
       peerB.signingKey.address

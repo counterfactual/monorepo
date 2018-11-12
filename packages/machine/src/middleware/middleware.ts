@@ -1,8 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
+import { Context } from "../instruction-executor";
 import { Instruction } from "../instructions";
-import { Context, NodeState } from "../node-state";
+import { NodeState } from "../node-state";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
