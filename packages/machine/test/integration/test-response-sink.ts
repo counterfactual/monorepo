@@ -66,7 +66,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
       this.instructionExecutor
     );
 
@@ -115,14 +115,12 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
    * the protocol has completed execution.
    */
   public async runProtocol(
-    msg: cf.legacy.node.ClientActionMessage
-  ): Promise<cf.legacy.node.WalletResponse> {
-    const promise = new Promise<cf.legacy.node.WalletResponse>(
-      (resolve, reject) => {
-        this.requests[msg.requestId] = resolve;
-      }
-    );
-    this.instructionExecutor.receive(msg);
+    msg: cf.node.ClientActionMessage
+  ): Promise<cf.node.WalletResponse> {
+    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
+      this.requests[msg.requestId] = resolve;
+    });
+    this.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 

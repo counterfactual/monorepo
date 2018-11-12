@@ -21,8 +21,8 @@ describe("Write ahead log", () => {
     const log1 = new WriteAheadLog(db, "test-unique-id");
 
     makeExecutions(instructionExecutor).forEach(execution => {
-      const internalMessage = execution.createInternalMessage();
-      const context = execution.createContext();
+      const internalMessage = execution["createInternalMessage"](); // access private method
+      const context = execution["createContext"](); // access private method
       log1.write(internalMessage, context);
     });
 

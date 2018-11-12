@@ -61,7 +61,7 @@ export class InstructionExecutor implements Observable {
   /**
    * @returns all unfinished protocol executions read from the db.
    */
-  public buildExecutionsFromLog(log: Log): ActionExecution[] {
+  private buildExecutionsFromLog(log: Log): ActionExecution[] {
     return Object.keys(log).map(key => {
       const entry = log[key];
       const action = new Action(
@@ -82,29 +82,12 @@ export class InstructionExecutor implements Observable {
     });
   }
 
-  public startAck(message: cf.legacy.node.ClientActionMessage) {
-    this.execute(new Action(message.requestId, message.action, message, true));
+  public receiveClientActionMessageAck(msg: cf.legacy.node.ClientActionMessage) {
+    this.execute(new Action(msg.requestId, msg.action, msg, true));
   }
 
-  public receive(
-    msg: cf.legacy.node.ClientActionMessage
-  ): cf.legacy.node.WalletResponse {
-    if (!this.validateMessage(msg)) {
-      throw new Error("Cannot receive invalid message");
-    }
-
-    const action = new Action(msg.requestId, msg.action, msg);
-    this.execute(action);
-
-    return new cf.legacy.node.WalletResponse(
-      action.requestId,
-      cf.legacy.node.ResponseStatus.STARTED
-    );
-  }
-
-  public validateMessage(msg: cf.legacy.node.ClientActionMessage) {
-    // TODO;
-    return true;
+  public receiveClientActionMessage(msg: cf.legacy.node.ClientActionMessage) {
+    this.execute(new Action(msg.requestId, msg.action, msg, false));
   }
 
   public async execute(action: Action) {
