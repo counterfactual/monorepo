@@ -34,24 +34,6 @@ export interface OpCodeResult {
   value: any;
 }
 
-export interface Addressable {
-  appId?: cf.utils.H256;
-  multisigAddress?: cf.utils.Address;
-  toAddress?: cf.utils.Address;
-  fromAddress?: cf.utils.Address;
-}
-
-export type AddressableLookupResolver = {
-  (nodeState: NodeState, data: string): cf.channel.StateChannelInfo;
-};
-
-export type AddressableLookupResolverHash = {
-  appId: AddressableLookupResolver;
-  multisigAddress: AddressableLookupResolver;
-  toAddress: AddressableLookupResolver;
-  fromAddress?: AddressableLookupResolver;
-};
-
 export class InternalMessage {
   constructor(
     public actionName: cf.node.ActionName,

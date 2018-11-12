@@ -107,15 +107,6 @@ export class TestIOProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public async ioSendMessage(
     internalMessage: InternalMessage,
     next: Function,
