@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import lodash from "lodash";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");

@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as machine from "@counterfactual/machine";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { IFrameWallet } from "../src/iframe/wallet";
 

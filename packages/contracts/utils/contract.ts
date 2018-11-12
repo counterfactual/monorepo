@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { HIGH_GAS_LIMIT } from "./misc";
 
