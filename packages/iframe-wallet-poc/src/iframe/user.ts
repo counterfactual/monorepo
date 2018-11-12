@@ -70,7 +70,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       this.address
     );
     this.store = new CommitmentStore();
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
       this.instructionExecutor
     );
     this.registerMiddlewares();
