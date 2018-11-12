@@ -23,19 +23,6 @@ export class NodeState {
     return this.channelStates[multisig];
   }
 
-  public stateChannelFromAddress(
-    toAddress: cf.utils.Address
-  ): cf.channel.StateChannelInfo {
-    const multisig = lodash.keys(this.channelStates).find(ms => {
-      return this.channelStates[ms].me === toAddress;
-    });
-
-    if (multisig) {
-      return this.channelStates[multisig];
-    }
-    throw Error(`Could not find multisig for address ${toAddress}`);
-  }
-
   public stateChannelFromMultisigAddress(
     multisigAddress: cf.utils.Address
   ): cf.channel.StateChannelInfo {
@@ -51,12 +38,6 @@ export class NodeState {
     cfAddr: cf.utils.H256
   ): cf.app.AppInstanceInfo {
     return this.channelStates[multisig].appInstances[cfAddr];
-  }
-
-  public freeBalanceFromAddress(
-    toAddress: cf.utils.Address
-  ): cf.utils.FreeBalance {
-    return this.stateChannelFromAddress(toAddress).freeBalance;
   }
 
   public freeBalanceFromMultisigAddress(

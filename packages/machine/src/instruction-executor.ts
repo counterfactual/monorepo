@@ -23,22 +23,6 @@ export class InstructionExecutorConfig {
   ) {}
 }
 
-/**
- * This resolver hash is used in the getStateChannelFromAddressable method. According
- * to any key available in the Addressable interface, it'll fetch an instance of
- * StateChannelInfo from the corresponding source.
- */
-const ADDRESSABLE_LOOKUP_RESOLVERS: AddressableLookupResolverHash = {
-  appId: (nodeState: NodeState, appId: cf.utils.H256) =>
-    nodeState.appChannelInfos[appId].stateChannel,
-
-  multisigAddress: (nodeState: NodeState, multisigAddress: cf.utils.Address) =>
-    nodeState.stateChannelFromMultisigAddress(multisigAddress),
-
-  toAddress: (nodeState: NodeState, toAddress: cf.utils.Address) =>
-    nodeState.stateChannelFromAddress(toAddress)
-};
-
 export class InstructionExecutor implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
@@ -105,21 +89,6 @@ export class InstructionExecutor implements Observable {
 
   public startAck(message: cf.node.ClientActionMessage) {
     this.execute(new Action(message.requestId, message.action, message, true));
-  }
-
-  public getStateChannelFromAddressable(
-    data: Addressable
-  ): cf.channel.StateChannelInfo {
-    const [lookupKey] = Object.keys(data).filter(key => Boolean(data[key]));
-    const lookup = ADDRESSABLE_LOOKUP_RESOLVERS[lookupKey];
-
-    if (!lookup) {
-      throw Error(
-        "Cannot get state channel info without appID, multisigAddress or toAddress"
-      );
-    }
-
-    return lookup(this.nodeState, data[lookupKey]);
   }
 
   public receive(msg: cf.node.ClientActionMessage): cf.node.WalletResponse {
