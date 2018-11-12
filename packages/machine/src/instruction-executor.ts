@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Action, ActionExecution } from "./action";
+import { ActionExecution, instructionGroupFromProtocolName } from "./action";
 import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
@@ -64,44 +64,55 @@ export class InstructionExecutor implements Observable {
   private buildExecutionsFromLog(log: Log): ActionExecution[] {
     return Object.keys(log).map(key => {
       const entry = log[key];
-      const action = new Action(
-        entry.requestId,
-        entry.actionName,
-        entry.clientMessage,
-        entry.isAckSide
-      );
       const execution = new ActionExecution(
-        action,
+        entry.actionName,
+        instructionGroupFromProtocolName(entry.actionName, entry.isAckSide),
         entry.instructionPointer,
         entry.clientMessage,
-        this
+        this,
+        entry.isAckSide,
+        entry.requestId
       );
       execution.results2 = entry.results;
-      action.execution = execution;
       return execution;
     });
   }
 
   public receiveClientActionMessageAck(msg: cf.node.ClientActionMessage) {
-    this.execute(new Action(msg.requestId, msg.action, msg, true));
+    this.execute(new ActionExecution(
+      msg.action,
+      instructionGroupFromProtocolName(msg.action, true),
+      0,
+      msg,
+      this,
+      true,
+      msg.requestId
+    ));
   }
 
   public receiveClientActionMessage(msg: cf.node.ClientActionMessage) {
-    this.execute(new Action(msg.requestId, msg.action, msg, false));
+    this.execute(new ActionExecution(
+      msg.action,
+      instructionGroupFromProtocolName(msg.action, false),
+      0,
+      msg,
+      this,
+      false,
+      msg.requestId
+    ));
   }
 
-  public async execute(action: Action) {
-    const execution = action.makeExecution(this);
+  public async execute(execution: ActionExecution) {
     await this.run(execution);
 
     this.notifyObservers("actionCompleted", {
       type: "notification",
       NotificationType: "actionCompleted",
       data: {
-        requestId: action.requestId,
-        name: action.name,
+        requestId: execution.requestId,
+        name: execution.actionName,
         results: execution.results2,
-        clientMessage: action.clientMessage
+        clientMessage: execution.clientMessage
       }
     });
   }
@@ -114,23 +125,20 @@ export class InstructionExecutor implements Observable {
       // https://github.com/counterfactual/monorepo/issues/123
       for await (val of execution) {
       }
-      this.sendResponse(execution, cf.node.ResponseStatus.COMPLETED);
+      this.sendResponse(execution.requestId, cf.node.ResponseStatus.COMPLETED);
     } catch (e) {
       console.error(e);
-      this.sendResponse(execution, cf.node.ResponseStatus.ERROR);
+      this.sendResponse(execution.requestId, cf.node.ResponseStatus.ERROR);
     }
   }
 
   public sendResponse(
-    execution: ActionExecution,
+    requestId: string,
     status: cf.node.ResponseStatus
   ) {
-    if (execution.action.isAckSide) {
-      return;
-    }
 
     this.responseHandler.sendResponse(
-      new cf.node.Response(execution.action.requestId, status)
+      new cf.node.Response(requestId, status)
     );
   }
 
