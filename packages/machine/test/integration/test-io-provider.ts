@@ -112,7 +112,7 @@ export class TestIOProvider {
     next: Function,
     context: Context
   ) {
-    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results);
+    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results2);
 
     // FIXME: (ts-strict) msg should never be null here
     // https://github.com/counterfactual/monorepo/issues/94

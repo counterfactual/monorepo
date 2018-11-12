@@ -153,7 +153,7 @@ export class CommitmentStore {
     const action: cf.node.ActionName = internalMessage.actionName;
     const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
       machine.instructions.Opcode.OP_GENERATE,
-      context.results
+      context.results2
     ).value;
     let appCommitments: AppCommitments;
 
@@ -164,7 +164,7 @@ export class CommitmentStore {
     } else if (action === cf.node.ActionName.INSTALL) {
       const proposal = machine.middleware.getFirstResult(
         machine.instructions.Opcode.STATE_TRANSITION_PROPOSE,
-        context.results
+        context.results2
       ).value;
       appId = proposal.cfAddr;
     } else {
@@ -181,7 +181,7 @@ export class CommitmentStore {
 
     const signature: ethers.utils.Signature = machine.middleware.getFirstResult(
       machine.instructions.Opcode.OP_SIGN,
-      context.results
+      context.results2
     ).value;
 
     const counterpartySignature = incomingMessage!.signature!;
@@ -217,12 +217,12 @@ export class CommitmentStore {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(
         machine.instructions.Opcode.IO_WAIT,
-        context.results
+        context.results2
       ).value;
     }
     const incomingMessageResult = machine.middleware.getLastResult(
       machine.instructions.Opcode.IO_WAIT,
-      context.results
+      context.results2
     );
     if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
       // receiver since non installs should have no io_WAIT

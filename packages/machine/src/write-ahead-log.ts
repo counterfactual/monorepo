@@ -59,7 +59,7 @@ export class WriteAheadLog {
       clientMessage: message.clientMessage,
       isAckSide: message.isAckSide,
       instructionPointer: context.instructionPointer,
-      results: context.results
+      results: context.results2
     };
   }
 

@@ -35,7 +35,7 @@ export class StateTransition {
   ) {
     const newState = getFirstResult(
       Opcode.STATE_TRANSITION_PROPOSE,
-      context.results
+      context.results2
     );
     context.instructionExecutor.mutateState(newState.value.state);
     next();

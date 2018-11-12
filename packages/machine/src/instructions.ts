@@ -53,6 +53,10 @@ export enum Opcode {
   ALL
 }
 
+export enum IntermediateResultKeys {
+  PROPOSED_STATE_UPDATE = "PROPOSED_STATE_UPDATE",
+}
+
 /**
  * Instructions executed on the intiating end of a protocol, i.e., a peer who
  * starts a protocol with a peer out of nowhere.

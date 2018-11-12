@@ -253,7 +253,7 @@ async function signMyUpdate(
 ): Promise<ethers.utils.Signature> {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
     machine.instructions.Opcode.OP_GENERATE,
-    context.results
+    context.results2
   ).value;
   const digest = operation.hashToSign();
   const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
@@ -268,7 +268,7 @@ async function validateSignatures(
 ) {
   const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
     machine.instructions.Opcode.OP_GENERATE,
-    context.results
+    context.results2
   ).value;
   const digest = op.hashToSign();
   let sig;
@@ -280,7 +280,7 @@ async function validateSignatures(
     // initiator
     const incomingMessage = machine.middleware.getLastResult(
       machine.instructions.Opcode.IO_WAIT,
-      context.results
+      context.results2
     ).value;
     sig = incomingMessage.signature;
   } else {

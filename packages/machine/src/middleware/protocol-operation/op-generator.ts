@@ -28,7 +28,7 @@ export class EthOpGenerator extends OpGenerator {
   ): ProtocolOperation {
     const proposedState = getFirstResult(
       Opcode.STATE_TRANSITION_PROPOSE,
-      context.results
+      context.results2
     ).value;
     let op;
     if (message.actionName === cf.node.ActionName.UPDATE) {

@@ -53,20 +53,22 @@ export class ActionExecution {
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public results: OpCodeResult[];
+  public results2: OpCodeResult[];
+  public intermediateResults: { [s: string] : any };
 
   constructor(
     action: Action,
     instruction: Opcode,
     clientMessage: cf.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
-    results: OpCodeResult[] = []
+    results2: OpCodeResult[] = []
   ) {
     this.action = action;
     this.instructionPointer = instruction;
     this.clientMessage = clientMessage;
     this.instructionExecutor = instructionExecutor;
-    this.results = results;
+    this.results2 = results2;
+    this.intermediateResults = intermediateResults;
   }
 
   // Public only for test purposes
@@ -82,7 +84,8 @@ export class ActionExecution {
 
   public createContext(): Context {
     return {
-      results: this.results,
+      results2: this.results2,
+      intermediateResults: this.intermediateResults,
       instructionPointer: this.instructionPointer,
       // TODO: Should probably not pass the whole InstructionExecutor in, it breaks the encapsulation
       // We should figure out what others args from the InstructionExecutor are used and copy those over
@@ -105,15 +108,16 @@ export class ActionExecution {
         context
       );
       this.instructionPointer += 1;
-      this.results.push({ value, opCode: internalMessage.opCode });
+      this.results2.push({ value, opCode: internalMessage.opCode });
 
       return { value, done: false };
     } catch (e) {
-      throw Error(
-        `While executing op ${Opcode[internalMessage.opCode]} at seq ${
-          this.clientMessage.seq
-        }, execution failed with the following error. ${e.stack}`
-      );
+      throw Error('');
+      // throw Error(
+      //   `While executing op ${Opcode[internalMessage.opCode]} at seq ${
+      //     this.clientMessage.seq
+      //   }, execution failed with the following error. ${e.stack}`
+      // );
     }
   }
 

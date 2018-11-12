@@ -156,7 +156,7 @@ export class NextMsgGenerator {
     internalMessage: InternalMessage,
     context: Context
   ) {
-    const res = getLastResult(Opcode.IO_WAIT, context.results);
+    const res = getLastResult(Opcode.IO_WAIT, context.results2);
     // TODO: make getLastResult's return value nullable
     // https://github.com/counterfactual/monorepo/issues/131
     return JSON.stringify(res) === JSON.stringify({})
@@ -177,7 +177,7 @@ export class NextMsgGenerator {
     ) {
       return undefined;
     }
-    return getFirstResult(Opcode.OP_SIGN, context.results).value;
+    return getFirstResult(Opcode.OP_SIGN, context.results2).value;
   }
 }
 
@@ -209,9 +209,9 @@ export class SignatureValidator {
   ) {
     // const incomingMessage = getFirstResult(
     //   Opcode.IO_WAIT,
-    //   context.results
+    //   context.results2
     // );
-    // const op = getFirstResult(Opcode.OP_GENERATE, context.results);
+    // const op = getFirstResult(Opcode.OP_GENERATE, context.results2);
     // TODO: now validate the signature against the op hash
     // https://github.com/counterfactual/monorepo/issues/130
     next();

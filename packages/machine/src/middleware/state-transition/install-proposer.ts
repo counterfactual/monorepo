@@ -76,7 +76,7 @@ export class InstallProposer {
     context: Context,
     data: cf.app.InstallData
   ): string[] {
-    const lastResult = getLastResult(Opcode.IO_WAIT, context.results);
+    const lastResult = getLastResult(Opcode.IO_WAIT, context.results2);
 
     let signingKeys;
     if (lastResult && lastResult.value && lastResult.value.data) {

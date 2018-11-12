@@ -112,7 +112,7 @@ export class IframeIoProvider {
   ) {
     const msg = machine.middleware.getLastResult(
       machine.instructions.Opcode.IO_PREPARE_SEND,
-      context.results
+      context.results2
     );
     // FIXME: (ts-strict) msg should never be null here
     const value = msg.value;
