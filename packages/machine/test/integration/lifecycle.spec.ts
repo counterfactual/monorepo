@@ -1,7 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
-import { sleep } from "../utils/common";
 import {
   A_PRIVATE_KEY,
   B_PRIVATE_KEY,
@@ -22,9 +21,9 @@ describe("Machine State Lifecycle", async () => {
   // for setting commitments
   jest.setTimeout(50000);
 
-  it("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
+  it.only("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
     const [peerA, peerB]: TestResponseSink[] = getCommunicatingPeers();
-    await SetupProtocol.run(peerA, peerB);
+    await SetupProtocol.validateAndRun(peerA, peerB);
     await Depositor.makeDeposits(peerA, peerB);
     await TicTacToeSimulator.simulatePlayingGame(peerA, peerB);
   });
@@ -115,7 +114,7 @@ class Depositor {
     expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
     // since the machine is async, we need to wait for peerB to finish up its
     // side of the protocol before inspecting it's state
-    await sleep(50);
+    await cf.utils.sleep(50);
     // check B's client
     Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
     // check A's client and return the newly created cf.signingKey.address
@@ -354,7 +353,7 @@ class TicTacToeSimulator {
   ): Promise<string> {
     TicTacToeSimulator.validateInstallWallet(peerA, peerB);
     // Wait for other client to finish, since the machine is async
-    await sleep(50);
+    await cf.utils.sleep(50);
     return TicTacToeSimulator.validateInstallWallet(peerB, peerA);
   }
 
@@ -428,7 +427,7 @@ class TicTacToeSimulator {
       state,
       moveNumber
     );
-    await sleep(50);
+    await cf.utils.sleep(50);
     TicTacToeSimulator.validateMakeMove(
       peerB,
       peerA,
@@ -502,7 +501,7 @@ class TicTacToeSimulator {
       ethers.utils.bigNumberify(12),
       ethers.utils.bigNumberify(3)
     );
-    await sleep(50);
+    await cf.utils.sleep(50);
     TicTacToeSimulator.validateUninstall(
       cfAddr,
       peerB,

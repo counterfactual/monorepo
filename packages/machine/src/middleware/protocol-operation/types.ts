@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 export abstract class ProtocolOperation {
   public abstract hashToSign(): cf.utils.H256;
@@ -47,7 +47,7 @@ export class MultisigInput {
 export class MultiSend {
   constructor(
     readonly transactions: MultisigInput[],
-    readonly networkContext: cf.utils.NetworkContext
+    readonly networkContext: cf.network.NetworkContext
   ) {}
 
   public input(multisend: cf.utils.Address): MultisigInput {

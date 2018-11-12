@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as common from "./common";
 import { ProtocolOperation, Transaction } from "./types";
@@ -9,7 +9,7 @@ const { abi } = cf.utils;
 
 export class OpSetState extends ProtocolOperation {
   constructor(
-    readonly ctx: cf.utils.NetworkContext,
+    readonly ctx: cf.network.NetworkContext,
     readonly multisig: cf.utils.Address,
     readonly signingKeys: cf.utils.Address[],
     readonly appStateHash: string,

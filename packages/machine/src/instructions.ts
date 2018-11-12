@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-export enum Instruction {
+export enum Opcode {
   /**
    * Optimistically creates the new state that will result if a protocol
    * completes. Useful for other opcodes that may need to know about such state,
@@ -59,47 +59,47 @@ export enum Instruction {
  */
 export const instructions = {
   [cf.node.ActionName.UPDATE]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.IO_WAIT,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.IO_WAIT,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.SETUP]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.IO_WAIT,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.IO_WAIT,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.INSTALL]: [
-    Instruction.KEY_GENERATE,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.IO_WAIT,
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.KEY_GENERATE,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.IO_WAIT,
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.UNINSTALL]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.IO_WAIT,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.IO_WAIT,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.STATE_TRANSITION_COMMIT
   ]
 };
 
@@ -109,41 +109,41 @@ export const instructions = {
  */
 export const ackInstructions = {
   [cf.node.ActionName.UPDATE]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.SETUP]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.INSTALL]: [
-    Instruction.KEY_GENERATE,
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.IO_WAIT,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.KEY_GENERATE,
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.IO_WAIT,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.STATE_TRANSITION_COMMIT
   ],
   [cf.node.ActionName.UNINSTALL]: [
-    Instruction.STATE_TRANSITION_PROPOSE,
-    Instruction.OP_GENERATE,
-    Instruction.OP_SIGN_VALIDATE,
-    Instruction.OP_SIGN,
-    Instruction.IO_PREPARE_SEND,
-    Instruction.IO_SEND,
-    Instruction.STATE_TRANSITION_COMMIT
+    Opcode.STATE_TRANSITION_PROPOSE,
+    Opcode.OP_GENERATE,
+    Opcode.OP_SIGN_VALIDATE,
+    Opcode.OP_SIGN,
+    Opcode.IO_PREPARE_SEND,
+    Opcode.IO_SEND,
+    Opcode.STATE_TRANSITION_COMMIT
   ]
 };

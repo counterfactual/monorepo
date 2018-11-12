@@ -19,7 +19,7 @@ jobs:
 
   run-tests:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:10-browsers
     steps:
       - checkout
       - restore_cache:

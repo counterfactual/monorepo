@@ -22,7 +22,7 @@ export enum ActionName {
 // TODO: document what this is
 // https://github.com/counterfactual/monorepo/issues/125
 export interface ResponseSink {
-  sendResponse(res: Response);
+  sendResponse(res: Response): void;
 }
 
 export class Response {

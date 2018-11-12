@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 

@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import chaiBignumber from "chai-bignumber";
 import chaiString from "chai-string";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 export * from "./appInstance";
 export * from "./structEncoding";

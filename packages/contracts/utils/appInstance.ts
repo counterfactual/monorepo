@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
