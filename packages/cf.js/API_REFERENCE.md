@@ -16,11 +16,11 @@
     - Instance methods
         - `async proposeInstall(peerAddress, terms): Promise<AppID>`
         - `async install(appId: AppID): Promise<AppInstance>`
+        - `getApps(): AppInstance[]`
 - `AppInstance`
     - Properties
         - `id: AppID` — Identifier for this specific app instance
         - `definition: AppDefinition`
-        - `state: object` - the decoded app state, updated automatically during `stateUpdate` notifications
         - `terms: [assetType, limit, tokenAddress]`
         - `manifestAddress: URL`
     - Instance methods
@@ -31,6 +31,7 @@
         - `async uninstall()`
             - Uninstall the app
         - `async getManifest(): AppManifest`
+        - `async getState(): object`
     - App lifecycle
         - `on(eventType, callback)`
             - EventType: stateUpdate, uninstall
