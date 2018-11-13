@@ -4,7 +4,6 @@ import { ethers } from "ethers";
 import { Context } from "../../instruction-executor";
 import { NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
-import { OpGenerator } from "../middleware";
 
 import { OpInstall } from "./op-install";
 import { OpSetState } from "./op-set-state";
@@ -18,8 +17,8 @@ import { ProtocolOperation } from "./types";
  * in the state channel, the ProtocolOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
-export class EthOpGenerator implements OpGenerator {
-  public generate(
+export class EthOpGenerator {
+  public static generate(
     message: InternalMessage,
     next: Function,
     context: Context,
@@ -45,7 +44,7 @@ export class EthOpGenerator implements OpGenerator {
     return op;
   }
 
-  public update(
+  public static update(
     message: InternalMessage,
     context: Context,
     nodeState: NodeState,
@@ -101,7 +100,7 @@ export class EthOpGenerator implements OpGenerator {
     );
   }
 
-  public setup(
+  public static setup(
     message: InternalMessage,
     context: Context,
     nodeState: NodeState,
@@ -145,7 +144,7 @@ export class EthOpGenerator implements OpGenerator {
     );
   }
 
-  public install(
+  public static install(
     message: InternalMessage,
     context: Context,
     nodeState: NodeState,
@@ -189,7 +188,7 @@ export class EthOpGenerator implements OpGenerator {
     return op;
   }
 
-  public uninstall(
+  public static uninstall(
     message: InternalMessage,
     context: Context,
     nodeState: NodeState,

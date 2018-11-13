@@ -61,11 +61,10 @@ export class Middleware {
   }
 
   private initializeMiddlewares() {
-    const opGenerator = new EthOpGenerator();
     this.add(
       Opcode.OP_GENERATE,
       (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.nodeState);
+        return EthOpGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
@@ -122,21 +121,6 @@ export class Middleware {
       middleware.method(msg, () => {}, context);
     });
   }
-}
-
-/**
- * Interface to dependency inject blockchain commitments. The middleware
- * should be constructed with a OpGenerator, which is responsible for
- * creating ProtocolOperations, i.e. commitments, to be stored, used, and signed
- * in the state channel system.
- */
-export interface OpGenerator {
-  generate(
-    message: InternalMessage,
-    next: Function,
-    context: Context,
-    nodeState: NodeState
-  );
 }
 
 // 🤮
