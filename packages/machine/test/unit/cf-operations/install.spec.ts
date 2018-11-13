@@ -47,7 +47,14 @@ describe("OpInstall", () => {
       )
     );
 
-    const { alice, bob, aliceBalance, bobBalance, localNonce, timeout } = TEST_FREE_BALANCE;
+    const {
+      alice,
+      bob,
+      aliceBalance,
+      bobBalance,
+      localNonce,
+      timeout
+    } = TEST_FREE_BALANCE;
     const appStateHash = keccak256(
       cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
