@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Context, InstructionExecutor } from "./instruction-executor";
 import { ackInstructions, instructions, Opcode } from "./instructions";
-import { InternalMessage, MiddlewareResult } from "./types";
+import { InternalMessage, OpCodeResult } from "./types";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -53,14 +53,14 @@ export class ActionExecution {
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public results: MiddlewareResult[];
+  public results: OpCodeResult[];
 
   constructor(
     action: Action,
     instruction: Opcode,
     clientMessage: cf.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
-    results: MiddlewareResult[] = []
+    results: OpCodeResult[] = []
   ) {
     this.action = action;
     this.instructionPointer = instruction;
