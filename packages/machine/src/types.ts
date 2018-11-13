@@ -4,11 +4,6 @@ import { Context } from "./instruction-executor";
 import { Opcode } from "./instructions";
 import { NodeState } from "./node-state";
 
-export interface MiddlewareResult {
-  opCode: Opcode;
-  value: any;
-}
-
 /**
  * The return value from the STATE_TRANSITION_PROPOSE middleware.
  */
