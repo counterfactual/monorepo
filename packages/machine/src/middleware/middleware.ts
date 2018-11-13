@@ -71,7 +71,7 @@ export class Middleware {
     const middlewares = this.middlewares;
     const opCode = msg.opCode;
 
-    this.executeAllMiddlewares(msg, context);
+    this.executeMiddlewaresRegisteredOnAll(msg, context);
 
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {
@@ -101,7 +101,7 @@ export class Middleware {
   // just iterating through all the middlewares. We should pass the callback similarly to how
   // run does it, and rely on that for middleware cascading
   // https://github.com/counterfactual/monorepo/issues/132
-  private executeAllMiddlewares(msg, context) {
+  private executeMiddlewaresRegisteredOnAll(msg, context) {
     this.middlewares[Opcode.ALL].forEach(middleware => {
       middleware.method(msg, () => {}, context);
     });
