@@ -14,6 +14,28 @@ import {
 
 const { keccak256 } = ethers.utils;
 
+function constructConditionalTransactionData(nonceUniqueId: number) {
+  const salt = keccak256(
+    cf.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
+  );
+  const uninstallKey = keccak256(
+    cf.utils.abi.encodePacked(
+      ["address", "uint256", "uint256"],
+      [TEST_MULTISIG_ADDRESS, 0, salt]
+    )
+  );
+
+  const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
+  return ethContractCall(
+    "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
+    TEST_NETWORK_CONTEXT.registryAddr,
+    TEST_NETWORK_CONTEXT.nonceRegistryAddr,
+    uninstallKey,
+    TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
+    [terms.assetType, terms.limit, terms.token]
+  );
+}
+
 describe("OpSetup", () => {
   const TEST_NONCE_UNIQUE_ID = 1;
   let operation: OpSetup;
@@ -30,40 +52,24 @@ describe("OpSetup", () => {
 
   // https://specs.counterfactual.com/04-setup-protocol#commitments
   it("Should be able to compute the correct tx to submit on-chain", () => {
+    const conditionalTransactionData = constructConditionalTransactionData(
+      TEST_NONCE_UNIQUE_ID
+    );
+
     const digest = operation.hashToSign();
-    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
-
-    const salt = keccak256(
-      cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
-    );
-    const uninstallKey = keccak256(
-      cf.utils.abi.encodePacked(
-        ["address", "uint256", "uint256"],
-        [TEST_MULTISIG_ADDRESS, 0, salt]
-      )
+    const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
+    const expectedTxData = ethContractCall(
+      "execTransaction(address, uint256, bytes, uint8, bytes)",
+      TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+      0, // value
+      conditionalTransactionData,
+      1, // delegatecall
+      cf.utils.signaturesToSortedBytes(digest, ...signatures)
     );
 
-    const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
-
-    const tx = operation.transaction([sig1, sig2]);
+    const tx = operation.transaction(signatures);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
-    expect(tx.data).toBe(
-      ethContractCall(
-        "execTransaction(address, uint256, bytes, uint8, bytes)",
-        TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
-        0,
-        ethContractCall(
-          "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
-          TEST_NETWORK_CONTEXT.registryAddr,
-          TEST_NETWORK_CONTEXT.nonceRegistryAddr,
-          uninstallKey,
-          TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-          [terms.assetType, terms.limit, terms.token]
-        ),
-        1,
-        cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
-      )
-    );
+    expect(tx.data).toBe(expectedTxData);
   });
 });

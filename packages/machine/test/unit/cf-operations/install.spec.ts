@@ -103,12 +103,12 @@ describe("OpInstall", () => {
     const digest = operation.hashToSign();
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const multiSend = constructInstallMultiSendData(TEST_NONCE_UNIQUE_ID);
-    const multisigTxData = ethContractCall(
+    const multiSendData = constructInstallMultiSendData(TEST_NONCE_UNIQUE_ID);
+    const expectedTxData = ethContractCall(
       "execTransaction(address, uint256, bytes, uint8, bytes)",
       TEST_NETWORK_CONTEXT.multiSendAddr,
       0, // value
-      multiSend,
+      multiSendData,
       1, // delegatecall
       cf.utils.signaturesToBytes(...signatures)
     );
@@ -116,6 +116,6 @@ describe("OpInstall", () => {
     const tx = operation.transaction(signatures);
     expect(tx.to).toBe(TEST_MULTISIG_ADDRESS);
     expect(tx.value).toBe(0);
-    expect(tx.data).toBe(multisigTxData);
+    expect(tx.data).toBe(expectedTxData);
   });
 });
