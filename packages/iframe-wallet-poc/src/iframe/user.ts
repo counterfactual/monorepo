@@ -208,12 +208,10 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 
     this.instructionExecutor.register(
       machine.instructions.Opcode.OP_SIGN,
-      async (
-        message: machine.types.InternalMessage,
-        next: Function,
-        context: machine.instructionExecutor.Context
+      (
+        message, next, context: machine.instructionExecutor.Context
       ) => {
-        return signMyUpdate(message, next, context, this);
+        return signMyUpdate(context, this);
       }
     );
     this.instructionExecutor.register(
@@ -245,12 +243,10 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
  * Plugin middleware methods.
  */
 
-async function signMyUpdate(
-  message: machine.types.InternalMessage,
-  next: Function,
+function signMyUpdate(
   context: machine.instructionExecutor.Context,
   user: User
-): Promise<ethers.utils.Signature> {
+): ethers.utils.Signature {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
     machine.instructions.Opcode.OP_GENERATE,
     context.results2
