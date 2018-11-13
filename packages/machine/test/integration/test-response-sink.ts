@@ -79,8 +79,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     this.instructionExecutor.register(
       Opcode.OP_SIGN,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        return this.signMyUpdate(message, next, context);
+      (message, next, context) => {
+        return this.signMyUpdate(context);
       }
     );
 
@@ -162,17 +162,15 @@ export class TestResponseSink implements cf.node.ResponseSink {
   }
 
   private signMyUpdate(
-    message: InternalMessage,
-    next: Function,
     context: Context
-  ): Promise<ethers.utils.Signature> {
+  ): ethers.utils.Signature {
     const operation: ProtocolOperation = getFirstResult(
       Opcode.OP_GENERATE,
       context.results2
     ).value;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
-    return Promise.resolve({ r, s, v: recoveryParam! + 27 });
+    return { r, s, v: recoveryParam! + 27 };
   }
 
   private validateSignatures(
