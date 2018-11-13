@@ -42,8 +42,7 @@ contract Nim {
     pure
     returns (bytes)
   {
-    require(0 <= action.pileIdx, "pileIdx was invalid");
-    require(action.pileIdx < 3, "pileIdx was < 3");
+    require(action.pileIdx < 3, "pileIdx must be 0, 1 or 2");
     require(state.pileHeights[action.pileIdx] >= action.takeAmnt, "invalid pileIdx");
 
     AppState memory ret = state;
