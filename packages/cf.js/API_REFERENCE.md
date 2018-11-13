@@ -3,48 +3,68 @@
 
 - `Client`
     - Properties
-        - `nodeProvider`
+        - `nodeProvider: NodeProvider`
     - Instance methods
-        - `getApps(): AppInstance[]`
+        - `getAppInstances(): AppInstance[]`
         - `createAppFactory(appDefinition: AppDefinition): AppFactory`
     - Client lifecycle
-        - `on(eventType, callback)`
-            - EventType: proposeInstall, install, rejectInstall
+        - `on(eventType, callback: Function)`
+            - eventTypes
+                - `proposeInstall(appId, appDefinition, terms)`
+                - `install(appInstance)`
+                - `rejectInstall(appId, appDefinition, terms)`
 - `AppFactory`
     - Properties
         - `appDefinition: AppDefinition`
     - Instance methods
-        - `async proposeInstall(peerAddress, terms): Promise<AppID>`
+        - `async proposeInstall(peerAddress: Address, terms: AppTerms): Promise<AppID>`
         - `async install(appId: AppID): Promise<AppInstance>`
         - `getApps(): AppInstance[]`
 - `AppInstance`
     - Properties
         - `id: AppID` — Identifier for this specific app instance
         - `definition: AppDefinition`
-        - `terms: [assetType, limit, tokenAddress]`
-        - `manifestAddress: URL`
+        - `terms: AppTerms`
+        - `manifestUri: string`
     - Instance methods
-        - `async applyAction(action): AppState`
-            - `action`: JSON-encoded object congruent with AppAction struct
+        - `async applyAction(action: AppAction): AppState`
             - Returns ABI decoded representation of the latest signed state of the app.
-        - `async proposeState(state)`: Propose a state to countersign
+            - Throws error if app definition "appActionEncoding" is not defined
+        - `async proposeState(state: AppState)`
+            - Proposes a state to countersign
+            - Throws error if app definition "appActionEncoding" is defined
+        - `async acceptState(state: AppState)`
+            - Throws error if app definition "appActionEncoding" is defined
+        - `async rejectState(state: AppState)`
+            - Throws error if app definition "appActionEncoding" is defined
         - `async uninstall()`
             - Uninstall the app
         - `async getManifest(): AppManifest`
         - `async getState(): object`
     - App lifecycle
-        - `on(eventType, callback)`
-            - EventType: stateUpdate, uninstall
+        - `on(eventType, callback: Function)`
+            - eventTypes
+                - `stateUpdate(newState)`
+                - `uninstall()`
+                - `proposeState(newState)`
 - `types`
     - `NodeProvider` (external)
         - (Injected into webpage)
         - Instance methods
             - `postMessage(message)`
             - `onMessage(callback)`
+    - `AppID`: string
+    - `AppState`: object, a POJO describing app state, encoded using app state encoding
+    - `AppAction`: object, a POJO describing app action, encoded using app action encoding
+    - `AppTerms`:
+        - `assetType`: ETH or ERC20 or OTHER
+        - `limit`: Limit
+        - `token`: Address of token contract if applicable
     - `AppDefinition`
         - `address`: on-chain address for the app definition contract
-        - `appStateEncoding`: ABI encoding for App State
-        - `appActionEncoding`: ABI encoding for App Action
+        - `appStateEncoding`: ABI encoding for App State.
+        - `appActionEncoding`: Optional ABI encoding for App Action. 
+            - Leave empty to signify that app state updates using state proposals, not actions.
     - `AppManifest`
         - `name`: human-readable name of app e.g. "TicTacToe"
         - `version`: semantic version of app definition contract
