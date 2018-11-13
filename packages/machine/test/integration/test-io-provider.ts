@@ -90,8 +90,7 @@ export class TestIOProvider {
     }
     const message = this.findMessage(multisig, appId);
     if (!message) {
-      // FIXME: (ts-strict) refactor for proper argument passing
-      // https://github.com/counterfactual/monorepo/issues/95
+      // 🤮
       // @ts-ignore
       this.listeners.push({ appId, multisig, method, seq });
     } else {
@@ -123,6 +122,7 @@ export class TestIOProvider {
       r => (resolve = r)
     );
 
+    // 🤮 listen for either multisig or appId depending on message.actionName
     let multisig: string = "";
     let appId: string = "";
 

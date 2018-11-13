@@ -2,10 +2,9 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
-import { Opcode } from "../../instructions";
 import { NodeState } from "../../node-state";
 import { InternalMessage } from "../../types";
-import { getFirstResult, OpGenerator } from "../middleware";
+import { OpGenerator } from "../middleware";
 
 import { OpInstall } from "./op-install";
 import { OpSetState } from "./op-set-state";
@@ -26,10 +25,7 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState
   ): ProtocolOperation {
-    const proposedState = getFirstResult(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      context.results2
-    ).value;
+    const proposedState = context.intermediateResults.proposedStateTransition!;
     let op;
     if (message.actionName === cf.node.ActionName.UPDATE) {
       op = this.update(message, context, nodeState, proposedState.state);
@@ -41,7 +37,7 @@ export class EthOpGenerator extends OpGenerator {
         context,
         nodeState,
         proposedState.state,
-        proposedState.cfAddr
+        proposedState.cfAddr!
       );
     } else if (message.actionName === cf.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, nodeState, proposedState.state);

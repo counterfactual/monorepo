@@ -159,10 +159,7 @@ export class TestCommitmentStore {
     if (action === cf.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.node.ActionName.INSTALL) {
-      const proposal = getFirstResult(
-        Opcode.STATE_TRANSITION_PROPOSE,
-        context.results2
-      ).value;
+      const proposal = context.intermediateResults.proposedStateTransition!;
       appId = proposal.cfAddr;
     } else {
       appId = internalMessage.clientMessage.appId;
