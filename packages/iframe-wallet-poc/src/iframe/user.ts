@@ -152,7 +152,8 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
   }
 
   public generateObserverNotification(notification: cf.node.Notification): any {
-    return notification.data.results.find(result => result.opCode === 0).value;
+    const PROPOSE = machine.instructions.Opcode.STATE_TRANSITION_PROPOSE;
+    return notification.data.results.find(r => r.opCode === PROPOSE).value;
   }
 
   public addObserver(message: cf.node.ClientActionMessage) {
