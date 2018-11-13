@@ -162,10 +162,10 @@ export class CommitmentStore {
     if (action === cf.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.node.ActionName.INSTALL) {
-      const proposal = machine.middleware.getFirstResult(
-        machine.instructions.Opcode.STATE_TRANSITION_PROPOSE,
-        context.results2
-      ).value;
+      const proposal = context.intermediateResults.proposedStateTransition!;
+      if (proposal === undefined) {
+        throw Error("could not find proposed state transition");
+      }
       appId = proposal.cfAddr;
     } else {
       appId = internalMessage.clientMessage.appId;

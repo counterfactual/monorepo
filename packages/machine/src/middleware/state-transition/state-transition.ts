@@ -1,6 +1,4 @@
 import { Context } from "../../instruction-executor";
-import { Opcode } from "../../instructions";
-import { getFirstResult } from "../../middleware/middleware";
 import { NodeState } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
 
@@ -33,11 +31,11 @@ export class StateTransition {
     context: Context,
     state: NodeState
   ) {
-    const newState = getFirstResult(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      context.results2
-    );
-    context.instructionExecutor.mutateState(newState.value.state);
+    const newState = context.intermediateResults.proposedStateTransition!;
+    if (newState === undefined) {
+      throw Error("tried to call commit without a propose");
+    }
+    context.instructionExecutor.mutateState(newState.state);
     next();
   }
 }

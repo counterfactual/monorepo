@@ -29,7 +29,6 @@ export class Middleware {
         method: (internalMessage, next, context) => {
           const ret = NextMsgGenerator.generate(internalMessage, context);
           context.intermediateResults.outbox = ret;
-          return ret;
         }
       }
     ],
@@ -40,7 +39,15 @@ export class Middleware {
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
     [Opcode.STATE_TRANSITION_COMMIT]: [],
-    [Opcode.STATE_TRANSITION_PROPOSE]: []
+    [Opcode.STATE_TRANSITION_PROPOSE]: [
+      {
+        scope: Opcode.STATE_TRANSITION_PROPOSE,
+        method: (message, next, context) => {
+          const proposal = StateTransition.propose(message, next, context, this.nodeState);
+          context.intermediateResults.proposedStateTransition = proposal;
+        }
+      }
+    ]
   };
 
   constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
@@ -50,19 +57,13 @@ export class Middleware {
   private initializeMiddlewares(opGenerator) {
     this.add(
       Opcode.OP_GENERATE,
-      async (message: InternalMessage, next: Function, context: Context) => {
+     (message: InternalMessage, next: Function, context: Context) => {
         return opGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.nodeState);
-      }
-    );
-    this.add(
       Opcode.STATE_TRANSITION_COMMIT,
-      async (message: InternalMessage, next: Function, context: Context) => {
+      (message: InternalMessage, next: Function, context: Context) => {
         return StateTransition.commit(message, next, context, this.nodeState);
       }
     );
@@ -131,6 +132,7 @@ export abstract class OpGenerator {
   );
 }
 
+// 🤮
 export class NextMsgGenerator {
   public static generate(internalMessage: InternalMessage, context: Context) {
     const signature = NextMsgGenerator.signature(internalMessage, context);

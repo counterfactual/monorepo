@@ -19,7 +19,7 @@ export class IframeIoProvider {
   }[];
 
   /**
-   * Called when receivng a message with seqno = 1.
+   * 🤮 Called when receivng a message with seqno = 1.
    */
   public ackMethod: Function = Object.create(null);
 
