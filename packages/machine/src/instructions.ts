@@ -54,7 +54,7 @@ export enum Opcode {
 }
 
 export enum IntermediateResultKeys {
-  PROPOSED_STATE_UPDATE = "PROPOSED_STATE_UPDATE",
+  PROPOSED_STATE_UPDATE = "PROPOSED_STATE_UPDATE"
 }
 
 /**

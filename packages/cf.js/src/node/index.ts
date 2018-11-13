@@ -16,7 +16,7 @@ export enum ActionName {
   REGISTER_IO = "registerIo",
   RECEIVE_IO = "receiveIo",
   QUERY = "query",
-  CONNECT = "connect",
+  CONNECT = "connect"
 }
 
 // TODO: document what this is

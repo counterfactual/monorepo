@@ -5,11 +5,7 @@ import * as Utils from "../../utils/misc";
 const web3 = (global as any).web3;
 const { unlockedAccount } = Utils.setupTestEnv(web3);
 
-import {
-  AbstractContract,
-  buildArtifacts,
-  expect
-} from "../../utils";
+import { AbstractContract, buildArtifacts, expect } from "../../utils";
 
 /*
 This test deploys VirtualAppAgreement.sol as well as fixture apps (TBD) as targets
@@ -22,10 +18,15 @@ contract("Virtual App", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    game = await (await buildArtifacts.VirtualAppAgreement).deploy(unlockedAccount);
-    fixedResolutionApp = await (await AbstractContract.fromArtifactName("FixedResolutionApp", {
-      Transfer: buildArtifacts.Transfer
-    })).deploy(unlockedAccount);
+    game = await (await buildArtifacts.VirtualAppAgreement).deploy(
+      unlockedAccount
+    );
+    fixedResolutionApp = await (await AbstractContract.fromArtifactName(
+      "FixedResolutionApp",
+      {
+        Transfer: buildArtifacts.Transfer
+      }
+    )).deploy(unlockedAccount);
   });
 
   describe("test", () => {
@@ -34,6 +35,4 @@ contract("Virtual App", (accounts: string[]) => {
       expect(game);
     });
   });
-
-
 });

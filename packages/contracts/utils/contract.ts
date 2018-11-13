@@ -168,7 +168,11 @@ export class AbstractContract {
   public getDeployedAddress(networkId: number): string {
     const info = this.networks[networkId];
     if (!info) {
-      throw new Error(`Abstract contract ${this.contractName} not deployed on network ${networkId}`);
+      throw new Error(
+        `Abstract contract ${
+          this.contractName
+        } not deployed on network ${networkId}`
+      );
     }
     return info.address;
   }

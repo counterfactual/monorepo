@@ -79,27 +79,31 @@ export class InstructionExecutor implements Observable {
   }
 
   public receiveClientActionMessageAck(msg: cf.node.ClientActionMessage) {
-    this.execute(new ActionExecution(
-      msg.action,
-      instructionGroupFromProtocolName(msg.action, true),
-      0,
-      msg,
-      this,
-      true,
-      msg.requestId
-    ));
+    this.execute(
+      new ActionExecution(
+        msg.action,
+        instructionGroupFromProtocolName(msg.action, true),
+        0,
+        msg,
+        this,
+        true,
+        msg.requestId
+      )
+    );
   }
 
   public receiveClientActionMessage(msg: cf.node.ClientActionMessage) {
-    this.execute(new ActionExecution(
-      msg.action,
-      instructionGroupFromProtocolName(msg.action, false),
-      0,
-      msg,
-      this,
-      false,
-      msg.requestId
-    ));
+    this.execute(
+      new ActionExecution(
+        msg.action,
+        instructionGroupFromProtocolName(msg.action, false),
+        0,
+        msg,
+        this,
+        false,
+        msg.requestId
+      )
+    );
   }
 
   public async execute(execution: ActionExecution) {
@@ -132,14 +136,8 @@ export class InstructionExecutor implements Observable {
     }
   }
 
-  public sendResponse(
-    requestId: string,
-    status: cf.node.ResponseStatus
-  ) {
-
-    this.responseHandler.sendResponse(
-      new cf.node.Response(requestId, status)
-    );
+  public sendResponse(requestId: string, status: cf.node.ResponseStatus) {
+    this.responseHandler.sendResponse(new cf.node.Response(requestId, status));
   }
 
   public mutateState(state: cf.channel.StateChannelInfos) {
@@ -151,9 +149,13 @@ export class InstructionExecutor implements Observable {
   }
 }
 
+export interface IntermediateResults {
+  outbox?: cf.node.ClientActionMessage;
+}
+
 export class Context {
   public results2: OpCodeResult[] = [];
-  public intermediateResults: { [s:string] : any } = {};
+  public intermediateResults: IntermediateResults = {};
 
   // todo(ldct): the following fields are very special-purpose and only accessed
   // in one place; it would be nice to get rid of them
