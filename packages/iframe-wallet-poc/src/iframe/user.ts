@@ -60,7 +60,6 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.instructionExecutor = new machine.instructionExecutor.InstructionExecutor(
       new machine.instructionExecutor.InstructionExecutorConfig(
         this,
-        new machine.protocolOperations.EthOpGenerator(),
         networkContext,
         states
       )

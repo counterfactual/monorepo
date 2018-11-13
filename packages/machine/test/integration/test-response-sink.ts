@@ -9,7 +9,6 @@ import {
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
 import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
 import { InternalMessage } from "../../src/types";
 import {
@@ -52,7 +51,6 @@ export class TestResponseSink implements cf.node.ResponseSink {
     this.instructionExecutor = new InstructionExecutor(
       new InstructionExecutorConfig(
         this,
-        new EthOpGenerator(),
         networkContext || cf.network.EMPTY_NETWORK_CONTEXT
       )
     );

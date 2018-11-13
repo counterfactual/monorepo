@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 
 import { ActionExecution, instructionGroupFromProtocolName } from "./action";
 import { Opcode } from "./instructions";
-import { Middleware, OpGenerator } from "./middleware/middleware";
+import { Middleware } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { NodeState } from "./node-state";
@@ -16,7 +16,6 @@ import { Log } from "./write-ahead-log";
 export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.node.ResponseSink,
-    readonly opGenerator: OpGenerator,
     readonly network: cf.network.NetworkContext,
     readonly state?: cf.channel.StateChannelInfos
   ) {}
@@ -43,7 +42,7 @@ export class InstructionExecutor implements Observable {
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
     this.nodeState = new NodeState(config.state || {}, config.network);
-    this.middleware = new Middleware(this.nodeState, config.opGenerator);
+    this.middleware = new Middleware(this.nodeState);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}

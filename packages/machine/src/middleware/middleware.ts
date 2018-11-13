@@ -57,16 +57,16 @@ export class Middleware {
     ]
   };
 
-  constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
+  constructor(readonly nodeState: NodeState) {
     this.initializeMiddlewares();
   }
 
   private initializeMiddlewares() {
-    const opGenerator2 = new EthOpGenerator();
+    const opGenerator = new EthOpGenerator();
     this.add(
       Opcode.OP_GENERATE,
       (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator2.generate(message, next, context, this.nodeState);
+        return opGenerator.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
