@@ -110,7 +110,7 @@ export class IframeIoProvider {
     next: Function,
     context: machine.instructionExecutor.Context
   ) {
-    const msg = context.intermediateResults.outbox!
+    const msg = context.intermediateResults.outbox!;
     if (msg === undefined) {
       throw Error("tried to send undefined message");
     }
