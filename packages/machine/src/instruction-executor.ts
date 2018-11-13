@@ -6,7 +6,11 @@ import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { NodeState } from "./node-state";
-import { InstructionMiddlewareCallback, OpCodeResult, StateProposal } from "./types";
+import {
+  InstructionMiddlewareCallback,
+  OpCodeResult,
+  StateProposal
+} from "./types";
 import { Log } from "./write-ahead-log";
 
 export class InstructionExecutorConfig {
@@ -151,7 +155,7 @@ export class InstructionExecutor implements Observable {
 
 export interface IntermediateResults {
   outbox?: cf.node.ClientActionMessage;
-  proposedStateTransition?: StateProposal
+  proposedStateTransition?: StateProposal;
 }
 
 export class Context {
