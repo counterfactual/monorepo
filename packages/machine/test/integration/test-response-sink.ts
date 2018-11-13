@@ -115,7 +115,6 @@ export class TestResponseSink implements cf.node.ResponseSink {
   public async runProtocol(
     msg: cf.node.ClientActionMessage
   ): Promise<cf.node.WalletResponse> {
-    console.log("writing to requests");
     const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
@@ -127,7 +126,6 @@ export class TestResponseSink implements cf.node.ResponseSink {
    * Resolves the registered promise so the test can continue.
    */
   public sendResponse(res: cf.node.WalletResponse) {
-    console.log("deleting from requests");
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];

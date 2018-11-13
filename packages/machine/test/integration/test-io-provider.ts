@@ -2,13 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 
 import { Context } from "../../src/instruction-executor";
 
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/98
-import { Opcode } from "../../src/instructions";
-
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/8
-import { getLastResult } from "../../src/middleware/middleware";
 import { InternalMessage } from "../../src/types";
 
 import { TestResponseSink } from "./test-response-sink";
@@ -112,13 +105,10 @@ export class TestIOProvider {
     next: Function,
     context: Context
   ) {
-    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results2);
-
-    // FIXME: (ts-strict) msg should never be null here
-    // https://github.com/counterfactual/monorepo/issues/94
-    const value = msg.value;
-
-    // Hack for testing and demo purposes, full IO handling by client goes here
+    const value = context.intermediateResults.outbox!
+    if (value === undefined) {
+      throw Error("tried to send undefined message");
+    }
     this.peer.receiveMessageFromPeer(value);
   }
 
