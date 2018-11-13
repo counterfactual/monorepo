@@ -4,9 +4,10 @@ import { keccak256 } from "ethers/utils";
 import { OpInstall } from "../../../src/middleware/protocol-operation";
 
 import {
-  ethContractCall,
-  ethMultiSendCall,
-  ethMultiSendSubCall,
+  contractCallData,
+  multiSendData,
+  multiSendSubCallData,
+  multisigExecTransactionData,
   TEST_APP_INSTANCE,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
@@ -31,7 +32,7 @@ function constructFreeBalanceInput() {
       [alice, bob, aliceBalance, bobBalance]
     )
   );
-  return ethMultiSendSubCall(
+  return multiSendSubCallData(
     "delegatecall",
     TEST_NETWORK_CONTEXT.registryAddr,
     0,
@@ -39,7 +40,7 @@ function constructFreeBalanceInput() {
     [
       TEST_NETWORK_CONTEXT.registryAddr,
       TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-      ethContractCall(
+      contractCallData(
         "setState(bytes32,uint256,uint256,bytes)",
         appStateHash,
         localNonce,
@@ -61,7 +62,7 @@ function constructConditionalTransferInput(nonceUniqueId: number) {
     )
   );
   const { assetType, limit, token } = TEST_TERMS;
-  return ethMultiSendSubCall(
+  return multiSendSubCallData(
     "delegatecall",
     TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
     0,
@@ -81,7 +82,7 @@ function constructInstallMultiSendData(nonceUniqueId: number) {
   const conditionalTransactionInput = constructConditionalTransferInput(
     nonceUniqueId
   );
-  return ethMultiSendCall([freeBalanceInput, conditionalTransactionInput]);
+  return multiSendData([freeBalanceInput, conditionalTransactionInput]);
 }
 
 describe("OpInstall", () => {
@@ -104,13 +105,12 @@ describe("OpInstall", () => {
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
     const multiSendData = constructInstallMultiSendData(TEST_NONCE_UNIQUE_ID);
-    const expectedTxData = ethContractCall(
-      "execTransaction(address, uint256, bytes, uint8, bytes)",
+    const expectedTxData = multisigExecTransactionData(
+      "delegatecall",
       TEST_NETWORK_CONTEXT.multiSendAddr,
       0, // value
       multiSendData,
-      1, // delegatecall
-      cf.utils.signaturesToBytes(...signatures)
+      signatures
     );
 
     const tx = operation.transaction(signatures);

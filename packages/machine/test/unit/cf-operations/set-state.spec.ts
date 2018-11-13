@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
-  ethContractCall, TEST_APP_INSTANCE,
+  contractCallData, TEST_APP_INSTANCE,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
@@ -16,6 +16,21 @@ import {
   TEST_TERMS,
   TEST_TIMEOUT
 } from "./fixture";
+
+function constructSetStateData(signatures: ethers.utils.Signature[]): string {
+  return contractCallData(
+    "proxyCall(address,bytes32,bytes)",
+    TEST_NETWORK_CONTEXT.registryAddr,
+    TEST_APP_INSTANCE.cfAddress(),
+    contractCallData(
+      "setState(bytes32,uint256,uint256,bytes)",
+      TEST_APP_STATE_HASH,
+      TEST_LOCAL_NONCE,
+      TEST_TIMEOUT,
+      cf.utils.signaturesToBytes(...signatures)
+    )
+  );
+}
 
 describe("OpSetState", () => {
   let operation: OpSetState;
@@ -38,18 +53,7 @@ describe("OpSetState", () => {
     const digest = operation.hashToSign();
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const expectedTxData = ethContractCall(
-      "proxyCall(address,bytes32,bytes)",
-      TEST_NETWORK_CONTEXT.registryAddr,
-      TEST_APP_INSTANCE.cfAddress(),
-      ethContractCall(
-        "setState(bytes32,uint256,uint256,bytes)",
-        TEST_APP_STATE_HASH,
-        TEST_LOCAL_NONCE,
-        TEST_TIMEOUT,
-        cf.utils.signaturesToBytes(...signatures)
-      )
-    );
+    const expectedTxData = constructSetStateData(signatures);
 
     const tx = operation.transaction(signatures);
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
