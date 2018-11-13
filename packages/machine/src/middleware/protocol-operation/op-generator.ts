@@ -18,7 +18,7 @@ import { ProtocolOperation } from "./types";
  * in the state channel, the ProtocolOperation transitions the state to that
  * yielded by STATE_TRANSITION_PROPOSE.
  */
-export class EthOpGenerator extends OpGenerator {
+export class EthOpGenerator implements OpGenerator {
   public generate(
     message: InternalMessage,
     next: Function,

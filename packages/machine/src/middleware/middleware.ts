@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import { Context } from "../instruction-executor";
 import { Opcode } from "../instructions";
 import { NodeState } from "../node-state";
+import { EthOpGenerator } from "./protocol-operation";
+
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -56,14 +58,15 @@ export class Middleware {
   };
 
   constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
-    this.initializeMiddlewares(opGenerator);
+    this.initializeMiddlewares();
   }
 
-  private initializeMiddlewares(opGenerator) {
+  private initializeMiddlewares() {
+    const opGenerator2 = new EthOpGenerator();
     this.add(
       Opcode.OP_GENERATE,
       (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.nodeState);
+        return opGenerator2.generate(message, next, context, this.nodeState);
       }
     );
     this.add(
@@ -128,8 +131,8 @@ export class Middleware {
  * creating ProtocolOperations, i.e. commitments, to be stored, used, and signed
  * in the state channel system.
  */
-export abstract class OpGenerator {
-  public abstract generate(
+export interface OpGenerator {
+  generate(
     message: InternalMessage,
     next: Function,
     context: Context,
@@ -218,13 +221,6 @@ export class SignatureValidator {
     next: Function,
     context: Context
   ) {
-    // const incomingMessage = getFirstResult(
-    //   Opcode.IO_WAIT,
-    //   context.results2
-    // );
-    // const op = getFirstResult(Opcode.OP_GENERATE, context.results2);
-    // TODO: now validate the signature against the op hash
-    // https://github.com/counterfactual/monorepo/issues/130
     next();
   }
 }
