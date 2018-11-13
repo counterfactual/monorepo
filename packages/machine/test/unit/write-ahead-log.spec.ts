@@ -11,7 +11,7 @@ describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
     const db = new SimpleStringMapSyncDB();
 
-    const instructionExecutor = new InstructionExecutor(new InstructionExecutorConfig(null!, null!, null!, undefined!));
+    const instructionExecutor = new InstructionExecutor(new InstructionExecutorConfig(null!, null!, undefined!));
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
 

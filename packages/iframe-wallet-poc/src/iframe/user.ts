@@ -259,7 +259,7 @@ async function validateSignatures(
   context: machine.instructionExecutor.Context,
   user: User
 ) {
-  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
+  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
     machine.instructions.Opcode.OP_GENERATE,
     context.results2
   ).value;
