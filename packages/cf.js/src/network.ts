@@ -1,6 +1,7 @@
-import lodash from "lodash";
+import ethers from "ethers";
+import * as _ from "lodash";
 
-import { Address } from "./index";
+import { Address } from "./utils";
 
 /**
  * A network context is a set of addresses at which global contracts are
@@ -42,7 +43,7 @@ export class NetworkContext {
 
   public linkedBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
-    for (const contractName of lodash.keys(this.contractToVar)) {
+    for (const contractName of _.keys(this.contractToVar)) {
       const regex = new RegExp(`__${contractName}_+`, "g");
       const address = this[this.contractToVar[contractName]].substr(2);
       bytecode = bytecode.replace(regex, address);
@@ -50,3 +51,14 @@ export class NetworkContext {
     return bytecode;
   }
 }
+
+export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero
+);

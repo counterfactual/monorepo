@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "./node-state";
-import { InternalMessage, MiddlewareResult } from "./types";
+import { Context } from "./instruction-executor";
+import { InternalMessage, OpCodeResult } from "./types";
 
 /**
  * Persistent write ahead log to be able to resume or abort protocols if the
@@ -96,7 +96,7 @@ interface LogRecord {
   clientMessage: cf.node.ClientActionMessage;
   isAckSide: boolean;
   instructionPointer: number;
-  results: MiddlewareResult[];
+  results: OpCodeResult[];
 }
 
 /**

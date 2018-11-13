@@ -2,7 +2,7 @@ import * as cf from "@counterfactual/cf.js";
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import * as machine from "@counterfactual/machine";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
 import { User } from "./user";
@@ -27,8 +27,8 @@ export class IFrameWallet implements cf.node.ResponseSink {
       wallet
     ).deploy();
 
-    owners.sort(
-      (addrA, addrB) => (new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1)
+    owners.sort((addrA, addrB) =>
+      new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1
     );
 
     await contract.functions.setup(owners);
@@ -44,18 +44,18 @@ export class IFrameWallet implements cf.node.ResponseSink {
     return this.users.get(this.address)!;
   }
 
-  get network(): cf.utils.NetworkContext {
+  get network(): cf.network.NetworkContext {
     return this.networkContext;
   }
 
   public users: Map<string, User>;
   public address?: string;
-  private networkContext: cf.utils.NetworkContext;
+  private networkContext: cf.network.NetworkContext;
   private requests: Map<string, Function>;
   private responseListener?: Function;
   private messageListener?: Function;
 
-  constructor(networkContext: cf.utils.NetworkContext) {
+  constructor(networkContext: cf.network.NetworkContext) {
     this.users = new Map<string, User>();
     this.requests = new Map<string, Function>();
     this.networkContext = networkContext;
@@ -64,7 +64,7 @@ export class IFrameWallet implements cf.node.ResponseSink {
   // FIXME: Remove this method and refactor the network context data type.
   public static networkFileToNetworkContext(json: Object) {
     const tmp = _.mapValues(_.keyBy(json, "contractName"), "address");
-    return new cf.utils.NetworkContext(
+    return new cf.network.NetworkContext(
       tmp["Registry"],
       tmp["PaymentApp"],
       tmp["ConditionalTransaction"],
@@ -87,9 +87,9 @@ export class IFrameWallet implements cf.node.ResponseSink {
   public setUser(
     address: string,
     privateKey: string,
-    networkContext?: cf.utils.NetworkContext,
+    networkContext?: cf.network.NetworkContext,
     db?: machine.writeAheadLog.SimpleStringMapSyncDB,
-    states?: cf.channel.ChannelStates
+    states?: cf.channel.StateChannelInfos
   ) {
     this.address = address;
 
@@ -243,9 +243,9 @@ export class IFrameWallet implements cf.node.ResponseSink {
   }
 
   private getMultisigAddressByToAddress(toAddress: string): string | undefined {
-    const state = this.currentUser.instructionExecutor.nodeState;
-    return Object.keys(state.channelStates).find(multisig => {
-      return state.channelStates[multisig].counterParty === toAddress;
+    const nodeState = this.currentUser.instructionExecutor.nodeState;
+    return Object.keys(nodeState.channelStates).find(multisig => {
+      return nodeState.channelStates[multisig].counterParty === toAddress;
     });
   }
 

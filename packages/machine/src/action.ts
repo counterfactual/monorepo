@@ -1,9 +1,8 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { InstructionExecutor } from "./instruction-executor";
-import { ackInstructions, Instruction, instructions } from "./instructions";
-import { Context } from "./node-state";
-import { InternalMessage, MiddlewareResult } from "./types";
+import { Context, InstructionExecutor } from "./instruction-executor";
+import { ackInstructions, instructions, Opcode } from "./instructions";
+import { InternalMessage, OpCodeResult } from "./types";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -14,7 +13,7 @@ export class Action {
   public requestId: string;
   public clientMessage: cf.node.ClientActionMessage;
   public execution: ActionExecution = Object.create(null);
-  public instructions: Instruction[];
+  public instructions: Opcode[];
   public isAckSide: boolean;
 
   constructor(
@@ -54,14 +53,14 @@ export class ActionExecution {
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public results: MiddlewareResult[];
+  public results: OpCodeResult[];
 
   constructor(
     action: Action,
-    instruction: number,
+    instruction: Opcode,
     clientMessage: cf.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
-    results: MiddlewareResult[] = []
+    results: OpCodeResult[] = []
   ) {
     this.action = action;
     this.instructionPointer = instruction;
@@ -111,7 +110,7 @@ export class ActionExecution {
       return { value, done: false };
     } catch (e) {
       throw Error(
-        `While executing op ${Instruction[internalMessage.opCode]} at seq ${
+        `While executing op ${Opcode[internalMessage.opCode]} at seq ${
           this.clientMessage.seq
         }, execution failed with the following error. ${e.stack}`
       );

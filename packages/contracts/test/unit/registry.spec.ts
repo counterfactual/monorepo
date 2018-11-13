@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as solc from "solc";
 
 import { AbstractContract, expect } from "../../utils";

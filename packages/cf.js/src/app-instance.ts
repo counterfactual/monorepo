@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
 import { Terms } from "./app";
@@ -14,7 +14,7 @@ export class AppInstance {
 
   // TODO: temp hack necessary until ethers support https://github.com/ethers-io/ethers.js/issues/325
   static generateAbiEncodings(
-    abi: string | (string | ethers.ethers.utils.ParamType)[]
+    abi: string | (string | ethers.utils.ParamType)[]
   ): AbiEncodings {
     const iface = new ethers.utils.Interface(abi);
     const appFunctionNames = _.keys(iface.functions).filter(fn => {
