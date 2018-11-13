@@ -45,6 +45,7 @@ export class Middleware {
         method: (message, next, context) => {
           const proposal = StateTransition.propose(message, next, context, this.nodeState);
           context.intermediateResults.proposedStateTransition = proposal;
+          return proposal;
         }
       }
     ]
