@@ -26,7 +26,7 @@ export class ActionExecution {
   public instructionExecutor: InstructionExecutor;
   public results2: OpCodeResult[];
   public isAckSide: boolean;
-  public intermediateResults: { [s: string] : any };
+  public intermediateResults: { [s: string]: any };
   public requestId: string;
 
   constructor(

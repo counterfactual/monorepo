@@ -4,8 +4,6 @@ import { ethers } from "ethers";
 import { Context } from "../instruction-executor";
 import { Opcode } from "../instructions";
 import { NodeState } from "../node-state";
-import { EthOpGenerator } from "./protocol-operation";
-
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -13,6 +11,7 @@ import {
   OpCodeResult
 } from "../types";
 
+import { EthOpGenerator } from "./protocol-operation";
 import { StateTransition } from "./state-transition/state-transition";
 
 /**
