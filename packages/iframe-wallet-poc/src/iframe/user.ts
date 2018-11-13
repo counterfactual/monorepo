@@ -7,6 +7,8 @@ import { CommitmentStore } from "../commitmentStore";
 import { IframeIoProvider } from "./ioProvider";
 import { IFrameWallet } from "./wallet";
 
+import { instructions } from "@counterfactual/machine";
+
 export let ganacheURL;
 
 try {
