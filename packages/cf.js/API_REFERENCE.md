@@ -58,7 +58,7 @@
     - `AppAction`: object, a POJO describing app action, encoded using app action encoding
     - `AppTerms`:
         - `assetType`: ETH or ERC20 or OTHER
-        - `limit`: Limit
+        - `limit`: Funds limit committed to app
         - `token`: Address of token contract if applicable
     - `AppDefinition`
         - `address`: on-chain address for the app definition contract
