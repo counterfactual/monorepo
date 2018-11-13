@@ -83,40 +83,40 @@ export const TEST_APP_INSTANCE = new cf.app.AppInstance(
   TEST_APP_UNIQUE_ID
 );
 
-export function contractCallData(funcSig: string, ...args: any): string {
+export function constructContractCall(funcSig: string, ...args: any): string {
   const [funcName] = funcSig.split("(");
   return new ethers.utils.Interface([funcSig]).functions[funcName].encode(args);
 }
 
-export function multiSendData(subcalls: string[]): string {
-  return contractCallData(
+export function constructMultiSend(subcalls: string[]): string {
+  return constructContractCall(
     "multiSend(bytes)",
     `0x${subcalls.map(call => call.substr(2)).join("")}`
   );
 }
 
-export function multiSendSubCallData(
+export function constructMultiSendSubCall(
   operation: "delegatecall" | "call",
   to: string,
   value: string | number,
   funcSig: string,
   args: any[]
 ): string {
-  const data = contractCallData(funcSig, ...args);
+  const data = constructContractCall(funcSig, ...args);
   return ethers.utils.defaultAbiCoder.encode(
     ["uint8", "address", "uint256", "bytes"],
     [operation === "delegatecall" ? 1 : 0, to, value, data]
   );
 }
 
-export function multisigExecTransactionData(
+export function constructMultisigExecTransaction(
   operation: "delegatecall" | "call",
   to: string,
   value: string | number,
   transactionData: string,
   signatures: ethers.utils.Signature[]
 ): string {
-  return contractCallData(
+  return constructContractCall(
     "execTransaction(address, uint256, bytes, uint8, bytes)",
     to,
     0, // value

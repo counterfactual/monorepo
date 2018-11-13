@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
-  contractCallData, multisigExecTransactionData,
+  constructContractCall, constructMultisigExecTransaction,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
   TEST_MULTISIG_ADDRESS,
@@ -26,7 +26,7 @@ function constructConditionalTransactionData(nonceUniqueId: number) {
   );
 
   const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
-  return contractCallData(
+  return constructContractCall(
     "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
     TEST_NETWORK_CONTEXT.registryAddr,
     TEST_NETWORK_CONTEXT.nonceRegistryAddr,
@@ -58,7 +58,7 @@ describe("OpSetup", () => {
 
     const digest = operation.hashToSign();
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
-    const expectedTxData = multisigExecTransactionData(
+    const expectedTxData = constructMultisigExecTransaction(
       "delegatecall",
       TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
       0,

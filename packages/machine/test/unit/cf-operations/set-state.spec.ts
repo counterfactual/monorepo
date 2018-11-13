@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
-  contractCallData, TEST_APP_INSTANCE,
+  constructContractCall, TEST_APP_INSTANCE,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
@@ -18,11 +18,11 @@ import {
 } from "./fixture";
 
 function constructSetStateData(signatures: ethers.utils.Signature[]): string {
-  return contractCallData(
+  return constructContractCall(
     "proxyCall(address,bytes32,bytes)",
     TEST_NETWORK_CONTEXT.registryAddr,
     TEST_APP_INSTANCE.cfAddress(),
-    contractCallData(
+    constructContractCall(
       "setState(bytes32,uint256,uint256,bytes)",
       TEST_APP_STATE_HASH,
       TEST_LOCAL_NONCE,

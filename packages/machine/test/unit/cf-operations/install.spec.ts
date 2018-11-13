@@ -4,10 +4,10 @@ import { keccak256 } from "ethers/utils";
 import { OpInstall } from "../../../src/middleware/protocol-operation";
 
 import {
-  contractCallData,
-  multiSendData,
-  multiSendSubCallData,
-  multisigExecTransactionData,
+  constructContractCall,
+  constructMultiSend,
+  constructMultiSendSubCall,
+  constructMultisigExecTransaction,
   TEST_APP_INSTANCE,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
@@ -32,7 +32,7 @@ function constructFreeBalanceInput() {
       [alice, bob, aliceBalance, bobBalance]
     )
   );
-  return multiSendSubCallData(
+  return constructMultiSendSubCall(
     "delegatecall",
     TEST_NETWORK_CONTEXT.registryAddr,
     0,
@@ -40,7 +40,7 @@ function constructFreeBalanceInput() {
     [
       TEST_NETWORK_CONTEXT.registryAddr,
       TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-      contractCallData(
+      constructContractCall(
         "setState(bytes32,uint256,uint256,bytes)",
         appStateHash,
         localNonce,
@@ -62,7 +62,7 @@ function constructConditionalTransferInput(nonceUniqueId: number) {
     )
   );
   const { assetType, limit, token } = TEST_TERMS;
-  return multiSendSubCallData(
+  return constructMultiSendSubCall(
     "delegatecall",
     TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
     0,
@@ -82,7 +82,7 @@ function constructInstallMultiSendData(nonceUniqueId: number) {
   const conditionalTransactionInput = constructConditionalTransferInput(
     nonceUniqueId
   );
-  return multiSendData([freeBalanceInput, conditionalTransactionInput]);
+  return constructMultiSend([freeBalanceInput, conditionalTransactionInput]);
 }
 
 describe("OpInstall", () => {
@@ -105,7 +105,7 @@ describe("OpInstall", () => {
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
     const multiSendData = constructInstallMultiSendData(TEST_NONCE_UNIQUE_ID);
-    const expectedTxData = multisigExecTransactionData(
+    const expectedTxData = constructMultisigExecTransaction(
       "delegatecall",
       TEST_NETWORK_CONTEXT.multiSendAddr,
       0, // value
