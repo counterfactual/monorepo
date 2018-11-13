@@ -120,6 +120,7 @@ export class InstructionExecutor implements Observable {
         requestId: execution.requestId,
         name: execution.actionName,
         results: execution.results2,
+        proposedStateTransition: execution.intermediateResults.proposedStateTransition,
         clientMessage: execution.clientMessage
       }
     });

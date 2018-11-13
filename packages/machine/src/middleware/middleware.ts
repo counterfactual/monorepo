@@ -50,7 +50,6 @@ export class Middleware {
             this.nodeState
           );
           context.intermediateResults.proposedStateTransition = proposal;
-          return proposal;
         }
       }
     ]
