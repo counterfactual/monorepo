@@ -43,7 +43,12 @@ export class Middleware {
       {
         scope: Opcode.STATE_TRANSITION_PROPOSE,
         method: (message, next, context) => {
-          const proposal = StateTransition.propose(message, next, context, this.nodeState);
+          const proposal = StateTransition.propose(
+            message,
+            next,
+            context,
+            this.nodeState
+          );
           context.intermediateResults.proposedStateTransition = proposal;
           return proposal;
         }
@@ -58,7 +63,7 @@ export class Middleware {
   private initializeMiddlewares(opGenerator) {
     this.add(
       Opcode.OP_GENERATE,
-     (message: InternalMessage, next: Function, context: Context) => {
+      (message: InternalMessage, next: Function, context: Context) => {
         return opGenerator.generate(message, next, context, this.nodeState);
       }
     );
