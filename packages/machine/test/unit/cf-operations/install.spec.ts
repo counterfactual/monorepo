@@ -8,15 +8,12 @@ import {
   ethMultiSendCall,
   ethMultiSendSubCall,
   TEST_APP_INSTANCE,
-  TEST_APP_STATE_HASH,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
-  TEST_LOCAL_NONCE,
   TEST_MULTISIG_ADDRESS,
   TEST_NETWORK_CONTEXT,
   TEST_SIGNING_KEYS,
-  TEST_TERMS,
-  TEST_TIMEOUT
+  TEST_TERMS
 } from "./fixture";
 
 // const { keccak256 } = ethers.utils;
@@ -50,11 +47,13 @@ describe("OpInstall", () => {
       )
     );
 
-    const stateHash = keccak256(
-      cf.utils.abi.encodePacked(
-        [TEST_APP_STATE_HASH, TEST_LOCAL_NONCE, TEST_TIMEOUT]
+    const { alice, bob, aliceBalance, bobBalance, localNonce, timeout } = TEST_FREE_BALANCE;
+    const appStateHash = keccak256(
+      cf.utils.abi.encode(
+        ["address", "address", "uint256", "uint256"],
+        [alice, bob, aliceBalance, bobBalance]
       )
-    )
+    );
 
     // @ts-ignore
     const freeBalanceInput = ethMultiSendSubCall(
@@ -64,12 +63,12 @@ describe("OpInstall", () => {
       "proxyCall(address,bytes32,bytes)",
       [
         TEST_NETWORK_CONTEXT.registryAddr,
-        TEST_APP_INSTANCE.cfAddress(),
+        TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
         ethContractCall(
           "setState(bytes32,uint256,uint256,bytes)",
-          TEST_APP_STATE_HASH,
-          TEST_LOCAL_NONCE,
-          TEST_TIMEOUT,
+          appStateHash,
+          localNonce,
+          timeout,
           "0x0"
         )
       ]
