@@ -37,7 +37,7 @@ describe("OpSetState", () => {
     const digest = operation.hashToSign();
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const app = new cf.app.AppInstance(
+    const app = new cf.legacy.app.AppInstance(
       TEST_NETWORK_CONTEXT,
       TEST_MULTISIG_ADDRESS,
       TEST_PARTICIPANTS,
@@ -62,7 +62,7 @@ describe("OpSetState", () => {
           TEST_APP_STATE_HASH,
           TEST_LOCAL_NONCE,
           TEST_TIMEOUT,
-          cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
+          cf.legacy.utils.signaturesToSortedBytes(digest, sig1, sig2)
         ])
       ])
     );
@@ -72,7 +72,7 @@ describe("OpSetState", () => {
   it("Should compute the correct hash to sign", () => {
     expect(operation.hashToSign()).toBe(
       ethers.utils.keccak256(
-        cf.utils.abi.encodePacked(
+        cf.legacy.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
           [
             "0x19",

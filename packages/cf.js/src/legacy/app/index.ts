@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { StateChannelInfo } from "../channel";
 import { NetworkContext } from "../network";
-import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
+import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils/index";
 import * as abi from "../utils/abi";
 import { Nonce } from "../utils/nonce";
 

@@ -18,21 +18,21 @@ const PAYMENT_APP_STATE_ENCODING =
 const PAYMENT_APP_ABI_ENCODING = JSON.stringify(PaymentAppJson.abi);
 
 const APP_NAME = "PaymentApp";
-const APP_INSTANCE = new cf.AppInstance(
+const APP_INSTANCE = new cf.legacy.AppInstance(
   [A_ADDRESS, B_ADDRESS].sort(),
   {
     address: ethers.constants.AddressZero,
     appActionEncoding: PAYMENT_APP_ABI_ENCODING,
     appStateEncoding: PAYMENT_APP_STATE_ENCODING
   },
-  new cf.app.Terms(
+  new cf.legacy.app.Terms(
     0,
     ethers.utils.bigNumberify(0),
     ethers.constants.AddressZero
   ),
   100
 );
-const APP_DEPOSITS: cf.types.Deposits = {
+const APP_DEPOSITS: cf.legacy.types.Deposits = {
   [A_ADDRESS]: ethers.utils.bigNumberify(0),
   [B_ADDRESS]: ethers.utils.bigNumberify(0)
 };
@@ -45,14 +45,14 @@ const APP_INITIAL_STATE = {
 
 const blockchainProvider = new ethers.providers.JsonRpcProvider(ganacheURL);
 
-class ClientBridge implements cf.node.WalletMessaging {
+class ClientBridge implements cf.legacy.node.WalletMessaging {
   public client: IFrameWallet;
 
   constructor(client: IFrameWallet) {
     this.client = client;
   }
 
-  public postMessage(message: cf.node.ClientActionMessage) {
+  public postMessage(message: cf.legacy.node.ClientActionMessage) {
     //  TODO: move this into a setTimeout to enfore asyncness of the call
     this.client.receiveMessageFromClient(message);
   }
@@ -70,8 +70,8 @@ describe("Lifecycle", async () => {
   let clientB: IFrameWallet;
   let connectionA;
   let connectionB;
-  let clientInterfaceA: cf.Client;
-  let clientInterfaceB: cf.Client;
+  let clientInterfaceA: cf.legacy.Client;
+  let clientInterfaceB: cf.legacy.Client;
 
   beforeEach(async () => {
     clientA = new IFrameWallet(EMPTY_NETWORK_CONTEXT);
@@ -83,8 +83,8 @@ describe("Lifecycle", async () => {
     connectionA = new ClientBridge(clientA);
     connectionB = new ClientBridge(clientB);
 
-    clientInterfaceA = new cf.Client(connectionA);
-    clientInterfaceB = new cf.Client(connectionB);
+    clientInterfaceA = new cf.legacy.Client(connectionA);
+    clientInterfaceB = new cf.legacy.Client(connectionB);
 
     await clientInterfaceA.init();
     await clientInterfaceB.init();
@@ -140,8 +140,8 @@ describe("Lifecycle", async () => {
     clientB.setUser(B_ADDRESS, B_PRIVATE_KEY);
     const connectionA = new ClientBridge(clientA);
     const connectionB = new ClientBridge(clientB);
-    const clientInterfaceA = new cf.Client(connectionA);
-    const clientInterfaceB = new cf.Client(connectionB);
+    const clientInterfaceA = new cf.legacy.Client(connectionA);
+    const clientInterfaceB = new cf.legacy.Client(connectionB);
 
     clientInterfaceB.addObserver("installCompleted", data => {
       expect(false).toBeTruthy();
@@ -208,7 +208,7 @@ describe("Lifecycle", async () => {
 
   it("Can install an app", async () => {
     const connection = new ClientBridge(clientA);
-    const client = new cf.Client(connection);
+    const client = new cf.legacy.Client(connection);
     await client.init();
     clientA.currentUser.io.peer = clientB;
     clientB.currentUser.io.peer = clientA;
@@ -237,7 +237,7 @@ describe("Lifecycle", async () => {
 
   it("Can uninstall an app", async () => {
     const connection = new ClientBridge(clientA);
-    const client = new cf.Client(connection);
+    const client = new cf.legacy.Client(connection);
     await client.init();
 
     const stateChannel = await client.connect(B_ADDRESS);
@@ -276,7 +276,7 @@ describe("Lifecycle", async () => {
 
   it("Can update an app", async () => {
     const connection = new ClientBridge(clientA);
-    const client = new cf.Client(connection);
+    const client = new cf.legacy.Client(connection);
     await client.init();
 
     const stateChannel = await client.connect(B_ADDRESS);
@@ -297,7 +297,7 @@ describe("Lifecycle", async () => {
 
   it("Can change users", async () => {
     const connection = new ClientBridge(clientA);
-    const client = new cf.Client(connection);
+    const client = new cf.legacy.Client(connection);
     await client.init();
 
     const threshold = 10;
@@ -333,7 +333,7 @@ describe("Lifecycle", async () => {
 
   it("Can query freeBalance", async () => {
     const connection = new ClientBridge(clientA);
-    const client = new cf.Client(connection);
+    const client = new cf.legacy.Client(connection);
     await client.init();
 
     const stateChannel = await client.connect(B_ADDRESS);
@@ -351,7 +351,7 @@ describe("Lifecycle", async () => {
 
   it("Can query stateChannel", async () => {
     const connection = new ClientBridge(clientA);
-    const clientInterfaceA = new cf.Client(connection);
+    const clientInterfaceA = new cf.legacy.Client(connection);
     await clientInterfaceA.init();
 
     const stateChannelAB = await clientInterfaceA.connect(B_ADDRESS);
@@ -376,7 +376,7 @@ describe("Lifecycle", async () => {
 
   it("Allows apps to communicate directly with each other", async () => {
     const connectionA = new ClientBridge(clientA);
-    const clientInterfaceA = new cf.Client(connectionA);
+    const clientInterfaceA = new cf.legacy.Client(connectionA);
     clientA.onMessage(msg => {
       clientInterfaceA.sendIOMessage(msg);
     });
@@ -535,7 +535,7 @@ function validateFreebalance(
 async function makePayments(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppInstanceClient,
+  appChannel: cf.legacy.AppInstanceClient,
   multisigContractAddress: string
 ) {
   await makePayment(
@@ -589,7 +589,7 @@ async function makePayment(
   multisigContractAddress: string,
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppInstanceClient,
+  appChannel: cf.legacy.AppInstanceClient,
   aliceBalance: string,
   bobBalance: string,
   totalUpdates: number
@@ -614,7 +614,7 @@ async function makePayment(
 function validateUpdatePayment(
   clientA: IFrameWallet,
   clientB: IFrameWallet,
-  appChannel: cf.AppInstanceClient,
+  appChannel: cf.legacy.AppInstanceClient,
   appState: object,
   totalUpdates: number,
   multisigContractAddress: string

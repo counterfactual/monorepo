@@ -23,7 +23,7 @@ describe("OpSetup", () => {
       TEST_MULTISIG_ADDRESS,
       TEST_FREE_BALANCE_APP_INSTANCE,
       TEST_FREE_BALANCE,
-      new cf.utils.Nonce(true, TEST_NONCE_UNIQUE_ID, 0)
+      new cf.legacy.utils.Nonce(true, TEST_NONCE_UNIQUE_ID, 0)
     );
   });
 
@@ -33,10 +33,10 @@ describe("OpSetup", () => {
     const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
     const salt = keccak256(
-      cf.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
+      cf.legacy.utils.abi.encodePacked(["uint256"], [TEST_NONCE_UNIQUE_ID])
     );
     const uninstallKey = keccak256(
-      cf.utils.abi.encodePacked(
+      cf.legacy.utils.abi.encodePacked(
         ["address", "uint256", "uint256"],
         [TEST_MULTISIG_ADDRESS, 0, salt]
       )
@@ -63,7 +63,7 @@ describe("OpSetup", () => {
           [terms.assetType, terms.limit, terms.token]
         ]),
         1,
-        cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
+        cf.legacy.utils.signaturesToSortedBytes(digest, sig1, sig2)
       ])
     );
   });

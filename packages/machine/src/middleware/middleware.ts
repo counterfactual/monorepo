@@ -131,7 +131,7 @@ export class NextMsgGenerator {
   ) {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
-    const msg: cf.node.ClientActionMessage = {
+    const msg: cf.legacy.node.ClientActionMessage = {
       signature,
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,
@@ -172,7 +172,7 @@ export class NextMsgGenerator {
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     if (
-      internalMessage.actionName === cf.node.ActionName.INSTALL &&
+      internalMessage.actionName === cf.legacy.node.ActionName.INSTALL &&
       lastMsg.seq === 0
     ) {
       return undefined;

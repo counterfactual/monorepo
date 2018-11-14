@@ -1,7 +1,7 @@
 import ethers from "ethers";
 import * as _ from "lodash";
 
-import { Address } from "./utils";
+import { Address } from "./utils/index";
 
 /**
  * A network context is a set of addresses at which global contracts are

@@ -89,11 +89,11 @@ export interface Log {
  * Record stored in the WAL.
  */
 interface LogRecord {
-  actionName: cf.node.ActionName;
-  to: cf.utils.Address;
-  from: cf.utils.Address;
+  actionName: cf.legacy.node.ActionName;
+  to: cf.legacy.utils.Address;
+  from: cf.legacy.utils.Address;
   requestId: string;
-  clientMessage: cf.node.ClientActionMessage;
+  clientMessage: cf.legacy.node.ClientActionMessage;
   isAckSide: boolean;
   instructionPointer: number;
   results: OpCodeResult[];

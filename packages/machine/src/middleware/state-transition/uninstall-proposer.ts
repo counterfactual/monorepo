@@ -10,7 +10,7 @@ export class UninstallProposer {
     context: Context,
     nodeState: NodeState
   ): StateProposal {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
     const channels = nodeState.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
@@ -20,12 +20,12 @@ export class UninstallProposer {
     channels[multisig].appInstances[appId].dependencyNonce.nonceValue += 1;
     channels[multisig].appInstances[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
-    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
+    const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.legacy.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,

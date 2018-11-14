@@ -9,13 +9,13 @@ import { ethers } from "ethers";
  * `appLocalNonce`, `timeout` and `signatures`
  */
 export function proxyCallSetStateData(
-  networkContext: cf.network.NetworkContext,
-  appStateHash: cf.utils.H256,
-  appCfAddr: cf.utils.H256,
+  networkContext: cf.legacy.network.NetworkContext,
+  appStateHash: cf.legacy.utils.H256,
+  appCfAddr: cf.legacy.utils.H256,
   appLocalNonce: number,
   timeout: number,
-  signatures: cf.utils.Bytes
-): cf.utils.Bytes {
+  signatures: cf.legacy.utils.Bytes
+): cf.legacy.utils.Bytes {
   return new ethers.utils.Interface(
     RegistryJson.abi
   ).functions.proxyCall.encode([

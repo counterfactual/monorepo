@@ -9,17 +9,17 @@ if (!Symbol.asyncIterator) {
 }
 
 export class Action {
-  public name: cf.node.ActionName;
+  public name: cf.legacy.node.ActionName;
   public requestId: string;
-  public clientMessage: cf.node.ClientActionMessage;
+  public clientMessage: cf.legacy.node.ClientActionMessage;
   public execution: ActionExecution = Object.create(null);
   public instructions: Opcode[];
   public isAckSide: boolean;
 
   constructor(
     id: string,
-    action: cf.node.ActionName,
-    clientMessage: cf.node.ClientActionMessage,
+    action: cf.legacy.node.ActionName,
+    clientMessage: cf.legacy.node.ClientActionMessage,
     isAckSide: boolean = false
   ) {
     this.requestId = id;
@@ -51,14 +51,14 @@ export class Action {
 export class ActionExecution {
   public action: Action;
   public instructionPointer: number;
-  public clientMessage: cf.node.ClientActionMessage;
+  public clientMessage: cf.legacy.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
   public results: OpCodeResult[];
 
   constructor(
     action: Action,
     instruction: Opcode,
-    clientMessage: cf.node.ClientActionMessage,
+    clientMessage: cf.legacy.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
     results: OpCodeResult[] = []
   ) {

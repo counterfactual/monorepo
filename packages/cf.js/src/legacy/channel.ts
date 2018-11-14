@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, AppInterface, InstallData } from "./app";
+import { AppInstanceInfos, AppInterface, InstallData } from "./app/index";
 import { AppInstance } from "./app-instance";
 import { AppInstanceClient } from "./app-instance-client";
 import { Client } from "./client";
@@ -12,9 +12,9 @@ import {
   ClientQueryType,
   FreeBalanceClientResponse,
   StateChannelDataClientResponse
-} from "./node";
+} from "./node/index";
 import * as types from "./types";
-import { Address, FreeBalance, PeerBalance } from "./utils";
+import { Address, FreeBalance, PeerBalance } from "./utils/index";
 
 export class Channel {
   public client: Client;

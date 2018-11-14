@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 import { StateChannelInfo } from "../channel";
-import { Address, FreeBalance } from "../utils";
+import { Address, FreeBalance } from "../utils/index";
 
 // FIXME: move operation action names away from client action names
 // https://github.com/counterfactual/monorepo/issues/144

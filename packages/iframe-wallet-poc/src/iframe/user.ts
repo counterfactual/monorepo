@@ -17,7 +17,7 @@ try {
   console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
-export class User implements machine.mixins.Observable, cf.node.ResponseSink {
+export class User implements machine.mixins.Observable, cf.legacy.node.ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
@@ -50,9 +50,9 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: cf.network.NetworkContext,
+    networkContext: cf.legacy.network.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: cf.channel.StateChannelInfos
+    states?: cf.legacy.channel.StateChannelInfos
   ) {
     this.wallet = wallet;
     this.address = address;
@@ -143,7 +143,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     await this.instructionExecutor.resume(savedLog);
   }
 
-  public handleActionCompletion(notification: cf.node.Notification) {
+  public handleActionCompletion(notification: cf.legacy.node.Notification) {
     this.notifyObservers(`${notification.data.name}Completed`, {
       requestId: notification.data.requestId,
       result: this.generateObserverNotification(notification),
@@ -151,12 +151,12 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     });
   }
 
-  public generateObserverNotification(notification: cf.node.Notification): any {
+  public generateObserverNotification(notification: cf.legacy.node.Notification): any {
     const PROPOSE = machine.instructions.Opcode.STATE_TRANSITION_PROPOSE;
     return notification.data.results.find(r => r.opCode === PROPOSE).value;
   }
 
-  public addObserver(message: cf.node.ClientActionMessage) {
+  public addObserver(message: cf.legacy.node.ClientActionMessage) {
     const boundNotification = this.sendNotification.bind(
       this,
       message.data.notificationType
@@ -165,7 +165,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.registerObserver(message.data.notificationType, boundNotification);
   }
 
-  public removeObserver(message: cf.node.ClientActionMessage) {
+  public removeObserver(message: cf.legacy.node.ClientActionMessage) {
     const callback = this.observerCallbacks.get(message.data.observerId);
 
     if (callback) {
@@ -182,7 +182,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     }
   }
 
-  public sendResponse(res: cf.node.WalletResponse | cf.node.Notification) {
+  public sendResponse(res: cf.legacy.node.WalletResponse | cf.legacy.node.Notification) {
     if (this.isCurrentUser) {
       this.wallet.sendResponse(res);
     }

@@ -38,15 +38,15 @@ function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecuti
   const requestIds = ["1", "2", "3"];
 
   const actions = [
-    cf.node.ActionName.INSTALL,
-    cf.node.ActionName.UPDATE,
-    cf.node.ActionName.UNINSTALL
+    cf.legacy.node.ActionName.INSTALL,
+    cf.legacy.node.ActionName.UPDATE,
+    cf.legacy.node.ActionName.UNINSTALL
   ];
 
-  const msgs: cf.node.ClientActionMessage[] = [
+  const msgs: cf.legacy.node.ClientActionMessage[] = [
     {
       requestId: "1",
-      action: cf.node.ActionName.INSTALL,
+      action: cf.legacy.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",
@@ -55,7 +55,7 @@ function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecuti
     },
     {
       requestId: "2",
-      action: cf.node.ActionName.INSTALL,
+      action: cf.legacy.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",
@@ -64,7 +64,7 @@ function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecuti
     },
     {
       requestId: "3",
-      action: cf.node.ActionName.INSTALL,
+      action: cf.legacy.node.ActionName.INSTALL,
       data: {},
       multisigAddress: "0x1234",
       fromAddress: "0xa",

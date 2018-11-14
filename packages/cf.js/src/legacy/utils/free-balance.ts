@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { AppInterface, Terms } from "../app";
+import { AppInterface, Terms } from "../app/index";
 import { NetworkContext } from "../network";
 
 import { Address } from "./index";

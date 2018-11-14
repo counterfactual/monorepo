@@ -5,10 +5,10 @@ import { MultisigInput } from "./types";
 
 export class OpUninstall extends MultiSendOp {
   constructor(
-    readonly networkContext: cf.network.NetworkContext,
-    readonly multisig: cf.utils.Address,
-    readonly freeBalance: cf.utils.FreeBalance,
-    readonly dependencyNonce: cf.utils.Nonce
+    readonly networkContext: cf.legacy.network.NetworkContext,
+    readonly multisig: cf.legacy.utils.Address,
+    readonly freeBalance: cf.legacy.utils.FreeBalance,
+    readonly dependencyNonce: cf.legacy.utils.Nonce
   ) {
     super(networkContext, multisig, freeBalance, dependencyNonce);
   }

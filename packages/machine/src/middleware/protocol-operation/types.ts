@@ -3,12 +3,12 @@ import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.j
 import { ethers } from "ethers";
 
 export abstract class ProtocolOperation {
-  public abstract hashToSign(): cf.utils.H256;
+  public abstract hashToSign(): cf.legacy.utils.H256;
 
   public abstract transaction(sigs: ethers.utils.Signature[]): Transaction;
 }
 
-const { abi } = cf.utils;
+const { abi } = cf.legacy.utils;
 
 export enum Operation {
   Call = 0,
@@ -17,7 +17,7 @@ export enum Operation {
 
 export class Transaction {
   constructor(
-    readonly to: cf.utils.Address,
+    readonly to: cf.legacy.utils.Address,
     readonly value: number,
     readonly data: string
   ) {}
@@ -25,9 +25,9 @@ export class Transaction {
 
 export class MultisigTransaction extends Transaction {
   constructor(
-    readonly to: cf.utils.Address,
+    readonly to: cf.legacy.utils.Address,
     readonly value: number,
-    readonly data: cf.utils.Bytes,
+    readonly data: cf.legacy.utils.Bytes,
     readonly operation: Operation
   ) {
     super(to, value, data);
@@ -36,9 +36,9 @@ export class MultisigTransaction extends Transaction {
 
 export class MultisigInput {
   constructor(
-    readonly to: cf.utils.Address,
+    readonly to: cf.legacy.utils.Address,
     readonly val: number,
-    readonly data: cf.utils.Bytes,
+    readonly data: cf.legacy.utils.Bytes,
     readonly op: Operation,
     readonly signatures?: ethers.utils.Signature[]
   ) {}
@@ -47,10 +47,10 @@ export class MultisigInput {
 export class MultiSend {
   constructor(
     readonly transactions: MultisigInput[],
-    readonly networkContext: cf.network.NetworkContext
+    readonly networkContext: cf.legacy.network.NetworkContext
   ) {}
 
-  public input(multisend: cf.utils.Address): MultisigInput {
+  public input(multisend: cf.legacy.utils.Address): MultisigInput {
     let txs: string = "0x";
     for (const transaction of this.transactions) {
       txs += abi

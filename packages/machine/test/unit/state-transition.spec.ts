@@ -28,7 +28,7 @@ const ABI_ENCODING = "";
 describe("State transition", () => {
   it("should propose a new setup state", () => {
     const message = new InternalMessage(
-      cf.node.ActionName.SETUP,
+      cf.legacy.node.ActionName.SETUP,
       Opcode.STATE_TRANSITION_PROPOSE,
       setupClientMsg(),
       false
@@ -38,13 +38,13 @@ describe("State transition", () => {
   });
   it("should propose a new install state", () => {
     const message = new InternalMessage(
-      cf.node.ActionName.INSTALL,
+      cf.legacy.node.ActionName.INSTALL,
       Opcode.STATE_TRANSITION_PROPOSE,
       installClientMsg(),
       false
     );
-    const expectedCfAddr = new cf.app.AppInstance(
-      cf.network.EMPTY_NETWORK_CONTEXT,
+    const expectedCfAddr = new cf.legacy.app.AppInstance(
+      cf.legacy.network.EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -61,11 +61,11 @@ describe("State transition", () => {
   });
 });
 
-function setupClientMsg(): cf.node.ClientActionMessage {
+function setupClientMsg(): cf.legacy.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",
-    action: cf.node.ActionName.SETUP,
+    action: cf.legacy.node.ActionName.SETUP,
     data: {},
     multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: A_ADDRESS,
@@ -76,7 +76,7 @@ function setupClientMsg(): cf.node.ClientActionMessage {
 }
 
 function setupInstallState(): NodeState {
-  const freeBalance = new cf.utils.FreeBalance(
+  const freeBalance = new cf.legacy.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
     B_ADDRESS,
@@ -84,7 +84,7 @@ function setupInstallState(): NodeState {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new cf.utils.Nonce(true, 0, 0) // nonce
+    new cf.legacy.utils.Nonce(true, 0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
@@ -93,13 +93,13 @@ function setupInstallState(): NodeState {
     {},
     freeBalance
   );
-  const channelStates: cf.channel.StateChannelInfos = {
+  const channelStates: cf.legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new NodeState(channelStates, cf.network.EMPTY_NETWORK_CONTEXT);
+  return new NodeState(channelStates, cf.legacy.network.EMPTY_NETWORK_CONTEXT);
 }
 
-function validateSetupInfos(infos: cf.channel.StateChannelInfos) {
+function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
   expect(Object.keys(infos).length).toEqual(1);
   const info = infos[UNUSED_FUNDED_ACCOUNT];
   expect(info.counterParty).toEqual(B_ADDRESS);
@@ -118,19 +118,19 @@ function validateSetupInfos(infos: cf.channel.StateChannelInfos) {
   expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
 }
 
-function installClientMsg(): cf.node.ClientActionMessage {
+function installClientMsg(): cf.legacy.node.ClientActionMessage {
   return {
     requestId: "0",
     appId: "0",
-    action: cf.node.ActionName.INSTALL,
+    action: cf.legacy.node.ActionName.INSTALL,
     data: {
-      peerA: new cf.utils.PeerBalance(A_ADDRESS, 5),
-      peerB: new cf.utils.PeerBalance(B_ADDRESS, 3),
+      peerA: new cf.legacy.utils.PeerBalance(A_ADDRESS, 5),
+      peerB: new cf.legacy.utils.PeerBalance(B_ADDRESS, 3),
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new cf.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
-      app: new cf.app.AppInterface(
+      terms: new cf.legacy.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
+      app: new cf.legacy.app.AppInterface(
         APP_ADDRESS,
         APPLY_ACTION,
         RESOLVE,
@@ -149,8 +149,8 @@ function installClientMsg(): cf.node.ClientActionMessage {
 }
 
 function validateInstallInfos(
-  infos: cf.channel.StateChannelInfos,
-  expectedCfAddr: cf.utils.H256
+  infos: cf.legacy.channel.StateChannelInfos,
+  expectedCfAddr: cf.legacy.utils.H256
 ) {
   const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
 
