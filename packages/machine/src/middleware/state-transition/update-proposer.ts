@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
+import { Node } from "@counterfactual/node";
 
 import { Context } from "../../instruction-executor";
-import { Node } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UpdateProposer {

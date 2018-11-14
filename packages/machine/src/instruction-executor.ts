@@ -1,11 +1,11 @@
 import * as cf from "@counterfactual/cf.js";
+import { Node } from "@counterfactual/node";
 
 import { Action, ActionExecution } from "./action";
 import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { Node } from "./node";
 import { InstructionMiddlewareCallback, OpCodeResult } from "./types";
 import { Log } from "./write-ahead-log";
 
