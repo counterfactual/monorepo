@@ -81,7 +81,7 @@ You also need to migrate the contracts in the contracts package to generate a `n
 
 ```shell
 cd packages/contracts
-yarn migrate
+yarn migrate --network ganache
 ```
 
 Finally, to run all tests:
