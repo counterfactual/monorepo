@@ -1,7 +1,7 @@
 import { Context } from "../../instruction-executor";
 import { Opcode } from "../../instructions";
 import { getFirstResult } from "../../middleware/middleware";
-import { Node } from "../../node-state";
+import { Node } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 import { PROPOSER_ACTIONS } from "./proposer-actions";

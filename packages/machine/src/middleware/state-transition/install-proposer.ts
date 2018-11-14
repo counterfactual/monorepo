@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
 import { Opcode } from "../../instructions";
-import { Node, StateChannelInfoImpl } from "../../node-state";
+import { Node, StateChannelInfoImpl } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 import { getLastResult } from "../middleware";
 

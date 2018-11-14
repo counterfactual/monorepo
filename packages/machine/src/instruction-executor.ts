@@ -5,7 +5,7 @@ import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { Node } from "./node-state";
+import { Node } from "./node";
 import { InstructionMiddlewareCallback, OpCodeResult } from "./types";
 import { Log } from "./write-ahead-log";
 

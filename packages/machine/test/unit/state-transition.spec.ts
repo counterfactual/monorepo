@@ -5,7 +5,7 @@ import { Context } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { Node, StateChannelInfoImpl } from "../../src/node-state";
+import { Node, StateChannelInfoImpl } from "../../src/node";
 import { InternalMessage } from "../../src/types";
 
 import {

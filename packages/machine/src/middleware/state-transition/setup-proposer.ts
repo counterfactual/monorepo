@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { StateChannelInfoImpl } from "../../node-state";
+import { StateChannelInfoImpl } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 const FREE_BALANCE_TIMEOUT = 100;

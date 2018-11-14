@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
 import { Opcode } from "../../instructions";
-import { Node } from "../../node-state";
+import { Node } from "../../node";
 import { InternalMessage } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 

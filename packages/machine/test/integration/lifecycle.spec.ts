@@ -34,7 +34,7 @@ describe("Machine State Lifecycle", async () => {
  */
 function getCommunicatingPeers(): TestResponseSink[] {
   // TODO: Document somewhere that the .signingKey.address" *must* be a hex otherwise
-  // machine/src/middleware/node-state-transition/install-proposer.ts:98:14
+  // machine/src/middleware/node-transition/install-proposer.ts:98:14
   // will throw an error when doing BigNumber.gt check.
   // https://github.com/counterfactual/monorepo/issues/110
 
