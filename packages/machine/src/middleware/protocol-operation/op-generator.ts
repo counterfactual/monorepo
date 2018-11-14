@@ -31,11 +31,11 @@ export class EthOpGenerator extends OpGenerator {
       context.results
     ).value;
     let op;
-    if (message.actionName === cf.node.ActionName.UPDATE) {
+    if (message.actionName === cf.legacy.node.ActionName.UPDATE) {
       op = this.update(message, context, nodeState, proposedState.state);
-    } else if (message.actionName === cf.node.ActionName.SETUP) {
+    } else if (message.actionName === cf.legacy.node.ActionName.SETUP) {
       op = this.setup(message, context, nodeState, proposedState.state);
-    } else if (message.actionName === cf.node.ActionName.INSTALL) {
+    } else if (message.actionName === cf.legacy.node.ActionName.INSTALL) {
       op = this.install(
         message,
         context,
@@ -43,7 +43,7 @@ export class EthOpGenerator extends OpGenerator {
         proposedState.state,
         proposedState.cfAddr
       );
-    } else if (message.actionName === cf.node.ActionName.UNINSTALL) {
+    } else if (message.actionName === cf.legacy.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, nodeState, proposedState.state);
     }
     return op;
@@ -55,7 +55,8 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedUpdate: any
   ): ProtocolOperation {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
       // https://github.com/counterfactual/monorepo/issues/121
@@ -67,7 +68,7 @@ export class EthOpGenerator extends OpGenerator {
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
     // https://github.com/counterfactual/monorepo/issues/135
-    appChannel.cfApp = new cf.app.AppInterface(
+    appChannel.cfApp = new cf.legacy.app.AppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
       appChannel.cfApp.resolve,
@@ -76,7 +77,7 @@ export class EthOpGenerator extends OpGenerator {
       appChannel.cfApp.abiEncoding
     );
 
-    appChannel.terms = new cf.app.Terms(
+    appChannel.terms = new cf.legacy.app.Terms(
       appChannel.terms.assetType,
       appChannel.terms.limit,
       appChannel.terms.token
@@ -86,9 +87,11 @@ export class EthOpGenerator extends OpGenerator {
       message.clientMessage.fromAddress,
       message.clientMessage.toAddress
     ];
-    signingKeys.sort((addrA: cf.utils.Address, addrB: cf.utils.Address) => {
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
+    signingKeys.sort(
+      (addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
+        return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      }
+    );
 
     return new OpSetState(
       nodeState.networkContext,
@@ -111,11 +114,12 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedSetup: any
   ): ProtocolOperation {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const freeBalance: cf.utils.FreeBalance =
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
+    const freeBalance: cf.legacy.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
-    const newFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.legacy.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -125,17 +129,17 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.timeout,
       freeBalance.dependencyNonce
     );
-    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
-      new cf.utils.PeerBalance(message.clientMessage.fromAddress, 0),
-      new cf.utils.PeerBalance(message.clientMessage.toAddress, 0)
+    const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
+      new cf.legacy.utils.PeerBalance(message.clientMessage.fromAddress, 0),
+      new cf.legacy.utils.PeerBalance(message.clientMessage.toAddress, 0)
     );
     const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const freeBalanceAppInstance = new cf.app.AppInstance(
+    const freeBalanceAppInstance = new cf.legacy.app.AppInstance(
       nodeState.networkContext,
       multisig,
       signingKeys,
-      cf.utils.FreeBalance.contractInterface(nodeState.networkContext),
-      cf.utils.FreeBalance.terms(),
+      cf.legacy.utils.FreeBalance.contractInterface(nodeState.networkContext),
+      cf.legacy.utils.FreeBalance.terms(),
       freeBalance.timeout,
       freeBalance.uniqueId
     );
@@ -154,16 +158,17 @@ export class EthOpGenerator extends OpGenerator {
     context: Context,
     nodeState: NodeState,
     proposedInstall: any,
-    cfAddr: cf.utils.H256
+    cfAddr: cf.legacy.utils.H256
   ) {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
     const freeBalance = channel.freeBalance;
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const appChannel = channel.appInstances[cfAddr];
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
 
-    const app = new cf.app.AppInstance(
+    const app = new cf.legacy.app.AppInstance(
       nodeState.networkContext,
       multisig,
       signingKeys,
@@ -172,7 +177,7 @@ export class EthOpGenerator extends OpGenerator {
       appChannel.timeout,
       appChannel.uniqueId
     );
-    const newFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.legacy.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -199,7 +204,8 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedUninstall: any
   ): ProtocolOperation {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appId;
     if (cfAddr === undefined) {
       throw new Error("update message must have appId set");
@@ -208,7 +214,7 @@ export class EthOpGenerator extends OpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
 
-    const newFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.legacy.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,

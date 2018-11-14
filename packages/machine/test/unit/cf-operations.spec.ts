@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import { OpSetup } from "../../src/middleware/protocol-operation";
 import "../../src/middleware/protocol-operation/types";
 
-const fakeCtx = new cf.network.NetworkContext(
+const fakeCtx = new cf.legacy.network.NetworkContext(
   "0x1111111111111111111111111111111111111111",
   "0x2222222222222222222222222222222222222222",
   "0x3333333333333333333333333333333333333333",
@@ -23,7 +23,7 @@ const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
 describe("ProtocolOperation subclasses", async () => {
   describe("OpSetup", async () => {
     it("generates a correct transaction", async () => {
-      const appInterface = new cf.app.AppInterface(
+      const appInterface = new cf.legacy.app.AppInterface(
         "0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
         "0x00000000",
         "0x00000000",
@@ -31,12 +31,12 @@ describe("ProtocolOperation subclasses", async () => {
         "0x00000000",
         "tuple()"
       );
-      const terms = new cf.app.Terms(
+      const terms = new cf.legacy.app.Terms(
         AssetType.ETH,
         ethers.utils.parseEther("1"),
         ethers.constants.AddressZero
       );
-      const cfApp = new cf.app.AppInstance(
+      const cfApp = new cf.legacy.app.AppInstance(
         fakeCtx,
         multisig,
         [alice, bob],
@@ -45,8 +45,8 @@ describe("ProtocolOperation subclasses", async () => {
         100,
         0
       );
-      const fakeNonce = new cf.utils.Nonce(false, 0, 0);
-      const freeBal = new cf.utils.FreeBalance(
+      const fakeNonce = new cf.legacy.utils.Nonce(false, 0, 0);
+      const freeBal = new cf.legacy.utils.FreeBalance(
         alice,
         ethers.utils.parseEther("0.5"),
         bob,

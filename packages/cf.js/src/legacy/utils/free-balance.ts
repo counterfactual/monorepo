@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { AppInterface, Terms } from "../app";
 import { NetworkContext } from "../network";
 
-import { Address } from "./index";
+import { Address } from ".";
 import { Nonce } from "./nonce";
 
 /**

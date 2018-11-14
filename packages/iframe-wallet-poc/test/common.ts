@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new cf.network.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.legacy.network.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -46,11 +46,11 @@ export class SetupProtocol {
   public static setupStartMsg(
     from: string,
     to: string
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: cf.node.ActionName.SETUP,
+      action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -88,7 +88,7 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     const state = walletA.currentUser.instructionExecutor.nodeState;
-    const canon = cf.utils.PeerBalance.balances(
+    const canon = cf.legacy.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,
@@ -115,6 +115,6 @@ export class SetupProtocol {
       walletB.currentUser.address
     );
     const response = await walletA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   }
 }

@@ -10,7 +10,10 @@ import { TestResponseSink } from "./test-response-sink";
  * and asserting the internally stored state was correctly modified.
  */
 export class SetupProtocol {
-  public static async validateAndRun(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static async validateAndRun(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validatePresetup(peerA, peerB);
     await SetupProtocol.run(peerA, peerB);
     SetupProtocol.validatePostsetup(peerA, peerB);
@@ -35,11 +38,11 @@ export class SetupProtocol {
   public static setupStartMsg(
     from: string,
     to: string
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: cf.node.ActionName.SETUP,
+      action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -51,7 +54,10 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the internally stored state correctly.
    */
-  public static validatePostsetup(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static validatePostsetup(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validateWallet(
       peerA,
       peerB,
@@ -78,7 +84,7 @@ export class SetupProtocol {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
     const state = peerA.instructionExecutor.nodeState;
-    const canon = cf.utils.PeerBalance.balances(
+    const canon = cf.legacy.utils.PeerBalance.balances(
       peerA.signingKey.address,
       amountA,
       peerB.signingKey.address,
@@ -103,6 +109,6 @@ export class SetupProtocol {
       peerB.signingKey.address
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   }
 }

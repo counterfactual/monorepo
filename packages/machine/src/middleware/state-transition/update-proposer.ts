@@ -10,15 +10,16 @@ export class UpdateProposer {
     context: Context,
     nodeState: NodeState
   ): StateProposal {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const channels = nodeState.stateChannelInfosCopy();
 
     if (message.clientMessage.appId === undefined) {
       throw new Error("update message must have appId set");
     }
 
-    const appId: cf.utils.H256 = message.clientMessage.appId;
-    const updateData: cf.app.UpdateData = message.clientMessage.data;
+    const appId: cf.legacy.utils.H256 = message.clientMessage.appId;
+    const updateData: cf.legacy.app.UpdateData = message.clientMessage.data;
 
     const app = channels[multisig].appInstances[appId];
     app.appStateHash = updateData.appStateHash;

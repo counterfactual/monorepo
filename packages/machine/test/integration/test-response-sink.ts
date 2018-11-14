@@ -20,7 +20,7 @@ import {
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-export class TestResponseSink implements cf.node.ResponseSink {
+export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
@@ -32,7 +32,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
   constructor(
     readonly privateKey: string,
-    networkContext?: cf.network.NetworkContext
+    networkContext?: cf.legacy.network.NetworkContext
   ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
@@ -53,7 +53,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
-        networkContext || cf.network.EMPTY_NETWORK_CONTEXT
+        networkContext || cf.legacy.network.EMPTY_NETWORK_CONTEXT
       )
     );
 
@@ -115,11 +115,13 @@ export class TestResponseSink implements cf.node.ResponseSink {
    * the protocol has completed execution.
    */
   public async runProtocol(
-    msg: cf.node.ClientActionMessage
-  ): Promise<cf.node.WalletResponse> {
-    const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
-      this.requests[msg.requestId] = resolve;
-    });
+    msg: cf.legacy.node.ClientActionMessage
+  ): Promise<cf.legacy.node.WalletResponse> {
+    const promise = new Promise<cf.legacy.node.WalletResponse>(
+      (resolve, reject) => {
+        this.requests[msg.requestId] = resolve;
+      }
+    );
     this.instructionExecutor.receive(msg);
     return promise;
   }
@@ -127,7 +129,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: cf.node.WalletResponse) {
+  public sendResponse(res: cf.legacy.node.WalletResponse) {
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -142,7 +144,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: cf.node.ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: cf.legacy.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
   }
 
@@ -151,7 +153,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   //
   // TODO: Refactor to clarify difference with sendMessageToClient
   // https://github.com/counterfactual/monorepo/issues/105
-  public sendIoMessageToClient(message: cf.node.ClientActionMessage) {
+  public sendIoMessageToClient(message: cf.legacy.node.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }
@@ -194,10 +196,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = getLastResult(
-        Opcode.IO_WAIT,
-        context.results
-      ).value;
+      const incomingMessage = getLastResult(Opcode.IO_WAIT, context.results)
+        .value;
       sig = incomingMessage.signature;
     } else {
       // receiver

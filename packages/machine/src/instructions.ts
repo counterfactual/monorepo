@@ -58,7 +58,7 @@ export enum Opcode {
  * starts a protocol with a peer out of nowhere.
  */
 export const instructions = {
-  [cf.node.ActionName.UPDATE]: [
+  [cf.legacy.node.ActionName.UPDATE]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN,
@@ -68,7 +68,7 @@ export const instructions = {
     Opcode.OP_SIGN_VALIDATE,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.SETUP]: [
+  [cf.legacy.node.ActionName.SETUP]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN,
@@ -78,7 +78,7 @@ export const instructions = {
     Opcode.OP_SIGN_VALIDATE,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.INSTALL]: [
+  [cf.legacy.node.ActionName.INSTALL]: [
     Opcode.KEY_GENERATE,
     Opcode.IO_PREPARE_SEND,
     Opcode.IO_SEND,
@@ -91,7 +91,7 @@ export const instructions = {
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.UNINSTALL]: [
+  [cf.legacy.node.ActionName.UNINSTALL]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN,
@@ -108,7 +108,7 @@ export const instructions = {
  * who did not initiate a given protocol.
  */
 export const ackInstructions = {
-  [cf.node.ActionName.UPDATE]: [
+  [cf.legacy.node.ActionName.UPDATE]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN_VALIDATE,
@@ -117,7 +117,7 @@ export const ackInstructions = {
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.SETUP]: [
+  [cf.legacy.node.ActionName.SETUP]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN_VALIDATE,
@@ -126,7 +126,7 @@ export const ackInstructions = {
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.INSTALL]: [
+  [cf.legacy.node.ActionName.INSTALL]: [
     Opcode.KEY_GENERATE,
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
@@ -137,7 +137,7 @@ export const ackInstructions = {
     Opcode.OP_SIGN_VALIDATE,
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  [cf.node.ActionName.UNINSTALL]: [
+  [cf.legacy.node.ActionName.UNINSTALL]: [
     Opcode.STATE_TRANSITION_PROPOSE,
     Opcode.OP_GENERATE,
     Opcode.OP_SIGN_VALIDATE,

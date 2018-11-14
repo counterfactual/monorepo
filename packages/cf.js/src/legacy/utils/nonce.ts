@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { abi, Bytes32 } from "./index";
+import { abi, Bytes32 } from ".";
 
 const { keccak256 } = ethers.utils;
 

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { Address } from "./index";
+import { Address } from ".";
 
 export class PeerBalance {
   /**

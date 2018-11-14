@@ -9,17 +9,20 @@ import {
 
 interface Commitments {
   appId: string;
-  commitments: Map<cf.node.ActionName, machine.protocolTypes.Transaction>;
+  commitments: Map<
+    cf.legacy.node.ActionName,
+    machine.protocolTypes.Transaction
+  >;
 
   addCommitment(
-    action: cf.node.ActionName,
+    action: cf.legacy.node.ActionName,
     protocolOperation: machine.protocolTypes.ProtocolOperation,
     signatures: ethers.utils.Signature[]
   );
 
-  hasCommitment(action: cf.node.ActionName);
+  hasCommitment(action: cf.legacy.node.ActionName);
 
-  getTransaction(action: cf.node.ActionName);
+  getTransaction(action: cf.legacy.node.ActionName);
 }
 
 /**
@@ -33,13 +36,13 @@ export class AppCommitments implements Commitments {
     serializedCommitments: string
   ): AppCommitments {
     const commitments = new Map<
-      cf.node.ActionName,
+      cf.legacy.node.ActionName,
       machine.protocolTypes.Transaction
     >();
     const commitmentObjects = new Map(JSON.parse(serializedCommitments));
     commitmentObjects.forEach((commitment: any, action) => {
       commitments.set(
-        action as cf.node.ActionName,
+        action as cf.legacy.node.ActionName,
         new machine.protocolTypes.Transaction(
           commitment.to,
           commitment.value,
@@ -52,14 +55,14 @@ export class AppCommitments implements Commitments {
 
   public readonly appId: string;
   public readonly commitments: Map<
-    cf.node.ActionName,
+    cf.legacy.node.ActionName,
     machine.protocolTypes.Transaction
   >;
 
   constructor(
     appId: string,
     commitments: Map<
-      cf.node.ActionName,
+      cf.legacy.node.ActionName,
       machine.protocolTypes.Transaction
     > = new Map()
   ) {
@@ -74,12 +77,15 @@ export class AppCommitments implements Commitments {
    * @param signatures
    */
   public async addCommitment(
-    action: cf.node.ActionName,
+    action: cf.legacy.node.ActionName,
     protocolOperation: machine.protocolTypes.ProtocolOperation,
     signatures: ethers.utils.Signature[]
   ) {
     const commitment = protocolOperation.transaction(signatures);
-    if (action !== cf.node.ActionName.UPDATE && this.commitments.has(action)) {
+    if (
+      action !== cf.legacy.node.ActionName.UPDATE &&
+      this.commitments.has(action)
+    ) {
       return;
       // FIXME: we should never non-maliciously get to this state
       throw Error("Can't reset setup/install/uninstall commitments");
@@ -91,7 +97,9 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public async hasCommitment(action: cf.node.ActionName): Promise<boolean> {
+  public async hasCommitment(
+    action: cf.legacy.node.ActionName
+  ): Promise<boolean> {
     return this.commitments.has(action);
   }
 
@@ -100,7 +108,7 @@ export class AppCommitments implements Commitments {
    * @param action
    */
   public async getTransaction(
-    action: cf.node.ActionName
+    action: cf.legacy.node.ActionName
   ): Promise<machine.protocolTypes.Transaction> {
     if (this.commitments.has(action)) {
       return this.commitments.get(action)!;
@@ -112,7 +120,10 @@ export class AppCommitments implements Commitments {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    const pairs: [cf.node.ActionName, machine.protocolTypes.Transaction][] = [];
+    const pairs: [
+      cf.legacy.node.ActionName,
+      machine.protocolTypes.Transaction
+    ][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });
@@ -150,7 +161,7 @@ export class CommitmentStore {
     context: machine.instructionExecutor.Context
   ) {
     let appId;
-    const action: cf.node.ActionName = internalMessage.actionName;
+    const action: cf.legacy.node.ActionName = internalMessage.actionName;
     const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
       machine.instructions.Opcode.OP_GENERATE,
       context.results
@@ -159,9 +170,9 @@ export class CommitmentStore {
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
 
-    if (action === cf.node.ActionName.SETUP) {
+    if (action === cf.legacy.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
-    } else if (action === cf.node.ActionName.INSTALL) {
+    } else if (action === cf.legacy.node.ActionName.INSTALL) {
       const proposal = machine.middleware.getFirstResult(
         machine.instructions.Opcode.STATE_TRANSITION_PROPOSE,
         context.results
@@ -185,8 +196,8 @@ export class CommitmentStore {
     ).value;
 
     const counterpartySignature = incomingMessage!.signature!;
-    const signatureHex = cf.utils.signaturesToBytes(signature);
-    const counterpartySignatureHex = cf.utils.signaturesToBytes(
+    const signatureHex = cf.legacy.utils.signaturesToBytes(signature);
+    const counterpartySignatureHex = cf.legacy.utils.signaturesToBytes(
       counterpartySignature
     );
     if (
@@ -213,8 +224,8 @@ export class CommitmentStore {
   public incomingMessage(
     internalMessage: machine.types.InternalMessage,
     context: machine.instructionExecutor.Context
-  ): cf.node.ClientActionMessage | null {
-    if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
+  ): cf.legacy.node.ClientActionMessage | null {
+    if (internalMessage.actionName === cf.legacy.node.ActionName.INSTALL) {
       return machine.middleware.getLastResult(
         machine.instructions.Opcode.IO_WAIT,
         context.results
@@ -242,7 +253,7 @@ export class CommitmentStore {
    */
   public async getTransaction(
     appId: string,
-    action: cf.node.ActionName
+    action: cf.legacy.node.ActionName
   ): Promise<machine.protocolTypes.Transaction> {
     if (!this.store.has(appId)) {
       throw Error("Invalid app id");
@@ -265,7 +276,7 @@ export class CommitmentStore {
 
   public async appHasCommitment(
     appId: string,
-    action: cf.node.ActionName
+    action: cf.legacy.node.ActionName
   ): Promise<boolean> {
     const appCommitments = AppCommitments.deserialize(
       appId,
