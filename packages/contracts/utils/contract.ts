@@ -43,14 +43,14 @@ export class AbstractContract {
   public static async fromBuildArtifact(
     buildArtifact: BuildArtifact,
     links?: { [name: string]: Promise<AbstractContract> },
-    artifactName?: string
+    artifactName: string = "UntitledContract"
   ): Promise<AbstractContract> {
     return new AbstractContract(
       buildArtifact.abi,
       buildArtifact.bytecode,
       buildArtifact.networks,
       links,
-      artifactName || "UntitledContract"
+      artifactName
     );
   }
 
