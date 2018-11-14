@@ -30,7 +30,7 @@ jobs:
           name: "Run ganache"
           command: yarn ganache:ci
           background: true
-      - run: cd packages/contracts/ && yarn migrate:local
+      - run: cd packages/contracts/ && yarn migrate --network ganache
       - run: yarn test
 
   run-tslint:

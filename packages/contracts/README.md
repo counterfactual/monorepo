@@ -33,7 +33,7 @@ cd packages/contracts
 You also need to migrate the contracts in the contracts package to generate a `networks` file which the tests consume:
 
 ```shell
-yarn migrate
+yarn migrate --network ganache
 ```
 
 Finally, to run all tests:
