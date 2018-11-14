@@ -45,7 +45,14 @@ export class Middleware {
     }],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
-    [Opcode.STATE_TRANSITION_COMMIT]: [],
+    [Opcode.STATE_TRANSITION_COMMIT]: [{
+      scope: Opcode.STATE_TRANSITION_COMMIT,
+      method: (message, next, context) => {
+        const newState = context.intermediateResults.proposedStateTransition!;
+        context.instructionExecutor.mutateState(newState.state);
+        next();
+      }
+    }],
     [Opcode.STATE_TRANSITION_PROPOSE]: [
       {
         scope: Opcode.STATE_TRANSITION_PROPOSE,
@@ -67,12 +74,6 @@ export class Middleware {
   }
 
   private initializeMiddlewares() {
-    this.add(
-      Opcode.STATE_TRANSITION_COMMIT,
-      (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.nodeState);
-      }
-    );
     this.add(Opcode.KEY_GENERATE, KeyGenerator.generate);
     this.add(Opcode.OP_SIGN_VALIDATE, SignatureValidator.validate);
   }

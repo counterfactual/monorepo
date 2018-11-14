@@ -24,18 +24,4 @@ export class StateTransition {
 
     return proposer.propose(message, context, nodeState);
   }
-
-  public static commit(
-    message: InternalMessage,
-    next: Function,
-    context: Context,
-    state: NodeState
-  ) {
-    const newState = context.intermediateResults.proposedStateTransition!;
-    if (newState === undefined) {
-      throw Error("tried to call commit without a propose");
-    }
-    context.instructionExecutor.mutateState(newState.state);
-    next();
-  }
 }
