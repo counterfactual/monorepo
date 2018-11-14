@@ -115,8 +115,8 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
    * the protocol has completed execution.
    */
   public async runProtocol(
-    msg: cf.node.ClientActionMessage
-  ): Promise<cf.node.WalletResponse> {
+    msg: cf.legacy.node.ClientActionMessage
+  ): Promise<cf.legacy.node.WalletResponse> {
     const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
