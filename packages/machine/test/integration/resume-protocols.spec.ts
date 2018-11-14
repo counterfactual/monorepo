@@ -135,7 +135,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );
@@ -185,7 +185,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );
@@ -236,7 +236,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );

@@ -163,7 +163,7 @@ describe("Setup Protocol", async () => {
       ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
     );
 
-    const freeBalance = walletA.instructionExecutor.nodeState.freeBalanceFromMultisigAddress(
+    const freeBalance = walletA.instructionExecutor.node.freeBalanceFromMultisigAddress(
       multisig.address
     );
 
@@ -265,8 +265,8 @@ function validatePresetup(
   walletA: TestResponseSink,
   walletB: TestResponseSink
 ) {
-  expect(walletA.instructionExecutor.nodeState.channelStates).toEqual({});
-  expect(walletB.instructionExecutor.nodeState.channelStates).toEqual({});
+  expect(walletA.instructionExecutor.node.channelStates).toEqual({});
+  expect(walletB.instructionExecutor.node.channelStates).toEqual({});
 }
 
 function setupStartMsg(
@@ -321,7 +321,7 @@ function validateNoAppsAndFreeBalance(
 ) {
   // todo: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.instructionExecutor.nodeState;
+  const state = walletA.instructionExecutor.node;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
@@ -339,7 +339,7 @@ function validateNoAppsAndFreeBalance(
   }
 
   const channel =
-    walletA.instructionExecutor.nodeState.channelStates[multisigAddr];
+    walletA.instructionExecutor.node.channelStates[multisigAddr];
   expect(Object.keys(state.channelStates).length).toEqual(1);
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
   expect(channel.me).toEqual(walletA.signingKey.address);
@@ -542,7 +542,7 @@ function validateInstalledBalanceRefund(
   amount: ethers.utils.BigNumber
 ) {
   const stateChannel =
-    wallet.instructionExecutor.nodeState.channelStates[multisigAddr];
+    wallet.instructionExecutor.node.channelStates[multisigAddr];
   const appInstances = stateChannel.appInstances;
   const cfAddrs = Object.keys(appInstances);
   expect(cfAddrs.length).toEqual(1);
@@ -577,7 +577,7 @@ function validateUninstalledAndFreeBalance(
 ) {
   // TODO: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.instructionExecutor.nodeState;
+  const state = walletA.instructionExecutor.node;
 
   let peerA = walletA.signingKey.address;
   let peerB = walletB.signingKey.address;
@@ -595,7 +595,7 @@ function validateUninstalledAndFreeBalance(
   }
 
   const channel =
-    walletA.instructionExecutor.nodeState.channelStates[multisigAddr];
+    walletA.instructionExecutor.node.channelStates[multisigAddr];
   const app = channel.appInstances[cfAddr];
 
   expect(Object.keys(state.channelStates).length).toEqual(1);

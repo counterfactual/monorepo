@@ -5,7 +5,7 @@ import { Context } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { NodeState, StateChannelInfoImpl } from "../../src/node-state";
+import { Node, StateChannelInfoImpl } from "../../src/node";
 import { InternalMessage } from "../../src/types";
 
 import {
@@ -75,7 +75,7 @@ function setupClientMsg(): cf.legacy.node.ClientActionMessage {
   };
 }
 
-function setupInstallState(): NodeState {
+function setupInstallState(): Node {
   const freeBalance = new cf.legacy.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
@@ -96,7 +96,7 @@ function setupInstallState(): NodeState {
   const channelStates: cf.legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new NodeState(channelStates, cf.legacy.network.EMPTY_NETWORK_CONTEXT);
+  return new Node(channelStates, cf.legacy.network.EMPTY_NETWORK_CONTEXT);
 }
 
 function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {

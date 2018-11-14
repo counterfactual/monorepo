@@ -29,9 +29,9 @@ export class SetupProtocol {
     console.log("printing everything");
     console.log(peerA);
     console.log(peerA.instructionExecutor);
-    console.log(peerA.instructionExecutor.nodeState);
-    expect(peerA.instructionExecutor.nodeState.channelStates).toEqual({});
-    expect(peerB.instructionExecutor.nodeState.channelStates).toEqual({});
+    console.log(peerA.instructionExecutor.node);
+    expect(peerA.instructionExecutor.node.channelStates).toEqual({});
+    expect(peerB.instructionExecutor.node.channelStates).toEqual({});
     console.log("passed...");
   }
 
@@ -83,7 +83,7 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
-    const state = peerA.instructionExecutor.nodeState;
+    const state = peerA.instructionExecutor.node;
     const canon = cf.legacy.utils.PeerBalance.balances(
       peerA.signingKey.address,
       amountA,
@@ -91,7 +91,7 @@ export class SetupProtocol {
       amountB
     );
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.counterParty).toEqual(peerB.signingKey.address);
     expect(channel.me).toEqual(peerA.signingKey.address);

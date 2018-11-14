@@ -36,10 +36,10 @@ export class SetupProtocol {
    */
   public static validatePresetup(walletA: IFrameWallet, walletB: IFrameWallet) {
     expect(
-      walletA.currentUser.instructionExecutor.nodeState.channelStates
+      walletA.currentUser.instructionExecutor.node.channelStates
     ).toEqual({});
     expect(
-      walletB.currentUser.instructionExecutor.nodeState.channelStates
+      walletB.currentUser.instructionExecutor.node.channelStates
     ).toEqual({});
   }
 
@@ -87,7 +87,7 @@ export class SetupProtocol {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
-    const state = walletA.currentUser.instructionExecutor.nodeState;
+    const state = walletA.currentUser.instructionExecutor.node;
     const canon = cf.legacy.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
@@ -95,7 +95,7 @@ export class SetupProtocol {
       amountB
     );
     const channel =
-      walletA.currentUser.instructionExecutor.nodeState.channelStates[
+      walletA.currentUser.instructionExecutor.node.channelStates[
         UNUSED_FUNDED_ACCOUNT
       ];
     expect(Object.keys(state.channelStates).length).toEqual(1);

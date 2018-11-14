@@ -5,7 +5,7 @@ import { Opcode } from "./instructions";
 import { Middleware, OpGenerator } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
-import { NodeState } from "./node-state";
+import { Node } from "./node";
 import { InstructionMiddlewareCallback, OpCodeResult } from "./types";
 import { Log } from "./write-ahead-log";
 
@@ -31,15 +31,15 @@ export class InstructionExecutor implements Observable {
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
    */
-  public nodeState: NodeState;
+  public node: Node;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.nodeState = new NodeState(config.state || {}, config.network);
-    this.middleware = new Middleware(this.nodeState, config.opGenerator);
+    this.node = new Node(config.state || {}, config.network);
+    this.middleware = new Middleware(this.node, config.opGenerator);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -152,7 +152,7 @@ export class InstructionExecutor implements Observable {
   }
 
   public mutateState(state: cf.legacy.channel.StateChannelInfos) {
-    Object.assign(this.nodeState.channelStates, state);
+    Object.assign(this.node.channelStates, state);
   }
 
   public register(scope: Opcode, method: InstructionMiddlewareCallback) {
