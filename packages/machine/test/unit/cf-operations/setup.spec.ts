@@ -4,7 +4,8 @@ import { ethers } from "ethers";
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
-  constructContractCall, constructMultisigExecTransaction,
+  constructContractCall,
+  constructMultisigExecTransaction,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
   TEST_MULTISIG_ADDRESS,

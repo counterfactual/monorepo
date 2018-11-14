@@ -4,7 +4,8 @@ import { ethers } from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
-  constructContractCall, TEST_APP_INSTANCE,
+  constructContractCall,
+  TEST_APP_INSTANCE,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
