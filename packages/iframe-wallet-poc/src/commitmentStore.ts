@@ -151,10 +151,7 @@ export class CommitmentStore {
   ) {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
-    const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-      machine.instructions.Opcode.OP_GENERATE,
-      context.results2
-    ).value;
+    const operation = context.intermediateResults.operation!;
     let appCommitments: AppCommitments;
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
@@ -199,7 +196,7 @@ export class CommitmentStore {
       );
     }
 
-    await appCommitments.addCommitment(action, op, [
+    await appCommitments.addCommitment(action, operation, [
       signature,
       counterpartySignature
     ]);

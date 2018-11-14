@@ -12,10 +12,7 @@ import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
 /**
- * Middleware to be used and registered with the InstructionExecutor on OP_GENERATE instructions
- * to generate ProtocolOperations. When combined with signatures from all parties
- * in the state channel, the ProtocolOperation transitions the state to that
- * yielded by STATE_TRANSITION_PROPOSE.
+ * Registered with OP_GENERATE
  */
 export class EthOpGenerator {
   public static generate(

@@ -244,10 +244,11 @@ function signMyUpdate(
   context: machine.instructionExecutor.Context,
   user: User
 ): ethers.utils.Signature {
-  const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Opcode.OP_GENERATE,
-    context.results2
-  ).value;
+  const operation = context.intermediateResults.operation!;
+  if (operation === undefined) {
+    throw Error("tried to sign update without anything to sign");
+  }
+  // todo(ldct): place digest in intermediateResults
   const digest = operation.hashToSign();
   const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
   return { r, s, v: recoveryParam! + 27 };
@@ -259,11 +260,8 @@ async function validateSignatures(
   context: machine.instructionExecutor.Context,
   user: User
 ) {
-  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Opcode.OP_GENERATE,
-    context.results2
-  ).value;
-  const digest = op.hashToSign();
+  const operation = context.intermediateResults.operation!;
+  const digest = operation.hashToSign();
   let sig;
   const expectedSigningAddress =
     message.clientMessage.toAddress === user.address

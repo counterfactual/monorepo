@@ -148,10 +148,7 @@ export class TestCommitmentStore {
   ) {
     let appId;
     const action: cf.node.ActionName = internalMessage.actionName;
-    const op: ProtocolOperation = getFirstResult(
-      Opcode.OP_GENERATE,
-      context.results2
-    ).value;
+    const operation = context.intermediateResults.operation!;
     let appCommitments: AppCommitments;
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
@@ -192,7 +189,7 @@ export class TestCommitmentStore {
       );
     }
 
-    await appCommitments.addCommitment(action, op, [
+    await appCommitments.addCommitment(action, operation, [
       signature,
       counterpartySignature
     ]);

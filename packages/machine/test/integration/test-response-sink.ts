@@ -8,8 +8,7 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
+import { getLastResult } from "../../src/middleware/middleware";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -162,10 +161,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   private signMyUpdate(
     context: Context
   ): ethers.utils.Signature {
-    const operation: ProtocolOperation = getFirstResult(
-      Opcode.OP_GENERATE,
-      context.results2
-    ).value;
+    const operation = context.intermediateResults.operation!;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
     return { r, s, v: recoveryParam! + 27 };
@@ -176,11 +172,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
     next: Function,
     context: Context
   ) {
-    const op: ProtocolOperation = getLastResult(
-      Opcode.OP_GENERATE,
-      context.results2
-    ).value;
-    const digest = op.hashToSign();
+    const operation = context.intermediateResults.operation!;
+    const digest = operation.hashToSign();
     let sig;
     const expectedSigningAddress =
       message.clientMessage.toAddress === this.signingKey.address

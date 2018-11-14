@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context, InstructionExecutor } from "./instruction-executor";
+import { Context, InstructionExecutor, IntermediateResults } from "./instruction-executor";
 import { ackInstructions, instructions, Opcode } from "./instructions";
 import { InternalMessage, OpCodeResult } from "./types";
 
@@ -26,7 +26,7 @@ export class ActionExecution {
   public instructionExecutor: InstructionExecutor;
   public results2: OpCodeResult[];
   public isAckSide: boolean;
-  public intermediateResults: { [s: string]: any };
+  public intermediateResults: IntermediateResults;
   public requestId: string;
 
   constructor(

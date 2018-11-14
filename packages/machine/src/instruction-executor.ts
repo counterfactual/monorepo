@@ -12,6 +12,7 @@ import {
   StateProposal
 } from "./types";
 import { Log } from "./write-ahead-log";
+import { ProtocolOperation } from "@counterfactual/machine/src/middleware/protocol-operation/types";
 
 export class InstructionExecutorConfig {
   constructor(
@@ -156,6 +157,7 @@ export class InstructionExecutor implements Observable {
 export interface IntermediateResults {
   outbox?: cf.node.ClientActionMessage;
   proposedStateTransition?: StateProposal;
+  operation?: ProtocolOperation;
 }
 
 export class Context {
