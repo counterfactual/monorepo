@@ -116,9 +116,11 @@ export class IFrameWallet implements cf.legacy.node.ResponseSink {
   public async runProtocol(
     msg: cf.legacy.node.ClientActionMessage
   ): Promise<cf.legacy.node.WalletResponse> {
-    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
-      this.requests[msg.requestId] = resolve;
-    });
+    const promise = new Promise<cf.legacy.node.WalletResponse>(
+      (resolve, reject) => {
+        this.requests[msg.requestId] = resolve;
+      }
+    );
     this.currentUser.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
