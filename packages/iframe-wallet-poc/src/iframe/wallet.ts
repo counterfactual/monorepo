@@ -182,7 +182,7 @@ export class IFrameWallet implements cf.legacy.node.ResponseSink {
 
   public handleFreeBalanceQuery(query: cf.legacy.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
-      const freeBalance = this.currentUser.instructionExecutor.nodeState.freeBalanceFromMultisigAddress(
+      const freeBalance = this.currentUser.instructionExecutor.node.freeBalanceFromMultisigAddress(
         query.multisigAddress
       );
       const response = {
@@ -220,7 +220,7 @@ export class IFrameWallet implements cf.legacy.node.ResponseSink {
 
   public handleStateChannelQuery(query: cf.legacy.node.ClientQuery) {
     if (typeof query.multisigAddress === "string") {
-      const stateChannel = this.currentUser.instructionExecutor.nodeState.stateChannelFromMultisigAddress(
+      const stateChannel = this.currentUser.instructionExecutor.node.stateChannelFromMultisigAddress(
         query.multisigAddress
       );
       const response = {
@@ -247,9 +247,9 @@ export class IFrameWallet implements cf.legacy.node.ResponseSink {
   }
 
   private getMultisigAddressByToAddress(toAddress: string): string | undefined {
-    const nodeState = this.currentUser.instructionExecutor.nodeState;
-    return Object.keys(nodeState.channelStates).find(multisig => {
-      return nodeState.channelStates[multisig].counterParty === toAddress;
+    const node = this.currentUser.instructionExecutor.node;
+    return Object.keys(node.channelStates).find(multisig => {
+      return node.channelStates[multisig].counterParty === toAddress;
     });
   }
 

@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { Context } from "../instruction-executor";
 import { Opcode } from "../instructions";
-import { NodeState } from "../node-state";
+import { Node } from "../node-state";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -34,7 +34,7 @@ export class Middleware {
     [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
+  constructor(readonly node: Node, opGenerator: OpGenerator) {
     this.initializeMiddlewares(opGenerator);
   }
 
@@ -42,19 +42,19 @@ export class Middleware {
     this.add(
       Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.nodeState);
+        return opGenerator.generate(message, next, context, this.node);
       }
     );
     this.add(
       Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.nodeState);
+        return StateTransition.propose(message, next, context, this.node);
       }
     );
     this.add(
       Opcode.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.nodeState);
+        return StateTransition.commit(message, next, context, this.node);
       }
     );
     this.add(Opcode.KEY_GENERATE, KeyGenerator.generate);
@@ -119,7 +119,7 @@ export abstract class OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    nodeState: NodeState
+    node: Node
   );
 }
 

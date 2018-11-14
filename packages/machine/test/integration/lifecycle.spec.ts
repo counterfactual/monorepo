@@ -174,7 +174,7 @@ class Depositor {
     amount: ethers.utils.BigNumber
   ) {
     const stateChannel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(stateChannel.me).toEqual(peerA.signingKey.address);
     expect(stateChannel.counterParty).toEqual(peerB.signingKey.address);
 
@@ -227,7 +227,7 @@ class Depositor {
   ) {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
-    const state = peerA.instructionExecutor.nodeState;
+    const state = peerA.instructionExecutor.node;
     const canon = cf.legacy.utils.PeerBalance.balances(
       peerA.signingKey.address!,
       amountA,
@@ -236,7 +236,7 @@ class Depositor {
     );
 
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appInstances[cfAddr];
 
     expect(Object.keys(state.channelStates).length).toEqual(1);
@@ -362,7 +362,7 @@ class TicTacToeSimulator {
     peerB: TestResponseSink
   ): string {
     const stateChannel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const appInstances = stateChannel.appInstances;
     const cfAddrs = Object.keys(appInstances);
     expect(cfAddrs.length).toEqual(1);
@@ -374,7 +374,7 @@ class TicTacToeSimulator {
 
     // now validate the free balance
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
     expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
     expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
@@ -468,10 +468,10 @@ class TicTacToeSimulator {
     moveNumber: number
   ) {
     const appA =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT]
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT]
         .appInstances[cfAddr];
     const appB =
-      peerB.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT]
+      peerB.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT]
         .appInstances[cfAddr];
 
     expect(appA.encodedState).toEqual(appState);
@@ -542,7 +542,7 @@ class TicTacToeSimulator {
     amountB: ethers.utils.BigNumber
   ) {
     const channel =
-      wallet.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      wallet.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appInstances[cfAddr];
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);

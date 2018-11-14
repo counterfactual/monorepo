@@ -319,7 +319,7 @@ describe("Lifecycle", async () => {
     const C_ADDRESS = "0xB37ABb9F5CCc5Ce5f2694CE0720216B786cad61D";
     clientA.setUser(C_ADDRESS, A_PRIVATE_KEY);
 
-    const state = clientA.currentUser.instructionExecutor.nodeState;
+    const state = clientA.currentUser.instructionExecutor.node;
     expect(Object.keys(state.channelStates).length).toBe(0);
 
     clientA.setUser(A_ADDRESS, A_PRIVATE_KEY);
@@ -428,7 +428,7 @@ function validateNoAppsAndFreeBalance(
   multisigContractAddress: string
 ) {
   // TODO: add nonce and uniqueId params and check them
-  const state = clientA.currentUser.instructionExecutor.nodeState;
+  const state = clientA.currentUser.instructionExecutor.node;
 
   let peerA = clientA.address;
   let peerB = clientB.address;
@@ -446,7 +446,7 @@ function validateNoAppsAndFreeBalance(
   }
 
   const channel =
-    clientA.currentUser.instructionExecutor.nodeState.channelStates[
+    clientA.currentUser.instructionExecutor.node.channelStates[
       multisigContractAddress
     ];
   expect(Object.keys(state.channelStates).length).toBe(1);
@@ -469,7 +469,7 @@ function validateInstalledBalanceRefund(
   multisigContractAddress: string
 ) {
   const stateChannel =
-    wallet.currentUser.instructionExecutor.nodeState.channelStates[
+    wallet.currentUser.instructionExecutor.node.channelStates[
       multisigContractAddress
     ];
   const appInstances = stateChannel.appInstances;
@@ -523,7 +523,7 @@ function validateFreebalance(
   multisigContractAddress: string
 ) {
   const stateChannel =
-    wallet.currentUser.instructionExecutor.nodeState.channelStates[
+    wallet.currentUser.instructionExecutor.node.channelStates[
       multisigContractAddress
     ];
   const freeBalance = stateChannel.freeBalance;
@@ -620,11 +620,11 @@ function validateUpdatePayment(
   multisigContractAddress: string
 ) {
   const appA =
-    clientA.currentUser.instructionExecutor.nodeState.channelStates[
+    clientA.currentUser.instructionExecutor.node.channelStates[
       multisigContractAddress
     ].appInstances[appChannel.appId];
   const appB =
-    clientB.currentUser.instructionExecutor.nodeState.channelStates[
+    clientB.currentUser.instructionExecutor.node.channelStates[
       multisigContractAddress
     ].appInstances[appChannel.appId];
 
