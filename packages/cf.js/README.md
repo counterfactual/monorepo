@@ -25,3 +25,6 @@ To build the cf.js package:
 ```shell
 yarn build
 ```
+
+## API Reference
+[Found here](API_REFERENCE.md)
