@@ -69,7 +69,7 @@ export class ActionExecution {
     this.results = results;
   }
 
-  private createInternalMessage(): InternalMessage {
+  public createInternalMessage(): InternalMessage {
     const op = this.action.instructions[this.instructionPointer];
     return new InternalMessage(
       this.action.name,
@@ -79,7 +79,7 @@ export class ActionExecution {
     );
   }
 
-  private createContext(): Context {
+  public createContext(): Context {
     return {
       results: this.results,
       instructionPointer: this.instructionPointer,
