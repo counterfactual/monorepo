@@ -13,7 +13,8 @@ export class InstallProposer {
     context: Context,
     nodeState: NodeState
   ): StateProposal {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const data: cf.legacy.app.InstallData = message.clientMessage.data;
     const app = new cf.legacy.app.AppInterface(
       data.app.address,
@@ -87,9 +88,11 @@ export class InstallProposer {
 
     // TODO: Feels like this is the wrong place for this sorting...
     // https://github.com/counterfactual/monorepo/issues/129
-    signingKeys.sort((addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
+    signingKeys.sort(
+      (addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
+        return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      }
+    );
 
     return signingKeys;
   }

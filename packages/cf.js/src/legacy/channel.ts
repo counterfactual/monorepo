@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import * as _ from "lodash";
 
-import { AppInstanceInfos, AppInterface, InstallData } from "./app/index";
 import { AppInstance } from "./app-instance";
 import { AppInstanceClient } from "./app-instance-client";
+import { AppInstanceInfos, AppInterface, InstallData } from "./app/index";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import {

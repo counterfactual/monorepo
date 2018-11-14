@@ -19,7 +19,9 @@ export class NodeState {
     this.networkContext = network;
   }
 
-  public stateChannel(multisig: cf.legacy.utils.Address): cf.legacy.channel.StateChannelInfo {
+  public stateChannel(
+    multisig: cf.legacy.utils.Address
+  ): cf.legacy.channel.StateChannelInfo {
     return this.channelStates[multisig];
   }
 
@@ -74,7 +76,8 @@ export class NodeState {
   }
 }
 
-export class StateChannelInfoImpl implements cf.legacy.channel.StateChannelInfo {
+export class StateChannelInfoImpl
+  implements cf.legacy.channel.StateChannelInfo {
   constructor(
     readonly counterParty: cf.legacy.utils.Address,
     readonly me: cf.legacy.utils.Address,

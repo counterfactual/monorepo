@@ -28,7 +28,9 @@ export abstract class MultiSendOp extends MultisigTxOp {
 
   public freeBalanceData(): cf.legacy.utils.Bytes {
     const terms = cf.legacy.utils.FreeBalance.terms();
-    const app = cf.legacy.utils.FreeBalance.contractInterface(this.networkContext);
+    const app = cf.legacy.utils.FreeBalance.contractInterface(
+      this.networkContext
+    );
     const freeBalanceCfAddress = new cf.legacy.app.AppInstance(
       this.networkContext,
       this.multisig,

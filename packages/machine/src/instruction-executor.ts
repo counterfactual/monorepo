@@ -86,7 +86,9 @@ export class InstructionExecutor implements Observable {
     this.execute(new Action(message.requestId, message.action, message, true));
   }
 
-  public receive(msg: cf.legacy.node.ClientActionMessage): cf.legacy.node.WalletResponse {
+  public receive(
+    msg: cf.legacy.node.ClientActionMessage
+  ): cf.legacy.node.WalletResponse {
     if (!this.validateMessage(msg)) {
       throw new Error("Cannot receive invalid message");
     }

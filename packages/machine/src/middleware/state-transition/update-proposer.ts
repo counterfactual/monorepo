@@ -10,7 +10,8 @@ export class UpdateProposer {
     context: Context,
     nodeState: NodeState
   ): StateProposal {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const channels = nodeState.stateChannelInfosCopy();
 
     if (message.clientMessage.appId === undefined) {

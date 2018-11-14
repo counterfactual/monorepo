@@ -55,7 +55,8 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedUpdate: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     if (message.clientMessage.appId === undefined) {
       // FIXME: handle more gracefully
       // https://github.com/counterfactual/monorepo/issues/121
@@ -86,9 +87,11 @@ export class EthOpGenerator extends OpGenerator {
       message.clientMessage.fromAddress,
       message.clientMessage.toAddress
     ];
-    signingKeys.sort((addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-    });
+    signingKeys.sort(
+      (addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
+        return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      }
+    );
 
     return new OpSetState(
       nodeState.networkContext,
@@ -111,7 +114,8 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedSetup: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const freeBalance: cf.legacy.utils.FreeBalance =
       proposedSetup[multisig].freeBalance;
     const nonce = freeBalance.dependencyNonce;
@@ -158,7 +162,8 @@ export class EthOpGenerator extends OpGenerator {
   ) {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
     const freeBalance = channel.freeBalance;
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const appChannel = channel.appInstances[cfAddr];
 
     const signingKeys = [appChannel.keyA, appChannel.keyB];
@@ -199,7 +204,8 @@ export class EthOpGenerator extends OpGenerator {
     nodeState: NodeState,
     proposedUninstall: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appId;
     if (cfAddr === undefined) {
       throw new Error("update message must have appId set");

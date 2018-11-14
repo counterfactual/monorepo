@@ -1,8 +1,8 @@
 import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 import { ethers } from "ethers";
 
-import { Terms } from "./app/index";
 import { AppInstance } from "./app-instance";
+import { Terms } from "./app/index";
 import { AppDefinition } from "./types";
 
 export class ETHBalanceRefundApp extends AppInstance {

@@ -10,7 +10,8 @@ export class UninstallProposer {
     context: Context,
     nodeState: NodeState
   ): StateProposal {
-    const multisig: cf.legacy.utils.Address = message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
     const channels = nodeState.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
