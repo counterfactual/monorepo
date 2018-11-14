@@ -176,10 +176,7 @@ export class CommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: ethers.utils.Signature = machine.middleware.getFirstResult(
-      machine.instructions.Opcode.OP_SIGN,
-      context.results2
-    ).value;
+    const signature = context.intermediateResults.signature!;
 
     const counterpartySignature = incomingMessage!.signature!;
     const signatureHex = cf.utils.signaturesToBytes(signature);

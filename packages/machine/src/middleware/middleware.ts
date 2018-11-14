@@ -36,23 +36,32 @@ export class Middleware {
     [Opcode.IO_SEND]: [],
     [Opcode.IO_WAIT]: [],
     [Opcode.KEY_GENERATE]: [],
-    [Opcode.OP_GENERATE]: [{
-      scope: Opcode.OP_GENERATE,
-      method: (message, next, context) => {
-        const operation = EthOpGenerator.generate(message, next, context, this.nodeState);
-        context.intermediateResults.operation = operation;
+    [Opcode.OP_GENERATE]: [
+      {
+        scope: Opcode.OP_GENERATE,
+        method: (message, next, context) => {
+          const operation = EthOpGenerator.generate(
+            message,
+            next,
+            context,
+            this.nodeState
+          );
+          context.intermediateResults.operation = operation;
+        }
       }
-    }],
+    ],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
-    [Opcode.STATE_TRANSITION_COMMIT]: [{
-      scope: Opcode.STATE_TRANSITION_COMMIT,
-      method: (message, next, context) => {
-        const newState = context.intermediateResults.proposedStateTransition!;
-        context.instructionExecutor.mutateState(newState.state);
-        next();
+    [Opcode.STATE_TRANSITION_COMMIT]: [
+      {
+        scope: Opcode.STATE_TRANSITION_COMMIT,
+        method: (message, next, context) => {
+          const newState = context.intermediateResults.proposedStateTransition!;
+          context.instructionExecutor.mutateState(newState.state);
+          next();
+        }
       }
-    }],
+    ],
     [Opcode.STATE_TRANSITION_PROPOSE]: [
       {
         scope: Opcode.STATE_TRANSITION_PROPOSE,
@@ -175,7 +184,7 @@ export class NextMsgGenerator {
     ) {
       return undefined;
     }
-    return getFirstResult(Opcode.OP_SIGN, context.results2).value;
+    return context.intermediateResults.signature!;
   }
 }
 
@@ -210,17 +219,8 @@ export class SignatureValidator {
 }
 
 /**
- * Utilitiy for middleware to access return values of other middleware.
+ * Utility for middleware to access return values of other middleware.
  */
-export function getFirstResult(
-  toFindOpCode: Opcode,
-  results: OpCodeResult[]
-): OpCodeResult {
-  // FIXME: (ts-strict) we should change the results data structure or design
-  // https://github.com/counterfactual/monorepo/issues/115
-  return results.find(({ opCode, value }) => opCode === toFindOpCode)!;
-}
-
 export function getLastResult(
   toFindOpCode: Opcode,
   results: OpCodeResult[]

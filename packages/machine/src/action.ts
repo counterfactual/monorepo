@@ -1,6 +1,10 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context, InstructionExecutor, IntermediateResults } from "./instruction-executor";
+import {
+  Context,
+  InstructionExecutor,
+  IntermediateResults
+} from "./instruction-executor";
 import { ackInstructions, instructions, Opcode } from "./instructions";
 import { InternalMessage, OpCodeResult } from "./types";
 

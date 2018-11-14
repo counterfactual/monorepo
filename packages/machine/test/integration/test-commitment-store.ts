@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { Context } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
+import { getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
@@ -170,10 +170,7 @@ export class TestCommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: ethers.utils.Signature = getFirstResult(
-      Opcode.OP_SIGN,
-      context.results2
-    ).value;
+    const signature = context.intermediateResults.signature!;
 
     const counterpartySignature = incomingMessage!.signature!;
     if (

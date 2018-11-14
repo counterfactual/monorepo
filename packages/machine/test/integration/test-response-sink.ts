@@ -77,7 +77,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
     this.instructionExecutor.register(
       Opcode.OP_SIGN,
       (message, next, context) => {
-        return this.signMyUpdate(context);
+        const signature = this.signMyUpdate(context);
+        context.intermediateResults.signature = signature;
       }
     );
 

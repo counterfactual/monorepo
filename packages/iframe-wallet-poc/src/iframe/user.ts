@@ -207,8 +207,9 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 
     this.instructionExecutor.register(
       machine.instructions.Opcode.OP_SIGN,
-      (message, next, context: machine.instructionExecutor.Context) => {
-        return signMyUpdate(context, this);
+      (message, next, context) => {
+        const signature = signMyUpdate(context, this);
+        context.intermediateResults.signature = signature;
       }
     );
     this.instructionExecutor.register(
@@ -245,9 +246,6 @@ function signMyUpdate(
   user: User
 ): ethers.utils.Signature {
   const operation = context.intermediateResults.operation!;
-  if (operation === undefined) {
-    throw Error("tried to sign update without anything to sign");
-  }
   // todo(ldct): place digest in intermediateResults
   const digest = operation.hashToSign();
   const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
