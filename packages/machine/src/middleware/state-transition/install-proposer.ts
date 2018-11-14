@@ -2,10 +2,8 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
-import { Opcode } from "../../instructions";
 import { NodeState, StateChannelInfoImpl } from "../../node-state";
 import { InternalMessage, StateProposal } from "../../types";
-import { getLastResult } from "../middleware";
 
 export class InstallProposer {
   public static propose(
@@ -76,11 +74,11 @@ export class InstallProposer {
     context: Context,
     data: cf.app.InstallData
   ): string[] {
-    const lastResult = getLastResult(Opcode.IO_WAIT, context.results2);
+    const lastResult = context.intermediateResults.inbox!;
 
     let signingKeys;
-    if (lastResult && lastResult.value && lastResult.value.data) {
-      signingKeys = [lastResult.value.data.keyA, lastResult.value.data.keyB];
+    if (lastResult && lastResult && lastResult.data) {
+      signingKeys = [lastResult.data.keyA, lastResult.data.keyB];
     } else {
       signingKeys = [data.keyA!, data.keyB!];
     }

@@ -123,7 +123,8 @@ export class IframeIoProvider {
 
   public async waitForIo(
     message: machine.types.InternalMessage,
-    next: Function
+    next: Function,
+    context: machine.instructionExecutor.Context
   ): Promise<cf.node.ClientActionMessage> {
     // has websocket received a message for this appId/multisig
     // if yes, return the message, if not wait until it does
@@ -151,6 +152,7 @@ export class IframeIoProvider {
 
     this.listenOnce(
       message => {
+        context.intermediateResults.inbox = message;
         resolve(message);
       },
       multisig,

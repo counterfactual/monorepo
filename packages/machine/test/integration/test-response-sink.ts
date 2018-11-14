@@ -8,7 +8,6 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
-import { getLastResult } from "../../src/middleware/middleware";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -182,10 +181,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = getLastResult(
-        Opcode.IO_WAIT,
-        context.results2
-      ).value;
+      const incomingMessage = context.intermediateResults.inbox!;
       sig = incomingMessage.signature;
     } else {
       // receiver

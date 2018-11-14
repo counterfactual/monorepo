@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Context } from "./instruction-executor";
-import { InternalMessage, OpCodeResult } from "./types";
+import { InternalMessage } from "./types";
 
 /**
  * Persistent write ahead log to be able to resume or abort protocols if the
@@ -58,8 +58,7 @@ export class WriteAheadLog {
       requestId: message.clientMessage.requestId,
       clientMessage: message.clientMessage,
       isAckSide: message.isAckSide,
-      instructionPointer: context.instructionPointer,
-      results: context.results2
+      instructionPointer: context.instructionPointer
     };
   }
 
@@ -96,7 +95,6 @@ interface LogRecord {
   clientMessage: cf.node.ClientActionMessage;
   isAckSide: boolean;
   instructionPointer: number;
-  results: OpCodeResult[];
 }
 
 /**

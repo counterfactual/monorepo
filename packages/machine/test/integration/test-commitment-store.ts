@@ -2,8 +2,6 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../src/instruction-executor";
-import { Opcode } from "../../src/instructions";
-import { getLastResult } from "../../src/middleware/middleware";
 import {
   ProtocolOperation,
   Transaction
@@ -202,18 +200,15 @@ export class TestCommitmentStore {
     context: Context
   ): cf.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.node.ActionName.INSTALL) {
-      return getLastResult(Opcode.IO_WAIT, context.results2).value;
+      return context.intermediateResults.inbox!;
     }
-    const incomingMessageResult = getLastResult(
-      Opcode.IO_WAIT,
-      context.results2
-    );
-    if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
+    const incomingMessageResult = context.intermediateResults.inbox!;
+    if (incomingMessageResult === undefined) {
       // receiver since non installs should have no io_WAIT
       return internalMessage.clientMessage;
     }
     // sender so grab out the response
-    return incomingMessageResult.value;
+    return incomingMessageResult;
   }
 
   /**

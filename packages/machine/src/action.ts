@@ -6,7 +6,7 @@ import {
   IntermediateResults
 } from "./instruction-executor";
 import { ackInstructions, instructions, Opcode } from "./instructions";
-import { InternalMessage, OpCodeResult } from "./types";
+import { InternalMessage } from "./types";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
@@ -28,7 +28,6 @@ export class ActionExecution {
   public instructionPointer: number;
   public clientMessage: cf.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public results2: OpCodeResult[];
   public isAckSide: boolean;
   public intermediateResults: IntermediateResults;
   public requestId: string;
@@ -41,7 +40,6 @@ export class ActionExecution {
     instructionExecutor: InstructionExecutor,
     isAckSide: boolean,
     requestId: string,
-    results2: OpCodeResult[] = [],
     intermediateResults = {}
   ) {
     this.actionName = actionName;
@@ -51,7 +49,6 @@ export class ActionExecution {
     this.instructionExecutor = instructionExecutor;
     this.isAckSide = isAckSide;
     this.requestId = requestId;
-    this.results2 = results2;
     this.intermediateResults = intermediateResults;
   }
 
@@ -67,7 +64,6 @@ export class ActionExecution {
 
   private createContext(): Context {
     return {
-      results2: this.results2,
       intermediateResults: this.intermediateResults,
       instructionPointer: this.instructionPointer,
       // TODO: Should probably not pass the whole InstructionExecutor in, it breaks the encapsulation
@@ -96,9 +92,6 @@ export class ActionExecution {
 
       // push modified value of `context.intermediateResults`
       this.intermediateResults = context.intermediateResults;
-
-      // push return value onto results2
-      this.results2.push({ value, opCode: internalMessage.opCode });
 
       return { value, done: false };
     } catch (e) {

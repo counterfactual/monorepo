@@ -7,8 +7,7 @@ import { NodeState } from "../node-state";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
-  InternalMessage,
-  OpCodeResult
+  InternalMessage
 } from "../types";
 
 import { EthOpGenerator } from "./protocol-operation";
@@ -163,12 +162,8 @@ export class NextMsgGenerator {
     internalMessage: InternalMessage,
     context: Context
   ) {
-    const res = getLastResult(Opcode.IO_WAIT, context.results2);
-    // TODO: make getLastResult's return value nullable
-    // https://github.com/counterfactual/monorepo/issues/131
-    return JSON.stringify(res) === JSON.stringify({})
-      ? internalMessage.clientMessage
-      : res.value;
+    const res = context.intermediateResults.inbox;
+    return res === undefined ? internalMessage.clientMessage : res;
   }
 
   public static signature(
@@ -216,19 +211,4 @@ export class SignatureValidator {
   ) {
     next();
   }
-}
-
-/**
- * Utility for middleware to access return values of other middleware.
- */
-export function getLastResult(
-  toFindOpCode: Opcode,
-  results: OpCodeResult[]
-): OpCodeResult {
-  for (let k = results.length - 1; k >= 0; k -= 1) {
-    if (results[k].opCode === toFindOpCode) {
-      return results[k];
-    }
-  }
-  return Object.create(null);
 }

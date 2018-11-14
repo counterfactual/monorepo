@@ -267,10 +267,7 @@ async function validateSignatures(
       : message.clientMessage.toAddress;
   if (message.clientMessage.signature === undefined) {
     // initiator
-    const incomingMessage = machine.middleware.getLastResult(
-      machine.instructions.Opcode.IO_WAIT,
-      context.results2
-    ).value;
+    const incomingMessage = context.intermediateResults.inbox!;
     sig = incomingMessage.signature;
   } else {
     // receiver

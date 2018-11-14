@@ -8,11 +8,7 @@ import { Middleware } from "./middleware/middleware";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
 import { NodeState } from "./node-state";
-import {
-  InstructionMiddlewareCallback,
-  OpCodeResult,
-  StateProposal
-} from "./types";
+import { InstructionMiddlewareCallback, StateProposal } from "./types";
 import { Log } from "./write-ahead-log";
 
 export class InstructionExecutorConfig {
@@ -78,7 +74,6 @@ export class InstructionExecutor implements Observable {
         entry.isAckSide,
         entry.requestId
       );
-      execution.results2 = entry.results;
       return execution;
     });
   }
@@ -160,10 +155,10 @@ export interface IntermediateResults {
   proposedStateTransition?: StateProposal;
   operation?: ProtocolOperation;
   signature?: ethers.utils.Signature;
+  inbox?: cf.node.ClientActionMessage;
 }
 
 export class Context {
-  public results2: OpCodeResult[] = [];
   public intermediateResults: IntermediateResults = {};
 
   // todo(ldct): the following fields are very special-purpose and only accessed

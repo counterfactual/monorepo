@@ -110,8 +110,5 @@ function validatelog(log: WriteAheadLog, instructionExecutor: InstructionExecuto
       JSON.stringify(expected.clientMessage)
     );
     expect(received.instructionPointer).toEqual(expected.instructionPointer);
-    expect(JSON.stringify(received.results2)).toEqual(
-      JSON.stringify(expected.results2)
-    );
   }
 }
