@@ -82,7 +82,9 @@ export class InstructionExecutor implements Observable {
     });
   }
 
-  public receiveClientActionMessageAck(msg: cf.legacy.node.ClientActionMessage) {
+  public receiveClientActionMessageAck(
+    msg: cf.legacy.node.ClientActionMessage
+  ) {
     this.execute(new Action(msg.requestId, msg.action, msg, true));
   }
 
