@@ -83,11 +83,20 @@ export const TEST_APP_INSTANCE = new cf.app.AppInstance(
   TEST_APP_UNIQUE_ID
 );
 
-export function constructContractCall(funcSig: string, ...args: any): string {
+/**
+ * Construct contract call data
+ * @param funcSig Function signature ABI encoding e.g. "execTransaction(address, uint256, bytes, uint8, bytes)"
+ * @param args Arguments to pass to contract call
+ */
+export function constructContractCall(funcSig: string, ...args: any[]): string {
   const [funcName] = funcSig.split("(");
   return new ethers.utils.Interface([funcSig]).functions[funcName].encode(args);
 }
 
+/**
+ * Concatenate calls into multiSend() call
+ * @param subcalls Transaction data of subcalls
+ */
 export function constructMultiSend(subcalls: string[]): string {
   return constructContractCall(
     "multiSend(bytes)",
@@ -95,6 +104,14 @@ export function constructMultiSend(subcalls: string[]): string {
   );
 }
 
+/**
+ * Construct contract call to be passed to multiSend().
+ * @param operation Type of operation to execute: call or delegatecall
+ * @param to Address of contract to call
+ * @param value Value to send
+ * @param funcSig Function signature ABI encoding e.g. "setState(bytes32, uint256, uint256, bytes)"
+ * @param args Arguments to pass to contract call
+ */
 export function constructMultiSendSubCall(
   operation: "delegatecall" | "call",
   to: string,
@@ -109,6 +126,14 @@ export function constructMultiSendSubCall(
   );
 }
 
+/**
+ * Construct call to Multisig execTransaction() proxy function
+ * @param operation Type of operation to execute: call or delegatecall
+ * @param to Address of contract to call
+ * @param value Value to send
+ * @param transactionData Transaction data of call
+ * @param signatures Signatures of multisig owners for this call
+ */
 export function constructMultisigExecTransaction(
   operation: "delegatecall" | "call",
   to: string,
@@ -119,7 +144,7 @@ export function constructMultisigExecTransaction(
   return constructContractCall(
     "execTransaction(address, uint256, bytes, uint8, bytes)",
     to,
-    0, // value
+    value,
     transactionData,
     operation === "delegatecall" ? 1 : 0,
     cf.utils.signaturesToBytes(...signatures)
