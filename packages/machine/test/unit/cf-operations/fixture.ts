@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-export const TEST_NETWORK_CONTEXT = new cf.network.NetworkContext(
+export const TEST_NETWORK_CONTEXT = new cf.legacy.network.NetworkContext(
   "0x1111111111111111111111111111111111111111",
   "0x2222222222222222222222222222222222222222",
   "0x3333333333333333333333333333333333333333",
@@ -29,12 +29,12 @@ export const TEST_PARTICIPANTS = [
   TEST_SIGNING_KEYS[1].address
 ];
 export const TEST_APP_UNIQUE_ID = 13;
-export const TEST_TERMS = new cf.app.Terms(
+export const TEST_TERMS = new cf.legacy.app.Terms(
   0,
   ethers.utils.parseEther("1.0"),
   ethers.constants.AddressZero
 );
-export const TEST_APP_INTERFACE = new cf.app.AppInterface(
+export const TEST_APP_INTERFACE = new cf.legacy.app.AppInterface(
   ethers.constants.AddressZero,
   "0x00000000",
   "0x00000000",
@@ -48,7 +48,7 @@ export const TEST_APP_STATE_HASH = ethers.utils.hexlify(
 export const TEST_LOCAL_NONCE = 0;
 export const TEST_TIMEOUT = 100;
 
-export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
+export const TEST_FREE_BALANCE = new cf.legacy.utils.FreeBalance(
   TEST_SIGNING_KEYS[0].address,
   ethers.utils.parseEther("0.5"),
   TEST_SIGNING_KEYS[1].address,
@@ -56,24 +56,24 @@ export const TEST_FREE_BALANCE = new cf.utils.FreeBalance(
   0,
   10,
   100,
-  new cf.utils.Nonce(true, 0, 5)
+  new cf.legacy.utils.Nonce(true, 0, 5)
 );
 
-export const TEST_FREE_BALANCE_APP_INTERFACE = cf.utils.FreeBalance.contractInterface(
+export const TEST_FREE_BALANCE_APP_INTERFACE = cf.legacy.utils.FreeBalance.contractInterface(
   TEST_NETWORK_CONTEXT
 );
 
-export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.app.AppInstance(
+export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.legacy.app.AppInstance(
   TEST_NETWORK_CONTEXT,
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
   TEST_FREE_BALANCE_APP_INTERFACE,
-  cf.utils.FreeBalance.terms(),
+  cf.legacy.utils.FreeBalance.terms(),
   TEST_FREE_BALANCE.timeout,
   TEST_FREE_BALANCE.uniqueId
 );
 
-export const TEST_APP_INSTANCE = new cf.app.AppInstance(
+export const TEST_APP_INSTANCE = new cf.legacy.app.AppInstance(
   TEST_NETWORK_CONTEXT,
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
@@ -147,6 +147,6 @@ export function constructMultisigExecTransaction(
     value,
     transactionData,
     operation === "delegatecall" ? 1 : 0,
-    cf.utils.signaturesToBytes(...signatures)
+    cf.legacy.utils.signaturesToBytes(...signatures)
   );
 }
