@@ -69,7 +69,6 @@ export class ActionExecution {
     this.results = results;
   }
 
-  // Public only for test purposes
   public createInternalMessage(): InternalMessage {
     const op = this.action.instructions[this.instructionPointer];
     return new InternalMessage(
@@ -91,7 +90,7 @@ export class ActionExecution {
     };
   }
 
-  public async next(): Promise<{ done: boolean; value: number }> {
+  private async next(): Promise<{ done: boolean; value: number }> {
     if (this.instructionPointer === this.action.instructions.length) {
       return { done: true, value: 0 };
     }
