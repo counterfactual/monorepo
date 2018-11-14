@@ -15,7 +15,9 @@
   },
   "devDependencies": {
     "@types/node": "^10.9.3",
+    "@types/jest": "^23.3.3",
     "ethers": "^4.0.4",
+    "jest": "^23.6.0",
     "rollup": "^0.67.0",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.18.0",
@@ -23,7 +25,29 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/machine": "0.0.1"
+    "@counterfactual/cf.js": "0.0.1"
+  },
+  "jest": {
+    "verbose": false,
+    "bail": true,
+    "rootDir": ".",
+    "cacheDirectory": "jest-cache",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
   }
 }
