@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 
 import {
+  constructContractCall,
+  TEST_APP_INSTANCE,
   TEST_APP_INTERFACE,
   TEST_APP_STATE_HASH,
   TEST_APP_UNIQUE_ID,
@@ -14,7 +16,22 @@ import {
   TEST_SIGNING_KEYS,
   TEST_TERMS,
   TEST_TIMEOUT
-} from "./test-data";
+} from "./fixture";
+
+function constructSetStateData(signatures: ethers.utils.Signature[]): string {
+  return constructContractCall(
+    "proxyCall(address,bytes32,bytes)",
+    TEST_NETWORK_CONTEXT.registryAddr,
+    TEST_APP_INSTANCE.cfAddress(),
+    constructContractCall(
+      "setState(bytes32,uint256,uint256,bytes)",
+      TEST_APP_STATE_HASH,
+      TEST_LOCAL_NONCE,
+      TEST_TIMEOUT,
+      cf.utils.signaturesToBytes(...signatures)
+    )
+  );
+}
 
 describe("OpSetState", () => {
   let operation: OpSetState;
@@ -35,37 +52,14 @@ describe("OpSetState", () => {
 
   it("Should be able to compute the correct tx to submit on-chain", () => {
     const digest = operation.hashToSign();
-    const [sig1, sig2] = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
+    const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
 
-    const app = new cf.app.AppInstance(
-      TEST_NETWORK_CONTEXT,
-      TEST_MULTISIG_ADDRESS,
-      TEST_PARTICIPANTS,
-      TEST_APP_INTERFACE,
-      TEST_TERMS,
-      TEST_TIMEOUT,
-      TEST_APP_UNIQUE_ID
-    );
+    const expectedTxData = constructSetStateData(signatures);
 
-    const tx = operation.transaction([sig1, sig2]);
+    const tx = operation.transaction(signatures);
     expect(tx.to).toBe(TEST_NETWORK_CONTEXT.registryAddr);
     expect(tx.value).toBe(0);
-    expect(tx.data).toBe(
-      new ethers.utils.Interface([
-        "proxyCall(address,bytes32,bytes)"
-      ]).functions.proxyCall.encode([
-        TEST_NETWORK_CONTEXT.registryAddr,
-        app.cfAddress(),
-        new ethers.utils.Interface([
-          "setState(bytes32,uint256,uint256,bytes)"
-        ]).functions.setState.encode([
-          TEST_APP_STATE_HASH,
-          TEST_LOCAL_NONCE,
-          TEST_TIMEOUT,
-          cf.utils.signaturesToSortedBytes(digest, sig1, sig2)
-        ])
-      ])
-    );
+    expect(tx.data).toBe(expectedTxData);
   });
 
   // https://specs.counterfactual.com/06-update-protocol#commitments
