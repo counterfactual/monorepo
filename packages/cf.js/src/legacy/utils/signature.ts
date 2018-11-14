@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { H256 } from "./index";
+import { H256 } from ".";
 
 export function signaturesToBytes(
   ...signatures: ethers.utils.Signature[]

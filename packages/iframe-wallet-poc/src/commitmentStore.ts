@@ -9,7 +9,10 @@ import {
 
 interface Commitments {
   appId: string;
-  commitments: Map<cf.legacy.node.ActionName, machine.protocolTypes.Transaction>;
+  commitments: Map<
+    cf.legacy.node.ActionName,
+    machine.protocolTypes.Transaction
+  >;
 
   addCommitment(
     action: cf.legacy.node.ActionName,
@@ -79,7 +82,10 @@ export class AppCommitments implements Commitments {
     signatures: ethers.utils.Signature[]
   ) {
     const commitment = protocolOperation.transaction(signatures);
-    if (action !== cf.legacy.node.ActionName.UPDATE && this.commitments.has(action)) {
+    if (
+      action !== cf.legacy.node.ActionName.UPDATE &&
+      this.commitments.has(action)
+    ) {
       return;
       // FIXME: we should never non-maliciously get to this state
       throw Error("Can't reset setup/install/uninstall commitments");
@@ -91,7 +97,9 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public async hasCommitment(action: cf.legacy.node.ActionName): Promise<boolean> {
+  public async hasCommitment(
+    action: cf.legacy.node.ActionName
+  ): Promise<boolean> {
     return this.commitments.has(action);
   }
 
@@ -112,7 +120,10 @@ export class AppCommitments implements Commitments {
     // FIXME: This is absurd, we shouldn't even be using a Map for this use case
     // considering that the keys are all strings anyway.
     // https://stackoverflow.com/a/29085474/2680092
-    const pairs: [cf.legacy.node.ActionName, machine.protocolTypes.Transaction][] = [];
+    const pairs: [
+      cf.legacy.node.ActionName,
+      machine.protocolTypes.Transaction
+    ][] = [];
     this.commitments.forEach((v, k) => {
       pairs.push([k, v]);
     });

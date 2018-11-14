@@ -117,9 +117,11 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public async runProtocol(
     msg: cf.legacy.node.ClientActionMessage
   ): Promise<cf.legacy.node.WalletResponse> {
-    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
-      this.requests[msg.requestId] = resolve;
-    });
+    const promise = new Promise<cf.legacy.node.WalletResponse>(
+      (resolve, reject) => {
+        this.requests[msg.requestId] = resolve;
+      }
+    );
     this.instructionExecutor.receive(msg);
     return promise;
   }
@@ -194,10 +196,8 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = getLastResult(
-        Opcode.IO_WAIT,
-        context.results
-      ).value;
+      const incomingMessage = getLastResult(Opcode.IO_WAIT, context.results)
+        .value;
       sig = incomingMessage.signature;
     } else {
       // receiver

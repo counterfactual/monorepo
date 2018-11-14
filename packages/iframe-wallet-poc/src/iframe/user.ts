@@ -17,7 +17,8 @@ try {
   console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
-export class User implements machine.mixins.Observable, cf.legacy.node.ResponseSink {
+export class User
+  implements machine.mixins.Observable, cf.legacy.node.ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
@@ -151,7 +152,9 @@ export class User implements machine.mixins.Observable, cf.legacy.node.ResponseS
     });
   }
 
-  public generateObserverNotification(notification: cf.legacy.node.Notification): any {
+  public generateObserverNotification(
+    notification: cf.legacy.node.Notification
+  ): any {
     const PROPOSE = machine.instructions.Opcode.STATE_TRANSITION_PROPOSE;
     return notification.data.results.find(r => r.opCode === PROPOSE).value;
   }
@@ -182,7 +185,9 @@ export class User implements machine.mixins.Observable, cf.legacy.node.ResponseS
     }
   }
 
-  public sendResponse(res: cf.legacy.node.WalletResponse | cf.legacy.node.Notification) {
+  public sendResponse(
+    res: cf.legacy.node.WalletResponse | cf.legacy.node.Notification
+  ) {
     if (this.isCurrentUser) {
       this.wallet.sendResponse(res);
     }

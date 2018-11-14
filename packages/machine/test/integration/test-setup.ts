@@ -10,7 +10,10 @@ import { TestResponseSink } from "./test-response-sink";
  * and asserting the internally stored state was correctly modified.
  */
 export class SetupProtocol {
-  public static async validateAndRun(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static async validateAndRun(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validatePresetup(peerA, peerB);
     await SetupProtocol.run(peerA, peerB);
     SetupProtocol.validatePostsetup(peerA, peerB);
@@ -51,7 +54,10 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the internally stored state correctly.
    */
-  public static validatePostsetup(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static validatePostsetup(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validateWallet(
       peerA,
       peerB,

@@ -3,8 +3,8 @@ import { ethers } from "ethers";
 
 import { StateChannelInfo } from "../channel";
 import { NetworkContext } from "../network";
+import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import * as abi from "../utils/abi";
-import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils/index";
 import { Nonce } from "../utils/nonce";
 
 const { keccak256 } = ethers.utils;

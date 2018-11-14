@@ -129,7 +129,11 @@ function installClientMsg(): cf.legacy.node.ClientActionMessage {
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new cf.legacy.app.Terms(0, ethers.utils.bigNumberify(8), TOKEN_ADDRESS),
+      terms: new cf.legacy.app.Terms(
+        0,
+        ethers.utils.bigNumberify(8),
+        TOKEN_ADDRESS
+      ),
       app: new cf.legacy.app.AppInterface(
         APP_ADDRESS,
         APPLY_ACTION,

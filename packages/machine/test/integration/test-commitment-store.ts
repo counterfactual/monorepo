@@ -74,7 +74,10 @@ export class AppCommitments implements Commitments {
     signatures: ethers.utils.Signature[]
   ) {
     const commitment = protocolOperation.transaction(signatures);
-    if (action !== cf.legacy.node.ActionName.UPDATE && this.commitments.has(action)) {
+    if (
+      action !== cf.legacy.node.ActionName.UPDATE &&
+      this.commitments.has(action)
+    ) {
       return;
       // FIXME: we should never non-maliciously get to this state
       // https://github.com/counterfactual/monorepo/issues/101
@@ -87,7 +90,9 @@ export class AppCommitments implements Commitments {
    * Determines whether a given action's commitment has been set
    * @param action
    */
-  public async hasCommitment(action: cf.legacy.node.ActionName): Promise<boolean> {
+  public async hasCommitment(
+    action: cf.legacy.node.ActionName
+  ): Promise<boolean> {
     return this.commitments.has(action);
   }
 

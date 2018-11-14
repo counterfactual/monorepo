@@ -3,10 +3,10 @@ import {
   UninstallOptions,
   UpdateData,
   UpdateOptions
-} from "./app/index";
+} from "./app";
 import { Channel } from "./channel";
-import { ActionName, ClientResponse } from "./node/index";
-import { PeerBalance } from "./utils/index";
+import { ActionName, ClientResponse } from "./node";
+import { PeerBalance } from "./utils";
 
 export class AppInstanceClient {
   public stateChannel: Channel;

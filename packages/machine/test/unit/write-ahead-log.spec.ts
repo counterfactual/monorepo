@@ -1,7 +1,10 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Action, ActionExecution } from "../../src/action";
-import { InstructionExecutorConfig, InstructionExecutor } from "../../src/instruction-executor";
+import {
+  InstructionExecutor,
+  InstructionExecutorConfig
+} from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
@@ -11,7 +14,9 @@ describe("Write ahead log", () => {
   it("should generate the same write ahead log when using the same db", () => {
     const db = new SimpleStringMapSyncDB();
 
-    const instructionExecutor = new InstructionExecutor(new InstructionExecutorConfig(null!, null!, null!, undefined!));
+    const instructionExecutor = new InstructionExecutor(
+      new InstructionExecutorConfig(null!, null!, null!, undefined!)
+    );
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
 
@@ -34,7 +39,9 @@ describe("Write ahead log", () => {
 /**
  * @returns The entries to load into the write ahead log for the test.
  */
-function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecution[] {
+function makeExecutions(
+  instructionExecutor: InstructionExecutor
+): ActionExecution[] {
   const requestIds = ["1", "2", "3"];
 
   const actions = [
@@ -91,7 +98,10 @@ function makeExecutions(instructionExecutor: InstructionExecutor): ActionExecuti
   return executions;
 }
 
-function validatelog(log: WriteAheadLog, instructionExecutor: InstructionExecutor) {
+function validatelog(
+  log: WriteAheadLog,
+  instructionExecutor: InstructionExecutor
+) {
   const executions = instructionExecutor.buildExecutionsFromLog(log.readLog());
   const expectedExecutions = makeExecutions(instructionExecutor);
   for (let k = 0; k < expectedExecutions.length; k += 1) {

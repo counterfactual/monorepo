@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as _ from "lodash";
 
-import { Terms } from "./app/index";
+import { Terms } from "./app";
 import { AbiEncodings, AppDefinition } from "./types";
 
 export class AppInstance {

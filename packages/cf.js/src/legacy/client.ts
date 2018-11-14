@@ -14,7 +14,7 @@ import {
   WalletMessage,
   WalletMessaging,
   WalletResponse
-} from "./node/index";
+} from "./node";
 
 export class Client implements Observable {
   get address(): string {

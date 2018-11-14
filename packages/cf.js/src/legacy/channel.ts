@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import * as _ from "lodash";
 
+import { AppInstanceInfos, AppInterface, InstallData } from "./app";
 import { AppInstance } from "./app-instance";
 import { AppInstanceClient } from "./app-instance-client";
-import { AppInstanceInfos, AppInterface, InstallData } from "./app/index";
 import { Client } from "./client";
 import { ETHBalanceRefundApp } from "./eth-balance-refund-app";
 import {
@@ -12,9 +12,9 @@ import {
   ClientQueryType,
   FreeBalanceClientResponse,
   StateChannelDataClientResponse
-} from "./node/index";
+} from "./node";
 import * as types from "./types";
-import { Address, FreeBalance, PeerBalance } from "./utils/index";
+import { Address, FreeBalance, PeerBalance } from "./utils";
 
 export class Channel {
   public client: Client;
