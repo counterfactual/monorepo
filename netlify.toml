@@ -3,7 +3,7 @@
 # we still can't do that :(
 
 [build]
-  base        = "packages/playground"
-  publish     = "dist"
-  command     = "yarn build"
+  base        = "."
+  publish     = "packages/playground/dist"
+  command     = "cd packages/playground && yarn build"
   environment = { NODE_VERSION = "10.13.0", YARN_VERSION = "1.10.1" }
