@@ -130,11 +130,7 @@ export class InstructionExecutor implements Observable {
   public async run(execution: ActionExecution) {
     try {
       // Temporary error handling for testing resuming protocols
-      let val;
-      // TODO: Bizarre syntax...
-      // https://github.com/counterfactual/monorepo/issues/123
-      for await (val of execution) {
-      }
+      await execution.runAll();
       this.sendResponse(
         execution.requestId,
         cf.legacy.node.ResponseStatus.COMPLETED
@@ -181,6 +177,10 @@ export class Context {
   // in one place; it would be nice to get rid of them
   public instructionPointer: number = Object.create(null);
   public instructionExecutor: InstructionExecutor = Object.create(null);
+}
+
+export interface MiddlewareReturnValue {
+  updateIntermediateResults?: IntermediateResults;
 }
 
 applyMixins(InstructionExecutor, [Observable]);
