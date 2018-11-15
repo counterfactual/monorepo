@@ -91,7 +91,7 @@ export class Middleware {
     // `TypeError: Cannot read property '0' of undefined`
     // https://github.com/counterfactual/monorepo/issues/133
 
-    return this.middlewares[opCode][0].method(msg, callback, context);
+    this.middlewares[opCode][0].method(msg, callback, context);
   }
 
   /**
