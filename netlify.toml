@@ -4,6 +4,6 @@
 
 [build]
   base        = "."
-  publish     = "packages/playground/dist"
+  publish     = "packages/playground/www"
   command     = "cd packages/playground && yarn build"
   environment = { NODE_VERSION = "10.13.0", YARN_VERSION = "1.10.1" }
