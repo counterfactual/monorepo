@@ -1,0 +1,9 @@
+# TODO: This file should live in packages/playgrouund. Unfortunately, due to
+# an issue in Netlify (https://github.com/netlify/build-image/issues/81),
+# we still can't do that :(
+
+[build]
+  base        = "packages/playground"
+  publish     = "dist"
+  command     = "yarn build"
+  environment = { NODE_VERSION = "10.13.0" }
