@@ -1,0 +1,4 @@
+[build]
+  base    = "packages/playground"
+  publish = "dist"
+  command = "npm run build"
