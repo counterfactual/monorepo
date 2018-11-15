@@ -4,11 +4,11 @@ import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
 import {
   AppDefinition,
+  MessageDataQuery,
   NodeMessage,
   NodeMessageType,
   NodeProvider,
-  NodeQueryData,
-  NodeQueryType
+  QueryType
 } from "./structs";
 
 export enum ClientEventType {
@@ -34,14 +34,10 @@ export class Client {
   }
 
   async getAppInstances(): Promise<AppInstance[]> {
-    const queryData: NodeQueryData = {
-      queryType: NodeQueryType.GET_APP_INSTANCES
-    };
-    const response = await this.sendNodeRequest(
-      NodeMessageType.QUERY,
-      queryData
-    );
-    return (response.data as NodeQueryData).appInstances!.map(
+    const response = await this.sendNodeRequest(NodeMessageType.QUERY, {
+      queryType: QueryType.GET_APP_INSTANCES
+    });
+    return (response.data as MessageDataQuery).appInstances!.map(
       ({ id }) => new AppInstance(id)
     );
   }
@@ -50,7 +46,9 @@ export class Client {
     return new AppFactory(appDefinition);
   }
 
-  on(eventType: ClientEventType, callback: (e: ClientEvent) => void) {}
+  on(eventType: ClientEventType, callback: (e: ClientEvent) => void) {
+    // TODO: support notification observers
+  }
 
   private async sendNodeRequest(
     messageType: NodeMessageType,

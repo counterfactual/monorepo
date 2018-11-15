@@ -1,11 +1,11 @@
 import { AppInstance } from "../src/app-instance";
 import { Client } from "../src/client";
 import {
+  MessageDataQuery,
   NodeMessage,
   NodeMessageType,
   NodeProvider,
-  NodeQueryData,
-  NodeQueryType
+  QueryType
 } from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
@@ -34,6 +34,30 @@ describe("CF.js Client", async () => {
     client = new Client(nodeProvider);
   });
 
+  it("should respond correctly to errors", async () => {
+    expect.assertions(4);
+    const promise = client.getAppInstances();
+
+    expect(nodeProvider.postedMessages).toHaveLength(1);
+    const queryMessage = nodeProvider.postedMessages[0];
+
+    expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
+    const queryData = queryMessage.data! as MessageDataQuery;
+    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
+
+    nodeProvider.simulateMessageFromNode({
+      requestId: queryMessage.requestId,
+      messageType: NodeMessageType.ERROR,
+      data: { message: "Music too loud" }
+    });
+
+    try {
+      await promise;
+    } catch (e) {
+      expect(e.data.message).toBe("Music too loud");
+    }
+  });
+
   it("should query app instances and return them", async () => {
     expect.assertions(5);
     const testInstance = new AppInstance("TEST_ID");
@@ -46,14 +70,14 @@ describe("CF.js Client", async () => {
     expect(nodeProvider.postedMessages).toHaveLength(1);
     const queryMessage = nodeProvider.postedMessages[0];
     expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData: NodeQueryData = queryMessage.data!;
-    expect(queryData.queryType).toBe(NodeQueryType.GET_APP_INSTANCES);
+    const queryData = queryMessage.data! as MessageDataQuery;
+    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
       requestId: queryMessage.requestId,
       messageType: NodeMessageType.QUERY,
       data: {
-        queryType: NodeQueryType.GET_APP_INSTANCES,
+        queryType: QueryType.GET_APP_INSTANCES,
         appInstances: [testInstance]
       }
     });

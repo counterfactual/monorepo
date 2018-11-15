@@ -6,19 +6,24 @@ export enum NodeMessageType {
   ERROR = "error"
 }
 
-export enum NodeQueryType {
+export enum QueryType {
   GET_APP_INSTANCES = "getAppInstances"
 }
 
-export interface NodeQueryData {
-  queryType: NodeQueryType;
+export interface MessageDataQuery {
+  queryType: QueryType;
   appInstances?: any[];
+}
+
+export interface MessageDataError {
+  message: string;
+  extra?: any;
 }
 
 export interface NodeMessage {
   requestId: string;
   messageType: NodeMessageType;
-  data: NodeQueryData | null;
+  data: MessageDataQuery | MessageDataError | null;
 }
 
 export interface NodeProvider {
