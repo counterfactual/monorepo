@@ -1,7 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
-import { sleep } from "../utils/common";
 import {
   A_PRIVATE_KEY,
   B_PRIVATE_KEY,
@@ -22,9 +21,9 @@ describe("Machine State Lifecycle", async () => {
   // for setting commitments
   jest.setTimeout(50000);
 
-  it("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
+  it.only("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
     const [peerA, peerB]: TestResponseSink[] = getCommunicatingPeers();
-    await SetupProtocol.run(peerA, peerB);
+    await SetupProtocol.validateAndRun(peerA, peerB);
     await Depositor.makeDeposits(peerA, peerB);
     await TicTacToeSimulator.simulatePlayingGame(peerA, peerB);
   });
@@ -35,7 +34,7 @@ describe("Machine State Lifecycle", async () => {
  */
 function getCommunicatingPeers(): TestResponseSink[] {
   // TODO: Document somewhere that the .signingKey.address" *must* be a hex otherwise
-  // machine/src/middleware/node-state-transition/install-proposer.ts:98:14
+  // machine/src/middleware/node-transition/install-proposer.ts:98:14
   // will throw an error when doing BigNumber.gt check.
   // https://github.com/counterfactual/monorepo/issues/110
 
@@ -112,13 +111,13 @@ class Depositor {
       threshold
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // since the machine is async, we need to wait for peerB to finish up its
     // side of the protocol before inspecting it's state
-    await sleep(50);
+    await cf.legacy.utils.sleep(50);
     // check B's client
     Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
-    // check A's client and return the newly created cf.signingKey.address
+    // check A's client and return the newly created cf.legacy.signingKey.address
     return Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
   }
 
@@ -126,19 +125,19 @@ class Depositor {
     from: string,
     to: string,
     threshold: ethers.utils.BigNumber
-  ): cf.node.ClientActionMessage {
-    const canon = cf.utils.PeerBalance.balances(
+  ): cf.legacy.node.ClientActionMessage {
+    const canon = cf.legacy.utils.PeerBalance.balances(
       from,
       ethers.utils.bigNumberify(0),
       to,
       ethers.utils.bigNumberify(0)
     );
-    const terms = new cf.app.Terms(
+    const terms = new cf.legacy.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new cf.app.AppInterface(
+    const app = new cf.legacy.app.AppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",
@@ -147,7 +146,7 @@ class Depositor {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: cf.app.InstallData = {
+    const installData: cf.legacy.app.InstallData = {
       terms,
       app,
       timeout,
@@ -160,7 +159,7 @@ class Depositor {
     return {
       requestId: "1",
       appId: "",
-      action: cf.node.ActionName.INSTALL,
+      action: cf.legacy.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -175,7 +174,7 @@ class Depositor {
     amount: ethers.utils.BigNumber
   ) {
     const stateChannel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(stateChannel.me).toEqual(peerA.signingKey.address);
     expect(stateChannel.counterParty).toEqual(peerB.signingKey.address);
 
@@ -212,7 +211,7 @@ class Depositor {
       amountA
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // validate peerA
     Depositor.validateUninstall(cfAddr, peerA, peerB, amountA, amountB);
     // validate peerB
@@ -228,8 +227,8 @@ class Depositor {
   ) {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
-    const state = peerA.instructionExecutor.nodeState;
-    const canon = cf.utils.PeerBalance.balances(
+    const state = peerA.instructionExecutor.node;
+    const canon = cf.legacy.utils.PeerBalance.balances(
       peerA.signingKey.address!,
       amountA,
       peerB.signingKey.address!,
@@ -237,7 +236,7 @@ class Depositor {
     );
 
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appInstances[cfAddr];
 
     expect(Object.keys(state.channelStates).length).toEqual(1);
@@ -257,17 +256,17 @@ class Depositor {
     from: string,
     to: string,
     amount: ethers.utils.BigNumber
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
-        new cf.utils.PeerBalance(from, amount),
-        new cf.utils.PeerBalance(to, 0)
+        new cf.legacy.utils.PeerBalance(from, amount),
+        new cf.legacy.utils.PeerBalance(to, 0)
       ]
     };
     return {
       appId,
       requestId: "2",
-      action: cf.node.ActionName.UNINSTALL,
+      action: cf.legacy.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: from,
@@ -297,14 +296,14 @@ class TicTacToeSimulator {
       peerB.signingKey.address!
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
   public static installMsg(
     to: string,
     from: string
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     let peerA = from;
     let peerB = to;
     if (peerB.localeCompare(peerA) < 0) {
@@ -312,12 +311,12 @@ class TicTacToeSimulator {
       peerA = peerB;
       peerB = tmp;
     }
-    const terms = new cf.app.Terms(
+    const terms = new cf.legacy.app.Terms(
       0,
       new ethers.utils.BigNumber(10),
       ethers.constants.AddressZero
     ); // TODO:
-    const app = new cf.app.AppInterface(
+    const app = new cf.legacy.app.AppInterface(
       "0x0",
       "0x11111111",
       "0x11111111",
@@ -326,12 +325,12 @@ class TicTacToeSimulator {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: cf.app.InstallData = {
+    const installData: cf.legacy.app.InstallData = {
       terms,
       app,
       timeout,
-      peerA: new cf.utils.PeerBalance(peerA, 2),
-      peerB: new cf.utils.PeerBalance(peerB, 2),
+      peerA: new cf.legacy.utils.PeerBalance(peerA, 2),
+      peerB: new cf.legacy.utils.PeerBalance(peerB, 2),
       keyA: peerA,
       keyB: peerB,
       encodedAppState: "0x1234"
@@ -339,7 +338,7 @@ class TicTacToeSimulator {
     return {
       requestId: "5",
       appId: "",
-      action: cf.node.ActionName.INSTALL,
+      action: cf.legacy.node.ActionName.INSTALL,
       data: installData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -354,7 +353,7 @@ class TicTacToeSimulator {
   ): Promise<string> {
     TicTacToeSimulator.validateInstallWallet(peerA, peerB);
     // Wait for other client to finish, since the machine is async
-    await sleep(50);
+    await cf.legacy.utils.sleep(50);
     return TicTacToeSimulator.validateInstallWallet(peerB, peerA);
   }
 
@@ -363,7 +362,7 @@ class TicTacToeSimulator {
     peerB: TestResponseSink
   ): string {
     const stateChannel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const appInstances = stateChannel.appInstances;
     const cfAddrs = Object.keys(appInstances);
     expect(cfAddrs.length).toEqual(1);
@@ -375,7 +374,7 @@ class TicTacToeSimulator {
 
     // now validate the free balance
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
     expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
     expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
@@ -420,7 +419,7 @@ class TicTacToeSimulator {
       cfAddr
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     TicTacToeSimulator.validateMakeMove(
       peerA,
       peerB,
@@ -428,7 +427,7 @@ class TicTacToeSimulator {
       state,
       moveNumber
     );
-    await sleep(50);
+    await cf.legacy.utils.sleep(50);
     TicTacToeSimulator.validateMakeMove(
       peerB,
       peerA,
@@ -444,15 +443,15 @@ class TicTacToeSimulator {
     to: string,
     from: string,
     cfAddr: string
-  ): cf.node.ClientActionMessage {
-    const updateData: cf.app.UpdateData = {
+  ): cf.legacy.node.ClientActionMessage {
+    const updateData: cf.legacy.app.UpdateData = {
       encodedAppState: state,
       appStateHash: ethers.constants.HashZero // TODO:
     };
     return {
       requestId: "1",
       appId: cfAddr,
-      action: cf.node.ActionName.UPDATE,
+      action: cf.legacy.node.ActionName.UPDATE,
       data: updateData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -469,10 +468,10 @@ class TicTacToeSimulator {
     moveNumber: number
   ) {
     const appA =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT]
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT]
         .appInstances[cfAddr];
     const appB =
-      peerB.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT]
+      peerB.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT]
         .appInstances[cfAddr];
 
     expect(appA.encodedState).toEqual(appState);
@@ -494,7 +493,7 @@ class TicTacToeSimulator {
       ethers.utils.bigNumberify(0)
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
     TicTacToeSimulator.validateUninstall(
       cfAddr,
@@ -502,7 +501,7 @@ class TicTacToeSimulator {
       ethers.utils.bigNumberify(12),
       ethers.utils.bigNumberify(3)
     );
-    await sleep(50);
+    await cf.legacy.utils.sleep(50);
     TicTacToeSimulator.validateUninstall(
       cfAddr,
       peerB,
@@ -517,17 +516,17 @@ class TicTacToeSimulator {
     amountA: ethers.utils.BigNumber,
     addressB: string,
     amountB: ethers.utils.BigNumber
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     const uninstallData = {
       peerAmounts: [
-        new cf.utils.PeerBalance(addressA, amountA),
-        new cf.utils.PeerBalance(addressB, amountB)
+        new cf.legacy.utils.PeerBalance(addressA, amountA),
+        new cf.legacy.utils.PeerBalance(addressB, amountB)
       ]
     };
     return {
       requestId: "2",
       appId: cfAddr,
-      action: cf.node.ActionName.UNINSTALL,
+      action: cf.legacy.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       fromAddress: addressA,
@@ -543,7 +542,7 @@ class TicTacToeSimulator {
     amountB: ethers.utils.BigNumber
   ) {
     const channel =
-      wallet.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      wallet.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const app = channel.appInstances[cfAddr];
     expect(channel.freeBalance.aliceBalance).toEqual(amountA);
     expect(channel.freeBalance.bobBalance).toEqual(amountB);

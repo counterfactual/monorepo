@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
-import { StateChannelInfoImpl } from "../../node-state";
+import { StateChannelInfoImpl } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 const FREE_BALANCE_TIMEOUT = 100;
@@ -22,14 +22,14 @@ export class SetupProposer {
     const toAddress = message.clientMessage.toAddress;
     const fromAddress = message.clientMessage.fromAddress;
 
-    const balances = cf.utils.PeerBalance.balances(
+    const balances = cf.legacy.utils.PeerBalance.balances(
       toAddress,
       ethers.utils.bigNumberify(0),
       fromAddress,
       ethers.utils.bigNumberify(0)
     );
     const localNonce = 0;
-    const freeBalance = new cf.utils.FreeBalance(
+    const freeBalance = new cf.legacy.utils.FreeBalance(
       balances.peerA.address,
       balances.peerA.balance,
       balances.peerB.address,
@@ -37,7 +37,7 @@ export class SetupProposer {
       FREE_BALANCE_UNIQUE_ID,
       localNonce,
       FREE_BALANCE_TIMEOUT,
-      new cf.utils.Nonce(false, FREE_BALANCE_UNIQUE_ID, 0)
+      new cf.legacy.utils.Nonce(false, FREE_BALANCE_UNIQUE_ID, 0)
     );
     const stateChannel = new StateChannelInfoImpl(
       toAddress,

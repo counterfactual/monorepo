@@ -132,21 +132,23 @@ async function pickUser(pkey) {
 }
 
 function getApps() {
-  const openChannelAddress = Object.keys(
-    iframeWallet.currentUser.instructionExecutor.state.channelStates
-  )[0];
-  return iframeWallet.currentUser.instructionExecutor.state.channelStates[
-    openChannelAddress
-  ].appChannels;
+  return getUniqueStateChannelInfo().appChannels;
+}
+
+function getUniqueStateChannelInfo() {
+  const stateChannelInfos = getStateChannels();
+  if (Object.values(stateChannelInfos).length != 1) {
+    throw "unexpected number of entries found in stateChannelInfos";
+  }
+  return Object.values(stateChannelInfos)[0];
 }
 
 function getStateChannels() {
-  return iframeWallet.currentUser.instructionExecutor.state.channelStates;
+  return iframeWallet.currentUser.instructionExecutor.node.channelStates;
 }
 
 async function deployFreeBalanceStateChannel() {
-  const stateChannels = getStateChannels();
-  const stateChannel = Object.values(stateChannels)[0];
+  const stateChannel = getUniqueStateChannelInfo();
   const contract = await deployFreeBalanceContract(
     iframeWallet.networkContext,
     stateChannel,
@@ -158,8 +160,7 @@ async function deployFreeBalanceStateChannel() {
 async function deployEthmoStateChannel() {
   const apps = getApps();
   const ethmoApplication = Object.values(apps)[0];
-  const stateChannels = getStateChannels();
-  const stateChannel = Object.values(stateChannels)[0];
+  const stateChannel = getUniqueStateChannelInfo();
   ethmoContract = await deployApplicationStateChannel(
     iframeWallet.networkContext,
     stateChannel,

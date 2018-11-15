@@ -42,7 +42,7 @@ export class InMemoryKeyValueStoreImpl implements InMemoryKeyValueStore {
   }
 
   public get(key: string) {
-    return cf.utils.serializer.deserialize(
+    return cf.legacy.utils.serializer.deserialize(
       JSON.parse(this.store.getItem(key) || "")
     );
   }

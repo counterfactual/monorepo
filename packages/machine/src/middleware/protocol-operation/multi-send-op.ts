@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as common from "./common";
 import { MultisigTxOp } from "./multisig-tx-op";
@@ -10,10 +10,10 @@ const { keccak256 } = ethers.utils;
 
 export abstract class MultiSendOp extends MultisigTxOp {
   constructor(
-    readonly networkContext: cf.utils.NetworkContext,
-    readonly multisig: cf.utils.Address,
-    readonly freeBalance: cf.utils.FreeBalance,
-    readonly dependencyNonce: cf.utils.Nonce
+    readonly networkContext: cf.legacy.network.NetworkContext,
+    readonly multisig: cf.legacy.utils.Address,
+    readonly freeBalance: cf.legacy.utils.FreeBalance,
+    readonly dependencyNonce: cf.legacy.utils.Nonce
   ) {
     super(multisig, freeBalance);
   }
@@ -26,10 +26,12 @@ export abstract class MultiSendOp extends MultisigTxOp {
     return new MultisigInput(to, val, data, op);
   }
 
-  public freeBalanceData(): cf.utils.Bytes {
-    const terms = cf.utils.FreeBalance.terms();
-    const app = cf.utils.FreeBalance.contractInterface(this.networkContext);
-    const freeBalanceCfAddress = new cf.app.AppInstance(
+  public freeBalanceData(): cf.legacy.utils.Bytes {
+    const terms = cf.legacy.utils.FreeBalance.terms();
+    const app = cf.legacy.utils.FreeBalance.contractInterface(
+      this.networkContext
+    );
+    const freeBalanceCfAddress = new cf.legacy.app.AppInstance(
       this.networkContext,
       this.multisig,
       [this.freeBalance.alice, this.freeBalance.bob],
@@ -40,7 +42,7 @@ export abstract class MultiSendOp extends MultisigTxOp {
     ).cfAddress();
 
     const appStateHash = keccak256(
-      cf.utils.abi.encode(
+      cf.legacy.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.freeBalance.alice,

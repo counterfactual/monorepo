@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
 
@@ -10,10 +10,13 @@ import { TestResponseSink } from "./test-response-sink";
  * and asserting the internally stored state was correctly modified.
  */
 export class SetupProtocol {
-  public static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static async validateAndRun(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validatePresetup(peerA, peerB);
-    await SetupProtocol.run2(peerA, peerB);
-    SetupProtocol.validate(peerA, peerB);
+    await SetupProtocol.run(peerA, peerB);
+    SetupProtocol.validatePostsetup(peerA, peerB);
   }
 
   /**
@@ -23,18 +26,23 @@ export class SetupProtocol {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ) {
-    expect(peerA.instructionExecutor.nodeState.channelStates).toEqual({});
-    expect(peerB.instructionExecutor.nodeState.channelStates).toEqual({});
+    console.log("printing everything");
+    console.log(peerA);
+    console.log(peerA.instructionExecutor);
+    console.log(peerA.instructionExecutor.node);
+    expect(peerA.instructionExecutor.node.channelStates).toEqual({});
+    expect(peerB.instructionExecutor.node.channelStates).toEqual({});
+    console.log("passed...");
   }
 
   public static setupStartMsg(
     from: string,
     to: string
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: cf.node.ActionName.SETUP,
+      action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -46,7 +54,10 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the internally stored state correctly.
    */
-  public static validate(peerA: TestResponseSink, peerB: TestResponseSink) {
+  public static validatePostsetup(
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
     SetupProtocol.validateWallet(
       peerA,
       peerB,
@@ -72,15 +83,15 @@ export class SetupProtocol {
   ) {
     // TODO: add nonce and uniqueId params and check them
     // https://github.com/counterfactual/monorepo/issues/111
-    const state = peerA.instructionExecutor.nodeState;
-    const canon = cf.utils.PeerBalance.balances(
+    const state = peerA.instructionExecutor.node;
+    const canon = cf.legacy.utils.PeerBalance.balances(
       peerA.signingKey.address,
       amountA,
       peerB.signingKey.address,
       amountB
     );
     const channel =
-      peerA.instructionExecutor.nodeState.channelStates[UNUSED_FUNDED_ACCOUNT];
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     expect(Object.keys(state.channelStates).length).toEqual(1);
     expect(channel.counterParty).toEqual(peerB.signingKey.address);
     expect(channel.me).toEqual(peerA.signingKey.address);
@@ -92,14 +103,12 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  // TODO: Better name
-  // https://github.com/counterfactual/monorepo/issues/104
-  private static async run2(peerA: TestResponseSink, peerB: TestResponseSink) {
+  private static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
     const msg = SetupProtocol.setupStartMsg(
       peerA.signingKey.address,
       peerB.signingKey.address
     );
     const response = await peerA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   }
 }

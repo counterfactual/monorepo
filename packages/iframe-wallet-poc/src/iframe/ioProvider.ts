@@ -5,7 +5,7 @@ import { User } from "./user";
 import { IFrameWallet } from "./wallet";
 
 export class IframeIoProvider {
-  public messages: cf.node.ClientActionMessage[];
+  public messages: cf.legacy.node.ClientActionMessage[];
   public user: User = Object.create(null);
   public peer: IFrameWallet = Object.create(null);
   public clientHandlesIO: Boolean;
@@ -32,11 +32,11 @@ export class IframeIoProvider {
   }
 
   public receiveMessageFromPeer(
-    serializedMessage: cf.node.ClientActionMessage
+    serializedMessage: cf.legacy.node.ClientActionMessage
   ) {
-    const message = cf.utils.serializer.deserialize(
+    const message = cf.legacy.utils.serializer.deserialize(
       serializedMessage
-    ) as cf.node.ClientActionMessage;
+    ) as cf.legacy.node.ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
@@ -70,8 +70,8 @@ export class IframeIoProvider {
   public findMessage(
     multisig?: string,
     appId?: string
-  ): cf.node.ClientActionMessage {
-    let message: cf.node.ClientActionMessage;
+  ): cf.legacy.node.ClientActionMessage {
+    let message: cf.legacy.node.ClientActionMessage;
     if (appId) {
       // FIXME: these shouldn't be ignored. refactor for type safety
       message = this.messages.find(m => m.appId === appId)!;
@@ -101,15 +101,6 @@ export class IframeIoProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public setClientToHandleIO() {
     this.clientHandlesIO = true;
   }
@@ -117,10 +108,10 @@ export class IframeIoProvider {
   public async ioSendMessage(
     internalMessage: machine.types.InternalMessage,
     next: Function,
-    context: machine.state.Context
+    context: machine.instructionExecutor.Context
   ) {
     const msg = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_PREPARE_SEND,
+      machine.instructions.Opcode.IO_PREPARE_SEND,
       context.results
     );
     // FIXME: (ts-strict) msg should never be null here
@@ -137,11 +128,11 @@ export class IframeIoProvider {
   public async waitForIo(
     message: machine.types.InternalMessage,
     next: Function
-  ): Promise<cf.node.ClientActionMessage> {
+  ): Promise<cf.legacy.node.ClientActionMessage> {
     // has websocket received a message for this appId/multisig
     // if yes, return the message, if not wait until it does
     let resolve: Function;
-    const promise = new Promise<cf.node.ClientActionMessage>(
+    const promise = new Promise<cf.legacy.node.ClientActionMessage>(
       r => (resolve = r)
     );
 
@@ -149,8 +140,8 @@ export class IframeIoProvider {
     let appId: string = "";
 
     if (
-      message.actionName === cf.node.ActionName.SETUP ||
-      message.actionName === cf.node.ActionName.INSTALL
+      message.actionName === cf.legacy.node.ActionName.SETUP ||
+      message.actionName === cf.legacy.node.ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {

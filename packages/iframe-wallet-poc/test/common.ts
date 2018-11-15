@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { IFrameWallet } from "../src/iframe/wallet";
 
@@ -9,7 +9,7 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
+export const EMPTY_NETWORK_CONTEXT = new cf.legacy.network.NetworkContext(
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
   ethers.constants.AddressZero,
@@ -25,10 +25,10 @@ export const EMPTY_NETWORK_CONTEXT = new cf.utils.NetworkContext(
  * and asserting the machine state was correctly modified.
  */
 export class SetupProtocol {
-  public static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
+  public static async validateAndRun(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validatePresetup(walletA, walletB);
-    await SetupProtocol.run2(walletA, walletB);
-    SetupProtocol.validate(walletA, walletB);
+    await SetupProtocol.run(walletA, walletB);
+    SetupProtocol.validatePostsetup(walletA, walletB);
   }
 
   /**
@@ -36,21 +36,21 @@ export class SetupProtocol {
    */
   public static validatePresetup(walletA: IFrameWallet, walletB: IFrameWallet) {
     expect(
-      walletA.currentUser.instructionExecutor.nodeState.channelStates
+      walletA.currentUser.instructionExecutor.node.channelStates
     ).toEqual({});
     expect(
-      walletB.currentUser.instructionExecutor.nodeState.channelStates
+      walletB.currentUser.instructionExecutor.node.channelStates
     ).toEqual({});
   }
 
   public static setupStartMsg(
     from: string,
     to: string
-  ): cf.node.ClientActionMessage {
+  ): cf.legacy.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: "",
-      action: cf.node.ActionName.SETUP,
+      action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: to,
@@ -62,7 +62,7 @@ export class SetupProtocol {
   /**
    * Asserts the setup protocol modifies the machine state correctly.
    */
-  public static validate(walletA: IFrameWallet, walletB: IFrameWallet) {
+  public static validatePostsetup(walletA: IFrameWallet, walletB: IFrameWallet) {
     SetupProtocol.validateWallet(
       walletA,
       walletB,
@@ -87,15 +87,15 @@ export class SetupProtocol {
     amountB: ethers.utils.BigNumber
   ) {
     // TODO: add nonce and uniqueId params and check them
-    const state = walletA.currentUser.instructionExecutor.nodeState;
-    const canon = cf.utils.PeerBalance.balances(
+    const state = walletA.currentUser.instructionExecutor.node;
+    const canon = cf.legacy.utils.PeerBalance.balances(
       walletA.currentUser.address,
       amountA,
       walletB.currentUser.address,
       amountB
     );
     const channel =
-      walletA.currentUser.instructionExecutor.nodeState.channelStates[
+      walletA.currentUser.instructionExecutor.node.channelStates[
         UNUSED_FUNDED_ACCOUNT
       ];
     expect(Object.keys(state.channelStates).length).toEqual(1);
@@ -109,13 +109,12 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  // TODO: Better naming
-  private static async run2(walletA: IFrameWallet, walletB: IFrameWallet) {
+  private static async run(walletA: IFrameWallet, walletB: IFrameWallet) {
     const msg = SetupProtocol.setupStartMsg(
       walletA.currentUser.address,
       walletB.currentUser.address
     );
     const response = await walletA.runProtocol(msg);
-    expect(response.status).toEqual(cf.node.ResponseStatus.COMPLETED);
+    expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   }
 }

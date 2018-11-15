@@ -1,7 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "./node-state";
-import { InternalMessage, MiddlewareResult } from "./types";
+import { Context } from "./instruction-executor";
+import { InternalMessage, OpCodeResult } from "./types";
 
 /**
  * Persistent write ahead log to be able to resume or abort protocols if the
@@ -89,14 +89,14 @@ export interface Log {
  * Record stored in the WAL.
  */
 interface LogRecord {
-  actionName: cf.node.ActionName;
-  to: cf.utils.Address;
-  from: cf.utils.Address;
+  actionName: cf.legacy.node.ActionName;
+  to: cf.legacy.utils.Address;
+  from: cf.legacy.utils.Address;
   requestId: string;
-  clientMessage: cf.node.ClientActionMessage;
+  clientMessage: cf.legacy.node.ClientActionMessage;
   isAckSide: boolean;
   instructionPointer: number;
-  results: MiddlewareResult[];
+  results: OpCodeResult[];
 }
 
 /**

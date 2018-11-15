@@ -22,7 +22,7 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "ci",
+      name: "cf",
       format: "iife",
       sourcemap: true,
       globals: globals

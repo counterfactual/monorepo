@@ -1,10 +1,10 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { Instruction, instructions } from "../../src/instructions";
+import { Context } from "../../src/instruction-executor";
+import { instructions, Opcode } from "../../src/instructions";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation/op-generator";
 import { StateTransition } from "../../src/middleware/state-transition/state-transition";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -43,7 +43,7 @@ abstract class SetupProtocolTestCase {
   public db: SimpleStringMapSyncDB;
   public peerA: TestResponseSink;
   public peerB: TestResponseSink;
-  public executedInstructions: Instruction[];
+  public executedInstructions: Opcode[];
 
   constructor() {
     this.db = new SimpleStringMapSyncDB();
@@ -61,7 +61,7 @@ abstract class SetupProtocolTestCase {
     );
     this.setupWallet(this.peerA, true);
     const resp = await this.peerA.runProtocol(this.msg());
-    expect(resp.status).toEqual(cf.node.ResponseStatus.ERROR);
+    expect(resp.status).toEqual(cf.legacy.node.ResponseStatus.ERROR);
     await this.resumeNewMachine();
     this.validate();
   }
@@ -91,11 +91,11 @@ abstract class SetupProtocolTestCase {
   public abstract description(): string;
   public abstract validate();
 
-  private msg(): cf.node.ClientActionMessage {
+  private msg(): cf.legacy.node.ClientActionMessage {
     return {
       requestId: "0",
       appId: undefined,
-      action: cf.node.ActionName.SETUP,
+      action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
       toAddress: A_ADDRESS,
@@ -114,7 +114,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -123,10 +123,10 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
     peer.instructionExecutor.middleware.middlewares[
-      Instruction.STATE_TRANSITION_PROPOSE
+      Opcode.STATE_TRANSITION_PROPOSE
     ] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -135,7 +135,7 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );
@@ -148,9 +148,9 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[cf.node.ActionName.SETUP])
+      JSON.stringify(instructions[cf.legacy.node.ActionName.SETUP])
     );
-    setupInstructions.unshift(Instruction.STATE_TRANSITION_PROPOSE);
+    setupInstructions.unshift(Opcode.STATE_TRANSITION_PROPOSE);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );
@@ -165,7 +165,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -173,11 +173,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
 
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
-    peer.instructionExecutor.middleware.middlewares[
-      Instruction.OP_GENERATE
-    ] = [];
+    peer.instructionExecutor.middleware.middlewares[Opcode.OP_GENERATE] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -187,7 +185,7 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );
@@ -200,9 +198,9 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[cf.node.ActionName.SETUP])
+      JSON.stringify(instructions[cf.legacy.node.ActionName.SETUP])
     );
-    setupInstructions.splice(1, 0, Instruction.OP_GENERATE);
+    setupInstructions.splice(1, 0, Opcode.OP_GENERATE);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );
@@ -217,7 +215,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
   public setupWallet(peer: TestResponseSink, shouldError: boolean) {
     // ensure the instructions are recorded so we can validate the test
     peer.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.executedInstructions.push(message.opCode);
       }
@@ -226,10 +224,10 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
     // override the existing STATE_TRANSITION_PROPOSE middleware so we can
     // error out if needed
     peer.instructionExecutor.middleware.middlewares[
-      Instruction.STATE_TRANSITION_COMMIT
+      Opcode.STATE_TRANSITION_COMMIT
     ] = [];
     peer.instructionExecutor.middleware.add(
-      Instruction.STATE_TRANSITION_COMMIT,
+      Opcode.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
         if (shouldError) {
           throw new Error("Crashing the machine on purpose");
@@ -238,7 +236,7 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.nodeState
+          peer.instructionExecutor.node
         );
       }
     );
@@ -251,9 +249,9 @@ class ResumeLastInstructionTest extends SetupProtocolTestCase {
    */
   public validate() {
     const setupInstructions = JSON.parse(
-      JSON.stringify(instructions[cf.node.ActionName.SETUP])
+      JSON.stringify(instructions[cf.legacy.node.ActionName.SETUP])
     );
-    setupInstructions.push(Instruction.STATE_TRANSITION_COMMIT);
+    setupInstructions.push(Opcode.STATE_TRANSITION_COMMIT);
     expect(JSON.stringify(setupInstructions)).toEqual(
       JSON.stringify(this.executedInstructions)
     );

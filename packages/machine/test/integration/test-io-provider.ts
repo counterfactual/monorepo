@@ -1,20 +1,20 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context } from "../../src/node-state";
-import { InternalMessage } from "../../src/types";
+import { Context } from "../../src/instruction-executor";
 
-import { TestResponseSink } from "./test-response-sink";
+// FIXME: Don't import functions from source code.
+// https://github.com/counterfactual/monorepo/issues/98
+import { Opcode } from "../../src/instructions";
 
 // FIXME: Don't import functions from source code.
 // https://github.com/counterfactual/monorepo/issues/8
 import { getLastResult } from "../../src/middleware/middleware";
+import { InternalMessage } from "../../src/types";
 
-// FIXME: Don't import functions from source code.
-// https://github.com/counterfactual/monorepo/issues/98
-import { Instruction } from "../../src/instructions";
+import { TestResponseSink } from "./test-response-sink";
 
 export class TestIOProvider {
-  public messages: cf.node.ClientActionMessage[];
+  public messages: cf.legacy.node.ClientActionMessage[];
 
   // FIXME: Don't just initialize it as a null object
   // https://github.com/counterfactual/monorepo/issues/97
@@ -35,11 +35,11 @@ export class TestIOProvider {
   }
 
   public receiveMessageFromPeer(
-    serializedMessage: cf.node.ClientActionMessage
+    serializedMessage: cf.legacy.node.ClientActionMessage
   ) {
-    const message = cf.utils.serializer.deserialize(
+    const message = cf.legacy.utils.serializer.deserialize(
       serializedMessage
-    ) as cf.node.ClientActionMessage;
+    ) as cf.legacy.node.ClientActionMessage;
 
     let done = false;
     const executedListeners = [] as number[];
@@ -74,8 +74,8 @@ export class TestIOProvider {
   public findMessage(
     multisig?: string,
     appId?: string
-  ): cf.node.ClientActionMessage {
-    let message: cf.node.ClientActionMessage;
+  ): cf.legacy.node.ClientActionMessage {
+    let message: cf.legacy.node.ClientActionMessage;
     if (appId) {
       // FIXME: These shouldn't be ignored. Refactor for type safety.
       // https://github.com/counterfactual/monorepo/issues/96
@@ -107,21 +107,12 @@ export class TestIOProvider {
     }
   }
 
-  public listen(
-    method: Function,
-    multisig?: string,
-    appId?: string,
-    seq?: number
-  ) {
-    this.ackMethod = method;
-  }
-
   public async ioSendMessage(
     internalMessage: InternalMessage,
     next: Function,
     context: Context
   ) {
-    const msg = getLastResult(Instruction.IO_PREPARE_SEND, context.results);
+    const msg = getLastResult(Opcode.IO_PREPARE_SEND, context.results);
 
     // FIXME: (ts-strict) msg should never be null here
     // https://github.com/counterfactual/monorepo/issues/94
@@ -134,11 +125,11 @@ export class TestIOProvider {
   public async waitForIo(
     message: InternalMessage,
     next: Function
-  ): Promise<cf.node.ClientActionMessage> {
+  ): Promise<cf.legacy.node.ClientActionMessage> {
     // Has websocket received a message for this appId/multisig
     // If yes, return the message, if not wait until it does
     let resolve: Function;
-    const promise = new Promise<cf.node.ClientActionMessage>(
+    const promise = new Promise<cf.legacy.node.ClientActionMessage>(
       r => (resolve = r)
     );
 
@@ -146,8 +137,8 @@ export class TestIOProvider {
     let appId: string = "";
 
     if (
-      message.actionName === cf.node.ActionName.SETUP ||
-      message.actionName === cf.node.ActionName.INSTALL
+      message.actionName === cf.legacy.node.ActionName.SETUP ||
+      message.actionName === cf.legacy.node.ActionName.INSTALL
     ) {
       multisig = message.clientMessage.multisigAddress;
     } else {

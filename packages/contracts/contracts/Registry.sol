@@ -1,11 +1,15 @@
 pragma solidity 0.4.25;
 
+import "openzeppelin-eth/contracts/utils/Address.sol";
+
 
 /// @title Registry - A global Ethereum deterministic address translator
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Supports deployment of contract initcode with the ability to deterministically reference the address before the actual contract is deployed regardless of msg.sender or transaction nonce
 /// @dev Will be obsolete for most use cases when CREATE2 is added to the EVM https://github.com/ethereum/EIPs/pull/1014
 contract Registry {
+
+  using Address for address;
 
   event ContractCreated(bytes32 indexed cfAddress, address deployedAddress);
 
@@ -58,10 +62,9 @@ contract Registry {
   /// @param ptr A counterfactual address
   /// @param data The data being sent in the call to the counterfactual contract
   function proxyCall(address registry, bytes32 ptr, bytes data) public {
-    require(
-      Registry(registry).resolver(ptr).call(data),
-      "The call failed."
-    );
+    address to = Registry(registry).resolver(ptr);
+    require(to != address(0), "Resolved to a 0x0 address");
+    require(to.isContract(), "Tried to call function on a non-contract");
+    require(to.call(data), "Registry.proxyCall failed.");
   }
-
 }

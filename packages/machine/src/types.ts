@@ -1,61 +1,39 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Instruction } from "./instructions";
-import { Context, NodeState } from "./node-state";
-
-export interface MiddlewareResult {
-  opCode: Instruction;
-  value: any;
-}
+import { Context } from "./instruction-executor";
+import { Opcode } from "./instructions";
+import { Node } from "./node";
 
 /**
  * The return value from the STATE_TRANSITION_PROPOSE middleware.
  */
 export interface StateProposal {
-  state: cf.channel.StateChannelInfos;
-  cfAddr?: cf.utils.H256;
+  state: cf.legacy.channel.StateChannelInfos;
+  cfAddr?: cf.legacy.utils.H256;
 }
 
 export type ProposerActionsHash = {
-  [Name in cf.node.ActionName]?: ContextualizedStateProposer
+  [Name in cf.legacy.node.ActionName]?: ContextualizedStateProposer
 };
 
 export interface ContextualizedStateProposer {
   propose(
     message: InternalMessage,
     context: Context,
-    nodeState: NodeState
+    node: Node
   ): StateProposal;
 }
 
 export interface OpCodeResult {
-  opCode: Instruction;
+  opCode: Opcode;
   value: any;
 }
 
-export interface Addressable {
-  appId?: cf.utils.H256;
-  multisigAddress?: cf.utils.Address;
-  toAddress?: cf.utils.Address;
-  fromAddress?: cf.utils.Address;
-}
-
-export type AddressableLookupResolver = {
-  (nodeState: NodeState, data: string): cf.channel.StateChannelInfo;
-};
-
-export type AddressableLookupResolverHash = {
-  appId: AddressableLookupResolver;
-  multisigAddress: AddressableLookupResolver;
-  toAddress: AddressableLookupResolver;
-  fromAddress?: AddressableLookupResolver;
-};
-
 export class InternalMessage {
   constructor(
-    public actionName: cf.node.ActionName,
-    public opCode: Instruction,
-    public clientMessage: cf.node.ClientActionMessage,
+    public actionName: cf.legacy.node.ActionName,
+    public opCode: Opcode,
+    public clientMessage: cf.legacy.node.ClientActionMessage,
     public isAckSide: boolean
   ) {}
 }
@@ -65,10 +43,8 @@ export type InstructionMiddlewareCallback = {
 };
 
 export interface InstructionMiddleware {
-  scope: Instruction;
+  scope: Opcode;
   method: InstructionMiddlewareCallback;
 }
 
-export type InstructionMiddlewares = {
-  [I in Instruction]: InstructionMiddleware[]
-};
+export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };

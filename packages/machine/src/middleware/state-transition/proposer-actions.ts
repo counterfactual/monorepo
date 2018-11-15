@@ -8,8 +8,8 @@ import { UninstallProposer } from "./uninstall-proposer";
 import { UpdateProposer } from "./update-proposer";
 
 export const PROPOSER_ACTIONS: ProposerActionsHash = {
-  [cf.node.ActionName.UPDATE]: UpdateProposer,
-  [cf.node.ActionName.INSTALL]: InstallProposer,
-  [cf.node.ActionName.UNINSTALL]: UninstallProposer,
-  [cf.node.ActionName.SETUP]: SetupProposer
+  [cf.legacy.node.ActionName.UPDATE]: UpdateProposer,
+  [cf.legacy.node.ActionName.INSTALL]: InstallProposer,
+  [cf.legacy.node.ActionName.UNINSTALL]: UninstallProposer,
+  [cf.legacy.node.ActionName.SETUP]: SetupProposer
 };

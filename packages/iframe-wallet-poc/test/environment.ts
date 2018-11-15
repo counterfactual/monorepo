@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 export const UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY: string = process.env
   .npm_package_config_unlockedAccount0!; // never null via test runtime

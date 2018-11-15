@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
 
@@ -17,7 +17,8 @@ try {
   console.info(`No blockchain URL specified. Defaulting to ${ganacheURL}`);
 }
 
-export class User implements machine.mixins.Observable, cf.node.ResponseSink {
+export class User
+  implements machine.mixins.Observable, cf.legacy.node.ResponseSink {
   get isCurrentUser(): boolean {
     return this.wallet.currentUser === this;
   }
@@ -50,9 +51,9 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     readonly wallet: IFrameWallet,
     address: string,
     privateKey: string,
-    networkContext: cf.utils.NetworkContext,
+    networkContext: cf.legacy.network.NetworkContext,
     db?: machine.writeAheadLog.SyncDb,
-    states?: cf.channel.ChannelStates
+    states?: cf.legacy.channel.StateChannelInfos
   ) {
     this.wallet = wallet;
     this.address = address;
@@ -70,7 +71,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
       this.address
     );
     this.store = new CommitmentStore();
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
       this.instructionExecutor
     );
     this.registerMiddlewares();
@@ -143,7 +144,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     await this.instructionExecutor.resume(savedLog);
   }
 
-  public handleActionCompletion(notification: cf.node.Notification) {
+  public handleActionCompletion(notification: cf.legacy.node.Notification) {
     this.notifyObservers(`${notification.data.name}Completed`, {
       requestId: notification.data.requestId,
       result: this.generateObserverNotification(notification),
@@ -151,11 +152,14 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     });
   }
 
-  public generateObserverNotification(notification: cf.node.Notification): any {
-    return notification.data.results.find(result => result.opCode === 0).value;
+  public generateObserverNotification(
+    notification: cf.legacy.node.Notification
+  ): any {
+    const PROPOSE = machine.instructions.Opcode.STATE_TRANSITION_PROPOSE;
+    return notification.data.results.find(r => r.opCode === PROPOSE).value;
   }
 
-  public addObserver(message: cf.node.ClientActionMessage) {
+  public addObserver(message: cf.legacy.node.ClientActionMessage) {
     const boundNotification = this.sendNotification.bind(
       this,
       message.data.notificationType
@@ -164,7 +168,7 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     this.registerObserver(message.data.notificationType, boundNotification);
   }
 
-  public removeObserver(message: cf.node.ClientActionMessage) {
+  public removeObserver(message: cf.legacy.node.ClientActionMessage) {
     const callback = this.observerCallbacks.get(message.data.observerId);
 
     if (callback) {
@@ -181,7 +185,9 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
     }
   }
 
-  public sendResponse(res: cf.node.WalletResponse | cf.node.Notification) {
+  public sendResponse(
+    res: cf.legacy.node.WalletResponse | cf.legacy.node.Notification
+  ) {
     if (this.isCurrentUser) {
       this.wallet.sendResponse(res);
     }
@@ -195,46 +201,46 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 
   private registerMiddlewares() {
     this.instructionExecutor.register(
-      machine.instructions.Instruction.ALL,
+      machine.instructions.Opcode.ALL,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         this.wal.write(message, context);
       }
     );
 
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN,
+      machine.instructions.Opcode.OP_SIGN,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return signMyUpdate(message, next, context, this);
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.OP_SIGN_VALIDATE,
+      machine.instructions.Opcode.OP_SIGN_VALIDATE,
       async (
         message: machine.types.InternalMessage,
         next: Function,
-        context: machine.state.Context
+        context: machine.instructionExecutor.Context
       ) => {
         return validateSignatures(message, next, context, this);
       }
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_SEND,
+      machine.instructions.Opcode.IO_SEND,
       this.io.ioSendMessage.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       this.io.waitForIo.bind(this.io)
     );
     this.instructionExecutor.register(
-      machine.instructions.Instruction.STATE_TRANSITION_COMMIT,
+      machine.instructions.Opcode.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
   }
@@ -247,26 +253,26 @@ export class User implements machine.mixins.Observable, cf.node.ResponseSink {
 async function signMyUpdate(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
-): Promise<cf.utils.Signature> {
+): Promise<ethers.utils.Signature> {
   const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = operation.hashToSign();
-  const sig = user.signingKey.signDigest(digest);
-  return new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s);
+  const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
+  return { r, s, v: recoveryParam! + 27 };
 }
 
 async function validateSignatures(
   message: machine.types.InternalMessage,
   next: Function,
-  context: machine.state.Context,
+  context: machine.instructionExecutor.Context,
   user: User
 ) {
   const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
-    machine.instructions.Instruction.OP_GENERATE,
+    machine.instructions.Opcode.OP_GENERATE,
     context.results
   ).value;
   const digest = op.hashToSign();
@@ -278,7 +284,7 @@ async function validateSignatures(
   if (message.clientMessage.signature === undefined) {
     // initiator
     const incomingMessage = machine.middleware.getLastResult(
-      machine.instructions.Instruction.IO_WAIT,
+      machine.instructions.Opcode.IO_WAIT,
       context.results
     ).value;
     sig = incomingMessage.signature;

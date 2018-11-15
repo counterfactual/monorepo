@@ -1,7 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
+import { ethers } from "ethers";
 
-import { Instruction } from "../instructions";
-import { Context, NodeState } from "../node-state";
+import { Context } from "../instruction-executor";
+import { Opcode } from "../instructions";
+import { Node } from "../node";
 import {
   InstructionMiddlewareCallback,
   InstructionMiddlewares,
@@ -20,47 +22,47 @@ export class Middleware {
    * Maps instruction to list of middleware that will process the instruction.
    */
   public middlewares: InstructionMiddlewares = {
-    [Instruction.ALL]: [],
-    [Instruction.IO_PREPARE_SEND]: [],
-    [Instruction.IO_SEND]: [],
-    [Instruction.IO_WAIT]: [],
-    [Instruction.KEY_GENERATE]: [],
-    [Instruction.OP_GENERATE]: [],
-    [Instruction.OP_SIGN]: [],
-    [Instruction.OP_SIGN_VALIDATE]: [],
-    [Instruction.STATE_TRANSITION_COMMIT]: [],
-    [Instruction.STATE_TRANSITION_PROPOSE]: []
+    [Opcode.ALL]: [],
+    [Opcode.IO_PREPARE_SEND]: [],
+    [Opcode.IO_SEND]: [],
+    [Opcode.IO_WAIT]: [],
+    [Opcode.KEY_GENERATE]: [],
+    [Opcode.OP_GENERATE]: [],
+    [Opcode.OP_SIGN]: [],
+    [Opcode.OP_SIGN_VALIDATE]: [],
+    [Opcode.STATE_TRANSITION_COMMIT]: [],
+    [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly nodeState: NodeState, opGenerator: OpGenerator) {
+  constructor(readonly node: Node, opGenerator: OpGenerator) {
     this.initializeMiddlewares(opGenerator);
   }
 
   private initializeMiddlewares(opGenerator) {
     this.add(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.nodeState);
+        return opGenerator.generate(message, next, context, this.node);
       }
     );
     this.add(
-      Instruction.STATE_TRANSITION_PROPOSE,
+      Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.nodeState);
+        return StateTransition.propose(message, next, context, this.node);
       }
     );
     this.add(
-      Instruction.STATE_TRANSITION_COMMIT,
+      Opcode.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.nodeState);
+        return StateTransition.commit(message, next, context, this.node);
       }
     );
-    this.add(Instruction.KEY_GENERATE, KeyGenerator.generate);
-    this.add(Instruction.OP_SIGN_VALIDATE, SignatureValidator.validate);
-    this.add(Instruction.IO_PREPARE_SEND, NextMsgGenerator.generate);
+    this.add(Opcode.KEY_GENERATE, KeyGenerator.generate);
+    this.add(Opcode.OP_SIGN_VALIDATE, SignatureValidator.validate);
+    this.add(Opcode.IO_PREPARE_SEND, NextMsgGenerator.generate);
   }
 
-  public add(scope: Instruction, method: InstructionMiddlewareCallback) {
+  public add(scope: Opcode, method: InstructionMiddlewareCallback) {
     this.middlewares[scope].push({ scope, method });
   }
 
@@ -69,16 +71,16 @@ export class Middleware {
     const middlewares = this.middlewares;
     const opCode = msg.opCode;
 
-    this.executeAllMiddlewares(msg, context);
+    this.executeMiddlewaresRegisteredOnAll(msg, context);
 
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {
-        return Promise.resolve(null);
+        return null;
       }
       // This is hacky, prevents next from being called more than once
       counter += 1;
       const middleware = middlewares[opCode][counter];
-      if (opCode === Instruction.ALL || middleware.scope === opCode) {
+      if (opCode === Opcode.ALL || middleware.scope === opCode) {
         return middleware.method(msg, callback, context);
       }
       return callback();
@@ -93,14 +95,14 @@ export class Middleware {
   }
 
   /**
-   * Runs the middlewares for Instruction.ALL.
+   * Runs the middlewares for Opcode.ALL.
    */
   // TODO: currently this method seems to be passing null as the middleware callback and
   // just iterating through all the middlewares. We should pass the callback similarly to how
   // run does it, and rely on that for middleware cascading
   // https://github.com/counterfactual/monorepo/issues/132
-  private executeAllMiddlewares(msg, context) {
-    this.middlewares[Instruction.ALL].forEach(middleware => {
+  private executeMiddlewaresRegisteredOnAll(msg, context) {
+    this.middlewares[Opcode.ALL].forEach(middleware => {
       middleware.method(msg, () => {}, context);
     });
   }
@@ -117,7 +119,7 @@ export abstract class OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    nodeState: NodeState
+    node: Node
   );
 }
 
@@ -129,7 +131,7 @@ export class NextMsgGenerator {
   ) {
     const signature = NextMsgGenerator.signature(internalMessage, context);
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
-    const msg: cf.node.ClientActionMessage = {
+    const msg: cf.legacy.node.ClientActionMessage = {
       signature,
       requestId: "none this should be a notification on completion",
       appId: lastMsg.appId,
@@ -154,7 +156,7 @@ export class NextMsgGenerator {
     internalMessage: InternalMessage,
     context: Context
   ) {
-    const res = getLastResult(Instruction.IO_WAIT, context.results);
+    const res = getLastResult(Opcode.IO_WAIT, context.results);
     // TODO: make getLastResult's return value nullable
     // https://github.com/counterfactual/monorepo/issues/131
     return JSON.stringify(res) === JSON.stringify({})
@@ -165,17 +167,17 @@ export class NextMsgGenerator {
   public static signature(
     internalMessage: InternalMessage,
     context: Context
-  ): cf.utils.Signature | undefined {
+  ): ethers.utils.Signature | undefined {
     // first time we send an install message (from non-ack side) we don't have
     // a signature since we are just exchanging an app-speicific ephemeral key.
     const lastMsg = NextMsgGenerator.lastClientMsg(internalMessage, context);
     if (
-      internalMessage.actionName === cf.node.ActionName.INSTALL &&
+      internalMessage.actionName === cf.legacy.node.ActionName.INSTALL &&
       lastMsg.seq === 0
     ) {
       return undefined;
     }
-    return getFirstResult(Instruction.OP_SIGN, context.results).value;
+    return getFirstResult(Opcode.OP_SIGN, context.results).value;
   }
 }
 
@@ -206,10 +208,10 @@ export class SignatureValidator {
     context: Context
   ) {
     // const incomingMessage = getFirstResult(
-    //   Instruction.IO_WAIT,
+    //   Opcode.IO_WAIT,
     //   context.results
     // );
-    // const op = getFirstResult(Instruction.OP_GENERATE, context.results);
+    // const op = getFirstResult(Opcode.OP_GENERATE, context.results);
     // TODO: now validate the signature against the op hash
     // https://github.com/counterfactual/monorepo/issues/130
     next();
@@ -220,7 +222,7 @@ export class SignatureValidator {
  * Utilitiy for middleware to access return values of other middleware.
  */
 export function getFirstResult(
-  toFindOpCode: Instruction,
+  toFindOpCode: Opcode,
   results: OpCodeResult[]
 ): OpCodeResult {
   // FIXME: (ts-strict) we should change the results data structure or design
@@ -229,7 +231,7 @@ export function getFirstResult(
 }
 
 export function getLastResult(
-  toFindOpCode: Instruction,
+  toFindOpCode: Opcode,
   results: OpCodeResult[]
 ): OpCodeResult {
   for (let k = results.length - 1; k >= 0; k -= 1) {

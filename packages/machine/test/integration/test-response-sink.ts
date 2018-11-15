@@ -1,24 +1,26 @@
 import * as cf from "@counterfactual/cf.js";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
-import { Instruction } from "../../src/instructions";
+import {
+  Context,
+  InstructionExecutor,
+  InstructionExecutorConfig
+} from "../../src/instruction-executor";
+import { Opcode } from "../../src/instructions";
+import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
 import { EthOpGenerator } from "../../src/middleware/protocol-operation";
 import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { Context } from "../../src/node-state";
 import { InternalMessage } from "../../src/types";
-import { InstructionExecutor, InstructionExecutorConfig } from "../../src/instruction-executor";
 import {
   SimpleStringMapSyncDB,
   WriteAheadLog
 } from "../../src/write-ahead-log";
-import { EMPTY_NETWORK_CONTEXT } from "../utils/common";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-export class TestResponseSink implements cf.node.ResponseSink {
+export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
@@ -30,7 +32,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
   constructor(
     readonly privateKey: string,
-    networkContext?: cf.utils.NetworkContext
+    networkContext?: cf.legacy.network.NetworkContext
   ) {
     // A mapping of requsts that are coming into the response sink.
     this.requests = new Map<string, Function>();
@@ -51,7 +53,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
       new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
-        networkContext || EMPTY_NETWORK_CONTEXT
+        networkContext || cf.legacy.network.EMPTY_NETWORK_CONTEXT
       )
     );
 
@@ -64,17 +66,19 @@ export class TestResponseSink implements cf.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(this.instructionExecutor);
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
+      this.instructionExecutor
+    );
 
     this.instructionExecutor.register(
-      Instruction.ALL,
+      Opcode.ALL,
       async (message: InternalMessage, next: Function, context: Context) => {
         this.writeAheadLog.write(message, context);
       }
     );
 
     this.instructionExecutor.register(
-      Instruction.OP_SIGN,
+      Opcode.OP_SIGN,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN middleware.");
         return this.signMyUpdate(message, next, context);
@@ -82,19 +86,25 @@ export class TestResponseSink implements cf.node.ResponseSink {
     );
 
     this.instructionExecutor.register(
-      Instruction.OP_SIGN_VALIDATE,
+      Opcode.OP_SIGN_VALIDATE,
       async (message: InternalMessage, next: Function, context: Context) => {
         console.debug("TestResponseSink: Running OP_SIGN_VALIDATE middleware.");
         return this.validateSignatures(message, next, context);
       }
     );
 
-    this.instructionExecutor.register(Instruction.IO_SEND, this.io.ioSendMessage.bind(this.io));
-
-    this.instructionExecutor.register(Instruction.IO_WAIT, this.io.waitForIo.bind(this.io));
+    this.instructionExecutor.register(
+      Opcode.IO_SEND,
+      this.io.ioSendMessage.bind(this.io)
+    );
 
     this.instructionExecutor.register(
-      Instruction.STATE_TRANSITION_COMMIT,
+      Opcode.IO_WAIT,
+      this.io.waitForIo.bind(this.io)
+    );
+
+    this.instructionExecutor.register(
+      Opcode.STATE_TRANSITION_COMMIT,
       this.store.setCommitment.bind(this.store)
     );
   }
@@ -105,19 +115,19 @@ export class TestResponseSink implements cf.node.ResponseSink {
    * the protocol has completed execution.
    */
   public async runProtocol(
-    msg: cf.node.ClientActionMessage
-  ): Promise<cf.node.WalletResponse> {
-    const promise = new Promise<cf.node.WalletResponse>((resolve, reject) => {
+    msg: cf.legacy.node.ClientActionMessage
+  ): Promise<cf.legacy.node.WalletResponse> {
+    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
       this.requests[msg.requestId] = resolve;
     });
-    this.instructionExecutor.receive(msg);
+    this.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: cf.node.WalletResponse) {
+  public sendResponse(res: cf.legacy.node.WalletResponse) {
     if ("requestId" in res && this.requests[res.requestId] !== undefined) {
       const promise = this.requests[res.requestId];
       delete this.requests[res.requestId];
@@ -132,7 +142,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: cf.node.ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: cf.legacy.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
   }
 
@@ -141,7 +151,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
   //
   // TODO: Refactor to clarify difference with sendMessageToClient
   // https://github.com/counterfactual/monorepo/issues/105
-  public sendIoMessageToClient(message: cf.node.ClientActionMessage) {
+  public sendIoMessageToClient(message: cf.legacy.node.ClientActionMessage) {
     if (this.messageListener) {
       this.messageListener(message);
     }
@@ -157,16 +167,14 @@ export class TestResponseSink implements cf.node.ResponseSink {
     message: InternalMessage,
     next: Function,
     context: Context
-  ): Promise<cf.utils.Signature> {
+  ): Promise<ethers.utils.Signature> {
     const operation: ProtocolOperation = getFirstResult(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       context.results
     ).value;
     const digest = operation.hashToSign();
-    const sig = this.signingKey.signDigest(digest);
-    return Promise.resolve(
-      new cf.utils.Signature(sig.recoveryParam! + 27, sig.r, sig.s)
-    );
+    const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
+    return Promise.resolve({ r, s, v: recoveryParam! + 27 });
   }
 
   private validateSignatures(
@@ -175,7 +183,7 @@ export class TestResponseSink implements cf.node.ResponseSink {
     context: Context
   ) {
     const op: ProtocolOperation = getLastResult(
-      Instruction.OP_GENERATE,
+      Opcode.OP_GENERATE,
       context.results
     ).value;
     const digest = op.hashToSign();
@@ -186,10 +194,8 @@ export class TestResponseSink implements cf.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = getLastResult(
-        Instruction.IO_WAIT,
-        context.results
-      ).value;
+      const incomingMessage = getLastResult(Opcode.IO_WAIT, context.results)
+        .value;
       sig = incomingMessage.signature;
     } else {
       // receiver

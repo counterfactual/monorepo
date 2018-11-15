@@ -1,16 +1,18 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context, NodeState, StateChannelInfoImpl } from "../../node-state";
+import { Context } from "../../instruction-executor";
+import { Node, StateChannelInfoImpl } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UninstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    nodeState: NodeState
+    node: Node
   ): StateProposal {
-    const multisig: cf.utils.Address = message.clientMessage.multisigAddress;
-    const channels = nodeState.stateChannelInfosCopy();
+    const multisig: cf.legacy.utils.Address =
+      message.clientMessage.multisigAddress;
+    const channels = node.stateChannelInfosCopy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
       throw new Error("uninstall message must have appId set");
@@ -19,12 +21,12 @@ export class UninstallProposer {
     channels[multisig].appInstances[appId].dependencyNonce.nonceValue += 1;
     channels[multisig].appInstances[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
-    const canon = cf.utils.CanonicalPeerBalance.canonicalize(
+    const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );
     const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new cf.utils.FreeBalance(
+    const newFreeBalance = new cf.legacy.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,
