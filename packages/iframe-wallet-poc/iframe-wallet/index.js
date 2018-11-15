@@ -49,17 +49,17 @@ async function getSourceCode(id) {
 
 async function injectScript(event) {
   const injectedMachineScript = `${await getSourceCode("machine")};`;
-  const injectedClientInterfaceScript = `${await getSourceCode("ci")};`;
+  const injectedClientInterfaceScript = `${await getSourceCode("cf")};`;
   const injectedWalletScript = `${await getSourceCode(
     "counterfactualWallet"
   )};`;
 
   event.source.postMessage(
-    { type: "cf:init-reply", source: injectedMachineScript },
+    { type: "cf:init-reply", source: injectedClientInterfaceScript },
     "*"
   );
   event.source.postMessage(
-    { type: "cf:init-reply", source: injectedClientInterfaceScript },
+    { type: "cf:init-reply", source: injectedMachineScript },
     "*"
   );
   event.source.postMessage(
