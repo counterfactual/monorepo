@@ -82,29 +82,14 @@ export class InstructionExecutor implements Observable {
     });
   }
 
-  public startAck(message: cf.legacy.node.ClientActionMessage) {
-    this.execute(new Action(message.requestId, message.action, message, true));
-  }
-
-  public receive(
+  public receiveClientActionMessageAck(
     msg: cf.legacy.node.ClientActionMessage
-  ): cf.legacy.node.WalletResponse {
-    if (!this.validateMessage(msg)) {
-      throw new Error("Cannot receive invalid message");
-    }
-
-    const action = new Action(msg.requestId, msg.action, msg);
-    this.execute(action);
-
-    return new cf.legacy.node.WalletResponse(
-      action.requestId,
-      cf.legacy.node.ResponseStatus.STARTED
-    );
+  ) {
+    this.execute(new Action(msg.requestId, msg.action, msg, true));
   }
 
-  public validateMessage(msg: cf.legacy.node.ClientActionMessage) {
-    // TODO;
-    return true;
+  public receiveClientActionMessage(msg: cf.legacy.node.ClientActionMessage) {
+    this.execute(new Action(msg.requestId, msg.action, msg, false));
   }
 
   public async execute(action: Action) {
