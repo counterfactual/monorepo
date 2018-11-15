@@ -6,10 +6,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum ".deps_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum ".deps_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum ".deps_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn build
       - run:
           name: "Run ganache"
@@ -34,7 +34,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum ".deps_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn lint
 
 workflows:

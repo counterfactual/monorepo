@@ -43,7 +43,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "cat packages/*/package.json | ./node_modules/.bin/sha256sum > .deps_checksum"
+      "pre-commit": "cat packages/*/package.json | ./node_modules/.bin/sha256sum > .dependencies_checksum"
     }
   }
 }
