@@ -10,8 +10,7 @@ export default [
       {
         file: pkg.main,
         sourcemap: true,
-        format: "cjs",
-        globals: globals
+        format: "cjs"
       }
     ],
     external: [
