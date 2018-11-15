@@ -5,6 +5,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
@@ -18,6 +19,7 @@ jobs:
       - image: circleci/node:10-browsers
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn build
@@ -33,6 +35,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn lint
