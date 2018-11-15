@@ -1,6 +1,3 @@
 {
-  "extends": ["../../tslint.json"],
-  "rules": {
-    "import-name": false
-  }
+  "extends": ["../../tslint.json"]
 }
