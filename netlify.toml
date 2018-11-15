@@ -6,4 +6,4 @@
   base        = "packages/playground"
   publish     = "dist"
   command     = "yarn build"
-  environment = { NODE_VERSION = "10.13.0" }
+  environment = { NODE_VERSION = "10.13.0", YARN_VERSION = "1.10.1" }
