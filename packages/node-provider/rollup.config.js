@@ -2,10 +2,6 @@ import typescript from "rollup-plugin-typescript2";
 import json from "rollup-plugin-json";
 
 import pkg from "./package.json";
-const globals = {
-  ethers: "ethers",
-  lodash: "_"
-};
 
 export default [
   {
@@ -15,19 +11,6 @@ export default [
         file: pkg.main,
         sourcemap: true,
         format: "cjs",
-        globals: globals
-      },
-      {
-        file: pkg.module,
-        sourcemap: true,
-        format: "es",
-        globals: globals
-      },
-      {
-        file: pkg.iife,
-        sourcemap: true,
-        format: "iife",
-        name: "nodeProvider",
         globals: globals
       }
     ],
