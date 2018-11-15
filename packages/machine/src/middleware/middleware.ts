@@ -75,7 +75,7 @@ export class Middleware {
 
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {
-        return Promise.resolve(null);
+        return null;
       }
       // This is hacky, prevents next from being called more than once
       counter += 1;

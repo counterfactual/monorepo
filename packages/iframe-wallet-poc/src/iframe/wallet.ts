@@ -121,7 +121,7 @@ export class IFrameWallet implements cf.legacy.node.ResponseSink {
         this.requests[msg.requestId] = resolve;
       }
     );
-    this.currentUser.instructionExecutor.receive(msg);
+    this.currentUser.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 
