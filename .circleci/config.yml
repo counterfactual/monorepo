@@ -22,6 +22,7 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - run: yarn # symlink packages' node_modules
       - run: yarn build
       - run:
           name: "Run ganache"
