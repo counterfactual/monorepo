@@ -2,13 +2,23 @@ import { ABIEncoding, Address } from "./simple-types";
 
 export enum NodeMessageType {
   INSTALL = "install",
-  QUERY = "query"
+  QUERY = "query",
+  ERROR = "error"
+}
+
+export enum NodeQueryType {
+  GET_APP_INSTANCES = "getAppInstances"
+}
+
+export interface NodeQueryData {
+  queryType: NodeQueryType;
+  appInstances?: any[];
 }
 
 export interface NodeMessage {
   requestId: string;
   messageType: NodeMessageType;
-  data: any; // TODO
+  data: NodeQueryData | null;
 }
 
 export interface NodeProvider {

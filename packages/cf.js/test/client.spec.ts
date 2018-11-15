@@ -1,6 +1,6 @@
 import { AppInstance } from "../src/app-instance";
-import { Client, ClientEventType } from "../src/client";
-import { NodeMessage, NodeMessageType, NodeProvider } from "../src/structs";
+import { Client } from "../src/client";
+import { NodeMessage, NodeMessageType, NodeProvider, NodeQueryData, NodeQueryType } from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
   public postedMessages: NodeMessage[] = [];
@@ -28,20 +28,6 @@ describe("CF.js Client", async () => {
     client = new Client(nodeProvider);
   });
 
-  it("should notify listeners about install events", async () => {
-    expect.assertions(1);
-
-    client.on(ClientEventType.INSTALL, e => {
-      expect(e.eventType).toBe(ClientEventType.INSTALL);
-    });
-
-    nodeProvider.simulateMessageFromNode({
-      requestId: "1",
-      messageType: NodeMessageType.INSTALL,
-      data: null
-    });
-  });
-
   it("should query app instances and return them", async () => {
     expect.assertions(5);
     const testInstance = new AppInstance("TEST_ID");
@@ -54,12 +40,14 @@ describe("CF.js Client", async () => {
     expect(nodeProvider.postedMessages).toHaveLength(1);
     const queryMessage = nodeProvider.postedMessages[0];
     expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    expect(queryMessage.data.queryType).toBe("allAppInstances"); // TODO
+    const queryData: NodeQueryData = queryMessage.data!;
+    expect(queryData.queryType).toBe(NodeQueryType.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
       requestId: queryMessage.requestId,
       messageType: NodeMessageType.QUERY,
       data: {
+        queryType: NodeQueryType.GET_APP_INSTANCES,
         appInstances: [testInstance]
       }
     });
