@@ -17,7 +17,8 @@
     "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "test": "jest --runInBand --detectOpenHandles --bail"
+    "test": "jest --runInBand --detectOpenHandles --bail",
+    "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest --runInBand"
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.2",
