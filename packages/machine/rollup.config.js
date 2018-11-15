@@ -4,7 +4,8 @@ import json from "rollup-plugin-json";
 import pkg from "./package.json";
 const globals = {
   ethers: "ethers",
-  lodash: "_"
+  lodash: "_",
+  cf: "cf"
 };
 
 export default [
