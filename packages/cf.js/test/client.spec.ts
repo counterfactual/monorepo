@@ -1,6 +1,12 @@
 import { AppInstance } from "../src/app-instance";
 import { Client } from "../src/client";
-import { NodeMessage, NodeMessageType, NodeProvider, NodeQueryData, NodeQueryType } from "../src/structs";
+import {
+  NodeMessage,
+  NodeMessageType,
+  NodeProvider,
+  NodeQueryData,
+  NodeQueryType
+} from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
   public postedMessages: NodeMessage[] = [];
