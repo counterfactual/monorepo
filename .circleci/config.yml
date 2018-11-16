@@ -5,26 +5,24 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: dependency-cache-{{ checksum "packages/cf.js/package.json" }}{{ checksum "packages/contracts/package.json"}}{{ checksum "packages/iframe-wallet-poc/package.json"}}{{ checksum "packages/machine/package.json" }}{{  checksum "packages/playground/package.json" }}{{ checksum "packages/typescript-typings/package.json" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
       - save_cache:
-          key: dependency-cache-{{ checksum "packages/cf.js/package.json" }}{{ checksum "packages/contracts/package.json"}}{{ checksum "packages/iframe-wallet-poc/package.json"}}{{ checksum "packages/machine/package.json" }}{{  checksum "packages/playground/package.json" }}{{ checksum "packages/typescript-typings/package.json" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
-            - packages/contracts/node_modules
-            - packages/iframe-wallet-poc/node_modules
-            - packages/machine/node_modules
-            - packages/cf.js/node_modules
-            - packages/playground/node_modules
 
   run-tests:
     docker:
       - image: circleci/node:10-browsers
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: dependency-cache-{{ checksum "packages/cf.js/package.json" }}{{ checksum "packages/contracts/package.json"}}{{ checksum "packages/iframe-wallet-poc/package.json"}}{{ checksum "packages/machine/package.json" }}{{  checksum "packages/playground/package.json" }}{{ checksum "packages/typescript-typings/package.json" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - run: yarn # symlink packages' node_modules
       - run: yarn build
       - run:
           name: "Run ganache"
@@ -38,8 +36,9 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: dependency-cache-{{ checksum "packages/cf.js/package.json" }}{{ checksum "packages/contracts/package.json"}}{{ checksum "packages/iframe-wallet-poc/package.json"}}{{ checksum "packages/machine/package.json" }}{{  checksum "packages/playground/package.json" }}{{ checksum "packages/typescript-typings/package.json" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn lint
 
 workflows:
