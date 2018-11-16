@@ -1,0 +1,50 @@
+<button id="send-message">Send message</button>
+<script>
+  class AppFactory {
+    proposeInstall(peerAddress, terms) {
+      // How do we get the peerAddress?
+    }
+  }
+
+  class Client {
+    createAppFactory(appDefinition) {
+      return new AppFactory();
+    }
+
+    on(event, callback) {}
+  }
+
+  var cf = { Client: Client }
+  class NodeProvider {}
+
+  var client = new cf.Client(new NodeProvider());
+
+  // Who's listening to this? We need to trigger a modal somewhere.
+  // Would it be the Playground itself? Or the Wallet (Node)?
+  // Does the Node needs CF.js for this? Probably not?
+  client.on('proposeInstall', function () {});
+  client.on('install', function () {});
+  client.on('rejectInstall', function () {});
+
+  var appFactory = client.createAppFactory({
+    // AppDefinition goes here...
+  });
+  appFactory.proposeInstall('0x0123...', {
+    // Terms goes here...
+  });
+
+  // Wallet broadcasts through the Node, tells the world
+  // "HEY! someone's installing something", via Firebase.
+  // It should fall under Hub's responsability.
+
+  // When we send proposeInstall, we talk to the Hub.
+  // The Hub will route the message for us.
+
+  var ui = {
+    sendMessage: document.getElementById('send-message')
+  };
+
+  ui.sendMessage.addEventListener('click', function () {
+    window.postMessage("hello from A", "*");
+  });
+</script>
