@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 
+import { NetworkContext } from "../legacy/network";
 import { FreeBalance } from "../legacy/utils/free-balance";
 import { Nonce } from "../legacy/utils/nonce";
 
@@ -16,4 +17,15 @@ export const EMPTY_FREE_BALANCE = new FreeBalance(
   0,
   0,
   new Nonce(false, 0, 0)
+);
+
+export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero,
+  ethers.constants.AddressZero
 );

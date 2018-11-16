@@ -1,4 +1,3 @@
-import ethers from "ethers";
 import * as _ from "lodash";
 
 import { Address } from "./utils";
@@ -51,14 +50,3 @@ export class NetworkContext {
     return bytecode;
   }
 }
-
-export const EMPTY_NETWORK_CONTEXT = new NetworkContext(
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero,
-  ethers.constants.AddressZero
-);

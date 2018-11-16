@@ -207,3 +207,20 @@ export interface StateChannelInfo {
 export interface StateChannelInfos {
   [s: string]: StateChannelInfo;
 }
+
+export class StateChannelInfoImpl implements StateChannelInfo {
+  constructor(
+    readonly counterParty: Address,
+    readonly me: Address,
+    readonly multisigAddress: Address,
+    readonly appInstances: AppInstanceInfos = {},
+    readonly freeBalance: FreeBalance
+  ) {}
+
+  /**
+   * @returns the toAddress, fromAddress in alphabetical order.
+   */
+  public owners(): string[] {
+    return [this.counterParty, this.me].sort((a, b) => (a < b ? -1 : 1));
+  }
+}

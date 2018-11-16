@@ -1,3 +1,3 @@
-import { Node, StateChannelInfoImpl } from "./node";
+import { Node } from "./node";
 
-export { Node, StateChannelInfoImpl };
+export { Node };

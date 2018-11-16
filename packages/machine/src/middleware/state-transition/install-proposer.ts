@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node, StateChannelInfoImpl } from "@counterfactual/node";
+import { Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
@@ -59,7 +59,7 @@ export class InstallProposer {
       data.timeout,
       existingFreeBalance.dependencyNonce
     );
-    const updatedStateChannel = new StateChannelInfoImpl(
+    const updatedStateChannel = new cf.legacy.channel.StateChannelInfoImpl(
       message.clientMessage.toAddress,
       message.clientMessage.fromAddress,
       multisig,

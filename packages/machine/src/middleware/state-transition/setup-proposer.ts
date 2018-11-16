@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { StateChannelInfoImpl } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { InternalMessage, StateProposal } from "../../types";
@@ -39,7 +38,7 @@ export class SetupProposer {
       FREE_BALANCE_TIMEOUT,
       new cf.legacy.utils.Nonce(false, FREE_BALANCE_UNIQUE_ID, 0)
     );
-    const stateChannel = new StateChannelInfoImpl(
+    const stateChannel = new cf.legacy.channel.StateChannelInfoImpl(
       toAddress,
       fromAddress,
       message.clientMessage.multisigAddress,

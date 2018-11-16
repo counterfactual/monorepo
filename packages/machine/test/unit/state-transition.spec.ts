@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node, StateChannelInfoImpl } from "@counterfactual/node";
+import { Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { Context } from "../../src/instruction-executor";
@@ -44,7 +44,7 @@ describe("State transition", () => {
       false
     );
     const expectedCfAddr = new cf.legacy.app.AppInstance(
-      cf.legacy.network.EMPTY_NETWORK_CONTEXT,
+      cf.legacy.constants.EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -86,7 +86,7 @@ function setupInstallState(): Node {
     100, // timeout
     new cf.legacy.utils.Nonce(true, 0, 0) // nonce
   );
-  const info = new StateChannelInfoImpl(
+  const info = new cf.legacy.channel.StateChannelInfoImpl(
     B_ADDRESS,
     A_ADDRESS,
     UNUSED_FUNDED_ACCOUNT,
@@ -96,7 +96,7 @@ function setupInstallState(): Node {
   const channelStates: cf.legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new Node(cf.legacy.network.EMPTY_NETWORK_CONTEXT, channelStates);
+  return new Node(cf.legacy.constants.EMPTY_NETWORK_CONTEXT, channelStates);
 }
 
 function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {

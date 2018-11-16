@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node, StateChannelInfoImpl } from "@counterfactual/node";
+import { Node } from "@counterfactual/node";
 
 import { Context } from "../../instruction-executor";
 import { InternalMessage, StateProposal } from "../../types";
@@ -38,7 +38,7 @@ export class UninstallProposer {
     );
     const chan = channels[multisig];
     // now replace the state channel with a newly updated one
-    channels[multisig] = new StateChannelInfoImpl(
+    channels[multisig] = new cf.legacy.channel.StateChannelInfoImpl(
       chan.counterParty,
       chan.me,
       multisig,
