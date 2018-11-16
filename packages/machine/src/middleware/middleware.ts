@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { Context } from "../instruction-executor";
@@ -34,7 +33,10 @@ export class Middleware {
     [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
-  constructor(readonly node: Node, opGenerator: OpGenerator) {
+  constructor(
+    readonly channel: cf.legacy.channel.StateChannelInfo,
+    opGenerator: OpGenerator
+  ) {
     this.initializeMiddlewares(opGenerator);
   }
 
@@ -42,19 +44,19 @@ export class Middleware {
     this.add(
       Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.node);
+        return opGenerator.generate(message, next, context, this.channel);
       }
     );
     this.add(
       Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.node);
+        return StateTransition.propose(message, next, context, this.channel);
       }
     );
     this.add(
       Opcode.STATE_TRANSITION_COMMIT,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.commit(message, next, context, this.node);
+        return StateTransition.commit(message, next, context, this.channel);
       }
     );
     this.add(Opcode.KEY_GENERATE, KeyGenerator.generate);
@@ -119,7 +121,8 @@ export abstract class OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    node: Node
+    channel: cf.legacy.channel.StateChannelInfo,
+    network: cf.legacy.network.NetworkContext
   );
 }
 

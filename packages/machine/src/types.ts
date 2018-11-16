@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 
 import { Context } from "./instruction-executor";
 import { Opcode } from "./instructions";
@@ -8,7 +7,7 @@ import { Opcode } from "./instructions";
  * The return value from the STATE_TRANSITION_PROPOSE middleware.
  */
 export interface StateProposal {
-  state: cf.legacy.channel.StateChannelInfos;
+  channel: cf.legacy.channel.StateChannelInfo;
   cfAddr?: cf.legacy.utils.H256;
 }
 
@@ -20,7 +19,8 @@ export interface ContextualizedStateProposer {
   propose(
     message: InternalMessage,
     context: Context,
-    node: Node
+    channel: cf.legacy.channel.StateChannelInfo,
+    network?: cf.legacy.network.NetworkContext
   ): StateProposal;
 }
 

@@ -46,9 +46,7 @@ export class SetupProposer {
       freeBalance
     );
     return {
-      state: {
-        [String(message.clientMessage.multisigAddress)]: stateChannel
-      }
+      channel: stateChannel
     };
   }
 }

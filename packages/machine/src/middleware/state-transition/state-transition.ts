@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/node";
+import * as cf from "@counterfactual/cf.js";
 
 import { Context } from "../../instruction-executor";
 import { Opcode } from "../../instructions";
@@ -17,7 +17,7 @@ export class StateTransition {
     message: InternalMessage,
     next: Function,
     context: Context,
-    node: Node
+    channel: cf.legacy.channel.StateChannelInfo
   ): StateProposal {
     const proposer = PROPOSER_ACTIONS[message.actionName];
 
@@ -25,20 +25,23 @@ export class StateTransition {
       throw Error("Action name not supported");
     }
 
-    return proposer.propose(message, context, node);
+    return proposer.propose(message, context, channel);
   }
 
   public static commit(
     message: InternalMessage,
     next: Function,
     context: Context,
-    state: Node
+    channel: cf.legacy.channel.StateChannelInfo
   ) {
     const newState = getFirstResult(
       Opcode.STATE_TRANSITION_PROPOSE,
       context.results
     );
-    context.instructionExecutor.mutateState(newState.value.state);
+
+    console.log("state transition committing");
+    console.log(newState);
+    context.instructionExecutor.mutateState(newState.value.channel);
     next();
   }
 }

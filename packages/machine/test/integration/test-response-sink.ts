@@ -48,12 +48,21 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       );
     }
 
+    const channel = new cf.legacy.channel.StateChannelInfoImpl(
+      cf.legacy.constants.ADDRESS_A,
+      cf.legacy.constants.ADDRESS_B,
+      ethers.constants.AddressZero,
+      {},
+      cf.legacy.constants.EMPTY_FREE_BALANCE
+    );
+
     // An instance of a InstructionExecutor that will execute protocols.
     this.instructionExecutor = new InstructionExecutor(
       new InstructionExecutorConfig(
         this,
         new EthOpGenerator(),
-        networkContext || cf.legacy.constants.EMPTY_NETWORK_CONTEXT
+        networkContext || cf.legacy.constants.EMPTY_NETWORK_CONTEXT,
+        channel
       )
     );
 

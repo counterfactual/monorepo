@@ -200,6 +200,7 @@ export interface StateChannelInfo {
    *          in alphabetical order.
    */
   owners(): string[];
+  copy(): StateChannelInfo;
 }
 
 // a mapping from multisig address to a StateChannelInfo struct containing
@@ -222,5 +223,9 @@ export class StateChannelInfoImpl implements StateChannelInfo {
    */
   public owners(): string[] {
     return [this.counterParty, this.me].sort((a, b) => (a < b ? -1 : 1));
+  }
+
+  public copy(): StateChannelInfoImpl {
+    return _.cloneDeep(this);
   }
 }

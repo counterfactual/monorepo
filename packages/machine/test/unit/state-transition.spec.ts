@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { Context } from "../../src/instruction-executor";
@@ -34,7 +33,7 @@ describe("State transition", () => {
       false
     );
     const proposal = SetupProposer.propose(message);
-    validateSetupInfos(proposal.state);
+    validateSetupChannel(proposal.channel);
   });
   it("should propose a new install state", () => {
     const message = new InternalMessage(
@@ -55,9 +54,10 @@ describe("State transition", () => {
     const proposal = InstallProposer.propose(
       message,
       new Context(),
-      setupInstallState()
+      setupInstallState(),
+      cf.legacy.constants.EMPTY_NETWORK_CONTEXT
     );
-    validateInstallInfos(proposal.state, expectedCfAddr);
+    validateInstallChannel(proposal.channel, expectedCfAddr);
   });
 });
 
@@ -75,7 +75,7 @@ function setupClientMsg(): cf.legacy.node.ClientActionMessage {
   };
 }
 
-function setupInstallState(): Node {
+function setupInstallState(): cf.legacy.channel.StateChannelInfo {
   const freeBalance = new cf.legacy.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
@@ -86,36 +86,31 @@ function setupInstallState(): Node {
     100, // timeout
     new cf.legacy.utils.Nonce(true, 0, 0) // nonce
   );
-  const info = new cf.legacy.channel.StateChannelInfoImpl(
+  return new cf.legacy.channel.StateChannelInfoImpl(
     B_ADDRESS,
     A_ADDRESS,
     UNUSED_FUNDED_ACCOUNT,
     {},
     freeBalance
   );
-  const channelStates: cf.legacy.channel.StateChannelInfos = {
-    [UNUSED_FUNDED_ACCOUNT]: info
-  };
-  return new Node(cf.legacy.constants.EMPTY_NETWORK_CONTEXT, channelStates);
 }
 
-function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
-  expect(Object.keys(infos).length).toEqual(1);
-  const info = infos[UNUSED_FUNDED_ACCOUNT];
-  expect(info.counterParty).toEqual(B_ADDRESS);
-  expect(info.me).toEqual(A_ADDRESS);
-  expect(Object.keys(info.appInstances).length).toEqual(0);
-  expect(info.freeBalance.alice).toEqual(A_ADDRESS);
-  expect(info.freeBalance.aliceBalance.toNumber()).toEqual(0);
-  expect(info.freeBalance.bob).toEqual(B_ADDRESS);
-  expect(info.freeBalance.bobBalance.toNumber()).toEqual(0);
-  expect(info.freeBalance.localNonce).toEqual(0);
-  expect(info.freeBalance.uniqueId).toEqual(0);
+function validateSetupChannel(channel: cf.legacy.channel.StateChannelInfo) {
+  expect(channel).toBeDefined();
+  expect(channel.counterParty).toEqual(B_ADDRESS);
+  expect(channel.me).toEqual(A_ADDRESS);
+  expect(Object.keys(channel.appInstances).length).toEqual(0);
+  expect(channel.freeBalance.alice).toEqual(A_ADDRESS);
+  expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(0);
+  expect(channel.freeBalance.bob).toEqual(B_ADDRESS);
+  expect(channel.freeBalance.bobBalance.toNumber()).toEqual(0);
+  expect(channel.freeBalance.localNonce).toEqual(0);
+  expect(channel.freeBalance.uniqueId).toEqual(0);
 
   const expectedSalt = ethers.utils.solidityKeccak256(["uint256"], [0]);
 
-  expect(info.freeBalance.dependencyNonce.nonceValue).toEqual(0);
-  expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
+  expect(channel.freeBalance.dependencyNonce.nonceValue).toEqual(0);
+  expect(channel.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
 }
 
 function installClientMsg(): cf.legacy.node.ClientActionMessage {
@@ -152,16 +147,14 @@ function installClientMsg(): cf.legacy.node.ClientActionMessage {
   };
 }
 
-function validateInstallInfos(
-  infos: cf.legacy.channel.StateChannelInfos,
+function validateInstallChannel(
+  channel: cf.legacy.channel.StateChannelInfo,
   expectedCfAddr: cf.legacy.utils.H256
 ) {
-  const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
+  expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(15);
+  expect(channel.freeBalance.bobBalance.toNumber()).toEqual(17);
 
-  expect(stateChannel.freeBalance.aliceBalance.toNumber()).toEqual(15);
-  expect(stateChannel.freeBalance.bobBalance.toNumber()).toEqual(17);
-
-  const app = infos[UNUSED_FUNDED_ACCOUNT].appInstances[expectedCfAddr];
+  const app = channel.appInstances[expectedCfAddr];
   const expectedSalt =
     "0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";
 

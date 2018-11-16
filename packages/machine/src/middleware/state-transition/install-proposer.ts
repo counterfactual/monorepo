@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
@@ -11,7 +10,8 @@ export class InstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    node: Node
+    channel: cf.legacy.channel.StateChannelInfo,
+    network: cf.legacy.network.NetworkContext
   ): StateProposal {
     const multisig: cf.legacy.utils.Address =
       message.clientMessage.multisigAddress;
@@ -29,17 +29,18 @@ export class InstallProposer {
       data.terms.limit,
       data.terms.token
     );
-    const uniqueId = InstallProposer.nextUniqueId(node, multisig);
+    const uniqueId = InstallProposer.nextUniqueId(channel);
     const signingKeys = InstallProposer.newSigningKeys(context, data);
     const cfAddr = InstallProposer.proposedCfAddress(
-      node,
+      channel,
+      network,
       message,
       app,
       terms,
       signingKeys,
       uniqueId
     );
-    const existingFreeBalance = node.stateChannel(multisig).freeBalance;
+    const existingFreeBalance = channel.freeBalance;
     const newAppInstance = InstallProposer.newAppInstance(
       cfAddr,
       data,
@@ -69,7 +70,7 @@ export class InstallProposer {
 
     return {
       cfAddr,
-      state: { [multisig]: updatedStateChannel }
+      channel: updatedStateChannel
     };
   }
 
@@ -122,7 +123,8 @@ export class InstallProposer {
   }
 
   private static proposedCfAddress(
-    node: Node,
+    channel: cf.legacy.channel.StateChannelInfo,
+    network: cf.legacy.network.NetworkContext,
     message: InternalMessage,
     app: cf.legacy.app.AppInterface,
     terms: cf.legacy.app.Terms,
@@ -130,8 +132,8 @@ export class InstallProposer {
     uniqueId: number
   ): cf.legacy.utils.H256 {
     return new cf.legacy.app.AppInstance(
-      node.networkContext,
-      message.clientMessage.multisigAddress,
+      network,
+      channel.multisigAddress,
       signingKeys,
       app,
       terms,
@@ -156,10 +158,8 @@ export class InstallProposer {
   }
 
   private static nextUniqueId(
-    state: Node,
-    multisig: cf.legacy.utils.Address
+    channel: cf.legacy.channel.StateChannelInfo
   ): number {
-    const channel = state.channelStates[multisig];
     // + 1 for the free balance
     return Object.keys(channel.appInstances).length + 1;
   }

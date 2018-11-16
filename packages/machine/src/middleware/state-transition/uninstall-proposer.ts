@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 
 import { Context } from "../../instruction-executor";
 import { InternalMessage, StateProposal } from "../../types";
@@ -8,24 +7,22 @@ export class UninstallProposer {
   public static propose(
     message: InternalMessage,
     context: Context,
-    node: Node
+    channel: cf.legacy.channel.StateChannelInfo
   ): StateProposal {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
-    const channels = node.stateChannelInfosCopy();
+    const updatedChannel = channel.copy();
     const appId = message.clientMessage.appId;
     if (appId === undefined) {
       throw new Error("uninstall message must have appId set");
     }
-    // delete the app by bumping the nonce
-    channels[multisig].appInstances[appId].dependencyNonce.nonceValue += 1;
-    channels[multisig].appInstances[appId].dependencyNonce.isSet = true;
+    // Incrementing the nonce effectively deletes the app
+    updatedChannel.appInstances[appId].dependencyNonce.nonceValue += 1;
+    updatedChannel.appInstances[appId].dependencyNonce.isSet = true;
     // add balance and update nonce
     const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );
-    const oldFreeBalance = channels[multisig].freeBalance;
+    const oldFreeBalance = updatedChannel.freeBalance;
     const newFreeBalance = new cf.legacy.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
@@ -36,15 +33,14 @@ export class UninstallProposer {
       oldFreeBalance.timeout,
       oldFreeBalance.dependencyNonce
     );
-    const chan = channels[multisig];
     // now replace the state channel with a newly updated one
-    channels[multisig] = new cf.legacy.channel.StateChannelInfoImpl(
-      chan.counterParty,
-      chan.me,
-      multisig,
-      chan.appInstances,
+    const newChannel = new cf.legacy.channel.StateChannelInfoImpl(
+      updatedChannel.counterParty,
+      updatedChannel.me,
+      updatedChannel.multisigAddress,
+      updatedChannel.appInstances,
       newFreeBalance
     );
-    return { state: channels };
+    return { channel: newChannel };
   }
 }

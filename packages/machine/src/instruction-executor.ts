@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import { Node } from "@counterfactual/node";
 
 import { Action, ActionExecution } from "./action";
 import { Opcode } from "./instructions";
@@ -14,7 +13,7 @@ export class InstructionExecutorConfig {
     readonly responseHandler: cf.legacy.node.ResponseSink,
     readonly opGenerator: OpGenerator,
     readonly network: cf.legacy.network.NetworkContext,
-    readonly state?: cf.legacy.channel.StateChannelInfos
+    readonly channel: cf.legacy.channel.StateChannelInfo
   ) {}
 }
 
@@ -28,18 +27,22 @@ export class InstructionExecutor implements Observable {
    */
   public responseHandler: cf.legacy.node.ResponseSink;
   /**
-   * The underlying state for the entire machine. All state here is a result of
-   * a completed and commited protocol.
+   * The channel on which the machine is operating.
    */
-  public node: Node;
+  public channel: cf.legacy.channel.StateChannelInfo;
+  /**
+   * The network context for which the machine is executing a protocol.
+   */
+  public network: cf.legacy.network.NetworkContext;
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.node = new Node(config.network, config.state || {});
-    this.middleware = new Middleware(this.node, config.opGenerator);
+    this.channel = config.channel;
+    this.network = config.network;
+    this.middleware = new Middleware(this.channel, config.opGenerator);
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}
@@ -136,8 +139,8 @@ export class InstructionExecutor implements Observable {
     );
   }
 
-  public mutateState(state: cf.legacy.channel.StateChannelInfos) {
-    Object.assign(this.node.channelStates, state);
+  public mutateState(channel: cf.legacy.channel.StateChannelInfo) {
+    Object.assign(this.channel, channel);
   }
 
   public register(scope: Opcode, method: InstructionMiddlewareCallback) {
