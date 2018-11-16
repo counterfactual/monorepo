@@ -7,7 +7,7 @@ class AppFactory {
   }
 
   proposeInstall(peerAddress, terms) {
-    this.client.nodeProvider.postMessage('proposeInstall', { peerAddress, terms });
+    this.client.nodeProvider.emit('proposeInstall', { peerAddress, terms });
   }
 }
 
@@ -20,8 +20,8 @@ class Client extends EventEmitter3.EventEmitter {
      */
     this.nodeProvider = nodeProvider;
 
-    this.nodeProvider.onMessage((event) => {
-      this.emit(event.data.type, event.data);
+    this.nodeProvider.on('proposeInstall', (event) => {
+      this.emit(event.type, event);
     });
   }
 
@@ -31,11 +31,19 @@ class Client extends EventEmitter3.EventEmitter {
 }
 
 class NodeProvider {
+  constructor() {
+    this.eventEmitter = new EventEmitter3.EventEmitter();
+  }
+
   async connect() {
     return new Promise((resolve) => {
       window.addEventListener('message', (event) => {
         if (event.data === 'cf-node-provider:port') {
           this.messagePort = event.ports[0];
+          this.messagePort.addEventListener('message', (event) => {
+            this.eventEmitter.emit(event.data.type, event.data);
+          });
+          this.messagePort.start();
           resolve(this);
         }
       });
@@ -44,13 +52,16 @@ class NodeProvider {
     });
   }
 
-  postMessage(type, data) {
-    this.messagePort.postMessage({ type, ...data });
+  emit(eventName, data) {
+    this.messagePort.postMessage({ type: eventName, ...data });
   }
 
-  onMessage(callback) {
-    this.messagePort.addEventListener('message', callback);
-    this.messagePort.start();
+  on(eventName, callback) {
+    this.eventEmitter.on(eventName, callback);
+  }
+
+  once(eventName, callback) {
+    this.eventEmitter.once(eventName, callback);
   }
 }
 

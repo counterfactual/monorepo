@@ -32,8 +32,11 @@
     };
 
     ui.sendMessage.addEventListener('click', function () {
-      appFactory.proposeInstall('0x9876', {
-        // Terms goes here...
+      nodeProvider.emit('requestPlayer');
+      nodeProvider.once('matchedPlayer', (event) => {
+        appFactory.proposeInstall(event.data.peerAddress, {
+          // Terms goes here...
+        });
       });
     });
   })();

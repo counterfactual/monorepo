@@ -24,6 +24,20 @@ const routeMessage = (data, source) => {
   console.log('Socket available:', !!socket, ' - Will use broadcast mode?', !!!socket);
   console.log('----------------------------------------------------------------------------');
 
+  if (data.type === 'requestPlayer') {
+    const allAddresses = Object.keys(addressToSockets).filter(connectedAddress => connectedAddress !== source);
+    const randomIndex = Math.floor(Math.random() * allAddresses.length);
+    const socket = addressToSockets[source];
+    console.log('Matchmaking completed!', source, ' <3 ', allAddresses[randomIndex]);
+    socket.emit('message', {
+      type: 'matchedPlayer',
+      data: {
+        peerAddress: allAddresses[randomIndex]
+      }
+    });
+    return;
+  }
+
   if (socket) {
     console.log('Sending via socket', socket.id, ' to ', data.peerAddress, ' a message: ', data);
   } else {
