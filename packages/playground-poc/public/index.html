@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+  </head>
+  <body>
+    <button onclick="createIframe()">Create IFrame</button>
+    <button onclick="setSocket('0x1234')">Connect as Alice</button>
+    <button onclick="setSocket('0x9876')">Connect as Bob</button>
+
+    <label id="current-user"></label>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="scripts/mini-node.js"></script>
+    <script>
+      var socket, user;
+
+      var iframes = {};
+      var id = 1;
+
+      // Try this:
+      // https://developer.mozilla.org/en-US/docs/Web/API/MessagePort
+
+      // Dapp must ask the wallet (via CF.js) to sign something.
+      function createIframe() {
+        var iframe = document.createElement('iframe');
+        iframe.id = 'iframe-' + id;
+        iframe.src = 'dapp.html';
+
+        var dapp = {
+          id: iframe.id,
+          window: null,
+          port: null,
+          subscribers: [],
+          sendMessage: function (message) {
+            this.port.postMessage(message);
+          },
+          dispatchMessage: function (event) {
+            if (!event.type) {
+              return;
+            }
+
+            this.subscribers.forEach(function (callback) {
+              callback(event);
+            });
+          },
+          onMessage: function (callback) {
+            this.subscribers.push(callback);
+          }
+        };
+
+        document.body.appendChild(iframe);
+
+        iframe.contentWindow.addEventListener('message', (event) => {
+          if (event.data === 'cf-node-provider:init') {
+            let channel = new MessageChannel();
+            dapp.port = channel.port1;
+            dapp.port.onmessage = dapp.dispatchMessage.bind(dapp);
+            let port2 = channel.port2;
+            iframe.contentWindow.postMessage('cf-node-provider:port', '*', [port2]);
+          }
+        });
+
+        dapp.window = iframe.contentWindow;
+        dapp.onMessage((event) => {
+          socket.emit('message', event.data);
+        });
+
+        iframes[iframe.id] = dapp;
+      }
+
+      function setSocket(address) {
+        socket = io.connect('http://localhost:8080');
+        socket.on('connect', () => {
+          socket.emit('identity', { address });
+        });
+        user = address;
+        socket.on('message', (data) => {
+          // Playground relays to the proper iframe. AppID plays here.
+          // socket.emit('playground-message', { date: Date.now() });
+          Object.keys(iframes).forEach(iframeID => {
+            iframes[iframeID].sendMessage(data);
+          });
+        });
+        document.getElementById('current-user').innerText = user;
+      }
+    </script>
+  </body>
+</html>
