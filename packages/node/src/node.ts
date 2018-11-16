@@ -5,15 +5,15 @@ import lodash from "lodash";
  * Node encapsulates the state of all the channels.
  */
 export class Node {
-  public channelStates: cf.legacy.channel.StateChannelInfos;
   public networkContext: cf.legacy.network.NetworkContext;
+  public channelStates: cf.legacy.channel.StateChannelInfos;
 
   constructor(
-    channelStates: cf.legacy.channel.StateChannelInfos,
-    network: cf.legacy.network.NetworkContext
+    network: cf.legacy.network.NetworkContext,
+    channelStates: cf.legacy.channel.StateChannelInfos = {}
   ) {
-    this.channelStates = channelStates;
     this.networkContext = network;
+    this.channelStates = channelStates;
   }
 
   public stateChannel(

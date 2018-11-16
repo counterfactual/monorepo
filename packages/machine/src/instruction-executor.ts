@@ -38,7 +38,7 @@ export class InstructionExecutor implements Observable {
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.node = new Node(config.state || {}, config.network);
+    this.node = new Node(config.network, config.state || {});
     this.middleware = new Middleware(this.node, config.opGenerator);
   }
 
