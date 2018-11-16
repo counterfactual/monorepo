@@ -2,13 +2,10 @@
   "name": "@counterfactual/node",
   "version": "0.0.1",
   "main": "dist/index.js",
-  "types": "dist/src/index.d.ts",
-  "module": "dist/index.es.js",
-  "iife": "dist/index-iife.js",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
-    "build": "tsc -p tsconfig.test.json && rollup -c",
+    "build": "tsc -b && rollup -c",
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
@@ -17,7 +14,6 @@
     "@types/node": "^10.9.3",
     "ethers": "^4.0.4",
     "rollup": "^0.67.0",
-    "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
@@ -25,5 +21,29 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/machine": "0.0.1"
+  },
+  "jest": {
+    "verbose": false,
+    "bail": true,
+    "rootDir": ".",
+    "cacheDirectory": "jest-cache",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist",
+      "build"
+    ],
+    "roots": [
+      "test"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "testURL": "http://localhost/"
   }
 }
