@@ -53,6 +53,17 @@ abstract class SetupProtocolTestCase {
     this.peerA.io.peer = this.peerB;
     this.peerB.io.peer = this.peerA;
     this.executedInstructions = [];
+
+    // Initialize the InstructtionExecutor, giving it A<->B channel
+    this.peerA.initializeInstructionExecutor(
+      this.peerB.signingKey.address,
+      ethers.constants.AddressZero
+    );
+
+    this.peerB.initializeInstructionExecutor(
+      this.peerA.signingKey.address,
+      ethers.constants.AddressZero
+    );
   }
 
   public async run() {
@@ -75,6 +86,10 @@ abstract class SetupProtocolTestCase {
     // make a new peer with the exact same state
     // i.e., the same WAL db and the same channelStates
     const peerARebooted = new TestResponseSink(A_PRIVATE_KEY);
+    peerARebooted.initializeInstructionExecutor(
+      this.peerB.signingKey.address,
+      ethers.constants.AddressZero
+    );
     peerARebooted.writeAheadLog = new WriteAheadLog(this.db, ADDR_A);
     peerARebooted.io.peer = this.peerB;
     this.peerB.io.peer = peerARebooted;
