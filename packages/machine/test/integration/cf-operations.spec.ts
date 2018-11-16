@@ -112,6 +112,17 @@ describe("Setup Protocol", async () => {
 
     await multisig.functions.setup(signingKeys);
 
+    // Initialize the InstructtionExecutor, giving it A<->B channel
+    walletA.initializeInstructionExecutor(
+      walletB.signingKey.address,
+      multisig.address
+    );
+
+    walletB.initializeInstructionExecutor(
+      walletA.signingKey.address,
+      multisig.address
+    );
+
     await setup(multisig.address, walletA, walletB);
 
     const {
@@ -263,8 +274,10 @@ function validatePresetup(
   walletA: TestResponseSink,
   walletB: TestResponseSink
 ) {
-  expect(walletA.instructionExecutor.channel).toEqual({});
-  expect(walletB.instructionExecutor.channel).toEqual({});
+  expect(walletA.instructionExecutor.channel.counterParty).toEqual(B_ADDRESS);
+  expect(walletA.instructionExecutor.channel.appInstances).toEqual({});
+  expect(walletB.instructionExecutor.channel.counterParty).toEqual(A_ADDRESS);
+  expect(walletB.instructionExecutor.channel.appInstances).toEqual({});
 }
 
 function setupStartMsg(
@@ -337,6 +350,8 @@ function validateNoAppsAndFreeBalance(
   }
 
   expect(channel).toBeDefined();
+  console.log("channel");
+  console.log(channel);
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
   expect(channel.me).toEqual(walletA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);

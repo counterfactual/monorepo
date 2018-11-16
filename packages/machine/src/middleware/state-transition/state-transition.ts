@@ -17,7 +17,8 @@ export class StateTransition {
     message: InternalMessage,
     next: Function,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo
+    channel: cf.legacy.channel.StateChannelInfo,
+    network: cf.legacy.network.NetworkContext
   ): StateProposal {
     const proposer = PROPOSER_ACTIONS[message.actionName];
 
@@ -25,7 +26,8 @@ export class StateTransition {
       throw Error("Action name not supported");
     }
 
-    return proposer.propose(message, context, channel);
+    const proposal = proposer.propose(message, context, channel, network);
+    return proposal;
   }
 
   public static commit(

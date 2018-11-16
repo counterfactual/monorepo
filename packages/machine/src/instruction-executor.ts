@@ -21,7 +21,7 @@ export class InstructionExecutor implements Observable {
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
-  public middleware: Middleware;
+  public middleware!: Middleware;
   /**
    * The delegate handler we send responses to.
    */
@@ -37,12 +37,18 @@ export class InstructionExecutor implements Observable {
 
   // Observable
   public observers: Map<NotificationType, Function[]> = new Map();
+  private opGenerator: OpGenerator;
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.channel = config.channel;
     this.network = config.network;
-    this.middleware = new Middleware(this.channel, config.opGenerator);
+    this.opGenerator = config.opGenerator;
+    this.channel = config.channel;
+    this.middleware = new Middleware(
+      this.channel!,
+      this.opGenerator,
+      this.network
+    );
   }
 
   public registerObserver(type: NotificationType, callback: Function) {}

@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
 import { Opcode } from "../../instructions";
-import { InternalMessage } from "../../types";
+import { InternalMessage, StateProposal } from "../../types";
 import { getFirstResult, OpGenerator } from "../middleware";
 
 import { OpInstall } from "./op-install";
@@ -23,34 +23,29 @@ export class EthOpGenerator extends OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo,
     network: cf.legacy.network.NetworkContext
   ): ProtocolOperation {
-    const proposedState = getFirstResult(
+    const proposedState: StateProposal = getFirstResult(
       Opcode.STATE_TRANSITION_PROPOSE,
       context.results
     ).value;
+    console.log("getting proposal");
+    console.log(proposedState);
     let op;
     if (message.actionName === cf.legacy.node.ActionName.UPDATE) {
-      op = this.update(message, context, channel, network, proposedState.state);
+      op = this.update(message, context, network, proposedState.channel);
     } else if (message.actionName === cf.legacy.node.ActionName.SETUP) {
-      op = this.setup(message, context, channel, network, proposedState.state);
+      op = this.setup(message, context, network, proposedState.channel);
     } else if (message.actionName === cf.legacy.node.ActionName.INSTALL) {
       op = this.install(
         message,
         context,
         network,
-        proposedState.state,
-        proposedState.cfAddr
+        proposedState.channel,
+        proposedState.cfAddr!
       );
     } else if (message.actionName === cf.legacy.node.ActionName.UNINSTALL) {
-      op = this.uninstall(
-        message,
-        context,
-        channel,
-        network,
-        proposedState.state
-      );
+      op = this.uninstall(message, context, network, proposedState.channel);
     }
     return op;
   }
@@ -58,7 +53,6 @@ export class EthOpGenerator extends OpGenerator {
   public update(
     message: InternalMessage,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo,
     network: cf.legacy.network.NetworkContext,
     proposedUpdate: any
   ): ProtocolOperation {
@@ -70,7 +64,6 @@ export class EthOpGenerator extends OpGenerator {
       throw Error("update message must have appId set");
     }
 
-    // TODO: channel isn't being used here. Either remove it or use it.
     const appChannel =
       proposedUpdate[multisig].appInstances[message.clientMessage.appId];
 
@@ -120,14 +113,12 @@ export class EthOpGenerator extends OpGenerator {
   public setup(
     message: InternalMessage,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo,
     network: cf.legacy.network.NetworkContext,
-    proposedSetup: any
+    proposedChannel: cf.legacy.channel.StateChannelInfo
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
+    const multisig: cf.legacy.utils.Address = proposedChannel.multisigAddress;
     const freeBalance: cf.legacy.utils.FreeBalance =
-      proposedSetup[multisig].freeBalance;
+      proposedChannel.freeBalance;
     const nonce = freeBalance.dependencyNonce;
     const newFreeBalance = new cf.legacy.utils.FreeBalance(
       freeBalance.alice,
@@ -167,16 +158,15 @@ export class EthOpGenerator extends OpGenerator {
     message: InternalMessage,
     context: Context,
     network: cf.legacy.network.NetworkContext,
-    proposedInstall: any,
+    proposedChannel: cf.legacy.channel.StateChannelInfo,
     cfAddr: cf.legacy.utils.H256
   ) {
-    const channel = proposedInstall[message.clientMessage.multisigAddress];
-    const freeBalance = channel.freeBalance;
+    const freeBalance = proposedChannel.freeBalance;
     const multisig: cf.legacy.utils.Address =
       message.clientMessage.multisigAddress;
-    const appChannel = channel.appInstances[cfAddr];
+    const appChannel = proposedChannel.appInstances[cfAddr];
 
-    const signingKeys = [appChannel.keyA, appChannel.keyB];
+    const signingKeys = [appChannel.keyA!, appChannel.keyB!];
 
     const app = new cf.legacy.app.AppInstance(
       network,
@@ -195,7 +185,7 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.uniqueId,
       freeBalance.localNonce,
       freeBalance.timeout,
-      freeBalance.nonce
+      freeBalance.dependencyNonce
     );
 
     const op = new OpInstall(
@@ -211,9 +201,8 @@ export class EthOpGenerator extends OpGenerator {
   public uninstall(
     message: InternalMessage,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo,
     network: cf.legacy.network.NetworkContext,
-    proposedUninstall: any
+    proposedChannel: cf.legacy.channel.StateChannelInfo
   ): ProtocolOperation {
     const multisig: cf.legacy.utils.Address =
       message.clientMessage.multisigAddress;
@@ -222,8 +211,8 @@ export class EthOpGenerator extends OpGenerator {
       throw new Error("update message must have appId set");
     }
 
-    const freeBalance = proposedUninstall[multisig].freeBalance;
-    const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
+    const freeBalance = proposedChannel.freeBalance;
+    const appChannel = proposedChannel.appInstances[cfAddr];
 
     const newFreeBalance = new cf.legacy.utils.FreeBalance(
       freeBalance.alice,
@@ -233,7 +222,7 @@ export class EthOpGenerator extends OpGenerator {
       freeBalance.uniqueId,
       freeBalance.localNonce,
       freeBalance.timeout,
-      freeBalance.nonce
+      freeBalance.dependencyNonce
     );
 
     const op = new OpUninstall(

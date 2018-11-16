@@ -135,7 +135,8 @@ class ResumeFirstInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.channel
+          peer.instructionExecutor.channel,
+          cf.legacy.constants.EMPTY_NETWORK_CONTEXT
         );
       }
     );
@@ -185,7 +186,6 @@ class ResumeSecondInstructionTest extends SetupProtocolTestCase {
           message,
           next,
           context,
-          peer.instructionExecutor.channel,
           cf.legacy.constants.EMPTY_NETWORK_CONTEXT
         );
       }

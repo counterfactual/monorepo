@@ -35,7 +35,8 @@ export class Middleware {
 
   constructor(
     readonly channel: cf.legacy.channel.StateChannelInfo,
-    opGenerator: OpGenerator
+    opGenerator: OpGenerator,
+    readonly network: cf.legacy.network.NetworkContext
   ) {
     this.initializeMiddlewares(opGenerator);
   }
@@ -44,13 +45,19 @@ export class Middleware {
     this.add(
       Opcode.OP_GENERATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return opGenerator.generate(message, next, context, this.channel);
+        return opGenerator.generate(message, next, context, this.network);
       }
     );
     this.add(
       Opcode.STATE_TRANSITION_PROPOSE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        return StateTransition.propose(message, next, context, this.channel);
+        return StateTransition.propose(
+          message,
+          next,
+          context,
+          this.channel,
+          this.network
+        );
       }
     );
     this.add(
@@ -121,7 +128,6 @@ export abstract class OpGenerator {
     message: InternalMessage,
     next: Function,
     context: Context,
-    channel: cf.legacy.channel.StateChannelInfo,
     network: cf.legacy.network.NetworkContext
   );
 }

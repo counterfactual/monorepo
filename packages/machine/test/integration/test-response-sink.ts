@@ -21,7 +21,7 @@ import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
 export class TestResponseSink implements cf.legacy.node.ResponseSink {
-  public instructionExecutor: InstructionExecutor;
+  public instructionExecutor: InstructionExecutor = Object.create(null);
   public io: TestIOProvider;
   public writeAheadLog: WriteAheadLog;
   public store: TestCommitmentStore;
@@ -29,18 +29,21 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
 
   private requests: Map<string, Function>;
   private messageListener?: Function;
+  private network: cf.legacy.network.NetworkContext;
 
   constructor(
     readonly privateKey: string,
-    networkContext?: cf.legacy.network.NetworkContext
+    network: cf.legacy.network.NetworkContext = cf.legacy.constants
+      .EMPTY_NETWORK_CONTEXT
   ) {
-    // A mapping of requsts that are coming into the response sink.
+    // A mapping of requests that are coming into the response sink.
     this.requests = new Map<string, Function>();
     this.store = new TestCommitmentStore();
 
     this.signingKey = new ethers.utils.SigningKey(privateKey);
 
-    if (networkContext === undefined) {
+    this.network = network;
+    if (this.network === cf.legacy.constants.EMPTY_NETWORK_CONTEXT) {
       console.warn(
         `Defaulting network context to ${
           ethers.constants.AddressZero
@@ -48,31 +51,58 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       );
     }
 
-    const channel = new cf.legacy.channel.StateChannelInfoImpl(
-      cf.legacy.constants.ADDRESS_A,
-      cf.legacy.constants.ADDRESS_B,
-      ethers.constants.AddressZero,
-      {},
-      cf.legacy.constants.EMPTY_FREE_BALANCE
-    );
-
-    // An instance of a InstructionExecutor that will execute protocols.
-    this.instructionExecutor = new InstructionExecutor(
-      new InstructionExecutorConfig(
-        this,
-        new EthOpGenerator(),
-        networkContext || cf.legacy.constants.EMPTY_NETWORK_CONTEXT,
-        channel
-      )
-    );
-
     this.writeAheadLog = new WriteAheadLog(
       new SimpleStringMapSyncDB(),
       this.signingKey.address
     );
 
     this.io = new TestIOProvider();
+  }
 
+  public initializeInstructionExecutor(
+    counterpartyAddress: cf.legacy.utils.Address,
+    multisigAddress: cf.legacy.utils.Address
+  ) {
+    const initialFreeBalance = new cf.legacy.utils.FreeBalance(
+      this.signingKey.address,
+      ethers.utils.bigNumberify(0),
+      counterpartyAddress,
+      ethers.utils.bigNumberify(0),
+      0,
+      0,
+      0,
+      new cf.legacy.utils.Nonce(false, 0, 0)
+    );
+
+    const channel = new cf.legacy.channel.StateChannelInfoImpl(
+      counterpartyAddress,
+      this.signingKey.address,
+      multisigAddress,
+      {},
+      initialFreeBalance
+    );
+
+    /**
+     * An instance of a InstructionExecutor that will execute protocols for the
+     * channel that was just constructed.
+     **/
+    this.instructionExecutor = new InstructionExecutor(
+      new InstructionExecutorConfig(
+        this,
+        new EthOpGenerator(),
+        this.network,
+        channel
+      )
+    );
+
+    this.addHooks();
+  }
+
+  /**
+   * The hooks being set up in this function require the instruction executor
+   * to be initialized.
+   */
+  private addHooks() {
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
     this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
