@@ -41,8 +41,6 @@ export class StateTransition {
       context.results
     );
 
-    console.log("state transition committing");
-    console.log(newState);
     context.instructionExecutor.mutateState(newState.value.channel);
     next();
   }

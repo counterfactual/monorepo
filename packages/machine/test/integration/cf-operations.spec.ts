@@ -350,8 +350,6 @@ function validateNoAppsAndFreeBalance(
   }
 
   expect(channel).toBeDefined();
-  console.log("channel");
-  console.log(channel);
   expect(channel.counterParty).toEqual(walletB.signingKey.address);
   expect(channel.me).toEqual(walletA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);

@@ -48,6 +48,17 @@ function getCommunicatingPeers(): TestResponseSink[] {
   peerA.io.peer = peerB;
   peerB.io.peer = peerA;
 
+  // Initialize the InstructtionExecutor, giving it A<->B channel
+  peerA.initializeInstructionExecutor(
+    peerB.signingKey.address,
+    ethers.constants.AddressZero
+  );
+
+  peerB.initializeInstructionExecutor(
+    peerA.signingKey.address,
+    ethers.constants.AddressZero
+  );
+
   return [peerA, peerB];
 }
 

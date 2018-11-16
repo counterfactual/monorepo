@@ -29,8 +29,6 @@ export class EthOpGenerator extends OpGenerator {
       Opcode.STATE_TRANSITION_PROPOSE,
       context.results
     ).value;
-    console.log("getting proposal");
-    console.log(proposedState);
     let op;
     if (message.actionName === cf.legacy.node.ActionName.UPDATE) {
       op = this.update(message, context, network, proposedState.channel);
@@ -54,7 +52,7 @@ export class EthOpGenerator extends OpGenerator {
     message: InternalMessage,
     context: Context,
     network: cf.legacy.network.NetworkContext,
-    proposedUpdate: any
+    proposedChannel: cf.legacy.channel.StateChannelInfo
   ): ProtocolOperation {
     const multisig: cf.legacy.utils.Address =
       message.clientMessage.multisigAddress;
@@ -65,7 +63,7 @@ export class EthOpGenerator extends OpGenerator {
     }
 
     const appChannel =
-      proposedUpdate[multisig].appInstances[message.clientMessage.appId];
+      proposedChannel.appInstances[message.clientMessage.appId];
 
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
@@ -76,7 +74,7 @@ export class EthOpGenerator extends OpGenerator {
       appChannel.cfApp.resolve,
       appChannel.cfApp.getTurnTaker,
       appChannel.cfApp.isStateTerminal,
-      appChannel.cfApp.abiEncoding
+      appChannel.cfApp.stateEncoding
     );
 
     appChannel.terms = new cf.legacy.app.Terms(
@@ -101,7 +99,7 @@ export class EthOpGenerator extends OpGenerator {
       // FIXME: signing keys should be app-specific ephemeral keys
       // https://github.com/counterfactual/monorepo/issues/120
       signingKeys,
-      appChannel.appStateHash,
+      appChannel.appStateHash!,
       appChannel.uniqueId,
       appChannel.terms,
       appChannel.cfApp,

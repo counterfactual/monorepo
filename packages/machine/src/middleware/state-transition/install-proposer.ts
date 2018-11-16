@@ -31,8 +31,6 @@ export class InstallProposer {
     );
     const uniqueId = InstallProposer.nextUniqueId(channel);
     const signingKeys = InstallProposer.newSigningKeys(context, data);
-    console.log("proposing install");
-    console.log(network);
     const cfAddr = InstallProposer.proposedCfAddress(
       channel,
       network,

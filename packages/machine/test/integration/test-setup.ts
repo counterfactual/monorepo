@@ -30,8 +30,14 @@ export class SetupProtocol {
     console.log(peerA);
     console.log(peerA.instructionExecutor);
     console.log(peerA.instructionExecutor.channel);
-    expect(peerA.instructionExecutor.channel).toEqual({});
-    expect(peerB.instructionExecutor.channel).toEqual({});
+    expect(peerA.instructionExecutor.channel.counterParty).toEqual(
+      peerB.signingKey.address
+    );
+    expect(peerA.instructionExecutor.channel.appInstances).toEqual({});
+    expect(peerB.instructionExecutor.channel.counterParty).toEqual(
+      peerA.signingKey.address
+    );
+    expect(peerB.instructionExecutor.channel.appInstances).toEqual({});
     console.log("passed...");
   }
 
