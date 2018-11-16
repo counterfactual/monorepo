@@ -3,33 +3,38 @@
 <script src="scripts/mini-cf.js"></script>
 <script>
   // NO SOCKETS HERE!
-  var client = new cf.Client(new NodeProvider());
+  (async () => {
+    const nodeProvider = new NodeProvider();
+    await nodeProvider.connect();
 
-  // Who's listening to this? We need to trigger a modal somewhere.
-  // Would it be the Playground itself? Or the Wallet (Node)?
-  // Does the Node needs CF.js for this? Probably not?
-  client.on('proposeInstall', (data) => { console.log('proposeInstall!', data); });
-  // client.on('install', function () {});
-  // client.on('rejectInstall', function () {});
+    const client = new cf.Client(nodeProvider);
 
-  var appFactory = client.createAppFactory({
-    // AppDefinition goes here...
-  });
+    // Who's listening to this? We need to trigger a modal somewhere.
+    // Would it be the Playground itself? Or the Wallet (Node)?
+    // Does the Node needs CF.js for this? Probably not?
+    client.on('proposeInstall', (data) => { console.log('proposeInstall!', data); });
+    // client.on('install', function () {});
+    // client.on('rejectInstall', function () {});
 
-  // Wallet broadcasts through the Node, tells the world
-  // "HEY! someone's installing something", via Firebase.
-  // It should fall under Hub's responsability.
-
-  // When we send proposeInstall, we talk to the Hub.
-  // The Hub will route the message for us.
-
-  var ui = {
-    sendMessage: document.getElementById('send-message')
-  };
-
-  ui.sendMessage.addEventListener('click', function () {
-    appFactory.proposeInstall('0x9876', {
-      // Terms goes here...
+    const appFactory = client.createAppFactory({
+      // AppDefinition goes here...
     });
-  });
+
+    // Wallet broadcasts through the Node, tells the world
+    // "HEY! someone's installing something", via Firebase.
+    // It should fall under Hub's responsability.
+
+    // When we send proposeInstall, we talk to the Hub.
+    // The Hub will route the message for us.
+
+    var ui = {
+      sendMessage: document.getElementById('send-message')
+    };
+
+    ui.sendMessage.addEventListener('click', function () {
+      appFactory.proposeInstall('0x9876', {
+        // Terms goes here...
+      });
+    });
+  })();
 </script>

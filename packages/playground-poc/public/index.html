@@ -29,23 +29,7 @@
         var dapp = {
           id: iframe.id,
           window: null,
-          port: null,
-          subscribers: [],
-          sendMessage: function (message) {
-            this.port.postMessage(message);
-          },
-          dispatchMessage: function (event) {
-            if (!event.type) {
-              return;
-            }
-
-            this.subscribers.forEach(function (callback) {
-              callback(event);
-            });
-          },
-          onMessage: function (callback) {
-            this.subscribers.push(callback);
-          }
+          port: null
         };
 
         document.body.appendChild(iframe);
@@ -54,16 +38,16 @@
           if (event.data === 'cf-node-provider:init') {
             let channel = new MessageChannel();
             dapp.port = channel.port1;
-            dapp.port.onmessage = dapp.dispatchMessage.bind(dapp);
+            dapp.port.addEventListener('message', (event) => {
+              socket.emit('message', event.data);
+            });
+            dapp.port.start();
             let port2 = channel.port2;
             iframe.contentWindow.postMessage('cf-node-provider:port', '*', [port2]);
           }
         });
 
         dapp.window = iframe.contentWindow;
-        dapp.onMessage((event) => {
-          socket.emit('message', event.data);
-        });
 
         iframes[iframe.id] = dapp;
       }
@@ -78,7 +62,7 @@
           // Playground relays to the proper iframe. AppID plays here.
           // socket.emit('playground-message', { date: Date.now() });
           Object.keys(iframes).forEach(iframeID => {
-            iframes[iframeID].sendMessage(data);
+            iframes[iframeID].port.postMessage(data);
           });
         });
         document.getElementById('current-user').innerText = user;
