@@ -19,6 +19,8 @@
     "ordered-imports": [
       true,
       {"grouped-imports": true}
-    ]
+    ],
+    // See https://github.com/counterfactual/monorepo/pull/231#discussion_r233860710
+    "import-name": false
   }
 }
