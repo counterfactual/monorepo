@@ -12,9 +12,9 @@ import {
 } from "./structs";
 
 export enum ClientEventType {
-  INSTALL = "install",
-  PROPOSE_INSTALL = "proposeInstall",
-  REJECT_INSTALL = "rejectInstall"
+  INSTALL = "cf_install",
+  PROPOSE_INSTALL = "cf_proposeInstall",
+  REJECT_INSTALL = "cf_rejectInstall"
 }
 
 export interface ClientEvent {
