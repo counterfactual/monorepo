@@ -96,7 +96,7 @@ function setupInstallState(): Node {
   const channelStates: cf.legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new Node(channelStates, cf.legacy.network.EMPTY_NETWORK_CONTEXT);
+  return new Node(cf.legacy.network.EMPTY_NETWORK_CONTEXT, channelStates);
 }
 
 function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
