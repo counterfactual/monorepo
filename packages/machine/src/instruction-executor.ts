@@ -39,6 +39,14 @@ export class InstructionExecutor implements Observable {
   public observers: Map<NotificationType, Function[]> = new Map();
   private opGenerator: OpGenerator;
 
+  /**
+   * An InstructionExecutor instance operates on a single channel.
+   * In its lifetime it only knows about the channel it is given, as well as
+   * the network in which this channel is operating in so as to produce
+   * transaction with the correct addresses embedded in them.
+   * @param config InstructionExecutorConfig The configuration with which to
+   * initialize an InstructionExecutor instance.
+   */
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
     this.network = config.network;

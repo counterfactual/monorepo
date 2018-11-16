@@ -55,12 +55,12 @@ abstract class SetupProtocolTestCase {
     this.executedInstructions = [];
 
     // Initialize the InstructtionExecutor, giving it A<->B channel
-    this.peerA.initializeInstructionExecutor(
+    this.peerA.createChannel(
       this.peerB.signingKey.address,
       ethers.constants.AddressZero
     );
 
-    this.peerB.initializeInstructionExecutor(
+    this.peerB.createChannel(
       this.peerA.signingKey.address,
       ethers.constants.AddressZero
     );
@@ -86,7 +86,7 @@ abstract class SetupProtocolTestCase {
     // make a new peer with the exact same state
     // i.e., the same WAL db and the same channelStates
     const peerARebooted = new TestResponseSink(A_PRIVATE_KEY);
-    peerARebooted.initializeInstructionExecutor(
+    peerARebooted.createChannel(
       this.peerB.signingKey.address,
       ethers.constants.AddressZero
     );

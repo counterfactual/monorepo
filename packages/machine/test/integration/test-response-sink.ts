@@ -59,7 +59,15 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     this.io = new TestIOProvider();
   }
 
-  public initializeInstructionExecutor(
+  /**
+   * The InstructionExecutor operates on a single instance of a channel.
+   * When it is initialized, it should be aware of the channel it is operating
+   * on.
+   * @param counterpartyAddress The party with whom the caller want to create a
+   *        channel.
+   * @param multisigAddress The address of the multisig used for the channel.
+   */
+  public createChannel(
     counterpartyAddress: cf.legacy.utils.Address,
     multisigAddress: cf.legacy.utils.Address
   ) {

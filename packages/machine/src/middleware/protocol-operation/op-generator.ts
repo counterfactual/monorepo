@@ -48,6 +48,15 @@ export class EthOpGenerator extends OpGenerator {
     return op;
   }
 
+  /**
+   * // TODO: s/update/setState/
+   * Generates an update operation.
+   * @param message
+   * @param context // TODO: is context needed?
+   * @param network The network in which the operation is done.
+   * @param proposedChannel The channel object whose proposed state should be
+   *        used to generate the operation.
+   */
   public update(
     message: InternalMessage,
     context: Context,
@@ -108,6 +117,14 @@ export class EthOpGenerator extends OpGenerator {
     );
   }
 
+  /**
+   * Generates a setup operation.
+   * @param message
+   * @param context // TODO: is context needed?
+   * @param network The network in which the operation is done.
+   * @param proposedChannel The channel object whose proposed state should be
+   *        used to generate the operation.
+   */
   public setup(
     message: InternalMessage,
     context: Context,
@@ -152,6 +169,14 @@ export class EthOpGenerator extends OpGenerator {
     );
   }
 
+  /**
+   * Generates an install operation.
+   * @param message
+   * @param context // TODO: is context needed?
+   * @param network The network in which the operation is done.
+   * @param proposedChannel The channel object whose proposed state should be
+   *        used to generate the operation.
+   */
   public install(
     message: InternalMessage,
     context: Context,
@@ -196,6 +221,14 @@ export class EthOpGenerator extends OpGenerator {
     return op;
   }
 
+  /**
+   * Generates an uninstall operation.
+   * @param message
+   * @param context // TODO: is context needed?
+   * @param network The network in which the operation is done.
+   * @param proposedChannel The channel object whose proposed state should be
+   *        used to generate the operation.
+   */
   public uninstall(
     message: InternalMessage,
     context: Context,

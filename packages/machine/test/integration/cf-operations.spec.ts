@@ -113,15 +113,8 @@ describe("Setup Protocol", async () => {
     await multisig.functions.setup(signingKeys);
 
     // Initialize the InstructtionExecutor, giving it A<->B channel
-    walletA.initializeInstructionExecutor(
-      walletB.signingKey.address,
-      multisig.address
-    );
-
-    walletB.initializeInstructionExecutor(
-      walletA.signingKey.address,
-      multisig.address
-    );
+    walletA.createChannel(walletB.signingKey.address, multisig.address);
+    walletB.createChannel(walletA.signingKey.address, multisig.address);
 
     await setup(multisig.address, walletA, walletB);
 
