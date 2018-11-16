@@ -13,7 +13,7 @@ describe("Node can contain channels", () => {
 
   it("Node has only 1 channel", () => {
     const channels = {
-      [ethers.Wallet.createRandom().address]: new StateChannelInfoImpl(
+      [cf.legacy.constants.ADDRESS_A]: new StateChannelInfoImpl(
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
@@ -27,14 +27,14 @@ describe("Node can contain channels", () => {
 
   it("Node has multiple channels", () => {
     const channels = {
-      [ethers.Wallet.createRandom().address]: new StateChannelInfoImpl(
+      [cf.legacy.constants.ADDRESS_A]: new StateChannelInfoImpl(
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
         {},
         cf.legacy.utils.EMPTY_FREE_BALANCE
       ),
-      [ethers.Wallet.createRandom().address]: new StateChannelInfoImpl(
+      [cf.legacy.constants.ADDRESS_B]: new StateChannelInfoImpl(
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
