@@ -18,7 +18,7 @@ describe("Node can contain channels", () => {
         ethers.constants.AddressZero,
         ethers.constants.AddressZero,
         {},
-        cf.legacy.utils.EMPTY_FREE_BALANCE
+        cf.legacy.constants.EMPTY_FREE_BALANCE
       )
     };
     const node = new Node(channels, cf.legacy.network.EMPTY_NETWORK_CONTEXT);

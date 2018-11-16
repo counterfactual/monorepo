@@ -1,8 +1,10 @@
 import ethers from "ethers";
 import * as _ from "lodash";
 
+import { EMPTY_FREE_BALANCE } from "../constants";
+
 import * as abi from "./abi";
-import { EMPTY_FREE_BALANCE, FreeBalance } from "./free-balance";
+import { FreeBalance } from "./free-balance";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
 import * as serializer from "./serializer";
