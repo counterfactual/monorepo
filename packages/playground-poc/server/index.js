@@ -11,6 +11,12 @@ server.listen(8080, () => {
 const addressToSockets = {};
 const socketsToAddress = {};
 
+// TODO: Breakdown this method with a nicer handler.
+/*
+  const handlers = {
+    requestPlayer: [func1, func2, func3]
+  };
+*/
 const routeMessage = (data, source) => {
   if (!data || !data.type) {
     return;

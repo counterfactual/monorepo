@@ -12,15 +12,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/mini-node.js"></script>
     <script>
+      // TODO: Organize this a bit.
+      // TODO: Add "ProposeInstall" modal.
+      // TODO: Open IFRAME after accepting the ProposeInstall.
+      // TODO: Wire up "RejectInstall".
       var socket, user;
 
       var iframes = {};
       var id = 1;
 
-      // Try this:
-      // https://developer.mozilla.org/en-US/docs/Web/API/MessagePort
-
-      // Dapp must ask the wallet (via CF.js) to sign something.
       function createIframe() {
         var iframe = document.createElement('iframe');
         iframe.id = 'iframe-' + id;
