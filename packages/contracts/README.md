@@ -59,5 +59,5 @@ To run a migration against a target network:
 
 - make sure the target network configuration exists in `truffle.js`
 - the right env vars are set in `.env`
-- the network account you're using to send transactions from is funded (eg. for Rinkey: https://faucet.rinkeby.io/)
+- the network account you're using to send transactions from is funded (eg. for Rinkeby: https://faucet.rinkeby.io/)
 - run: `yarn migrate --network <network name>`
