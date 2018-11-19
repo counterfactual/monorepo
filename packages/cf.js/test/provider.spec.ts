@@ -1,5 +1,5 @@
 import { AppInstance } from "../src/app-instance";
-import { Client } from "../src/client";
+import { Provider } from "../src/provider";
 import {
   NodeMessage,
   NodeMessageType,
@@ -25,13 +25,13 @@ class TestNodeProvider implements NodeProvider {
   }
 }
 
-describe("CF.js Client", async () => {
+describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
-  let client: Client;
+  let client: Provider;
 
   beforeEach(() => {
     nodeProvider = new TestNodeProvider();
-    client = new Client(nodeProvider);
+    client = new Provider(nodeProvider);
   });
 
   it("should respond correctly to errors", async () => {

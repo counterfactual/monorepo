@@ -10,20 +10,20 @@ import {
 } from "./messaging";
 import { AppDefinition, NodeProvider } from "./structs";
 
-export enum ClientEventType {
+export enum CounterfactualEventType {
   INSTALL = "cf_install",
   PROPOSE_INSTALL = "cf_proposeInstall",
   REJECT_INSTALL = "cf_rejectInstall"
 }
 
-export interface ClientEvent {
-  readonly eventType: ClientEventType;
+export interface CounterfactualEvent {
+  readonly eventType: CounterfactualEventType;
   readonly data: any; // TODO
 }
 
 const NODE_REQUEST_TIMEOUT = 1500;
 
-export class Client {
+export class Provider {
   private readonly requestListeners: {
     [requestId: string]: (msg: NodeMessage) => void;
   } = {};
@@ -45,7 +45,10 @@ export class Client {
     return new AppFactory(appDefinition);
   }
 
-  on(eventType: ClientEventType, callback: (e: ClientEvent) => void) {
+  on(
+    eventType: CounterfactualEventType,
+    callback: (e: CounterfactualEvent) => void
+  ) {
     // TODO: support notification observers
   }
 
