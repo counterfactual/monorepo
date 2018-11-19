@@ -5,19 +5,25 @@
     - Properties
         - `nodeProvider: NodeProvider`
     - Instance methods
-        - `getAppInstances(): AppInstance[]`
+        - `async getAppInstances(): AppInstance[]`
         - `createAppFactory(appDefinition: AppDefinition): AppFactory`
     - Lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
-                - `proposeInstall(appId, appDefinition, terms)`
+                - `proposeInstall(proposal: {appId, appDefinition, terms}, function reject())`
                 - `install(appInstance)`
-                - `rejectInstall(appId, appDefinition, terms)`
+                - `rejectInstall(proposal: {appId, appDefinition, terms})`
 - `AppFactory`
     - Properties
         - `appDefinition: AppDefinition`
     - Instance methods
-        - `async proposeInstall(peerAddress: Address, terms: AppTerms): Promise<AppID>`
+        - `async proposeInstall({
+                peerAddress: Address,
+                asset: Asset,
+                myDeposit: BigNumber,
+                peerDeposit: BigNumber,
+                initialState: object
+           }): Promise<AppID>`
         - `async install(appId: AppID): Promise<AppInstance>`
         - `getApps(): AppInstance[]`
 - `AppInstance`
@@ -56,10 +62,12 @@
     - `AppID`: string
     - `AppState`: object, a POJO describing app state, encoded using app state encoding
     - `AppAction`: object, a POJO describing app action, encoded using app action encoding
-    - `AppTerms`:
+    - `Asset`:
         - `assetType`: ETH or ERC20 or OTHER
-        - `limit`: Funds limit committed to app
         - `token`: Address of token contract if applicable
+    - `AppTerms`:
+        - `asset: Asset`
+        - `limit`: Funds limit committed to app
     - `AppDefinition`
         - `address`: on-chain address for the app definition contract
         - `appStateEncoding`: ABI encoding for App State.
