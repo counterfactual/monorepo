@@ -6,8 +6,8 @@ import {
   QueryType
 } from "@counterfactual/node-provider";
 
-import { Provider } from "../src";
 import { AppInstance } from "../src/app-instance";
+import { Provider } from "../src/provider";
 
 class TestNodeProvider implements INodeProvider {
   public postedMessages: NodeMessage[] = [];
