@@ -1,3 +1,8 @@
+export interface NodeProvider {
+  onMessage(callback: (message: NodeMessage) => void);
+  postMessage(message: NodeMessage);
+}
+
 export enum NodeMessageType {
   INSTALL = "install",
   QUERY = "query",

@@ -1,12 +1,13 @@
-import { AppInstance } from "../src/app-instance";
 import {
   NodeMessage,
   NodeMessageType,
+  NodeProvider,
   NodeQueryData,
   QueryType
-} from "../src/messaging";
+} from "@counterfactual/node-provider";
+
+import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
-import { NodeProvider } from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
   public postedMessages: NodeMessage[] = [];

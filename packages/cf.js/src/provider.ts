@@ -1,14 +1,16 @@
+import {
+  NodeMessage,
+  NodeMessageType,
+  NodeProvider,
+  NodeQueryData,
+  QueryType
+} from "@counterfactual/node-provider";
+
 import * as uuid from "uuid";
 
 import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
-import {
-  NodeMessage,
-  NodeMessageType,
-  NodeQueryData,
-  QueryType
-} from "./messaging";
-import { AppDefinition, NodeProvider } from "./structs";
+import { AppDefinition } from "./structs";
 
 export enum CounterfactualEventType {
   INSTALL = "cf_install",
