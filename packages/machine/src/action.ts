@@ -8,10 +8,6 @@ import {
 import { ackInstructions, instructions, Opcode } from "./instructions";
 import { InternalMessage } from "./types";
 
-if (!Symbol.asyncIterator) {
-  (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
-}
-
 export function instructionGroupFromProtocolName(
   protocolName: cf.legacy.node.ActionName,
   isAckSide: boolean
@@ -73,39 +69,25 @@ export class ActionExecution {
     };
   }
 
-  // support https://github.com/tc39/proposal-async-iteration syntax
+  public async runAll(): Promise<void> {
+    while (this.instructionPointer < this.instructions.length) {
+      const internalMessage = this.createInternalMessage();
+      const context = this.createContext();
 
-  private async next(): Promise<{ done: boolean; value: number }> {
-    if (this.instructionPointer === this.instructions.length) {
-      return { done: true, value: 0 };
+      try {
+        await this.instructionExecutor.middleware.run(internalMessage, context);
+
+        this.instructionPointer += 1;
+
+        // push modified value of `context.intermediateResults`
+        this.intermediateResults = context.intermediateResults;
+      } catch (e) {
+        throw Error(
+          `While executing op ${Opcode[internalMessage.opCode]} at seq ${
+            this.clientMessage.seq
+          }, execution failed with the following error. ${e.stack}`
+        );
+      }
     }
-
-    const internalMessage = this.createInternalMessage();
-    const context = this.createContext();
-
-    try {
-      const value = await this.instructionExecutor.middleware.run(
-        internalMessage,
-        context
-      );
-      this.instructionPointer += 1;
-
-      // push modified value of `context.intermediateResults`
-      this.intermediateResults = context.intermediateResults;
-
-      return { value, done: false };
-    } catch (e) {
-      throw Error(
-        `While executing op ${Opcode[internalMessage.opCode]} at seq ${
-          this.clientMessage.seq
-        }, execution failed with the following error. ${e.stack}`
-      );
-    }
-  }
-
-  public [Symbol.asyncIterator]() {
-    return {
-      next: () => this.next()
-    };
   }
 }
