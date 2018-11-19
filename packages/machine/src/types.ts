@@ -24,11 +24,6 @@ export interface ContextualizedStateProposer {
   ): StateProposal;
 }
 
-export interface OpCodeResult {
-  opCode: Opcode;
-  value: any;
-}
-
 export class InternalMessage {
   constructor(
     public actionName: cf.legacy.node.ActionName,
