@@ -8,65 +8,10 @@ server.listen(8080, () => {
   console.log('Running on localhost:8080');
 });
 
-const addressToSockets = {};
-const socketsToAddress = {};
+const Hub = require('./hub');
+const hub = new Hub();
+const requestPlayer = require('./message-handlers/request-player');
 
-// TODO: Breakdown this method with a nicer handler.
-/*
-  const handlers = {
-    requestPlayer: [func1, func2, func3]
-  };
-*/
-const routeMessage = (data, source) => {
-  if (!data || !data.type) {
-    return;
-  }
+hub.registerMessageHandler('requestPlayer', requestPlayer);
 
-  const socket = addressToSockets[data.peerAddress];
-
-  console.log('----------------------------------------------------------------------------');
-  console.log('Incoming message from: ', source);
-  console.log('Attempting to route:', data);
-  console.log('Socket available:', !!socket, ' - Will use broadcast mode?', !!!socket);
-  console.log('----------------------------------------------------------------------------');
-
-  if (data.type === 'requestPlayer') {
-    const allAddresses = Object.keys(addressToSockets).filter(connectedAddress => connectedAddress !== source);
-    const randomIndex = Math.floor(Math.random() * allAddresses.length);
-    const socket = addressToSockets[source];
-    console.log('Matchmaking completed!', source, ' <3 ', allAddresses[randomIndex]);
-    socket.emit('message', {
-      type: 'matchedPlayer',
-      data: {
-        peerAddress: allAddresses[randomIndex]
-      }
-    });
-    return;
-  }
-
-  if (socket) {
-    console.log('Sending via socket', socket.id, ' to ', data.peerAddress, ' a message: ', data);
-  } else {
-    console.log('Broadcasting: ', data);
-  }
-
-  // If we can't route, we'll scream and shout...
-  (socket || io.sockets).emit('message', data);
-}
-
-const bindSocketEvents = (socket) => {
-  socket.on('message', (data) => routeMessage(data, socketsToAddress[socket.id]));
-};
-
-const bindSocketToAddress = (socket, address) => {
-  addressToSockets[address] = socket;
-  socketsToAddress[socket.id] = address;
-  console.log('Socket ', socket.id, ' is now bound to ', address);
-  bindSocketEvents(socket);
-};
-
-const listenToIdentity = (socket) => {
-  socket.on('identity', (data) => bindSocketToAddress(socket, data.address));
-};
-
-io.on('connection', listenToIdentity);
+io.on('connection', hub.listenToIdentity.bind(hub));

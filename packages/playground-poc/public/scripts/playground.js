@@ -4,7 +4,6 @@ class Dapp {
      * @type {string}
      */
     this.id = id;
-
     this.socket = socket;
 
     /**
@@ -59,7 +58,7 @@ class Playground {
     this.socket = io.connect('http://localhost:8080');
     this.socket.on('connect', this.relayIdentity.bind(this, address));
     this.user = address;
-    this.socket.on('message', this.passMessageToDapps.bind(this));
+    this.socket.on('message', this.passMessageToDapp.bind(this));
     document.getElementById('current-user').innerText = address;
   }
 
@@ -67,7 +66,35 @@ class Playground {
     this.socket.emit('identity', { address });
   }
 
-  passMessageToDapps(data) {
+  reply(originalMessage, data = {}) {
+    const message = Object.assign({}, originalMessage, data);
+
+    message.peerAddress = originalMessage.fromAddress;
+    delete message.fromAddress;
+
+    this.socket.emit('message', message);
+  }
+
+  // TODO: proposeInstalL/rejectInstall require special handling that
+  // can occur while the other party's dApp is closed. Who's responsible
+  // for these events?
+  passMessageToDapp(data) {
+    if (data.type === 'proposeInstall') {
+      const install = confirm('Do you want to install?');
+      if (!install) {
+        this.reply(data, { type: 'rejectInstall' });
+      } else {
+        // TODO: How do I know which app to load?
+        this.loadApp('dapp.html', document.body);
+      }
+      return; // TODO: Is it OK to *not* pass through the message?
+    }
+
+    if (data.type === 'rejectInstall') {
+      alert(data.fromAddress + ' rejected your install proposal');
+      return; // TODO: Is it OK to *not* pass through the message?
+    }
+
     // Playground relays to the proper iframe. AppID plays here.
     // socket.emit('playground-message', { date: Date.now() });
     Object.keys(this.iframes).forEach(iframeID => {
@@ -81,6 +108,8 @@ class Playground {
    */
   loadApp(url, parentNode) {
     const iframe = document.createElement('iframe');
+
+    // TODO: Is this something useful to identify a dApp across pears? Is it a local ID?
     iframe.id = `iframe-${this.nextIFrameID}`;
     iframe.src = url;
 
@@ -92,9 +121,3 @@ class Playground {
     this.iframes[iframe.id] = dapp;
   }
 }
-
-
-      // TODO: Organize this a bit.
-      // TODO: Add "ProposeInstall" modal.
-      // TODO: Open IFRAME after accepting the ProposeInstall.
-      // TODO: Wire up "RejectInstall".

@@ -9,6 +9,10 @@ class AppFactory {
   proposeInstall(peerAddress, terms) {
     this.client.nodeProvider.emit('proposeInstall', { peerAddress, terms });
   }
+
+  rejectInstall(peerAddress, terms) {
+    this.client.nodeProvider.emit('rejectInstall', { peerAddress, terms });
+  }
 }
 
 class Client extends EventEmitter3.EventEmitter {
@@ -20,7 +24,17 @@ class Client extends EventEmitter3.EventEmitter {
      */
     this.nodeProvider = nodeProvider;
 
-    this.nodeProvider.on('proposeInstall', (event) => {
+    const messages = [
+      'proposeInstall',
+      'rejectInstall',
+      'rejectedInstall' // Used for notifying the other party
+    ];
+
+    messages.forEach(this.bindMessage.bind(this));
+  }
+
+  bindMessage(message) {
+    this.nodeProvider.on(message, (event) => {
       this.emit(event.type, event);
     });
   }

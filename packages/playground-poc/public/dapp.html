@@ -9,12 +9,17 @@
 
     const client = new cf.Client(nodeProvider);
 
-    // Who's listening to this? We need to trigger a modal somewhere.
-    // Would it be the Playground itself? Or the Wallet (Node)?
-    // Does the Node needs CF.js for this? Probably not?
-    client.on('proposeInstall', (data) => { console.log('proposeInstall!', data); });
+    // TODO: proposeInstalL/rejectInstall require special handling that
+    // can occur while the other party's dApp is closed. Who's responsible
+    // for these events?
+
+    // client.on('proposeInstall', (data) => {
+      // console.log('proposeInstall');
+    // });
     // client.on('install', function () {});
-    // client.on('rejectInstall', function () {});
+    // client.on('rejectInstall', function (data) {
+      // nodeProvider.emit('rejectedInstall', { peerAddress: data.fromAddress });
+    // });
 
     const appFactory = client.createAppFactory({
       // AppDefinition goes here...
