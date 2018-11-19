@@ -1,17 +1,26 @@
 class AppFactory {
-  constructor(client) {
+  constructor(client, appDefinition) {
     /**
      * @type Client
      */
     this.client = client;
+    this.appDefinition = appDefinition;
   }
 
   proposeInstall(peerAddress, terms) {
-    this.client.nodeProvider.emit('proposeInstall', { peerAddress, terms });
+    this.client.nodeProvider.emit('proposeInstall', {
+      peerAddress,
+      terms,
+      appDefinition: this.appDefinition
+    });
   }
 
   rejectInstall(peerAddress, terms) {
-    this.client.nodeProvider.emit('rejectInstall', { peerAddress, terms });
+    this.client.nodeProvider.emit('rejectInstall', {
+      peerAddress,
+      terms,
+      appDefinition: this.appDefinition
+    });
   }
 }
 
@@ -39,8 +48,8 @@ class Client extends EventEmitter3.EventEmitter {
     });
   }
 
-  createAppFactory() {
-    return new AppFactory(this);
+  createAppFactory(appDefinition) {
+    return new AppFactory(this, appDefinition);
   }
 }
 

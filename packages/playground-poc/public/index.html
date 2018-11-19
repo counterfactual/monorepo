@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex-theme-os.min.css">
   </head>
   <body>
     <button onclick="playground.loadApp('dapp.html', document.body)">Create IFrame</button>
@@ -8,10 +10,11 @@
     <button onclick="playground.setSocket('0x9876')">Connect as Bob</button>
 
     <label id="current-user"></label>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/playground.js"></script>
     <script>
+      vex.defaultOptions.className = 'vex-theme-os';
       const playground = new Playground();
     </script>
   </body>

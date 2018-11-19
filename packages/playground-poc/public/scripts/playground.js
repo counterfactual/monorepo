@@ -1,9 +1,10 @@
 class Dapp {
-  constructor(id, socket) {
+  constructor(id, socket, url) {
     /**
      * @type {string}
      */
     this.id = id;
+    this.url = url;
     this.socket = socket;
 
     /**
@@ -79,19 +80,22 @@ class Playground {
   // can occur while the other party's dApp is closed. Who's responsible
   // for these events?
   passMessageToDapp(data) {
-    if (data.type === 'proposeInstall') {
-      const install = confirm('Do you want to install?');
-      if (!install) {
-        this.reply(data, { type: 'rejectInstall' });
-      } else {
-        // TODO: How do I know which app to load?
-        this.loadApp('dapp.html', document.body);
-      }
+    if (data.type === 'proposeInstall' && data.peerAddress === this.user) {
+      vex.dialog.confirm({
+        message: `Do you want to install ${data.appDefinition.name}?`,
+        callback: (value) => {
+          if (value) {
+            this.loadApp(data.appDefinition.url, document.body);
+          } else {
+            this.reply(data, { type: 'rejectInstall' });
+          }
+        }
+      });
       return; // TODO: Is it OK to *not* pass through the message?
     }
 
     if (data.type === 'rejectInstall') {
-      alert(data.fromAddress + ' rejected your install proposal');
+      vex.dialog.alert(`${data.fromAddress} rejected your install proposal.`);
       return; // TODO: Is it OK to *not* pass through the message?
     }
 
@@ -107,6 +111,10 @@ class Playground {
    * @param {Element} parentNode
    */
   loadApp(url, parentNode) {
+    if (this.isAppLoaded(url)) {
+      return;
+    }
+
     const iframe = document.createElement('iframe');
 
     // TODO: Is this something useful to identify a dApp across pears? Is it a local ID?
@@ -115,9 +123,14 @@ class Playground {
 
     parentNode.appendChild(iframe);
 
-    const dapp = new Dapp(iframe.id, this.socket);
+    const dapp = new Dapp(iframe.id, this.socket, url);
     dapp.bindToWindow(iframe.contentWindow);
 
     this.iframes[iframe.id] = dapp;
+    this.nextIFrameID += 1;
+  }
+
+  isAppLoaded(url) {
+    return Object.keys(this.iframes).some(iframe => this.iframes[iframe].url === url);
   }
 }
