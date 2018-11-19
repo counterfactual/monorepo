@@ -1,6 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Action, ActionExecution } from "../../src/action";
+import { instructionGroupFromProtocolName, ActionExecution } from "../../src/action";
 import {
   InstructionExecutor,
   InstructionExecutorConfig
@@ -15,7 +15,7 @@ describe("Write ahead log", () => {
     const db = new SimpleStringMapSyncDB();
 
     const instructionExecutor = new InstructionExecutor(
-      new InstructionExecutorConfig(null!, null!, null!, undefined!)
+      new InstructionExecutorConfig(null!, null!, undefined!)
     );
 
     const log1 = new WriteAheadLog(db, "test-unique-id");
@@ -87,10 +87,14 @@ function makeExecutions(
 
   for (let k = 0; k < requestIds.length; k += 1) {
     const execution = new ActionExecution(
-      new Action(requestIds[k], actions[k], msgs[k], isAckSide[k]),
+      actions[k],
+      instructionGroupFromProtocolName(actions[k], isAckSide[k]),
       instructionPointers[k],
       msgs[k],
-      instructionExecutor
+      instructionExecutor,
+      isAckSide[k],
+      requestIds[k],
+      {}
     );
     executions.push(execution);
   }
@@ -109,15 +113,12 @@ function validatelog(
     const received = executions[k];
     // note: only check the fields we construct in makeExecutions since we
     //       don't actually set them all there
-    expect(received.action.requestId).toEqual(expected.action.requestId);
-    expect(received.action.name).toEqual(expected.action.name);
-    expect(received.action.isAckSide).toEqual(expected.action.isAckSide);
+    expect(received.requestId).toEqual(expected.requestId);
+    expect(received.actionName).toEqual(expected.actionName);
+    expect(received.isAckSide).toEqual(expected.isAckSide);
     expect(JSON.stringify(received.clientMessage)).toEqual(
       JSON.stringify(expected.clientMessage)
     );
     expect(received.instructionPointer).toEqual(expected.instructionPointer);
-    expect(JSON.stringify(received.results)).toEqual(
-      JSON.stringify(expected.results)
-    );
   }
 }

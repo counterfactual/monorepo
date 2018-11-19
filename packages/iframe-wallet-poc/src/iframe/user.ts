@@ -1,5 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
 import * as machine from "@counterfactual/machine";
+import { StateProposal } from "@counterfactual/machine/dist/src/types";
 import { ethers } from "ethers";
 
 import { CommitmentStore } from "../commitmentStore";
@@ -61,7 +62,6 @@ export class User
     this.instructionExecutor = new machine.instructionExecutor.InstructionExecutor(
       new machine.instructionExecutor.InstructionExecutorConfig(
         this,
-        new machine.protocolOperations.EthOpGenerator(),
         networkContext,
         states
       )
@@ -154,9 +154,8 @@ export class User
 
   public generateObserverNotification(
     notification: cf.legacy.node.Notification
-  ): any {
-    const PROPOSE = machine.instructions.Opcode.STATE_TRANSITION_PROPOSE;
-    return notification.data.results.find(r => r.opCode === PROPOSE).value;
+  ): StateProposal | undefined {
+    return notification.data.proposedStateTransition;
   }
 
   public addObserver(message: cf.legacy.node.ClientActionMessage) {
@@ -213,12 +212,9 @@ export class User
 
     this.instructionExecutor.register(
       machine.instructions.Opcode.OP_SIGN,
-      async (
-        message: machine.types.InternalMessage,
-        next: Function,
-        context: machine.instructionExecutor.Context
-      ) => {
-        return signMyUpdate(message, next, context, this);
+      (message, next, context) => {
+        const signature = signMyUpdate(context, this);
+        context.intermediateResults.signature = signature;
       }
     );
     this.instructionExecutor.register(
@@ -250,16 +246,12 @@ export class User
  * Plugin middleware methods.
  */
 
-async function signMyUpdate(
-  message: machine.types.InternalMessage,
-  next: Function,
+function signMyUpdate(
   context: machine.instructionExecutor.Context,
   user: User
-): Promise<ethers.utils.Signature> {
-  const operation: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-    machine.instructions.Opcode.OP_GENERATE,
-    context.results
-  ).value;
+): ethers.utils.Signature {
+  const operation = context.intermediateResults.operation!;
+  // TODO: @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll Place digest in intermediateResults
   const digest = operation.hashToSign();
   const { recoveryParam, r, s } = user.signingKey.signDigest(digest);
   return { r, s, v: recoveryParam! + 27 };
@@ -271,11 +263,8 @@ async function validateSignatures(
   context: machine.instructionExecutor.Context,
   user: User
 ) {
-  const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getLastResult(
-    machine.instructions.Opcode.OP_GENERATE,
-    context.results
-  ).value;
-  const digest = op.hashToSign();
+  const operation = context.intermediateResults.operation!;
+  const digest = operation.hashToSign();
   let sig;
   const expectedSigningAddress =
     message.clientMessage.toAddress === user.address
@@ -283,10 +272,7 @@ async function validateSignatures(
       : message.clientMessage.toAddress;
   if (message.clientMessage.signature === undefined) {
     // initiator
-    const incomingMessage = machine.middleware.getLastResult(
-      machine.instructions.Opcode.IO_WAIT,
-      context.results
-    ).value;
+    const incomingMessage = context.intermediateResults.inbox!;
     sig = incomingMessage.signature;
   } else {
     // receiver
