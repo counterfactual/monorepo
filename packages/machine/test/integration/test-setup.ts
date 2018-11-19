@@ -26,13 +26,8 @@ export class SetupProtocol {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ) {
-    console.log("printing everything");
-    console.log(peerA);
-    console.log(peerA.instructionExecutor);
-    console.log(peerA.instructionExecutor.node);
     expect(peerA.instructionExecutor.node.channelStates).toEqual({});
     expect(peerB.instructionExecutor.node.channelStates).toEqual({});
-    console.log("passed...");
   }
 
   public static setupStartMsg(
