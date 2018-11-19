@@ -1,5 +1,3 @@
-import { v1 as uuid } from "uuid";
-
 import { Channel } from "./channel";
 import { applyMixins } from "./mixins/apply";
 import { NotificationType, Observable } from "./mixins/observable";
@@ -59,7 +57,14 @@ export class Client implements Observable {
   }
 
   public requestId(): string {
-    return uuid();
+    // TODO: use uuids when one of the following conditions is met:
+    // 1) we no longer need to support ethmo/iframe wallet
+    // 2) `node-uuid` has a working browser-ready version:
+    //    https://github.com/kelektiv/node-uuid/issues/176
+    // until, we just use Math.random so that the iife build works without
+    // depending on a global uuid moddule
+
+    return Math.random().toString();
   }
 
   public async queryUser(): Promise<UserDataClientResponse> {

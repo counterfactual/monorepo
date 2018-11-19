@@ -2,10 +2,8 @@ import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { Context } from "../../instruction-executor";
-import { Opcode } from "../../instructions";
 import { Node } from "../../node";
 import { InternalMessage } from "../../types";
-import { getFirstResult, OpGenerator } from "../middleware";
 
 import { OpInstall } from "./op-install";
 import { OpSetState } from "./op-set-state";
@@ -14,22 +12,16 @@ import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
 /**
- * Middleware to be used and registered with the InstructionExecutor on OP_GENERATE instructions
- * to generate ProtocolOperations. When combined with signatures from all parties
- * in the state channel, the ProtocolOperation transitions the state to that
- * yielded by STATE_TRANSITION_PROPOSE.
+ * Registered with OP_GENERATE
  */
-export class EthOpGenerator extends OpGenerator {
-  public generate(
+export class EthOpGenerator {
+  public static generate(
     message: InternalMessage,
     next: Function,
     context: Context,
     node: Node
   ): ProtocolOperation {
-    const proposedState = getFirstResult(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      context.results
-    ).value;
+    const proposedState = context.intermediateResults.proposedStateTransition!;
     let op;
     if (message.actionName === cf.legacy.node.ActionName.UPDATE) {
       op = this.update(message, context, node, proposedState.state);
@@ -41,7 +33,7 @@ export class EthOpGenerator extends OpGenerator {
         context,
         node,
         proposedState.state,
-        proposedState.cfAddr
+        proposedState.cfAddr!
       );
     } else if (message.actionName === cf.legacy.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, node, proposedState.state);
@@ -49,7 +41,7 @@ export class EthOpGenerator extends OpGenerator {
     return op;
   }
 
-  public update(
+  public static update(
     message: InternalMessage,
     context: Context,
     node: Node,
@@ -108,7 +100,7 @@ export class EthOpGenerator extends OpGenerator {
     );
   }
 
-  public setup(
+  public static setup(
     message: InternalMessage,
     context: Context,
     node: Node,
@@ -153,7 +145,7 @@ export class EthOpGenerator extends OpGenerator {
     );
   }
 
-  public install(
+  public static install(
     message: InternalMessage,
     context: Context,
     node: Node,
@@ -198,7 +190,7 @@ export class EthOpGenerator extends OpGenerator {
     return op;
   }
 
-  public uninstall(
+  public static uninstall(
     message: InternalMessage,
     context: Context,
     node: Node,

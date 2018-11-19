@@ -8,9 +8,6 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/instructions";
-import { getFirstResult, getLastResult } from "../../src/middleware/middleware";
-import { EthOpGenerator } from "../../src/middleware/protocol-operation";
-import { ProtocolOperation } from "../../src/middleware/protocol-operation/types";
 import { InternalMessage } from "../../src/types";
 import {
   SimpleStringMapSyncDB,
@@ -52,7 +49,6 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     this.instructionExecutor = new InstructionExecutor(
       new InstructionExecutorConfig(
         this,
-        new EthOpGenerator(),
         networkContext || cf.legacy.network.EMPTY_NETWORK_CONTEXT
       )
     );
@@ -66,7 +62,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.startAck.bind(
+    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
       this.instructionExecutor
     );
 
@@ -79,16 +75,15 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
 
     this.instructionExecutor.register(
       Opcode.OP_SIGN,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        console.debug("TestResponseSink: Running OP_SIGN middleware.");
-        return this.signMyUpdate(message, next, context);
+      (message, next, context) => {
+        const signature = this.signMyUpdate(context);
+        context.intermediateResults.signature = signature;
       }
     );
 
     this.instructionExecutor.register(
       Opcode.OP_SIGN_VALIDATE,
       async (message: InternalMessage, next: Function, context: Context) => {
-        console.debug("TestResponseSink: Running OP_SIGN_VALIDATE middleware.");
         return this.validateSignatures(message, next, context);
       }
     );
@@ -117,12 +112,10 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public async runProtocol(
     msg: cf.legacy.node.ClientActionMessage
   ): Promise<cf.legacy.node.WalletResponse> {
-    const promise = new Promise<cf.legacy.node.WalletResponse>(
-      (resolve, reject) => {
-        this.requests[msg.requestId] = resolve;
-      }
-    );
-    this.instructionExecutor.receive(msg);
+    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
+      this.requests[msg.requestId] = resolve;
+    });
+    this.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
   }
 
@@ -166,17 +159,12 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   }
 
   private signMyUpdate(
-    message: InternalMessage,
-    next: Function,
     context: Context
-  ): Promise<ethers.utils.Signature> {
-    const operation: ProtocolOperation = getFirstResult(
-      Opcode.OP_GENERATE,
-      context.results
-    ).value;
+  ): ethers.utils.Signature {
+    const operation = context.intermediateResults.operation!;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
-    return Promise.resolve({ r, s, v: recoveryParam! + 27 });
+    return { r, s, v: recoveryParam! + 27 };
   }
 
   private validateSignatures(
@@ -184,11 +172,8 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     next: Function,
     context: Context
   ) {
-    const op: ProtocolOperation = getLastResult(
-      Opcode.OP_GENERATE,
-      context.results
-    ).value;
-    const digest = op.hashToSign();
+    const operation = context.intermediateResults.operation!;
+    const digest = operation.hashToSign();
     let sig;
     const expectedSigningAddress =
       message.clientMessage.toAddress === this.signingKey.address
@@ -196,8 +181,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = getLastResult(Opcode.IO_WAIT, context.results)
-        .value;
+      const incomingMessage = context.intermediateResults.inbox!;
       sig = incomingMessage.signature;
     } else {
       // receiver
