@@ -6,7 +6,6 @@ import {
   QueryType
 } from "@counterfactual/node-provider";
 
-
 import * as uuid from "uuid";
 
 import { AppFactory } from "./app-factory";
