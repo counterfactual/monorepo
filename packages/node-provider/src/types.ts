@@ -1,4 +1,4 @@
-export interface NodeProvider {
+export interface INodeProvider {
   onMessage(callback: (message: NodeMessage) => void);
   postMessage(message: NodeMessage);
 }

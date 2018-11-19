@@ -1,10 +1,11 @@
 import {
+  INodeProvider,
   NodeMessage,
   NodeMessageType,
-  NodeProvider,
   NodeQueryData,
   QueryType
 } from "@counterfactual/node-provider";
+
 
 import * as uuid from "uuid";
 
@@ -30,7 +31,7 @@ export class Provider {
     [requestId: string]: (msg: NodeMessage) => void;
   } = {};
 
-  constructor(readonly nodeProvider: NodeProvider) {
+  constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
   }
 

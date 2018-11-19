@@ -1,15 +1,15 @@
 import {
+  INodeProvider,
   NodeMessage,
   NodeMessageType,
-  NodeProvider,
   NodeQueryData,
   QueryType
 } from "@counterfactual/node-provider";
 
+import { Provider } from "../src";
 import { AppInstance } from "../src/app-instance";
-import { Provider } from "../src/provider";
 
-class TestNodeProvider implements NodeProvider {
+class TestNodeProvider implements INodeProvider {
   public postedMessages: NodeMessage[] = [];
   readonly callbacks: ((message: NodeMessage) => void)[] = [];
 

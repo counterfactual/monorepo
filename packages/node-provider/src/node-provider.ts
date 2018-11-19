@@ -1,6 +1,6 @@
-import { NodeMessage, NodeProvider } from "./interfaces";
+import { INodeProvider, NodeMessage } from "./types";
 
-export default class NodeProviderImpl implements NodeProvider {
+export default class NodeProvider implements INodeProvider {
   public onMessage(callback: (message: NodeMessage) => void) {}
 
   public postMessage(message: NodeMessage) {}
