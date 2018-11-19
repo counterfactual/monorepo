@@ -1,13 +1,13 @@
 # API V0.0.2
 ## `cf.js`
 
-- `Client`
+- `Provider`
     - Properties
         - `nodeProvider: NodeProvider`
     - Instance methods
         - `async getAppInstances(): AppInstance[]`
         - `createAppFactory(appDefinition: AppDefinition): AppFactory`
-    - Client lifecycle
+    - Lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
                 - `proposeInstall(proposal: {appId, appDefinition, terms}, function reject())`
