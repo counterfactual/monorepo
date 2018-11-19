@@ -1,6 +1,4 @@
 import { Context } from "../../instruction-executor";
-import { Opcode } from "../../instructions";
-import { getFirstResult } from "../../middleware/middleware";
 import { Node } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
@@ -25,19 +23,5 @@ export class StateTransition {
     }
 
     return proposer.propose(message, context, node);
-  }
-
-  public static commit(
-    message: InternalMessage,
-    next: Function,
-    context: Context,
-    state: Node
-  ) {
-    const newState = getFirstResult(
-      Opcode.STATE_TRANSITION_PROPOSE,
-      context.results
-    );
-    context.instructionExecutor.mutateState(newState.value.state);
-    next();
   }
 }
