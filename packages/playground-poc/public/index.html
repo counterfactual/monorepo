@@ -3,70 +3,16 @@
   <head>
   </head>
   <body>
-    <button onclick="createIframe()">Create IFrame</button>
-    <button onclick="setSocket('0x1234')">Connect as Alice</button>
-    <button onclick="setSocket('0x9876')">Connect as Bob</button>
+    <button onclick="playground.loadApp('dapp.html', document.body)">Create IFrame</button>
+    <button onclick="playground.setSocket('0x1234')">Connect as Alice</button>
+    <button onclick="playground.setSocket('0x9876')">Connect as Bob</button>
 
     <label id="current-user"></label>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="scripts/mini-node.js"></script>
+    <script src="scripts/playground.js"></script>
     <script>
-      // TODO: Organize this a bit.
-      // TODO: Add "ProposeInstall" modal.
-      // TODO: Open IFRAME after accepting the ProposeInstall.
-      // TODO: Wire up "RejectInstall".
-      var socket, user;
-
-      var iframes = {};
-      var id = 1;
-
-      function createIframe() {
-        var iframe = document.createElement('iframe');
-        iframe.id = 'iframe-' + id;
-        iframe.src = 'dapp.html';
-
-        var dapp = {
-          id: iframe.id,
-          window: null,
-          port: null
-        };
-
-        document.body.appendChild(iframe);
-
-        iframe.contentWindow.addEventListener('message', (event) => {
-          if (event.data === 'cf-node-provider:init') {
-            let channel = new MessageChannel();
-            dapp.port = channel.port1;
-            dapp.port.addEventListener('message', (event) => {
-              socket.emit('message', event.data);
-            });
-            dapp.port.start();
-            let port2 = channel.port2;
-            iframe.contentWindow.postMessage('cf-node-provider:port', '*', [port2]);
-          }
-        });
-
-        dapp.window = iframe.contentWindow;
-
-        iframes[iframe.id] = dapp;
-      }
-
-      function setSocket(address) {
-        socket = io.connect('http://localhost:8080');
-        socket.on('connect', () => {
-          socket.emit('identity', { address });
-        });
-        user = address;
-        socket.on('message', (data) => {
-          // Playground relays to the proper iframe. AppID plays here.
-          // socket.emit('playground-message', { date: Date.now() });
-          Object.keys(iframes).forEach(iframeID => {
-            iframes[iframeID].port.postMessage(data);
-          });
-        });
-        document.getElementById('current-user').innerText = user;
-      }
+      const playground = new Playground();
     </script>
   </body>
 </html>
