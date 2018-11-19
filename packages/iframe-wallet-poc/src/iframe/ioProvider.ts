@@ -110,24 +110,21 @@ export class IframeIoProvider {
     next: Function,
     context: machine.instructionExecutor.Context
   ) {
-    const msg = machine.middleware.getLastResult(
-      machine.instructions.Opcode.IO_PREPARE_SEND,
-      context.results
-    );
-    // FIXME: (ts-strict) msg should never be null here
-    const value = msg.value;
-
+    const msg = context.intermediateResults.outbox!;
+    if (msg === undefined) {
+      throw Error("tried to send undefined message");
+    }
     if (this.clientHandlesIO) {
-      this.user.sendIoMessageToClient(value);
+      this.user.sendIoMessageToClient(msg);
     } else {
-      // Hack for testing and demo purposes, full IO handling by client goes here
-      this.peer.receiveMessageFromPeer(value);
+      this.peer.receiveMessageFromPeer(msg);
     }
   }
 
   public async waitForIo(
     message: machine.types.InternalMessage,
-    next: Function
+    next: Function,
+    context: machine.instructionExecutor.Context
   ): Promise<cf.legacy.node.ClientActionMessage> {
     // has websocket received a message for this appId/multisig
     // if yes, return the message, if not wait until it does
@@ -155,6 +152,7 @@ export class IframeIoProvider {
 
     this.listenOnce(
       message => {
+        context.intermediateResults.inbox = message;
         resolve(message);
       },
       multisig,

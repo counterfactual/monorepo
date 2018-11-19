@@ -1,87 +1,70 @@
 import * as cf from "@counterfactual/cf.js";
 
-import { Context, InstructionExecutor } from "./instruction-executor";
+import {
+  Context,
+  InstructionExecutor,
+  IntermediateResults
+} from "./instruction-executor";
 import { ackInstructions, instructions, Opcode } from "./instructions";
-import { InternalMessage, OpCodeResult } from "./types";
+import { InternalMessage } from "./types";
 
 if (!Symbol.asyncIterator) {
   (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
 }
 
-export class Action {
-  public name: cf.legacy.node.ActionName;
-  public requestId: string;
-  public clientMessage: cf.legacy.node.ClientActionMessage;
-  public execution: ActionExecution = Object.create(null);
-  public instructions: Opcode[];
-  public isAckSide: boolean;
-
-  constructor(
-    id: string,
-    action: cf.legacy.node.ActionName,
-    clientMessage: cf.legacy.node.ClientActionMessage,
-    isAckSide: boolean = false
-  ) {
-    this.requestId = id;
-    this.clientMessage = clientMessage;
-    this.name = action;
-    this.isAckSide = isAckSide;
-
-    if (isAckSide) {
-      this.instructions = ackInstructions[action];
-    } else {
-      this.instructions = instructions[action];
-    }
+export function instructionGroupFromProtocolName(
+  protocolName: cf.legacy.node.ActionName,
+  isAckSide: boolean
+): Opcode[] {
+  if (isAckSide) {
+    return ackInstructions[protocolName];
   }
-
-  public makeExecution(
-    instructionExecutor: InstructionExecutor
-  ): ActionExecution {
-    const exe = new ActionExecution(
-      this,
-      0,
-      this.clientMessage,
-      instructionExecutor
-    );
-    this.execution = exe;
-    return exe;
-  }
+  return instructions[protocolName];
 }
 
 export class ActionExecution {
-  public action: Action;
+  public actionName: cf.legacy.node.ActionName;
+  public instructions: Opcode[];
   public instructionPointer: number;
   public clientMessage: cf.legacy.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public results: OpCodeResult[];
+  public isAckSide: boolean;
+  public intermediateResults: IntermediateResults;
+  public requestId: string;
 
   constructor(
-    action: Action,
-    instruction: Opcode,
+    actionName: cf.legacy.node.ActionName,
+    instructions: Opcode[],
+    instructionPointer: number,
     clientMessage: cf.legacy.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor,
-    results: OpCodeResult[] = []
+    isAckSide: boolean,
+    requestId: string,
+    intermediateResults: IntermediateResults
   ) {
-    this.action = action;
-    this.instructionPointer = instruction;
+    this.actionName = actionName;
+    this.instructions = instructions;
+    this.instructionPointer = instructionPointer;
     this.clientMessage = clientMessage;
     this.instructionExecutor = instructionExecutor;
-    this.results = results;
+    this.isAckSide = isAckSide;
+    this.requestId = requestId;
+    this.intermediateResults = intermediateResults;
   }
 
   public createInternalMessage(): InternalMessage {
-    const op = this.action.instructions[this.instructionPointer];
+    const op = this.instructions[this.instructionPointer];
     return new InternalMessage(
-      this.action.name,
+      this.actionName,
       op,
       this.clientMessage,
-      this.action.isAckSide
+      this.isAckSide
     );
   }
 
   public createContext(): Context {
     return {
-      results: this.results,
+      intermediateResults: this.intermediateResults,
       instructionPointer: this.instructionPointer,
       // TODO: Should probably not pass the whole InstructionExecutor in, it breaks the encapsulation
       // We should figure out what others args from the InstructionExecutor are used and copy those over
@@ -90,8 +73,10 @@ export class ActionExecution {
     };
   }
 
+  // support https://github.com/tc39/proposal-async-iteration syntax
+
   private async next(): Promise<{ done: boolean; value: number }> {
-    if (this.instructionPointer === this.action.instructions.length) {
+    if (this.instructionPointer === this.instructions.length) {
       return { done: true, value: 0 };
     }
 
@@ -104,7 +89,9 @@ export class ActionExecution {
         context
       );
       this.instructionPointer += 1;
-      this.results.push({ value, opCode: internalMessage.opCode });
+
+      // push modified value of `context.intermediateResults`
+      this.intermediateResults = context.intermediateResults;
 
       return { value, done: false };
     } catch (e) {
