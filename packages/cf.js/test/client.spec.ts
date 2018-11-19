@@ -1,12 +1,12 @@
 import { AppInstance } from "../src/app-instance";
 import { Client } from "../src/client";
 import {
-  MessageDataQuery,
   NodeMessage,
   NodeMessageType,
-  NodeProvider,
+  NodeQueryData,
   QueryType
-} from "../src/structs";
+} from "../src/messaging";
+import { NodeProvider } from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
   public postedMessages: NodeMessage[] = [];
@@ -42,7 +42,7 @@ describe("CF.js Client", async () => {
     const queryMessage = nodeProvider.postedMessages[0];
 
     expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data! as MessageDataQuery;
+    const queryData = queryMessage.data! as NodeQueryData;
     expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
     nodeProvider.sendMessageToClient({
@@ -70,7 +70,7 @@ describe("CF.js Client", async () => {
     expect(nodeProvider.postedMessages).toHaveLength(1);
     const queryMessage = nodeProvider.postedMessages[0];
     expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data! as MessageDataQuery;
+    const queryData = queryMessage.data! as NodeQueryData;
     expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
     nodeProvider.sendMessageToClient({

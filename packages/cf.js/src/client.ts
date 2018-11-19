@@ -3,13 +3,12 @@ import * as uuid from "uuid";
 import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
 import {
-  AppDefinition,
-  MessageDataQuery,
   NodeMessage,
   NodeMessageType,
-  NodeProvider,
+  NodeQueryData,
   QueryType
-} from "./structs";
+} from "./messaging";
+import { AppDefinition, NodeProvider } from "./structs";
 
 export enum ClientEventType {
   INSTALL = "cf_install",
@@ -37,7 +36,7 @@ export class Client {
     const response = await this.sendNodeRequest(NodeMessageType.QUERY, {
       queryType: QueryType.GET_APP_INSTANCES
     });
-    return (response.data as MessageDataQuery).appInstances!.map(
+    return (response.data as NodeQueryData).appInstances!.map(
       ({ id }) => new AppInstance(id)
     );
   }
