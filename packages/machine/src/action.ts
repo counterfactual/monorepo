@@ -8,10 +8,6 @@ import {
 import { ackInstructions, instructions, Opcode } from "./instructions";
 import { InternalMessage } from "./types";
 
-if (!Symbol.asyncIterator) {
-  (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
-}
-
 export function instructionGroupFromProtocolName(
   protocolName: cf.legacy.node.ActionName,
   isAckSide: boolean
