@@ -1,11 +1,11 @@
 import { AppInstance } from "../src/app-instance";
-import { Provider } from "../src/provider";
 import {
   NodeMessage,
   NodeMessageType,
   NodeQueryData,
   QueryType
 } from "../src/messaging";
+import { Provider } from "../src/provider";
 import { NodeProvider } from "../src/structs";
 
 class TestNodeProvider implements NodeProvider {
@@ -27,16 +27,16 @@ class TestNodeProvider implements NodeProvider {
 
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
-  let client: Provider;
+  let provider: Provider;
 
   beforeEach(() => {
     nodeProvider = new TestNodeProvider();
-    client = new Provider(nodeProvider);
+    provider = new Provider(nodeProvider);
   });
 
   it("should respond correctly to errors", async () => {
     expect.assertions(4);
-    const promise = client.getAppInstances();
+    const promise = provider.getAppInstances();
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
     const queryMessage = nodeProvider.postedMessages[0];
@@ -62,7 +62,7 @@ describe("CF.js Provider", async () => {
     expect.assertions(5);
     const testInstance = new AppInstance("TEST_ID");
 
-    client.getAppInstances().then(instances => {
+    provider.getAppInstances().then(instances => {
       expect(instances).toHaveLength(1);
       expect(instances[0].id).toBe(testInstance.id);
     });
