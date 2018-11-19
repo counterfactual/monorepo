@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build/",
+    // This overrides the default libs used in the root, as there is a naming
+    // clash with the Node class in the "dom" lib
+    "lib": ["es2015", "es2017", "esnext.asynciterable"]
+  },
+  "include": ["src", "test"],
+  "exclude": ["dist"]
+}

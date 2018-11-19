@@ -4,6 +4,8 @@
   "scripts": {
     "build": "stencil build --prerender",
     "start": "stencil build --dev --watch --serve",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "stencil test --spec --e2e",
     "test:watch": "stencil test --spec --e2e --watchAll"
   },

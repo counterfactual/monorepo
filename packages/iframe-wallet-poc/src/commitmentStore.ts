@@ -162,10 +162,7 @@ export class CommitmentStore {
   ) {
     let appId;
     const action: cf.legacy.node.ActionName = internalMessage.actionName;
-    const op: machine.protocolTypes.ProtocolOperation = machine.middleware.getFirstResult(
-      machine.instructions.Opcode.OP_GENERATE,
-      context.results
-    ).value;
+    const operation = context.intermediateResults.operation!;
     let appCommitments: AppCommitments;
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
@@ -173,10 +170,10 @@ export class CommitmentStore {
     if (action === cf.legacy.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.legacy.node.ActionName.INSTALL) {
-      const proposal = machine.middleware.getFirstResult(
-        machine.instructions.Opcode.STATE_TRANSITION_PROPOSE,
-        context.results
-      ).value;
+      const proposal = context.intermediateResults.proposedStateTransition!;
+      if (proposal === undefined) {
+        throw Error("Proposed state transition cannot be undefined");
+      }
       appId = proposal.cfAddr;
     } else {
       appId = internalMessage.clientMessage.appId;
@@ -190,10 +187,7 @@ export class CommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature: ethers.utils.Signature = machine.middleware.getFirstResult(
-      machine.instructions.Opcode.OP_SIGN,
-      context.results
-    ).value;
+    const signature = context.intermediateResults.signature!;
 
     const counterpartySignature = incomingMessage!.signature!;
     const signatureHex = cf.legacy.utils.signaturesToBytes(signature);
@@ -210,7 +204,7 @@ export class CommitmentStore {
       );
     }
 
-    await appCommitments.addCommitment(action, op, [
+    await appCommitments.addCommitment(action, operation, [
       signature,
       counterpartySignature
     ]);
@@ -226,21 +220,14 @@ export class CommitmentStore {
     context: machine.instructionExecutor.Context
   ): cf.legacy.node.ClientActionMessage | null {
     if (internalMessage.actionName === cf.legacy.node.ActionName.INSTALL) {
-      return machine.middleware.getLastResult(
-        machine.instructions.Opcode.IO_WAIT,
-        context.results
-      ).value;
+      return context.intermediateResults.inbox!;
     }
-    const incomingMessageResult = machine.middleware.getLastResult(
-      machine.instructions.Opcode.IO_WAIT,
-      context.results
-    );
-    if (JSON.stringify(incomingMessageResult) === JSON.stringify({})) {
+    if (context.intermediateResults.inbox === undefined) {
       // receiver since non installs should have no io_WAIT
       return internalMessage.clientMessage;
     }
     // sender so grab out the response
-    return incomingMessageResult.value;
+    return context.intermediateResults.inbox!;
   }
 
   /**

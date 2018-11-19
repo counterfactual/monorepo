@@ -1,4 +1,4 @@
-# TODO: This file should live in packages/playgrouund. Unfortunately, due to
+# TODO: This file should live in packages/playground. Unfortunately, due to
 # an issue in Netlify (https://github.com/netlify/build-image/issues/81),
 # we still can't do that :(
 
