@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -e
-
-cd /wallet/contracts
-./node_modules/.bin/truffle migrate --network docker
-cd /wallet
