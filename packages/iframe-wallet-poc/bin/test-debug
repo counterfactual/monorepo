@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Runs the tests with the break on debug set to true, useful for connecting Chrome/VSC debuggers
-set -e
-
-inputArgs=$@
-yarn run test-debug:jest ${inputArgs:-test/*.spec.ts}
