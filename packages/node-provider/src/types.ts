@@ -28,21 +28,27 @@ export interface NodeErrorData {
   extra?: { [key: string]: any };
 }
 
-export interface NodeInstallProposalData {
+interface AppDefinition {
+  address: string;
+  appStateEncoding: string;
+  appActionEncoding: string;
+}
+
+export interface NodeProposeInstallData {
   appInstanceId?: string;
   assetType: number;
   token?: string;
   peerAddress: string;
   myDeposit: string;
   peerDeposit: string;
-  appDefinition: object;
-  initialState: object;
+  appDefinition: AppDefinition;
+  initialState: any;
 }
 
 export type NodeMessageData =
   | NodeQueryData
   | NodeErrorData
-  | NodeInstallProposalData
+  | NodeProposeInstallData
   | null;
 
 export interface NodeMessage {

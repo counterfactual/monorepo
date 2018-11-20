@@ -29,7 +29,7 @@ describe("CF.js Provider", async () => {
     const queryData = queryMessage.data! as NodeQueryData;
     expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
-    nodeProvider.sendMessageToClient({
+    nodeProvider.sendMessageFromNode({
       requestId: queryMessage.requestId,
       messageType: NodeMessageType.ERROR,
       data: { message: "Music too loud" }
@@ -57,7 +57,7 @@ describe("CF.js Provider", async () => {
     const queryData = queryMessage.data as NodeQueryData;
     expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
-    nodeProvider.sendMessageToClient({
+    nodeProvider.sendMessageFromNode({
       requestId: queryMessage.requestId,
       messageType: NodeMessageType.QUERY,
       data: {

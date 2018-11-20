@@ -1,6 +1,6 @@
 import {
-  NodeInstallProposalData,
-  NodeMessageType
+  NodeMessageType,
+  NodeProposeInstallData
 } from "@counterfactual/node-provider";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
@@ -37,6 +37,6 @@ export class AppFactory {
         appDefinition: this.appDefinition
       }
     );
-    return (response.data as NodeInstallProposalData).appInstanceId!;
+    return (response.data as NodeProposeInstallData).appInstanceId!;
   }
 }
