@@ -1,5 +1,5 @@
-import { AppID } from "./simple-types";
+import { AppInstanceID } from "./simple-types";
 
 export class AppInstance {
-  constructor(readonly id: AppID) {}
+  constructor(readonly id: AppInstanceID) {}
 }
