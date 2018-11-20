@@ -12,6 +12,6 @@ describe("app-root", () => {
     const page = await newE2EPage({ url: "/" });
 
     const element = await page.find("app-root >>> h1");
-    expect(element.textContent).toEqual("High Roller");
+    expect(element.textContent).toEqual("Stencil App Starter");
   });
 });

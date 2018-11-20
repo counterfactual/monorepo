@@ -1,15 +1,31 @@
-// This file is here because for some reason if
-// app-home is the only component other than root it doesn't render
-
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
+import { MatchResults } from "@stencil/router";
 
 @Component({
   tag: "app-profile",
-  styleUrl: "app-profile.css",
+  styleUrl: "app-profile.scss",
   shadow: true
 })
 export class AppProfile {
+  @Prop() match: MatchResults;
+
+  normalize(name: string): string {
+    if (name) {
+      return name.substr(0, 1).toUpperCase() + name.substr(1).toLowerCase();
+    }
+    return "";
+  }
+
   render() {
-    return <span>This is only here as filler</span>;
+    if (this.match && this.match.params.name) {
+      return (
+        <div class="app-profile">
+          <p>
+            Hello! My name is {this.normalize(this.match.params.name)}. My name
+            was passed in through a route param!
+          </p>
+        </div>
+      );
+    }
   }
 }
