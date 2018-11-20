@@ -77,7 +77,7 @@ Presently for some of the tests to work, you need to have a `ganache-cli` instan
 yarn ganache
 ```
 
-You also need to migrate the contracts in the contracts package to generate a `networks` file which the `machine` and `iframe-wallet-poc` packages directly consume (for now).
+You also need to migrate the contracts in the contracts package to generate a `networks` file which the `machine` package directly consume (for now).
 
 ```shell
 cd packages/contracts
