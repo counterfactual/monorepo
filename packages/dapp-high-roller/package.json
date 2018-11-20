@@ -23,6 +23,7 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
+    "@stencil/sass": "^0.1.1",
     "@types/puppeteer": "1.10.0",
     "puppeteer": "1.8.0"
   }
