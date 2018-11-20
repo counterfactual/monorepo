@@ -17,6 +17,7 @@
     - Properties
         - `appDefinition: AppDefinition`
     - Instance methods
+        // TODO: We're missing a "rejectInstall" method here.
         - `async proposeInstall(peerAddress: Address, terms: AppTerms): Promise<AppID>`
         - `async install(appId: AppID): Promise<AppInstance>`
         - `getApps(): AppInstance[]`
@@ -63,7 +64,7 @@
     - `AppDefinition`
         - `address`: on-chain address for the app definition contract
         - `appStateEncoding`: ABI encoding for App State.
-        - `appActionEncoding`: Optional ABI encoding for App Action. 
+        - `appActionEncoding`: Optional ABI encoding for App Action.
             - Leave empty to signify that app state updates using state proposals, not actions.
     - `AppManifest`
         - `name`: human-readable name of app e.g. "TicTacToe"

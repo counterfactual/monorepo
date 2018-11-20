@@ -1,68 +1,19 @@
-class Dapp {
-  constructor(manifest, socket) {
-    this.manifest = manifest;
-    this.socket = socket;
-    this.ready = false;
-
-    /**
-     * @type {Window}
-     */
-    this.window = null;
-
-    /**
-     * @type {MessagePort}
-     */
-    this.port = null;
-
-    this.messageQueue = [];
-  }
-
-  queueMessage(message) {
-    this.messageQueue.push(message);
-  }
-
-  flushMessageQueue() {
-    this.messageQueue.forEach((message) => this.port.postMessage(message));
-  }
-
-  bindToWindow(windowObject) {
-    this.window = windowObject;
-    this.window.addEventListener('message', this.configureMessageChannel.bind(this));
-    this.window.addEventListener('load', () => { this.ready = true; });
-  }
-
-  configureMessageChannel(event) {
-    if (event.data === 'cf-node-provider:init') {
-      const { port2 } = this.configureMessagePorts();
-      this.window.postMessage('cf-node-provider:port', '*', [port2]);
-    }
-
-    if (event.data === 'cf-node-provider:ready') {
-      this.flushMessageQueue();
-    }
-  }
-
-  configureMessagePorts() {
-    const channel = new MessageChannel();
-
-    this.port = channel.port1;
-    this.port.addEventListener('message', this.relayMessageToSocket.bind(this));
-    this.port.start();
-
-    return channel;
-  }
-
-  relayMessageToSocket(event) {
-    this.socket.emit('message', event.data);
-  }
-}
-
 class Playground {
   constructor(appManifests) {
     this.iframes = {};
     this.socket = null;
     this.user = null;
     this.appManifests = appManifests;
+    this.node = new PlaygroundNode();
+    this.messageQueue = {};
+  }
+
+  queueMessage(address, message) {
+    this.messageQueue[address].push(message);
+  }
+
+  flushMessageQueue(address) {
+    (this.messageQueue[address] || []).forEach((message) => this.iframes[address].port.postMessage(message));
   }
 
   showAppList() {
@@ -79,7 +30,7 @@ class Playground {
     this.socket = io.connect('http://localhost:8080');
     this.socket.on('connect', this.relayIdentity.bind(this, address));
     this.user = address;
-    this.socket.on('message', this.passMessageToDapp.bind(this));
+    this.socket.on('message', async (data) => await this.passMessageToDapp(data));
     document.getElementById('current-user').innerText = address;
   }
 
@@ -96,12 +47,47 @@ class Playground {
     this.socket.emit('message', message);
   }
 
-  // TODO: proposeInstalL/rejectInstall require special handling that
-  // can occur while the other party's dApp is closed. Who's responsible
-  // for these events?
-  passMessageToDapp(data) {
-    if (data.type === 'proposeInstall' && data.peerAddress === this.user) { // This goes to a Node
-      // The callback is Playground's.
+  async passMessageToDapp(data) {
+    const address = data.appDefinition.address;
+    const dapp = this.iframes[address] || await this.loadApp(data.appDefinition, document.body, true);
+
+    // Playground relays to the proper iframe.
+    if (!dapp.port) {
+      this.queueMessage(address, data);
+    } else {
+      dapp.port.postMessage(data);
+    }
+  }
+
+  /**
+   * @param {manifest} Object
+   * @param {Element} parentNode
+   */
+  async loadApp(manifest, parentNode, renderAfterInstall = false) {
+    if (this.isAppLoaded(manifest.address)) {
+      return;
+    }
+
+    const iframe = document.createElement('iframe');
+
+    iframe.id = manifest.address;
+    iframe.src = manifest.url;
+
+    const dapp = new Dapp(manifest, this.socket);
+    this.iframes[iframe.id] = dapp;
+
+    await this.bindAppEvents(dapp);
+
+    if (!renderAfterInstall) {
+      parentNode.appendChild(iframe);
+      dapp.bindToWindow(iframe.contentWindow);
+    }
+  }
+
+  async bindAppEvents(dapp) {
+    await dapp.open(this.node);
+
+    dapp.events.on('proposeInstall', (data) => {
       vex.dialog.confirm({
         message: `Do you want to install ${data.appDefinition.name}?`,
         callback: (value) => {
@@ -113,58 +99,23 @@ class Playground {
           }
         }
       });
-      // return; // TODO: Is it OK to *not* pass through the message?
-    }
+    });
 
-    if (data.type === 'install') {
-      this.loadApp(data.appDefinition, document.body);
-    }
+    dapp.events.on('install', async (data) => {
+      await this.loadApp(data.appDefinition, document.body, !renderAfterInstall);
+    });
 
-    if (data.type === 'rejectInstall') { // This goes to a Node
-      // The callback is Playground's.
+    dapp.events.on('rejectInstall', (data) => {
       vex.dialog.alert(`${data.fromAddress} rejected your install proposal.`);
-      return; // TODO: Is it OK to *not* pass through the message?
-    }
+    });
 
-    // Playground relays to the proper iframe.
-    const address = data.appDefinition.address;
-    const dapp = this.iframes[address];
-    if (this.isAppLoading(address)) {
-      dapp.queueMessage(data);
-    } else if (this.isAppLoaded(address)) {
-      dapp.port.postMessage(data);
-    }
-  }
-
-  /**
-   * @param {manifest} Object
-   * @param {Element} parentNode
-   */
-  loadApp(manifest, parentNode) {
-    if (this.isAppLoaded(manifest.address) || this.isAppLoading(manifest.address)) {
-      return;
-    }
-
-    const iframe = document.createElement('iframe');
-
-    iframe.id = manifest.address;
-    iframe.src = manifest.url;
-
-    parentNode.appendChild(iframe);
-
-    const dapp = new Dapp(manifest, this.socket);
-    dapp.bindToWindow(iframe.contentWindow);
-
-    this.iframes[iframe.id] = dapp;
+    dapp.events.once('ready', () => {
+      this.flushMessageQueue(dapp.manifest.address);
+    });
   }
 
   isAppLoaded(address) {
     const app = this.iframes[address];
     return app && app.ready;
-  }
-
-  isAppLoading(address) {
-    const app = this.iframes[address];
-    return app && !app.ready;
   }
 }

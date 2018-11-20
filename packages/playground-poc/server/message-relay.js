@@ -1,3 +1,5 @@
+// MessageRelay will become the Hub
+
 module.exports = class MessageRelay {
   constructor(io) {
     this.io = io;
