@@ -8,10 +8,10 @@ server.listen(8080, () => {
   console.log('Running on localhost:8080');
 });
 
-const Hub = require('./hub');
-const hub = new Hub();
+const MessageRelay = require('./message-relay');
+const messageRelay = new MessageRelay(io);
 const requestPlayer = require('./message-handlers/request-player');
 
-hub.registerMessageHandler('requestPlayer', requestPlayer);
+messageRelay.registerMessageHandler('requestPlayer', requestPlayer);
 
-io.on('connection', hub.listenToIdentity.bind(hub));
+io.on('connection', messageRelay.listenToIdentity.bind(messageRelay));

@@ -9,17 +9,22 @@ class AppFactory {
 
   proposeInstall(peerAddress, terms) {
     this.client.nodeProvider.emit('proposeInstall', {
+      // TODO: Better define this payload.
       peerAddress,
       terms,
       appDefinition: this.appDefinition
+      // appID: this.appDefinition.address
     });
   }
 
+  // TODO: Why "rejectInstall" isn't defined here in the API reference?
   rejectInstall(peerAddress, terms) {
     this.client.nodeProvider.emit('rejectInstall', {
       peerAddress,
       terms,
       appDefinition: this.appDefinition
+      // TODO: Should we use this here too?
+      // appID: this.appDefinition.address
     });
   }
 }
@@ -36,7 +41,7 @@ class Client extends EventEmitter3.EventEmitter {
     const messages = [
       'proposeInstall',
       'rejectInstall',
-      'rejectedInstall' // Used for notifying the other party
+      'install',
     ];
 
     messages.forEach(this.bindMessage.bind(this));
@@ -67,6 +72,7 @@ class NodeProvider {
             this.eventEmitter.emit(event.data.type, event.data);
           });
           this.messagePort.start();
+          window.postMessage('cf-node-provider:ready');
           resolve(this);
         }
       });
@@ -88,5 +94,5 @@ class NodeProvider {
   }
 }
 
-var cf = { Client: Client }
+var cf = { Client: Client };
 

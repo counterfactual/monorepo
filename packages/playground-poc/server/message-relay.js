@@ -1,5 +1,6 @@
-module.exports = class Hub {
-  constructor() {
+module.exports = class MessageRelay {
+  constructor(io) {
+    this.io = io;
     this.addressToSockets = {};
     this.socketsToAddress = {};
     this.messageHandlers = {
@@ -40,7 +41,7 @@ module.exports = class Hub {
     }
 
     // If we can't route, we'll scream and shout...
-    (socket || io.sockets).emit('message', data);
+    (socket || this.io.sockets).emit('message', data);
   }
 
   bindSocketEvents(socket) {

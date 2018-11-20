@@ -7,8 +7,7 @@ module.exports = function (data) { // TODO: Do we need any other information?
 
   socket.emit('message', {
     type: 'matchedPlayer',
-    data: {
-      peerAddress: allAddresses[randomIndex]
-    }
+    peerAddress: allAddresses[randomIndex],
+    appDefinition: data.appDefinition,
   });
 }
