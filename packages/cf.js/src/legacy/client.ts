@@ -56,7 +56,7 @@ export class Client implements Observable {
     this.networkContext = userData.data.networkContext;
   }
 
-  public requestId(): string {
+  public generateRequestId(): string {
     // TODO: use uuids when one of the following conditions is met:
     // 1) we no longer need to support ethmo/iframe wallet
     // 2) `node-uuid` has a working browser-ready version:
@@ -69,7 +69,7 @@ export class Client implements Observable {
 
   public async queryUser(): Promise<UserDataClientResponse> {
     const userQuery: ClientQuery = {
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       action: ActionName.QUERY,
       query: ClientQueryType.User
     };
@@ -79,7 +79,7 @@ export class Client implements Observable {
   public registerIOSendMessage(callback: Function) {
     this.ioHandler = callback;
     this.sendMessage({
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       action: ActionName.REGISTER_IO
     });
   }
@@ -94,7 +94,7 @@ export class Client implements Observable {
     const message = {
       action: ActionName.RECEIVE_IO,
       data: msg,
-      requestId: this.requestId()
+      requestId: this.generateRequestId()
     };
     this.sendMessage(message);
   }
@@ -156,13 +156,13 @@ export class Client implements Observable {
     notificationType: string,
     callback: Function
   ): Promise<ClientResponse> {
-    const observerId = this.requestId();
+    const observerId = this.generateRequestId();
 
     this.observerCallbacks.set(observerId, callback);
     this.registerObserver(notificationType, callback);
 
     const message = {
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       action: ActionName.ADD_OBSERVER,
       data: {
         observerId,
@@ -197,7 +197,7 @@ export class Client implements Observable {
     this.unregisterObserver(notificationType, callback);
 
     const message = {
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       action: ActionName.REMOVE_OBSERVER,
       data: {
         observerId,
@@ -216,7 +216,7 @@ export class Client implements Observable {
     const {
       data: { multisigAddress, generatedNewMultisig }
     } = await this.sendMessage({
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       action: ActionName.CONNECT,
       data: {
         toAddress
@@ -234,7 +234,7 @@ export class Client implements Observable {
     await this.sendMessage({
       multisigAddress,
       toAddress,
-      requestId: this.requestId(),
+      requestId: this.generateRequestId(),
       appId: undefined,
       action: ActionName.SETUP,
       data: {},

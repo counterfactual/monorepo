@@ -34,7 +34,7 @@ export class AppInstanceClient {
       appStateHash
     };
     const message = {
-      requestId: this.stateChannel.client.requestId(),
+      requestId: this.stateChannel.client.generateRequestId(),
       appName: this.appName,
       appId: this.appId,
       action: ActionName.UPDATE,
@@ -60,7 +60,7 @@ export class AppInstanceClient {
     };
 
     const message = {
-      requestId: this.stateChannel.client.requestId(),
+      requestId: this.stateChannel.client.generateRequestId(),
       appName: this.appName,
       appId: this.appId,
       action: ActionName.UNINSTALL,
