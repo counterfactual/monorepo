@@ -1,6 +1,4 @@
 import {
-  INodeProvider,
-  NodeMessage,
   NodeMessageType,
   NodeQueryData,
   QueryType
@@ -9,22 +7,7 @@ import {
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
 
-class TestNodeProvider implements INodeProvider {
-  public postedMessages: NodeMessage[] = [];
-  readonly callbacks: ((message: NodeMessage) => void)[] = [];
-
-  public sendMessageToClient(message: NodeMessage) {
-    this.callbacks.forEach(cb => cb(message));
-  }
-
-  public onMessage(callback: (message: NodeMessage) => void) {
-    this.callbacks.push(callback);
-  }
-
-  public postMessage(message: NodeMessage) {
-    this.postedMessages.push(message);
-  }
-}
+import { TestNodeProvider } from "./fixture";
 
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
