@@ -17,16 +17,26 @@ export class TestNodeProvider implements INodeProvider {
     if (listener) {
       const response = listener(message);
       if (response !== undefined) {
-        this.sendMessageFromNode(response);
+        this.simulateMessageFromNode(response);
       }
     }
   }
 
-  public sendMessageFromNode(message: NodeMessage) {
+  /**
+   * Simulate sending a message from the node to the consumer of the node provider
+   * @param message Message to send
+   */
+  public simulateMessageFromNode(message: NodeMessage) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public listenForMessage(
+  /**
+   * Listen for a message at a specific point in the sequence of messages. Optionally return a response message.
+   * @param sequenceNum Which message to listen for e.g. "0" for the first message, "1" for the second message etc
+   * @param callback Function that consumes a message.
+   * If this function returns a message, it will be sent to the consumer of the node provider.
+   */
+  public listenForIncomingMessage(
     sequenceNum: number,
     callback: (m: NodeMessage) => NodeMessage | undefined
   ) {

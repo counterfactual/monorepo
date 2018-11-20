@@ -29,9 +29,7 @@ describe("App Factory", async () => {
 
   it("should deliver valid app install proposals to the counterparty (using promises)", async () => {
     const TEST_APP_INSTANCE_ID = "TEST_ID";
-    expect.assertions(3);
-
-    nodeProvider.listenForMessage(0, message => {
+    nodeProvider.listenForIncomingMessage(0, message => {
       expect(message.messageType).toBe(NodeMessageType.PROPOSE_INSTALL);
 
       const messageData = message.data as NodeProposeInstallData;

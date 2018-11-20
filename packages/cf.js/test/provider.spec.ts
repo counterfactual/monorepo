@@ -19,51 +19,46 @@ describe("CF.js Provider", async () => {
   });
 
   it("should respond correctly to errors", async () => {
-    expect.assertions(4);
-    const promise = provider.getAppInstances();
+    nodeProvider.listenForIncomingMessage(0, message => {
+      expect(message.messageType).toBe(NodeMessageType.QUERY);
+      const queryData = message.data! as NodeQueryData;
+      expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
 
-    expect(nodeProvider.postedMessages).toHaveLength(1);
-    const queryMessage = nodeProvider.postedMessages[0];
-
-    expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data! as NodeQueryData;
-    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
-
-    nodeProvider.sendMessageFromNode({
-      requestId: queryMessage.requestId,
-      messageType: NodeMessageType.ERROR,
-      data: { message: "Music too loud" }
+      return {
+        requestId: message.requestId,
+        messageType: NodeMessageType.ERROR,
+        data: { message: "Music too loud" }
+      };
     });
 
     try {
-      await promise;
+      await provider.getAppInstances();
     } catch (e) {
       expect(e.data.message).toBe("Music too loud");
     }
   });
 
   it("should query app instances and return them", async () => {
-    expect.assertions(5);
     const testInstance = new AppInstance("TEST_ID");
 
-    provider.getAppInstances().then(instances => {
-      expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(testInstance.id);
+    nodeProvider.listenForIncomingMessage(0, message => {
+      expect(message.messageType).toBe(NodeMessageType.QUERY);
+      const queryData = message.data! as NodeQueryData;
+      expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
+
+      return {
+        requestId: message.requestId,
+        messageType: NodeMessageType.QUERY,
+        data: {
+          queryType: QueryType.GET_APP_INSTANCES,
+          appInstances: [testInstance]
+        }
+      };
     });
 
-    expect(nodeProvider.postedMessages).toHaveLength(1);
-    const queryMessage = nodeProvider.postedMessages[0];
-    expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data as NodeQueryData;
-    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
+    const instances = await provider.getAppInstances();
 
-    nodeProvider.sendMessageFromNode({
-      requestId: queryMessage.requestId,
-      messageType: NodeMessageType.QUERY,
-      data: {
-        queryType: QueryType.GET_APP_INSTANCES,
-        appInstances: [testInstance]
-      }
-    });
+    expect(instances).toHaveLength(1);
+    expect(instances[0].id).toBe(testInstance.id);
   });
 });
