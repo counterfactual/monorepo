@@ -4,6 +4,7 @@ export interface INodeProvider {
 }
 
 export enum NodeMessageType {
+  PROPOSE_INSTALL = "proposeInstall",
   INSTALL = "install",
   QUERY = "query",
   ERROR = "error"
@@ -27,8 +28,25 @@ export interface NodeErrorData {
   extra?: { [key: string]: any };
 }
 
+export interface NodeInstallProposalData {
+  appInstanceId?: string;
+  assetType: number;
+  token?: string;
+  peerAddress: string;
+  myDeposit: string;
+  peerDeposit: string;
+  appDefinition: object;
+  initialState: object;
+}
+
+export type NodeMessageData =
+  | NodeQueryData
+  | NodeErrorData
+  | NodeInstallProposalData
+  | null;
+
 export interface NodeMessage {
   requestId: string;
   messageType: NodeMessageType;
-  data: NodeQueryData | NodeErrorData | null;
+  data: NodeMessageData;
 }

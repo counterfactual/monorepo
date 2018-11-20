@@ -1,6 +1,7 @@
 import {
   INodeProvider,
   NodeMessage,
+  NodeMessageData,
   NodeMessageType,
   NodeQueryData,
   QueryType
@@ -10,7 +11,7 @@ import * as uuid from "uuid";
 
 import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
-import { AppDefinition } from "./structs";
+import { AppDefinition, AppInstallProposal } from "./app-types";
 
 export enum CounterfactualEventType {
   INSTALL = "cf_install",
@@ -18,9 +19,17 @@ export enum CounterfactualEventType {
   REJECT_INSTALL = "cf_rejectInstall"
 }
 
+export interface InstallProposalData {
+  proposal: AppInstallProposal;
+
+  reject();
+}
+
+export type CounterfactualEventData = InstallProposalData | null;
+
 export interface CounterfactualEvent {
   readonly eventType: CounterfactualEventType;
-  readonly data: any; // TODO
+  readonly data: CounterfactualEventData;
 }
 
 const NODE_REQUEST_TIMEOUT = 1500;
@@ -35,7 +44,7 @@ export class Provider {
   }
 
   async getAppInstances(): Promise<AppInstance[]> {
-    const response = await this.sendNodeRequest(NodeMessageType.QUERY, {
+    const response = await this.sendRawNodeRequest(NodeMessageType.QUERY, {
       queryType: QueryType.GET_APP_INSTANCES
     });
     return (response.data as NodeQueryData).appInstances!.map(
@@ -44,7 +53,7 @@ export class Provider {
   }
 
   createAppFactory(appDefinition: AppDefinition): AppFactory {
-    return new AppFactory(appDefinition);
+    return new AppFactory(this, appDefinition);
   }
 
   on(
@@ -54,9 +63,9 @@ export class Provider {
     // TODO: support notification observers
   }
 
-  private async sendNodeRequest(
+  async sendRawNodeRequest(
     messageType: NodeMessageType,
-    data: any
+    data: NodeMessageData
   ): Promise<NodeMessage> {
     const requestId = uuid.v4();
     return new Promise<NodeMessage>((resolve, reject) => {
