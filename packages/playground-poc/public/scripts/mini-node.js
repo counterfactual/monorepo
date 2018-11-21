@@ -1,11 +1,26 @@
 class PlaygroundNode {
   constructor() {
     this.appWhitelist = [];
+    this.eventEmitters = {};
   }
 
   async openApp(appID) {
-    const eventEmitter = new EventEmitter3.EventEmitter();
+    this.eventEmitters[appID] = new EventEmitter3.EventEmitter();
 
-    return Promise.resolve(eventEmitter);
+    // Routing logic to a certain dApp should go here.
+    return Promise.resolve(this.eventEmitters[appID]);
+  }
+
+  // Who's going to use this??
+  proposeInstall(appID, data) {
+    this.eventEmitters[appID].emit('proposeInstall', data);
+  }
+
+  install() {
+
+  }
+
+  rejectInstall() {
+
   }
 }
