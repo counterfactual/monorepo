@@ -1,6 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
-import * as _ from "lodash";
 
 import {
   Context,
@@ -17,6 +16,8 @@ import {
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
+type ResponseConsumer = (arg: cf.legacy.node.Response) => void;
+
 export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
@@ -24,15 +25,14 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public store: TestCommitmentStore;
   public signingKey: ethers.utils.SigningKey;
 
-  private requests: Map<string, Function>;
-  private messageListener?: Function;
+  // when TestResponseSink::runProtocol is called, the returned promise's
+  // resolve function is captured and stored here
+  private runProtocolContinuation?: ResponseConsumer;
 
   constructor(
     readonly privateKey: string,
     networkContext?: cf.legacy.network.NetworkContext
   ) {
-    // A mapping of requsts that are coming into the response sink.
-    this.requests = new Map<string, Function>();
     this.store = new TestCommitmentStore();
 
     this.signingKey = new ethers.utils.SigningKey(privateKey);
@@ -111,9 +111,9 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
    */
   public async runProtocol(
     msg: cf.legacy.node.ClientActionMessage
-  ): Promise<cf.legacy.node.WalletResponse> {
-    const promise = new Promise<cf.legacy.node.WalletResponse>((resolve, reject) => {
-      this.requests[msg.requestId] = resolve;
+  ): Promise<cf.legacy.node.Response> {
+    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+      this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.receiveClientActionMessage(msg);
     return promise;
@@ -122,15 +122,13 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: cf.legacy.node.WalletResponse) {
-    if ("requestId" in res && this.requests[res.requestId] !== undefined) {
-      const promise = this.requests[res.requestId];
-      delete this.requests[res.requestId];
-      promise(res);
+  public sendResponse(res: cf.legacy.node.Response) {
+    if (this.runProtocolContinuation) {
+      this.runProtocolContinuation(res);
+      this.runProtocolContinuation = undefined;
     } else {
-      // FIXME: Understand better what this is supposed to do...
+      // todo(ldct) - error here
       // https://github.com/counterfactual/monorepo/issues/141
-      // throw Error(`Response ${res.type} not found in ResponseSink requests`);
     }
   }
 
@@ -139,23 +137,6 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
    */
   public receiveMessageFromPeer(incoming: cf.legacy.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
-  }
-
-  // TODO: Figure out which client to send the response to
-  // https://github.com/counterfactual/monorepo/issues/106
-  //
-  // TODO: Refactor to clarify difference with sendMessageToClient
-  // https://github.com/counterfactual/monorepo/issues/105
-  public sendIoMessageToClient(message: cf.legacy.node.ClientActionMessage) {
-    if (this.messageListener) {
-      this.messageListener(message);
-    }
-  }
-
-  // TODO: Make messageListener a map/array
-  // https://github.com/counterfactual/monorepo/issues/147
-  public onMessage(callback: Function) {
-    this.messageListener = callback;
   }
 
   private signMyUpdate(
