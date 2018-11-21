@@ -178,8 +178,8 @@ export class TestCommitmentStore {
     const counterpartySignature = incomingMessage!.signature!;
     if (
       counterpartySignature === undefined ||
-      cf.legacy.utils.signaturesToBytes(signature) ===
-        cf.legacy.utils.signaturesToBytes(counterpartySignature)
+      cf.utils.signaturesToBytes(signature) ===
+        cf.utils.signaturesToBytes(counterpartySignature)
     ) {
       // FIXME: these errors should be handled more gracefully
       // https://github.com/counterfactual/monorepo/issues/99

@@ -28,7 +28,7 @@ function constructSetStateData(signatures: ethers.utils.Signature[]): string {
       TEST_APP_STATE_HASH,
       TEST_LOCAL_NONCE,
       TEST_TIMEOUT,
-      cf.legacy.utils.signaturesToBytes(...signatures)
+      cf.utils.signaturesToBytes(...signatures)
     )
   );
 }
