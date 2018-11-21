@@ -9,12 +9,15 @@ export class AppLogo {
   render() {
     return (
       <div>
-          <div class="welcome">
-            <h1 class="welcome__logo">
-              <img src="/assets/images/logo.svg" alt="High Roller" />
-            </h1>
+        <stencil-route-link url="/wager">
+          <div class="wrapper wrapper--welcome clickable">
+            <div class="welcome">
+              <h1 class="welcome__logo">
+                <img src="/assets/images/logo.svg" alt="High Roller" />
+              </h1>
+            </div>
           </div>
-        </a>
+        </stencil-route-link>
       </div>
     );
   }
