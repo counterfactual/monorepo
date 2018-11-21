@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { H256 } from ".";
+import { Bytes32 } from "../simple-types";
 
 export function signaturesToBytes(
   ...signatures: ethers.utils.Signature[]
@@ -13,7 +13,7 @@ export function signaturesToBytes(
 }
 
 export function signaturesToSortedBytes(
-  digest: H256,
+  digest: Bytes32,
   ...signatures: ethers.utils.Signature[]
 ): string {
   const sigs = signatures.slice();

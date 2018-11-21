@@ -59,7 +59,7 @@ export class OpSetState extends ProtocolOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      cf.legacy.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
+      cf.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
     );
     return new Transaction(to, val, data);
   }

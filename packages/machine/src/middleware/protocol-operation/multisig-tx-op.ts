@@ -19,7 +19,7 @@ export abstract class MultisigTxOp extends ProtocolOperation {
 
   public transaction(sigs: ethers.utils.Signature[]): Transaction {
     const multisigInput = this.multisigInput();
-    const signatureBytes = cf.legacy.utils.signaturesToSortedBytes(
+    const signatureBytes = cf.utils.signaturesToSortedBytes(
       this.hashToSign(),
       ...sigs
     );
