@@ -1,6 +1,6 @@
-import Node from "../../src/node";
+import { Node } from "../../src/node";
 
-describe("Node", () => {
+describe("Basic Node operations", () => {
   it("exists", () => {
     expect(Node).toBeDefined();
   });
