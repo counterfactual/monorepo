@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
     "build": "tsc -b && rollup -c",
-    "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
+    "test": "tsc -b && jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
@@ -23,27 +23,30 @@
     "@counterfactual/machine": "0.0.1"
   },
   "jest": {
-    "verbose": false,
     "bail": true,
-    "rootDir": ".",
     "cacheDirectory": "jest-cache",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "\\.spec.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist",
-      "build"
-    ],
-    "roots": [
-      "test"
+    "forceCoverageMatch": [
+      "**/*.spec.ts"
     ],
     "moduleFileExtensions": [
       "ts",
       "js",
       "json"
     ],
-    "testURL": "http://localhost/"
+    "rootDir": ".",
+    "roots": [
+      "test"
+    ],
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist",
+      "build"
+    ],
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testURL": "http://localhost/",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "verbose": false
   }
 }
