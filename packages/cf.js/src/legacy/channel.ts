@@ -91,7 +91,7 @@ export class Channel {
       keyB: appInstance.signingKeys[1]
     };
 
-    const requestId = this.client.requestId();
+    const requestId = this.client.generateRequestId();
     const message = {
       requestId,
       appName: name,
@@ -132,7 +132,7 @@ export class Channel {
 
   public async queryFreeBalance(): Promise<FreeBalanceClientResponse> {
     const freeBalanceQuery: ClientQuery = {
-      requestId: this.client.requestId(),
+      requestId: this.client.generateRequestId(),
       action: ActionName.QUERY,
       query: ClientQueryType.FreeBalance,
       multisigAddress: this.multisigAddress
@@ -147,7 +147,7 @@ export class Channel {
   public async queryStateChannel(): Promise<StateChannelDataClientResponse> {
     const stateChannelQuery: ClientQuery = {
       action: ActionName.QUERY,
-      requestId: this.client.requestId(),
+      requestId: this.client.generateRequestId(),
       query: ClientQueryType.StateChannel,
       multisigAddress: this.multisigAddress
     };
@@ -175,7 +175,7 @@ export class Channel {
   private async depositToMultisig(value: ethers.utils.BigNumber) {
     const depositMessage = {
       action: ActionName.DEPOSIT,
-      requestId: this.client.requestId(),
+      requestId: this.client.generateRequestId(),
       data: {
         value,
         multisig: this.multisigAddress

@@ -1,18 +1,18 @@
 # API V0.0.2
 ## `cf.js`
 
-- `Client`
+- `Provider`
     - Properties
         - `nodeProvider: NodeProvider`
     - Instance methods
         - `async getAppInstances(): AppInstance[]`
         - `createAppFactory(appDefinition: AppDefinition): AppFactory`
-    - Client lifecycle
+    - Lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
-                - `proposeInstall(proposal: {appId, appDefinition, terms}, function reject())`
+                - `proposeInstall(proposal: {appInstanceId, appDefinition, terms}, function reject())`
                 - `install(appInstance)`
-                - `rejectInstall(proposal: {appId, appDefinition, terms})`
+                - `rejectInstall(proposal: {appInstanceId, appDefinition, terms})`
 - `AppFactory`
     - Properties
         - `appDefinition: AppDefinition`
@@ -23,12 +23,12 @@
                 myDeposit: BigNumber,
                 peerDeposit: BigNumber,
                 initialState: object
-           }): Promise<AppID>`
-        - `async install(appId: AppID): Promise<AppInstance>`
+           }): Promise<AppInstanceID>`
+        - `async install(appInstanceId: AppInstanceID): Promise<AppInstance>`
         - `getApps(): AppInstance[]`
 - `AppInstance`
     - Properties
-        - `id: AppID` — Identifier for this specific app instance
+        - `id: AppInstanceID` — Identifier for this specific app instance
         - `definition: AppDefinition`
         - `terms: AppTerms`
         - `manifestUri: string`
@@ -59,7 +59,7 @@
         - Instance methods
             - `postMessage(message)`
             - `onMessage(callback)`
-    - `AppID`: string
+    - `AppInstanceID`: string
     - `AppState`: object, a POJO describing app state, encoded using app state encoding
     - `AppAction`: object, a POJO describing app action, encoded using app action encoding
     - `Asset`:

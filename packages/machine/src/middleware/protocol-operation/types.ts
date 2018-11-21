@@ -8,7 +8,7 @@ export abstract class ProtocolOperation {
   public abstract transaction(sigs: ethers.utils.Signature[]): Transaction;
 }
 
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export enum Operation {
   Call = 0,
