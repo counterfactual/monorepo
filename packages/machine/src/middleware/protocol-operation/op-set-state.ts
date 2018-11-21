@@ -5,7 +5,7 @@ import * as common from "./common";
 import { ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export class OpSetState extends ProtocolOperation {
   constructor(

@@ -66,7 +66,7 @@ describe("OpSetState", () => {
   it("Should compute the correct hash to sign", () => {
     expect(operation.hashToSign()).toBe(
       ethers.utils.keccak256(
-        cf.legacy.utils.abi.encodePacked(
+        cf.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
           [
             "0x19",

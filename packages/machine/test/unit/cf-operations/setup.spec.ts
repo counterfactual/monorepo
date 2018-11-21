@@ -17,10 +17,10 @@ const { keccak256 } = ethers.utils;
 
 function constructConditionalTransactionData(nonceUniqueId: number) {
   const salt = keccak256(
-    cf.legacy.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
+    cf.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
   );
   const uninstallKey = keccak256(
-    cf.legacy.utils.abi.encodePacked(
+    cf.utils.abi.encodePacked(
       ["address", "uint256", "uint256"],
       [TEST_MULTISIG_ADDRESS, 0, salt]
     )
