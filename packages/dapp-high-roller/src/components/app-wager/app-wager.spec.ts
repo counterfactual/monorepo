@@ -1,4 +1,4 @@
-import { TestWindow } from "@stencil/core/testing";
+import { newE2EPage } from "@stencil/core/testing";
 
 import { AppWager } from "./app-wager";
 
@@ -7,20 +7,11 @@ describe("app-wager", () => {
     expect(new AppWager()).toBeTruthy();
   });
 
-  describe("rendering", () => {
-    let element: HTMLAppWagerElement;
-    let testWindow: TestWindow;
-    beforeEach(async () => {
-      testWindow = new TestWindow();
-      element = await testWindow.load({
-        components: [AppWager],
-        html: "<app-wager></app-wager>"
-      });
-    });
+  it("renders", async () => {
+    const page = await newE2EPage();
+    await page.setContent("<app-wager></app-wager>");
 
-    // See https://stenciljs.com/docs/unit-testing
-    {
-      cursor;
-    }
+    const element = await page.find("app-wager");
+    expect(element).toHaveClass("hydrated");
   });
 });

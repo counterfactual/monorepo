@@ -1,24 +1,17 @@
-import { TestWindow } from '@stencil/core/testing';
-import { AppLogo } from './app-logo';
+import { newE2EPage } from "@stencil/core/testing";
 
-describe('app-logo', () => {
-  it('should build', () => {
+import { AppLogo } from "./app-logo";
+
+describe("app-logo", () => {
+  it("should build", () => {
     expect(new AppLogo()).toBeTruthy();
   });
 
-  describe('rendering', () => {
-    let element: HTMLAppLogoElement;
-    let testWindow: TestWindow;
-    beforeEach(async () => {
-      testWindow = new TestWindow();
-      element = await testWindow.load({
-        components: [AppLogo],
-        html: '<app-logo></app-logo>'
-      });
-    });
+  it("renders", async () => {
+    const page = await newE2EPage();
+    await page.setContent("<app-logo></app-logo>");
 
-    // See https://stenciljs.com/docs/unit-testing
-    {cursor}
-
+    const element = await page.find("app-logo");
+    expect(element).toHaveClass("hydrated");
   });
 });
