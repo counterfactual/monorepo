@@ -60,9 +60,10 @@ a {
 .f-body {
   font-size: 1.125rem;
 }
-
-.wager {
-  padding: 4rem 2rem 2rem;
+.wrapper {
+  max-width: 20rem;
+  height: 100vh;
+  margin: 0 auto;
 }
 .game,
 .rematch {
