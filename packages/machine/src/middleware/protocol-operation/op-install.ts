@@ -6,7 +6,7 @@ import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export class OpInstall extends MultiSendOp {
   constructor(
