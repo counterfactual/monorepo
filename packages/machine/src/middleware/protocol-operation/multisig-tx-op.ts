@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export abstract class MultisigTxOp extends ProtocolOperation {
   abstract multisigInput(): MultisigInput;

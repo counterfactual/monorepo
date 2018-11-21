@@ -20,7 +20,7 @@ import { TestResponseSink } from "./test-response-sink";
 // https://github.com/counterfactual/monorepo/issues/103
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);

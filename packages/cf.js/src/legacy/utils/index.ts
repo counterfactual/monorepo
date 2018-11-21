@@ -1,7 +1,6 @@
-import ethers from "ethers";
+import { ethers } from "ethers";
 import * as _ from "lodash";
 
-import * as abi from "./abi";
 import { FreeBalance } from "./free-balance";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
@@ -9,7 +8,6 @@ import * as serializer from "./serializer";
 import { signaturesToBytes, signaturesToSortedBytes } from "./signature";
 
 export {
-  abi,
   CanonicalPeerBalance,
   FreeBalance,
   Nonce,

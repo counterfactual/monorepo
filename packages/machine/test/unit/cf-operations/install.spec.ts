@@ -27,7 +27,7 @@ function constructFreeBalanceInput() {
     timeout
   } = TEST_FREE_BALANCE;
   const appStateHash = keccak256(
-    cf.legacy.utils.abi.encode(
+    cf.utils.abi.encode(
       ["address", "address", "uint256", "uint256"],
       [alice, bob, aliceBalance, bobBalance]
     )
@@ -53,10 +53,10 @@ function constructFreeBalanceInput() {
 
 function constructConditionalTransferInput(nonceUniqueId: number) {
   const salt = keccak256(
-    cf.legacy.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
+    cf.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
   );
   const uninstallKey = keccak256(
-    cf.legacy.utils.abi.encodePacked(
+    cf.utils.abi.encodePacked(
       ["address", "uint256", "uint256"],
       [TEST_MULTISIG_ADDRESS, 0, salt]
     )

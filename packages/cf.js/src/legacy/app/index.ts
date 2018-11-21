@@ -1,10 +1,10 @@
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
 import { ethers } from "ethers";
 
+import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
 import { NetworkContext } from "../network";
 import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
-import * as abi from "../utils/abi";
 import { Nonce } from "../utils/nonce";
 
 const { keccak256 } = ethers.utils;

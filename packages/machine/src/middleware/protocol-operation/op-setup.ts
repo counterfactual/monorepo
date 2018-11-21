@@ -6,7 +6,7 @@ import { MultisigTxOp } from "./multisig-tx-op";
 import { MultisigInput, Operation } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export class OpSetup extends MultisigTxOp {
   public constructor(
