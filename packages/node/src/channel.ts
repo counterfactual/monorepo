@@ -1,5 +1,8 @@
 import * as cf from "@counterfactual/cf.js";
 
+// Not strictly needed, added for easier legibility
+export type MultisigAddress = string;
+
 export class StateChannelInfo implements cf.legacy.channel.StateChannelInfo {
   constructor(
     readonly counterParty: cf.legacy.utils.Address,
