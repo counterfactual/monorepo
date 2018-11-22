@@ -14,7 +14,6 @@
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.0",
-    "@types/firebase": "^3.2.1",
     "@types/node": "^10.9.3",
     "dotenv": "^6.1.0",
     "ethers": "^4.0.4",
@@ -26,8 +25,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/machine": "0.0.1",
-    "firebase": "^5.5.9"
+    "@counterfactual/machine": "0.0.1"
   },
   "jest": {
     "bail": true,

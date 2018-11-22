@@ -1,11 +1,11 @@
+import * as cf from "@counterfactual/cf.js";
+
 import { EventEmitter } from "events";
-import firebase from "firebase";
 
 import { MultisigAddress, StateChannelInfo } from "./channel";
 
 export interface NodeOptions {
   channels?: Map<MultisigAddress, StateChannelInfo>;
-  messenger?: firebase.messaging.Messaging;
 }
 
 /**
@@ -17,15 +17,11 @@ export interface NodeOptions {
  */
 export class Node {
   private channels: Map<MultisigAddress, StateChannelInfo> = new Map();
-  public messenger!: firebase.messaging.Messaging;
+  // TODO: the values need to be typed better, we're not storing AppDefinitions
+  // but AppInstances that will eventually get installed into a channel
+  private pendingInstallation: Map<string, cf.types.AppDefinition> = new Map();
 
-  constructor(options: NodeOptions) {
-    // TODO: mock out messenger for tests so it can become a requirement,
-    // meaning this can throw on lack of messenger presence
-    if (options.messenger !== undefined) {
-      this.messenger = options.messenger;
-    }
-  }
+  constructor(options: NodeOptions) {}
 
   // The following methods describe higher-level channel operations.
 
@@ -75,14 +71,29 @@ export class Node {
   // The following methods describe app-specific operations.
 
   /**
-   * Installs the given application into the channel specified by the multisig
-   * address.
-   * TODO: what's the spec being passed in for an app installation?
-   * @return An EventEmitter which emits events for this app so that the
-   * consumer can be notified of app updates
+   * Proposes an installation of an app into the specified channel.
+   * @param multisigAddress
+   * @param appDefinition
+   * @param proposeData
+   * @return tuple of (appInstanceID, EventEmitter) so that the caller can
+   * subscribe to events for the returned appInstanceID.
    */
-  proposeInstallApp(multisigAddress: string): EventEmitter {
-    return new EventEmitter();
+  async proposeInstallApp(
+    multisigAddress: string,
+    appDefinition: string,
+    proposeData: object
+  ): Promise<[string, EventEmitter]> {
+    // TODO: construct new AppInstance, wrap EventEmitter around it, add to pendingInstallations
+    return ["appInstanceID", new EventEmitter()];
+  }
+  /**
+   * This assumes a pending installation is present with the ID of the
+   * AppInstance wanting to be installed.
+   */
+  async installApp(appId: string): Promise<[boolean, string]> {
+    // TODO: retrive pending installation, add the AppInstance to the respective
+    // channel, return success result of these operations
+    return [true, ""];
   }
   updateApp() {}
   uninstallApp() {}
