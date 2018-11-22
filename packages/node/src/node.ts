@@ -1,23 +1,11 @@
-import * as cf from "@counterfactual/cf.js";
-import {
-  InstructionExecutor,
-  InstructionExecutorConfig
-} from "@counterfactual/machine";
-import { ethers } from "ethers";
 import { EventEmitter } from "events";
+import firebase from "firebase";
 
 import { MultisigAddress, StateChannelInfo } from "./channel";
 
-// TODO: to be passed into the Node constructor
 export interface NodeOptions {
-  networkContext?: cf.legacy.network.NetworkContext;
-  signingService: ethers.Signer;
-  // TODO: https://firebase.google.com/support/guides/firebase-web
-  dbConnectionConfig?: any;
-  // TODO: Specifies which network the Node is being initialized for.
-  // The Node should be able to switch between networks while keeping its state
-  // for any networks it has been operating in.
-  networkID?: string;
+  channels?: Map<MultisigAddress, StateChannelInfo>;
+  messenger?: firebase.messaging.Messaging;
 }
 
 /**
@@ -27,19 +15,16 @@ export interface NodeOptions {
  * - connecting with a provided database to persistently store commitments
  * - registering a signing service
  */
-export class Node implements cf.legacy.node.ResponseSink {
+export class Node {
   private channels: Map<MultisigAddress, StateChannelInfo> = new Map();
+  public messenger!: firebase.messaging.Messaging;
 
-  // @ts-ignore
-  private instructionExecutor: InstructionExecutor;
-  constructor() {
-    this.instructionExecutor = new InstructionExecutor(
-      new InstructionExecutorConfig(this, Object.create(null), {})
-    );
-  }
-
-  sendResponse(response: cf.legacy.node.Response) {
-    console.log("sending response");
+  constructor(options: NodeOptions) {
+    // TODO: mock out messenger for tests so it can become a requirement,
+    // meaning this can throw on lack of messenger presence
+    if (options.messenger !== undefined) {
+      this.messenger = options.messenger;
+    }
   }
 
   // The following methods describe higher-level channel operations.
@@ -96,7 +81,7 @@ export class Node implements cf.legacy.node.ResponseSink {
    * @return An EventEmitter which emits events for this app so that the
    * consumer can be notified of app updates
    */
-  installApp(multisigAddress: string): EventEmitter {
+  proposeInstallApp(multisigAddress: string): EventEmitter {
     return new EventEmitter();
   }
   updateApp() {}

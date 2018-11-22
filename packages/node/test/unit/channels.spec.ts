@@ -16,11 +16,11 @@ describe("Basic channel operations and integrity on the Node", () => {
   );
 
   beforeEach(() => {
-    node = new Node();
+    node = new Node({});
   });
 
   it("can open a channel", () => {
-    // drop the error variable as it's not being checked
+    // drop the second returned variable as it's not being checked
     [result] = node.openChannel(channelAB);
     expect(result).toBeTruthy();
     expect(

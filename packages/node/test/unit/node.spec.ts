@@ -6,7 +6,7 @@ describe("Basic Node operations", () => {
   });
 
   it("can be instantiated", () => {
-    const node = new Node();
+    const node = new Node({});
     expect(node).toBeDefined();
   });
 });

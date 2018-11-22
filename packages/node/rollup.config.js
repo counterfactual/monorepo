@@ -1,3 +1,4 @@
+import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
@@ -29,6 +30,7 @@ export default [
       ...Object.keys(pkg.peerDependencies || {})
     ],
     plugins: [
+      builtins(),
       typescript({
         typescript: require("typescript"),
         tsconfig: "tsconfig.rollup.json"
