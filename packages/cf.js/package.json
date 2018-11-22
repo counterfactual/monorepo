@@ -4,7 +4,6 @@
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
-  "module": "dist/index.es.js",
   "iife": "dist/index-iife.js",
   "files": [
     "dist"
