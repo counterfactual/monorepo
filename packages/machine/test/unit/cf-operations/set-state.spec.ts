@@ -28,7 +28,7 @@ function constructSetStateData(signatures: ethers.utils.Signature[]): string {
       TEST_APP_STATE_HASH,
       TEST_LOCAL_NONCE,
       TEST_TIMEOUT,
-      cf.legacy.utils.signaturesToBytes(...signatures)
+      cf.utils.signaturesToBytes(...signatures)
     )
   );
 }
@@ -66,7 +66,7 @@ describe("OpSetState", () => {
   it("Should compute the correct hash to sign", () => {
     expect(operation.hashToSign()).toBe(
       ethers.utils.keccak256(
-        cf.legacy.utils.abi.encodePacked(
+        cf.utils.abi.encodePacked(
           ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
           [
             "0x19",

@@ -17,10 +17,12 @@
     "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "test": "jest --runInBand --detectOpenHandles --bail"
+    "test": "jest --runInBand --detectOpenHandles --bail",
+    "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest --runInBand"
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.2",
+    "@counterfactual/node-provider": "0.0.1",
     "@types/lodash": "^4.14.116",
     "@types/uuid": "^3.4.4",
     "jest": "^23.6.0",

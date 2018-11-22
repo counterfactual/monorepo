@@ -42,7 +42,7 @@ export abstract class MultiSendOp extends MultisigTxOp {
     ).cfAddress();
 
     const appStateHash = keccak256(
-      cf.legacy.utils.abi.encode(
+      cf.utils.abi.encode(
         ["address", "address", "uint256", "uint256"],
         [
           this.freeBalance.alice,

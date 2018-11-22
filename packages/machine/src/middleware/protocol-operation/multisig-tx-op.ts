@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export abstract class MultisigTxOp extends ProtocolOperation {
   abstract multisigInput(): MultisigInput;
@@ -19,7 +19,7 @@ export abstract class MultisigTxOp extends ProtocolOperation {
 
   public transaction(sigs: ethers.utils.Signature[]): Transaction {
     const multisigInput = this.multisigInput();
-    const signatureBytes = cf.legacy.utils.signaturesToSortedBytes(
+    const signatureBytes = cf.utils.signaturesToSortedBytes(
       this.hashToSign(),
       ...sigs
     );
