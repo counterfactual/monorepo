@@ -1,6 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-
-import { EventEmitter } from "events";
+import * as _ from "lodash";
 
 import { MultisigAddress, StateChannelInfo } from "./channel";
 
@@ -17,9 +16,6 @@ export interface NodeOptions {
  */
 export class Node {
   private channels: Map<MultisigAddress, StateChannelInfo> = new Map();
-  // TODO: the values need to be typed better, we're not storing AppDefinitions
-  // but AppInstances that will eventually get installed into a channel
-  private pendingInstallation: Map<string, cf.types.AppDefinition> = new Map();
 
   constructor(options: NodeOptions) {}
 
@@ -71,30 +67,17 @@ export class Node {
   // The following methods describe app-specific operations.
 
   /**
-   * Proposes an installation of an app into the specified channel.
-   * @param multisigAddress
-   * @param appDefinition
-   * @param proposeData
-   * @return tuple of (appInstanceID, EventEmitter) so that the caller can
-   * subscribe to events for the returned appInstanceID.
+   * Returns all of the apps installed across all of the channels in the Node.
    */
-  async proposeInstallApp(
-    multisigAddress: string,
-    appDefinition: string,
-    proposeData: object
-  ): Promise<[string, EventEmitter]> {
-    // TODO: construct new AppInstance, wrap EventEmitter around it, add to pendingInstallations
-    return ["appInstanceID", new EventEmitter()];
+  getApps(): cf.legacy.app.AppInstanceInfo[] {
+    const apps: cf.legacy.app.AppInstanceInfo[] = [];
+    this.channels.forEach(
+      (channel: StateChannelInfo, multisigAddress: string) => {
+        _.values(channel.appInstances).forEach(appInstance => {
+          apps.push(appInstance);
+        });
+      }
+    );
+    return apps;
   }
-  /**
-   * This assumes a pending installation is present with the ID of the
-   * AppInstance wanting to be installed.
-   */
-  async installApp(appId: string): Promise<[boolean, string]> {
-    // TODO: retrive pending installation, add the AppInstance to the respective
-    // channel, return success result of these operations
-    return [true, ""];
-  }
-  updateApp() {}
-  uninstallApp() {}
 }
