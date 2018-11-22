@@ -23,10 +23,10 @@ export class AppWager {
           </div>
           <form class="form">
             <input class="form__input" type="text" placeholder="Your name" />
-            <input class="form__input" type="text" placeholder="3 eth" />
-            <a href="./game.html" class="form__button">
-              Play!
-            </a>
+            <input class="form__input" type="text" placeholder="3 ETH" />
+            <stencil-route-link url="/game" class="form__button">
+              <span>Play!</span>
+            </stencil-route-link>
           </form>
         </div>
       </div>
