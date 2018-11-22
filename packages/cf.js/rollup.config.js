@@ -1,7 +1,9 @@
 import typescript from "rollup-plugin-typescript2";
+import resolve from "rollup-plugin-node-resolve";
 import json from "rollup-plugin-json";
 
 import pkg from "./package.json";
+
 const globals = {
   ethers: "ethers",
   lodash: "_"
@@ -32,6 +34,7 @@ export default {
     typescript({
       typescript: require("typescript")
     }),
+    resolve({}),
     json({
       include: [
         // FIXME: these shouldn't be required
