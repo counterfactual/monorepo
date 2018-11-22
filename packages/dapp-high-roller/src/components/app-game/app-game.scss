@@ -1,0 +1,35 @@
+.game {
+  padding: 1.5rem 1.5rem 0;
+}
+.player-info {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+}
+.player-info__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.player-info__status {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.player-info__status__color {
+  display: block;
+  width: 0.93rem;
+  height: 0.93rem;
+  border-radius: 50%;
+  background: #fff;
+}
+.player-info__status__color.black {
+  background: #424242;
+}
+.player-info__status__score {
+  display: block;
+  margin-left: 0.5rem;
+}
