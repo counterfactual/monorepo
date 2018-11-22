@@ -15,6 +15,13 @@ export default [
         sourcemap: true,
         format: "cjs",
         globals: globals
+      },
+      {
+        file: pkg.iife,
+        sourcemap: true,
+        name: "cfNode",
+        format: "iife",
+        globals: globals
       }
     ],
     external: [

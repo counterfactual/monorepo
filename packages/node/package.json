@@ -2,6 +2,7 @@
   "name": "@counterfactual/node",
   "version": "0.0.1",
   "main": "dist/index.js",
+  "iife": "dist/index.iife.js",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .rpt2_cache jest-cache build dist",
