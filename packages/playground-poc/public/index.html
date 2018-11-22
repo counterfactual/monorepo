@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/css/vex-theme-os.min.css">
+    <style>body { font-family: sans-serif; } fieldset { display: inline-block; } iframe { display: block }</style>
+  </head>
+  <body>
+    <fieldset>
+      <legend>Pick a user</legend>
+      <button onclick="playground.setSocket('0x1234')">Alice (0x1234)</button>
+      <button onclick="playground.setSocket('0x9876')">Bob (0x9876)</button>
+      <label id="current-user"></label>
+    </fieldset>
+    <fieldset>
+      <legend>Open a dApp</legend>
+      <span id="dapp-list"></span>
+    </fieldset>
+
+    <script src="https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vex-js/4.1.0/js/vex.combined.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/mini-node.js"></script>
+    <script src="/scripts/dapp.js"></script>
+    <script src="/scripts/playground.js"></script>
+
+    <script>
+      // Used for modal's UI.
+      vex.defaultOptions.className = 'vex-theme-os';
+
+      const playground = new Playground({
+        // TODO: How do we get a list of available apps?
+        '0x822c045f6F5e7E8090eA820E24A5f327C4E62c96': {
+          name: 'High Roller',
+          version: '0.0.1',
+          url: 'dapps/high-roller.html',
+          address: '0x822c045f6F5e7E8090eA820E24A5f327C4E62c96'
+        },
+        '0xd545e82792b6EF2000908F224275ED0456Cf36FA': {
+          name: 'Tic-Tac-Toe',
+          version: '0.0.1',
+          url: 'dapps/tic-tac-toe.html',
+          address: '0xd545e82792b6EF2000908F224275ED0456Cf36FA'
+        }
+      });
+
+      playground.showAppList();
+    </script>
+  </body>
+</html>
