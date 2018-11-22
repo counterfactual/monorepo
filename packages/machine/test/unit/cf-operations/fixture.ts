@@ -147,6 +147,6 @@ export function constructMultisigExecTransaction(
     value,
     transactionData,
     operation === "delegatecall" ? 1 : 0,
-    cf.legacy.utils.signaturesToBytes(...signatures)
+    cf.utils.signaturesToBytes(...signatures)
   );
 }
