@@ -1,10 +1,18 @@
 # Protocol Spec
 
-## Public JSON-RPC Methods
+## JSON-RPC calls
+
+Message fields:
+- `json-rpc`: set to `"2.0"`
+- `id`: set to a generated unique ID for this request
+- `method`: name of the method to call
+- `params`: array of parameters passed to the method call  
+
+## Methods
 
 | method         | params                                                       | result                                                                  |
 |----------------|--------------------------------------------------------------|-------------------------------------------------------------------------|
-| cf_getApps     | []                                                           | {id, definition, state, asset, myDeposit, peerDeposit, timeout}[]       |
+| cf_getApps     | []                                                           | list of {id, definition, state, asset, myDeposit, peerDeposit, timeout} |
 | cf_install     | [definition, state, asset, myDeposit, peerDeposit, timeout]  | {id}                                                                    |
 | cf_getState    | [id]                                                         | {state}                                                                 |
 | cf_getInfo     | [id]                                                         | {definition, asset, myDeposit, peerDeposit, timeout}                    |
