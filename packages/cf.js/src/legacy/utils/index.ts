@@ -5,17 +5,8 @@ import { FreeBalance } from "./free-balance";
 import { Nonce } from "./nonce";
 import { CanonicalPeerBalance, PeerBalance } from "./peer-balance";
 import * as serializer from "./serializer";
-import { signaturesToBytes, signaturesToSortedBytes } from "./signature";
 
-export {
-  CanonicalPeerBalance,
-  FreeBalance,
-  Nonce,
-  PeerBalance,
-  serializer,
-  signaturesToSortedBytes,
-  signaturesToBytes
-};
+export { CanonicalPeerBalance, FreeBalance, Nonce, PeerBalance, serializer };
 
 /**
  * Aliases to help code readability.

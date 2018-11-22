@@ -1,0 +1,58 @@
+<h1>Tic Tac Toe</h1>
+<button id="send-message">Play with someone</button>
+<script src="https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js"></script>
+<script src="/scripts/mini-cf.js"></script>
+<script>
+  // NO SOCKETS HERE!
+  (async () => {
+    const nodeProvider = new NodeProvider();
+    await nodeProvider.connect();
+
+    const client = new cf.Client(nodeProvider);
+
+    // client.on('proposeInstall', (data) => {
+      // console.log('proposeInstall');
+    // });
+    // client.on('install', function () {});
+    // client.on('rejectInstall', function (data) {
+      // nodeProvider.emit('rejectedInstall', { peerAddress: data.fromAddress });
+    // });
+    client.once('install', () => {
+      // This should mean we can start the game for real!
+      document.getElementById('send-message').style.display = 'none';
+      document.write('<h1>Installed Tic-Tac-Toe!</h1>');
+    });
+
+    const manifest = {
+      // AppDefinition goes here...
+      // TODO: Where does this info go? How deep in the communication flow they travel?
+      // TODO: Should add all the manifest properties. How to load the manifest? Build process?
+      name: 'Tic-Tac-Toe',
+      version: '0.0.1',
+      url: 'dapps/tic-tac-toe.html',
+      address: '0xd545e82792b6EF2000908F224275ED0456Cf36FA'
+    };
+
+    const appFactory = client.createAppFactory(manifest);
+
+    // Wallet broadcasts through the Node, tells the world
+    // "HEY! someone's installing something", via Firebase.
+    // It should fall under Hub's responsability.
+
+    // When we send proposeInstall, we talk to the Hub.
+    // The Hub will route the message for us.
+
+    var ui = {
+      sendMessage: document.getElementById('send-message')
+    };
+
+    ui.sendMessage.addEventListener('click', function () {
+      nodeProvider.emit('requestPlayer', { appDefinition: manifest });
+      nodeProvider.once('matchedPlayer', (data) => {
+        appFactory.proposeInstall(data.peerAddress, {
+          // Terms goes here...
+        });
+      });
+    });
+  })();
+</script>
