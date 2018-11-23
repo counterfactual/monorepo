@@ -4,7 +4,7 @@ class Playground {
     this.socket = null;
     this.user = null;
     this.appManifests = appManifests;
-    this.node = cfNode.create();
+    this.node = new cfNode.Node(); // fix instantiation style
     this.messageQueue = {};
   }
 
@@ -13,33 +13,29 @@ class Playground {
   }
 
   flushMessageQueue(address) {
-    (this.messageQueue[address] || []).forEach(message =>
-      this.iframes[address].port.postMessage(message)
-    );
+    (this.messageQueue[address] || []).forEach((message) => this.iframes[address].port.postMessage(message));
   }
 
   showAppList() {
-    Object.keys(this.appManifests).forEach(appID => {
-      const button = document.createElement("button");
+    Object.keys(this.appManifests).forEach((appID) => {
+      const button = document.createElement('button');
       const manifest = this.appManifests[appID];
       button.innerText = manifest.name;
-      button.addEventListener("click", () =>
-        this.loadApp(manifest, document.body)
-      );
-      document.getElementById("dapp-list").appendChild(button);
+      button.addEventListener('click', () => this.loadApp(manifest, document.body));
+      document.getElementById('dapp-list').appendChild(button);
     });
   }
 
   setSocket(address) {
-    this.socket = io.connect("http://localhost:8080");
-    this.socket.on("connect", this.relayIdentity.bind(this, address));
+    this.socket = io.connect('http://localhost:8080');
+    this.socket.on('connect', this.relayIdentity.bind(this, address));
     this.user = address;
-    this.socket.on("message", async data => await this.passMessageToDapp(data));
-    document.getElementById("current-user").innerText = address;
+    this.socket.on('message', async (data) => await this.passMessageToDapp(data));
+    document.getElementById('current-user').innerText = address;
   }
 
   relayIdentity(address) {
-    this.socket.emit("identity", { address });
+    this.socket.emit('identity', { address });
   }
 
   reply(originalMessage, data = {}) {
@@ -48,14 +44,12 @@ class Playground {
     message.peerAddress = originalMessage.fromAddress;
     delete message.fromAddress;
 
-    this.socket.emit("message", message);
+    this.socket.emit('message', message);
   }
 
   async passMessageToDapp(data) {
     const address = data.appDefinition.address;
-    const dapp =
-      this.iframes[address] ||
-      (await this.loadApp(data.appDefinition, document.body, true));
+    const dapp = this.iframes[address] || await this.loadApp(data.appDefinition, document.body, true);
 
     // Playground relays to the proper iframe.
     if (!dapp.port) {
@@ -74,7 +68,7 @@ class Playground {
       return;
     }
 
-    const iframe = document.createElement("iframe");
+    const iframe = document.createElement('iframe');
 
     iframe.id = manifest.address;
     iframe.src = manifest.url;
@@ -93,36 +87,29 @@ class Playground {
   async bindAppEvents(dapp) {
     await dapp.open(this.node);
 
-    dapp.events.on("proposeInstall", data => {
+    dapp.events.on('proposeInstall', (data) => {
       vex.dialog.confirm({
         message: `Do you want to install ${data.appDefinition.name}?`,
-        callback: value => {
+        callback: (value) => {
           if (value) {
-            this.reply(data, { type: "install" });
-            this.socket.emit(
-              "message",
-              Object.assign({}, data, { type: "install" })
-            );
+            this.reply(data, { type: 'install' });
+            this.socket.emit('message', Object.assign({}, data, { type: 'install' }));
           } else {
-            this.reply(data, { type: "rejectInstall" });
+            this.reply(data, { type: 'rejectInstall' });
           }
         }
       });
     });
 
-    dapp.events.on("install", async data => {
-      await this.loadApp(
-        data.appDefinition,
-        document.body,
-        !renderAfterInstall
-      );
+    dapp.events.on('install', async (data) => {
+      await this.loadApp(data.appDefinition, document.body, !renderAfterInstall);
     });
 
-    dapp.events.on("rejectInstall", data => {
+    dapp.events.on('rejectInstall', (data) => {
       vex.dialog.alert(`${data.fromAddress} rejected your install proposal.`);
     });
 
-    dapp.events.once("ready", () => {
+    dapp.events.once('ready', () => {
       this.flushMessageQueue(dapp.manifest.address);
     });
   }
