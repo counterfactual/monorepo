@@ -8,37 +8,37 @@
             - Refer to `node-provider` package
     - Instance methods
         - `async getAppInstances(): AppInstance[]`
-            - [Node method](#getappinstances)
+            - [Node method](#method-getappinstances)
         - `async install(appInstanceId: AppInstanceID): Promise<AppInstance>`
-           - [Node method](#install)
+            - [Node method](#method-install)
         - `async rejectInstall(appInstanceId: AppInstanceID)`
-            - [Node method](#rejectinstall)
+            - [Node method](#method-rejectinstall)
     - Lifecycle
         - `on(eventType, callback: Function)`
             - `install`
-                - [Node event](#install-event)
+                - [Node event](#event-install)
                 - Params: `(appInstance: AppInstance)`
             - `rejectInstall`
-                - [Node event](#rejectinstall-event)
+                - [Node event](#event-rejectinstall)
                 - Params: `(appInstance: AppInstance)`
             - `updateState`
-                - [Node event](#rejectinstall-event)
+                - [Node event](#event-rejectinstall)
                 - Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `proposeState`
-                - [Node event](#proposestate-event)
+                - [Node event](#event-proposestate)
                 - Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `rejectState`
-                - [Node event](#rejectstate-event)¡
+                - [Node event](#event-rejectstate)
                 - Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
-                - [Node event](#uninstall-event)
+                - [Node event](#event-uninstall)
                 - Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
 - `AppFactory`
     - Properties
         - `provider: Provider`
         - `appId: string`
             - Address of the on-chain App Definition contract
-        - `encodings: `[`AppABIEncodings`](#appabiencodings)
+        - `encodings:`[`AppABIEncodings`](#appabiencodings)
     - Instance methods
         - `async proposeInstall({
                 peerAddress: Address,
@@ -47,22 +47,22 @@
                 peerDeposit: BigNumberish,
                 initialState: AppState
            }): Promise<AppInstanceID>`
-           - [Node method](#proposeinstall)
+           - [Node method](#method-proposeinstall)
 - `AppInstance`
-    - Extends [`AppInstance` data type](#appinstance)
+    - Extends [`AppInstanceInfo` data type](#appinstance)
     - Properties
         - `manifestUri: string`
             - TODO
     - Instance methods
         - `async takeAction(action: AppAction): Promise<AppState>`
-            - [Node method](#takeaction)
+            - [Node method](#method-takeaction)
             - Returns ABI decoded representation of the latest signed state of the app.
             - Throws error if app definition "appActionEncoding" is not defined
         - `async uninstall()`
-            - [Node method](#uninstall)
+            - [Node method](#method-uninstall)
             - Uninstall the app instance
         - `async getState(): AppState`
-            - [Node method](#getstate)
+            - [Node method](#method-getstate)
             - Get the latest signed state
         - `async getManifest(): AppManifest`
             - TODO
@@ -79,13 +79,13 @@
         - `on(eventType, callback: Function)`
             - eventTypes
                 - `updateState`
-                    - [Node event](#updatestate-event)
+                    - [Node event](#event-updatestate)
                 - `uninstall`
-                    - [Node event](#uninstall)
+                    - [Node event](#event-uninstall)
                 - `proposeState`
-                    - [Node event](#proposestate-event)
+                    - [Node event](#event-proposestate)
                 - `rejectState`
-                    - [Node event](#rejectstate-event)
+                    - [Node event](#event-rejectstate)
 - `types`
     - Everything under [Data Types](#data-types) except `AppInstance` 
     - `AppManifest`
@@ -100,7 +100,7 @@ Node Protocol
 Public Methods
 --------------
 
-#### getAppInstances
+### Method: `getAppInstances`
 
 Returns **all** app instances currently installed on the Node. 
 
@@ -110,7 +110,7 @@ Params: `[]`
 
 Result: list of [AppInstance](#appinstance)
 
-#### proposeInstall
+### Method: `proposeInstall`
 
 Generate an app instance ID given details about an app installation.  
 
@@ -119,9 +119,9 @@ Params:
     - Address of the peer to install the app with
 - `appId: string` 
     - On-chain address of App Definition contract
-- `abiEncodings: `[`AppABIEncodings`](#appabiencodings)
+- `abiEncodings:`[`AppABIEncodings`](#appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset: `[`BlockchainAsset`](#blockchainasset)
+- `asset:`[`BlockchainAsset`](#blockchainasset)
     - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
@@ -129,7 +129,7 @@ Params:
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `initialState: `[`AppState`](#appstate)
+- `initialState:`[`AppState`](#appstate)
     - Initial state of app instance
     
 Result: 
@@ -139,7 +139,7 @@ Result:
 Errors: (TODO)
 - Not enough funds
 
-#### rejectInstall
+### Method: `rejectInstall`
 
 Reject an app instance installation. 
 
@@ -152,7 +152,7 @@ Result: "OK"
 Errors: (TODO)
 - Proposed app instance doesn't exist
 
-#### install
+### Method: `install`
 
 Install an app instance. 
 
@@ -162,13 +162,13 @@ Params:
     
 
 Result:
-- `appInstance: `[`AppInstance`](#appinstance)
+- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
     - Successfully installed app instance
 
 Errors: (TODO)
 - Counterparty rejected installation
 
-#### getState
+### Method: `getState`
 
 Get the latest state of an app instance.
 
@@ -177,14 +177,14 @@ Params:
     - Unique ID of the app instance 
 
 Result:
-- `state: `[`AppState`](#appstate)
+- `state:`[`AppState`](#appstate)
     - Latest state of the app instance
   
 Errors: (TODO)
 - App not installed
 
 
-#### getAppInstanceDetails
+### Method: `getAppInstanceDetails`
 
 Get details of an app instance.
 
@@ -193,11 +193,11 @@ Params:
     - Unique ID of the app instance 
 
 Result:
-- `appInstance: `[`AppInstance`](#appinstance)
+- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
     - App instance details
 
 
-#### takeAction
+### Method: `takeAction`
 
 Take action on current app state to advance it to a new state.
 
@@ -205,15 +205,16 @@ Params:
 - `appInstanceId: string`
     - Unique ID of the app instance 
     - Action to take on the current state 
+- `action:`
 
 Result:
-- `newState: `[`AppState`](#appstate)
+- `newState:`[`AppState`](#appstate)
     - New app state
 
 Errors: (TODO)
 - Illegal action
 
-#### uninstall
+### Method: `uninstall`
 
 Uninstall an app instance, paying out users according to the latest signed state.
 
@@ -230,15 +231,15 @@ Result:
 Errors: (TODO)
 - App state not terminal  
 
-#### proposeState
+### Method: `proposeState`
 
 TODO
 
-#### acceptState
+### Method: `acceptState`
 
 TODO
 
-#### rejectState
+### Method: `rejectState`
 
 TODO
 
@@ -246,57 +247,57 @@ TODO
 Events
 ------
 
-#### install event
+### Event: `install`
 
 Fired if new app instance was successfully installed.
 
 Params:
-- `appInstance: `[`AppInstance`](#appinstance)
+- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
     - Newly installed app instance
 
-#### rejectInstall event
+### Event: `rejectInstall`
 
 Fired if installation of a new app instance was rejected.
 
 Params:
-- `appInstance: `[`AppInstance`](#appinstance)
+- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
     - Rejected app instance
 
-#### updateState event
+### Event: `updateState`
 
 Fired if app state is successfully updated.
 
 Params:
 - `appInstanceId: string`
     - Unique ID of app instance
-- `newState: `[`AppState`](#appstate)
-- `oldState: `[`AppState`](#appstate)
-- `action?: `[`AppAction`](#appaction)
+- `newState:`[`AppState`](#appstate)
+- `oldState:`[`AppState`](#appstate)
+- `action?:`[`AppAction`](#appaction)
     - Optional action that was taken to advance from the old state to the new state
 
-#### uninstall event
+### Event: `uninstall`
 
 Fired if app instance is successfully uninstalled
 
 Params:
-- `appInstance: `[`AppInstance`](#appinstance)
+- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
     - Uninstalled app instance
 - `myPayout: BigNumber`
     - Amount of the asset paid out to this user 
 - `peerPayout: BigNumber`
     - Amount of the asset paid out to peer
 
-#### proposeState event
+### Event: `proposeState`
 
 TODO
 
-#### rejectState event
+### Event: `rejectState`
 
 TODO
 
 ### Data Types
 
-#### `AppInstance`
+### `AppInstanceInfo`
 
 An instance of an installed app.
 
@@ -305,9 +306,9 @@ An instance of an installed app.
 - `appId: string` 
     - Unique ID for this app
     - Currently corresponds to on-chain address of App Definition contract
-- `abiEncodings: `[`AppABIEncodings`](#appabiencodings)
+- `abiEncodings:`[`AppABIEncodings`](#appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset: `[`BlockchainAsset`](#blockchainasset)
+- `asset:`[`BlockchainAsset`](#blockchainasset)
     - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
@@ -316,14 +317,14 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
    
-#### `BlockchainAsset`
+### `BlockchainAsset`
 - `assetType: number`
     - The type of the asset.
     - Set 0 for ETH, 1 for ERC20 token, 2 for Other.
 - `token?: string`
     - Optional address of token contract if assetType is set to 1.
 
-#### `AppABIEncodings`
+### `AppABIEncodings`
 - `stateEncoding: string` 
     - ABI encoding of the app state
 - `actionEncoding?: string`
@@ -331,12 +332,12 @@ An instance of an installed app.
     - If left blank, instances of the app will only be able to update state using [`proposeState`](#proposestate)
     - If supplied, instances of this app will also be able to update state using [`takeAction`](#takeaction) 
 
-#### AppState
+### AppState
 
 - Plain Old Javascript Object representation of the state of an app instance.
 - ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#appabiencodings).
 
-#### AppAction
+### AppAction
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#appabiencodings).
