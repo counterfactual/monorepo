@@ -13,6 +13,7 @@ const LIGHT_PATH = "./assets/images/dice/Light/Dice-Light-0";
 export class AppGame {
   @Prop() myName: string = "Facundo";
   @Prop() opponentName: string = "John";
+  @Prop() betAmount: string = "3 ETH";
 
   @State() gameState: GameState = GameState.Play;
   @State() myRoll: number[] = [1, 1];
@@ -68,26 +69,10 @@ export class AppGame {
               <img src={`${DARK_PATH}${this.opponentRoll[1]}.svg`} alt="" />
             </div>
           </div>
-          {this.gameState === GameState.Play ? (
-            <div class="divider">
-              <div class="divider__status divider__status--turn">Your Turn</div>
-            </div>
-          ) : this.gameState === GameState.Won ? (
-            <div class="divider">
-              <div class="divider__status divider__status--turn">You Won!</div>
-            </div>
-          ) : this.gameState === GameState.Lost ? (
-            <div class="divider">
-              <div class="divider__status divider__status--turn">You Lost!</div>
-            </div>
-          ) : (
-            <div class="divider">
-              <div class="divider__status divider__status--turn">
-                It's a tie!
-              </div>
-            </div>
-          )}
-
+          <app-game-status
+            gameState={this.gameState}
+            betAmount={this.betAmount}
+          />
           <div class="player">
             <div class="player-info">
               <span class="player-info__name">{this.myName}</span>
