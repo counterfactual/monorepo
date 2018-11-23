@@ -1,5 +1,4 @@
-import { ethers } from "ethers";
-import * as _ from "lodash";
+import * as ethers from "ethers";
 
 import { FreeBalance } from "./free-balance";
 import { Nonce } from "./nonce";
@@ -31,5 +30,5 @@ export async function mineBlocks(
   n: number,
   provider: ethers.providers.JsonRpcProvider
 ) {
-  _.times(n, async () => await mineOneBlock(provider));
+  Array.from({ length: n }).forEach(async () => await mineOneBlock(provider));
 }
