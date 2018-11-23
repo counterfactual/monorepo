@@ -17,7 +17,7 @@ export default {
     }
   ],
   plugins: [
-    typescript({}),
+    typescript(),
     json({
       include: [
         // FIXME: these shouldn't be required

@@ -6,7 +6,7 @@ import {
   QueryType
 } from "@counterfactual/node-provider";
 
-import * as uuid from "uuid";
+import cuid from "cuid";
 
 import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
@@ -58,7 +58,7 @@ export class Provider {
     messageType: NodeMessageType,
     data: any
   ): Promise<NodeMessage> {
-    const requestId = uuid.v4();
+    const requestId = cuid();
     return new Promise<NodeMessage>((resolve, reject) => {
       this.requestListeners[requestId] = msg => {
         if (msg.messageType === NodeMessageType.ERROR) {

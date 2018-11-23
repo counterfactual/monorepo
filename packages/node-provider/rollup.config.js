@@ -9,6 +9,11 @@ export default [
       {
         file: pkg.main,
         format: "cjs"
+      },
+      {
+        file: pkg.iife,
+        name: "nodeProvider",
+        format: "iife"
       }
     ],
     plugins: [

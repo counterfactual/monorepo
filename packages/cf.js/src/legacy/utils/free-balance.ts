@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import ethers from "ethers";
 
 import { AppInterface, Terms } from "../app";
 import { NetworkContext } from "../network";

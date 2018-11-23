@@ -1,5 +1,4 @@
-import { ethers } from "ethers";
-import * as _ from "lodash";
+import ethers from "ethers";
 
 import { Terms } from "./app";
 import { AbiEncodings, AppDefinition } from "./types";
@@ -17,7 +16,7 @@ export class AppInstance {
     abi: string | (string | ethers.utils.ParamType)[]
   ): AbiEncodings {
     const iface = new ethers.utils.Interface(abi);
-    const appFunctionNames = _.keys(iface.functions).filter(fn => {
+    const appFunctionNames = Object.keys(iface.functions).filter(fn => {
       return fn.indexOf("(") === -1;
     });
     const appActions = appFunctionNames.map(fn => {

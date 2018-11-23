@@ -1,5 +1,4 @@
-import { ethers } from "ethers";
-import * as _ from "lodash";
+import ethers from "ethers";
 
 import { Address } from "./utils";
 
@@ -43,7 +42,7 @@ export class NetworkContext {
 
   public linkedBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
-    for (const contractName of _.keys(this.contractToVar)) {
+    for (const contractName of Object.keys(this.contractToVar)) {
       const regex = new RegExp(`__${contractName}_+`, "g");
       const address = this[this.contractToVar[contractName]].substr(2);
       bytecode = bytecode.replace(regex, address);

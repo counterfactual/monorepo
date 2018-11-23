@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import ethers from "ethers";
 
 import { Bytes32 } from "../simple-types";
 

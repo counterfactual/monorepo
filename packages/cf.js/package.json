@@ -20,10 +20,6 @@
     "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest --runInBand"
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.0.2",
-    "@counterfactual/node-provider": "0.0.1",
-    "@types/lodash": "^4.14.116",
-    "@types/uuid": "^3.4.4",
     "jest": "^23.6.0",
     "rollup": "^0.67.0",
     "rollup-plugin-typescript2": "^0.18.0",
@@ -31,11 +27,10 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "ethers": "^4.0.4",
-    "lodash": "^4.17.10",
-    "rollup-plugin-json": "^3.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
-    "uuid": "^3.3.2"
+    "@counterfactual/contracts": "0.0.2",
+    "@counterfactual/node-provider": "0.0.1",
+    "cuid": "^2.1.4",
+    "ethers": "^4.0.4"
   },
   "jest": {
     "verbose": false,
