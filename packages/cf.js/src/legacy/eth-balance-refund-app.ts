@@ -1,5 +1,5 @@
 import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
-import ethers from "ethers";
+import * as ethers from "ethers";
 
 import { Terms } from "./app";
 import { AppInstance } from "./app-instance";

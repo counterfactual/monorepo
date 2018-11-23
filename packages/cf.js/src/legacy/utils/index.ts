@@ -1,4 +1,4 @@
-import ethers from "ethers";
+import * as ethers from "ethers";
 
 import { FreeBalance } from "./free-balance";
 import { Nonce } from "./nonce";

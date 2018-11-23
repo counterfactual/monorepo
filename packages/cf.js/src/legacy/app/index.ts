@@ -1,5 +1,5 @@
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import ethers from "ethers";
+import * as ethers from "ethers";
 
 import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
