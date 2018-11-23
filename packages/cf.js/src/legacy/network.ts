@@ -42,7 +42,7 @@ export class NetworkContext {
 
   public linkedBytecode(unlinkedBytecode: string): string {
     let bytecode = unlinkedBytecode;
-    for (const contractName of Object.keys(this.contractToVar)) {
+    for (const contractName in this.contractToVar) {
       const regex = new RegExp(`__${contractName}_+`, "g");
       const address = this[this.contractToVar[contractName]].substr(2);
       bytecode = bytecode.replace(regex, address);
