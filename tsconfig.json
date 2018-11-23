@@ -14,8 +14,8 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "lib": ["es2015", "es2017", "dom", "esnext.asynciterable"],
-    "target": "es5",
+    "lib": ["es2017", "dom", "esnext.asynciterable"],
+    "target": "es2017",
     "module": "commonjs",
     "sourceMap": true,
     "typeRoots": [
