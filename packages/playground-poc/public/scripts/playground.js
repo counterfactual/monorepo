@@ -4,7 +4,7 @@ class Playground {
     this.socket = null;
     this.user = null;
     this.appManifests = appManifests;
-    this.node = new cfNode.Node(); // fix instantiation style
+    this.node = new Node();
     this.messageQueue = {};
   }
 

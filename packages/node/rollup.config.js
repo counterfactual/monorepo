@@ -2,10 +2,6 @@ import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
-const globals = {
-  ethers: "ethers",
-  lodash: "_"
-};
 
 export default [
   {
@@ -14,15 +10,14 @@ export default [
       {
         file: pkg.main,
         sourcemap: true,
-        format: "cjs",
-        globals: globals
+        format: "cjs"
       },
       {
         file: pkg.iife,
         sourcemap: true,
-        name: "cfNode",
+        name: "window",
         format: "iife",
-        globals: globals
+        extend: true
       }
     ],
     external: [
