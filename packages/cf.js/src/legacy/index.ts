@@ -3,7 +3,6 @@ import { AppInstance } from "./app-instance";
 import { AppInstanceClient } from "./app-instance-client";
 import * as channel from "./channel";
 import { Client } from "./client";
-import * as constants from "./constants";
 import { NotificationType } from "./mixins/observable";
 import * as network from "./network";
 import * as node from "./node";
@@ -16,7 +15,6 @@ export {
   AppInstanceClient,
   channel,
   Client,
-  constants,
   network,
   node,
   NotificationType,
