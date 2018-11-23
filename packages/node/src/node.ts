@@ -24,8 +24,6 @@ export class Node {
 
   constructor(options: NodeOptions) {}
 
-  // The following methods describe higher-level channel operations.
-
   /**
    * Given a channel, this adds said channel to the state of the Node if a
    * channel with the same multisig address does not exist.
@@ -70,6 +68,21 @@ export class Node {
   }
 
   /**
+   * Returns all of the apps installed across all of the channels in the Node.
+   */
+  getApps(): cf.legacy.app.AppInstanceInfo[] {
+    const apps: cf.legacy.app.AppInstanceInfo[] = [];
+    this.channels.forEach(
+      (channel: StateChannelInfo, multisigAddress: string) => {
+        _.values(channel.appInstances).forEach(appInstance => {
+          apps.push(appInstance);
+        });
+      }
+    );
+    return apps;
+  }
+
+  /**
    * Opens a connection specifically for this app with the consumer of this
    * node.
    * @returns An EventEmitter to emit events related to this app for consumers
@@ -85,21 +98,6 @@ export class Node {
   // The following methods are private.
 
   /**
-   * Returns all of the apps installed across all of the channels in the Node.
-   */
-  private getApps(): cf.legacy.app.AppInstanceInfo[] {
-    const apps: cf.legacy.app.AppInstanceInfo[] = [];
-    this.channels.forEach(
-      (channel: StateChannelInfo, multisigAddress: string) => {
-        _.values(channel.appInstances).forEach(appInstance => {
-          apps.push(appInstance);
-        });
-      }
-    );
-    return apps;
-  }
-
-  /**
    * Sets up listeners for relevant events for the given Emitter.
    * @param appInstanceEventEmitter
    */
@@ -110,10 +108,6 @@ export class Node {
 
     appInstanceEventEmitter.on("install", (installData: object) => {
       // TODO: add application to node and return AppInstance
-    });
-
-    appInstanceEventEmitter.on("getApps", () => {
-      appInstanceEventEmitter.emit("receiveApps", this.getApps());
     });
   }
 }

@@ -12,10 +12,7 @@ describe("Apps", () => {
   });
 
   it("can get empty list of apps", () => {
-    const appInstanceEventEmitter = node.openApp("1");
-    appInstanceEventEmitter.on("receiveApps", apps => {
-      expect(apps).toEqual([]);
-    });
-    appInstanceEventEmitter.emit("getApps");
+    const apps = node.getApps();
+    expect(apps).toEqual([]);
   });
 });
