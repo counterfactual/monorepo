@@ -30,5 +30,5 @@ export async function mineBlocks(
   n: number,
   provider: ethers.providers.JsonRpcProvider
 ) {
-  [...Array(n)].forEach(async () => await mineOneBlock(provider));
+  Array.from({ length: n }).forEach(async () => await mineOneBlock(provider));
 }
