@@ -5,7 +5,7 @@ import * as common from "./common";
 import { ProtocolOperation, Transaction } from "./types";
 
 const { keccak256 } = ethers.utils;
-const { abi } = cf.legacy.utils;
+const { abi } = cf.utils;
 
 export class OpSetState extends ProtocolOperation {
   constructor(
@@ -59,7 +59,7 @@ export class OpSetState extends ProtocolOperation {
       appCfAddr,
       this.appLocalNonce,
       this.timeout,
-      cf.legacy.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
+      cf.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
     );
     return new Transaction(to, val, data);
   }

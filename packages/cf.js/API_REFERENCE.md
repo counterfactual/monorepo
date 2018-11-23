@@ -10,22 +10,25 @@
     - Lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
-                - `proposeInstall(proposal: {appInstanceId, appDefinition, terms}, function reject())`
                 - `install(appInstance)`
-                - `rejectInstall(proposal: {appInstanceId, appDefinition, terms})`
+                - `rejectInstall(appInstance)`
+                - `updateState(appInstance, oldState, newState, action?)`
+                - `uninstall(appInstance)`
+                - `proposeState(appInstance, oldState, newState)`
 - `AppFactory`
     - Properties
         - `appDefinition: AppDefinition`
     - Instance methods
+        // TODO: We're missing a "rejectInstall" method here.
         - `async proposeInstall({
                 peerAddress: Address,
-                asset: Asset,
-                myDeposit: BigNumber,
-                peerDeposit: BigNumber,
-                initialState: object
+                asset: BlockchainAsset,
+                myDeposit: BigNumberish,
+                peerDeposit: BigNumberish,
+                initialState: any
            }): Promise<AppInstanceID>`
         - `async install(appInstanceId: AppInstanceID): Promise<AppInstance>`
-        - `getApps(): AppInstance[]`
+        - `async getAppInstances(): Promise<AppInstance[]>`
 - `AppInstance`
     - Properties
         - `id: AppInstanceID` — Identifier for this specific app instance
@@ -46,11 +49,11 @@
         - `async uninstall()`
             - Uninstall the app
         - `async getManifest(): AppManifest`
-        - `async getState(): object`
+        - `async getState(): any`
     - App lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
-                - `stateUpdate(newState)`
+                - `updateState(newState)`
                 - `uninstall()`
                 - `proposeState(newState)`
 - `types`
@@ -62,16 +65,16 @@
     - `AppInstanceID`: string
     - `AppState`: object, a POJO describing app state, encoded using app state encoding
     - `AppAction`: object, a POJO describing app action, encoded using app action encoding
-    - `Asset`:
+    - `BlockchainAsset`:
         - `assetType`: ETH or ERC20 or OTHER
         - `token`: Address of token contract if applicable
     - `AppTerms`:
-        - `asset: Asset`
+        - `asset: BlockchainAsset`
         - `limit`: Funds limit committed to app
     - `AppDefinition`
         - `address`: on-chain address for the app definition contract
         - `appStateEncoding`: ABI encoding for App State.
-        - `appActionEncoding`: Optional ABI encoding for App Action. 
+        - `appActionEncoding`: Optional ABI encoding for App Action.
             - Leave empty to signify that app state updates using state proposals, not actions.
     - `AppManifest`
         - `name`: human-readable name of app e.g. "TicTacToe"
