@@ -207,8 +207,8 @@ Take action on current app state to advance it to a new state.
 Params:
 - `appInstanceId: string`
     - Unique ID of the app instance 
-    - Action to take on the current state 
 - `action:`[`AppAction`](#data-type-appaction)
+    - Action to take on the current state 
 
 Result:
 - `newState:`[`AppState`](#data-type-appstate)
