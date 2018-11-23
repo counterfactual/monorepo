@@ -21,7 +21,7 @@ export class AppGame {
   @State() myScore: number = 0;
   @State() opponentScore: number = 0;
 
-  handleRoll() {
+  handleRoll(): void {
     this.myRoll = [
       1 + Math.floor(Math.random() * Math.floor(6)),
       1 + Math.floor(Math.random() * Math.floor(6))
@@ -30,23 +30,20 @@ export class AppGame {
       1 + Math.floor(Math.random() * Math.floor(6)),
       1 + Math.floor(Math.random() * Math.floor(6))
     ];
-    console.log(
-      `Lets roll! Mine: ${this.myRoll} - Opponent: ${this.opponentRoll}`
-    );
     const totalMyRoll = this.myRoll[0] + this.myRoll[1];
     const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
     if (totalMyRoll > totalOpponentRoll) {
-      console.log("You won :)");
       this.myScore += 1;
       this.gameState = GameState.Won;
     } else if (totalMyRoll < totalOpponentRoll) {
-      console.log("You lost :(");
       this.opponentScore += 1;
       this.gameState = GameState.Lost;
     } else {
-      console.log("Its a tie :|");
       this.gameState = GameState.Tie;
     }
+  }
+  handleRematch(): void {
+    this.gameState = GameState.Play;
   }
 
   render() {
@@ -88,11 +85,22 @@ export class AppGame {
             </div>
           </div>
 
-          <div class="actions">
-            <button class="btn btn--center" onClick={e => this.handleRoll()}>
-              Roll your dice!
-            </button>
-          </div>
+          {this.gameState === GameState.Play ? (
+            <div class="actions">
+              <button class="btn btn--center" onClick={() => this.handleRoll()}>
+                Roll your dice!
+              </button>
+            </div>
+          ) : (
+            <div class="actions">
+              <stencil-route-link url="/wager">
+                <button class="btn btn--exit">Exit</button>
+              </stencil-route-link>
+              <button class="btn" onClick={() => this.handleRematch()}>
+                Rematch
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
