@@ -4,7 +4,7 @@ class Playground {
     this.socket = null;
     this.user = null;
     this.appManifests = appManifests;
-    this.node = new cfNode.Node();
+    this.node = cfNode.create();
     this.messageQueue = {};
   }
 
