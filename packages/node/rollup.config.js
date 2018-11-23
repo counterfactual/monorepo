@@ -1,7 +1,10 @@
-import builtins from "rollup-plugin-node-builtins";
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
+
+const globals = {
+  "eventemitter3": "EventEmitter3"
+}
 
 export default [
   {
@@ -10,14 +13,16 @@ export default [
       {
         file: pkg.main,
         sourcemap: true,
-        format: "cjs"
+        format: "cjs",
+        globals: globals
       },
       {
         file: pkg.iife,
         sourcemap: true,
         name: "window",
         format: "iife",
-        extend: true
+        extend: true,
+        globals: globals
       }
     ],
     external: [
@@ -25,9 +30,7 @@ export default [
       ...Object.keys(pkg.peerDependencies || {})
     ],
     plugins: [
-      builtins(),
       typescript({
-        typescript: require("typescript"),
         tsconfig: "tsconfig.rollup.json"
       })
     ]

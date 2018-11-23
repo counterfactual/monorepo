@@ -15,14 +15,14 @@
   "devDependencies": {
     "@types/node": "^10.9.3",
     "rollup": "^0.67.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/machine": "0.0.1"
+    "@counterfactual/machine": "0.0.1",
+    "eventemitter3": "^3.1.0"
   },
   "jest": {
     "bail": true,

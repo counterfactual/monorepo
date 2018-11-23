@@ -1,5 +1,6 @@
 import * as cf from "@counterfactual/cf.js";
-import { EventEmitter } from "events";
+
+import EventEmitter from "eventemitter3";
 
 import { MultisigAddress, StateChannelInfo } from "./channel";
 
