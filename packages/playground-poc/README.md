@@ -8,5 +8,5 @@ node server
 ```
 open
 ```
-localhost:8080
+localhost:8000
 ```
