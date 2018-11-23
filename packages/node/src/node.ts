@@ -1,6 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
 import { EventEmitter } from "events";
-import * as _ from "lodash";
 
 import { MultisigAddress, StateChannelInfo } from "./channel";
 
@@ -25,7 +24,7 @@ export class Node {
     const apps: cf.legacy.app.AppInstanceInfo[] = [];
     this.channels.forEach(
       (channel: StateChannelInfo, multisigAddress: string) => {
-        _.values(channel.appInstances).forEach(appInstance => {
+        Object.values(channel.appInstances).forEach(appInstance => {
           apps.push(appInstance);
         });
       }
