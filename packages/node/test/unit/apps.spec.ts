@@ -3,7 +3,7 @@ import { Node } from "../../src/node";
 describe("Apps", () => {
   let node: Node;
   beforeEach(() => {
-    node = new Node({});
+    node = new Node();
   });
 
   it("can open a connection with an app", () => {

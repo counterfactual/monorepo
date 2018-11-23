@@ -1,5 +1,5 @@
-import { Node, NodeOptions } from "./node";
+import { Node } from "./node";
 
-export function create(options: NodeOptions) {
-  return new Node(options);
+export function create() {
+  return new Node();
 }
