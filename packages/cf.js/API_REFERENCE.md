@@ -36,7 +36,9 @@
 - `AppFactory`
     - Properties
         - `provider: Provider`
-        - `appDefinition: AppDefinition`
+        - `appId: string`
+            - Address of the on-chain App Definition contract
+        - `encodings: `[`AppABIEncodings`](#appabiencodings)
     - Instance methods
         - `async proposeInstall({
                 peerAddress: Address,
