@@ -38,7 +38,7 @@
         - `provider: Provider`
         - `appId: string`
             - Address of the on-chain App Definition contract
-        - `encodings:`[`AppABIEncodings`](#appabiencodings)
+        - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
         - `async proposeInstall({
                 peerAddress: Address,
@@ -49,7 +49,7 @@
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
 - `AppInstance`
-    - Extends [`AppInstanceInfo` data type](#appinstance)
+    - Extends [`AppInstanceInfo` data type](#data-type-appinstanceinfo)
     - Properties
         - `manifestUri: string`
             - TODO
@@ -67,12 +67,15 @@
         - `async getManifest(): AppManifest`
             - TODO
         - `async proposeState(state: AppState)`
+            - [Node method](#method-proposestate)
             - TODO
             - Proposes a state to countersign
         - `async acceptState(state: AppState)`
+            - [Node method](#method-acceptstate)
             - TODO
             - Accept a proposed state 
         - `async rejectState(state: AppState)`
+            - [Node method](#method-rejectstate)
             - TODO
             - Reject a proposed state 
     - App lifecycle
@@ -87,7 +90,7 @@
                 - `rejectState`
                     - [Node event](#event-rejectstate)
 - `types`
-    - Everything under [Data Types](#data-types) except `AppInstance` 
+    - Everything under [Data Types](#data-types) except `AppInstanceInfo` 
     - `AppManifest`
         - TODO
         - `name`: human-readable name of app e.g. "TicTacToe"
@@ -108,7 +111,7 @@ Returns **all** app instances currently installed on the Node.
 
 Params: `[]`
 
-Result: list of [AppInstance](#appinstance)
+Result: list of [`AppInstanceInfo`](#data-type-appinstanceinfo)
 
 ### Method: `proposeInstall`
 
@@ -119,9 +122,9 @@ Params:
     - Address of the peer to install the app with
 - `appId: string` 
     - On-chain address of App Definition contract
-- `abiEncodings:`[`AppABIEncodings`](#appabiencodings)
+- `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset:`[`BlockchainAsset`](#blockchainasset)
+- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
     - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
@@ -129,7 +132,7 @@ Params:
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `initialState:`[`AppState`](#appstate)
+- `initialState:`[`AppState`](#data-type-appstate)
     - Initial state of app instance
     
 Result: 
@@ -162,7 +165,7 @@ Params:
     
 
 Result:
-- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Successfully installed app instance
 
 Errors: (TODO)
@@ -177,7 +180,7 @@ Params:
     - Unique ID of the app instance 
 
 Result:
-- `state:`[`AppState`](#appstate)
+- `state:`[`AppState`](#data-type-appstate)
     - Latest state of the app instance
   
 Errors: (TODO)
@@ -193,7 +196,7 @@ Params:
     - Unique ID of the app instance 
 
 Result:
-- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - App instance details
 
 
@@ -205,10 +208,10 @@ Params:
 - `appInstanceId: string`
     - Unique ID of the app instance 
     - Action to take on the current state 
-- `action:`
+- `action:`[`AppAction`](#data-type-appaction)
 
 Result:
-- `newState:`[`AppState`](#appstate)
+- `newState:`[`AppState`](#data-type-appstate)
     - New app state
 
 Errors: (TODO)
@@ -252,7 +255,7 @@ Events
 Fired if new app instance was successfully installed.
 
 Params:
-- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Newly installed app instance
 
 ### Event: `rejectInstall`
@@ -260,7 +263,7 @@ Params:
 Fired if installation of a new app instance was rejected.
 
 Params:
-- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Rejected app instance
 
 ### Event: `updateState`
@@ -270,9 +273,9 @@ Fired if app state is successfully updated.
 Params:
 - `appInstanceId: string`
     - Unique ID of app instance
-- `newState:`[`AppState`](#appstate)
-- `oldState:`[`AppState`](#appstate)
-- `action?:`[`AppAction`](#appaction)
+- `newState:`[`AppState`](#data-type-appstate)
+- `oldState:`[`AppState`](#data-type-appstate)
+- `action?:`[`AppAction`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstall`
@@ -280,7 +283,7 @@ Params:
 Fired if app instance is successfully uninstalled
 
 Params:
-- `appInstance:`[`AppInstanceInfo`](#appinstanceinfo)
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Uninstalled app instance
 - `myPayout: BigNumber`
     - Amount of the asset paid out to this user 
@@ -295,9 +298,10 @@ TODO
 
 TODO
 
-### Data Types
+Data Types
+----------
 
-### `AppInstanceInfo`
+### Data Type: `AppInstanceInfo`
 
 An instance of an installed app.
 
@@ -306,9 +310,9 @@ An instance of an installed app.
 - `appId: string` 
     - Unique ID for this app
     - Currently corresponds to on-chain address of App Definition contract
-- `abiEncodings:`[`AppABIEncodings`](#appabiencodings)
+- `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset:`[`BlockchainAsset`](#blockchainasset)
+- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
     - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
@@ -317,28 +321,28 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
    
-### `BlockchainAsset`
+### Data Type: `BlockchainAsset`
 - `assetType: number`
     - The type of the asset.
     - Set 0 for ETH, 1 for ERC20 token, 2 for Other.
 - `token?: string`
     - Optional address of token contract if assetType is set to 1.
 
-### `AppABIEncodings`
+### Data Type: `AppABIEncodings`
 - `stateEncoding: string` 
     - ABI encoding of the app state
 - `actionEncoding?: string`
     - Optional ABI encoding of the app action
-    - If left blank, instances of the app will only be able to update state using [`proposeState`](#proposestate)
-    - If supplied, instances of this app will also be able to update state using [`takeAction`](#takeaction) 
+    - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)
+    - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction) 
 
-### AppState
+### Data Type: `AppState`
 
 - Plain Old Javascript Object representation of the state of an app instance.
-- ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#appabiencodings).
+- ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
-### AppAction
+### Data Type: `AppAction`
 
 - Plain Old Javascript Object representation of the action of an app instance.
-- ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#appabiencodings).
+- ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
