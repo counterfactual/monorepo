@@ -1,9 +1,6 @@
 import typescript from "rollup-plugin-typescript2";
-import json from "rollup-plugin-json";
 
 import pkg from "./package.json";
-const globals = {
-};
 
 export default [
   {
@@ -11,20 +8,16 @@ export default [
     output: [
       {
         file: pkg.main,
-        sourcemap: true,
-        format: "cjs",
-        globals: globals
+        format: "cjs"
+      },
+      {
+        file: pkg.iife,
+        name: "nodeProvider",
+        format: "iife"
       }
     ],
-    external: [
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
     plugins: [
-      typescript({
-        typescript: require("typescript")
-      }),
-      json({ compact: true })
+      typescript()
     ]
   }
 ];

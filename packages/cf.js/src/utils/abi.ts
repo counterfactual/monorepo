@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import * as ethers from "ethers";
 
 export function encode(types: string[], values: any[]) {
   return ethers.utils.defaultAbiCoder.encode(types, values);
