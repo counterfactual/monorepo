@@ -618,6 +618,13 @@
     jsdom "11.11.0"
     typescript "~2.9.1"
 
+"@stencil/router@0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.2.6.tgz#1738acdb2f90a94ec3d312bca198834b625b3de7"
+  integrity sha512-DULuJa+FeGIllesB1rubJ7gzF3MUMnPZL6Can2gS+Ozd9QLaVhir6lMsfo2HiwS/LWhTbifiSYMcB2h4gAGAwA==
+  dependencies:
+    "@stencil/state-tunnel" "0.0.8"
+
 "@stencil/router@~0.3.0":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.3.1.tgz#14d5dbd723590034c16e3a3e31675d3215a0cfda"
@@ -631,6 +638,11 @@
   integrity sha512-vhEP1Tk+/ADjiohFvjSeNQNGUIAhL4Diolg8TiA5+H1zbtKNoZjoCVEt2+w/s846tpsOCsDZYLe7NZABMSQ1Lw==
   dependencies:
     node-sass "4.9.3"
+
+"@stencil/state-tunnel@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@stencil/state-tunnel/-/state-tunnel-0.0.8.tgz#c7425719e622e8ab5009f89edd6478dc69719c38"
+  integrity sha512-fpFU91hgEirWyzMD7hsTWkIK8li4VQgx5G+dZr2Iv/AU2ofF6AiAxqP2N5SGyszleJCn9UcgWKS31/+efaBxFw==
 
 "@stencil/state-tunnel@0.0.9-1":
   version "0.0.9-1"
