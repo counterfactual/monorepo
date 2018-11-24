@@ -13,7 +13,6 @@ export class AppRoot {
           <stencil-router>
             <stencil-route-switch scrollTopOffset={0}>
               <stencil-route url="/" component="app-logo" exact={true} />
-              <stencil-route url="/profile/:name" component="app-profile" />
               <stencil-route url="/wager" component="app-wager" />
               <stencil-route url="/game" component="app-game" />
             </stencil-route-switch>
