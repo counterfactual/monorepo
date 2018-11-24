@@ -1,4 +1,5 @@
-import { Component } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 @Component({
   tag: "app-wager",
@@ -6,6 +7,29 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppWager {
+  @Prop() history: RouterHistory;
+
+  @State() betAmount: string = "";
+  @State() myName: string = "";
+
+  handlePlay(e: Event): void {
+    e.preventDefault();
+    // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
+    this.history.push({
+      pathname: "/game",
+      state: {
+        betAmount: this.betAmount,
+        myName: this.myName
+      },
+      query: {},
+      key: ""
+    });
+  }
+  handleChange(e, prop: string): void {
+    // TODO What is the type of e?
+    this[prop] = e.target.value;
+  }
+
   render() {
     return (
       <div class="wrapper">
@@ -21,12 +45,24 @@ export class AppWager {
               Phasellus nec sem id felis rutrum iaculis non non lorem.
             </p>
           </div>
-          <form class="form">
-            <input class="form__input" type="text" placeholder="Your name" />
-            <input class="form__input" type="text" placeholder="3 ETH" />
-            <stencil-route-link url="/game" class="form__button">
+          <form class="form" onSubmit={e => this.handlePlay(e)}>
+            <input
+              class="form__input"
+              type="text"
+              placeholder="Your name"
+              value={this.myName}
+              onInput={e => this.handleChange(e, "myName")}
+            />
+            <input
+              class="form__input"
+              type="text"
+              placeholder="3 ETH"
+              value={this.betAmount}
+              onInput={e => this.handleChange(e, "betAmount")}
+            />
+            <button class="form__button">
               <div>Play!</div>
-            </stencil-route-link>
+            </button>
           </form>
         </div>
       </div>

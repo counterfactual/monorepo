@@ -1,4 +1,5 @@
 import { Component, Prop, State } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 import { GameState } from "../../types/enums";
 
@@ -11,15 +12,27 @@ const LIGHT_PATH = "./assets/images/dice/Light/Dice-Light-0";
   shadow: true
 })
 export class AppGame {
-  @Prop() myName: string = "Facundo";
+  @Prop() history: RouterHistory;
+
+  @Prop({ mutable: true }) myName: string = "Facundo";
+  @Prop({ mutable: true }) betAmount: string = "3 ETH";
   @Prop() opponentName: string = "John";
-  @Prop() betAmount: string = "3 ETH";
 
   @State() gameState: GameState = GameState.Play;
   @State() myRoll: number[] = [1, 1];
-  @State() opponentRoll: number[] = [1, 1];
   @State() myScore: number = 0;
+
+  @State() opponentRoll: number[] = [1, 1];
   @State() opponentScore: number = 0;
+
+  componentWillLoad() {
+    this.myName = this.history.location.state.myName
+      ? this.history.location.state.myName
+      : this.myName;
+    this.betAmount = this.history.location.state.betAmount
+      ? this.history.location.state.betAmount
+      : this.betAmount;
+  }
 
   handleRoll(): void {
     this.myRoll = [
