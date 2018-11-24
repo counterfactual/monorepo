@@ -1,6 +1,6 @@
 import { Component, Prop } from "@stencil/core";
 
-import { GameState } from "../../types/enums";
+import { GameState } from "../../enums/enums";
 
 @Component({
   tag: "app-game-status",

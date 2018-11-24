@@ -1,7 +1,7 @@
 import { Component, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
-import { GameState } from "../../types/enums";
+import { GameState, PlayerType } from "../../enums/enums";
 
 const DARK_PATH = "./assets/images/dice/Dark/Dice-Dark-0";
 const LIGHT_PATH = "./assets/images/dice/Light/Dice-Light-0";
@@ -67,45 +67,31 @@ export class AppGame {
     });
   }
 
+  // @Prop() playerName: string = "";
+  // @Prop() playerScore: number = 0;
+  // @Prop() playerType: PlayerType = PlayerType.Dark;
+  // @Prop() playerRoll: number[] = [1, 1];
+
   render() {
     return (
       <div class="wrapper">
         <div class="game">
-          <div class="player">
-            <div class="player-info">
-              <span class="player-info__name">{this.opponentName}</span>
-              <div class="player-info__status">
-                <span class="player-info__status__color black" />
-                <span class="player-info__status__score">
-                  {this.opponentScore}
-                </span>
-              </div>
-            </div>
-
-            <div class="player__dice">
-              <img src={`${DARK_PATH}${this.opponentRoll[0]}.svg`} alt="" />
-              <img src={`${DARK_PATH}${this.opponentRoll[1]}.svg`} alt="" />
-            </div>
-          </div>
+          <app-game-player
+            playerName={this.opponentName}
+            playerScore={this.opponentScore}
+            playerType={PlayerType.Dark}
+            playerRoll={this.opponentRoll}
+          />
           <app-game-status
             gameState={this.gameState}
             betAmount={this.betAmount}
           />
-          <div class="player">
-            <div class="player-info">
-              <span class="player-info__name">{this.myName}</span>
-              <div class="player-info__status">
-                <span class="player-info__status__color" />
-                <span class="player-info__status__score">{this.myScore}</span>
-              </div>
-            </div>
-
-            <div class="player__dice">
-              <img src={`${LIGHT_PATH}${this.myRoll[0]}.svg`} alt="" />
-              <img src={`${LIGHT_PATH}${this.myRoll[1]}.svg`} alt="" />
-            </div>
-          </div>
-
+          <app-game-player
+            playerName={this.myName}
+            playerScore={this.myScore}
+            playerType={PlayerType.Light}
+            playerRoll={this.myRoll}
+          />
           {this.gameState === GameState.Play ? (
             <div class="actions">
               <button class="btn btn--center" onClick={() => this.handleRoll()}>
