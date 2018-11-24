@@ -58,6 +58,14 @@ export class AppGame {
   handleRematch(): void {
     this.gameState = GameState.Play;
   }
+  handleExit(): void {
+    this.history.push({
+      pathname: "/wager",
+      state: {},
+      query: {},
+      key: ""
+    });
+  }
 
   render() {
     return (
@@ -106,9 +114,9 @@ export class AppGame {
             </div>
           ) : (
             <div class="actions">
-              <stencil-route-link url="/wager">
-                <button class="btn btn--exit">Exit</button>
-              </stencil-route-link>
+              <button class="btn btn--exit" onClick={() => this.handleExit()}>
+                Exit
+              </button>
               <button class="btn" onClick={() => this.handleRematch()}>
                 Rematch
               </button>
