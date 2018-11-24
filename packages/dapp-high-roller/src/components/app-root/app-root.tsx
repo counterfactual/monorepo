@@ -1,4 +1,5 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
+import { MatchResults } from "@stencil/router";
 
 @Component({
   tag: "app-root",
@@ -6,6 +7,9 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppRoot {
+  // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
+  @Prop() match: MatchResults;
+
   render() {
     return (
       <div class="height-100">
