@@ -8,24 +8,22 @@ describe("app-game", () => {
     const element = await page.find("app-game");
     expect(element).toHaveClass("hydrated");
   });
-  it("has dice", async () => {
+  it("can start and play game", async () => {
     const page = await newE2EPage({ url: "/game" });
 
     const profileElement = await page.find("app-root >>> app-game");
-    const element = profileElement.shadowRoot.querySelector(".player__dice");
-    expect(element).toBeDefined();
-  });
-  describe("can receive props", () => {
-    it("can receive props", async () => {
-      const page = await newE2EPage({ url: "/game" });
+    const playBtn = profileElement.shadowRoot.querySelector(".btn.btn--center");
+    expect(playBtn.textContent).toContain("Roll your dice!");
 
-      const profileElement = await page.find("app-root >>> app-game");
-      profileElement.setProperty("myName", "Alon");
+    await playBtn.click();
+    await page.waitForChanges();
 
-      await page.waitForChanges();
-
-      const element = profileElement.shadowRoot.querySelector(".player__dice");
-      expect(element).toBeDefined();
-    });
+    const exitBtn = profileElement.shadowRoot.querySelector(".btn.btn--exit");
+    const rematchBtn = profileElement.shadowRoot.querySelector(
+      ".btn.btn--rematch"
+    );
+    console.log(exitBtn.textContent);
+    expect(exitBtn.textContent).toContain("Roll your dice!");
+    // expect(rematchBtn.textContent).toContain("Roll your dice!");
   });
 });

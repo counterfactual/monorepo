@@ -67,11 +67,6 @@ export class AppGame {
     });
   }
 
-  // @Prop() playerName: string = "";
-  // @Prop() playerScore: number = 0;
-  // @Prop() playerType: PlayerType = PlayerType.Dark;
-  // @Prop() playerRoll: number[] = [1, 1];
-
   render() {
     return (
       <div class="wrapper">
@@ -103,7 +98,10 @@ export class AppGame {
               <button class="btn btn--exit" onClick={() => this.handleExit()}>
                 Exit
               </button>
-              <button class="btn" onClick={() => this.handleRematch()}>
+              <button
+                class="btn btn--rematch"
+                onClick={() => this.handleRematch()}
+              >
                 Rematch
               </button>
             </div>
