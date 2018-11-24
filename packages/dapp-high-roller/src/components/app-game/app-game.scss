@@ -37,3 +37,10 @@
   display: flex;
   justify-content: space-around;
 }
+.actions {
+  display: flex;
+  margin-top: 1rem;
+}
+.actions > * + * {
+  margin-left: 1rem;
+}
