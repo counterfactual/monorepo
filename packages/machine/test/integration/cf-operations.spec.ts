@@ -79,8 +79,8 @@ describe("Setup Protocol", async () => {
       ganache
     );
 
-    walletA.io.peer = walletB;
-    walletB.io.peer = walletA;
+    walletA.io.peers.set(B_ADDRESS, walletB);
+    walletB.io.peers.set(A_ADDRESS, walletA);
 
     const peerBalances = cf.legacy.utils.PeerBalance.balances(
       A_ADDRESS,
@@ -252,12 +252,11 @@ async function setup(
   walletB: TestResponseSink
 ) {
   validatePresetup(walletA, walletB);
-  const msg = setupStartMsg(
-    multisigAddr,
+  const response = await walletA.runSetupProtocol(
     walletA.signingKey.address,
-    walletB.signingKey.address
+    walletB.signingKey.address,
+    multisigAddr
   );
-  const response = await walletA.runProtocol(msg);
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   validateSetup(multisigAddr, walletA, walletB);
 }
@@ -268,25 +267,6 @@ function validatePresetup(
 ) {
   expect(walletA.instructionExecutor.node.channelStates).toEqual({});
   expect(walletB.instructionExecutor.node.channelStates).toEqual({});
-}
-
-function setupStartMsg(
-  multisigAddress: string,
-  from: string,
-  to: string
-): cf.legacy.node.ClientActionMessage {
-  return {
-    multisigAddress,
-    requestId: "0",
-    appId: "",
-    action: cf.legacy.node.ActionName.SETUP,
-    data: {},
-    toAddress: to,
-    fromAddress: from,
-    stateChannel: undefined,
-    seq: 0,
-    signature: undefined
-  };
 }
 
 function validateSetup(
@@ -418,7 +398,12 @@ async function installBalanceRefund(
     counterparty.signingKey.address,
     threshold
   );
-  const response = await depositor.runProtocol(msg);
+  const response = await depositor.runInstallProtocol(
+    depositor.signingKey.address,
+    counterparty.signingKey.address,
+    multisigAddr,
+    msg
+  );
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   // since the machine is async, we need to wait for walletB to finish up its
   // side of the protocol before inspecting it's state
@@ -459,14 +444,16 @@ async function uninstallBalanceRefund(
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
-  const msg = startUninstallBalanceRefundMsg(
-    multisigAddr,
-    cfAddr,
+  const response = await walletA.runUninstallProtocol(
     walletA.signingKey.address,
     walletB.signingKey.address,
-    amountA
+    multisigAddr,
+     [
+      new cf.legacy.utils.PeerBalance(walletA.signingKey.address, amountA),
+      new cf.legacy.utils.PeerBalance(walletB.signingKey.address, 0)
+    ],
+    cfAddr
   );
-  const response = await walletA.runProtocol(msg);
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   // validate walletA
   validateUninstalledAndFreeBalance(
@@ -493,7 +480,7 @@ function startInstallBalanceRefundMsg(
   from: string,
   to: string,
   threshold: ethers.utils.BigNumber
-): cf.legacy.node.ClientActionMessage {
+): cf.legacy.app.InstallData {
   let peerA = from;
   let peerB = to;
   if (peerB.localeCompare(peerA) < 0) {
@@ -516,7 +503,7 @@ function startInstallBalanceRefundMsg(
     ""
   ); // todo
   const timeout = 100;
-  const installData: cf.legacy.app.InstallData = {
+  return {
     terms,
     app,
     timeout,
@@ -525,16 +512,6 @@ function startInstallBalanceRefundMsg(
     keyA: peerA,
     keyB: peerB,
     encodedAppState: "0x1234"
-  };
-  return {
-    requestId: "1",
-    appId: "",
-    action: cf.legacy.node.ActionName.INSTALL,
-    data: installData,
-    multisigAddress: multisigAddr,
-    toAddress: to,
-    fromAddress: from,
-    seq: 0
   };
 }
 
@@ -614,29 +591,3 @@ function validateUninstalledAndFreeBalance(
   expect(app.dependencyNonce.nonceValue).toEqual(1);
 }
 
-function startUninstallBalanceRefundMsg(
-  multisigAddr: string,
-  appId: string,
-  from: string,
-  to: string,
-  amount: ethers.utils.BigNumber
-): cf.legacy.node.ClientActionMessage {
-  const uninstallData = {
-    peerAmounts: [
-      new cf.legacy.utils.PeerBalance(from, amount),
-      new cf.legacy.utils.PeerBalance(to, 0)
-    ]
-  };
-  return {
-    appId,
-    requestId: "2",
-    action: cf.legacy.node.ActionName.UNINSTALL,
-    data: uninstallData,
-    multisigAddress: multisigAddr,
-    fromAddress: from,
-    toAddress: to,
-    stateChannel: undefined,
-    seq: 0,
-    signature: undefined
-  };
-}
