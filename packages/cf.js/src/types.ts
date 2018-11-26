@@ -1,2 +1,2 @@
-export * from "./simple-types";
-export * from "./structs";
+export * from "./types/simple-types";
+export * from "./types/structs";
