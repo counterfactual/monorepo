@@ -1,5 +1,4 @@
 import * as cf from "@counterfactual/cf.js";
-import lodash from "lodash";
 
 /**
  * Node encapsulates the state of all the channels.
@@ -54,14 +53,14 @@ export class Node {
    */
   public stateChannelInfosCopy(): cf.legacy.channel.StateChannelInfos {
     return cf.legacy.utils.serializer.deserialize(
-      lodash.cloneDeep(this.channelStates)
+      JSON.parse(JSON.stringify(this.channelStates))
     );
   }
 
   public appChannelInfos(): cf.legacy.app.AppInstanceInfos {
     const infos = {};
-    for (const channel of lodash.keys(this.channelStates)) {
-      for (const appChannel of lodash.keys(
+    for (const channel of Object.keys(this.channelStates)) {
+      for (const appChannel of Object.keys(
         this.channelStates[channel].appInstances
       )) {
         infos[appChannel] = this.channelStates[channel].appInstances[

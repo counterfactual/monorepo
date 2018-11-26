@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import lodash from "lodash";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");
 export const HIGH_GAS_LIMIT = { gasLimit: 6e9 };
@@ -35,13 +34,15 @@ export function generateEthWallets(
   count: number,
   provider?: ethers.providers.Provider
 ): ethers.Wallet[] {
-  return lodash.range(count).map(x => {
-    let wallet = ethers.Wallet.createRandom();
-    if (provider) {
-      wallet = wallet.connect(provider);
-    }
-    return wallet;
-  });
+  return Array(count)
+    .fill(0)
+    .map(() => {
+      let wallet = ethers.Wallet.createRandom();
+      if (provider) {
+        wallet = wallet.connect(provider);
+      }
+      return wallet;
+    });
 }
 
 export const setupTestEnv = (web3: any) => {
@@ -127,5 +128,8 @@ export const mineOneBlock = () => {
   });
 };
 
-export const mineBlocks = async (n: number) =>
-  lodash.times(n, await mineOneBlock);
+export const mineBlocks = async function(n: number) {
+  for (const _ of Array(n)) {
+    await mineOneBlock();
+  }
+};
