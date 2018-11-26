@@ -51,4 +51,10 @@ export class FreeBalance {
     readonly timeout: number,
     readonly dependencyNonce: Nonce
   ) {}
+
+  public balanceOfAddress(address: Address): ethers.utils.BigNumber {
+    if (address === this.alice) return this.aliceBalance;
+    if (address === this.bob) return this.bobBalance;
+    throw Error(`address ${address} not in free balance`);
+  }
 }

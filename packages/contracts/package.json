@@ -24,7 +24,7 @@
   },
   "config": {
     "testFiles": "dist/test/**/*.spec.js",
-    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d"
+    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a"
   },
   "keywords": [
     "ethereum",
