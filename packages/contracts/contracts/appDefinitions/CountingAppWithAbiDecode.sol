@@ -1,5 +1,4 @@
-pragma solidity ^0.4.25;
-pragma experimental "v0.5.0";
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
@@ -11,10 +10,12 @@ contract CountingAppWithAbiDecode is StateChannelApp {
 
   struct Increment {
     uint256 byHowMuch;
+    uint256 arg2;
   }
 
   struct Decrement {
     uint256 byHowMuch;
+    uint256 arg2;
   }
 
   struct Action {
@@ -29,30 +30,30 @@ contract CountingAppWithAbiDecode is StateChannelApp {
     uint256 turnNum;
   }
 
-  function isStateTerminal(bytes encodedState)
+  function isStateTerminal(bytes memory encodedState)
     public
     pure
     returns (bool)
   {
-    State memory state = abi.decode(encodedState, State);
+    State memory state = abi.decode(encodedState, (State));
     return state.count == 2;
   }
 
-  function getTurnTaker(bytes encodedState, address[] signingKeys)
+  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
     public
     pure
     returns (address)
   {
-    State memory state = abi.decode(encodedState, State);
+    State memory state = abi.decode(encodedState, (State));
     return signingKeys[state.turnNum % 2];
   }
 
-  function resolve(bytes encodedState, Transfer.Terms terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
-    State memory state = abi.decode(encodedState, State);
+    State memory state = abi.decode(encodedState, (State));
 
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = (state.turnNum % 2 == 0) ? terms.limit : 0;
@@ -73,49 +74,45 @@ contract CountingAppWithAbiDecode is StateChannelApp {
     );
   }
 
-  function applyAction(bytes encodedState, bytes encodedAction)
+  function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
-    returns (bytes ret)
+    returns (bytes memory ret)
   {
-    State memory state = abi.decode(encodedState, State);
-    Action memory action = abi.decode(encodedAction, Action);
+    State memory state = abi.decode(encodedState, (State));
+    Action memory action = abi.decode(encodedAction, (Action));
 
     if (action.actionType == ActionTypes.INCREMENT) {
-      ret = onIncrement(
-        state,
-        abi.decode(action.encodedActionData, action)
-      );
+      Increment memory inc = abi.decode(action.encodedActionData, (Increment));
+      ret = onIncrement(state, inc);
     } else if (action.actionType == ActionTypes.DECREMENT) {
-      ret = onDecrement(
-        state,
-        abi.decode(action.encodedActionData, action)
-      );
+      Decrement memory dec = abi.decode(action.encodedActionData, (Decrement));
+      ret = onDecrement(state, dec);
     } else {
       revert("Invalid action type");
     }
   }
 
-  function onIncrement(State state, Increment inc)
+  function onIncrement(State memory state, Increment memory inc)
     public
     pure
-    returns (Increment)
+    returns (bytes memory)
   {
     State memory ret = state;
     state.count += inc.byHowMuch;
     state.turnNum += 1;
-    return ret;
+    return abi.encode(state);
   }
 
-  function onDecrement(State state, Decrement dec)
+  function onDecrement(State memory state, Decrement memory dec)
     public
     pure
-    returns (Decrement)
+    returns (bytes memory)
   {
     State memory ret = state;
     state.count -= dec.byHowMuch;
     state.turnNum += 1;
-    return ret;
+    return abi.encode(state);
   }
 
 }

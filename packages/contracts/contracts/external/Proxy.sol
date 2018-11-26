@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 
 /// @title Proxy - Generic proxy contract allows to execute all transactions applying
@@ -14,7 +14,7 @@ contract Proxy {
   constructor(address _masterCopy)
     public
   {
-    require(_masterCopy != 0, "Proxy masterCopy address was 0x0");
+    require(_masterCopy != address(0), "Proxy masterCopy address was 0x0");
     masterCopy = _masterCopy;
   }
 

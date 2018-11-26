@@ -1,30 +1,29 @@
-pragma solidity 0.4.25;
-pragma experimental "v0.5.0";
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
 
 
-interface StateChannelApp {
+contract StateChannelApp {
 
-  function isStateTerminal(bytes)
-    external
+  function isStateTerminal(bytes memory)
+    public
     pure
     returns (bool);
 
-  function getTurnTaker(bytes, address[])
-    external
+  function getTurnTaker(bytes memory, address[] memory)
+    public
     pure
     returns (address);
 
-  function applyAction(bytes, bytes)
-    external
+  function applyAction(bytes memory, bytes memory)
+    public
     pure
-    returns (bytes);
+    returns (bytes memory);
 
-  function resolve(bytes, Transfer.Terms)
-    external
+  function resolve(bytes memory, Transfer.Terms memory)
+    public
     pure
-    returns (Transfer.Transaction);
+    returns (Transfer.Transaction memory);
 
 }

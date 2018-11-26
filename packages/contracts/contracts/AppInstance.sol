@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./lib/Signatures.sol";
@@ -109,7 +109,7 @@ contract AppInstance {
   /// @param timeout The default timeout (in blocks) in case of dispute
   constructor(
     address owner,
-    address[] signingKeys,
+    address[] memory signingKeys,
     bytes32 app,
     bytes32 terms,
     uint256 timeout
@@ -123,25 +123,25 @@ contract AppInstance {
 
   /// @notice A getter function for the owner of the state channel
   /// @return The address of the `owner`
-  function getOwner() external view returns (address) {
+  function getOwner() public view returns (address) {
     return auth.owner;
   }
 
   /// @notice A getter function for the signing keys of the state channel
   /// @return The addresses of the `signingKeys`
-  function getSigningKeys() external view returns (address[]) {
+  function getSigningKeys() public view returns (address[] memory) {
     return auth.signingKeys;
   }
 
   /// @notice A getter function for the latest agreed nonce of the state channel
   /// @return The uint value of the latest agreed nonce
-  function latestNonce() external view returns (uint256) {
+  function latestNonce() public view returns (uint256) {
     return state.nonce;
   }
 
   /// @notice A helper method to determine whether or not the channel is closed
   /// @return A boolean representing whether or not the state channel is closed
-  function isClosed() external view returns (bool) {
+  function isClosed() public view returns (bool) {
     return isStateTerminal(state);
   }
 
@@ -151,7 +151,7 @@ contract AppInstance {
       public
       view
       onlyWhenChannelClosed
-      returns (Transfer.Transaction)
+      returns (Transfer.Transaction memory)
   {
     return resolution;
   }
@@ -168,7 +168,7 @@ contract AppInstance {
     bytes32 appStateHash,
     uint256 nonce,
     uint256 timeout,
-    bytes signatures
+    bytes memory signatures
   )
     public
     onlyWhenChannelOpen
@@ -218,13 +218,13 @@ contract AppInstance {
   /// progresses the state of the application to a terminal / finalized state
   /// @dev Note this function is only callable when the state channel is in an ON state
   function createDispute(
-    App app,
-    bytes appState,
+    App memory app,
+    bytes memory appState,
     uint256 nonce,
     uint256 timeout,
-    bytes action,
-    bytes appStateSignatures,
-    bytes actionSignature,
+    bytes memory action,
+    bytes memory appStateSignatures,
+    bytes memory actionSignature,
     bool claimFinal
   )
     public
@@ -308,10 +308,10 @@ contract AppInstance {
   /// to a terminal / finalized state
   /// @dev This function is only callable when the state channel is in a DISPUTE state
   function progressDispute(
-    App app,
-    bytes appState,
-    bytes action,
-    bytes actionSignature,
+    App memory app,
+    bytes memory appState,
+    bytes memory action,
+    bytes memory actionSignature,
     bool claimFinal
   )
     public
@@ -368,7 +368,7 @@ contract AppInstance {
   /// @param signatures Signatures by all signing keys of the currently latest disputed
   /// state; an indication of agreement of this state and valid to cancel a dispute
   /// @dev Note this function is only callable when the state channel is in a DISPUTE state
-  function cancelDispute(bytes signatures)
+  function cancelDispute(bytes memory signatures)
     public
     onlyWhenChannelDispute
   {
@@ -396,7 +396,11 @@ contract AppInstance {
   /// @param finalState The ABI encoded version of the finalized application state
   /// @param terms The ABI encoded version of the already agreed upon terms
   /// @dev Note this function is only callable when the state channel is in an OFF state
-  function setResolution(App app, bytes finalState, bytes terms)
+  function setResolution(
+    App memory app,
+    bytes memory finalState,
+    bytes memory terms
+  )
     public
     onlyWhenChannelClosed
   {
@@ -422,7 +426,7 @@ contract AppInstance {
   /// doing a check on the submitted state and comparing to the current block number
   /// @param s A state wrapper struct including the status and finalization time
   /// @return A boolean indicating if the state is final or not
-  function isStateTerminal(State s) public view returns (bool) {
+  function isStateTerminal(State memory s) public view returns (bool) {
     if (s.status == Status.ON) {
       return false;
     } else if (s.status == Status.DISPUTE) {
@@ -464,7 +468,7 @@ contract AppInstance {
   function computeActionHash(
     address turnTaker,
     bytes32 previousState,
-    bytes action,
+    bytes memory action,
     uint256 setStateNonce,
     uint256 disputeNonce
   )
@@ -488,7 +492,7 @@ contract AppInstance {
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @return A boolean indicating if the application state is terminal or not
-  function isAppStateTerminal(App app, bytes appState)
+  function isAppStateTerminal(App memory app, bytes memory appState)
     private
     view
     returns (bool)
@@ -502,7 +506,7 @@ contract AppInstance {
   /// @param app An `App` struct including all information relevant to interface with an app
   /// @param appState The ABI encoded version of some application state
   /// @return An address representing the turn taker in the `signingKeys`
-  function getAppTurnTaker(App app, bytes appState)
+  function getAppTurnTaker(App memory app, bytes memory appState)
     private
     view
     returns (address)
@@ -524,10 +528,14 @@ contract AppInstance {
   /// @param appState The ABI encoded version of some application state
   /// @param action The ABI encoded version of some application action
   /// @return A bytes array of the ABI encoded newly computed application state
-  function executeAppApplyAction(App app, bytes appState, bytes action)
+  function executeAppApplyAction(
+    App memory app,
+    bytes memory appState,
+    bytes memory action
+  )
     private
     view
-    returns (bytes)
+    returns (bytes memory)
   {
     return app.addr.staticcall_as_bytes(
       abi.encodePacked(app.applyAction, appState, action)
@@ -539,10 +547,14 @@ contract AppInstance {
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
   /// @return A `Transfer.Transaction` struct with all encoded information of the resolution
-  function getAppResolution(App app, bytes appState, bytes terms)
+  function getAppResolution(
+    App memory app,
+    bytes memory appState,
+    bytes memory terms
+  )
     private
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     return app.addr.staticcall_as_TransferDetails(
       abi.encodePacked(app.resolve, appState, terms)
@@ -551,7 +563,7 @@ contract AppInstance {
 
   // THE FOLLOWING IS FOR ILLUSTRATING HOW `abi.decode` WORKS IN THIS FILE
 
-  function isAppStateTerminalWithAbiDecode(App app, bytes appState)
+  function isAppStateTerminalWithAbiDecode(App memory app, bytes memory appState)
     private
     view
     returns (bool)
@@ -559,7 +571,7 @@ contract AppInstance {
     return StateChannelApp(app.addr).isStateTerminal(appState);
   }
 
-  function getAppTurnTakerWithAbiDecode(App app, bytes appState)
+  function getAppTurnTakerWithAbiDecode(App memory app, bytes memory appState)
     private
     view
     returns (address)
@@ -574,18 +586,26 @@ contract AppInstance {
     return ret;
   }
 
-  function executeAppApplyActionWithAbiDecode(App app, bytes appState, bytes action)
+  function executeAppApplyActionWithAbiDecode(
+    App memory app,
+    bytes memory appState,
+    bytes memory action
+  )
     private
     view
-    returns (bytes)
+    returns (bytes memory)
   {
     return StateChannelApp(app.addr).applyAction(appState, action);
   }
 
-  function getAppResolutionWithAbiDecode(App app, bytes appState, Transfer.Terms terms)
+  function getAppResolutionWithAbiDecode(
+    App memory app,
+    bytes memory appState,
+    Transfer.Terms memory terms
+  )
     private
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     return StateChannelApp(app.addr).resolve(appState, terms);
   }

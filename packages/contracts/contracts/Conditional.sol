@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./lib/StaticCall.sol";
@@ -39,7 +39,7 @@ contract Conditional {
   /// @notice Checks if the defined function call in a Condition fails or not.
   /// @param condition A `Condition` struct
   /// @return A boolean indicating whether or not the function call passed or failed.
-  function assertNotFails(Condition condition)
+  function assertNotFails(Condition memory condition)
     private
     view
     returns (bool)
@@ -56,7 +56,7 @@ contract Conditional {
   /// @notice Verifies the expected return value of a Condition
   /// @param condition A `Condition` struct
   /// @return A boolean verifying if the function call returned the expected result
-  function assertReturnsExpectedResult(Condition condition)
+  function assertReturnsExpectedResult(Condition memory condition)
     private
     view
     returns (bool)

@@ -1,9 +1,10 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 
 contract DelegateProxy {
-  function () public payable { }
-  function delegate(address to, bytes data) public {
-    require(to.delegatecall(data), "Delegate call failed.");
+  function () external payable { }
+  function delegate(address to, bytes memory data) public {
+    (bool success, bytes memory ret) = to.delegatecall(data);
+    require(success, "Delegate call failed.");
   }
 }

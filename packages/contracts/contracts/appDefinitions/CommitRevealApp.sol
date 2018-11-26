@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
@@ -37,7 +37,7 @@ contract CommitRevealApp {
     bytes32 hash;
   }
 
-  function isStateTerminal(AppState state)
+  function isStateTerminal(AppState memory state)
     public
     pure
     returns (bool)
@@ -45,7 +45,7 @@ contract CommitRevealApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState state)
+  function getTurnTaker(AppState memory state)
     public
     pure
     returns (Player)
@@ -56,10 +56,10 @@ contract CommitRevealApp {
     return Player.CHOOSING;
   }
 
-  function applyAction(AppState state, Action action)
+  function applyAction(AppState memory state, Action memory action)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     AppState memory nextState = state;
     if (action.actionType == ActionType.SET_MAX) {
@@ -95,10 +95,10 @@ contract CommitRevealApp {
     return abi.encode(nextState);
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = terms.limit;

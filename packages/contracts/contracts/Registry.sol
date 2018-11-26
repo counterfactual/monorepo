@@ -1,6 +1,7 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
-import "openzeppelin-eth/contracts/utils/Address.sol";
+// https://github.com/OpenZeppelin/openzeppelin-eth/issues/42
+// import "openzeppelin-eth/contracts/utils/Address.sol";
 
 
 /// @title Registry - A global Ethereum deterministic address translator
@@ -9,7 +10,7 @@ import "openzeppelin-eth/contracts/utils/Address.sol";
 /// @dev Will be obsolete for most use cases when CREATE2 is added to the EVM https://github.com/ethereum/EIPs/pull/1014
 contract Registry {
 
-  using Address for address;
+  // using Address for address;
 
   event ContractCreated(bytes32 indexed cfAddress, address deployedAddress);
 
@@ -21,7 +22,7 @@ contract Registry {
   /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
   /// @return A deterministic "counterfactual address". This depends on the initcode,
   /// msg.sender and salt, but importantly does NOT depend on the sending account's account nonce.
-  function cfaddress(bytes initcode, uint256 salt)
+  function cfaddress(bytes memory initcode, uint256 salt)
     public
     pure
     returns (bytes32)
@@ -32,14 +33,14 @@ contract Registry {
   /// @notice Deploy a contract and add a mapping from counterfactual address to deployed address to storage
   /// @param initcode Contract bytecode concatenated with ABI encoded constructor arguments
   /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
-  function deploy(bytes initcode, uint256 salt)
+  function deploy(bytes memory initcode, uint256 salt)
     public
   {
     address deployed;
     bytes32 ptr = cfaddress(initcode, salt);
 
     require(
-      resolver[ptr] == 0x0,
+      resolver[ptr] == address(0),
       "This contract was already deployed."
     );
 
@@ -48,7 +49,7 @@ contract Registry {
     }
 
     require(
-      deployed != 0x0,
+      deployed != address(0),
       "There was an error deploying the contract."
     );
 
@@ -61,10 +62,11 @@ contract Registry {
   /// @param registry The address of a registry
   /// @param ptr A counterfactual address
   /// @param data The data being sent in the call to the counterfactual contract
-  function proxyCall(address registry, bytes32 ptr, bytes data) public {
+  function proxyCall(address registry, bytes32 ptr, bytes memory data) public {
     address to = Registry(registry).resolver(ptr);
     require(to != address(0), "Resolved to a 0x0 address");
-    require(to.isContract(), "Tried to call function on a non-contract");
-    require(to.call(data), "Registry.proxyCall failed.");
+    // require(to.isContract(), "Tried to call function on a non-contract");
+    (bool success, bytes memory ret) = to.call(data);
+    require(success, "Registry.proxyCall failed.");
   }
 }

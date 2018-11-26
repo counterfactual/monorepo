@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
@@ -17,7 +17,7 @@ contract ConditionalTransaction is Conditional {
   using Transfer for Transfer.Transaction;
 
   function executeSimpleConditionalTransaction(
-    Condition condition,
+    Condition memory condition,
     Transfer.Transaction memory txn
   )
     public
@@ -38,7 +38,7 @@ contract ConditionalTransaction is Conditional {
     address nonceRegistry,
     bytes32 uninstallKey,
     bytes32 appCfAddress,
-    Transfer.Terms terms
+    Transfer.Terms memory terms
   )
     public
   {

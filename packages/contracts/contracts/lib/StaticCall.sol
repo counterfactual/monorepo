@@ -1,7 +1,8 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-eth/contracts/utils/Address.sol";
+// https://github.com/OpenZeppelin/openzeppelin-eth/issues/42
+// import "openzeppelin-eth/contracts/utils/Address.sol";
 import "../lib/Transfer.sol";
 
 
@@ -11,18 +12,18 @@ import "../lib/Transfer.sol";
 /// calls to contracts with unknown ABIs without exposing assembly code in the contract.
 library StaticCall {
 
-  using Address for address;
+  // using Address for address;
 
   /// @notice Execute a STATICCALL without regard for the return value
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return A boolean indicating whether or not the transaction didn't fail
-  function staticcall_no_error(address to, bytes data)
+  function staticcall_no_error(address to, bytes memory data)
     public
     view
     returns (bool success)
   {
-    require(to.isContract(), "StaticCall to address is not a contract.");
+    // require(to.isContract(), "StaticCall to address is not a contract.");
     assembly {
       let success := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
     }
@@ -32,7 +33,7 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a boolean
-  function staticcall_as_bool(address to, bytes data)
+  function staticcall_as_bool(address to, bytes memory data)
     public
     view
     returns (bool)
@@ -45,7 +46,7 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a uint256
-  function staticcall_as_uint256(address to, bytes data)
+  function staticcall_as_uint256(address to, bytes memory data)
     public
     view
     returns (uint256)
@@ -58,7 +59,7 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a address
-  function staticcall_as_address(address to, bytes data)
+  function staticcall_as_address(address to, bytes memory data)
     public
     view
     returns (address)
@@ -71,10 +72,10 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a bytes
-  function staticcall_as_bytes(address to, bytes data)
+  function staticcall_as_bytes(address to, bytes memory data)
     public
     view
-    returns (bytes)
+    returns (bytes memory)
   {
     executeStaticCall(to, data);
     assembly { return(mload(0x40), returndatasize) }
@@ -84,10 +85,10 @@ library StaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a Transfer.Transaction
-  function staticcall_as_TransferDetails(address to, bytes data)
+  function staticcall_as_TransferDetails(address to, bytes memory data)
     public
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     executeStaticCall(to, data);
     assembly { return(mload(0x40), returndatasize) }
@@ -96,11 +97,11 @@ library StaticCall {
   /// @notice The internal method that executes the STATICCALL
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
-  function executeStaticCall(address to, bytes data)
+  function executeStaticCall(address to, bytes memory data)
     private
     view
   {
-    require(to.isContract(), "Attempted to make a static call on non-conract address");
+    // require(to.isContract(), "Attempted to make a static call on non-conract address");
     assembly {
       let result := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
       let size := returndatasize

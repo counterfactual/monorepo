@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 
 /// @title Signatures - A library wrapper around signature verification
@@ -37,7 +37,7 @@ library Signatures {
   function verifySignatures(
     bytes memory signatures,
     bytes32 txHash,
-    address[] signers
+    address[] memory signers
   )
     public
     pure

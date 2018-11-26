@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
@@ -6,7 +6,7 @@ import "../lib/Transfer.sol";
 
 contract ExampleTransfer {
   using Transfer for Transfer.Transaction;
-  function transfer(Transfer.Transaction details) public {
+  function transfer(Transfer.Transaction memory details) public {
     details.execute();
   }
 }

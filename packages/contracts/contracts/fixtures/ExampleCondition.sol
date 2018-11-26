@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
@@ -13,15 +13,15 @@ contract ExampleCondition {
   function isSatisfiedNoParam()
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     return abi.encode(true);
   }
 
-  function isSatisfiedParam(State state)
+  function isSatisfiedParam(State memory state)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     return abi.encode(state.ret);
   }

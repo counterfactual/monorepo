@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 import "../lib/StaticCall.sol";
 
@@ -9,26 +9,26 @@ contract TestCaller {
   function execStaticCall(
     address to,
     bytes4 selector,
-    bytes calldata
+    bytes memory args
   )
     public
     view
-    returns (bytes)
+    returns (bytes memory)
   {
-    bytes memory data = abi.encodePacked(selector, calldata);
+    bytes memory data = abi.encodePacked(selector, args);
     return to.staticcall_as_bytes(data);
   }
 
   function execStaticCallBool(
     address to,
     bytes4 selector,
-    bytes calldata
+    bytes memory args
   )
     public
     view
     returns (bool)
   {
-    bytes memory data = abi.encodePacked(selector, calldata);
+    bytes memory data = abi.encodePacked(selector, args);
     return to.staticcall_as_bool(data);
   }
 
