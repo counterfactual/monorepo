@@ -3,5 +3,5 @@ export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
 
-export type AppState = object;
-export type AppAction = object;
+export type AppState = any;
+export type AppAction = any;

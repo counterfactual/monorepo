@@ -10,7 +10,7 @@ import cuid from "cuid";
 
 import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
-import { AppDefinition } from "./types/structs";
+import { AppDefinition } from "./types/protocol-types";
 
 export enum CounterfactualEventType {
   INSTALL = "cf_install",

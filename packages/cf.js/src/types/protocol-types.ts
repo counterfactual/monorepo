@@ -1,5 +1,7 @@
-import { ABIEncoding, Address } from "./simple-types";
+// https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
+
+import { ABIEncoding, Address } from "./simple-types";
 
 export interface AppDefinition {
   address: Address;
@@ -18,11 +20,17 @@ export interface AppInstanceInfo {
 }
 
 export interface AppABIEncodings {
-  stateEncoding: string;
-  actionEncoding?: string;
+  stateEncoding: ABIEncoding;
+  actionEncoding?: ABIEncoding;
+}
+
+enum AssetType {
+  ETH = 0,
+  ERC20 = 1,
+  Other = 2
 }
 
 export interface BlockchainAsset {
-  assetType: number;
-  token?: string;
+  assetType: AssetType;
+  token?: Address;
 }
