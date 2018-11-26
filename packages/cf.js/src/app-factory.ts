@@ -5,7 +5,7 @@ import { Address } from "./types/simple-types";
 export class AppFactory {
   constructor(
     readonly provider: Provider,
-    appId: Address,
-    encodings: AppABIEncodings
+    readonly appId: Address,
+    readonly encodings: AppABIEncodings
   ) {}
 }
