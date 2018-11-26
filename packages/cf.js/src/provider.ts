@@ -8,9 +8,7 @@ import {
 
 import cuid from "cuid";
 
-import { AppFactory } from "./app-factory";
 import { AppInstance } from "./app-instance";
-import { AppDefinition } from "./structs";
 
 export enum CounterfactualEventType {
   INSTALL = "cf_install",
@@ -41,10 +39,6 @@ export class Provider {
     return (response.data as NodeQueryData).appInstances!.map(
       ({ id }) => new AppInstance(id)
     );
-  }
-
-  createAppFactory(appDefinition: AppDefinition): AppFactory {
-    return new AppFactory(appDefinition);
   }
 
   on(
