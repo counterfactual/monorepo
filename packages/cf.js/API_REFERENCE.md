@@ -17,22 +17,22 @@
         - `on(eventType, callback: Function)`
             - `install`
                 - [Node event](#event-install)
-                - Params: `(appInstance: AppInstance)`
+                - Callback Params: `(appInstance: AppInstance)`
             - `rejectInstall`
                 - [Node event](#event-rejectinstall)
-                - Params: `(appInstance: AppInstance)`
+                - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-rejectinstall)
-                - Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
+                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `proposeState`
                 - [Node event](#event-proposestate)
-                - Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
+                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `rejectState`
                 - [Node event](#event-rejectstate)
-                - Params: `(appInstance: AppInstance, state: AppState)`
+                - Callback Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
                 - [Node event](#event-uninstall)
-                - Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
+                - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
 - `AppFactory`
     - Properties
         - `provider: Provider`
@@ -100,18 +100,34 @@
 Node Protocol
 =============
 
+Message Format
+--------------
+
+Messages in the Node Protocol have the following fields:
+
+- `type: string`
+    - Name of the Method or Event that this message represents e.g. "getAppInstances", "install"
+- `requestId?: string`
+    - Unique ID for a Method request.
+    - Only required for Methods. Leave empty for Events.
+- `data: { [key: string]: any }`
+    - Data payload for this message. 
+    - See "Result" section of a Method and "Data" section of an Event for details. 
+
 Public Methods
 --------------
 
 ### Method: `getAppInstances`
 
-Returns **all** app instances currently installed on the Node. 
+Returns all app instances currently installed on the Node. 
 
-**NOTE**: This is terrible from a security perspective. In the future this method will be changed or deprecated to fix the security flaw. 
+NOTE: This is terrible from a security perspective. In the future this method will be changed or deprecated to fix the security flaw. 
 
-Params: `[]`
+Params: None
 
-Result: list of [`AppInstanceInfo`](#data-type-appinstanceinfo)
+Result: 
+- `appInstances:`[`AppInstanceInfo`](#data-type-appinstanceinfo)`[]`
+    - All the app instances installed on the Node
 
 ### Method: `proposeInstall`
 
@@ -254,7 +270,7 @@ Events
 
 Fired if new app instance was successfully installed.
 
-Params:
+Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Newly installed app instance
 
@@ -262,7 +278,7 @@ Params:
 
 Fired if installation of a new app instance was rejected.
 
-Params:
+Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Rejected app instance
 
@@ -270,7 +286,7 @@ Params:
 
 Fired if app state is successfully updated.
 
-Params:
+Data:
 - `appInstanceId: string`
     - Unique ID of app instance
 - `newState:`[`AppState`](#data-type-appstate)
@@ -282,7 +298,7 @@ Params:
 
 Fired if app instance is successfully uninstalled
 
-Params:
+Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Uninstalled app instance
 - `myPayout: BigNumber`
