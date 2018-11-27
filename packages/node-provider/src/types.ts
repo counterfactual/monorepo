@@ -1,12 +1,25 @@
+export type NodeMessageReceivedCallback = (message: NodeMessage) => void;
+
 export interface INodeProvider {
-  onMessage(callback: (message: NodeMessage) => void);
+  status: NodeProviderStatus;
+  onMessage(callback: NodeMessageReceivedCallback);
   postMessage(message: NodeMessage);
+  connect(): Promise<INodeProvider>;
+  on(messageType: NodeMessageType, callback: NodeMessageReceivedCallback);
+  once(messageType: NodeMessageType, callback: NodeMessageReceivedCallback);
+}
+
+export enum NodeProviderStatus {
+  OFFLINE = "offline",
+  CONNECTED = "connected"
 }
 
 export enum NodeMessageType {
   INSTALL = "install",
   QUERY = "query",
   ERROR = "error"
+  // Should we add a STATUS_CHANGED type to properly
+  // configure the message port?
 }
 
 export enum QueryType {
