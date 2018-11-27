@@ -21,7 +21,7 @@ export default class NodeProvider implements INodeProvider {
     this.eventEmitter.on("message", callback);
   }
 
-  public emit(message: NodeMessage) {
+  public sendMessage(message: NodeMessage) {
     if (!this.isConnected || !this.messagePort) {
       throw new Error(
         "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."

@@ -2,7 +2,7 @@ export type NodeMessageReceivedCallback = (message: NodeMessage) => void;
 
 export interface INodeProvider {
   onMessage(callback: NodeMessageReceivedCallback);
-  emit(message: NodeMessage);
+  sendMessage(message: NodeMessage);
   connect(): Promise<INodeProvider>;
 }
 
