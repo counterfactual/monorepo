@@ -36,6 +36,17 @@
         - `callback: Function`
       - Returns
         - `void`
+    - `emit`
+      - Accepts downstream calls from cf.js as defined by [this spec](https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods)
+      - For installed apps
+        - Params:
+          - `event: string`
+            - The ID of the AppInstance
+          - `data: any`
+      - For apps about to be installed:
+        - Params:
+          - `event: proposeInstall`
+          - `data: any`
 
 ### Interfaces for Dependency Injections
 
