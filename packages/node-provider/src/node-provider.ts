@@ -1,7 +1,7 @@
-import { INodeProvider, NodeMessage } from "./types";
+import * as cf from "@counterfactual/cf.js";
 
-export default class NodeProvider implements INodeProvider {
-  public onMessage(callback: (message: NodeMessage) => void) {}
+export default class NodeProvider implements cf.types.INodeProvider {
+  public onMessage(callback: (message: cf.types.NodeMessage) => void) {}
 
-  public postMessage(message: NodeMessage) {}
+  public sendMessage(message: cf.types.NodeMessage) {}
 }
