@@ -30,12 +30,13 @@
       - Returns
         - `Promise<string>`
     - `on`
-      - Registers listeners on the Node for various requests (install, update, etc).
+      - Registers listeners on the Node for various requests (install, update, etc) coming from other Nodes
       - Params
         - `event: string`
         - `callback: Function`
       - Returns
         - `void`
+      - Events to register callbacks for are indicated as the [lifecycle events on the Node Provider](https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#cfjs-typescript-package)
     - `emit`
       - Accepts downstream calls from cf.js as defined by [this spec](https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods)
       - For installed apps
