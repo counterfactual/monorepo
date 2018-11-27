@@ -20,6 +20,7 @@ import {
   INodeProvider,
   InstallEventData,
   NodeError,
+  NodeErrorType,
   NodeEvent,
   NodeEventData,
   NodeEventName,
@@ -30,8 +31,7 @@ import {
   NodeMethodResponse,
   NodeMethodResult,
   ProposeInstallParams,
-  ProposeInstallResult,
-  NodeErrorType
+  ProposeInstallResult
 } from "./node-protocol";
 
 export {
