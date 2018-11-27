@@ -3,7 +3,6 @@ import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstan
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 import { ethers } from "ethers";
-import * as _ from "lodash";
 
 import { Transaction } from "../../src/middleware/protocol-operation/types";
 import {
@@ -25,7 +24,6 @@ const { abi } = cf.utils;
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
-  let networkMap;
   let devEnvNetworkContext7777777: cf.legacy.network.NetworkContext;
 
   beforeAll(() => {
@@ -38,16 +36,19 @@ describe("Setup Protocol", async () => {
     // https://github.com/counterfactual/monorepo/issues/114
     // tslint:disable-next-line
     const networkFile = require("@counterfactual/contracts/networks/7777777.json");
-    networkMap = _.mapValues(_.keyBy(networkFile, "contractName"), "address");
+
+    const addressOfContract = new Map<string, string>(
+      networkFile.map(entry => [entry.contractName, entry.address]));
+
     devEnvNetworkContext7777777 = new cf.legacy.network.NetworkContext(
-      networkMap["Registry"],
-      networkMap["PaymentApp"],
-      networkMap["ConditionalTransaction"],
-      networkMap["MultiSend"],
-      networkMap["NonceRegistry"],
-      networkMap["Signatures"],
-      networkMap["StaticCall"],
-      networkMap["ETHBalanceRefundApp"]
+      addressOfContract.get("Registry")!,
+      addressOfContract.get("PaymentApp")!,
+      addressOfContract.get("ConditionalTransaction")!,
+      addressOfContract.get("MultiSend")!,
+      addressOfContract.get("NonceRegistry")!,
+      addressOfContract.get("Signatures")!,
+      addressOfContract.get("StaticCall")!,
+      addressOfContract.get("ETHBalanceRefundApp")!
     );
   });
 

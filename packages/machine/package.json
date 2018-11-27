@@ -21,11 +21,9 @@
   "devDependencies": {
     "@counterfactual/contracts": "0.0.2",
     "@types/jest": "^23.3.3",
-    "@types/lodash": "^4.14.116",
     "@types/node": "^10.9.3",
     "ethers": "^4.0.4",
     "jest": "^23.6.0",
-    "lodash": "^4.17.10",
     "rollup": "^0.67.0",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.18.0",

@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers } from "ethers";
-import lodash = require("lodash");
 
 import { AbstractContract } from "../../utils/contract";
 import * as Utils from "../../utils/misc";
@@ -88,10 +87,10 @@ contract("Transfer", (accounts: string[]) => {
         Utils.HIGH_GAS_LIMIT
       );
 
-      lodash.times(10, async (i: number) => {
-        const bal = await provider.getBalance(randomTargets[i]);
+      for (const target of randomTargets) {
+        const bal = await provider.getBalance(target);
         expect(bal.toString()).to.deep.equal(Utils.UNIT_ETH.div(10).toString());
-      });
+      }
     });
   });
 
@@ -141,10 +140,10 @@ contract("Transfer", (accounts: string[]) => {
         Utils.HIGH_GAS_LIMIT
       );
 
-      lodash.times(10, async (i: number) => {
-        const bal = await dolphinCoin.functions.balanceOf(randomTargets[i]);
+      for (const target of randomTargets) {
+        const bal = await dolphinCoin.functions.balanceOf(target);
         expect(bal).to.be.eql(new ethers.utils.BigNumber(1));
-      });
+      }
     });
   });
 });
