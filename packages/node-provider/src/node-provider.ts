@@ -1,35 +1,67 @@
+import EventEmitter from "eventemitter3";
+
 import {
   INodeProvider,
   NodeMessage,
   NodeMessageReceivedCallback,
-  NodeMessageType,
-  NodeProviderStatus
+  NodeMessageType
 } from "./types";
 
 export default class NodeProvider implements INodeProvider {
-  private internalStatus: NodeProviderStatus = NodeProviderStatus.OFFLINE;
+  private isConnected: boolean;
+  private eventEmitter: EventEmitter;
+  private messagePort?: MessagePort;
 
-  constructor() {}
+  constructor() {
+    this.isConnected = false;
+    this.eventEmitter = new EventEmitter();
+  }
 
-  public onMessage(callback: NodeMessageReceivedCallback) {}
+  public onMessage(callback: NodeMessageReceivedCallback) {
+    this.eventEmitter.on("message", callback);
+  }
 
-  public postMessage(message: NodeMessage) {}
+  public emit(message: NodeMessage) {
+    if (!this.isConnected || !this.messagePort) {
+      throw new Error(
+        "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
+      );
+    }
+
+    this.messagePort.postMessage(message);
+  }
 
   public async connect(): Promise<NodeProvider> {
-    return Promise.resolve(this);
+    if (this.isConnected) {
+      console.warn("NodeProvider is already connected.");
+      return Promise.resolve(this);
+    }
+
+    return new Promise<NodeProvider>(this.getMessagePort.bind(this));
   }
 
-  public get status(): NodeProviderStatus {
-    return this.internalStatus;
+  private getMessagePort(resolve, reject) {
+    window.addEventListener("message", event => {
+      if (event.data === "cf-node-provider:port") {
+        this.startMessagePort(event);
+        this.notifyNodeProviderIsConnected();
+        resolve(this);
+      }
+    });
+
+    window.postMessage("cf-node-provider:init", "*");
   }
 
-  public on(
-    messageType: NodeMessageType,
-    callback: NodeMessageReceivedCallback
-  ) {}
+  private startMessagePort(event: MessageEvent) {
+    this.messagePort = event.ports[0];
+    this.messagePort.addEventListener("message", event => {
+      this.eventEmitter.emit("message", event.data);
+    });
+    this.messagePort.start();
+  }
 
-  public once(
-    messageType: NodeMessageType,
-    callback: NodeMessageReceivedCallback
-  ) {}
+  private notifyNodeProviderIsConnected() {
+    window.postMessage("cf-node-provider:ready", "*");
+    this.isConnected = true;
+  }
 }

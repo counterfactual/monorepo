@@ -1,9 +1,5 @@
 import NodeProvider from "../../src/node-provider";
-import {
-  NodeMessage,
-  NodeMessageType,
-  NodeProviderStatus
-} from "../../src/types";
+import { NodeMessage, NodeMessageType } from "../../src/types";
 
 describe("NodeProvider", () => {
   it("should instantiate", () => {
@@ -12,26 +8,38 @@ describe("NodeProvider", () => {
   it("should connect", async () => {
     const nodeProvider = new NodeProvider();
     await nodeProvider.connect();
-
-    expect(nodeProvider.status).toEqual(NodeProviderStatus.CONNECTED);
   });
-  it("should post a message", () => {
+  it("should emit a warning if you're connecting twice", async () => {
+    console.warn = jest.fn();
+
+    const nodeProvider = new NodeProvider();
+    await nodeProvider.connect();
+    await nodeProvider.connect();
+
+    expect(console.warn).toBeCalledWith("NodeProvider is already connected.");
+  });
+  it("should fail to send a message if not connected", () => {
     const nodeProvider = new NodeProvider();
 
-    nodeProvider.postMessage({
-      messageType: NodeMessageType.INSTALL,
-      requestId: "0",
-      data: null
+    expect(() => {
+      nodeProvider.emit({
+        messageType: NodeMessageType.INSTALL,
+        requestId: "0",
+        data: null
+      });
+    }).toThrow(
+      "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
+    );
+  });
+  it("should listen for messages", done => {
+    const nodeProvider = new NodeProvider();
+
+    nodeProvider.onMessage((message: NodeMessage) => {
+      if (message.messageType === NodeMessageType.READY) {
+        done();
+      }
     });
-  });
-  it("should always listen for a message by its type", () => {
-    const nodeProvider = new NodeProvider();
 
-    nodeProvider.on(NodeMessageType.INSTALL, (message: NodeMessage) => {});
-  });
-  it("should listen just once for a message by its type", () => {
-    const nodeProvider = new NodeProvider();
 
-    nodeProvider.once(NodeMessageType.INSTALL, (message: NodeMessage) => {});
   });
 });
