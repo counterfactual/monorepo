@@ -1,9 +1,9 @@
 {
   "name": "@counterfactual/node-provider",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "iife": "dist/index-iife.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node-provider.js",
+  "iife": "dist/node-provider.iife.js",
+  "types": "dist/node-provider.d.ts",
   "files": [
     "dist"
   ],
@@ -20,6 +20,10 @@
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
     "jest": "^23.6.0",
+    "rollup": "^0.67.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-typescript2": "^0.18.0",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
