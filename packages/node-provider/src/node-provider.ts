@@ -3,8 +3,7 @@ import EventEmitter from "eventemitter3";
 import {
   INodeProvider,
   NodeMessage,
-  NodeMessageReceivedCallback,
-  NodeMessageType
+  NodeMessageReceivedCallback
 } from "./types";
 
 export default class NodeProvider implements INodeProvider {
