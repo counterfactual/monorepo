@@ -1,9 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { UNUSED_FUNDED_ACCOUNT } from "../utils/environment";
+import { UNUSED_FUNDED_ACCOUNT } from "../../utils/environment";
 
-import { TestResponseSink } from "./test-response-sink";
+import { TestResponseSink } from "../test-response-sink";
 
 /**
  * A collection of static methods responsible for running the setup potocol
