@@ -11,14 +11,14 @@ const originalPostMessage = window.postMessage;
 
 const context = {
   originalAddEventListener,
-  messageCallback: () => {},
+  messageCallbacks: [],
   connected: false
 };
 
 describe("NodeProvider", () => {
   beforeAll(() => {
-    window.addEventListener = jest.fn(mockAddEventListenerFunction(context));
-    window.postMessage = jest.fn(mockPostMessageFunction(context));
+    window.addEventListener = mockAddEventListenerFunction(context);
+    window.postMessage = mockPostMessageFunction(context);
 
     window.addEventListener("message", event => {
       if (event.data === "cf-node-provider:init") {
@@ -44,6 +44,7 @@ describe("NodeProvider", () => {
     expect(context.connected).toBe(true);
   });
   it("should emit a warning if you're connecting twice", async () => {
+    const originalConsoleWarn = console.warn;
     console.warn = jest.fn();
 
     const nodeProvider = new NodeProvider();
@@ -51,6 +52,7 @@ describe("NodeProvider", () => {
     await nodeProvider.connect();
 
     expect(console.warn).toBeCalledWith("NodeProvider is already connected.");
+    console.warn = originalConsoleWarn;
   });
   it("should fail to send a message if not connected", () => {
     const nodeProvider = new NodeProvider();

@@ -2,33 +2,7 @@ export function createMockMessageEvent(message, transferables) {
   return {
     data: message,
     ports: transferables,
-    type: "message",
-    lastEventId: "0",
-    origin: "localhost",
-    source: null,
-    bubbles: false,
-    cancelBubble: false,
-    cancelable: false,
-    composed: false,
-    currentTarget: window,
-    defaultPrevented: false,
-    eventPhase: 4,
-    isTrusted: true,
-    returnValue: null,
-    srcElement: window.document.body,
-    target: window.document.body,
-    timeStamp: Date.now(),
-    composedPath() {
-      return [] as EventTarget[];
-    },
-    initEvent() {},
-    preventDefault() {},
-    stopImmediatePropagation() {},
-    stopPropagation() {},
-    AT_TARGET: 0,
-    BUBBLING_PHASE: 1,
-    CAPTURING_PHASE: 2,
-    NONE: 3
+    type: "message"
   };
 }
 
@@ -81,12 +55,14 @@ export function mockAddEventListenerFunction(context) {
       return;
     }
 
-    context.messageCallback = callback;
-  }
+    context.messageCallbacks.push(callback);
+  };
 }
 
 export function mockPostMessageFunction(context) {
   return (message, target, transferables) => {
-    context.messageCallback(createMockMessageEvent(message, transferables));
+    context.messageCallbacks.forEach(callback => {
+      callback(createMockMessageEvent(message, transferables));
+    });
   };
 }
