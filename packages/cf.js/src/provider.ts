@@ -1,19 +1,10 @@
 import cuid from "cuid";
 
 import { AppInstance } from "./app-instance";
-import {
-  GetAppInstancesResult,
-  INodeProvider,
-  NodeErrorType,
-  NodeEventName,
-  NodeMessage,
-  NodeMethodName,
-  NodeMethodParams,
-  NodeMethodResponse
-} from "./types";
+import { INodeProvider, Node } from "./types";
 
 export interface CfEvent {
-  readonly type: NodeEventName;
+  readonly type: Node.EventName;
   readonly data: any; // TODO
 }
 
@@ -21,7 +12,7 @@ const NODE_REQUEST_TIMEOUT = 1500;
 
 export class Provider {
   private readonly requestListeners: {
-    [requestId: string]: (msg: NodeMessage) => void;
+    [requestId: string]: (msg: Node.Message) => void;
   } = {};
 
   constructor(readonly nodeProvider: INodeProvider) {
@@ -30,25 +21,25 @@ export class Provider {
 
   async getAppInstances(): Promise<AppInstance[]> {
     const response = await this.callNodeMethod(
-      NodeMethodName.GET_APP_INSTANCES,
+      Node.MethodName.GET_APP_INSTANCES,
       {}
     );
-    const result = response.result as GetAppInstancesResult;
+    const result = response.result as Node.GetAppInstancesResult;
     return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(eventName: NodeEventName, callback: (e: CfEvent) => void) {
+  on(eventName: Node.EventName, callback: (e: CfEvent) => void) {
     // TODO: support notification observers
   }
 
   private async callNodeMethod(
-    methodName: NodeMethodName,
-    params: NodeMethodParams
-  ): Promise<NodeMethodResponse> {
+    methodName: Node.MethodName,
+    params: Node.MethodParams
+  ): Promise<Node.MethodResponse> {
     const requestId = cuid();
-    return new Promise<NodeMethodResponse>((resolve, reject) => {
+    return new Promise<Node.MethodResponse>((resolve, reject) => {
       this.requestListeners[requestId] = response => {
-        if (response.type === NodeErrorType.ERROR) {
+        if (response.type === Node.ErrorType.ERROR) {
           return reject(response.data);
         }
         if (response.type !== methodName) {
@@ -59,7 +50,7 @@ export class Provider {
             }`
           });
         }
-        resolve(response as NodeMethodResponse);
+        resolve(response as Node.MethodResponse);
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
@@ -75,8 +66,8 @@ export class Provider {
     });
   }
 
-  private onNodeMessage(message: NodeMessage) {
-    const requestId = (message as NodeMethodResponse).requestId;
+  private onNodeMessage(message: Node.Message) {
+    const requestId = (message as Node.MethodResponse).requestId;
     if (requestId) {
       if (this.requestListeners[requestId]) {
         this.requestListeners[requestId](message);

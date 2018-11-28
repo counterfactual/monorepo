@@ -2,28 +2,22 @@ import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
-import { AssetType, NodeMethodRequest } from "../src/types";
-import {
-  INodeProvider,
-  NodeErrorType,
-  NodeMessage,
-  NodeMethodName,
-  NodeMethodResponse
-} from "../src/types/node-protocol";
+import { AssetType } from "../src/types";
+import { INodeProvider, Node } from "../src/types/node-protocol";
 
 class TestNodeProvider implements INodeProvider {
-  public postedMessages: NodeMessage[] = [];
-  readonly callbacks: ((message: NodeMessage) => void)[] = [];
+  public postedMessages: Node.Message[] = [];
+  readonly callbacks: ((message: Node.Message) => void)[] = [];
 
-  public simulateMessageFromNode(message: NodeMessage) {
+  public simulateMessageFromNode(message: Node.Message) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: NodeMessage) => void) {
+  public onMessage(callback: (message: Node.Message) => void) {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: NodeMessage) {
+  public sendMessage(message: Node.Message) {
     this.postedMessages.push(message);
   }
 }
@@ -43,12 +37,12 @@ describe("CF.js Provider", async () => {
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
 
-    const request = nodeProvider.postedMessages[0] as NodeMethodResponse;
-    expect(request.type).toBe(NodeMethodName.GET_APP_INSTANCES);
+    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
       requestId: request.requestId,
-      type: NodeErrorType.ERROR,
+      type: Node.ErrorType.ERROR,
       data: { errorName: "music_too_loud", message: "Music too loud" }
     });
 
@@ -65,12 +59,12 @@ describe("CF.js Provider", async () => {
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
 
-    const request = nodeProvider.postedMessages[0] as NodeMethodResponse;
-    expect(request.type).toBe(NodeMethodName.GET_APP_INSTANCES);
+    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
       requestId: request.requestId,
-      type: NodeMethodName.PROPOSE_INSTALL,
+      type: Node.MethodName.PROPOSE_INSTALL,
       result: { appInstanceId: "" }
     });
 
@@ -99,11 +93,11 @@ describe("CF.js Provider", async () => {
     });
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
-    const request = nodeProvider.postedMessages[0] as NodeMethodRequest;
-    expect(request.type).toBe(NodeMethodName.GET_APP_INSTANCES);
+    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
-      type: NodeMethodName.GET_APP_INSTANCES,
+      type: Node.MethodName.GET_APP_INSTANCES,
       requestId: request.requestId,
       result: {
         appInstances: [testInstance.info]

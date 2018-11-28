@@ -14,44 +14,11 @@ import {
   BlockchainAsset
 } from "./data-types";
 
-import {
-  GetAppInstancesParams,
-  GetAppInstancesResult,
-  INodeProvider,
-  InstallEventData,
-  NodeError,
-  NodeErrorType,
-  NodeEvent,
-  NodeEventData,
-  NodeEventName,
-  NodeMessage,
-  NodeMethodName,
-  NodeMethodParams,
-  NodeMethodRequest,
-  NodeMethodResponse,
-  NodeMethodResult,
-  ProposeInstallParams,
-  ProposeInstallResult
-} from "./node-protocol";
+import { INodeProvider, Node } from "./node-protocol";
 
 export {
-  NodeErrorType,
-  NodeMethodResult,
-  GetAppInstancesParams,
-  ProposeInstallParams,
-  GetAppInstancesResult,
-  ProposeInstallResult,
-  NodeMethodParams,
-  InstallEventData,
-  NodeEventData,
-  NodeError,
-  NodeMessage,
   INodeProvider,
-  NodeEvent,
-  NodeMethodRequest,
-  NodeEventName,
-  NodeMethodResponse,
-  NodeMethodName,
+  Node,
   AssetType,
   AppABIEncodings,
   BlockchainAsset,
