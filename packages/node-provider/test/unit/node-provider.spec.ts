@@ -1,5 +1,6 @@
+import * as cf from "@counterfactual/cf.js";
+
 import NodeProvider from "../../src/node-provider";
-import { NodeMessageType } from "../../src/types";
 import {
   createMockMessageChannel,
   mockAddEventListenerFunction,
@@ -59,10 +60,8 @@ describe("NodeProvider", () => {
 
     expect(() => {
       nodeProvider.sendMessage({
-        messageType: NodeMessageType.INSTALL,
-        requestId: "0",
-        data: null
-      });
+        type: cf.types.Node.MethodName.INSTALL
+      } as cf.types.Node.Message);
     }).toThrow(
       "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
     );
