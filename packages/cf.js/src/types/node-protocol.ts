@@ -81,16 +81,16 @@ export namespace Node {
   export type MethodParams = GetAppInstancesParams | ProposeInstallParams;
   export type MethodResult = GetAppInstancesResult | ProposeInstallResult;
 
-  interface NodeMethodMessage {
+  export interface MethodMessage {
     type: MethodName;
     requestId: string;
   }
 
-  export interface MethodRequest extends NodeMethodMessage {
+  export interface MethodRequest extends MethodMessage {
     params: MethodParams;
   }
 
-  export interface MethodResponse extends NodeMethodMessage {
+  export interface MethodResponse extends MethodMessage {
     result: MethodResult;
   }
 
@@ -99,5 +99,5 @@ export namespace Node {
     data: EventData;
   }
 
-  export type Message = MethodRequest | MethodResponse | Error | Event;
+  export type Message = MethodRequest | MethodResponse | Event | Error;
 }
