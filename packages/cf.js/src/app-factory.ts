@@ -1,6 +1,5 @@
 import { Provider } from "./provider";
-import { AppABIEncodings } from "./types/protocol-types";
-import { Address } from "./types/simple-types";
+import { Address, AppABIEncodings } from "./types";
 
 export class AppFactory {
   constructor(
