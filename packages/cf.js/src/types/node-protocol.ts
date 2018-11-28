@@ -42,6 +42,12 @@ export namespace Node {
     REJECT_STATE = "rejectState"
   }
 
+  export interface GetAppInstancesParams {}
+
+  export interface GetAppInstancesResult {
+    appInstances: AppInstanceInfo[];
+  }
+
   export interface ProposeInstallParams {
     peerAddress: Address;
     appId: Address;
@@ -52,34 +58,18 @@ export namespace Node {
     timeout: BigNumber;
     initialState: AppState;
   }
-
-  export interface GetAppInstancesParams {}
-
   export interface ProposeInstallResult {
     appInstanceId: AppInstanceID;
   }
 
-  export interface GetAppInstancesResult {
-    appInstances: AppInstanceInfo[];
-  }
-
-  export interface Error {
-    type: ErrorType.ERROR;
-    requestId?: string;
-    data: {
-      errorName: string;
-      message?: string;
-    };
-  }
+  export type MethodParams = GetAppInstancesParams | ProposeInstallParams;
+  export type MethodResult = GetAppInstancesResult | ProposeInstallResult;
 
   export interface InstallEventData {
     appInstanceId: AppInstanceID;
   }
 
   export type EventData = InstallEventData;
-
-  export type MethodParams = GetAppInstancesParams | ProposeInstallParams;
-  export type MethodResult = GetAppInstancesResult | ProposeInstallResult;
 
   export interface MethodMessage {
     type: MethodName;
@@ -97,6 +87,15 @@ export namespace Node {
   export interface Event {
     type: EventName;
     data: EventData;
+  }
+
+  export interface Error {
+    type: ErrorType;
+    requestId?: string;
+    data: {
+      errorName: string;
+      message?: string;
+    };
   }
 
   export type Message = MethodRequest | MethodResponse | Event | Error;
