@@ -1,5 +1,8 @@
-import { AppInstanceID } from "./types/simple-types";
+import { AppInstanceID, AppInstanceInfo } from "./types";
 
 export class AppInstance {
-  constructor(readonly id: AppInstanceID) {}
+  readonly id: AppInstanceID;
+  constructor(readonly info: AppInstanceInfo) {
+    this.id = info.id;
+  }
 }

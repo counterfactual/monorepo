@@ -1,23 +1,12 @@
-import {
-  INodeProvider,
-  NodeMessage,
-  NodeMessageType,
-  NodeQueryData,
-  QueryType
-} from "@counterfactual/node-provider";
-
 import cuid from "cuid";
 
 import { AppInstance } from "./app-instance";
+import { INodeProvider, Node } from "./types";
 
-export enum CounterfactualEventType {
-  INSTALL = "cf_install",
-  PROPOSE_INSTALL = "cf_proposeInstall",
-  REJECT_INSTALL = "cf_rejectInstall"
-}
+export import DappEventType = Node.EventName;
 
-export interface CounterfactualEvent {
-  readonly eventType: CounterfactualEventType;
+export interface DappEvent {
+  readonly type: DappEventType;
   readonly data: any; // TODO
 }
 
@@ -25,7 +14,7 @@ const NODE_REQUEST_TIMEOUT = 1500;
 
 export class Provider {
   private readonly requestListeners: {
-    [requestId: string]: (msg: NodeMessage) => void;
+    [requestId: string]: (msg: Node.Message) => void;
   } = {};
 
   constructor(readonly nodeProvider: INodeProvider) {
@@ -33,32 +22,37 @@ export class Provider {
   }
 
   async getAppInstances(): Promise<AppInstance[]> {
-    const response = await this.sendNodeRequest(NodeMessageType.QUERY, {
-      queryType: QueryType.GET_APP_INSTANCES
-    });
-    return (response.data as NodeQueryData).appInstances!.map(
-      ({ id }) => new AppInstance(id)
+    const response = await this.callNodeMethod(
+      Node.MethodName.GET_APP_INSTANCES,
+      {}
     );
+    const result = response.result as Node.GetAppInstancesResult;
+    return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(
-    eventType: CounterfactualEventType,
-    callback: (e: CounterfactualEvent) => void
-  ) {
+  on(eventName: DappEventType, callback: (e: DappEvent) => void) {
     // TODO: support notification observers
   }
 
-  private async sendNodeRequest(
-    messageType: NodeMessageType,
-    data: any
-  ): Promise<NodeMessage> {
+  private async callNodeMethod(
+    methodName: Node.MethodName,
+    params: Node.MethodParams
+  ): Promise<Node.MethodResponse> {
     const requestId = cuid();
-    return new Promise<NodeMessage>((resolve, reject) => {
-      this.requestListeners[requestId] = msg => {
-        if (msg.messageType === NodeMessageType.ERROR) {
-          return reject(msg);
+    return new Promise<Node.MethodResponse>((resolve, reject) => {
+      this.requestListeners[requestId] = response => {
+        if (response.type === Node.ErrorType.ERROR) {
+          return reject(response.data);
         }
-        resolve(msg);
+        if (response.type !== methodName) {
+          return reject({
+            errorName: "unexpected_message_type",
+            message: `Unexpected response type. Expected ${methodName}, got ${
+              response.type
+            }`
+          });
+        }
+        resolve(response as Node.MethodResponse);
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
@@ -66,20 +60,23 @@ export class Provider {
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
-      this.nodeProvider.postMessage({
+      this.nodeProvider.sendMessage({
         requestId,
-        messageType,
-        data
+        params,
+        type: methodName
       });
     });
   }
 
-  private onNodeMessage(message: NodeMessage) {
-    const { requestId } = message;
-    if (this.requestListeners[requestId]) {
-      this.requestListeners[requestId](message);
-      delete this.requestListeners[requestId];
+  private onNodeMessage(message: Node.Message) {
+    const requestId = (message as Node.MethodResponse).requestId;
+    if (requestId) {
+      if (this.requestListeners[requestId]) {
+        this.requestListeners[requestId](message);
+        delete this.requestListeners[requestId];
+      }
+    } else {
+      // TODO: notify observers
     }
-    // TODO: notify observers
   }
 }

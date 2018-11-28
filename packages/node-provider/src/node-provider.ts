@@ -1,12 +1,7 @@
+import * as cf from "@counterfactual/cf.js";
 import EventEmitter from "eventemitter3";
 
-import {
-  INodeProvider,
-  NodeMessage,
-  NodeMessageReceivedCallback
-} from "./types";
-
-export default class NodeProvider implements INodeProvider {
+export default class NodeProvider implements cf.types.INodeProvider {
   private isConnected: boolean;
   private eventEmitter: EventEmitter;
   private messagePort?: MessagePort;
@@ -16,11 +11,11 @@ export default class NodeProvider implements INodeProvider {
     this.eventEmitter = new EventEmitter();
   }
 
-  public onMessage(callback: NodeMessageReceivedCallback) {
+  public onMessage(callback: (message: cf.types.Node.Message) => void) {
     this.eventEmitter.on("message", callback);
   }
 
-  public sendMessage(message: NodeMessage) {
+  public sendMessage(message: cf.types.Node.Message) {
     if (!this.isConnected || !this.messagePort) {
       throw new Error(
         "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
