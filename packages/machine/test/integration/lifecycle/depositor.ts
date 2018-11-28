@@ -1,9 +1,9 @@
 import * as cf from "@counterfactual/cf.js";
 import { TestResponseSink } from "../test-response-sink";
 import { ethers } from "ethers";
- import {
-    UNUSED_FUNDED_ACCOUNT
-  } from "../../utils/environment";
+import {
+  UNUSED_FUNDED_ACCOUNT
+} from "../../utils/environment";
 
 
 /**
@@ -32,26 +32,26 @@ export class Depositor {
 
   /**
    * @param amountA is the amount wallet A wants to deposit into the channel.
-   * @param amountBCumualtive is the amount wallet B already has in the channel,
+   * @param amountBCumulative is the amount wallet B already has in the channel,
    *        i.e., the threshold for the balance refund.
    */
   public static async deposit(
     peerA: TestResponseSink,
     peerB: TestResponseSink,
     amountA: ethers.utils.BigNumber,
-    amountBCumlative: ethers.utils.BigNumber
+    amountBCumulative: ethers.utils.BigNumber
   ) {
     const cfAddr = await Depositor.installBalanceRefund(
       peerA,
       peerB,
-      amountBCumlative
+      amountBCumulative
     );
     await Depositor.uninstallBalanceRefund(
       cfAddr,
       peerA,
       peerB,
       amountA,
-      amountBCumlative
+      amountBCumulative
     );
   }
 
