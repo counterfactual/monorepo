@@ -5,10 +5,9 @@
   - Properties
     - `private instructionExecutor: InstructionExecutor`
       - Refer to [`machine` package](https://github.com/counterfactual/monorepo/blob/master/packages/machine/src/instruction-executor.ts#L22)
-    - `private keyStore: Map<string, HDWalletProvider>`
-      - Maps account addresses that are used with hubs to their HDWalletProviders
   - `constructor`
 
+    - `keyStore: ethers.utils.SigningKey`
     - `messagingService: IMessagingService`
     - `databaseService: IStore`
     - `web3Provider: Web3Provider`
@@ -16,17 +15,13 @@
     - `networkContext: NetworkContext`
       - The network context in which this Node operates
       - [To be updated](https://github.com/counterfactual/monorepo/blob/ac6bdcff3aad6ac67159c51446c611d4d1b55ce6/packages/cf.js/src/legacy/network.ts#L5-L11)
-    - `keyStore?: Map<string, HDWalletProvider>`
-    - `peers?: StateDepositHolder[]`
-      - Hub "connections" (index could indicate preference i.e. peers[0] is the default hub). Specified for client-side nodes.
+    - `peers: string[]`
 
   - Instance methods
-    - `async createChannel`
-      - Creates a channel with the specified hub (peerAddress) given the specified amount. Returns address of the multisig created between the account and the hub.
+    - `async createMultisig`
+      - Creates a multisig with the specified peer. Returns address of the multisig created between the account and the peer.
       - Params
         - `peerAddress: string`
-        - `privateKey: string`
-        - `depositAmount: BigNumber`
       - Returns
         - `Promise<string>`
     - `on`
@@ -50,16 +45,6 @@
           - `data: any`
 
 ### Interfaces for Dependency Injections
-
-- `StateDepositHolder`
-
-  - Each holder refers to one hub connection
-  - Properties
-    - `accountAddress: string`
-    - `peerAddress: string`
-    - `depositAddress: string`
-      - The multisig address shared between the account and the hub
-    - What else? Struct to capture metachannels info with the hub?
 
 - `IMessagingService`
 
