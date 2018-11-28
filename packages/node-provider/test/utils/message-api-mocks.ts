@@ -14,7 +14,8 @@ export function createMockMessageChannel() {
 }
 
 class MockMessagePort {
-  // These properties are need to fool TypeScript.
+  // These properties are needed to fool TypeScript into believing
+  // this is a Transferable type.
   height: number = 0;
   width: number = 0;
 
