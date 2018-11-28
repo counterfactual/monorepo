@@ -105,10 +105,8 @@ function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
   expect(info.counterParty).toEqual(B_ADDRESS);
   expect(info.me).toEqual(A_ADDRESS);
   expect(Object.keys(info.appInstances).length).toEqual(0);
-  expect(info.freeBalance.alice).toEqual(A_ADDRESS);
-  expect(info.freeBalance.aliceBalance.toNumber()).toEqual(0);
-  expect(info.freeBalance.bob).toEqual(B_ADDRESS);
-  expect(info.freeBalance.bobBalance.toNumber()).toEqual(0);
+  expect(info.freeBalance.balanceOfAddress(A_ADDRESS).toNumber()).toEqual(0);
+  expect(info.freeBalance.balanceOfAddress(B_ADDRESS).toNumber()).toEqual(0);
   expect(info.freeBalance.localNonce).toEqual(0);
   expect(info.freeBalance.uniqueId).toEqual(0);
 
