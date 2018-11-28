@@ -81,7 +81,7 @@ export class TicTacToeSimulator {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ): Promise<string> {
-    await cf.legacy.utils.sleep(50);
+    await new Promise(resolve => setTimeout(resolve, 50));
     const stateChannel =
       peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const appInstances = stateChannel.appInstances;
@@ -167,7 +167,7 @@ export class TicTacToeSimulator {
       state,
       moveNumber
     );
-    await cf.legacy.utils.sleep(50);
+    await new Promise(resolve => setTimeout(resolve, 50));
     TicTacToeSimulator.validateMakeMove(
       peerB,
       peerA,
@@ -235,7 +235,7 @@ export class TicTacToeSimulator {
     const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
-    await cf.legacy.utils.sleep(50);
+    await new Promise(resolve => setTimeout(resolve, 50));
     TicTacToeSimulator.validateUninstall(
       cfAddr,
       peerA,
