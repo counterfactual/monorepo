@@ -1,53 +1,38 @@
 import NodeProvider from "../../src/node-provider";
 import { NodeMessageType } from "../../src/types";
+import {
+  createMockMessageChannel,
+  mockAddEventListenerFunction,
+  mockPostMessageFunction
+} from "../utils/message-api-mocks";
 
 const originalAddEventListener = window.addEventListener;
 const originalPostMessage = window.postMessage;
 
+const context = {
+  originalAddEventListener,
+  messageCallback: () => {},
+  connected: false
+};
+
 describe("NodeProvider", () => {
   beforeAll(() => {
-    let messageCallback;
-    window.addEventListener = jest.fn((eventName, callback) => {
-      if (eventName !== "message") {
-        originalAddEventListener(eventName, callback);
-        return;
+    window.addEventListener = jest.fn(mockAddEventListenerFunction(context));
+    window.postMessage = jest.fn(mockPostMessageFunction(context));
+
+    window.addEventListener("message", event => {
+      if (event.data === "cf-node-provider:init") {
+        const { port2 } = createMockMessageChannel();
+        window.postMessage("cf-node-provider:port", "*", [port2]);
       }
 
-      messageCallback = callback;
+      if (event.data === "cf-node-provider:ready") {
+        context.connected = true;
+      }
     });
-    window.postMessage = jest.fn((message, target, transferables) => {
-      messageCallback({
-        data: message,
-        ports: transferables,
-        type: "message",
-        lastEventId: "0",
-        origin: "localhost",
-        source: null,
-        bubbles: false,
-        cancelBubble: false,
-        cancelable: false,
-        composed: false,
-        currentTarget: window,
-        defaultPrevented: false,
-        eventPhase: 4,
-        isTrusted: true,
-        returnValue: null,
-        srcElement: window.document.body,
-        target: window.document.body,
-        timeStamp: Date.now(),
-        composedPath() {
-          return [] as EventTarget[];
-        },
-        initEvent() {},
-        preventDefault() {},
-        stopImmediatePropagation() {},
-        stopPropagation() {},
-        AT_TARGET: 0,
-        BUBBLING_PHASE: 1,
-        CAPTURING_PHASE: 2,
-        NONE: 3
-      });
-    });
+  });
+  beforeEach(() => {
+    context.connected = false;
   });
   it("should instantiate", () => {
     new NodeProvider();
@@ -55,6 +40,8 @@ describe("NodeProvider", () => {
   it("should connect", async () => {
     const nodeProvider = new NodeProvider();
     await nodeProvider.connect();
+
+    expect(context.connected).toBe(true);
   });
   it("should emit a warning if you're connecting twice", async () => {
     console.warn = jest.fn();
