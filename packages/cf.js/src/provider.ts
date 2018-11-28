@@ -3,8 +3,10 @@ import cuid from "cuid";
 import { AppInstance } from "./app-instance";
 import { INodeProvider, Node } from "./types";
 
-export interface CfEvent {
-  readonly type: Node.EventName;
+export import DappEventType = Node.EventName;
+
+export interface DappEvent {
+  readonly type: DappEventType;
   readonly data: any; // TODO
 }
 
@@ -28,7 +30,7 @@ export class Provider {
     return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(eventName: Node.EventName, callback: (e: CfEvent) => void) {
+  on(eventName: DappEventType, callback: (e: DappEvent) => void) {
     // TODO: support notification observers
   }
 
