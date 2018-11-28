@@ -36,19 +36,17 @@ export default class NodeProvider implements INodeProvider {
       return Promise.resolve(this);
     }
 
-    return new Promise<NodeProvider>(this.getMessagePort.bind(this));
-  }
+    return new Promise<NodeProvider>((resolve, reject) => {
+      window.addEventListener("message", event => {
+        if (event.data === "cf-node-provider:port") {
+          this.startMessagePort(event);
+          this.notifyNodeProviderIsConnected();
+          resolve(this);
+        }
+      });
 
-  private getMessagePort(resolve, reject) {
-    window.addEventListener("message", event => {
-      if (event.data === "cf-node-provider:port") {
-        this.startMessagePort(event);
-        this.notifyNodeProviderIsConnected();
-        resolve(this);
-      }
+      window.postMessage("cf-node-provider:init", "*");
     });
-
-    window.postMessage("cf-node-provider:init", "*");
   }
 
   private startMessagePort(event: MessageEvent) {
