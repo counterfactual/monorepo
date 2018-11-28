@@ -13,18 +13,21 @@ export function createMockMessageChannel() {
   };
 }
 
-class MockMessagePort {
+export class MockMessagePort {
   // These properties are needed to fool TypeScript into believing
   // this is a Transferable type.
   height: number = 0;
   width: number = 0;
 
-  private onMessageCallback: Function = () => {};
-  private onMessageErrorCallback: Function = () => {};
+  private onMessageCallback: Function[] = [];
+  private onMessageErrorCallback: Function[] = [];
 
   onMessage(callback: Function) {
-    this.onMessageCallback = callback;
-    this.onMessageErrorCallback = callback;
+    this.onMessageCallback.push(callback);
+  }
+
+  onMessageError(callback: Function) {
+    this.onMessageErrorCallback.push(callback);
   }
 
   addEventListener(event: string, callback: Function) {
@@ -33,12 +36,14 @@ class MockMessagePort {
     }
 
     if (event === "messageerror") {
-      this.onMessageErrorCallback(callback);
+      this.onMessageError(callback);
     }
   }
 
   postMessage(message, transferables) {
-    this.onMessageCallback(createMockMessageEvent(message, transferables));
+    this.onMessageCallback.forEach(callback =>
+      createMockMessageEvent(message, transferables)
+    );
   }
 
   start() {}
