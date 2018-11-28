@@ -20,7 +20,7 @@ export default [
     plugins: [
       typescript(),
       resolve({
-        main: true
+        browser: true
       }),
       commonjs(),
     ]
