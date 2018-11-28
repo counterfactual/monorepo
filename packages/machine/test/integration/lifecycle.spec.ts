@@ -351,16 +351,7 @@ class TicTacToeSimulator {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ): Promise<string> {
-    TicTacToeSimulator.validateInstallWallet(peerA, peerB);
-    // Wait for other client to finish, since the machine is async
     await cf.legacy.utils.sleep(50);
-    return TicTacToeSimulator.validateInstallWallet(peerB, peerA);
-  }
-
-  public static validateInstallWallet(
-    peerA: TestResponseSink,
-    peerB: TestResponseSink
-  ): string {
     const stateChannel =
       peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
     const appInstances = stateChannel.appInstances;
@@ -372,13 +363,32 @@ class TicTacToeSimulator {
     expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(2);
     expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(2);
 
-    // now validate the free balance
-    const channel =
-      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
-    // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
-    expect(channel.freeBalance.aliceBalance.toNumber()).toEqual(8);
-    expect(channel.freeBalance.bobBalance.toNumber()).toEqual(3);
+    TicTacToeSimulator.validateInstallFreeBalance(
+      peerA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT].freeBalance,
+      peerA,
+      peerB
+    );
+    TicTacToeSimulator.validateInstallFreeBalance(
+      peerB.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT].freeBalance,
+      peerA,
+      peerB
+    )
+
     return cfAddr;
+  }
+
+  public static validateInstallFreeBalance(
+    freeBalance: cf.legacy.utils.FreeBalance,
+    peerA: TestResponseSink,
+    peerB: TestResponseSink
+  ) {
+    // start with 10, 5 and both parties deposit 2 into TicTacToeSimulator.
+    expect(
+      freeBalance.balanceOfAddress(peerA.signingKey.address).toNumber()
+    ).toEqual(8);
+    expect(
+      freeBalance.balanceOfAddress(peerB.signingKey.address).toNumber()
+    ).toEqual(3);
   }
 
   /**
@@ -495,17 +505,12 @@ class TicTacToeSimulator {
     const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
+    await cf.legacy.utils.sleep(50);
     TicTacToeSimulator.validateUninstall(
       cfAddr,
       peerA,
       ethers.utils.bigNumberify(12),
-      ethers.utils.bigNumberify(3)
-    );
-    await cf.legacy.utils.sleep(50);
-    TicTacToeSimulator.validateUninstall(
-      cfAddr,
       peerB,
-      ethers.utils.bigNumberify(12),
       ethers.utils.bigNumberify(3)
     );
   }
@@ -537,15 +542,32 @@ class TicTacToeSimulator {
 
   public static validateUninstall(
     cfAddr: string,
-    wallet: TestResponseSink,
+    walletA: TestResponseSink,
     amountA: ethers.utils.BigNumber,
+    walletB: TestResponseSink,
     amountB: ethers.utils.BigNumber
   ) {
-    const channel =
-      wallet.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT];
+    TicTacToeSimulator.validateUninstallChannelInfo(
+      walletA.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT],
+      cfAddr,
+      walletA,
+      amountA,
+      walletB,
+      amountB
+    );
+  }
+
+  public static validateUninstallChannelInfo(
+    channel: cf.legacy.channel.StateChannelInfo,
+    cfAddr: string,
+    walletA: TestResponseSink,
+    amountA: ethers.utils.BigNumber,
+    walletB: TestResponseSink,
+    amountB: ethers.utils.BigNumber
+  ) {
     const app = channel.appInstances[cfAddr];
-    expect(channel.freeBalance.aliceBalance).toEqual(amountA);
-    expect(channel.freeBalance.bobBalance).toEqual(amountB);
+    expect(channel.freeBalance.balanceOfAddress(walletA.signingKey.address)).toEqual(amountA);
+    expect(channel.freeBalance.balanceOfAddress(walletB.signingKey.address)).toEqual(amountB);
     expect(channel.freeBalance.uniqueId).toEqual(0);
     expect(app.dependencyNonce.nonceValue).toEqual(1);
   }
