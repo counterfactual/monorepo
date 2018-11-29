@@ -52,10 +52,13 @@ export class Provider {
         }
         if (response.type !== methodName) {
           return reject({
-            errorName: "unexpected_message_type",
-            message: `Unexpected response type. Expected ${methodName}, got ${
-              response.type
-            }`
+            type: Node.ErrorType.ERROR,
+            data: {
+              errorName: "unexpected_message_type",
+              message: `Unexpected response type. Expected ${methodName}, got ${
+                response.type
+              }`
+            }
           });
         }
         resolve(response as Node.MethodResponse);

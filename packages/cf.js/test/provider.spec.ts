@@ -49,7 +49,7 @@ describe("CF.js Provider", async () => {
     try {
       await promise;
     } catch (e) {
-      expect(e.message).toBe("Music too loud");
+      expect(e.data.message).toBe("Music too loud");
     }
   });
 
@@ -59,7 +59,7 @@ describe("CF.js Provider", async () => {
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
 
-    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
     expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
@@ -71,7 +71,7 @@ describe("CF.js Provider", async () => {
     try {
       await promise;
     } catch (e) {
-      expect(e.errorName).toBe("unexpected_message_type");
+      expect(e.data.errorName).toBe("unexpected_message_type");
     }
   });
 
