@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@counterfactual/contracts": "0.0.2",
-    "@counterfactual/node-provider": "0.0.1",
     "cuid": "^2.1.4",
     "ethers": "^4.0.4"
   },
