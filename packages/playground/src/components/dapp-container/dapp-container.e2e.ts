@@ -9,6 +9,6 @@ describe("dapp-container", () => {
     expect(element).toHaveClass("hydrated");
 
     const iframe = await page.find("dapp-container >>> iframe");
-    expect(iframe).toEqualAttribute("url", "foo.html");
+    expect(iframe).toEqualAttribute("src", "foo.html");
   });
 });
