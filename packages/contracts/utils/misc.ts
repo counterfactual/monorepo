@@ -1,3 +1,4 @@
+import * as chai from "chai";
 import { ethers } from "ethers";
 
 export const UNIT_ETH = ethers.utils.parseEther("1");

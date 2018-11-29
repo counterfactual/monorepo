@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 
-import { Signatures } from "./buildArtifacts";
 import { AbstractContract } from "./contract";
 import { HIGH_GAS_LIMIT, signMessage } from "./misc";
 
@@ -42,10 +41,7 @@ export class Multisig {
    */
   public async deploy(wallet: ethers.Wallet) {
     const minimumViableMultisig = await AbstractContract.fromArtifactName(
-      "MinimumViableMultisig",
-      {
-        Signatures
-      }
+      "MinimumViableMultisig"
     );
     this.contract = await minimumViableMultisig.deploy(wallet);
     await this.contract.functions.setup(this.owners);

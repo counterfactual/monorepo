@@ -46,7 +46,7 @@ export class AppInstance {
   constructor(
     readonly signerAddrs: string[],
     readonly multisig: Multisig,
-    appContract: ethers.Contract,
+    readonly appContract: ethers.Contract,
     readonly appStateEncoding: string,
     readonly terms: TransferTerms,
     readonly defaultTimeout: number = 10

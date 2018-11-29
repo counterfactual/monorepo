@@ -23,7 +23,7 @@
     "test:coverage": "solidity-coverage"
   },
   "config": {
-    "testFiles": "dist/test/**/*.spec.js",
+    "testFiles": "dist/test/**.spec.js",
     "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a"
   },
   "keywords": [
@@ -34,6 +34,7 @@
   ],
   "devDependencies": {
     "@counterfactual/typescript-typings": "0.0.1",
+    "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-string": "^1.4.1",
     "@types/node": "^10.9.3",

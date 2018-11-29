@@ -19,30 +19,19 @@ export const NonceRegistry = AbstractContract.fromArtifactName(
 );
 
 // tslint:disable-next-line
-export const Registry = AbstractContract.fromArtifactName("Registry");
-
-// tslint:disable-next-line
-export const StaticCall = AbstractContract.fromArtifactName("StaticCall");
-
-// tslint:disable-next-line
-export const Signatures = AbstractContract.fromArtifactName("Signatures");
+export const ContractRegistry = AbstractContract.fromArtifactName("ContractRegistry");
 
 // tslint:disable-next-line
 export const Transfer = AbstractContract.fromArtifactName("Transfer");
 
 // tslint:disable-next-line
 export const AppInstance = AbstractContract.fromArtifactName("AppInstance", {
-  StaticCall,
-  Signatures,
   Transfer
 });
 
 // tslint:disable-next-line
 export const MinimumViableMultisig = AbstractContract.fromArtifactName(
-  "MinimumViableMultisig",
-  {
-    Signatures
-  }
+  "MinimumViableMultisig"
 );
 
 export default {
@@ -50,8 +39,6 @@ export default {
   ConditionalTransaction,
   MinimumViableMultisig,
   NonceRegistry,
-  Registry,
-  Signatures,
-  StaticCall,
+  ContractRegistry,
   Transfer
 };
