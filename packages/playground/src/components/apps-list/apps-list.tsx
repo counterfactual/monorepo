@@ -8,7 +8,7 @@ import { AppDefinition } from "../../types";
   shadow: true
 })
 export class AppsList {
-  @Prop() apps: { [s: string]: AppDefinition };
+  @Prop() apps: { [s: string]: AppDefinition } = {};
 
   public get appsList(): AppDefinition[] {
     return Object.keys(this.apps).map(key => this.apps[key]);
