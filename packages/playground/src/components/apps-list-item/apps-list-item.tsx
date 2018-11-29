@@ -16,10 +16,9 @@ export class AppsListItem {
       <li class="item">
         <a href={this.url}>
           <div class="icon">
-            {this.notifications ?
+            {this.notifications ? (
               <div class="notification">{this.notifications}</div>
-              : null
-            }
+            ) : null}
             <img src={this.icon} alt={this.name} />
           </div>
           <span class="name">{this.name}</span>

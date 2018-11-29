@@ -19,10 +19,15 @@ export class AppsList {
     return (
       <div class="apps">
         <h2 class="title">{this.name}</h2>
-        
+
         <ul class="list">
           {this.appsList.map(app => (
-            <apps-list-item icon={app.icon} name={app.name} notifications={app.notifications} url={app.url} />
+            <apps-list-item
+              icon={app.icon}
+              name={app.name}
+              notifications={app.notifications}
+              url={app.url}
+            />
           ))}
         </ul>
       </div>
