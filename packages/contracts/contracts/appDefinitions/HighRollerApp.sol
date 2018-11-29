@@ -68,7 +68,7 @@ contract HighRollerApp {
       nextState.stage = Stage.COMMITTING_NUM;
 
       nextState.commitHash = action.hash;
-    } else if (action.actionType == ActionType.COMMITTING_NUM) {
+    } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(state.stage == Stage.COMMITTING_NUM, "Cannot apply COMMITTING_NUM on COMMITTING_NUM");
       nextState.stage = Stage.REVEALING;
 
