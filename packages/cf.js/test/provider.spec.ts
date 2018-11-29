@@ -129,9 +129,23 @@ describe("CF.js Provider", async () => {
   });
 
   it("should expose the same AppInstance instance for a unique app instance ID", async () => {
+    expect.assertions(1);
+    let savedInstance: AppInstance;
     provider.on(EventType.REJECT_INSTALL, e => {
-      const appInstance = (e.data as RejectInstallEventData).appInstance;
-      e.data.
+      const eventInstance = (e.data as RejectInstallEventData).appInstance;
+      if (!savedInstance) {
+        savedInstance = eventInstance;
+      } else {
+        expect(savedInstance).toBe(eventInstance);
+      }
     });
+    const msg = {
+      type: Node.EventName.REJECT_INSTALL,
+      data: {
+        appInstance: TEST_APP_INSTANCE_INFO
+      }
+    };
+    nodeProvider.simulateMessageFromNode(msg);
+    nodeProvider.simulateMessageFromNode(msg);
   });
 });
