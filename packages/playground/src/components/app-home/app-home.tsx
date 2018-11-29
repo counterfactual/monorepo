@@ -3,14 +3,14 @@ import { RouterHistory } from "@stencil/router";
 
 import apps from "../../utils/app-list";
 
+const runningAppKey = Object.keys(apps)[0];
 const runningApps = {
-  // TODO: How do we get a list of available apps?
-  "0x822c045f6F5e7E8090eA820E24A5f327C4E62c96": {
-    name: "High Roller",
-    url: "dapps/high-roller.html",
-    icon: "assets/icon/high-roller.svg",
-    notifications: 11
-  }
+  [runningAppKey]: Object.assign(
+    {
+      notifications: 11
+    },
+    apps[runningAppKey]
+  )
 };
 
 @Component({
@@ -28,7 +28,11 @@ export class AppHome {
   render() {
     return (
       <div class="app-home">
-        <apps-list apps={apps} onAppClicked={e => this.appClickedHandler(e)} name="Available Apps" />
+        <apps-list
+          apps={apps}
+          onAppClicked={e => this.appClickedHandler(e)}
+          name="Available Apps"
+        />
         <apps-list apps={runningApps} name="Running Apps" />
       </div>
     );
