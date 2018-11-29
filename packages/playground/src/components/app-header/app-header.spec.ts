@@ -1,7 +1,7 @@
-import { AppsList } from "./apps-list";
+import { AppHeader } from "./app-header";
 
 describe("app", () => {
   it("builds", () => {
-    expect(new AppsList()).toBeTruthy();
+    expect(new AppHeader()).toBeTruthy();
   });
 });
