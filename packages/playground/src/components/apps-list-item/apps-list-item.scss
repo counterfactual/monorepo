@@ -1,0 +1,54 @@
+.item {
+  position: relative;
+  margin: 1rem;
+}
+
+.icon {
+  position: relative;
+  border-radius: 24px;
+
+  > .notification {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    color: $c-white;
+    font-size: $f-sm;
+    background: $c-red;
+    z-index: 2;
+  }
+
+  > img {
+    display: block;
+    width: 126px;
+    height: 126px;
+    border-radius: 24px;
+    object-fit: cover;
+    z-index: 1;
+  }
+}
+
+.name {
+  display: block;
+  @include f-base;
+  text-align: center;
+  font-weight: $f-light;
+  color: $c-darkgrey;
+  color: #707070;
+  line-height: 37.5px;
+}
+
+@media screen and (max-width: $screen-sm) {
+  .icon {
+    border-radius: 16px;
+
+    > img {
+      border-radius: 16px;
+    }
+  }
+}

@@ -18,10 +18,6 @@ export type Bytes32 = string;
 export type Address = string; // ethereum address (i.e. rightmost 20 bytes of keccak256 of ECDSA pubkey)
 export type H256 = string; // a bytes32 which is the output of the keccak256 hash function
 
-export async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export async function mineOneBlock(provider: ethers.providers.JsonRpcProvider) {
   return provider.send("evm_mine", []);
 }
