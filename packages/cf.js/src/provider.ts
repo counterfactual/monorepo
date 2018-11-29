@@ -2,14 +2,14 @@ import cuid from "cuid";
 import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
-import { INodeProvider, Node } from "./types";
-
-export type EventType = Node.EventName | Node.ErrorType;
-
-export interface Event {
-  readonly type: EventType;
-  readonly data: any; // TODO
-}
+import {
+  AppInstanceID,
+  AppInstanceInfo,
+  CounterfactualEvent,
+  EventType,
+  INodeProvider,
+  Node
+} from "./types";
 
 const NODE_REQUEST_TIMEOUT = 1500;
 
@@ -18,6 +18,7 @@ export class Provider {
     [requestId: string]: (msg: Node.Message) => void;
   } = {};
   private readonly eventEmitter = new EventEmitter();
+  private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
 
   constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
@@ -32,11 +33,11 @@ export class Provider {
     return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(eventName: EventType, callback: (e: Event) => void) {
+  on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
     this.eventEmitter.on(eventName, callback);
   }
 
-  once(eventName: EventType, callback: (e: Event) => void) {
+  once(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
     this.eventEmitter.once(eventName, callback);
   }
 
@@ -80,15 +81,12 @@ export class Provider {
   private onNodeMessage(message: Node.Message) {
     const type = message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
-      return this.handleNodeError(message as Node.Error);
+      this.handleNodeError(message as Node.Error);
+    } else if ((message as Node.MethodResponse).requestId) {
+      this.handleNodeMethodResponse(message as Node.MethodResponse);
+    } else {
+      this.handleNodeEvent(message as Node.Event);
     }
-    if (Object.values(Node.MethodName).indexOf(type) !== -1) {
-      return this.handleNodeMethodResponse(message as Node.MethodResponse);
-    }
-    if (Object.values(Node.EventName).indexOf(type) !== -1) {
-      return this.handleNodeEvent(message as Node.Event);
-    }
-    throw new Error(`Unhandled Node message type: ${type}`);
   }
 
   private handleNodeError(error: Node.Error) {
@@ -119,7 +117,48 @@ export class Provider {
     }
   }
 
-  private handleNodeEvent(event: Node.Event) {
-    return undefined;
+  private async getOrCreateAppInstance(
+    id: AppInstanceID,
+    info?: AppInstanceInfo
+  ): Promise<AppInstance> {
+    if (!this.appInstances[id]) {
+      let newInfo;
+      if (info) {
+        newInfo = info;
+      } else {
+        const { result } = await this.callNodeMethod(
+          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          { appInstanceId: id }
+        );
+        newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
+      }
+      this.appInstances[id] = new AppInstance(newInfo);
+    }
+    return this.appInstances[id];
+  }
+
+  private async handleNodeEvent(nodeEvent: Node.Event) {
+    let event: CounterfactualEvent;
+    switch (nodeEvent.type) {
+      case Node.EventName.REJECT_INSTALL: {
+        const data = nodeEvent.data as Node.RejectInstallEventData;
+        const info = data.appInstance;
+        const appInstance = await this.getOrCreateAppInstance(info.id, info);
+        event = {
+          type: EventType.REJECT_INSTALL,
+          data: {
+            appInstance
+          }
+        };
+        break;
+      }
+      default:
+        throw new Error(
+          `Unsupported event type: ${nodeEvent.type}: ${JSON.stringify(
+            nodeEvent
+          )}`
+        );
+    }
+    this.eventEmitter.emit(event.type, event);
   }
 }

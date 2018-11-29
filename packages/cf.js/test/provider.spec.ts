@@ -2,7 +2,14 @@ import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
-import { AssetType, INodeProvider, Node } from "../src/types";
+import {
+  AppInstanceInfo,
+  AssetType,
+  EventType,
+  INodeProvider,
+  Node,
+  RejectInstallEventData
+} from "../src/types";
 
 class TestNodeProvider implements INodeProvider {
   public postedMessages: Node.Message[] = [];
@@ -21,7 +28,7 @@ class TestNodeProvider implements INodeProvider {
   }
 }
 
-const TEST_INSTANCE = new AppInstance({
+const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
   id: "TEST_ID",
   asset: { assetType: AssetType.ETH },
   abiEncodings: { actionEncoding: "", stateEncoding: "" },
@@ -29,7 +36,8 @@ const TEST_INSTANCE = new AppInstance({
   myDeposit: new BigNumber("0"),
   peerDeposit: new BigNumber("0"),
   timeout: new BigNumber("0")
-});
+};
+
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
   let provider: Provider;
@@ -88,7 +96,7 @@ describe("CF.js Provider", async () => {
 
     provider.getAppInstances().then(instances => {
       expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(TEST_INSTANCE.id);
+      expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
     });
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
@@ -99,21 +107,31 @@ describe("CF.js Provider", async () => {
       type: Node.MethodName.GET_APP_INSTANCES,
       requestId: request.requestId,
       result: {
-        appInstances: [TEST_INSTANCE.info]
+        appInstances: [TEST_APP_INSTANCE_INFO]
       }
     });
   });
 
-  it("should correctly subscribe to events", async () => {
-    expect.assertions(1);
-    provider.once(Node.EventName.INSTALL, e => {
-      expect(e.type).toBe(Node.EventName.INSTALL);
+  it("should correctly subscribe to rejectInstall events", async () => {
+    expect.assertions(3);
+    provider.once(EventType.REJECT_INSTALL, e => {
+      expect(e.type).toBe(EventType.REJECT_INSTALL);
+      const appInstance = (e.data as RejectInstallEventData).appInstance;
+      expect(appInstance).toBeInstanceOf(AppInstance);
+      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
     });
     nodeProvider.simulateMessageFromNode({
-      type: Node.EventName.INSTALL,
+      type: Node.EventName.REJECT_INSTALL,
       data: {
-        appInstance: TEST_INSTANCE.info
+        appInstance: TEST_APP_INSTANCE_INFO
       }
+    });
+  });
+
+  it("should expose the same AppInstance instance for a unique app instance ID", async () => {
+    provider.on(EventType.REJECT_INSTALL, e => {
+      const appInstance = (e.data as RejectInstallEventData).appInstance;
+      e.data.
     });
   });
 });
