@@ -1,4 +1,5 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 import apps from "../../utils/app-list";
 
@@ -8,10 +9,16 @@ import apps from "../../utils/app-list";
   shadow: true
 })
 export class AppHome {
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  appClickedHandler(e) {
+    this.history.push(e.detail.dappContainerUrl, e.detail);
+  }
+
   render() {
     return (
       <div class="app-home">
-        <apps-list apps={apps} />
+        <apps-list apps={apps} onAppClicked={e => this.appClickedHandler(e)} />
       </div>
     );
   }

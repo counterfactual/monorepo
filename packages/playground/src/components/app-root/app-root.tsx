@@ -21,6 +21,7 @@ export class AppRoot {
           <stencil-router>
             <stencil-route-switch scrollTopOffset={0}>
               <stencil-route url="/" component="app-home" exact={true} />
+              <stencil-route url="/dapp/:dappName" component="dapp-container" />
             </stencil-route-switch>
           </stencil-router>
         </main>
