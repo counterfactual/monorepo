@@ -422,7 +422,8 @@ async function installBalanceRefund(
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   // since the machine is async, we need to wait for walletB to finish up its
   // side of the protocol before inspecting it's state
-  await cf.legacy.utils.sleep(50);
+
+  await new Promise(resolve => setTimeout(resolve, 50));
   // check B's client
   validateInstalledBalanceRefund(multisigAddr, counterparty, threshold);
   // check A's client and return the newly created cf address
