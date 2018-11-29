@@ -8,9 +8,17 @@
   .left {
     display: flex;
     align-items: center;
+  }
+
+  .logo {
     margin: 0;
     border: 1px solid $c-black;
     font-size: $f-base;
+
+    a {
+      display: flex;
+      align-items: center;
+    }
 
     img {
       width: 3.2rem;

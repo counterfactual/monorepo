@@ -9,12 +9,15 @@ export class AppHeader {
   render() {
     return (
       <header class="header">
-        <a href="index.html">
-          <h1 class="left">
-            <img src="./assets/icon/logo.svg" alt="Counterfactual" />
-            <span>Playground</span>
+        <div class="left">
+          <h1 class="logo">
+            <a href="index.html">
+              <img src="./assets/icon/logo.svg" alt="Counterfactual" />
+              <span>Playground</span>
+            </a>
           </h1>
-        </a>
+          <app-connection />
+        </div>
         <nav class="right" />
       </header>
     );
