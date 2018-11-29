@@ -2,8 +2,7 @@ import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
-import { AssetType } from "../src/types";
-import { INodeProvider, Node } from "../src/types/node-protocol";
+import { AssetType, INodeProvider, Node } from "../src/types";
 
 class TestNodeProvider implements INodeProvider {
   public postedMessages: Node.Message[] = [];
@@ -22,6 +21,15 @@ class TestNodeProvider implements INodeProvider {
   }
 }
 
+const TEST_INSTANCE = new AppInstance({
+  id: "TEST_ID",
+  asset: { assetType: AssetType.ETH },
+  abiEncodings: { actionEncoding: "", stateEncoding: "" },
+  appId: "",
+  myDeposit: new BigNumber("0"),
+  peerDeposit: new BigNumber("0"),
+  timeout: new BigNumber("0")
+});
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
   let provider: Provider;
@@ -77,19 +85,10 @@ describe("CF.js Provider", async () => {
 
   it("should query app instances and return them", async () => {
     expect.assertions(4);
-    const testInstance = new AppInstance({
-      id: "TEST_ID",
-      asset: { assetType: AssetType.ETH },
-      abiEncodings: { actionEncoding: "", stateEncoding: "" },
-      appId: "",
-      myDeposit: new BigNumber("0"),
-      peerDeposit: new BigNumber("0"),
-      timeout: new BigNumber("0")
-    });
 
     provider.getAppInstances().then(instances => {
       expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(testInstance.id);
+      expect(instances[0].id).toBe(TEST_INSTANCE.id);
     });
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
@@ -100,7 +99,20 @@ describe("CF.js Provider", async () => {
       type: Node.MethodName.GET_APP_INSTANCES,
       requestId: request.requestId,
       result: {
-        appInstances: [testInstance.info]
+        appInstances: [TEST_INSTANCE.info]
+      }
+    });
+  });
+
+  it("should correctly subscribe to events", async () => {
+    expect.assertions(1);
+    provider.once(Node.EventName.INSTALL, e => {
+      expect(e.type).toBe(Node.EventName.INSTALL);
+    });
+    nodeProvider.simulateMessageFromNode({
+      type: Node.EventName.INSTALL,
+      data: {
+        appInstance: TEST_INSTANCE.info
       }
     });
   });
