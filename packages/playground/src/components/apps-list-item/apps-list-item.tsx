@@ -6,9 +6,9 @@ import { Component, Prop } from "@stencil/core";
   shadow: true
 })
 export class AppsListItem {
-  @Prop() icon: string;
-  @Prop() name: string;
-  @Prop() url: string;
+  @Prop() icon: string = "";
+  @Prop() name: string = "";
+  @Prop() url: string = "";
 
   render() {
     return (
