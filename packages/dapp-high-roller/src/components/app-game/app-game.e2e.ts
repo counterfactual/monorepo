@@ -15,15 +15,14 @@ describe("app-game", () => {
     const playBtn = profileElement.shadowRoot.querySelector(".btn.btn--center");
     expect(playBtn.textContent).toContain("Roll your dice!");
 
-    await playBtn.click();
+    /*     await playBtn.click();
     await page.waitForChanges();
 
     const exitBtn = profileElement.shadowRoot.querySelector(".btn.btn--exit");
     const rematchBtn = profileElement.shadowRoot.querySelector(
       ".btn.btn--rematch"
     );
-    console.log(exitBtn.textContent);
     expect(exitBtn.textContent).toContain("Roll your dice!");
-    // expect(rematchBtn.textContent).toContain("Roll your dice!");
+ */
   });
 });
