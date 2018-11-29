@@ -1,0 +1,15 @@
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: $f-sm;
+  font-weight: $f-light;
+  color: #343434;
+
+  img {
+    display: inline-block;
+    padding: 0 0.5rem;
+  }
+}

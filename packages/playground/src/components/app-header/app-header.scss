@@ -1,0 +1,57 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.06rem 1.333rem;
+  border-bottom: 1px solid $c-blue;
+
+  .left {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo {
+    margin: 0;
+    border: 1px solid $c-black;
+    font-size: $f-base;
+
+    a {
+      display: flex;
+      align-items: center;
+    }
+
+    img {
+      width: 3.2rem;
+      height: 3.2rem;
+    }
+
+    span {
+      @include f-logo;
+      display: block;
+      padding: 0 1.25rem;
+    }
+  }
+
+  .right {
+    button {
+      padding: 1rem;
+    }
+  }
+}
+
+@media screen and (max-width: $screen-sm) {
+  .header {
+    padding: 0.666rem;
+
+    .left {
+      img {
+        width: 2.25rem;
+        height: 2.25rem;
+      }
+
+      span {
+        padding: 0 0.75rem;
+      }
+    }
+  }
+}

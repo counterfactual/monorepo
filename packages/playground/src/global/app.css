@@ -7,3 +7,18 @@
 
   Any global CSS variables should also be applied here.
 */
+
+html {
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Chivo', sans-serif;
+}
+
+html, body {
+  height: 100%;
+}
