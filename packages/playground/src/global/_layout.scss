@@ -1,0 +1,23 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: transform 150ms;
+
+  &--open { // on menu-btn click
+    transform: translateX(-15rem);
+  }
+
+  &__content {
+    flex-grow: 1;
+  }
+}
+
+.section {
+  padding: 1rem;
+}
+
+.container {
+  max-width: $site-width;
+  margin: 0 auto;
+}

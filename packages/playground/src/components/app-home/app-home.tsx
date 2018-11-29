@@ -1,5 +1,6 @@
 import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { sass } from "@stencil/sass";
 
 import apps from "../../utils/app-list";
 
@@ -27,14 +28,16 @@ export class AppHome {
 
   render() {
     return (
-      <div class="app-home">
-        <apps-list
-          apps={apps}
-          onAppClicked={e => this.appClickedHandler(e)}
-          name="Available Apps"
-        />
-        <apps-list apps={runningApps} name="Running Apps" />
-      </div>
+      <section class="section">
+        <div class="container">
+          <apps-list
+            apps={apps}
+            onAppClicked={e => this.appClickedHandler(e)}
+            name="Available Apps"
+          />
+          <apps-list apps={runningApps} name="Running Apps" />
+        </div>
+      </section>
     );
   }
 }

@@ -11,7 +11,8 @@ export const config: Config = {
         'src/global/variables.scss',
         'src/global/box-sizing.scss',
         'src/global/reset.scss',
-        'src/global/typography.scss'
+        'src/global/typography.scss',
+        'src/global/layout.scss'
       ]
     })
   ]
