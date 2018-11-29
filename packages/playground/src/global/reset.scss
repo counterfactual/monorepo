@@ -1,0 +1,36 @@
+html {
+  font-size: $f-rem;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Chivo', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 1rem 0;
+}
+
+ul {
+  margin: 1rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

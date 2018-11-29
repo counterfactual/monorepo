@@ -4,12 +4,13 @@ import { AppDefinition } from "../../types";
 
 @Component({
   tag: "apps-list",
-  styleUrl: "apps-list.css",
+  styleUrl: "apps-list.scss",
   shadow: true
 })
 export class AppsList {
   @Event() appClicked: EventEmitter = {} as EventEmitter;
   @Prop() apps: { [s: string]: AppDefinition } = {};
+  @Prop() name: string = "";
 
   public get appsList(): AppDefinition[] {
     return Object.keys(this.apps).map(key => this.apps[key]);
@@ -21,16 +22,21 @@ export class AppsList {
 
   render() {
     return (
-      <ul class="list">
-        {this.appsList.map(app => (
-          <apps-list-item
-            onAppClicked={e => this.appClickedHandler(e)}
-            icon={app.icon}
-            name={app.name}
-            url={app.url}
-          />
-        ))}
-      </ul>
+      <div class="apps">
+        <h2 class="title">{this.name}</h2>
+
+        <ul class="list">
+          {this.appsList.map(app => (
+            <apps-list-item
+              onAppClicked={e => this.appClickedHandler(e)}
+              icon={app.icon}
+              name={app.name}
+              notifications={app.notifications}
+              url={app.url}
+            />
+          ))}
+        </ul>
+      </div>
     );
   }
 }

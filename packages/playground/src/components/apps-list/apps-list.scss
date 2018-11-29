@@ -1,3 +1,8 @@
+.title {
+  @include f-heading;
+  margin-bottom: 1.5rem;
+}
+
 .list {
   display: flex;
   margin: -1rem;
@@ -5,7 +10,7 @@
   list-style: none;
 }
 
-@media screen and (max-width: var(--screen-sm)) {
+@media screen and (max-width: $screen-sm) {
   .list {
     display: flex;
     margin: -1rem;

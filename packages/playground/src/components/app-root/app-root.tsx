@@ -6,7 +6,7 @@ import { MatchResults } from "@stencil/router";
 
 @Component({
   tag: "app-root",
-  styleUrl: "app-root.css",
+  styleUrl: "app-root.scss",
   shadow: true
 })
 export class AppRoot {

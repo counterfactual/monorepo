@@ -3,9 +3,19 @@ import { RouterHistory } from "@stencil/router";
 
 import apps from "../../utils/app-list";
 
+const runningAppKey = Object.keys(apps)[0];
+const runningApps = {
+  [runningAppKey]: Object.assign(
+    {
+      notifications: 11
+    },
+    apps[runningAppKey]
+  )
+};
+
 @Component({
   tag: "app-home",
-  styleUrl: "app-home.css",
+  styleUrl: "app-home.scss",
   shadow: true
 })
 export class AppHome {
@@ -18,7 +28,12 @@ export class AppHome {
   render() {
     return (
       <div class="app-home">
-        <apps-list apps={apps} onAppClicked={e => this.appClickedHandler(e)} />
+        <apps-list
+          apps={apps}
+          onAppClicked={e => this.appClickedHandler(e)}
+          name="Available Apps"
+        />
+        <apps-list apps={runningApps} name="Running Apps" />
       </div>
     );
   }
