@@ -1,27 +1,23 @@
-import {
-  INodeProvider,
-  NodeMessage,
-  NodeMessageType,
-  NodeQueryData,
-  QueryType
-} from "@counterfactual/node-provider";
+import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
+import { AssetType } from "../src/types";
+import { INodeProvider, Node } from "../src/types/node-protocol";
 
 class TestNodeProvider implements INodeProvider {
-  public postedMessages: NodeMessage[] = [];
-  readonly callbacks: ((message: NodeMessage) => void)[] = [];
+  public postedMessages: Node.Message[] = [];
+  readonly callbacks: ((message: Node.Message) => void)[] = [];
 
-  public sendMessageToClient(message: NodeMessage) {
+  public simulateMessageFromNode(message: Node.Message) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: NodeMessage) => void) {
+  public onMessage(callback: (message: Node.Message) => void) {
     this.callbacks.push(callback);
   }
 
-  public postMessage(message: NodeMessage) {
+  public sendMessage(message: Node.Message) {
     this.postedMessages.push(message);
   }
 }
@@ -35,33 +31,61 @@ describe("CF.js Provider", async () => {
     provider = new Provider(nodeProvider);
   });
 
-  it("should respond correctly to errors", async () => {
-    expect.assertions(4);
+  it("should respond correctly to a generic error", async () => {
+    expect.assertions(3);
     const promise = provider.getAppInstances();
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
-    const queryMessage = nodeProvider.postedMessages[0];
 
-    expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data! as NodeQueryData;
-    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
+    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
-    nodeProvider.sendMessageToClient({
-      requestId: queryMessage.requestId,
-      messageType: NodeMessageType.ERROR,
-      data: { message: "Music too loud" }
+    nodeProvider.simulateMessageFromNode({
+      requestId: request.requestId,
+      type: Node.ErrorType.ERROR,
+      data: { errorName: "music_too_loud", message: "Music too loud" }
     });
 
     try {
       await promise;
     } catch (e) {
-      expect(e.data.message).toBe("Music too loud");
+      expect(e.message).toBe("Music too loud");
+    }
+  });
+
+  it("should respond correctly to message type mismatch", async () => {
+    expect.assertions(3);
+    const promise = provider.getAppInstances();
+
+    expect(nodeProvider.postedMessages).toHaveLength(1);
+
+    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
+
+    nodeProvider.simulateMessageFromNode({
+      requestId: request.requestId,
+      type: Node.MethodName.PROPOSE_INSTALL,
+      result: { appInstanceId: "" }
+    });
+
+    try {
+      await promise;
+    } catch (e) {
+      expect(e.errorName).toBe("unexpected_message_type");
     }
   });
 
   it("should query app instances and return them", async () => {
-    expect.assertions(5);
-    const testInstance = new AppInstance("TEST_ID");
+    expect.assertions(4);
+    const testInstance = new AppInstance({
+      id: "TEST_ID",
+      asset: { assetType: AssetType.ETH },
+      abiEncodings: { actionEncoding: "", stateEncoding: "" },
+      appId: "",
+      myDeposit: new BigNumber("0"),
+      peerDeposit: new BigNumber("0"),
+      timeout: new BigNumber("0")
+    });
 
     provider.getAppInstances().then(instances => {
       expect(instances).toHaveLength(1);
@@ -69,17 +93,14 @@ describe("CF.js Provider", async () => {
     });
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
-    const queryMessage = nodeProvider.postedMessages[0];
-    expect(queryMessage.messageType).toBe(NodeMessageType.QUERY);
-    const queryData = queryMessage.data as NodeQueryData;
-    expect(queryData.queryType).toBe(QueryType.GET_APP_INSTANCES);
+    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
+    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
-    nodeProvider.sendMessageToClient({
-      requestId: queryMessage.requestId,
-      messageType: NodeMessageType.QUERY,
-      data: {
-        queryType: QueryType.GET_APP_INSTANCES,
-        appInstances: [testInstance]
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.GET_APP_INSTANCES,
+      requestId: request.requestId,
+      result: {
+        appInstances: [testInstance.info]
       }
     });
   });
