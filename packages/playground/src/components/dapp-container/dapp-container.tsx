@@ -1,5 +1,8 @@
 import { Component, Element, Prop } from "@stencil/core";
+import { MatchResults, RouterHistory } from "@stencil/router";
 import EventEmitter from "eventemitter3";
+
+import apps from "../../utils/app-list";
 
 @Component({
   tag: "dapp-container",
@@ -7,30 +10,50 @@ import EventEmitter from "eventemitter3";
 })
 export class DappContainer {
   @Element() private element: HTMLElement | undefined;
-  @Prop() url: string = "";
+
+  @Prop() match: MatchResults = {} as MatchResults;
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  @Prop({ mutable: true }) url: string = "";
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
   private eventEmitter: EventEmitter = new EventEmitter();
   private messageQueue: object[] = [];
 
-  constructor() {
-    this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
+  getDappUrl() {
+    const dappSlug = this.match.params.dappName;
+    for (const address in apps) {
+      if (dappSlug === apps[address].slug) {
+        return apps[address].url;
+      }
+    }
+
+    return "";
   }
 
   componentDidLoad() {
+    this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
+    this.url = this.getDappUrl();
+
     /**
      * Once the component has loaded, we store a reference of the IFRAME
      * element's window so we can bind the message relay system.
      **/
-    const element = this.element as HTMLElement;
+    const element = (this.element as HTMLElement).shadowRoot as ShadowRoot;
     const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
-    this.frameWindow = iframe.contentWindow as Window;
-    this.frameWindow.addEventListener(
-      "message",
-      this.configureMessageChannel.bind(this)
-    );
+    iframe.addEventListener("load", () => {
+      this.frameWindow = iframe.contentWindow as Window;
+
+      // TODO: This won't work if the dapp is in a different host.
+      // We need to think a way of exchanging messages to make this
+      // possible.
+      this.frameWindow.addEventListener(
+        "message",
+        this.configureMessageChannel.bind(this)
+      );
+    });
   }
 
   /**
