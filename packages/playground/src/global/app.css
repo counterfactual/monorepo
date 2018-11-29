@@ -18,3 +18,7 @@ body {
   padding: 0;
   font-family: 'Chivo', sans-serif;
 }
+
+html, body {
+  height: 100%;
+}

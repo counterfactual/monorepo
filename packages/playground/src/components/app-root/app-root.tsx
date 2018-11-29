@@ -12,7 +12,7 @@ import { MatchResults } from "@stencil/router";
 export class AppRoot {
   render() {
     return (
-      <div class="wrapper">
+      <div class="app-root wrapper">
         <app-header />
 
         <main class="wrapper__content">
@@ -23,6 +23,8 @@ export class AppRoot {
             </stencil-route-switch>
           </stencil-router>
         </main>
+
+        <app-footer />
       </div>
     );
   }
