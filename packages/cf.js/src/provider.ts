@@ -1,12 +1,13 @@
 import cuid from "cuid";
+import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
 import { INodeProvider, Node } from "./types";
 
-export import DappEventType = Node.EventName;
+export type EventType = Node.EventName | Node.ErrorType;
 
-export interface DappEvent {
-  readonly type: DappEventType;
+export interface Event {
+  readonly type: EventType;
   readonly data: any; // TODO
 }
 
@@ -16,6 +17,7 @@ export class Provider {
   private readonly requestListeners: {
     [requestId: string]: (msg: Node.Message) => void;
   } = {};
+  private readonly eventEmitter = new EventEmitter();
 
   constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
@@ -30,8 +32,12 @@ export class Provider {
     return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(eventName: DappEventType, callback: (e: DappEvent) => void) {
-    // TODO: support notification observers
+  on(eventName: EventType, callback: (e: Event) => void) {
+    this.eventEmitter.on(eventName, callback);
+  }
+
+  once(eventName: EventType, callback: (e: Event) => void) {
+    this.eventEmitter.once(eventName, callback);
   }
 
   private async callNodeMethod(
@@ -42,7 +48,7 @@ export class Provider {
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
-          return reject(response.data);
+          return reject(response);
         }
         if (response.type !== methodName) {
           return reject({
@@ -69,14 +75,48 @@ export class Provider {
   }
 
   private onNodeMessage(message: Node.Message) {
-    const requestId = (message as Node.MethodResponse).requestId;
-    if (requestId) {
-      if (this.requestListeners[requestId]) {
-        this.requestListeners[requestId](message);
-        delete this.requestListeners[requestId];
-      }
-    } else {
-      // TODO: notify observers
+    const type = message.type;
+    if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
+      return this.handleNodeError(message as Node.Error);
     }
+    if (Object.values(Node.MethodName).indexOf(type) !== -1) {
+      return this.handleNodeMethodResponse(message as Node.MethodResponse);
+    }
+    if (Object.values(Node.EventName).indexOf(type) !== -1) {
+      return this.handleNodeEvent(message as Node.Event);
+    }
+    throw new Error(`Unhandled Node message type: ${type}`);
+  }
+
+  private handleNodeError(error: Node.Error) {
+    const requestId = error.requestId;
+    if (requestId && this.requestListeners[requestId]) {
+      this.requestListeners[requestId](error);
+      delete this.requestListeners[requestId];
+    }
+    this.eventEmitter.emit(error.type, error);
+  }
+
+  private handleNodeMethodResponse(response: Node.MethodResponse) {
+    const { requestId } = response;
+    if (this.requestListeners[requestId]) {
+      this.requestListeners[requestId](response);
+      delete this.requestListeners[requestId];
+    } else {
+      const error = {
+        type: Node.ErrorType.ERROR,
+        data: {
+          errorName: "orphaned_response",
+          message: `Response has no corresponding inflight request: ${JSON.stringify(
+            response
+          )}`
+        }
+      };
+      this.eventEmitter.emit(error.type, error);
+    }
+  }
+
+  private handleNodeEvent(event: Node.Event) {
+    return undefined;
   }
 }
