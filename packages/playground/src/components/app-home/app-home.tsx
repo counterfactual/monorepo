@@ -13,16 +13,28 @@ const apps = {
     icon: "assets/icon/icon.png"
   }
 };
+
+const runningApps = {
+  // TODO: How do we get a list of available apps?
+  "0x822c045f6F5e7E8090eA820E24A5f327C4E62c96": {
+    name: "High Roller",
+    url: "dapps/high-roller.html",
+    icon: "assets/icon/high-roller.svg",
+    notifications: 11
+  }
+};
+
 @Component({
   tag: "app-home",
-  styleUrl: "app-home.css",
+  styleUrl: "app-home.scss",
   shadow: true
 })
 export class AppHome {
   render() {
     return (
       <div class="app-home">
-        <apps-list apps={apps} />
+        <apps-list apps={apps} name="Available Apps" />
+        <apps-list apps={runningApps} name="Running Apps" />
       </div>
     );
   }
