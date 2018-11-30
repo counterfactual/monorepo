@@ -8,6 +8,7 @@ import {
   ErrorEventData,
   EventType,
   INodeProvider,
+  InstallEventData,
   Node,
   RejectInstallEventData
 } from "../src/types";
@@ -172,5 +173,40 @@ describe("CF.js Provider", async () => {
     };
     nodeProvider.simulateMessageFromNode(msg);
     nodeProvider.simulateMessageFromNode(msg);
+  });
+
+  it("should load app instance details on-demand", async () => {
+    expect.assertions(4);
+
+    provider.on(EventType.UPDATE_STATE, e => {
+      expect((e.data as InstallEventData).appInstance.info).toBe(
+        TEST_APP_INSTANCE_INFO
+      );
+    });
+
+    nodeProvider.simulateMessageFromNode({
+      type: Node.EventName.UPDATE_STATE,
+      data: {
+        appInstanceId: TEST_APP_INSTANCE_INFO.id,
+        oldState: "4",
+        action: "-1",
+        newState: "3"
+      }
+    });
+    expect(nodeProvider.postedMessages).toHaveLength(1);
+    const detailsRequest = nodeProvider.postedMessages[0] as Node.MethodRequest;
+    expect(detailsRequest.type).toBe(Node.MethodName.GET_APP_INSTANCE_DETAILS);
+    expect(
+      (detailsRequest.params as Node.GetAppInstanceDetailsParams).appInstanceId
+    ).toBe(TEST_APP_INSTANCE_INFO.id);
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
+      requestId: detailsRequest.requestId,
+      result: {
+        appInstance: TEST_APP_INSTANCE_INFO
+      }
+    });
+    // NOTE: For some reason the event won't fire unless we wait for a bit
+    await new Promise(r => setTimeout(r, 50));
   });
 });

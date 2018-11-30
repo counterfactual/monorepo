@@ -162,6 +162,24 @@ export class Provider {
         };
         break;
       }
+      case Node.EventName.UPDATE_STATE:
+        const {
+          appInstanceId,
+          action,
+          newState,
+          oldState
+        } = nodeEvent.data as Node.UpdateStateEventData;
+        const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+        event = {
+          type: EventType.UPDATE_STATE,
+          data: {
+            action,
+            newState,
+            oldState,
+            appInstance
+          }
+        };
+        break;
       default:
         throw new Error(
           `Unsupported event type: ${nodeEvent.type}: ${JSON.stringify(
