@@ -1,0 +1,32 @@
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+}
+.player-info__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.player-info__status {
+  display: flex;
+  align-items: center;
+}
+.player-info__status__color {
+  display: block;
+  width: 0.93rem;
+  height: 0.93rem;
+  border-radius: 50%;
+  background: #fff;
+}
+.player-info__status__color.black {
+  background: #424242;
+}
+.player-info__status__score {
+  display: block;
+  margin-left: 0.5rem;
+}
+.player__dice {
+  display: flex;
+  justify-content: space-around;
+}

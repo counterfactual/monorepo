@@ -4,9 +4,13 @@
       "packages": [
         "package.json",
         "packages/cf.js/package.json",
+        "packages/dapp-high-roller/package.json",
         "packages/contracts/package.json",
-        "packages/iframe-wallet-poc/package.json",
         "packages/machine/package.json",
+        "packages/node/package.json",
+        "packages/node-provider/package.json",
+        "packages/playground/package.json",
+        "packages/playground-poc/package.json",
         "packages/typescript-typings/package.json"
       ]
     }
