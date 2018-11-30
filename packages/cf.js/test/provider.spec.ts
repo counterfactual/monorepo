@@ -209,4 +209,19 @@ describe("CF.js Provider", async () => {
     // NOTE: For some reason the event won't fire unless we wait for a bit
     await new Promise(r => setTimeout(r, 50));
   });
+
+  it("should throw an error for unexpected event types", async () => {
+    expect.assertions(2);
+
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe(
+        "unexpected_event_type"
+      );
+    });
+
+    nodeProvider.simulateMessageFromNode(({
+      type: "notARealEventType"
+    } as unknown) as Node.Event);
+  });
 });

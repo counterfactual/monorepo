@@ -181,11 +181,15 @@ export class Provider {
         };
         break;
       default:
-        throw new Error(
-          `Unsupported event type: ${nodeEvent.type}: ${JSON.stringify(
-            nodeEvent
-          )}`
-        );
+        event = {
+          type: EventType.ERROR,
+          data: {
+            errorName: "unexpected_event_type",
+            message: `Unexpected event type: ${
+              nodeEvent.type
+            }: ${JSON.stringify(nodeEvent)}`
+          }
+        };
     }
     this.eventEmitter.emit(event.type, event);
   }
