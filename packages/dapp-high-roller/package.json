@@ -7,11 +7,12 @@
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "stencil test --spec --e2e",
-    "test.watch": "stencil test --spec --e2e --watchAll"
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "test:e2e": "stencil test --e2e"
   },
   "dependencies": {
     "@stencil/core": "~0.15.1",
-    "@stencil/router": "~0.3.0"
+    "@stencil/router": "0.2.6"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
+    "@stencil/sass": "^0.1.1",
     "@types/puppeteer": "1.10.0",
     "puppeteer": "1.8.0"
   }
