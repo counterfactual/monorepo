@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, Event, EventEmitter } from "@stencil/core";
 
 @Component({
   tag: "app-header",
@@ -6,19 +6,29 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppHeader {
+  @Event() openDrawer: EventEmitter = {} as EventEmitter;
+
+  private menuClicked(event: MouseEvent) {
+    event.preventDefault();
+
+    this.openDrawer.emit();
+  }
+
   render() {
     return (
       <header class="header">
-        <div class="left">
-          <h1 class="logo">
-            <a href="/">
-              <img src="/assets/icon/logo.svg" alt="Counterfactual" />
-              <span>Playground</span>
-            </a>
-          </h1>
-          <app-connection />
+        <div class="mobile">
+          <a onClick={e => this.menuClicked(e)}>
+            <img src="/assets/icon/menu-btn.svg" alt="Menu" />
+          </a>
         </div>
-        <nav class="right" />
+        <div class="desktop">
+          <div class="left">
+            <app-logo />
+            <app-connection />
+          </div>
+          <nav class="right" />
+        </div>
       </header>
     );
   }

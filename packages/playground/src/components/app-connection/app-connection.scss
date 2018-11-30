@@ -27,3 +27,9 @@
     transform: scale(1);
   }
 }
+
+@media screen and (max-width: $screen-sm) {
+  .connection {
+    margin: 24px 0;
+  }
+}
