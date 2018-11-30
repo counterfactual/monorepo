@@ -618,6 +618,13 @@
     jsdom "11.11.0"
     typescript "~2.9.1"
 
+"@stencil/router@~0.2.6":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.2.8.tgz#c118195062c78735b88bb72674ebfbed02c473ba"
+  integrity sha512-LaJcVYpxR8HYJZL5ZMN8WwzK9+iCY9vJJK9RDlmpqtyLXkcsFvE4vintie/wDuZ6yNzn3QKz/1JF8KkjHVR67w==
+  dependencies:
+    "@stencil/state-tunnel" "0.0.9-1"
+
 "@stencil/router@~0.3.0":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.3.1.tgz#14d5dbd723590034c16e3a3e31675d3215a0cfda"

@@ -8,7 +8,8 @@ export enum EventType {
   INSTALL = "install",
   REJECT_INSTALL = "rejectInstall",
   UNINSTALL = "uninstall",
-  UPDATE_STATE = "updateState"
+  UPDATE_STATE = "updateState",
+  ERROR = "error"
 }
 
 interface AppEventData {

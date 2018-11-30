@@ -105,7 +105,7 @@ export class Provider {
       delete this.requestListeners[requestId];
     } else {
       const error = {
-        type: Node.ErrorType.ERROR,
+        type: EventType.ERROR,
         data: {
           errorName: "orphaned_response",
           message: `Response has no corresponding inflight request: ${JSON.stringify(

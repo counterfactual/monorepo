@@ -5,6 +5,7 @@ import { Provider } from "../src/provider";
 import {
   AppInstanceInfo,
   AssetType,
+  ErrorEventData,
   EventType,
   INodeProvider,
   Node,
@@ -108,6 +109,21 @@ describe("CF.js Provider", async () => {
       requestId: request.requestId,
       result: {
         appInstances: [TEST_APP_INSTANCE_INFO]
+      }
+    });
+  });
+
+  it("should emit an error event for orphaned responses", async () => {
+    expect.assertions(2);
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
+    });
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.INSTALL,
+      requestId: "test",
+      result: {
+        appInstanceId: ""
       }
     });
   });
