@@ -6,24 +6,25 @@ import { MatchResults } from "@stencil/router";
 
 @Component({
   tag: "app-root",
-  styleUrl: "app-root.css",
+  styleUrl: "app-root.scss",
   shadow: true
 })
 export class AppRoot {
   render() {
     return (
-      <div>
-        <header>
-          <h1>Playground</h1>
-        </header>
+      <div class="app-root wrapper">
+        <app-header />
 
-        <main>
+        <main class="wrapper__content">
           <stencil-router>
             <stencil-route-switch scrollTopOffset={0}>
               <stencil-route url="/" component="app-home" exact={true} />
+              <stencil-route url="/dapp/:dappName" component="dapp-container" />
             </stencil-route-switch>
           </stencil-router>
         </main>
+
+        <app-footer />
       </div>
     );
   }
