@@ -11,7 +11,7 @@ export class AppHeader {
       <header class="header">
         <div class="left">
           <h1 class="logo">
-            <a href="index.html">
+            <a href="/">
               <img src="/assets/icon/logo.svg" alt="Counterfactual" />
               <span>Playground</span>
             </a>
