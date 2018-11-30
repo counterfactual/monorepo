@@ -12,7 +12,7 @@ export class AppHeader {
         <div class="left">
           <h1 class="logo">
             <a href="index.html">
-              <img src="./assets/icon/logo.svg" alt="Counterfactual" />
+              <img src="/assets/icon/logo.svg" alt="Counterfactual" />
               <span>Playground</span>
             </a>
           </h1>
