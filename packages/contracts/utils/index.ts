@@ -9,8 +9,6 @@ export * from "./structEncoding";
 export * from "./contract";
 export * from "./multisig";
 
-export { default as buildArtifacts } from "./buildArtifacts";
-
 export const expect = chai
   .use(chaiString)
   .use(chaiAsPromised)

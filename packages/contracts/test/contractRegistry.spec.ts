@@ -27,9 +27,12 @@ contract("ContractRegistry", accounts => {
     }`;
 
   // @ts-ignore
-  beforeEach(async () => {
+  before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
+  });
 
+  // @ts-ignore
+  beforeEach(async () => {
     const registryArtifact = artifacts.require("ContractRegistry");
 
     contractRegistry = new ethers.Contract(

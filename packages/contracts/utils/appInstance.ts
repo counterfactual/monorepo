@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 
-import * as artifacts from "./buildArtifacts";
 import { Contract } from "./contract";
 import { signMessage } from "./misc";
 import { Multisig } from "./multisig";
@@ -55,22 +54,6 @@ export class AppInstance {
       this.terms.token = ethers.constants.AddressZero;
     }
     this.app = appFromContract(appContract);
-  }
-
-  public async deploy(sender: ethers.Wallet, registry: ethers.Contract) {
-    const appHash = keccak256(encodeStruct(appEncoding, this.app));
-    const termsHash = keccak256(encodeStruct(termsEncoding, this.terms));
-    this.contract = await (await artifacts.AppInstance).deployViaRegistry(
-      sender,
-      registry,
-      [
-        this.multisig.address,
-        this.signerAddrs,
-        appHash,
-        termsHash,
-        this.defaultTimeout
-      ]
-    );
   }
 
   public async setState(

@@ -25,17 +25,11 @@ export const ContractRegistry = AbstractContract.fromArtifactName("ContractRegis
 export const Transfer = AbstractContract.fromArtifactName("Transfer");
 
 // tslint:disable-next-line
-export const AppInstance = AbstractContract.fromArtifactName("AppInstance", {
-  Transfer
-});
-
-// tslint:disable-next-line
 export const MinimumViableMultisig = AbstractContract.fromArtifactName(
   "MinimumViableMultisig"
 );
 
 export default {
-  AppInstance,
   ConditionalTransaction,
   MinimumViableMultisig,
   NonceRegistry,

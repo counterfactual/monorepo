@@ -1,69 +1,75 @@
 import { ethers } from "ethers";
 
-import { AbstractContract, expect } from "../utils";
-import * as Utils from "../utils/misc";
+import { expect } from "../utils";
+import { assertRejects } from "../utils/misc";
 
-const web3 = (global as any).web3;
-const { provider, unlockedAccount } = Utils.setupTestEnv(web3);
+const { HashZero, Zero, One } = ethers.constants;
+const { solidityKeccak256, bigNumberify } = ethers.utils;
+
+const provider = new ethers.providers.Web3Provider(
+  (global as any).web3.currentProvider
+);
 
 contract("NonceRegistry", accounts => {
-  let registry: ethers.Contract;
+  let unlockedAccount: ethers.providers.JsonRpcSigner;
+
+  let nonceRegistry: ethers.Contract;
 
   const computeKey = (timeout: ethers.utils.BigNumber, salt: string) =>
-    ethers.utils.solidityKeccak256(
+    solidityKeccak256(
       ["address", "uint256", "bytes32"],
       [accounts[0], timeout, salt]
     );
 
   // @ts-ignore
   before(async () => {
-    const nonceRegistry = await AbstractContract.fromArtifactName(
-      "NonceRegistry"
+    unlockedAccount = await provider.getSigner(accounts[0]);
+
+    const nonceRegistryArtifact = artifacts.require("NonceRegistry");
+
+    nonceRegistry = new ethers.Contract(
+      (await nonceRegistryArtifact.new()).address,
+      nonceRegistryArtifact.abi,
+      unlockedAccount
     );
-    registry = await nonceRegistry.deploy(unlockedAccount);
   });
 
   it("can set nonces", async () => {
-    const timeout = new ethers.utils.BigNumber(10);
-    await registry.functions.setNonce(timeout, ethers.constants.HashZero, 1);
-    const ret = await registry.functions.table(
-      computeKey(timeout, ethers.constants.HashZero)
-    );
-    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(1));
-    expect(ret.finalizesAt).to.be.eql(
-      new ethers.utils.BigNumber((await provider.getBlockNumber()) + 10)
-    );
+    const timeout = bigNumberify(10);
+    const salt = HashZero;
+    const value = One;
+
+    await nonceRegistry.functions.setNonce(timeout, salt, value);
+
+    const ret = await nonceRegistry.functions.table(computeKey(timeout, salt));
+    const blockNumber = bigNumberify(await provider.getBlockNumber());
+
+    expect(ret.nonceValue).to.be.eql(One);
+    expect(ret.finalizesAt).to.be.eql(blockNumber.add(timeout));
   });
 
   it("fails if nonce increment is not positive", async () => {
-    await Utils.assertRejects(
-      registry.functions.setNonce(
-        new ethers.utils.BigNumber(10),
-        ethers.constants.HashZero,
-        0
-      )
-    );
+    const timeout = bigNumberify(10);
+    const salt = HashZero;
+    const value = Zero; // By default, all values are set to 0
+
+    await assertRejects(nonceRegistry.functions.setNonce(timeout, salt, value));
   });
 
   it("can insta-finalize nonces", async () => {
-    const timeout = new ethers.utils.BigNumber(0);
-    const nonceValue = new ethers.utils.BigNumber(1);
-    const nonceKey = computeKey(timeout, ethers.constants.HashZero);
+    const timeout = Zero;
+    const salt = HashZero;
+    const value = One;
+    const key = computeKey(timeout, salt);
 
-    await registry.functions.setNonce(
-      timeout,
-      ethers.constants.HashZero,
-      nonceValue
-    );
-    const ret = await registry.functions.table(nonceKey);
-    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
-    expect(ret.finalizesAt).to.be.eql(
-      new ethers.utils.BigNumber(await provider.getBlockNumber())
-    );
-    const isFinal = await registry.functions.isFinalized(
-      computeKey(timeout, ethers.constants.HashZero),
-      nonceValue
-    );
-    expect(isFinal).to.be.eql(true);
+    await nonceRegistry.functions.setNonce(timeout, salt, value);
+
+    const ret = await nonceRegistry.functions.table(key);
+    const isFinal = await nonceRegistry.functions.isFinalized(key, value);
+    const blockNumber = bigNumberify(await provider.getBlockNumber());
+
+    expect(ret.nonceValue).to.be.eql(value);
+    expect(ret.finalizesAt).to.be.eql(blockNumber);
+    expect(isFinal).to.be.true;
   });
 });
