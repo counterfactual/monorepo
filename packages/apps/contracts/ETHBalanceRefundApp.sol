@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 
 
 contract ETHBalanceRefundApp {

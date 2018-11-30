@@ -1,27 +1,43 @@
+import chai from "chai";
+import * as waffle from "ethereum-waffle";
 import { ethers } from "ethers";
 
-import { AbstractContract, expect } from "../../utils";
-import * as Utils from "../../utils/misc";
+import TicTacToeApp from "../build/TicTacToeApp.json";
 
-const web3 = (global as any).web3;
-const { unlockedAccount } = Utils.setupTestEnv(web3);
+chai.use(waffle.solidity);
 
-contract("TicTacToe", (accounts: string[]) => {
-  let game: ethers.Contract;
+const { expect } = chai;
+const { AddressZero } = ethers.constants;
 
-  const stateEncoding =
-    "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
+type TicTacToeAppState = {
+  players: string[];
+  turnNum: number;
+  winner: number;
+  board: number[][];
+};
 
-  // @ts-ignore
+function decodeAppState(encodedAppState: string): TicTacToeAppState {
+  return ethers.utils.defaultAbiCoder.decode(
+    [
+      "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
+    ],
+    encodedAppState
+  )[0];
+}
+
+describe("TicTacToeApp", () => {
+  let tictactoe: ethers.Contract;
+
   before(async () => {
-    const ticTacToe = await AbstractContract.fromArtifactName("TicTacToeApp");
-    game = await ticTacToe.deploy(unlockedAccount);
+    const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
+    const [wallet]: ethers.Wallet[] = await waffle.getWallets(provider);
+    tictactoe = await waffle.deployContract(wallet, TicTacToeApp);
   });
 
   describe("applyAction", () => {
     it("can place into an empty board", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -37,20 +53,17 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      const ret = await game.functions.applyAction(preState, action);
+      const ret = await tictactoe.functions.applyAction(preState, action);
 
-      const state = ethers.utils.defaultAbiCoder.decode(
-        [stateEncoding],
-        ret
-      )[0];
+      const state = decodeAppState(ret);
 
-      expect(state.board[0][0]).to.be.eql(new ethers.utils.BigNumber(1));
-      expect(state.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(state.board[0][0]).to.eq(1);
+      expect(state.turnNum).to.eq(1);
     });
 
     it("can place into an empty square", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 1,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -66,20 +79,17 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      const ret = await game.functions.applyAction(preState, action);
+      const ret = await tictactoe.functions.applyAction(preState, action);
 
-      const state = ethers.utils.defaultAbiCoder.decode(
-        [stateEncoding],
-        ret
-      )[0];
+      const state = decodeAppState(ret);
 
-      expect(state.board[1][1]).to.be.eql(new ethers.utils.BigNumber(2));
-      expect(state.turnNum).to.be.eql(new ethers.utils.BigNumber(2));
+      expect(state.board[1][1]).to.eq(2);
+      expect(state.turnNum).to.eq(2);
     });
 
     it("cannot placeinto an occupied square", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -95,12 +105,14 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      await Utils.assertRejects(game.functions.applyAction(preState, action));
+      await expect(
+        tictactoe.functions.applyAction(preState, action)
+      ).to.be.revertedWith("playMove: square is not empty");
     });
 
     it("can draw from a full board", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 2, 2], [2, 1, 2]]
@@ -116,19 +128,16 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      const ret = await game.functions.applyAction(preState, action);
+      const ret = await tictactoe.functions.applyAction(preState, action);
 
-      const state = ethers.utils.defaultAbiCoder.decode(
-        [stateEncoding],
-        ret
-      )[0];
+      const state = decodeAppState(ret);
 
-      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(3)); // DRAWN
+      expect(state.winner).to.eq(3); // DRAWN
     });
 
     it("cannot draw from a non-full board", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 0, 2], [2, 1, 2]]
@@ -144,12 +153,14 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      await Utils.assertRejects(game.functions.applyAction(preState, action));
+      await expect(
+        tictactoe.functions.applyAction(preState, action)
+      ).to.be.revertedWith("assertBoardIsFull: square is empty");
     });
 
     it("can play_and_draw from an almost full board", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 1, 2]]
@@ -165,19 +176,16 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      const ret = await game.functions.applyAction(preState, action);
+      const ret = await tictactoe.functions.applyAction(preState, action);
 
-      const state = ethers.utils.defaultAbiCoder.decode(
-        [stateEncoding],
-        ret
-      )[0];
+      const state = decodeAppState(ret);
 
-      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(3)); // DRAWN
+      expect(state.winner).to.eq(3); // DRAWN
     });
 
     it("can notplay_and_draw from a sparse board", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 0, 0]]
@@ -193,12 +201,14 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      await Utils.assertRejects(game.functions.applyAction(preState, action));
+      await expect(
+        tictactoe.functions.applyAction(preState, action)
+      ).to.be.revertedWith("assertBoardIsFull: square is empty");
     });
 
     it("can play_and_win from a winning position", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 1, 0], [0, 0, 0], [0, 0, 0]]
@@ -214,19 +224,16 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      const ret = await game.functions.applyAction(preState, action);
+      const ret = await tictactoe.functions.applyAction(preState, action);
 
-      const state = ethers.utils.defaultAbiCoder.decode(
-        [stateEncoding],
-        ret
-      )[0];
+      const state = decodeAppState(ret);
 
-      expect(state.winner).to.be.eql(new ethers.utils.BigNumber(1)); // WON
+      expect(state.winner).to.eq(1); // WON
     });
 
     it("cannot play_and_win from a non winning position", async () => {
       const preState = {
-        players: [ethers.constants.AddressZero, ethers.constants.AddressZero],
+        players: [AddressZero, AddressZero],
         turnNum: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -242,7 +249,9 @@ contract("TicTacToe", (accounts: string[]) => {
         }
       };
 
-      await Utils.assertRejects(game.functions.applyAction(preState, action));
+      await expect(
+        tictactoe.functions.applyAction(preState, action)
+      ).to.be.revertedWith("Win Claim not valid");
     });
   });
 });
