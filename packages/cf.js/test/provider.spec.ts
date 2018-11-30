@@ -128,6 +128,15 @@ describe("CF.js Provider", async () => {
     });
   });
 
+  it("should throw an error on timeout", async () => {
+    try {
+      await provider.getAppInstances();
+    } catch (err) {
+      expect(err.type).toBe(EventType.ERROR);
+      expect(err.data.errorName).toBe("request_timeout");
+    }
+  });
+
   it("should correctly subscribe to rejectInstall events", async () => {
     expect.assertions(3);
     provider.once(EventType.REJECT_INSTALL, e => {

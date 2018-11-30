@@ -47,13 +47,21 @@ export class Provider {
   ): Promise<Node.MethodResponse> {
     const requestId = cuid();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
+      const request: Node.MethodRequest = {
+        requestId,
+        params,
+        type: methodName
+      };
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
-          return reject(response);
+          return reject({
+            type: EventType.ERROR,
+            data: response.data
+          });
         }
         if (response.type !== methodName) {
           return reject({
-            type: Node.ErrorType.ERROR,
+            type: EventType.ERROR,
             data: {
               errorName: "unexpected_message_type",
               message: `Unexpected response type. Expected ${methodName}, got ${
@@ -66,15 +74,17 @@ export class Provider {
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
-          reject(new Error(`Request timed out: ${requestId}`));
+          reject({
+            type: EventType.ERROR,
+            data: {
+              errorName: "request_timeout",
+              message: `Request timed out: ${JSON.stringify(request)}`
+            }
+          });
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
-      this.nodeProvider.sendMessage({
-        requestId,
-        params,
-        type: methodName
-      });
+      this.nodeProvider.sendMessage(request);
     });
   }
 
