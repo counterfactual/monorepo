@@ -23,6 +23,8 @@ export class DappContainer {
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
 
+  private $onMessage: EventListenerObject = {} as EventListenerObject;
+
   getDappUrl(): string {
     const dappSlug = this.match.params.dappName;
     for (const address in apps) {
@@ -48,26 +50,29 @@ export class DappContainer {
     element.appendChild(iframe);
 
     this.frameWindow = iframe.contentWindow as Window;
+    this.$onMessage = this.configureMessageChannel.bind(this);
 
     // TODO: This won't work if the dapp is in a different host.
     // We need to think a way of exchanging messages to make this
     // possible.
-    this.frameWindow.addEventListener(
-      "message",
-      this.configureMessageChannel.bind(this)
-    );
+    this.frameWindow.addEventListener("message", this.$onMessage);
 
     this.iframe = iframe;
   }
 
   componentDidUnload() {
-    this.frameWindow = null;
-    this.iframe.removeEventListener("load", this._onIframeLoaded);
+    if (this.frameWindow) {
+      this.frameWindow.removeEventListener("message", this.$onMessage)
+      this.frameWindow = null;
+    }
+
     this.eventEmitter.off("message");
+
     if (this.port) {
       this.port.close();
       this.port = null;
     }
+
     this.iframe.remove();
   }
 
