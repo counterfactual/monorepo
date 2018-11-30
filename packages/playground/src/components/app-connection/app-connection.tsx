@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
 
 @Component({
   tag: "app-connection",
@@ -6,11 +6,15 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppConnection {
+  @Prop() connected: boolean = false;
+
   render() {
     return (
       <div class="connection">
-        <span class="dot" />
-        <span class="status">No Connection</span>
+        <span class={this.connected ? "dot connected" : "dot"} />
+        <span class="status">
+          {this.connected ? "Connected" : "No Connection"}
+        </span>
       </div>
     );
   }
