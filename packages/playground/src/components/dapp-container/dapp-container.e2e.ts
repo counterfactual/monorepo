@@ -1,7 +1,7 @@
 import { newE2EPage } from "@stencil/core/testing";
 
 describe("dapp-container", () => {
-  it("renders", async () => {
+  it.skip("renders", async () => {
     const page = await newE2EPage();
     await page.setContent('<dapp-container url="foo.html"></dapp-container>');
 
