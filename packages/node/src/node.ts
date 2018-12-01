@@ -1,4 +1,3 @@
-import machine from "@counterfactual/machine";
 import EventEmitter from "eventemitter3";
 
 import {
@@ -10,11 +9,6 @@ import {
 } from "./node-types";
 
 export default class Node {
-  // @ts-ignore
-  private instructionExecutor: machine.InstructionExecutor = Object.create(
-    null
-  );
-
   /**
    * Because the Node receives and sends out messages based on Event type
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
