@@ -1,3 +1,4 @@
+import { legacy } from "@counterfactual/cf.js";
 import machine from "@counterfactual/machine";
 import * as ethers from "ethers";
 import EventEmitter from "eventemitter3";
@@ -31,11 +32,11 @@ export default class Node {
     // @ts-ignore
     private readonly privateKey: string,
     // @ts-ignore
-    private readonly provider: ethers.providers.Web3Provider,
+    private readonly provider: ethers.providers.BaseProvider,
     // @ts-ignore
     private readonly firestore: firebase.firestore.Firestore,
     // @ts-ignore
-    private readonly networkContext: Map<string, Address>
+    private readonly networkContext: legacy.network.NetworkContext
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
