@@ -1,12 +1,17 @@
+import * as ethers from "ethers";
 import EventEmitter from "eventemitter3";
+import firebase from "firebase";
 
 import {
+  Address,
   AppInstanceInfo,
   GetAppInstancesResult,
   MethodName,
   MethodRequest,
   MethodResponse
 } from "./node-types";
+
+const MESSAGES = "messages";
 
 export default class Node {
   /**
@@ -15,10 +20,21 @@ export default class Node {
    * the same EventEmitter can't be used since response messages would get
    * sent to listeners expecting request messages.
    **/
-  private incoming: EventEmitter;
-  private outgoing: EventEmitter;
+  private readonly incoming: EventEmitter;
+  private readonly outgoing: EventEmitter;
+  private readonly signer: ethers.utils.SigningKey;
 
-  constructor() {
+  /**
+   *
+   * @param privateKey
+   * @param firestore This firestore is used both as the messaging service
+   * and the storage service.
+   */
+  constructor(
+    privateKey: string,
+    private readonly firestore: firebase.firestore.Firestore
+  ) {
+    this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerListeners();
@@ -40,6 +56,32 @@ export default class Node {
    */
   emit(event: string, req: MethodRequest) {
     this.incoming.emit(event, req);
+  }
+
+  /**
+   * This uses the peerAddress along with the sender's address to establish
+   * a channel ID that the parties can communicate through.
+   * TODO: use the multisig address as the channel ID when create multisig
+   * has been implemented
+   * @param peerAddress The peer to whom the message is being sent.
+   * @param msg The message that is being sent.
+   */
+  send(peerAddress: Address, msg: any) {
+    const channelID = `${peerAddress}_${this.signer.address}`;
+    this.firestore
+      .collection(MESSAGES)
+      .doc(channelID)
+      .set(msg);
+  }
+
+  receive(peerAddress: Address, callback: (msg: any) => void) {
+    const channelID = `${this.signer.address}_${peerAddress}`;
+    this.firestore
+      .collection(MESSAGES)
+      .doc(channelID)
+      .onSnapshot(doc => {
+        console.log(`Got message from ${peerAddress}`);
+      });
   }
 
   /**
