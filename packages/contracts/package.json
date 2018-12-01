@@ -12,6 +12,7 @@
     "build": "truffle compile --all && tsc -b",
     "migrate": "truffle migrate --reset",
     "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
+    "test:win": "tsc -b && truffle test --network ganache %npm_package_config_testFiles%",
     "clean": "rm -rf dist build networks/7777777.json",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
