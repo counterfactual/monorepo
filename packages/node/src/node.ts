@@ -1,11 +1,7 @@
-import { legacy } from "@counterfactual/cf.js";
 import machine from "@counterfactual/machine";
-import * as ethers from "ethers";
 import EventEmitter from "eventemitter3";
-import firebase from "firebase";
 
 import {
-  Address,
   AppInstanceInfo,
   GetAppInstancesResult,
   MethodName,
@@ -22,22 +18,13 @@ export default class Node {
   /**
    * Because the Node receives and sends out messages based on Event type
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
-   * the same EventEmitter can't be used since responses messages would get
-   * sent to listeners expecting a request message.
+   * the same EventEmitter can't be used since response messages would get
+   * sent to listeners expecting request messages.
    **/
   private incoming: EventEmitter;
   private outgoing: EventEmitter;
 
-  constructor(
-    // @ts-ignore
-    private readonly privateKey: string,
-    // @ts-ignore
-    private readonly provider: ethers.providers.BaseProvider,
-    // @ts-ignore
-    private readonly firestore: firebase.firestore.Firestore,
-    // @ts-ignore
-    private readonly networkContext: legacy.network.NetworkContext
-  ) {
+  constructor() {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerListeners();
@@ -70,7 +57,6 @@ export default class Node {
    */
   private registerListeners() {
     this.incoming.on(MethodName.GET_APP_INSTANCES, (req: MethodRequest) => {
-      // TODO: empty for now
       const res: MethodResponse = {
         type: req.type,
         requestId: req.requestId,
@@ -81,6 +67,8 @@ export default class Node {
   }
 
   private getAppInstances(): GetAppInstancesResult {
+    // TODO: should return actual list of app instances when that gets
+    // implemented
     return {
       appInstances: [] as AppInstanceInfo[]
     };

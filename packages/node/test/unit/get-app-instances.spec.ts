@@ -6,11 +6,9 @@ import {
   MethodResponse
 } from "../../src/node-types";
 
-import { firestore, networkContext, privateKey, provider } from "./env";
-
 describe("Node method follows spec - getAppInstances", () => {
-  it("can accept valid call to get app instances", done => {
-    const node = new Node(privateKey, provider, firestore, networkContext);
+  it("can accept a valid call to get app instances", done => {
+    const node = new Node();
     const requestId = "1";
     const req: MethodRequest = {
       requestId,
@@ -20,6 +18,8 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // Set up listener for the method response
     node.on(req.type, (res: MethodResponse) => {
+      expect(req.type).toEqual(res.type);
+      expect(res.requestId).toEqual(requestId);
       expect(res.result).toEqual({
         appInstances: [] as AppInstanceInfo[]
       });
