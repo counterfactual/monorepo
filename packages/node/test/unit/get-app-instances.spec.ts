@@ -8,7 +8,7 @@ import {
 
 import { firestore, networkContext, privateKey, provider } from "./env";
 
-describe("Node method - getAppInstances", () => {
+describe("Node method follows spec - getAppInstances", () => {
   it("can accept valid call to get app instances", done => {
     const node = new Node(privateKey, provider, firestore, networkContext);
     const requestId = "1";

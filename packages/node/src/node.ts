@@ -44,15 +44,6 @@ export default class Node {
   }
 
   /**
-   * Create a multisig for the channel with the peer specified.
-   * @param peerAddress The peer to create the multisig with.
-   */
-  async createMultisig(peerAddress: Address): Promise<Address> {
-    // TODO:
-    return Promise.resolve(ethers.constants.AddressZero);
-  }
-
-  /**
    * Delegates setting up a listener to the Node's outgoing EventEmitter.
    * @param event
    * @param callback
