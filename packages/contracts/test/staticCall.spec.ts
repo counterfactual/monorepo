@@ -85,7 +85,7 @@ contract("StaticCall", (accounts: string[]) => {
     });
 
     it("fails to read msg.sender", async () => {
-      await   assertRejects(
+      await assertRejects(
         testCaller.functions.execStaticCall(
           echo.address,
           echo.interface.functions.msgSender.sighash,
@@ -95,7 +95,7 @@ contract("StaticCall", (accounts: string[]) => {
     });
 
     it("reverts if the target is not a contract", async () => {
-      await   assertRejects(
+      await assertRejects(
         testCaller.functions.execStaticCall(
           ethers.utils.hexlify(ethers.utils.randomBytes(20)),
           echo.interface.functions.helloWorld.sighash,

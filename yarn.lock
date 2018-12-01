@@ -8832,7 +8832,7 @@ solium-plugin-security@0.1.1:
   resolved "https://registry.yarnpkg.com/solium-plugin-security/-/solium-plugin-security-0.1.1.tgz#2a87bcf8f8c3abf7d198e292e4ac080284e3f3f6"
   integrity sha512-kpLirBwIq4mhxk0Y/nn5cQ6qdJTI+U1LO3gpoNIcqNaW+sI058moXBe2UiHs+9wvF9IzYD49jcKhFTxcR9u9SQ==
 
-solium@1.1.8:
+solium@1.1.8, solium@^1.1.8:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/solium/-/solium-1.1.8.tgz#35d30a15c572a233ce8a90226d6cfccb762fadb7"
   integrity sha512-fn0lusM6of14CytIDDHK73SGjn6NsVTaCVJjaKCKJyqKhT00rH/hDtvnIeZ2ZTD9z/xaXd4Js2brW3az6AV9RA==
@@ -9604,15 +9604,6 @@ truffle@5.0.0-beta.1:
     mocha "^4.1.0"
     original-require "1.0.1"
     solc "0.4.25"
-
-truffle@^4.1.14:
-  version "4.1.14"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.14.tgz#8d2c298e29abf9b1e486e44ff9faca6d34bb9030"
-  integrity sha512-e7tTLvKP3bN9dE7MagfWyFjy4ZgoEGbeujECy1me1ENBzbj/aO/+45gs72qsL3+3IkCNNcWNOJjjrm8BYZZNNg==
-  dependencies:
-    mocha "^4.1.0"
-    original-require "1.0.1"
-    solc "0.4.24"
 
 ts-jest@^23.1.4:
   version "23.10.5"
