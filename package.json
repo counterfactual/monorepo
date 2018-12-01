@@ -1,8 +1,14 @@
 {
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/eventemitter3",
+      "**/eventemitter3/**"
+    ]
+  },
   "scripts": {
     "build": "lerna run build --sort",
     "clean": "lerna run clean --parallel --no-bail",
