@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
 
 import { expect } from "../utils";
-import { assertRejects } from "../utils/misc";
+
+const { defaultAbiCoder, hexlify, randomBytes, toUtf8Bytes } = ethers.utils;
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider
@@ -12,7 +13,6 @@ contract("StaticCall", (accounts: string[]) => {
   let testCaller: ethers.Contract;
   let echo: ethers.Contract;
 
-  // @ts-ignore
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
@@ -35,73 +35,66 @@ contract("StaticCall", (accounts: string[]) => {
   });
 
   describe("execStaticCall", () => {
-    it("retrieves bytes string from external pure function", async () => {
-      const helloWorldString = ethers.utils.hexlify(
-        ethers.utils.toUtf8Bytes("hello world")
-      );
+    const helloWorldString = hexlify(toUtf8Bytes("hello world"));
 
+    it("retrieves bytes string from external pure function", async () => {
       const ret = await testCaller.functions.execStaticCall(
         echo.address,
         echo.interface.functions.helloWorld.sighash,
         "0x"
       );
 
-      expect(ret).to.eql(helloWorldString);
+      expect(ret).to.eq(helloWorldString);
     });
 
     it("retrieves true bool from external pure function", async () => {
       const ret = await testCaller.functions.execStaticCallBool(
         echo.address,
         echo.interface.functions.returnArg.sighash,
-        ethers.utils.defaultAbiCoder.encode(["bool"], [true])
+        defaultAbiCoder.encode(["bool"], [true])
       );
-      expect(ret).to.eql(true);
+      expect(ret).to.be.true;
     });
 
     it("retrieves false bool from external pure function", async () => {
       const ret = await testCaller.functions.execStaticCallBool(
         echo.address,
         echo.interface.functions.returnArg.sighash,
-        ethers.utils.defaultAbiCoder.encode(["bool"], [false])
+        defaultAbiCoder.encode(["bool"], [false])
       );
-      expect(ret).to.eql(false);
+      expect(ret).to.be.false;
     });
 
     it("retrieves argument from external pure function", async () => {
-      const helloWorldString = ethers.utils.defaultAbiCoder.encode(
-        ["string"],
-        ["hello world"]
-      );
-
       const ret = await testCaller.functions.execStaticCall(
         echo.address,
         echo.interface.functions.helloWorldArg.sighash,
-        helloWorldString
+        defaultAbiCoder.encode(["string"], ["hello world"])
       );
 
-      expect(ret).to.eql(
-        ethers.utils.hexlify(ethers.utils.toUtf8Bytes("hello world"))
-      );
+      expect(ret).to.eq(helloWorldString);
     });
 
     it("fails to read msg.sender", async () => {
-      await assertRejects(
+      await expect(
         testCaller.functions.execStaticCall(
           echo.address,
           echo.interface.functions.msgSender.sighash,
           "0x"
         )
-      );
+        // @ts-ignore
+      ).to.be.reverted;
     });
 
     it("reverts if the target is not a contract", async () => {
-      await assertRejects(
+      await expect(
         testCaller.functions.execStaticCall(
-          ethers.utils.hexlify(ethers.utils.randomBytes(20)),
+          hexlify(randomBytes(20)),
           echo.interface.functions.helloWorld.sighash,
           "0x"
         )
-      );
+        // @ts-ignore
+      ).to.be.reverted;
     });
   });
 });

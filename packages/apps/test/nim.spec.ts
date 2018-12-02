@@ -7,7 +7,7 @@ import NimApp from "../build/NimApp.json";
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-const { One, AddressZero, Zero } = ethers.constants;
+const { AddressZero } = ethers.constants;
 
 type NimAppState = {
   players: string[];
@@ -27,7 +27,7 @@ describe("Nim", () => {
 
   before(async () => {
     const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
-    const [wallet]: ethers.Wallet[] = await waffle.getWallets(provider);
+    const wallet: ethers.Wallet = (await waffle.getWallets(provider))[0];
     nim = await waffle.deployContract(wallet, NimApp);
   });
 
@@ -48,10 +48,10 @@ describe("Nim", () => {
 
       const postState = decodeAppState(ret);
 
-      expect(postState.pileHeights[0]).to.eq(One);
+      expect(postState.pileHeights[0]).to.eq(1);
       expect(postState.pileHeights[1]).to.eq(5);
       expect(postState.pileHeights[2]).to.eq(12);
-      expect(postState.turnNum).to.eq(One);
+      expect(postState.turnNum).to.eq(1);
     });
 
     it("can take to produce an empty pile", async () => {
@@ -70,10 +70,10 @@ describe("Nim", () => {
 
       const postState = decodeAppState(ret);
 
-      expect(postState.pileHeights[0]).to.eq(Zero);
+      expect(postState.pileHeights[0]).to.eq(0);
       expect(postState.pileHeights[1]).to.eq(5);
       expect(postState.pileHeights[2]).to.eq(12);
-      expect(postState.turnNum).to.eq(One);
+      expect(postState.turnNum).to.eq(1);
     });
 
     it("should fail for taking too much", async () => {
@@ -90,6 +90,7 @@ describe("Nim", () => {
 
       await expect(
         nim.functions.applyAction(preState, action)
+        // @ts-ignore
       ).to.be.revertedWith("invalid pileIdx");
     });
   });

@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { ethers } from "ethers";
 
-import { randomETHAddress } from "../utils/misc";
+const { hexlify, randomBytes } = ethers.utils;
+const { WeiPerEther, AddressZero } = ethers.constants;
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider
@@ -15,7 +16,7 @@ const APPROXIMATE_ERC20_TRANSFER_10_GAS = 425000;
 contract("Transfer", (accounts: string[]) => {
   let unlockedAccount: ethers.providers.JsonRpcSigner;
 
-  let transfer: ethers.Contract;
+  let exampleTransfer: ethers.Contract;
   let delegateProxy: ethers.Contract;
   let dolphinCoin: ethers.Contract;
 
@@ -25,94 +26,82 @@ contract("Transfer", (accounts: string[]) => {
     ANY
   }
 
-  // @ts-ignore
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
-    const exampleTransfer = await artifacts.require("ExampleTransfer");
-    const delegateProxyArtifact = artifacts.require("DelegateProxy");
-    const dolphinCoinArtifact = artifacts.require("DolphinCoin");
-
-    exampleTransfer.link(artifacts.require("Transfer"));
-
-    transfer = new ethers.Contract(
-      (await exampleTransfer.new()).address,
-      exampleTransfer.abi,
+    const exampleTransferArtifact = await artifacts.require("ExampleTransfer");
+    exampleTransferArtifact.link(artifacts.require("Transfer"));
+    exampleTransfer = new ethers.Contract(
+      (await exampleTransferArtifact.new()).address,
+      exampleTransferArtifact.abi,
       unlockedAccount
     );
 
-    delegateProxy = new ethers.Contract(
-      (await delegateProxyArtifact.new()).address,
-      delegateProxyArtifact.abi,
+    delegateProxy = await new ethers.ContractFactory(
+      artifacts.require("DelegateProxy").abi,
+      artifacts.require("DelegateProxy").bytecode,
       unlockedAccount
-    );
+    ).deploy();
 
-    dolphinCoin = new ethers.Contract(
-      (await dolphinCoinArtifact.new()).address,
-      dolphinCoinArtifact.abi,
+    dolphinCoin = await new ethers.ContractFactory(
+      artifacts.require("DolphinCoin").abi,
+      artifacts.require("DolphinCoin").bytecode,
       unlockedAccount
-    );
+    ).deploy();
   });
 
   describe("Executes delegated transfers for ETH", () => {
     beforeEach(async () => {
       await unlockedAccount.sendTransaction({
         to: delegateProxy.address,
-        value: ethers.utils.parseEther("1")
+        value: WeiPerEther
       });
     });
 
     it("for 1 address", async () => {
-      const randomTarget = randomETHAddress();
+      const randomTarget = hexlify(randomBytes(20));
 
       const details = {
-        value: [ethers.utils.parseEther("1")],
+        value: [WeiPerEther],
         assetType: AssetType.ETH,
         to: [randomTarget],
-        token: ethers.constants.AddressZero,
+        token: AddressZero,
         data: []
       };
 
       await delegateProxy.functions.delegate(
-        transfer.address,
-        transfer.interface.functions.transfer.encode([details]),
+        exampleTransfer.address,
+        exampleTransfer.interface.functions.transfer.encode([details]),
         { gasLimit: APPROXIMATE_ERC20_TRANSFER_GAS }
       );
 
       const balTarget = await provider.getBalance(randomTarget);
 
-      expect(balTarget.toString()).to.deep.equal(
-        ethers.utils.parseEther("1").toString()
-      );
+      expect(balTarget).to.eq(WeiPerEther);
     });
 
     it("for many addresses", async () => {
-      const randomTargets: string[] = Array.from({ length: 10 }, () =>
-        randomETHAddress()
+      const randomTargets = Array.from({ length: 10 }, () =>
+        hexlify(randomBytes(20))
       );
 
       const details = {
-        value: randomTargets.map(_ => ethers.utils.parseEther("1").div(10)),
+        value: Array(10).fill(WeiPerEther.div(10)),
         assetType: AssetType.ETH,
         to: randomTargets,
-        token: ethers.constants.AddressZero,
+        token: AddressZero,
         data: []
       };
 
       await delegateProxy.functions.delegate(
-        transfer.address,
-        transfer.interface.functions.transfer.encode([details]),
+        exampleTransfer.address,
+        exampleTransfer.interface.functions.transfer.encode([details]),
         { gasLimit: APPROXIMATE_ERC20_TRANSFER_10_GAS }
       );
 
       for (const target of randomTargets) {
         const bal = await provider.getBalance(target);
-        expect(bal.toString()).to.deep.equal(
-          ethers.utils
-            .parseEther("1")
-            .div(10)
-            .toString()
-        );
+        expect(bal).to.eq(WeiPerEther.div(10));
       }
     });
   });
@@ -123,7 +112,7 @@ contract("Transfer", (accounts: string[]) => {
     });
 
     it("for 1 address", async () => {
-      const randomTarget = randomETHAddress();
+      const randomTarget = hexlify(randomBytes(20));
 
       const details = {
         value: [10],
@@ -134,23 +123,23 @@ contract("Transfer", (accounts: string[]) => {
       };
 
       await delegateProxy.functions.delegate(
-        transfer.address,
-        transfer.interface.functions.transfer.encode([details]),
+        exampleTransfer.address,
+        exampleTransfer.interface.functions.transfer.encode([details]),
         { gasLimit: APPROXIMATE_ERC20_TRANSFER_GAS }
       );
 
       const balTarget = await dolphinCoin.functions.balanceOf(randomTarget);
 
-      expect(balTarget).to.be.eql(new ethers.utils.BigNumber(10));
+      expect(balTarget).to.eq(10);
     });
 
     it("for many addresses", async () => {
-      const randomTargets: string[] = Array.from({ length: 10 }, () =>
-        randomETHAddress()
+      const randomTargets = Array.from({ length: 10 }, () =>
+        hexlify(randomBytes(20))
       );
 
       const details = {
-        value: randomTargets.map(_ => 1),
+        value: Array(10).fill(1),
         assetType: AssetType.ERC20,
         to: randomTargets,
         token: dolphinCoin.address,
@@ -158,14 +147,14 @@ contract("Transfer", (accounts: string[]) => {
       };
 
       await delegateProxy.functions.delegate(
-        transfer.address,
-        transfer.interface.functions.transfer.encode([details]),
+        exampleTransfer.address,
+        exampleTransfer.interface.functions.transfer.encode([details]),
         { gasLimit: APPROXIMATE_ERC20_TRANSFER_10_GAS }
       );
 
       for (const target of randomTargets) {
         const bal = await dolphinCoin.functions.balanceOf(target);
-        expect(bal).to.be.eql(new ethers.utils.BigNumber(1));
+        expect(bal).to.eq(1);
       }
     });
   });

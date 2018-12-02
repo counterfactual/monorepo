@@ -16,10 +16,6 @@ const AppRegistry = artifacts.require("AppRegistry");
 // Generic
 const MultiSend = artifacts.require("MultiSend");
 
-// Example Apps
-// const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
-// const PaymentApp = artifacts.require("PaymentApp");
-
 module.exports = (deployer, network) => {
   const addToNetworkFile = obj =>
     tdr.isDryRunNetworkName(network) || tdr.appendInstance(obj);
@@ -53,10 +49,6 @@ module.exports = (deployer, network) => {
   deployer.deploy(MultiSend).then(addToNetworkFile);
 
   deployer.deploy(NonceRegistry).then(addToNetworkFile);
-
-  // deployer.deploy(PaymentApp).then(addToNetworkFile);
-
-  // deployer.deploy(ETHBalanceRefundApp).then(addToNetworkFile);
 
   deployer.deploy(ContractRegistry).then(addToNetworkFile);
 

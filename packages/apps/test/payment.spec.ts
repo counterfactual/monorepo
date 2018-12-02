@@ -19,7 +19,7 @@ describe("PaymentApp", () => {
 
   before(async () => {
     const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
-    const [wallet]: ethers.Wallet[] = await waffle.getWallets(provider);
+    const wallet: ethers.Wallet = (await waffle.getWallets(provider))[0];
     pc = await waffle.deployContract(wallet, PaymentApp);
   });
 

@@ -33,17 +33,15 @@ contract("ContractRegistry", accounts => {
 
   // @ts-ignore
   beforeEach(async () => {
-    const registryArtifact = artifacts.require("ContractRegistry");
-
-    contractRegistry = new ethers.Contract(
-      (await registryArtifact.new()).address,
-      registryArtifact.abi,
+    contractRegistry = await new ethers.ContractFactory(
+      artifacts.require("ContractRegistry").abi,
+      artifacts.require("ContractRegistry").bytecode,
       unlockedAccount
-    );
+    ).deploy();
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
-    expect(cfaddress(ethers.constants.HashZero, 1)).to.eql(
+    expect(cfaddress(ethers.constants.HashZero, 1)).to.eq(
       await contractRegistry.functions.cfaddress(ethers.constants.HashZero, 1)
     );
   });
@@ -56,7 +54,7 @@ contract("ContractRegistry", accounts => {
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eql(
+      expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(bytecode, 2))
       );
       simpleContract = new ethers.Contract(
@@ -64,7 +62,7 @@ contract("ContractRegistry", accounts => {
         iface,
         unlockedAccount
       );
-      expect(await simpleContract.sayHello()).to.eql("hi");
+      expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
     const registryContract = contractRegistry.on(filter, callback);
@@ -79,7 +77,7 @@ contract("ContractRegistry", accounts => {
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eql(
+      expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(bytecode, 3))
       );
 
@@ -88,7 +86,7 @@ contract("ContractRegistry", accounts => {
         iface,
         unlockedAccount
       );
-      expect(await simpleContract.sayHello()).to.eql("hi");
+      expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
     const registryContract = contractRegistry.on(filter, callback);
@@ -107,7 +105,7 @@ contract("ContractRegistry", accounts => {
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eql(
+      expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(initcode, 3))
       );
 
@@ -116,7 +114,7 @@ contract("ContractRegistry", accounts => {
         iface,
         unlockedAccount
       );
-      expect(await contract.sayHello()).to.eql("hi");
+      expect(await contract.sayHello()).to.eq("hi");
       done();
     };
 
@@ -146,7 +144,7 @@ contract("ContractRegistry", accounts => {
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
       const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eql(
+      expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(initcode, 4))
       );
 

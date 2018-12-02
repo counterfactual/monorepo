@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "waffle waffle.json && ts-mocha test/*",
+    "build": "waffle waffle.json",
+    "test": "ts-mocha test/*",
     "clean": "rm -rf build dist",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
