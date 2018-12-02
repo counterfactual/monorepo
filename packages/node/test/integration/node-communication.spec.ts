@@ -42,11 +42,11 @@ describe("Two nodes can communicate with each other", () => {
     await nodeA.send(nodeB.address, msg);
   });
 
-  it("Node A can syn-ack with Node B", async done => {
+  it("Node A can syn-ack with Node B", done => {
     const synMsg = { phase: "SYN" };
     const ackMsg = { phase: "ACK" };
 
-    nodeA.on(Node.PEER_MESSAGE, async msg => {
+    nodeA.on(Node.PEER_MESSAGE, msg => {
       expect(msg.from).toEqual(nodeB.address);
       expect(msg.phase).toEqual(ackMsg.phase);
       done();
@@ -55,7 +55,7 @@ describe("Two nodes can communicate with each other", () => {
     nodeB.on(Node.PEER_MESSAGE, async msg => {
       expect(msg.from).toEqual(nodeA.address);
       expect(msg.phase).toEqual(synMsg.phase);
-      await nodeB.send(nodeA.address, ackMsg);
+      nodeB.send(nodeA.address, ackMsg);
     });
 
     nodeA.send(nodeB.address, synMsg);
