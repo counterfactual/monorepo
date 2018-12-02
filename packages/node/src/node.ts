@@ -15,6 +15,12 @@ const MESSAGES = "messages";
 
 export default class Node {
   /**
+   * The event that Node consumers can listen on for messages from other
+   * nodes.
+   */
+  public static PEER_MESSAGE = "peerMessage";
+
+  /**
    * Because the Node receives and sends out messages based on Event type
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
    * the same EventEmitter can't be used since response messages would get
@@ -32,12 +38,13 @@ export default class Node {
    */
   constructor(
     privateKey: string,
-    private readonly firestore: firebase.firestore.Firestore
+    private readonly firebase: firebase.database.Database
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerListeners();
+    this.registerConnection(firebase);
   }
 
   /**
@@ -58,30 +65,16 @@ export default class Node {
     this.incoming.emit(event, req);
   }
 
+  get address() {
+    return this.signer.address;
+  }
+
   /**
-   * This uses the peerAddress along with the sender's address to establish
-   * a channel ID that the parties can communicate through.
-   * TODO: use the multisig address as the channel ID when create multisig
-   * has been implemented
    * @param peerAddress The peer to whom the message is being sent.
    * @param msg The message that is being sent.
    */
-  send(peerAddress: Address, msg: any) {
-    const channelID = `${peerAddress}_${this.signer.address}`;
-    this.firestore
-      .collection(MESSAGES)
-      .doc(channelID)
-      .set(msg);
-  }
-
-  receive(peerAddress: Address, callback: (msg: any) => void) {
-    const channelID = `${this.signer.address}_${peerAddress}`;
-    this.firestore
-      .collection(MESSAGES)
-      .doc(channelID)
-      .onSnapshot(doc => {
-        console.log(`Got message from ${peerAddress}`);
-      });
+  async send(peerAddress: Address, msg: object) {
+    await this.firebase.ref(`${MESSAGES}/${peerAddress}`).set(msg);
   }
 
   /**
@@ -100,6 +93,27 @@ export default class Node {
       };
       this.outgoing.emit(req.type, res);
     });
+  }
+
+  /**
+   * When a Node is first instantiated, it establishes a connection
+   * with firebase.
+   * @param firebase
+   */
+  private registerConnection(firebase: firebase.database.Database) {
+    if (!this.firebase.app) {
+      console.info(
+        "Cannot register Node with an uninitialized firebase handle"
+      );
+      return;
+    }
+
+    const ref = `${MESSAGES}/${this.address}`;
+    this.firebase
+      .ref(ref)
+      .on("value", (msg: firebase.database.DataSnapshot | null) => {
+        this.outgoing.emit(Node.PEER_MESSAGE, msg!.val());
+      });
   }
 
   private getAppInstances(): GetAppInstancesResult {

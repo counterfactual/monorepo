@@ -1,6 +1,5 @@
-import * as firebase from "firebase";
+import firebase from "firebase";
 import FirebaseServer from "firebase-server";
-import "firebase/firestore";
 
 import { Node } from "../../src";
 
@@ -9,7 +8,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 describe("Two nodes can communicate with each other", () => {
   const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
   let firebaseServer: FirebaseServer;
-  let firestore: firebase.firestore.Firestore;
+  let database: firebase.database.Database;
 
   beforeEach(() => {
     console.info(`Starting Firebase server on port: ${firebaseServerPort}`);
@@ -19,7 +18,8 @@ describe("Two nodes can communicate with each other", () => {
       databaseURL: `ws://localhost:${firebaseServerPort}`,
       projectId: "projectId"
     });
-    firestore = app.firestore();
+
+    database = app.database();
   });
 
   afterEach(() => {
@@ -27,10 +27,15 @@ describe("Two nodes can communicate with each other", () => {
     firebaseServer.close();
   });
 
-  it("Node A can send messages to Node B", () => {
-    const nodeA = new Node(A_PRIVATE_KEY, firestore);
-    const nodeB = new Node(B_PRIVATE_KEY, firestore);
-    console.log(nodeA);
-    console.log(nodeB);
+  it("Node A can send messages to Node B", async done => {
+    const nodeA = new Node(A_PRIVATE_KEY, database);
+    const nodeB = new Node(B_PRIVATE_KEY, database);
+    const installMsg = { method: "INSTALL" };
+
+    nodeB.on(Node.PEER_MESSAGE, msg => {
+      console.log("got msg", msg);
+      done();
+    });
+    await nodeA.send(nodeB.address, installMsg);
   });
 });
