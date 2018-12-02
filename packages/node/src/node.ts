@@ -1,3 +1,4 @@
+import debug from "debug";
 import * as ethers from "ethers";
 import EventEmitter from "eventemitter3";
 import firebase from "firebase";
@@ -12,6 +13,9 @@ import {
 } from "./node-types";
 
 const MESSAGES = "messages";
+
+// Namespaced logger specific to connection logs
+const connectionLogger = debug("connection");
 
 export default class Node {
   /**
@@ -31,10 +35,8 @@ export default class Node {
   private readonly signer: ethers.utils.SigningKey;
 
   /**
-   *
    * @param privateKey
-   * @param firestore This firestore is used both as the messaging service
-   * and the storage service.
+   * @param firebase
    */
   constructor(
     privateKey: string,
@@ -49,10 +51,12 @@ export default class Node {
 
   /**
    * Delegates setting up a listener to the Node's outgoing EventEmitter.
+   * This is also the entrypoint to listening for messages from other Nodes
+   * via listening on the Node.PEER_MESSAGE event.
    * @param event
    * @param callback
    */
-  on(event: string, callback: (res: MethodResponse) => void) {
+  on(event: string, callback: (res: any) => void) {
     this.outgoing.on(event, callback);
   }
 
@@ -70,11 +74,14 @@ export default class Node {
   }
 
   /**
+   * Sends a message to another Node. It also auto-includes the from field
+   * in the message.
    * @param peerAddress The peer to whom the message is being sent.
    * @param msg The message that is being sent.
    */
   async send(peerAddress: Address, msg: object) {
-    await this.firebase.ref(`${MESSAGES}/${peerAddress}`).set(msg);
+    const modifiedMsg = Object.assign({ from: this.address }, msg);
+    await this.firebase.ref(`${MESSAGES}/${peerAddress}`).set(modifiedMsg);
   }
 
   /**
@@ -102,8 +109,8 @@ export default class Node {
    */
   private registerConnection(firebase: firebase.database.Database) {
     if (!this.firebase.app) {
-      console.info(
-        "Cannot register Node with an uninitialized firebase handle"
+      connectionLogger(
+        "Cannot register a connection with an uninitialized firebase handle"
       );
       return;
     }
@@ -111,8 +118,15 @@ export default class Node {
     const ref = `${MESSAGES}/${this.address}`;
     this.firebase
       .ref(ref)
-      .on("value", (msg: firebase.database.DataSnapshot | null) => {
-        this.outgoing.emit(Node.PEER_MESSAGE, msg!.val());
+      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+        const msg = snapshot!.val();
+        // `msg` can't be properly formatted inside the backticks
+        // so it's being placed outside
+        connectionLogger(
+          `Node with address ${this.address} received message: `,
+          msg
+        );
+        this.outgoing.emit(Node.PEER_MESSAGE, msg);
       });
   }
 
