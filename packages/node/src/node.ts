@@ -46,7 +46,7 @@ export default class Node {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerListeners();
-    this.registerConnection(messagingService);
+    this.registerConnection();
   }
 
   /**
@@ -106,10 +106,9 @@ export default class Node {
 
   /**
    * When a Node is first instantiated, it establishes a connection
-   * with firebase.
-   * @param firebase
+   * with the messaging service.
    */
-  private registerConnection(firebase: firebase.database.Database) {
+  private registerConnection() {
     if (!this.messagingService.app) {
       connectionLogger(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -117,13 +116,17 @@ export default class Node {
       return;
     }
 
-    const ref = `${MESSAGES}/${this.address}`;
     this.messagingService
-      .ref(ref)
+      .ref(`${MESSAGES}/${this.address}`)
+      // The snapshot being sent to this call _might_ be null
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        const msg = snapshot!.val();
-        // `msg` can't be properly formatted inside the backticks
-        // so it's being placed outside
+        if (snapshot === null) {
+          connectionLogger(
+            `Node with address ${this.address} received a "null" snapshot`
+          );
+          return;
+        }
+        const msg = snapshot.val();
         connectionLogger(
           `Node with address ${this.address} received message: `,
           msg

@@ -6,11 +6,11 @@ import {
   MethodResponse
 } from "../../src/node-types";
 
-import { A_PRIVATE_KEY, MOCK_FIRESTORE } from "../env";
+import { A_PRIVATE_KEY, MOCK_DATABASE } from "../env";
 
 describe("Node method follows spec - getAppInstances", () => {
   it("can accept a valid call to get app instances", done => {
-    const node = new Node(A_PRIVATE_KEY, MOCK_FIRESTORE);
+    const node = new Node(A_PRIVATE_KEY, MOCK_DATABASE);
     const requestId = "1";
     const req: MethodRequest = {
       requestId,

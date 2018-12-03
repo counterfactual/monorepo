@@ -8,38 +8,38 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 describe("Two nodes can communicate with each other", () => {
   const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
   let firebaseServer: FirebaseServer;
-  let database: firebase.database.Database;
+  let messagingService: firebase.database.Database;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(() => {
     firebaseServer = new FirebaseServer(firebaseServerPort, "localhost");
 
-    const app = firebase.initializeApp(
-      {
-        databaseURL: `ws://localhost:${firebaseServerPort}`,
-        projectId: "projectId"
-      },
-      Math.random().toString()
-    );
-    database = app.database();
-    nodeA = new Node(A_PRIVATE_KEY, database);
-    nodeB = new Node(B_PRIVATE_KEY, database);
+    const app = firebase.initializeApp({
+      databaseURL: `ws://localhost:${firebaseServerPort}`,
+      projectId: "projectId"
+    });
+    messagingService = app.database();
+  });
+
+  beforeEach(() => {
+    nodeA = new Node(A_PRIVATE_KEY, messagingService);
+    nodeB = new Node(B_PRIVATE_KEY, messagingService);
   });
 
   afterAll(() => {
     firebaseServer.close();
   });
 
-  it("Node A can send messages to Node B", async done => {
-    const msg = { method: "INSTALL" };
+  it("Node A can send messages to Node B", done => {
+    const installMsg = { method: "INSTALL" };
 
     nodeB.on(Node.PEER_MESSAGE, msg => {
       expect(msg.from).toEqual(nodeA.address);
-      expect(msg.method).toEqual(msg.method);
+      expect(msg.method).toEqual(installMsg.method);
       done();
     });
-    await nodeA.send(nodeB.address, msg);
+    nodeA.send(nodeB.address, installMsg);
   });
 
   it("Node A can syn-ack with Node B", done => {

@@ -1,6 +1,6 @@
 import Node from "../../src/node";
 
-import { A_PRIVATE_KEY, MOCK_FIRESTORE } from "../env";
+import { A_PRIVATE_KEY, MOCK_DATABASE } from "../env";
 
 describe("Primitive Node operations", () => {
   it("exists", () => {
@@ -8,7 +8,7 @@ describe("Primitive Node operations", () => {
   });
 
   it("can be instantiated", () => {
-    const node = new Node(A_PRIVATE_KEY, MOCK_FIRESTORE);
+    const node = new Node(A_PRIVATE_KEY, MOCK_DATABASE);
     expect(node).toBeDefined();
   });
 });
