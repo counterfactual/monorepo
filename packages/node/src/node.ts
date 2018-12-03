@@ -11,7 +11,7 @@ import {
   MethodResponse
 } from "./node-types";
 
-const MESSAGES = "messages";
+const MESSAGING_SERVER_KEY = "messages";
 
 export default class Node {
   /**
@@ -78,7 +78,7 @@ export default class Node {
   async send(peerAddress: Address, msg: object) {
     const modifiedMsg = Object.assign({ from: this.address }, msg);
     await this.messagingService
-      .ref(`${MESSAGES}/${peerAddress}`)
+      .ref(`${MESSAGING_SERVER_KEY}/${peerAddress}`)
       .set(modifiedMsg);
   }
 
@@ -113,7 +113,7 @@ export default class Node {
     }
 
     this.messagingService
-      .ref(`${MESSAGES}/${this.address}`)
+      .ref(`${MESSAGING_SERVER_KEY}/${this.address}`)
       // The snapshot being sent to this call _might_ be null
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
