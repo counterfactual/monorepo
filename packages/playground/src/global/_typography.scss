@@ -1,0 +1,44 @@
+@mixin f-logo {
+  font-size: $f-logo;
+  font-weight: $f-bold;
+  text-transform: uppercase;
+
+  @media screen and (max-width: $screen-sm) {
+    font-size: 0.8rem;
+  }
+}
+
+.f-logo {
+  @include f-logo;
+}
+
+@mixin f-heading {
+  font-size: $f-heading;
+  font-weight: $f-reg;
+}
+
+.f-heading {
+  @include f-heading;
+}
+
+@mixin f-subheading {
+  font-size: $f-heading;
+  font-weight: $f-reg;
+
+  @media screen and (max-width: $screen-sm) {
+    font-size: $f-base;
+  }
+}
+
+.f-subheading {
+  @include f-subheading;
+}
+
+@mixin f-base {
+  font-size: $f-base;
+  font-weight: $f-light;
+}
+
+.f-base {
+  @include f-base;
+}

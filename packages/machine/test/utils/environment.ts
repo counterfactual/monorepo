@@ -13,3 +13,7 @@ export const A_ADDRESS = new ethers.Wallet(A_PRIVATE_KEY).address;
 export const B_PRIVATE_KEY: string = process.env
   .npm_package_config_unlockedAccount2!;
 export const B_ADDRESS = new ethers.Wallet(B_PRIVATE_KEY).address;
+
+export const I_PRIVATE_KEY: string = process.env
+  .npm_package_config_unlockedAccount3!;
+export const I_ADDRESS = new ethers.Wallet(I_PRIVATE_KEY).address;

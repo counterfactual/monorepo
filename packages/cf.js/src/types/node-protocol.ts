@@ -5,7 +5,7 @@ import {
   AppInstanceInfo,
   BlockchainAsset
 } from "./data-types";
-import { Address, AppInstanceID, AppState } from "./simple-types";
+import { Address, AppAction, AppInstanceID, AppState } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -62,14 +62,90 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   }
 
-  export type MethodParams = GetAppInstancesParams | ProposeInstallParams;
-  export type MethodResult = GetAppInstancesResult | ProposeInstallResult;
+  export interface RejectInstallParams {
+    appInstanceId: AppInstanceID;
+  }
+  export interface RejectInstallResult {}
+
+  export interface InstallParams {
+    appInstanceId: AppInstanceID;
+  }
+  export interface InstallResult {
+    appInstance: AppInstanceInfo;
+  }
+
+  export interface GetStateParams {
+    appInstanceId: AppInstanceID;
+  }
+  export interface GetStateResult {
+    state: AppState;
+  }
+
+  export interface GetAppInstanceDetailsParams {
+    appInstanceId: AppInstanceID;
+  }
+  export interface GetAppInstanceDetailsResult {
+    appInstance: AppInstanceInfo;
+  }
+
+  export interface TakeActionParams {
+    appInstanceId: AppInstanceID;
+    action: AppAction;
+  }
+  export interface TakeActionResult {
+    newState: AppState;
+  }
+
+  export interface UninstallParams {
+    appInstanceId: AppInstanceID;
+  }
+  export interface UninstallResult {
+    myPayout: BigNumber;
+    peerPayout: BigNumber;
+  }
+
+  export type MethodParams =
+    | GetAppInstancesParams
+    | ProposeInstallParams
+    | RejectInstallParams
+    | InstallParams
+    | GetStateParams
+    | GetAppInstanceDetailsParams
+    | TakeActionParams
+    | UninstallParams;
+  export type MethodResult =
+    | GetAppInstancesResult
+    | ProposeInstallResult
+    | RejectInstallResult
+    | InstallResult
+    | GetStateResult
+    | GetAppInstanceDetailsResult
+    | TakeActionResult
+    | UninstallResult;
 
   export interface InstallEventData {
     appInstanceId: AppInstanceID;
   }
+  export interface RejectInstallEventData {
+    appInstance: AppInstanceInfo;
+  }
+  export interface UpdateStateEventData {
+    appInstanceId: AppInstanceID;
+    newState: AppState;
+    oldState: AppState;
+    action?: AppAction;
+  }
+  export interface UninstallEventData {
+    appInstance: AppInstanceInfo;
+    myPayout: BigNumber;
+    peerPayout: BigNumber;
+  }
 
-  export type EventData = InstallEventData;
+  export type EventData =
+    | InstallEventData
+    | RejectInstallEventData
+    | UpdateStateEventData
+    | UninstallEventData;
 
   export interface MethodMessage {
     type: MethodName;

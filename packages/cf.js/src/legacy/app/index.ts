@@ -168,7 +168,6 @@ export interface AppInstanceInfo {
   keyA?: Address;
   keyB?: Address;
   encodedState: any;
-  appState?: any;
   appStateHash?: H256;
   localNonce: number;
   timeout: number;

@@ -1,36 +1,79 @@
 import { Component, Element, Prop } from "@stencil/core";
+import { MatchResults, RouterHistory } from "@stencil/router";
 import EventEmitter from "eventemitter3";
+
+import apps from "../../utils/app-list";
 
 @Component({
   tag: "dapp-container",
+  styleUrl: "dapp-container.scss",
   shadow: true
 })
 export class DappContainer {
   @Element() private element: HTMLElement | undefined;
-  @Prop() url: string = "";
+
+  @Prop() match: MatchResults = {} as MatchResults;
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  @Prop({ mutable: true }) url: string = "";
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
   private eventEmitter: EventEmitter = new EventEmitter();
   private messageQueue: object[] = [];
+  private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
 
-  constructor() {
-    this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
+  private $onMessage: EventListenerObject = {} as EventListenerObject;
+
+  getDappUrl(): string {
+    const dappSlug = this.match.params.dappName;
+    for (const address in apps) {
+      if (dappSlug === apps[address].slug) {
+        return apps[address].url;
+      }
+    }
+
+    return "";
   }
 
-  componentDidLoad() {
+  componentDidLoad(): void {
+    this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
+    this.url = this.getDappUrl();
+
     /**
      * Once the component has loaded, we store a reference of the IFRAME
      * element's window so we can bind the message relay system.
      **/
-    const element = this.element as HTMLElement;
-    const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+    const element = (this.element as HTMLElement).shadowRoot as ShadowRoot;
+    const iframe = document.createElement("iframe");
+    iframe.src = this.url;
+    element.appendChild(iframe);
 
     this.frameWindow = iframe.contentWindow as Window;
-    this.frameWindow.addEventListener(
-      "message",
-      this.configureMessageChannel.bind(this)
-    );
+    this.$onMessage = this.configureMessageChannel.bind(this);
+
+    // TODO: This won't work if the dapp is in a different host.
+    // We need to think a way of exchanging messages to make this
+    // possible.
+    this.frameWindow.addEventListener("message", this.$onMessage);
+
+    this.iframe = iframe;
+  }
+
+  componentDidUnload() {
+    if (this.frameWindow) {
+      this.frameWindow.removeEventListener("message", this.$onMessage);
+      this.frameWindow = null;
+    }
+
+    this.eventEmitter.off("message");
+
+    if (this.port) {
+      this.port.close();
+      this.port = null;
+    }
+
+    this.iframe.remove();
   }
 
   /**
@@ -40,7 +83,7 @@ export class DappContainer {
    *
    * @param message {any}
    */
-  private postOrQueueMessage(message: any) {
+  private postOrQueueMessage(message: any): void {
     if (this.port) {
       this.port.postMessage(message);
     } else {
@@ -54,7 +97,7 @@ export class DappContainer {
    *
    * @param event {MessageEvent}
    */
-  private configureMessageChannel(event: MessageEvent) {
+  private configureMessageChannel(event: MessageEvent): void {
     if (!this.frameWindow) {
       return;
     }
@@ -74,7 +117,7 @@ export class DappContainer {
    * container, and attachs a listener to relay messages via the
    * EventEmitter.
    */
-  private configureMessagePorts() {
+  private configureMessagePorts(): MessageChannel {
     const channel = new MessageChannel();
 
     this.port = channel.port1;
@@ -90,7 +133,7 @@ export class DappContainer {
    *
    * @param event {MessageEvent}
    */
-  private relayMessage(event) {
+  private relayMessage(event: MessageEvent): void {
     this.eventEmitter.emit("message", event.data);
   }
 
@@ -100,7 +143,7 @@ export class DappContainer {
    *
    * @param event {MessageEvent}
    */
-  private queueMessage(message) {
+  private queueMessage(message): void {
     this.messageQueue.push(message);
   }
 
@@ -108,7 +151,7 @@ export class DappContainer {
    * Clears the message queue and forwards any messages
    * stored there through the MessagePort.
    */
-  private flushMessageQueue() {
+  private flushMessageQueue(): void {
     if (!this.port) {
       return;
     }
@@ -117,10 +160,5 @@ export class DappContainer {
     while ((message = this.messageQueue.shift())) {
       this.port.postMessage(message);
     }
-  }
-
-  render() {
-    // tslint:disable-next-line:prettier
-    return <iframe src={this.url}></iframe>;
   }
 }

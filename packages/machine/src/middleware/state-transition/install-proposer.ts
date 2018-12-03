@@ -13,6 +13,7 @@ export class InstallProposer {
   ): StateProposal {
     const multisig: cf.legacy.utils.Address =
       message.clientMessage.multisigAddress;
+
     const data: cf.legacy.app.InstallData = message.clientMessage.data;
     const app = new cf.legacy.app.AppInterface(
       data.app.address,
@@ -75,14 +76,7 @@ export class InstallProposer {
     context: Context,
     data: cf.legacy.app.InstallData
   ): string[] {
-    const lastResult = context.intermediateResults.inbox!;
-
-    let signingKeys;
-    if (lastResult && lastResult.data) {
-      signingKeys = [lastResult.data.keyA, lastResult.data.keyB];
-    } else {
-      signingKeys = [data.keyA!, data.keyB!];
-    }
+    const signingKeys = [data.keyA!, data.keyB!];
 
     // TODO: Feels like this is the wrong place for this sorting...
     // https://github.com/counterfactual/monorepo/issues/129
