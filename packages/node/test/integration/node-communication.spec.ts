@@ -1,9 +1,12 @@
+import dotenv from "dotenv";
 import firebase from "firebase";
 import FirebaseServer from "firebase-server";
 
 import { Node } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
+
+dotenv.config();
 
 describe("Two nodes can communicate with each other", () => {
   const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
@@ -13,7 +16,10 @@ describe("Two nodes can communicate with each other", () => {
   let nodeB: Node;
 
   beforeAll(() => {
-    firebaseServer = new FirebaseServer(firebaseServerPort, "localhost");
+    firebaseServer = new FirebaseServer(
+      process.env.FIREBASE_DEV_SERVER_PORT,
+      "localhost"
+    );
 
     const app = firebase.initializeApp({
       databaseURL: `ws://localhost:${firebaseServerPort}`,

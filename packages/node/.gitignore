@@ -3,3 +3,4 @@ test/clover.xml
 test/coverage-final.json
 test/lcov-report/
 test/lcov.info
+.env

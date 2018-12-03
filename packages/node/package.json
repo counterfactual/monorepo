@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/debug": "^0.0.31",
     "@types/node": "^10.9.3",
+    "dotenv": "^6.1.0",
     "ethers": "^4.0.4",
     "firebase-mock": "^2.2.10",
     "firebase-server": "^1.0.1",

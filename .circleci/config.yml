@@ -20,6 +20,7 @@ jobs:
     steps:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run: echo "FIREBASE_DEV_SERVER_PORT=$FIREBASE_DEV_SERVER_PORT" > packages/node/.env
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
