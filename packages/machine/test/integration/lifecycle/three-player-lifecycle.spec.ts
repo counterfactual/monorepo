@@ -1,12 +1,16 @@
 import {
   A_PRIVATE_KEY,
   B_PRIVATE_KEY,
+  I_PRIVATE_KEY,
+  A_ADDRESS,
+  B_ADDRESS,
+  I_ADDRESS,
+  UNUSED_FUNDED_ACCOUNT
 } from "../../utils/environment";
 
 import { TestResponseSink } from "../test-response-sink";
 import { SetupProtocol } from "./setup-protocol";
 import { Depositor } from "./depositor";
-import { TicTacToeSimulator } from "./tic-tac-toe-simulator";
 
 /**
  * Tests that the machine's State is correctly modified during the lifecycle
@@ -20,10 +24,14 @@ describe("Machine State Lifecycle", async () => {
   jest.setTimeout(50000);
 
   it.only("should modify machine state during the lifecycle of TicTacToeSimulator", async () => {
-    const [peerA, peerB]: TestResponseSink[] = getCommunicatingPeers();
-    await SetupProtocol.validateAndRun(peerA, peerB);
-    await Depositor.makeDeposits(peerA, peerB);
-    await TicTacToeSimulator.simulatePlayingGame(peerA, peerB);
+    const [peerA, peerB, peerI ]: TestResponseSink[] = getCommunicatingPeers();
+    await SetupProtocol.run(peerA, peerI);
+    await Depositor.makeDeposits(peerA, peerI);
+    await SetupProtocol.run(peerI, peerB);
+    await Depositor.makeDeposits(peerI, peerB);
+    await peerA.runInstallMetachannelAppProtocol(
+      A_ADDRESS, B_ADDRESS, I_ADDRESS, UNUSED_FUNDED_ACCOUNT
+    );
   });
 });
 
@@ -42,11 +50,17 @@ function getCommunicatingPeers(): TestResponseSink[] {
   // https://github.com/counterfactual/monorepo/issues/109
   const peerA = new TestResponseSink(A_PRIVATE_KEY);
   const peerB = new TestResponseSink(B_PRIVATE_KEY);
+  const peerI = new TestResponseSink(I_PRIVATE_KEY);
 
-  peerA.io.peer = peerB;
-  peerB.io.peer = peerA;
+  peerA.io.peers.set(B_ADDRESS, peerB);
+  peerA.io.peers.set(I_ADDRESS, peerI);
 
-  return [peerA, peerB];
+  peerB.io.peers.set(A_ADDRESS, peerA);
+  peerB.io.peers.set(I_ADDRESS, peerI);
+
+  peerI.io.peers.set(A_ADDRESS, peerA);
+  peerI.io.peers.set(B_ADDRESS, peerB);
+
+  return [peerA, peerB, peerI];
 }
-
 

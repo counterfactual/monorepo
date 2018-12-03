@@ -6,7 +6,6 @@ import * as protocolTypes from "./middleware/protocol-operation/types";
 import * as mixins from "./mixins";
 import * as state from "./node";
 import * as types from "./types";
-import * as writeAheadLog from "./write-ahead-log";
 
 export {
   protocolOperations,
@@ -16,6 +15,5 @@ export {
   mixins,
   state,
   types,
-  instructionExecutor,
-  writeAheadLog
+  instructionExecutor
 };
