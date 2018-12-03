@@ -162,7 +162,7 @@ export class TestCommitmentStore {
       const proposal = context.intermediateResults.proposedStateTransition!;
       appId = proposal.cfAddr;
     } else {
-      appId = internalMessage.clientMessage.appId;
+      appId = internalMessage.clientMessage.appInstanceId;
     }
 
     if (this.store.has(appId)) {
@@ -204,15 +204,10 @@ export class TestCommitmentStore {
     internalMessage: InternalMessage,
     context: Context
   ): cf.legacy.node.ClientActionMessage | null {
-    if (internalMessage.actionName === cf.legacy.node.ActionName.INSTALL) {
-      return context.intermediateResults.inbox!;
-    }
-    const incomingMessageResult = context.intermediateResults.inbox!;
+    const incomingMessageResult = context.intermediateResults.inbox[0];
     if (incomingMessageResult === undefined) {
-      // receiver since non installs should have no io_WAIT
       return internalMessage.clientMessage;
     }
-    // sender so grab out the response
     return incomingMessageResult;
   }
 
