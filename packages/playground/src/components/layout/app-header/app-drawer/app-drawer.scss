@@ -3,8 +3,8 @@
   top: 0;
   height: 100vh;
   width: 100vw;
-  z-index: -1;
-  transition: z-index 150ms;
+  z-index: 100;
+  pointer-events: none;
 
   .drawer {
     position: absolute;
@@ -17,12 +17,6 @@
     transition: transform 150ms;
     transform: translateX(-100%);
     z-index: 101;
-  
-    .top-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
   }
 
   .drawer-screen {
@@ -39,7 +33,7 @@
   }
 
   &.opened {
-    z-index: 100;
+    pointer-events: all;
 
     .drawer {
       transform: translateX(0%);
@@ -47,7 +41,7 @@
 
     .drawer-screen {
       display: block;
-      opacity: 0.32;
+      opacity: 0.62;
     }
   }
 }
