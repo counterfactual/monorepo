@@ -26,7 +26,6 @@
   > img {
     display: block;
     width: 126px;
-    height: 126px;
     border-radius: 24px;
     object-fit: cover;
     z-index: 1;
@@ -47,8 +46,16 @@
   .icon {
     border-radius: 16px;
 
+    > .notification {
+      top: -0.75rem;
+      right: -0.75rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: $f-reg;
+    }
+
     > img {
-      border-radius: 16px;
+      width: 100%;
     }
   }
 }

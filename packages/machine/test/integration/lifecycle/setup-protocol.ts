@@ -8,6 +8,8 @@ import { TestResponseSink } from "../test-response-sink";
 /**
  * A collection of static methods responsible for running the setup potocol
  * and asserting the internally stored state was correctly modified.
+ *
+ * Note: this expects peerA and peerB to be linked correctly!
  */
 export class SetupProtocol {
   public static async validateAndRun(
@@ -35,8 +37,7 @@ export class SetupProtocol {
     to: string
   ): cf.legacy.node.ClientActionMessage {
     return {
-      requestId: "0",
-      appId: "",
+      appInstanceId: "",
       action: cf.legacy.node.ActionName.SETUP,
       data: {},
       multisigAddress: UNUSED_FUNDED_ACCOUNT,
@@ -98,12 +99,12 @@ export class SetupProtocol {
     expect(channel.freeBalance.bobBalance).toEqual(canon.peerB.balance);
   }
 
-  private static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
-    const msg = SetupProtocol.setupStartMsg(
+  public static async run(peerA: TestResponseSink, peerB: TestResponseSink) {
+    const response = await peerA.runSetupProtocol(
       peerA.signingKey.address,
-      peerB.signingKey.address
+      peerB.signingKey.address,
+      UNUSED_FUNDED_ACCOUNT
     );
-    const response = await peerA.runProtocol(msg);
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
   }
 }
