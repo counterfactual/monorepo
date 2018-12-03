@@ -2,8 +2,16 @@ import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
-import { AssetType } from "../src/types";
-import { INodeProvider, Node } from "../src/types/node-protocol";
+import {
+  AppInstanceInfo,
+  AssetType,
+  ErrorEventData,
+  EventType,
+  INodeProvider,
+  InstallEventData,
+  Node,
+  RejectInstallEventData
+} from "../src/types";
 
 class TestNodeProvider implements INodeProvider {
   public postedMessages: Node.Message[] = [];
@@ -21,6 +29,16 @@ class TestNodeProvider implements INodeProvider {
     this.postedMessages.push(message);
   }
 }
+
+const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
+  id: "TEST_ID",
+  asset: { assetType: AssetType.ETH },
+  abiEncodings: { actionEncoding: "", stateEncoding: "" },
+  appId: "",
+  myDeposit: new BigNumber("0"),
+  peerDeposit: new BigNumber("0"),
+  timeout: new BigNumber("0")
+};
 
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
@@ -49,7 +67,7 @@ describe("CF.js Provider", async () => {
     try {
       await promise;
     } catch (e) {
-      expect(e.message).toBe("Music too loud");
+      expect(e.data.message).toBe("Music too loud");
     }
   });
 
@@ -59,7 +77,7 @@ describe("CF.js Provider", async () => {
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
 
-    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
+    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
     expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
     nodeProvider.simulateMessageFromNode({
@@ -71,25 +89,16 @@ describe("CF.js Provider", async () => {
     try {
       await promise;
     } catch (e) {
-      expect(e.errorName).toBe("unexpected_message_type");
+      expect(e.data.errorName).toBe("unexpected_message_type");
     }
   });
 
   it("should query app instances and return them", async () => {
     expect.assertions(4);
-    const testInstance = new AppInstance({
-      id: "TEST_ID",
-      asset: { assetType: AssetType.ETH },
-      abiEncodings: { actionEncoding: "", stateEncoding: "" },
-      appId: "",
-      myDeposit: new BigNumber("0"),
-      peerDeposit: new BigNumber("0"),
-      timeout: new BigNumber("0")
-    });
 
     provider.getAppInstances().then(instances => {
       expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(testInstance.id);
+      expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
     });
 
     expect(nodeProvider.postedMessages).toHaveLength(1);
@@ -100,8 +109,119 @@ describe("CF.js Provider", async () => {
       type: Node.MethodName.GET_APP_INSTANCES,
       requestId: request.requestId,
       result: {
-        appInstances: [testInstance.info]
+        appInstances: [TEST_APP_INSTANCE_INFO]
       }
     });
+  });
+
+  it("should emit an error event for orphaned responses", async () => {
+    expect.assertions(2);
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
+    });
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.INSTALL,
+      requestId: "test",
+      result: {
+        appInstanceId: ""
+      }
+    });
+  });
+
+  it("should throw an error on timeout", async () => {
+    try {
+      await provider.getAppInstances();
+    } catch (err) {
+      expect(err.type).toBe(EventType.ERROR);
+      expect(err.data.errorName).toBe("request_timeout");
+    }
+  });
+
+  it("should correctly subscribe to rejectInstall events", async () => {
+    expect.assertions(3);
+    provider.once(EventType.REJECT_INSTALL, e => {
+      expect(e.type).toBe(EventType.REJECT_INSTALL);
+      const appInstance = (e.data as RejectInstallEventData).appInstance;
+      expect(appInstance).toBeInstanceOf(AppInstance);
+      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+    });
+    nodeProvider.simulateMessageFromNode({
+      type: Node.EventName.REJECT_INSTALL,
+      data: {
+        appInstance: TEST_APP_INSTANCE_INFO
+      }
+    });
+  });
+
+  it("should expose the same AppInstance instance for a unique app instance ID", async () => {
+    expect.assertions(1);
+    let savedInstance: AppInstance;
+    provider.on(EventType.REJECT_INSTALL, e => {
+      const eventInstance = (e.data as RejectInstallEventData).appInstance;
+      if (!savedInstance) {
+        savedInstance = eventInstance;
+      } else {
+        expect(savedInstance).toBe(eventInstance);
+      }
+    });
+    const msg = {
+      type: Node.EventName.REJECT_INSTALL,
+      data: {
+        appInstance: TEST_APP_INSTANCE_INFO
+      }
+    };
+    nodeProvider.simulateMessageFromNode(msg);
+    nodeProvider.simulateMessageFromNode(msg);
+  });
+
+  it("should load app instance details on-demand", async () => {
+    expect.assertions(4);
+
+    provider.on(EventType.UPDATE_STATE, e => {
+      expect((e.data as InstallEventData).appInstance.info).toBe(
+        TEST_APP_INSTANCE_INFO
+      );
+    });
+
+    nodeProvider.simulateMessageFromNode({
+      type: Node.EventName.UPDATE_STATE,
+      data: {
+        appInstanceId: TEST_APP_INSTANCE_INFO.id,
+        oldState: "4",
+        action: "-1",
+        newState: "3"
+      }
+    });
+    expect(nodeProvider.postedMessages).toHaveLength(1);
+    const detailsRequest = nodeProvider.postedMessages[0] as Node.MethodRequest;
+    expect(detailsRequest.type).toBe(Node.MethodName.GET_APP_INSTANCE_DETAILS);
+    expect(
+      (detailsRequest.params as Node.GetAppInstanceDetailsParams).appInstanceId
+    ).toBe(TEST_APP_INSTANCE_INFO.id);
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
+      requestId: detailsRequest.requestId,
+      result: {
+        appInstance: TEST_APP_INSTANCE_INFO
+      }
+    });
+    // NOTE: For some reason the event won't fire unless we wait for a bit
+    await new Promise(r => setTimeout(r, 50));
+  });
+
+  it("should throw an error for unexpected event types", async () => {
+    expect.assertions(2);
+
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe(
+        "unexpected_event_type"
+      );
+    });
+
+    nodeProvider.simulateMessageFromNode(({
+      type: "notARealEventType"
+    } as unknown) as Node.Event);
   });
 });
