@@ -58,7 +58,7 @@ describe("Two nodes can communicate with each other", () => {
       done();
     });
 
-    nodeB.on(Node.PEER_MESSAGE, async msg => {
+    nodeB.on(Node.PEER_MESSAGE, msg => {
       expect(msg.from).toEqual(nodeA.address);
       expect(msg.phase).toEqual(synMsg.phase);
       nodeB.send(nodeA.address, ackMsg);
