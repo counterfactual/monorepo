@@ -36,17 +36,17 @@ export default class Node {
 
   /**
    * @param privateKey
-   * @param firebase
+   * @param messagingService
    */
   constructor(
     privateKey: string,
-    private readonly firebase: firebase.database.Database
+    private readonly messagingService: firebase.database.Database
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerListeners();
-    this.registerConnection(firebase);
+    this.registerConnection(messagingService);
   }
 
   /**
@@ -81,7 +81,9 @@ export default class Node {
    */
   async send(peerAddress: Address, msg: object) {
     const modifiedMsg = Object.assign({ from: this.address }, msg);
-    await this.firebase.ref(`${MESSAGES}/${peerAddress}`).set(modifiedMsg);
+    await this.messagingService
+      .ref(`${MESSAGES}/${peerAddress}`)
+      .set(modifiedMsg);
   }
 
   /**
@@ -108,7 +110,7 @@ export default class Node {
    * @param firebase
    */
   private registerConnection(firebase: firebase.database.Database) {
-    if (!this.firebase.app) {
+    if (!this.messagingService.app) {
       connectionLogger(
         "Cannot register a connection with an uninitialized firebase handle"
       );
@@ -116,7 +118,7 @@ export default class Node {
     }
 
     const ref = `${MESSAGES}/${this.address}`;
-    this.firebase
+    this.messagingService
       .ref(ref)
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
         const msg = snapshot!.val();
