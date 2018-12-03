@@ -44,23 +44,12 @@ export class Middleware {
   }
 
   public async run(msg: InternalMessage, context: Context) {
-    let counter = 0;
     const middlewares = this.middlewares;
     const opCode = msg.opCode;
 
-    async function callback() {
-      if (counter === middlewares[opCode].length - 1) {
-        return null;
-      }
-      // This is hacky, prevents next from being called more than once
-      counter += 1;
-      const middleware = middlewares[opCode][counter];
-      if (middleware.scope === opCode) {
-        return middleware.method(msg, callback, context);
-      }
-      return callback();
+    for (const middleware of middlewares[opCode]) {
+      await middleware.method(msg, () => {}, context);
     }
-    return this.middlewares[opCode][0].method(msg, callback, context);
   }
 }
 
