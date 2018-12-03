@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "@stencil/core": "~0.15.1",
-    "@stencil/router": "0.2.6",
-    "@counterfactual/node-provider": "*",
-    "@counterfactual/cf.js": "^0.0.1"
+    "@stencil/router": "0.2.6"
   },
   "repository": {
     "type": "git",
