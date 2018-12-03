@@ -11,9 +11,7 @@ type ClientActionMessageConsumer = (arg: cf.legacy.node.ClientActionMessage) => 
 export class TestIOProvider {
   public messages: cf.legacy.node.ClientActionMessage[];
 
-  // FIXME: Don't just initialize it as a null object
-  // https://github.com/counterfactual/monorepo/issues/97
-  public peer: TestResponseSink = Object.create(null);
+  public peers = new Map<string, TestResponseSink>();
 
   // when TestIOProvider::waitForIo is called without pending messages,
   // the returned promise's resolve function is captured and stored here
@@ -21,23 +19,25 @@ export class TestIOProvider {
 
   public ackMethod: Function = Object.create(null);
 
-  constructor() {
+  private parent: TestResponseSink;
+
+  constructor(parent: TestResponseSink) {
     this.messages = [];
+    this.parent = parent;
   }
 
   public receiveMessageFromPeer(
     serializedMessage: cf.legacy.node.ClientActionMessage
   ) {
-    const message = cf.legacy.utils.serializer.deserialize(
-      serializedMessage
-    ) as cf.legacy.node.ClientActionMessage;
+    const message = serializedMessage;
 
     if (this.waitForIoContinuation !== undefined) {
       this.waitForIoContinuation(message);
       // mark this.waitForIoContinuation as resolved
       this.waitForIoContinuation = undefined;
-    } else if (message.seq === 1) {
-      // initiate ack side if needed
+    } else if (!this.parent.active) {
+      // if the parent test response sink is not running a protocol
+      this.parent.active = true;
       this.ackMethod(message);
     } else {
       this.messages.push(message);
@@ -56,6 +56,7 @@ export class TestIOProvider {
     } else {
       this.waitForIoContinuation = continuation;
     }
+
   }
 
   public async ioSendMessage(
@@ -63,11 +64,17 @@ export class TestIOProvider {
     next: Function,
     context: Context
   ) {
-    const value = context.intermediateResults.outbox!
-    if (value === undefined) {
-      throw Error("ioSendMessage cannot send message with value undefined");
+    if (context.intermediateResults.outbox.length === 0) {
+      throw Error("ioSendMessage called with empty outbox");
     }
-    this.peer.receiveMessageFromPeer(value);
+    for (const message of context.intermediateResults.outbox) {
+      const recipientAddr = message.toAddress;
+      const recipient = this.peers.get(recipientAddr);
+      if (recipient === undefined) {
+        throw Error(`cannot route to ${recipientAddr}`);
+      }
+      recipient.receiveMessageFromPeer(message);
+    }
   }
 
   public async waitForIo(
@@ -83,10 +90,12 @@ export class TestIOProvider {
 
     this.listenOnce(
       msg => {
-        context.intermediateResults.inbox = msg;
+        context.intermediateResults.inbox.push(msg);
         resolve(msg);
       },
     );
+
+
     return promise;
   }
 }

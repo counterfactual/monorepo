@@ -5,15 +5,17 @@
 
 .list {
   display: flex;
-  margin: -1rem;
   flex-wrap: wrap;
   list-style: none;
 }
 
 @media screen and (max-width: $screen-sm) {
+  .title {
+    text-align: center;
+  }
+  
   .list {
-    display: flex;
-    margin: -1rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
   }
 }

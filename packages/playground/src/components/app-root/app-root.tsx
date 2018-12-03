@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, State } from "@stencil/core";
 
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -10,10 +10,24 @@ import { MatchResults } from "@stencil/router";
   shadow: true
 })
 export class AppRoot {
+  @State() drawerOpened: boolean = false;
+
+  closeDrawerHandler(e) {
+    this.drawerOpened = false;
+  }
+
+  openDrawerHandler(e) {
+    this.drawerOpened = true;
+  }
+
   render() {
     return (
       <div class="app-root wrapper">
-        <app-header />
+        <app-drawer
+          opened={this.drawerOpened}
+          onCloseDrawer={e => this.closeDrawerHandler(e)}
+        />
+        <app-header onOpenDrawer={e => this.openDrawerHandler(e)} />
 
         <main class="wrapper__content">
           <stencil-router>

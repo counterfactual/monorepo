@@ -1,6 +1,6 @@
 import Node from "../../src/node";
 
-describe("Node", () => {
+describe("Primitive Node operations", () => {
   it("exists", () => {
     expect(Node).toBeDefined();
   });

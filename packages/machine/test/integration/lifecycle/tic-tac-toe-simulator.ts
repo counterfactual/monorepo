@@ -1,6 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
- import {
+
+import {
   UNUSED_FUNDED_ACCOUNT
 } from "../../utils/environment";
 
@@ -25,7 +26,12 @@ export class TicTacToeSimulator {
       peerA.signingKey.address!,
       peerB.signingKey.address!
     );
-    const response = await peerA.runProtocol(msg);
+    const response = await peerA.runInstallProtocol(
+      peerA.signingKey.address!,
+      peerB.signingKey.address!,
+      UNUSED_FUNDED_ACCOUNT,
+      msg
+    )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
@@ -33,7 +39,7 @@ export class TicTacToeSimulator {
   public static installMsg(
     to: string,
     from: string
-  ): cf.legacy.node.ClientActionMessage {
+  ): cf.legacy.app.InstallData {
     let peerA = from;
     let peerB = to;
     if (peerB.localeCompare(peerA) < 0) {
@@ -55,7 +61,7 @@ export class TicTacToeSimulator {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: cf.legacy.app.InstallData = {
+    return {
       terms,
       app,
       timeout,
@@ -64,16 +70,6 @@ export class TicTacToeSimulator {
       keyA: peerA,
       keyB: peerB,
       encodedAppState: "0x1234"
-    };
-    return {
-      requestId: "5",
-      appId: "",
-      action: cf.legacy.node.ActionName.INSTALL,
-      data: installData,
-      multisigAddress: UNUSED_FUNDED_ACCOUNT,
-      toAddress: to,
-      fromAddress: from,
-      seq: 0
     };
   }
 
@@ -102,8 +98,7 @@ export class TicTacToeSimulator {
       peerB.instructionExecutor.node.channelStates[UNUSED_FUNDED_ACCOUNT].freeBalance,
       peerA,
       peerB
-    )
-
+    );
     return cfAddr;
   }
 
@@ -151,14 +146,14 @@ export class TicTacToeSimulator {
   ) {
     appState[cell] = side;
     const state = appState.toString();
-    const msg = TicTacToeSimulator.updateMsg(
-      state,
-      cell,
+    const response = await peerA.runUpdateProtocol(
       peerA.signingKey.address!,
       peerB.signingKey.address!,
-      cfAddr
-    );
-    const response = await peerA.runProtocol(msg);
+      UNUSED_FUNDED_ACCOUNT,
+      cfAddr,
+      state,
+      ethers.constants.HashZero
+    )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     TicTacToeSimulator.validateMakeMove(
       peerA,
@@ -175,29 +170,6 @@ export class TicTacToeSimulator {
       state,
       moveNumber
     );
-  }
-
-  public static updateMsg(
-    state: string,
-    cell: number,
-    to: string,
-    from: string,
-    cfAddr: string
-  ): cf.legacy.node.ClientActionMessage {
-    const updateData: cf.legacy.app.UpdateData = {
-      encodedAppState: state,
-      appStateHash: ethers.constants.HashZero // TODO:
-    };
-    return {
-      requestId: "1",
-      appId: cfAddr,
-      action: cf.legacy.node.ActionName.UPDATE,
-      data: updateData,
-      multisigAddress: UNUSED_FUNDED_ACCOUNT,
-      toAddress: to,
-      fromAddress: from,
-      seq: 0
-    };
   }
 
   public static validateMakeMove(
@@ -225,17 +197,18 @@ export class TicTacToeSimulator {
     peerB: TestResponseSink,
     cfAddr: string
   ) {
-    const msg = TicTacToeSimulator.uninstallStartMsg(
-      cfAddr,
+    const response = await peerA.runUninstallProtocol(
       peerA.signingKey.address!,
-      ethers.utils.bigNumberify(4),
       peerB.signingKey.address!,
-      ethers.utils.bigNumberify(0)
-    );
-    const response = await peerA.runProtocol(msg);
+      UNUSED_FUNDED_ACCOUNT,
+      [
+        new cf.legacy.utils.PeerBalance(peerA.signingKey.address!, ethers.utils.bigNumberify(4)),
+        new cf.legacy.utils.PeerBalance(peerB.signingKey.address!, ethers.utils.bigNumberify(0))
+      ],
+      cfAddr
+    )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // A wins so give him 2 and subtract 2 from B
-    await new Promise(resolve => setTimeout(resolve, 50));
     TicTacToeSimulator.validateUninstall(
       cfAddr,
       peerA,
@@ -243,31 +216,6 @@ export class TicTacToeSimulator {
       peerB,
       ethers.utils.bigNumberify(3)
     );
-  }
-
-  public static uninstallStartMsg(
-    cfAddr: string,
-    addressA: string,
-    amountA: ethers.utils.BigNumber,
-    addressB: string,
-    amountB: ethers.utils.BigNumber
-  ): cf.legacy.node.ClientActionMessage {
-    const uninstallData = {
-      peerAmounts: [
-        new cf.legacy.utils.PeerBalance(addressA, amountA),
-        new cf.legacy.utils.PeerBalance(addressB, amountB)
-      ]
-    };
-    return {
-      requestId: "2",
-      appId: cfAddr,
-      action: cf.legacy.node.ActionName.UNINSTALL,
-      data: uninstallData,
-      multisigAddress: UNUSED_FUNDED_ACCOUNT,
-      fromAddress: addressA,
-      toAddress: addressB,
-      seq: 0
-    };
   }
 
   public static validateUninstall(

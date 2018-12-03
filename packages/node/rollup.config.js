@@ -1,9 +1,11 @@
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
+
 const globals = {
-  ethers: "ethers",
-};
+  "@counterfactual/cf.js": "cfjs",
+  "eventemitter3": "EventEmitter"
+}
 
 export default [
   {
@@ -14,6 +16,14 @@ export default [
         sourcemap: true,
         format: "cjs",
         globals: globals
+      },
+      {
+        file: pkg.iife,
+        sourcemap: true,
+        name: "window",
+        format: "iife",
+        extend: true,
+        globals: globals
       }
     ],
     external: [
@@ -22,7 +32,6 @@ export default [
     ],
     plugins: [
       typescript({
-        typescript: require("typescript"),
         tsconfig: "tsconfig.rollup.json"
       })
     ]
