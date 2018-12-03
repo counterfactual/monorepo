@@ -17,12 +17,6 @@
     transition: transform 150ms;
     transform: translateX(-100%);
     z-index: 101;
-  
-    .top-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
   }
 
   .drawer-screen {

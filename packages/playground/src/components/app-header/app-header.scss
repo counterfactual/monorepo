@@ -1,37 +1,4 @@
 .header {
   padding: 1.06rem 1.333rem;
   border-bottom: 1px solid $c-blue;
-
-  .desktop {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .mobile {
-    display: none;
-  }
-
-  .left {
-    display: flex;
-    align-items: center;
-  }
-
-  .right {
-    button {
-      padding: 1rem;
-    }
-  }
-}
-
-@media screen and (max-width: $screen-sm) {
-  .header {
-    .desktop {
-      display: none;
-    }
-
-    .mobile {
-      display: block;
-    }
-  }
 }

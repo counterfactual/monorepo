@@ -17,17 +17,13 @@ export class AppHeader {
   render() {
     return (
       <header class="header">
-        <div class="mobile">
+        <div class="hide-on-desktop">
           <a onClick={e => this.menuClicked(e)}>
             <img src="/assets/icon/menu-btn.svg" alt="Menu" />
           </a>
         </div>
-        <div class="desktop">
-          <div class="left">
-            <app-logo />
-            <app-connection />
-          </div>
-          <nav class="right" />
+        <div class="hide-on-mobile">
+          <app-nav-content></app-nav-content>
         </div>
       </header>
     );
