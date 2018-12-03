@@ -1,8 +1,7 @@
 import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
-import { sass } from "@stencil/sass";
 
-import apps from "../../utils/app-list";
+import apps from "../../../utils/app-list";
 
 const runningAppKey = Object.keys(apps)[0];
 const runningApps = {
