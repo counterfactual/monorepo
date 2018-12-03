@@ -1,8 +1,8 @@
 import * as cf from "@counterfactual/cf.js";
 
 import { Context } from "./instruction-executor";
-import { Opcode } from "./instructions";
 import { Node } from "./node";
+import { Opcode } from "./opcodes";
 
 /**
  * The return value from the STATE_TRANSITION_PROPOSE middleware.
@@ -28,8 +28,7 @@ export class InternalMessage {
   constructor(
     public actionName: cf.legacy.node.ActionName,
     public opCode: Opcode,
-    public clientMessage: cf.legacy.node.ClientActionMessage,
-    public isAckSide: boolean
+    public clientMessage: cf.legacy.node.ClientActionMessage
   ) {}
 }
 

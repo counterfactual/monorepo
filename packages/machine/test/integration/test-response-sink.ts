@@ -6,12 +6,8 @@ import {
   InstructionExecutor,
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
-import { Opcode } from "../../src/instructions";
+import { Opcode } from "../../src/opcodes";
 import { InternalMessage } from "../../src/types";
-import {
-  SimpleStringMapSyncDB,
-  WriteAheadLog
-} from "../../src/write-ahead-log";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
@@ -21,11 +17,12 @@ type ResponseConsumer = (arg: cf.legacy.node.Response) => void;
 export class TestResponseSink implements cf.legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
-  public writeAheadLog: WriteAheadLog;
   public store: TestCommitmentStore;
   public signingKey: ethers.utils.SigningKey;
 
-  // when TestResponseSink::runProtocol is called, the returned promise's
+  public active: Boolean;
+
+  // when TestResponseSink::run(.*)Protocol is called, the returned promise's
   // resolve function is captured and stored here
   private runProtocolContinuation?: ResponseConsumer;
 
@@ -33,6 +30,8 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     readonly privateKey: string,
     networkContext?: cf.legacy.network.NetworkContext
   ) {
+    this.active = false;
+
     this.store = new TestCommitmentStore();
 
     this.signingKey = new ethers.utils.SigningKey(privateKey);
@@ -53,24 +52,12 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       )
     );
 
-    this.writeAheadLog = new WriteAheadLog(
-      new SimpleStringMapSyncDB(),
-      this.signingKey.address
-    );
-
-    this.io = new TestIOProvider();
+    this.io = new TestIOProvider(this);
 
     // TODO: Document why this is needed.
     // https://github.com/counterfactual/monorepo/issues/108
-    this.io.ackMethod = this.instructionExecutor.receiveClientActionMessageAck.bind(
+    this.io.ackMethod = this.instructionExecutor.dispatchReceivedMessage.bind(
       this.instructionExecutor
-    );
-
-    this.instructionExecutor.register(
-      Opcode.ALL,
-      async (message: InternalMessage, next: Function, context: Context) => {
-        this.writeAheadLog.write(message, context);
-      }
     );
 
     this.instructionExecutor.register(
@@ -104,18 +91,77 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     );
   }
 
-  /**
-   * The test will call this when it wants to start a protocol.
-   * Returns a promise that resolves with a Response object when
-   * the protocol has completed execution.
-   */
-  public async runProtocol(
-    msg: cf.legacy.node.ClientActionMessage
+  public async runUninstallProtocol(
+    fromAddress: string,
+    toAddress: string,
+    multisigAddress: string,
+    peerAmounts: cf.legacy.utils.PeerBalance[],
+    appId: string
   ): Promise<cf.legacy.node.Response> {
+    this.active = true;
+    this.instructionExecutor.runUninstallProtocol(
+      fromAddress, toAddress, multisigAddress, peerAmounts, appId);
+    return new Promise<cf.legacy.node.Response>((resolve) => {
+      this.runProtocolContinuation = resolve;
+    });
+  }
+
+  public async runUpdateProtocol(
+    fromAddress: string,
+    toAddress: string,
+    multisigAddress: string,
+    appId: string,
+    encodedAppState: string,
+    appStateHash: cf.legacy.utils.H256
+  ): Promise<cf.legacy.node.Response> {
+    this.active = true;
     const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
-    this.instructionExecutor.receiveClientActionMessage(msg);
+    this.instructionExecutor.runUpdateProtocol(
+      fromAddress, toAddress, multisigAddress, appId, encodedAppState, appStateHash);
+    return promise;
+  }
+
+  public async runSetupProtocol(
+    fromAddress: string,
+    toAddress: string,
+    multisigAddress: string
+  ): Promise<cf.legacy.node.Response> {
+    this.active = true;
+    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+      this.runProtocolContinuation = resolve;
+    });
+    this.instructionExecutor.runSetupProtocol(fromAddress, toAddress, multisigAddress);
+    return promise;
+  }
+
+  public async runInstallMetachannelAppProtocol(
+    fromAddress: string,
+    toAddress: string,
+    intermediary: string,
+    multisigAddress: string
+  ): Promise<cf.legacy.node.Response> {
+    this.active = true;
+    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+      this.runProtocolContinuation = resolve;
+    });
+    this.instructionExecutor.runInstallMetachannelAppProtocol(
+      fromAddress, toAddress, intermediary, multisigAddress);
+    return promise;
+  }
+
+  public runInstallProtocol(
+    fromAddress: string,
+    toAddress: string,
+    multisigAddress: string,
+    installData: cf.legacy.app.InstallData
+  ): Promise<cf.legacy.node.Response> {
+    this.active = true;
+    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+      this.runProtocolContinuation = resolve;
+    });
+    this.instructionExecutor.runInstallProtocol(fromAddress, toAddress, multisigAddress, installData);
     return promise;
   }
 
@@ -123,12 +169,10 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
    * Resolves the registered promise so the test can continue.
    */
   public sendResponse(res: cf.legacy.node.Response) {
+    this.active = false;
     if (this.runProtocolContinuation) {
       this.runProtocolContinuation(res);
       this.runProtocolContinuation = undefined;
-    } else {
-      // todo(ldct) - error here
-      // https://github.com/counterfactual/monorepo/issues/141
     }
   }
 
@@ -162,7 +206,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = context.intermediateResults.inbox!;
+      const incomingMessage = context.intermediateResults.inbox[0];
       sig = incomingMessage.signature;
     } else {
       // receiver

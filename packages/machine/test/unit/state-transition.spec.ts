@@ -1,8 +1,7 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { Context } from "../../src/instruction-executor";
-import { Opcode } from "../../src/instructions";
+import { Opcode } from "../../src/opcodes";
 import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
 import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
 import { Node, StateChannelInfoImpl } from "../../src/node";
@@ -31,7 +30,6 @@ describe("State transition", () => {
       cf.legacy.node.ActionName.SETUP,
       Opcode.STATE_TRANSITION_PROPOSE,
       setupClientMsg(),
-      false
     );
     const proposal = SetupProposer.propose(message);
     validateSetupInfos(proposal.state);
@@ -41,7 +39,6 @@ describe("State transition", () => {
       cf.legacy.node.ActionName.INSTALL,
       Opcode.STATE_TRANSITION_PROPOSE,
       installClientMsg(),
-      false
     );
     const expectedCfAddr = new cf.legacy.app.AppInstance(
       cf.legacy.network.EMPTY_NETWORK_CONTEXT,
@@ -54,7 +51,13 @@ describe("State transition", () => {
     ).cfAddress();
     const proposal = InstallProposer.propose(
       message,
-      new Context(),
+      {
+        intermediateResults: {
+          inbox: [],
+          outbox: []
+        },
+        instructionExecutor: Object.create(null)
+      },
       setupInstallState()
     );
     validateInstallInfos(proposal.state, expectedCfAddr);
@@ -63,14 +66,12 @@ describe("State transition", () => {
 
 function setupClientMsg(): cf.legacy.node.ClientActionMessage {
   return {
-    requestId: "0",
-    appId: "0",
+    appInstanceId: "0",
     action: cf.legacy.node.ActionName.SETUP,
     data: {},
     multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: A_ADDRESS,
     toAddress: B_ADDRESS,
-    stateChannel: undefined,
     seq: 0
   };
 }
@@ -118,8 +119,7 @@ function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
 
 function installClientMsg(): cf.legacy.node.ClientActionMessage {
   return {
-    requestId: "0",
-    appId: "0",
+    appInstanceId: "0",
     action: cf.legacy.node.ActionName.INSTALL,
     data: {
       peerA: new cf.legacy.utils.PeerBalance(A_ADDRESS, 5),
@@ -145,7 +145,6 @@ function installClientMsg(): cf.legacy.node.ClientActionMessage {
     multisigAddress: UNUSED_FUNDED_ACCOUNT,
     fromAddress: B_ADDRESS,
     toAddress: A_ADDRESS,
-    stateChannel: undefined,
     seq: 0
   };
 }
