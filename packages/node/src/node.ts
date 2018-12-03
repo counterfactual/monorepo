@@ -1,5 +1,5 @@
 import debug from "debug";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 import firebase from "firebase";
 
