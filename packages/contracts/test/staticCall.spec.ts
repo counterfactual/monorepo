@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { expect } from "../utils";
+import { expect } from "./utils";
 
 const { defaultAbiCoder, hexlify, randomBytes, toUtf8Bytes } = ethers.utils;
 

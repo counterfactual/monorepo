@@ -1,5 +1,6 @@
-import { expect } from "chai";
 import { ethers } from "ethers";
+
+import { expect } from "./utils";
 
 const { hexlify, randomBytes } = ethers.utils;
 const { WeiPerEther, AddressZero } = ethers.constants;

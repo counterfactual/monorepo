@@ -7,15 +7,15 @@ import {
   computeStateHash,
   Terms
 } from "../src";
-import { expect } from "../utils";
-import { mineBlocks } from "../utils/misc";
 
-import { ALICE, BOB } from "./test-constants";
+import { ALICE, BOB } from "./constants";
+import { expect } from "./utils";
 
 // HELPER DATA
 const TIMEOUT = 30;
 
 contract("AppRegistry", (accounts: string[]) => {
+  let provider: ethers.providers.Web3Provider;
   let wallet: ethers.providers.JsonRpcSigner;
   let appRegistry: ethers.Contract;
 
@@ -31,7 +31,7 @@ contract("AppRegistry", (accounts: string[]) => {
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
-    const provider: ethers.providers.Web3Provider = new ethers.providers.Web3Provider(
+    provider = new ethers.providers.Web3Provider(
       (global as any).web3.currentProvider
     );
 
@@ -205,11 +205,18 @@ contract("AppRegistry", (accounts: string[]) => {
   describe("waiting for timeout", async () => {
     it("should block updates after the timeout", async () => {
       expect(await isStateFinalized()).to.be.false;
+
       await setStateAsOwner(1);
-      await mineBlocks(TIMEOUT);
+
+      for (const _ of Array(TIMEOUT + 1)) {
+        await provider.send("evm_mine", []);
+      }
+
       expect(await isStateFinalized()).to.be.true;
+
       // @ts-ignore
       await expect(setStateAsOwner(2)).to.be.reverted;
+
       // @ts-ignore
       await expect(setStateWithSignatures(0)).to.be.reverted;
     });

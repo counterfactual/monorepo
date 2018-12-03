@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { expect } from "../utils";
+import { expect } from "./utils";
 
 const { keccak256, defaultAbiCoder, solidityKeccak256 } = ethers.utils;
 

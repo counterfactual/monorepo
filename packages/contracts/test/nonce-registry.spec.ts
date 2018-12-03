@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 
-import { expect } from "../utils";
-import { assertRejects } from "../utils/misc";
+import { expect } from "./utils";
 
 const { HashZero, Zero, One } = ethers.constants;
 const { solidityKeccak256, bigNumberify } = ethers.utils;
@@ -21,15 +20,12 @@ contract("NonceRegistry", accounts => {
       [accounts[0], timeout, salt]
     );
 
-  // @ts-ignore
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
-    const nonceRegistryArtifact = artifacts.require("NonceRegistry");
-
     nonceRegistry = new ethers.Contract(
-      (await nonceRegistryArtifact.new()).address,
-      nonceRegistryArtifact.abi,
+      artifacts.require("NonceRegistry").address,
+      artifacts.require("NonceRegistry").abi,
       unlockedAccount
     );
   });
@@ -44,16 +40,19 @@ contract("NonceRegistry", accounts => {
     const ret = await nonceRegistry.functions.table(computeKey(timeout, salt));
     const blockNumber = bigNumberify(await provider.getBlockNumber());
 
-    expect(ret.nonceValue).to.be.eql(One);
-    expect(ret.finalizesAt).to.be.eql(blockNumber.add(timeout));
+    expect(ret.nonceValue).to.eq(One);
+    expect(ret.finalizesAt).to.eq(blockNumber.add(timeout));
   });
 
   it("fails if nonce increment is not positive", async () => {
-    const timeout = bigNumberify(10);
+    const timeout = 10;
     const salt = HashZero;
-    const value = Zero; // By default, all values are set to 0
+    const value = 0; // By default, all values are set to 0
 
-    await assertRejects(nonceRegistry.functions.setNonce(timeout, salt, value));
+    const setNonce = nonceRegistry.functions.setNonce;
+
+    // @ts-ignore
+    await expect(setNonce(timeout, salt, value)).to.be.reverted;
   });
 
   it("can insta-finalize nonces", async () => {
@@ -68,8 +67,8 @@ contract("NonceRegistry", accounts => {
     const isFinal = await nonceRegistry.functions.isFinalized(key, value);
     const blockNumber = bigNumberify(await provider.getBlockNumber());
 
-    expect(ret.nonceValue).to.be.eql(value);
-    expect(ret.finalizesAt).to.be.eql(blockNumber);
+    expect(ret.nonceValue).to.eq(value);
+    expect(ret.finalizesAt).to.eq(blockNumber);
     expect(isFinal).to.be.true;
   });
 });

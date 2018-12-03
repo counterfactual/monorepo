@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { expect } from "../utils";
+import { expect } from "./utils";
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider

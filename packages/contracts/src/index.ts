@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 
+import { abiEncodingForStruct } from "./abi-encoder-v2";
+
 export enum AssetType {
   ETH,
   ERC20,
@@ -13,10 +15,14 @@ type AppIdentityInterface = {
   termsHash: string;
   defaultTimeout: number;
 };
-
 export class AppIdentity {
-  static readonly ABI_ENCODER_V2_ENCODING =
-    "tuple(address owner, address[] signingKeys, bytes32 appInterfaceHash, bytes32 termsHash, uint256 defaultTimeout)";
+  private static readonly ABI_ENCODER_V2_ENCODING = abiEncodingForStruct(`
+    address owner;
+    address[] signingKeys;
+    bytes32 appInterfaceHash;
+    bytes32 termsHash;
+    uint256 defaultTimeout;
+  `);
 
   get id(): string {
     return this.hashOfEncoding();
@@ -51,8 +57,13 @@ export class AppIdentity {
 }
 
 export class AppInterface {
-  private readonly ABI_ENCODER_V2_ENCODING =
-    "tuple(address addr, bytes4 getTurnTaker, bytes4 applyAction, bytes4 resolve, bytes4 isStateTerminal)";
+  private static readonly ABI_ENCODER_V2_ENCODING = abiEncodingForStruct(`
+    address addr;
+    bytes4 getTurnTaker;
+    bytes4 applyAction;
+    bytes4 resolve;
+    bytes4 isStateTerminal;
+  `);
 
   constructor(
     readonly addr: string,
@@ -65,7 +76,7 @@ export class AppInterface {
   public hashOfPackedEncoding(): string {
     return ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
-        [this.ABI_ENCODER_V2_ENCODING],
+        [AppInterface.ABI_ENCODER_V2_ENCODING],
         [
           {
             addr: this.addr,
@@ -81,7 +92,7 @@ export class AppInterface {
 }
 
 export class Terms {
-  private readonly ABI_ENCODER_V2_ENCODING =
+  private static readonly ABI_ENCODER_V2_ENCODING =
     "tuple(uint8 assetType, uint256 limit, address token)";
 
   constructor(
@@ -93,7 +104,7 @@ export class Terms {
   public hashOfPackedEncoding(): string {
     return ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
-        [this.ABI_ENCODER_V2_ENCODING],
+        [Terms.ABI_ENCODER_V2_ENCODING],
         [
           {
             assetType: this.assetType,

@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { AppInstance, AppInterface, AssetType, Terms } from "../src/index";
 
-import { ALICE, BOB } from "./test-constants";
+import { ALICE, BOB } from "./constants";
 
 const APP_REGISTRY = artifacts.require("AppRegistry");
 

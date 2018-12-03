@@ -1,11 +1,18 @@
 import { ethers } from "ethers";
 import * as solc from "solc";
 
-import { expect } from "../utils";
+import { expect } from "./utils";
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider
 );
+
+const TEST_CONTRACT_SOLIDITY_CODE = `
+  contract Test {
+    function sayHello() public pure returns (string) {
+      return "hi";
+    }
+  }`;
 
 contract("ContractRegistry", accounts => {
   let unlockedAccount: ethers.providers.JsonRpcSigner;
@@ -19,19 +26,11 @@ contract("ContractRegistry", accounts => {
       ["0x19", initcode, i]
     );
   }
-  const simpleContractSource = `
-    contract Test {
-      function sayHello() public pure returns (string) {
-        return "hi";
-      }
-    }`;
 
-  // @ts-ignore
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
   });
 
-  // @ts-ignore
   beforeEach(async () => {
     contractRegistry = await new ethers.ContractFactory(
       artifacts.require("ContractRegistry").abi,
@@ -47,7 +46,7 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a contract", done => {
-    const output = (solc as any).compile(simpleContractSource, 0);
+    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
@@ -70,7 +69,7 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a contract using msg.sender", done => {
-    const output = (solc as any).compile(simpleContractSource, 0);
+    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
@@ -94,7 +93,7 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a ProxyContract contract through as owner", done => {
-    const output = (solc as any).compile(simpleContractSource, 0);
+    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const initcode =
       artifacts.require("Proxy").bytecode +
@@ -153,7 +152,7 @@ contract("ContractRegistry", accounts => {
         iface,
         unlockedAccount
       );
-      expect(await contract.sayHello()).to.equalIgnoreCase(accounts[0]);
+      expect(await contract.sayHello()).to.eq(accounts[0]);
       done();
     };
 
