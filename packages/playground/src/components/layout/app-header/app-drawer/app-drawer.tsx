@@ -20,7 +20,7 @@ export class AppDrawer {
       <div class={this.opened ? "drawer-container opened" : "drawer-container"}>
         <a onClick={e => this.menuClicked(e)} class="drawer-screen" />
         <menu class="drawer">
-          <app-nav-content></app-nav-content>
+          <app-nav-content />
         </menu>
       </div>
     );

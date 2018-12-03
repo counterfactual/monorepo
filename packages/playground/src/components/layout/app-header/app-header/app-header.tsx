@@ -23,7 +23,7 @@ export class AppHeader {
           </a>
         </div>
         <div class="hide-on-mobile">
-          <app-nav-content></app-nav-content>
+          <app-nav-content />
         </div>
       </header>
     );
