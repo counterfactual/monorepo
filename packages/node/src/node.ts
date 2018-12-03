@@ -1,4 +1,3 @@
-import debug from "debug";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 import firebase from "firebase";
@@ -13,9 +12,6 @@ import {
 } from "./node-types";
 
 const MESSAGES = "messages";
-
-// Namespaced logger specific to connection logs
-const connectionLogger = debug("connection");
 
 export default class Node {
   /**
@@ -110,7 +106,7 @@ export default class Node {
    */
   private registerConnection() {
     if (!this.messagingService.app) {
-      connectionLogger(
+      console.error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
       return;
@@ -121,15 +117,16 @@ export default class Node {
       // The snapshot being sent to this call _might_ be null
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
-          connectionLogger(
+          console.debug(
             `Node with address ${this.address} received a "null" snapshot`
           );
           return;
         }
         const msg = snapshot.val();
-        connectionLogger(
-          `Node with address ${this.address} received message: `,
-          msg
+        console.debug(
+          `Node with address ${this.address} received message: ${JSON.stringify(
+            msg
+          )}`
         );
         this.outgoing.emit(Node.PEER_MESSAGE, msg);
       });
