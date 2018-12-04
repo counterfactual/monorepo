@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 
-import { Bytes32 } from "../types/simple-types";
+import { Bytes32 } from "@counterfactual/common-types";
 
 export function signaturesToBytes(
   ...signatures: ethers.utils.Signature[]
