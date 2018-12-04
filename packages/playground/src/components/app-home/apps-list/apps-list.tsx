@@ -1,6 +1,6 @@
 import { Component, Event, EventEmitter, Prop } from "@stencil/core";
 
-import { AppDefinition } from "../../types";
+import { AppDefinition } from "../../../types";
 
 @Component({
   tag: "apps-list",
