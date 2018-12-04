@@ -91,3 +91,20 @@ yarn test
 ```
 
 [counterfactual-discord-url]: https://counterfactual.com/chat
+
+In the machine repo,
+
+```shell
+cd packages/machine
+yarn test <pattern>
+```
+
+will run tests in files whose filename matches  `<pattern>` (see [Jest's CLI reference](https://jestjs.io/docs/en/cli.html#running-from-the-command-line)).
+
+To run specific contract tests,
+
+```shell
+cd packages/contracts
+yarn run tsc -b
+yarn run truffle test --network ganache dist/test/<path/to/test.js>
+```
