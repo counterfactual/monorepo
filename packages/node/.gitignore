@@ -1,6 +1,6 @@
 jest-cache
-test/clover.xml
-test/coverage-final.json
-test/lcov-report/
-test/lcov.info
+jest-coverage/clover.xml
+jest-coverage/coverage-final.json
+jest-coverage/lcov-report/
+jest-coverage/lcov.info
 .env

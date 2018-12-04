@@ -36,7 +36,10 @@
   "jest": {
     "bail": true,
     "cacheDirectory": "jest-cache",
-    "coverageDirectory": "test",
+    "coverageDirectory": "jest-coverage",
+    "coveragePathIgnorePatterns": [
+      "test"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 90,
