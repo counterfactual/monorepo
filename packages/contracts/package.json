@@ -20,7 +20,6 @@
     "lint:sol": "solium -d .",
     "lint:ts:fix": "tslint -c tslint.json -p . --fix",
     "lint:ts": "tslint -c tslint.json -p .",
-    "test:circleci": "yarn test",
     "test:coverage": "solidity-coverage"
   },
   "config": {

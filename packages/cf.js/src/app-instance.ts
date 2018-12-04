@@ -1,4 +1,4 @@
-import { AppInstanceID, AppInstanceInfo } from "./types";
+import { AppInstanceID, AppInstanceInfo } from "@counterfactual/common-types";
 
 export class AppInstance {
   readonly id: AppInstanceID;
