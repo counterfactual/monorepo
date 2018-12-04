@@ -1,6 +1,6 @@
-import { Context } from "./instruction-executor";
-import { Opcode } from "./opcodes";
-import { InternalMessage } from "./types";
+import { Context } from "../instruction-executor";
+import { Opcode } from "../opcodes";
+import { InternalMessage } from "../types";
 
 export const METACHANNEL_INSTALL_APP_FLOW = {
   0: [
