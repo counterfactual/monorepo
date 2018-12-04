@@ -12,7 +12,8 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "cfjs",
+      name: "window",
+      extend: true,
       format: "iife"
     }
   ],
