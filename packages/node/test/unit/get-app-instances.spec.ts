@@ -1,8 +1,9 @@
-import { Node } from "../../src";
 import {
   AppInstanceInfo,
   Node as NodeTypes
 } from "@counterfactual/common-types";
+
+import { Node } from "../../src";
 
 describe("Node method follows spec - getAppInstances", () => {
   it("can accept a valid call to get app instances", done => {
