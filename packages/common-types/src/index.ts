@@ -1,6 +1,7 @@
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  AppInstanceInstallState,
   AssetType,
   BlockchainAsset
 } from "./data-types";
@@ -19,6 +20,7 @@ import {
 export {
   AppState,
   AppInstanceID,
+  AppInstanceInstallState,
   AppAction,
   Address,
   ABIEncoding,

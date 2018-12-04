@@ -11,6 +11,7 @@ export interface AppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
+  installState: AppInstanceInstallState;
 }
 
 export interface AppABIEncodings {
@@ -27,4 +28,11 @@ export enum AssetType {
 export interface BlockchainAsset {
   assetType: AssetType;
   token?: Address;
+}
+
+export enum AppInstanceInstallState {
+  PENDING = "pending",
+  REJECTED = "rejected",
+  INSTALLED = "installed",
+  UNINSTALLED = "uninstalled"
 }

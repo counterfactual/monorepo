@@ -24,7 +24,7 @@ export class Provider {
   }
 
   async getAppInstances(): Promise<AppInstance[]> {
-    const response = await this.callNodeMethod(
+    const response = await this.callRawNodeMethod(
       Node.MethodName.GET_APP_INSTANCES,
       {}
     );
@@ -40,7 +40,7 @@ export class Provider {
     this.eventEmitter.once(eventName, callback);
   }
 
-  private async callNodeMethod(
+  async callRawNodeMethod(
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
@@ -87,6 +87,26 @@ export class Provider {
     });
   }
 
+  async getOrCreateAppInstance(
+    id: AppInstanceID,
+    info?: AppInstanceInfo
+  ): Promise<AppInstance> {
+    if (!this.appInstances[id]) {
+      let newInfo;
+      if (info) {
+        newInfo = info;
+      } else {
+        const { result } = await this.callRawNodeMethod(
+          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          { appInstanceId: id }
+        );
+        newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
+      }
+      this.appInstances[id] = new AppInstance(newInfo);
+    }
+    return this.appInstances[id];
+  }
+
   private onNodeMessage(message: Node.Message) {
     const type = message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
@@ -124,26 +144,6 @@ export class Provider {
       };
       this.eventEmitter.emit(error.type, error);
     }
-  }
-
-  private async getOrCreateAppInstance(
-    id: AppInstanceID,
-    info?: AppInstanceInfo
-  ): Promise<AppInstance> {
-    if (!this.appInstances[id]) {
-      let newInfo;
-      if (info) {
-        newInfo = info;
-      } else {
-        const { result } = await this.callNodeMethod(
-          Node.MethodName.GET_APP_INSTANCE_DETAILS,
-          { appInstanceId: id }
-        );
-        newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
-      }
-      this.appInstances[id] = new AppInstance(newInfo);
-    }
-    return this.appInstances[id];
   }
 
   private async handleNodeEvent(nodeEvent: Node.Event) {

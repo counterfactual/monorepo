@@ -1,5 +1,6 @@
 import {
   AppInstanceInfo,
+  AppInstanceInstallState,
   AssetType,
   INodeProvider,
   Node
@@ -39,7 +40,8 @@ const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
   appId: "",
   myDeposit: new BigNumber("0"),
   peerDeposit: new BigNumber("0"),
-  timeout: new BigNumber("0")
+  timeout: new BigNumber("0"),
+  installState: AppInstanceInstallState.INSTALLED
 };
 
 describe("CF.js Provider", async () => {
