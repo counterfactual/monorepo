@@ -20,7 +20,6 @@
     color: $c-white;
     font-size: $f-sm;
     background: $c-red;
-    z-index: 2;
   }
 
   > img {
@@ -28,7 +27,6 @@
     width: 126px;
     border-radius: 24px;
     object-fit: cover;
-    z-index: 1;
   }
 }
 
