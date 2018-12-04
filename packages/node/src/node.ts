@@ -5,11 +5,8 @@ import firebase from "firebase";
 import {
   Address,
   AppInstanceInfo,
-  GetAppInstancesResult,
-  MethodName,
-  MethodRequest,
-  MethodResponse
-} from "./node-types";
+  Node as NodeTypes
+} from "@counterfactual/common-types";
 
 const MESSAGING_SERVER_KEY = "messages";
 
@@ -61,7 +58,7 @@ export default class Node {
    * @param event
    * @param req
    */
-  emit(event: string, req: MethodRequest) {
+  emit(event: string, req: NodeTypes.MethodRequest) {
     this.incoming.emit(event, req);
   }
 
@@ -90,14 +87,17 @@ export default class Node {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private registerListeners() {
-    this.incoming.on(MethodName.GET_APP_INSTANCES, (req: MethodRequest) => {
-      const res: MethodResponse = {
-        type: req.type,
-        requestId: req.requestId,
-        result: this.getAppInstances()
-      };
-      this.outgoing.emit(req.type, res);
-    });
+    this.incoming.on(
+      NodeTypes.MethodName.GET_APP_INSTANCES,
+      (req: NodeTypes.MethodRequest) => {
+        const res: NodeTypes.MethodResponse = {
+          type: req.type,
+          requestId: req.requestId,
+          result: this.getAppInstances()
+        };
+        this.outgoing.emit(req.type, res);
+      }
+    );
   }
 
   /**
@@ -132,7 +132,7 @@ export default class Node {
       });
   }
 
-  private getAppInstances(): GetAppInstancesResult {
+  private getAppInstances(): NodeTypes.GetAppInstancesResult {
     // TODO: should return actual list of app instances when that gets
     // implemented
     return {

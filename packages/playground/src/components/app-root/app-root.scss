@@ -1,4 +1,13 @@
 .app-root {
+  stencil-router {
+    display: flex;
+    flex-grow: 1;
+
+    stencil-route-switch {
+      width: 100%;
+    }
+  }
+
   app-footer {
     margin-top: auto;
   }

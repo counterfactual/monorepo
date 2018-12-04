@@ -1,15 +1,14 @@
+import {
+  AppInstanceID,
+  AppInstanceInfo,
+  INodeProvider,
+  Node
+} from "@counterfactual/common-types";
 import cuid from "cuid";
 import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
-import {
-  AppInstanceID,
-  AppInstanceInfo,
-  CounterfactualEvent,
-  EventType,
-  INodeProvider,
-  Node
-} from "./types";
+import { CounterfactualEvent, EventType } from "./types";
 
 const NODE_REQUEST_TIMEOUT = 1500;
 

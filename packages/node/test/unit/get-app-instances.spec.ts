@@ -1,10 +1,9 @@
-import { Node } from "../../src";
 import {
   AppInstanceInfo,
-  MethodName,
-  MethodRequest,
-  MethodResponse
-} from "../../src/node-types";
+  Node as NodeTypes
+} from "@counterfactual/common-types";
+
+import { Node } from "../../src";
 
 import { A_PRIVATE_KEY, MOCK_DATABASE } from "../env";
 
@@ -12,14 +11,14 @@ describe("Node method follows spec - getAppInstances", () => {
   it("can accept a valid call to get app instances", done => {
     const node = new Node(A_PRIVATE_KEY, MOCK_DATABASE);
     const requestId = "1";
-    const req: MethodRequest = {
+    const req: NodeTypes.MethodRequest = {
       requestId,
-      type: MethodName.GET_APP_INSTANCES,
+      type: NodeTypes.MethodName.GET_APP_INSTANCES,
       params: {}
     };
 
     // Set up listener for the method response
-    node.on(req.type, (res: MethodResponse) => {
+    node.on(req.type, (res: NodeTypes.MethodResponse) => {
       expect(req.type).toEqual(res.type);
       expect(res.requestId).toEqual(requestId);
       expect(res.result).toEqual({
