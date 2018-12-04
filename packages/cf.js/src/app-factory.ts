@@ -1,5 +1,6 @@
+import { Address, AppABIEncodings } from "@counterfactual/common-types";
+
 import { Provider } from "./provider";
-import { Address, AppABIEncodings } from "./types";
 
 export class AppFactory {
   constructor(
