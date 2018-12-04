@@ -1,11 +1,11 @@
 import { ClientActionMessage } from "@counterfactual/cf.js/dist/src/legacy/node";
 
-import { Context } from "./instruction-executor";
-import { NextMsgGenerator } from "./middleware/middleware";
-import { EthOpGenerator } from "./middleware/protocol-operation";
-import { SetupProposer } from "./middleware/state-transition/setup-proposer";
-import { Opcode } from "./opcodes";
-import { InternalMessage } from "./types";
+import { Context } from "../instruction-executor";
+import { NextMsgGenerator } from "../middleware/middleware";
+import { EthOpGenerator } from "../middleware/protocol-operation";
+import { SetupProposer } from "../middleware/state-transition/setup-proposer";
+import { Opcode } from "../opcodes";
+import { InternalMessage } from "../types";
 
 const swap = (msg: ClientActionMessage) => {
   const from = msg.fromAddress;

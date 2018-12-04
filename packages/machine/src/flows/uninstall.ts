@@ -1,11 +1,11 @@
 import { ClientActionMessage } from "@counterfactual/cf.js/dist/src/legacy/node";
 
-import { Context } from "./instruction-executor";
-import { NextMsgGenerator } from "./middleware/middleware";
-import { EthOpGenerator } from "./middleware/protocol-operation";
-import { UpdateProposer } from "./middleware/state-transition/update-proposer";
-import { Opcode } from "./opcodes";
-import { InternalMessage } from "./types";
+import { Context } from "../instruction-executor";
+import { NextMsgGenerator } from "../middleware/middleware";
+import { EthOpGenerator } from "../middleware/protocol-operation";
+import { UninstallProposer } from "../middleware/state-transition/uninstall-proposer";
+import { Opcode } from "../opcodes";
+import { InternalMessage } from "../types";
 
 const swap = (msg: ClientActionMessage) => {
   const from = msg.fromAddress;
@@ -14,10 +14,10 @@ const swap = (msg: ClientActionMessage) => {
   msg.toAddress = from;
 };
 
-export const UPDATE_FLOW = {
+export const UNINSTALL_FLOW = {
   0: [
     (message, context, node) => {
-      context.intermediateResults.proposedStateTransition = UpdateProposer.propose(
+      context.intermediateResults.proposedStateTransition = UninstallProposer.propose(
         message,
         node
       );
@@ -44,7 +44,7 @@ export const UPDATE_FLOW = {
   1: [
     (message, context, node) => {
       swap(message.clientMessage);
-      context.intermediateResults.proposedStateTransition = UpdateProposer.propose(
+      context.intermediateResults.proposedStateTransition = UninstallProposer.propose(
         message,
         node
       );

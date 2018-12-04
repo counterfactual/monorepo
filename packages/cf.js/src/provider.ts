@@ -1,14 +1,15 @@
 import cuid from "cuid";
+import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
-import { INodeProvider, Node } from "./types";
-
-export import DappEventType = Node.EventName;
-
-export interface DappEvent {
-  readonly type: DappEventType;
-  readonly data: any; // TODO
-}
+import {
+  AppInstanceID,
+  AppInstanceInfo,
+  CounterfactualEvent,
+  EventType,
+  INodeProvider,
+  Node
+} from "./types";
 
 const NODE_REQUEST_TIMEOUT = 1500;
 
@@ -16,6 +17,8 @@ export class Provider {
   private readonly requestListeners: {
     [requestId: string]: (msg: Node.Message) => void;
   } = {};
+  private readonly eventEmitter = new EventEmitter();
+  private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
 
   constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
@@ -30,8 +33,12 @@ export class Provider {
     return result.appInstances.map(info => new AppInstance(info));
   }
 
-  on(eventName: DappEventType, callback: (e: DappEvent) => void) {
-    // TODO: support notification observers
+  on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.on(eventName, callback);
+  }
+
+  once(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.once(eventName, callback);
   }
 
   private async callNodeMethod(
@@ -40,43 +47,150 @@ export class Provider {
   ): Promise<Node.MethodResponse> {
     const requestId = cuid();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
+      const request: Node.MethodRequest = {
+        requestId,
+        params,
+        type: methodName
+      };
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
-          return reject(response.data);
+          return reject({
+            type: EventType.ERROR,
+            data: response.data
+          });
         }
         if (response.type !== methodName) {
           return reject({
-            errorName: "unexpected_message_type",
-            message: `Unexpected response type. Expected ${methodName}, got ${
-              response.type
-            }`
+            type: EventType.ERROR,
+            data: {
+              errorName: "unexpected_message_type",
+              message: `Unexpected response type. Expected ${methodName}, got ${
+                response.type
+              }`
+            }
           });
         }
         resolve(response as Node.MethodResponse);
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
-          reject(new Error(`Request timed out: ${requestId}`));
+          reject({
+            type: EventType.ERROR,
+            data: {
+              errorName: "request_timeout",
+              message: `Request timed out: ${JSON.stringify(request)}`
+            }
+          });
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
-      this.nodeProvider.sendMessage({
-        requestId,
-        params,
-        type: methodName
-      });
+      this.nodeProvider.sendMessage(request);
     });
   }
 
   private onNodeMessage(message: Node.Message) {
-    const requestId = (message as Node.MethodResponse).requestId;
-    if (requestId) {
-      if (this.requestListeners[requestId]) {
-        this.requestListeners[requestId](message);
-        delete this.requestListeners[requestId];
-      }
+    const type = message.type;
+    if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
+      this.handleNodeError(message as Node.Error);
+    } else if ((message as Node.MethodResponse).requestId) {
+      this.handleNodeMethodResponse(message as Node.MethodResponse);
     } else {
-      // TODO: notify observers
+      this.handleNodeEvent(message as Node.Event);
     }
+  }
+
+  private handleNodeError(error: Node.Error) {
+    const requestId = error.requestId;
+    if (requestId && this.requestListeners[requestId]) {
+      this.requestListeners[requestId](error);
+      delete this.requestListeners[requestId];
+    }
+    this.eventEmitter.emit(error.type, error);
+  }
+
+  private handleNodeMethodResponse(response: Node.MethodResponse) {
+    const { requestId } = response;
+    if (this.requestListeners[requestId]) {
+      this.requestListeners[requestId](response);
+      delete this.requestListeners[requestId];
+    } else {
+      const error = {
+        type: EventType.ERROR,
+        data: {
+          errorName: "orphaned_response",
+          message: `Response has no corresponding inflight request: ${JSON.stringify(
+            response
+          )}`
+        }
+      };
+      this.eventEmitter.emit(error.type, error);
+    }
+  }
+
+  private async getOrCreateAppInstance(
+    id: AppInstanceID,
+    info?: AppInstanceInfo
+  ): Promise<AppInstance> {
+    if (!this.appInstances[id]) {
+      let newInfo;
+      if (info) {
+        newInfo = info;
+      } else {
+        const { result } = await this.callNodeMethod(
+          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          { appInstanceId: id }
+        );
+        newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
+      }
+      this.appInstances[id] = new AppInstance(newInfo);
+    }
+    return this.appInstances[id];
+  }
+
+  private async handleNodeEvent(nodeEvent: Node.Event) {
+    let event: CounterfactualEvent;
+    switch (nodeEvent.type) {
+      case Node.EventName.REJECT_INSTALL: {
+        const data = nodeEvent.data as Node.RejectInstallEventData;
+        const info = data.appInstance;
+        const appInstance = await this.getOrCreateAppInstance(info.id, info);
+        event = {
+          type: EventType.REJECT_INSTALL,
+          data: {
+            appInstance
+          }
+        };
+        break;
+      }
+      case Node.EventName.UPDATE_STATE:
+        const {
+          appInstanceId,
+          action,
+          newState,
+          oldState
+        } = nodeEvent.data as Node.UpdateStateEventData;
+        const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+        event = {
+          type: EventType.UPDATE_STATE,
+          data: {
+            action,
+            newState,
+            oldState,
+            appInstance
+          }
+        };
+        break;
+      default:
+        event = {
+          type: EventType.ERROR,
+          data: {
+            errorName: "unexpected_event_type",
+            message: `Unexpected event type: ${
+              nodeEvent.type
+            }: ${JSON.stringify(nodeEvent)}`
+          }
+        };
+    }
+    this.eventEmitter.emit(event.type, event);
   }
 }
