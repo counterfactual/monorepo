@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "Types that other Counterfactual packages share in common",
   "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsc -b",
+    "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix"
   },
@@ -16,6 +17,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "ethers": "^4.0.4"
+    "ethers": "^4.0.4",
+    "rollup-plugin-typescript2": "^0.18.0"
   }
 }

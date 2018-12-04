@@ -1,15 +1,17 @@
+import {
+  AppInstanceInfo,
+  AssetType,
+  INodeProvider,
+  Node
+} from "@counterfactual/common-types";
 import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
 import {
-  AppInstanceInfo,
-  AssetType,
   ErrorEventData,
   EventType,
-  INodeProvider,
   InstallEventData,
-  Node,
   RejectInstallEventData
 } from "../src/types";
 
