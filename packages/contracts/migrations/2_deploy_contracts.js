@@ -14,75 +14,45 @@ const VirtualAppAgreement = artifacts.require("VirtualAppAgreement");
 const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 
 module.exports = (deployer, network) => {
-  deployer.deploy(Transfer).then(instance => {
-    deployer.link(Transfer, [VirtualAppAgreement, ConditionalTransaction]);
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
+  deployer.then(async () => {
+
+    const artifacts = [
+      {
+        'artifact': Transfer,
+        'dependents': [VirtualAppAgreement, ConditionalTransaction]
+      },
+      {
+        'artifact': StaticCall,
+        'dependents': [ConditionalTransaction, Conditional]
+      },
+      ConditionalTransaction,
+      VirtualAppAgreement,
+      MultiSend,
+      NonceRegistry,
+      PaymentApp,
+      ETHBalanceRefundApp,
+      ProxyFactory,
+      Registry,
+      Signatures,
+      // FIXME: This doesn't need to be deployed, but eth-gas-reporter breaks
+      // if it isn't deployed.
+      Conditional
+    ];
+
+    for (const entry of artifacts) {
+      const artifact = entry.artifact || entry;
+      const instance = await deployer.deploy(artifact);
+
+      // link each dependent contract individually
+      // https://github.com/trufflesuite/truffle/pull/1489
+      for (const dependent of entry.dependents || []) {
+        await deployer.link(artifact, dependent);
+      }
+      if (!tdr.isDryRunNetworkName(network)) {
+        await tdr.appendInstance(instance);
+      }
     }
+
   });
 
-  deployer.deploy(StaticCall).then(instance => {
-    deployer.link(StaticCall, [ConditionalTransaction, Conditional]);
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(ConditionalTransaction).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(VirtualAppAgreement).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(MultiSend).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(NonceRegistry).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(PaymentApp).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(ETHBalanceRefundApp).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(ProxyFactory).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(Registry).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  deployer.deploy(Signatures).then(instance => {
-    if (!tdr.isDryRunNetworkName(network)) {
-      return tdr.appendInstance(instance);
-    }
-  });
-
-  // FIXME: This doesn't need to be deployed, but eth-gas-reporter breaks
-  // if it isn't deployed.
-  deployer.deploy(Conditional);
 };
