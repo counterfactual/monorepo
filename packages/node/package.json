@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
+    "@counterfactual/common-types": "0.0.1",
     "eventemitter3": "^3.1.0"
   },
   "config": {
