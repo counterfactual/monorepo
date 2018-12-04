@@ -6,12 +6,14 @@ import { Node } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
+import FirebaseMessagingService from "./services/firebase-messaging-service";
+
 dotenv.config();
 
 describe("Two nodes can communicate with each other", () => {
   const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
   let firebaseServer: FirebaseServer;
-  let messagingService: firebase.database.Database;
+  let messagingService: FirebaseMessagingService;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -25,7 +27,7 @@ describe("Two nodes can communicate with each other", () => {
       databaseURL: `ws://localhost:${firebaseServerPort}`,
       projectId: "projectId"
     });
-    messagingService = app.database();
+    messagingService = new FirebaseMessagingService(app.database());
   });
 
   beforeEach(() => {

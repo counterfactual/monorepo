@@ -1,14 +1,12 @@
-import { ethers } from "ethers";
-import EventEmitter from "eventemitter3";
-import firebase from "firebase";
-
 import {
   Address,
   AppInstanceInfo,
   Node as NodeTypes
 } from "@counterfactual/common-types";
+import { ethers } from "ethers";
+import EventEmitter from "eventemitter3";
 
-const MESSAGING_SERVER_KEY = "messages";
+import { IMessagingService } from "./service-interfaces";
 
 export default class Node {
   /**
@@ -33,7 +31,7 @@ export default class Node {
    */
   constructor(
     privateKey: string,
-    private readonly messagingService: firebase.database.Database
+    private readonly messagingService: IMessagingService
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
@@ -74,9 +72,7 @@ export default class Node {
    */
   async send(peerAddress: Address, msg: object) {
     const modifiedMsg = Object.assign({ from: this.address }, msg);
-    await this.messagingService
-      .ref(`${MESSAGING_SERVER_KEY}/${peerAddress}`)
-      .set(modifiedMsg);
+    await this.messagingService.send(peerAddress, modifiedMsg);
   }
 
   /**
@@ -105,31 +101,14 @@ export default class Node {
    * with the messaging service.
    */
   private registerConnection() {
-    if (!this.messagingService.app) {
-      console.error(
-        "Cannot register a connection with an uninitialized firebase handle"
+    this.messagingService.receive(this.address, (msg: object) => {
+      console.debug(
+        `Node with address ${this.address} received message: ${JSON.stringify(
+          msg
+        )}`
       );
-      return;
-    }
-
-    this.messagingService
-      .ref(`${MESSAGING_SERVER_KEY}/${this.address}`)
-      // The snapshot being sent to this call _might_ be null
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        if (snapshot === null) {
-          console.debug(
-            `Node with address ${this.address} received a "null" snapshot`
-          );
-          return;
-        }
-        const msg = snapshot.val();
-        console.debug(
-          `Node with address ${this.address} received message: ${JSON.stringify(
-            msg
-          )}`
-        );
-        this.outgoing.emit(Node.PEER_MESSAGE, msg);
-      });
+      this.outgoing.emit(Node.PEER_MESSAGE, msg);
+    });
   }
 
   private getAppInstances(): NodeTypes.GetAppInstancesResult {

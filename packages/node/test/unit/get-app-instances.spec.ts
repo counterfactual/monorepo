@@ -5,11 +5,13 @@ import {
 
 import { Node } from "../../src";
 
-import { A_PRIVATE_KEY, MOCK_DATABASE } from "../env";
+import { A_PRIVATE_KEY } from "../env";
+
+import { MOCK_MESSAGING_SERVICE } from "./mock-services/mock-messaging-service";
 
 describe("Node method follows spec - getAppInstances", () => {
   it("can accept a valid call to get app instances", done => {
-    const node = new Node(A_PRIVATE_KEY, MOCK_DATABASE);
+    const node = new Node(A_PRIVATE_KEY, MOCK_MESSAGING_SERVICE);
     const requestId = "1";
     const req: NodeTypes.MethodRequest = {
       requestId,
