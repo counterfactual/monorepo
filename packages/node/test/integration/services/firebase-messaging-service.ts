@@ -10,7 +10,6 @@ export default class FirebaseMessagingService implements IMessagingService {
 
   async send(peerAddress: Address, msg: object) {
     await this.firebase.ref(`${MESSAGING_SERVER_KEY}/${peerAddress}`).set(msg);
-    return true;
   }
 
   receive(address: Address, callback: (msg: object) => void) {
