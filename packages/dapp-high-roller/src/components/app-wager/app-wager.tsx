@@ -1,4 +1,4 @@
-import { Component, Prop, State } from "@stencil/core";
+import { Component, Event, EventEmitter, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 @Component({
@@ -12,9 +12,17 @@ export class AppWager {
   @State() betAmount: string = "";
   @State() myName: string = "";
 
+  @Event() depositRequested: EventEmitter = {} as EventEmitter;
+
   handlePlay(e: Event): void {
     e.preventDefault();
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
+
+    this.depositRequested.emit({
+      betAmount: this.betAmount,
+      name: this.myName,
+    });
+
     this.history.push({
       pathname: "/game",
       state: {
