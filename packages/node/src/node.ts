@@ -71,7 +71,7 @@ export default class Node {
    * @param msg The message that is being sent.
    */
   async send(peerAddress: Address, msg: object) {
-    const modifiedMsg = Object.assign({ from: this.address }, msg);
+    const modifiedMsg = { from: this.address, ...msg };
     await this.messagingService.send(peerAddress, modifiedMsg);
   }
 
