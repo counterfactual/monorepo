@@ -35,7 +35,7 @@ contract HighRollerApp {
   struct Action {
     ActionType actionType;
     uint256 number;
-    bytes32 hash;
+    bytes32 actionHash;
   }
 
   function isStateTerminal(AppState state)
@@ -67,7 +67,7 @@ contract HighRollerApp {
       require(state.stage == Stage.COMMITING_HASH, "Cannot apply COMMIT_TO_HASH on COMMITING_HASH");
       nextState.stage = Stage.COMMITTING_NUM;
 
-      nextState.commitHash = action.hash;
+      nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(state.stage == Stage.COMMITTING_NUM, "Cannot apply COMMITTING_NUM on COMMITTING_NUM");
       nextState.stage = Stage.REVEALING;
@@ -77,7 +77,7 @@ contract HighRollerApp {
       require(state.stage == Stage.REVEALING, "Cannot apply REVEAL on REVEALING");
       nextState.stage = Stage.DONE;
 
-      bytes32 salt = action.hash;
+      bytes32 salt = action.actionHash;
       uint256 playerFirstNumber = action.number;
       uint256 playerSecondNumber = state.commitNum;
 
