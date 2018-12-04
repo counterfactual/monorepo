@@ -65,11 +65,16 @@ export class Depositor {
       peerB.signingKey.address!,
       threshold
     );
-    const response = await peerA.runProtocol(msg);
+    const response = await peerA.runInstallProtocol(
+      peerA.signingKey.address!,
+      peerB.signingKey.address!,
+      UNUSED_FUNDED_ACCOUNT,
+      msg
+    )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // since the machine is async, we need to wait for peerB to finish up its
-    // side of the protocol before inspecting it's state
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // side of the protocol before inspecting its state
+    await new Promise(resolve => setTimeout(resolve, 1));
     // check B's client
     Depositor.validateInstalledBalanceRefund(peerA, peerB, threshold);
     // check A's client and return the newly created cf.legacy.signingKey.address
@@ -80,7 +85,7 @@ export class Depositor {
     from: string,
     to: string,
     threshold: ethers.utils.BigNumber
-  ): cf.legacy.node.ClientActionMessage {
+  ): cf.legacy.app.InstallData {
     const canon = cf.legacy.utils.PeerBalance.balances(
       from,
       ethers.utils.bigNumberify(0),
@@ -101,7 +106,7 @@ export class Depositor {
       ""
     ); // TODO:
     const timeout = 100;
-    const installData: cf.legacy.app.InstallData = {
+    return {
       terms,
       app,
       timeout,
@@ -110,16 +115,6 @@ export class Depositor {
       keyA: from,
       keyB: to,
       encodedAppState: "0x1234"
-    };
-    return {
-      requestId: "1",
-      appId: "",
-      action: cf.legacy.node.ActionName.INSTALL,
-      data: installData,
-      multisigAddress: UNUSED_FUNDED_ACCOUNT,
-      toAddress: to,
-      fromAddress: from,
-      seq: 0
     };
   }
 
@@ -159,13 +154,16 @@ export class Depositor {
     amountA: ethers.utils.BigNumber,
     amountB: ethers.utils.BigNumber
   ) {
-    const msg = Depositor.startUninstallBalanceRefundMsg(
-      cfAddr,
+    const response = await peerA.runUninstallProtocol(
       peerA.signingKey.address!,
       peerB.signingKey.address!,
-      amountA
-    );
-    const response = await peerA.runProtocol(msg);
+      UNUSED_FUNDED_ACCOUNT,
+      [
+        new cf.legacy.utils.PeerBalance(peerA.signingKey.address!, amountA),
+        new cf.legacy.utils.PeerBalance(peerB.signingKey.address!, 0)
+      ],
+      cfAddr
+    )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     // validate peerA
     Depositor.validateUninstall(cfAddr, peerA, peerB, amountA, amountB);
@@ -207,7 +205,7 @@ export class Depositor {
   }
 
   public static startUninstallBalanceRefundMsg(
-    appId: string,
+    appInstanceId: string,
     from: string,
     to: string,
     amount: ethers.utils.BigNumber
@@ -219,8 +217,7 @@ export class Depositor {
       ]
     };
     return {
-      appId,
-      requestId: "2",
+      appInstanceId,
       action: cf.legacy.node.ActionName.UNINSTALL,
       data: uninstallData,
       multisigAddress: UNUSED_FUNDED_ACCOUNT,

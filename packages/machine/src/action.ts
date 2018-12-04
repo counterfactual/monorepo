@@ -1,93 +1,78 @@
 import * as cf from "@counterfactual/cf.js";
 
-import {
-  Context,
-  InstructionExecutor,
-  IntermediateResults
-} from "./instruction-executor";
-import { ackInstructions, instructions, Opcode } from "./instructions";
-import { InternalMessage } from "./types";
-
-export function instructionGroupFromProtocolName(
-  protocolName: cf.legacy.node.ActionName,
-  isAckSide: boolean
-): Opcode[] {
-  if (isAckSide) {
-    return ackInstructions[protocolName];
-  }
-  return instructions[protocolName];
-}
+import { Context, InstructionExecutor } from "./instruction-executor";
+import { Opcode } from "./opcodes";
+import { InternalMessage, StateProposal } from "./types";
 
 export class ActionExecution {
   public actionName: cf.legacy.node.ActionName;
-  public instructions: Opcode[];
-  public instructionPointer: number;
+  public instructions: (Opcode | Function)[];
   public clientMessage: cf.legacy.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
-  public isAckSide: boolean;
-  public intermediateResults: IntermediateResults;
-  public requestId: string;
 
   constructor(
     actionName: cf.legacy.node.ActionName,
-    instructions: Opcode[],
-    instructionPointer: number,
+    instructions: (Opcode | Function)[],
     clientMessage: cf.legacy.node.ClientActionMessage,
-    instructionExecutor: InstructionExecutor,
-    isAckSide: boolean,
-    requestId: string,
-    intermediateResults: IntermediateResults
+    instructionExecutor: InstructionExecutor
   ) {
     this.actionName = actionName;
     this.instructions = instructions;
-    this.instructionPointer = instructionPointer;
     this.clientMessage = clientMessage;
     this.instructionExecutor = instructionExecutor;
-    this.isAckSide = isAckSide;
-    this.requestId = requestId;
-    this.intermediateResults = intermediateResults;
-  }
-
-  public createInternalMessage(): InternalMessage {
-    const op = this.instructions[this.instructionPointer];
-    return new InternalMessage(
-      this.actionName,
-      op,
-      this.clientMessage,
-      this.isAckSide
-    );
   }
 
   public createContext(): Context {
     return {
-      intermediateResults: this.intermediateResults,
-      instructionPointer: this.instructionPointer,
-      // TODO: Should probably not pass the whole InstructionExecutor in, it breaks the encapsulation
-      // We should figure out what others args from the InstructionExecutor are used and copy those over
+      intermediateResults: {
+        outbox: [],
+        inbox: []
+      },
       // https://github.com/counterfactual/monorepo/issues/136
       instructionExecutor: this.instructionExecutor
     };
   }
 
-  public async runAll(): Promise<void> {
-    while (this.instructionPointer < this.instructions.length) {
-      const internalMessage = this.createInternalMessage();
-      const context = this.createContext();
+  public async runAll(): Promise<StateProposal> {
+    let instructionPointer = 0;
+    const context = this.createContext();
 
+    while (instructionPointer < this.instructions.length) {
       try {
+        const instruction = this.instructions[instructionPointer];
+
+        if (typeof instruction === "function") {
+          instruction(
+            new InternalMessage(
+              this.actionName,
+              Object.create(null),
+              this.clientMessage
+            ),
+            context,
+            this.instructionExecutor.node
+          );
+          instructionPointer += 1;
+          continue;
+        }
+
+        const internalMessage = new InternalMessage(
+          this.actionName,
+          instruction,
+          this.clientMessage
+        );
+
         await this.instructionExecutor.middleware.run(internalMessage, context);
-
-        this.instructionPointer += 1;
-
-        // push modified value of `context.intermediateResults`
-        this.intermediateResults = context.intermediateResults;
+        instructionPointer += 1;
       } catch (e) {
         throw Error(
-          `While executing op ${Opcode[internalMessage.opCode]} at seq ${
+          `While executing op number ${instructionPointer} at seq ${
             this.clientMessage.seq
+          } of protocol ${
+            this.actionName
           }, execution failed with the following error. ${e.stack}`
         );
       }
     }
+    return context.intermediateResults.proposedStateTransition!;
   }
 }
