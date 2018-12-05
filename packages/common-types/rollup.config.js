@@ -10,6 +10,12 @@ export default [
         file: pkg.main,
         format: "cjs",
       },
+      {
+        file: pkg.iife,
+        format: "iife",
+        name: "window",
+        extend: true
+      }
     ],
     plugins: [
       typescript()
