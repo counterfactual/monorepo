@@ -1,33 +1,26 @@
 import dotenv from "dotenv";
-import firebase from "firebase";
 import FirebaseServer from "firebase-server";
 
-import { Node } from "../../src";
+import { IMessagingService, Node } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
-import FirebaseMessagingService from "./services/firebase-messaging-service";
+import FirebaseServiceFactory from "./services/firebase-service";
 
 dotenv.config();
 
 describe("Two nodes can communicate with each other", () => {
-  const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
   let firebaseServer: FirebaseServer;
-  let messagingService: FirebaseMessagingService;
+  let messagingService: IMessagingService;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(() => {
-    firebaseServer = new FirebaseServer(
-      process.env.FIREBASE_DEV_SERVER_PORT,
-      "localhost"
+    const firebaseServiceFactory = new FirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_PORT!
     );
-
-    const app = firebase.initializeApp({
-      databaseURL: `ws://localhost:${firebaseServerPort}`,
-      projectId: "projectId"
-    });
-    messagingService = new FirebaseMessagingService(app.database());
+    firebaseServer = firebaseServiceFactory.createServer();
+    messagingService = firebaseServiceFactory.createMessagingService();
   });
 
   beforeEach(() => {

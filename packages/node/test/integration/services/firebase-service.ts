@@ -1,11 +1,12 @@
 import { Address } from "@counterfactual/common-types";
 import firebase from "firebase";
+import FirebaseServer from "firebase-server";
 
 import { IMessagingService } from "../../../src/service-interfaces";
 
 const MESSAGING_SERVER_KEY = "messages";
 
-export default class FirebaseMessagingService implements IMessagingService {
+class FirebaseMessagingService implements IMessagingService {
   constructor(private readonly firebase: firebase.database.Database) {}
 
   async send(peerAddress: Address, msg: object) {
@@ -33,5 +34,24 @@ export default class FirebaseMessagingService implements IMessagingService {
         const msg = snapshot.val();
         callback(msg);
       });
+  }
+}
+
+const HOST = "localhost";
+
+export default class FirebaseServiceFactory {
+  constructor(private readonly port: string) {}
+
+  createServer(): FirebaseServer {
+    console.log("using: ", this.port, HOST);
+    return new FirebaseServer(this.port, HOST);
+  }
+
+  createMessagingService(): IMessagingService {
+    const app = firebase.initializeApp({
+      databaseURL: `ws://${HOST}:${this.port}`,
+      projectId: "projectId"
+    });
+    return new FirebaseMessagingService(app.database());
   }
 }
