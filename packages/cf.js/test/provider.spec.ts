@@ -144,11 +144,11 @@ describe("CF.js Provider", async () => {
   });
 
   it("should unsubscribe from events", async done => {
-    const cb = (e: CounterfactualEvent) => {
+    const callback = (e: CounterfactualEvent) => {
       done.fail("Unsubscribed event listener was fired");
     };
-    provider.on(EventType.REJECT_INSTALL, cb);
-    provider.off(EventType.REJECT_INSTALL, cb);
+    provider.on(EventType.REJECT_INSTALL, callback);
+    provider.off(EventType.REJECT_INSTALL, callback);
     nodeProvider.simulateMessageFromNode({
       type: Node.MethodName.REJECT_INSTALL,
       requestId: "1",
@@ -200,8 +200,8 @@ describe("CF.js Provider", async () => {
     expect.assertions(4);
 
     provider.on(EventType.UPDATE_STATE, e => {
-      expect((e.data as InstallEventData).appInstance.info).toBe(
-        TEST_APP_INSTANCE_INFO
+      expect((e.data as InstallEventData).appInstance.id).toBe(
+        TEST_APP_INSTANCE_INFO.id
       );
     });
 

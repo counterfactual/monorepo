@@ -317,18 +317,6 @@ TODO
 Data Types
 ----------
 
-### Data Type: `AppInstanceInstallState`
-Enum describing the installation state of an app instance.
-Choices:
-- `pending`
-    - App instance is pending installation
-- `rejected`
-    - App instance installation was rejected
-- `installed`
-    - App instance is installed
-- `uninstalled`
-    - App instance is uninstalled
-
 ### Data Type: `AppInstanceInfo`
 
 An instance of an installed app.
@@ -348,8 +336,6 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `installState: AppInstanceInstallState`
-    - State of this app instance's installation 
    
 ### Data Type: `BlockchainAsset`
 - `assetType: number`

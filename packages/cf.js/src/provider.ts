@@ -8,7 +8,7 @@ import cuid from "cuid";
 import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
-import { CounterfactualEvent, EventType } from "./types";
+import { CounterfactualEvent, EventType, InstallEventData } from "./types";
 
 const NODE_REQUEST_TIMEOUT = 1500;
 
@@ -30,6 +30,48 @@ export class Provider {
     );
     const result = response.result as Node.GetAppInstancesResult;
     return result.appInstances.map(info => new AppInstance(info));
+  }
+
+  async waitForInstall(
+    appInstanceId: AppInstanceID,
+    timeout: number = 5000
+  ): Promise<AppInstance> {
+    return new Promise<AppInstance>((resolve, reject) => {
+      const callback = (e: CounterfactualEvent) => {
+        if (e.type === EventType.INSTALL) {
+          const installed = (e.data as InstallEventData).appInstance;
+          if (installed.id !== appInstanceId) {
+            return;
+          }
+          this.off(EventType.REJECT_INSTALL, callback);
+          this.off(EventType.INSTALL, callback);
+          resolve(installed);
+        } else {
+          this.off(EventType.REJECT_INSTALL, callback);
+          this.off(EventType.INSTALL, callback);
+          reject({
+            type: EventType.ERROR,
+            data: {
+              errorName: "install_rejected",
+              message: `Install rejected by peer for app instance with ID ${appInstanceId}`
+            }
+          });
+        }
+      };
+      setTimeout(() => {
+        this.off(EventType.REJECT_INSTALL, callback);
+        this.off(EventType.INSTALL, callback);
+        reject({
+          type: EventType.ERROR,
+          data: {
+            errorName: "install_timeout",
+            message: `Install timed out for app instance with ID: ${appInstanceId}`
+          }
+        });
+      }, timeout);
+      this.on(EventType.INSTALL, callback);
+      this.on(EventType.REJECT_INSTALL, callback);
+    });
   }
 
   on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
