@@ -36,7 +36,7 @@ You also need to migrate the contracts in the contracts package to generate a `n
 yarn migrate --network ganache
 ```
 
-Finally, to run all tests:
+To run all tests:
 
 ```shell
 yarn test
