@@ -5,5 +5,8 @@ import { sass } from "@stencil/sass";
 
 export const config: Config = {
   globalStyle: "src/global/app.scss",
-  plugins: [sass({ injectGlobalPaths: ["src/global/app.scss"] })]
+  plugins: [sass({ injectGlobalPaths: ["src/global/app.scss"] })],
+  testing: {
+    setupFiles: ["./test-setup.js"]
+  }
 };
