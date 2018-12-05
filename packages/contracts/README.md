@@ -42,6 +42,14 @@ Finally, to run all tests:
 yarn test
 ```
 
+To run only specific tests:
+
+```shell
+yarn run tsc -b
+yarn run truffle test --network ganache dist/test/<path/to/test.js>
+```
+
+
 # Migrations
 
 The `networks` folder contains the migration files for the different Ethereum networks the contracts have been migrated to. The ID of the respective networks are used as file names.
