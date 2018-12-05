@@ -23,7 +23,7 @@ describe("Two nodes can communicate with each other", () => {
     );
     firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
-      process.env.MESSAGING_SERVER_KEY!
+      process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
   });
 

@@ -20,7 +20,13 @@ jobs:
     steps:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
-      - run: echo "FIREBASE_DEV_SERVER_PORT=$FIREBASE_DEV_SERVER_PORT" > packages/node/.env
+      - run:
+          name: "Set env vars for dotenv"
+          command: |
+            echo "FIREBASE_DEV_SERVER_HOST=$FIREBASE_DEV_SERVER_HOST" > packages/node/.env
+            echo "FIREBASE_DEV_SERVER_PORT=$FIREBASE_DEV_SERVER_PORT" > packages/node/.env
+            echo "FIREBASE_MESSAGING_SERVER_KEY=$FIREBASE_MESSAGING_SERVER_KEY" > packages/node/.env
+            echo "FIREBASE_STORE_SERVER_KEY=$FIREBASE_STORE_SERVER_KEY" > packages/node/.env
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules

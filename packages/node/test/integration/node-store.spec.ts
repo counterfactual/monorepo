@@ -22,7 +22,7 @@ describe("Node can use storage service", () => {
     );
     firebaseServer = firebaseServiceFactory.createServer();
     storeService = firebaseServiceFactory.createStoreService(
-      process.env.STORE_SERVER_KEY!
+      process.env.FIREBASE_STORE_SERVER_KEY!
     );
     node = new Node(A_PRIVATE_KEY, MOCK_MESSAGING_SERVICE, storeService);
   });
