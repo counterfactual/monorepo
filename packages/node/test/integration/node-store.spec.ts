@@ -17,10 +17,13 @@ describe("Node can use storage service", () => {
 
   beforeAll(() => {
     const firebaseServiceFactory = new FirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
     firebaseServer = firebaseServiceFactory.createServer();
-    storeService = firebaseServiceFactory.createStoreService();
+    storeService = firebaseServiceFactory.createStoreService(
+      process.env.STORE_SERVER_KEY!
+    );
     node = new Node(A_PRIVATE_KEY, MOCK_MESSAGING_SERVICE, storeService);
   });
 

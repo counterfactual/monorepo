@@ -7,14 +7,16 @@ import {
   IStoreService
 } from "../../../src/service-interfaces";
 
-const MESSAGING_SERVER_KEY = "messages";
-const STORE_SERVER_KEY = "store";
-
 class FirebaseMessagingService implements IMessagingService {
-  constructor(private readonly firebase: firebase.database.Database) {}
+  constructor(
+    private readonly firebase: firebase.database.Database,
+    private readonly messagingServerKey: string
+  ) {}
 
   async send(peerAddress: Address, msg: object) {
-    await this.firebase.ref(`${MESSAGING_SERVER_KEY}/${peerAddress}`).set(msg);
+    await this.firebase
+      .ref(`${this.messagingServerKey}/${peerAddress}`)
+      .set(msg);
   }
 
   receive(address: Address, callback: (msg: object) => void) {
@@ -26,8 +28,7 @@ class FirebaseMessagingService implements IMessagingService {
     }
 
     this.firebase
-      .ref(`${MESSAGING_SERVER_KEY}/${address}`)
-      // The snapshot being sent to this call _might_ be null
+      .ref(`${this.messagingServerKey}/${address}`)
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
@@ -35,19 +36,21 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-        const msg = snapshot.val();
-        callback(msg);
+        callback(snapshot.val());
       });
   }
 }
 
 class FirebaseStoreService implements IStoreService {
-  constructor(private readonly firebase: firebase.database.Database) {}
+  constructor(
+    private readonly firebase: firebase.database.Database,
+    private readonly storeServiceKey: string
+  ) {}
 
   async get(key: string): Promise<any> {
     let result: any;
     await this.firebase
-      .ref(`${STORE_SERVER_KEY}/${key}`)
+      .ref(`${this.storeServiceKey}/${key}`)
       .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
@@ -61,31 +64,32 @@ class FirebaseStoreService implements IStoreService {
   }
 
   async set(key: string, value: any): Promise<any> {
-    return await this.firebase.ref(`${STORE_SERVER_KEY}/${key}`).set(value);
+    return await this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
   }
 }
-
-const HOST = "localhost";
 
 export default class FirebaseServiceFactory {
   private app: firebase.app.App;
 
-  constructor(private readonly port: string) {
+  constructor(private readonly host: string, private readonly port: string) {
     this.app = firebase.initializeApp({
-      databaseURL: `ws://${HOST}:${this.port}`,
+      databaseURL: `ws://${this.host}:${this.port}`,
       projectId: "projectId"
     });
   }
 
   createServer(): FirebaseServer {
-    return new FirebaseServer(this.port, HOST);
+    return new FirebaseServer(this.port, this.host);
   }
 
-  createMessagingService(): IMessagingService {
-    return new FirebaseMessagingService(this.app.database());
+  createMessagingService(messagingServiceKey: string): IMessagingService {
+    return new FirebaseMessagingService(
+      this.app.database(),
+      messagingServiceKey
+    );
   }
 
-  createStoreService(): IStoreService {
-    return new FirebaseStoreService(this.app.database());
+  createStoreService(storeServiceKey: string): IStoreService {
+    return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 }

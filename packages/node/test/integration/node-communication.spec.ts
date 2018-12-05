@@ -18,10 +18,13 @@ describe("Two nodes can communicate with each other", () => {
 
   beforeAll(() => {
     const firebaseServiceFactory = new FirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
     firebaseServer = firebaseServiceFactory.createServer();
-    messagingService = firebaseServiceFactory.createMessagingService();
+    messagingService = firebaseServiceFactory.createMessagingService(
+      process.env.MESSAGING_SERVER_KEY!
+    );
   });
 
   beforeEach(() => {
