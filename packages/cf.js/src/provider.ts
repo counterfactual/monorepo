@@ -40,6 +40,10 @@ export class Provider {
     this.eventEmitter.once(eventName, callback);
   }
 
+  off(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.off(eventName, callback);
+  }
+
   async callRawNodeMethod(
     methodName: Node.MethodName,
     params: Node.MethodParams

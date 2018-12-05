@@ -1,7 +1,6 @@
 import {
   AppInstanceID,
-  AppInstanceInfo,
-  AppInstanceInstallState
+  AppInstanceInfo
 } from "@counterfactual/common-types";
 
 export class AppInstance {

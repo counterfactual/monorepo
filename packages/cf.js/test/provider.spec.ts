@@ -10,6 +10,7 @@ import { BigNumber } from "ethers/utils";
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
 import {
+  CounterfactualEvent,
   ErrorEventData,
   EventType,
   InstallEventData,
@@ -140,6 +141,22 @@ describe("CF.js Provider", async () => {
       expect(err.type).toBe(EventType.ERROR);
       expect(err.data.errorName).toBe("request_timeout");
     }
+  });
+
+  it("should unsubscribe from events", async done => {
+    const cb = (e: CounterfactualEvent) => {
+      done.fail("Unsubscribed event listener was fired");
+    };
+    provider.on(EventType.REJECT_INSTALL, cb);
+    provider.off(EventType.REJECT_INSTALL, cb);
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.REJECT_INSTALL,
+      requestId: "1",
+      result: {
+        appInstanceId: "TEST"
+      }
+    });
+    setTimeout(done, 100);
   });
 
   it("should correctly subscribe to rejectInstall events", async () => {
