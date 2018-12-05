@@ -11,20 +11,18 @@ import FirebaseMessagingService from "./services/firebase-messaging-service";
 dotenv.config();
 
 describe("Two nodes can communicate with each other", () => {
-  const firebaseServerPort = process.env.npm_package_config_firebaseServerPort;
   let firebaseServer: FirebaseServer;
   let messagingService: FirebaseMessagingService;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(() => {
-    firebaseServer = new FirebaseServer(
-      process.env.FIREBASE_DEV_SERVER_PORT,
-      "localhost"
-    );
+    const firebaseServerPort = process.env.FIREBASE_DEV_SERVER_PORT!;
+    const firebaseServerHost = "localhost";
+    firebaseServer = new FirebaseServer(firebaseServerPort, firebaseServerHost);
 
     const app = firebase.initializeApp({
-      databaseURL: `ws://localhost:${firebaseServerPort}`,
+      databaseURL: `ws://${firebaseServerHost}:${firebaseServerPort}`,
       projectId: "projectId"
     });
     messagingService = new FirebaseMessagingService(app.database());
