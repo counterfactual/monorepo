@@ -26,7 +26,9 @@ export class AppNavContent {
               <img src="/assets/icon/menu-btn.svg" alt="Menu" />
             </a>
           </div>
-          <app-connection />
+          <div class="connection">
+            <app-connection />
+          </div>
         </div>
         <div class="right" />
       </nav>

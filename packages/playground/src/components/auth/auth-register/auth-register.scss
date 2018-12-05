@@ -1,7 +1,7 @@
 .info-container {
   display: flex;
 
-  app-modal-info {
+  auth-register-info {
     margin-right: 40px;
 
     &:last-child {
@@ -14,7 +14,7 @@
   .info-container {
     flex-direction: column;
 
-    app-modal-info {
+    auth-register-info {
       margin-bottom: 12px;
     }
   }
