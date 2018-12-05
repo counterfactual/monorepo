@@ -32,7 +32,6 @@ export default class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    // @ts-ignore
     private readonly storeService: IStoreService
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
@@ -75,6 +74,27 @@ export default class Node {
   async send(peerAddress: Address, msg: object) {
     const modifiedMsg = { from: this.address, ...msg };
     await this.messagingService.send(peerAddress, modifiedMsg);
+  }
+
+  // Note: The following getter/setter method will become private
+  // once the machine becomes embedded in the Node.
+  /**
+   * Retrieves the value that's mapped to the given key through the provided
+   * When the given key doesn't map to any value, `null` is returned.
+   * store service.
+   * @param key
+   */
+  async get(key: string): Promise<any> {
+    return await this.storeService.get(key);
+  }
+
+  /**
+   * Sets the given value to the given key through the provided store service.
+   * @param key
+   * @param value
+   */
+  async set(key: string, value: any): Promise<any> {
+    return await this.storeService.set(key, value);
   }
 
   /**
