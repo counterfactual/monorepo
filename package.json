@@ -13,7 +13,7 @@
     "yarn": "^1.10"
   },
   "scripts": {
-    "build": "lerna run build --sort",
+    "build": "sh build.sh",
     "clean": "lerna run clean --parallel --no-bail",
     "test": "lerna run --stream --concurrency 1 test",
     "ganache": "ganache-cli --networkId ${npm_package_config_ganacheNetworkID} --verbose --gasLimit ${npm_package_config_ganacheGasLimit} --gasPrice ${npm_package_config_ganacheGasPrice} --port ${npm_package_config_ganachePort} --deterministic --account=\"${npm_package_config_unlockedAccount0},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount1},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount2},${npm_package_config_etherBalance}\" --account=\"${npm_package_config_unlockedAccount3},${npm_package_config_etherBalance}\" &> /dev/null &",
