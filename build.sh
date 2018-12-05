@@ -5,5 +5,5 @@ for package in $packages; do
   echo ">>> Building package: $package"
   cd packages/$package
   yarn build
-  cd ../..
+  cd -
 done
