@@ -1,4 +1,4 @@
-import * as cf from "@counterfactual/cf.js";
+import { Node } from "@counterfactual/common-types";
 
 import NodeProvider from "../../src/node-provider";
 import {
@@ -67,8 +67,8 @@ describe("NodeProvider", () => {
 
     expect(() => {
       nodeProvider.sendMessage({
-        type: cf.types.Node.MethodName.INSTALL
-      } as cf.types.Node.Message);
+        type: Node.MethodName.INSTALL
+      } as Node.Message);
     }).toThrow(
       "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
     );
@@ -78,8 +78,8 @@ describe("NodeProvider", () => {
     await nodeProvider.connect();
 
     const messageToSend = {
-      type: cf.types.Node.MethodName.INSTALL
-    } as cf.types.Node.Message;
+      type: Node.MethodName.INSTALL
+    } as Node.Message;
 
     const port = context.nodeProviderPort as MockMessagePort;
     const spyPortPostMessage = jest.spyOn(port, "postMessage");

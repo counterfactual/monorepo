@@ -1,7 +1,7 @@
-import * as cf from "@counterfactual/cf.js";
+import { INodeProvider, Node } from "@counterfactual/common-types";
 import EventEmitter from "eventemitter3";
 
-export default class NodeProvider implements cf.types.INodeProvider {
+export default class NodeProvider implements INodeProvider {
   /**
    * This boolean determines if the NodeProvider has received a MessagePort
    * via the `cf-node-provider:port` message.
@@ -18,11 +18,11 @@ export default class NodeProvider implements cf.types.INodeProvider {
     this.eventEmitter = new EventEmitter();
   }
 
-  public onMessage(callback: (message: cf.types.Node.Message) => void) {
+  public onMessage(callback: (message: Node.Message) => void) {
     this.eventEmitter.on("message", callback);
   }
 
-  public sendMessage(message: cf.types.Node.Message) {
+  public sendMessage(message: Node.Message) {
     if (!this.isConnected || !this.messagePort) {
       // We fail because we do not have a messagePort available.
       throw new Error(
