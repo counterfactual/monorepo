@@ -50,8 +50,17 @@ yarn migrate
 cd ../machine
 ```
 
-Finally, to run all tests:
+To run all tests:
 
 ```shell
 yarn test
 ```
+
+To run only specific tests:
+
+```shell
+cd packages/machine
+yarn test <pattern>
+```
+
+will run tests in files whose filename matches  `<pattern>` (see [Jest's CLI reference](https://jestjs.io/docs/en/cli.html#running-from-the-command-line)).
