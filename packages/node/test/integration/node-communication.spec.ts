@@ -4,6 +4,7 @@ import FirebaseServer from "firebase-server";
 import { IMessagingService, Node } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
+import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
 
@@ -24,8 +25,8 @@ describe("Two nodes can communicate with each other", () => {
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService);
+    nodeA = new Node(A_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
+    nodeB = new Node(B_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
   });
 
   afterAll(() => {

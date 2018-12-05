@@ -2,9 +2,13 @@ import { Address } from "@counterfactual/common-types";
 import firebase from "firebase";
 import FirebaseServer from "firebase-server";
 
-import { IMessagingService } from "../../../src/service-interfaces";
+import {
+  IMessagingService,
+  IStoreService
+} from "../../../src/service-interfaces";
 
 const MESSAGING_SERVER_KEY = "messages";
+const STORE_SERVER_KEY = "store";
 
 class FirebaseMessagingService implements IMessagingService {
   constructor(private readonly firebase: firebase.database.Database) {}
@@ -37,21 +41,51 @@ class FirebaseMessagingService implements IMessagingService {
   }
 }
 
+class FirebaseStoreService implements IStoreService {
+  constructor(private readonly firebase: firebase.database.Database) {}
+
+  async get(key: string): Promise<any> {
+    let result: any;
+    await this.firebase
+      .ref(`${STORE_SERVER_KEY}/${key}`)
+      .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
+        if (snapshot === null) {
+          console.debug(
+            `Failed to retrieve value at ${key}: received a "null" snapshot`
+          );
+          return;
+        }
+        result = snapshot.val();
+      });
+    return result;
+  }
+
+  async set(key: string, value: any): Promise<any> {
+    return await this.firebase.ref(`${STORE_SERVER_KEY}/${key}`).set(value);
+  }
+}
+
 const HOST = "localhost";
 
 export default class FirebaseServiceFactory {
-  constructor(private readonly port: string) {}
+  private app: firebase.app.App;
+
+  constructor(private readonly port: string) {
+    this.app = firebase.initializeApp({
+      databaseURL: `ws://${HOST}:${this.port}`,
+      projectId: "projectId"
+    });
+  }
 
   createServer(): FirebaseServer {
-    console.log("using: ", this.port, HOST);
     return new FirebaseServer(this.port, HOST);
   }
 
   createMessagingService(): IMessagingService {
-    const app = firebase.initializeApp({
-      databaseURL: `ws://${HOST}:${this.port}`,
-      projectId: "projectId"
-    });
-    return new FirebaseMessagingService(app.database());
+    return new FirebaseMessagingService(this.app.database());
+  }
+
+  createStoreService(): IStoreService {
+    return new FirebaseStoreService(this.app.database());
   }
 }

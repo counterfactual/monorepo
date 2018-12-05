@@ -6,7 +6,7 @@ import {
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import { IMessagingService } from "./service-interfaces";
+import { IMessagingService, IStoreService } from "./service-interfaces";
 
 export default class Node {
   /**
@@ -31,7 +31,9 @@ export default class Node {
    */
   constructor(
     privateKey: string,
-    private readonly messagingService: IMessagingService
+    private readonly messagingService: IMessagingService,
+    // @ts-ignore
+    private readonly storeService: IStoreService
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
