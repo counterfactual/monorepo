@@ -13,8 +13,12 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.0",
     "@types/node": "^10.9.3",
+    "dotenv": "^6.1.0",
     "ethers": "^4.0.4",
+    "firebase": "^5.6.0",
+    "firebase-server": "^1.0.1",
     "rollup": "^0.67.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
@@ -26,12 +30,16 @@
     "eventemitter3": "^3.1.0"
   },
   "config": {
-    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a"
+    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
+    "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257b"
   },
   "jest": {
     "bail": true,
     "cacheDirectory": "jest-cache",
-    "coverageDirectory": "test",
+    "coverageDirectory": "jest-coverage",
+    "coveragePathIgnorePatterns": [
+      "test"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 90,
