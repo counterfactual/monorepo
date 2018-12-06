@@ -172,11 +172,11 @@ export class AppInstance {
       ethers.utils.defaultAbiCoder.encode(
         [
           `tuple(
-            address owner;
-            address[] signingKeys;
-            bytes32 appInterfaceHash;
-            bytes32 termsHash;
-            uint256 defaultTimeout;
+            address owner,
+            address[] signingKeys,
+            bytes32 appInterfaceHash,
+            bytes32 termsHash,
+            uint256 defaultTimeout
           )`
         ],
         [this.appIdentity]

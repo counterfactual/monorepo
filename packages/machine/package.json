@@ -36,7 +36,7 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
-    "ethers": "^4.0.16"
+    "ethers": "4.0.17"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",

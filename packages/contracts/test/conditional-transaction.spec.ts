@@ -20,20 +20,27 @@ contract("ConditionalTransaction", (accounts: string[]) => {
       artifacts.require("ExampleCondition").abi,
       artifacts.require("ExampleCondition").bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
 
     delegateProxy = await new ethers.ContractFactory(
       artifacts.require("DelegateProxy").abi,
       artifacts.require("DelegateProxy").bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
 
     // Contract is already deployed when using Truffle Tests (re-uses migrations)
-    conditionalTransaction = new ethers.Contract(
-      artifacts.require("ConditionalTransaction").address,
-      artifacts.require("ConditionalTransaction").abi,
+    const artifact = artifacts.require("ConditionalTransaction");
+    artifact.link(artifacts.require("Transfer"));
+    artifact.link(artifacts.require("LibStaticCall"));
+    conditionalTransaction = await new ethers.ContractFactory(
+      artifact.abi,
+      artifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await exampleCondition.deployed();
+    await delegateProxy.deployed();
+    await conditionalTransaction.deployed();
   });
 
   describe("Pre-commit to transfer details", () => {

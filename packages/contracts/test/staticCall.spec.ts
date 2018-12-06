@@ -17,21 +17,22 @@ contract("StaticCall", (accounts: string[]) => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
     const testCallerArtifact = artifacts.require("TestCaller");
-    const echoArtifact = artifacts.require("Echo");
-
     testCallerArtifact.link(artifacts.require("LibStaticCall"));
-
-    testCaller = new ethers.Contract(
-      (await testCallerArtifact.new()).address,
+    testCaller = await new ethers.ContractFactory(
       testCallerArtifact.abi,
+      testCallerArtifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
 
-    echo = new ethers.Contract(
-      (await echoArtifact.new()).address,
+    const echoArtifact = artifacts.require("Echo");
+    echo = await new ethers.ContractFactory(
       echoArtifact.abi,
+      echoArtifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await testCaller.deployed();
+    await echo.deployed();
   });
 
   describe("execStaticCall", () => {

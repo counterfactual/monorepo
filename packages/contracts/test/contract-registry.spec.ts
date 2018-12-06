@@ -36,7 +36,9 @@ contract("ContractRegistry", accounts => {
       artifacts.require("ContractRegistry").abi,
       artifacts.require("ContractRegistry").bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
+
+    await contractRegistry.deployed();
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
@@ -92,7 +94,7 @@ contract("ContractRegistry", accounts => {
     registryContract.deploy(bytecode, 3);
   });
 
-  it("deploys a ProxyContract contract through as owner", done => {
+  it("deploys a Proxy contract contract through as owner", done => {
     const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const initcode =

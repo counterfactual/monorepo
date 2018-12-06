@@ -37,11 +37,17 @@ contract("AppRegistry", (accounts: string[]) => {
 
     wallet = await provider.getSigner(accounts[0]);
 
-    appRegistry = new ethers.Contract(
-      artifacts.require("AppRegistry").address,
-      artifacts.require("AppRegistry").abi,
+    const artifact = artifacts.require("AppRegistry");
+    artifact.link(artifacts.require("LibStaticCall"));
+    artifact.link(artifacts.require("Transfer"));
+
+    appRegistry = await new ethers.ContractFactory(
+      artifact.abi,
+      artifact.binary,
       wallet
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await appRegistry.deployed();
   });
 
   beforeEach(async () => {

@@ -5,8 +5,6 @@ import { AppInstance, AppInterface, AssetType, Terms } from "../src/index";
 
 import { ALICE, BOB } from "./constants";
 
-const APP_REGISTRY = artifacts.require("AppRegistry");
-
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider
 );
@@ -15,13 +13,20 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
   let unlockedAccount: ethers.providers.JsonRpcSigner;
   let appRegistry: ethers.Contract;
 
-  beforeEach(async () => {
+  before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
-    appRegistry = new ethers.Contract(
-      APP_REGISTRY.address,
-      APP_REGISTRY.abi,
+
+    const artifact = artifacts.require("AppRegistry");
+    artifact.link(artifacts.require("LibStaticCall"));
+    artifact.link(artifacts.require("Transfer"));
+
+    appRegistry = await await new ethers.ContractFactory(
+      artifact.abi,
+      artifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await appRegistry.deployed();
   });
 
   it("is possible to call setState to put state on-chain", async () => {

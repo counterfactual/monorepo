@@ -26,14 +26,16 @@ contract("LibCondition", (accounts: string[]) => {
       exampleConditionArtifact.abi,
       exampleConditionArtifact.bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
 
-    libCondition = new ethers.Contract(
-      // Have to use `.new()` due to the auto-linking done above with TruffleContract
-      (await libConditionArtifact.new()).address,
+    libCondition = await new ethers.ContractFactory(
       libConditionArtifact.abi,
+      libConditionArtifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await exampleCondition.deployed();
+    await libCondition.deployed();
   });
 
   describe("asserts conditions with no params", () => {

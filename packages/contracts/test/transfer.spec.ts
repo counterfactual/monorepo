@@ -30,25 +30,29 @@ contract("Transfer", (accounts: string[]) => {
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
-    const exampleTransferArtifact = await artifacts.require("ExampleTransfer");
-    exampleTransferArtifact.link(artifacts.require("Transfer"));
-    exampleTransfer = new ethers.Contract(
-      (await exampleTransferArtifact.new()).address,
-      exampleTransferArtifact.abi,
+    const artifact = await artifacts.require("ExampleTransfer");
+    artifact.link(artifacts.require("Transfer"));
+    exampleTransfer = await new ethers.ContractFactory(
+      artifact.abi,
+      artifact.binary,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
 
     delegateProxy = await new ethers.ContractFactory(
       artifacts.require("DelegateProxy").abi,
       artifacts.require("DelegateProxy").bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
 
     dolphinCoin = await new ethers.ContractFactory(
       artifacts.require("DolphinCoin").abi,
       artifacts.require("DolphinCoin").bytecode,
       unlockedAccount
-    ).deploy();
+    ).deploy({ gasLimit: 6e9 });
+
+    await exampleTransfer.deployed();
+    await delegateProxy.deployed();
+    await dolphinCoin.deployed();
   });
 
   describe("Executes delegated transfers for ETH", () => {

@@ -23,11 +23,15 @@ contract("NonceRegistry", accounts => {
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
-    nonceRegistry = new ethers.Contract(
-      artifacts.require("NonceRegistry").address,
-      artifacts.require("NonceRegistry").abi,
+    const artifact = artifacts.require("NonceRegistry");
+
+    nonceRegistry = await new ethers.ContractFactory(
+      artifact.abi,
+      artifact.bytecode,
       unlockedAccount
-    );
+    ).deploy({ gasLimit: 6e9 });
+
+    await nonceRegistry.deployed();
   });
 
   it("can set nonces", async () => {
