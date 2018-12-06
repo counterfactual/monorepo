@@ -25,7 +25,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@stencil/sass": "^0.1.1",
-    "@types/puppeteer": "1.10.2",
+    "@types/puppeteer": "1.11.0",
     "puppeteer": "1.8.0",
     "typescript": "^3.1.3"
   }
