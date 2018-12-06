@@ -49,6 +49,5 @@ export type NetworkContext = {
   MultiSend: string;
   NonceRegistry: string;
   AppRegistry: string;
-  PaymentApp: string;
   ETHBalanceRefund: string;
 };

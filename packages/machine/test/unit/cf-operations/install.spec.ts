@@ -20,7 +20,7 @@ import {
   encodeFreeBalanceState,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
-} from "./free-balance-helpers";
+} from "../../../src/free-balance-helpers";
 
 const {
   keccak256,

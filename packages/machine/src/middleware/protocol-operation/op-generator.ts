@@ -2,6 +2,10 @@ import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { APP_INTERFACE, TERMS } from "../../encodings";
+import {
+  freeBalanceTermsHash,
+  getFreeBalanceAppInterfaceHash
+} from "../../free-balance-helpers";
 import { Context } from "../../instruction-executor";
 import { Node } from "../../node";
 import { InternalMessage } from "../../types";
@@ -117,38 +121,10 @@ export class EthOpGenerator {
       {
         owner: multisig,
         signingKeys: [freeBalance.alice, freeBalance.bob],
-        appInterfaceHash: keccak256(
-          defaultAbiCoder.encode(
-            [APP_INTERFACE],
-            [
-              {
-                addr: AddressZero,
-                resolve: new ethers.utils.Interface([
-                  `resolve(
-                    tuple(address,address,uint256,uint256),
-                    tuple(uint8,uint256,address)
-                  )`
-                ]).functions.resolve.sighash,
-                getTurnTaker: "0x00000000",
-                isStateTerminal: "0x00000000",
-                applyAction: "0x00000000"
-              }
-            ]
-          )
+        appInterfaceHash: getFreeBalanceAppInterfaceHash(
+          node.networkContext.AppRegistry
         ),
-        termsHash: keccak256(
-          defaultAbiCoder.encode(
-            [TERMS],
-            [
-              {
-                assetType: 0,
-                // TODO: Note that the limit needs to be limitness
-                limit: -1,
-                token: AddressZero
-              }
-            ]
-          )
-        ),
+        termsHash: freeBalanceTermsHash,
         defaultTimeout: 100
       },
       {

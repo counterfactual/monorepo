@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
 import { ETHBucketAppState } from "@counterfactual/types";
 
-import { APP_INTERFACE, TERMS } from "../../../src/encodings";
+import { APP_INTERFACE, TERMS } from "./encodings";
 
 const { Interface, keccak256, defaultAbiCoder, formatParamType } = ethers.utils;
 const { AddressZero, MaxUint256 } = ethers.constants;
