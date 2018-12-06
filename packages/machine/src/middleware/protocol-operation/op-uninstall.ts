@@ -13,8 +13,7 @@ export class OpUninstall extends MultiSendOp {
     readonly freeBalanceStateHash: string,
     readonly freeBalanceNonce: number,
     readonly freeBalanceTimeout: number,
-    readonly dependencyNonceSalt: string,
-    readonly dependencyNonceValue: number
+    readonly dependencyNonceSalt: string
   ) {
     super(
       networkContext,
@@ -26,7 +25,8 @@ export class OpUninstall extends MultiSendOp {
       freeBalanceNonce,
       freeBalanceTimeout,
       dependencyNonceSalt,
-      dependencyNonceValue
+      // Hard coded the update to 1
+      1
     );
   }
 

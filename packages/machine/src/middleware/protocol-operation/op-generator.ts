@@ -324,8 +324,7 @@ export class EthOpGenerator {
       ),
       newFreeBalance.localNonce,
       newFreeBalance.timeout,
-      appChannel.dependencyNonce.salt,
-      appChannel.dependencyNonce.nonce
+      appChannel.dependencyNonce.salt
     );
     return op;
   }
