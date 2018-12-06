@@ -27,8 +27,6 @@ contract HighRollerApp {
     Stage stage;
     bytes32 commitHash;
     uint256 commitNum;
-    uint256[2] playerFirstRoll; // TODO Does it make sense to store these in AppState?
-    uint256[2] playerSecondRoll;
     Player winner;
   }
 
@@ -83,23 +81,7 @@ contract HighRollerApp {
 
 
       if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
-        bytes32 finalHash = calculateFinalHash(playerFirstNumber, playerSecondNumber);
-        bytes8[4] dice = split32Hashto8(finalHash);
-        /* 
-          TODO Need to calculate keccak(firstNum * secondNum) and split that into 16 bytes for each player
-          Then we need to split those 16 bytes for each player into 2 dice rolls for each player
-          After this we need to check who the winner is according to the rolls and return that
-          Along with the dice rolls for the UI
-         */
-        if (playerFirstNumber > playerSecondNumber) {
-          nextState.winner = Player.FIRST;
-        }
-        else if(playerFirstNumber < playerSecondNumber) {
-          nextState.winner = Player.SECOND;
-        }
-        else {
-          nextState.winner = Player.TIE;
-        }
+        nextState.winner = chooseWinner(playerFirstNumber, playerSecondNumber);
       } 
       else {
         nextState.winner = Player.SECOND;
@@ -141,8 +123,30 @@ contract HighRollerApp {
     );
   }
 
+  function chooseWinner(uint256 num1, uint256 num2) 
+    public // Does it matter if this is public or private? The client can poll this if they want?
+    pure
+    returns (Player)
+  {
+    bytes32 finalHash = calculateFinalHash(num1, num2);
+    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = split32Hashto8(finalHash);
+    uint dice1 = bytes8toDiceRoll(hash1);
+    uint dice2 = bytes8toDiceRoll(hash2);
+    uint dice3 = bytes8toDiceRoll(hash3);
+    uint dice4 = bytes8toDiceRoll(hash4);
+    uint256 total1 = dice1 + dice2;
+    uint256 total2 = dice3 + dice4;
+    if(total1 > total2) {
+        return Player.FIRST;
+    }
+    else if(total1 < total2) {
+        return Player.SECOND;
+    }
+    return Player.TIE;
+  }
+
   function calculateFinalHash(uint256 num1, uint256 num2) 
-    public
+    public // Does it matter if this is public or private? The client can poll this if they want?
     pure
     returns (bytes32)
   {
@@ -151,7 +155,7 @@ contract HighRollerApp {
   }
 
   function split32Hashto8(bytes32 finalHash) 
-    public
+    public // Does it matter if this is public or private? The client can poll this if they want?
     pure
     returns (bytes8 dice1, bytes8 dice2, bytes8 dice3, bytes8 dice4)
   {
@@ -169,7 +173,7 @@ contract HighRollerApp {
   }
 
   function bytes8toDiceRoll(bytes8 dice)
-    public
+    public // Does it matter if this is public or private? The client can poll this if they want?
     pure
     returns (uint)
   {
