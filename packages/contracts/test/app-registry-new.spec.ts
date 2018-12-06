@@ -47,7 +47,7 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
     );
 
     // Tell the AppRegistry to start timer
-    await appRegistry.functions.setState(appInstance.appIdentity.toJson(), {
+    await appRegistry.functions.setState(appInstance.appIdentity, {
       stateHash: ethers.utils.hexlify(ethers.utils.randomBytes(32)),
       nonce: 1,
       timeout: 10,

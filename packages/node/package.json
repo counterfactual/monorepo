@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.9.3",
-    "ethers": "^4.0.4",
+    "ethers": "^4.0.16",
     "rollup": "^0.67.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",

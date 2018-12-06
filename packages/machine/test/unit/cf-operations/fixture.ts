@@ -1,16 +1,17 @@
 import * as cf from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-export const TEST_NETWORK_CONTEXT = new cf.legacy.network.NetworkContext(
-  "0x1111111111111111111111111111111111111111",
-  "0x2222222222222222222222222222222222222222",
-  "0x3333333333333333333333333333333333333333",
-  "0x4444444444444444444444444444444444444444",
-  "0x5555555555555555555555555555555555555555",
-  "0x6666666666666666666666666666666666666666",
-  "0x7777777777777777777777777777777777777777",
-  "0x8888888888888888888888888888888888888888"
-);
+const { AddressZero } = ethers.constants;
+
+export const TEST_NETWORK_CONTEXT = {
+  StateChannelTransaction: AddressZero,
+  MultiSend: AddressZero,
+  NonceRegistry: AddressZero,
+  AppRegistry: AddressZero,
+  PaymentApp: AddressZero,
+  ETHBalanceRefund: AddressZero
+};
+
 export const TEST_MULTISIG_ADDRESS = ethers.utils.hexlify(
   "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
 );
@@ -60,11 +61,10 @@ export const TEST_FREE_BALANCE = new cf.legacy.utils.FreeBalance(
 );
 
 export const TEST_FREE_BALANCE_APP_INTERFACE = cf.legacy.utils.FreeBalance.contractInterface(
-  TEST_NETWORK_CONTEXT
+  "0x4444444444444444444444444444444444444444"
 );
 
 export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.legacy.app.AppInstance(
-  TEST_NETWORK_CONTEXT,
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
   TEST_FREE_BALANCE_APP_INTERFACE,
@@ -74,7 +74,6 @@ export const TEST_FREE_BALANCE_APP_INSTANCE = new cf.legacy.app.AppInstance(
 );
 
 export const TEST_APP_INSTANCE = new cf.legacy.app.AppInstance(
-  TEST_NETWORK_CONTEXT,
   TEST_MULTISIG_ADDRESS,
   TEST_PARTICIPANTS,
   TEST_APP_INTERFACE,

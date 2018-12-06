@@ -1,6 +1,7 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
+import { APP_INTERFACE, TERMS } from "../../encodings";
 import { Context } from "../../instruction-executor";
 import { Node } from "../../node";
 import { InternalMessage } from "../../types";
@@ -11,6 +12,9 @@ import { OpSetup } from "./op-setup";
 import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
+const { defaultAbiCoder, keccak256 } = ethers.utils;
+const { AddressZero } = ethers.constants;
+
 export class EthOpGenerator {
   public static generate(
     message: InternalMessage,
@@ -20,9 +24,9 @@ export class EthOpGenerator {
   ): ProtocolOperation {
     const proposedState = context.intermediateResults.proposedStateTransition!;
     let op;
-    if (message.actionName === cf.legacy.node.ActionName.UPDATE) {
+    if (message.actionName === legacy.node.ActionName.UPDATE) {
       op = this.update(message, context, node, proposedState.state);
-    } else if (message.actionName === cf.legacy.node.ActionName.INSTALL) {
+    } else if (message.actionName === legacy.node.ActionName.INSTALL) {
       op = this.install(
         message,
         context,
@@ -30,7 +34,7 @@ export class EthOpGenerator {
         proposedState.state,
         proposedState.cfAddr!
       );
-    } else if (message.actionName === cf.legacy.node.ActionName.UNINSTALL) {
+    } else if (message.actionName === legacy.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, node, proposedState.state);
     }
     return op;
@@ -42,8 +46,7 @@ export class EthOpGenerator {
     node: Node,
     proposedUpdate: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
+    const multisig: string = message.clientMessage.multisigAddress;
     if (message.clientMessage.appInstanceId === undefined) {
       // FIXME: handle more gracefully
       // https://github.com/counterfactual/monorepo/issues/121
@@ -57,7 +60,7 @@ export class EthOpGenerator {
     // TODO: ensure these members are typed instead of having to reconstruct
     // class instances
     // https://github.com/counterfactual/monorepo/issues/135
-    appChannel.cfApp = new cf.legacy.app.AppInterface(
+    appChannel.cfApp = new legacy.app.AppInterface(
       appChannel.cfApp.address,
       appChannel.cfApp.applyAction,
       appChannel.cfApp.resolve,
@@ -66,7 +69,7 @@ export class EthOpGenerator {
       appChannel.cfApp.abiEncoding
     );
 
-    appChannel.terms = new cf.legacy.app.Terms(
+    appChannel.terms = new legacy.app.Terms(
       appChannel.terms.assetType,
       appChannel.terms.limit,
       appChannel.terms.token
@@ -76,22 +79,22 @@ export class EthOpGenerator {
       message.clientMessage.fromAddress,
       message.clientMessage.toAddress
     ];
-    signingKeys.sort(
-      (addrA: cf.legacy.utils.Address, addrB: cf.legacy.utils.Address) => {
-        return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-      }
-    );
+
+    // FIXME: shouldn't be here...
+    signingKeys.sort((addrA: string, addrB: string) => {
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
 
     return new OpSetState(
       node.networkContext,
-      multisig,
-      // FIXME: signing keys should be app-specific ephemeral keys
-      // https://github.com/counterfactual/monorepo/issues/120
-      signingKeys,
+      {
+        signingKeys,
+        owner: multisig,
+        appInterfaceHash: appChannel.appInterfaceHash,
+        termsHash: appChannel.termsHash,
+        defaultTimeout: appChannel.timeout
+      },
       appChannel.appStateHash,
-      appChannel.uniqueId,
-      appChannel.terms,
-      appChannel.cfApp,
       appChannel.localNonce,
       appChannel.timeout
     );
@@ -102,41 +105,59 @@ export class EthOpGenerator {
     node: Node,
     proposedSetup: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
-    const freeBalance: cf.legacy.utils.FreeBalance =
-      proposedSetup[multisig].freeBalance;
-    const nonce = freeBalance.dependencyNonce;
-    const newFreeBalance = new cf.legacy.utils.FreeBalance(
-      freeBalance.alice,
-      freeBalance.aliceBalance,
-      freeBalance.bob,
-      freeBalance.bobBalance,
-      freeBalance.uniqueId,
-      freeBalance.localNonce,
-      freeBalance.timeout,
-      freeBalance.dependencyNonce
-    );
-    const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
-      new cf.legacy.utils.PeerBalance(message.clientMessage.fromAddress, 0),
-      new cf.legacy.utils.PeerBalance(message.clientMessage.toAddress, 0)
-    );
-    const signingKeys = [canon.peerA.address, canon.peerB.address];
-    const freeBalanceAppInstance = new cf.legacy.app.AppInstance(
-      node.networkContext,
-      multisig,
-      signingKeys,
-      cf.legacy.utils.FreeBalance.contractInterface(node.networkContext),
-      cf.legacy.utils.FreeBalance.terms(),
-      freeBalance.timeout,
-      freeBalance.uniqueId
-    );
+    const multisig = message.clientMessage.multisigAddress;
 
+    const freeBalance = proposedSetup[multisig].freeBalance;
+
+    const nonce = freeBalance.dependencyNonce;
+
+    // TODO: Review where this is used...
     return new OpSetup(
       node.networkContext,
       multisig,
-      freeBalanceAppInstance,
-      newFreeBalance,
+      [message.clientMessage.fromAddress, message.clientMessage.toAddress],
+      {
+        owner: multisig,
+        signingKeys: [freeBalance.alice, freeBalance.bob],
+        appInterfaceHash: keccak256(
+          defaultAbiCoder.encode(
+            [APP_INTERFACE],
+            [
+              {
+                addr: AddressZero,
+                resolve: new ethers.utils.Interface([
+                  `resolve(
+                    tuple(address,address,uint256,uint256),
+                    tuple(uint8,uint256,address)
+                  )`
+                ]).functions.resolve.sighash,
+                getTurnTaker: "0x00000000",
+                isStateTerminal: "0x00000000",
+                applyAction: "0x00000000"
+              }
+            ]
+          )
+        ),
+        termsHash: keccak256(
+          defaultAbiCoder.encode(
+            [TERMS],
+            [
+              {
+                assetType: 0,
+                // TODO: Note that the limit needs to be limitness
+                limit: -1,
+                token: AddressZero
+              }
+            ]
+          )
+        ),
+        defaultTimeout: 100
+      },
+      {
+        assetType: 0, // ETH,
+        limit: ethers.constants.MaxUint256,
+        token: AddressZero
+      },
       nonce
     );
   }
@@ -145,45 +166,104 @@ export class EthOpGenerator {
     message: InternalMessage,
     context: Context,
     node: Node,
-    proposedInstall: cf.legacy.channel.StateChannelInfos,
-    cfAddr: cf.legacy.utils.H256
+    proposedInstall: legacy.channel.StateChannelInfos,
+    cfAddr: string
   ) {
     const channel = proposedInstall[message.clientMessage.multisigAddress];
     const freeBalance = channel.freeBalance;
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
+    const multisig = message.clientMessage.multisigAddress;
     const appChannel = channel.appInstances[cfAddr];
 
-    const signingKeys = [appChannel.keyA!, appChannel.keyB!];
+    const appIdentity = {
+      owner: multisig,
+      signingKeys: [appChannel.keyA!, appChannel.keyB!],
+      appInterfaceHash: appChannel.cfApp.hash(),
+      termsHash: appChannel.terms.hash(),
+      defaultTimeout: appChannel.timeout
+    };
 
-    const app = new cf.legacy.app.AppInstance(
-      node.networkContext,
-      multisig,
-      signingKeys,
-      appChannel.cfApp,
-      appChannel.terms,
-      appChannel.timeout,
-      appChannel.uniqueId
-    );
-    const newFreeBalance = new cf.legacy.utils.FreeBalance(
+    const newFreeBalance = new legacy.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
       freeBalance.bobBalance,
       freeBalance.uniqueId,
-      freeBalance.localNonce,
+      // TODO: Note down how important this is!!!!
+      freeBalance.localNonce + 1,
       freeBalance.timeout,
       freeBalance.dependencyNonce
     );
 
-    const op = new OpInstall(
+    return new OpInstall(
       node.networkContext,
       multisig,
-      app,
-      newFreeBalance,
-      appChannel.dependencyNonce
+      [message.clientMessage.fromAddress, message.clientMessage.toAddress],
+      appIdentity,
+      // TODO: Replace usage of appChannel with Terms interface obj
+      {
+        assetType: appChannel.terms.assetType,
+        limit: appChannel.terms.limit,
+        token: appChannel.terms.token
+      },
+      {
+        owner: multisig,
+        signingKeys: [freeBalance.alice, freeBalance.bob],
+        appInterfaceHash: keccak256(
+          defaultAbiCoder.encode(
+            [APP_INTERFACE],
+            [
+              {
+                addr: AddressZero,
+                resolve: new ethers.utils.Interface([
+                  `resolve(
+                    tuple(address,address,uint256,uint256),
+                    tuple(uint8,uint256,address)
+                  )`
+                ]).functions.resolve.sighash,
+                getTurnTaker: "0x00000000",
+                isStateTerminal: "0x00000000",
+                applyAction: "0x00000000"
+              }
+            ]
+          )
+        ),
+        termsHash: keccak256(
+          defaultAbiCoder.encode(
+            [TERMS],
+            [
+              {
+                assetType: 0,
+                // TODO: Note that the limit needs to be limitness
+                limit: -1,
+                token: AddressZero
+              }
+            ]
+          )
+        ),
+        defaultTimeout: 100
+      },
+      {
+        assetType: 0,
+        // TODO: Note that the limit needs to be limitness
+        limit: ethers.constants.MaxUint256,
+        token: AddressZero
+      },
+      keccak256(
+        defaultAbiCoder.encode(
+          ["address", "address", "uint256", "uint256"],
+          [
+            newFreeBalance.alice,
+            newFreeBalance.bob,
+            newFreeBalance.aliceBalance,
+            newFreeBalance.bobBalance
+          ]
+        )
+      ),
+      newFreeBalance.localNonce,
+      newFreeBalance.timeout,
+      newFreeBalance.dependencyNonce.salt,
+      newFreeBalance.dependencyNonce.nonceValue
     );
-    return op;
   }
 
   public static uninstall(
@@ -192,8 +272,7 @@ export class EthOpGenerator {
     node: Node,
     proposedUninstall: any
   ): ProtocolOperation {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
+    const multisig: string = message.clientMessage.multisigAddress;
     const cfAddr = message.clientMessage.appInstanceId;
     if (cfAddr === undefined) {
       throw new Error("update message must have appId set");
@@ -202,7 +281,7 @@ export class EthOpGenerator {
     const freeBalance = proposedUninstall[multisig].freeBalance;
     const appChannel = proposedUninstall[multisig].appInstances[cfAddr];
 
-    const newFreeBalance = new cf.legacy.utils.FreeBalance(
+    const newFreeBalance = new legacy.utils.FreeBalance(
       freeBalance.alice,
       freeBalance.aliceBalance,
       freeBalance.bob,
@@ -216,8 +295,65 @@ export class EthOpGenerator {
     const op = new OpUninstall(
       node.networkContext,
       multisig,
-      newFreeBalance,
-      appChannel.dependencyNonce
+      [message.clientMessage.fromAddress, message.clientMessage.toAddress],
+      {
+        owner: multisig,
+        signingKeys: [freeBalance.alice, freeBalance.bob],
+        appInterfaceHash: keccak256(
+          defaultAbiCoder.encode(
+            [APP_INTERFACE],
+            [
+              {
+                addr: AddressZero,
+                resolve: new ethers.utils.Interface([
+                  `resolve(
+                    tuple(address,address,uint256,uint256),
+                    tuple(uint8,uint256,address)
+                  )`
+                ]).functions.resolve.sighash,
+                getTurnTaker: "0x00000000",
+                isStateTerminal: "0x00000000",
+                applyAction: "0x00000000"
+              }
+            ]
+          )
+        ),
+        termsHash: keccak256(
+          defaultAbiCoder.encode(
+            [TERMS],
+            [
+              {
+                assetType: 0,
+                // TODO: Note that the limit needs to be limitness
+                limit: -1,
+                token: AddressZero
+              }
+            ]
+          )
+        ),
+        defaultTimeout: 100
+      },
+      {
+        assetType: 0,
+        // TODO: Note that the limit needs to be limitness
+        limit: ethers.constants.MaxUint256,
+        token: AddressZero
+      },
+      keccak256(
+        defaultAbiCoder.encode(
+          ["address", "address", "uint256", "uint256"],
+          [
+            newFreeBalance.alice,
+            newFreeBalance.bob,
+            newFreeBalance.aliceBalance,
+            newFreeBalance.bobBalance
+          ]
+        )
+      ),
+      newFreeBalance.localNonce,
+      newFreeBalance.timeout,
+      appChannel.dependencyNonce.salt,
+      appChannel.dependencyNonce.nonce
     );
     return op;
   }

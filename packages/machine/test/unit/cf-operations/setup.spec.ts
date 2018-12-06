@@ -1,10 +1,9 @@
-import * as cf from "@counterfactual/cf.js";
+import { cf } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 
 import {
-  constructContractCall,
   constructMultisigExecTransaction,
   TEST_FREE_BALANCE,
   TEST_FREE_BALANCE_APP_INSTANCE,
@@ -13,28 +12,37 @@ import {
   TEST_SIGNING_KEYS
 } from "./fixture";
 
-const { keccak256 } = ethers.utils;
+const { keccak256, solidityPack } = ethers.utils;
 
 function constructConditionalTransactionData(nonceUniqueId: number) {
-  const salt = keccak256(
-    cf.utils.abi.encodePacked(["uint256"], [nonceUniqueId])
-  );
+  const salt = keccak256(solidityPack(["uint256"], [nonceUniqueId]));
   const uninstallKey = keccak256(
-    cf.utils.abi.encodePacked(
+    solidityPack(
       ["address", "uint256", "uint256"],
       [TEST_MULTISIG_ADDRESS, 0, salt]
     )
   );
-
-  const { terms } = TEST_FREE_BALANCE_APP_INSTANCE;
-  return constructContractCall(
-    "executeAppConditionalTransaction(address,address,bytes32,bytes32,tuple(uint8,uint256,address))",
-    TEST_NETWORK_CONTEXT.registryAddr,
-    TEST_NETWORK_CONTEXT.nonceRegistryAddr,
-    uninstallKey,
-    TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
-    [terms.assetType, terms.limit, terms.token]
-  );
+  return new ethers.utils.Interface([
+    `executeAppConditionalTransaction(
+      address appRegistryAddress,
+      address nonceRegistryAddress,
+      bytes32 uninstallKey,
+      bytes32 appCfAddress,
+      tuple(uint8 assetType, uint256 limit, address token) terms
+    )`
+  ]).functions.executeAppConditionalTransaction.encode([
+    {
+      uninstallKey,
+      appRegistryAddress: TEST_NETWORK_CONTEXT["AppRegistry"],
+      nonceRegistryAddress: TEST_NETWORK_CONTEXT["NonceRegistry"],
+      appCfAddress: TEST_FREE_BALANCE_APP_INSTANCE.cfAddress(),
+      terms: {
+        assetType: TEST_FREE_BALANCE_APP_INSTANCE.terms.assetType,
+        limit: TEST_FREE_BALANCE_APP_INSTANCE.terms.limit,
+        token: TEST_FREE_BALANCE_APP_INSTANCE.terms.token
+      }
+    }
+  ]);
 }
 
 describe("OpSetup", () => {
@@ -61,7 +69,7 @@ describe("OpSetup", () => {
     const signatures = TEST_SIGNING_KEYS.map(key => key.signDigest(digest));
     const expectedTxData = constructMultisigExecTransaction(
       "delegatecall",
-      TEST_NETWORK_CONTEXT.conditionalTransactionAddr,
+      TEST_NETWORK_CONTEXT["StateChannelTransaction"],
       0,
       conditionalTransactionData,
       signatures

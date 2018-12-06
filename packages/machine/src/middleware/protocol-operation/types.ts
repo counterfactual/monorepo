@@ -45,10 +45,7 @@ export class MultisigInput {
 }
 
 export class MultiSend {
-  constructor(
-    readonly transactions: MultisigInput[],
-    readonly networkContext: cf.legacy.network.NetworkContext
-  ) {}
+  constructor(readonly transactions: MultisigInput[]) {}
 
   public input(multisend: cf.legacy.utils.Address): MultisigInput {
     let txs: string = "0x";

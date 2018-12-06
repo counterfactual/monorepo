@@ -17,7 +17,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "ethers": "^4.0.4",
+    "ethers": "^4.0.16",
     "rollup-plugin-typescript2": "^0.18.0"
   }
 }

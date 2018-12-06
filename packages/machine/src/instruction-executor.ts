@@ -12,7 +12,7 @@ import { InstructionMiddlewareCallback, StateProposal } from "./types";
 export class InstructionExecutorConfig {
   constructor(
     readonly responseHandler: cf.legacy.node.ResponseSink,
-    readonly network: cf.legacy.network.NetworkContext,
+    readonly networkContext: any,
     readonly state?: cf.legacy.channel.StateChannelInfos
   ) {}
 }
@@ -34,7 +34,7 @@ export class InstructionExecutor {
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.node = new Node(config.state || {}, config.network);
+    this.node = new Node(config.state || {}, config.networkContext);
     this.middleware = new Middleware(this.node);
   }
 

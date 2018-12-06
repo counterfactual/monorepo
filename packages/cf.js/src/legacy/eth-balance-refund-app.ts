@@ -1,5 +1,6 @@
-import * as ETHBalanceRefundAppContract from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
-import * as ethers from "ethers";
+import BuildArtifact from "@counterfactual/apps/build/ETHBalanceRefundApp.json";
+
+import { ethers } from "ethers";
 
 import { Terms } from "./app";
 import { AppInstance } from "./app-instance";
@@ -14,7 +15,7 @@ export class ETHBalanceRefundApp extends AppInstance {
       ethers.constants.AddressZero
     );
     const abiEncodings = AppInstance.generateAbiEncodings(
-      ETHBalanceRefundAppContract.abi
+      BuildArtifact.interface
     );
 
     const appDefinition: AppDefinition = {

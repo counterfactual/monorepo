@@ -3951,10 +3951,26 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^4.0.0, ethers@^4.0.15, ethers@^4.0.4:
+ethers@^4.0.0:
   version "4.0.15"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.15.tgz#784df851271ec4f7cea46ce3b44e2274f122ff6c"
   integrity sha512-GO+GVMI0EfS6CJmxJXSUNTyiN8q+QIRTACzEtRMqnUDQrTzTHfIx2VYD7mgPDTjSsu/JLzGdit0hY3ERcE2fHQ==
+  dependencies:
+    "@types/node" "^10.3.2"
+    aes-js "3.0.0"
+    bn.js "^4.4.0"
+    elliptic "6.3.3"
+    hash.js "1.1.3"
+    js-sha3 "0.5.7"
+    scrypt-js "2.0.4"
+    setimmediate "1.0.4"
+    uuid "2.0.1"
+    xmlhttprequest "1.8.0"
+
+ethers@^4.0.16:
+  version "4.0.16"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.16.tgz#04cc07dca66967b95e6220822ce8ac945f99ede2"
+  integrity sha512-XQx0yY2KMOV9IG+siUogZ0hiedD2sjcWMIInyw2Bz1VqEHQht6NdDeXRecbI6332v6H+hXm0n5Oi6PquC1mwMA==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"

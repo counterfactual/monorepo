@@ -1,21 +1,26 @@
-import * as cf from "@counterfactual/cf.js";
+import { cf } from "@counterfactual/cf.js";
+import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import { AppIdentity, SignedStateHashUpdate } from "@counterfactual/types";
 import { ethers } from "ethers";
 
-import * as common from "./common";
+import { APP_IDENTITY } from "../../encodings";
+import { NetworkContext } from "../../types";
+
 import { ProtocolOperation, Transaction } from "./types";
 
-const { keccak256 } = ethers.utils;
-const { abi } = cf.utils;
+const { keccak256, solidityPack } = ethers.utils;
+
+const appIdentityToHash = (appIdentity: AppIdentity): string => {
+  return ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode([APP_IDENTITY], [appIdentity])
+  );
+};
 
 export class OpSetState extends ProtocolOperation {
   constructor(
-    readonly ctx: cf.legacy.network.NetworkContext,
-    readonly multisig: cf.legacy.utils.Address,
-    readonly signingKeys: cf.legacy.utils.Address[],
+    readonly networkContext: NetworkContext,
+    readonly appIdentity: AppIdentity,
     readonly appStateHash: string,
-    readonly appUniqueId: number,
-    readonly terms: cf.legacy.app.Terms,
-    readonly app: cf.legacy.app.AppInterface,
     readonly appLocalNonce: number,
     readonly timeout: number
   ) {
@@ -24,11 +29,11 @@ export class OpSetState extends ProtocolOperation {
 
   public hashToSign(): string {
     return keccak256(
-      abi.encodePacked(
-        ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+      solidityPack(
+        ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
         [
           "0x19",
-          this.signingKeys,
+          appIdentityToHash(this.appIdentity),
           this.appLocalNonce,
           this.timeout,
           this.appStateHash
@@ -37,30 +42,29 @@ export class OpSetState extends ProtocolOperation {
     );
   }
 
-  /**
-   * @returns a tx that executes a proxyCall through the registry to call
-   *          `setState` on AppInstance.sol.
-   */
   public transaction(sigs: ethers.utils.Signature[]): Transaction {
-    const appCfAddr = new cf.legacy.app.AppInstance(
-      this.ctx,
-      this.multisig,
-      this.signingKeys,
-      this.app,
-      this.terms,
-      this.timeout,
-      this.appUniqueId
-    ).cfAddress();
-    const to = this.ctx.registryAddr;
-    const val = 0;
-    const data = common.proxyCallSetStateData(
-      this.ctx,
-      this.appStateHash,
-      appCfAddr,
-      this.appLocalNonce,
-      this.timeout,
-      cf.utils.signaturesToSortedBytes(this.hashToSign(), ...sigs)
+    const appRegistryInterface = new ethers.utils.Interface(AppRegistry.abi);
+    return new Transaction(
+      this.networkContext.AppRegistry,
+      0,
+      appRegistryInterface.functions.setState.encode([
+        this.appIdentity,
+        this.getSignedStateHashUpdate(sigs)
+      ])
     );
-    return new Transaction(to, val, data);
+  }
+
+  private getSignedStateHashUpdate(
+    signatures: ethers.utils.Signature[]
+  ): SignedStateHashUpdate {
+    return {
+      stateHash: this.appStateHash,
+      nonce: this.appLocalNonce,
+      timeout: this.timeout,
+      signatures: cf.utils.signaturesToSortedBytes(
+        this.hashToSign(),
+        ...signatures
+      )
+    };
   }
 }

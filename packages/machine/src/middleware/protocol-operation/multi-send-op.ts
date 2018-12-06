@@ -1,81 +1,66 @@
-import * as cf from "@counterfactual/cf.js";
-import NonceRegistryJson from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+
+import { AppIdentity, Terms } from "@counterfactual/types";
+
 import { ethers } from "ethers";
 
-import * as common from "./common";
+// import { APP_IDENTITY, TERMS } from "../../encodings";
+
 import { MultisigTxOp } from "./multisig-tx-op";
 import { MultiSend, MultisigInput, Operation } from "./types";
 
-const { keccak256 } = ethers.utils;
+// const { keccak256, defaultAbiCoder } = ethers.utils;
+const { HashZero } = ethers.constants;
 
 export abstract class MultiSendOp extends MultisigTxOp {
   constructor(
-    readonly networkContext: cf.legacy.network.NetworkContext,
-    readonly multisig: cf.legacy.utils.Address,
-    readonly freeBalance: cf.legacy.utils.FreeBalance,
-    readonly dependencyNonce: cf.legacy.utils.Nonce
+    readonly networkContext: any,
+    readonly multisig: string,
+    readonly multisigOwners: string[],
+    readonly freeBalanceAppIdentity: AppIdentity,
+    readonly freeBalanceTerms: Terms,
+    readonly freeBalanceStateHash: string,
+    readonly freeBalanceNonce: number,
+    readonly freeBalanceTimeout: number,
+    readonly dependencyNonceSalt: string,
+    readonly dependencyNonceValue: number
   ) {
-    super(multisig, freeBalance);
+    super(multisig, multisigOwners);
   }
 
   public freeBalanceInput(): MultisigInput {
-    const to = this.networkContext.registryAddr;
+    const to = this.networkContext.AppRegistry;
     const val = 0;
     const data = this.freeBalanceData();
-    const op = Operation.Delegatecall;
+    const op = Operation.Call;
     return new MultisigInput(to, val, data, op);
   }
 
-  public freeBalanceData(): cf.legacy.utils.Bytes {
-    const terms = cf.legacy.utils.FreeBalance.terms();
-    const app = cf.legacy.utils.FreeBalance.contractInterface(
-      this.networkContext
-    );
-    const freeBalanceCfAddress = new cf.legacy.app.AppInstance(
-      this.networkContext,
-      this.multisig,
-      [this.freeBalance.alice, this.freeBalance.bob],
-      app,
-      terms,
-      this.freeBalance.timeout,
-      this.freeBalance.uniqueId
-    ).cfAddress();
-
-    const appStateHash = keccak256(
-      cf.utils.abi.encode(
-        ["address", "address", "uint256", "uint256"],
-        [
-          this.freeBalance.alice,
-          this.freeBalance.bob,
-          this.freeBalance.aliceBalance,
-          this.freeBalance.bobBalance
-        ]
-      )
-    );
-    // don't need signatures since the multisig is the owner
-    const signatures = "0x0";
-    return common.proxyCallSetStateData(
-      this.networkContext,
-      appStateHash,
-      freeBalanceCfAddress,
-      this.freeBalance.localNonce,
-      this.freeBalance.timeout,
-      signatures
-    );
+  public freeBalanceData(): string {
+    return new ethers.utils.Interface(
+      AppRegistry.abi
+    ).functions.setState.encode([
+      this.freeBalanceAppIdentity,
+      {
+        stateHash: this.freeBalanceStateHash,
+        nonce: this.freeBalanceNonce,
+        timeout: this.freeBalanceTimeout,
+        // Don't need signatures since a multisig is always calling MultiSend
+        signatures: HashZero
+      }
+    ]);
   }
 
   public dependencyNonceInput(): MultisigInput {
-    // FIXME: new NonceRegistryJson design will obviate timeout
-    // https://github.com/counterfactual/monorepo/issues/122
-    const timeout = 0;
-    const to = this.networkContext.nonceRegistryAddr;
+    const to = this.networkContext.NonceRegistry;
     const val = 0;
     const data = new ethers.utils.Interface(
-      NonceRegistryJson.abi
+      NonceRegistry.abi
     ).functions.setNonce.encode([
-      timeout,
-      this.dependencyNonce.salt,
-      this.dependencyNonce.nonceValue
+      0, // Timeout is 0 for dependencyNonce!
+      this.dependencyNonceSalt,
+      this.dependencyNonceValue
     ]);
     const op = Operation.Call;
     return new MultisigInput(to, val, data, op);
@@ -88,8 +73,8 @@ export abstract class MultiSendOp extends MultisigTxOp {
    *          a multisend transaction.
    */
   multisigInput(): MultisigInput {
-    return new MultiSend(this.eachMultisigInput(), this.networkContext).input(
-      this.networkContext.multiSendAddr
+    return new MultiSend(this.eachMultisigInput()).input(
+      this.networkContext.MultiSend
     );
   }
 }

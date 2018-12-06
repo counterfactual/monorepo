@@ -1,0 +1,14 @@
+{
+  "name": "@counterfactual/types",
+  "version": "1.0.0",
+  "description": "TypeScript typings for common Counterfactual types",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "ethers": "^4.0.16"
+  }
+}

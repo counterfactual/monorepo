@@ -1,13 +1,11 @@
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
-import { NetworkContext } from "../network";
 import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import { Nonce } from "../utils/nonce";
 
-const { keccak256 } = ethers.utils;
+const { keccak256, defaultAbiCoder } = ethers.utils;
 
 /**
  * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
@@ -17,7 +15,6 @@ const { keccak256 } = ethers.utils;
  */
 export class AppInstance {
   constructor(
-    readonly ctx: NetworkContext,
     readonly owner: Address,
     readonly signingKeys: Address[],
     readonly cfApp: AppInterface,
@@ -27,21 +24,20 @@ export class AppInstance {
   ) {}
 
   public cfAddress(): H256 {
-    // FIXME: shouldn't have to require abi and bytecode here
-    const initcode = new ethers.utils.Interface(
-      AppInstanceJson.abi
-    ).deployFunction.encode(this.ctx.linkedBytecode(AppInstanceJson.bytecode), [
-      this.owner,
-      this.signingKeys,
-      this.cfApp.hash(),
-      this.terms.hash(),
-      this.timeout
-    ]);
-
     return keccak256(
-      abi.encodePacked(
-        ["bytes1", "bytes", "uint256"],
-        ["0x19", initcode, this.uniqueId]
+      defaultAbiCoder.encode(
+        [
+          "tuple(address owner,address[] signingKeys,bytes32 appInterfaceHash,bytes32 termsHash,uint256 defaultTimeout)"
+        ],
+        [
+          {
+            owner: this.owner,
+            signingKeys: this.signingKeys,
+            appInterfaceHash: this.cfApp.hash(),
+            termsHash: this.terms.hash(),
+            defaultTimeout: this.timeout
+          }
+        ]
       )
     );
   }

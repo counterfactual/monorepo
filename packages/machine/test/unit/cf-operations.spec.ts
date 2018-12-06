@@ -1,21 +1,21 @@
 import * as cf from "@counterfactual/cf.js";
 import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import { AssetType } from "@counterfactual/contracts/dist/utils";
 import { ethers } from "ethers";
 
 import { OpSetup } from "../../src/middleware/protocol-operation";
 import "../../src/middleware/protocol-operation/types";
 
-const fakeCtx = new cf.legacy.network.NetworkContext(
-  "0x1111111111111111111111111111111111111111",
-  "0x2222222222222222222222222222222222222222",
-  "0x3333333333333333333333333333333333333333",
-  "0x4444444444444444444444444444444444444444",
-  "0x5555555555555555555555555555555555555555",
-  "0x6666666666666666666666666666666666666666",
-  "0x7777777777777777777777777777777777777777",
-  "0x8888888888888888888888888888888888888888"
-);
+const { AddressZero } = ethers.constants;
+
+export const TEST_NETWORK_CONTEXT = {
+  StateChannelTransaction: AddressZero,
+  MultiSend: AddressZero,
+  NonceRegistry: AddressZero,
+  AppRegistry: AddressZero,
+  PaymentApp: AddressZero,
+  ETHBalanceRefund: AddressZero
+};
+
 const alice = "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const bob = "0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
 const multisig = "0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
@@ -32,12 +32,11 @@ describe("ProtocolOperation subclasses", async () => {
         "tuple()"
       );
       const terms = new cf.legacy.app.Terms(
-        AssetType.ETH,
+        0,
         ethers.utils.parseEther("1"),
         ethers.constants.AddressZero
       );
       const cfApp = new cf.legacy.app.AppInstance(
-        fakeCtx,
         multisig,
         [alice, bob],
         appInterface,

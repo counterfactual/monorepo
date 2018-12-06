@@ -41,7 +41,6 @@ describe("State transition", () => {
       installClientMsg(),
     );
     const expectedCfAddr = new cf.legacy.app.AppInstance(
-      cf.legacy.network.EMPTY_NETWORK_CONTEXT,
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -97,7 +96,7 @@ function setupInstallState(): Node {
   const channelStates: cf.legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new Node(channelStates, cf.legacy.network.EMPTY_NETWORK_CONTEXT);
+  return new Node(channelStates);
 }
 
 function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {

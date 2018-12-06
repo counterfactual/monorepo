@@ -8,12 +8,19 @@ export default {
   output: [
     {
       file: pkg.main,
-      format: "cjs"
+      format: "cjs",
+      exports: "named",
     },
     {
       file: pkg.iife,
       name: "cfjs",
-      format: "iife"
+      format: "iife",
+      exports: "named",
+      globals: {
+        ethers: "ethers",
+        cuid: "cuid",
+        eventemitter3: "EventEmitter"
+      }
     }
   ],
   plugins: [
@@ -21,8 +28,7 @@ export default {
     json({
       include: [
         // FIXME: these shouldn't be required
-        "../contracts/build/contracts/ETHBalanceRefundApp.json",
-        "../contracts/build/contracts/AppInstance.json"
+        "../apps/build/ETHBalanceRefundApp.json"
       ]
     })
   ]

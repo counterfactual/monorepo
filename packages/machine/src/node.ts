@@ -4,16 +4,11 @@ import * as cf from "@counterfactual/cf.js";
  * Node encapsulates the state of all the channels.
  */
 export class Node {
-  public channelStates: cf.legacy.channel.StateChannelInfos;
-  public networkContext: cf.legacy.network.NetworkContext;
 
   constructor(
-    channelStates: cf.legacy.channel.StateChannelInfos,
-    network: cf.legacy.network.NetworkContext
-  ) {
-    this.channelStates = channelStates;
-    this.networkContext = network;
-  }
+    readonly channelStates: cf.legacy.channel.StateChannelInfos,
+    readonly networkContext: any
+  ) { }
 
   public stateChannel(
     multisig: cf.legacy.utils.Address

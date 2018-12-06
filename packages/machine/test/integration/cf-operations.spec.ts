@@ -1,8 +1,9 @@
-import * as cf from "@counterfactual/cf.js";
-import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import MinimumViableMultisigJson from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import RegistryJson from "@counterfactual/contracts/build/contracts/Registry.json";
 import { ethers } from "ethers";
+
+import * as cf from "@counterfactual/cf.js";
+
+// FIXME: use proxy factory
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 
 import { Transaction } from "../../src/middleware/protocol-operation/types";
 import {
@@ -19,37 +20,32 @@ import { TestResponseSink } from "./test-response-sink";
 // https://github.com/counterfactual/monorepo/issues/103
 const ganache = new ethers.providers.JsonRpcProvider("http://127.0.0.1:9545");
 
-const { abi } = cf.utils;
-
 describe("Setup Protocol", async () => {
   jest.setTimeout(30000);
 
   let devEnvNetworkContext7777777: cf.legacy.network.NetworkContext;
 
   beforeAll(() => {
-    // This `require` statement is explicitly in side the `beforeAll` and not at the file
-    // scope because we need it to do the file lookup at runtime and not buildtime otherwise
-    // the build process will fail if the contracts haven't been migrated yet.
+    // NOTE: This `require` statement is explicitly in side the `beforeAll` and not at
+    // the file scope because we need it to do the file lookup at runtime and not
+    // buildtime otherwise the build process will fail if the contracts haven't
+    // been migrated yet.
+    const network = require("@counterfactual/contracts/networks/7777777.json");
 
-    // TODO: The linter can't handle files with numbers as names. This should be fixed
-    // when we have a different method for retrieving the network addresses anyway.
-    // https://github.com/counterfactual/monorepo/issues/114
-    // tslint:disable-next-line
-    const networkFile = require("@counterfactual/contracts/networks/7777777.json");
+    const nameToAddressMap = network.map(x => ({
+      [x.contractName]: x.address
+    }));
 
-    const addressOfContract = new Map<string, string>(
-      networkFile.map(entry => [entry.contractName, entry.address]));
-
-    devEnvNetworkContext7777777 = new cf.legacy.network.NetworkContext(
-      addressOfContract.get("Registry")!,
-      addressOfContract.get("PaymentApp")!,
-      addressOfContract.get("ConditionalTransaction")!,
-      addressOfContract.get("MultiSend")!,
-      addressOfContract.get("NonceRegistry")!,
-      addressOfContract.get("Signatures")!,
-      addressOfContract.get("StaticCall")!,
-      addressOfContract.get("ETHBalanceRefundApp")!
-    );
+    devEnvNetworkContext7777777 = {
+      // Protocol
+      ConditionalTransaction: nameToAddressMap["ConditionalTransaction"],
+      MultiSend: nameToAddressMap["MultiSend"],
+      NonceRegistry: nameToAddressMap["NonceRegistry"],
+      AppRegistry: nameToAddressMap["AppRegistry"],
+      // App-specific
+      PaymentApp: nameToAddressMap["PaymentApp"],
+      ETHBalanceRefund: nameToAddressMap["ETHBalanceRefund"]
+    };
   });
 
   /**
@@ -62,11 +58,12 @@ describe("Setup Protocol", async () => {
   it("should have the correct funds on chain", async () => {
     const depositAmount = ethers.utils.parseEther("0.0005");
 
-    const walletA = new TestResponseSink(
+    const responseSinkA = new TestResponseSink(
       A_PRIVATE_KEY,
       devEnvNetworkContext7777777
     );
-    const walletB = new TestResponseSink(
+
+    const responseSinkB = new TestResponseSink(
       B_PRIVATE_KEY,
       devEnvNetworkContext7777777
     );
@@ -74,13 +71,13 @@ describe("Setup Protocol", async () => {
     const startingBalanceA = await ganache.getBalance(A_ADDRESS);
     const startingBalanceB = await ganache.getBalance(B_ADDRESS);
 
-    const ethersMasterWallet = new ethers.Wallet(
+    const unlockedAccount = new ethers.Wallet(
       UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY,
       ganache
     );
 
-    walletA.io.peers.set(B_ADDRESS, walletB);
-    walletB.io.peers.set(A_ADDRESS, walletA);
+    responseSinkA.io.peers.set(B_ADDRESS, responseSinkB);
+    responseSinkB.io.peers.set(A_ADDRESS, responseSinkA);
 
     const peerBalances = cf.legacy.utils.PeerBalance.balances(
       A_ADDRESS,
@@ -94,32 +91,26 @@ describe("Setup Protocol", async () => {
       peerBalances.peerB.address
     ];
 
-    const registry = await new ethers.Contract(
-      devEnvNetworkContext7777777.registryAddr,
-      RegistryJson.abi,
-      ethersMasterWallet
-    );
-
-    // TODO: Truffle migrate does not auto-link the bytecode in the build folder,
-    //       so we have to do it manually. Will fix later of course :)
-    // https://github.com/counterfactual/monorepo/issues/113
     const multisig = await new ethers.ContractFactory(
-      MinimumViableMultisigJson.abi,
-      devEnvNetworkContext7777777.linkedBytecode(
-        MinimumViableMultisigJson.bytecode
-      ),
-      ethersMasterWallet
+      MinimumViableMultisig.abi,
+      MinimumViableMultisig.bytecode,
+      unlockedAccount
     ).deploy();
 
     await multisig.functions.setup(signingKeys);
 
-    await setup(multisig.address, walletA, walletB);
+    await setup(multisig.address, responseSinkA, responseSinkB);
 
     const {
       cfAddr: balanceRefundAppId,
       txFeeA: depositTxFeeA,
       txFeeB: depositTxFeeB
-    } = await makeDeposits(multisig.address, walletA, walletB, depositAmount);
+    } = await makeDeposits(
+      multisig.address,
+      responseSinkA,
+      responseSinkB,
+      depositAmount
+    );
 
     const app = cf.legacy.utils.FreeBalance.contractInterface(
       devEnvNetworkContext7777777
@@ -127,61 +118,39 @@ describe("Setup Protocol", async () => {
 
     const terms = cf.legacy.utils.FreeBalance.terms();
 
-    const initcode = new ethers.utils.Interface(
-      AppInstanceJson.abi
-    ).deployFunction.encode(
-      devEnvNetworkContext7777777.linkedBytecode(AppInstanceJson.bytecode),
-      [
-        multisig.address,
-        signingKeys,
-        app.hash(),
-        terms.hash(),
-        // TODO: Don't hard-code the timeout, make it dependant on some
-        // function(blockchain) to in the future check for congestion... :)
-        // https://github.com/counterfactual/monorepo/issues/112
-        100
-      ]
-    );
-
-    // TODO: Figure out how to not have to put the insanely high gasLimit here
-    // https://github.com/counterfactual/monorepo/issues/146
-    await registry.functions.deploy(initcode, 0, { gasLimit: 6e9 });
-
-    const uninstallTx: Transaction = await walletA.store.getTransaction(
+    const uninstallTx: Transaction = await responseSinkA.store.getTransaction(
       balanceRefundAppId,
       cf.legacy.node.ActionName.UNINSTALL
     );
 
-    await ethersMasterWallet.sendTransaction({
+    await unlockedAccount.sendTransaction({
       to: uninstallTx.to,
       value: `0x${uninstallTx.value.toString(16)}`,
       data: uninstallTx.data,
       gasLimit: 6e9
     });
 
-    await cf.legacy.utils.mineBlocks(
-      100,
-      ethersMasterWallet.provider as ethers.providers.JsonRpcProvider
-    );
+    for (const _ of Array(100)) {
+      // FIXME: This is assuming Ganache backend
+      // @ts-ignore
+      await unlockedAccount.provider.send("evm_mine", []);
+    }
 
-    const freeBalance = walletA.instructionExecutor.node.freeBalanceFromMultisigAddress(
+    const freeBalance = responseSinkA.instructionExecutor.node.freeBalanceFromMultisigAddress(
       multisig.address
     );
 
-    const values = [
-      freeBalance.alice,
-      freeBalance.bob,
-      freeBalance.aliceBalance,
-      freeBalance.bobBalance
-    ];
-
-    const freeBalanceFinalState = abi.encode(
+    const freeBalanceFinalState = ethers.utils.defaultAbiCoder.encode(
       ["address", "address", "uint256", "uint256"],
-      values
+      [
+        freeBalance.alice,
+        freeBalance.bob,
+        freeBalance.aliceBalance,
+        freeBalance.bobBalance
+      ]
     );
 
     const appInstance = new cf.legacy.app.AppInstance(
-      devEnvNetworkContext7777777,
       multisig.address,
       signingKeys,
       app,
@@ -190,43 +159,35 @@ describe("Setup Protocol", async () => {
       0
     );
 
-    const appInstanceCfAddr = appInstance.cfAddress();
-
-    const appInstanceAddr = await registry.functions.resolver(
-      appInstanceCfAddr
+    const appRegistry = new ethers.Contract(
+      devEnvNetworkContext7777777["AppRegistry"],
+      require("@counterfactual/contracts/build/contracts/AppRegistry.json").abi,
+      unlockedAccount
     );
 
-    const stateChannel = new ethers.Contract(
-      appInstanceAddr,
-      AppInstanceJson.abi,
-      ethersMasterWallet
-    );
-
-    const appData = [
-      app.address,
-      app.applyAction,
-      app.resolve,
-      app.getTurnTaker,
-      app.isStateTerminal
-    ];
-
-    const termsData = abi.encode(
+    const termsData = ethers.utils.defaultAbiCoder.encode(
       ["bytes1", "uint8", "uint256", "address"],
       ["0x19", terms.assetType, terms.limit, terms.token]
     );
 
-    await stateChannel.functions.setResolution(
-      appData,
+    await appRegistry.functions.setResolution(
+      [
+        app.address,
+        app.applyAction,
+        app.resolve,
+        app.getTurnTaker,
+        app.isStateTerminal
+      ],
       freeBalanceFinalState,
       termsData
     );
 
-    const setupTx: Transaction = await walletA.store.getTransaction(
+    const setupTx = await responseSinkA.store.getTransaction(
       multisig.address,
       cf.legacy.node.ActionName.SETUP
     );
 
-    await ethersMasterWallet.sendTransaction({
+    await unlockedAccount.sendTransaction({
       to: setupTx.to,
       value: `0x${setupTx.value.toString(16)}`,
       data: setupTx.data
@@ -248,43 +209,43 @@ describe("Setup Protocol", async () => {
 
 async function setup(
   multisigAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink
 ) {
-  validatePresetup(walletA, walletB);
-  const response = await walletA.runSetupProtocol(
-    walletA.signingKey.address,
-    walletB.signingKey.address,
+  validatePresetup(responseSinkA, responseSinkB);
+  const response = await responseSinkA.runSetupProtocol(
+    responseSinkA.signingKey.address,
+    responseSinkB.signingKey.address,
     multisigAddr
   );
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
-  validateSetup(multisigAddr, walletA, walletB);
+  validateSetup(multisigAddr, responseSinkA, responseSinkB);
 }
 
 function validatePresetup(
-  walletA: TestResponseSink,
-  walletB: TestResponseSink
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink
 ) {
-  expect(walletA.instructionExecutor.node.channelStates).toEqual({});
-  expect(walletB.instructionExecutor.node.channelStates).toEqual({});
+  expect(responseSinkA.instructionExecutor.node.channelStates).toEqual({});
+  expect(responseSinkB.instructionExecutor.node.channelStates).toEqual({});
 }
 
 function validateSetup(
   multisigAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink
 ) {
   validateNoAppsAndFreeBalance(
     multisigAddr,
-    walletA,
-    walletB,
+    responseSinkA,
+    responseSinkB,
     ethers.utils.bigNumberify(0),
     ethers.utils.bigNumberify(0)
   );
   validateNoAppsAndFreeBalance(
     multisigAddr,
-    walletB,
-    walletA,
+    responseSinkB,
+    responseSinkA,
     ethers.utils.bigNumberify(0),
     ethers.utils.bigNumberify(0)
   );
@@ -295,17 +256,17 @@ function validateSetup(
  */
 function validateNoAppsAndFreeBalance(
   multisigAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink,
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink,
   amountAgiven: ethers.utils.BigNumber,
   amountBgiven: ethers.utils.BigNumber
 ) {
   // todo: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.instructionExecutor.node;
+  const state = responseSinkA.instructionExecutor.node;
 
-  let peerA = walletA.signingKey.address;
-  let peerB = walletB.signingKey.address;
+  let peerA = responseSinkA.signingKey.address;
+  let peerB = responseSinkB.signingKey.address;
 
   let amountA = amountAgiven;
   let amountB = amountBgiven;
@@ -320,10 +281,10 @@ function validateNoAppsAndFreeBalance(
   }
 
   const channel =
-    walletA.instructionExecutor.node.channelStates[multisigAddr];
+    responseSinkA.instructionExecutor.node.channelStates[multisigAddr];
   expect(Object.keys(state.channelStates).length).toEqual(1);
-  expect(channel.counterParty).toEqual(walletB.signingKey.address);
-  expect(channel.me).toEqual(walletA.signingKey.address);
+  expect(channel.counterParty).toEqual(responseSinkB.signingKey.address);
+  expect(channel.me).toEqual(responseSinkA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);
   expect(channel.appInstances).toEqual({});
   expect(channel.freeBalance.alice).toEqual(peerA);
@@ -336,8 +297,8 @@ function validateNoAppsAndFreeBalance(
 
 async function makeDeposits(
   multisigAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink,
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink,
   depositAmount: ethers.utils.BigNumber
 ): Promise<{
   cfAddr: string;
@@ -346,15 +307,15 @@ async function makeDeposits(
 }> {
   const { txFee: txFeeA } = await deposit(
     multisigAddr,
-    walletA, // depositor
-    walletB, // counterparty
+    responseSinkA, // depositor
+    responseSinkB, // counterparty
     depositAmount, // amountToDeposit
     ethers.utils.bigNumberify(0) // counterpartyBalance
   );
   const { cfAddr, txFee: txFeeB } = await deposit(
     multisigAddr,
-    walletB, // depositor
-    walletA, // counterparty
+    responseSinkB, // depositor
+    responseSinkA, // counterparty
     depositAmount, // amountToDeposit
     depositAmount // counterpartyBalance
   );
@@ -405,7 +366,7 @@ async function installBalanceRefund(
     msg
   );
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
-  // since the machine is async, we need to wait for walletB to finish up its
+  // since the machine is async, we need to wait for responseSinkB to finish up its
   // side of the protocol before inspecting it's state
 
   await new Promise(resolve => setTimeout(resolve, 50));
@@ -439,37 +400,37 @@ async function depositOnChain(
 async function uninstallBalanceRefund(
   multisigAddr: string,
   cfAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink,
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink,
   amountA: ethers.utils.BigNumber,
   amountB: ethers.utils.BigNumber
 ) {
-  const response = await walletA.runUninstallProtocol(
-    walletA.signingKey.address,
-    walletB.signingKey.address,
+  const response = await responseSinkA.runUninstallProtocol(
+    responseSinkA.signingKey.address,
+    responseSinkB.signingKey.address,
     multisigAddr,
      [
-      new cf.legacy.utils.PeerBalance(walletA.signingKey.address, amountA),
-      new cf.legacy.utils.PeerBalance(walletB.signingKey.address, 0)
+      new cf.legacy.utils.PeerBalance(responseSinkA.signingKey.address, amountA),
+      new cf.legacy.utils.PeerBalance(responseSinkB.signingKey.address, 0)
     ],
     cfAddr
   );
   expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
-  // validate walletA
+  // validate responseSinkA
   validateUninstalledAndFreeBalance(
     multisigAddr,
     cfAddr,
-    walletA,
-    walletB,
+    responseSinkA,
+    responseSinkB,
     amountA,
     amountB
   );
-  // validate walletB
+  // validate responseSinkB
   validateUninstalledAndFreeBalance(
     multisigAddr,
     cfAddr,
-    walletB,
-    walletA,
+    responseSinkB,
+    responseSinkA,
     amountB,
     amountA
   );
@@ -520,9 +481,9 @@ function validateInstalledBalanceRefund(
   wallet: TestResponseSink,
   amount: ethers.utils.BigNumber
 ) {
-  const stateChannel =
+  const appRegistry =
     wallet.instructionExecutor.node.channelStates[multisigAddr];
-  const appInstances = stateChannel.appInstances;
+  const appInstances = appRegistry.appInstances;
   const cfAddrs = Object.keys(appInstances);
   expect(cfAddrs.length).toEqual(1);
 
@@ -530,13 +491,13 @@ function validateInstalledBalanceRefund(
 
   expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
   expect(appInstances[cfAddr].peerA.address).toEqual(
-    stateChannel.freeBalance.alice
+    appRegistry.freeBalance.alice
   );
   expect(appInstances[cfAddr].peerA.balance.toNumber()).toEqual(0);
 
   expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
   expect(appInstances[cfAddr].peerB.address).toEqual(
-    stateChannel.freeBalance.bob
+    appRegistry.freeBalance.bob
   );
   expect(appInstances[cfAddr].peerB.balance.toNumber()).toEqual(0);
 
@@ -544,22 +505,22 @@ function validateInstalledBalanceRefund(
 }
 
 /**
- * Validates the correctness of walletA's free balance *not* walletB's.
+ * Validates the correctness of responseSinkA's free balance *not* responseSinkB's.
  */
 function validateUninstalledAndFreeBalance(
   multisigAddr: string,
   cfAddr: string,
-  walletA: TestResponseSink,
-  walletB: TestResponseSink,
+  responseSinkA: TestResponseSink,
+  responseSinkB: TestResponseSink,
   amountAgiven: ethers.utils.BigNumber,
   amountBgiven: ethers.utils.BigNumber
 ) {
   // TODO: add nonce and uniqueId params and check them
   // https://github.com/counterfactual/monorepo/issues/111
-  const state = walletA.instructionExecutor.node;
+  const state = responseSinkA.instructionExecutor.node;
 
-  let peerA = walletA.signingKey.address;
-  let peerB = walletB.signingKey.address;
+  let peerA = responseSinkA.signingKey.address;
+  let peerB = responseSinkB.signingKey.address;
 
   let amountA = amountAgiven;
   let amountB = amountBgiven;
@@ -574,12 +535,12 @@ function validateUninstalledAndFreeBalance(
   }
 
   const channel =
-    walletA.instructionExecutor.node.channelStates[multisigAddr];
+    responseSinkA.instructionExecutor.node.channelStates[multisigAddr];
   const app = channel.appInstances[cfAddr];
 
   expect(Object.keys(state.channelStates).length).toEqual(1);
-  expect(channel.counterParty).toEqual(walletB.signingKey.address);
-  expect(channel.me).toEqual(walletA.signingKey.address);
+  expect(channel.counterParty).toEqual(responseSinkB.signingKey.address);
+  expect(channel.me).toEqual(responseSinkA.signingKey.address);
   expect(channel.multisigAddress).toEqual(multisigAddr);
   expect(channel.freeBalance.alice).toEqual(peerA);
   expect(channel.freeBalance.bob).toEqual(peerB);

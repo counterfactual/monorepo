@@ -1,59 +1,77 @@
-import * as cf from "@counterfactual/cf.js";
-import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
+import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import { AppIdentity, Terms } from "@counterfactual/types";
 import { ethers } from "ethers";
+
+import { APP_IDENTITY } from "../../encodings";
 
 import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput, Operation } from "./types";
 
-const { keccak256 } = ethers.utils;
-const { abi } = cf.utils;
+const { keccak256, solidityPack, defaultAbiCoder } = ethers.utils;
 
 export class OpInstall extends MultiSendOp {
   constructor(
-    readonly networkContext: cf.legacy.network.NetworkContext,
-    readonly multisig: cf.legacy.utils.Address,
-    readonly app: cf.legacy.app.AppInstance,
-    readonly freeBalance: cf.legacy.utils.FreeBalance,
-    readonly dependencyNonce: cf.legacy.utils.Nonce
+    readonly networkContext: any,
+    readonly multisig: string,
+    readonly multisigOwners: string[],
+    readonly appIdentity: AppIdentity,
+    readonly terms: Terms,
+    readonly freeBalanceAppIdentity: AppIdentity,
+    readonly freeBalanceTerms: Terms,
+    readonly freeBalanceStateHash: string,
+    readonly freeBalanceNonce: number,
+    readonly freeBalanceTimeout: number,
+    readonly dependencyNonceSalt: string,
+    readonly dependencyNonceValue: number
   ) {
-    super(networkContext, multisig, freeBalance, dependencyNonce);
+    super(
+      networkContext,
+      multisig,
+      multisigOwners,
+      freeBalanceAppIdentity,
+      freeBalanceTerms,
+      freeBalanceStateHash,
+      freeBalanceNonce,
+      freeBalanceTimeout,
+      dependencyNonceSalt,
+      dependencyNonceValue
+    );
   }
 
-  /**
-   * @override common.MultiSendOp
-   */
   public eachMultisigInput(): MultisigInput[] {
     return [this.freeBalanceInput(), this.conditionalTransactionInput()];
   }
 
   private conditionalTransactionInput(): MultisigInput {
-    const to = this.networkContext.conditionalTransactionAddr;
+    const to = this.networkContext.StateChannelTransaction;
+
     const val = 0;
-    const terms = [
-      this.app.terms.assetType,
-      this.app.terms.limit,
-      this.app.terms.token
-    ];
+
     const uninstallKey = keccak256(
-      abi.encodePacked(
+      solidityPack(
         ["address", "uint256", "uint256"],
-        [this.multisig, 0, this.dependencyNonce.salt]
+        [this.multisig, 0, this.dependencyNonceSalt]
       )
     );
+
     const data = new ethers.utils.Interface(
-      ConditionalTransactionJson.abi
+      StateChannelTransaction.abi
     ).functions.executeAppConditionalTransaction.encode([
-      this.networkContext.registryAddr,
-      this.networkContext.nonceRegistryAddr,
+      this.networkContext.AppRegistry,
+      this.networkContext.NonceRegistry,
       uninstallKey,
       this.appCfAddress,
-      terms
+      this.terms
     ]);
+
     const op = Operation.Delegatecall;
+
     return new MultisigInput(to, val, data, op);
   }
 
-  get appCfAddress(): cf.legacy.utils.H256 {
-    return this.app.cfAddress();
+  get appCfAddress(): string {
+    return keccak256(
+      defaultAbiCoder.encode([APP_IDENTITY], [this.appIdentity])
+    );
   }
 }

@@ -1,21 +1,35 @@
-import * as cf from "@counterfactual/cf.js";
+import { AppIdentity, Terms } from "@counterfactual/types";
 
 import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput } from "./types";
 
 export class OpUninstall extends MultiSendOp {
   constructor(
-    readonly networkContext: cf.legacy.network.NetworkContext,
-    readonly multisig: cf.legacy.utils.Address,
-    readonly freeBalance: cf.legacy.utils.FreeBalance,
-    readonly dependencyNonce: cf.legacy.utils.Nonce
+    readonly networkContext: any,
+    readonly multisig: string,
+    readonly multisigOwners: string[],
+    readonly freeBalanceAppIdentity: AppIdentity,
+    readonly freeBalanceTerms: Terms,
+    readonly freeBalanceStateHash: string,
+    readonly freeBalanceNonce: number,
+    readonly freeBalanceTimeout: number,
+    readonly dependencyNonceSalt: string,
+    readonly dependencyNonceValue: number
   ) {
-    super(networkContext, multisig, freeBalance, dependencyNonce);
+    super(
+      networkContext,
+      multisig,
+      multisigOwners,
+      freeBalanceAppIdentity,
+      freeBalanceTerms,
+      freeBalanceStateHash,
+      freeBalanceNonce,
+      freeBalanceTimeout,
+      dependencyNonceSalt,
+      dependencyNonceValue
+    );
   }
 
-  /**
-   * @override common.MultiSendOp
-   */
   public eachMultisigInput(): MultisigInput[] {
     return [this.freeBalanceInput(), this.dependencyNonceInput()];
   }

@@ -122,7 +122,6 @@ export class InstallProposer {
     uniqueId: number
   ): cf.legacy.utils.H256 {
     return new cf.legacy.app.AppInstance(
-      node.networkContext,
       message.clientMessage.multisigAddress,
       signingKeys,
       app,

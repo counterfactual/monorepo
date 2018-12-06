@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 
+import { AppIdentity } from "@counterfactual/types";
+
 import { abiEncodingForStruct } from "./abi-encoder-v2";
 
 export enum AssetType {
@@ -8,14 +10,7 @@ export enum AssetType {
   ANY
 }
 
-type AppIdentityInterface = {
-  owner: string;
-  signingKeys: string[];
-  appInterfaceHash: string;
-  termsHash: string;
-  defaultTimeout: number;
-};
-export class AppIdentity {
+export class App {
   private static readonly ABI_ENCODER_V2_ENCODING = abiEncodingForStruct(`
     address owner;
     address[] signingKeys;
@@ -36,7 +31,7 @@ export class AppIdentity {
     readonly defaultTimeout: number
   ) {}
 
-  public toJson(): AppIdentityInterface {
+  public toJson(): AppIdentity {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
@@ -49,7 +44,7 @@ export class AppIdentity {
   public hashOfEncoding(): string {
     return ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
-        [AppIdentity.ABI_ENCODER_V2_ENCODING],
+        [App.ABI_ENCODER_V2_ENCODING],
         [this.toJson()]
       )
     );
@@ -155,13 +150,13 @@ export class AppInstance {
   }
 
   get appIdentity(): AppIdentity {
-    return new AppIdentity(
-      this.owner,
-      this.signingKeys,
-      this.appInterface.hashOfPackedEncoding(),
-      this.terms.hashOfPackedEncoding(),
-      this.defaultTimeout
-    );
+    return {
+      owner: this.owner,
+      signingKeys: this.signingKeys,
+      appInterfaceHash: this.appInterface.hashOfPackedEncoding(),
+      termsHash: this.terms.hashOfPackedEncoding(),
+      defaultTimeout: this.defaultTimeout
+    };
   }
 
   constructor(
@@ -173,7 +168,20 @@ export class AppInstance {
   ) {}
 
   public hashOfEncoding(): string {
-    return this.appIdentity.hashOfEncoding();
+    return ethers.utils.keccak256(
+      ethers.utils.defaultAbiCoder.encode(
+        [
+          `tuple(
+            address owner;
+            address[] signingKeys;
+            bytes32 appInterfaceHash;
+            bytes32 termsHash;
+            uint256 defaultTimeout;
+          )`
+        ],
+        [this.appIdentity]
+      )
+    );
   }
 }
 

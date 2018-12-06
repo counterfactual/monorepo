@@ -1,7 +1,6 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { AppInterface, Terms } from "../app";
-import { NetworkContext } from "../network";
 
 import { Address } from ".";
 import { Nonce } from "./nonce";
@@ -21,8 +20,7 @@ export class FreeBalance {
     );
   }
 
-  public static contractInterface(ctx: NetworkContext): AppInterface {
-    const address = ctx.paymentAppAddr;
+  public static contractInterface(address: string): AppInterface {
     const applyAction = "0x00000000"; // not used
     const resolver = new ethers.utils.Interface([
       // TODO: Put this somewhere eh

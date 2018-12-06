@@ -100,8 +100,13 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   ): Promise<cf.legacy.node.Response> {
     this.active = true;
     this.instructionExecutor.runUninstallProtocol(
-      fromAddress, toAddress, multisigAddress, peerAmounts, appId);
-    return new Promise<cf.legacy.node.Response>((resolve) => {
+      fromAddress,
+      toAddress,
+      multisigAddress,
+      peerAmounts,
+      appId
+    );
+    return new Promise<cf.legacy.node.Response>(resolve => {
       this.runProtocolContinuation = resolve;
     });
   }
@@ -119,7 +124,13 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runUpdateProtocol(
-      fromAddress, toAddress, multisigAddress, appId, encodedAppState, appStateHash);
+      fromAddress,
+      toAddress,
+      multisigAddress,
+      appId,
+      encodedAppState,
+      appStateHash
+    );
     return promise;
   }
 
@@ -132,7 +143,11 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
-    this.instructionExecutor.runSetupProtocol(fromAddress, toAddress, multisigAddress);
+    this.instructionExecutor.runSetupProtocol(
+      fromAddress,
+      toAddress,
+      multisigAddress
+    );
     return promise;
   }
 
@@ -147,7 +162,11 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runInstallMetachannelAppProtocol(
-      fromAddress, toAddress, intermediary, multisigAddress);
+      fromAddress,
+      toAddress,
+      intermediary,
+      multisigAddress
+    );
     return promise;
   }
 
@@ -161,7 +180,12 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
-    this.instructionExecutor.runInstallProtocol(fromAddress, toAddress, multisigAddress, installData);
+    this.instructionExecutor.runInstallProtocol(
+      fromAddress,
+      toAddress,
+      multisigAddress,
+      installData
+    );
     return promise;
   }
 
@@ -183,9 +207,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     this.io.receiveMessageFromPeer(incoming);
   }
 
-  private signMyUpdate(
-    context: Context
-  ): ethers.utils.Signature {
+  private signMyUpdate(context: Context): ethers.utils.Signature {
     const operation = context.intermediateResults.operation!;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);

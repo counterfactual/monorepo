@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import {
   AppInstance,
@@ -70,7 +70,7 @@ contract("AppRegistry", (accounts: string[]) => {
       await appRegistry.functions.isStateFinalized(appInstance.id);
 
     setStateAsOwner = (nonce: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity.toJson(), {
+      appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
         stateHash: appState || ethers.constants.HashZero,
         timeout: TIMEOUT,
@@ -79,12 +79,12 @@ contract("AppRegistry", (accounts: string[]) => {
 
     cancelChallenge = () =>
       appRegistry.functions.cancelChallenge(
-        appInstance.appIdentity.toJson(),
+        appInstance.appIdentity,
         ethers.constants.HashZero
       );
 
     setStateWithSignatures = async (nonce: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity.toJson(), {
+      appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
         stateHash: appState || ethers.constants.HashZero,
         timeout: TIMEOUT,
@@ -99,7 +99,7 @@ contract("AppRegistry", (accounts: string[]) => {
       });
 
     sendSignedFinalizationToChain = async () =>
-      appRegistry.functions.setState(appInstance.appIdentity.toJson(), {
+      appRegistry.functions.setState(appInstance.appIdentity, {
         nonce: (await latestNonce()) + 1,
         stateHash: await latestState(),
         timeout: 0,
