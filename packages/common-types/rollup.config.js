@@ -13,8 +13,7 @@ export default [
       {
         file: pkg.iife,
         format: "iife",
-        name: "window",
-        extend: true
+        name: "window.commonTypes"
       }
     ],
     plugins: [
