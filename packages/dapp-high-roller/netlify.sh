@@ -1,10 +1,18 @@
-packages="contracts common-types cf.js machine node node-provider dapp-high-roller"
+echo "Yarn version"
+yarn -v
 
 cd ../..
-
-for package in $packages; do
-  echo ">>> Building package: $package"
-  cd packages/$package
-  yarn build
-  cd ../..
-done
+cd packages/contracts
+yarn build
+cd ../..
+cd packages/common-types
+yarn build
+cd ../..
+cd packages/cf.js
+yarn build
+cd ../..
+cd packages/node-provider
+yarn build
+cd ../..
+cd packages/dapp-high-roller
+yarn build
