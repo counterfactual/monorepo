@@ -1,8 +1,7 @@
+import { AppAction, AppState } from "@counterfactual/common-types";
 import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../app-instance";
-
-import { AppAction, AppState } from "./simple-types";
 
 export enum EventType {
   INSTALL = "install",
