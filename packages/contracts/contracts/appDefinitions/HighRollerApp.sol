@@ -83,6 +83,8 @@ contract HighRollerApp {
 
 
       if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
+        bytes32 finalHash = calculateFinalHash(playerFirstNumber, playerSecondNumber);
+        bytes8[4] dice = split32Hashto8(finalHash);
         /* 
           TODO Need to calculate keccak(firstNum * secondNum) and split that into 16 bytes for each player
           Then we need to split those 16 bytes for each player into 2 dice rolls for each player
@@ -137,5 +139,40 @@ contract HighRollerApp {
       amounts,
       data
     );
+  }
+
+  function calculateFinalHash(uint256 num1, uint256 num2) 
+    public
+    pure
+    returns (bytes32)
+  {
+    uint256 mult = num1 * num2;
+    return keccak256(abi.encodePacked(mult));
+  }
+
+  function split32Hashto8(bytes32 finalHash) 
+    public
+    pure
+    returns (bytes8 dice1, bytes8 dice2, bytes8 dice3, bytes8 dice4)
+  {
+    bytes32 mask1 = 0xffffffffffffffff000000000000000000000000000000000000000000000000;
+    bytes32 mask2 = 0x0000000000000000ffffffffffffffff00000000000000000000000000000000;
+    bytes32 mask3 = 0x00000000000000000000000000000000ffffffffffffffff0000000000000000;
+    bytes32 mask4 = 0x000000000000000000000000000000000000000000000000ffffffffffffffff;
+    bytes32 shifted2 = bytes32(uint256(finalHash & mask2) * 2 ** (4*16));
+    bytes32 shifted3 = bytes32(uint256(finalHash & mask3) * 2 ** (4*32));
+    bytes32 shifted4 = bytes32(uint256(finalHash & mask4) * 2 ** (4*48));
+    dice1 = bytes8(finalHash & mask1);
+    dice2 = bytes8(shifted2);
+    dice3 = bytes8(shifted3);
+    dice4 = bytes8(shifted4);
+  }
+
+  function bytes8toDiceRoll(bytes8 dice)
+    public
+    pure
+    returns (uint)
+  {
+    return uint64(dice) % 6;
   }
 }
