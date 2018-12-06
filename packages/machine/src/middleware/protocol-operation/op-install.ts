@@ -21,8 +21,7 @@ export class OpInstall extends MultiSendOp {
     readonly freeBalanceStateHash: string,
     readonly freeBalanceNonce: number,
     readonly freeBalanceTimeout: number,
-    readonly dependencyNonceSalt: string,
-    readonly dependencyNonceValue: number
+    readonly dependencyNonceSalt: string
   ) {
     super(
       networkContext,
@@ -34,7 +33,9 @@ export class OpInstall extends MultiSendOp {
       freeBalanceNonce,
       freeBalanceTimeout,
       dependencyNonceSalt,
-      dependencyNonceValue
+      // dependencyNonceValue is assumed to be 0 for new apps. It only ever
+      // nonzero for uninstalled apps. Therefore, we hardcode 0 here.
+      0
     );
   }
 

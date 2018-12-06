@@ -261,8 +261,7 @@ export class EthOpGenerator {
       ),
       newFreeBalance.localNonce,
       newFreeBalance.timeout,
-      newFreeBalance.dependencyNonce.salt,
-      newFreeBalance.dependencyNonce.nonceValue
+      newFreeBalance.dependencyNonce.salt
     );
   }
 

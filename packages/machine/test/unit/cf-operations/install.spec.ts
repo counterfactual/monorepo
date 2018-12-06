@@ -64,16 +64,10 @@ describe("OpInstall", () => {
 
   // Test state channel values
   const stateChannel = {
-    multisigAddress: AddressZero,
+    multisigAddress: getAddress(hexlify(randomBytes(20))),
     multisigOwners: [
-      // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
-      new SigningKey(
-        "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
-      ),
-      // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
-      new SigningKey(
-        "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
-      )
+      new SigningKey(hexlify(randomBytes(32))),
+      new SigningKey(hexlify(randomBytes(32)))
     ],
     appInstallationNonce: 1
   };
@@ -81,6 +75,10 @@ describe("OpInstall", () => {
   // Test free balance values
   const freeBalance = {
     uniqueAppNonceWithinStateChannel: 0,
+
+    currentLocalNonce: 10,
+
+    defaultTimeout: 100,
 
     appIdentity: {
       owner: stateChannel.multisigAddress,
@@ -91,6 +89,12 @@ describe("OpInstall", () => {
       termsHash: freeBalanceTermsHash,
       defaultTimeout: 100
     } as AppIdentity,
+
+    terms: {
+      assetType: 0, // ETH
+      limit: MaxUint256,
+      token: AddressZero
+    } as Terms,
 
     updatedState: {
       alice: stateChannel.multisigOwners[0].address,
@@ -103,7 +107,9 @@ describe("OpInstall", () => {
   // Test app-values
   const newApp = {
     owner: stateChannel.multisigAddress,
+
     signingKeys: stateChannel.multisigOwners.map(x => x.address),
+
     interface: {
       addr: AddressZero,
       getTurnTaker: hexlify(randomBytes(4)),
@@ -111,16 +117,19 @@ describe("OpInstall", () => {
       applyAction: hexlify(randomBytes(4)),
       isStateTerminal: hexlify(randomBytes(4))
     } as AppInterface,
+
     terms: {
       assetType: 0,
       limit: bigNumberify(10),
       token: AddressZero
     } as Terms,
+
     defaultTimeout: 100,
+
     appIdentity: {} as AppIdentity
   };
 
-  newApp["appIdentity"] = {
+  newApp.appIdentity = {
     defaultTimeout: newApp.defaultTimeout,
     owner: newApp.owner,
     signingKeys: newApp.signingKeys,
@@ -138,18 +147,13 @@ describe("OpInstall", () => {
       newApp.appIdentity,
       newApp.terms,
       freeBalance.appIdentity,
-      {
-        assetType: 0, // ETH
-        limit: MaxUint256,
-        token: AddressZero
-      },
+      freeBalance.terms,
       keccak256(encodeFreeBalanceState(freeBalance.updatedState)),
-      10,
-      100,
+      freeBalance.currentLocalNonce + 1,
+      freeBalance.defaultTimeout,
       keccak256(
         solidityPack(["uint256"], [stateChannel.appInstallationNonce + 1])
-      ),
-      0
+      )
     );
     generatedTx = operation.multisigInput();
   });
@@ -233,8 +237,10 @@ describe("OpInstall", () => {
           );
 
           expect(stateHash).toBe(expectedStateHash);
-          expect(nonce).toEqual(bigNumberify(10));
-          expect(timeout).toEqual(bigNumberify(100));
+          expect(nonce).toEqual(
+            bigNumberify(freeBalance.currentLocalNonce + 1)
+          );
+          expect(timeout).toEqual(bigNumberify(freeBalance.defaultTimeout));
           expect(signatures).toBe(HashZero);
         });
       });
@@ -320,18 +326,4 @@ describe("OpInstall", () => {
       });
     });
   });
-
-  // it("should generate a transaction to the stateChannel.multisigAddress when signed", () => {
-  //   const digest = operation.hashToSign();
-
-  //   const signatures = [
-  //     stateChannel.multisigOwners[0].signDigest(digest),
-  //     stateChannel.multisigOwners[1].signDigest(digest)
-  //   ];
-
-  //   const { to, value, data } = operation.transaction(signatures);
-
-  //   expect(to).toBe(stateChannel.multisigAddress);
-  //   expect(value).toBe(0);
-  // });
 });
