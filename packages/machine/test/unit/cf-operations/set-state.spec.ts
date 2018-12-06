@@ -1,147 +1,176 @@
-import { cf } from "@counterfactual/cf.js";
-
+import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { HashZero } from "ethers/constants";
+import { solidityPack } from "ethers/utils";
 
+import { APP_INTERFACE, TERMS } from "../../../src/encodings";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
+import { Transaction } from "../../../src/middleware/protocol-operation/types";
+import { appIdentityToHash } from "../../../src/utils";
 
-import {
-  APP_IDENTITY,
-  APP_INTERFACE,
-  SIGNED_STATE_HASH_UPDATE,
-  TERMS
-} from "../../../src/encodings";
-
-const { keccak256, defaultAbiCoder, solidityPack } = ethers.utils;
+const {
+  keccak256,
+  defaultAbiCoder,
+  SigningKey,
+  getAddress,
+  hexlify,
+  randomBytes,
+  bigNumberify,
+  Interface
+} = ethers.utils;
 const { AddressZero } = ethers.constants;
 
-// Test network context
-const networkContext = {
-  StateChannelTransaction: AddressZero,
-  MultiSend: AddressZero,
-  NonceRegistry: AddressZero,
-  AppRegistry: AddressZero,
-  PaymentApp: AddressZero,
-  ETHBalanceRefund: AddressZero
-};
-
-// Test users
-const ALICE =
-  // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
-  new ethers.utils.SigningKey(
-    "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
-  );
-
-const BOB =
-  // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
-  new ethers.utils.SigningKey(
-    "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
-  );
-
-// Test app-values
-const owner = AddressZero;
-const signingKeys = [ALICE.address, BOB.address];
-const appInterface = {
-  addr: AddressZero,
-  getTurnTaker: "0x00000000",
-  resolve: "0x00000000",
-  applyAction: "0x00000000",
-  isStateTerminal: "0x00000000"
-};
-const terms = {
-  assetType: 0,
-  limit: 10,
-  token: AddressZero
-};
-const defaultTimeout = 100;
-const appIdentity = {
-  defaultTimeout,
-  owner,
-  signingKeys,
-  appInterfaceHash: keccak256(
-    defaultAbiCoder.encode([APP_INTERFACE], [appInterface])
-  ),
-  termsHash: keccak256(defaultAbiCoder.encode([TERMS], [terms]))
-};
-
-// https://specs.counterfactual.com/06-update-protocol#commitments
+/**
+ * This test suite decodes a constructed OpSetState transaction object according
+ * to the specifications defined by Counterfactual as can be found here:
+ * https://specs.counterfactual.com/06-update-protocol#commitments
+ */
 describe("OpSetState", () => {
-  function expectedSetStateProtocolData(
-    stateHash: string,
-    nonce: number,
-    timeout: number,
-    signatures: ethers.utils.Signature[]
-  ): string {
-    return new ethers.utils.Interface([
-      `setState(${APP_IDENTITY},${SIGNED_STATE_HASH_UPDATE})`
-    ]).functions.setState.encode([
-      appIdentity,
-      {
-        stateHash,
-        nonce,
-        timeout,
-        signatures: cf.utils.signaturesToBytes(...signatures)
-      }
-    ]);
-  }
+  let operation: OpSetState;
+  let generatedTx: Transaction;
 
-  it("Should be able to compute the correct tx to submit on-chain", () => {
-    const stateHash = HashZero;
-    const nonce = 0;
-    const timeout = 0;
+  // Test network context
+  const networkContext = {
+    ETHBucket: getAddress(hexlify(randomBytes(20))),
+    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
+    MultiSend: getAddress(hexlify(randomBytes(20))),
+    NonceRegistry: getAddress(hexlify(randomBytes(20))),
+    AppRegistry: getAddress(hexlify(randomBytes(20))),
+    PaymentApp: getAddress(hexlify(randomBytes(20))),
+    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
+  };
 
-    const operation = new OpSetState(
+  // Test app-values
+  const app = {
+    owner: getAddress(hexlify(randomBytes(20))),
+
+    signingKeys: [
+      // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
+      new SigningKey(
+        "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
+      ),
+      // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
+      new SigningKey(
+        "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
+      )
+    ],
+
+    interface: {
+      addr: getAddress(hexlify(randomBytes(20))),
+      getTurnTaker: hexlify(randomBytes(4)),
+      resolve: hexlify(randomBytes(4)),
+      applyAction: hexlify(randomBytes(4)),
+      isStateTerminal: hexlify(randomBytes(4))
+    } as AppInterface,
+
+    terms: {
+      assetType: 0,
+      limit: bigNumberify(10),
+      token: AddressZero
+    } as Terms,
+
+    defaultTimeout: 100,
+
+    identity: {} as AppIdentity,
+
+    stateUpdate: {
+      hash: hexlify(randomBytes(32)),
+      nonce: 888,
+      timeout: 999
+    }
+  };
+
+  app.identity = {
+    defaultTimeout: app.defaultTimeout,
+    owner: app.owner,
+    signingKeys: app.signingKeys.map(x => x.address),
+    appInterfaceHash: keccak256(
+      defaultAbiCoder.encode([APP_INTERFACE], [app.interface])
+    ),
+    termsHash: keccak256(defaultAbiCoder.encode([TERMS], [app.terms]))
+  };
+
+  beforeAll(() => {
+    operation = new OpSetState(
       networkContext,
-      appIdentity,
-      stateHash,
-      nonce,
-      timeout
+      app.identity,
+      app.stateUpdate.hash,
+      app.stateUpdate.nonce,
+      app.stateUpdate.timeout
     );
-
-    const digest = operation.hashToSign();
-
-    const signatures = [ALICE.signDigest(digest), BOB.signDigest(digest)];
-
-    const expectedTxData = expectedSetStateProtocolData(
-      stateHash,
-      nonce,
-      timeout,
-      signatures
-    );
-
-    const tx = operation.transaction(signatures);
-
-    expect(tx.to).toBe(networkContext.AppRegistry);
-    expect(tx.value).toBe(0);
-    expect(tx.data).toBe(expectedTxData);
+    generatedTx = operation.transaction([
+      app.signingKeys[0].signDigest(operation.hashToSign()),
+      app.signingKeys[1].signDigest(operation.hashToSign())
+    ]);
   });
 
-  it("Should compute the correct hash to sign", () => {
-    const stateHash = HashZero;
-    const nonce = 0;
-    const timeout = 0;
+  it("should be to AppRegistry", () => {
+    expect(generatedTx.to).toBe(networkContext.AppRegistry);
+  });
 
-    const operation = new OpSetState(
-      networkContext,
-      appIdentity,
-      stateHash,
-      nonce,
-      timeout
-    );
+  it("should have no value", () => {
+    expect(generatedTx.value).toBe(0);
+  });
 
-    const digest = ethers.utils.keccak256(
+  describe("the calldata", () => {
+    const iface = new Interface(AppRegistry.abi);
+    let desc: ethers.utils.TransactionDescription;
+
+    beforeAll(() => {
+      const { data } = generatedTx;
+      desc = iface.parseTransaction({ data });
+    });
+
+    it("should be to the setState method", () => {
+      expect(desc.name).toBe(iface.functions.setState.signature);
+    });
+
+    it("should contain expected AppIdentity argument", () => {
+      const [
+        owner,
+        signingKeys,
+        appInterfaceHash,
+        termsHash,
+        defaultTimeout
+      ] = desc.args[0];
+
+      const expected = app.identity;
+
+      expect(owner).toBe(expected.owner);
+      expect(signingKeys).toEqual(expected.signingKeys);
+      expect(appInterfaceHash).toBe(expected.appInterfaceHash);
+      expect(termsHash).toBe(expected.termsHash);
+      expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
+    });
+
+    it("should contain expected SignedStateHashUpdate argument", () => {
+      const [stateHash, nonce, timeout, []] = desc.args[1];
+
+      const expected = app.stateUpdate;
+
+      expect(stateHash).toBe(expected.hash);
+      expect(nonce).toEqual(bigNumberify(expected.nonce));
+      expect(timeout).toEqual(bigNumberify(expected.timeout));
+    });
+  });
+
+  it("should produce the correct hash to sign", () => {
+    const hashToSign = operation.hashToSign();
+
+    // Based on MAppRegistryCore::computeStateHash
+    const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
         [
           "0x19",
-          keccak256(defaultAbiCoder.encode([APP_IDENTITY], [appIdentity])),
-          nonce,
-          timeout,
-          stateHash
+          appIdentityToHash(app.identity),
+          app.stateUpdate.nonce,
+          app.stateUpdate.timeout,
+          app.stateUpdate.hash
         ]
       )
     );
 
-    expect(operation.hashToSign()).toBe(digest);
+    expect(hashToSign).toBe(expectedHashToSign);
   });
 });

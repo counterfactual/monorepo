@@ -44,10 +44,11 @@ export interface InstructionMiddleware {
 export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };
 
 export type NetworkContext = {
-    StateChannelTransaction: string,
-    MultiSend: string,
-    NonceRegistry: string,
-    AppRegistry: string,
-    PaymentApp: string,
-    ETHBalanceRefund: string
+  ETHBucket: string;
+  StateChannelTransaction: string;
+  MultiSend: string;
+  NonceRegistry: string;
+  AppRegistry: string;
+  PaymentApp: string;
+  ETHBalanceRefund: string;
 };

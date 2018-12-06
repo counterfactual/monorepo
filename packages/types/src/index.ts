@@ -43,3 +43,10 @@ export interface SignedStateHashUpdate {
   timeout: number;
   signatures: string;
 }
+
+export interface ETHBucketAppState {
+  alice: string;
+  bob: string;
+  aliceBalance: ethers.utils.BigNumber;
+  bobBalance: ethers.utils.BigNumber;
+}

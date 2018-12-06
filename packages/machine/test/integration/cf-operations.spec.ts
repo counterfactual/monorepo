@@ -409,8 +409,11 @@ async function uninstallBalanceRefund(
     responseSinkA.signingKey.address,
     responseSinkB.signingKey.address,
     multisigAddr,
-     [
-      new cf.legacy.utils.PeerBalance(responseSinkA.signingKey.address, amountA),
+    [
+      new cf.legacy.utils.PeerBalance(
+        responseSinkA.signingKey.address,
+        amountA
+      ),
       new cf.legacy.utils.PeerBalance(responseSinkB.signingKey.address, 0)
     ],
     cfAddr
@@ -551,4 +554,3 @@ function validateUninstalledAndFreeBalance(
 
   expect(app.dependencyNonce.nonceValue).toEqual(1);
 }
-

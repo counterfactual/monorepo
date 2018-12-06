@@ -3,19 +3,12 @@ import StateChannelTransaction from "@counterfactual/contracts/build/contracts/C
 import { AppIdentity, Terms } from "@counterfactual/types";
 import { ethers } from "ethers";
 
-import { APP_IDENTITY } from "../../encodings";
+import { appIdentityToHash } from "../../utils";
 
 import { MultisigTxOp } from "./multisig-tx-op";
 import { MultisigInput, Operation } from "./types";
 
 const { keccak256, solidityPack } = ethers.utils;
-
-// FIXME: generaize, also used in op set state
-const appIdentityToHash = (appIdentity: AppIdentity): string => {
-  return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode([APP_IDENTITY], [appIdentity])
-  );
-};
 
 export class OpSetup extends MultisigTxOp {
   public constructor(

@@ -1,10 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceRoot": ".",
-    // TODO: Document why we need declarationDir here
-    "declarationDir": "dist/",
+    "resolveJsonModule": true,
     "outDir": "dist/"
   },
   // TODO: Figure out how to add "test" here so they get linted by tslint when using
