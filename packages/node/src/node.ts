@@ -1,12 +1,8 @@
-import EventEmitter from "eventemitter3";
-
 import {
   AppInstanceInfo,
-  GetAppInstancesResult,
-  MethodName,
-  MethodRequest,
-  MethodResponse
-} from "./node-types";
+  Node as NodeTypes
+} from "@counterfactual/common-types";
+import EventEmitter from "eventemitter3";
 
 export default class Node {
   /**
@@ -29,7 +25,7 @@ export default class Node {
    * @param event
    * @param callback
    */
-  on(event: string, callback: (res: MethodResponse) => void) {
+  on(event: string, callback: (res: NodeTypes.MethodResponse) => void) {
     this.outgoing.on(event, callback);
   }
 
@@ -38,7 +34,7 @@ export default class Node {
    * @param event
    * @param req
    */
-  emit(event: string, req: MethodRequest) {
+  emit(event: string, req: NodeTypes.MethodRequest) {
     this.incoming.emit(event, req);
   }
 
@@ -50,17 +46,20 @@ export default class Node {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private registerListeners() {
-    this.incoming.on(MethodName.GET_APP_INSTANCES, (req: MethodRequest) => {
-      const res: MethodResponse = {
-        type: req.type,
-        requestId: req.requestId,
-        result: this.getAppInstances()
-      };
-      this.outgoing.emit(req.type, res);
-    });
+    this.incoming.on(
+      NodeTypes.MethodName.GET_APP_INSTANCES,
+      (req: NodeTypes.MethodRequest) => {
+        const res: NodeTypes.MethodResponse = {
+          type: req.type,
+          requestId: req.requestId,
+          result: this.getAppInstances()
+        };
+        this.outgoing.emit(req.type, res);
+      }
+    );
   }
 
-  private getAppInstances(): GetAppInstancesResult {
+  private getAppInstances(): NodeTypes.GetAppInstancesResult {
     // TODO: should return actual list of app instances when that gets
     // implemented
     return {
