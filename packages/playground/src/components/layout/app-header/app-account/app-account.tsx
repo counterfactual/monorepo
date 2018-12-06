@@ -1,5 +1,5 @@
-import { Component, Element, Prop } from "@stencil/core";
-import ModalTunnel from '../../../../data/modal';
+import { Component, Prop } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 @Component({
   tag: "app-account",
@@ -7,21 +7,22 @@ import ModalTunnel from '../../../../data/modal';
   shadow: true
 })
 export class AppAccount {
-  @Element() el!: HTMLStencilElement;
+  @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() authenticated: boolean = false;
 
-  // temp hack until this issue is fixed
-  // https://github.com/ionic-team/stencil-state-tunnel/issues/5
-  @Prop() setModal;
+  openLoginModal() {
+    this.history.push("login", {
+      name: "login"
+    });
+  }
+
+  openRegisterModal() {
+    this.history.push("register", {
+      name: "register"
+    });
+  }
 
   render() {
-    const openLoginModal = () => {
-      this.setModal("auth-login");
-    }
-    const openRegisterModal = () => {
-      this.setModal("auth-register");
-    }
-
     return this.authenticated ? (
       <div class="info-container">
         <app-account-info
@@ -37,11 +38,16 @@ export class AppAccount {
       </div>
     ) : (
       <div class="btn-container">
-        <button onClick={openLoginModal} class="btn">Login</button>
-        <button onClick={openRegisterModal} class="btn btn-outline">Register</button>
+        <button onClick={this.openLoginModal.bind(this)} class="btn">
+          Login
+        </button>
+        <button
+          onClick={this.openRegisterModal.bind(this)}
+          class="btn btn-outline"
+        >
+          Register
+        </button>
       </div>
     );
   }
 }
-
-ModalTunnel.injectProps(AppAccount, ["setModal"]);

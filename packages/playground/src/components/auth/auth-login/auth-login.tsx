@@ -6,10 +6,7 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AuthLogin {
-
   render() {
-    return (
-      <div>Login</div>
-    );
+    return <div>Login</div>;
   }
 }
