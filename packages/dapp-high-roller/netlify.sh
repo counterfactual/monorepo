@@ -1,5 +1,4 @@
-echo "Yarn version"
-yarn -v
+npm i -g yarn@1.10.1
 
 cd ../..
 cd packages/contracts
