@@ -82,8 +82,7 @@ contract HighRollerApp {
 
       if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
         nextState.winner = chooseWinner(playerFirstNumber, playerSecondNumber);
-      } 
-      else {
+      } else {
         nextState.winner = Player.SECOND;
       }
     } else {
@@ -124,7 +123,7 @@ contract HighRollerApp {
   }
 
   function chooseWinner(uint256 num1, uint256 num2) 
-    public // Does it matter if this is public or private? The client can poll this if they want?
+    public
     pure
     returns (Player)
   {
@@ -136,17 +135,16 @@ contract HighRollerApp {
     uint dice4 = bytes8toDiceRoll(hash4);
     uint256 total1 = dice1 + dice2;
     uint256 total2 = dice3 + dice4;
-    if(total1 > total2) {
-        return Player.FIRST;
-    }
-    else if(total1 < total2) {
-        return Player.SECOND;
+    if (total1 > total2) {
+      return Player.FIRST;
+    } else if (total1 < total2) {
+      return Player.SECOND;
     }
     return Player.TIE;
   }
 
   function calculateFinalHash(uint256 num1, uint256 num2) 
-    public // Does it matter if this is public or private? The client can poll this if they want?
+    public
     pure
     returns (bytes32)
   {
@@ -155,7 +153,7 @@ contract HighRollerApp {
   }
 
   function split32Hashto8(bytes32 finalHash) 
-    public // Does it matter if this is public or private? The client can poll this if they want?
+    public
     pure
     returns (bytes8 dice1, bytes8 dice2, bytes8 dice3, bytes8 dice4)
   {
@@ -173,7 +171,7 @@ contract HighRollerApp {
   }
 
   function bytes8toDiceRoll(bytes8 dice)
-    public // Does it matter if this is public or private? The client can poll this if they want?
+    public
     pure
     returns (uint)
   {
