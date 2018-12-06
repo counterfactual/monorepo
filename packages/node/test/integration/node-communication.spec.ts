@@ -1,36 +1,35 @@
 import dotenv from "dotenv";
-import firebase from "firebase";
 import FirebaseServer from "firebase-server";
 
-import { Node } from "../../src";
+import { IMessagingService, Node } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
+import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
 
-import FirebaseMessagingService from "./services/firebase-messaging-service";
+import FirebaseServiceFactory from "./services/firebase-service";
 
 dotenv.config();
 
 describe("Two nodes can communicate with each other", () => {
   let firebaseServer: FirebaseServer;
-  let messagingService: FirebaseMessagingService;
+  let messagingService: IMessagingService;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(() => {
-    const firebaseServerPort = process.env.FIREBASE_DEV_SERVER_PORT!;
-    const firebaseServerHost = "localhost";
-    firebaseServer = new FirebaseServer(firebaseServerPort, firebaseServerHost);
-
-    const app = firebase.initializeApp({
-      databaseURL: `ws://${firebaseServerHost}:${firebaseServerPort}`,
-      projectId: "projectId"
-    });
-    messagingService = new FirebaseMessagingService(app.database());
+    const firebaseServiceFactory = new FirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_HOST!,
+      process.env.FIREBASE_DEV_SERVER_PORT!
+    );
+    firebaseServer = firebaseServiceFactory.createServer();
+    messagingService = firebaseServiceFactory.createMessagingService(
+      process.env.FIREBASE_MESSAGING_SERVER_KEY!
+    );
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService);
+    nodeA = new Node(A_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
+    nodeB = new Node(B_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
   });
 
   afterAll(() => {
