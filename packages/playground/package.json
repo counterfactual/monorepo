@@ -6,7 +6,9 @@
     "start": "stencil build --dev --watch --serve",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "test": "stencil test --spec --e2e",
+    "test": "yarn test:spec && yarn test:e2e",
+    "test:spec": "stencil test --spec",
+    "test:e2e": "stencil test --e2e",
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
@@ -25,7 +27,7 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
-    "@types/puppeteer": "1.11.0",
+    "@types/puppeteer": "1.11.1",
     "puppeteer": "1.8.0"
   }
 }
