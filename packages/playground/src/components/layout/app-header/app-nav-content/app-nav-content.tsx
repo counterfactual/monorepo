@@ -33,7 +33,7 @@ export class AppNavContent {
           </div>
         </div>
         <div class="right" />
-          <app-account history={this.history} />
+        <app-account history={this.history} />
       </nav>
     );
   }
