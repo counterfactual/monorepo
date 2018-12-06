@@ -12,8 +12,7 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "window",
-      extend: true,
+      name: "window.cf",
       format: "iife"
     }
   ],
