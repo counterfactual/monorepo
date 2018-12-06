@@ -1,17 +1,10 @@
-npm i -g yarn@1.10.1
+packages="contracts common-types cf.js node-provider dapp-high-roller"
 
 cd ../..
-cd packages/contracts
-yarn build
-cd ../..
-cd packages/common-types
-yarn build
-cd ../..
-cd packages/cf.js
-yarn build
-cd ../..
-cd packages/node-provider
-yarn build
-cd ../..
-cd packages/dapp-high-roller
-yarn build
+
+for package in $packages; do
+  echo ">>> Building package: $package"
+  cd packages/$package
+  yarn build
+  cd ../..
+done
