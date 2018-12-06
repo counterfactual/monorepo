@@ -10,7 +10,7 @@ export interface State {
 
 export default createProviderConsumer<State>(
   {
-    nodeProvider: new NodeProvider(),
+    nodeProvider: null,
     cfjs: null
   },
   (subscribe, child) => (
