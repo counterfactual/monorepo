@@ -1,7 +1,8 @@
+import { ethers } from "ethers";
+
 import { cf } from "@counterfactual/cf.js";
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import { AppIdentity, SignedStateHashUpdate } from "@counterfactual/types";
-import { ethers } from "ethers";
 
 import { NetworkContext } from "../../types";
 import { appIdentityToHash } from "../../utils";

@@ -6,7 +6,7 @@ import { ETHBucketAppState } from "@counterfactual/types";
 import { APP_INTERFACE, TERMS } from "../../../src/encodings";
 
 const { Interface, keccak256, defaultAbiCoder, formatParamType } = ethers.utils;
-const { AddressZero } = ethers.constants;
+const { AddressZero, MaxUint256 } = ethers.constants;
 
 export function getFreeBalanceAppInterface(address: string) {
   return {
@@ -29,7 +29,7 @@ export function getFreeBalanceAppInterfaceHash(address: string) {
 
 export const freeBalanceTerms = {
   assetType: 0,
-  limit: 0,
+  limit: MaxUint256,
   token: AddressZero
 };
 

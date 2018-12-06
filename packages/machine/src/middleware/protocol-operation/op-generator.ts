@@ -109,8 +109,6 @@ export class EthOpGenerator {
 
     const freeBalance = proposedSetup[multisig].freeBalance;
 
-    const nonce = freeBalance.dependencyNonce;
-
     // TODO: Review where this is used...
     return new OpSetup(
       node.networkContext,
@@ -157,8 +155,7 @@ export class EthOpGenerator {
         assetType: 0, // ETH,
         limit: ethers.constants.MaxUint256,
         token: AddressZero
-      },
-      nonce
+      }
     );
   }
 

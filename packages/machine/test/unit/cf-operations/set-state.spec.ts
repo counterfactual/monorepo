@@ -1,7 +1,7 @@
+import { ethers } from "ethers";
+
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
-import { ethers } from "ethers";
-import { solidityPack } from "ethers/utils";
 
 import { APP_INTERFACE, TERMS } from "../../../src/encodings";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
@@ -14,10 +14,12 @@ const {
   SigningKey,
   getAddress,
   hexlify,
+  solidityPack,
   randomBytes,
   bigNumberify,
   Interface
 } = ethers.utils;
+
 const { AddressZero } = ethers.constants;
 
 /**
@@ -36,7 +38,6 @@ describe("OpSetState", () => {
     MultiSend: getAddress(hexlify(randomBytes(20))),
     NonceRegistry: getAddress(hexlify(randomBytes(20))),
     AppRegistry: getAddress(hexlify(randomBytes(20))),
-    PaymentApp: getAddress(hexlify(randomBytes(20))),
     ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
   };
 

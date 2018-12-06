@@ -58,7 +58,6 @@ describe("OpInstall", () => {
     MultiSend: getAddress(hexlify(randomBytes(20))),
     NonceRegistry: getAddress(hexlify(randomBytes(20))),
     AppRegistry: getAddress(hexlify(randomBytes(20))),
-    PaymentApp: getAddress(hexlify(randomBytes(20))),
     ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
   };
 
@@ -298,7 +297,7 @@ describe("OpInstall", () => {
           // firstmost intalled app in the channel.
           const expectedUninstallKey = keccak256(
             solidityPack(
-              ["address", "uint256", "uint256"],
+              ["address", "uint256", "bytes32"],
               [
                 stateChannel.multisigAddress,
                 0,

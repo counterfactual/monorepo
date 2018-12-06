@@ -22,17 +22,14 @@ contract StateChannelTransaction is LibCondition {
   /// @param appCfAddress Counterfactual address of the app contract
   /// @param terms The pre-agreed upon terms of the funds transfer
   function executeAppConditionalTransaction(
-    address appRegistryAddress,
-    address nonceRegistryAddress,
+    AppRegistry appRegistry,
+    NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     bytes32 appCfAddress,
     Transfer.Terms terms
   )
     public
   {
-    NonceRegistry nonceRegistry = NonceRegistry(nonceRegistryAddress);
-    AppRegistry appRegistry = AppRegistry(appRegistryAddress);
-
     require(
       !nonceRegistry.isFinalized(uninstallKey, 1),
       "App has been uninstalled"
