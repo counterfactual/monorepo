@@ -36,23 +36,14 @@ export default class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService,
-    channelAddresses?: Address[]
+    private readonly storeService: IStoreService
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.channels = new Channels(this.storeService, channelAddresses);
-    new MethodHandler(this.incoming, this.outgoing, this.channels);
+    this.channels = new Channels(this.signer.address, this.storeService);
     this.registerMessagingConnection();
-  }
-
-  /**
-   * This initializes the node, including syncing with any previously-saved
-   * states.
-   */
-  async init() {
-    await this.channels.init();
+    new MethodHandler(this.incoming, this.outgoing, this.channels);
   }
 
   /**
