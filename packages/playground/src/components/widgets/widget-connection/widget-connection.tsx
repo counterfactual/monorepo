@@ -1,4 +1,5 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
+import NetworkTunnel from "../../../data/network";
 
 @Component({
   tag: "widget-connection",
@@ -6,16 +7,19 @@ import { Component, Prop } from "@stencil/core";
   shadow: true
 })
 export class WidgetConnection {
-  @Prop() connected: boolean = false;
+  @Element() el!: HTMLStencilElement;
+  @Prop() network: string = "";
 
   render() {
     return (
       <div class="connection">
-        <span class={this.connected ? "dot connected" : "dot"} />
+        <span class={this.network ? "dot connected" : "dot"} />
         <span class="status">
-          {this.connected ? "Connected" : "No Connection"}
+          {this.network ? `Connected to ${this.network}` : "No Connection"}
         </span>
       </div>
     );
   }
 }
+
+NetworkTunnel.injectProps(WidgetConnection, ["network"]);
