@@ -147,11 +147,9 @@ export class Channels {
       freeBalances
     );
     this.store.set(
-      `${this.multisigKeyPrefix}-${multisigAddress}`,
+      `${this.multisigKeyPrefix}/${multisigAddress}`,
       channel.toJson()
     );
-
-    this.store.add(this.multisigKeyPrefix, multisigAddress);
   }
 
   // @ts-ignore

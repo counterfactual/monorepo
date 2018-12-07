@@ -65,17 +65,10 @@ class FirebaseStoreService implements IStoreService {
   }
 
   async set(key: string, value: any): Promise<any> {
-    return await this.firebase
+    await this.firebase
       .ref(this.storeServiceKey)
       .child(key)
       .set(value);
-  }
-
-  async add(key: string, value: any): Promise<boolean> {
-    return await this.firebase
-      .ref(this.storeServiceKey)
-      .child(key)
-      .push(value);
   }
 }
 

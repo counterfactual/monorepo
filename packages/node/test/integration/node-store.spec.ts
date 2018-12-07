@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
+import { ethers } from "ethers";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
 
-import { A_PRIVATE_KEY } from "../env";
+import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
@@ -48,5 +49,25 @@ describe("Node can use storage service", () => {
     const msg = { method: "INSTALL" };
     await node.set("installMsg", msg);
     expect(await node.get("installMsg")).toEqual(msg);
+  });
+
+  it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
+    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelB = {
+      owners: [
+        new ethers.Wallet(B_PRIVATE_KEY).address,
+        ethers.constants.AddressZero
+      ]
+    };
+    await storeService.set("multisigAddress/0x111", channelA);
+    await storeService.set("multisigAddress/0x222", channelB);
+    expect(await storeService.get("multisigAddress")).toEqual({
+      "0x111": {
+        ...channelA
+      },
+      "0x222": {
+        ...channelB
+      }
+    });
   });
 });
