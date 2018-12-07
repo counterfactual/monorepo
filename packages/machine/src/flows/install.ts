@@ -1,4 +1,4 @@
-import { ClientActionMessage } from "@counterfactual/cf.js/dist/src/legacy/node";
+import { legacy } from "@counterfactual/cf.js";
 
 import { Context } from "../instruction-executor";
 import { NextMsgGenerator } from "../middleware/middleware";
@@ -7,7 +7,7 @@ import { InstallProposer } from "../middleware/state-transition/install-proposer
 import { Opcode } from "../opcodes";
 import { InternalMessage } from "../types";
 
-const swap = (msg: ClientActionMessage) => {
+const swap = (msg: legacy.node.ClientActionMessage) => {
   const from = msg.fromAddress;
   const to = msg.toAddress;
   msg.fromAddress = to;

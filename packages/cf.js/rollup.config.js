@@ -28,7 +28,7 @@ export default {
     json({
       include: [
         // FIXME: these shouldn't be required
-        "../apps/build/ETHBalanceRefundApp.json"
+        "../contracts/build/contracts/ETHBalanceRefundApp.json"
       ]
     })
   ]

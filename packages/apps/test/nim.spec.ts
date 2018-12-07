@@ -11,8 +11,8 @@ const { AddressZero } = ethers.constants;
 
 type NimAppState = {
   players: string[];
-  turnNum: number;
-  pileHeights: number[];
+  turnNum: ethers.utils.BigNumber;
+  pileHeights: ethers.utils.BigNumber[];
 };
 
 function decodeAppState(encodedAppState: string): NimAppState {

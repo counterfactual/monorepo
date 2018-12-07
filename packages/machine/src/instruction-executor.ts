@@ -1,4 +1,4 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import { ActionExecution } from "./action";
@@ -7,13 +7,17 @@ import { Middleware } from "./middleware/middleware";
 import { ProtocolOperation } from "./middleware/protocol-operation/types";
 import { Node } from "./node";
 import { Opcode } from "./opcodes";
-import { InstructionMiddlewareCallback, StateProposal } from "./types";
+import {
+  InstructionMiddlewareCallback,
+  NetworkContext,
+  StateProposal
+} from "./types";
 
 export class InstructionExecutorConfig {
   constructor(
-    readonly responseHandler: cf.legacy.node.ResponseSink,
-    readonly networkContext: any,
-    readonly state?: cf.legacy.channel.StateChannelInfos
+    readonly responseHandler: legacy.node.ResponseSink,
+    readonly networkContext: NetworkContext,
+    readonly state?: legacy.channel.StateChannelInfos
   ) {}
 }
 
@@ -22,10 +26,12 @@ export class InstructionExecutor {
    * The object responsible for processing each Instruction in the Vm.
    */
   public middleware: Middleware;
+
   /**
    * The delegate handler we send responses to.
    */
-  public responseHandler: cf.legacy.node.ResponseSink;
+  public responseHandler: legacy.node.ResponseSink;
+
   /**
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
@@ -38,7 +44,7 @@ export class InstructionExecutor {
     this.middleware = new Middleware(this.node);
   }
 
-  public dispatchReceivedMessage(msg: cf.legacy.node.ClientActionMessage) {
+  public dispatchReceivedMessage(msg: legacy.node.ClientActionMessage) {
     this.execute(
       new ActionExecution(msg.action, FLOWS[msg.action][msg.seq], msg, this)
     );
@@ -50,18 +56,18 @@ export class InstructionExecutor {
     multisigAddress: string,
     appInstanceId: string,
     encodedAppState: string,
-    appStateHash: cf.legacy.utils.H256
+    appStateHash: legacy.utils.H256
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.UPDATE,
-        FLOWS[cf.legacy.node.ActionName.UPDATE][0],
+        legacy.node.ActionName.UPDATE,
+        FLOWS[legacy.node.ActionName.UPDATE][0],
         {
           appInstanceId,
           multisigAddress,
           fromAddress,
           toAddress,
-          action: cf.legacy.node.ActionName.UPDATE,
+          action: legacy.node.ActionName.UPDATE,
           data: {
             encodedAppState,
             appStateHash
@@ -77,19 +83,19 @@ export class InstructionExecutor {
     fromAddress: string,
     toAddress: string,
     multisigAddress: string,
-    peerAmounts: cf.legacy.utils.PeerBalance[],
+    peerAmounts: legacy.utils.PeerBalance[],
     appInstanceId: string
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.UNINSTALL,
-        FLOWS[cf.legacy.node.ActionName.UNINSTALL][0],
+        legacy.node.ActionName.UNINSTALL,
+        FLOWS[legacy.node.ActionName.UNINSTALL][0],
         {
           appInstanceId,
           multisigAddress,
           fromAddress,
           toAddress,
-          action: cf.legacy.node.ActionName.UNINSTALL,
+          action: legacy.node.ActionName.UNINSTALL,
           data: {
             peerAmounts
           },
@@ -104,17 +110,17 @@ export class InstructionExecutor {
     fromAddress: string,
     toAddress: string,
     multisigAddress: string,
-    installData: cf.legacy.app.InstallData
+    installData: legacy.app.InstallData
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.INSTALL,
-        FLOWS[cf.legacy.node.ActionName.INSTALL][0],
+        legacy.node.ActionName.INSTALL,
+        FLOWS[legacy.node.ActionName.INSTALL][0],
         {
           multisigAddress,
           toAddress,
           fromAddress,
-          action: cf.legacy.node.ActionName.INSTALL,
+          action: legacy.node.ActionName.INSTALL,
           data: installData,
           seq: 0
         },
@@ -130,14 +136,14 @@ export class InstructionExecutor {
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.SETUP,
-        FLOWS[cf.legacy.node.ActionName.SETUP][0],
+        legacy.node.ActionName.SETUP,
+        FLOWS[legacy.node.ActionName.SETUP][0],
         {
           multisigAddress,
           toAddress,
           fromAddress,
           seq: 0,
-          action: cf.legacy.node.ActionName.SETUP
+          action: legacy.node.ActionName.SETUP
         },
         this
       )
@@ -152,14 +158,14 @@ export class InstructionExecutor {
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP,
-        FLOWS[cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP][0],
+        legacy.node.ActionName.INSTALL_METACHANNEL_APP,
+        FLOWS[legacy.node.ActionName.INSTALL_METACHANNEL_APP][0],
         {
           multisigAddress,
           toAddress,
           fromAddress,
           seq: 0,
-          action: cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP,
+          action: legacy.node.ActionName.INSTALL_METACHANNEL_APP,
           data: {
             initiating: fromAddress,
             responding: toAddress,
@@ -177,15 +183,15 @@ export class InstructionExecutor {
 
   public async run(execution: ActionExecution) {
     const ret = await execution.runAll();
-    this.sendResponse(cf.legacy.node.ResponseStatus.COMPLETED);
+    this.sendResponse(legacy.node.ResponseStatus.COMPLETED);
     return ret;
   }
 
-  public sendResponse(status: cf.legacy.node.ResponseStatus) {
-    this.responseHandler.sendResponse(new cf.legacy.node.Response(status));
+  public sendResponse(status: legacy.node.ResponseStatus) {
+    this.responseHandler.sendResponse(new legacy.node.Response(status));
   }
 
-  public mutateState(state: cf.legacy.channel.StateChannelInfos) {
+  public mutateState(state: legacy.channel.StateChannelInfos) {
     Object.assign(this.node.channelStates, state);
   }
 
@@ -195,8 +201,8 @@ export class InstructionExecutor {
 }
 
 export interface IntermediateResults {
-  outbox: cf.legacy.node.ClientActionMessage[];
-  inbox: cf.legacy.node.ClientActionMessage[];
+  outbox: legacy.node.ClientActionMessage[];
+  inbox: legacy.node.ClientActionMessage[];
   proposedStateTransition?: StateProposal;
   operation?: ProtocolOperation;
   signature?: ethers.utils.Signature;

@@ -1,4 +1,4 @@
-import BuildArtifact from "@counterfactual/apps/build/ETHBalanceRefundApp.json";
+import BuildArtifact from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 
 import { ethers } from "ethers";
 
@@ -14,9 +14,7 @@ export class ETHBalanceRefundApp extends AppInstance {
       ethers.utils.bigNumberify("0"),
       ethers.constants.AddressZero
     );
-    const abiEncodings = AppInstance.generateAbiEncodings(
-      BuildArtifact.interface
-    );
+    const abiEncodings = AppInstance.generateAbiEncodings(BuildArtifact.abi);
 
     const appDefinition: AppDefinition = {
       address: appAddress,

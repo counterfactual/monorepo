@@ -25,7 +25,8 @@ export class OpUninstall extends MultiSendOp {
       freeBalanceNonce,
       freeBalanceTimeout,
       dependencyNonceSalt,
-      // Hard coded the update to 1
+      // Hard coded the update to 1 because that is the value
+      // that represents an app as being "uninstalled"
       1
     );
   }

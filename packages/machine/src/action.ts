@@ -1,19 +1,19 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 
 import { Context, InstructionExecutor } from "./instruction-executor";
 import { Opcode } from "./opcodes";
 import { InternalMessage, StateProposal } from "./types";
 
 export class ActionExecution {
-  public actionName: cf.legacy.node.ActionName;
+  public actionName: legacy.node.ActionName;
   public instructions: (Opcode | Function)[];
-  public clientMessage: cf.legacy.node.ClientActionMessage;
+  public clientMessage: legacy.node.ClientActionMessage;
   public instructionExecutor: InstructionExecutor;
 
   constructor(
-    actionName: cf.legacy.node.ActionName,
+    actionName: legacy.node.ActionName,
     instructions: (Opcode | Function)[],
-    clientMessage: cf.legacy.node.ClientActionMessage,
+    clientMessage: legacy.node.ClientActionMessage,
     instructionExecutor: InstructionExecutor
   ) {
     this.actionName = actionName;

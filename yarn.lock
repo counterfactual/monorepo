@@ -723,10 +723,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.36.tgz#c4a2bdb16d3a79b34e01464b4bd38c1b849efdac"
   integrity sha512-Fbw+AdRLL01vv7Rk7bYaNPecqmKoinJHGbpKnDpbUZmUj/0vj3nLqPQ4CNBzr3q2zso6Cq/4jHoCAdH78fvJrw==
 
-"@types/puppeteer@1.10.2":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@types/puppeteer/-/puppeteer-1.10.2.tgz#508c36b4b3799b117142d2d2af2a39e32040845e"
-  integrity sha512-xVGTXVqZCHm+XyT65bPwG9WKNJDoB+A186D9IrZVOzFxalacR+CH3mKsWd5jF2eb4mJ5QWjix0fH/KjDUGtdVw==
+"@types/puppeteer@1.11.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@types/puppeteer/-/puppeteer-1.11.1.tgz#f2fe2e08917af2b4dc4b03bd2b838c05cb9d8410"
+  integrity sha512-IvrvZfWjITUH7q4WrM25ul9xlIeLM3Oh+hV2FL7xQQSroVf8mX3lMZaN7XEsw6Bdfp99Qm7I4GcD+ak5+wIEfA==
   dependencies:
     "@types/node" "*"
 
@@ -3740,10 +3740,9 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@^1.0.4:
+ethereum-waffle@^1.0.4, ethereum-waffle@snario/Waffle#liam/tmp-build:
   version "1.0.4"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-1.0.4.tgz#9c43f958f6a695797b5690539ae2e168763dcfbc"
-  integrity sha512-9kgTZschFa729ttAPkbHZrLlDVtTNpfk6Zx+TLgzVaTbdtlKLv61tpwdO4Vnng5CpR8QJ72Vnmh42ngR1CMOsw==
+  resolved "https://codeload.github.com/snario/Waffle/tar.gz/3af56852eef47fc45fa3dbf5a26b91cb264cc052"
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
@@ -3951,10 +3950,10 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^4.0.0:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.15.tgz#784df851271ec4f7cea46ce3b44e2274f122ff6c"
-  integrity sha512-GO+GVMI0EfS6CJmxJXSUNTyiN8q+QIRTACzEtRMqnUDQrTzTHfIx2VYD7mgPDTjSsu/JLzGdit0hY3ERcE2fHQ==
+ethers@4.0.17:
+  version "4.0.17"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.17.tgz#1010c0867e674e9cc0d2631ecde69cbae9fddb32"
+  integrity sha512-54ryPo9iMCImbCDnaEmnACRWdOSYaRsNqgpfFLOu+2bfWVrcUWtjm+VAZTDgk5wY539Ex8I8kLTBz9FLg8q/fA==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -3967,10 +3966,10 @@ ethers@^4.0.0:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^4.0.16:
-  version "4.0.16"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.16.tgz#04cc07dca66967b95e6220822ce8ac945f99ede2"
-  integrity sha512-XQx0yY2KMOV9IG+siUogZ0hiedD2sjcWMIInyw2Bz1VqEHQht6NdDeXRecbI6332v6H+hXm0n5Oi6PquC1mwMA==
+ethers@^4.0.0:
+  version "4.0.15"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.15.tgz#784df851271ec4f7cea46ce3b44e2274f122ff6c"
+  integrity sha512-GO+GVMI0EfS6CJmxJXSUNTyiN8q+QIRTACzEtRMqnUDQrTzTHfIx2VYD7mgPDTjSsu/JLzGdit0hY3ERcE2fHQ==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"

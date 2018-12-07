@@ -19,15 +19,11 @@ const { defaultAbiCoder, hexDataLength, hexDataSlice } = ethers.utils;
  *       let value := mload(add(transactions, add(i, 0x40)))
  *       let dataLength := mload(add(transactions, add(i, 0x80)))
  *       let data := add(transactions, add(i, 0xa0))
- *       let success := 0
- *       switch operation
- *       case 0 { success := call(gas, to, value, data, dataLength, 0, 0) }
- *       case 1 { success := delegatecall(gas, to, data, dataLength, 0, 0) }
- *       if eq(success, 0) { revert(0, 0) }
  *       i := add(i, add(0xa0, mul(div(add(dataLength, 0x1f), 0x20), 0x20)))
  *     }
  *   }
  * }
+ * ```
  *
  * @param txs A `bytes` string representing an array of encoded tuples like
  *            tuple(uint, address, uint, bytes); each representing a transaction
@@ -71,7 +67,7 @@ export function decodeMultisendCalldata(txs: string) {
     ]);
 
     // i := add(i, add(0xa0, mul(div(add(dataLength, 0x1f), 0x20), 0x20)))
-    i += 0xa0 + Math.ceil(dataLength / 0x20) * 32;
+    i += 0xa0 + Math.ceil(dataLength / 0x20) * 0x20;
   }
 
   return ret;
