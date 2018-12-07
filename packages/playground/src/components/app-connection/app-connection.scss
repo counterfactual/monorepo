@@ -1,7 +1,3 @@
-.connection {
-  margin-left: 24px;
-}
-
 .dot {
   margin-right: 12px;
   width: 9px;
@@ -25,11 +21,5 @@
   }
   100% {
     transform: scale(1);
-  }
-}
-
-@media screen and (max-width: $screen-sm) {
-  .connection {
-    margin: 24px 0;
   }
 }

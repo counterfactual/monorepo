@@ -1,4 +1,5 @@
-import { Component, Event, EventEmitter } from "@stencil/core";
+import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 @Component({
   tag: "app-header",
@@ -7,6 +8,7 @@ import { Component, Event, EventEmitter } from "@stencil/core";
 })
 export class AppHeader {
   @Event() openDrawer: EventEmitter = {} as EventEmitter;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   private menuClicked(event: MouseEvent) {
     event.preventDefault();
@@ -23,7 +25,7 @@ export class AppHeader {
           </a>
         </div>
         <div class="hide-on-mobile">
-          <app-nav-content />
+          <app-nav-content history={this.history} />
         </div>
       </header>
     );
