@@ -14,6 +14,7 @@ export default class Node {
    * nodes.
    */
   public static PEER_MESSAGE = "peerMessage";
+  private METHODS = new Map();
 
   /**
    * Because the Node receives and sends out messages based on Event type
@@ -37,7 +38,7 @@ export default class Node {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.registerListeners();
+    this.registerMethods();
     this.registerConnection();
   }
 
@@ -98,24 +99,24 @@ export default class Node {
   }
 
   /**
-   * This sets up all the listeners for the methods the Node is expected to have
+   * This registers all of the methods the Node is expected to have
    * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#node-protocol
    *
    * The responses to these calls are the events being listened on
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
-  private registerListeners() {
-    this.incoming.on(
-      NodeTypes.MethodName.GET_APP_INSTANCES,
-      (req: NodeTypes.MethodRequest) => {
+  private registerMethods() {
+    this.mapHandlers();
+    this.METHODS.forEach((method: Function, methodName: string) => {
+      this.incoming.on(methodName, (req: NodeTypes.MethodRequest) => {
         const res: NodeTypes.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: this.getAppInstances()
+          result: method(req.params)
         };
         this.outgoing.emit(req.type, res);
-      }
-    );
+      });
+    });
   }
 
   /**
@@ -133,11 +134,35 @@ export default class Node {
     });
   }
 
-  private getAppInstances(): NodeTypes.GetAppInstancesResult {
+  // The following are implementations of the Node API methods, as defined here:
+  // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
+
+  private getAppInstances(
+    params: NodeTypes.GetAppInstancesParams
+  ): NodeTypes.GetAppInstancesResult {
     // TODO: should return actual list of app instances when that gets
     // implemented
     return {
       appInstances: [] as AppInstanceInfo[]
     };
+  }
+
+  private proposeInstall(
+    params: NodeTypes.ProposeInstallParams
+  ): NodeTypes.ProposeInstallResult {
+    return {
+      appInstanceId: "1"
+    };
+  }
+
+  /**
+   * This maps the Node method names to their respective methods.
+   */
+  private mapHandlers() {
+    this.METHODS.set(
+      NodeTypes.MethodName.GET_APP_INSTANCES,
+      this.getAppInstances
+    );
+    this.METHODS.set(NodeTypes.MethodName.PROPOSE_INSTALL, this.proposeInstall);
   }
 }
