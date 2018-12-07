@@ -10,6 +10,21 @@
 
   <link href="https://fonts.googleapis.com/css?family=Chivo:300,400,700" rel="stylesheet">
   <link href="/build/app.css" rel="stylesheet">
+
+  <!--
+    TODO: These builds are symlinked from node_modules and local packages.
+    THIS MUST NOT BE LIKE THIS! We must solve how Rollup is building
+    all of this.
+  -->
+  <script src="/assets/eventemitter3.js"></script>
+  <script src="/assets/common-types.js"></script>
+
+  <script>
+    EventEmitter = EventEmitter3.EventEmitter;
+  </script>
+
+  <script src="/assets/node.js"></script>
+
   <script src="/build/app.js"></script>
 
   <link rel="apple-touch-icon" href="/assets/icon/icon.png">
