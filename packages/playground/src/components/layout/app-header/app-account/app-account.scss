@@ -15,7 +15,7 @@
     flex-direction: column;
 
     app-account-info {
-      margin-bottom: 12px;
+      margin-bottom: $rhythm;
     }
   }
 
@@ -29,7 +29,7 @@
     background: transparent;
     color: $c-black;
     font-size: 125%;
-    margin-bottom: 12px;
+    margin-bottom: $rhythm;
     text-align: left;
   }
 }

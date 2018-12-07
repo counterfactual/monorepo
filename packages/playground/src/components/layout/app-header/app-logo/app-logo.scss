@@ -4,18 +4,22 @@
   font-size: $f-base;
 
   a {
+    color: inherit;
     display: flex;
     align-items: center;
   }
 
   img {
-    width: 3.2rem;
-    height: 3.2rem;
+    height: 2.5rem;
   }
 
   span {
     @include f-logo;
-    display: block;
-    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 0 $rhythm;
   }
 }

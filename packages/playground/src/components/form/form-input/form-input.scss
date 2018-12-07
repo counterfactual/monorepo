@@ -1,0 +1,13 @@
+.label {
+  margin-bottom: $rhythm;
+  font-size: 105%;
+}
+
+.input {
+  height: $rhythm * 4;
+  width: 100%;
+  border: thin solid $c-darkgrey;
+  border-radius: 2px;
+  margin-bottom: $rhythm * 2;
+  padding: $rhythm;
+}

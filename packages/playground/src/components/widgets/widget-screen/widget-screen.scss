@@ -1,0 +1,56 @@
+.widget-screen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #F8F8F8;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.constraint {
+  margin: auto;
+  width: 100%;
+  height: 75%;
+  max-width: $rhythm * 35;
+  padding: $rhythm;
+}
+
+.pre {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $rhythm * 3;
+  width: 100%;
+
+  .close {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 18px;
+    width: 18px;
+    line-height: 0;
+    padding: 0;
+    border: 2px solid $c-black;
+    border-radius: 50%;
+    font-weight: bold;
+
+    &:after {
+      margin-top: -2px;
+      content: "x";
+    }
+  }
+}
+
+.post {
+  margin-top: $rhythm * 3;
+  text-align: center;
+  font-size: 95%;
+}
+
+@media screen and (max-width: $screen-sm) {
+  .constraint {
+    height: 100%;
+  }
+}

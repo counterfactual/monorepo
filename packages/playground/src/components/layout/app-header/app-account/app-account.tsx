@@ -10,13 +10,11 @@ export class AppAccount {
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() authenticated: boolean = false;
 
-  openLoginModal() {
-    this.history.push("login", {
-      name: "login"
-    });
+  login() {
+    console.log("login")
   }
 
-  openRegisterModal() {
+  register() {
     this.history.push("register", {
       name: "register"
     });
@@ -38,11 +36,11 @@ export class AppAccount {
       </div>
     ) : (
       <div class="btn-container">
-        <button onClick={this.openLoginModal.bind(this)} class="btn">
+        <button onClick={this.login.bind(this)} class="btn">
           Login
         </button>
         <button
-          onClick={this.openRegisterModal.bind(this)}
+          onClick={this.register.bind(this)}
           class="btn btn-outline"
         >
           Register

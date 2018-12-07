@@ -1,35 +1,12 @@
-.info-container {
-  display: flex;
-
-  auth-register-info {
-    margin-right: 40px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
+.logo {
+  width: 33%;
+  min-width: 140px;
+  margin: auto;
 }
 
-@media screen and (max-width: $screen-sm) {
-  .info-container {
-    flex-direction: column;
-
-    auth-register-info {
-      margin-bottom: 12px;
-    }
-  }
-
-  .btn-container {
-    flex-direction: column;
-  }
-
-  .btn {
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: $c-black;
-    font-size: 125%;
-    margin-bottom: 12px;
-    text-align: left;
-  }
+.header {
+  font-size: 130%;
+  font-weight: normal;
+  text-align: center;
+  margin: $rhythm * 2 0 $rhythm * 4;
 }

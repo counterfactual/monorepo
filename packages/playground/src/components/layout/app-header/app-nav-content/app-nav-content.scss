@@ -13,7 +13,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-right: 24px;
+  margin-right: $rhythm * 2;
 }
 
 
@@ -33,6 +33,6 @@
   }
 
   .connection {
-    margin: 24px 0;
+    margin: $rhythm * 2 0;
   }
 }
