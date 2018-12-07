@@ -1,11 +1,9 @@
-import {
-  Address,
-  AppInstanceInfo,
-  Node as NodeTypes
-} from "@counterfactual/common-types";
+import { Address, Node as NodeTypes } from "@counterfactual/common-types";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
+import { Channels } from "./channels";
+import { MethodHandler } from "./methods";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
 export default class Node {
@@ -14,7 +12,6 @@ export default class Node {
    * nodes.
    */
   public static PEER_MESSAGE = "peerMessage";
-  private METHODS = new Map();
 
   /**
    * Because the Node receives and sends out messages based on Event type
@@ -24,6 +21,12 @@ export default class Node {
    **/
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
+
+  /**
+   * This encapsulates the state and persistence of all the channels in the
+   * context of this Node.
+   */
+  private readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
 
   /**
@@ -33,13 +36,23 @@ export default class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService
+    private readonly storeService: IStoreService,
+    channelAddresses?: Address[]
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.registerMethods();
-    this.registerConnection();
+    this.channels = new Channels(this.storeService, channelAddresses);
+    new MethodHandler(this.incoming, this.outgoing, this.channels);
+    this.registerMessagingConnection();
+  }
+
+  /**
+   * This initializes the node, including syncing with any previously-saved
+   * states.
+   */
+  async init() {
+    await this.channels.init();
   }
 
   /**
@@ -99,31 +112,10 @@ export default class Node {
   }
 
   /**
-   * This registers all of the methods the Node is expected to have
-   * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#node-protocol
-   *
-   * The responses to these calls are the events being listened on
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
-   */
-  private registerMethods() {
-    this.mapHandlers();
-    this.METHODS.forEach((method: Function, methodName: string) => {
-      this.incoming.on(methodName, (req: NodeTypes.MethodRequest) => {
-        const res: NodeTypes.MethodResponse = {
-          type: req.type,
-          requestId: req.requestId,
-          result: method(req.params)
-        };
-        this.outgoing.emit(req.type, res);
-      });
-    });
-  }
-
-  /**
    * When a Node is first instantiated, it establishes a connection
    * with the messaging service.
    */
-  private registerConnection() {
+  private registerMessagingConnection() {
     this.messagingService.receive(this.address, (msg: object) => {
       console.debug(
         `Node with address ${this.address} received message: ${JSON.stringify(
@@ -132,37 +124,5 @@ export default class Node {
       );
       this.outgoing.emit(Node.PEER_MESSAGE, msg);
     });
-  }
-
-  // The following are implementations of the Node API methods, as defined here:
-  // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
-
-  private getAppInstances(
-    params: NodeTypes.GetAppInstancesParams
-  ): NodeTypes.GetAppInstancesResult {
-    // TODO: should return actual list of app instances when that gets
-    // implemented
-    return {
-      appInstances: [] as AppInstanceInfo[]
-    };
-  }
-
-  private proposeInstall(
-    params: NodeTypes.ProposeInstallParams
-  ): NodeTypes.ProposeInstallResult {
-    return {
-      appInstanceId: "1"
-    };
-  }
-
-  /**
-   * This maps the Node method names to their respective methods.
-   */
-  private mapHandlers() {
-    this.METHODS.set(
-      NodeTypes.MethodName.GET_APP_INSTANCES,
-      this.getAppInstances
-    );
-    this.METHODS.set(NodeTypes.MethodName.PROPOSE_INSTALL, this.proposeInstall);
   }
 }
