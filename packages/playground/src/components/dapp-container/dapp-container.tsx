@@ -52,17 +52,13 @@ export class DappContainer {
     this.frameWindow = iframe.contentWindow as Window;
     this.$onMessage = this.configureMessageChannel.bind(this);
 
-    // TODO: This won't work if the dapp is in a different host.
-    // We need to think a way of exchanging messages to make this
-    // possible.
-    this.frameWindow.addEventListener("message", this.$onMessage);
+    window.addEventListener("message", this.$onMessage);
 
     this.iframe = iframe;
   }
 
   componentDidUnload() {
     if (this.frameWindow) {
-      this.frameWindow.removeEventListener("message", this.$onMessage);
       this.frameWindow = null;
     }
 
@@ -109,6 +105,7 @@ export class DappContainer {
 
     if (event.data === "cf-node-provider:ready") {
       this.flushMessageQueue();
+      window.removeEventListener("message", this.$onMessage);
     }
   }
 

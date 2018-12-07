@@ -12,7 +12,7 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "cfjs",
+      name: "window.cf",
       format: "iife"
     }
   ],
