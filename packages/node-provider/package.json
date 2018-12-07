@@ -1,9 +1,9 @@
 {
   "name": "@counterfactual/node-provider",
   "version": "0.0.1",
-  "main": "dist/node-provider.js",
-  "iife": "dist/node-provider.iife.js",
-  "types": "dist/node-provider.d.ts",
+  "main": "dist/index.js",
+  "iife": "dist/index-iife.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
