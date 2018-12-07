@@ -11,7 +11,3 @@ export interface UserChangeset {
   email: string;
   address: string;
 }
-
-export interface DepositChangeset {
-  amount?: number;
-}
