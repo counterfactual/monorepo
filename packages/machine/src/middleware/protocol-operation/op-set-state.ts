@@ -1,6 +1,6 @@
+import { utils } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { cf } from "@counterfactual/cf.js";
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import { AppIdentity, SignedStateHashUpdate } from "@counterfactual/types";
 
@@ -9,7 +9,7 @@ import { appIdentityToHash } from "../../utils";
 
 import { ProtocolOperation, Transaction } from "./types";
 
-const { keccak256, solidityPack } = ethers.utils;
+const { keccak256, solidityPack, Interface } = ethers.utils;
 
 export class OpSetState extends ProtocolOperation {
   constructor(
@@ -38,7 +38,7 @@ export class OpSetState extends ProtocolOperation {
   }
 
   public transaction(sigs: ethers.utils.Signature[]): Transaction {
-    const appRegistryInterface = new ethers.utils.Interface(AppRegistry.abi);
+    const appRegistryInterface = new Interface(AppRegistry.abi);
     return new Transaction(
       this.networkContext.AppRegistry,
       0,
@@ -56,7 +56,7 @@ export class OpSetState extends ProtocolOperation {
       stateHash: this.appStateHash,
       nonce: this.appLocalNonce,
       timeout: this.timeout,
-      signatures: cf.utils.signaturesToSortedBytes(
+      signatures: utils.signaturesToSortedBytes(
         this.hashToSign(),
         ...signatures
       )

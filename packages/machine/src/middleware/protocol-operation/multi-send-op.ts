@@ -1,19 +1,18 @@
-import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-
-import { AppIdentity, Terms } from "@counterfactual/types";
-
 import { ethers } from "ethers";
 
-// import { APP_IDENTITY, TERMS } from "../../encodings";
+import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import { AppIdentity, Terms } from "@counterfactual/types";
 
 import { MultisigTxOp } from "./multisig-tx-op";
 import { MultiSend, MultisigInput, Operation } from "./types";
 
-// const { keccak256, defaultAbiCoder } = ethers.utils;
+const { Interface } = ethers.utils;
 const { HashZero } = ethers.constants;
 
 export abstract class MultiSendOp extends MultisigTxOp {
+  public abstract eachMultisigInput(): MultisigInput[];
+
   constructor(
     readonly networkContext: any,
     readonly multisig: string,
@@ -38,9 +37,7 @@ export abstract class MultiSendOp extends MultisigTxOp {
   }
 
   public freeBalanceData(): string {
-    return new ethers.utils.Interface(
-      AppRegistry.abi
-    ).functions.setState.encode([
+    return new Interface(AppRegistry.abi).functions.setState.encode([
       this.freeBalanceAppIdentity,
       {
         stateHash: this.freeBalanceStateHash,
@@ -55,9 +52,7 @@ export abstract class MultiSendOp extends MultisigTxOp {
   public dependencyNonceInput(): MultisigInput {
     const to = this.networkContext.NonceRegistry;
     const val = 0;
-    const data = new ethers.utils.Interface(
-      NonceRegistry.abi
-    ).functions.setNonce.encode([
+    const data = new Interface(NonceRegistry.abi).functions.setNonce.encode([
       0, // Timeout is 0 for dependencyNonce!
       this.dependencyNonceSalt,
       this.dependencyNonceValue
@@ -65,8 +60,6 @@ export abstract class MultiSendOp extends MultisigTxOp {
     const op = Operation.Call;
     return new MultisigInput(to, val, data, op);
   }
-
-  public abstract eachMultisigInput(): MultisigInput[];
 
   /**
    * @returns the input for the transaction from the multisig that will trigger

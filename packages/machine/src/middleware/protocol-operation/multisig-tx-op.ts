@@ -1,10 +1,11 @@
-import * as cf from "@counterfactual/cf.js";
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import { utils } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
+
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 
 import { MultisigInput, ProtocolOperation, Transaction } from "./types";
 
-const { keccak256, defaultAbiCoder } = ethers.utils;
+const { keccak256, defaultAbiCoder, Interface } = ethers.utils;
 
 export abstract class MultisigTxOp extends ProtocolOperation {
   abstract multisigInput(): MultisigInput;
@@ -16,12 +17,12 @@ export abstract class MultisigTxOp extends ProtocolOperation {
   public transaction(sigs: ethers.utils.Signature[]): Transaction {
     const multisigInput = this.multisigInput();
 
-    const signatureBytes = cf.utils.signaturesToSortedBytes(
+    const signatureBytes = utils.signaturesToSortedBytes(
       this.hashToSign(),
       ...sigs
     );
 
-    const txData = new ethers.utils.Interface(
+    const txData = new Interface(
       MinimumViableMultisig.abi
     ).functions.execTransaction.encode([
       multisigInput.to,

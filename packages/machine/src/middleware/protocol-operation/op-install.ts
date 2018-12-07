@@ -1,13 +1,14 @@
+import { ethers } from "ethers";
+
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AppIdentity, Terms } from "@counterfactual/types";
-import { ethers } from "ethers";
 
 import { APP_IDENTITY } from "../../encodings";
 
 import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput, Operation } from "./types";
 
-const { keccak256, solidityPack, defaultAbiCoder } = ethers.utils;
+const { keccak256, solidityPack, defaultAbiCoder, Interface } = ethers.utils;
 
 export class OpInstall extends MultiSendOp {
   constructor(
@@ -55,7 +56,7 @@ export class OpInstall extends MultiSendOp {
       )
     );
 
-    const data = new ethers.utils.Interface(
+    const data = new Interface(
       StateChannelTransaction.abi
     ).functions.executeAppConditionalTransaction.encode([
       this.networkContext.AppRegistry,

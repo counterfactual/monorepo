@@ -16,7 +16,7 @@ import { OpSetup } from "./op-setup";
 import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
-const { defaultAbiCoder, keccak256 } = ethers.utils;
+const { defaultAbiCoder, keccak256, Interface, BigNumber } = ethers.utils;
 const { AddressZero } = ethers.constants;
 
 export class EthOpGenerator {
@@ -86,7 +86,7 @@ export class EthOpGenerator {
 
     // FIXME: shouldn't be here...
     signingKeys.sort((addrA: string, addrB: string) => {
-      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+      return new BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
 
     return new OpSetState(
@@ -187,7 +187,7 @@ export class EthOpGenerator {
             [
               {
                 addr: AddressZero,
-                resolve: new ethers.utils.Interface([
+                resolve: new Interface([
                   `resolve(
                     tuple(address,address,uint256,uint256),
                     tuple(uint8,uint256,address)
@@ -277,7 +277,7 @@ export class EthOpGenerator {
             [
               {
                 addr: AddressZero,
-                resolve: new ethers.utils.Interface([
+                resolve: new Interface([
                   `resolve(
                     tuple(address,address,uint256,uint256),
                     tuple(uint8,uint256,address)
