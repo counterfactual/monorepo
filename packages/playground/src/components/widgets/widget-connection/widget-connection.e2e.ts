@@ -11,7 +11,9 @@ describe("widget-connection", () => {
 
   it("applies to .connected class to the dot when connected=true", async () => {
     const page = await newE2EPage();
-    await page.setContent("<widget-connection connected=true></widget-connection>");
+    await page.setContent(
+      "<widget-connection connected=true></widget-connection>"
+    );
 
     const element = await page.find("widget-connection >>> .dot");
     expect(element).toHaveClass("connected");
@@ -19,7 +21,9 @@ describe("widget-connection", () => {
 
   it("sets the status to 'Connected' when connected=true", async () => {
     const page = await newE2EPage();
-    await page.setContent("<widget-connection connected=true></widget-connection>");
+    await page.setContent(
+      "<widget-connection connected=true></widget-connection>"
+    );
 
     const element = await page.find("widget-connection >>> .status");
     expect(element.innerText).toEqual("Connected");

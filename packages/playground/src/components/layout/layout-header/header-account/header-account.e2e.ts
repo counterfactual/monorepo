@@ -11,7 +11,9 @@ describe("header-account", () => {
 
   it("renders an info container when authenticated=true", async () => {
     const page = await newE2EPage();
-    await page.setContent("<header-account authenticated=true></header-account>");
+    await page.setContent(
+      "<header-account authenticated=true></header-account>"
+    );
 
     const infoContainer = await page.find("header-account >>> .info-container");
     const btnContainer = await page.find("header-account >>> .btn-container");

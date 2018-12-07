@@ -1,7 +1,7 @@
-import { LayourFooter } from "./layout-footer";
+import { LayoutFooter } from "./layout-footer";
 
 describe("app", () => {
   it("builds", () => {
-    expect(new LayourFooter()).toBeTruthy();
+    expect(new LayoutFooter()).toBeTruthy();
   });
 });

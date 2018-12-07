@@ -5,7 +5,7 @@ import { Component } from "@stencil/core";
   styleUrl: "layout-footer.scss",
   shadow: true
 })
-export class LayourFooter {
+export class LayoutFooter {
   render() {
     return (
       <footer class="footer">
