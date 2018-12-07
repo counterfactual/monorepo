@@ -43,6 +43,19 @@
   }
 }
 
+.logo {
+  width: 33%;
+  min-width: 140px;
+  margin: auto;
+}
+
+.header {
+  font-size: 130%;
+  font-weight: normal;
+  text-align: center;
+  margin: $rhythm * 2 0 $rhythm * 4;
+}
+
 .post {
   margin-top: $rhythm * 3;
   text-align: center;

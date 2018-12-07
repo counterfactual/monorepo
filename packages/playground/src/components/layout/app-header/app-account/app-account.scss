@@ -1,12 +1,8 @@
 .info-container {
   display: flex;
 
-  app-account-info {
+  > :first-child {
     margin-right: 40px;
-
-    &:last-child {
-      margin-right: 0;
-    }
   }
 }
 
@@ -14,7 +10,7 @@
   .info-container {
     flex-direction: column;
 
-    app-account-info {
+    > * {
       margin-bottom: $rhythm;
     }
   }

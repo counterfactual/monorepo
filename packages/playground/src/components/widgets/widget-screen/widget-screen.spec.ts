@@ -1,4 +1,4 @@
-import { WidgetScreen } from "./WidgetScreen";
+import { WidgetScreen } from "./widget-screen";
 
 describe("app", () => {
   it("builds", () => {

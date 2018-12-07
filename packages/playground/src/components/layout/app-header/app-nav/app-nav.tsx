@@ -1,5 +1,4 @@
-import { Component, Prop, State } from "@stencil/core";
-import { RouterHistory } from "@stencil/router";
+import { Component, State } from "@stencil/core";
 
 @Component({
   tag: "app-nav",
@@ -7,10 +6,6 @@ import { RouterHistory } from "@stencil/router";
   shadow: true
 })
 export class AppNav {
-  // TODO: stop drilling history down to `app-account`
-  // waiting for this issue to resolve so we can use `injectHistory`:
-  // https://github.com/ionic-team/stencil-router/issues/79
-  @Prop() history: RouterHistory = {} as RouterHistory;
   @State() drawerOpened: boolean = false;
 
   closeDrawerHandler(e) {
@@ -24,14 +19,10 @@ export class AppNav {
   render() {
     return [
       <app-drawer
-        history={this.history}
         opened={this.drawerOpened}
         onCloseDrawer={e => this.closeDrawerHandler(e)}
       />,
-      <app-header
-        history={this.history}
-        onOpenDrawer={e => this.openDrawerHandler(e)}
-      />
+      <app-header onOpenDrawer={e => this.openDrawerHandler(e)} />
     ];
   }
 }

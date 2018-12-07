@@ -1,11 +1,11 @@
 import { newE2EPage } from "@stencil/core/testing";
 
-describe("widget-screen", () => {
+describe("account-register", () => {
   it("renders", async () => {
     const page = await newE2EPage();
-    await page.setContent("<widget-screen></widget-screen>");
+    await page.setContent("<account-register></account-register>");
 
-    const element = await page.find("widget-screen");
+    const element = await page.find("account-register");
     expect(element).toHaveClass("hydrated");
   });
 });

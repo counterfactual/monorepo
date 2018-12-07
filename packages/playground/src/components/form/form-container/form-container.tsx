@@ -18,10 +18,6 @@ export class FormContainer {
     return (
       <form onSubmit={e => this.handleSubmit(e)}>
         <slot />
-
-        <button class="button">
-          <slot name="button" />
-        </button>
       </form>
     );
   }

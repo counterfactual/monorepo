@@ -27,7 +27,7 @@ export class AppHome {
 
   render() {
     return [
-      <app-nav history={this.history} />,
+      <app-nav />,
       <section class="section">
         <div class="container">
           <apps-list
