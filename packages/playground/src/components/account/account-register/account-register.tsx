@@ -1,6 +1,7 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import AccountTunnel from "../../../data/account";
 import { UserChangeset } from "../../../types";
 
 @Component({
@@ -9,6 +10,11 @@ import { UserChangeset } from "../../../types";
   shadow: true
 })
 export class AccountRegister {
+  @Element() el!: HTMLStencilElement;
+  @Prop() address: string = "";
+  @Prop() email: string = "";
+  @Prop() username: string = "";
+  @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   changeset: UserChangeset = {
@@ -27,6 +33,7 @@ export class AccountRegister {
 
   formSubmitionHandler() {
     console.log(this.changeset);
+    this.updateAccount(this.changeset);
     this.history.push("/deposit");
   }
 
@@ -63,3 +70,10 @@ export class AccountRegister {
     );
   }
 }
+
+AccountTunnel.injectProps(AccountRegister, [
+  "address",
+  "email",
+  "updateAccount",
+  "username"
+]);

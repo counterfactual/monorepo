@@ -1,4 +1,6 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
+
+import AccountTunnel from "../../../../data/account";
 
 @Component({
   tag: "header-account",
@@ -6,27 +8,33 @@ import { Component, Prop } from "@stencil/core";
   shadow: true
 })
 export class HeaderAccount {
-  @Prop() authenticated: boolean = false;
+  @Element() el!: HTMLStencilElement;
+  @Prop() balance: number = 0;
+  @Prop() username: string = "";
 
   login() {
     console.log("login");
   }
 
+  get ethBalance() {
+    return `${this.balance.toFixed(4)} ETH`;
+  }
+
   render() {
-    return this.authenticated ? (
+    return this.username ? (
       <div class="info-container">
         <stencil-route-link url="/exchange">
           <header-account-info
             src="/assets/icon/cf.png"
             header="Balance"
-            content="0.1000 ETH"
+            content={this.ethBalance}
           />
         </stencil-route-link>
         <stencil-route-link url="/account">
           <header-account-info
             src="/assets/icon/account.png"
             header="Account"
-            content="username"
+            content={this.username}
           />
         </stencil-route-link>
       </div>
@@ -42,3 +50,5 @@ export class HeaderAccount {
     );
   }
 }
+
+AccountTunnel.injectProps(HeaderAccount, ["balance", "username"]);
