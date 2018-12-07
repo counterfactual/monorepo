@@ -9,10 +9,10 @@ export class AppLogo {
   render() {
     return (
       <h1 class="logo">
-        <a href="/">
+        <stencil-route-link url="/">
           <img src="/assets/icon/logo.svg" alt="Counterfactual" />
           <span>Playground</span>
-        </a>
+        </stencil-route-link>
       </h1>
     );
   }
