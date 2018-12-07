@@ -28,7 +28,7 @@ export class AccountEdit {
 
   render() {
     return [
-      <app-nav />,
+      <layout-header />,
       <div class="constraint">
         <widget-header>Account Settings</widget-header>
         <form-container onFormSubmitted={e => this.formSubmitionHandler()}>

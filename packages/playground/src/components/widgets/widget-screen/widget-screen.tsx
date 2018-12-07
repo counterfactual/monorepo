@@ -13,7 +13,7 @@ export class WidgetScreen {
       <div class="widget-screen">
         <div class="constraint">
           <div class="pre">
-            <app-connection />
+            <widget-connection />
 
             {this.exitable ? (
               <stencil-route-link url="/">
@@ -23,7 +23,7 @@ export class WidgetScreen {
           </div>
           <widget-card>
             <div class="logo">
-              <app-logo />
+              <widget-logo />
             </div>
             <widget-header>
               <slot name="header" />

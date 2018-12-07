@@ -25,7 +25,7 @@ export class DappContainer {
   private $onMessage: EventListenerObject = {} as EventListenerObject;
 
   render() {
-    return <app-nav />;
+    return <layout-header />;
   }
 
   getDappUrl(): string {

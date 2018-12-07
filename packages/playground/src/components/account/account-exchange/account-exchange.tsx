@@ -19,7 +19,7 @@ export class AccountExchange {
 
   render() {
     return [
-      <app-nav />,
+      <layout-header />,
       <div class="form-containers">
         <div class="form-container">
           <widget-header>Deposit</widget-header>
