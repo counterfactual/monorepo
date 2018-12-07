@@ -15,7 +15,7 @@ export class AppAccount {
   render() {
     return this.authenticated ? (
       <div class="info-container">
-        <stencil-route-link url="/deposit">
+        <stencil-route-link url="/exchange">
           <app-account-info
             src="/assets/icon/cf.png"
             header="Balance"

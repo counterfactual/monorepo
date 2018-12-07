@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
 
 @Component({
   tag: "widget-screen",
@@ -6,23 +6,28 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class WidgetScreen {
+  @Prop() exitable: boolean = true;
+
   render() {
     return (
       <div class="widget-screen">
         <div class="constraint">
           <div class="pre">
             <app-connection />
-            <stencil-route-link url="/">
-              <button class="close" />
-            </stencil-route-link>
+
+            {this.exitable ? (
+              <stencil-route-link url="/">
+                <button class="close" />
+              </stencil-route-link>
+            ) : null}
           </div>
           <widget-card>
             <div class="logo">
               <app-logo />
             </div>
-            <h2 class="header">
+            <widget-header>
               <slot name="header" />
-            </h2>
+            </widget-header>
             <slot />
           </widget-card>
           <div class="post">

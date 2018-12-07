@@ -1,8 +1,6 @@
 import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
-import { DepositChangeset } from "../../../types";
-
 @Component({
   tag: "account-deposit",
   styleUrl: "account-deposit.scss",
@@ -12,20 +10,14 @@ export class AccountDeposit {
   @Prop() balance: number = 0;
   @Prop() history: RouterHistory = {} as RouterHistory;
 
-  changeset: DepositChangeset = {};
-
-  change(key, event) {
-    this.changeset[key] = event.target.value;
-  }
-
-  formSubmitionHandler() {
-    console.log(this.changeset);
+  formSubmitionHandler(e) {
+    console.log(e.target.value);
     this.history.push("/");
   }
 
   render() {
     return (
-      <widget-screen>
+      <widget-screen exitable={false}>
         <div slot="header">Fund your account</div>
 
         <p class="details">
@@ -34,22 +26,11 @@ export class AccountDeposit {
           ornare nunc.
         </p>
 
-        <form-container onFormSubmitted={e => this.formSubmitionHandler()}>
-          <form-input
-            type="number"
-            unit="ETH"
-            value={this.changeset.amount}
-            onChange={e => this.change("amount", e)}
-          >
-            <div class="balance-label" slot="label">
-              <div>Available Balance</div>
-              <div>{this.balance} ETH</div>
-            </div>
-          </form-input>
-          <form-button onButtonPressed={e => this.formSubmitionHandler()}>
-            Proceed
-          </form-button>
-        </form-container>
+        <account-eth-form
+          onSubmit={e => this.formSubmitionHandler(e)}
+          button="Proceed"
+          available={this.balance}
+        />
       </widget-screen>
     );
   }

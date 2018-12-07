@@ -30,7 +30,7 @@ export class AccountEdit {
     return [
       <app-nav />,
       <div class="constraint">
-        <h2 class="header">Account Settings</h2>
+        <widget-header>Account Settings</widget-header>
         <form-container onFormSubmitted={e => this.formSubmitionHandler()}>
           <form-input
             label="Username"
