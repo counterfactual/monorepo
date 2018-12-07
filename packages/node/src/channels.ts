@@ -8,13 +8,42 @@ type Channel = legacy.channel.StateChannelInfo;
 
 /**
  * The schema for a channel is as follows:
- * [address: Address, peerAddress: Address]: {
- *   channelAddress: Address,
- * . appInstances: Map<AppInstanceID, {
- *     appInstance: AppInstanceInfo,
- *     commitments: Map<ProtocolName, Commitment>
- *   },
- * . freeBalance: FreeBalance,
+ * multisigAddress: {
+ *  multisigOwners: Address[],
+ *  appNonceCount: number,
+ *  appInstances: Map<AppInstanceID,
+ *    appInstance: {
+ *      id: string,
+ *      appId: Address,
+ *      abiEncodings: {
+ *        stateEncoding: string,
+ *        actionEncoding: string
+ *      },
+ *      asset: {
+ *        assetType: AssetType,
+ *        token?: Address
+ *      },
+ *      myDeposit: BigNumber,
+ *      peerDeposit: BigNumber,
+ *      timeout: BigNumber
+ *    }
+ *  },
+ *  freeBalances: Map<AssetType,
+ *    freeBalance: {
+ *      alice: Address,
+ *      aliceBalance: BigNumber,
+ *      bob: Address,
+ *      bobBalance: BigNumber,
+ *      uniqueId: number,
+ *      localNonce: number,
+ *      timeout: number,
+ *      dependencyNonce: {
+ *        isSet: boolean,
+ *        salt: string,
+ *        nonceValue: number
+ *      }
+ *    }
+ *  }
  * }
  */
 export class Channels {
