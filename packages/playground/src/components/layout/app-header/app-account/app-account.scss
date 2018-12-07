@@ -1,0 +1,35 @@
+.info-container {
+  display: flex;
+
+  app-account-info {
+    margin-right: 40px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+@media screen and (max-width: $screen-sm) {
+  .info-container {
+    flex-direction: column;
+
+    app-account-info {
+      margin-bottom: 12px;
+    }
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+
+  .btn {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: $c-black;
+    font-size: 125%;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+}

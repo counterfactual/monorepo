@@ -25,6 +25,10 @@ export class DappContainer {
 
   private $onMessage: EventListenerObject = {} as EventListenerObject;
 
+  render() {
+    return <app-nav history={this.history} />;
+  }
+
   getDappUrl(): string {
     const dappSlug = this.match.params.dappName;
     for (const address in apps) {

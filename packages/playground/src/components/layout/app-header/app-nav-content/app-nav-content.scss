@@ -13,6 +13,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-right: 24px;
 }
 
 
@@ -28,5 +29,10 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    margin: 0;
+  }
+
+  .connection {
+    margin: 24px 0;
   }
 }

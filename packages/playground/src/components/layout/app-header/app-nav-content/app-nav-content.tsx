@@ -1,4 +1,5 @@
 import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 @Component({
   tag: "app-nav-content",
@@ -7,6 +8,7 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
 })
 export class AppNavContent {
   @Event() closeDrawer: EventEmitter = {} as EventEmitter;
+  @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() opened: boolean = false;
 
   private menuClicked(event: MouseEvent) {
@@ -26,9 +28,12 @@ export class AppNavContent {
               <img src="/assets/icon/menu-btn.svg" alt="Menu" />
             </a>
           </div>
-          <app-connection />
+          <div class="connection">
+            <app-connection />
+          </div>
         </div>
         <div class="right" />
+        <app-account history={this.history} />
       </nav>
     );
   }

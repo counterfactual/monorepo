@@ -16,7 +16,8 @@ export const config: Config = {
         "src/global/reset.scss",
         "src/global/typography.scss",
         "src/global/layout.scss",
-        "src/global/responsive.scss"
+        "src/global/responsive.scss",
+        "src/global/button.scss"
       ]
     })
   ]
