@@ -6,7 +6,11 @@ import { Channels } from "./channels";
 import { MethodHandler } from "./methods";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
-export default class Node {
+export interface NodeConfig {
+  MULTISIG_KEY_PREFIX: string;
+}
+
+export class Node {
   /**
    * The event that Node consumers can listen on for messages from other
    * nodes.
@@ -22,10 +26,6 @@ export default class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  /**
-   * This encapsulates the state and persistence of all the channels in the
-   * context of this Node.
-   */
   private readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
 
@@ -36,12 +36,17 @@ export default class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService
+    private readonly storeService: IStoreService,
+    nodeConfig: NodeConfig
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.channels = new Channels(this.signer.address, this.storeService);
+    this.channels = new Channels(
+      this.signer.address,
+      this.storeService,
+      nodeConfig.MULTISIG_KEY_PREFIX
+    );
     this.registerMessagingConnection();
     new MethodHandler(this.incoming, this.outgoing, this.channels);
   }

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
 
-import { IMessagingService, Node } from "../../src";
+import { IMessagingService, Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
@@ -15,6 +15,7 @@ describe("Two nodes can communicate with each other", () => {
   let messagingService: IMessagingService;
   let nodeA: Node;
   let nodeB: Node;
+  let nodeConfig: NodeConfig;
 
   beforeAll(() => {
     const firebaseServiceFactory = new FirebaseServiceFactory(
@@ -25,11 +26,24 @@ describe("Two nodes can communicate with each other", () => {
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
+    nodeConfig = {
+      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+    };
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService, MOCK_STORE_SERVICE);
+    nodeA = new Node(
+      A_PRIVATE_KEY,
+      messagingService,
+      MOCK_STORE_SERVICE,
+      nodeConfig
+    );
+    nodeB = new Node(
+      B_PRIVATE_KEY,
+      messagingService,
+      MOCK_STORE_SERVICE,
+      nodeConfig
+    );
   });
 
   afterAll(() => {

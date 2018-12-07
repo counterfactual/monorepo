@@ -8,4 +8,5 @@ export interface IMessagingService {
 export interface IStoreService {
   get(key: string): Promise<any>;
   set(key: string, value: any): Promise<boolean>;
+  add(key: string, value: any): Promise<boolean>;
 }

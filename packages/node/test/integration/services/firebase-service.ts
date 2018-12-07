@@ -50,7 +50,8 @@ class FirebaseStoreService implements IStoreService {
   async get(key: string): Promise<any> {
     let result: any;
     await this.firebase
-      .ref(`${this.storeServiceKey}/${key}`)
+      .ref(this.storeServiceKey)
+      .child(key)
       .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
@@ -64,7 +65,17 @@ class FirebaseStoreService implements IStoreService {
   }
 
   async set(key: string, value: any): Promise<any> {
-    return await this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
+    return await this.firebase
+      .ref(this.storeServiceKey)
+      .child(key)
+      .set(value);
+  }
+
+  async add(key: string, value: any): Promise<boolean> {
+    return await this.firebase
+      .ref(this.storeServiceKey)
+      .child(key)
+      .push(value);
   }
 }
 

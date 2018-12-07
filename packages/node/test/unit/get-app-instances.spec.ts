@@ -2,20 +2,31 @@ import {
   AppInstanceInfo,
   Node as NodeTypes
 } from "@counterfactual/common-types";
+import dotenv from "dotenv";
 
-import { Node } from "../../src";
+import { Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY } from "../env";
 
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
 
+dotenv.config();
+
 describe("Node method follows spec - getAppInstances", () => {
+  let nodeConfig: NodeConfig;
+  beforeAll(() => {
+    nodeConfig = {
+      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+    };
+  });
+
   it("can accept a valid call to get app instances", async done => {
     const node = new Node(
       A_PRIVATE_KEY,
       MOCK_MESSAGING_SERVICE,
-      MOCK_STORE_SERVICE
+      MOCK_STORE_SERVICE,
+      nodeConfig
     );
 
     const requestId = "1";

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
 
-import { IStoreService, Node } from "../../src";
+import { IStoreService, Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
@@ -14,6 +14,7 @@ describe("Node can use storage service", () => {
   let firebaseServer: FirebaseServer;
   let storeService: IStoreService;
   let node: Node;
+  let nodeConfig: NodeConfig;
 
   beforeAll(() => {
     const firebaseServiceFactory = new FirebaseServiceFactory(
@@ -24,7 +25,15 @@ describe("Node can use storage service", () => {
     storeService = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
-    node = new Node(A_PRIVATE_KEY, MOCK_MESSAGING_SERVICE, storeService);
+    nodeConfig = {
+      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+    };
+    node = new Node(
+      A_PRIVATE_KEY,
+      MOCK_MESSAGING_SERVICE,
+      storeService,
+      nodeConfig
+    );
   });
 
   afterAll(() => {

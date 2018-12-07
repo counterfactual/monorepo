@@ -1,14 +1,26 @@
 import { legacy } from "@counterfactual/cf.js";
-import { Address, AppInstanceInfo, Node } from "@counterfactual/common-types";
+import {
+  Address,
+  AppABIEncodings,
+  AppInstanceID,
+  AppInstanceInfo,
+  AssetType,
+  Node
+} from "@counterfactual/common-types";
 import { ethers } from "ethers";
 
 import { IStoreService } from "./service-interfaces";
 
-type Channel = legacy.channel.StateChannelInfo;
+type Nonce = legacy.utils.Nonce;
 
 /**
- * The schema for a channel is as follows:
+ * This file encapsulates the schema, state, and persistence of all the channels.
+ */
+
+/**
+ * The fully expanded schema for a channel is:
  * multisigAddress: {
+ *  multisigAddress: Address,
  *  multisigOwners: Address[],
  *  appNonceCount: number,
  *  appInstances: Map<AppInstanceID,
@@ -19,13 +31,15 @@ type Channel = legacy.channel.StateChannelInfo;
  *        stateEncoding: string,
  *        actionEncoding: string
  *      },
+ *      appState: any,
+ *      localNonce: Nonce,
+ *      timeout: BigNumber,
  *      asset: {
  *        assetType: AssetType,
+ *        limit: BigNumber
  *        token?: Address
  *      },
- *      myDeposit: BigNumber,
- *      peerDeposit: BigNumber,
- *      timeout: BigNumber
+ *      deposits: Map<Address, BigNumber>
  *    }
  *  },
  *  freeBalances: Map<AssetType,
@@ -46,32 +60,121 @@ type Channel = legacy.channel.StateChannelInfo;
  *  }
  * }
  */
+
+interface FreeBalances {
+  // based on AssetType enum
+  [assetType: number]: {
+    // TODO: rename free balance properties
+    alice: Address;
+    aliceBalance: ethers.utils.BigNumber;
+    bob: Address;
+    bobBalance: ethers.utils.BigNumber;
+    uniqueId: number;
+    localNonce: number;
+    timeout: number;
+    dependencyNonce: Nonce;
+  };
+}
+class Channel {
+  private appsNonce: number = 0;
+  private appInstances: {
+    [appInstanceID: string]: {
+      id: AppInstanceID;
+      appId: Address;
+      abiEncodings: AppABIEncodings;
+      appState: any;
+      localNonce: Nonce;
+      timeout: ethers.utils.BigNumber;
+      blockchainAsset: {
+        assetType: AssetType;
+        limit: ethers.utils.BigNumber;
+        token?: Address;
+      };
+      deposits: {
+        [address: string]: ethers.utils.BigNumber;
+      };
+    };
+  } = {};
+
+  constructor(
+    private readonly multisigAddress: Address,
+    private readonly multisigOwners: Address[],
+    private readonly freeBalances: FreeBalances
+  ) {
+    console.log(
+      this.multisigAddress,
+      this.multisigOwners,
+      this.freeBalances,
+      this.appsNonce,
+      this.appInstances
+    );
+  }
+
+  toJson(): string {
+    return "";
+  }
+
+  static fromJson(serializedChannel: string) {}
+}
+
 export class Channels {
+  /**
+   * A convenience struct to lookup multisig address from a set of owners.
+   */
+  private readonly ownersToMultisigAddress = new Map<Address[], Address>();
+
+  /**
+   * @param address The address of the account being used with the Node.
+   * @param store
+   * @param multisigKeyPrefix The prefix to add to the key being used
+   *        for indexing multisig addresses according to the execution
+   *        environment.
+   */
   constructor(
     private readonly address: Address,
-    private readonly store: IStoreService
+    private readonly store: IStoreService,
+    private readonly multisigKeyPrefix: string
   ) {}
 
-  private getChannel(peerAddress: Address) {
-    const channelJSON = this.store.get(
-      canonicalizeAddressesKey([this.address, peerAddress])
+  addChannel(
+    multisigAddress: Address,
+    multisigOwners: Address[],
+    freeBalances: FreeBalances
+  ) {
+    const channel: Channel = new Channel(
+      multisigAddress,
+      multisigOwners,
+      freeBalances
     );
-    // TODO: deserialize json
-    return;
+    this.store.set(
+      `${this.multisigKeyPrefix}-${multisigAddress}`,
+      channel.toJson()
+    );
+
+    this.store.add(this.multisigKeyPrefix, multisigAddress);
+  }
+
+  // @ts-ignore
+  private async getChannel(peerAddress: Address): Promise<Channel> {
+    const owners = canonicalizeAddresses([this.address, peerAddress]);
+    if (!this.ownersToMultisigAddress.has(owners)) {
+      throw Error(`No channel exists with the specified peer: ${peerAddress}`);
+    }
+    const multisigAddress = this.ownersToMultisigAddress.get(
+      canonicalizeAddresses([this.address, peerAddress])
+    )!;
+    const channelJSON = await this.store.get(multisigAddress);
+    console.log("got channel: ", channelJSON);
+    return Promise.resolve({} as any);
   }
 
   async getAllApps(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
-    const channels = await this.store.get("*");
-    channels.forEach((channel: Channel, addresses: Address[]) => {
-      const channelApps: legacy.app.AppInstanceInfos = channel.appInstances;
-      console.log(channelApps);
-    });
     return apps;
   }
 
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
-    const channel = this.getChannel(params.peerAddress);
+    // const channel = this.getChannel(params.peerAddress);
     // TODO: generate unique ID for the proposed app
     return "1";
   }
@@ -82,14 +185,4 @@ function canonicalizeAddresses(addresses: Address[]): Address[] {
     return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
   });
   return addresses;
-}
-
-/**
- * This turns an array of addresses into a string to be used as a key,
- * and it assumes that exactly two addresses are in the array.
- * @param addresses
- */
-function canonicalizeAddressesKey(addresses: Address[]): string {
-  const canonicalAddresses = canonicalizeAddresses(addresses);
-  return `${(canonicalAddresses[0], canonicalAddresses[1])}`;
 }
