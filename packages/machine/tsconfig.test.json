@@ -1,12 +1,4 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceRoot": ".",
-    // TODO: Document why we need declarationDir here
-    "declarationDir": "dist/",
-    "outDir": "dist/"
-  },
-  "include": ["src", "test"],
-  "exclude": ["dist"]
+  "extends": "./tsconfig.json",
+  "include": ["test"],
 }

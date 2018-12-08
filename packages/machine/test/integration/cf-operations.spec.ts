@@ -14,7 +14,7 @@ import {
   UNUSED_FUNDED_ACCOUNT_PRIVATE_KEY
 } from "../utils/environment";
 
-import { TestResponseSink } from "./test-response-sink";
+import { TestResponseSink } from "../utils/test-response-sink";
 
 // FIXME: Remove this dependency!
 // https://github.com/counterfactual/monorepo/issues/103

@@ -1,17 +1,16 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { Opcode } from "../../src/opcodes";
-import { InstallProposer } from "../../src/middleware/state-transition/install-proposer";
-import { SetupProposer } from "../../src/middleware/state-transition/setup-proposer";
-import { Node, StateChannelInfoImpl } from "../../src/node";
-import { InternalMessage } from "../../src/types";
+import { InstallProposer } from "../../../src/middleware/state-transition/install-proposer";
+import { Node, StateChannelInfoImpl } from "../../../src/node";
+import { Opcode } from "../../../src/opcodes";
+import { InternalMessage } from "../../../src/types";
 
 import {
   A_ADDRESS,
   B_ADDRESS,
   UNUSED_FUNDED_ACCOUNT
-} from "../utils/environment";
+} from "../../test-helpers/environment";
 
 // install params
 const KEY_A = "0x9e5d9691ad19e3b8c48cb9b531465ffa73ee8dd3";
@@ -25,22 +24,13 @@ const IS_STATE_TERMINAL = "0x00000004";
 const ABI_ENCODING = "";
 
 describe("State transition", () => {
-  it("should propose a new setup state", () => {
-    const message = new InternalMessage(
-      cf.legacy.node.ActionName.SETUP,
-      Opcode.STATE_TRANSITION_PROPOSE,
-      setupClientMsg(),
-    );
-    const proposal = SetupProposer.propose(message);
-    validateSetupInfos(proposal.state);
-  });
   it("should propose a new install state", () => {
     const message = new InternalMessage(
-      cf.legacy.node.ActionName.INSTALL,
+      legacy.node.ActionName.INSTALL,
       Opcode.STATE_TRANSITION_PROPOSE,
-      installClientMsg(),
+      installClientMsg()
     );
-    const expectedCfAddr = new cf.legacy.app.AppInstance(
+    const expectedCfAddr = new legacy.app.AppInstance(
       message.clientMessage.multisigAddress,
       [KEY_A, KEY_B],
       message.clientMessage.data.app,
@@ -63,20 +53,8 @@ describe("State transition", () => {
   });
 });
 
-function setupClientMsg(): cf.legacy.node.ClientActionMessage {
-  return {
-    appInstanceId: "0",
-    action: cf.legacy.node.ActionName.SETUP,
-    data: {},
-    multisigAddress: UNUSED_FUNDED_ACCOUNT,
-    fromAddress: A_ADDRESS,
-    toAddress: B_ADDRESS,
-    seq: 0
-  };
-}
-
 function setupInstallState(): Node {
-  const freeBalance = new cf.legacy.utils.FreeBalance(
+  const freeBalance = new legacy.utils.FreeBalance(
     A_ADDRESS,
     ethers.utils.bigNumberify(20),
     B_ADDRESS,
@@ -84,7 +62,7 @@ function setupInstallState(): Node {
     0, // local nonce
     0, // uniqueId
     100, // timeout
-    new cf.legacy.utils.Nonce(true, 0, 0) // nonce
+    new legacy.utils.Nonce(true, 0, 0) // nonce
   );
   const info = new StateChannelInfoImpl(
     B_ADDRESS,
@@ -93,45 +71,28 @@ function setupInstallState(): Node {
     {},
     freeBalance
   );
-  const channelStates: cf.legacy.channel.StateChannelInfos = {
+  const channelStates: legacy.channel.StateChannelInfos = {
     [UNUSED_FUNDED_ACCOUNT]: info
   };
-  return new Node(channelStates);
+  return new Node(channelStates, {});
 }
 
-function validateSetupInfos(infos: cf.legacy.channel.StateChannelInfos) {
-  expect(Object.keys(infos).length).toEqual(1);
-  const info = infos[UNUSED_FUNDED_ACCOUNT];
-  expect(info.counterParty).toEqual(B_ADDRESS);
-  expect(info.me).toEqual(A_ADDRESS);
-  expect(Object.keys(info.appInstances).length).toEqual(0);
-  expect(info.freeBalance.balanceOfAddress(A_ADDRESS).toNumber()).toEqual(0);
-  expect(info.freeBalance.balanceOfAddress(B_ADDRESS).toNumber()).toEqual(0);
-  expect(info.freeBalance.localNonce).toEqual(0);
-  expect(info.freeBalance.uniqueId).toEqual(0);
-
-  const expectedSalt = ethers.utils.solidityKeccak256(["uint256"], [0]);
-
-  expect(info.freeBalance.dependencyNonce.nonceValue).toEqual(0);
-  expect(info.freeBalance.dependencyNonce.salt).toEqual(expectedSalt);
-}
-
-function installClientMsg(): cf.legacy.node.ClientActionMessage {
+function installClientMsg(): legacy.node.ClientActionMessage {
   return {
     appInstanceId: "0",
-    action: cf.legacy.node.ActionName.INSTALL,
+    action: legacy.node.ActionName.INSTALL,
     data: {
-      peerA: new cf.legacy.utils.PeerBalance(A_ADDRESS, 5),
-      peerB: new cf.legacy.utils.PeerBalance(B_ADDRESS, 3),
+      peerA: new legacy.utils.PeerBalance(A_ADDRESS, 5),
+      peerB: new legacy.utils.PeerBalance(B_ADDRESS, 3),
       keyA: KEY_A,
       keyB: KEY_B,
       encodedAppState: "0x0",
-      terms: new cf.legacy.app.Terms(
+      terms: new legacy.app.Terms(
         0,
         ethers.utils.bigNumberify(8),
         TOKEN_ADDRESS
       ),
-      app: new cf.legacy.app.AppInterface(
+      app: new legacy.app.AppInterface(
         APP_ADDRESS,
         APPLY_ACTION,
         RESOLVE,
@@ -149,8 +110,8 @@ function installClientMsg(): cf.legacy.node.ClientActionMessage {
 }
 
 function validateInstallInfos(
-  infos: cf.legacy.channel.StateChannelInfos,
-  expectedCfAddr: cf.legacy.utils.H256
+  infos: legacy.channel.StateChannelInfos,
+  expectedCfAddr: legacy.utils.H256
 ) {
   const stateChannel = infos[UNUSED_FUNDED_ACCOUNT];
 

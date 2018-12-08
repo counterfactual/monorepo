@@ -8,9 +8,9 @@ import {
   UNUSED_FUNDED_ACCOUNT
 } from "../../utils/environment";
 
-import { TestResponseSink } from "../test-response-sink";
-import { SetupProtocol } from "./setup-protocol";
-import { Depositor } from "./depositor";
+import { TestResponseSink } from "../../utils/test-response-sink";
+import { SetupProtocol } from "../../test-helpers/setup-protocol";
+import { Depositor } from "../../test-helpers/depositor";
 
 /**
  * Tests that the machine's State is correctly modified during the lifecycle

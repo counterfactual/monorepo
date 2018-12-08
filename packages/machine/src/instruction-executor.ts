@@ -210,7 +210,5 @@ export interface IntermediateResults {
 
 export interface Context {
   intermediateResults: IntermediateResults;
-  // TODO: @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll the following fields are very special-purpose and only accessed
-  // in one place; it would be nice to get rid of them
   instructionExecutor: InstructionExecutor;
 }

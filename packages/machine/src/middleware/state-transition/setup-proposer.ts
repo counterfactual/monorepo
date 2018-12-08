@@ -19,8 +19,7 @@ const FREE_BALANCE_UNIQUE_ID = 0;
  */
 export class SetupProposer {
   public static propose(message: InternalMessage): StateProposal {
-    const toAddress = message.clientMessage.toAddress;
-    const fromAddress = message.clientMessage.fromAddress;
+    const { toAddress, fromAddress } = message.clientMessage;
 
     const balances = cf.legacy.utils.PeerBalance.balances(
       toAddress,
@@ -28,7 +27,9 @@ export class SetupProposer {
       fromAddress,
       ethers.utils.bigNumberify(0)
     );
+
     const localNonce = 0;
+
     const freeBalance = new cf.legacy.utils.FreeBalance(
       balances.peerA.address,
       balances.peerA.balance,
@@ -39,6 +40,7 @@ export class SetupProposer {
       FREE_BALANCE_TIMEOUT,
       new cf.legacy.utils.Nonce(false, FREE_BALANCE_UNIQUE_ID, 0)
     );
+
     const stateChannel = new StateChannelInfoImpl(
       toAddress,
       fromAddress,
@@ -46,6 +48,7 @@ export class SetupProposer {
       {},
       freeBalance
     );
+
     return {
       state: {
         [String(message.clientMessage.multisigAddress)]: stateChannel

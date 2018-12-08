@@ -5,10 +5,10 @@ import {
   B_ADDRESS,
 } from "../../utils/environment";
 
-import { TestResponseSink } from "../test-response-sink";
-import { SetupProtocol } from "./setup-protocol";
-import { Depositor } from "./depositor";
-import { TicTacToeSimulator } from "./tic-tac-toe-simulator";
+import { TestResponseSink } from "../../utils/test-response-sink";
+import { SetupProtocol } from "../../test-helpers/setup-protocol";
+import { Depositor } from "../../test-helpers/depositor";
+import { TicTacToeSimulator } from "../../utils/tic-tac-toe-simulator";
 
 /**
  * Tests that the machine's State is correctly modified during the lifecycle

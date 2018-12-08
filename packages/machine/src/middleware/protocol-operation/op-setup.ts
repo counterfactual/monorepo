@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AppIdentity, Terms } from "@counterfactual/types";
 
-import { appIdentityToHash } from "../../utils";
+import { appIdentityToHash } from "../../utils/app-identity";
 
 import { MultisigTxOp } from "./multisig-tx-op";
 import { MultisigInput, Operation } from "./types";

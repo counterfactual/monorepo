@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import { TestResponseSink } from "../test-response-sink";
+import { TestResponseSink } from "../../utils/test-response-sink";
 import { ethers } from "ethers";
 import {
   UNUSED_FUNDED_ACCOUNT

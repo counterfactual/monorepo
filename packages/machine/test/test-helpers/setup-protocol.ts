@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 import { UNUSED_FUNDED_ACCOUNT } from "../../utils/environment";
 
-import { TestResponseSink } from "../test-response-sink";
+import { TestResponseSink } from "../../utils/test-response-sink";
 
 /**
  * A collection of static methods responsible for running the setup potocol

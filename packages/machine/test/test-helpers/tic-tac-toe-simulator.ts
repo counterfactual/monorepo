@@ -3,9 +3,9 @@ import { ethers } from "ethers";
 
 import {
   UNUSED_FUNDED_ACCOUNT
-} from "../../utils/environment";
+} from "./environment";
 
-import { TestResponseSink } from "../test-response-sink";
+import { TestResponseSink } from "./test-response-sink";
 
 export class TicTacToeSimulator {
   public static async simulatePlayingGame(

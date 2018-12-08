@@ -5,7 +5,7 @@ import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.j
 import { AppIdentity, SignedStateHashUpdate } from "@counterfactual/types";
 
 import { NetworkContext } from "../../types";
-import { appIdentityToHash } from "../../utils";
+import { appIdentityToHash } from "../../utils/app-identity";
 
 import { ProtocolOperation, Transaction } from "./types";
 

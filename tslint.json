@@ -1,11 +1,15 @@
 {
+
   "extends": [
     "tslint-config-airbnb",
     "tslint-plugin-prettier",
     "tslint-config-prettier"
   ],
+
   "rules": {
+
     "prettier": true,
+
     // TODO: Remove this override once tslint-microsoft-contrib releases 5.2.2.
     // https://github.com/counterfactual/monorepo/issues/216
     "function-name": [true, {
@@ -15,12 +19,15 @@
       "static-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
       "function-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$"
     }],
+
     // NOTE: Added by Liam. I just prefer this rule to be on. Looks clean.
     "ordered-imports": [
       true,
       {"grouped-imports": true}
     ],
+
     // See https://github.com/counterfactual/monorepo/pull/231#discussion_r233860710
     "import-name": false
+
   }
 }

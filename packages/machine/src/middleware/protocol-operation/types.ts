@@ -1,11 +1,9 @@
-import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import MultiSendJson from "@counterfactual/contracts/build/contracts/MultiSend.json";
 
 export abstract class ProtocolOperation {
-  public abstract hashToSign(): legacy.utils.H256;
-
+  public abstract hashToSign(): string;
   public abstract transaction(sigs: ethers.utils.Signature[]): Transaction;
 }
 
@@ -18,7 +16,7 @@ export enum Operation {
 
 export class Transaction {
   constructor(
-    readonly to: legacy.utils.Address,
+    readonly to: string,
     readonly value: number,
     readonly data: string
   ) {}
@@ -26,9 +24,9 @@ export class Transaction {
 
 export class MultisigTransaction extends Transaction {
   constructor(
-    readonly to: legacy.utils.Address,
+    readonly to: string,
     readonly value: number,
-    readonly data: legacy.utils.Bytes,
+    readonly data: string,
     readonly operation: Operation
   ) {
     super(to, value, data);
@@ -37,9 +35,9 @@ export class MultisigTransaction extends Transaction {
 
 export class MultisigInput {
   constructor(
-    readonly to: legacy.utils.Address,
+    readonly to: string,
     readonly val: number,
-    readonly data: legacy.utils.Bytes,
+    readonly data: string,
     readonly op: Operation,
     readonly signatures?: ethers.utils.Signature[]
   ) {}
@@ -48,7 +46,7 @@ export class MultisigInput {
 export class MultiSend {
   constructor(readonly transactions: MultisigInput[]) {}
 
-  public input(multisend: legacy.utils.Address): MultisigInput {
+  public input(multisend: string): MultisigInput {
     let txs: string = "0x";
 
     for (const transaction of this.transactions) {

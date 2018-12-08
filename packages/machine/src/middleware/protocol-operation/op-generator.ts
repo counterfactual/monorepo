@@ -1,11 +1,12 @@
 import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
-import { APP_INTERFACE, TERMS } from "../../encodings";
 import {
+  encodeFreeBalanceState,
+  freeBalanceTerms,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
-} from "../../free-balance-helpers";
+} from "../../utils/free-balance";
 import { Context } from "../../instruction-executor";
 import { Node } from "../../node";
 import { InternalMessage } from "../../types";
@@ -16,8 +17,8 @@ import { OpSetup } from "./op-setup";
 import { OpUninstall } from "./op-uninstall";
 import { ProtocolOperation } from "./types";
 
-const { defaultAbiCoder, keccak256, Interface, BigNumber } = ethers.utils;
-const { AddressZero } = ethers.constants;
+const { keccak256, BigNumber } = ethers.utils;
+const { AddressZero, MaxUint256 } = ethers.constants;
 
 export class EthOpGenerator {
   public static generate(
@@ -27,7 +28,9 @@ export class EthOpGenerator {
     node: Node
   ): ProtocolOperation {
     const proposedState = context.intermediateResults.proposedStateTransition!;
+
     let op;
+
     if (message.actionName === legacy.node.ActionName.UPDATE) {
       op = this.update(message, context, node, proposedState.state);
     } else if (message.actionName === legacy.node.ActionName.INSTALL) {
@@ -41,6 +44,7 @@ export class EthOpGenerator {
     } else if (message.actionName === legacy.node.ActionName.UNINSTALL) {
       op = this.uninstall(message, context, node, proposedState.state);
     }
+
     return op;
   }
 
@@ -51,11 +55,13 @@ export class EthOpGenerator {
     proposedUpdate: any
   ): ProtocolOperation {
     const multisig: string = message.clientMessage.multisigAddress;
+
     if (message.clientMessage.appInstanceId === undefined) {
       // FIXME: handle more gracefully
       // https://github.com/counterfactual/monorepo/issues/121
       throw Error("update message must have appId set");
     }
+
     const appChannel =
       proposedUpdate[multisig].appInstances[
         message.clientMessage.appInstanceId
@@ -129,7 +135,7 @@ export class EthOpGenerator {
       },
       {
         assetType: 0, // ETH,
-        limit: ethers.constants.MaxUint256,
+        limit: MaxUint256,
         token: AddressZero
       }
     );
@@ -172,66 +178,18 @@ export class EthOpGenerator {
       multisig,
       [message.clientMessage.fromAddress, message.clientMessage.toAddress],
       appIdentity,
-      // TODO: Replace usage of appChannel with Terms interface obj
-      {
-        assetType: appChannel.terms.assetType,
-        limit: appChannel.terms.limit,
-        token: appChannel.terms.token
-      },
+      appChannel.terms,
       {
         owner: multisig,
         signingKeys: [freeBalance.alice, freeBalance.bob],
-        appInterfaceHash: keccak256(
-          defaultAbiCoder.encode(
-            [APP_INTERFACE],
-            [
-              {
-                addr: AddressZero,
-                resolve: new Interface([
-                  `resolve(
-                    tuple(address,address,uint256,uint256),
-                    tuple(uint8,uint256,address)
-                  )`
-                ]).functions.resolve.sighash,
-                getTurnTaker: "0x00000000",
-                isStateTerminal: "0x00000000",
-                applyAction: "0x00000000"
-              }
-            ]
-          )
+        appInterfaceHash: getFreeBalanceAppInterfaceHash(
+          node.networkContext.ETHBucket
         ),
-        termsHash: keccak256(
-          defaultAbiCoder.encode(
-            [TERMS],
-            [
-              {
-                assetType: 0,
-                // TODO: Note that the limit needs to be limitness
-                limit: -1,
-                token: AddressZero
-              }
-            ]
-          )
-        ),
+        termsHash: freeBalanceTermsHash,
         defaultTimeout: 100
       },
-      {
-        assetType: 0,
-        // TODO: Note that the limit needs to be limitness
-        limit: ethers.constants.MaxUint256,
-        token: AddressZero
-      },
-      keccak256(
-        defaultAbiCoder.encode(
-          ["address", "address", "uint256", "uint256"],
-          [
-            newFreeBalance.alice,
-            newFreeBalance.bob,
-            newFreeBalance.aliceBalance,
-            newFreeBalance.bobBalance
-          ]
-        )
-      ),
+      freeBalanceTerms,
+      keccak256(encodeFreeBalanceState(newFreeBalance)),
       newFreeBalance.localNonce,
       newFreeBalance.timeout,
       newFreeBalance.dependencyNonce.salt
@@ -245,7 +203,9 @@ export class EthOpGenerator {
     proposedUninstall: any
   ): ProtocolOperation {
     const multisig: string = message.clientMessage.multisigAddress;
+
     const cfAddr = message.clientMessage.appInstanceId;
+
     if (cfAddr === undefined) {
       throw new Error("update message must have appId set");
     }
@@ -271,57 +231,14 @@ export class EthOpGenerator {
       {
         owner: multisig,
         signingKeys: [freeBalance.alice, freeBalance.bob],
-        appInterfaceHash: keccak256(
-          defaultAbiCoder.encode(
-            [APP_INTERFACE],
-            [
-              {
-                addr: AddressZero,
-                resolve: new Interface([
-                  `resolve(
-                    tuple(address,address,uint256,uint256),
-                    tuple(uint8,uint256,address)
-                  )`
-                ]).functions.resolve.sighash,
-                getTurnTaker: "0x00000000",
-                isStateTerminal: "0x00000000",
-                applyAction: "0x00000000"
-              }
-            ]
-          )
+        appInterfaceHash: getFreeBalanceAppInterfaceHash(
+          node.networkContext.ETHBucket
         ),
-        termsHash: keccak256(
-          defaultAbiCoder.encode(
-            [TERMS],
-            [
-              {
-                assetType: 0,
-                // TODO: Note that the limit needs to be limitness
-                limit: -1,
-                token: AddressZero
-              }
-            ]
-          )
-        ),
+        termsHash: freeBalanceTermsHash,
         defaultTimeout: 100
       },
-      {
-        assetType: 0,
-        // TODO: Note that the limit needs to be limitness
-        limit: ethers.constants.MaxUint256,
-        token: AddressZero
-      },
-      keccak256(
-        defaultAbiCoder.encode(
-          ["address", "address", "uint256", "uint256"],
-          [
-            newFreeBalance.alice,
-            newFreeBalance.bob,
-            newFreeBalance.aliceBalance,
-            newFreeBalance.bobBalance
-          ]
-        )
-      ),
+      freeBalanceTerms,
+      keccak256(encodeFreeBalanceState(newFreeBalance)),
       newFreeBalance.localNonce,
       newFreeBalance.timeout,
       appChannel.dependencyNonce.salt

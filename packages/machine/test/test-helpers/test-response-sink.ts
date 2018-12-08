@@ -1,4 +1,4 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
 import {
@@ -7,14 +7,14 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/opcodes";
-import { InternalMessage } from "../../src/types";
+import { InternalMessage, NetworkContext } from "../../src/types";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-type ResponseConsumer = (arg: cf.legacy.node.Response) => void;
+const { AddressZero } = ethers.constants;
 
-export class TestResponseSink implements cf.legacy.node.ResponseSink {
+export class TestResponseSink implements legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;
   public io: TestIOProvider;
   public store: TestCommitmentStore;
@@ -24,12 +24,9 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
 
   // when TestResponseSink::run(.*)Protocol is called, the returned promise's
   // resolve function is captured and stored here
-  private runProtocolContinuation?: ResponseConsumer;
+  private runProtocolContinuation?: (arg: legacy.node.Response) => void;
 
-  constructor(
-    readonly privateKey: string,
-    networkContext?: cf.legacy.network.NetworkContext
-  ) {
+  constructor(readonly privateKey: string, networkContext?: NetworkContext) {
     this.active = false;
 
     this.store = new TestCommitmentStore();
@@ -48,7 +45,14 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     this.instructionExecutor = new InstructionExecutor(
       new InstructionExecutorConfig(
         this,
-        networkContext || cf.legacy.network.EMPTY_NETWORK_CONTEXT
+        networkContext || {
+          ETHBucket: AddressZero,
+          StateChannelTransaction: AddressZero,
+          MultiSend: AddressZero,
+          NonceRegistry: AddressZero,
+          AppRegistry: AddressZero,
+          ETHBalanceRefund: AddressZero
+        }
       )
     );
 
@@ -95,9 +99,9 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     fromAddress: string,
     toAddress: string,
     multisigAddress: string,
-    peerAmounts: cf.legacy.utils.PeerBalance[],
+    peerAmounts: legacy.utils.PeerBalance[],
     appId: string
-  ): Promise<cf.legacy.node.Response> {
+  ): Promise<legacy.node.Response> {
     this.active = true;
     this.instructionExecutor.runUninstallProtocol(
       fromAddress,
@@ -106,7 +110,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
       peerAmounts,
       appId
     );
-    return new Promise<cf.legacy.node.Response>(resolve => {
+    return new Promise<legacy.node.Response>(resolve => {
       this.runProtocolContinuation = resolve;
     });
   }
@@ -117,10 +121,10 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     multisigAddress: string,
     appId: string,
     encodedAppState: string,
-    appStateHash: cf.legacy.utils.H256
-  ): Promise<cf.legacy.node.Response> {
+    appStateHash: legacy.utils.H256
+  ): Promise<legacy.node.Response> {
     this.active = true;
-    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+    const promise = new Promise<legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runUpdateProtocol(
@@ -138,9 +142,9 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     fromAddress: string,
     toAddress: string,
     multisigAddress: string
-  ): Promise<cf.legacy.node.Response> {
+  ): Promise<legacy.node.Response> {
     this.active = true;
-    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+    const promise = new Promise<legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runSetupProtocol(
@@ -156,9 +160,9 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     toAddress: string,
     intermediary: string,
     multisigAddress: string
-  ): Promise<cf.legacy.node.Response> {
+  ): Promise<legacy.node.Response> {
     this.active = true;
-    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+    const promise = new Promise<legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runInstallMetachannelAppProtocol(
@@ -174,10 +178,10 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     fromAddress: string,
     toAddress: string,
     multisigAddress: string,
-    installData: cf.legacy.app.InstallData
-  ): Promise<cf.legacy.node.Response> {
+    installData: legacy.app.InstallData
+  ): Promise<legacy.node.Response> {
     this.active = true;
-    const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
+    const promise = new Promise<legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runInstallProtocol(
@@ -192,7 +196,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   /**
    * Resolves the registered promise so the test can continue.
    */
-  public sendResponse(res: cf.legacy.node.Response) {
+  public sendResponse(res: legacy.node.Response) {
     this.active = false;
     if (this.runProtocolContinuation) {
       this.runProtocolContinuation(res);
@@ -203,7 +207,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
   /**
    * Called When a peer wants to send an io messge to this wallet.
    */
-  public receiveMessageFromPeer(incoming: cf.legacy.node.ClientActionMessage) {
+  public receiveMessageFromPeer(incoming: legacy.node.ClientActionMessage) {
     this.io.receiveMessageFromPeer(incoming);
   }
 

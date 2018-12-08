@@ -44,28 +44,5 @@
     "unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257c",
     "unlockedAccount3": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
     "etherBalance": "1000000000000000000000000"
-  },
-  "jest": {
-    "verbose": false,
-    "bail": true,
-    "rootDir": ".",
-    "cacheDirectory": "jest-cache",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "\\.spec.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist"
-    ],
-    "roots": [
-      "test"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ],
-    "testURL": "http://localhost/"
   }
 }

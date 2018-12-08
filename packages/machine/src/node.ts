@@ -1,23 +1,23 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 
 /**
  * Node encapsulates the state of all the channels.
  */
 export class Node {
   constructor(
-    readonly channelStates: cf.legacy.channel.StateChannelInfos,
+    readonly channelStates: legacy.channel.StateChannelInfos,
     readonly networkContext: any
   ) {}
 
   public stateChannel(
-    multisig: cf.legacy.utils.Address
-  ): cf.legacy.channel.StateChannelInfo {
+    multisig: legacy.utils.Address
+  ): legacy.channel.StateChannelInfo {
     return this.channelStates[multisig];
   }
 
   public stateChannelFromMultisigAddress(
-    multisigAddress: cf.legacy.utils.Address
-  ): cf.legacy.channel.StateChannelInfo {
+    multisigAddress: legacy.utils.Address
+  ): legacy.channel.StateChannelInfo {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress];
@@ -26,15 +26,15 @@ export class Node {
   }
 
   public app(
-    multisig: cf.legacy.utils.Address,
-    cfAddr: cf.legacy.utils.H256
-  ): cf.legacy.app.AppInstanceInfo {
+    multisig: legacy.utils.Address,
+    cfAddr: legacy.utils.H256
+  ): legacy.app.AppInstanceInfo {
     return this.channelStates[multisig].appInstances[cfAddr];
   }
 
   public freeBalanceFromMultisigAddress(
-    multisigAddress: cf.legacy.utils.Address
-  ): cf.legacy.utils.FreeBalance {
+    multisigAddress: legacy.utils.Address
+  ): legacy.utils.FreeBalance {
     const multisig = this.channelStates[multisigAddress];
     if (multisig) {
       return this.channelStates[multisigAddress].freeBalance;
@@ -45,13 +45,13 @@ export class Node {
   /**
    * @returns a deep copy of the StateChannelInfos.
    */
-  public stateChannelInfosCopy(): cf.legacy.channel.StateChannelInfos {
-    return cf.legacy.utils.serializer.deserialize(
+  public stateChannelInfosCopy(): legacy.channel.StateChannelInfos {
+    return legacy.utils.serializer.deserialize(
       JSON.parse(JSON.stringify(this.channelStates))
     );
   }
 
-  public appChannelInfos(): cf.legacy.app.AppInstanceInfos {
+  public appChannelInfos(): legacy.app.AppInstanceInfos {
     const infos = {};
     for (const channel of Object.keys(this.channelStates)) {
       for (const appChannel of Object.keys(
@@ -66,14 +66,13 @@ export class Node {
   }
 }
 
-export class StateChannelInfoImpl
-  implements cf.legacy.channel.StateChannelInfo {
+export class StateChannelInfoImpl implements legacy.channel.StateChannelInfo {
   constructor(
-    readonly counterParty: cf.legacy.utils.Address,
-    readonly me: cf.legacy.utils.Address,
-    readonly multisigAddress: cf.legacy.utils.Address,
-    readonly appInstances: cf.legacy.app.AppInstanceInfos = {},
-    readonly freeBalance: cf.legacy.utils.FreeBalance
+    readonly counterParty: legacy.utils.Address,
+    readonly me: legacy.utils.Address,
+    readonly multisigAddress: legacy.utils.Address,
+    readonly appInstances: legacy.app.AppInstanceInfos = {},
+    readonly freeBalance: legacy.utils.FreeBalance
   ) {}
 
   /**
