@@ -19,8 +19,7 @@ export class AppInstance {
     readonly signingKeys: Address[],
     readonly cfApp: AppInterface,
     readonly terms: Terms,
-    readonly timeout: number,
-    readonly uniqueId: number
+    readonly timeout: number
   ) {}
 
   public cfAddress(): H256 {

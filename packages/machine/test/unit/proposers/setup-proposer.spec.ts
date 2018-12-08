@@ -16,6 +16,18 @@ const { Zero } = ethers.constants;
 describe("SetupProposer", () => {
   let proposal: StateProposal;
 
+  // General interaction testing values
+  const interaction = {
+    sender: A_ADDRESS,
+    receiver: B_ADDRESS
+  };
+
+  // State channel testing values
+  const stateChannel = {
+    multisigAddress: UNUSED_FUNDED_ACCOUNT,
+    multisigOwners: [interaction.sender, interaction.receiver]
+  };
+
   beforeAll(() => {
     const message = new InternalMessage(
       legacy.node.ActionName.SETUP,
@@ -24,9 +36,9 @@ describe("SetupProposer", () => {
         appInstanceId: "0",
         action: legacy.node.ActionName.SETUP,
         data: {},
-        multisigAddress: UNUSED_FUNDED_ACCOUNT,
-        fromAddress: A_ADDRESS,
-        toAddress: B_ADDRESS,
+        multisigAddress: stateChannel.multisigAddress,
+        fromAddress: interaction.sender,
+        toAddress: interaction.receiver,
         seq: 0
       }
     );
@@ -37,7 +49,7 @@ describe("SetupProposer", () => {
   it("should return an object with one key, the multisig address", () => {
     const { state } = proposal;
     expect(Object.keys(state).length).toEqual(1);
-    expect(Object.keys(state)[0]).toBe(UNUSED_FUNDED_ACCOUNT);
+    expect(Object.keys(state)[0]).toBe(stateChannel.multisigAddress);
   });
 
   describe("the generated proposed state", () => {
@@ -48,7 +60,7 @@ describe("SetupProposer", () => {
     let freeBalance: legacy.utils.FreeBalance;
 
     beforeAll(() => {
-      const info = proposal.state[UNUSED_FUNDED_ACCOUNT];
+      const info = proposal.state[stateChannel.multisigAddress];
       counterParty = info.counterParty;
       me = info.me;
       multisigAddress = info.multisigAddress;
@@ -57,8 +69,8 @@ describe("SetupProposer", () => {
     });
 
     it("should be between me and the chosen counterparty ", () => {
-      expect(me).toBe(A_ADDRESS);
-      expect(counterParty).toBe(B_ADDRESS);
+      expect(me).toBe(interaction.sender);
+      expect(counterParty).toBe(interaction.receiver);
     });
 
     it("should not have any open apps", () => {
@@ -66,8 +78,8 @@ describe("SetupProposer", () => {
     });
 
     it("should start with me and my counterparty at 0 ETH balances", () => {
-      expect(freeBalance.balanceOfAddress(A_ADDRESS)).toEqual(Zero);
-      expect(freeBalance.balanceOfAddress(B_ADDRESS)).toEqual(Zero);
+      expect(freeBalance.balanceOfAddress(interaction.sender)).toEqual(Zero);
+      expect(freeBalance.balanceOfAddress(interaction.receiver)).toEqual(Zero);
     });
 
     it("should have a local nonce of 0 for the created free balance", () => {
@@ -89,7 +101,7 @@ describe("SetupProposer", () => {
     });
 
     it("should include the multisig address in the returned proposed state", () => {
-      expect(multisigAddress).toBe(UNUSED_FUNDED_ACCOUNT);
+      expect(multisigAddress).toBe(stateChannel.multisigAddress);
     });
   });
 });
