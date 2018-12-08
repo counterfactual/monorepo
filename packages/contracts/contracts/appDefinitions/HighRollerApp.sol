@@ -13,7 +13,7 @@ contract HighRollerApp {
   }
 
   enum Stage {
-    COMMITING_HASH, COMMITTING_NUM, REVEALING, DONE
+    COMMITTING_HASH, COMMITTING_NUM, REVEALING, DONE
   }
 
   enum Player {
@@ -62,7 +62,7 @@ contract HighRollerApp {
   {
     AppState memory nextState = state;
     if (action.actionType == ActionType.COMMIT_TO_HASH) {
-      require(state.stage == Stage.COMMITING_HASH, "Cannot apply COMMIT_TO_HASH on COMMITING_HASH");
+      require(state.stage == Stage.COMMITTING_HASH, "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH");
       nextState.stage = Stage.COMMITTING_NUM;
 
       nextState.commitHash = action.actionHash;
