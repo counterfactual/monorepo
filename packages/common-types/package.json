@@ -4,6 +4,7 @@
   "description": "Types that other Counterfactual packages share in common",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
+  "iife": "dist/index-iife.js",
   "license": "MIT",
   "private": true,
   "scripts": {

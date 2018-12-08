@@ -1,5 +1,5 @@
 import { Component, Element, Prop } from "@stencil/core";
-import { MatchResults, RouterHistory } from "@stencil/router";
+import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
 
 import apps from "../../utils/app-list";
@@ -13,7 +13,6 @@ export class DappContainer {
   @Element() private element: HTMLElement | undefined;
 
   @Prop() match: MatchResults = {} as MatchResults;
-  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) url: string = "";
 
@@ -24,6 +23,10 @@ export class DappContainer {
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
 
   private $onMessage: EventListenerObject = {} as EventListenerObject;
+
+  render() {
+    return <layout-header />;
+  }
 
   getDappUrl(): string {
     const dappSlug = this.match.params.dappName;
@@ -52,17 +55,13 @@ export class DappContainer {
     this.frameWindow = iframe.contentWindow as Window;
     this.$onMessage = this.configureMessageChannel.bind(this);
 
-    // TODO: This won't work if the dapp is in a different host.
-    // We need to think a way of exchanging messages to make this
-    // possible.
-    this.frameWindow.addEventListener("message", this.$onMessage);
+    window.addEventListener("message", this.$onMessage);
 
     this.iframe = iframe;
   }
 
   componentDidUnload() {
     if (this.frameWindow) {
-      this.frameWindow.removeEventListener("message", this.$onMessage);
       this.frameWindow = null;
     }
 
@@ -109,6 +108,7 @@ export class DappContainer {
 
     if (event.data === "cf-node-provider:ready") {
       this.flushMessageQueue();
+      window.removeEventListener("message", this.$onMessage);
     }
   }
 

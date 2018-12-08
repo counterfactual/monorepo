@@ -5,7 +5,7 @@
 
 .icon {
   position: relative;
-  border-radius: 24px;
+  border-radius: $rhythm * 2;
 
   > .notification {
     position: absolute;
@@ -25,7 +25,7 @@
   > img {
     display: block;
     width: 126px;
-    border-radius: 24px;
+    border-radius: $rhythm * 2;
     object-fit: cover;
   }
 }

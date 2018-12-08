@@ -1,0 +1,31 @@
+.info-container {
+  display: flex;
+
+  > :first-child {
+    margin-right: 40px;
+  }
+}
+
+@media screen and (max-width: $screen-sm) {
+  .info-container {
+    flex-direction: column;
+
+    > * {
+      margin-bottom: $rhythm;
+    }
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+
+  .btn {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: $c-black;
+    font-size: 125%;
+    margin-bottom: $rhythm;
+    text-align: left;
+  }
+}
