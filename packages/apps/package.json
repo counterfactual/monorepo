@@ -24,7 +24,7 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
-    "ethereum-waffle": "snario/Waffle#liam/tmp-build",
+    "ethereum-waffle": "1.0.5",
     "ethers": "4.0.17",
     "solium": "^1.1.8",
     "ts-mocha": "^2.0.0",
