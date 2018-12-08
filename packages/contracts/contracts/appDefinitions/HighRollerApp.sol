@@ -8,26 +8,27 @@ contract HighRollerApp {
 
   enum ActionType {
     COMMIT_TO_HASH,
-    COMMIT_TO_NUM,
-    REVEAL
+    COMMIT_TO_NUM
   }
 
   enum Stage {
-    COMMITTING_HASH, COMMITTING_NUM, REVEALING, DONE
+    COMMITTING_HASH, 
+    COMMITTING_NUM, 
+    DONE
   }
 
   enum Player {
     FIRST,
-    SECOND,
-    TIE // TODO How should we handle this? Doesn't make sense that it is a "Player"
+    SECOND
   }
 
   struct AppState {
     address[2] playerAddrs;
     Stage stage;
+    bytes32 salt;
     bytes32 commitHash;
     uint256 commitNum;
-    Player winner;
+    uint256 hashNum;
   }
 
   struct Action {
@@ -68,23 +69,9 @@ contract HighRollerApp {
       nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(state.stage == Stage.COMMITTING_NUM, "Cannot apply COMMITTING_NUM on COMMITTING_NUM");
-      nextState.stage = Stage.REVEALING;
-
-      nextState.commitNum = action.number;
-    } else if (action.actionType == ActionType.REVEAL) {
-      require(state.stage == Stage.REVEALING, "Cannot apply REVEAL on REVEALING");
       nextState.stage = Stage.DONE;
 
-      bytes32 salt = action.actionHash;
-      uint256 playerFirstNumber = action.number;
-      uint256 playerSecondNumber = state.commitNum;
-
-
-      if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
-        nextState.winner = chooseWinner(playerFirstNumber, playerSecondNumber);
-      } else {
-        nextState.winner = Player.SECOND;
-      }
+      nextState.commitNum = action.number;
     } else {
       revert("Invalid action type");
     }
@@ -96,20 +83,20 @@ contract HighRollerApp {
     pure
     returns (Transfer.Transaction)
   {
-    uint256[] memory amounts = new uint256[](1);
-    amounts[0] = terms.limit;
+    bytes32 salt = state.salt;
+    uint256 playerFirstNumber = state.hashNum;
+    uint256 playerSecondNumber = state.commitNum;
 
-    address[] memory to = new address[](1);
-    uint256 player;
-
-    // TODO Need to handle TIE winner state
-    if (state.stage == Stage.DONE) {
-      player = uint256(state.winner);
+    uint256[] memory amounts = new uint256[](2);
+    address[] memory to = new address[](2);
+    to[0] = state.playerAddrs[0];
+    to[1] = state.playerAddrs[1];
+    if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
+      amounts = getWinningAmounts(playerFirstNumber, playerSecondNumber, terms.limit);
     } else {
-      // The player who is not the turn taker
-      player = 1 - uint256(getTurnTaker(state));
+      amounts[0] = 0;
+      amounts[1] = terms.limit;
     }
-    to[0] = state.playerAddrs[player];
 
     bytes[] memory data = new bytes[](2);
 
@@ -122,10 +109,10 @@ contract HighRollerApp {
     );
   }
 
-  function chooseWinner(uint256 num1, uint256 num2) 
+  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
     public
     pure
-    returns (Player)
+    returns (uint256[] amounts)
   {
     bytes32 finalHash = calculateFinalHash(num1, num2);
     (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = split32Hashto8(finalHash);
@@ -136,11 +123,15 @@ contract HighRollerApp {
     uint256 total1 = dice1 + dice2;
     uint256 total2 = dice3 + dice4;
     if (total1 > total2) {
-      return Player.FIRST;
+      amounts[0] = termsLimit;
+      amounts[1] = 0;
     } else if (total1 < total2) {
-      return Player.SECOND;
+      amounts[0] = 0;
+      amounts[1] = termsLimit;
+    } else {
+      amounts[0] = termsLimit / 2;
+      amounts[1] = termsLimit / 2;
     }
-    return Player.TIE;
   }
 
   function calculateFinalHash(uint256 num1, uint256 num2) 
