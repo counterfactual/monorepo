@@ -3,7 +3,11 @@ pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
 
-
+/*
+  This contract is for a dice rolling game.
+  Two players roll two dice each.
+  The winner is the player whose sum of dice outcomes is highest.
+*/
 contract HighRollerApp {
 
   enum ActionType {
