@@ -26,7 +26,8 @@ export class AppHome {
   }
 
   render() {
-    return (
+    return [
+      <layout-header />,
       <section class="section">
         <div class="container">
           <apps-list
@@ -37,6 +38,6 @@ export class AppHome {
           <apps-list apps={runningApps} name="Running Apps" />
         </div>
       </section>
-    );
+    ];
   }
 }
