@@ -11,3 +11,15 @@ export interface UserChangeset {
   email: string;
   address: string;
 }
+
+export type ComponentEventHandler = (event: CustomEvent<any>) => void;
+
+export interface AppDialogSettings {
+  title?: string;
+  icon?: string;
+  content: JSX.Element;
+  primaryButtonText: string;
+  secondaryButtonText?: string;
+  onPrimaryButtonClicked: ComponentEventHandler;
+  onSecondaryButtonClicked?: ComponentEventHandler;
+}

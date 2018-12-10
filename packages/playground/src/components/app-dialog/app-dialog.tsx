@@ -1,23 +1,13 @@
-import { Component, Element, Event, Prop, EventEmitter } from "@stencil/core";
-
-export interface AppDialogSettings {
-  title?: string;
-  icon?: string;
-  content: JSX.Element;
-  primaryButtonText: string;
-  secondaryButtonText?: string;
-  onPrimaryButtonClicked: Function;
-  onSecondaryButtonClicked?: Function;
-}
+import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 @Component({
   tag: "app-dialog",
   shadow: true
 })
-export default class AppDialog {
+export class AppDialog {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop({ mutable: true }) visible: boolean = false;
-  @Prop() title: string = "";
+  @Prop() dialogTitle: string = "";
   @Prop() icon: string = "";
   @Prop() content: JSX.Element = {} as JSX.Element;
   @Prop() primaryButtonText: string = "";
@@ -38,13 +28,21 @@ export default class AppDialog {
     return (
       <dialog open={this.visible}>
         <header>
-          {this.title ? <h2>${this.title}</h2> : <img src={this.icon} />}
+          {this.dialogTitle ? (
+            <h2>${this.dialogTitle}</h2>
+          ) : (
+            <img src={this.icon} />
+          )}
         </header>
         <main>{this.content}</main>
         <footer>
-          <button onClick>{this.primaryButtonText}</button>
+          <button onClick={() => this.primaryButtonClickedHandler()}>
+            {this.primaryButtonText}
+          </button>
           {this.secondaryButtonText ? (
-            <button>${this.secondaryButtonText}</button>
+            <button onClick={() => this.secondaryButtonClickedHandler()}>
+              ${this.secondaryButtonText}
+            </button>
           ) : (
             {}
           )}
