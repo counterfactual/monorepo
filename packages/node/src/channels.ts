@@ -60,7 +60,8 @@ import { IStoreService } from "./service-interfaces";
  */
 
 /**
- * This class is only used to encapsulate the state
+ * This class is only a type implementation of a channel schema for the
+ * purposes of storing and retrieving a channel's state for the store.
  */
 class Channel {
   constructor(
@@ -130,7 +131,10 @@ export class Channels {
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
     const multisigAddress = Channels.getMultisigAddress(params.owners);
     const channel: Channel = new Channel(multisigAddress, params.owners);
-    this.store.set(`${this.multisigKeyPrefix}/${multisigAddress}`, channel);
+    await this.store.set(
+      `${this.multisigKeyPrefix}/${multisigAddress}`,
+      channel
+    );
     return multisigAddress;
   }
 
@@ -148,20 +152,22 @@ export class Channels {
   //   return channel as any;
   // }
 
-  private async getAllChannels(): Promise<Channel[]> {
-    const channels = JSON.parse(await this.store.get(this.multisigKeyPrefix));
+  private async getAllChannels(): Promise<object> {
+    const channels = await this.store.get(this.multisigKeyPrefix);
     if (!channels) {
       console.log("No channels exist yet");
-      return [];
+      return {};
     }
-    return channels as Channel[];
+    return channels;
   }
 
   async getAllApps(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
-    const channels: Channel[] = await this.getAllChannels();
-    channels.forEach((channel: Channel) => {
-      channel.appInstances;
+    const channels = await this.getAllChannels();
+    Object.values(channels).forEach((channel: Channel) => {
+      if (channel.appInstances) {
+        apps.push(...channel.appInstances.values());
+      }
     });
     return apps;
   }

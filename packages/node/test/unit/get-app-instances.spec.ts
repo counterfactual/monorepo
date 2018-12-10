@@ -1,5 +1,6 @@
 import {
   AppInstanceInfo,
+  AssetType,
   Node as NodeTypes
 } from "@counterfactual/common-types";
 import dotenv from "dotenv";
@@ -70,23 +71,104 @@ describe("Node method follows spec - getAppInstances", () => {
     node.emit(req.type, req);
   });
 
-  it("can accept a valid call to get non-empty list of app instances", async done => {
-    // first a channel must be opened for it to have an app instance
-    const requestId = "2";
-    const req: NodeTypes.MethodRequest = {
-      requestId,
+  it.only("can accept a valid call to get non-empty list of app instances", async done => {
+    const peerAddress = new ethers.Wallet(B_PRIVATE_KEY).address;
+
+    // first, a channel must be opened for it to have an app instance
+    const multisigCreationRequstId = "1";
+    const multisigCreationReq: NodeTypes.MethodRequest = {
+      requestId: multisigCreationRequstId,
       type: NodeTypes.MethodName.CREATE_MULTISIG,
       params: {
-        owners: [node.address, new ethers.Wallet(B_PRIVATE_KEY).address]
+        owners: [node.address, peerAddress]
       } as NodeTypes.CreateMultisigParams
     };
 
-    node.on(req.type, res => {
-      const createMultisigResult: NodeTypes.CreateMultisigResult = res.result;
-      expect(createMultisigResult.multisigAddress).toBeDefined();
+    // second, an app instance must be proposed to be installed into that channel
+    const appInstanceProposalParams: NodeTypes.ProposeInstallParams = {
+      peerAddress,
+      appId: "1",
+      abiEncodings: {
+        stateEncoding: "stateEncoding",
+        actionEncoding: "actionEncoding"
+      },
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: ethers.utils.bigNumberify("1"),
+      peerDeposit: ethers.utils.bigNumberify("1"),
+      timeout: ethers.utils.bigNumberify("1"),
+      initialState: {
+        propertyA: "A",
+        propertyB: "B"
+      }
+    };
+    const appInstanceInstallationProposalRequestId = "2";
+    const appInstanceInstallationProposalRequest: NodeTypes.MethodRequest = {
+      requestId: appInstanceInstallationProposalRequestId,
+      type: NodeTypes.MethodName.PROPOSE_INSTALL,
+      params: appInstanceProposalParams
+    };
+
+    // third, the pending app instance needs to be installed
+    // its installation request will be the callback to the proposal response
+    const installAppInstanceRequestId = "3";
+    let installedAppInstance: AppInstanceInfo;
+
+    // fourth, a call to get app instances can be made
+    const getAppInstancesRequestId = "4";
+    const getAppInstancesRequest: NodeTypes.MethodRequest = {
+      requestId: getAppInstancesRequestId,
+      type: NodeTypes.MethodName.GET_APP_INSTANCES,
+      params: {} as NodeTypes.GetAppInstancesParams
+    };
+
+    // The listeners are setup in reverse order such that their callbacks are
+    // defined as the calls unwind
+    // create multisig -> install proposal -> install -> get app instances
+
+    // Set up listener for getting all apps
+    node.on(getAppInstancesRequest.type, (res: NodeTypes.MethodResponse) => {
+      expect(getAppInstancesRequest.type).toEqual(res.type);
+      expect(res.requestId).toEqual(getAppInstancesRequestId);
+      expect(res.result).toEqual({
+        appInstances: [] as AppInstanceInfo[]
+      });
       done();
     });
 
-    node.emit(req.type, req);
+    node.on(NodeTypes.MethodName.INSTALL, res => {
+      const installResult: NodeTypes.InstallResult = res.result;
+      installedAppInstance = installResult.appInstance;
+      console.log("got installed app: ", installedAppInstance);
+      node.emit(getAppInstancesRequest.type, getAppInstancesRequest);
+    });
+
+    node.on(appInstanceInstallationProposalRequest.type, res => {
+      const installProposalResult: NodeTypes.ProposeInstallResult = res.result;
+      const appInstanceId = installProposalResult.appInstanceId;
+      const installAppInstanceRequest: NodeTypes.MethodRequest = {
+        requestId: installAppInstanceRequestId,
+        type: NodeTypes.MethodName.INSTALL,
+        params: {
+          appInstanceId
+        } as NodeTypes.InstallParams
+      };
+
+      node.emit(installAppInstanceRequest.type, installAppInstanceRequest);
+    });
+
+    node.on(multisigCreationReq.type, res => {
+      const createMultisigResult: NodeTypes.CreateMultisigResult = res.result;
+      expect(createMultisigResult.multisigAddress).toBeDefined();
+
+      // Make the call to get all apps
+      node.emit(
+        appInstanceInstallationProposalRequest.type,
+        appInstanceInstallationProposalRequest
+      );
+    });
+
+    node.emit(multisigCreationReq.type, multisigCreationReq);
   });
 });
