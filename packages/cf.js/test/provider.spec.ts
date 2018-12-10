@@ -142,6 +142,40 @@ describe("CF.js Provider", async () => {
     });
   });
 
+  it("should correctly install an app instance", async () => {
+    expect.assertions(4);
+    nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
+      expect(request.type).toBe(Node.MethodName.INSTALL);
+      expect((request.params as Node.InstallParams).appInstanceId).toBe(
+        TEST_APP_INSTANCE_INFO.id
+      );
+      nodeProvider.simulateMessageFromNode({
+        type: Node.MethodName.INSTALL,
+        requestId: request.requestId,
+        result: {
+          appInstance: TEST_APP_INSTANCE_INFO
+        }
+      });
+    });
+    const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
+    expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+    expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+  });
+
+  it("should correctly reject installation proposals", async () => {
+    nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
+      expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
+      const { appInstanceId } = request.params as Node.RejectInstallParams;
+      expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
+      nodeProvider.simulateMessageFromNode({
+        type: Node.MethodName.REJECT_INSTALL,
+        requestId: request.requestId,
+        result: {}
+      });
+    });
+    await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
+  });
+
   it("should expose the same AppInstance instance for a unique app instance ID", async () => {
     expect.assertions(1);
     let savedInstance: AppInstance;
