@@ -82,7 +82,7 @@ export class DappContainer {
    *
    * @param message {any}
    */
-  private postOrQueueMessage(message: any): void {
+  public postOrQueueMessage(message: any): void {
     if (this.port) {
       this.port.postMessage(message);
     } else {
