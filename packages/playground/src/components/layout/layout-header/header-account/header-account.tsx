@@ -16,6 +16,7 @@ export class HeaderAccount {
   }
 
   login() {
+    // This will make the UI behave as if the user is really logged in.
     if (this.fakeConnect) {
       console.warn(
         "Faked connection, app thinks it's authenticated but it's not"
