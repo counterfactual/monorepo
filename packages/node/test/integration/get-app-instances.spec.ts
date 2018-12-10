@@ -10,9 +10,9 @@ import FirebaseServer from "firebase-server";
 import { IStoreService, Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
-
-import FirebaseServiceFactory from "../integration/services/firebase-service";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
+
+import FirebaseServiceFactory from "./services/firebase-service";
 
 dotenv.config();
 
