@@ -9,6 +9,9 @@ import { ethers } from "ethers";
 
 import { IStoreService } from "./service-interfaces";
 
+import Nonce = legacy.utils.Nonce;
+import FreeBalance = legacy.utils.FreeBalance;
+
 /**
  * The schema of a channel is below.
  * The following Channels class encapsulates the state and persistence of all
@@ -72,54 +75,48 @@ class Channel {
   constructor(
     readonly multisigAddress: Address,
     readonly multisigOwners: Address[],
-    readonly appsNonce?: legacy.utils.Nonce,
-    readonly freeBalances?: Map<AssetType, legacy.utils.FreeBalance>,
-    readonly appInstances?: Map<string, AppInstanceInfo>,
-    readonly proposedAppInstances?: Map<string, AppInstanceInfo>
-  ) {
-    if (!this.appsNonce) {
-      this.appsNonce = new legacy.utils.Nonce(true, 0, 0);
-    }
-
-    if (!this.freeBalances) {
-      this.freeBalances = new Map<AssetType, legacy.utils.FreeBalance>();
-      // TODO: extend to all asset types
-      this.freeBalances[AssetType.ETH] = new legacy.utils.FreeBalance(
-        this.multisigOwners[0],
-        ethers.utils.bigNumberify("0"),
-        this.multisigOwners[1],
-        ethers.utils.bigNumberify("0"),
-        0,
-        0,
-        0,
-        this.appsNonce
-      );
-    }
-
-    if (!this.appInstances) {
-      this.appInstances = new Map<string, AppInstanceInfo>();
-      // FIXME: firebase-specific nuance: without propering indexing, the field
-      // doesn't get written in the object blob if the path specified at key
-      // `appInstances` does not have any entries
-      this.appInstances["init"] = {} as any;
-    }
-    if (!this.proposedAppInstances) {
-      this.proposedAppInstances = new Map<string, AppInstanceInfo>();
-      // FIXME: firebase-specific nuance: without propering indexing, the field
-      // doesn't get written in the object blob if the path specified at key
-      // `proposedAppInstances` does not have any entries
-      this.proposedAppInstances["init"] = {} as any;
-    }
-  }
+    readonly appsNonce: Nonce = new Nonce(true, 0, 0),
+    readonly freeBalances: {
+      [assetType: number]: FreeBalance;
+    } = Channel.initialFreeBalances(multisigOwners, appsNonce),
+    readonly appInstances: {
+      [appInstanceId: string]: AppInstanceInfo;
+    } = {},
+    readonly proposedAppInstances: {
+      [appInstanceId: string]: AppInstanceInfo;
+    } = {}
+  ) {}
 
   toJson(): object {
     return {
       multisigAddress: this.multisigAddress,
       multisigOwners: this.multisigOwners,
       appsNonce: this.appsNonce,
-      freeBalances: JSON.stringify([...this.freeBalances!]),
-      appInstances: JSON.stringify([...this.appInstances!]),
-      proposedAppInstances: JSON.stringify([...this.proposedAppInstances!])
+      freeBalances: this.freeBalances,
+      appInstances: this.appInstances,
+      proposedAppInstances: this.proposedAppInstances
+    };
+  }
+
+  static initialFreeBalances(
+    multisigOwners: Address[],
+    initialAppsNonce: Nonce
+  ): {
+    [assetType: number]: FreeBalance;
+  } {
+    // TODO: extend to all asset types
+    const ethFreeBalance = new FreeBalance(
+      multisigOwners[0],
+      ethers.utils.bigNumberify("0"),
+      multisigOwners[1],
+      ethers.utils.bigNumberify("0"),
+      0,
+      0,
+      0,
+      initialAppsNonce
+    );
+    return {
+      [AssetType.ETH]: ethFreeBalance
     };
   }
 }
@@ -193,9 +190,9 @@ export class Channels {
       channel.multisigAddress,
       channel.multisigOwners,
       channel.appsNonce,
-      new Map(JSON.parse(channel.freeBalances)),
-      new Map(JSON.parse(channel.appInstances)),
-      new Map(JSON.parse(channel.proposedAppInstances))
+      channel.freeBalances,
+      channel.appInstances,
+      channel.proposedAppInstances
     );
   }
 
@@ -224,7 +221,7 @@ export class Channels {
     const channels = await this.getAllChannels();
     Object.values(channels).forEach((channel: Channel) => {
       if (channel.appInstances) {
-        apps.push(...channel.appInstances.values());
+        apps.push(...Object.values(channel.appInstances));
       }
     });
     return apps;
@@ -232,11 +229,10 @@ export class Channels {
 
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-    console.log("got channel: ", channel);
     // TODO: generate the id correctly
     const appInstanceId = channel.appsNonce!.nonceValue.toString();
     const appInstance: AppInstanceInfo = { id: appInstanceId, ...params };
-    await this.addProposal(channel, appInstance);
+    await this.addAppInstanceProposal(channel, appInstance);
     this.appInstanceIdToMultisigAddress[appInstanceId] =
       channel.multisigAddress;
     return appInstanceId;
@@ -246,13 +242,10 @@ export class Channels {
     const channel = await this.getChannelFromAppInstanceId(
       params.appInstanceId
     );
-    console.log("getting channel to install: ", channel);
     const appInstance: AppInstanceInfo = channel.proposedAppInstances![
       params.appInstanceId
     ];
-    channel.proposedAppInstances!.delete(params.appInstanceId);
-    channel.appInstances!.set(params.appInstanceId, appInstance);
-    console.log("state of channel: ", channel);
+    await this.installAppInstance(channel, appInstance);
     return appInstance;
   }
 
@@ -265,15 +258,22 @@ export class Channels {
     );
   }
 
-  async addProposal(channel: Channel, appInstance: AppInstanceInfo) {
-    console.log("adding proposal: ", channel);
-    channel.proposedAppInstances!.set(appInstance.id, appInstance);
-    console.log("writing to channel: ", channel);
+  async addAppInstanceProposal(channel: Channel, appInstance: AppInstanceInfo) {
+    channel.proposedAppInstances[appInstance.id] = appInstance;
     await this.store.set(
       `${this.multisigKeyPrefix}/${
         channel.multisigAddress
       }/proposedAppInstances`,
-      JSON.stringify([...channel.proposedAppInstances!])
+      channel.proposedAppInstances
+    );
+  }
+
+  async installAppInstance(channel: Channel, appInstance: AppInstanceInfo) {
+    delete channel.proposedAppInstances[appInstance.id];
+    channel.appInstances[appInstance.id] = appInstance;
+    await this.store.set(
+      `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+      channel
     );
   }
 

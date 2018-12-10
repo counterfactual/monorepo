@@ -34,15 +34,15 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
+  });
+
+  beforeEach(() => {
     node = new Node(
       A_PRIVATE_KEY,
       MOCK_MESSAGING_SERVICE,
       storeService,
       nodeConfig
     );
-    nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
-    };
   });
 
   afterAll(() => {
@@ -71,7 +71,7 @@ describe("Node method follows spec - getAppInstances", () => {
     node.emit(req.type, req);
   });
 
-  it.only("can accept a valid call to get non-empty list of app instances", async done => {
+  it("can accept a valid call to get non-empty list of app instances", async done => {
     const peerAddress = new ethers.Wallet(B_PRIVATE_KEY).address;
 
     // first, a channel must be opened for it to have an app instance
@@ -127,27 +127,25 @@ describe("Node method follows spec - getAppInstances", () => {
     // defined as the calls unwind
     // create multisig -> install proposal -> install -> get app instances
 
-    // Set up listener for getting all apps
-    node.on(getAppInstancesRequest.type, (res: NodeTypes.MethodResponse) => {
-      console.log("got app instances: ", res);
+    // Set up listener for getting the app that's supposed to be installed
+    node.on(getAppInstancesRequest.type, res => {
       expect(getAppInstancesRequest.type).toEqual(res.type);
       expect(res.requestId).toEqual(getAppInstancesRequestId);
-      expect(res.result).toEqual({
-        appInstances: [] as AppInstanceInfo[]
-      });
+
+      const getAppInstancesResult: NodeTypes.GetAppInstancesResult = res.result;
+      expect(getAppInstancesResult.appInstances).toEqual([
+        installedAppInstance
+      ]);
       done();
     });
 
     node.on(NodeTypes.MethodName.INSTALL, res => {
-      console.log("installed: ", res);
       const installResult: NodeTypes.InstallResult = res.result;
       installedAppInstance = installResult.appInstance;
-      console.log("got installed app: ", installedAppInstance);
       node.emit(getAppInstancesRequest.type, getAppInstancesRequest);
     });
 
     node.on(appInstanceInstallationProposalRequest.type, res => {
-      console.log("created proposal: ", res);
       const installProposalResult: NodeTypes.ProposeInstallResult = res.result;
       const appInstanceId = installProposalResult.appInstanceId;
       const installAppInstanceRequest: NodeTypes.MethodRequest = {
@@ -162,7 +160,6 @@ describe("Node method follows spec - getAppInstances", () => {
     });
 
     node.on(multisigCreationReq.type, res => {
-      console.log("created multisig: ", res);
       const createMultisigResult: NodeTypes.CreateMultisigResult = res.result;
       expect(createMultisigResult.multisigAddress).toBeDefined();
 
@@ -173,6 +170,7 @@ describe("Node method follows spec - getAppInstances", () => {
       );
     });
 
+    // callback chain trigger
     node.emit(multisigCreationReq.type, multisigCreationReq);
   });
 });
