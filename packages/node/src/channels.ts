@@ -1,8 +1,6 @@
 import { legacy } from "@counterfactual/cf.js";
 import {
   Address,
-  AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   AssetType,
   Node
@@ -11,18 +9,18 @@ import { ethers } from "ethers";
 
 import { IStoreService } from "./service-interfaces";
 
-type Nonce = legacy.utils.Nonce;
-
 /**
- * This file encapsulates the schema, state, and persistence of all the channels.
+ * The schema of a channel is below.
+ * The following Channels class encapsulates the state and persistence of all
+ * the channels in a Node.
  */
 
 /**
- * The fully expanded schema for a channel is:
+ * The fully expanded schema for a channel:
  * multisigAddress: {
  *  multisigAddress: Address,
  *  multisigOwners: Address[],
- *  appNonceCount: number,
+ *  appsNonce: Nonce,
  *  appInstances: Map<AppInstanceID,
  *    appInstance: {
  *      id: string,
@@ -61,66 +59,52 @@ type Nonce = legacy.utils.Nonce;
  * }
  */
 
-interface FreeBalances {
-  // based on AssetType enum
-  [assetType: number]: {
-    // TODO: rename free balance properties
-    alice: Address;
-    aliceBalance: ethers.utils.BigNumber;
-    bob: Address;
-    bobBalance: ethers.utils.BigNumber;
-    uniqueId: number;
-    localNonce: number;
-    timeout: number;
-    dependencyNonce: Nonce;
-  };
-}
+/**
+ * This class is only used to encapsulate the state
+ */
 class Channel {
-  private appsNonce: number = 0;
-  private appInstances: {
-    [appInstanceID: string]: {
-      id: AppInstanceID;
-      appId: Address;
-      abiEncodings: AppABIEncodings;
-      appState: any;
-      localNonce: Nonce;
-      timeout: ethers.utils.BigNumber;
-      blockchainAsset: {
-        assetType: AssetType;
-        limit: ethers.utils.BigNumber;
-        token?: Address;
-      };
-      deposits: {
-        [address: string]: ethers.utils.BigNumber;
-      };
-    };
-  } = {};
-
   constructor(
-    private readonly multisigAddress: Address,
-    private readonly multisigOwners: Address[],
-    private readonly freeBalances: FreeBalances
+    readonly multisigAddress: Address,
+    readonly multisigOwners: Address[],
+    readonly appsNonce?: legacy.utils.Nonce,
+    readonly appInstances?: Map<string, AppInstanceInfo>,
+    readonly freeBalances?: Map<AssetType, legacy.utils.FreeBalance>
   ) {
-    console.log(
-      this.multisigAddress,
-      this.multisigOwners,
-      this.freeBalances,
-      this.appsNonce,
-      this.appInstances
-    );
-  }
+    if (!this.appsNonce) {
+      this.appsNonce = new legacy.utils.Nonce(true, 0, 0);
+    }
 
-  toJson(): string {
-    return "";
-  }
+    if (!this.freeBalances) {
+      this.freeBalances = new Map<AssetType, legacy.utils.FreeBalance>();
+      // TODO: extend to all asset types
+      this.freeBalances[AssetType.ETH] = new legacy.utils.FreeBalance(
+        this.multisigOwners[0],
+        ethers.utils.bigNumberify("0"),
+        this.multisigOwners[1],
+        ethers.utils.bigNumberify("0"),
+        0,
+        0,
+        0,
+        this.appsNonce
+      );
+    }
 
-  static fromJson(serializedChannel: string) {}
+    if (!this.appInstances) {
+      this.appInstances = new Map<string, AppInstanceInfo>();
+    }
+  }
 }
 
+/**
+ * Note: this class itelf does not hold any state. It encapsulates the operations
+ * performed on relevant appInstances and abstracts the persistence to the
+ * store service.
+ */
 export class Channels {
   /**
    * A convenience struct to lookup multisig address from a set of owners.
    */
+  // @ts-ignore
   private readonly ownersToMultisigAddress = new Map<Address[], Address>();
 
   /**
@@ -131,43 +115,54 @@ export class Channels {
    *        environment.
    */
   constructor(
+    // @ts-ignore
     private readonly address: Address,
     private readonly store: IStoreService,
     private readonly multisigKeyPrefix: string
   ) {}
 
-  addChannel(
-    multisigAddress: Address,
-    multisigOwners: Address[],
-    freeBalances: FreeBalances
-  ) {
-    const channel: Channel = new Channel(
-      multisigAddress,
-      multisigOwners,
-      freeBalances
-    );
-    this.store.set(
-      `${this.multisigKeyPrefix}/${multisigAddress}`,
-      channel.toJson()
-    );
+  /**
+   * Called when a new multisig is created for a set of owners.
+   * @param multisigAddress
+   * @param multisigOwners
+   * @param freeBalances
+   */
+  async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
+    const multisigAddress = Channels.getMultisigAddress(params.owners);
+    const channel: Channel = new Channel(multisigAddress, params.owners);
+    this.store.set(`${this.multisigKeyPrefix}/${multisigAddress}`, channel);
+    return multisigAddress;
   }
 
-  // @ts-ignore
-  private async getChannel(peerAddress: Address): Promise<Channel> {
-    const owners = canonicalizeAddresses([this.address, peerAddress]);
-    if (!this.ownersToMultisigAddress.has(owners)) {
-      throw Error(`No channel exists with the specified peer: ${peerAddress}`);
+  // private async getChannel(peerAddress: Address): Promise<Channel> {
+  //   const owners = Channels.canonicalizeAddresses([this.address, peerAddress]);
+  //   if (!this.ownersToMultisigAddress.has(owners)) {
+  //     throw Error(`No channel exists with the specified peer: ${peerAddress}`);
+  //   }
+  //   const multisigAddress = this.ownersToMultisigAddress.get(
+  //     Channels.canonicalizeAddresses([this.address, peerAddress])
+  //   )!;
+  //   const channel = await this.store.get(
+  //     `${this.multisigKeyPrefix}/${multisigAddress}`
+  //   );
+  //   return channel as any;
+  // }
+
+  private async getAllChannels(): Promise<Channel[]> {
+    const channels = JSON.parse(await this.store.get(this.multisigKeyPrefix));
+    if (!channels) {
+      console.log("No channels exist yet");
+      return [];
     }
-    const multisigAddress = this.ownersToMultisigAddress.get(
-      canonicalizeAddresses([this.address, peerAddress])
-    )!;
-    const channelJSON = await this.store.get(multisigAddress);
-    console.log("got channel: ", channelJSON);
-    return Promise.resolve({} as any);
+    return channels as Channel[];
   }
 
   async getAllApps(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
+    const channels: Channel[] = await this.getAllChannels();
+    channels.forEach((channel: Channel) => {
+      channel.appInstances;
+    });
     return apps;
   }
 
@@ -176,11 +171,18 @@ export class Channels {
     // TODO: generate unique ID for the proposed app
     return "1";
   }
-}
 
-function canonicalizeAddresses(addresses: Address[]): Address[] {
-  addresses.sort((addrA: Address, addrB: Address) => {
-    return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
-  });
-  return addresses;
+  // Utility methods
+
+  static canonicalizeAddresses(addresses: Address[]): Address[] {
+    addresses.sort((addrA: Address, addrB: Address) => {
+      return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    });
+    return addresses;
+  }
+
+  static getMultisigAddress(owners: Address[]): Address {
+    // TODO: implement this using CREATE2
+    return ethers.Wallet.createRandom().address;
+  }
 }

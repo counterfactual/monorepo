@@ -1,4 +1,4 @@
-import { Node as NodeTypes } from "@counterfactual/common-types";
+import { Node } from "@counterfactual/common-types";
 import EventEmitter from "eventemitter3";
 
 import { Channels } from "./channels";
@@ -23,8 +23,8 @@ export class MethodHandler {
   private registerMethods() {
     this.mapHandlers();
     this.METHODS.forEach((method: Function, methodName: string) => {
-      this.incoming.on(methodName, async (req: NodeTypes.MethodRequest) => {
-        const res: NodeTypes.MethodResponse = {
+      this.incoming.on(methodName, async (req: Node.MethodRequest) => {
+        const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
           result: await method(this.channels, req.params)
@@ -41,14 +41,28 @@ export class MethodHandler {
    * This maps the Node method names to their respective methods.
    */
   private mapHandlers() {
-    this.METHODS.set(NodeTypes.MethodName.GET_APP_INSTANCES, getAppInstances);
-    this.METHODS.set(NodeTypes.MethodName.PROPOSE_INSTALL, proposeInstall);
+    this.METHODS.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
+    this.METHODS.set(Node.MethodName.GET_APP_INSTANCES, getAppInstances);
+    this.METHODS.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
   }
 }
+
+// The following are wrappers around the methods which return the result
+// of the specified operation in the context of the relevant channel.
+
+async function createMultisig(
+  channels: Channels,
+  params: Node.CreateMultisigParams
+): Promise<Node.CreateMultisigResult> {
+  return {
+    multisigAddress: await channels.createMultisig(params)
+  };
+}
+
 async function getAppInstances(
   channels: Channels,
-  params: NodeTypes.GetAppInstancesParams
-): Promise<NodeTypes.GetAppInstancesResult> {
+  params: Node.GetAppInstancesParams
+): Promise<Node.GetAppInstancesResult> {
   return {
     appInstances: await channels.getAllApps()
   };
@@ -56,8 +70,8 @@ async function getAppInstances(
 
 async function proposeInstall(
   channels: Channels,
-  params: NodeTypes.ProposeInstallParams
-): Promise<NodeTypes.ProposeInstallResult> {
+  params: Node.ProposeInstallParams
+): Promise<Node.ProposeInstallResult> {
   return {
     appInstanceId: await channels.proposeInstall(params)
   };

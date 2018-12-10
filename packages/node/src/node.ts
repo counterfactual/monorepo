@@ -7,6 +7,8 @@ import { MethodHandler } from "./methods";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
 export interface NodeConfig {
+  // A channel is indexed by its multisig address. The prefix for this key
+  // depends on the execution environment.
   MULTISIG_KEY_PREFIX: string;
 }
 

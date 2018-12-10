@@ -29,7 +29,8 @@ export namespace Node {
     UNINSTALL = "uninstall",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
-    REJECT_STATE = "rejectState"
+    REJECT_STATE = "rejectState",
+    CREATE_MULTISIG = "createMultisig"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
@@ -39,7 +40,8 @@ export namespace Node {
     UPDATE_STATE = "updateState",
     UNINSTALL = "uninstall",
     PROPOSE_STATE = "proposeState",
-    REJECT_STATE = "rejectState"
+    REJECT_STATE = "rejectState",
+    MULTISIG_CREATED = "multisigCreated"
   }
 
   export interface GetAppInstancesParams {}
@@ -104,6 +106,13 @@ export namespace Node {
     peerPayout: BigNumber;
   }
 
+  export interface CreateMultisigParams {
+    owners: Address[];
+  }
+  export interface CreateMultisigResult {
+    multisigAddress: Address;
+  }
+
   export type MethodParams =
     | GetAppInstancesParams
     | ProposeInstallParams
@@ -112,7 +121,8 @@ export namespace Node {
     | GetStateParams
     | GetAppInstanceDetailsParams
     | TakeActionParams
-    | UninstallParams;
+    | UninstallParams
+    | CreateMultisigParams;
   export type MethodResult =
     | GetAppInstancesResult
     | ProposeInstallResult
@@ -121,7 +131,8 @@ export namespace Node {
     | GetStateResult
     | GetAppInstanceDetailsResult
     | TakeActionResult
-    | UninstallResult;
+    | UninstallResult
+    | CreateMultisigResult;
 
   export interface InstallEventData {
     appInstanceId: AppInstanceID;
