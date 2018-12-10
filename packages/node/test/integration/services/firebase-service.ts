@@ -8,6 +8,10 @@ import {
 } from "../../../src/service-interfaces";
 
 class FirebaseMessagingService implements IMessagingService {
+  // naive caching - firebase fires observers twice upon initial callback
+  // registration and invocation
+  private servedMessages = new Map();
+
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -36,7 +40,17 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-        callback(snapshot.val());
+        const value = snapshot.val();
+        if (value !== null) {
+          if (value in this.servedMessages) {
+            delete this.servedMessages[value];
+          } else {
+            this.servedMessages[value] = true;
+            callback(value);
+          }
+        }
+        // clear processed message
+        this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
       });
   }
 }

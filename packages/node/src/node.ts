@@ -14,12 +14,6 @@ export interface NodeConfig {
 
 export class Node {
   /**
-   * The event that Node consumers can listen on for messages from other
-   * nodes.
-   */
-  public static PEER_MESSAGE = "peerMessage";
-
-  /**
    * Because the Node receives and sends out messages based on Event type
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
    * the same EventEmitter can't be used since response messages would get
@@ -83,9 +77,9 @@ export class Node {
    * @param peerAddress The peer to whom the message is being sent.
    * @param msg The message that is being sent.
    */
-  async send(peerAddress: Address, msg: object) {
-    const modifiedMsg = { from: this.address, ...msg };
-    await this.messagingService.send(peerAddress, modifiedMsg);
+  async send(peerAddress: Address, msg: NodeMessage) {
+    msg.from = this.address;
+    await this.messagingService.send(peerAddress, msg);
   }
 
   // Note: The following getter/setter method will become private
@@ -114,13 +108,24 @@ export class Node {
    * with the messaging service.
    */
   private registerMessagingConnection() {
-    this.messagingService.receive(this.address, (msg: object) => {
+    this.messagingService.receive(this.address, (msg: NodeMessage) => {
       console.debug(
         `Node with address ${this.address} received message: ${JSON.stringify(
           msg
         )}`
       );
-      this.outgoing.emit(Node.PEER_MESSAGE, msg);
+      if (msg !== null) {
+        this.outgoing.emit(msg.event, msg);
+      }
     });
   }
+}
+
+/**
+ * The message interface for Nodes to communicate with each other.
+ */
+export interface NodeMessage {
+  from?: Address;
+  event: NodeTypes.EventName;
+  data: any;
 }

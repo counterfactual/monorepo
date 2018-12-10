@@ -1,7 +1,8 @@
+import { Node as NodeTypes } from "@counterfactual/common-types";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
 
-import { IMessagingService, Node, NodeConfig } from "../../src";
+import { IMessagingService, Node, NodeConfig, NodeMessage } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
@@ -51,32 +52,40 @@ describe("Two nodes can communicate with each other", () => {
   });
 
   it("Node A can send messages to Node B", done => {
-    const installMsg = { method: "INSTALL" };
+    const installMsg: NodeMessage = {
+      event: NodeTypes.EventName.INSTALL,
+      data: {}
+    };
 
-    nodeB.on(Node.PEER_MESSAGE, msg => {
+    nodeB.on(NodeTypes.EventName.INSTALL, (msg: NodeMessage) => {
       expect(msg.from).toEqual(nodeA.address);
-      expect(msg.method).toEqual(installMsg.method);
+      expect(msg.event).toEqual(NodeTypes.EventName.INSTALL);
       done();
     });
     nodeA.send(nodeB.address, installMsg);
   });
 
-  it("Node A can syn-ack with Node B", done => {
-    const synMsg = { phase: "SYN" };
-    const ackMsg = { phase: "ACK" };
+  it("Node A can propose install, Node B can reject proposal", async done => {
+    const proposalMsg: NodeMessage = {
+      event: NodeTypes.EventName.INSTALL,
+      data: {}
+    };
+    const rejectMsg: NodeMessage = {
+      event: NodeTypes.EventName.REJECT_INSTALL,
+      data: {}
+    };
 
-    nodeA.on(Node.PEER_MESSAGE, msg => {
+    nodeA.on(NodeTypes.EventName.REJECT_INSTALL, (msg: NodeMessage) => {
       expect(msg.from).toEqual(nodeB.address);
-      expect(msg.phase).toEqual(ackMsg.phase);
+      expect(msg.event).toEqual(NodeTypes.EventName.REJECT_INSTALL);
       done();
     });
 
-    nodeB.on(Node.PEER_MESSAGE, msg => {
+    nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
       expect(msg.from).toEqual(nodeA.address);
-      expect(msg.phase).toEqual(synMsg.phase);
-      nodeB.send(nodeA.address, ackMsg);
+      expect(msg.event).toEqual(NodeTypes.EventName.INSTALL);
+      await nodeB.send(nodeA.address, rejectMsg);
     });
-
-    nodeA.send(nodeB.address, synMsg);
+    nodeA.send(nodeB.address, proposalMsg);
   });
 });

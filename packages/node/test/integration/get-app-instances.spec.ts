@@ -1,6 +1,5 @@
 import {
   AppInstanceInfo,
-  AssetType,
   Node as NodeTypes
 } from "@counterfactual/common-types";
 import dotenv from "dotenv";
@@ -13,6 +12,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
+import { makeProposalReq } from "./utils";
 
 dotenv.config();
 
@@ -86,30 +86,7 @@ describe("Node method follows spec - getAppInstances", () => {
     };
 
     // second, an app instance must be proposed to be installed into that channel
-    const appInstanceProposalParams: NodeTypes.ProposeInstallParams = {
-      peerAddress,
-      appId: "1",
-      abiEncodings: {
-        stateEncoding: "stateEncoding",
-        actionEncoding: "actionEncoding"
-      },
-      asset: {
-        assetType: AssetType.ETH
-      },
-      myDeposit: ethers.utils.bigNumberify("1"),
-      peerDeposit: ethers.utils.bigNumberify("1"),
-      timeout: ethers.utils.bigNumberify("1"),
-      initialState: {
-        propertyA: "A",
-        propertyB: "B"
-      }
-    };
-    const appInstanceInstallationProposalRequestId = "2";
-    const appInstanceInstallationProposalRequest: NodeTypes.MethodRequest = {
-      requestId: appInstanceInstallationProposalRequestId,
-      type: NodeTypes.MethodName.PROPOSE_INSTALL,
-      params: appInstanceProposalParams
-    };
+    const appInstanceInstallationProposalRequest = makeProposalReq(peerAddress);
 
     // third, the pending app instance needs to be installed
     // its installation request will be the callback to the proposal response
