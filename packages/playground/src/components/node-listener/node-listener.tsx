@@ -1,13 +1,13 @@
 import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
-import { AppDialogSettings } from "../app-dialog/app-dialog";
+import { AppDialogSettings } from "../../types";
 
 @Component({
   tag: "node-listener",
   shadow: true
 })
-export default class NodeListener {
+export class NodeListener {
   private currentMessage: string = "";
 
   private modals: { [key: string]: (data: any) => AppDialogSettings } = {
