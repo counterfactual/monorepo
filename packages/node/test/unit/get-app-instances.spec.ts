@@ -72,6 +72,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
+    // the peer with whom an installation proposal is being made
     const peerAddress = new ethers.Wallet(B_PRIVATE_KEY).address;
 
     // first, a channel must be opened for it to have an app instance
@@ -123,8 +124,8 @@ describe("Node method follows spec - getAppInstances", () => {
       params: {} as NodeTypes.GetAppInstancesParams
     };
 
-    // The listeners are setup in reverse order such that their callbacks are
-    // defined as the calls unwind
+    // The listeners are setup in reverse order to highlight the callbacks
+    // being called in this order as the calls unwind
     // create multisig -> install proposal -> install -> get app instances
 
     // Set up listener for getting the app that's supposed to be installed

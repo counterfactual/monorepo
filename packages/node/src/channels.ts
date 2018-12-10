@@ -38,7 +38,6 @@ import FreeBalance = legacy.utils.FreeBalance;
  *      timeout: BigNumber,
  *      asset: {
  *        assetType: AssetType,
- *        limit: BigNumber
  *        token?: Address
  *      },
  *      deposits: Map<Address, BigNumber>
@@ -268,6 +267,13 @@ export class Channels {
     );
   }
 
+  /**
+   * The app's installation is confirmed iff the store write operation
+   * succeeds as the write operation's confirmation provides the desired
+   * atomicity of moving an app instance from pending to installed.
+   * @param channel
+   * @param appInstance
+   */
   async installAppInstance(channel: Channel, appInstance: AppInstanceInfo) {
     delete channel.proposedAppInstances[appInstance.id];
     channel.appInstances[appInstance.id] = appInstance;

@@ -13,9 +13,6 @@ export class MethodHandler {
     this.registerMethods();
   }
 
-  // The following are implementations of the Node API methods, as defined here:
-  // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
-
   /**
    * This maps the Node method names to their respective methods.
    */
@@ -48,7 +45,9 @@ export class MethodHandler {
   }
 }
 
-// The following are wrappers around the methods which return the result
+// The following are implementations of the Node API methods, as defined here:
+// https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
+// More specifically, these methods are wrappers which return the result
 // of the specified operation in the context of the relevant channel.
 
 async function createMultisig(
