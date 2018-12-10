@@ -3,10 +3,10 @@ import { ethers } from "ethers";
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
 
-import { APP_INTERFACE, TERMS } from "../../../src/encodings";
 import { OpSetState } from "../../../src/middleware/protocol-operation";
 import { Transaction } from "../../../src/middleware/protocol-operation/types";
-import { appIdentityToHash } from "../../../src/utils";
+import { appIdentityToHash } from "../../../src/utils/app-identity";
+import { APP_INTERFACE, TERMS } from "../../../src/utils/encodings";
 
 const {
   keccak256,

@@ -1,19 +1,27 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 
 import { Context } from "./instruction-executor";
 import { Node } from "./node";
 import { Opcode } from "./opcodes";
 
+export enum Protocol {
+  Setup = "setup",
+  Install = "install",
+  SetState = "set-state",
+  Uninstall = "uninstall",
+  MetaChannelInstallApp = "metachannel-install-app"
+}
+
 /**
  * The return value from the STATE_TRANSITION_PROPOSE middleware.
  */
 export interface StateProposal {
-  state: cf.legacy.channel.StateChannelInfos;
-  cfAddr?: cf.legacy.utils.H256;
+  state: legacy.channel.StateChannelInfos;
+  cfAddr?: legacy.utils.H256;
 }
 
 export type ProposerActionsHash = {
-  [Name in cf.legacy.node.ActionName]?: ContextualizedStateProposer
+  [Name in legacy.node.ActionName]?: ContextualizedStateProposer
 };
 
 export interface ContextualizedStateProposer {
@@ -26,9 +34,9 @@ export interface ContextualizedStateProposer {
 
 export class InternalMessage {
   constructor(
-    public actionName: cf.legacy.node.ActionName,
+    public actionName: legacy.node.ActionName,
     public opCode: Opcode,
-    public clientMessage: cf.legacy.node.ClientActionMessage
+    public clientMessage: legacy.node.ClientActionMessage
   ) {}
 }
 

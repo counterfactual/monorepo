@@ -10,18 +10,18 @@ import {
   Terms
 } from "@counterfactual/types";
 
-import { APP_INTERFACE, TERMS } from "../../../src/encodings";
 import { OpInstall } from "../../../src/middleware/protocol-operation";
 import { MultisigInput } from "../../../src/middleware/protocol-operation/types";
-import { appIdentityToHash } from "../../../src/utils";
-import { decodeMultisendCalldata } from "../../utils/multisend-decoder";
+import { appIdentityToHash } from "../../../src/utils/app-identity";
+import { APP_INTERFACE, TERMS } from "../../../src/utils/encodings";
+import { decodeMultisendCalldata } from "../../../src/utils/multisend-decoder";
 
 import {
   encodeFreeBalanceState,
   freeBalanceTerms,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
-} from "../../../src/free-balance-helpers";
+} from "../../../src/utils/free-balance";
 
 const {
   keccak256,

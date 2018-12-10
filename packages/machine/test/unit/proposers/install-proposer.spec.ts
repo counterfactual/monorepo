@@ -63,7 +63,12 @@ describe("Install Proposer", () => {
 
   // App-to-be-installed test values
   const app = {
-    stateEncoding: "tuple(address foo, uint256 bar)",
+    stateEncoding: `
+      tuple(
+        address foo,
+        uint256 bar
+      )
+    `,
 
     interface: {
       addr: getAddress(hexlify(randomBytes(20))),
@@ -91,6 +96,8 @@ describe("Install Proposer", () => {
     signingKeys: [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
+      // Need to sort the addresses upon entry atm
+      // TODO: Figure out better address sorting handler (throw error if not sorted?)
     ].sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)),
     appInterfaceHash: keccak256(
       defaultAbiCoder.encode([APP_INTERFACE], [app.interface])
@@ -99,6 +106,7 @@ describe("Install Proposer", () => {
     defaultTimeout: 100
   };
 
+  // TODO: (idea) The InstallProposer should probably do this internally.
   app.initialState = defaultAbiCoder.encode(
     [app.stateEncoding],
     [{ foo: AddressZero, bar: 0 }]
@@ -119,6 +127,7 @@ describe("Install Proposer", () => {
         networkContext.ETHBucket
       ),
       termsHash: freeBalanceTermsHash,
+      // NOTE: This *must* be the same as freeBalance.defaultTimeout above
       defaultTimeout: 100
     } as AppIdentity,
 
@@ -137,7 +146,6 @@ describe("Install Proposer", () => {
       legacy.node.ActionName.INSTALL,
       Opcode.STATE_TRANSITION_PROPOSE,
       {
-        appInstanceId: "0",
         action: legacy.node.ActionName.INSTALL,
         data: {
           peerA: new legacy.utils.PeerBalance(interaction.sender, 5),
@@ -247,7 +255,9 @@ describe("Install Proposer", () => {
       let appInstance: legacy.app.AppInstanceInfo;
 
       beforeAll(() => {
-        appInstance = Object.values(appInstances)[0];
+        // We check the 0th indexed value to parallelize tests even in the case
+        // where the key is set incorrectly (the test immediately below this one)
+        appInstance = appInstances[Object.keys(appInstances)[0]];
       });
 
       it("should set the id correctly", () => {
@@ -295,6 +305,7 @@ describe("Install Proposer", () => {
         );
       });
 
+      // FIXME: wtf is the random number lol. should be hash(multisig, 0, 0)
       it("should set the dependency nonce to some random number", () => {
         const expectedSalt =
           "0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6";

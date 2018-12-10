@@ -5,13 +5,13 @@ import { AppIdentity, ETHBucketAppState } from "@counterfactual/types";
 
 import { OpSetup } from "../../../src/middleware/protocol-operation";
 import { MultisigInput } from "../../../src/middleware/protocol-operation/types";
-import { appIdentityToHash } from "../../../src/utils";
+import { appIdentityToHash } from "../../../src/utils/app-identity";
 
 import {
   freeBalanceTerms,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
-} from "../../../src/free-balance-helpers";
+} from "../../../src/utils/free-balance";
 
 const {
   keccak256,

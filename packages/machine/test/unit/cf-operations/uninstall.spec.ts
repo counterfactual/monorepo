@@ -7,14 +7,14 @@ import { AppIdentity, ETHBucketAppState } from "@counterfactual/types";
 
 import { OpUninstall } from "../../../src/middleware/protocol-operation";
 import { MultisigInput } from "../../../src/middleware/protocol-operation/types";
-import { decodeMultisendCalldata } from "../../utils/multisend-decoder";
+import { decodeMultisendCalldata } from "../../../src/utils/multisend-decoder";
 
 import {
   encodeFreeBalanceState,
   freeBalanceTerms,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
-} from "../../../src/free-balance-helpers";
+} from "../../../src/utils/free-balance";
 
 const {
   keccak256,

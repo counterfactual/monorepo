@@ -1,15 +1,15 @@
 import { legacy } from "@counterfactual/cf.js";
 import { ethers } from "ethers";
 
+import { Context } from "../../instruction-executor";
+import { Node } from "../../node";
+import { InternalMessage } from "../../types";
 import {
   encodeFreeBalanceState,
   freeBalanceTerms,
   freeBalanceTermsHash,
   getFreeBalanceAppInterfaceHash
 } from "../../utils/free-balance";
-import { Context } from "../../instruction-executor";
-import { Node } from "../../node";
-import { InternalMessage } from "../../types";
 
 import { OpInstall } from "./op-install";
 import { OpSetState } from "./op-set-state";
