@@ -49,8 +49,12 @@ export class NodeListener {
       privateKey: "MY_FAKE_KEY",
       messagingService: new MessagingService(),
       storeService: {
-        get() {},
-        set() {}
+        async get(key: string): Promise<any> {
+          return Promise.resolve("something");
+        },
+        async set(key: string, value: any): Promise<boolean> {
+          return Promise.resolve(true);
+        }
       }
     });
   }
