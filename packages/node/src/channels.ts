@@ -86,17 +86,6 @@ class Channel {
     } = {}
   ) {}
 
-  toJson(): object {
-    return {
-      multisigAddress: this.multisigAddress,
-      multisigOwners: this.multisigOwners,
-      appsNonce: this.appsNonce,
-      freeBalances: this.freeBalances,
-      appInstances: this.appInstances,
-      proposedAppInstances: this.proposedAppInstances
-    };
-  }
-
   static initialFreeBalances(
     multisigOwners: Address[],
     initialAppsNonce: Nonce
@@ -253,7 +242,7 @@ export class Channels {
   async save(channel: Channel) {
     await this.store.set(
       `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
-      channel.toJson()
+      channel
     );
   }
 

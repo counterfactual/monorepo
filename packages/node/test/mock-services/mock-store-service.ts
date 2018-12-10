@@ -8,10 +8,6 @@ class MockStoreService implements IStoreService {
   set(key: string, value: any): Promise<any> {
     return Promise.resolve(true);
   }
-
-  add(key: string, value: any): Promise<any> {
-    return Promise.resolve(true);
-  }
 }
 
 export const MOCK_STORE_SERVICE = new MockStoreService();
