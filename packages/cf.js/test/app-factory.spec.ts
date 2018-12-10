@@ -25,16 +25,16 @@ describe("CF.js AppFactory", async () => {
     expect.assertions(4);
     const initialState = "1559";
     const testAppInstanceId = "TEST_ID";
-    nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, message => {
-      expect(message.type).toBe(Node.MethodName.PROPOSE_INSTALL);
-      const params = message.params as Node.ProposeInstallParams;
+    nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
+      expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
+      const params = request.params as Node.ProposeInstallParams;
       expect(params.initialState).toBe(initialState);
       expect(params.myDeposit.toString()).toBe(
         ethers.utils.parseEther("0.5").toString()
       );
       nodeProvider.simulateMessageFromNode({
         type: Node.MethodName.PROPOSE_INSTALL,
-        requestId: message.requestId,
+        requestId: request.requestId,
         result: {
           appInstanceId: testAppInstanceId
         }
