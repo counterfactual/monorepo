@@ -1,11 +1,4 @@
-import {
-  AppInstanceInfo,
-  AppInstanceInstallState,
-  AssetType,
-  INodeProvider,
-  Node
-} from "@counterfactual/common-types";
-import { BigNumber } from "ethers/utils";
+import { Node } from "@counterfactual/common-types";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
@@ -17,33 +10,7 @@ import {
   RejectInstallEventData
 } from "../src/types";
 
-class TestNodeProvider implements INodeProvider {
-  public postedMessages: Node.Message[] = [];
-  readonly callbacks: ((message: Node.Message) => void)[] = [];
-
-  public simulateMessageFromNode(message: Node.Message) {
-    this.callbacks.forEach(cb => cb(message));
-  }
-
-  public onMessage(callback: (message: Node.Message) => void) {
-    this.callbacks.push(callback);
-  }
-
-  public sendMessage(message: Node.Message) {
-    this.postedMessages.push(message);
-  }
-}
-
-const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
-  id: "TEST_ID",
-  asset: { assetType: AssetType.ETH },
-  abiEncodings: { actionEncoding: "", stateEncoding: "" },
-  appId: "",
-  myDeposit: new BigNumber("0"),
-  peerDeposit: new BigNumber("0"),
-  timeout: new BigNumber("0"),
-  installState: AppInstanceInstallState.INSTALLED
-};
+import { TEST_APP_INSTANCE_INFO, TestNodeProvider } from "./fixture";
 
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;

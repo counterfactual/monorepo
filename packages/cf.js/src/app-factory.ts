@@ -1,13 +1,13 @@
 import {
   Address,
   AppABIEncodings,
+  AppInstanceID,
   AppState,
   BlockchainAsset,
   Node
 } from "@counterfactual/common-types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
-import { AppInstance } from "./app-instance";
 import { Provider } from "./provider";
 
 interface ProposeInstallParams {
@@ -26,7 +26,7 @@ export class AppFactory {
     readonly encodings: AppABIEncodings
   ) {}
 
-  async proposeInstall(params: ProposeInstallParams): Promise<AppInstance> {
+  async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
     const timeout = new BigNumber(params.timeout);
     const myDeposit = new BigNumber(params.myDeposit);
     const peerDeposit = new BigNumber(params.peerDeposit);
@@ -45,6 +45,6 @@ export class AppFactory {
       nodeParams
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
-    return this.provider.getOrCreateAppInstance(appInstanceId);
+    return appInstanceId;
   }
 }
