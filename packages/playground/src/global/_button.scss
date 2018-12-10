@@ -1,0 +1,23 @@
+.btn {
+  background-color: $c-blue;
+  color: $c-white;
+  border: thin solid $c-blue;
+  border-radius: 2px;
+  padding: 6px 14px;
+  min-width: 80px;
+  min-height: 30px;
+}
+ .btn-outline {
+  background-color: $c-white;
+  color: $c-blue;
+}
+ .btn-container {
+  display: flex;
+  flex-direction: row;
+   .btn {
+    margin-right: 10px;
+     &:last-child {
+      margin-right: 0;
+    }
+  }
+} 

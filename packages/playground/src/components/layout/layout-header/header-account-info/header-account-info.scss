@@ -1,0 +1,18 @@
+.info {
+  display: flex;
+  color: $c-black;
+  
+  .info-img {
+    margin-right: $rhythm;
+    max-height: 14px;
+  }
+
+  .info-text {
+    display: flex;
+    flex-direction: column;
+
+    .header {
+      color: $c-mediumgrey;
+    }
+  }
+} 

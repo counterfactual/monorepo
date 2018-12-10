@@ -39,6 +39,8 @@ export default class NodeProvider implements INodeProvider {
       return Promise.resolve(this);
     }
 
+    const context = window.parent || window;
+
     return new Promise<NodeProvider>((resolve, reject) => {
       window.addEventListener("message", event => {
         if (event.data === "cf-node-provider:port") {
@@ -50,7 +52,7 @@ export default class NodeProvider implements INodeProvider {
         }
       });
 
-      window.postMessage("cf-node-provider:init", "*");
+      context.postMessage("cf-node-provider:init", "*");
     });
   }
 

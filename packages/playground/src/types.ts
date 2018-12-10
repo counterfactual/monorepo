@@ -5,3 +5,9 @@ export interface AppDefinition {
   url: string;
   icon: string;
 }
+
+export interface UserChangeset {
+  username: string;
+  email: string;
+  address: string;
+}
