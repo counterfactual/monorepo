@@ -1,6 +1,7 @@
 import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
+import MessagingService from "../../data/messaging-service";
 import { AppDialogSettings } from "../../types";
 
 @Component({
@@ -46,10 +47,7 @@ export class NodeListener {
   componentWillLoad() {
     CounterfactualNode.create({
       privateKey: "MY_FAKE_KEY",
-      messagingService: {
-        send() {},
-        receive() {}
-      },
+      messagingService: new MessagingService(),
       storeService: {
         get() {},
         set() {}
