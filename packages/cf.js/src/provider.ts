@@ -95,7 +95,7 @@ export class Provider {
     id: AppInstanceID,
     info?: AppInstanceInfo
   ): Promise<AppInstance> {
-    if (!(id in this.appInstances)) {
+    if (!this.appInstances[id]) {
       let newInfo;
       if (info) {
         newInfo = info;
@@ -133,7 +133,7 @@ export class Provider {
 
   private handleNodeMethodResponse(response: Node.MethodResponse) {
     const { requestId } = response;
-    if (requestId in this.requestListeners) {
+    if (this.requestListeners[requestId]) {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {
