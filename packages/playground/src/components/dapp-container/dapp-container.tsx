@@ -1,5 +1,5 @@
 import { Component, Element, Prop } from "@stencil/core";
-import { MatchResults, RouterHistory } from "@stencil/router";
+import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
 
 import apps from "../../utils/app-list";
@@ -13,7 +13,6 @@ export class DappContainer {
   @Element() private element: HTMLElement | undefined;
 
   @Prop() match: MatchResults = {} as MatchResults;
-  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) url: string = "";
 
@@ -26,7 +25,7 @@ export class DappContainer {
   private $onMessage: EventListenerObject = {} as EventListenerObject;
 
   render() {
-    return <app-nav history={this.history} />;
+    return <layout-header />;
   }
 
   getDappUrl(): string {
