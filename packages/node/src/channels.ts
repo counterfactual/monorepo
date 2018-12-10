@@ -64,21 +64,18 @@ import { IStoreService } from "./service-interfaces";
 /**
  * This class is only a type implementation of a channel schema for the
  * purposes of updating and retrieving a channel's state from the store.
+ *
+ * An instance is by itself stateless and effectively reflects the state of an
+ * according channel in the store.
  */
 class Channel {
-  public appInstances: Map<string, AppInstanceInfo> = new Map();
-  public proposedAppInstances: Map<string, AppInstanceInfo> = new Map();
-
   constructor(
-    public multisigKeyPrefix: string,
-    public store: IStoreService,
     readonly multisigAddress: Address,
     readonly multisigOwners: Address[],
     readonly appsNonce?: legacy.utils.Nonce,
     readonly freeBalances?: Map<AssetType, legacy.utils.FreeBalance>,
-    // FIXME: these should also be readonly
-    appInstances?: Map<string, AppInstanceInfo>,
-    proposedAppInstances?: Map<string, AppInstanceInfo>
+    readonly appInstances?: Map<string, AppInstanceInfo>,
+    readonly proposedAppInstances?: Map<string, AppInstanceInfo>
   ) {
     if (!this.appsNonce) {
       this.appsNonce = new legacy.utils.Nonce(true, 0, 0);
@@ -99,47 +96,47 @@ class Channel {
       );
     }
 
-    if (appInstances) {
-      this.appInstances = appInstances;
+    if (!this.appInstances) {
+      this.appInstances = new Map<string, AppInstanceInfo>();
+      // FIXME: firebase-specific nuance: without propering indexing, the field
+      // doesn't get written in the object blob if the path specified at key
+      // `appInstances` does not have any entries
+      this.appInstances["init"] = {} as any;
     }
-    if (proposedAppInstances) {
-      this.proposedAppInstances = proposedAppInstances;
-    }
-  }
-
-  async save() {
-    await this.store.set(
-      `${this.multisigKeyPrefix}/${this.multisigAddress}`,
-      this
-    );
-  }
-
-  async addProposal(appInstance: AppInstanceInfo) {
     if (!this.proposedAppInstances) {
-      this.proposedAppInstances = new Map();
+      this.proposedAppInstances = new Map<string, AppInstanceInfo>();
+      // FIXME: firebase-specific nuance: without propering indexing, the field
+      // doesn't get written in the object blob if the path specified at key
+      // `proposedAppInstances` does not have any entries
+      this.proposedAppInstances["init"] = {} as any;
     }
-    this.proposedAppInstances.set(appInstance.id, appInstance);
-    // TODO: optimize these writes
-    await this.store.set(
-      `${this.multisigKeyPrefix}/${this.multisigAddress}`,
-      this
-    );
+  }
+
+  toJson(): object {
+    return {
+      multisigAddress: this.multisigAddress,
+      multisigOwners: this.multisigOwners,
+      appsNonce: this.appsNonce,
+      freeBalances: JSON.stringify([...this.freeBalances!]),
+      appInstances: JSON.stringify([...this.appInstances!]),
+      proposedAppInstances: JSON.stringify([...this.proposedAppInstances!])
+    };
   }
 }
 
 /**
- * Note: this class itelf does not hold any state. It encapsulates the operations
- * performed on relevant appInstances and abstracts the persistence to the
- * store service.
+ * Note: this class itelf does not hold any meaningful state either.
+ * It encapsulates the operations performed on relevant appInstances and
+ * abstracts the persistence to the store service.
  */
 export class Channels {
   /**
-   * A convenience struct to lookup multisig address from a set of owners.
+   * A convenience lookup table from a set of owners to multisig address.
    */
   private readonly ownersToMultisigAddress = {};
 
   /**
-   * A convenience struct to lookup multisig address from appInstance ID.
+   * A convenience lookup table from appInstance ID to multisig address.
    */
   private readonly appInstanceIdToMultisigAddress = {};
 
@@ -151,7 +148,6 @@ export class Channels {
    *        environment.
    */
   constructor(
-    // @ts-ignore
     private readonly address: Address,
     private readonly store: IStoreService,
     private readonly multisigKeyPrefix: string
@@ -165,15 +161,10 @@ export class Channels {
    */
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
     const multisigAddress = Channels.getMultisigAddress(params.owners);
-    const channel: Channel = new Channel(
-      this.multisigKeyPrefix,
-      this.store,
-      multisigAddress,
-      params.owners
-    );
+    const channel: Channel = new Channel(multisigAddress, params.owners);
     const ownersHash = Channels.canonicalizeAddresses(params.owners);
     this.ownersToMultisigAddress[ownersHash] = multisigAddress;
-    channel.save();
+    this.save(channel);
     return multisigAddress;
   }
 
@@ -199,14 +190,12 @@ export class Channels {
       `${this.multisigKeyPrefix}/${multisigAddress}`
     );
     return new Channel(
-      this.multisigKeyPrefix,
-      this.store,
       channel.multisigAddress,
       channel.multisigOwners,
       channel.appsNonce,
-      channel.freeBalances,
-      channel.appInstances,
-      channel.proposedAppInstances
+      new Map(JSON.parse(channel.freeBalances)),
+      new Map(JSON.parse(channel.appInstances)),
+      new Map(JSON.parse(channel.proposedAppInstances))
     );
   }
 
@@ -214,7 +203,17 @@ export class Channels {
     appInstanceId: string
   ): Promise<Channel> {
     const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
-    return await this.store.get(`${this.multisigKeyPrefix}/${multisigAddress}`);
+    const channel = await this.store.get(
+      `${this.multisigKeyPrefix}/${multisigAddress}`
+    );
+    return new Channel(
+      channel.multisigAddress,
+      channel.multisigOwners,
+      channel.appsNonce,
+      channel.freeBalances,
+      channel.appInstances,
+      channel.proposedAppInstances
+    );
   }
 
   /**
@@ -237,7 +236,7 @@ export class Channels {
     // TODO: generate the id correctly
     const appInstanceId = channel.appsNonce!.nonceValue.toString();
     const appInstance: AppInstanceInfo = { id: appInstanceId, ...params };
-    await channel.addProposal(appInstance);
+    await this.addProposal(channel, appInstance);
     this.appInstanceIdToMultisigAddress[appInstanceId] =
       channel.multisigAddress;
     return appInstanceId;
@@ -248,13 +247,34 @@ export class Channels {
       params.appInstanceId
     );
     console.log("getting channel to install: ", channel);
-    const appInstance: AppInstanceInfo = channel.proposedAppInstances!.get(
+    const appInstance: AppInstanceInfo = channel.proposedAppInstances![
       params.appInstanceId
-    )!;
+    ];
     channel.proposedAppInstances!.delete(params.appInstanceId);
     channel.appInstances!.set(params.appInstanceId, appInstance);
     console.log("state of channel: ", channel);
     return appInstance;
+  }
+
+  // Methods for persisting changes to a channel
+
+  async save(channel: Channel) {
+    await this.store.set(
+      `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+      channel.toJson()
+    );
+  }
+
+  async addProposal(channel: Channel, appInstance: AppInstanceInfo) {
+    console.log("adding proposal: ", channel);
+    channel.proposedAppInstances!.set(appInstance.id, appInstance);
+    console.log("writing to channel: ", channel);
+    await this.store.set(
+      `${this.multisigKeyPrefix}/${
+        channel.multisigAddress
+      }/proposedAppInstances`,
+      JSON.stringify([...channel.proposedAppInstances!])
+    );
   }
 
   // Utility methods
