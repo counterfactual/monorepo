@@ -6,30 +6,30 @@ import {
   BlockchainAsset,
   Node
 } from "@counterfactual/common-types";
-import { BigNumber, BigNumberish } from "ethers/utils";
+import { ethers } from "ethers";
 
 import { Provider } from "./provider";
 
 interface ProposeInstallParams {
   peerAddress: Address;
   asset: BlockchainAsset;
-  myDeposit: BigNumberish;
-  peerDeposit: BigNumberish;
-  timeout: BigNumberish;
+  myDeposit: ethers.utils.BigNumberish;
+  peerDeposit: ethers.utils.BigNumberish;
+  timeout: ethers.utils.BigNumberish;
   initialState: AppState;
 }
 
 export class AppFactory {
   constructor(
-    readonly provider: Provider,
     readonly appId: Address,
-    readonly encodings: AppABIEncodings
+    readonly encodings: AppABIEncodings,
+    readonly provider: Provider
   ) {}
 
   async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
-    const timeout = new BigNumber(params.timeout);
-    const myDeposit = new BigNumber(params.myDeposit);
-    const peerDeposit = new BigNumber(params.peerDeposit);
+    const timeout = new ethers.utils.BigNumber(params.timeout);
+    const myDeposit = new ethers.utils.BigNumber(params.myDeposit);
+    const peerDeposit = new ethers.utils.BigNumber(params.peerDeposit);
     const nodeParams: Node.ProposeInstallParams = {
       timeout,
       peerDeposit,
