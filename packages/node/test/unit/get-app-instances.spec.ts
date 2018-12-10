@@ -129,6 +129,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // Set up listener for getting all apps
     node.on(getAppInstancesRequest.type, (res: NodeTypes.MethodResponse) => {
+      console.log("got app instances: ", res);
       expect(getAppInstancesRequest.type).toEqual(res.type);
       expect(res.requestId).toEqual(getAppInstancesRequestId);
       expect(res.result).toEqual({
@@ -138,6 +139,7 @@ describe("Node method follows spec - getAppInstances", () => {
     });
 
     node.on(NodeTypes.MethodName.INSTALL, res => {
+      console.log("installed: ", res);
       const installResult: NodeTypes.InstallResult = res.result;
       installedAppInstance = installResult.appInstance;
       console.log("got installed app: ", installedAppInstance);
@@ -145,6 +147,7 @@ describe("Node method follows spec - getAppInstances", () => {
     });
 
     node.on(appInstanceInstallationProposalRequest.type, res => {
+      console.log("created proposal: ", res);
       const installProposalResult: NodeTypes.ProposeInstallResult = res.result;
       const appInstanceId = installProposalResult.appInstanceId;
       const installAppInstanceRequest: NodeTypes.MethodRequest = {
@@ -159,6 +162,7 @@ describe("Node method follows spec - getAppInstances", () => {
     });
 
     node.on(multisigCreationReq.type, res => {
+      console.log("created multisig: ", res);
       const createMultisigResult: NodeTypes.CreateMultisigResult = res.result;
       expect(createMultisigResult.multisigAddress).toBeDefined();
 
