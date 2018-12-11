@@ -65,6 +65,10 @@ describe("Node method follows spec - proposeInstall", () => {
 
       nodeA.emit(multisigCreationRequest.type, multisigCreationRequest);
 
+      // Both nodes should have no apps installed
+      expect(await nodeA.channels.getAllApps()).toEqual([]);
+      expect(await nodeB.channels.getAllApps()).toEqual([]);
+
       // second, an app instance must be proposed to be installed into that channel
       const appInstanceInstallationProposalRequest = makeProposalRequest(
         nodeB.address

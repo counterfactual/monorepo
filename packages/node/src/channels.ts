@@ -231,20 +231,12 @@ export class Channels {
     Object.values(channels).forEach((channel: Channel) => {
       if (channel.appInstances) {
         apps.push(...Object.values(channel.appInstances));
-      }
-    });
-    return apps;
-  }
-
-  /**
-   * Gets all pending appInstances across all of the channels open on this Node.
-   */
-  async getAllPendingApps(): Promise<AppInstanceInfo[]> {
-    const apps: AppInstanceInfo[] = [];
-    const channels = await this.getAllChannels();
-    Object.values(channels).forEach((channel: Channel) => {
-      if (channel.proposedAppInstances) {
-        apps.push(...Object.values(channel.proposedAppInstances));
+      } else {
+        console.log(
+          `No app instances exist for channel with multisig address: ${
+            channel.multisigAddress
+          }`
+        );
       }
     });
     return apps;

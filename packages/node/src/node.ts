@@ -115,9 +115,7 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.receive(this.address, (msg: NodeMessage) => {
-      if (msg !== null) {
-        this.outgoing.emit(msg.event, msg);
-      }
+      this.outgoing.emit(msg.event, msg);
     });
   }
 }
