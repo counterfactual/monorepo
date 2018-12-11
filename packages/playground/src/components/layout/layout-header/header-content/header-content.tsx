@@ -1,4 +1,11 @@
-import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import {
+  Component,
+  Event,
+  EventEmitter,
+  Prop,
+  State,
+  Watch
+} from "@stencil/core";
 
 @Component({
   tag: "header-content",
@@ -8,11 +15,18 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
 export class HeaderContent {
   @Event() closeDrawer: EventEmitter = {} as EventEmitter;
   @Prop() opened: boolean = false;
+  @State() connected: boolean = false;
 
   private menuClicked(event: MouseEvent) {
     event.preventDefault();
 
     this.closeDrawer.emit();
+  }
+
+  private updateConnectionWidget(
+    event: CustomEvent<{ authenticated: boolean }>
+  ) {
+    this.connected = event.detail.authenticated;
   }
 
   render() {
@@ -27,11 +41,14 @@ export class HeaderContent {
             </a>
           </div>
           <div class="connection">
-            <widget-connection />
+            <widget-connection connected={this.connected} />
           </div>
         </div>
         <div class="right" />
-        <header-account />
+        <header-account
+          fakeConnect={true}
+          onAuthenticationChanged={e => this.updateConnectionWidget(e)}
+        />
       </nav>
     );
   }
