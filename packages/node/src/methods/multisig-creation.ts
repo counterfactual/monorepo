@@ -25,7 +25,6 @@ export async function createMultisig(
     }
   };
   await messagingService.send(peerAddress, multisigCreatedMsg);
-
   return result;
 }
 
@@ -33,7 +32,8 @@ export async function addMultisig(
   channels: Channels,
   messagingService: IMessagingService,
   // TODO: add types here
-  params: any
+  nodeMsg: NodeMessage
 ) {
+  const params = nodeMsg.data;
   await channels.addMultisig(params.multisigAddress, params.owners);
 }

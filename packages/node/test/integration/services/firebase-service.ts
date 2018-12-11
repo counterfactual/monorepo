@@ -40,17 +40,16 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-        const value = snapshot.val();
-        if (value !== null) {
-          if (value in this.servedMessages) {
-            delete this.servedMessages[value];
+        const msg = snapshot.val();
+        const msgKey = JSON.stringify(msg);
+        if (msg !== null) {
+          if (msgKey in this.servedMessages) {
+            delete this.servedMessages[msgKey];
           } else {
-            this.servedMessages[value] = true;
-            callback(value);
+            this.servedMessages[msgKey] = true;
+            callback(msg);
           }
         }
-        // clear processed message
-        this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
       });
   }
 }

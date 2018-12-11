@@ -17,7 +17,7 @@ import { makeMultisigRequest } from "./utils";
 
 dotenv.config();
 
-describe("Node method follows spec - proposeInstall", () => {
+describe("Node can create multisig, other owners get notified", () => {
   let firebaseServer: FirebaseServer;
   let storeService: IStoreService;
   let messagingService: IMessagingService;

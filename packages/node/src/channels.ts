@@ -149,15 +149,16 @@ export class Channels {
     const channel: Channel = new Channel(multisigAddress, params.owners);
     const ownersHash = Channels.canonicalizeAddresses(params.owners);
     this.ownersToMultisigAddress[ownersHash] = multisigAddress;
-    this.save(channel);
+    await this.save(channel);
     return multisigAddress;
   }
 
   async addMultisig(multisigAddress: Address, owners: Address[]) {
+    console.log(`${this.selfAddress} adding multisig: ${multisigAddress}`);
     const channel = new Channel(multisigAddress, owners);
     const ownersHash = Channels.canonicalizeAddresses(owners);
     this.ownersToMultisigAddress[ownersHash] = multisigAddress;
-    this.save(channel);
+    await this.save(channel);
   }
 
   /**
@@ -194,13 +195,29 @@ export class Channels {
     );
   }
 
+  public async getPeersAddressFromAppInstanceId(
+    appInstanceId: string
+  ): Promise<Address[]> {
+    const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
+    const channel: Channel = await this.store.get(
+      `${this.multisigKeyPrefix}/${multisigAddress}`
+    );
+    const owners = channel.multisigOwners;
+    return owners.filter(owner => owner !== this.selfAddress);
+  }
+
   private async getChannelFromAppInstanceId(
     appInstanceId: string
   ): Promise<Channel> {
+    console.log("getting channel from app instance id");
+    console.log(appInstanceId);
+    console.log(this.appInstanceIdToMultisigAddress);
     const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
+    console.log(multisigAddress);
     const channel = await this.store.get(
       `${this.multisigKeyPrefix}/${multisigAddress}`
     );
+    console.log(channel);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
@@ -233,6 +250,8 @@ export class Channels {
     await this.addAppInstanceProposal(channel, appInstance);
     this.appInstanceIdToMultisigAddress[appInstanceId] =
       channel.multisigAddress;
+    console.log("proposal added by: ", this.selfAddress);
+    console.log(this.appInstanceIdToMultisigAddress);
     return appInstanceId;
   }
 
@@ -288,6 +307,7 @@ export class Channels {
     addresses.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
+    console.log("address order: ", addresses);
     return ethers.utils.hashMessage(addresses.join(""));
   }
 

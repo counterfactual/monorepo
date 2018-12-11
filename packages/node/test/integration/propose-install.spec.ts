@@ -1,0 +1,104 @@
+import { Node as NodeTypes } from "@counterfactual/common-types";
+import cuid from "cuid";
+import dotenv from "dotenv";
+import FirebaseServer from "firebase-server";
+
+import {
+  IMessagingService,
+  IStoreService,
+  Node,
+  NodeConfig,
+  NodeMessage
+} from "../../src";
+
+import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
+
+import FirebaseServiceFactory from "./services/firebase-service";
+import { makeMultisigRequest, makeProposalRequest, sleep } from "./utils";
+
+dotenv.config();
+
+describe("Node method follows spec - proposeInstall", () => {
+  let firebaseServer: FirebaseServer;
+  let storeService: IStoreService;
+  let messagingService: IMessagingService;
+  let nodeA: Node;
+  let nodeB: Node;
+  let nodeConfig: NodeConfig;
+
+  beforeAll(() => {
+    const firebaseServiceFactory = new FirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_HOST!,
+      process.env.FIREBASE_DEV_SERVER_PORT!
+    );
+    firebaseServer = firebaseServiceFactory.createServer();
+    storeService = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY!
+    );
+    messagingService = firebaseServiceFactory.createMessagingService(
+      process.env.FIREBASE_MESSAGING_SERVER_KEY!
+    );
+    nodeConfig = {
+      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+    };
+  });
+
+  beforeEach(() => {
+    nodeA = new Node(A_PRIVATE_KEY, messagingService, storeService, nodeConfig);
+    nodeB = new Node(B_PRIVATE_KEY, messagingService, storeService, nodeConfig);
+  });
+
+  afterAll(() => {
+    firebaseServer.close();
+  });
+
+  it(
+    "Node A gets app install proposal, sends to node B, B approves it, installs it," +
+      "sends acks back to A, A installs it, both nodes have the same app instance",
+
+    async done => {
+      // A channel is first created between the two nodes
+      const multisigCreationRequest = makeMultisigRequest([
+        nodeA.address,
+        nodeB.address
+      ]);
+
+      nodeA.emit(multisigCreationRequest.type, multisigCreationRequest);
+
+      // second, an app instance must be proposed to be installed into that channel
+      const appInstanceInstallationProposalRequest = makeProposalRequest(
+        nodeB.address
+      );
+
+      // node B then decides to approve/reject the propsal
+      nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
+        if (msg.data.proposal) {
+          await sleep(100);
+          // some approval logic happens in this callback and we proceed
+          // approve the proposal and install the app instance
+          const installRequest: NodeTypes.MethodRequest = {
+            requestId: cuid(),
+            type: NodeTypes.MethodName.INSTALL,
+            params: {
+              appInstanceId: msg.data.appInstanceId
+            } as NodeTypes.InstallParams
+          };
+          console.log("installing app by B: ", msg.data.appInstanceId);
+          nodeB.emit(installRequest.type, installRequest);
+        } else {
+          throw Error("This is expecting a proposal");
+        }
+      });
+
+      nodeA.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
+        console.log("Got approval from B: ", msg);
+        done();
+      });
+
+      nodeA.emit(
+        appInstanceInstallationProposalRequest.type,
+        appInstanceInstallationProposalRequest
+      );
+    }
+  );
+});

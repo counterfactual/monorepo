@@ -2,10 +2,15 @@ import { Node } from "@counterfactual/common-types";
 import EventEmitter from "eventemitter3";
 
 import { Channels } from "../channels";
+import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
+import {
+  addPendingAppInstance,
+  install,
+  proposeInstall
+} from "./installations";
 import { addMultisig, createMultisig } from "./multisig-creation";
-import { NodeMessage } from "../node";
 
 export class MethodHandler {
   private METHODS = new Map();
@@ -56,13 +61,14 @@ export class MethodHandler {
    */
   private mapEvents() {
     this.EVENTS.set(Node.EventName.MULTISIG_CREATED, addMultisig);
+    this.EVENTS.set(Node.EventName.INSTALL, addPendingAppInstance);
   }
 
   private registerEvents() {
     this.mapEvents();
     this.EVENTS.forEach((eventHandler: Function, eventName: string) => {
       this.outgoing.on(eventName, async (msg: NodeMessage) => {
-        await eventHandler(this.channels, this.messagingService, msg.data);
+        await eventHandler(this.channels, this.messagingService, msg);
       });
     });
   }
@@ -75,25 +81,5 @@ async function getAppInstances(
 ): Promise<Node.GetAppInstancesResult> {
   return {
     appInstances: await channels.getAllApps()
-  };
-}
-
-async function proposeInstall(
-  channels: Channels,
-  messagingService: IMessagingService,
-  params: Node.ProposeInstallParams
-): Promise<Node.ProposeInstallResult> {
-  return {
-    appInstanceId: await channels.proposeInstall(params)
-  };
-}
-
-async function install(
-  channels: Channels,
-  messagingService: IMessagingService,
-  params: Node.InstallParams
-): Promise<Node.InstallResult> {
-  return {
-    appInstance: await channels.install(params)
   };
 }

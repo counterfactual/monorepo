@@ -2,6 +2,10 @@ import { Address, AssetType, Node } from "@counterfactual/common-types";
 import cuid from "cuid";
 import { ethers } from "ethers";
 
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function makeProposalRequest(peerAddress: Address): Node.MethodRequest {
   const params: Node.ProposeInstallParams = {
     peerAddress,
