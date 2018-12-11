@@ -9,6 +9,7 @@ import {
 import { ethers } from "ethers";
 
 import { Provider } from "./provider";
+import { EventType } from "./types";
 
 interface ProposeInstallParams {
   peerAddress: Address;
@@ -30,6 +31,21 @@ export class AppFactory {
     const timeout = new ethers.utils.BigNumber(params.timeout);
     const myDeposit = new ethers.utils.BigNumber(params.myDeposit);
     const peerDeposit = new ethers.utils.BigNumber(params.peerDeposit);
+    try {
+      ethers.utils.getAddress(params.peerAddress);
+    } catch (e) {
+      if (e.code === "INVALID_ARGUMENT") {
+        throw {
+          type: EventType.ERROR,
+          data: {
+            errorName: "invalid_peer_address",
+            message: `Invalid peer address for install proposal: ${
+              params.peerAddress
+            }`
+          }
+        };
+      }
+    }
     const nodeParams: Node.ProposeInstallParams = {
       timeout,
       peerDeposit,

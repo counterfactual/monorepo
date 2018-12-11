@@ -1,4 +1,5 @@
-import { Node } from "@counterfactual/common-types";
+import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
+import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
@@ -10,11 +11,21 @@ import {
   RejectInstallEventData
 } from "../src/types";
 
-import { TEST_APP_INSTANCE_INFO, TestNodeProvider } from "./fixture";
+import { TestNodeProvider } from "./fixture";
 
-describe("CF.js Provider", async () => {
+describe("CF.js Provider", () => {
   let nodeProvider: TestNodeProvider;
   let provider: Provider;
+
+  const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
+    id: "TEST_ID",
+    asset: { assetType: AssetType.ETH },
+    abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
+    appId: "0x1515151515151515151515151515151515151515",
+    myDeposit: new BigNumber("0"),
+    peerDeposit: new BigNumber("0"),
+    timeout: new BigNumber("0")
+  };
 
   beforeEach(() => {
     nodeProvider = new TestNodeProvider();
