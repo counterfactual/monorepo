@@ -115,11 +115,6 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.receive(this.address, (msg: NodeMessage) => {
-      console.debug(
-        `Node with address ${this.address} received message: ${JSON.stringify(
-          msg
-        )}`
-      );
       if (msg !== null) {
         this.outgoing.emit(msg.event, msg);
       }
