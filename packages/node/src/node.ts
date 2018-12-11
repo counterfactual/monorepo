@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
 import { Channels } from "./channels";
-import { MethodHandler } from "./methods";
+import { MethodHandler } from "./methods/method-handler";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
 export interface NodeConfig {
@@ -22,7 +22,7 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly channels: Channels;
+  public readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
 
   /**
@@ -41,10 +41,16 @@ export class Node {
     this.channels = new Channels(
       this.signer.address,
       this.storeService,
-      nodeConfig.MULTISIG_KEY_PREFIX
+      // naive, account-based multisig indexing
+      `${nodeConfig.MULTISIG_KEY_PREFIX}/${this.signer.address}`
     );
     this.registerMessagingConnection();
-    new MethodHandler(this.incoming, this.outgoing, this.channels);
+    new MethodHandler(
+      this.incoming,
+      this.outgoing,
+      this.channels,
+      this.messagingService
+    );
   }
 
   /**

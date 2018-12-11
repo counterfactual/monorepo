@@ -1,20 +1,27 @@
 import { Node } from "@counterfactual/common-types";
 import EventEmitter from "eventemitter3";
 
-import { Channels } from "./channels";
+import { Channels } from "../channels";
+import { IMessagingService } from "../service-interfaces";
+
+import { addMultisig, createMultisig } from "./multisig-creation";
+import { NodeMessage } from "../node";
 
 export class MethodHandler {
   private METHODS = new Map();
+  private EVENTS = new Map();
   constructor(
     private readonly incoming: EventEmitter,
     private readonly outgoing: EventEmitter,
-    private readonly channels: Channels
+    private readonly channels: Channels,
+    private readonly messagingService: IMessagingService
   ) {
     this.registerMethods();
+    this.registerEvents();
   }
 
   /**
-   * This maps the Node method names to their respective methods.
+   * This maps the Node method names to their respective handlers.
    */
   private mapHandlers() {
     this.METHODS.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
@@ -37,30 +44,33 @@ export class MethodHandler {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await method(this.channels, req.params)
+          result: await method(this.channels, this.messagingService, req.params)
         };
         this.outgoing.emit(req.type, res);
       });
     });
   }
-}
 
-// The following are implementations of the Node API methods, as defined here:
-// https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
-// More specifically, these methods are wrappers which return the result
-// of the specified operation in the context of the relevant channel.
+  /**
+   * This maps the Node event names to their respective handlers.
+   */
+  private mapEvents() {
+    this.EVENTS.set(Node.EventName.MULTISIG_CREATED, addMultisig);
+  }
 
-async function createMultisig(
-  channels: Channels,
-  params: Node.CreateMultisigParams
-): Promise<Node.CreateMultisigResult> {
-  return {
-    multisigAddress: await channels.createMultisig(params)
-  };
+  private registerEvents() {
+    this.mapEvents();
+    this.EVENTS.forEach((eventHandler: Function, eventName: string) => {
+      this.outgoing.on(eventName, async (msg: NodeMessage) => {
+        await eventHandler(this.channels, this.messagingService, msg.data);
+      });
+    });
+  }
 }
 
 async function getAppInstances(
   channels: Channels,
+  messagingService: IMessagingService,
   params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
   return {
@@ -70,6 +80,7 @@ async function getAppInstances(
 
 async function proposeInstall(
   channels: Channels,
+  messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
   return {
@@ -79,6 +90,7 @@ async function proposeInstall(
 
 async function install(
   channels: Channels,
+  messagingService: IMessagingService,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   return {

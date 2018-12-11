@@ -126,14 +126,14 @@ export class Channels {
   private readonly appInstanceIdToMultisigAddress = {};
 
   /**
-   * @param address The address of the account being used with the Node.
+   * @param selfAddress The address of the account being used with the Node.
    * @param store
    * @param multisigKeyPrefix The prefix to add to the key being used
    *        for indexing multisig addresses according to the execution
    *        environment.
    */
   constructor(
-    private readonly address: Address,
+    public readonly selfAddress: Address,
     private readonly store: IStoreService,
     private readonly multisigKeyPrefix: string
   ) {}
@@ -153,11 +153,18 @@ export class Channels {
     return multisigAddress;
   }
 
+  async addMultisig(multisigAddress: Address, owners: Address[]) {
+    const channel = new Channel(multisigAddress, owners);
+    const ownersHash = Channels.canonicalizeAddresses(owners);
+    this.ownersToMultisigAddress[ownersHash] = multisigAddress;
+    this.save(channel);
+  }
+
   /**
    * Returns a JSON object with the keys being the multisig addresses and the
    * values being objects reflecting the channel schema described above.
    */
-  private async getAllChannels(): Promise<object> {
+  async getAllChannels(): Promise<object> {
     const channels = await this.store.get(this.multisigKeyPrefix);
     if (!channels) {
       console.log("No channels exist yet");
@@ -169,7 +176,10 @@ export class Channels {
   private async getChannelFromPeerAddress(
     peerAddress: Address
   ): Promise<Channel> {
-    const owners = Channels.canonicalizeAddresses([this.address, peerAddress]);
+    const owners = Channels.canonicalizeAddresses([
+      this.selfAddress,
+      peerAddress
+    ]);
     const multisigAddress = this.ownersToMultisigAddress[owners];
     const channel = await this.store.get(
       `${this.multisigKeyPrefix}/${multisigAddress}`

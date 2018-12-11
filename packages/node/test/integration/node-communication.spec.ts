@@ -65,7 +65,7 @@ describe("Two nodes can communicate with each other", () => {
     nodeA.send(nodeB.address, installMsg);
   });
 
-  it("Node A can propose install, Node B can reject proposal", async done => {
+  it("Node A can make proposal, Node B can reject proposal", async done => {
     const proposalMsg: NodeMessage = {
       event: NodeTypes.EventName.INSTALL,
       data: {}

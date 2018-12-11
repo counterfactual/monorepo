@@ -1,7 +1,8 @@
 import { Address, AssetType, Node } from "@counterfactual/common-types";
+import cuid from "cuid";
 import { ethers } from "ethers";
 
-export function makeProposalReq(peerAddress: Address): Node.MethodRequest {
+export function makeProposalRequest(peerAddress: Address): Node.MethodRequest {
   const params: Node.ProposeInstallParams = {
     peerAddress,
     appId: "1",
@@ -20,10 +21,22 @@ export function makeProposalReq(peerAddress: Address): Node.MethodRequest {
       propertyB: "B"
     }
   };
-  const appInstanceInstallationProposalRequestId = "2";
+  const appInstanceInstallationProposalRequestId = cuid();
   return {
     params,
     requestId: appInstanceInstallationProposalRequestId,
     type: Node.MethodName.PROPOSE_INSTALL
   } as Node.MethodRequest;
+}
+
+export function makeMultisigRequest(owners: Address[]): Node.MethodRequest {
+  const multisigCreationRequstId = cuid();
+  const multisigCreationReq: Node.MethodRequest = {
+    requestId: multisigCreationRequstId,
+    type: Node.MethodName.CREATE_MULTISIG,
+    params: {
+      owners
+    } as Node.CreateMultisigParams
+  };
+  return multisigCreationReq;
 }

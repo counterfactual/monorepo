@@ -12,7 +12,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
-import { makeProposalReq } from "./utils";
+import { makeProposalRequest, makeMultisigRequest } from "./utils";
 
 dotenv.config();
 
@@ -76,17 +76,15 @@ describe("Node method follows spec - getAppInstances", () => {
     const peerAddress = new ethers.Wallet(B_PRIVATE_KEY).address;
 
     // first, a channel must be opened for it to have an app instance
-    const multisigCreationRequstId = "1";
-    const multisigCreationReq: NodeTypes.MethodRequest = {
-      requestId: multisigCreationRequstId,
-      type: NodeTypes.MethodName.CREATE_MULTISIG,
-      params: {
-        owners: [node.address, peerAddress]
-      } as NodeTypes.CreateMultisigParams
-    };
+    const multisigCreationReq = makeMultisigRequest([
+      node.address,
+      peerAddress
+    ]);
 
     // second, an app instance must be proposed to be installed into that channel
-    const appInstanceInstallationProposalRequest = makeProposalReq(peerAddress);
+    const appInstanceInstallationProposalRequest = makeProposalRequest(
+      peerAddress
+    );
 
     // third, the pending app instance needs to be installed
     // its installation request will be the callback to the proposal response
