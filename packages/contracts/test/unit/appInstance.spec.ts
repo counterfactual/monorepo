@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { AbstractContract, expect, buildArtifacts } from "../../utils";
+import { AbstractContract, buildArtifacts, expect } from "../../utils";
 import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
