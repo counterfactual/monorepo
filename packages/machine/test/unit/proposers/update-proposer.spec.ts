@@ -235,7 +235,12 @@ describe("Install Proposer", () => {
               // Whys is "uniqueId" a number?
               0, // TODO: appIdentityToHash(freeBalance.appIdentity),
               freeBalance.defaultTimeout, // timeout
-              new legacy.utils.Nonce(true, 0, 0) // nonce
+              new legacy.utils.Nonce(
+                // TODO: figure out what false/true changes here
+                false,
+                freeBalance.uniqueAppNonceWithinStateChannel,
+                0
+              ) // nonce
             )
           )
         },
