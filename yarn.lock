@@ -3945,10 +3945,10 @@ ethereumjs-wallet@0.6.0:
     utf8 "^2.1.1"
     uuid "^2.0.1"
 
-ethers@^4.0.4:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.15.tgz#784df851271ec4f7cea46ce3b44e2274f122ff6c"
-  integrity sha512-GO+GVMI0EfS6CJmxJXSUNTyiN8q+QIRTACzEtRMqnUDQrTzTHfIx2VYD7mgPDTjSsu/JLzGdit0hY3ERcE2fHQ==
+ethers@^4.0.17:
+  version "4.0.18"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.18.tgz#04870405fe2066ccdaafe99d34a8806fd2191bc6"
+  integrity sha512-yz4CTgDjPeIrYEarT4lNE/7A7t0XWj5xiOu+8RmHj26S4py+6iW6NlzmukH1K670QsxFmFdp9FiukNiD0SO76w==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
