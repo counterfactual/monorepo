@@ -33,6 +33,7 @@ export interface UpdateStateEventData extends AppEventData {
 export interface ErrorEventData {
   errorName: string;
   message?: string;
+  extra?: any;
 }
 
 export type EventData =

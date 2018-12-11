@@ -9,7 +9,7 @@ import {
 import { ethers } from "ethers";
 
 import { Provider } from "./provider";
-import { EventType } from "./types";
+import { CounterfactualEvent, EventType } from "./types";
 
 interface ProposeInstallParams {
   peerAddress: Address;
@@ -20,6 +20,35 @@ interface ProposeInstallParams {
   initialState: AppState;
 }
 
+function createInvalidParamError(
+  val: any,
+  paramName: string,
+  originalError: any
+): CounterfactualEvent {
+  return {
+    type: EventType.ERROR,
+    data: {
+      errorName: "invalid_param",
+      message: `Invalid value for parameter '${paramName}': ${val}`,
+      extra: {
+        paramName,
+        originalError
+      }
+    }
+  };
+}
+
+function parseBigNumber(
+  val: ethers.utils.BigNumberish,
+  paramName: string
+): ethers.utils.BigNumber {
+  try {
+    return new ethers.utils.BigNumber(val);
+  } catch (e) {
+    throw createInvalidParamError(val, paramName, e);
+  }
+}
+
 export class AppFactory {
   constructor(
     readonly appId: Address,
@@ -28,23 +57,13 @@ export class AppFactory {
   ) {}
 
   async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
-    const timeout = new ethers.utils.BigNumber(params.timeout);
-    const myDeposit = new ethers.utils.BigNumber(params.myDeposit);
-    const peerDeposit = new ethers.utils.BigNumber(params.peerDeposit);
+    const timeout = parseBigNumber(params.timeout, "timeout");
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
     try {
       ethers.utils.getAddress(params.peerAddress);
     } catch (e) {
-      if (e.code === "INVALID_ARGUMENT") {
-        throw {
-          type: EventType.ERROR,
-          data: {
-            errorName: "invalid_peer_address",
-            message: `Invalid peer address for install proposal: ${
-              params.peerAddress
-            }`
-          }
-        };
-      }
+      throw createInvalidParamError(params.peerAddress, "peerAddress", e);
     }
     const nodeParams: Node.ProposeInstallParams = {
       timeout,

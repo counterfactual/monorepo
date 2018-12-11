@@ -69,13 +69,14 @@ describe("CF.js AppFactory", () => {
         });
         done.fail("Expected an error for invalid peer address");
       } catch (e) {
-        expect(e.data.errorName).toBe("invalid_peer_address");
+        expect(e.data.errorName).toBe("invalid_param");
+        expect(e.data.extra.paramName).toBe("peerAddress");
         done();
       }
     });
   });
 
-  it("should throw an error if deposit amount invalid", async done => {
+  it("should throw an error if BigNumber param invalid", async done => {
     try {
       await appFactory.proposeInstall({
         peerAddress: "0x0101010101010101010101010101010101010101",
@@ -89,6 +90,8 @@ describe("CF.js AppFactory", () => {
       });
       done.fail("Expected an error for invalid myDeposit");
     } catch (e) {
+      expect(e.data.errorName).toBe("invalid_param");
+      expect(e.data.extra.paramName).toBe("myDeposit");
       done();
     }
   });
