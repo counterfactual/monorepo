@@ -12,7 +12,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
-import { makeProposalRequest, makeMultisigRequest } from "./utils";
+import { makeMultisigRequest, makeProposalRequest } from "./utils";
 
 dotenv.config();
 
