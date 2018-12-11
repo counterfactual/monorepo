@@ -1,27 +1,36 @@
-import * as cf from "@counterfactual/cf.js";
+import { legacy } from "@counterfactual/cf.js";
 
 import { Node, StateChannelInfoImpl } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
 export class UninstallProposer {
   public static propose(message: InternalMessage, node: Node): StateProposal {
-    const multisig: cf.legacy.utils.Address =
-      message.clientMessage.multisigAddress;
+    const multisigAddress = message.clientMessage.multisigAddress;
+
     const channels = node.stateChannelInfosCopy();
+
     const appId = message.clientMessage.appInstanceId;
+
     if (appId === undefined) {
       throw new Error("uninstall message must have appId set");
     }
+
     // delete the app by bumping the nonce
-    channels[multisig].appInstances[appId].dependencyNonce.nonceValue += 1;
-    channels[multisig].appInstances[appId].dependencyNonce.isSet = true;
+    channels[multisigAddress].appInstances[
+      appId
+    ].dependencyNonce.nonceValue += 1;
+
+    channels[multisigAddress].appInstances[appId].dependencyNonce.isSet = true;
+
     // add balance and update nonce
-    const canon = cf.legacy.utils.CanonicalPeerBalance.canonicalize(
+    const canon = legacy.utils.CanonicalPeerBalance.canonicalize(
       message.clientMessage.data.peerAmounts[0],
       message.clientMessage.data.peerAmounts[1]
     );
-    const oldFreeBalance = channels[multisig].freeBalance;
-    const newFreeBalance = new cf.legacy.utils.FreeBalance(
+
+    const oldFreeBalance = channels[multisigAddress].freeBalance;
+
+    const newFreeBalance = new legacy.utils.FreeBalance(
       oldFreeBalance.alice,
       oldFreeBalance.aliceBalance.add(canon.peerA.balance),
       oldFreeBalance.bob,
@@ -31,15 +40,21 @@ export class UninstallProposer {
       oldFreeBalance.timeout,
       oldFreeBalance.dependencyNonce
     );
-    const channel = channels[multisig];
+
+    const channel = channels[multisigAddress];
+
     // now replace the state channel with a newly updated one
-    channels[multisig] = new StateChannelInfoImpl(
+    channels[multisigAddress] = new StateChannelInfoImpl(
       channel.counterParty,
       channel.me,
-      multisig,
+      multisigAddress,
       channel.appInstances,
       newFreeBalance
     );
+
+    // TODO: we should remove it right?
+    delete channels[multisigAddress].appInstances[appId];
+
     return { state: channels };
   }
 }

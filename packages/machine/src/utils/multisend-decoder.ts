@@ -25,9 +25,10 @@ const { defaultAbiCoder, hexDataLength, hexDataSlice } = ethers.utils;
  * }
  * ```
  *
- * @param txs A `bytes` string representing an array of encoded tuples like
+ * @param txs A string representing the bytes array of encoded tuples like
  *            tuple(uint, address, uint, bytes); each representing a transaction
- *            for a Multisignature Wallet to execute.
+ *            for a Multisignature Wallet to execute. Equivalent to the `transactions`
+ *            argument to the `multiSend` function in the Solidity code.
  *
  * @returns An array of [op, to, val, data] javascript arrays.
  */
@@ -37,6 +38,8 @@ export function decodeMultisendCalldata(txs: string) {
   let i = 0;
 
   while (i < hexDataLength(txs)) {
+    // We expect 0x80 to be a hard-coded pointer to the `data` location. Refer to
+    // https://solidity.readthedocs.io/en/v0.5.0/abi-spec.html for ABI specification
     const ptr = hexDataSlice(txs, i + 0x60, i + 0x80);
     if (parseInt(ptr, 16) !== 0x80) {
       throw Error(

@@ -5,12 +5,7 @@ import { SetupProposer } from "../../../src/middleware/state-transition/setup-pr
 import { Opcode } from "../../../src/opcodes";
 import { InternalMessage, StateProposal } from "../../../src/types";
 
-import {
-  A_ADDRESS,
-  B_ADDRESS,
-  UNUSED_FUNDED_ACCOUNT
-} from "../../test-helpers/environment";
-
+const { getAddress, hexlify, randomBytes } = ethers.utils;
 const { Zero } = ethers.constants;
 
 describe("SetupProposer", () => {
@@ -18,14 +13,16 @@ describe("SetupProposer", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: A_ADDRESS,
-    receiver: B_ADDRESS
+    sender: getAddress(hexlify(randomBytes(20))),
+    receiver: getAddress(hexlify(randomBytes(20)))
   };
 
   // State channel testing values
   const stateChannel = {
-    multisigAddress: UNUSED_FUNDED_ACCOUNT,
-    multisigOwners: [interaction.sender, interaction.receiver]
+    multisigAddress: getAddress(hexlify(randomBytes(20))),
+    multisigOwners: [interaction.sender, interaction.receiver].sort((a, b) =>
+      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+    )
   };
 
   beforeAll(() => {
@@ -33,7 +30,6 @@ describe("SetupProposer", () => {
       legacy.node.ActionName.SETUP,
       Opcode.STATE_TRANSITION_PROPOSE,
       {
-        appInstanceId: "0",
         action: legacy.node.ActionName.SETUP,
         data: {},
         multisigAddress: stateChannel.multisigAddress,

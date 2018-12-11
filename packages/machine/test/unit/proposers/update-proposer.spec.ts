@@ -5,11 +5,10 @@ import {
   AppIdentity,
   AppInterface,
   AssetType,
-  ETHBucketAppState,
   Terms
 } from "@counterfactual/types";
 
-import { InstallProposer } from "../../../src/middleware/state-transition/install-proposer";
+import { UpdateProposer } from "../../../src/middleware/state-transition/update-proposer";
 import { Node, StateChannelInfoImpl } from "../../../src/node";
 import { Opcode } from "../../../src/opcodes";
 import { InternalMessage, StateProposal } from "../../../src/types";
@@ -30,7 +29,7 @@ const {
   defaultAbiCoder
 } = ethers.utils;
 
-const { WeiPerEther, AddressZero } = ethers.constants;
+const { AddressZero } = ethers.constants;
 
 describe("Install Proposer", () => {
   let proposal: StateProposal;
@@ -59,11 +58,13 @@ describe("Install Proposer", () => {
     multisigOwners: [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
     ),
-    monotonicallyIncreasingAppNonce: 0
+    monotonicallyIncreasingAppNonce: 1
   };
 
-  // App-to-be-installed test values
+  // App-to-be-uninstalled test values
   const app = {
+    uniqueAppNonceWithinStateChannel: 1,
+
     stateEncoding: `
       tuple(
         address foo,
@@ -81,7 +82,7 @@ describe("Install Proposer", () => {
 
     terms: {
       assetType: AssetType.ETH,
-      limit: bigNumberify(2),
+      limit: bigNumberify(8),
       token: AddressZero
     } as Terms,
 
@@ -89,8 +90,23 @@ describe("Install Proposer", () => {
       /* assignment done below to reuse app.{interface, terms} values */
     } as AppIdentity,
 
-    initialState: "" // assignment done below to reuse app.stateEncoding
+    currentState: "",
+
+    newState: "",
+
+    nonce: 10
   };
+
+  // TODO: (idea) The InstallProposer should probably do this internally.
+  app.currentState = defaultAbiCoder.encode(
+    [app.stateEncoding],
+    [{ foo: AddressZero, bar: 0 }]
+  );
+
+  app.newState = defaultAbiCoder.encode(
+    [app.stateEncoding],
+    [{ foo: AddressZero, bar: 1 }]
+  );
 
   app.identity = {
     owner: stateChannel.multisigAddress,
@@ -106,12 +122,6 @@ describe("Install Proposer", () => {
     termsHash: keccak256(defaultAbiCoder.encode([TERMS], [app.terms])),
     defaultTimeout: 100
   };
-
-  // TODO: (idea) The InstallProposer should probably do this internally.
-  app.initialState = defaultAbiCoder.encode(
-    [app.stateEncoding],
-    [{ foo: AddressZero, bar: 0 }]
-  );
 
   // Test free balance values
   const freeBalance = {
@@ -137,48 +147,22 @@ describe("Install Proposer", () => {
     state: {
       alice: stateChannel.multisigOwners[0],
       bob: stateChannel.multisigOwners[1],
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
-    } as ETHBucketAppState
+      aliceBalance: bigNumberify(Math.ceil(100 * Math.random())),
+      bobBalance: bigNumberify(Math.ceil(100 * Math.random()))
+    }
   };
 
   beforeAll(() => {
     const message = new InternalMessage(
-      legacy.node.ActionName.INSTALL,
+      legacy.node.ActionName.UPDATE,
       Opcode.STATE_TRANSITION_PROPOSE,
       {
-        action: legacy.node.ActionName.INSTALL,
+        action: legacy.node.ActionName.UPDATE,
         data: {
-          peerA: new legacy.utils.PeerBalance(
-            freeBalance.state.alice,
-            freeBalance.state.aliceBalance.div(2)
-          ),
-          peerB: new legacy.utils.PeerBalance(
-            freeBalance.state.bob,
-            freeBalance.state.bobBalance.div(2)
-          ),
-          keyA: app.identity.signingKeys[0],
-          keyB: app.identity.signingKeys[1],
-          // TODO: (question) Is this supposed to be for the free bal?
-          encodedAppState: app.initialState,
-          // TODO: Get rid of legacy.app.Terms
-          terms: new legacy.app.Terms(
-            app.terms.assetType,
-            app.terms.limit,
-            app.terms.token
-          ),
-          // TODO: Get rid of legacy.app.AppInterface
-          app: new legacy.app.AppInterface(
-            app.interface.addr,
-            app.interface.applyAction,
-            app.interface.resolve,
-            app.interface.getTurnTaker,
-            app.interface.isStateTerminal,
-            // TODO: (question) why isn't there an actionEncoding field?
-            app.stateEncoding
-          ),
-          timeout: app.identity.defaultTimeout
+          appStateHash: keccak256(app.newState),
+          encodedAppState: app.newState
         },
+        appInstanceId: appIdentityToHash(app.identity),
         multisigAddress: stateChannel.multisigAddress,
         fromAddress: interaction.sender,
         toAddress: interaction.receiver,
@@ -186,23 +170,62 @@ describe("Install Proposer", () => {
       }
     );
 
-    proposal = InstallProposer.propose(
+    proposal = UpdateProposer.propose(
       message,
-      {
-        intermediateResults: {
-          inbox: [],
-          outbox: []
-        },
-        // NOTE: This is a hack to avoid typescript
-        instructionExecutor: Object.create(null)
-      },
       new Node(
         {
           [stateChannel.multisigAddress]: new StateChannelInfoImpl(
-            interaction.sender,
+            // FIXME: this goes "counterparty" then "me". weird order!
             interaction.receiver,
+            interaction.sender,
             stateChannel.multisigAddress,
-            {},
+            {
+              [appIdentityToHash(app.identity)]: {
+                id: appIdentityToHash(app.identity),
+                uniqueId: app.uniqueAppNonceWithinStateChannel,
+                peerA: new legacy.utils.PeerBalance(
+                  freeBalance.state.alice,
+                  freeBalance.state.aliceBalance.div(2)
+                ),
+                peerB: new legacy.utils.PeerBalance(
+                  freeBalance.state.bob,
+                  freeBalance.state.bobBalance.div(2)
+                ),
+                // TODO: These fields are optional on the type
+                // keyA: app.identity.signingKeys[0],
+                // keyB: app.identity.signingKeys[1],
+                encodedState: app.currentState,
+                appStateHash: keccak256(app.currentState),
+                localNonce: app.nonce,
+                timeout: 100,
+                terms: new legacy.app.Terms(
+                  app.terms.assetType,
+                  app.terms.limit,
+                  app.terms.token
+                ),
+                cfApp: new legacy.app.AppInterface(
+                  app.interface.addr,
+                  app.interface.applyAction,
+                  app.interface.resolve,
+                  app.interface.getTurnTaker,
+                  app.interface.isStateTerminal,
+                  app.stateEncoding
+                ),
+                dependencyNonce: new legacy.utils.Nonce(
+                  false,
+                  app.uniqueAppNonceWithinStateChannel,
+                  0
+                )
+                // TODO: These fields are optional on the type
+                // stateChannel: {
+                //   counterParty: interaction.receiver,
+                //   me: interaction.sender,
+                //   multisigAddress: stateChannel.multisigAddress,
+                //   appInstances: [],
+                //   freeBalance: null,
+                //   owners: () => []
+              }
+            },
             new legacy.utils.FreeBalance(
               freeBalance.state.alice,
               freeBalance.state.aliceBalance,
@@ -243,16 +266,18 @@ describe("Install Proposer", () => {
       appInstances = info.appInstances;
     });
 
-    it("should set the free balance to the expected decremented amounts", () => {
+    it("should not have changed the free balance at all", () => {
       expect(updatedFreeBalance.aliceBalance).toEqual(
-        freeBalance.state.aliceBalance.div(2)
+        freeBalance.state.aliceBalance
       );
       expect(updatedFreeBalance.bobBalance).toEqual(
-        freeBalance.state.bobBalance.div(2)
+        freeBalance.state.bobBalance
       );
+      expect(updatedFreeBalance.alice).toBe(freeBalance.state.alice);
+      expect(updatedFreeBalance.bob).toBe(freeBalance.state.bob);
     });
 
-    it("should set the open app instances to be of length 1 (the new app)", () => {
+    it("should not have touched the number of open apps", () => {
       expect(Object.keys(appInstances).length).toEqual(1);
     });
 
@@ -277,40 +302,32 @@ describe("Install Proposer", () => {
         expect(appInstances[expectedId].id).toEqual(expectedId);
       });
 
-      it("should compute the subdeposits correctly", () => {
-        expect(appInstance.peerA.address).toEqual(
-          stateChannel.multisigOwners[0]
-        );
-        expect(appInstance.peerA.balance).toEqual(
-          freeBalance.state.aliceBalance.div(2)
-        );
-        expect(appInstance.peerB.address).toEqual(
-          stateChannel.multisigOwners[1]
-        );
-        expect(appInstance.peerB.balance).toEqual(
-          freeBalance.state.aliceBalance.div(2)
-        );
-      });
+      //     it("should compute the subdeposits correctly", () => {
+      //       expect(appInstance.peerA.address).toEqual(interaction.sender);
+      //       expect(appInstance.peerA.balance).toEqual(bigNumberify(5));
+      //       expect(appInstance.peerB.address).toEqual(interaction.receiver);
+      //       expect(appInstance.peerB.balance).toEqual(bigNumberify(3));
+      //     });
 
       it("should return the proposed encoded state", () => {
-        expect(appInstance.encodedState).toEqual(app.initialState);
+        expect(appInstance.encodedState).toEqual(app.newState);
       });
 
-      it("should start the nonce at 1", () => {
-        expect(appInstance.localNonce).toEqual(1);
+      it("should start bump the nonce by 1", () => {
+        expect(appInstance.localNonce).toEqual(app.nonce + 1);
       });
 
-      it("should use the default timeout for the new apps initial state", () => {
+      it("should use the default timeout for the new app state", () => {
         expect(appInstance.timeout).toEqual(app.identity.defaultTimeout);
       });
 
-      it("should use the terms provided", () => {
-        expect(appInstance.terms.assetType).toEqual(AssetType.ETH);
-        expect(appInstance.terms.limit).toEqual(app.terms.limit);
-        expect(appInstance.terms.token).toEqual(app.terms.token);
-      });
+      //     it("should use the terms provided", () => {
+      //       expect(appInstance.terms.assetType).toEqual(AssetType.ETH);
+      //       expect(appInstance.terms.limit).toEqual(app.terms.limit);
+      //       expect(appInstance.terms.token).toEqual(app.terms.token);
+      //     });
 
-      it("should use the app interface provided", () => {
+      it("should not touch any of the app interface values", () => {
         expect(appInstance.cfApp.address).toEqual(app.interface.addr);
         expect(appInstance.cfApp.applyAction).toEqual(
           app.interface.applyAction
@@ -324,11 +341,11 @@ describe("Install Proposer", () => {
         );
       });
 
-      it("should set the dependency nonce to some random number", () => {
+      it("should ensure the dependency nonce remains at 0", () => {
         const expectedSalt = keccak256(
           defaultAbiCoder.encode(
             ["uint256"],
-            [stateChannel.monotonicallyIncreasingAppNonce + 1]
+            [app.uniqueAppNonceWithinStateChannel]
           )
         );
         expect(appInstance.dependencyNonce.salt).toEqual(expectedSalt);
