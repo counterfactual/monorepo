@@ -6,3 +6,4 @@ import * as utils from "./utils";
 export { legacy, types, utils };
 
 export { Provider } from "./provider";
+export { AppFactory } from "./app-factory";

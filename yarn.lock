@@ -752,15 +752,6 @@
     jsdom "11.11.0"
     typescript "~2.9.1"
 
-"@stencil/core@~0.16.0":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.16.0.tgz#d92cc2ae148b7934c36651094bc0c4447b6526ce"
-  integrity sha512-ijRanqHwJlnLlEs8iMA7mn3d1Df0lOPXDqJTBNTwNCF1rxjh9/3aDgYFS/h5COS26bz1qmbmtaN2omaQmI9S/Q==
-  dependencies:
-    chokidar "2.0.3"
-    jsdom "11.11.0"
-    typescript "~3.1.6"
-
 "@stencil/router@0.2.6":
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.2.6.tgz#1738acdb2f90a94ec3d312bca198834b625b3de7"
@@ -3954,10 +3945,10 @@ ethereumjs-wallet@0.6.0:
     utf8 "^2.1.1"
     uuid "^2.0.1"
 
-ethers@^4.0.4:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.15.tgz#784df851271ec4f7cea46ce3b44e2274f122ff6c"
-  integrity sha512-GO+GVMI0EfS6CJmxJXSUNTyiN8q+QIRTACzEtRMqnUDQrTzTHfIx2VYD7mgPDTjSsu/JLzGdit0hY3ERcE2fHQ==
+ethers@^4.0.17:
+  version "4.0.18"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.18.tgz#04870405fe2066ccdaafe99d34a8806fd2191bc6"
+  integrity sha512-yz4CTgDjPeIrYEarT4lNE/7A7t0XWj5xiOu+8RmHj26S4py+6iW6NlzmukH1K670QsxFmFdp9FiukNiD0SO76w==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -8082,11 +8073,6 @@ public-encrypt@^4.0.0:
     randombytes "^2.0.1"
     safe-buffer "^5.1.2"
 
-pubsub-js@^1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/pubsub-js/-/pubsub-js-1.7.0.tgz#eca97f9a4217bef62b2d3aaa1552005260cc2e49"
-  integrity sha512-Pb68P9qFZxnvDipHMuj9oT1FoIgBcXJ9C9eWdHCLZAnulaUoJ3+Y87RhGMYilWpun6DMWVmvK70T4RP4drZMSA==
-
 pump@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/pump/-/pump-2.0.1.tgz#12399add6e4cf7526d973cbc8b5ce2e2908b3909"
@@ -10229,7 +10215,7 @@ typescript@^3.1.2:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.1.tgz#0b7a04b8cf3868188de914d9568bd030f0c56192"
   integrity sha512-jw7P2z/h6aPT4AENXDGjcfHTu5CSqzsbZc6YlUIebTyBAq8XaKp78x7VcSh30xwSCcsu5irZkYZUSFP1MrAMbg==
 
-typescript@^3.1.3, typescript@~3.1.6:
+typescript@^3.1.3:
   version "3.1.6"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.6.tgz#b6543a83cfc8c2befb3f4c8fba6896f5b0c9be68"
   integrity sha512-tDMYfVtvpb96msS1lDX9MEdHrW4yOuZ4Kdc4Him9oU796XldPYF/t2+uKoX0BBa0hXXwDlqYQbXY5Rzjzc5hBA==
