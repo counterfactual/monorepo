@@ -2,7 +2,7 @@ import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import MessagingService from "../../data/messaging-service";
-import { AppDialogSettings } from "../../types";
+import { WidgetDialogSettings } from "../../types";
 
 @Component({
   tag: "node-listener",
@@ -11,7 +11,7 @@ import { AppDialogSettings } from "../../types";
 export class NodeListener {
   private currentMessage: string = "";
 
-  private modals: { [key: string]: (data: any) => AppDialogSettings } = {
+  private modals: { [key: string]: (data: any) => WidgetDialogSettings } = {
     proposeInstall: data => ({
       content: (
         <label>
@@ -28,14 +28,14 @@ export class NodeListener {
   };
 
   private modalVisible: boolean = false;
-  private modalData: AppDialogSettings = {} as AppDialogSettings;
+  private modalData: WidgetDialogSettings = {} as WidgetDialogSettings;
 
   get node() {
     return CounterfactualNode.getInstance();
   }
 
   private get currentModalConfiguration():
-    | ((data: any) => AppDialogSettings)
+    | ((data: any) => WidgetDialogSettings)
     | null {
     if (this.currentMessage) {
       return this.modals[this.currentMessage];
@@ -94,7 +94,7 @@ export class NodeListener {
 
   render() {
     return (
-      <app-dialog
+      <widget-dialog
         visible={this.modalVisible}
         icon={this.modalData.icon}
         title={this.modalData.title}
