@@ -5,11 +5,7 @@ import { Channels } from "../channels";
 import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
-import {
-  addPendingAppInstance,
-  install,
-  proposeInstall
-} from "./installations";
+import { addAppInstance, install, proposeInstall } from "./installations";
 import { addMultisig, createMultisig } from "./multisig-creation";
 
 export class MethodHandler {
@@ -61,7 +57,7 @@ export class MethodHandler {
    */
   private mapEvents() {
     this.EVENTS.set(Node.EventName.MULTISIG_CREATED, addMultisig);
-    this.EVENTS.set(Node.EventName.INSTALL, addPendingAppInstance);
+    this.EVENTS.set(Node.EventName.INSTALL, addAppInstance);
   }
 
   private registerEvents() {

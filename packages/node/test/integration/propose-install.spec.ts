@@ -70,12 +70,16 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeB.address
       );
 
-      // node B then decides to approve/reject the propsal
+      // node B then decides to approve the propsal
       nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
         if (msg.data.proposal) {
+          // FIXME: there shouldn't be a race between locally installing a
+          // pending app and wanting to install it immediately upon being
+          // notified of it
           await sleep(100);
-          // some approval logic happens in this callback and we proceed
-          // approve the proposal and install the app instance
+
+          // some approval logic happens in this callback, we proceed
+          // to approve the proposal, and install the app instance
           const installRequest: NodeTypes.MethodRequest = {
             requestId: cuid(),
             type: NodeTypes.MethodName.INSTALL,
@@ -83,7 +87,7 @@ describe("Node method follows spec - proposeInstall", () => {
               appInstanceId: msg.data.appInstanceId
             } as NodeTypes.InstallParams
           };
-          console.log("installing app by B: ", msg.data.appInstanceId);
+
           nodeB.emit(installRequest.type, installRequest);
         } else {
           throw Error("This is expecting a proposal");
@@ -91,7 +95,16 @@ describe("Node method follows spec - proposeInstall", () => {
       });
 
       nodeA.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
-        console.log("Got approval from B: ", msg);
+        if (msg.data.proposal) {
+          throw Error("This is not expecting proposal");
+        }
+        // FIXME: there shouldn't be a race between locally installing a
+        // pending app and wanting to install it immediately upon being
+        // notified of it
+        await sleep(100);
+        const appInstanceNodeA = (await nodeA.channels.getAllApps())[0];
+        const appInstanceNodeB = (await nodeB.channels.getAllApps())[0];
+        expect(appInstanceNodeA).toEqual(appInstanceNodeB);
         done();
       });
 

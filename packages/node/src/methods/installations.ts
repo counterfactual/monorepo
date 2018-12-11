@@ -36,9 +36,9 @@ export async function install(
   const appInstance = await channels.install(params);
   const appInstanceId = appInstance.id;
 
-  const peerAddress = await channels.getPeersAddressFromAppInstanceId(
+  const peerAddresses = await channels.getPeersAddressFromAppInstanceId(
     appInstanceId
-  )[0];
+  );
 
   const installApprovalMsg: NodeMessage = {
     from: channels.selfAddress,
@@ -49,28 +49,32 @@ export async function install(
     }
   };
 
-  await messagingService.send(peerAddress, installApprovalMsg);
+  await messagingService.send(peerAddresses[0], installApprovalMsg);
   return {
     appInstance
   };
 }
 
 /**
- * This function is different from `proposeInstall` as it's only adding the
- * pending app instance to the relevant channel on the receiving party's end,
- * hence no proposal is being made to any peers.
+ * This function adds the app instance as a pending installation if the proposal
+ * flag is set. Otherwise it adds the app instance as an installed app into the
+ * appropriate channel.
  * @param channels
  * @param messagingService
  * @param params
  */
-export async function addPendingAppInstance(
+export async function addAppInstance(
   channels: Channels,
   messagingService: IMessagingService,
   nodeMsg: NodeMessage
-): Promise<Node.ProposeInstallResult> {
-  const params: Node.ProposeInstallParams = nodeMsg.data;
+) {
+  const params = { ...nodeMsg.data };
   params.peerAddress = nodeMsg.from!;
-  return {
-    appInstanceId: await channels.proposeInstall(params)
-  };
+  delete params.proposal;
+  if (nodeMsg.data.proposal) {
+    delete params.appInstanceId;
+    await channels.proposeInstall(params);
+  } else {
+    await channels.install(params);
+  }
 }

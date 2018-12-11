@@ -35,13 +35,13 @@ export namespace Node {
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
-    INSTALL = "install",
-    REJECT_INSTALL = "rejectInstall",
-    UPDATE_STATE = "updateState",
-    UNINSTALL = "uninstall",
-    PROPOSE_STATE = "proposeState",
-    REJECT_STATE = "rejectState",
-    MULTISIG_CREATED = "multisigCreated"
+    INSTALL = "installEvent",
+    REJECT_INSTALL = "rejectInstallEvent",
+    UPDATE_STATE = "updateStateEvent",
+    UNINSTALL = "uninstallEvent",
+    PROPOSE_STATE = "proposeStateEvent",
+    REJECT_STATE = "rejectStateEvent",
+    MULTISIG_CREATED = "multisigCreatedEvent"
   }
 
   export interface GetAppInstancesParams {}

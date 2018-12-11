@@ -154,7 +154,6 @@ export class Channels {
   }
 
   async addMultisig(multisigAddress: Address, owners: Address[]) {
-    console.log(`${this.selfAddress} adding multisig: ${multisigAddress}`);
     const channel = new Channel(multisigAddress, owners);
     const ownersHash = Channels.canonicalizeAddresses(owners);
     this.ownersToMultisigAddress[ownersHash] = multisigAddress;
@@ -209,15 +208,10 @@ export class Channels {
   private async getChannelFromAppInstanceId(
     appInstanceId: string
   ): Promise<Channel> {
-    console.log("getting channel from app instance id");
-    console.log(appInstanceId);
-    console.log(this.appInstanceIdToMultisigAddress);
     const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
-    console.log(multisigAddress);
     const channel = await this.store.get(
       `${this.multisigKeyPrefix}/${multisigAddress}`
     );
-    console.log(channel);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
@@ -242,16 +236,33 @@ export class Channels {
     return apps;
   }
 
+  /**
+   * Gets all pending appInstances across all of the channels open on this Node.
+   */
+  async getAllPendingApps(): Promise<AppInstanceInfo[]> {
+    const apps: AppInstanceInfo[] = [];
+    const channels = await this.getAllChannels();
+    Object.values(channels).forEach((channel: Channel) => {
+      if (channel.proposedAppInstances) {
+        apps.push(...Object.values(channel.proposedAppInstances));
+      }
+    });
+    return apps;
+  }
+
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
     // TODO: generate the id correctly
     const appInstanceId = channel.appsNonce!.nonceValue.toString();
-    const appInstance: AppInstanceInfo = { id: appInstanceId, ...params };
+    const appInstanceState = { ...params };
+    delete appInstanceState.peerAddress;
+    const appInstance: AppInstanceInfo = {
+      id: appInstanceId,
+      ...appInstanceState
+    };
     await this.addAppInstanceProposal(channel, appInstance);
     this.appInstanceIdToMultisigAddress[appInstanceId] =
       channel.multisigAddress;
-    console.log("proposal added by: ", this.selfAddress);
-    console.log(this.appInstanceIdToMultisigAddress);
     return appInstanceId;
   }
 
@@ -307,7 +318,6 @@ export class Channels {
     addresses.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
-    console.log("address order: ", addresses);
     return ethers.utils.hashMessage(addresses.join(""));
   }
 
