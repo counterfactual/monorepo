@@ -1,46 +1,16 @@
-import {
-  AppInstanceInfo,
-  AssetType,
-  INodeProvider,
-  Node
-} from "@counterfactual/common-types";
-import { BigNumber } from "ethers/utils";
+import { Node } from "@counterfactual/common-types";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
 import {
+  CounterfactualEvent,
   ErrorEventData,
   EventType,
   InstallEventData,
   RejectInstallEventData
 } from "../src/types";
 
-class TestNodeProvider implements INodeProvider {
-  public postedMessages: Node.Message[] = [];
-  readonly callbacks: ((message: Node.Message) => void)[] = [];
-
-  public simulateMessageFromNode(message: Node.Message) {
-    this.callbacks.forEach(cb => cb(message));
-  }
-
-  public onMessage(callback: (message: Node.Message) => void) {
-    this.callbacks.push(callback);
-  }
-
-  public sendMessage(message: Node.Message) {
-    this.postedMessages.push(message);
-  }
-}
-
-const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
-  id: "TEST_ID",
-  asset: { assetType: AssetType.ETH },
-  abiEncodings: { actionEncoding: "", stateEncoding: "" },
-  appId: "",
-  myDeposit: new BigNumber("0"),
-  peerDeposit: new BigNumber("0"),
-  timeout: new BigNumber("0")
-};
+import { TEST_APP_INSTANCE_INFO, TestNodeProvider } from "./fixture";
 
 describe("CF.js Provider", async () => {
   let nodeProvider: TestNodeProvider;
@@ -140,6 +110,22 @@ describe("CF.js Provider", async () => {
     }
   });
 
+  it("should unsubscribe from events", async done => {
+    const callback = (e: CounterfactualEvent) => {
+      done.fail("Unsubscribed event listener was fired");
+    };
+    provider.on(EventType.REJECT_INSTALL, callback);
+    provider.off(EventType.REJECT_INSTALL, callback);
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.REJECT_INSTALL,
+      requestId: "1",
+      result: {
+        appInstanceId: "TEST"
+      }
+    });
+    setTimeout(done, 100);
+  });
+
   it("should correctly subscribe to rejectInstall events", async () => {
     expect.assertions(3);
     provider.once(EventType.REJECT_INSTALL, e => {
@@ -181,8 +167,8 @@ describe("CF.js Provider", async () => {
     expect.assertions(4);
 
     provider.on(EventType.UPDATE_STATE, e => {
-      expect((e.data as InstallEventData).appInstance.info).toBe(
-        TEST_APP_INSTANCE_INFO
+      expect((e.data as InstallEventData).appInstance.id).toBe(
+        TEST_APP_INSTANCE_INFO.id
       );
     });
 

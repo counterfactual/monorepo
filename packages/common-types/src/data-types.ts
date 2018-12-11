@@ -1,10 +1,10 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { ABIEncoding, Address } from "./simple-types";
+import { ABIEncoding, Address, AppInstanceID } from "./simple-types";
 
 export interface AppInstanceInfo {
-  id: string;
+  id: AppInstanceID;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
