@@ -1,10 +1,10 @@
 import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 @Component({
-  tag: "app-dialog",
+  tag: "widget-dialog",
   shadow: true
 })
-export class AppDialog {
+export class WidgetDialog {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop({ mutable: true }) visible: boolean = false;
   @Prop() dialogTitle: string = "";

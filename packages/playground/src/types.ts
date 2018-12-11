@@ -14,7 +14,7 @@ export interface UserChangeset {
 
 export type ComponentEventHandler = (event: CustomEvent<any>) => void;
 
-export interface AppDialogSettings {
+export interface WidgetDialogSettings {
   title?: string;
   icon?: string;
   content: JSX.Element;
