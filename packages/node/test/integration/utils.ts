@@ -1,4 +1,9 @@
-import { Address, AssetType, Node } from "@counterfactual/common-types";
+import {
+  Address,
+  AppInstanceInfo,
+  AssetType,
+  Node
+} from "@counterfactual/common-types";
 import cuid from "cuid";
 import { ethers } from "ethers";
 
@@ -9,7 +14,7 @@ export function sleep(ms) {
 export function makeProposalRequest(peerAddress: Address): Node.MethodRequest {
   const params: Node.ProposeInstallParams = {
     peerAddress,
-    appId: "1",
+    appId: cuid(),
     abiEncodings: {
       stateEncoding: "stateEncoding",
       actionEncoding: "actionEncoding"
@@ -43,4 +48,23 @@ export function makeMultisigRequest(owners: Address[]): Node.MethodRequest {
     } as Node.CreateMultisigParams
   };
   return multisigCreationReq;
+}
+
+/**
+ * @param proposalParams The parameters of the installation proposal.
+ * @param proposedAppInstance The proposed app instance contained in the Node.
+ */
+export function confirmProposedAppInstanceOnNode(
+  methodParams: Node.MethodParams,
+  proposedAppInstance: AppInstanceInfo
+) {
+  const proposalParams = methodParams as Node.ProposeInstallParams;
+  expect(proposalParams.abiEncodings).toEqual(proposedAppInstance.abiEncodings);
+  expect(proposalParams.appId).toEqual(proposedAppInstance.appId);
+  expect(proposalParams.asset).toEqual(proposedAppInstance.asset);
+  expect(proposalParams.myDeposit).toEqual(proposedAppInstance.myDeposit);
+  expect(proposalParams.peerDeposit).toEqual(proposedAppInstance.peerDeposit);
+  expect(proposalParams.timeout).toEqual(proposedAppInstance.timeout);
+  // TODO: uncomment when getState is implemented
+  // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }

@@ -76,6 +76,8 @@ async function getAppInstances(
   params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
   return {
-    appInstances: await channels.getAllApps()
+    appInstances: await channels.getAppInstances(
+      Channels.APP_INSTANCE_STATUS.INSTALLED
+    )
   };
 }

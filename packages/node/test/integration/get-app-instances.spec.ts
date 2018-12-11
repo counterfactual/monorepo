@@ -2,6 +2,7 @@ import {
   AppInstanceInfo,
   Node as NodeTypes
 } from "@counterfactual/common-types";
+import cuid from "cuid";
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import FirebaseServer from "firebase-server";
@@ -50,7 +51,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   it("can accept a valid call to get empty list of app instances", async done => {
-    const requestId = "1";
+    const requestId = cuid();
     const req: NodeTypes.MethodRequest = {
       requestId,
       type: NodeTypes.MethodName.GET_APP_INSTANCES,
@@ -88,11 +89,11 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // third, the pending app instance needs to be installed
     // its installation request will be the callback to the proposal response
-    const installAppInstanceRequestId = "3";
+    const installAppInstanceRequestId = cuid();
     let installedAppInstance: AppInstanceInfo;
 
     // fourth, a call to get app instances can be made
-    const getAppInstancesRequestId = "4";
+    const getAppInstancesRequestId = cuid();
     const getAppInstancesRequest: NodeTypes.MethodRequest = {
       requestId: getAppInstancesRequestId,
       type: NodeTypes.MethodName.GET_APP_INSTANCES,
