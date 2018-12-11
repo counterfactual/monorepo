@@ -29,7 +29,20 @@ jobs:
           command: yarn ganache:ci
           background: true
       - run: cd packages/contracts/ && yarn migrate --network ganache
-      - run: yarn test
+      - run: yarn test:ci-non-playground
+
+  run-playground-tests:
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - restore_cache:
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - run: yarn # symlink packages' node_modules
+      - run: yarn build
+      - run: cd packages/playround && yarn test
+      - run: cd packages/dapp-high-roller && yarn test
 
   run-tslint:
     docker:
@@ -50,5 +63,8 @@ workflows:
           requires:
             - build
       - run-tests:
+          requires:
+            - build
+      - run-playground-tests:
           requires:
             - build
