@@ -41,7 +41,7 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
       - run: yarn build
-      - run: cd packages/playround && yarn test
+      - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
 
   run-tslint:
