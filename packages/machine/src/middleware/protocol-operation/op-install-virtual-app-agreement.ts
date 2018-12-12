@@ -13,7 +13,7 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
     readonly freeBalance: cf.legacy.utils.FreeBalance,
     readonly uninstallationNonce: cf.legacy.utils.Nonce,
     readonly beneficiaries: cf.legacy.utils.Address[],
-    readonly expiry: number,
+    readonly expiry: number
   ) {
     super(networkContext, multisig, freeBalance, uninstallationNonce);
   }
