@@ -1,5 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import VirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/VirtualAppAgreement.json";
+import VirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
 import { ethers } from "ethers";
 
 import { MultiSendOp } from "./multi-send-op";
@@ -42,14 +42,16 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
     // );
     const data = new ethers.utils.Interface(
       VirtualAppAgreementJson.abi
-    ).functions.delegateTarget.encode([{
-      registryAddr: this.networkContext.registryAddr,
-      terms: terms,
-      expiry: 0,
-      target: this.appCfAddress,
-      capitalProvided: 0,
-      beneficiaries: [],
-    }]);
+    ).functions.delegateTarget.encode([
+      {
+        registryAddr: this.networkContext.registryAddr,
+        terms,
+        expiry: 0,
+        target: this.appCfAddress,
+        capitalProvided: 0,
+        beneficiaries: []
+      }
+    ]);
     const op = Operation.Delegatecall;
     return new MultisigInput(to, val, data, op);
   }

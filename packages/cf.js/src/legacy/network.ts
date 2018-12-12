@@ -27,7 +27,7 @@ export class NetworkContext {
     Signatures: "signaturesAddr",
     StaticCall: "staticCallAddr",
     ETHBalanceRefundApp: "ethBalanceRefundAppAddr",
-    VirtualAppAgreement: "virtualAppAgreementAddr",
+    ETHVirtualAppAgreement: "ethVirtualAppAgreementAddr"
   };
 
   constructor(
@@ -39,7 +39,7 @@ export class NetworkContext {
     readonly signaturesAddr: Address,
     readonly staticCallAddr: Address,
     readonly ethBalanceRefundAppAddr: Address,
-    readonly virtualAppAgreementAddr: Address,
+    readonly virtualAppAgreementAddr: Address
   ) {}
 
   public linkedBytecode(unlinkedBytecode: string): string {
