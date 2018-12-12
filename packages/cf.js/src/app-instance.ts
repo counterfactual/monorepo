@@ -12,6 +12,11 @@ import { BigNumber } from "ethers/utils";
 
 import { Provider } from "./provider";
 
+interface Payout {
+  myPayout: BigNumber;
+  peerPayout: BigNumber;
+}
+
 export class AppInstance {
   readonly id: AppInstanceID;
   readonly appId: Address;
@@ -52,5 +57,14 @@ export class AppInstance {
     );
     const result = response.result as Node.TakeActionResult;
     return result.newState;
+  }
+
+  async uninstall(): Promise<Payout> {
+    const response = await this.provider.callRawNodeMethod(
+      Node.MethodName.UNINSTALL,
+      { appInstanceId: this.id }
+    );
+    const { myPayout, peerPayout } = response.result as Node.UninstallResult;
+    return { myPayout, peerPayout };
   }
 }
