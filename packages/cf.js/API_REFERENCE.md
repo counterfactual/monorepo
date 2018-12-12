@@ -33,6 +33,9 @@
             - `uninstall`
                 - [Node event](#event-uninstallEvent)
                 - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
+            - `multisigCreated`
+                - [Node event](#event-multisigCreatedEvent)
+                - Callback Params: `(multisigAddress: Address, owners: Address[])`
 - `AppFactory`
     - Properties
         - `provider: Provider`
