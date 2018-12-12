@@ -4,6 +4,13 @@ import { Channels } from "../channels";
 import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
+/**
+ * This creates a multisig while sending details about this multisig
+ * to the peer with whom the multisig is owned.
+ * @param channels
+ * @param messagingService
+ * @param params
+ */
 export async function createMultisig(
   channels: Channels,
   messagingService: IMessagingService,
@@ -28,6 +35,12 @@ export async function createMultisig(
   return result;
 }
 
+/**
+ * This creates an entry for an already-created multisig sent by a peer.
+ * @param channels
+ * @param messagingService
+ * @param nodeMsg
+ */
 export async function addMultisig(
   channels: Channels,
   messagingService: IMessagingService,

@@ -4,6 +4,14 @@ import { Channels } from "../channels";
 import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
+/**
+ * This creates an entry of a proposed app instance into the relevant channel
+ * while sending the proposal to the peer with whom this app instance is
+ * indicated to be instantiated with.
+ * @param channels
+ * @param messagingService
+ * @param params
+ */
 export async function proposeInstall(
   channels: Channels,
   messagingService: IMessagingService,
@@ -28,6 +36,13 @@ export async function proposeInstall(
   };
 }
 
+/**
+ * This converts a proposed app instance to an installed app instance while
+ * sending an approved ack to the proposer.
+ * @param channels
+ * @param messagingService
+ * @param params
+ */
 export async function install(
   channels: Channels,
   messagingService: IMessagingService,
