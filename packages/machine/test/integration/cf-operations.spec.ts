@@ -49,7 +49,7 @@ describe("Setup Protocol", async () => {
       addressOfContract.get("Signatures")!,
       addressOfContract.get("StaticCall")!,
       addressOfContract.get("ETHBalanceRefundApp")!,
-      addressOfContract.get("VirtualAppAgreement")!,
+      addressOfContract.get("ETHVirtualAppAgreement")!,
     );
   });
 
