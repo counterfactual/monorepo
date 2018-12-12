@@ -78,7 +78,7 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeB.address
       );
 
-      // node B then decides to approve the propsal
+      // node B then decides to approve the proposal
       nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
         if (msg.data.proposal) {
           // FIXME: there shouldn't be a race between locally installing a
