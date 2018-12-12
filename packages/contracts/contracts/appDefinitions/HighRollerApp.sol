@@ -95,7 +95,8 @@ contract HighRollerApp {
     address[] memory to = new address[](2);
     to[0] = state.playerAddrs[0];
     to[1] = state.playerAddrs[1];
-    if (keccak256(abi.encodePacked(salt, playerFirstNumber)) == state.commitHash) {
+    bytes32 expectedCommitHash  = keccak256(abi.encodePacked(salt, playerFirstNumber));
+    if (expectedCommitHash == state.commitHash) {
       amounts = getWinningAmounts(playerFirstNumber, playerSecondNumber, terms.limit);
     } else {
       amounts[0] = 0;
@@ -119,7 +120,7 @@ contract HighRollerApp {
     returns (uint256[] amounts)
   {
     bytes32 finalHash = calculateFinalHash(num1, num2);
-    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = split32Hashto8(finalHash);
+    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = cutBytes32(finalHash);
     uint dice1 = bytes8toDiceRoll(hash1);
     uint dice2 = bytes8toDiceRoll(hash2);
     uint dice3 = bytes8toDiceRoll(hash3);
@@ -137,7 +138,7 @@ contract HighRollerApp {
       amounts[1] = termsLimit / 2;
     }
   }
-
+  
   function calculateFinalHash(uint256 num1, uint256 num2) 
     public
     pure
@@ -147,29 +148,34 @@ contract HighRollerApp {
     return keccak256(abi.encodePacked(mult));
   }
 
-  function split32Hashto8(bytes32 finalHash) 
+  /// @notice Splits a bytes32 into 4 bytes8 by cutting every 8 bytes
+  /// @param h The bytes32 to be split
+  /// @dev Takes advantage of implicitly recognizing the length of each bytes8
+  ///            variable when being read by `mload`. We point to the start of each
+  ///            string (e.g., 0x08, 0x10) by incrementing by 8 bytes each time.
+  function cutBytes32(bytes32 h) 
     public
     pure
-    returns (bytes8 dice1, bytes8 dice2, bytes8 dice3, bytes8 dice4)
+    returns (bytes8 q1, bytes8 q2, bytes8 q3, bytes8 q4)
   {
-    bytes32 mask1 = 0xffffffffffffffff000000000000000000000000000000000000000000000000;
-    bytes32 mask2 = 0x0000000000000000ffffffffffffffff00000000000000000000000000000000;
-    bytes32 mask3 = 0x00000000000000000000000000000000ffffffffffffffff0000000000000000;
-    bytes32 mask4 = 0x000000000000000000000000000000000000000000000000ffffffffffffffff;
-    bytes32 shifted2 = bytes32(uint256(finalHash & mask2) * 2 ** (4*16));
-    bytes32 shifted3 = bytes32(uint256(finalHash & mask3) * 2 ** (4*32));
-    bytes32 shifted4 = bytes32(uint256(finalHash & mask4) * 2 ** (4*48));
-    dice1 = bytes8(finalHash & mask1);
-    dice2 = bytes8(shifted2);
-    dice3 = bytes8(shifted3);
-    dice4 = bytes8(shifted4);
+    assembly {
+      let ptr := mload(0x40)
+      mstore(add(ptr, 0x00), h)
+      q1 := mload(add(ptr, 0x00))
+      q2 := mload(add(ptr, 0x08))
+      q3 := mload(add(ptr, 0x10))
+      q4 := mload(add(ptr, 0x18))
+    }  
   }
 
-  function bytes8toDiceRoll(bytes8 dice)
+  /// @notice Converts a bytes8 into a uint64 between 1-6
+  /// @param q The bytes8 to convert
+  /// @dev Splits this by using modulas 6 to get the uint
+  function bytes8toDiceRoll(bytes8 q)
     public
     pure
     returns (uint)
   {
-    return uint64(dice) % 6;
+    return uint64(q) % 6;
   }
 }
