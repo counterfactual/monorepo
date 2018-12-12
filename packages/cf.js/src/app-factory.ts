@@ -6,17 +6,44 @@ import {
   BlockchainAsset,
   Node
 } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
 
 import { Provider } from "./provider";
+import { CounterfactualEvent, EventType } from "./types";
 
 interface ProposeInstallParams {
   peerAddress: Address;
   asset: BlockchainAsset;
-  myDeposit: ethers.utils.BigNumberish;
-  peerDeposit: ethers.utils.BigNumberish;
-  timeout: ethers.utils.BigNumberish;
+  myDeposit: BigNumberish;
+  peerDeposit: BigNumberish;
+  timeout: BigNumberish;
   initialState: AppState;
+}
+
+function createInvalidParamError(
+  val: any,
+  paramName: string,
+  originalError: any
+): CounterfactualEvent {
+  return {
+    type: EventType.ERROR,
+    data: {
+      errorName: "invalid_param",
+      message: `Invalid value for parameter '${paramName}': ${val}`,
+      extra: {
+        paramName,
+        originalError
+      }
+    }
+  };
+}
+
+function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
+  try {
+    return new BigNumber(val);
+  } catch (e) {
+    throw createInvalidParamError(val, paramName, e);
+  }
 }
 
 export class AppFactory {
@@ -27,9 +54,14 @@ export class AppFactory {
   ) {}
 
   async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
-    const timeout = new ethers.utils.BigNumber(params.timeout);
-    const myDeposit = new ethers.utils.BigNumber(params.myDeposit);
-    const peerDeposit = new ethers.utils.BigNumber(params.peerDeposit);
+    const timeout = parseBigNumber(params.timeout, "timeout");
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
+    try {
+      getAddress(params.peerAddress);
+    } catch (e) {
+      throw createInvalidParamError(params.peerAddress, "peerAddress", e);
+    }
     const nodeParams: Node.ProposeInstallParams = {
       timeout,
       peerDeposit,

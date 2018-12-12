@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { AbstractContract, expect } from "../../utils";
+import { AbstractContract, buildArtifacts, expect } from "../../utils";
 import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
@@ -56,12 +56,7 @@ contract("AppInstance", (accounts: string[]) => {
   // @ts-ignore
   before(async () => {
     networkID = await AbstractContract.getNetworkID(unlockedAccount);
-    const staticCall = AbstractContract.fromArtifactName("StaticCall");
-    const signatures = AbstractContract.fromArtifactName("Signatures");
-    appInstance = await AbstractContract.fromArtifactName("AppInstance", {
-      StaticCall: staticCall,
-      Signatures: signatures
-    });
+    appInstance = await buildArtifacts.AppInstance;
 
     sendUpdateToChainWithNonce = (nonce: number, appState?: string) =>
       stateChannel.functions.setState(
