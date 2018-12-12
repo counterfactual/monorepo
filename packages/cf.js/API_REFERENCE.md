@@ -289,7 +289,7 @@ Result:
 Events
 ------
 
-### Event: `install`
+### Event: `installEvent`
 
 Fired if new app instance was successfully installed.
 
@@ -297,7 +297,7 @@ Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Newly installed app instance
 
-### Event: `rejectInstall`
+### Event: `rejectInstallEvent`
 
 Fired if installation of a new app instance was rejected.
 
@@ -305,7 +305,7 @@ Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Rejected app instance
 
-### Event: `updateState`
+### Event: `updateStateEvent`
 
 Fired if app state is successfully updated.
 
@@ -317,7 +317,7 @@ Data:
 - `action?:`[`AppAction`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 
-### Event: `uninstall`
+### Event: `uninstallEvent`
 
 Fired if app instance is successfully uninstalled
 
@@ -329,11 +329,11 @@ Data:
 - `peerPayout: BigNumber`
     - Amount of the asset paid out to peer
 
-### Event: `proposeState`
+### Event: `proposeStateEvent`
 
 TODO
 
-### Event: `rejectState`
+### Event: `rejectStateEvent`
 
 TODO
 
