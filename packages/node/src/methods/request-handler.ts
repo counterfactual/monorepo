@@ -30,8 +30,8 @@ export class RequestHandler {
   }
 
   /**
-   * This enables directly calling a specified method, instead of registering
-   * a callback for it.
+   * In some use cases, waiting for the response of a method call is easier
+   * and cleaner than wrangling through callback hell.
    * @param method
    * @param req
    */
@@ -49,15 +49,6 @@ export class RequestHandler {
       )
     };
   }
-
-  // private registerEvents() {
-  //   this.mapEventHandlers();
-  //   this.events.forEach((eventHandler: Function, eventName: string) => {
-  //     this.outgoing.on(eventName, async (msg: NodeMessage) => {
-  //       await eventHandler(this.channels, this.messagingService, msg);
-  //     });
-  //   });
-  // }
 
   /**
    * This maps the Node method names to their respective handlers.
@@ -110,7 +101,8 @@ export class RequestHandler {
   }
 
   /**
-   * This is called when an event is received from another node.
+   * This is internally called when an event is received from another node.
+   * Node consumers can separately setup their own callbacks for incoming events.
    * @param event
    * @param msg
    */

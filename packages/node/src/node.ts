@@ -15,14 +15,13 @@ export interface NodeConfig {
 export class Node {
   /**
    * Because the Node receives and sends out messages based on Event type
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
-   * the same EventEmitter can't be used since response messages would get
-   * sent to listeners expecting request messages.
+   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
+   * incoming and outgoing emitters need to be used.
    **/
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  public readonly channels: Channels;
+  private readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
   protected readonly requestHandler: RequestHandler;
 
