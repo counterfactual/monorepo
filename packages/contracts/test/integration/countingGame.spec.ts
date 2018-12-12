@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { AbstractContract, expect } from "../../utils";
+import { AbstractContract, buildArtifacts, expect } from "../../utils";
 import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
@@ -94,13 +94,7 @@ contract("CountingApp", (accounts: string[]) => {
   beforeEach(async () => {
     const networkID = await AbstractContract.getNetworkID(unlockedAccount);
     const staticCall = AbstractContract.fromArtifactName("StaticCall");
-    const signatures = AbstractContract.fromArtifactName("Signatures");
-    const transfer = AbstractContract.fromArtifactName("Transfer");
-    const appInstance = await AbstractContract.fromArtifactName("AppInstance", {
-      Signatures: signatures,
-      StaticCall: staticCall,
-      Transfer: transfer
-    });
+    const appInstance = await buildArtifacts.AppInstance;
     const countingApp = await AbstractContract.fromArtifactName("CountingApp", {
       StaticCall: staticCall
     });
