@@ -19,8 +19,7 @@ import {
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstances,
-  makeProposalRequest,
-  sleep
+  makeProposalRequest
 } from "./utils";
 
 dotenv.config();
@@ -81,11 +80,6 @@ describe("Node method follows spec - proposeInstall", () => {
       // node B then decides to approve the proposal
       nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
         if (msg.data.proposal) {
-          // FIXME: there shouldn't be a race between locally installing a
-          // pending app and wanting to install it immediately upon being
-          // notified of it
-          await sleep(100);
-
           confirmProposedAppInstanceOnNode(
             appInstanceInstallationProposalRequest.params,
             (await getProposedAppInstances(nodeA))[0]
@@ -111,10 +105,6 @@ describe("Node method follows spec - proposeInstall", () => {
         if (msg.data.proposal) {
           throw Error("This is not expecting proposal");
         }
-        // FIXME: there shouldn't be a race between locally installing a
-        // pending app and wanting to install it immediately upon being
-        // notified of it
-        await sleep(100);
         const appInstanceNodeA = (await getInstalledAppInstances(nodeA))[0];
         const appInstanceNodeB = (await getInstalledAppInstances(nodeB))[0];
         expect(appInstanceNodeA).toEqual(appInstanceNodeB);

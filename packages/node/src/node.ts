@@ -24,7 +24,7 @@ export class Node {
 
   public readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
-  private readonly methodHandler: RequestHandler;
+  protected readonly requestHandler: RequestHandler;
 
   /**
    * @param privateKey
@@ -46,7 +46,7 @@ export class Node {
       `${nodeConfig.MULTISIG_KEY_PREFIX}/${this.signer.address}`
     );
     this.registerMessagingConnection();
-    this.methodHandler = new RequestHandler(
+    this.requestHandler = new RequestHandler(
       this.incoming,
       this.outgoing,
       this.channels,
@@ -81,14 +81,14 @@ export class Node {
   /**
    * Enables making a direct call to the Node for a specific method instead
    * of registering a callback for it.
-   * @param event
+   * @param method
    * @param req
    */
   async call(
-    event: NodeTypes.MethodName,
+    method: NodeTypes.MethodName,
     req: NodeTypes.MethodRequest
   ): Promise<NodeTypes.MethodResponse> {
-    return this.methodHandler.call(event, req);
+    return this.requestHandler.callMethod(method, req);
   }
 
   /**
@@ -126,11 +126,27 @@ export class Node {
   /**
    * When a Node is first instantiated, it establishes a connection
    * with the messaging service.
+   * When it receives a message, it emits the message to its registered subscribers,
+   * usually external subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    this.messagingService.receive(this.address, (msg: NodeMessage) => {
+    this.messagingService.receive(this.address, async (msg: NodeMessage) => {
+      await this.preprocessMessage(msg);
       this.outgoing.emit(msg.event, msg);
     });
+  }
+
+  /**
+   * Each internal event handler is responsible for deciding how to process
+   * the incoming message.
+   * @param msg
+   */
+  private async preprocessMessage(msg: NodeMessage) {
+    if (!Object.values(NodeTypes.EventName).includes(msg.event)) {
+      console.log("Event not recognized, no-op");
+      return;
+    }
+    await this.requestHandler.callEvent(msg.event, msg);
   }
 }
 

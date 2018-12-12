@@ -26,7 +26,7 @@ export class RequestHandler {
     private readonly messagingService: IMessagingService
   ) {
     this.registerMethods();
-    this.registerEvents();
+    this.mapEventHandlers();
   }
 
   /**
@@ -35,8 +35,8 @@ export class RequestHandler {
    * @param method
    * @param req
    */
-  public async call(
-    method: string,
+  public async callMethod(
+    method: Node.MethodName,
     req: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
     return {
@@ -49,6 +49,15 @@ export class RequestHandler {
       )
     };
   }
+
+  // private registerEvents() {
+  //   this.mapEventHandlers();
+  //   this.events.forEach((eventHandler: Function, eventName: string) => {
+  //     this.outgoing.on(eventName, async (msg: NodeMessage) => {
+  //       await eventHandler(this.channels, this.messagingService, msg);
+  //     });
+  //   });
+  // }
 
   /**
    * This maps the Node method names to their respective handlers.
@@ -100,12 +109,12 @@ export class RequestHandler {
     this.events.set(Node.EventName.INSTALL, addAppInstance);
   }
 
-  private registerEvents() {
-    this.mapEventHandlers();
-    this.events.forEach((eventHandler: Function, eventName: string) => {
-      this.outgoing.on(eventName, async (msg: NodeMessage) => {
-        await eventHandler(this.channels, this.messagingService, msg);
-      });
-    });
+  /**
+   * This is called when an event is received from another node.
+   * @param event
+   * @param msg
+   */
+  public async callEvent(event: Node.EventName, msg: NodeMessage) {
+    await this.events.get(event)(this.channels, this.messagingService, msg);
   }
 }
