@@ -6,7 +6,7 @@ import {
   BlockchainAsset,
   Node
 } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
 
 import { Provider } from "./provider";
 import { CounterfactualEvent, EventType } from "./types";
@@ -14,9 +14,9 @@ import { CounterfactualEvent, EventType } from "./types";
 interface ProposeInstallParams {
   peerAddress: Address;
   asset: BlockchainAsset;
-  myDeposit: ethers.utils.BigNumberish;
-  peerDeposit: ethers.utils.BigNumberish;
-  timeout: ethers.utils.BigNumberish;
+  myDeposit: BigNumberish;
+  peerDeposit: BigNumberish;
+  timeout: BigNumberish;
   initialState: AppState;
 }
 
@@ -38,12 +38,9 @@ function createInvalidParamError(
   };
 }
 
-function parseBigNumber(
-  val: ethers.utils.BigNumberish,
-  paramName: string
-): ethers.utils.BigNumber {
+function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
   try {
-    return new ethers.utils.BigNumber(val);
+    return new BigNumber(val);
   } catch (e) {
     throw createInvalidParamError(val, paramName, e);
   }
@@ -61,7 +58,7 @@ export class AppFactory {
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
     try {
-      ethers.utils.getAddress(params.peerAddress);
+      getAddress(params.peerAddress);
     } catch (e) {
       throw createInvalidParamError(params.peerAddress, "peerAddress", e);
     }
