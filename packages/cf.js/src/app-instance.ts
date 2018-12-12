@@ -62,7 +62,9 @@ export class AppInstance {
   async uninstall(): Promise<Payout> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.UNINSTALL,
-      { appInstanceId: this.id }
+      {
+        appInstanceId: this.id
+      }
     );
     const { myPayout, peerPayout } = response.result as Node.UninstallResult;
     return { myPayout, peerPayout };

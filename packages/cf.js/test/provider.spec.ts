@@ -32,29 +32,27 @@ describe("CF.js Provider", () => {
     provider = new Provider(nodeProvider);
   });
 
-  it("should respond correctly to a generic error", async () => {
-    expect.assertions(3);
-    const promise = provider.getAppInstances();
+  it("throws generic errors coming from Node", async () => {
+    expect.assertions(2);
 
-    expect(nodeProvider.postedMessages).toHaveLength(1);
+    nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
+      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
-    const request = nodeProvider.postedMessages[0] as Node.MethodResponse;
-    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
-
-    nodeProvider.simulateMessageFromNode({
-      requestId: request.requestId,
-      type: Node.ErrorType.ERROR,
-      data: { errorName: "music_too_loud", message: "Music too loud" }
+      nodeProvider.simulateMessageFromNode({
+        requestId: request.requestId,
+        type: Node.ErrorType.ERROR,
+        data: { errorName: "music_too_loud", message: "Music too loud" }
+      });
     });
 
     try {
-      await promise;
+      await provider.getAppInstances();
     } catch (e) {
       expect(e.data.message).toBe("Music too loud");
     }
   });
 
-  it("should respond correctly to message type mismatch", async () => {
+  it("throws an error on message type mismatch", async () => {
     expect.assertions(2);
 
     nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
@@ -74,7 +72,46 @@ describe("CF.js Provider", () => {
     }
   });
 
-  it("should query app instances and return them", async () => {
+  it("emits an error event for orphaned responses", async () => {
+    expect.assertions(2);
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
+    });
+    nodeProvider.simulateMessageFromNode({
+      type: Node.MethodName.INSTALL,
+      requestId: "test",
+      result: {
+        appInstanceId: ""
+      }
+    });
+  });
+
+  it("throws an error on timeout", async () => {
+    try {
+      await provider.getAppInstances();
+    } catch (err) {
+      expect(err.type).toBe(EventType.ERROR);
+      expect(err.data.errorName).toBe("request_timeout");
+    }
+  });
+
+  it("throws an error for unexpected event types", async () => {
+    expect.assertions(2);
+
+    provider.on(EventType.ERROR, e => {
+      expect(e.type).toBe(EventType.ERROR);
+      expect((e.data as ErrorEventData).errorName).toBe(
+        "unexpected_event_type"
+      );
+    });
+
+    nodeProvider.simulateMessageFromNode(({
+      type: "notARealEventType"
+    } as unknown) as Node.Event);
+  });
+
+  it("can query app instances and return them", async () => {
     expect.assertions(3);
     nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
       expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
@@ -93,31 +130,7 @@ describe("CF.js Provider", () => {
     expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
   });
 
-  it("should emit an error event for orphaned responses", async () => {
-    expect.assertions(2);
-    provider.on(EventType.ERROR, e => {
-      expect(e.type).toBe(EventType.ERROR);
-      expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
-    });
-    nodeProvider.simulateMessageFromNode({
-      type: Node.MethodName.INSTALL,
-      requestId: "test",
-      result: {
-        appInstanceId: ""
-      }
-    });
-  });
-
-  it("should throw an error on timeout", async () => {
-    try {
-      await provider.getAppInstances();
-    } catch (err) {
-      expect(err.type).toBe(EventType.ERROR);
-      expect(err.data.errorName).toBe("request_timeout");
-    }
-  });
-
-  it("should unsubscribe from events", async done => {
+  it("can unsubscribe from events", async done => {
     const callback = (e: CounterfactualEvent) => {
       done.fail("Unsubscribed event listener was fired");
     };
@@ -133,7 +146,7 @@ describe("CF.js Provider", () => {
     setTimeout(done, 100);
   });
 
-  it("should correctly subscribe to rejectInstall events", async () => {
+  it("can subscribe to rejectInstall events", async () => {
     expect.assertions(3);
     provider.once(EventType.REJECT_INSTALL, e => {
       expect(e.type).toBe(EventType.REJECT_INSTALL);
@@ -149,7 +162,7 @@ describe("CF.js Provider", () => {
     });
   });
 
-  it("should correctly install an app instance", async () => {
+  it("can install an app instance", async () => {
     expect.assertions(4);
     nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
       expect(request.type).toBe(Node.MethodName.INSTALL);
@@ -169,7 +182,7 @@ describe("CF.js Provider", () => {
     expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
   });
 
-  it("should correctly reject installation proposals", async () => {
+  it("can reject installation proposals", async () => {
     nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
       expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
       const { appInstanceId } = request.params as Node.RejectInstallParams;
@@ -183,7 +196,7 @@ describe("CF.js Provider", () => {
     await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
   });
 
-  it("should expose the same AppInstance instance for a unique app instance ID", async () => {
+  it("can expose the same AppInstance instance for a unique app instance ID", async () => {
     expect.assertions(1);
     let savedInstance: AppInstance;
     provider.on(EventType.REJECT_INSTALL, e => {
@@ -204,7 +217,7 @@ describe("CF.js Provider", () => {
     nodeProvider.simulateMessageFromNode(msg);
   });
 
-  it("should load app instance details on-demand", async () => {
+  it("can load app instance details on-demand", async () => {
     expect.assertions(4);
 
     provider.on(EventType.UPDATE_STATE, e => {
@@ -237,20 +250,5 @@ describe("CF.js Provider", () => {
     });
     // NOTE: For some reason the event won't fire unless we wait for a bit
     await new Promise(r => setTimeout(r, 50));
-  });
-
-  it("should throw an error for unexpected event types", async () => {
-    expect.assertions(2);
-
-    provider.on(EventType.ERROR, e => {
-      expect(e.type).toBe(EventType.ERROR);
-      expect((e.data as ErrorEventData).errorName).toBe(
-        "unexpected_event_type"
-      );
-    });
-
-    nodeProvider.simulateMessageFromNode(({
-      type: "notARealEventType"
-    } as unknown) as Node.Event);
   });
 });

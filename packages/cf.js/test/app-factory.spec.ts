@@ -27,7 +27,7 @@ describe("CF.js AppFactory", () => {
   });
 
   describe("proposeInstall()", () => {
-    it("should correctly propose valid app installs", async () => {
+    it("can propose valid app installs", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
         expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
@@ -55,7 +55,7 @@ describe("CF.js AppFactory", () => {
       expect(appInstanceId).toBe("TEST_ID");
     });
 
-    it("should throw an error if peer address invalid", async done => {
+    it("throws an error if peer address invalid", async done => {
       try {
         await appFactory.proposeInstall({
           peerAddress: "$%GARBAGE$%",
@@ -76,7 +76,7 @@ describe("CF.js AppFactory", () => {
     });
   });
 
-  it("should throw an error if BigNumber param invalid", async done => {
+  it("throws an error if BigNumber param invalid", async done => {
     try {
       await appFactory.proposeInstall({
         peerAddress: "0x0101010101010101010101010101010101010101",
