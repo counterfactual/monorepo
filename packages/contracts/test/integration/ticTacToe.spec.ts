@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { AbstractContract, expect } from "../../utils";
+import { AbstractContract, buildArtifacts, expect } from "../../utils";
 import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
@@ -14,7 +14,7 @@ contract("TicTacToe", (accounts: string[]) => {
 
   // @ts-ignore
   before(async () => {
-    const staticCall = AbstractContract.fromArtifactName("StaticCall");
+    const staticCall = buildArtifacts.StaticCall;
     const ticTacToe = await AbstractContract.fromArtifactName("TicTacToe", {
       StaticCall: staticCall
     });
