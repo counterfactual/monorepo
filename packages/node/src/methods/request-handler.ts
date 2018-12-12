@@ -12,9 +12,9 @@ import {
   getChannelAddresses
 } from "./multisig-creation";
 
-export class MethodHandler {
-  private METHODS = new Map();
-  private EVENTS = new Map();
+export class RequestHandler {
+  private methods = new Map();
+  private events = new Map();
   constructor(
     private readonly incoming: EventEmitter,
     private readonly outgoing: EventEmitter,
@@ -38,7 +38,7 @@ export class MethodHandler {
     return {
       type: req.type,
       requestId: req.requestId,
-      result: await this.METHODS.get(method)(
+      result: await this.methods.get(method)(
         this.channels,
         this.messagingService,
         req.params
@@ -49,15 +49,15 @@ export class MethodHandler {
   /**
    * This maps the Node method names to their respective handlers.
    */
-  private mapHandlers() {
-    this.METHODS.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
-    this.METHODS.set(
+  private mapMethodHandlers() {
+    this.methods.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
+    this.methods.set(
       Node.MethodName.GET_CHANNEL_ADDRESSES,
       getChannelAddresses
     );
-    this.METHODS.set(Node.MethodName.GET_APP_INSTANCES, getAppInstances);
-    this.METHODS.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
-    this.METHODS.set(Node.MethodName.INSTALL, install);
+    this.methods.set(Node.MethodName.GET_APP_INSTANCES, getAppInstances);
+    this.methods.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
+    this.methods.set(Node.MethodName.INSTALL, install);
   }
 
   /**
@@ -68,8 +68,8 @@ export class MethodHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private registerMethods() {
-    this.mapHandlers();
-    this.METHODS.forEach((method: Function, methodName: string) => {
+    this.mapMethodHandlers();
+    this.methods.forEach((method: Function, methodName: string) => {
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
         const res: Node.MethodResponse = {
           type: req.type,
@@ -84,14 +84,14 @@ export class MethodHandler {
   /**
    * This maps the Node event names to their respective handlers.
    */
-  private mapEvents() {
-    this.EVENTS.set(Node.EventName.MULTISIG_CREATED, addMultisig);
-    this.EVENTS.set(Node.EventName.INSTALL, addAppInstance);
+  private mapEventHandlers() {
+    this.events.set(Node.EventName.MULTISIG_CREATED, addMultisig);
+    this.events.set(Node.EventName.INSTALL, addAppInstance);
   }
 
   private registerEvents() {
-    this.mapEvents();
-    this.EVENTS.forEach((eventHandler: Function, eventName: string) => {
+    this.mapEventHandlers();
+    this.events.forEach((eventHandler: Function, eventName: string) => {
       this.outgoing.on(eventName, async (msg: NodeMessage) => {
         await eventHandler(this.channels, this.messagingService, msg);
       });
