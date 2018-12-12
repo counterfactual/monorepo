@@ -26,6 +26,7 @@
     "chai": "^4.2.0",
     "ethereum-waffle": "1.0.5",
     "ethers": "4.0.17",
+    "mocha": "^4.1.0",
     "solium": "^1.1.8",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.11.0"
