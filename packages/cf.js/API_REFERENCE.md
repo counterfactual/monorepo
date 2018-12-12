@@ -16,23 +16,26 @@
     - Lifecycle
         - `on(eventType, callback: Function)`
             - `install`
-                - [Node event](#event-install)
+                - [Node event](#event-installEvent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `rejectInstall`
-                - [Node event](#event-rejectinstall)
+                - [Node event](#event-rejectInstallEvent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
-                - [Node event](#event-rejectinstall)
+                - [Node event](#event-updateStateEvent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `proposeState`
-                - [Node event](#event-proposestate)
+                - [Node event](#event-proposeStateEvent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `rejectState`
-                - [Node event](#event-rejectstate)
+                - [Node event](#event-rejectStateEvent)
                 - Callback Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
-                - [Node event](#event-uninstall)
+                - [Node event](#event-uninstallEvent)
                 - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
+            - `multisigCreated`
+                - [Node event](#event-multisigCreatedEvent)
+                - Callback Params: `(multisigAddress: Address, owners: Address[])`
 - `AppFactory`
     - Properties
         - `provider: Provider`
@@ -262,11 +265,34 @@ TODO
 
 TODO
 
+### Method: `createMultisig`
+
+Creates a multisignature wallet address.
+
+Params:
+
+- `owners: Address[]`
+    - the addresses who should be the owners of the multisig
+
+Result:
+
+- `multisigAddress: Address`
+    - the address of the multisig that was created
+
+### Method: `getChannelAddresses`
+
+Gets the (multisig) addresses of all the channels that are open on the Node.
+
+Result:
+
+- `addresses: Address[]`
+    - the list of multisig addresses representing the open channels on the Node.
+
 
 Events
 ------
 
-### Event: `install`
+### Event: `installEvent`
 
 Fired if new app instance was successfully installed.
 
@@ -274,7 +300,7 @@ Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Newly installed app instance
 
-### Event: `rejectInstall`
+### Event: `rejectInstallEvent`
 
 Fired if installation of a new app instance was rejected.
 
@@ -282,7 +308,7 @@ Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Rejected app instance
 
-### Event: `updateState`
+### Event: `updateStateEvent`
 
 Fired if app state is successfully updated.
 
@@ -294,7 +320,7 @@ Data:
 - `action?:`[`AppAction`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 
-### Event: `uninstall`
+### Event: `uninstallEvent`
 
 Fired if app instance is successfully uninstalled
 
@@ -306,13 +332,25 @@ Data:
 - `peerPayout: BigNumber`
     - Amount of the asset paid out to peer
 
-### Event: `proposeState`
+### Event: `proposeStateEvent`
 
 TODO
 
-### Event: `rejectState`
+### Event: `rejectStateEvent`
 
 TODO
+
+### Event: `multisigCreatedEvent`
+
+Fired if a peer Node created a multisig whose list of owners includes this (i.e. the receiving) Node's address.
+
+Data:
+
+- `multisigAddress: Address`
+    - The address of the multisig that was created
+- `owners: Address[]`
+    - The list of owners for the created multisig
+
 
 Data Types
 ----------
