@@ -24,7 +24,7 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
   }
 
   private conditionalTransactionInput(): MultisigInput {
-    const to = this.networkContext.ETHVirtualAppAgreementAddr;
+    const to = this.networkContext.ethVirtualAppAgreementAddr;
     const val = 0;
     const data = new ethers.utils.Interface(
       ETHVirtualAppAgreementJson.abi
