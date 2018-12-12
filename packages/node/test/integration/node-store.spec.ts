@@ -41,16 +41,6 @@ describe("Node can use storage service", () => {
     firebaseServer.close();
   });
 
-  it("Node fails to get data with invalid key", async () => {
-    expect(await node.get("installMsg")).toEqual(null);
-  });
-
-  it("Node can store and retrieve some data correctly", async () => {
-    const msg = { method: "INSTALL" };
-    await node.set("installMsg", msg);
-    expect(await node.get("installMsg")).toEqual(msg);
-  });
-
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
     const channelA = { owners: [node.address, ethers.constants.AddressZero] };
     const channelB = {
