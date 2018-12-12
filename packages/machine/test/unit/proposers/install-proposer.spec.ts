@@ -189,12 +189,8 @@ describe("Install Proposer", () => {
     proposal = InstallProposer.propose(
       message,
       {
-        intermediateResults: {
-          inbox: [],
-          outbox: []
-        },
-        // NOTE: This is a hack to avoid typescript
-        instructionExecutor: Object.create(null)
+        inbox: [],
+        outbox: []
       },
       new Node(
         {

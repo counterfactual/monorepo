@@ -5,7 +5,7 @@ const { defaultAbiCoder, hexDataLength, hexDataSlice } = ethers.utils;
 /**
  * A decoder for decoding the arguments passed to a MultiSend::multiSend.
  *
- * Note that this code was adapted to mimic the following Solidity code:
+ * @summary This code was adapted to mimic the following Solidity code:
  *
  * ```solidity
  * function multiSend(bytes transactions) public

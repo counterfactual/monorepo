@@ -1,4 +1,5 @@
 import { legacy } from "@counterfactual/cf.js";
+import { NetworkContext } from "@counterfactual/types";
 import { ethers } from "ethers";
 
 import { ActionExecution } from "./action";
@@ -7,11 +8,7 @@ import { Middleware } from "./middleware/middleware";
 import { ProtocolOperation } from "./middleware/protocol-operation/types";
 import { Node } from "./node";
 import { Opcode } from "./opcodes";
-import {
-  InstructionMiddlewareCallback,
-  NetworkContext,
-  StateProposal
-} from "./types";
+import { InstructionMiddlewareCallback, StateProposal } from "./types";
 
 export class InstructionExecutorConfig {
   constructor(
@@ -45,7 +42,7 @@ export class InstructionExecutor {
   }
 
   public dispatchReceivedMessage(msg: legacy.node.ClientActionMessage) {
-    this.execute(
+    this.run(
       new ActionExecution(msg.action, FLOWS[msg.action][msg.seq], msg, this)
     );
   }
@@ -58,7 +55,7 @@ export class InstructionExecutor {
     encodedAppState: string,
     appStateHash: legacy.utils.H256
   ) {
-    this.execute(
+    this.run(
       new ActionExecution(
         legacy.node.ActionName.UPDATE,
         FLOWS[legacy.node.ActionName.UPDATE][0],
@@ -86,7 +83,7 @@ export class InstructionExecutor {
     peerAmounts: legacy.utils.PeerBalance[],
     appInstanceId: string
   ) {
-    this.execute(
+    this.run(
       new ActionExecution(
         legacy.node.ActionName.UNINSTALL,
         FLOWS[legacy.node.ActionName.UNINSTALL][0],
@@ -112,7 +109,7 @@ export class InstructionExecutor {
     multisigAddress: string,
     installData: legacy.app.InstallData
   ) {
-    this.execute(
+    this.run(
       new ActionExecution(
         legacy.node.ActionName.INSTALL,
         FLOWS[legacy.node.ActionName.INSTALL][0],
@@ -134,7 +131,7 @@ export class InstructionExecutor {
     toAddress: string,
     multisigAddress: string
   ) {
-    this.execute(
+    this.run(
       new ActionExecution(
         legacy.node.ActionName.SETUP,
         FLOWS[legacy.node.ActionName.SETUP][0],
@@ -156,7 +153,7 @@ export class InstructionExecutor {
     intermediaryAddress: string,
     multisigAddress: string
   ) {
-    this.execute(
+    this.run(
       new ActionExecution(
         legacy.node.ActionName.INSTALL_METACHANNEL_APP,
         FLOWS[legacy.node.ActionName.INSTALL_METACHANNEL_APP][0],
@@ -175,10 +172,6 @@ export class InstructionExecutor {
         this
       )
     );
-  }
-
-  public async execute(execution: ActionExecution) {
-    await this.run(execution);
   }
 
   public async run(execution: ActionExecution) {
@@ -200,15 +193,10 @@ export class InstructionExecutor {
   }
 }
 
-export interface IntermediateResults {
+export interface Context {
   outbox: legacy.node.ClientActionMessage[];
   inbox: legacy.node.ClientActionMessage[];
   proposedStateTransition?: StateProposal;
   operation?: ProtocolOperation;
   signature?: ethers.utils.Signature;
-}
-
-export interface Context {
-  intermediateResults: IntermediateResults;
-  instructionExecutor: InstructionExecutor;
 }

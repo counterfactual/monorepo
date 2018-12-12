@@ -1,69 +1,55 @@
 import { legacy } from "@counterfactual/cf.js";
 
 import { Context, InstructionExecutor } from "./instruction-executor";
+import { AppInstance } from "./models/app-instance";
+import { StateChannel } from "./models/state-channel";
 import { Opcode } from "./opcodes";
-import { InternalMessage, StateProposal } from "./types";
+import { InternalMessage } from "./types";
 
 export class ActionExecution {
-  public actionName: legacy.node.ActionName;
-  public instructions: (Opcode | Function)[];
-  public clientMessage: legacy.node.ClientActionMessage;
-  public instructionExecutor: InstructionExecutor;
-
   constructor(
-    actionName: legacy.node.ActionName,
-    instructions: (Opcode | Function)[],
-    clientMessage: legacy.node.ClientActionMessage,
-    instructionExecutor: InstructionExecutor
-  ) {
-    this.actionName = actionName;
-    this.instructions = instructions;
-    this.clientMessage = clientMessage;
-    this.instructionExecutor = instructionExecutor;
-  }
+    public readonly actionName: legacy.node.ActionName,
+    public readonly instructions: (Opcode | Function)[],
+    public readonly clientMessage: legacy.node.ClientActionMessage,
+    public readonly instructionExecutor: InstructionExecutor
+  ) {}
 
-  public createContext(): Context {
-    return {
-      intermediateResults: {
-        outbox: [],
-        inbox: []
-      },
-      // https://github.com/counterfactual/monorepo/issues/136
-      instructionExecutor: this.instructionExecutor
-    };
-  }
-
-  public async runAll(): Promise<StateProposal> {
+  // TODO: Should it return these?
+  public async runAll(): Promise<StateChannel | AppInstance> {
     let instructionPointer = 0;
-    const context = this.createContext();
+
+    const context = {
+      outbox: [],
+      inbox: []
+    } as Context;
 
     while (instructionPointer < this.instructions.length) {
       try {
         const instruction = this.instructions[instructionPointer];
 
         if (typeof instruction === "function") {
-          instruction(
-            new InternalMessage(
-              this.actionName,
-              Object.create(null),
-              this.clientMessage
-            ),
-            context,
-            this.instructionExecutor.node
+          const message = new InternalMessage(
+            this.actionName,
+            Object.create(null),
+            this.clientMessage
           );
+
+          const state = this.instructionExecutor.node;
+
+          instruction.call(null, message, context, state);
           instructionPointer += 1;
-          continue;
+        } else {
+          const message = new InternalMessage(
+            this.actionName,
+            instruction,
+            this.clientMessage
+          );
+
+          await this.instructionExecutor.middleware.run(message, context);
+          instructionPointer += 1;
         }
-
-        const internalMessage = new InternalMessage(
-          this.actionName,
-          instruction,
-          this.clientMessage
-        );
-
-        await this.instructionExecutor.middleware.run(internalMessage, context);
-        instructionPointer += 1;
       } catch (e) {
+        // TODO: We should have custom error types for things like this
         throw Error(
           `While executing op number ${instructionPointer} at seq ${
             this.clientMessage.seq
@@ -73,6 +59,7 @@ export class ActionExecution {
         );
       }
     }
-    return context.intermediateResults.proposedStateTransition!;
+
+    return context.proposedStateTransition;
   }
 }

@@ -151,7 +151,7 @@ export class TestCommitmentStore {
   ) {
     let appId;
     const action: cf.legacy.node.ActionName = internalMessage.actionName;
-    const operation = context.intermediateResults.operation!;
+    const operation = context.operation!;
     let appCommitments: AppCommitments;
 
     const incomingMessage = this.incomingMessage(internalMessage, context);
@@ -159,7 +159,7 @@ export class TestCommitmentStore {
     if (action === cf.legacy.node.ActionName.SETUP) {
       appId = internalMessage.clientMessage.multisigAddress;
     } else if (action === cf.legacy.node.ActionName.INSTALL) {
-      const proposal = context.intermediateResults.proposedStateTransition!;
+      const proposal = context.proposedStateTransition!;
       appId = proposal.cfAddr;
     } else {
       appId = internalMessage.clientMessage.appInstanceId;
@@ -173,7 +173,7 @@ export class TestCommitmentStore {
       this.store.put(appId, Object(appCommitments.serialize()));
     }
 
-    const signature = context.intermediateResults.signature!;
+    const signature = context.signature!;
 
     const counterpartySignature = incomingMessage!.signature!;
     if (
@@ -204,7 +204,7 @@ export class TestCommitmentStore {
     internalMessage: InternalMessage,
     context: Context
   ): cf.legacy.node.ClientActionMessage | null {
-    const incomingMessageResult = context.intermediateResults.inbox[0];
+    const incomingMessageResult = context.inbox[0];
     if (incomingMessageResult === undefined) {
       return internalMessage.clientMessage;
     }

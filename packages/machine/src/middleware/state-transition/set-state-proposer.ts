@@ -3,7 +3,7 @@ import { legacy } from "@counterfactual/cf.js";
 import { Node } from "../../node";
 import { InternalMessage, StateProposal } from "../../types";
 
-export class UpdateProposer {
+export class SetStateProposer {
   public static propose(message: InternalMessage, node: Node): StateProposal {
     const multisig = message.clientMessage.multisigAddress;
 

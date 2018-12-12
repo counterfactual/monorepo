@@ -10,17 +10,15 @@
   ],
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf .rpt2_cache jest-cache build dist",
-    "build": "tsc -p tsconfig.test.json && rollup -c",
+    "clean": "git clean -Xdf",
+    "build": "tsc -p . && rollup -c .",
     "test": "jest",
-    "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
-    "test-debug-ide": "node $NODE_DEBUG_OPTION node_modules/.bin/jest --runInBand",
-    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint:fix": "yarn lint --fix",
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@counterfactual/types": "1.0.0",
     "@counterfactual/typescript-typings": "0.0.1",
-    "@counterfactual/types": "0.0.1",
     "@types/chai": "^4.1.7",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
@@ -31,7 +29,8 @@
     "rollup-plugin-typescript2": "^0.18.0",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "typescript": "^3.1.2",
+    "typescript-memoize": "^1.0.0-alpha.3"
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",

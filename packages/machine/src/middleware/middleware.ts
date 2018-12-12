@@ -1,6 +1,5 @@
-import * as cf from "@counterfactual/cf.js";
-import { ClientActionMessage } from "@counterfactual/cf.js/src/legacy/node";
-import { Signature } from "ethers/utils";
+import { legacy } from "@counterfactual/cf.js";
+import { ethers } from "ethers";
 
 import { Context } from "../instruction-executor";
 import { Node } from "../node";
@@ -24,16 +23,7 @@ export class Middleware {
     [Opcode.IO_WAIT]: [],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
-    [Opcode.STATE_TRANSITION_COMMIT]: [
-      {
-        scope: Opcode.STATE_TRANSITION_COMMIT,
-        method: (message, next, context) => {
-          const newState = context.intermediateResults.proposedStateTransition!;
-          context.instructionExecutor.mutateState(newState.state);
-          next();
-        }
-      }
-    ],
+    [Opcode.STATE_TRANSITION_COMMIT]: [],
     [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
@@ -46,7 +36,7 @@ export class Middleware {
   public async run(msg: InternalMessage, context: Context) {
     let counter = 0;
     const middlewares = this.middlewares;
-    const opCode = msg.opCode;
+    const { opCode } = msg;
 
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {
@@ -60,23 +50,19 @@ export class Middleware {
       }
       return callback();
     }
+
     return this.middlewares[opCode][0].method(msg, callback, context);
   }
 }
 
 export class NextMsgGenerator {
   public static generate2(
-    message: cf.legacy.node.ClientActionMessage,
-    signature: Signature
-  ): ClientActionMessage {
+    message: legacy.node.ClientActionMessage,
+    signature: ethers.utils.Signature
+  ): legacy.node.ClientActionMessage {
     return {
+      ...message,
       signature,
-      appInstanceId: message.appInstanceId,
-      action: message.action,
-      data: message.data,
-      multisigAddress: message.multisigAddress,
-      toAddress: message.toAddress,
-      fromAddress: message.fromAddress,
       seq: message.seq + 1
     };
   }

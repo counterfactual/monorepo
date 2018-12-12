@@ -2,7 +2,7 @@ import { legacy } from "@counterfactual/cf.js";
 
 import { Context } from "../instruction-executor";
 import { NextMsgGenerator } from "../middleware/middleware";
-import { EthOpGenerator } from "../middleware/protocol-operation";
+import { constructInstallOp } from "../middleware/protocol-operation/op-generator";
 import { InstallProposer } from "../middleware/state-transition/install-proposer";
 import { Opcode } from "../opcodes";
 import { InternalMessage } from "../types";
@@ -17,26 +17,26 @@ const swap = (msg: legacy.node.ClientActionMessage) => {
 export const INSTALL_FLOW = {
   0: [
     (message, context: Context, node) => {
-      context.intermediateResults.proposedStateTransition = InstallProposer.propose(
+      context.proposedStateTransition = InstallProposer.propose(
         message,
         context,
         node
       );
-      context.intermediateResults.operation = EthOpGenerator.install(
+      context.operation = constructInstallOp(
         message,
         context,
         node,
-        context.intermediateResults.proposedStateTransition.state,
-        context.intermediateResults.proposedStateTransition.cfAddr!
+        context.proposedStateTransition.state,
+        context.proposedStateTransition.cfAddr!
       );
     },
     Opcode.OP_SIGN,
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.IO_WAIT,
@@ -46,17 +46,17 @@ export const INSTALL_FLOW = {
   1: [
     (message, context: Context, node) => {
       swap(message.clientMessage);
-      context.intermediateResults.proposedStateTransition = InstallProposer.propose(
+      context.proposedStateTransition = InstallProposer.propose(
         message,
         context,
         node
       );
-      context.intermediateResults.operation = EthOpGenerator.install(
+      context.operation = constructInstallOp(
         message,
         context,
         node,
-        context.intermediateResults.proposedStateTransition.state,
-        context.intermediateResults.proposedStateTransition.cfAddr!
+        context.proposedStateTransition.state,
+        context.proposedStateTransition.cfAddr!
       );
     },
     Opcode.OP_SIGN_VALIDATE,
@@ -64,9 +64,9 @@ export const INSTALL_FLOW = {
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT

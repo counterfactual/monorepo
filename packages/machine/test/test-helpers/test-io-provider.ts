@@ -6,7 +6,9 @@ import { InternalMessage } from "../../src/types";
 
 import { TestResponseSink } from "./test-response-sink";
 
-type ClientActionMessageConsumer = (arg: cf.legacy.node.ClientActionMessage) => void;
+type ClientActionMessageConsumer = (
+  arg: cf.legacy.node.ClientActionMessage
+) => void;
 
 export class TestIOProvider {
   public messages: cf.legacy.node.ClientActionMessage[];
@@ -42,13 +44,9 @@ export class TestIOProvider {
     } else {
       this.messages.push(message);
     }
-
   }
 
-  public listenOnce(
-    continuation: ClientActionMessageConsumer,
-  ) {
-
+  public listenOnce(continuation: ClientActionMessageConsumer) {
     const message = this.messages.pop();
 
     if (message !== undefined) {
@@ -56,7 +54,6 @@ export class TestIOProvider {
     } else {
       this.waitForIoContinuation = continuation;
     }
-
   }
 
   public async ioSendMessage(
@@ -64,10 +61,10 @@ export class TestIOProvider {
     next: Function,
     context: Context
   ) {
-    if (context.intermediateResults.outbox.length === 0) {
+    if (context.outbox.length === 0) {
       throw Error("ioSendMessage called with empty outbox");
     }
-    for (const message of context.intermediateResults.outbox) {
+    for (const message of context.outbox) {
       const recipientAddr = message.toAddress;
       const recipient = this.peers.get(recipientAddr);
       if (recipient === undefined) {
@@ -82,19 +79,15 @@ export class TestIOProvider {
     next: Function,
     context: Context
   ): Promise<cf.legacy.node.ClientActionMessage> {
-
     let resolve: ClientActionMessageConsumer;
     const promise = new Promise<cf.legacy.node.ClientActionMessage>(
       r => (resolve = r)
     );
 
-    this.listenOnce(
-      msg => {
-        context.intermediateResults.inbox.push(msg);
-        resolve(msg);
-      },
-    );
-
+    this.listenOnce(msg => {
+      context.inbox.push(msg);
+      resolve(msg);
+    });
 
     return promise;
   }

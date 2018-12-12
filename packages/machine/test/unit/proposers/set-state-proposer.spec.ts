@@ -8,7 +8,7 @@ import {
   Terms
 } from "@counterfactual/types";
 
-import { UpdateProposer } from "../../../src/middleware/state-transition/update-proposer";
+import { SetStateProposer } from "../../../src/middleware/state-transition/set-state-proposer";
 import { Node, StateChannelInfoImpl } from "../../../src/node";
 import { Opcode } from "../../../src/opcodes";
 import { InternalMessage, StateProposal } from "../../../src/types";
@@ -170,7 +170,7 @@ describe("Install Proposer", () => {
       }
     );
 
-    proposal = UpdateProposer.propose(
+    proposal = SetStateProposer.propose(
       message,
       new Node(
         {

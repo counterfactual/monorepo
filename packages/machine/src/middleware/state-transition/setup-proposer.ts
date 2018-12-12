@@ -11,6 +11,8 @@ const FREE_BALANCE_TIMEOUT = 100;
  */
 const FREE_BALANCE_UNIQUE_ID = 0;
 
+const { Zero } = ethers.constants;
+
 /**
  * Similar to the unique id, the dependency nonce for every app is
  * determined Hash(multisig || salt), and so for the salt, we use a
@@ -23,9 +25,9 @@ export class SetupProposer {
 
     const balances = cf.legacy.utils.PeerBalance.balances(
       toAddress,
-      ethers.utils.bigNumberify(0),
+      Zero,
       fromAddress,
-      ethers.utils.bigNumberify(0)
+      Zero
     );
 
     const localNonce = 0;

@@ -2,8 +2,8 @@ import { ClientActionMessage } from "@counterfactual/cf.js/dist/src/legacy/node"
 
 import { Context } from "../instruction-executor";
 import { NextMsgGenerator } from "../middleware/middleware";
-import { EthOpGenerator } from "../middleware/protocol-operation";
-import { UpdateProposer } from "../middleware/state-transition/update-proposer";
+import { EthOpGenerator } from "../middleware/protocol-operation/op-generator";
+import { SetStateProposer } from "../middleware/state-transition/set-state-proposer";
 import { Opcode } from "../opcodes";
 import { InternalMessage } from "../types";
 
@@ -17,11 +17,8 @@ const swap = (msg: ClientActionMessage) => {
 export const UPDATE_FLOW = {
   0: [
     (message, context, node) => {
-      context.intermediateResults.proposedStateTransition = UpdateProposer.propose(
-        message,
-        node
-      );
-      context.intermediateResults.operation = EthOpGenerator.generate(
+      context.proposedStateTransition = SetStateProposer.propose(message, node);
+      context.operation = EthOpGenerator.generate(
         message,
         () => {},
         context,
@@ -32,9 +29,9 @@ export const UPDATE_FLOW = {
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.IO_WAIT,
@@ -44,11 +41,8 @@ export const UPDATE_FLOW = {
   1: [
     (message, context, node) => {
       swap(message.clientMessage);
-      context.intermediateResults.proposedStateTransition = UpdateProposer.propose(
-        message,
-        node
-      );
-      context.intermediateResults.operation = EthOpGenerator.generate(
+      context.proposedStateTransition = SetStateProposer.propose(message, node);
+      context.operation = EthOpGenerator.generate(
         message,
         () => {},
         context,
@@ -60,9 +54,9 @@ export const UPDATE_FLOW = {
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT

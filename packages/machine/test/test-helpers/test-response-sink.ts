@@ -1,4 +1,5 @@
 import { legacy } from "@counterfactual/cf.js";
+import { NetworkContext } from "@counterfactual/types";
 import { ethers } from "ethers";
 
 import {
@@ -7,7 +8,7 @@ import {
   InstructionExecutorConfig
 } from "../../src/instruction-executor";
 import { Opcode } from "../../src/opcodes";
-import { InternalMessage, NetworkContext } from "../../src/types";
+import { InternalMessage } from "../../src/types";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
@@ -26,7 +27,7 @@ export class TestResponseSink implements legacy.node.ResponseSink {
   // resolve function is captured and stored here
   private runProtocolContinuation?: (arg: legacy.node.Response) => void;
 
-  constructor(readonly privateKey: string, networkContext?: NetworkContext) {
+  constructor(readonly privateKey: string, networkContext: NetworkContext) {
     this.active = false;
 
     this.store = new TestCommitmentStore();
@@ -68,7 +69,7 @@ export class TestResponseSink implements legacy.node.ResponseSink {
       Opcode.OP_SIGN,
       (message, next, context) => {
         const signature = this.signMyUpdate(context);
-        context.intermediateResults.signature = signature;
+        context.signature = signature;
       }
     );
 
@@ -212,7 +213,7 @@ export class TestResponseSink implements legacy.node.ResponseSink {
   }
 
   private signMyUpdate(context: Context): ethers.utils.Signature {
-    const operation = context.intermediateResults.operation!;
+    const operation = context.operation!;
     const digest = operation.hashToSign();
     const { recoveryParam, r, s } = this.signingKey.signDigest(digest);
     return { r, s, v: recoveryParam! + 27 };
@@ -223,7 +224,7 @@ export class TestResponseSink implements legacy.node.ResponseSink {
     next: Function,
     context: Context
   ) {
-    const operation = context.intermediateResults.operation!;
+    const operation = context.operation!;
     const digest = operation.hashToSign();
     let sig;
     const expectedSigningAddress =
@@ -232,7 +233,7 @@ export class TestResponseSink implements legacy.node.ResponseSink {
         : message.clientMessage.toAddress;
     if (message.clientMessage.signature === undefined) {
       // initiator
-      const incomingMessage = context.intermediateResults.inbox[0];
+      const incomingMessage = context.inbox[0];
       sig = incomingMessage.signature;
     } else {
       // receiver

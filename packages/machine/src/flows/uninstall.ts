@@ -17,11 +17,11 @@ const swap = (msg: ClientActionMessage) => {
 export const UNINSTALL_FLOW = {
   0: [
     (message, context, node) => {
-      context.intermediateResults.proposedStateTransition = UninstallProposer.propose(
+      context.proposedStateTransition = UninstallProposer.propose(
         message,
         node
       );
-      context.intermediateResults.operation = EthOpGenerator.generate(
+      context.operation = EthOpGenerator.generate(
         message,
         () => {},
         context,
@@ -32,9 +32,9 @@ export const UNINSTALL_FLOW = {
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.IO_WAIT,
@@ -44,11 +44,11 @@ export const UNINSTALL_FLOW = {
   1: [
     (message, context, node) => {
       swap(message.clientMessage);
-      context.intermediateResults.proposedStateTransition = UninstallProposer.propose(
+      context.proposedStateTransition = UninstallProposer.propose(
         message,
         node
       );
-      context.intermediateResults.operation = EthOpGenerator.generate(
+      context.operation = EthOpGenerator.generate(
         message,
         () => {},
         context,
@@ -60,9 +60,9 @@ export const UNINSTALL_FLOW = {
     (message: InternalMessage, context: Context) => {
       const ret = NextMsgGenerator.generate2(
         message.clientMessage,
-        context.intermediateResults.signature!
+        context.signature!
       );
-      context.intermediateResults.outbox.push(ret);
+      context.outbox.push(ret);
     },
     Opcode.IO_SEND,
     Opcode.STATE_TRANSITION_COMMIT

@@ -50,3 +50,12 @@ export interface ETHBucketAppState {
   aliceBalance: ethers.utils.BigNumber;
   bobBalance: ethers.utils.BigNumber;
 }
+
+export interface NetworkContext {
+  AppRegistry: string;
+  ETHBalanceRefund: string;
+  ETHBucket: string;
+  MultiSend: string;
+  NonceRegistry: string;
+  StateChannelTransaction: string;
+}
