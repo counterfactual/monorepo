@@ -11,7 +11,9 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
     readonly multisig: cf.legacy.utils.Address,
     readonly app: cf.legacy.app.AppInstance,
     readonly freeBalance: cf.legacy.utils.FreeBalance,
-    readonly uninstallationNonce: cf.legacy.utils.Nonce
+    readonly uninstallationNonce: cf.legacy.utils.Nonce,
+    readonly beneficiaries: cf.legacy.utils.Address[],
+    readonly expiry: number,
   ) {
     super(networkContext, multisig, freeBalance, uninstallationNonce);
   }
@@ -20,10 +22,10 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
    * @override common.MultiSendOp
    */
   public eachMultisigInput(): MultisigInput[] {
-    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
+    return [this.freeBalanceInput(), this.virtualAppAgreementInput()];
   }
 
-  private conditionalTransactionInput(): MultisigInput {
+  private virtualAppAgreementInput(): MultisigInput {
     const to = this.networkContext.ethVirtualAppAgreementAddr;
     const val = 0;
     const data = new ethers.utils.Interface(
@@ -36,10 +38,10 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
           token: 0
         },
         registry: this.networkContext.registryAddr,
-        expiry: 0,
+        expiry: this.expiry,
         target: this.appCfAddress,
         capitalProvided: 0,
-        beneficiaries: []
+        beneficiaries: this.beneficiaries
       }
     ]);
     const op = Operation.Delegatecall;
