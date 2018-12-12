@@ -171,7 +171,7 @@ export namespace Node {
     data: {
       errorName: string;
       message?: string;
-      extra?: { [k: string]: any };
+      extra?: { [k: string]: string | number | boolean | object };
     };
   }
 
