@@ -262,6 +262,29 @@ TODO
 
 TODO
 
+### Method: `createMultisig`
+
+Creates a multisignature wallet address.
+
+Params:
+
+- `owners: Address[]`
+    - the addresses who should be the owners of the multisig
+
+Result:
+
+- `multisigAddress: Address`
+    - the address of the multisig that was created
+
+### Method: `getChannelAddresses`
+
+Gets the (multisig) addresses of all the channels that are open on the Node.
+
+Result:
+
+- `addresses: Address[]`
+    - the list of multisig addresses representing the open channels on the Node.
+
 
 Events
 ------
@@ -313,6 +336,18 @@ TODO
 ### Event: `rejectState`
 
 TODO
+
+### Event: `multisigCreatedEvent`
+
+Fired if a peer Node created a multisig whose list of owners includes this (i.e. the receiving) Node's address.
+
+Data:
+
+- `multisigAddress: Address`
+    - The address of the multisig that was created
+- `owners: Address[]`
+    - The list of owners for the created multisig
+
 
 Data Types
 ----------
