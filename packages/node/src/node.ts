@@ -92,17 +92,6 @@ export class Node {
   }
 
   /**
-   * Sends a message to another Node. It also auto-includes the from field
-   * in the message.
-   * @param peerAddress The peer to whom the message is being sent.
-   * @param msg The message that is being sent.
-   */
-  async send(peerAddress: Address, msg: NodeMessage) {
-    msg.from = this.address;
-    await this.messagingService.send(peerAddress, msg);
-  }
-
-  /**
    * When a Node is first instantiated, it establishes a connection
    * with the messaging service.
    * When it receives a message, it emits the message to its registered subscribers,
