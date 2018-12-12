@@ -5,6 +5,10 @@ import { Channels } from "../channels";
 import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
+import {
+  getInstalledAppInstances,
+  getProposedAppInstances
+} from "./app-instances";
 import { addAppInstance, install, proposeInstall } from "./installations";
 import {
   addMultisig,
@@ -55,7 +59,14 @@ export class RequestHandler {
       Node.MethodName.GET_CHANNEL_ADDRESSES,
       getChannelAddresses
     );
-    this.methods.set(Node.MethodName.GET_APP_INSTANCES, getAppInstances);
+    this.methods.set(
+      Node.MethodName.GET_APP_INSTANCES,
+      getInstalledAppInstances
+    );
+    this.methods.set(
+      Node.MethodName.GET_PROPOSED_APP_INSTANCES,
+      getProposedAppInstances
+    );
     this.methods.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
     this.methods.set(Node.MethodName.INSTALL, install);
   }
@@ -97,16 +108,4 @@ export class RequestHandler {
       });
     });
   }
-}
-
-async function getAppInstances(
-  channels: Channels,
-  messagingService: IMessagingService,
-  params: Node.GetAppInstancesParams
-): Promise<Node.GetAppInstancesResult> {
-  return {
-    appInstances: await channels.getAppInstances(
-      Channels.APP_INSTANCE_STATUS.INSTALLED
-    )
-  };
 }

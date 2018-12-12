@@ -42,14 +42,15 @@ class FirebaseMessagingService implements IMessagingService {
         }
         const msg = snapshot.val();
         const msgKey = JSON.stringify(msg);
-        if (msg !== null) {
-          if (msgKey in this.servedMessages) {
-            delete this.servedMessages[msgKey];
-          } else {
-            this.servedMessages[msgKey] = true;
-            callback(msg);
-          }
+        if (msg === null) {
+          return;
         }
+        if (msgKey in this.servedMessages) {
+          delete this.servedMessages[msgKey];
+          return;
+        }
+        this.servedMessages[msgKey] = true;
+        callback(msg);
       });
   }
 }

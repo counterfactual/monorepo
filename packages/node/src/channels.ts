@@ -114,7 +114,7 @@ class Channel {
  * Used in standardizing how to set/get app instances within a channel according
  * to their correct status.
  */
-enum APP_INSTANCE_STATUS {
+export enum APP_INSTANCE_STATUS {
   INSTALLED = "installed",
   PROPOSED = "proposed"
 }
@@ -134,8 +134,6 @@ export class Channels {
    * A convenience lookup table from appInstance ID to multisig address.
    */
   private readonly appInstanceIdToMultisigAddress = {};
-
-  static readonly APP_INSTANCE_STATUS = APP_INSTANCE_STATUS;
 
   /**
    * @param selfAddress The address of the account being used with the Node.

@@ -13,7 +13,7 @@ export async function createMultisig(
     multisigAddress: await channels.createMultisig(params)
   };
   const selfAddress = channels.selfAddress;
-  const peerAddress = params.owners.filter(owner => owner !== selfAddress)[0];
+  const [peerAddress] = params.owners.filter(owner => owner !== selfAddress);
 
   const multisigCreatedMsg: NodeMessage = {
     from: selfAddress,
@@ -31,7 +31,6 @@ export async function createMultisig(
 export async function addMultisig(
   channels: Channels,
   messagingService: IMessagingService,
-  // TODO: add types here
   nodeMsg: NodeMessage
 ) {
   const params = nodeMsg.data;

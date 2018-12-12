@@ -8,6 +8,7 @@ import cuid from "cuid";
 import { ethers } from "ethers";
 
 import { Node } from "../../src";
+import { APP_INSTANCE_STATUS } from "../../src/channels";
 
 export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -43,16 +44,39 @@ export async function getChannelAddresses(node: Node): Promise<Address[]> {
 export async function getInstalledAppInstances(
   node: Node
 ): Promise<AppInstanceInfo[]> {
-  const req: NodeTypes.MethodRequest = {
+  return getApps(node, APP_INSTANCE_STATUS.INSTALLED);
+}
+
+export async function getProposedAppInstances(
+  node: Node
+): Promise<AppInstanceInfo[]> {
+  return getApps(node, APP_INSTANCE_STATUS.PROPOSED);
+}
+
+async function getApps(
+  node: Node,
+  appInstanceStatus: APP_INSTANCE_STATUS
+): Promise<AppInstanceInfo[]> {
+  let request: NodeTypes.MethodRequest;
+  let response: NodeTypes.MethodResponse;
+  let result;
+  if (appInstanceStatus === APP_INSTANCE_STATUS.INSTALLED) {
+    request = {
+      requestId: cuid(),
+      type: NodeTypes.MethodName.GET_APP_INSTANCES,
+      params: {} as NodeTypes.GetAppInstancesParams
+    };
+    response = await node.call(request.type, request);
+    result = response.result as NodeTypes.GetAppInstancesResult;
+    return result.appInstances;
+  }
+  request = {
     requestId: cuid(),
-    type: NodeTypes.MethodName.GET_APP_INSTANCES,
-    params: {} as NodeTypes.GetAppInstancesParams
+    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCES,
+    params: {} as NodeTypes.GetProposedAppInstancesParams
   };
-  const response: NodeTypes.MethodResponse = await node.call(
-    NodeTypes.MethodName.GET_APP_INSTANCES,
-    req
-  );
-  const result = response.result as NodeTypes.GetAppInstancesResult;
+  response = await node.call(request.type, request);
+  result = response.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
 
