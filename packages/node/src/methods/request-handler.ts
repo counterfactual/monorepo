@@ -8,13 +8,13 @@ import { IMessagingService } from "../service-interfaces";
 import {
   getInstalledAppInstances,
   getProposedAppInstances
-} from "./app-instances";
-import { addAppInstance, install, proposeInstall } from "./installations";
+} from "./app-instance-operations";
+import { addAppInstance, install, proposeInstall } from "./install-operations";
 import {
   addMultisig,
   createMultisig,
   getChannelAddresses
-} from "./multisig-creation";
+} from "./multisig-operations";
 
 export class RequestHandler {
   private methods = new Map();
