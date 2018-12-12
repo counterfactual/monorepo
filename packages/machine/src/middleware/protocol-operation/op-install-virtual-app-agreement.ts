@@ -1,12 +1,10 @@
 import * as cf from "@counterfactual/cf.js";
-import VirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
+import ETH
+VirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
 import { ethers } from "ethers";
 
 import { MultiSendOp } from "./multi-send-op";
 import { MultisigInput, Operation } from "./types";
-
-// const { keccak256 } = ethers.utils;
-// const { abi } = cf.utils;
 
 export class OpInstallVirtualAppAgreement extends MultiSendOp {
   constructor(
@@ -27,23 +25,17 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
   }
 
   private conditionalTransactionInput(): MultisigInput {
-    const to = this.networkContext.virtualAppAgreementAddr;
+    const to = this.networkContext.ETHVirtualAppAgreementAddr;
     const val = 0;
-    // const uninstallKey = keccak256(
-    //   abi.encodePacked(
-    //     ["address", "uint256", "uint256"],
-    //     [this.multisig, 0, this.uninstallationNonce.salt]
-    //   )
-    // );
     const data = new ethers.utils.Interface(
-      VirtualAppAgreementJson.abi
+      ETHVirtualAppAgreementJson.abi
     ).functions.delegateTarget.encode([
       {
-        terms: [
-          this.app.terms.assetType,
-          this.app.terms.limit,
-          this.app.terms.token
-        ],
+        terms: {
+          assetType: 0,
+          limit: 0,
+          token: 0
+        },
         registry: this.networkContext.registryAddr,
         expiry: 0,
         target: this.appCfAddress,
