@@ -55,46 +55,42 @@ describe("CF.js Provider", () => {
   });
 
   it("should respond correctly to message type mismatch", async () => {
-    expect.assertions(3);
-    const promise = provider.getAppInstances();
+    expect.assertions(2);
 
-    expect(nodeProvider.postedMessages).toHaveLength(1);
+    nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
+      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
-    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
-    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
-
-    nodeProvider.simulateMessageFromNode({
-      requestId: request.requestId,
-      type: Node.MethodName.PROPOSE_INSTALL,
-      result: { appInstanceId: "" }
+      nodeProvider.simulateMessageFromNode({
+        requestId: request.requestId,
+        type: Node.MethodName.PROPOSE_INSTALL,
+        result: { appInstanceId: "" }
+      });
     });
 
     try {
-      await promise;
+      await provider.getAppInstances();
     } catch (e) {
       expect(e.data.errorName).toBe("unexpected_message_type");
     }
   });
 
   it("should query app instances and return them", async () => {
-    expect.assertions(4);
+    expect.assertions(3);
+    nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
+      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
 
-    provider.getAppInstances().then(instances => {
-      expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
+      nodeProvider.simulateMessageFromNode({
+        type: Node.MethodName.GET_APP_INSTANCES,
+        requestId: request.requestId,
+        result: {
+          appInstances: [TEST_APP_INSTANCE_INFO]
+        }
+      });
     });
 
-    expect(nodeProvider.postedMessages).toHaveLength(1);
-    const request = nodeProvider.postedMessages[0] as Node.MethodRequest;
-    expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
-
-    nodeProvider.simulateMessageFromNode({
-      type: Node.MethodName.GET_APP_INSTANCES,
-      requestId: request.requestId,
-      result: {
-        appInstances: [TEST_APP_INSTANCE_INFO]
-      }
-    });
+    const instances = await provider.getAppInstances();
+    expect(instances).toHaveLength(1);
+    expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
   });
 
   it("should emit an error event for orphaned responses", async () => {

@@ -30,24 +30,10 @@ export class Provider {
     );
     const result = response.result as Node.GetAppInstancesResult;
     return Promise.all(
-      result.appInstances.map(
-        async info => await this.getOrCreateAppInstance(info.id, info)
+      result.appInstances.map(info =>
+        this.getOrCreateAppInstance(info.id, info)
       )
     );
-  }
-
-  async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
-      appInstanceId
-    });
-    const { appInstance } = response.result as Node.InstallResult;
-    return this.getOrCreateAppInstance(appInstanceId, appInstance);
-  }
-
-  async rejectInstall(appInstanceId: AppInstanceID) {
-    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
-      appInstanceId
-    });
   }
 
   async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
