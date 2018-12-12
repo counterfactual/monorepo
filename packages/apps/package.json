@@ -11,7 +11,7 @@
   "scripts": {
     "build": "waffle waffle.json",
     "test": "ts-mocha test/*",
-    "clean": "rm -rf build dist",
+    "clean": "git clean -Xdf",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "solium -d contracts/ --fix",

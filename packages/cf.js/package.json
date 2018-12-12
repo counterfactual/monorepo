@@ -12,12 +12,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "clean": "rm -rf .rpt2_cache dist",
+    "clean": "git clean -Xdf",
     "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "test": "jest --runInBand --detectOpenHandles --bail",
-    "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest --runInBand"
+    "lint:fix": "yarn lint --fix",
+    "test": "jest",
+    "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
   },
   "devDependencies": {
     "jest": "^23.6.0",
