@@ -32,7 +32,7 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
         expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
         const params = request.params as Node.ProposeInstallParams;
-        expect(params.initialState).toBe("1559");
+        expect(params.initialState).toBe("4000");
         expect(params.myDeposit).toEqual(ethers.utils.parseEther("0.5"));
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.PROPOSE_INSTALL,
@@ -50,7 +50,7 @@ describe("CF.js AppFactory", () => {
         peerDeposit: ethers.utils.parseEther("0.5"),
         myDeposit: ethers.utils.parseEther("0.5"),
         timeout: "100",
-        initialState: "1559"
+        initialState: "4000"
       });
       expect(appInstanceId).toBe("TEST_ID");
     });
@@ -65,7 +65,7 @@ describe("CF.js AppFactory", () => {
           peerDeposit: ethers.utils.parseEther("0.5"),
           myDeposit: ethers.utils.parseEther("0.5"),
           timeout: "100",
-          initialState: "1559"
+          initialState: "4000"
         });
         done.fail("Expected an error for invalid peer address");
       } catch (e) {
@@ -85,7 +85,7 @@ describe("CF.js AppFactory", () => {
           peerDeposit: ethers.utils.parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
-          initialState: "1559"
+          initialState: "4000"
         });
         done.fail("Expected an error for invalid myDeposit");
       } catch (e) {
