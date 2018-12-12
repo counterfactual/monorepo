@@ -105,8 +105,8 @@ describe("Node method follows spec - proposeInstall", () => {
         if (msg.data.proposal) {
           throw Error("This is not expecting proposal");
         }
-        const appInstanceNodeA = (await getInstalledAppInstances(nodeA))[0];
-        const appInstanceNodeB = (await getInstalledAppInstances(nodeB))[0];
+        const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
+        const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
         expect(appInstanceNodeA).toEqual(appInstanceNodeB);
         done();
       });
