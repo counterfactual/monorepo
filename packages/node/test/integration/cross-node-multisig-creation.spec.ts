@@ -1,19 +1,12 @@
-import { Node as NodeTypes } from "@counterfactual/common-types";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
 
-import {
-  IMessagingService,
-  IStoreService,
-  Node,
-  NodeConfig,
-  NodeMessage
-} from "../../src";
+import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
 import FirebaseServiceFactory from "./services/firebase-service";
-import { makeMultisigRequest } from "./utils";
+import { getChannelAddresses, getNewMultisig } from "./utils";
 
 dotenv.config();
 
@@ -51,19 +44,14 @@ describe("Node can create multisig, other owners get notified", () => {
     firebaseServer.close();
   });
 
-  it("Node A can create multisig and sync with Node B on new multisig creation", async done => {
-    // Node A creates the multisig for both A and B
-    // B receives notification of new multisig
-    const multisigCreationRequest = makeMultisigRequest([
+  it("Node A can create multisig and sync with Node B on new multisig creation", async () => {
+    const multisigAddress = await getNewMultisig(nodeA, [
       nodeA.address,
       nodeB.address
     ]);
-    nodeB.on(NodeTypes.EventName.MULTISIG_CREATED, async (msg: NodeMessage) => {
-      const channels = await nodeB.channels.getAllChannels();
-      expect(Object.keys(channels)[0]).toEqual(msg.data.multisigAddress);
-      done();
-    });
-
-    nodeA.emit(multisigCreationRequest.type, multisigCreationRequest);
+    const openChannelsNodeA = await getChannelAddresses(nodeA);
+    const openChannelsNodeB = await getChannelAddresses(nodeB);
+    expect(openChannelsNodeA[0]).toEqual(multisigAddress);
+    expect(openChannelsNodeB[0]).toEqual(multisigAddress);
   });
 });

@@ -20,6 +20,7 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     GET_APP_INSTANCES = "getAppInstances",
+    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     PROPOSE_INSTALL = "proposeInstall",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
@@ -30,7 +31,8 @@ export namespace Node {
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
-    CREATE_MULTISIG = "createMultisig"
+    CREATE_MULTISIG = "createMultisig",
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
@@ -45,8 +47,12 @@ export namespace Node {
   }
 
   export interface GetAppInstancesParams {}
+  export interface GetProposedAppInstancesParams {}
 
   export interface GetAppInstancesResult {
+    appInstances: AppInstanceInfo[];
+  }
+  export interface GetProposedAppInstancesResult {
     appInstances: AppInstanceInfo[];
   }
 
@@ -113,8 +119,14 @@ export namespace Node {
     multisigAddress: Address;
   }
 
+  export interface GetChannelAddressesParams {}
+  export interface GetChannelAddressesResult {
+    multisigAddresses: Address[];
+  }
+
   export type MethodParams =
     | GetAppInstancesParams
+    | GetProposedAppInstancesParams
     | ProposeInstallParams
     | RejectInstallParams
     | InstallParams
@@ -122,9 +134,11 @@ export namespace Node {
     | GetAppInstanceDetailsParams
     | TakeActionParams
     | UninstallParams
-    | CreateMultisigParams;
+    | CreateMultisigParams
+    | GetChannelAddressesParams;
   export type MethodResult =
     | GetAppInstancesResult
+    | GetProposedAppInstancesResult
     | ProposeInstallResult
     | RejectInstallResult
     | InstallResult
@@ -132,7 +146,8 @@ export namespace Node {
     | GetAppInstanceDetailsResult
     | TakeActionResult
     | UninstallResult
-    | CreateMultisigResult;
+    | CreateMultisigResult
+    | GetChannelAddressesResult;
 
   export interface InstallEventData {
     appInstanceId: AppInstanceID;

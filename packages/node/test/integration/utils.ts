@@ -2,17 +2,64 @@ import {
   Address,
   AppInstanceInfo,
   AssetType,
-  Node
+  Node as NodeTypes
 } from "@counterfactual/common-types";
 import cuid from "cuid";
 import { ethers } from "ethers";
+
+import { Node } from "../../src";
 
 export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function makeProposalRequest(peerAddress: Address): Node.MethodRequest {
-  const params: Node.ProposeInstallParams = {
+export async function getNewMultisig(
+  node: Node,
+  owners: Address[]
+): Promise<Address> {
+  const req: NodeTypes.MethodRequest = {
+    requestId: cuid(),
+    type: NodeTypes.MethodName.CREATE_MULTISIG,
+    params: {
+      owners
+    } as NodeTypes.CreateMultisigParams
+  };
+  const response: NodeTypes.MethodResponse = await node.call(req.type, req);
+  const result = response.result as NodeTypes.CreateMultisigResult;
+  return result.multisigAddress;
+}
+
+export async function getChannelAddresses(node: Node): Promise<Address[]> {
+  const req: NodeTypes.MethodRequest = {
+    requestId: cuid(),
+    type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
+    params: {} as NodeTypes.CreateMultisigParams
+  };
+  const response: NodeTypes.MethodResponse = await node.call(req.type, req);
+  const result = response.result as NodeTypes.GetChannelAddressesResult;
+  return result.multisigAddresses;
+}
+
+export async function getInstalledAppInstances(
+  node: Node
+): Promise<AppInstanceInfo[]> {
+  const req: NodeTypes.MethodRequest = {
+    requestId: cuid(),
+    type: NodeTypes.MethodName.GET_APP_INSTANCES,
+    params: {} as NodeTypes.GetAppInstancesParams
+  };
+  const response: NodeTypes.MethodResponse = await node.call(
+    NodeTypes.MethodName.GET_APP_INSTANCES,
+    req
+  );
+  const result = response.result as NodeTypes.GetAppInstancesResult;
+  return result.appInstances;
+}
+
+export function makeProposalRequest(
+  peerAddress: Address
+): NodeTypes.MethodRequest {
+  const params: NodeTypes.ProposeInstallParams = {
     peerAddress,
     appId: cuid(),
     abiEncodings: {
@@ -30,24 +77,11 @@ export function makeProposalRequest(peerAddress: Address): Node.MethodRequest {
       propertyB: "B"
     }
   };
-  const appInstanceInstallationProposalRequestId = cuid();
   return {
     params,
-    requestId: appInstanceInstallationProposalRequestId,
-    type: Node.MethodName.PROPOSE_INSTALL
-  } as Node.MethodRequest;
-}
-
-export function makeMultisigRequest(owners: Address[]): Node.MethodRequest {
-  const multisigCreationRequstId = cuid();
-  const multisigCreationReq: Node.MethodRequest = {
-    requestId: multisigCreationRequstId,
-    type: Node.MethodName.CREATE_MULTISIG,
-    params: {
-      owners
-    } as Node.CreateMultisigParams
-  };
-  return multisigCreationReq;
+    requestId: cuid(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL
+  } as NodeTypes.MethodRequest;
 }
 
 /**
@@ -55,10 +89,10 @@ export function makeMultisigRequest(owners: Address[]): Node.MethodRequest {
  * @param proposedAppInstance The proposed app instance contained in the Node.
  */
 export function confirmProposedAppInstanceOnNode(
-  methodParams: Node.MethodParams,
+  methodParams: NodeTypes.MethodParams,
   proposedAppInstance: AppInstanceInfo
 ) {
-  const proposalParams = methodParams as Node.ProposeInstallParams;
+  const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
   expect(proposalParams.abiEncodings).toEqual(proposedAppInstance.abiEncodings);
   expect(proposalParams.appId).toEqual(proposedAppInstance.appId);
   expect(proposalParams.asset).toEqual(proposedAppInstance.asset);

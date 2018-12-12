@@ -24,6 +24,7 @@ export class Node {
 
   public readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
+  private readonly methodHandler: MethodHandler;
 
   /**
    * @param privateKey
@@ -45,12 +46,16 @@ export class Node {
       `${nodeConfig.MULTISIG_KEY_PREFIX}/${this.signer.address}`
     );
     this.registerMessagingConnection();
-    new MethodHandler(
+    this.methodHandler = new MethodHandler(
       this.incoming,
       this.outgoing,
       this.channels,
       this.messagingService
     );
+  }
+
+  get address() {
+    return this.signer.address;
   }
 
   /**
@@ -73,8 +78,17 @@ export class Node {
     this.incoming.emit(event, req);
   }
 
-  get address() {
-    return this.signer.address;
+  /**
+   * Enables making a direct call to the Node for a specific method instead
+   * of registering a callback for it.
+   * @param event
+   * @param req
+   */
+  async call(
+    event: NodeTypes.MethodName,
+    req: NodeTypes.MethodRequest
+  ): Promise<NodeTypes.MethodResponse> {
+    return this.methodHandler.call(event, req);
   }
 
   /**

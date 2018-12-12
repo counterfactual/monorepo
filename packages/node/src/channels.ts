@@ -165,11 +165,21 @@ export class Channels {
     return multisigAddress;
   }
 
+  /**
+   * Called on the receiving end of another party creating a multisig.
+   * @param multisigAddress
+   * @param owners
+   */
   async addMultisig(multisigAddress: Address, owners: Address[]) {
     const channel = new Channel(multisigAddress, owners);
     const ownersHash = Channels.canonicalizeAddresses(owners);
     this.ownersToMultisigAddress[ownersHash] = multisigAddress;
     await this.save(channel);
+  }
+
+  async getAddresses(): Promise<Address[]> {
+    const channels = await this.getAllChannels();
+    return Object.keys(channels);
   }
 
   private async getChannelFromPeerAddress(

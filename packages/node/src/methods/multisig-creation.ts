@@ -37,3 +37,13 @@ export async function addMultisig(
   const params = nodeMsg.data;
   await channels.addMultisig(params.multisigAddress, params.owners);
 }
+
+export async function getChannelAddresses(
+  channels: Channels,
+  messagingService: IMessagingService,
+  nodeMsg: NodeMessage
+): Promise<Node.GetChannelAddressesResult> {
+  return {
+    multisigAddresses: await channels.getAddresses()
+  };
+}

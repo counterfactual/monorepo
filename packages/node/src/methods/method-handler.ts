@@ -6,7 +6,11 @@ import { NodeMessage } from "../node";
 import { IMessagingService } from "../service-interfaces";
 
 import { addAppInstance, install, proposeInstall } from "./installations";
-import { addMultisig, createMultisig } from "./multisig-creation";
+import {
+  addMultisig,
+  createMultisig,
+  getChannelAddresses
+} from "./multisig-creation";
 
 export class MethodHandler {
   private METHODS = new Map();
@@ -22,10 +26,35 @@ export class MethodHandler {
   }
 
   /**
+   * This enables directly calling a specified method, instead of registering
+   * a callback for it.
+   * @param method
+   * @param req
+   */
+  public async call(
+    method: string,
+    req: Node.MethodRequest
+  ): Promise<Node.MethodResponse> {
+    return {
+      type: req.type,
+      requestId: req.requestId,
+      result: await this.METHODS.get(method)(
+        this.channels,
+        this.messagingService,
+        req.params
+      )
+    };
+  }
+
+  /**
    * This maps the Node method names to their respective handlers.
    */
   private mapHandlers() {
     this.METHODS.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
+    this.METHODS.set(
+      Node.MethodName.GET_CHANNEL_ADDRESSES,
+      getChannelAddresses
+    );
     this.METHODS.set(Node.MethodName.GET_APP_INSTANCES, getAppInstances);
     this.METHODS.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
     this.METHODS.set(Node.MethodName.INSTALL, install);
