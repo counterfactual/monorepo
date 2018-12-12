@@ -16,22 +16,22 @@
     - Lifecycle
         - `on(eventType, callback: Function)`
             - `install`
-                - [Node event](#event-install)
+                - [Node event](#event-installEvent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `rejectInstall`
-                - [Node event](#event-rejectinstall)
+                - [Node event](#event-rejectInstallEvent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
-                - [Node event](#event-rejectinstall)
+                - [Node event](#event-updateStateEvent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `proposeState`
-                - [Node event](#event-proposestate)
+                - [Node event](#event-proposeStateEvent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `rejectState`
-                - [Node event](#event-rejectstate)
+                - [Node event](#event-rejectStateEvent)
                 - Callback Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
-                - [Node event](#event-uninstall)
+                - [Node event](#event-uninstallEvent)
                 - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
 - `AppFactory`
     - Properties
