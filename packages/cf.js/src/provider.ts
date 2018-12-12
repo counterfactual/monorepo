@@ -50,6 +50,20 @@ export class Provider {
     });
   }
 
+  async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
+    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
+      appInstanceId
+    });
+    const { appInstance } = response.result as Node.InstallResult;
+    return this.getOrCreateAppInstance(appInstanceId, appInstance);
+  }
+
+  async rejectInstall(appInstanceId: AppInstanceID) {
+    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
+      appInstanceId
+    });
+  }
+
   on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
     this.eventEmitter.on(eventName, callback);
   }
