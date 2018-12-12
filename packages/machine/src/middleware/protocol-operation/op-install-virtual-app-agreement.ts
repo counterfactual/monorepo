@@ -29,11 +29,6 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
   private conditionalTransactionInput(): MultisigInput {
     const to = this.networkContext.virtualAppAgreementAddr;
     const val = 0;
-    const terms = [
-      this.app.terms.assetType,
-      this.app.terms.limit,
-      this.app.terms.token
-    ];
     // const uninstallKey = keccak256(
     //   abi.encodePacked(
     //     ["address", "uint256", "uint256"],
@@ -44,8 +39,12 @@ export class OpInstallVirtualAppAgreement extends MultiSendOp {
       VirtualAppAgreementJson.abi
     ).functions.delegateTarget.encode([
       {
-        registryAddr: this.networkContext.registryAddr,
-        terms,
+        terms: [
+          this.app.terms.assetType,
+          this.app.terms.limit,
+          this.app.terms.token
+        ],
+        registry: this.networkContext.registryAddr,
         expiry: 0,
         target: this.appCfAddress,
         capitalProvided: 0,

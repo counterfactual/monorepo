@@ -39,7 +39,7 @@ export class NetworkContext {
     readonly signaturesAddr: Address,
     readonly staticCallAddr: Address,
     readonly ethBalanceRefundAppAddr: Address,
-    readonly virtualAppAgreementAddr: Address
+    readonly ethVirtualAppAgreementAddr: Address
   ) {}
 
   public linkedBytecode(unlinkedBytecode: string): string {
