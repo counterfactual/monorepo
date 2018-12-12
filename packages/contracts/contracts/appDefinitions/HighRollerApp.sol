@@ -117,16 +117,13 @@ contract HighRollerApp {
   function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
     public
     pure
-    returns (uint256[] amounts)
+    returns (uint256[])
   {
+    uint256[] memory amounts = new uint256[](2);
     bytes32 finalHash = calculateFinalHash(num1, num2);
     (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = cutBytes32(finalHash);
-    uint dice1 = bytes8toDiceRoll(hash1);
-    uint dice2 = bytes8toDiceRoll(hash2);
-    uint dice3 = bytes8toDiceRoll(hash3);
-    uint dice4 = bytes8toDiceRoll(hash4);
-    uint256 total1 = dice1 + dice2;
-    uint256 total2 = dice3 + dice4;
+    uint256 total1 = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
+    uint256 total2 = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
     if (total1 > total2) {
       amounts[0] = termsLimit;
       amounts[1] = 0;
@@ -137,6 +134,7 @@ contract HighRollerApp {
       amounts[0] = termsLimit / 2;
       amounts[1] = termsLimit / 2;
     }
+    return amounts;
   }
   
   function calculateFinalHash(uint256 num1, uint256 num2) 
