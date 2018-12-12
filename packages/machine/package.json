@@ -22,7 +22,7 @@
     "@counterfactual/contracts": "0.0.2",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
-    "ethers": "^4.0.4",
+    "ethers": "^4.0.17",
     "jest": "^23.6.0",
     "rollup": "^0.67.0",
     "rollup-plugin-json": "^3.1.0",
@@ -34,7 +34,7 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
-    "ethers": "^4.0.4"
+    "ethers": "^4.0.17"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",

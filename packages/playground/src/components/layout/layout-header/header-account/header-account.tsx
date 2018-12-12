@@ -1,4 +1,4 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Event, EventEmitter, Prop, Watch } from "@stencil/core";
 
 @Component({
   tag: "header-account",
@@ -6,9 +6,25 @@ import { Component, Prop } from "@stencil/core";
   shadow: true
 })
 export class HeaderAccount {
-  @Prop() authenticated: boolean = false;
+  @Prop({ mutable: true }) authenticated: boolean = false;
+  @Prop() fakeConnect: boolean = false;
+  @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
+
+  @Watch("authenticated")
+  authenticationChangedHandler() {
+    this.authenticationChanged.emit({ authenticated: this.authenticated });
+  }
 
   login() {
+    // This will make the UI behave as if the user is really logged in.
+    if (this.fakeConnect) {
+      console.warn(
+        "Faked connection, app thinks it's authenticated but it's not"
+      );
+      this.authenticated = true;
+      return;
+    }
+
     console.log("login");
   }
 
