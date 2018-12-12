@@ -1,6 +1,5 @@
 import * as cf from "@counterfactual/cf.js";
-import ETH
-VirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
+import ETHVirtualAppAgreementJson from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
 import { ethers } from "ethers";
 
 import { MultiSendOp } from "./multi-send-op";
