@@ -16,6 +16,10 @@ import {
   getChannelAddresses
 } from "./multisig-operations";
 
+/**
+ * This class registers handlers for requests to get or set some information
+ * about app instances and channels for this Node and any relevant peer Nodes.
+ */
 export class RequestHandler {
   private methods = new Map();
   private events = new Map();
@@ -73,10 +77,8 @@ export class RequestHandler {
 
   /**
    * This registers all of the methods the Node is expected to have
-   * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#node-protocol
+   * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
    *
-   * The responses to these calls are the events being listened on
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private registerMethods() {
     this.mapMethodHandlers();
@@ -94,6 +96,9 @@ export class RequestHandler {
 
   /**
    * This maps the Node event names to their respective handlers.
+   *
+   * These are the events being listened on to detect requests from peer Nodes.
+   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
     this.events.set(Node.EventName.MULTISIG_CREATED, addMultisig);
@@ -101,7 +106,7 @@ export class RequestHandler {
   }
 
   /**
-   * This is internally called when an event is received from another node.
+   * This is internally called when an event is received from a peer Node.
    * Node consumers can separately setup their own callbacks for incoming events.
    * @param event
    * @param msg

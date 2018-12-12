@@ -78,8 +78,7 @@ export class Node {
   }
 
   /**
-   * Enables making a direct call to the Node for a specific method instead
-   * of registering a callback for it.
+   * Makes a direct call to the Node for a specific method.
    * @param method
    * @param req
    */

@@ -10,10 +10,6 @@ import { ethers } from "ethers";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/channels";
 
-export function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export async function getNewMultisig(
   node: Node,
   owners: Address[]
@@ -30,6 +26,12 @@ export async function getNewMultisig(
   return result.multisigAddress;
 }
 
+/**
+ * Wrapper method making the call to the given node to get the list of
+ * multisig addresses the node is aware of.
+ * @param node
+ * @returns list of multisig addresses
+ */
 export async function getChannelAddresses(node: Node): Promise<Address[]> {
   const req: NodeTypes.MethodRequest = {
     requestId: cuid(),

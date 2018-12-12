@@ -24,7 +24,7 @@ import FreeBalance = legacy.utils.FreeBalance;
  * multisigAddress: {
  *  multisigAddress: Address,
  *  multisigOwners: Address[],
- *  appsNonce: Nonce,
+ *  rootNonce: Nonce,
  *  appInstances: Map<AppInstanceID,
  *    appInstance: {
  *      id: string,
@@ -34,8 +34,12 @@ import FreeBalance = legacy.utils.FreeBalance;
  *        actionEncoding: string
  *      },
  *      appState: any,
- *      localNonce: Nonce,
- *      dependencyNonce: Nonce,
+ *      localNonceCount: number,
+ *      uninstallationNonce: {
+ *        isSet: boolean,
+ *        salt: string,
+ *        nonceValue: number
+ *      },
  *      timeout: BigNumber,
  *      asset: {
  *        assetType: AssetType,
@@ -51,8 +55,7 @@ import FreeBalance = legacy.utils.FreeBalance;
  *      aliceBalance: BigNumber,
  *      bob: Address,
  *      bobBalance: BigNumber,
- *      uniqueId: number,
- *      localNonce: number,
+ *      localNonceCount: number,
  *      timeout: number,
  *      dependencyNonce: {
  *        isSet: boolean,
@@ -75,10 +78,10 @@ class Channel {
   constructor(
     readonly multisigAddress: Address,
     readonly multisigOwners: Address[],
-    readonly appsNonce: Nonce = new Nonce(true, 0, 0),
+    readonly rootNonce: Nonce = new Nonce(true, 0, 0),
     readonly freeBalances: {
       [assetType: number]: FreeBalance;
-    } = Channel.initialFreeBalances(multisigOwners, appsNonce),
+    } = Channel.initialFreeBalances(multisigOwners, rootNonce),
     readonly appInstances: {
       [appInstanceId: string]: AppInstanceInfo;
     } = {},
@@ -128,7 +131,7 @@ export class Channels {
   /**
    * A convenience lookup table from a set of owners to multisig address.
    */
-  private readonly ownersToMultisigAddress = {};
+  private readonly ownersHashToMultisigAddress = {};
 
   /**
    * A convenience lookup table from appInstance ID to multisig address.
@@ -149,46 +152,46 @@ export class Channels {
   ) {}
 
   /**
-   * Called when a new multisig is created for a set of owners.
+   * Called to create a new multisig for a set of owners.
    * @param multisigAddress
    * @param multisigOwners
    * @param freeBalances
    */
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
-    const multisigAddress = Channels.getMultisigAddress(params.owners);
+    const multisigAddress = Channels.generateNewMultisigAddress(params.owners);
     const channel: Channel = new Channel(multisigAddress, params.owners);
-    const ownersHash = Channels.canonicalizeAddresses(params.owners);
-    this.ownersToMultisigAddress[ownersHash] = multisigAddress;
+    const ownersHash = Channels.orderedAddressesHash(params.owners);
+    this.ownersHashToMultisigAddress[ownersHash] = multisigAddress;
     await this.save(channel);
     return multisigAddress;
   }
 
   /**
-   * Called on the receiving end of another party creating a multisig.
+   * Called when a peer creates a multisig with the account on this Node.
    * @param multisigAddress
    * @param owners
    */
   async addMultisig(multisigAddress: Address, owners: Address[]) {
     const channel = new Channel(multisigAddress, owners);
-    const ownersHash = Channels.canonicalizeAddresses(owners);
-    this.ownersToMultisigAddress[ownersHash] = multisigAddress;
+    const ownersHash = Channels.orderedAddressesHash(owners);
+    this.ownersHashToMultisigAddress[ownersHash] = multisigAddress;
     await this.save(channel);
   }
 
   async getAddresses(): Promise<Address[]> {
-    const channels = await this.getAllChannels();
+    const channels = await this.getAllChannelsJSON();
     return Object.keys(channels);
   }
 
   private async getChannelFromPeerAddress(
     peerAddress: Address
   ): Promise<Channel> {
-    const owners = Channels.canonicalizeAddresses([
+    const ownersHash = Channels.orderedAddressesHash([
       this.selfAddress,
       peerAddress
     ]);
-    const multisigAddress = this.ownersToMultisigAddress[owners];
-    const channel = await this.getChannelFromStore(multisigAddress);
+    const multisigAddress = this.ownersHashToMultisigAddress[ownersHash];
+    const channel = await this.getChannelJSONFromStore(multisigAddress);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
@@ -203,7 +206,9 @@ export class Channels {
     appInstanceId: string
   ): Promise<Address[]> {
     const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
-    const channel: Channel = await this.getChannelFromStore(multisigAddress);
+    const channel: Channel = await this.getChannelJSONFromStore(
+      multisigAddress
+    );
     const owners = channel.multisigOwners;
     return owners.filter(owner => owner !== this.selfAddress);
   }
@@ -212,7 +217,7 @@ export class Channels {
     appInstanceId: string
   ): Promise<Channel> {
     const multisigAddress = this.appInstanceIdToMultisigAddress[appInstanceId];
-    const channel = await this.getChannelFromStore(multisigAddress);
+    const channel = await this.getChannelJSONFromStore(multisigAddress);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
@@ -223,12 +228,17 @@ export class Channels {
     );
   }
 
+  /**
+   * Gets the list of app instances depending on the provided app status
+   * specified.
+   * @param status
+   */
   async getAppInstances(
     status: APP_INSTANCE_STATUS
   ): Promise<AppInstanceInfo[]> {
     if (!Object.values(APP_INSTANCE_STATUS).includes(status)) {
       return Promise.reject(
-        `The specified app status "${status}" is not a valid app instance state`
+        `The specified app status "${status}" is not a valid app instance status`
       );
     }
     if (status === APP_INSTANCE_STATUS.INSTALLED) {
@@ -236,13 +246,14 @@ export class Channels {
     }
     return await this.getProposedAppInstances();
   }
+
   /**
    * Gets all installed appInstances across all of the channels open on
    * this Node.
    */
   private async getInstalledAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
-    const channels = await this.getAllChannels();
+    const channels = await this.getAllChannelsJSON();
     Object.values(channels).forEach((channel: Channel) => {
       if (channel.appInstances) {
         apps.push(...Object.values(channel.appInstances));
@@ -263,7 +274,7 @@ export class Channels {
    */
   private async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
-    const channels = await this.getAllChannels();
+    const channels = await this.getAllChannelsJSON();
     Object.values(channels).forEach((channel: Channel) => {
       if (channel.proposedAppInstances) {
         apps.push(...Object.values(channel.proposedAppInstances));
@@ -281,7 +292,7 @@ export class Channels {
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
     // TODO: generate the id correctly
-    const appInstanceId = channel.appsNonce!.nonceValue.toString();
+    const appInstanceId = channel.rootNonce!.nonceValue.toString();
     const appInstanceState = { ...params };
     delete appInstanceState.peerAddress;
     const appInstance: AppInstanceInfo = {
@@ -313,7 +324,7 @@ export class Channels {
    * Returns a JSON object with the keys being the multisig addresses and the
    * values being objects reflecting the channel schema described above.
    */
-  async getAllChannels(): Promise<object> {
+  async getAllChannelsJSON(): Promise<object> {
     const channels = await this.store.get(this.multisigKeyPrefix);
     if (!channels) {
       console.log("No channels exist yet");
@@ -326,7 +337,7 @@ export class Channels {
    * Returns a JSON object matching the channel schema.
    * @param multisigAddress
    */
-  async getChannelFromStore(multisigAddress: Address) {
+  async getChannelJSONFromStore(multisigAddress: Address) {
     return await this.store.get(`${this.multisigKeyPrefix}/${multisigAddress}`);
   }
 
@@ -373,14 +384,14 @@ export class Channels {
 
   // Utility methods
 
-  static canonicalizeAddresses(addresses: Address[]): string {
+  static orderedAddressesHash(addresses: Address[]): string {
     addresses.sort((addrA: Address, addrB: Address) => {
       return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
     });
     return ethers.utils.hashMessage(addresses.join(""));
   }
 
-  static getMultisigAddress(owners: Address[]): Address {
+  static generateNewMultisigAddress(owners: Address[]): Address {
     // TODO: implement this using CREATE2
     return ethers.Wallet.createRandom().address;
   }
