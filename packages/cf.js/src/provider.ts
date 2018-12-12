@@ -7,8 +7,14 @@ import {
 import cuid from "cuid";
 import EventEmitter from "eventemitter3";
 
-import { AppInstance } from "./app-instance";
-import { CounterfactualEvent, EventType } from "./types";
+import { AppInstance, AppInstanceEventType } from "./app-instance";
+import {
+  CounterfactualEvent,
+  ErrorEventData,
+  EventType,
+  UninstallEventData,
+  UpdateStateEventData
+} from "./types";
 
 const NODE_REQUEST_TIMEOUT = 1500;
 
@@ -21,6 +27,7 @@ export class Provider {
 
   constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
+    this.setupAppInstanceEventListeners();
   }
 
   async getAppInstances(): Promise<AppInstance[]> {
@@ -213,5 +220,27 @@ export class Provider {
         };
     }
     this.eventEmitter.emit(event.type, event);
+  }
+
+  private setupAppInstanceEventListeners() {
+    this.on(EventType.UPDATE_STATE, event => {
+      const { appInstance } = event.data as UpdateStateEventData;
+      appInstance.emit(AppInstanceEventType.UPDATE_STATE, event);
+    });
+
+    this.on(EventType.UNINSTALL, event => {
+      const { appInstance } = event.data as UninstallEventData;
+      appInstance.emit(AppInstanceEventType.UNINSTALL, event);
+    });
+
+    this.on(EventType.ERROR, async event => {
+      const { extra } = event.data as ErrorEventData;
+      if (extra && "appInstanceId" in extra) {
+        const instance: AppInstance = await this.getOrCreateAppInstance(
+          extra.appInstanceId as string
+        );
+        instance.emit(AppInstanceEventType.ERROR, event);
+      }
+    });
   }
 }
