@@ -19,11 +19,11 @@ declare class Node {
   set(key: string, value: any): Promise<any>;
 }
 
-let node: Node;
-
 export default class CounterfactualNode {
+  private static node: Node;
+
   static getInstance(): Node {
-    return node;
+    return CounterfactualNode.node;
   }
 
   static create(settings: {
@@ -31,7 +31,7 @@ export default class CounterfactualNode {
     messagingService: IMessagingService;
     storeService: IStoreService;
   }): Node {
-    node = new Node(
+    CounterfactualNode.node = new Node(
       settings.privateKey,
       settings.messagingService,
       settings.storeService

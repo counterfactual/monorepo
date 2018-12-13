@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, State } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
@@ -55,7 +55,8 @@ export class NodeListener {
     });
 
     CounterfactualNode.create({
-      privateKey: "MY_FAKE_KEY",
+      privateKey:
+        "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
       messagingService: serviceProvider.createMessagingService("messaging"),
       storeService: serviceProvider.createStoreService("storage")
     });
