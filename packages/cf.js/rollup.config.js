@@ -13,13 +13,11 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "cfjs",
+      name: "window.cf",
       format: "iife",
       exports: "named",
       globals: {
-        ethers: "ethers",
-        cuid: "cuid",
-        eventemitter3: "EventEmitter"
+        "ethers/utils": "ethers.utils"
       }
     }
   ],

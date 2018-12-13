@@ -31,6 +31,7 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     GET_APP_INSTANCES = "getAppInstances",
+    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     PROPOSE_INSTALL = "proposeInstall",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
@@ -40,22 +41,29 @@ export namespace Node {
     UNINSTALL = "uninstall",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
-    REJECT_STATE = "rejectState"
+    REJECT_STATE = "rejectState",
+    CREATE_MULTISIG = "createMultisig",
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
-    INSTALL = "install",
-    REJECT_INSTALL = "rejectInstall",
-    UPDATE_STATE = "updateState",
-    UNINSTALL = "uninstall",
-    PROPOSE_STATE = "proposeState",
-    REJECT_STATE = "rejectState"
+    INSTALL = "installEvent",
+    REJECT_INSTALL = "rejectInstallEvent",
+    UPDATE_STATE = "updateStateEvent",
+    UNINSTALL = "uninstallEvent",
+    PROPOSE_STATE = "proposeStateEvent",
+    REJECT_STATE = "rejectStateEvent",
+    MULTISIG_CREATED = "multisigCreatedEvent"
   }
 
   export interface GetAppInstancesParams {}
+  export interface GetProposedAppInstancesParams {}
 
   export interface GetAppInstancesResult {
+    appInstances: AppInstanceInfo[];
+  }
+  export interface GetProposedAppInstancesResult {
     appInstances: AppInstanceInfo[];
   }
 
@@ -115,24 +123,42 @@ export namespace Node {
     peerPayout: BigNumber;
   }
 
+  export interface CreateMultisigParams {
+    owners: Address[];
+  }
+  export interface CreateMultisigResult {
+    multisigAddress: Address;
+  }
+
+  export interface GetChannelAddressesParams {}
+  export interface GetChannelAddressesResult {
+    multisigAddresses: Address[];
+  }
+
   export type MethodParams =
     | GetAppInstancesParams
+    | GetProposedAppInstancesParams
     | ProposeInstallParams
     | RejectInstallParams
     | InstallParams
     | GetStateParams
     | GetAppInstanceDetailsParams
     | TakeActionParams
-    | UninstallParams;
+    | UninstallParams
+    | CreateMultisigParams
+    | GetChannelAddressesParams;
   export type MethodResult =
     | GetAppInstancesResult
+    | GetProposedAppInstancesResult
     | ProposeInstallResult
     | RejectInstallResult
     | InstallResult
     | GetStateResult
     | GetAppInstanceDetailsResult
     | TakeActionResult
-    | UninstallResult;
+    | UninstallResult
+    | CreateMultisigResult
+    | GetChannelAddressesResult;
 
   export interface InstallEventData {
     appInstanceId: AppInstanceID;
@@ -182,6 +208,7 @@ export namespace Node {
     data: {
       errorName: string;
       message?: string;
+      extra?: { [k: string]: string | number | boolean | object };
     };
   }
 
