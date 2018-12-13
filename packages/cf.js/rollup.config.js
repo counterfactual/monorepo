@@ -13,7 +13,10 @@ export default {
     {
       file: pkg.iife,
       name: "window.cf",
-      format: "iife"
+      format: "iife",
+      globals: {
+        "ethers/utils": "ethers.utils"
+      }
     }
   ],
   plugins: [
