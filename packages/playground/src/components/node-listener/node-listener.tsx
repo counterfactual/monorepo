@@ -1,8 +1,16 @@
-import { Component, State } from "@stencil/core";
+declare var commonTypes;
+
+import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
 import { WidgetDialogSettings } from "../../types";
+
+// TODO: This should be imported from @counterfactual/common-types.
+const { MethodName } = commonTypes.Node;
+
+type NodeMessageHandlerCallback = (data: any) => void;
+type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
 
 @Component({
   tag: "node-listener",
@@ -27,6 +35,11 @@ export class NodeListener {
     })
   };
 
+  private nodeMessageResolver: NodeMessageResolver = {
+    [MethodName.PROPOSE_INSTALL]: this.handleProposeInstall.bind(this),
+    [MethodName.REJECT_INSTALL]: this.handleRejectInstall.bind(this)
+  };
+
   private modalVisible: boolean = false;
   private modalData: WidgetDialogSettings = {} as WidgetDialogSettings;
 
@@ -45,6 +58,7 @@ export class NodeListener {
   }
 
   componentWillLoad() {
+    // TODO: This configuration is a mockup. Should be elsewhere.
     const serviceProvider = new FirebaseDataProvider({
       apiKey: "AIzaSyBne_N_gQgaGnyfIPOs9T0PhOPdwRUeUsI",
       authDomain: "joey-firebase-1.firebaseapp.com",
@@ -54,12 +68,14 @@ export class NodeListener {
       messagingSenderId: "86354058442"
     });
 
-    CounterfactualNode.create({
-      privateKey:
-        "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
-      messagingService: serviceProvider.createMessagingService("messaging"),
-      storeService: serviceProvider.createStoreService("storage")
-    });
+    const privateKey =
+      "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a";
+    const messagingService = serviceProvider.createMessagingService(
+      "messaging"
+    );
+    const storeService = serviceProvider.createStoreService("storage");
+
+    CounterfactualNode.create({ privateKey, messagingService, storeService });
   }
 
   componentDidLoad() {
@@ -67,8 +83,9 @@ export class NodeListener {
   }
 
   bindNodeEvents() {
-    this.node.on("proposeInstall", this.handleProposeInstall.bind(this));
-    this.node.on("rejectInstall", this.handleRejectInstall.bind(this));
+    Object.keys(this.nodeMessageResolver).forEach(methodName => {
+      this.node.on(methodName, this.nodeMessageResolver[methodName].bind(this));
+    });
   }
 
   handleProposeInstall(data) {
