@@ -12,7 +12,7 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@stencil/core": "~0.15.1",
+    "@stencil/core": "~0.16.1",
     "@stencil/sass": "^0.1.1",
     "@stencil/router": "~0.2.6",
     "eventemitter3": "^3.1.0"
