@@ -74,6 +74,11 @@ export async function install(
  * This function adds the app instance as a pending installation if the proposal
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
+ *
+ * When the proposer initiates an installation proposal, a UUID is generated
+ * to identify that app instance (for its lifetime, regardless of whether it
+ * gets installed or rejected). When a Node receives a proposal, this UUID is
+ * supplied so the Nodes retain app instance handle parity amongst each other.
  * @param channels
  * @param messagingService
  * @param params
@@ -87,8 +92,12 @@ export async function addAppInstance(
   params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
+    // AppInstance knows about its ID via the `id` field, not `appInstanceId`
+    // `appInstanceId` is only used outside the immediate context of an
+    // AppInstance to clarify the ID belongs to an AppInstance
+    params.id = params.appInstanceId;
     delete params.appInstanceId;
-    await channels.proposeInstall(params);
+    await channels.proposeInstall(params, params.id);
   } else {
     await channels.install(params);
   }

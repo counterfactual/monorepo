@@ -6,6 +6,7 @@ import {
   Node
 } from "@counterfactual/common-types";
 import { ethers } from "ethers";
+import { v4 as uuid } from "uuid";
 
 import { IStoreService } from "./service-interfaces";
 import { zeroBalance } from "./utils";
@@ -289,20 +290,19 @@ export class Channels {
     return apps;
   }
 
-  async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
+  async proposeInstall(
+    params: Node.ProposeInstallParams,
+    appInstanceId?: string
+  ): Promise<string> {
+    const id = appInstanceId ? appInstanceId : uuid();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-    // TODO: generate the id correctly
-    const appInstanceId = channel.rootNonce!.nonceValue.toString();
-    const appInstanceState = { ...params };
-    delete appInstanceState.peerAddress;
-    const appInstance: AppInstanceInfo = {
-      id: appInstanceId,
-      ...appInstanceState
-    };
+
+    const appInstance = { id, ...params };
+    delete appInstance.peerAddress;
+
     await this.addAppInstanceProposal(channel, appInstance);
-    this.appInstanceIdToMultisigAddress[appInstanceId] =
-      channel.multisigAddress;
-    return appInstanceId;
+    this.appInstanceIdToMultisigAddress[id] = channel.multisigAddress;
+    return id;
   }
 
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
