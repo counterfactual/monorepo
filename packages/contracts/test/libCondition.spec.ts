@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 import { expect } from "./utils";
 
-const { keccak256, defaultAbiCoder, solidityKeccak256 } = ethers.utils;
+import { keccak256, defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider

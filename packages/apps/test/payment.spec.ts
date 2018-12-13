@@ -7,7 +7,7 @@ import PaymentApp from "../build/PaymentApp.json";
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-const { AddressZero, WeiPerEther } = ethers.constants;
+import { AddressZero, WeiPerEther } from "ethers/constants";
 
 const [A, B] = [
   "0xb37e49bFC97A948617bF3B63BC6942BB15285715",

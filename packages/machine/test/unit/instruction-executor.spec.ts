@@ -17,8 +17,8 @@ import {
 } from "../../src/utils/free-balance";
 import { MockResponseSink } from "../mocks";
 
-const { hexlify, randomBytes, getAddress } = ethers.utils;
-const { Zero } = ethers.constants;
+import { hexlify, randomBytes, getAddress } from "ethers/utils";
+import { Zero } from "ethers/constants";
 
 describe("InstructionExecutor", () => {
   const networkContext = {

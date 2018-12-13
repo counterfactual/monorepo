@@ -1,6 +1,4 @@
-import { ethers } from "ethers";
-
-const { defaultAbiCoder, hexDataLength, hexDataSlice } = ethers.utils;
+import { defaultAbiCoder, hexDataLength, hexDataSlice } from "ethers/utils";
 
 /**
  * A decoder for decoding the arguments passed to a MultiSend::multiSend.
@@ -25,10 +23,14 @@ const { defaultAbiCoder, hexDataLength, hexDataSlice } = ethers.utils;
  * }
  * ```
  *
- * @param txs A string representing the bytes array of encoded tuples like
- *            tuple(uint, address, uint, bytes); each representing a transaction
+ * @param txs A string representing the bytes array of encoded versions of
+ *            [uint, address, uint, bytes] tuples; each representing a transaction
  *            for a Multisignature Wallet to execute. Equivalent to the `transactions`
  *            argument to the `multiSend` function in the Solidity code.
+ *
+ *            It is crucially important to realize that the transactions are *not*
+ *            encoded as tuple(...)s. They are encoded reguarly as the four distinct
+ *            types. There is an important distinction here.
  *
  * @returns An array of [op, to, val, data] javascript arrays.
  */

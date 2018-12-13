@@ -28,7 +28,7 @@ const {
   defaultAbiCoder
 } = ethers.utils;
 
-const { WeiPerEther, HashZero, Zero, One } = ethers.constants;
+import { WeiPerEther, HashZero, Zero, One } from "ethers/constants";
 
 /**
  * This test suite decodes a constructed OpUninstall transaction object according

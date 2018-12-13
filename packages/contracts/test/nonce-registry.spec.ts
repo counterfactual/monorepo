@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 
 import { expect } from "./utils";
 
-const { HashZero, Zero, One } = ethers.constants;
-const { solidityKeccak256, bigNumberify } = ethers.utils;
+import { HashZero, Zero, One } from "ethers/constants";
+import { solidityKeccak256, bigNumberify } from "ethers/utils";
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider

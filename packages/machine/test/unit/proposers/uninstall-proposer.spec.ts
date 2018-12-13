@@ -29,7 +29,7 @@ const {
   defaultAbiCoder
 } = ethers.utils;
 
-const { AddressZero } = ethers.constants;
+import { AddressZero } from "ethers/constants";
 
 describe("Install Proposer", () => {
   let proposal: StateProposal;

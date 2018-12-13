@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 
 import { expect } from "./utils";
 
-const { hexlify, randomBytes } = ethers.utils;
-const { WeiPerEther, AddressZero } = ethers.constants;
+import { hexlify, randomBytes } from "ethers/utils";
+import { WeiPerEther, AddressZero } from "ethers/constants";
 
 const provider = new ethers.providers.Web3Provider(
   (global as any).web3.currentProvider

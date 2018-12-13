@@ -8,14 +8,6 @@ export interface StateChannelInfo {
   multisigAddress: Address;
   appInstances: AppInstanceInfos;
   freeBalance: FreeBalance;
-
-  // TODO: Move this out of the datastructure
-  // https://github.com/counterfactual/monorepo/issues/127
-  /**
-   * @returns the addresses of the owners of this state channel sorted
-   *          in alphabetical order.
-   */
-  owners(): string[];
 }
 
 // a mapping from multisig address to a StateChannelInfo struct containing

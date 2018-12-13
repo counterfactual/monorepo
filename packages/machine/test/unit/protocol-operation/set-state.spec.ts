@@ -20,7 +20,7 @@ const {
   Interface
 } = ethers.utils;
 
-const { AddressZero } = ethers.constants;
+import { AddressZero } from "ethers/constants";
 
 /**
  * This test suite decodes a constructed OpSetState transaction object according

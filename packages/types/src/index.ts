@@ -26,7 +26,7 @@ export interface AppInterface {
   getTurnTaker: string;
   isStateTerminal: string;
   stateEncoding: string;
-  actionEncoding: string;
+  actionEncoding: string | undefined;
 }
 
 export interface AppInstance {

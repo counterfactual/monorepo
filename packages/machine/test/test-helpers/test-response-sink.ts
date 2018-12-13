@@ -13,7 +13,7 @@ import { InternalMessage } from "../../src/types";
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
 
-const { AddressZero } = ethers.constants;
+import { AddressZero } from "ethers/constants";
 
 export class TestResponseSink implements legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;

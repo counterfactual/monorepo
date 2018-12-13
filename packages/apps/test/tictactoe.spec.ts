@@ -7,7 +7,7 @@ import TicTacToeApp from "../build/TicTacToeApp.json";
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-const { AddressZero } = ethers.constants;
+import { AddressZero } from "ethers/constants";
 
 type TicTacToeAppState = {
   players: string[];

@@ -5,7 +5,7 @@ import { StateChannelInfo } from "../channel";
 import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import { Nonce } from "../utils/nonce";
 
-const { keccak256, defaultAbiCoder } = ethers.utils;
+import { keccak256, defaultAbiCoder } from "ethers/utils";
 
 /**
  * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which

@@ -23,7 +23,7 @@ const {
   Interface
 } = ethers.utils;
 
-const { Zero } = ethers.constants;
+import { Zero } from "ethers/constants";
 
 /**
  * This test suite decodes a constructed OpSetup transaction object according

@@ -5,8 +5,8 @@ import { SetupProposer } from "../../../src/middleware/state-transition/setup-pr
 import { Opcode } from "../../../src/opcodes";
 import { InternalMessage, StateProposal } from "../../../src/types";
 
-const { getAddress, hexlify, randomBytes } = ethers.utils;
-const { Zero } = ethers.constants;
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
+import { Zero } from "ethers/constants";
 
 describe("SetupProposer", () => {
   let proposal: StateProposal;

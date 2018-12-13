@@ -1,14 +1,21 @@
-import { ethers } from "ethers";
+import { AddressZero, MaxUint256 } from "ethers/constants";
+import {
+  defaultAbiCoder,
+  formatParamType,
+  Interface,
+  keccak256
+} from "ethers/utils";
 
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
-import { ETHBucketAppState } from "@counterfactual/types";
+import { AppInterface, ETHBucketAppState } from "@counterfactual/types";
 
 import { APP_INTERFACE, TERMS } from "./encodings";
 
-const { Interface, keccak256, defaultAbiCoder, formatParamType } = ethers.utils;
-const { AddressZero, MaxUint256 } = ethers.constants;
+export const freeBalanceStateEncoding = formatParamType(
+  new Interface(ETHBucket.abi).functions.resolve.inputs[0]
+);
 
-export function getFreeBalanceAppInterface(addr: string) {
+export function getFreeBalanceAppInterface(addr: string): AppInterface {
   return {
     addr,
     resolve: new Interface(ETHBucket.abi).functions.resolve.sighash,
@@ -17,7 +24,9 @@ export function getFreeBalanceAppInterface(addr: string) {
     //       update is a 2-of-2 signed update of each persons' balance
     getTurnTaker: "0x00000000",
     isStateTerminal: "0x00000000",
-    applyAction: "0x00000000"
+    applyAction: "0x00000000",
+    stateEncoding: freeBalanceStateEncoding,
+    actionEncoding: undefined // because no actions exist for ETHBucket
   };
 }
 
@@ -41,9 +50,8 @@ export const freeBalanceTermsHash = keccak256(
 );
 
 export function encodeFreeBalanceState(state: ETHBucketAppState) {
-  const input = new Interface(ETHBucket.abi).functions.resolve.inputs[0];
   return defaultAbiCoder.encode(
-    [formatParamType(input)],
+    [freeBalanceStateEncoding],
     // NOTE: We will be able to replace the following line with [state] after
     //       @ricmoo implements the feature to add tuple names to the result of
     //       formatParamType. See: github.com/ethers-io/ethers.js/issues/325

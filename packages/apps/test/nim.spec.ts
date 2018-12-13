@@ -7,7 +7,7 @@ import NimApp from "../build/NimApp.json";
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-const { AddressZero } = ethers.constants;
+import { AddressZero } from "ethers/constants";
 
 type NimAppState = {
   players: string[];

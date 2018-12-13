@@ -1,14 +1,23 @@
 import { legacy } from "@counterfactual/cf.js";
 import { NetworkContext } from "@counterfactual/types";
-import { ethers } from "ethers";
 
-import { ActionExecution } from "./action";
-import { FLOWS } from "./instructions";
-import { Middleware } from "./middleware/middleware";
-import { ProtocolOperation } from "./middleware/protocol-operation/types";
-import { Node } from "./node";
+import {
+  INSTALL_PROTOCOL,
+  METACHANNEL_INSTALL_APP_PROTOCOL,
+  SETUP_PROTOCOL,
+  UNINSTALL_PROTOCOL,
+  UPDATE_PROTOCOL
+} from "./protocol";
+
+import { Middleware } from "./middleware";
+import { StateChannel } from "./models/state-channel";
 import { Opcode } from "./opcodes";
-import { InstructionMiddlewareCallback, StateProposal } from "./types";
+import {
+  Context,
+  InstructionMiddlewareCallback,
+  InternalMessage,
+  Protocol
+} from "./types";
 
 export class InstructionExecutorConfig {
   constructor(
@@ -19,6 +28,7 @@ export class InstructionExecutorConfig {
 }
 
 export class InstructionExecutor {
+  public network: NetworkContext;
   /**
    * The object responsible for processing each Instruction in the Vm.
    */
@@ -33,18 +43,41 @@ export class InstructionExecutor {
    * The underlying state for the entire machine. All state here is a result of
    * a completed and commited protocol.
    */
-  public node: Node;
+  public state: StateChannel;
 
   constructor(config: InstructionExecutorConfig) {
     this.responseHandler = config.responseHandler;
-    this.node = new Node(config.state || {}, config.networkContext);
-    this.middleware = new Middleware(this.node);
+    this.state = StateChannel.fromJson(config.state);
+    this.network = config.networkContext;
+    this.middleware = new Middleware();
   }
 
   public dispatchReceivedMessage(msg: legacy.node.ClientActionMessage) {
-    this.run(
-      new ActionExecution(msg.action, FLOWS[msg.action][msg.seq], msg, this)
-    );
+    const { protocol, instructions } = {
+      [legacy.node.ActionName.SETUP]: [Protocol.Setup, SETUP_PROTOCOL[msg.seq]],
+      [legacy.node.ActionName.INSTALL]: [
+        Protocol.Install,
+        INSTALL_PROTOCOL[msg.seq]
+      ],
+      [legacy.node.ActionName.UPDATE]: [
+        Protocol.SetState,
+        UPDATE_PROTOCOL[msg.seq]
+      ],
+      [legacy.node.ActionName.UNINSTALL]: [
+        Protocol.Uninstall,
+        UNINSTALL_PROTOCOL[msg.seq]
+      ],
+      [legacy.node.ActionName.INSTALL_METACHANNEL_APP]: [
+        Protocol.MetaChannelInstallApp,
+        METACHANNEL_INSTALL_APP_PROTOCOL[msg.seq]
+      ]
+    }[msg.action];
+
+    if (protocol === undefined) {
+      throw Error(`Received invalid protocol type ${msg}`);
+    }
+
+    this.runAndSendCompletedResponse(protocol, instructions, msg);
   }
 
   public runUpdateProtocol(
@@ -55,25 +88,18 @@ export class InstructionExecutor {
     encodedAppState: string,
     appStateHash: legacy.utils.H256
   ) {
-    this.run(
-      new ActionExecution(
-        legacy.node.ActionName.UPDATE,
-        FLOWS[legacy.node.ActionName.UPDATE][0],
-        {
-          appInstanceId,
-          multisigAddress,
-          fromAddress,
-          toAddress,
-          action: legacy.node.ActionName.UPDATE,
-          data: {
-            encodedAppState,
-            appStateHash
-          },
-          seq: 0
-        },
-        this
-      )
-    );
+    this.runAndSendCompletedResponse(Protocol.SetState, UPDATE_PROTOCOL[0], {
+      appInstanceId,
+      multisigAddress,
+      fromAddress,
+      toAddress,
+      action: legacy.node.ActionName.UPDATE,
+      data: {
+        encodedAppState,
+        appStateHash
+      },
+      seq: 0
+    });
   }
 
   public runUninstallProtocol(
@@ -83,23 +109,20 @@ export class InstructionExecutor {
     peerAmounts: legacy.utils.PeerBalance[],
     appInstanceId: string
   ) {
-    this.run(
-      new ActionExecution(
-        legacy.node.ActionName.UNINSTALL,
-        FLOWS[legacy.node.ActionName.UNINSTALL][0],
-        {
-          appInstanceId,
-          multisigAddress,
-          fromAddress,
-          toAddress,
-          action: legacy.node.ActionName.UNINSTALL,
-          data: {
-            peerAmounts
-          },
-          seq: 0
+    this.runAndSendCompletedResponse(
+      Protocol.Uninstall,
+      UNINSTALL_PROTOCOL[0],
+      {
+        appInstanceId,
+        multisigAddress,
+        fromAddress,
+        toAddress,
+        action: legacy.node.ActionName.UNINSTALL,
+        data: {
+          peerAmounts
         },
-        this
-      )
+        seq: 0
+      }
     );
   }
 
@@ -109,21 +132,14 @@ export class InstructionExecutor {
     multisigAddress: string,
     installData: legacy.app.InstallData
   ) {
-    this.run(
-      new ActionExecution(
-        legacy.node.ActionName.INSTALL,
-        FLOWS[legacy.node.ActionName.INSTALL][0],
-        {
-          multisigAddress,
-          toAddress,
-          fromAddress,
-          action: legacy.node.ActionName.INSTALL,
-          data: installData,
-          seq: 0
-        },
-        this
-      )
-    );
+    this.runAndSendCompletedResponse(Protocol.Install, INSTALL_PROTOCOL[0], {
+      multisigAddress,
+      toAddress,
+      fromAddress,
+      action: legacy.node.ActionName.INSTALL,
+      data: installData,
+      seq: 0
+    });
   }
 
   public runSetupProtocol(
@@ -131,51 +147,46 @@ export class InstructionExecutor {
     toAddress: string,
     multisigAddress: string
   ) {
-    this.run(
-      new ActionExecution(
-        legacy.node.ActionName.SETUP,
-        FLOWS[legacy.node.ActionName.SETUP][0],
-        {
-          multisigAddress,
-          toAddress,
-          fromAddress,
-          seq: 0,
-          action: legacy.node.ActionName.SETUP
-        },
-        this
-      )
-    );
+    this.runAndSendCompletedResponse(Protocol.Setup, SETUP_PROTOCOL[0], {
+      multisigAddress,
+      toAddress,
+      fromAddress,
+      seq: 0,
+      action: legacy.node.ActionName.SETUP
+    });
   }
 
+  // FIXME: Untested
   public runInstallMetachannelAppProtocol(
     fromAddress: string,
     toAddress: string,
     intermediaryAddress: string,
     multisigAddress: string
   ) {
-    this.run(
-      new ActionExecution(
-        legacy.node.ActionName.INSTALL_METACHANNEL_APP,
-        FLOWS[legacy.node.ActionName.INSTALL_METACHANNEL_APP][0],
-        {
-          multisigAddress,
-          toAddress,
-          fromAddress,
-          seq: 0,
-          action: legacy.node.ActionName.INSTALL_METACHANNEL_APP,
-          data: {
-            initiating: fromAddress,
-            responding: toAddress,
-            intermediary: intermediaryAddress
-          }
-        },
-        this
-      )
+    this.runAndSendCompletedResponse(
+      Protocol.MetaChannelInstallApp,
+      METACHANNEL_INSTALL_APP_PROTOCOL[0],
+      {
+        multisigAddress,
+        toAddress,
+        fromAddress,
+        seq: 0,
+        action: legacy.node.ActionName.INSTALL_METACHANNEL_APP,
+        data: {
+          initiating: fromAddress,
+          responding: toAddress,
+          intermediary: intermediaryAddress
+        }
+      }
     );
   }
 
-  public async run(execution: ActionExecution) {
-    const ret = await execution.runAll();
+  public async runAndSendCompletedResponse(
+    actionName: Protocol,
+    instructions: (Opcode | Function)[],
+    clientMessage: legacy.node.ClientActionMessage
+  ) {
+    const ret = await runAll(actionName, instructions, clientMessage, this);
     this.sendResponse(legacy.node.ResponseStatus.COMPLETED);
     return ret;
   }
@@ -184,19 +195,66 @@ export class InstructionExecutor {
     this.responseHandler.sendResponse(new legacy.node.Response(status));
   }
 
-  public mutateState(state: legacy.channel.StateChannelInfos) {
-    Object.assign(this.node.channelStates, state);
-  }
-
   public register(scope: Opcode, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
 }
 
-export interface Context {
-  outbox: legacy.node.ClientActionMessage[];
-  inbox: legacy.node.ClientActionMessage[];
-  proposedStateTransition?: StateProposal;
-  operation?: ProtocolOperation;
-  signature?: ethers.utils.Signature;
+async function runAll(
+  actionName: Protocol,
+  instructions: (Opcode | Function)[],
+  clientMessage: legacy.node.ClientActionMessage,
+  instructionExecutor: InstructionExecutor
+): Promise<StateChannel> {
+  let instructionPointer = 0;
+
+  const context = {
+    network: instructionExecutor.network,
+    outbox: [],
+    inbox: []
+  } as Context;
+
+  while (instructionPointer < instructions.length) {
+    try {
+      const instruction = instructions[instructionPointer];
+
+      if (typeof instruction === "function") {
+        const message: InternalMessage = {
+          actionName,
+          clientMessage,
+          opCode: Object.create(null)
+        };
+
+        const state = instructionExecutor.state;
+
+        instruction.call(null, message, context, state);
+
+        instructionPointer += 1;
+      } else {
+        const message: InternalMessage = {
+          actionName,
+          clientMessage,
+          opCode: instruction
+        };
+
+        await instructionExecutor.middleware.run(message, context);
+        instructionPointer += 1;
+      }
+    } catch (e) {
+      // TODO: We should have custom error types for things like
+      throw Error(
+        `While executing op number ${instructionPointer} at seq ${
+          clientMessage.seq
+        } of protocol ${actionName}, execution failed with the following error. ${
+          e.stack
+        }`
+      );
+    }
+  }
+
+  if (context.proposedStateTransition === undefined) {
+    throw Error("State transition was computed to be undefined :(");
+  }
+
+  return context.proposedStateTransition;
 }

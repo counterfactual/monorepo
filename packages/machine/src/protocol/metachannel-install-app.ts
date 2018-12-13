@@ -1,10 +1,17 @@
-import { Context } from "../instruction-executor";
+import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { InternalMessage } from "../types";
+import { Context, InternalMessage } from "../types";
 
-export const METACHANNEL_INSTALL_APP_FLOW = {
+/**
+ * @description This exchange is described at the following URL:
+ *
+ * FIXME: @xuanji pls add
+ *
+ */
+// FIXME: Not fully implemented yet
+export const METACHANNEL_INSTALL_APP_PROTOCOL = {
   0: [
-    (message: InternalMessage, context: Context, node) => {
+    (message: InternalMessage, context: Context, state: StateChannel) => {
       // copy client message
       context.outbox.push(message.clientMessage);
       context.outbox[0].seq = 1;
@@ -16,7 +23,7 @@ export const METACHANNEL_INSTALL_APP_FLOW = {
   ],
 
   1: [
-    (message: InternalMessage, context: Context, node) => {
+    (message: InternalMessage, context: Context, state: StateChannel) => {
       const clientMessage = message.clientMessage;
       context.outbox.push(clientMessage);
       context.outbox[0].seq = 2;
@@ -37,7 +44,7 @@ export const METACHANNEL_INSTALL_APP_FLOW = {
   ],
 
   2: [
-    (message: InternalMessage, context: Context, node) => {
+    (message: InternalMessage, context: Context, state: StateChannel) => {
       // countersign
       const clientMessage = message.clientMessage;
       context.outbox.push(clientMessage);

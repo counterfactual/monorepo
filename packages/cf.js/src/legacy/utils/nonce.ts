@@ -4,7 +4,7 @@ import { abi } from "../../utils";
 
 import { Bytes32 } from ".";
 
-const { keccak256 } = ethers.utils;
+import { keccak256 } from "ethers/utils";
 
 export class Nonce {
   public isSet: boolean;

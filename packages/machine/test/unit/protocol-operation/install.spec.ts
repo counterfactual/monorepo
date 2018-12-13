@@ -35,7 +35,7 @@ const {
   getAddress
 } = ethers.utils;
 
-const { AddressZero, WeiPerEther, HashZero, Zero } = ethers.constants;
+import { AddressZero, WeiPerEther, HashZero, Zero } from "ethers/constants";
 
 /**
  * This test suite decodes a constructed OpInstall transaction object according
