@@ -1,7 +1,7 @@
 import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
-import MessagingService from "../../data/messaging-service";
+import FirebaseDataProvider from "../../data/firebase";
 import { WidgetDialogSettings } from "../../types";
 
 @Component({
@@ -45,17 +45,19 @@ export class NodeListener {
   }
 
   componentWillLoad() {
+    const serviceProvider = new FirebaseDataProvider({
+      apiKey: "AIzaSyBne_N_gQgaGnyfIPOs9T0PhOPdwRUeUsI",
+      authDomain: "joey-firebase-1.firebaseapp.com",
+      databaseURL: "https://joey-firebase-1.firebaseio.com",
+      projectId: "joey-firebase-1",
+      storageBucket: "joey-firebase-1.appspot.com",
+      messagingSenderId: "86354058442"
+    });
+
     CounterfactualNode.create({
       privateKey: "MY_FAKE_KEY",
-      messagingService: new MessagingService(),
-      storeService: {
-        async get(key: string): Promise<any> {
-          return Promise.resolve("something");
-        },
-        async set(key: string, value: any): Promise<boolean> {
-          return Promise.resolve(true);
-        }
-      }
+      messagingService: serviceProvider.createMessagingService("messaging"),
+      storeService: serviceProvider.createStoreService("storage")
     });
   }
 
