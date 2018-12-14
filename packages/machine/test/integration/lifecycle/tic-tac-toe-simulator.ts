@@ -22,7 +22,7 @@ export class TicTacToeSimulator {
     peerA: TestResponseSink,
     peerB: TestResponseSink
   ) {
-    const msg = TicTacToeSimulator.installMsg(
+    const installData = TicTacToeSimulator.installData(
       peerA.signingKey.address!,
       peerB.signingKey.address!
     );
@@ -30,13 +30,13 @@ export class TicTacToeSimulator {
       peerA.signingKey.address!,
       peerB.signingKey.address!,
       UNUSED_FUNDED_ACCOUNT,
-      msg
+      installData
     )
     expect(response.status).toEqual(cf.legacy.node.ResponseStatus.COMPLETED);
     return TicTacToeSimulator.validateInstall(peerA, peerB);
   }
 
-  public static installMsg(
+  public static installData(
     to: string,
     from: string
   ): cf.legacy.app.InstallData {
