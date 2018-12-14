@@ -1,9 +1,11 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
 import { ethers } from "ethers";
+import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { Provider } from "../src";
-import { AppInstance } from "../src/app-instance";
+import { AppInstance, AppInstanceEventType } from "../src/app-instance";
+import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
 import { TestNodeProvider } from "./fixture";
 
@@ -98,6 +100,118 @@ describe("CF.js AppInstance", () => {
       });
 
       await appInstance.uninstall();
+    });
+  });
+
+  describe("Node events", () => {
+    it("fires update state events", async () => {
+      expect.assertions(4);
+
+      const testOldState = "1000";
+      const testAction = "200";
+      const testNewState = "1200";
+      appInstance.on(AppInstanceEventType.UPDATE_STATE, event => {
+        expect(event.type).toBe(AppInstanceEventType.UPDATE_STATE);
+        const {
+          oldState,
+          newState,
+          action
+        } = event.data as UpdateStateEventData;
+        expect(action).toBe(testAction);
+        expect(oldState).toBe(testOldState);
+        expect(newState).toBe(testNewState);
+      });
+
+      nodeProvider.simulateMessageFromNode({
+        type: Node.EventName.UPDATE_STATE,
+        data: {
+          action: testAction,
+          oldState: testOldState,
+          newState: testNewState,
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        }
+      });
+    });
+
+    it("fires uninstall events", async () => {
+      expect.assertions(1);
+
+      appInstance.on(AppInstanceEventType.UNINSTALL, event => {
+        expect(event.type).toBe(AppInstanceEventType.UNINSTALL);
+      });
+
+      nodeProvider.simulateMessageFromNode({
+        type: Node.EventName.UNINSTALL,
+        data: {
+          myPayout: Zero,
+          peerPayout: Zero,
+          appInstance: TEST_APP_INSTANCE_INFO
+        }
+      });
+    });
+
+    it("fires error events", async () => {
+      expect.assertions(3);
+      const testErrorName = "app_instance_crash";
+      const testMessage = "App instance crashed!";
+
+      appInstance.on(AppInstanceEventType.ERROR, event => {
+        expect(event.type).toBe(AppInstanceEventType.ERROR);
+        const { errorName, message } = event.data as ErrorEventData;
+        expect(errorName).toBe(testErrorName);
+        expect(message).toBe(testMessage);
+      });
+
+      nodeProvider.simulateMessageFromNode({
+        type: Node.ErrorType.ERROR,
+        data: {
+          errorName: testErrorName,
+          message: testMessage,
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        }
+      });
+    });
+
+    it("fires events once when subscribing with .once()", done => {
+      expect.assertions(1);
+      let onceTriggered = false;
+      appInstance.once(AppInstanceEventType.UPDATE_STATE, event => {
+        if (!onceTriggered) {
+          expect(event.type).toBe(AppInstanceEventType.UPDATE_STATE);
+          onceTriggered = true;
+        } else {
+          done.fail(".once() listener was triggered twice");
+        }
+      });
+      const event = {
+        type: Node.EventName.UPDATE_STATE,
+        data: {
+          action: "200",
+          oldState: "1000",
+          newState: "1200",
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        }
+      };
+      nodeProvider.simulateMessageFromNode(event);
+      nodeProvider.simulateMessageFromNode(event);
+      setTimeout(done, 50);
+    });
+
+    it("can unsubscribe from events", done => {
+      const callback = () => {
+        done.fail();
+      };
+      appInstance.on(AppInstanceEventType.UNINSTALL, callback);
+      appInstance.off(AppInstanceEventType.UNINSTALL, callback);
+      nodeProvider.simulateMessageFromNode({
+        type: Node.EventName.UNINSTALL,
+        data: {
+          appInstance: TEST_APP_INSTANCE_INFO,
+          myPayout: Zero,
+          peerPayout: Zero
+        }
+      });
+      setTimeout(done, 50);
     });
   });
 });

@@ -197,6 +197,7 @@ export namespace Node {
     data: {
       errorName: string;
       message?: string;
+      appInstanceId?: string;
       extra?: { [k: string]: string | number | boolean | object };
     };
   }

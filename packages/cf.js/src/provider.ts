@@ -190,7 +190,7 @@ export class Provider {
         };
         break;
       }
-      case Node.EventName.UPDATE_STATE:
+      case Node.EventName.UPDATE_STATE: {
         const {
           appInstanceId,
           action,
@@ -208,6 +208,18 @@ export class Provider {
           }
         };
         break;
+      }
+      case Node.EventName.UNINSTALL: {
+        const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
+        const appInstance = await this.getOrCreateAppInstance(info.id, info);
+        event = {
+          type: EventType.UNINSTALL,
+          data: {
+            appInstance
+          }
+        };
+        break;
+      }
       default:
         event = {
           type: EventType.ERROR,
@@ -234,10 +246,10 @@ export class Provider {
     });
 
     this.on(EventType.ERROR, async event => {
-      const { extra } = event.data as ErrorEventData;
-      if (extra && "appInstanceId" in extra) {
+      const { appInstanceId } = event.data as ErrorEventData;
+      if (appInstanceId) {
         const instance: AppInstance = await this.getOrCreateAppInstance(
-          extra.appInstanceId as string
+          appInstanceId
         );
         instance.emit(AppInstanceEventType.ERROR, event);
       }
