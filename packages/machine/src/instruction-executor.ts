@@ -148,7 +148,9 @@ export class InstructionExecutor {
     fromAddress: string,
     toAddress: string,
     intermediaryAddress: string,
-    multisigAddress: string
+    multisigAddress: string,
+    fromDeposit: number,
+    toDeposit: number
   ) {
     this.execute(
       new ActionExecution(
@@ -161,9 +163,11 @@ export class InstructionExecutor {
           seq: 0,
           action: cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP,
           data: {
+            fromDeposit,
+            toDeposit,
+            intermediaryAddress,
             initiating: fromAddress,
             responding: toAddress,
-            intermediary: intermediaryAddress
           }
         },
         this

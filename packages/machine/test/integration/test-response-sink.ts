@@ -140,14 +140,16 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     fromAddress: string,
     toAddress: string,
     intermediary: string,
-    multisigAddress: string
+    multisigAddress: string, // todo(ldct): remove
+    fromDeposit: number,
+    toDeposit: number
   ): Promise<cf.legacy.node.Response> {
     this.active = true;
     const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
     this.instructionExecutor.runInstallMetachannelAppProtocol(
-      fromAddress, toAddress, intermediary, multisigAddress);
+      fromAddress, toAddress, intermediary, multisigAddress, fromDeposit, toDeposit);
     return promise;
   }
 

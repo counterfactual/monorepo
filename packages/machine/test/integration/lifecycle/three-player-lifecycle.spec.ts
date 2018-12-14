@@ -30,7 +30,7 @@ describe("Machine State Lifecycle", async () => {
     await SetupProtocol.run(peerI, peerB);
     await Depositor.makeDeposits(peerI, peerB);
     await peerA.runInstallMetachannelAppProtocol(
-      A_ADDRESS, B_ADDRESS, I_ADDRESS, UNUSED_FUNDED_ACCOUNT
+      A_ADDRESS, B_ADDRESS, I_ADDRESS, UNUSED_FUNDED_ACCOUNT, 0, 0
     );
   });
 });

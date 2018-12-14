@@ -9,7 +9,7 @@ export const METACHANNEL_INSTALL_APP_FLOW = {
       context.intermediateResults.outbox.push(message.clientMessage);
       context.intermediateResults.outbox[0].seq = 1;
       context.intermediateResults.outbox[0].toAddress =
-        message.clientMessage.data.intermediary;
+        message.clientMessage.data.intermediaryAddress;
     },
 
     // send to intermediary
@@ -44,7 +44,7 @@ export const METACHANNEL_INSTALL_APP_FLOW = {
       context.intermediateResults.outbox[0].fromAddress =
         clientMessage.data.responding;
       context.intermediateResults.outbox[0].toAddress =
-        clientMessage.data.intermediary;
+        clientMessage.data.intermediaryAddress;
     },
     Opcode.IO_SEND
 
