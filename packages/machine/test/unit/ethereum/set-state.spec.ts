@@ -128,6 +128,8 @@ describe("SetupCommitment", () => {
     const hashToSign = commitment.hashToSign();
 
     // Based on MAppRegistryCore::computeStateHash
+    // TODO: Probably should be able to compute this from some helper
+    //       function ... maybe an AppRegistry class or something
     const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],

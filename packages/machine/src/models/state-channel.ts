@@ -49,7 +49,6 @@ function createETHFreeBalance(
   );
 }
 
-// FIXME: Need to encode the notion of dependencies in here somewhere
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,

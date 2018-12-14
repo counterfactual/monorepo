@@ -1,32 +1,21 @@
-import { ethers } from "ethers";
-
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
-import { AppIdentity, ETHBucketAppState } from "@counterfactual/types";
-
-import { OpSetup } from "../../../src/middleware/protocol-operation";
-import { MultisigInput } from "../../../src/middleware/protocol-operation/types";
-import { appIdentityToHash } from "../../../src/utils/app-identity";
-
+import { AssetType, NetworkContext } from "@counterfactual/types";
+import { WeiPerEther } from "ethers/constants";
 import {
-  freeBalanceTerms,
-  freeBalanceTermsHash,
-  getFreeBalanceAppInterfaceHash
-} from "../../../src/utils/free-balance";
-
-const {
-  keccak256,
-  SigningKey,
   getAddress,
   hexlify,
-  solidityPack,
+  Interface,
   randomBytes,
-  Interface
-} = ethers.utils;
+  TransactionDescription
+} from "ethers/utils";
 
-import { Zero } from "ethers/constants";
+import { SetupCommitment } from "../../../src/ethereum";
+import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
+import { MultisigTransaction } from "../../../src/ethereum/utils/types";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 /**
- * This test suite decodes a constructed OpSetup transaction object according
+ * This test suite decodes a constructed SetupCommitment transaction object according
  * to the specifications defined by Counterfactual as can be found here:
  * https://specs.counterfactual.com/04-setup-protocol#commitments
  *
@@ -34,12 +23,11 @@ import { Zero } from "ethers/constants";
  *       above. This is because the root nonce setNonce transaction has not been
  *       implemented in OpSetuptup yet.
  */
-describe("OpSetup", () => {
-  let operation: OpSetup;
-  let generatedTx: MultisigInput;
+describe("SetupCommitment", () => {
+  let tx: MultisigTransaction;
 
   // Test network context
-  const networkContext = {
+  const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
     MultiSend: getAddress(hexlify(randomBytes(20))),
@@ -48,64 +36,59 @@ describe("OpSetup", () => {
     ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
   };
 
-  // Test state channel values
-  const stateChannel = {
-    multisigAddress: getAddress(hexlify(randomBytes(20))),
-    multisigOwners: [
-      new SigningKey(hexlify(randomBytes(32))),
-      new SigningKey(hexlify(randomBytes(32)))
-    ]
+  // General interaction testing values
+  const interaction = {
+    sender: getAddress(hexlify(randomBytes(20))),
+    receiver: getAddress(hexlify(randomBytes(20)))
   };
 
-  // Test free balance values
-  const freeBalance = {
-    defaultTimeout: 100,
+  // State channel testing values
+  const stateChannel = new StateChannel(
+    getAddress(hexlify(randomBytes(20))),
+    [interaction.sender, interaction.receiver].sort((a, b) =>
+      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+    ),
+    new Map<string, AppInstance>(),
+    new Map<AssetType, string>()
+  );
 
-    appIdentity: {
-      owner: stateChannel.multisigAddress,
-      signingKeys: stateChannel.multisigOwners.map(x => x.address),
-      appInterfaceHash: getFreeBalanceAppInterfaceHash(
-        networkContext.ETHBucket
-      ),
-      termsHash: freeBalanceTermsHash,
-      defaultTimeout: 100
-    } as AppIdentity,
+  // Create free balance for ETH
+  stateChannel.setupChannel(networkContext);
 
-    terms: freeBalanceTerms,
+  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-    initialState: {
-      alice: stateChannel.multisigOwners[0].address,
-      bob: stateChannel.multisigOwners[1].address,
-      aliceBalance: Zero,
-      bobBalance: Zero
-    } as ETHBucketAppState
-  };
+  // Set the state to some test values
+  freeBalanceETH.state = [
+    stateChannel.multisigOwners[0],
+    stateChannel.multisigOwners[1],
+    WeiPerEther,
+    WeiPerEther
+  ];
 
   beforeAll(() => {
-    operation = new OpSetup(
+    tx = new SetupCommitment(
       networkContext,
       stateChannel.multisigAddress,
-      stateChannel.multisigOwners.map(x => x.address),
-      freeBalance.appIdentity,
-      freeBalance.terms
-    );
-    generatedTx = operation.multisigInput();
+      stateChannel.multisigOwners,
+      freeBalanceETH.identity,
+      freeBalanceETH.terms
+    ).getTransactionDetails();
   });
 
   it("should be to StateChannelTransaction", () => {
-    expect(generatedTx.to).toBe(networkContext.StateChannelTransaction);
+    expect(tx.to).toBe(networkContext.StateChannelTransaction);
   });
 
   it("should have no value", () => {
-    expect(generatedTx.val).toBe(0);
+    expect(tx.value).toBe(0);
   });
 
   describe("the calldata", () => {
     const iface = new Interface(StateChannelTransaction.abi);
-    let desc: ethers.utils.TransactionDescription;
+    let desc: TransactionDescription;
 
     beforeAll(() => {
-      const { data } = generatedTx;
+      const { data } = tx;
       desc = iface.parseTransaction({ data });
     });
 
@@ -120,28 +103,16 @@ describe("OpSetup", () => {
         appRegistry,
         nonceRegistry,
         uninstallKey,
-        appCfAddress,
+        appCfAddress, // FIXME: Rename this field on the contract
         [assetType, limit, token]
       ] = desc.args;
-
-      const expectedUninstallKey = keccak256(
-        solidityPack(
-          ["address", "uint256", "bytes32"],
-          [
-            stateChannel.multisigAddress,
-            0,
-            keccak256(solidityPack(["uint256"], [0]))
-          ]
-        )
-      );
-
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
-      expect(uninstallKey).toBe(expectedUninstallKey);
-      expect(appCfAddress).toBe(appIdentityToHash(freeBalance.appIdentity));
-      expect(assetType).toBe(freeBalance.terms.assetType);
-      expect(limit).toEqual(freeBalance.terms.limit);
-      expect(token).toBe(freeBalance.terms.token);
+      expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
+      expect(appCfAddress).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(assetType).toBe(freeBalanceETH.terms.assetType);
+      expect(limit).toEqual(freeBalanceETH.terms.limit);
+      expect(token).toBe(freeBalanceETH.terms.token);
     });
   });
 });

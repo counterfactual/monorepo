@@ -1,34 +1,23 @@
-import { ethers } from "ethers";
-
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import { AppIdentity, ETHBucketAppState } from "@counterfactual/types";
-
-import { OpUninstall } from "../../../src/middleware/protocol-operation";
-import { MultisigInput } from "../../../src/middleware/protocol-operation/types";
-import { decodeMultisendCalldata } from "../../../src/utils/multisend-decoder";
-
+import { AssetType, NetworkContext } from "@counterfactual/types";
+import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
 import {
-  encodeFreeBalanceState,
-  freeBalanceTerms,
-  freeBalanceTermsHash,
-  getFreeBalanceAppInterfaceHash
-} from "../../../src/utils/free-balance";
-
-const {
-  keccak256,
-  solidityPack,
-  SigningKey,
-  Interface,
   bigNumberify,
-  hexlify,
-  randomBytes,
+  defaultAbiCoder,
   getAddress,
-  defaultAbiCoder
-} = ethers.utils;
+  hexlify,
+  Interface,
+  keccak256,
+  randomBytes,
+  TransactionDescription
+} from "ethers/utils";
 
-import { WeiPerEther, HashZero, Zero, One } from "ethers/constants";
+import { UninstallCommitment } from "../../../src/ethereum";
+import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
+import { MultisigTransaction } from "../../../src/ethereum/utils/types";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 /**
  * This test suite decodes a constructed OpUninstall transaction object according
@@ -36,11 +25,10 @@ import { WeiPerEther, HashZero, Zero, One } from "ethers/constants";
  * https://specs.counterfactual.com/07-uninstall-protocol#commitments
  */
 describe("OpUninstall", () => {
-  let operation: OpUninstall;
-  let generatedTx: MultisigInput;
+  let tx: MultisigTransaction;
 
   // Test network context
-  const networkContext = {
+  const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
     MultiSend: getAddress(hexlify(randomBytes(20))),
@@ -49,76 +37,69 @@ describe("OpUninstall", () => {
     ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
   };
 
-  // Test state channel values
-  const stateChannel = {
-    multisigAddress: getAddress(hexlify(randomBytes(20))),
-    multisigOwners: [
-      new SigningKey(hexlify(randomBytes(32))),
-      new SigningKey(hexlify(randomBytes(32)))
-    ],
-    appInstallationNonce: 1
+  // General interaction testing values
+  const interaction = {
+    sender: getAddress(hexlify(randomBytes(20))),
+    receiver: getAddress(hexlify(randomBytes(20)))
   };
 
-  // Test free balance values
-  const freeBalance = {
-    uniqueAppNonceWithinStateChannel: 0,
+  // State channel testing values
+  const stateChannel = new StateChannel(
+    getAddress(hexlify(randomBytes(20))),
+    [interaction.sender, interaction.receiver].sort((a, b) =>
+      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+    ),
+    new Map<string, AppInstance>(),
+    new Map<AssetType, string>()
+  );
 
-    currentLocalNonce: 10,
+  // Create free balance for ETH
+  stateChannel.setupChannel(networkContext);
 
-    defaultTimeout: 100,
+  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-    appIdentity: {
-      owner: stateChannel.multisigAddress,
-      signingKeys: stateChannel.multisigOwners.map(x => x.address),
-      appInterfaceHash: getFreeBalanceAppInterfaceHash(
-        networkContext.ETHBucket
-      ),
-      termsHash: freeBalanceTermsHash,
-      defaultTimeout: 100
-    } as AppIdentity,
+  // Set the state to some test values
+  freeBalanceETH.state = [
+    stateChannel.multisigOwners[0],
+    stateChannel.multisigOwners[1],
+    WeiPerEther,
+    WeiPerEther
+  ];
 
-    terms: freeBalanceTerms,
-
-    updatedState: {
-      alice: stateChannel.multisigOwners[0].address,
-      bob: stateChannel.multisigOwners[1].address,
-      aliceBalance: WeiPerEther.div(2),
-      bobBalance: WeiPerEther.div(2)
-    } as ETHBucketAppState
-  };
-
-  const oldApp = {
-    uniqueAppCounter: 3
-  };
+  const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
 
   beforeAll(() => {
-    operation = new OpUninstall(
+    tx = new UninstallCommitment(
       networkContext,
       stateChannel.multisigAddress,
-      stateChannel.multisigOwners.map(x => x.address),
-      freeBalance.appIdentity,
-      freeBalance.terms,
-      keccak256(encodeFreeBalanceState(freeBalance.updatedState)),
-      freeBalance.currentLocalNonce + 1,
-      freeBalance.defaultTimeout,
-      keccak256(solidityPack(["uint256"], [oldApp.uniqueAppCounter]))
-    );
-    generatedTx = operation.multisigInput();
+      stateChannel.multisigOwners,
+      freeBalanceETH.identity,
+      freeBalanceETH.terms,
+      {
+        alice: freeBalanceETH.latestState[0],
+        bob: freeBalanceETH.latestState[1],
+        aliceBalance: freeBalanceETH.latestState[2],
+        bobBalance: freeBalanceETH.latestState[3]
+      },
+      freeBalanceETH.latestNonce,
+      freeBalanceETH.latestTimeout,
+      appBeingUninstalledSeqNo
+    ).getTransactionDetails();
   });
 
   it("should be to MultiSend", () => {
-    expect(generatedTx.to).toBe(networkContext.MultiSend);
+    expect(tx.to).toBe(networkContext.MultiSend);
   });
 
   it("should have no value", () => {
-    expect(generatedTx.val).toBe(0);
+    expect(tx.value).toBe(0);
   });
 
   describe("the calldata of the multisend transaction", () => {
     let transactions: [number, string, number, string][];
 
     beforeAll(() => {
-      const { data } = generatedTx;
+      const { data } = tx;
       const desc = new Interface(MultiSend.abi).parseTransaction({ data });
       transactions = decodeMultisendCalldata(desc.args[0]);
     });
@@ -150,8 +131,8 @@ describe("OpUninstall", () => {
       });
 
       describe("the calldata", () => {
-        let iface: ethers.utils.Interface;
-        let calldata: ethers.utils.TransactionDescription;
+        let iface: Interface;
+        let calldata: TransactionDescription;
 
         beforeAll(() => {
           iface = new Interface(AppRegistry.abi);
@@ -167,7 +148,7 @@ describe("OpUninstall", () => {
             [owner, signingKeys, appInterfaceHash, termsHash, defaultTimeout]
           ] = calldata.args;
 
-          const expected = freeBalance.appIdentity;
+          const expected = freeBalanceETH.identity;
 
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
@@ -179,16 +160,9 @@ describe("OpUninstall", () => {
         it("should build the expected SignedStateHashUpdate argument", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
 
-          // TODO: Should be based on the app being installed not hardcoded
-          const expectedStateHash = keccak256(
-            encodeFreeBalanceState(freeBalance.updatedState)
-          );
-
-          expect(stateHash).toBe(expectedStateHash);
-          expect(nonce).toEqual(
-            bigNumberify(freeBalance.currentLocalNonce + 1)
-          );
-          expect(timeout).toEqual(bigNumberify(freeBalance.defaultTimeout));
+          expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
+          expect(nonce).toEqual(bigNumberify(freeBalanceETH.latestNonce));
+          expect(timeout).toEqual(bigNumberify(freeBalanceETH.latestTimeout));
           expect(signatures).toBe(HashZero);
         });
       });
@@ -217,8 +191,8 @@ describe("OpUninstall", () => {
       });
 
       describe("the calldata", () => {
-        let iface: ethers.utils.Interface;
-        let calldata: ethers.utils.TransactionDescription;
+        let iface: Interface;
+        let calldata: TransactionDescription;
 
         beforeAll(() => {
           iface = new Interface(NonceRegistry.abi);
@@ -235,7 +209,7 @@ describe("OpUninstall", () => {
           expect(timeout).toEqual(Zero);
           expect(salt).toEqual(
             keccak256(
-              defaultAbiCoder.encode(["uint256"], [oldApp.uniqueAppCounter])
+              defaultAbiCoder.encode(["uint256"], [appBeingUninstalledSeqNo])
             )
           );
           expect(nonceValue).toEqual(One);

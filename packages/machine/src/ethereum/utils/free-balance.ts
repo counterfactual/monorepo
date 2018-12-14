@@ -89,4 +89,13 @@ export class ETHFreeBalanceApp extends AppInstance {
       latestTimeout
     );
   }
+
+  public get formattedState(): ETHBucketAppState {
+    return {
+      alice: this.latestState[0],
+      bob: this.latestState[1],
+      aliceBalance: this.latestState[2],
+      bobBalance: this.latestState[3]
+    };
+  }
 }
