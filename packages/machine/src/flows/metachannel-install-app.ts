@@ -25,12 +25,13 @@ export const METACHANNEL_INSTALL_APP_FLOW = {
       context.intermediateResults.outbox[0].toAddress =
         clientMessage.data.responding;
     },
+    // send to `responding`
     Opcode.IO_SEND,
     // wait for the install countersign
     Opcode.IO_WAIT,
     () => {}
 
-    // // send the self-remove
+    // send the self-remove
     // Opcode.IO_SEND,
     // Opcode.IO_SEND
   ],
