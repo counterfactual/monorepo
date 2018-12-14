@@ -162,7 +162,7 @@ describe("InstallCommitment", () => {
         });
 
         it("should be directed at the setState method", () => {
-          expect(calldata.name).toBe(iface.functions.setState.signature);
+          expect(calldata.sighash).toBe(iface.functions.setState.sighash);
         });
 
         it("should build the expected AppIdentity argument", () => {
@@ -219,8 +219,8 @@ describe("InstallCommitment", () => {
         });
 
         it("should be directed at the executeAppConditionalTransaction method", () => {
-          expect(calldata.name).toBe(
-            iface.functions.executeAppConditionalTransaction.signature
+          expect(calldata.sighash).toBe(
+            iface.functions.executeAppConditionalTransaction.sighash
           );
         });
 

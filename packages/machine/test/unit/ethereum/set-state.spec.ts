@@ -98,7 +98,7 @@ describe("SetupCommitment", () => {
     });
 
     it("should be to the setState method", () => {
-      expect(desc.name).toBe(iface.functions.setState.signature);
+      expect(desc.sighash).toBe(iface.functions.setState.sighash);
     });
 
     it("should contain expected AppIdentity argument", () => {

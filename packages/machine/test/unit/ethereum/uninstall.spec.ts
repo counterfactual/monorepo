@@ -140,7 +140,7 @@ describe("OpUninstall", () => {
         });
 
         it("should be directed at the setState method", () => {
-          expect(calldata.name).toBe(iface.functions.setState.signature);
+          expect(calldata.sighash).toEqual(iface.functions.setState.sighash);
         });
 
         it("should build the expected AppIdentity argument", () => {
@@ -200,7 +200,7 @@ describe("OpUninstall", () => {
         });
 
         it("should be directed at the setNonce method", () => {
-          expect(calldata.name).toBe(iface.functions.setNonce.signature);
+          expect(calldata.sighash).toEqual(iface.functions.setNonce.sighash);
         });
 
         it("should build set the nonce to 1 (uninstalled)", () => {

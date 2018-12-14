@@ -93,8 +93,8 @@ describe("SetupCommitment", () => {
     });
 
     it("should be to the executeAppConditionalTransaction method", () => {
-      expect(desc.name).toBe(
-        iface.functions.executeAppConditionalTransaction.signature
+      expect(desc.sighash).toBe(
+        iface.functions.executeAppConditionalTransaction.sighash
       );
     });
 
