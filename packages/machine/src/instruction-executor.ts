@@ -8,7 +8,6 @@ import {
   InstallData,
   MetaChannelInstallAppData,
   ProtocolMessage,
-  SetupData,
   UninstallData,
   UpdateData
 } from "./protocol-types-tbd";
@@ -79,11 +78,11 @@ export class InstructionExecutor {
     });
   }
 
-  public async runSetupProtocol(sc: StateChannel, params: SetupData) {
+  public async runSetupProtocol(sc: StateChannel) {
     const protocol = Protocol.Setup;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
       protocol,
+      params: {},
       ...protocolMessageFields(sc)
     });
   }

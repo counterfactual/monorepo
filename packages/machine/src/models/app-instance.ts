@@ -65,7 +65,7 @@ export class AppInstance {
     public readonly terms: Terms,
     public readonly isMetachannelApp: boolean,
     public readonly dependencyReferenceNonce: number,
-    public latestState: object,
+    public latestState: object, // FIXME: it could also be any[]
     public latestNonce: number,
     public latestTimeout: number
   ) {
@@ -147,6 +147,7 @@ export class AppInstance {
     );
   }
 
+  // TODO: add some other method for setting state with custom timeout too
   public set state(newState: object) {
     // TODO: I think this code could be written cleaner by checking for
     //       ethers.errors.INVALID_ARGUMENT specifically in catch {}
@@ -161,5 +162,6 @@ export class AppInstance {
 
     this.latestState = newState;
     this.latestNonce += 1;
+    this.latestTimeout = this.defaultTimeout;
   }
 }

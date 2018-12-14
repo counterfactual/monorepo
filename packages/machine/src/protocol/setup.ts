@@ -72,19 +72,7 @@ export function constructSetupOp(
   network: NetworkContext,
   stateChannel: StateChannel
 ) {
-  const freeBalanceId = stateChannel.freeBalanceAppIndexes.get(AssetType.ETH);
-
-  if (freeBalanceId === undefined) {
-    throw Error(
-      "Attempted to construct commitment for Setup Protocol with an undefined free balance"
-    );
-  }
-
-  const freeBalance = stateChannel.apps.get(freeBalanceId);
-
-  if (freeBalance === undefined) {
-    throw Error("ETH Free Balance App was not found in the given StateChannel");
-  }
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   return new SetupCommitment(
     network,

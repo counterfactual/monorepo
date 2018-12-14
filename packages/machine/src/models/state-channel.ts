@@ -1,8 +1,5 @@
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AssetType, NetworkContext } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import {
@@ -38,12 +35,7 @@ function createETHFreeBalance(
     freeBalanceTerms,
     false,
     0,
-    {
-      alice: multisigOwners[0],
-      bob: multisigOwners[1],
-      aliceBalance: 0,
-      bobBalance: 0
-    },
+    [multisigOwners[0], multisigOwners[1], Zero, Zero],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout
   );
@@ -54,9 +46,17 @@ export class StateChannel {
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
     public apps: Map<string, AppInstance>,
-    public freeBalanceAppIndexes: Map<AssetType, string>,
-    public sequenceNumber: number = 0
+    private freeBalanceAppIndexes: Map<AssetType, string>,
+    private sequenceNo: number = 0
   ) {}
+
+  public get sequenceNumber() {
+    return this.sequenceNo;
+  }
+
+  public bumpSequenceNumber() {
+    this.sequenceNo += 1;
+  }
 
   public getFreeBalanceFor(assetType: AssetType) {
     const idx = this.freeBalanceAppIndexes.get(assetType);
@@ -80,7 +80,10 @@ export class StateChannel {
     );
 
     this.apps.set(fb.id, fb);
+
     this.freeBalanceAppIndexes.set(AssetType.ETH, fb.id);
+
+    this.bumpSequenceNumber();
 
     return this;
   }
@@ -107,9 +110,8 @@ export class StateChannel {
     this.apps.set(app.id, app);
 
     // Update ETH FreeBalance
-    const latestState = fb.latestState as ETHBucketAppState;
-    latestState.aliceBalance.sub(aliceBalanceDecrement);
-    latestState.bobBalance.sub(bobBalanceDecrement);
+    fb.latestState[2] = fb.latestState[2].sub(aliceBalanceDecrement);
+    fb.latestState[3] = fb.latestState[3].sub(bobBalanceDecrement);
 
     return this;
   }
@@ -126,9 +128,8 @@ export class StateChannel {
     if (!appToBeUninstalled) throw Error(Errors.APP_DOES_NOT_EXIST);
 
     // TODO: Hard-coded for ETH at the moment
-    const latestState = fb.latestState as ETHBucketAppState;
-    latestState.aliceBalance.add(aliceBalanceIncrement);
-    latestState.bobBalance.add(bobBalanceIncrement);
+    fb.latestState[2] = fb.latestState[2].add(aliceBalanceIncrement);
+    fb.latestState[3] = fb.latestState[3].add(bobBalanceIncrement);
 
     fb.latestNonce += 1;
 

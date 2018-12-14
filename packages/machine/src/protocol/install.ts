@@ -117,19 +117,7 @@ export function constructInstallOp(
     );
   }
 
-  const freeBalanceId = stateChannel.freeBalanceAppIndexes.get(AssetType.ETH);
-
-  if (freeBalanceId === undefined) {
-    throw Error(
-      "Attempted to construct commitment for Install Protocol with an undefined free balance"
-    );
-  }
-
-  const freeBalance = stateChannel.apps.get(freeBalanceId);
-
-  if (freeBalance === undefined) {
-    throw Error("ETH Free Balance App was not found in the given StateChannel");
-  }
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   return new InstallCommitment(
     network,
