@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 // FIXME: move operation action names away from client action names
 // https://github.com/counterfactual/monorepo/issues/144
