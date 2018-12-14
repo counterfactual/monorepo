@@ -77,7 +77,7 @@ describe("CF.js AppInstance", () => {
     });
 
     it("can be uninstalled", async () => {
-      expect.assertions(4);
+      expect.assertions(2);
 
       const testMyPayout = new BigNumber("2000");
       const testPeerPayout = ethers.constants.Zero;
@@ -97,9 +97,7 @@ describe("CF.js AppInstance", () => {
         });
       });
 
-      const payouts = await appInstance.uninstall();
-      expect(payouts.myPayout).toEqual(testMyPayout);
-      expect(payouts.peerPayout).toEqual(testPeerPayout);
+      await appInstance.uninstall();
     });
   });
 });
