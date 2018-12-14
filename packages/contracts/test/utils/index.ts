@@ -1,8 +1,9 @@
-import { ethers } from "ethers";
-
 import { AppIdentity } from "@counterfactual/types";
+import * as chai from "chai";
+import { solidity } from "ethereum-waffle";
+import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
-import { abiEncodingForStruct } from "./abi-encoder-v2";
+export const expect = chai.use(solidity).expect;
 
 export enum AssetType {
   ETH,
@@ -11,13 +12,15 @@ export enum AssetType {
 }
 
 export class App {
-  private static readonly ABI_ENCODER_V2_ENCODING = abiEncodingForStruct(`
-    address owner;
-    address[] signingKeys;
-    bytes32 appInterfaceHash;
-    bytes32 termsHash;
-    uint256 defaultTimeout;
-  `);
+  private static readonly ABI_ENCODER_V2_ENCODING = `
+    tuple(
+      address owner,
+      address[] signingKeys,
+      bytes32 appInterfaceHash,
+      bytes32 termsHash,
+      uint256 defaultTimeout
+    )
+  `;
 
   get id(): string {
     return this.hashOfEncoding();
@@ -42,23 +45,22 @@ export class App {
   }
 
   public hashOfEncoding(): string {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
-        [App.ABI_ENCODER_V2_ENCODING],
-        [this.toJson()]
-      )
+    return keccak256(
+      defaultAbiCoder.encode([App.ABI_ENCODER_V2_ENCODING], [this.toJson()])
     );
   }
 }
 
 export class AppInterface {
-  private static readonly ABI_ENCODER_V2_ENCODING = abiEncodingForStruct(`
-    address addr;
-    bytes4 getTurnTaker;
-    bytes4 applyAction;
-    bytes4 resolve;
-    bytes4 isStateTerminal;
-  `);
+  private static readonly ABI_ENCODER_V2_ENCODING = `
+    tuple(
+      address addr,
+      bytes4 getTurnTaker,
+      bytes4 applyAction,
+      bytes4 resolve,
+      bytes4 isStateTerminal
+    )
+  `;
 
   constructor(
     readonly addr: string,
@@ -69,8 +71,8 @@ export class AppInterface {
   ) {}
 
   public hashOfPackedEncoding(): string {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    return keccak256(
+      defaultAbiCoder.encode(
         [AppInterface.ABI_ENCODER_V2_ENCODING],
         [
           {
@@ -97,8 +99,8 @@ export class Terms {
   ) {}
 
   public hashOfPackedEncoding(): string {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    return keccak256(
+      defaultAbiCoder.encode(
         [Terms.ABI_ENCODER_V2_ENCODING],
         [
           {
@@ -122,8 +124,8 @@ export const computeStateHash = (
   nonce: number,
   timeout: number
 ) =>
-  ethers.utils.keccak256(
-    ethers.utils.solidityPack(
+  keccak256(
+    solidityPack(
       ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
       ["0x19", id, nonce, timeout, appStateHash]
     )
@@ -137,8 +139,8 @@ export const computeActionHash = (
   setStateNonce: number,
   disputeNonce: number
 ) =>
-  ethers.utils.keccak256(
-    ethers.utils.solidityPack(
+  keccak256(
+    solidityPack(
       ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
       ["0x19", turnTaker, previousState, action, setStateNonce, disputeNonce]
     )
@@ -168,8 +170,8 @@ export class AppInstance {
   ) {}
 
   public hashOfEncoding(): string {
-    return ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    return keccak256(
+      defaultAbiCoder.encode(
         [
           `tuple(
             address owner,
@@ -186,13 +188,13 @@ export class AppInstance {
 }
 
 // export class OffChainState {
-//   public signatures: Map<string, ethers.utils.Signature[]>;
+//   public signatures: Map<string, Signature[]>;
 //   constructor(
 //     readonly state: object,
 //     readonly nonce: number,
 //     readonly timeout: number
 //   ) {}
-//   public signWith(wallet: ethers.utils.SigningKey) {
+//   public signWith(wallet: SigningKey) {
 //     this.signatures[wallet.address] = wallet.signDigest()
 //   }
 // }

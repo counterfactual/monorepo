@@ -11,8 +11,10 @@
   "scripts": {
     "build": "truffle compile --all && tsc -b",
     "migrate": "truffle migrate --reset",
-    "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
-    "test:windows": "tsc -b && truffle test --network ganache %npm_package_config_testFiles%",
+    "test": "tsc -b && yarn ganache:start && yarn truffle:test && yarn ganache:stop",
+    "test:windows": "tsc -b && truffle test",
+    "ganache:start": "ganache-cli -q -i 7777777 -l 0xfffffffffff -g 0x01 > /dev/null &",
+    "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "clean": "git clean -Xdf",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
@@ -20,11 +22,8 @@
     "lint:sol": "solium -d .",
     "lint:ts:fix": "yarn lint:ts --fix",
     "lint:ts": "tslint -c tslint.json -p .",
-    "test:coverage": "solidity-coverage"
-  },
-  "config": {
-    "testFiles": "dist/test/**.spec.js",
-    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a"
+    "test:coverage": "solidity-coverage",
+    "truffle:test": "truffle test --network ganache"
   },
   "keywords": [
     "ethereum",
@@ -47,7 +46,7 @@
     "eth-gas-reporter": "0.1.12",
     "ethereum-waffle": "1.0.5",
     "ethers": "4.0.17",
-    "ganache-cli": "6.1.8",
+    "ganache-cli": "^6.2.3",
     "openzeppelin-eth": "^2.0.2",
     "shx": "^0.3.2",
     "solc": "^0.4.25",

@@ -11,7 +11,7 @@ import "../libs/LibSignature.sol";
 /// (b) Requires n-of-n unanimous consent
 /// (c) Does not use on-chain address for signature verification
 /// (d) Uses hash-based instead of nonce-based replay protection
-contract MinimumViableMultisig {
+contract MinimumViableMultisig is LibSignature {
 
   address masterCopy;
 

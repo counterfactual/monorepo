@@ -1,28 +1,34 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import {
+  defaultAbiCoder,
+  hexlify,
+  randomBytes,
+  solidityKeccak256
+} from "ethers/utils";
 
 import { expect } from "./utils";
 
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 contract("ConditionalTransaction", (accounts: string[]) => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
+  let unlockedAccount: JsonRpcSigner;
 
-  let exampleCondition: ethers.Contract;
-  let delegateProxy: ethers.Contract;
-  let conditionalTransaction: ethers.Contract;
+  let exampleCondition: Contract;
+  let delegateProxy: Contract;
+  let conditionalTransaction: Contract;
 
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
-    exampleCondition = await new ethers.ContractFactory(
+    exampleCondition = await new ContractFactory(
       artifacts.require("ExampleCondition").abi,
       artifacts.require("ExampleCondition").bytecode,
       unlockedAccount
     ).deploy({ gasLimit: 6e9 });
 
-    delegateProxy = await new ethers.ContractFactory(
+    delegateProxy = await new ContractFactory(
       artifacts.require("DelegateProxy").abi,
       artifacts.require("DelegateProxy").bytecode,
       unlockedAccount
@@ -32,7 +38,7 @@ contract("ConditionalTransaction", (accounts: string[]) => {
     const artifact = artifacts.require("ConditionalTransaction");
     artifact.link(artifacts.require("Transfer"));
     artifact.link(artifacts.require("LibStaticCall"));
-    conditionalTransaction = await new ethers.ContractFactory(
+    conditionalTransaction = await new ContractFactory(
       artifact.abi,
       artifact.binary,
       unlockedAccount
@@ -46,53 +52,41 @@ contract("ConditionalTransaction", (accounts: string[]) => {
   describe("Pre-commit to transfer details", () => {
     const makeCondition = (expectedValue, onlyCheckForSuccess) => ({
       onlyCheckForSuccess,
-      expectedValueHash: ethers.utils.solidityKeccak256(
-        ["bytes"],
-        [expectedValue]
-      ),
-      parameters: ethers.constants.HashZero,
+      expectedValueHash: solidityKeccak256(["bytes"], [expectedValue]),
+      parameters: HashZero,
       selector: exampleCondition.interface.functions.isSatisfiedNoParam.sighash,
       to: exampleCondition.address
     });
 
     const makeConditionParam = (expectedValue, parameters) => ({
       parameters,
-      expectedValueHash: ethers.utils.solidityKeccak256(
-        ["bytes"],
-        [expectedValue]
-      ),
+      expectedValueHash: solidityKeccak256(["bytes"], [expectedValue]),
       onlyCheckForSuccess: false,
       selector: exampleCondition.interface.functions.isSatisfiedParam.sighash,
       to: exampleCondition.address
     });
 
-    const trueParam = ethers.utils.defaultAbiCoder.encode(
-      ["tuple(bool)"],
-      [[true]]
-    );
+    const trueParam = defaultAbiCoder.encode(["tuple(bool)"], [[true]]);
 
-    const falseParam = ethers.utils.defaultAbiCoder.encode(
-      ["tuple(bool)"],
-      [[false]]
-    );
+    const falseParam = defaultAbiCoder.encode(["tuple(bool)"], [[false]]);
 
     beforeEach(async () => {
       await unlockedAccount.sendTransaction({
         to: delegateProxy.address,
-        value: ethers.constants.WeiPerEther
+        value: WeiPerEther
       });
     });
 
     it("transfers the funds conditionally if true", async () => {
-      const randomTarget = ethers.utils.hexlify(ethers.utils.randomBytes(20));
+      const randomTarget = hexlify(randomBytes(20));
       const tx = conditionalTransaction.interface.functions.executeSimpleConditionalTransaction.encode(
         [
-          makeCondition(ethers.constants.HashZero, true),
+          makeCondition(HashZero, true),
           {
-            value: [ethers.constants.WeiPerEther],
+            value: [WeiPerEther],
             assetType: 0,
             to: [randomTarget],
-            token: ethers.constants.AddressZero,
+            token: AddressZero,
             data: []
           }
         ]
@@ -107,23 +101,23 @@ contract("ConditionalTransaction", (accounts: string[]) => {
       );
 
       const balTarget = await provider.getBalance(randomTarget);
-      expect(balTarget).to.eq(ethers.constants.WeiPerEther);
+      expect(balTarget).to.eq(WeiPerEther);
 
-      const emptyBalance = ethers.constants.Zero;
+      const emptyBalance = Zero;
       const balDelegate = await provider.getBalance(delegateProxy.address);
       expect(balDelegate).to.eq(emptyBalance);
     });
 
     it("does not transfer the funds conditionally if false", async () => {
-      const randomTarget = ethers.utils.hexlify(ethers.utils.randomBytes(20));
+      const randomTarget = hexlify(randomBytes(20));
       const tx = conditionalTransaction.interface.functions.executeSimpleConditionalTransaction.encode(
         [
           makeConditionParam(trueParam, falseParam),
           {
-            value: [ethers.constants.WeiPerEther],
+            value: [WeiPerEther],
             assetType: 0,
             to: [randomTarget],
-            token: ethers.constants.AddressZero,
+            token: AddressZero,
             data: []
           }
         ]
@@ -136,12 +130,12 @@ contract("ConditionalTransaction", (accounts: string[]) => {
         // @ts-ignore
       ).to.be.reverted;
 
-      const emptyBalance = ethers.constants.Zero;
+      const emptyBalance = Zero;
       const balTarget = await provider.getBalance(randomTarget);
       expect(balTarget).to.eq(emptyBalance);
 
       const balDelegate = await provider.getBalance(delegateProxy.address);
-      expect(balDelegate).to.eq(ethers.constants.WeiPerEther);
+      expect(balDelegate).to.eq(WeiPerEther);
     });
   });
 });

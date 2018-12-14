@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "clean": "git clean -Xdf",
-    "build": "tsc -p .",
+    "build": "tsc -p . && rollup -c",
     "test": "jest",
     "lint:fix": "yarn lint --fix",
     "lint": "tslint -c tslint.json -p ."

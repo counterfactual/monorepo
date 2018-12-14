@@ -1,31 +1,34 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import {
+  defaultAbiCoder,
+  hexlify,
+  randomBytes,
+  toUtf8Bytes
+} from "ethers/utils";
 
 import { expect } from "./utils";
 
-import { defaultAbiCoder, hexlify, randomBytes, toUtf8Bytes } from "ethers/utils";
-
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 contract("StaticCall", (accounts: string[]) => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
-  let testCaller: ethers.Contract;
-  let echo: ethers.Contract;
+  let unlockedAccount: JsonRpcSigner;
+  let testCaller: Contract;
+  let echo: Contract;
 
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
 
     const testCallerArtifact = artifacts.require("TestCaller");
     testCallerArtifact.link(artifacts.require("LibStaticCall"));
-    testCaller = await new ethers.ContractFactory(
+    testCaller = await new ContractFactory(
       testCallerArtifact.abi,
       testCallerArtifact.binary,
       unlockedAccount
     ).deploy({ gasLimit: 6e9 });
 
     const echoArtifact = artifacts.require("Echo");
-    echo = await new ethers.ContractFactory(
+    echo = await new ContractFactory(
       echoArtifact.abi,
       echoArtifact.binary,
       unlockedAccount

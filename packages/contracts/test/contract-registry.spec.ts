@@ -1,11 +1,12 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { HashZero } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 import * as solc from "solc";
 
 import { expect } from "./utils";
 
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 const TEST_CONTRACT_SOLIDITY_CODE = `
   contract Test {
@@ -15,13 +16,13 @@ const TEST_CONTRACT_SOLIDITY_CODE = `
   }`;
 
 contract("ContractRegistry", accounts => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
+  let unlockedAccount: JsonRpcSigner;
 
-  let contractRegistry: ethers.Contract;
-  let simpleContract: ethers.Contract;
+  let contractRegistry: Contract;
+  let simpleContract: Contract;
 
   function cfaddress(initcode, i) {
-    return ethers.utils.solidityKeccak256(
+    return solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
       ["0x19", initcode, i]
     );
@@ -32,7 +33,7 @@ contract("ContractRegistry", accounts => {
   });
 
   beforeEach(async () => {
-    contractRegistry = await new ethers.ContractFactory(
+    contractRegistry = await new ContractFactory(
       artifacts.require("ContractRegistry").abi,
       artifacts.require("ContractRegistry").bytecode,
       unlockedAccount
@@ -42,8 +43,8 @@ contract("ContractRegistry", accounts => {
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
-    expect(cfaddress(ethers.constants.HashZero, 1)).to.eq(
-      await contractRegistry.functions.cfaddress(ethers.constants.HashZero, 1)
+    expect(cfaddress(HashZero, 1)).to.eq(
+      await contractRegistry.functions.cfaddress(HashZero, 1)
     );
   });
 
@@ -58,11 +59,7 @@ contract("ContractRegistry", accounts => {
       expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(bytecode, 2))
       );
-      simpleContract = new ethers.Contract(
-        deployedAddress,
-        iface,
-        unlockedAccount
-      );
+      simpleContract = new Contract(deployedAddress, iface, unlockedAccount);
       expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
@@ -82,11 +79,7 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(bytecode, 3))
       );
 
-      simpleContract = new ethers.Contract(
-        deployedAddress,
-        iface,
-        unlockedAccount
-      );
+      simpleContract = new Contract(deployedAddress, iface, unlockedAccount);
       expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
@@ -99,9 +92,7 @@ contract("ContractRegistry", accounts => {
     const iface = JSON.parse(output.contracts[":Test"].interface);
     const initcode =
       artifacts.require("Proxy").bytecode +
-      ethers.utils.defaultAbiCoder
-        .encode(["address"], [simpleContract.address])
-        .substr(2);
+      defaultAbiCoder.encode(["address"], [simpleContract.address]).substr(2);
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
@@ -110,11 +101,7 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(initcode, 3))
       );
 
-      const contract = new ethers.Contract(
-        deployedAddress,
-        iface,
-        unlockedAccount
-      );
+      const contract = new Contract(deployedAddress, iface, unlockedAccount);
       expect(await contract.sayHello()).to.eq("hi");
       done();
     };
@@ -139,8 +126,7 @@ contract("ContractRegistry", accounts => {
     const bytecode = `0x${output.contracts[":Test"].bytecode}`;
 
     const initcode =
-      bytecode +
-      ethers.utils.defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
+      bytecode + defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
@@ -149,11 +135,7 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(initcode, 4))
       );
 
-      const contract = new ethers.Contract(
-        deployedAddress,
-        iface,
-        unlockedAccount
-      );
+      const contract = new Contract(deployedAddress, iface, unlockedAccount);
       expect(await contract.sayHello()).to.eq(accounts[0]);
       done();
     };

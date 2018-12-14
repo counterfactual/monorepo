@@ -1,20 +1,18 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { HashZero, One, Zero } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { BigNumber, bigNumberify, solidityKeccak256 } from "ethers/utils";
 
 import { expect } from "./utils";
 
-import { HashZero, Zero, One } from "ethers/constants";
-import { solidityKeccak256, bigNumberify } from "ethers/utils";
-
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 contract("NonceRegistry", accounts => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
+  let unlockedAccount: JsonRpcSigner;
 
-  let nonceRegistry: ethers.Contract;
+  let nonceRegistry: Contract;
 
-  const computeKey = (timeout: ethers.utils.BigNumber, salt: string) =>
+  const computeKey = (timeout: BigNumber, salt: string) =>
     solidityKeccak256(
       ["address", "uint256", "bytes32"],
       [accounts[0], timeout, salt]
@@ -25,7 +23,7 @@ contract("NonceRegistry", accounts => {
 
     const artifact = artifacts.require("NonceRegistry");
 
-    nonceRegistry = await new ethers.ContractFactory(
+    nonceRegistry = await new ContractFactory(
       artifact.abi,
       artifact.bytecode,
       unlockedAccount

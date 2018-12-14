@@ -1,13 +1,11 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { AddressZero, WeiPerEther } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { hexlify, randomBytes } from "ethers/utils";
 
 import { expect } from "./utils";
 
-import { hexlify, randomBytes } from "ethers/utils";
-import { WeiPerEther, AddressZero } from "ethers/constants";
-
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 // It's necessary to pass in this argument since the DelegateProxy
 // uses delegatecall which ethers can't estimate gas for.
@@ -15,11 +13,11 @@ const APPROXIMATE_ERC20_TRANSFER_GAS = 75000;
 const APPROXIMATE_ERC20_TRANSFER_10_GAS = 425000;
 
 contract("Transfer", (accounts: string[]) => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
+  let unlockedAccount: JsonRpcSigner;
 
-  let exampleTransfer: ethers.Contract;
-  let delegateProxy: ethers.Contract;
-  let dolphinCoin: ethers.Contract;
+  let exampleTransfer: Contract;
+  let delegateProxy: Contract;
+  let dolphinCoin: Contract;
 
   enum AssetType {
     ETH,
@@ -32,19 +30,19 @@ contract("Transfer", (accounts: string[]) => {
 
     const artifact = await artifacts.require("ExampleTransfer");
     artifact.link(artifacts.require("Transfer"));
-    exampleTransfer = await new ethers.ContractFactory(
+    exampleTransfer = await new ContractFactory(
       artifact.abi,
       artifact.binary,
       unlockedAccount
     ).deploy({ gasLimit: 6e9 });
 
-    delegateProxy = await new ethers.ContractFactory(
+    delegateProxy = await new ContractFactory(
       artifacts.require("DelegateProxy").abi,
       artifacts.require("DelegateProxy").bytecode,
       unlockedAccount
     ).deploy({ gasLimit: 6e9 });
 
-    dolphinCoin = await new ethers.ContractFactory(
+    dolphinCoin = await new ContractFactory(
       artifacts.require("DolphinCoin").abi,
       artifacts.require("DolphinCoin").bytecode,
       unlockedAccount

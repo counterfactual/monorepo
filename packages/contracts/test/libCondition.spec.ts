@@ -1,18 +1,17 @@
-import { ethers } from "ethers";
+import { Contract, ContractFactory } from "ethers";
+import { HashZero } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
 import { expect } from "./utils";
 
-import { keccak256, defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
-
-const provider = new ethers.providers.Web3Provider(
-  (global as any).web3.currentProvider
-);
+const provider = new Web3Provider((global as any).web3.currentProvider);
 
 contract("LibCondition", (accounts: string[]) => {
-  let unlockedAccount: ethers.providers.JsonRpcSigner;
+  let unlockedAccount: JsonRpcSigner;
 
-  let exampleCondition: ethers.Contract;
-  let libCondition: ethers.Contract;
+  let exampleCondition: Contract;
+  let libCondition: Contract;
 
   before(async () => {
     unlockedAccount = await provider.getSigner(accounts[0]);
@@ -22,13 +21,13 @@ contract("LibCondition", (accounts: string[]) => {
 
     libConditionArtifact.link(artifacts.require("LibStaticCall"));
 
-    exampleCondition = await new ethers.ContractFactory(
+    exampleCondition = await new ContractFactory(
       exampleConditionArtifact.abi,
       exampleConditionArtifact.bytecode,
       unlockedAccount
     ).deploy({ gasLimit: 6e9 });
 
-    libCondition = await new ethers.ContractFactory(
+    libCondition = await new ContractFactory(
       libConditionArtifact.abi,
       libConditionArtifact.binary,
       unlockedAccount
@@ -42,13 +41,13 @@ contract("LibCondition", (accounts: string[]) => {
     const makeCondition = (expectedValue, onlyCheckForSuccess) => ({
       onlyCheckForSuccess,
       expectedValueHash: keccak256(expectedValue),
-      parameters: ethers.constants.HashZero,
+      parameters: HashZero,
       selector: exampleCondition.interface.functions.isSatisfiedNoParam.sighash,
       to: exampleCondition.address
     });
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(ethers.constants.HashZero, true);
+      const condition = makeCondition(HashZero, true);
 
       expect(await libCondition.functions.isSatisfied(condition)).to.be.true;
     });
@@ -63,7 +62,7 @@ contract("LibCondition", (accounts: string[]) => {
     });
 
     it("returns false if function returns unexpected result", async () => {
-      const condition = makeCondition(ethers.constants.HashZero, false);
+      const condition = makeCondition(HashZero, false);
 
       expect(await libCondition.functions.isSatisfied(condition)).to.be.false;
     });
@@ -83,21 +82,13 @@ contract("LibCondition", (accounts: string[]) => {
     const falseParam = defaultAbiCoder.encode(["tuple(bool)"], [[false]]);
 
     it("returns true if function did not fail", async () => {
-      const condition = makeCondition(
-        ethers.constants.HashZero,
-        trueParam,
-        true
-      );
+      const condition = makeCondition(HashZero, trueParam, true);
 
       expect(await libCondition.functions.isSatisfied(condition)).to.be.true;
     });
 
     it("returns true if function did not fail but returned false", async () => {
-      const condition = makeCondition(
-        ethers.constants.HashZero,
-        falseParam,
-        true
-      );
+      const condition = makeCondition(HashZero, falseParam, true);
 
       expect(await libCondition.functions.isSatisfied(condition)).to.be.true;
     });

@@ -6,10 +6,10 @@ module.exports = {
   networks: {
     ganache: {
       network_id: 7777777,
-      host: "127.0.0.1",
-      port: 9545,
-      gas: "0xfffffffffff",
-      gasPrice: "0x01"
+      host: "localhost",
+      port: 8545,
+      gas: 0xfffffffffff,
+      gasPrice: 0x01
     },
     rinkeby: {
       network_id: 4,
@@ -29,6 +29,7 @@ module.exports = {
     }
   },
   mocha: {
+    useColors: true,
     reporter: "eth-gas-reporter",
     reporterOptions: {
       currency: "USD",

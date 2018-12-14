@@ -5,11 +5,11 @@ import {
   AppInterface,
   AssetType,
   computeStateHash,
+  expect,
   Terms
-} from "../src";
+} from "./utils";
 
 import { ALICE, BOB } from "./constants";
-import { expect } from "./utils";
 
 // HELPER DATA
 const TIMEOUT = 30;
