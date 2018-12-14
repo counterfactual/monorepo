@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/contracts": "0.0.2",
-    "ethers": "4.0.17"
+    "@counterfactual/contracts": "0.0.3",
+    "ethers": "4.0.18"
   }
 }

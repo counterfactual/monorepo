@@ -1,10 +1,8 @@
-import { ethers } from "ethers";
+import { keccak256 } from "ethers/utils";
 
 import { abi } from "../../utils";
 
 import { Bytes32 } from ".";
-
-import { keccak256 } from "ethers/utils";
 
 export class Nonce {
   public isSet: boolean;

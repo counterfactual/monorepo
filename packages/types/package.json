@@ -9,6 +9,6 @@
     "build": "tsc -p ."
   },
   "dependencies": {
-    "ethers": "4.0.17"
+    "ethers": "4.0.18"
   }
 }

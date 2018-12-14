@@ -17,7 +17,7 @@
     "@types/node": "^10.9.3",
     "cuid": "^2.1.4",
     "dotenv": "^6.1.0",
-    "ethers": "^4.0.17",
+    "ethers": "4.0.18",
     "firebase": "^5.6.0",
     "firebase-server": "^1.0.1",
     "rollup": "^0.67.0",

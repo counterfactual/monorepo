@@ -1,11 +1,10 @@
 import { ethers } from "ethers";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
 import { Address, Bytes, Bytes4, H256, PeerBalance } from "../utils";
 import { Nonce } from "../utils/nonce";
-
-import { keccak256, defaultAbiCoder } from "ethers/utils";
 
 /**
  * Maps 1-1 with AppInstance.sol (with the addition of the uniqueId, which
@@ -43,15 +42,6 @@ export class AppInstance {
 }
 
 export class AppInterface {
-  public static generateSighash(
-    abiInterface: ethers.utils.Interface,
-    functionName: string
-  ): string {
-    return abiInterface.functions[functionName]
-      ? abiInterface.functions[functionName].sighash
-      : "0x00000000";
-  }
-
   constructor(
     readonly address: Address,
     readonly applyAction: Bytes4,

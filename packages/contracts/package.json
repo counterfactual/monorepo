@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/contracts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Smart contracts for Counterfactual",
   "license": "MIT",
   "files": [
@@ -9,7 +9,7 @@
     "networks"
   ],
   "scripts": {
-    "build": "truffle compile --all && tsc -b",
+    "build": "truffle compile --all",
     "migrate": "truffle migrate --reset",
     "test": "tsc -b && yarn ganache:start && yarn truffle:test && yarn ganache:stop",
     "test:windows": "tsc -b && truffle test",
@@ -45,7 +45,7 @@
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "0.1.12",
     "ethereum-waffle": "1.0.5",
-    "ethers": "4.0.17",
+    "ethers": "4.0.18",
     "ganache-cli": "^6.2.3",
     "openzeppelin-eth": "^2.0.2",
     "shx": "^0.3.2",
@@ -59,13 +59,5 @@
     "tslint": "5.11.0",
     "typescript": "^3.1.2",
     "zos-lib": "^2.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/counterfactual/contracts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/counterfactual/contracts/issues"
-  },
-  "homepage": "https://github.com/counterfactual/contracts#readme"
+  }
 }
