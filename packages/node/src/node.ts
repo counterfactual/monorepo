@@ -58,9 +58,8 @@ export class Node {
   }
 
   /**
+   * This is the entrypoint to listening for messages from other Nodes.
    * Delegates setting up a listener to the Node's outgoing EventEmitter.
-   * This is also the entrypoint to listening for messages from other Nodes
-   * via listening on the Node.PEER_MESSAGE event.
    * @param event
    * @param callback
    */
