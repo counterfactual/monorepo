@@ -54,6 +54,7 @@ export class AppInstance {
     return result.newState;
   }
 
+  // FIXME: uninstall() should return details about payout. What should they look like?
   async uninstall() {
     await this.provider.callRawNodeMethod(Node.MethodName.UNINSTALL, {
       appInstanceId: this.id
