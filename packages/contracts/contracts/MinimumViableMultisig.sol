@@ -3,14 +3,14 @@ pragma solidity 0.4.25;
 import "./lib/Signatures.sol";
 
 
-/// @title MinimumViableMultisig - An example multisig exemplifying the minimal
-/// viable multisignature wallet requirements for state channels support
+/// @title MinimumViableMultisig - A multisig wallet supporting the minimum
+/// features required for state channels support
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Supports the ability for each of:
-/// (a) Executing artbitrary transactions using `CALL` or `DELEGATECALL`
-/// (b) Requiring n-of-n unanimous consent
-/// (c) Deterministic signature verification without an on-chain address
-/// (d) Non-nonce based replay protection
+/// @notice
+/// (a) Executes artbitrary transactions using `CALL` or `DELEGATECALL`
+/// (b) Requires n-of-n unanimous consent
+/// (c) Does not use on-chain address for signature verification
+/// (d) Uses hash-based instead of nonce-based replay protection
 contract MinimumViableMultisig {
 
   using Signatures for bytes;
