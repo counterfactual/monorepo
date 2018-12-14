@@ -134,11 +134,11 @@ Result:
 
 ### Method: `proposeInstall`
 
-Generate an app instance ID given details about an app installation.
+Requests that a peer authorize the installation of an app instance. At the same time, generate and returns a fresh ID for it, and authorize the installation of that app instance.
 
 Params:
 - `peerAddress: string`
-    - Address of the peer to install the app with
+    - Address of the peer to request installation of the app with
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -156,7 +156,7 @@ Params:
 
 Result:
 - `appInstanceId: string`
-    - Unique ID for this app instance
+    - ID of an app instance whose proposed installation was accepted
 
 Errors: (TODO)
 - Not enough funds
@@ -167,7 +167,7 @@ Reject an app instance installation.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID for the app instance to reject
+    - ID of the app instance to reject
 
 Result: "OK"
 
@@ -180,7 +180,8 @@ Install an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID for the app instance to install
+    - ID of the app instance to install
+    - Counterparty must have called `proposedInstall` and generated this ID
 
 
 Result:
@@ -196,7 +197,7 @@ Get the latest state of an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance
+    - ID of the app instance to get state of
 
 Result:
 - `state:`[`AppState`](#data-type-appstate)
@@ -212,7 +213,7 @@ Get details of an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance
+    - ID of the app instance to get details of
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -225,7 +226,7 @@ Take action on current app state to advance it to a new state.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance
+    - ID of the app instance for which to take action
 - `action:`[`AppAction`](#data-type-appaction)
     - Action to take on the current state
 
@@ -242,7 +243,7 @@ Uninstall an app instance, paying out users according to the latest signed state
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance to uninstall
+    - ID of the app instance to uninstall
 
 Result:
 - `myPayout: BigNumber`
@@ -314,7 +315,7 @@ Fired if app state is successfully updated.
 
 Data:
 - `appInstanceId: string`
-    - Unique ID of app instance
+    - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
 - `oldState:`[`AppState`](#data-type-appstate)
 - `action?:`[`AppAction`](#data-type-appaction)
@@ -360,10 +361,10 @@ Data Types
 An instance of an installed app.
 
 - `id: string`
-    - Unique ID for this app instance
+    - Opaque identifier used to refer to this app instance
+    - No two distinct app instances (even in different channels) may share the same ID
 - `appId: string`
-    - Unique ID for this app
-    - Currently corresponds to on-chain address of App Definition contract
+    - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
 - `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
