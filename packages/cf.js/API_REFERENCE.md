@@ -245,11 +245,7 @@ Params:
 - `appInstanceId: string`
     - ID of the app instance to uninstall
 
-Result:
-- `myPayout: BigNumber`
-    - Amount of the asset paid out to this user
-- `peerPayout: BigNumber`
-    - Amount of the asset paid out to peer
+Result: "OK"
 
 Errors: (TODO)
 - App state not terminal
@@ -328,10 +324,6 @@ Fired if app instance is successfully uninstalled
 Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Uninstalled app instance
-- `myPayout: BigNumber`
-    - Amount of the asset paid out to this user
-- `peerPayout: BigNumber`
-    - Amount of the asset paid out to peer
 
 ### Event: `proposeStateEvent`
 
