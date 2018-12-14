@@ -3,7 +3,10 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
-import { Context, InternalMessage } from "../types";
+import { ProtocolMessage } from "../protocol-types-tbd";
+import { Context } from "../types";
+
+import { prepareToSendSignature } from "./signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
@@ -57,27 +60,12 @@ export const SETUP_PROTOCOL = {
 };
 
 function proposeStateTransition(
-  message: InternalMessage,
+  message: ProtocolMessage,
   context: Context,
   state: StateChannel
 ) {
-  context.proposedStateTransition = state.setupChannel(context.network);
-  context.operation = constructSetupOp(
-    context.network,
-    context.proposedStateTransition
-  );
-}
-
-function prepareToSendSignature(
-  message: InternalMessage,
-  context: Context,
-  state: StateChannel
-) {
-  context.outbox.push({
-    ...message.clientMessage,
-    signature: context.signature,
-    seq: message.clientMessage.seq + 1
-  });
+  context.stateChannel = state.setupChannel(context.network);
+  context.operation = constructSetupOp(context.network, context.stateChannel);
 }
 
 export function constructSetupOp(

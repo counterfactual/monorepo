@@ -1,9 +1,12 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { InstallCommitment } from "../ethereum";
-import { StateChannel } from "../models";
+import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { Context, InternalMessage } from "../types";
+import { InstallData, ProtocolMessage } from "../protocol-types-tbd";
+import { Context } from "../types";
+
+import { prepareToSendSignature } from "./signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
@@ -57,31 +60,48 @@ export const INSTALL_PROTOCOL = {
 };
 
 function proposeStateTransition(
-  message,
+  message: ProtocolMessage,
   context: Context,
-  node,
   state: StateChannel
 ) {
-  // TODO: wut is context.app
-  context.proposedStateTransition = state.installApp(context.app);
+  const {
+    aliceBalanceDecrement,
+    bobBalanceDecrement,
+    signingKeys,
+    initialState,
+    terms,
+    appInterface,
+    defaultTimeout
+  } = message.params as InstallData;
+
+  const app = new AppInstance(
+    state.multisigAddress,
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    terms,
+    // KEY: Sets it to NOT be a MetaChannelApp
+    false,
+    // KEY: The app sequence number
+    // FIXME: Add to InstallData?
+    42,
+    initialState,
+    // KEY: Set the nonce to be 0
+    0,
+    defaultTimeout
+  );
+
+  context.stateChannel = state.installApp(
+    app,
+    aliceBalanceDecrement,
+    bobBalanceDecrement
+  );
+
   context.operation = constructInstallOp(
     context.network,
-    context.proposedStateTransition,
-    // TODO: wut is appId
-    context.appId
+    context.stateChannel,
+    app.id
   );
-}
-
-function prepareToSendSignature(
-  message: InternalMessage,
-  context: Context,
-  state: StateChannel
-) {
-  context.outbox.push({
-    ...message.clientMessage,
-    signature: context.signature,
-    seq: message.clientMessage.seq + 1
-  });
 }
 
 export function constructInstallOp(

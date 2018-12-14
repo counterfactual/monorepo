@@ -1,6 +1,3 @@
-import { legacy } from "@counterfactual/cf.js";
-import { ethers } from "ethers";
-
 import {
   AppIdentity,
   AppInterface,
@@ -8,32 +5,33 @@ import {
   ETHBucketAppState,
   Terms
 } from "@counterfactual/types";
-
-import { InstallProposer } from "../../../src/middleware/state-transition/install-proposer";
-import { Node, StateChannelInfoImpl } from "../../../src/node";
-import { Opcode } from "../../../src/opcodes";
-import { InternalMessage, StateProposal } from "../../../src/types";
-import { appIdentityToHash } from "../../../src/utils/app-identity";
-import { APP_INTERFACE, TERMS } from "../../../src/utils/encodings";
+import { AddressZero, WeiPerEther } from "ethers/constants";
 import {
+  bigNumberify,
+  defaultAbiCoder,
+  getAddress,
+  hexlify,
+  keccak256,
+  randomBytes
+} from "ethers/utils";
+
+import { InstallCommitment } from "../../../src/ethereum/install";
+import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
+import { APP_INTERFACE, TERMS } from "../../../src/ethereum/utils/encodings";
+import {
+  ETHFreeBalanceApp,
   freeBalanceTerms,
   freeBalanceTermsHash,
+  getFreeBalanceAppInterface,
   getFreeBalanceAppInterfaceHash
-} from "../../../src/utils/free-balance";
-
-const {
-  bigNumberify,
-  hexlify,
-  randomBytes,
-  getAddress,
-  keccak256,
-  defaultAbiCoder
-} = ethers.utils;
-
-import { WeiPerEther, AddressZero } from "ethers/constants";
+} from "../../../src/ethereum/utils/free-balance";
+import { AppInstance, StateChannel } from "../../../src/models";
+import { Opcode } from "../../../src/opcodes";
+import { InstallData, ProtocolMessage } from "../../../src/protocol-types-tbd";
+import { Protocol } from "../../../src/types";
 
 describe("Install Proposer", () => {
-  let proposal: StateProposal;
+  let commitment: InstallCommitment;
 
   // Test network context
   const networkContext = {
@@ -89,7 +87,7 @@ describe("Install Proposer", () => {
       /* assignment done below to reuse app.{interface, terms} values */
     } as AppIdentity,
 
-    initialState: "" // assignment done below to reuse app.stateEncoding
+    initialState: {} // assignment done below to reuse app.stateEncoding
   };
 
   app.identity = {
@@ -107,118 +105,42 @@ describe("Install Proposer", () => {
     defaultTimeout: 100
   };
 
-  // TODO: (idea) The InstallProposer should probably do this internally.
-  app.initialState = defaultAbiCoder.encode(
-    [app.stateEncoding],
-    [{ foo: AddressZero, bar: 0 }]
-  );
+  app.initialState = { foo: AddressZero, bar: 0 };
 
-  // Test free balance values
-  const freeBalance = {
-    uniqueAppNonceWithinStateChannel: 0,
-
-    currentLocalNonce: 10,
-
-    defaultTimeout: 100,
-
-    appIdentity: {
-      owner: stateChannel.multisigAddress,
-      signingKeys: stateChannel.multisigOwners,
-      appInterfaceHash: getFreeBalanceAppInterfaceHash(
-        networkContext.ETHBucket
-      ),
-      termsHash: freeBalanceTermsHash,
-      // NOTE: This *must* be the same as freeBalance.defaultTimeout above
-      defaultTimeout: 100
-    } as AppIdentity,
-
-    terms: freeBalanceTerms,
-
-    state: {
+  // Test free balance
+  const freeBalance = new ETHFreeBalanceApp(
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    100,
+    networkContext.ETHBucket,
+    {
       alice: stateChannel.multisigOwners[0],
       bob: stateChannel.multisigOwners[1],
       aliceBalance: WeiPerEther,
       bobBalance: WeiPerEther
-    } as ETHBucketAppState
-  };
+    },
+    0,
+    100
+  );
 
   beforeAll(() => {
-    const message = new InternalMessage(
-      legacy.node.ActionName.INSTALL,
-      Opcode.STATE_TRANSITION_PROPOSE,
-      {
-        action: legacy.node.ActionName.INSTALL,
-        data: {
-          peerA: new legacy.utils.PeerBalance(
-            freeBalance.state.alice,
-            freeBalance.state.aliceBalance.div(2)
-          ),
-          peerB: new legacy.utils.PeerBalance(
-            freeBalance.state.bob,
-            freeBalance.state.bobBalance.div(2)
-          ),
-          keyA: app.identity.signingKeys[0],
-          keyB: app.identity.signingKeys[1],
-          // TODO: (question) Is this supposed to be for the free bal?
-          encodedAppState: app.initialState,
-          // TODO: Get rid of legacy.app.Terms
-          terms: new legacy.app.Terms(
-            app.terms.assetType,
-            app.terms.limit,
-            app.terms.token
-          ),
-          // TODO: Get rid of legacy.app.AppInterface
-          app: new legacy.app.AppInterface(
-            app.interface.addr,
-            app.interface.applyAction,
-            app.interface.resolve,
-            app.interface.getTurnTaker,
-            app.interface.isStateTerminal,
-            // TODO: (question) why isn't there an actionEncoding field?
-            app.stateEncoding
-          ),
-          timeout: app.identity.defaultTimeout
-        },
-        multisigAddress: stateChannel.multisigAddress,
-        fromAddress: interaction.sender,
-        toAddress: interaction.receiver,
-        seq: 0
-      }
-    );
-
-    proposal = InstallProposer.propose(
-      message,
-      {
-        inbox: [],
-        outbox: []
-      },
-      new Node(
-        {
-          [stateChannel.multisigAddress]: new StateChannelInfoImpl(
-            interaction.sender,
-            interaction.receiver,
-            stateChannel.multisigAddress,
-            {},
-            new legacy.utils.FreeBalance(
-              freeBalance.state.alice,
-              freeBalance.state.aliceBalance,
-              freeBalance.state.bob,
-              freeBalance.state.bobBalance,
-              freeBalance.currentLocalNonce, // local nonce
-              // Whys is "uniqueId" a number?
-              0, // TODO: appIdentityToHash(freeBalance.appIdentity),
-              freeBalance.defaultTimeout, // timeout
-              new legacy.utils.Nonce(true, 0, 0) // nonce
-            )
-          )
-        },
-        {}
-      )
+    commitment = new InstallCommitment(
+      networkContext,
+      stateChannel.multisigAddress,
+      stateChannel.multisigOwners,
+      app.identity,
+      app.terms,
+      freeBalance.identity,
+      freeBalance.terms,
+      freeBalance.hashOfLatestState,
+      freeBalance.latestNonce,
+      freeBalance.latestTimeout,
+      stateChannel.monotonicallyIncreasingAppNonce + 1
     );
   });
 
   it("should return an object with one key, the multisig address", () => {
-    const { state } = proposal;
+    const { state } = commitment.;
     expect(Object.keys(state).length).toEqual(1);
     expect(Object.keys(state)[0]).toBe(stateChannel.multisigAddress);
   });

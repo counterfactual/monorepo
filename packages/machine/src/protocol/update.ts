@@ -3,7 +3,10 @@ import { NetworkContext } from "@counterfactual/types";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
-import { Context, InternalMessage } from "../types";
+import { ProtocolMessage, UpdateData } from "../protocol-types-tbd";
+import { Context } from "../types";
+
+import { prepareToSendSignature } from "./signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
@@ -57,31 +60,17 @@ export const UPDATE_PROTOCOL = {
 };
 
 function proposeStateTransition(
-  message: InternalMessage,
+  message: ProtocolMessage,
   context: Context,
   state: StateChannel
 ) {
-  context.proposedStateTransition = state.setState(context.appid, {
-    newstate: 4
-  });
+  const { appInstanceId, newState } = message.params as UpdateData;
+  context.stateChannel = state.setState(appInstanceId, newState);
   context.operation = constructUpdateOp(
     context.network,
-    context.proposedStateTransition,
-    // FIXME: use real app
-    "3"
+    context.stateChannel,
+    appInstanceId
   );
-}
-
-function prepareToSendSignature(
-  message: InternalMessage,
-  context: Context,
-  state: StateChannel
-) {
-  context.outbox.push({
-    ...message.clientMessage,
-    signature: context.signature,
-    seq: message.clientMessage.seq + 1
-  });
 }
 
 export function constructUpdateOp(

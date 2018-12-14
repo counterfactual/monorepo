@@ -1,260 +1,152 @@
-import { legacy } from "@counterfactual/cf.js";
-import { NetworkContext } from "@counterfactual/types";
+import { Middleware } from "./middleware";
+import { StateChannel } from "./models";
+import { Opcode } from "./opcodes";
+
+import { getProtocolFromName } from "./protocol";
 
 import {
-  INSTALL_PROTOCOL,
-  METACHANNEL_INSTALL_APP_PROTOCOL,
-  SETUP_PROTOCOL,
-  UNINSTALL_PROTOCOL,
-  UPDATE_PROTOCOL
-} from "./protocol";
+  InstallData,
+  MetaChannelInstallAppData,
+  ProtocolMessage,
+  SetupData,
+  UninstallData,
+  UpdateData
+} from "./protocol-types-tbd";
 
-import { Middleware } from "./middleware";
-import { StateChannel } from "./models/state-channel";
-import { Opcode } from "./opcodes";
 import {
   Context,
+  Instruction,
   InstructionMiddlewareCallback,
-  InternalMessage,
   Protocol
 } from "./types";
 
-export class InstructionExecutorConfig {
-  constructor(
-    readonly responseHandler: legacy.node.ResponseSink,
-    readonly networkContext: NetworkContext,
-    readonly state?: legacy.channel.StateChannelInfos
-  ) {}
+function protocolMessageFields(sc: StateChannel) {
+  return {
+    multisigAddress: sc.multisigAddress,
+    fromAddress: "0x0",
+    toAddress: "0x0",
+    seq: 0,
+    signature: undefined
+  };
 }
 
 export class InstructionExecutor {
-  public network: NetworkContext;
-  /**
-   * The object responsible for processing each Instruction in the Vm.
-   */
   public middleware: Middleware;
 
-  /**
-   * The delegate handler we send responses to.
-   */
-  public responseHandler: legacy.node.ResponseSink;
-
-  /**
-   * The underlying state for the entire machine. All state here is a result of
-   * a completed and commited protocol.
-   */
-  public state: StateChannel;
-
-  constructor(config: InstructionExecutorConfig) {
-    this.responseHandler = config.responseHandler;
-    this.state = StateChannel.fromJson(config.state);
-    this.network = config.networkContext;
+  constructor(public readonly network) {
     this.middleware = new Middleware();
-  }
-
-  public dispatchReceivedMessage(msg: legacy.node.ClientActionMessage) {
-    const { protocol, instructions } = {
-      [legacy.node.ActionName.SETUP]: [Protocol.Setup, SETUP_PROTOCOL[msg.seq]],
-      [legacy.node.ActionName.INSTALL]: [
-        Protocol.Install,
-        INSTALL_PROTOCOL[msg.seq]
-      ],
-      [legacy.node.ActionName.UPDATE]: [
-        Protocol.SetState,
-        UPDATE_PROTOCOL[msg.seq]
-      ],
-      [legacy.node.ActionName.UNINSTALL]: [
-        Protocol.Uninstall,
-        UNINSTALL_PROTOCOL[msg.seq]
-      ],
-      [legacy.node.ActionName.INSTALL_METACHANNEL_APP]: [
-        Protocol.MetaChannelInstallApp,
-        METACHANNEL_INSTALL_APP_PROTOCOL[msg.seq]
-      ]
-    }[msg.action];
-
-    if (protocol === undefined) {
-      throw Error(`Received invalid protocol type ${msg}`);
-    }
-
-    this.runAndSendCompletedResponse(protocol, instructions, msg);
-  }
-
-  public runUpdateProtocol(
-    fromAddress: string,
-    toAddress: string,
-    multisigAddress: string,
-    appInstanceId: string,
-    encodedAppState: string,
-    appStateHash: legacy.utils.H256
-  ) {
-    this.runAndSendCompletedResponse(Protocol.SetState, UPDATE_PROTOCOL[0], {
-      appInstanceId,
-      multisigAddress,
-      fromAddress,
-      toAddress,
-      action: legacy.node.ActionName.UPDATE,
-      data: {
-        encodedAppState,
-        appStateHash
-      },
-      seq: 0
-    });
-  }
-
-  public runUninstallProtocol(
-    fromAddress: string,
-    toAddress: string,
-    multisigAddress: string,
-    peerAmounts: legacy.utils.PeerBalance[],
-    appInstanceId: string
-  ) {
-    this.runAndSendCompletedResponse(
-      Protocol.Uninstall,
-      UNINSTALL_PROTOCOL[0],
-      {
-        appInstanceId,
-        multisigAddress,
-        fromAddress,
-        toAddress,
-        action: legacy.node.ActionName.UNINSTALL,
-        data: {
-          peerAmounts
-        },
-        seq: 0
-      }
-    );
-  }
-
-  public runInstallProtocol(
-    fromAddress: string,
-    toAddress: string,
-    multisigAddress: string,
-    installData: legacy.app.InstallData
-  ) {
-    this.runAndSendCompletedResponse(Protocol.Install, INSTALL_PROTOCOL[0], {
-      multisigAddress,
-      toAddress,
-      fromAddress,
-      action: legacy.node.ActionName.INSTALL,
-      data: installData,
-      seq: 0
-    });
-  }
-
-  public runSetupProtocol(
-    fromAddress: string,
-    toAddress: string,
-    multisigAddress: string
-  ) {
-    this.runAndSendCompletedResponse(Protocol.Setup, SETUP_PROTOCOL[0], {
-      multisigAddress,
-      toAddress,
-      fromAddress,
-      seq: 0,
-      action: legacy.node.ActionName.SETUP
-    });
-  }
-
-  // FIXME: Untested
-  public runInstallMetachannelAppProtocol(
-    fromAddress: string,
-    toAddress: string,
-    intermediaryAddress: string,
-    multisigAddress: string
-  ) {
-    this.runAndSendCompletedResponse(
-      Protocol.MetaChannelInstallApp,
-      METACHANNEL_INSTALL_APP_PROTOCOL[0],
-      {
-        multisigAddress,
-        toAddress,
-        fromAddress,
-        seq: 0,
-        action: legacy.node.ActionName.INSTALL_METACHANNEL_APP,
-        data: {
-          initiating: fromAddress,
-          responding: toAddress,
-          intermediary: intermediaryAddress
-        }
-      }
-    );
-  }
-
-  public async runAndSendCompletedResponse(
-    actionName: Protocol,
-    instructions: (Opcode | Function)[],
-    clientMessage: legacy.node.ClientActionMessage
-  ) {
-    const ret = await runAll(actionName, instructions, clientMessage, this);
-    this.sendResponse(legacy.node.ResponseStatus.COMPLETED);
-    return ret;
-  }
-
-  public sendResponse(status: legacy.node.ResponseStatus) {
-    this.responseHandler.sendResponse(new legacy.node.Response(status));
   }
 
   public register(scope: Opcode, method: InstructionMiddlewareCallback) {
     this.middleware.add(scope, method);
   }
-}
 
-async function runAll(
-  actionName: Protocol,
-  instructions: (Opcode | Function)[],
-  clientMessage: legacy.node.ClientActionMessage,
-  instructionExecutor: InstructionExecutor
-): Promise<StateChannel> {
-  let instructionPointer = 0;
-
-  const context = {
-    network: instructionExecutor.network,
-    outbox: [],
-    inbox: []
-  } as Context;
-
-  while (instructionPointer < instructions.length) {
-    try {
-      const instruction = instructions[instructionPointer];
-
-      if (typeof instruction === "function") {
-        const message: InternalMessage = {
-          actionName,
-          clientMessage,
-          opCode: Object.create(null)
-        };
-
-        const state = instructionExecutor.state;
-
-        instruction.call(null, message, context, state);
-
-        instructionPointer += 1;
-      } else {
-        const message: InternalMessage = {
-          actionName,
-          clientMessage,
-          opCode: instruction
-        };
-
-        await instructionExecutor.middleware.run(message, context);
-        instructionPointer += 1;
-      }
-    } catch (e) {
-      // TODO: We should have custom error types for things like
+  public async dispatchReceivedMessage(msg: ProtocolMessage, sc: StateChannel) {
+    const protocol = getProtocolFromName(msg.protocol);
+    const step = protocol[msg.seq];
+    if (step === undefined) {
       throw Error(
-        `While executing op number ${instructionPointer} at seq ${
-          clientMessage.seq
-        } of protocol ${actionName}, execution failed with the following error. ${
-          e.stack
-        }`
+        `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
       );
     }
+    return this.runProtocol(sc, step, msg);
   }
 
-  if (context.proposedStateTransition === undefined) {
-    throw Error("State transition was computed to be undefined :(");
+  public async runUpdateProtocol(sc: StateChannel, params: UpdateData) {
+    const protocol = Protocol.SetState;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      ...protocolMessageFields(sc)
+    });
   }
 
-  return context.proposedStateTransition;
+  public async runUninstallProtocol(sc: StateChannel, params: UninstallData) {
+    const protocol = Protocol.Uninstall;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      ...protocolMessageFields(sc)
+    });
+  }
+
+  public async runInstallProtocol(sc: StateChannel, params: InstallData) {
+    const protocol = Protocol.Install;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      ...protocolMessageFields(sc)
+    });
+  }
+
+  public async runSetupProtocol(sc: StateChannel, params: SetupData) {
+    const protocol = Protocol.Setup;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      ...protocolMessageFields(sc)
+    });
+  }
+
+  public async runMetaChannelInstallAppProtocol(
+    sc: StateChannel,
+    params: MetaChannelInstallAppData
+  ) {
+    const protocol = Protocol.MetaChannelInstallApp;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      ...protocolMessageFields(sc)
+    });
+  }
+
+  private async runProtocol(
+    sc: StateChannel,
+    instructions: Instruction[],
+    msg: ProtocolMessage
+  ) {
+    const context: Context = {
+      network: this.network,
+      outbox: [],
+      inbox: [],
+      stateChannel: sc,
+      operation: undefined,
+      signature: undefined
+    };
+
+    let instructionPointer = 0;
+
+    while (instructionPointer < instructions.length) {
+      const instruction = instructions[instructionPointer];
+      try {
+        if (typeof instruction === "function") {
+          // TODO: it might be possible to not have to pass in sc
+          instruction.call(null, msg, context, sc);
+        } else {
+          await this.middleware.run(msg, instruction, context);
+        }
+        instructionPointer += 1;
+      } catch (e) {
+        throw Error(
+          `While executing op number ${instructionPointer} at seq ${
+            msg.seq
+          } of protocol ${
+            msg.protocol
+          }, execution failed with the following error. ${e.stack}`
+        );
+      }
+    }
+
+    if (context.stateChannel === undefined) {
+      throw Error("State transition was computed to be undefined :(");
+    }
+
+    // TODO: it is possible to compute a diff of the original state channel
+    //       object and the computed new state channel object at this point
+    //       probably useful!
+    //
+    // const diff = sc.diff(context.stateChannel)
+
+    return context.stateChannel;
+  }
 }

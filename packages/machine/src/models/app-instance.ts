@@ -1,5 +1,5 @@
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
-import { defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -17,7 +17,7 @@ export type AppInstanceJson = {
   multisigAddress: string;
   signingKeys: string[];
   defaultTimeout: number;
-  interface: AppInterface;
+  appInterface: AppInterface;
   terms: Terms;
   isMetachannelApp: boolean;
   dependencyReferenceNonce: number;
@@ -38,7 +38,7 @@ export type AppInstanceJson = {
 
  * @property defaultTimeout The default timeout used when a new update is made.
 
- * @property interface An AppInterface object representing the logic this
+ * @property appInterface An AppInterface object representing the logic this
  *           AppInstance relies on for verifying and proposing state updates.
 
  * @property isMetachannelApp A flag indicating whether this AppInstance's state
@@ -61,7 +61,7 @@ export class AppInstance {
     public readonly signingKeys: string[],
     public readonly defaultTimeout: number,
     // @ts-ignore
-    public readonly interface: AppInterface,
+    public readonly appInterface: AppInterface,
     public readonly terms: Terms,
     public readonly isMetachannelApp: boolean,
     public readonly dependencyReferenceNonce: number,
@@ -78,7 +78,7 @@ export class AppInstance {
       json.multisigAddress,
       json.signingKeys,
       json.defaultTimeout,
-      json.interface,
+      json.appInterface,
       json.terms,
       json.isMetachannelApp,
       json.dependencyReferenceNonce,
@@ -91,13 +91,13 @@ export class AppInstance {
   }
 
   @Memoize()
-  public get id(): string {
+  public get id() {
     return appIdentityToHash(this.identity);
   }
 
   @Memoize()
   public get identity(): AppIdentity {
-    const iface = defaultAbiCoder.encode([APP_INTERFACE], [this.interface]);
+    const iface = defaultAbiCoder.encode([APP_INTERFACE], [this.appInterface]);
     const terms = defaultAbiCoder.encode([TERMS], [this.terms]);
     return {
       owner: this.multisigAddress,
@@ -109,9 +109,41 @@ export class AppInstance {
   }
 
   @Memoize()
-  public get hashOfLatestState(): string {
+  public get hashOfLatestState() {
+    return keccak256(this.encodedLatestState);
+  }
+
+  @Memoize()
+  public get encodedLatestState() {
+    return defaultAbiCoder.encode(
+      [this.appInterface.stateEncoding],
+      [this.latestState]
+    );
+  }
+
+  @Memoize()
+  public get uninstallKey() {
+    // The unique "key" in the NonceRegistry is computed to be:
+    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
+    // where <app nonce> is 0 since FreeBalance is assumed to be the
+    // firstmost intalled app in the channel.
     return keccak256(
-      defaultAbiCoder.encode([this.interface.stateEncoding], [this.latestState])
+      solidityPack(
+        ["address", "uint256", "bytes32"],
+        [
+          this.multisigAddress,
+          0,
+          keccak256(
+            solidityPack(
+              ["uint256"],
+              // In this case, we expect the <app nonce> variable to be
+              // 1 since this newly installed app is the only app installed
+              // after the ETH FreeBalance was installed.
+              [this.dependencyReferenceNonce]
+            )
+          )
+        ]
+      )
     );
   }
 
@@ -119,7 +151,7 @@ export class AppInstance {
     // TODO: I think this code could be written cleaner by checking for
     //       ethers.errors.INVALID_ARGUMENT specifically in catch {}
     try {
-      defaultAbiCoder.encode([this.interface.stateEncoding], [newState]);
+      defaultAbiCoder.encode([this.appInterface.stateEncoding], [newState]);
     } catch (e) {
       console.error(
         "Attempted to setState on an app with an invalid state object"

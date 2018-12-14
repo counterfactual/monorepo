@@ -1,6 +1,7 @@
 import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { Context, InternalMessage } from "../types";
+import { ProtocolMessage } from "../protocol-types-tbd";
+import { Context } from "../types";
 
 /**
  * @description This exchange is described at the following URL:
@@ -11,11 +12,11 @@ import { Context, InternalMessage } from "../types";
 // FIXME: Not fully implemented yet
 export const METACHANNEL_INSTALL_APP_PROTOCOL = {
   0: [
-    (message: InternalMessage, context: Context, state: StateChannel) => {
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
       // copy client message
-      context.outbox.push(message.clientMessage);
+      context.outbox.push(message);
       context.outbox[0].seq = 1;
-      context.outbox[0].toAddress = message.clientMessage.data.intermediary;
+      // context.outbox[0].toAddress = message.data.intermediary;
     },
 
     // send to intermediary
@@ -23,12 +24,11 @@ export const METACHANNEL_INSTALL_APP_PROTOCOL = {
   ],
 
   1: [
-    (message: InternalMessage, context: Context, state: StateChannel) => {
-      const clientMessage = message.clientMessage;
-      context.outbox.push(clientMessage);
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+      context.outbox.push(message);
       context.outbox[0].seq = 2;
-      context.outbox[0].fromAddress = clientMessage.data.initiating;
-      context.outbox[0].toAddress = clientMessage.data.responding;
+      // context.outbox[0].fromAddress = message.data.initiating;
+      // context.outbox[0].toAddress = message.data.responding;
     },
 
     Opcode.IO_SEND,
@@ -44,13 +44,11 @@ export const METACHANNEL_INSTALL_APP_PROTOCOL = {
   ],
 
   2: [
-    (message: InternalMessage, context: Context, state: StateChannel) => {
-      // countersign
-      const clientMessage = message.clientMessage;
-      context.outbox.push(clientMessage);
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+      context.outbox.push(message);
       context.outbox[0].seq = 3;
-      context.outbox[0].fromAddress = clientMessage.data.responding;
-      context.outbox[0].toAddress = clientMessage.data.intermediary;
+      // context.outbox[0].fromAddress = message.data.responding;
+      // context.outbox[0].toAddress = message.data.intermediary;
     },
 
     Opcode.IO_SEND

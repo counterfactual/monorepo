@@ -7,7 +7,8 @@ import {
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { Context, InternalMessage } from "../types";
+import { ProtocolMessage, UninstallData } from "../protocol-types-tbd";
+import { Context } from "../types";
 
 /**
  * @description This exchange is described at the following URL:
@@ -61,38 +62,45 @@ export const UNINSTALL_PROTOCOL = {
 };
 
 function proposeStateTransition(
-  message: InternalMessage,
+  message: ProtocolMessage,
   context: Context,
   state: StateChannel
 ) {
-  // FIXME: use real app id
-  context.proposedStateTransition = state.uninstallApp(context.appId);
+  const {
+    appInstanceId,
+    aliceBalanceIncrement,
+    bobBalanceIncrement
+  } = message.params as UninstallData;
+
+  context.stateChannel = state.uninstallApp(
+    appInstanceId,
+    aliceBalanceIncrement,
+    bobBalanceIncrement
+  );
+
   context.operation = constructUninstallOp(
     context.network,
-    context.proposedStateTransition,
-    // FIXME: use real stuff here too
-    "3"
+    context.stateChannel,
+    appInstanceId
   );
 }
 
 function prepareToSendSignature(
-  message: InternalMessage,
+  message: ProtocolMessage,
   context: Context,
   state: StateChannel
 ) {
   context.outbox.push({
-    ...message.clientMessage,
-    signature: context.signature,
-    seq: message.clientMessage.seq + 1
+    ...message,
+    signature: context.signature!,
+    seq: message.seq + 1
   });
 }
 
 export function constructUninstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  // TODO: is there a better arg here?
   uninstallTargetId: string
-  // uninstallResolutions: any[]
 ) {
   if (uninstallTargetId === undefined) {
     throw new Error(
@@ -119,8 +127,13 @@ export function constructUninstallOp(
   //   continue;
   // }
 
-  // FIXME: hard-coded 5 for uninstall data :S
-  (freeBalance.latestState as ETHBucketAppState).aliceBalance.add(5);
+  // NOTE: You might be wondering ... why isn't aliceBalanceIncrement and
+  //       bobBalanceIncrmeent in the scope of this function? Well, the answer
+  //       is that the Uninstall Protocol requires users to sign a FULL OVERWRITE
+  //       of the FreeBalance app's state. We already assigned the new values in
+  //       the <uninstallApp> method on the StateChannel earlier, which is in scope
+  //       at this point. So, when we pass it into UninstallCommitment below, it reads
+  //       from the newly updated latestState property to generate the commitment.
 
   return new UninstallCommitment(
     network,

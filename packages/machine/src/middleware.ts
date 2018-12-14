@@ -1,9 +1,9 @@
 import { Opcode } from "./opcodes";
+import { ProtocolMessage } from "./protocol-types-tbd";
 import {
   Context,
   InstructionMiddlewareCallback,
-  InstructionMiddlewares,
-  InternalMessage
+  InstructionMiddlewares
 } from "./types";
 
 /**
@@ -27,10 +27,9 @@ export class Middleware {
     this.middlewares[scope].push({ scope, method });
   }
 
-  public async run(msg: InternalMessage, context: Context) {
+  public async run(msg: ProtocolMessage, opCode: Opcode, context: Context) {
     let counter = 0;
     const middlewares = this.middlewares;
-    const { opCode } = msg;
 
     async function callback() {
       if (counter === middlewares[opCode].length - 1) {

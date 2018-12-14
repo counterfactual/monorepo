@@ -3,6 +3,7 @@ import {
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
+import { BigNumber } from "ethers/utils";
 
 import {
   freeBalanceTerms,
@@ -16,6 +17,13 @@ const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 100,
   freeBalanceInitialStateTimeout: 100
 };
+
+const enum Errors {
+  APPS_NOT_EMPTY = "Expected the apps list to be empty but size was nonzero",
+  APP_DOES_NOT_EXIST = "Attempted to edit an app that does not exist",
+  FREE_BALANCE_MISSING = "Cannot find ETH Free Balance App in StateChannel",
+  FREE_BALANCE_IDX_CORRUPT = "Index used to find ETH Free Balance is broken"
+}
 
 function createETHFreeBalance(
   multisigAddress: string,
@@ -47,13 +55,24 @@ export class StateChannel {
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
     public apps: Map<string, AppInstance>,
-    public freeBalanceAppIndexes: Map<AssetType, string>
+    public freeBalanceAppIndexes: Map<AssetType, string>,
+    public sequenceNumber: number = 0
   ) {}
 
+  public getFreeBalanceFor(assetType: AssetType) {
+    const idx = this.freeBalanceAppIndexes.get(assetType);
+
+    if (!idx) throw Error(Errors.FREE_BALANCE_MISSING);
+
+    const fb = this.apps.get(idx);
+
+    if (!fb) throw Error(Errors.FREE_BALANCE_IDX_CORRUPT);
+
+    return fb;
+  }
+
   public setupChannel(network: NetworkContext) {
-    if (this.apps.size !== 0) {
-      throw Error("Called setupChannel on a channel with nonzero apps");
-    }
+    if (this.apps.size !== 0) throw Error(Errors.APPS_NOT_EMPTY);
 
     const fb = createETHFreeBalance(
       this.multisigAddress,
@@ -70,9 +89,7 @@ export class StateChannel {
   public setState(appid: string, state: object) {
     const app = this.apps.get(appid);
 
-    if (app === undefined) {
-      throw Error("Called setState for an app which does not exist");
-    }
+    if (app === undefined) throw Error(Errors.APP_DOES_NOT_EXIST);
 
     app.state = state;
 
@@ -80,65 +97,44 @@ export class StateChannel {
   }
 
   // FIXME: Include sub-deposit information
-  public installApp(app: AppInstance) {
-    const idx = this.freeBalanceAppIndexes.get(AssetType.ETH);
-    if (idx === undefined) {
-      throw Error(
-        "Attempted to install an app on a state channel with no ETH free balance"
-      );
-    }
-
-    const fb = this.apps.get(idx);
-    if (fb === undefined) {
-      throw Error(
-        "Malformed StateChannel does not have an ETH Free Balance in list of apps"
-      );
-    }
+  public installApp(
+    app: AppInstance,
+    aliceBalanceDecrement: BigNumber,
+    bobBalanceDecrement: BigNumber
+  ) {
+    const fb = this.getFreeBalanceFor(AssetType.ETH);
 
     // Install the App
     this.apps.set(app.id, app);
 
     // Update ETH FreeBalance
-    (fb.latestState as ETHBucketAppState).aliceBalance.sub(5);
+    const latestState = fb.latestState as ETHBucketAppState;
+    latestState.aliceBalance.sub(aliceBalanceDecrement);
+    latestState.bobBalance.sub(bobBalanceDecrement);
 
     return this;
   }
 
-  // FIXME: Compute resolution somehow
-  public uninstallApp(appid: string) {
-    if (this.apps.size === 0) {
-      throw Error("Called uninstallApp on a channel with no apps");
-    }
+  public uninstallApp(
+    appInstanceId: string,
+    aliceBalanceIncrement: BigNumber,
+    bobBalanceIncrement: BigNumber
+  ) {
+    const fb = this.getFreeBalanceFor(AssetType.ETH);
 
-    const idx = this.freeBalanceAppIndexes.get(AssetType.ETH);
+    const appToBeUninstalled = this.apps.get(appInstanceId);
 
-    if (idx === undefined) {
-      throw Error(
-        "Attempted to uninstall an app on a state channel with no ETH free balance"
-      );
-    }
+    if (!appToBeUninstalled) throw Error(Errors.APP_DOES_NOT_EXIST);
 
-    const fb = this.apps.get(idx);
+    // TODO: Hard-coded for ETH at the moment
+    const latestState = fb.latestState as ETHBucketAppState;
+    latestState.aliceBalance.add(aliceBalanceIncrement);
+    latestState.bobBalance.add(bobBalanceIncrement);
 
-    if (fb === undefined) {
-      throw Error(
-        "Malformed StateChannel does not have an ETH Free Balance in list of apps"
-      );
-    }
-
-    const appToBeUninstalled = this.apps.get(appid);
-
-    if (appToBeUninstalled === undefined) {
-      throw Error("Attempted to uninstall an app which does not exist");
-    }
-
-    // Update the ETH FreeBalance by resolution amount
-    // FIXME: We ought to use proposedResolution. Need to define that type.
-    (fb.latestState as ETHBucketAppState).aliceBalance.add(5);
     fb.latestNonce += 1;
 
     // Delete the old app.
-    this.apps.delete(appid);
+    this.apps.delete(appInstanceId);
 
     return this;
   }

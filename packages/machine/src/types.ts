@@ -1,10 +1,10 @@
-import { legacy } from "@counterfactual/cf.js";
 import { NetworkContext } from "@counterfactual/types";
 import { Signature } from "ethers/utils";
 
 import { EthereumCommitment } from "./ethereum/utils";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
+import { ProtocolMessage } from "./protocol-types-tbd";
 
 export enum Protocol {
   Setup = "setup",
@@ -14,14 +14,8 @@ export enum Protocol {
   MetaChannelInstallApp = "metachannel-install-app"
 }
 
-export interface InternalMessage {
-  actionName: Protocol;
-  opCode: Opcode;
-  clientMessage: legacy.node.ClientActionMessage;
-}
-
 export type InstructionMiddlewareCallback = {
-  (message: InternalMessage, next: Function, context: Context);
+  (message: ProtocolMessage, next: Function, context: Context);
 };
 
 export interface InstructionMiddleware {
@@ -29,13 +23,15 @@ export interface InstructionMiddleware {
   method: InstructionMiddlewareCallback;
 }
 
+export type Instruction = Function | Opcode;
+
 export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };
 
 export interface Context {
   network: NetworkContext;
-  outbox: legacy.node.ClientActionMessage[];
-  inbox: legacy.node.ClientActionMessage[];
-  proposedStateTransition?: StateChannel;
+  outbox: ProtocolMessage[];
+  inbox: ProtocolMessage[];
+  stateChannel: StateChannel;
   operation?: EthereumCommitment;
   signature?: Signature;
 }

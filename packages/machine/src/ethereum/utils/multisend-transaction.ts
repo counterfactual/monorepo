@@ -2,6 +2,7 @@ import { HashZero } from "ethers/constants";
 import { Interface } from "ethers/utils";
 
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import { AppIdentity, Terms } from "@counterfactual/types";
 
 import { encodeTransactions } from "./multisend-encoder";
@@ -9,6 +10,7 @@ import { MultisigTransactionCommitment } from "./multisig-transaction";
 import { MultisigOperation, MultisigTransaction } from "./types";
 
 const appRegistryIface = new Interface(AppRegistry.abi);
+const multisendIface = new Interface(MultiSend.abi);
 
 export abstract class MultiSendCommitment extends MultisigTransactionCommitment {
   public abstract eachMultisigInput(): MultisigTransaction[];
@@ -32,7 +34,9 @@ export abstract class MultiSendCommitment extends MultisigTransactionCommitment 
     return {
       to: this.networkContext.MultiSend,
       value: 0,
-      data: encodeTransactions(this.eachMultisigInput()),
+      data: multisendIface.functions.multiSend.encode([
+        encodeTransactions(this.eachMultisigInput())
+      ]),
       operation: MultisigOperation.Delegatecall
     };
   }

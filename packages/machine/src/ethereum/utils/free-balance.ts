@@ -1,3 +1,5 @@
+import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
+import { AppInterface, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, MaxUint256 } from "ethers/constants";
 import {
   defaultAbiCoder,
@@ -6,8 +8,7 @@ import {
   keccak256
 } from "ethers/utils";
 
-import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
-import { AppInterface, ETHBucketAppState } from "@counterfactual/types";
+import { AppInstance } from "../../models";
 
 import { APP_INTERFACE, TERMS } from "./encodings";
 
@@ -57,4 +58,35 @@ export function encodeFreeBalanceState(state: ETHBucketAppState) {
     //       formatParamType. See: github.com/ethers-io/ethers.js/issues/325
     [[state.alice, state.bob, state.aliceBalance, state.bobBalance]]
   );
+}
+
+export class ETHFreeBalanceApp extends AppInstance {
+  constructor(
+    multisigAddress: string,
+    signingKeys: string[],
+    defaultTimeout: number,
+    ethBucketAddress: string,
+    latestState: ETHBucketAppState,
+    latestNonce: number,
+    latestTimeout: number
+  ) {
+    super(
+      multisigAddress,
+      signingKeys,
+      defaultTimeout,
+      getFreeBalanceAppInterface(ethBucketAddress),
+      freeBalanceTerms,
+      false,
+      0,
+      // TODO: See line 56...
+      [
+        latestState.alice,
+        latestState.bob,
+        latestState.aliceBalance,
+        latestState.bobBalance
+      ],
+      latestNonce,
+      latestTimeout
+    );
+  }
 }
