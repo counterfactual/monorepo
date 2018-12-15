@@ -32,8 +32,8 @@ contract HighRollerApp {
     Stage stage;
     bytes32 salt;
     bytes32 commitHash;
-    uint256 commitNum;
-    uint256 hashNum;
+    uint256 playerSecondNumber;
+    uint256 playerFirstNumber;
   }
 
   struct Action {
@@ -56,7 +56,7 @@ contract HighRollerApp {
     returns (Player)
   {
     return state.stage == Stage.COMMITTING_NUM ? Player.SECOND : Player.FIRST;
-    }
+  }
 
   function applyAction(AppState state, Action action)
     public
@@ -73,7 +73,7 @@ contract HighRollerApp {
       require(state.stage == Stage.COMMITTING_NUM, "Cannot apply COMMITTING_NUM on COMMITTING_NUM");
       nextState.stage = Stage.DONE;
 
-      nextState.commitNum = action.number;
+      nextState.playerSecondNumber = action.number;
     } else {
       revert("Invalid action type");
     }
@@ -85,17 +85,13 @@ contract HighRollerApp {
     pure
     returns (Transfer.Transaction)
   {
-    bytes32 salt = state.salt;
-    uint256 playerFirstNumber = state.hashNum;
-    uint256 playerSecondNumber = state.commitNum;
-
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
     to[0] = state.playerAddrs[0];
     to[1] = state.playerAddrs[1];
-    bytes32 expectedCommitHash = keccak256(abi.encodePacked(salt, playerFirstNumber));
+    bytes32 expectedCommitHash = keccak256(abi.encodePacked(state.salt, state.playerFirstNumber));
     if (expectedCommitHash == state.commitHash) {
-      amounts = getWinningAmounts(playerFirstNumber, playerSecondNumber, terms.limit);
+      amounts = getWinningAmounts(state.playerFirstNumber, state.playerSecondNumber, terms.limit);
     } else {
       amounts[0] = 0;
       amounts[1] = terms.limit;
