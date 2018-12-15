@@ -172,7 +172,7 @@ contract HighRollerApp {
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
-    returns (uint)
+    returns (uint8)
   {
     return uint8(q) % 6;
   }
