@@ -55,11 +55,8 @@ contract HighRollerApp {
     pure
     returns (Player)
   {
-    if (state.stage == Stage.COMMITTING_NUM) {
-      return Player.SECOND;
+    return state.stage == Stage.COMMITTING_NUM ? Player.SECOND : Player.FIRST;
     }
-    return Player.FIRST;
-  }
 
   function applyAction(AppState state, Action action)
     public
