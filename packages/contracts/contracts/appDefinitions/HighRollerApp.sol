@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
 
+
 /*
   This contract is for a dice rolling game.
   Two players roll two dice each.
@@ -95,7 +96,7 @@ contract HighRollerApp {
     address[] memory to = new address[](2);
     to[0] = state.playerAddrs[0];
     to[1] = state.playerAddrs[1];
-    bytes32 expectedCommitHash  = keccak256(abi.encodePacked(salt, playerFirstNumber));
+    bytes32 expectedCommitHash = keccak256(abi.encodePacked(salt, playerFirstNumber));
     if (expectedCommitHash == state.commitHash) {
       amounts = getWinningAmounts(playerFirstNumber, playerSecondNumber, terms.limit);
     } else {
