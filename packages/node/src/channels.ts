@@ -54,7 +54,7 @@ export class Channels {
    * @param freeBalances
    */
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
-    const multisigAddress = Channels.generateNewMultisigAddress(params.owners);
+    const multisigAddress = this.generateNewMultisigAddress(params.owners);
     const channel: Channel = new Channel(multisigAddress, params.owners);
     const ownersHash = orderedAddressesHash(params.owners);
     this.ownersHashToMultisigAddress[ownersHash] = multisigAddress;
@@ -197,10 +197,12 @@ export class Channels {
   // setters
 
   async save(channel: Channel) {
-    await this.store.set(
-      `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
-      channel
-    );
+    await this.store.set([
+      {
+        key: `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+        value: channel
+      }
+    ]);
   }
 
   /**
@@ -223,10 +225,12 @@ export class Channels {
     delete channel.proposedAppInstances[appInstanceUUID];
 
     channel.appInstances[appInstanceId] = appInstance;
-    await this.store.set(
-      `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
-      channel
-    );
+    await this.store.set([
+      {
+        key: `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+        value: channel
+      }
+    ]);
   }
 
   /**
@@ -245,12 +249,14 @@ export class Channels {
     this.appInstanceUUIDToMultisigAddress[appInstanceUUID] =
       channel.multisigAddress;
     channel.proposedAppInstances[appInstanceUUID] = appInstance;
-    await this.store.set(
-      `${this.multisigKeyPrefix}/${
-        channel.multisigAddress
-      }/proposedAppInstances`,
-      channel.proposedAppInstances
-    );
+    await this.store.set([
+      {
+        key: `${this.multisigKeyPrefix}/${
+          channel.multisigAddress
+        }/proposedAppInstances`,
+        value: channel.proposedAppInstances
+      }
+    ]);
   }
 
   // private utility methods
@@ -349,9 +355,7 @@ export class Channels {
     );
   }
 
-  // Utility methods
-
-  static generateNewMultisigAddress(owners: Address[]): Address {
+  private generateNewMultisigAddress(owners: Address[]): Address {
     // TODO: implement this using CREATE2
     return ethers.Wallet.createRandom().address;
   }

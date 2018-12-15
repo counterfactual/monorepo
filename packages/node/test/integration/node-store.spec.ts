@@ -49,8 +49,8 @@ describe("Node can use storage service", () => {
         ethers.constants.AddressZero
       ]
     };
-    await storeService.set("multisigAddress/0x111", channelA);
-    await storeService.set("multisigAddress/0x222", channelB);
+    await storeService.set([{ key: "multisigAddress/0x111", value: channelA }]);
+    await storeService.set([{ key: "multisigAddress/0x222", value: channelB }]);
     expect(await storeService.get("multisigAddress")).toEqual({
       "0x111": {
         ...channelA

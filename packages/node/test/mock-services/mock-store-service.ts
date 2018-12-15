@@ -5,7 +5,7 @@ class MockStoreService implements IStoreService {
     return Promise.resolve(true);
   }
 
-  set(key: string, value: any): Promise<any> {
+  set(pairs: { key: string; value: any }[]): Promise<boolean> {
     return Promise.resolve(true);
   }
 }
