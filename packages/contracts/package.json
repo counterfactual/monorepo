@@ -20,8 +20,7 @@
     "lint:sol": "solium -d .",
     "lint:ts:fix": "tslint -c tslint.json -p . --fix",
     "lint:ts": "tslint -c tslint.json -p .",
-    "test:coverage": "solidity-coverage",
-    "remixd": "remixd -s ../../. --remix-ide https://remix.ethereum.org"
+    "test:coverage": "solidity-coverage"
   },
   "config": {
     "testFiles": "dist/test/**/*.spec.js",
@@ -47,7 +46,6 @@
     "ethers": "^4.0.17",
     "ganache-cli": "6.1.8",
     "openzeppelin-eth": "^2.0.2",
-    "remixd": "^0.1.8-alpha.6",
     "shx": "^0.3.2",
     "solc": "^0.4.25",
     "solidity-coverage": "0.5.11",
