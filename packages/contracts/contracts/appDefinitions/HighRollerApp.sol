@@ -174,6 +174,6 @@ contract HighRollerApp {
     pure
     returns (uint)
   {
-    return uint64(q) % 6;
+    return uint8(q) % 6;
   }
 }
