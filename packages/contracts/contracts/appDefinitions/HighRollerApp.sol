@@ -111,7 +111,7 @@ contract HighRollerApp {
   function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
     public
     pure
-    returns (uint256[])
+    returns (uint256[] memory)
   {
     uint256[] memory amounts = new uint256[](2);
     bytes32 finalHash = calculateFinalHash(num1, num2);
@@ -166,8 +166,8 @@ contract HighRollerApp {
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
-    returns (uint)
+    returns (uint8)
   {
-    return uint64(q) % 6;
+    return uint8(q) % 6;
   }
 }
