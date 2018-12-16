@@ -65,12 +65,18 @@ contract HighRollerApp {
   {
     AppState memory nextState = state;
     if (action.actionType == ActionType.COMMIT_TO_HASH) {
-      require(state.stage == Stage.COMMITTING_HASH, "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH");
+      require(
+        state.stage == Stage.COMMITTING_HASH, 
+        "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH"
+      );
       nextState.stage = Stage.COMMITTING_NUM;
 
       nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
-      require(state.stage == Stage.COMMITTING_NUM, "Cannot apply COMMITTING_NUM on COMMITTING_NUM");
+      require(
+        state.stage == Stage.COMMITTING_NUM, 
+        "Cannot apply COMMITTING_NUM on COMMITTING_NUM"
+      );
       nextState.stage = Stage.DONE;
 
       nextState.playerSecondNumber = action.number;
@@ -89,9 +95,13 @@ contract HighRollerApp {
     address[] memory to = new address[](2);
     to[0] = state.playerAddrs[0];
     to[1] = state.playerAddrs[1];
-    bytes32 expectedCommitHash = keccak256(abi.encodePacked(state.salt, state.playerFirstNumber));
+    bytes32 expectedCommitHash = keccak256(
+      abi.encodePacked(state.salt, state.playerFirstNumber)
+    );
     if (expectedCommitHash == state.commitHash) {
-      amounts = getWinningAmounts(state.playerFirstNumber, state.playerSecondNumber, terms.limit);
+      amounts = getWinningAmounts(
+        state.playerFirstNumber, state.playerSecondNumber, terms.limit
+      );
     } else {
       amounts[0] = 0;
       amounts[1] = terms.limit;
@@ -108,13 +118,13 @@ contract HighRollerApp {
     );
   }
 
-  function getWinningAmounts(uint256 playerFirstNumber, uint256 playerSecondNumber, uint256 termsLimit) 
+  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
     public
     pure
     returns (uint256[] memory)
   {
     uint256[] memory amounts = new uint256[](2);
-    bytes32 randomSalt = calculateRandomSalt(playerFirstNumber, playerSecondNumber);
+    bytes32 randomSalt = calculateRandomSalt(num1, num2);
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
     if (playerFirstTotal > playerSecondTotal) {
       amounts[0] = termsLimit;
@@ -134,7 +144,8 @@ contract HighRollerApp {
     pure
     returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
   {
-    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = cutBytes32(randomness);
+    (bytes8 hash1, bytes8 hash2, 
+    bytes8 hash3, bytes8 hash4) = cutBytes32(randomness);
     playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
     playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
   }
@@ -151,8 +162,8 @@ contract HighRollerApp {
   /// @notice Splits a bytes32 into 4 bytes8 by cutting every 8 bytes
   /// @param h The bytes32 to be split
   /// @dev Takes advantage of implicitly recognizing the length of each bytes8
-  ///            variable when being read by `mload`. We point to the start of each
-  ///            string (e.g., 0x08, 0x10) by incrementing by 8 bytes each time.
+  ///      variable when being read by `mload`. We point to the start of each
+  ///      string (e.g., 0x08, 0x10) by incrementing by 8 bytes each time.
   function cutBytes32(bytes32 h) 
     public
     pure
