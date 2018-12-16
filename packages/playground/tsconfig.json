@@ -5,17 +5,13 @@
     "allowUnreachableCode": false,
     "declaration": false,
     "experimentalDecorators": true,
-    "lib": [
-      "dom",
-      "es2015"
-    ],
+    "lib": ["dom", "es2015"],
     "moduleResolution": "node",
     "module": "esnext",
     "target": "es2017",
     "jsx": "react",
     "jsxFactory": "h"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "exclude": ["__mocks__"]
 }
