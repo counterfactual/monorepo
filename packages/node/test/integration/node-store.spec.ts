@@ -60,4 +60,26 @@ describe("Node can use storage service", () => {
       }
     });
   });
+
+  it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
+    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelB = {
+      owners: [
+        new ethers.Wallet(B_PRIVATE_KEY).address,
+        ethers.constants.AddressZero
+      ]
+    };
+    await storeService.set([
+      { key: "multisigAddress/0x111", value: channelA },
+      { key: "multisigAddress/0x222", value: channelB }
+    ]);
+    expect(await storeService.get("multisigAddress")).toEqual({
+      "0x111": {
+        ...channelA
+      },
+      "0x222": {
+        ...channelB
+      }
+    });
+  });
 });
