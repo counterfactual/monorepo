@@ -156,7 +156,7 @@ contract HighRollerApp {
     returns (bytes32)
   {
     uint256 mult = num1 * num2;
-    return keccak256(abi.encodePacked(mult));
+    return keccak256(mult);
   }
 
   /// @notice Splits a bytes32 into 4 bytes8 by cutting every 8 bytes
