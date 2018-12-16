@@ -8,6 +8,10 @@ import {
 } from "../../../src/service-interfaces";
 
 class FirebaseMessagingService implements IMessagingService {
+  // naive caching - firebase fires observers twice upon initial callback
+  // registration and invocation
+  private servedMessages = new Map();
+
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -36,7 +40,17 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-        callback(snapshot.val());
+        const msg = snapshot.val();
+        const msgKey = JSON.stringify(msg);
+        if (msg === null) {
+          return;
+        }
+        if (msgKey in this.servedMessages) {
+          delete this.servedMessages[msgKey];
+          return;
+        }
+        this.servedMessages[msgKey] = true;
+        callback(msg);
       });
   }
 }
@@ -50,7 +64,8 @@ class FirebaseStoreService implements IStoreService {
   async get(key: string): Promise<any> {
     let result: any;
     await this.firebase
-      .ref(`${this.storeServiceKey}/${key}`)
+      .ref(this.storeServiceKey)
+      .child(key)
       .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
@@ -64,7 +79,10 @@ class FirebaseStoreService implements IStoreService {
   }
 
   async set(key: string, value: any): Promise<any> {
-    return await this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
+    await this.firebase
+      .ref(this.storeServiceKey)
+      .child(key)
+      .set(value);
   }
 }
 

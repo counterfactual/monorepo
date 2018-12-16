@@ -1,29 +1,29 @@
-import {
-  Address,
-  AppInstanceInfo,
-  Node as NodeTypes
-} from "@counterfactual/common-types";
+import { Address, Node as NodeTypes } from "@counterfactual/common-types";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
+import { Channels } from "./channels";
+import { RequestHandler } from "./methods/request-handler";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
-export default class Node {
-  /**
-   * The event that Node consumers can listen on for messages from other
-   * nodes.
-   */
-  public static PEER_MESSAGE = "peerMessage";
+export interface NodeConfig {
+  // A channel is indexed by its multisig address. The prefix for this key
+  // depends on the execution environment.
+  MULTISIG_KEY_PREFIX: string;
+}
 
+export class Node {
   /**
    * Because the Node receives and sends out messages based on Event type
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/src/types/node-protocol.ts#L21-L33
-   * the same EventEmitter can't be used since response messages would get
-   * sent to listeners expecting request messages.
+   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
+   * incoming and outgoing emitters need to be used.
    **/
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
+
+  private readonly channels: Channels;
   private readonly signer: ethers.utils.SigningKey;
+  protected readonly requestHandler: RequestHandler;
 
   /**
    * @param privateKey
@@ -32,13 +32,29 @@ export default class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService
+    private readonly storeService: IStoreService,
+    nodeConfig: NodeConfig
   ) {
     this.signer = new ethers.utils.SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.registerListeners();
-    this.registerConnection();
+    this.channels = new Channels(
+      this.signer.address,
+      this.storeService,
+      // naive, account-based multisig indexing
+      `${nodeConfig.MULTISIG_KEY_PREFIX}/${this.signer.address}`
+    );
+    this.registerMessagingConnection();
+    this.requestHandler = new RequestHandler(
+      this.incoming,
+      this.outgoing,
+      this.channels,
+      this.messagingService
+    );
+  }
+
+  get address() {
+    return this.signer.address;
   }
 
   /**
@@ -61,83 +77,50 @@ export default class Node {
     this.incoming.emit(event, req);
   }
 
-  get address() {
-    return this.signer.address;
-  }
-
   /**
-   * Sends a message to another Node. It also auto-includes the from field
-   * in the message.
-   * @param peerAddress The peer to whom the message is being sent.
-   * @param msg The message that is being sent.
+   * Makes a direct call to the Node for a specific method.
+   * @param method
+   * @param req
    */
-  async send(peerAddress: Address, msg: object) {
-    const modifiedMsg = { from: this.address, ...msg };
-    await this.messagingService.send(peerAddress, modifiedMsg);
-  }
-
-  // Note: The following getter/setter method will become private
-  // once the machine becomes embedded in the Node.
-  /**
-   * Retrieves the value that's mapped to the given key through the provided
-   * When the given key doesn't map to any value, `null` is returned.
-   * store service.
-   * @param key
-   */
-  async get(key: string): Promise<any> {
-    return await this.storeService.get(key);
-  }
-
-  /**
-   * Sets the given value to the given key through the provided store service.
-   * @param key
-   * @param value
-   */
-  async set(key: string, value: any): Promise<any> {
-    return await this.storeService.set(key, value);
-  }
-
-  /**
-   * This sets up all the listeners for the methods the Node is expected to have
-   * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#node-protocol
-   *
-   * The responses to these calls are the events being listened on
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
-   */
-  private registerListeners() {
-    this.incoming.on(
-      NodeTypes.MethodName.GET_APP_INSTANCES,
-      (req: NodeTypes.MethodRequest) => {
-        const res: NodeTypes.MethodResponse = {
-          type: req.type,
-          requestId: req.requestId,
-          result: this.getAppInstances()
-        };
-        this.outgoing.emit(req.type, res);
-      }
-    );
+  async call(
+    method: NodeTypes.MethodName,
+    req: NodeTypes.MethodRequest
+  ): Promise<NodeTypes.MethodResponse> {
+    return this.requestHandler.callMethod(method, req);
   }
 
   /**
    * When a Node is first instantiated, it establishes a connection
    * with the messaging service.
+   * When it receives a message, it emits the message to its registered subscribers,
+   * usually external subscribed (i.e. consumers of the Node).
    */
-  private registerConnection() {
-    this.messagingService.receive(this.address, (msg: object) => {
-      console.debug(
-        `Node with address ${this.address} received message: ${JSON.stringify(
-          msg
-        )}`
-      );
-      this.outgoing.emit(Node.PEER_MESSAGE, msg);
+  private registerMessagingConnection() {
+    this.messagingService.receive(this.address, async (msg: NodeMessage) => {
+      await this.preprocessMessage(msg);
+      this.outgoing.emit(msg.event, msg);
     });
   }
 
-  private getAppInstances(): NodeTypes.GetAppInstancesResult {
-    // TODO: should return actual list of app instances when that gets
-    // implemented
-    return {
-      appInstances: [] as AppInstanceInfo[]
-    };
+  /**
+   * Each internal event handler is responsible for deciding how to process
+   * the incoming message.
+   * @param msg
+   */
+  private async preprocessMessage(msg: NodeMessage) {
+    if (!Object.values(NodeTypes.EventName).includes(msg.event)) {
+      console.log("Event not recognized, no-op");
+      return;
+    }
+    await this.requestHandler.callEvent(msg.event, msg);
   }
+}
+
+/**
+ * The message interface for Nodes to communicate with each other.
+ */
+export interface NodeMessage {
+  from?: Address;
+  event: NodeTypes.EventName;
+  data: any;
 }
