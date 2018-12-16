@@ -4,11 +4,12 @@ pragma experimental "ABIEncoderV2";
 import "../lib/Transfer.sol";
 
 
-/*
-  This contract is for a dice rolling game.
-  Two players roll two dice each.
-  The winner is the player whose sum of dice outcomes is highest.
-*/
+/// @title High Roller App
+/// @notice This contract allows the playing of a dice rolling game.
+///         Two players take turns rolling two dice each.
+///         The winner is the player whose sum of dice outcomes is highest.
+/// @dev This contract is an example of a dApp built to run on
+///      the CounterFactual framework
 contract HighRollerApp {
 
   enum ActionType {
