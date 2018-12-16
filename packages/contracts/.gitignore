@@ -1,2 +1,42 @@
-networks/7777777.json
+networks/*.json
+
+# Olympic, Ethereum public pre-release testnet
+!networks/0.json
+
+# Frontier, Homestead, Metropolis, the Ethereum public main network
+!networks/1.json
+
+# Morden, the public Ethereum testnet, now Ethereum Classic testnet
+!networks/2.json
+
+# Ropsten, the public cross-client Ethereum testnet
+!networks/3.json
+
+# Rinkeby, the public Geth PoA testnet
+!networks/4.json
+
+# Ubiq, the public Gubiq main network with flux difficulty chain ID 8
+!networks/8.json
+
+# Kovan, the public Parity PoA testnet
+!networks/42.json
+
+# Sokol, the public POA Network testnet
+!networks/77.json
+
+# Core, the public POA Network main network
+!networks/99.json
+
+# xDai, the public MakerDAO/POA Network main network
+!networks/100.json
+
+# Tobalaba, the public Energy Web Foundation testnet
+!networks/401697.json
+
+# Musicoin, the music blockchain
+!networks/7762959.json
+
+# Aquachain, ASIC resistant chain
+!networks/61717561.json
+
 .env

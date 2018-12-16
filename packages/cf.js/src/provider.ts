@@ -29,7 +29,25 @@ export class Provider {
       {}
     );
     const result = response.result as Node.GetAppInstancesResult;
-    return result.appInstances.map(info => new AppInstance(info));
+    return Promise.all(
+      result.appInstances.map(info =>
+        this.getOrCreateAppInstance(info.id, info)
+      )
+    );
+  }
+
+  async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
+    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
+      appInstanceId
+    });
+    const { appInstance } = response.result as Node.InstallResult;
+    return this.getOrCreateAppInstance(appInstanceId, appInstance);
+  }
+
+  async rejectInstall(appInstanceId: AppInstanceID) {
+    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
+      appInstanceId
+    });
   }
 
   on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
@@ -106,7 +124,7 @@ export class Provider {
         );
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
       }
-      this.appInstances[id] = new AppInstance(newInfo);
+      this.appInstances[id] = new AppInstance(newInfo, this);
     }
     return this.appInstances[id];
   }

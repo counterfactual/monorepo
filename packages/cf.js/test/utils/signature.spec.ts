@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import { signaturesToBytes, signaturesToSortedBytes } from "../../src/utils";
 

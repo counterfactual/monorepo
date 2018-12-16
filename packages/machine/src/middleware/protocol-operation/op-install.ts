@@ -29,11 +29,6 @@ export class OpInstall extends MultiSendOp {
   private conditionalTransactionInput(): MultisigInput {
     const to = this.networkContext.conditionalTransactionAddr;
     const val = 0;
-    const terms = [
-      this.app.terms.assetType,
-      this.app.terms.limit,
-      this.app.terms.token
-    ];
     const uninstallKey = keccak256(
       abi.encodePacked(
         ["address", "uint256", "uint256"],
@@ -47,7 +42,11 @@ export class OpInstall extends MultiSendOp {
       this.networkContext.nonceRegistryAddr,
       uninstallKey,
       this.appCfAddress,
-      terms
+      {
+        assetType: this.app.terms.assetType,
+        limit: this.app.terms.limit,
+        token: this.app.terms.token
+      }
     ]);
     const op = Operation.Delegatecall;
     return new MultisigInput(to, val, data, op);

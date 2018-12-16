@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
+import { ethers } from "ethers";
 import FirebaseServer from "firebase-server";
 
-import { IStoreService, Node } from "../../src";
+import { IStoreService, Node, NodeConfig } from "../../src";
 
-import { A_PRIVATE_KEY } from "../env";
+import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import FirebaseServiceFactory from "./services/firebase-service";
@@ -14,6 +15,7 @@ describe("Node can use storage service", () => {
   let firebaseServer: FirebaseServer;
   let storeService: IStoreService;
   let node: Node;
+  let nodeConfig: NodeConfig;
 
   beforeAll(() => {
     const firebaseServiceFactory = new FirebaseServiceFactory(
@@ -24,20 +26,38 @@ describe("Node can use storage service", () => {
     storeService = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
-    node = new Node(A_PRIVATE_KEY, MOCK_MESSAGING_SERVICE, storeService);
+    nodeConfig = {
+      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+    };
+    node = new Node(
+      A_PRIVATE_KEY,
+      MOCK_MESSAGING_SERVICE,
+      storeService,
+      nodeConfig
+    );
   });
 
   afterAll(() => {
     firebaseServer.close();
   });
 
-  it("Node fails to get data with invalid key", async () => {
-    expect(await node.get("installMsg")).toEqual(null);
-  });
-
-  it("Node can store and retrieve some data correctly", async () => {
-    const msg = { method: "INSTALL" };
-    await node.set("installMsg", msg);
-    expect(await node.get("installMsg")).toEqual(msg);
+  it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
+    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelB = {
+      owners: [
+        new ethers.Wallet(B_PRIVATE_KEY).address,
+        ethers.constants.AddressZero
+      ]
+    };
+    await storeService.set("multisigAddress/0x111", channelA);
+    await storeService.set("multisigAddress/0x222", channelB);
+    expect(await storeService.get("multisigAddress")).toEqual({
+      "0x111": {
+        ...channelA
+      },
+      "0x222": {
+        ...channelB
+      }
+    });
   });
 });
