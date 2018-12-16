@@ -32,8 +32,8 @@ contract HighRollerApp {
     Stage stage;
     bytes32 salt;
     bytes32 commitHash;
-    uint256 playerSecondNumber;
     uint256 playerFirstNumber;
+    uint256 playerSecondNumber;
   }
 
   struct Action {
@@ -108,20 +108,18 @@ contract HighRollerApp {
     );
   }
 
-  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
+  function getWinningAmounts(uint256 playerFirstNumber, uint256 playerSecondNumber, uint256 termsLimit) 
     public
     pure
     returns (uint256[] memory)
   {
     uint256[] memory amounts = new uint256[](2);
-    bytes32 finalHash = calculateFinalHash(num1, num2);
-    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = cutBytes32(finalHash);
-    uint256 total1 = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
-    uint256 total2 = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
-    if (total1 > total2) {
+    bytes32 randomSalt = calculateRandomSalt(playerFirstNumber, playerSecondNumber);
+    (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
+    if (playerFirstTotal > playerSecondTotal) {
       amounts[0] = termsLimit;
       amounts[1] = 0;
-    } else if (total1 < total2) {
+    } else if (playerFirstTotal < playerSecondTotal) {
       amounts[0] = 0;
       amounts[1] = termsLimit;
     } else {
@@ -130,8 +128,18 @@ contract HighRollerApp {
     }
     return amounts;
   }
+
+  function highRoller(bytes32 randomness)
+    public
+    pure
+    returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
+  {
+    (bytes8 hash1, bytes8 hash2, bytes8 hash3, bytes8 hash4) = cutBytes32(randomness);
+    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
+    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
+  }
   
-  function calculateFinalHash(uint256 num1, uint256 num2) 
+  function calculateRandomSalt(uint256 num1, uint256 num2) 
     public
     pure
     returns (bytes32)
