@@ -76,11 +76,11 @@
         - `async acceptState(state: AppState)`
             - [Node method](#method-acceptstate)
             - TODO
-            - Accept a proposed state 
+            - Accept a proposed state
         - `async rejectState(state: AppState)`
             - [Node method](#method-rejectstate)
             - TODO
-            - Reject a proposed state 
+            - Reject a proposed state
     - App lifecycle
         - `on(eventType, callback: Function)`
             - eventTypes
@@ -93,7 +93,7 @@
                 - `rejectState`
                     - [Node event](#event-rejectstate)
 - `types`
-    - Everything under [Data Types](#data-types) except `AppInstanceInfo` 
+    - Everything under [Data Types](#data-types) except `AppInstanceInfo`
     - `AppManifest`
         - TODO
         - `name`: human-readable name of app e.g. "TicTacToe"
@@ -114,32 +114,32 @@ Messages in the Node Protocol have the following fields:
     - Unique ID for a Method request.
     - Only required for Methods. Leave empty for Events.
 - `data: { [key: string]: any }`
-    - Data payload for this message. 
-    - See "Result" section of a Method and "Data" section of an Event for details. 
+    - Data payload for this message.
+    - See "Result" section of a Method and "Data" section of an Event for details.
 
 Public Methods
 --------------
 
 ### Method: `getAppInstances`
 
-Returns all app instances currently installed on the Node. 
+Returns all app instances currently installed on the Node.
 
-NOTE: This is terrible from a security perspective. In the future this method will be changed or deprecated to fix the security flaw. 
+NOTE: This is terrible from a security perspective. In the future this method will be changed or deprecated to fix the security flaw.
 
 Params: None
 
-Result: 
+Result:
 - `appInstances:`[`AppInstanceInfo`](#data-type-appinstanceinfo)`[]`
     - All the app instances installed on the Node
 
 ### Method: `proposeInstall`
 
-Generate an app instance ID given details about an app installation.  
+Requests that a peer authorize the installation of an app instance. At the same time, generate and returns a fresh ID for it, and authorize the installation of that app instance.
 
 Params:
-- `peerAddress: string` 
-    - Address of the peer to install the app with
-- `appId: string` 
+- `peerAddress: string`
+    - Address of the peer to request installation of the app with
+- `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -153,22 +153,22 @@ Params:
     - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
     - Initial state of app instance
-    
-Result: 
+
+Result:
 - `appInstanceId: string`
-    - Unique ID for this app instance 
+    - ID of an app instance whose proposed installation was accepted
 
 Errors: (TODO)
 - Not enough funds
 
 ### Method: `rejectInstall`
 
-Reject an app instance installation. 
+Reject an app instance installation.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID for the app instance to reject 
-    
+    - ID of the app instance to reject
+
 Result: "OK"
 
 Errors: (TODO)
@@ -176,12 +176,13 @@ Errors: (TODO)
 
 ### Method: `install`
 
-Install an app instance. 
+Install an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID for the app instance to install 
-    
+    - ID of the app instance to install
+    - Counterparty must have called `proposedInstall` and generated this ID
+
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -196,12 +197,12 @@ Get the latest state of an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance 
+    - ID of the app instance to get state of
 
 Result:
 - `state:`[`AppState`](#data-type-appstate)
     - Latest state of the app instance
-  
+
 Errors: (TODO)
 - App not installed
 
@@ -212,7 +213,7 @@ Get details of an app instance.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance 
+    - ID of the app instance to get details of
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -225,9 +226,9 @@ Take action on current app state to advance it to a new state.
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance 
+    - ID of the app instance for which to take action
 - `action:`[`AppAction`](#data-type-appaction)
-    - Action to take on the current state 
+    - Action to take on the current state
 
 Result:
 - `newState:`[`AppState`](#data-type-appstate)
@@ -242,16 +243,16 @@ Uninstall an app instance, paying out users according to the latest signed state
 
 Params:
 - `appInstanceId: string`
-    - Unique ID of the app instance to uninstall
+    - ID of the app instance to uninstall
 
 Result:
 - `myPayout: BigNumber`
-    - Amount of the asset paid out to this user 
+    - Amount of the asset paid out to this user
 - `peerPayout: BigNumber`
     - Amount of the asset paid out to peer
-    
+
 Errors: (TODO)
-- App state not terminal  
+- App state not terminal
 
 ### Method: `proposeState`
 
@@ -314,7 +315,7 @@ Fired if app state is successfully updated.
 
 Data:
 - `appInstanceId: string`
-    - Unique ID of app instance
+    - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
 - `oldState:`[`AppState`](#data-type-appstate)
 - `action?:`[`AppAction`](#data-type-appaction)
@@ -328,7 +329,7 @@ Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Uninstalled app instance
 - `myPayout: BigNumber`
-    - Amount of the asset paid out to this user 
+    - Amount of the asset paid out to this user
 - `peerPayout: BigNumber`
     - Amount of the asset paid out to peer
 
@@ -359,11 +360,11 @@ Data Types
 
 An instance of an installed app.
 
-- `id: string` 
-    - Unique ID for this app instance
-- `appId: string` 
-    - Unique ID for this app
-    - Currently corresponds to on-chain address of App Definition contract
+- `id: string`
+    - Opaque identifier used to refer to this app instance
+    - No two distinct app instances (even in different channels) may share the same ID
+- `appId: string`
+    - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
 - `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
@@ -374,7 +375,7 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-   
+
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
     - The type of the asset.
@@ -383,12 +384,12 @@ An instance of an installed app.
     - Optional address of token contract if assetType is set to 1.
 
 ### Data Type: `AppABIEncodings`
-- `stateEncoding: string` 
+- `stateEncoding: string`
     - ABI encoding of the app state
 - `actionEncoding?: string`
     - Optional ABI encoding of the app action
     - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)
-    - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction) 
+    - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction)
 
 ### Data Type: `AppState`
 

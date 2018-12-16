@@ -1,5 +1,5 @@
 import AppInstanceJson from "@counterfactual/contracts/build/contracts/AppInstance.json";
-import * as ethers from "ethers";
+import { ethers } from "ethers";
 
 import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
@@ -48,15 +48,6 @@ export class AppInstance {
 }
 
 export class AppInterface {
-  public static generateSighash(
-    abiInterface: ethers.utils.Interface,
-    functionName: string
-  ): string {
-    return abiInterface.functions[functionName]
-      ? abiInterface.functions[functionName].sighash
-      : "0x00000000";
-  }
-
   constructor(
     readonly address: Address,
     readonly applyAction: Bytes4,
