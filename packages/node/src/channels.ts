@@ -7,44 +7,49 @@ import { IStoreService } from "./service-interfaces";
 import { orderedAddressesHash } from "./utils";
 
 /**
+ * Namepsace under which the channels are stored.
+ */
+const CHANNEL = "channel";
+
+/**
+ * Namespace providing a convenience lookup table from a set of owners to multisig address.
+ */
+const OWNERS_HASH_TO_MULTISIG_ADDRESS = "ownersHashToMultisigAddress";
+
+/**
+ * Namespace providing a convenience lookup table from appInstance UUID to multisig address.
+ */
+const APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS =
+  "appInstanceUUIDToMultisigAddress";
+
+/**
+ * Namespace providing a lookup table from client-side AppInstance UUID to channel-specific
+ * AppInstanceId.
+ */
+const APP_INSTANCE_UUID_TO_APP_INSTANCE_ID = "appInstanceUUIDToAppInstanceId";
+
+/**
+ * Namespace providing a lookup table from client-side AppInstance UUID to channel-specific
+ * AppInstanceId.
+ */
+const APP_INSTANCE_ID_TO_APP_INSTANCE_UUID = "appInstanceIdToAppInstanceUUID";
+
+/**
  * This class itelf does not hold any meaningful state.
  * It encapsulates the operations performed on relevant appInstances and
  * abstracts the persistence to the store service.
  */
 export class Channels {
   /**
-   * A convenience lookup table from a set of owners to multisig address.
-   */
-  private readonly ownersHashToMultisigAddress = {};
-
-  /**
-   * A convenience lookup table from appInstance UUID to multisig address.
-   */
-  private readonly appInstanceUUIDToMultisigAddress = {};
-
-  /**
-   * A lookup table from client-side AppInstance UUID to channel-specific
-   * AppInstanceId.
-   */
-  private readonly appInstanceUUIDToAppInstanceId = {};
-
-  /**
-   * A lookup table from client-side AppInstance UUID to channel-specific
-   * AppInstanceId.
-   */
-  private readonly appInstanceIdToAppInstanceUUID = {};
-
-  /**
    * @param selfAddress The address of the account being used with the Node.
    * @param store
-   * @param multisigKeyPrefix The prefix to add to the key being used
-   *        for indexing multisig addresses according to the execution
-   *        environment.
+   * @param storeKeyPrefix The prefix to add to the key being used
+   *        for indexing store records (multisigs, look up tables, etc).
    */
   constructor(
     public readonly selfAddress: Address,
     private readonly store: IStoreService,
-    private readonly multisigKeyPrefix: string
+    private readonly storeKeyPrefix: string
   ) {}
 
   /**
@@ -57,8 +62,7 @@ export class Channels {
     const multisigAddress = this.generateNewMultisigAddress(params.owners);
     const channel: Channel = new Channel(multisigAddress, params.owners);
     const ownersHash = orderedAddressesHash(params.owners);
-    this.ownersHashToMultisigAddress[ownersHash] = multisigAddress;
-    await this.save(channel);
+    await this.save(channel, ownersHash);
     return multisigAddress;
   }
 
@@ -70,8 +74,7 @@ export class Channels {
   async addMultisig(multisigAddress: Address, owners: Address[]) {
     const channel = new Channel(multisigAddress, owners);
     const ownersHash = orderedAddressesHash(owners);
-    this.ownersHashToMultisigAddress[ownersHash] = multisigAddress;
-    await this.save(channel);
+    await this.save(channel, ownersHash);
   }
 
   async getAddresses(): Promise<Address[]> {
@@ -79,16 +82,12 @@ export class Channels {
     return Object.keys(channels);
   }
 
-  async getAppInstanceUUIDFromAppInstanceId(appInstanceId: string) {
-    return this.appInstanceIdToAppInstanceUUID[appInstanceId];
-  }
-
   async getPeersAddressFromAppInstanceUUID(
     appInstanceUUID: string
   ): Promise<Address[]> {
-    const multisigAddress = this.appInstanceUUIDToMultisigAddress[
+    const multisigAddress = await this.getMultisigAddressFromAppInstanceUUID(
       appInstanceUUID
-    ];
+    );
     const channel: Channel = await this.getChannelJSONFromStore(
       multisigAddress
     );
@@ -141,8 +140,6 @@ export class Channels {
       proposedAppInstance,
       appInstanceUUID
     );
-    this.appInstanceUUIDToMultisigAddress[appInstanceUUID] =
-      channel.multisigAddress;
   }
 
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
@@ -178,7 +175,7 @@ export class Channels {
    * values being objects reflecting the channel schema described above.
    */
   async getAllChannelsJSON(): Promise<object> {
-    const channels = await this.store.get(this.multisigKeyPrefix);
+    const channels = await this.store.get(`${this.storeKeyPrefix}/${CHANNEL}`);
     if (!channels) {
       console.log("No channels exist yet");
       return {};
@@ -190,17 +187,55 @@ export class Channels {
    * Returns a JSON object matching the channel schema.
    * @param multisigAddress
    */
-  async getChannelJSONFromStore(multisigAddress: Address) {
-    return await this.store.get(`${this.multisigKeyPrefix}/${multisigAddress}`);
+  async getChannelJSONFromStore(multisigAddress: Address): Promise<Channel> {
+    return await this.store.get(
+      `${this.storeKeyPrefix}/${CHANNEL}/${multisigAddress}`
+    );
+  }
+
+  /**
+   * Returns a string identifying the multisig address the specified app instance
+   * belongs to.
+   * @param appInstanceUUID
+   */
+  async getMultisigAddressFromAppInstanceUUID(
+    appInstanceUUID: string
+  ): Promise<string> {
+    return this.store.get(
+      `${
+        this.storeKeyPrefix
+      }/${APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS}/${appInstanceUUID}`
+    );
+  }
+
+  /**
+   * Returns a string identifying the app instance UUID that is mapped to the
+   * given app instance ID.
+   * @param appInstanceId
+   */
+  async getAppInstanceUUIDFromAppInstanceId(
+    appInstanceId: string
+  ): Promise<string> {
+    return this.store.get(
+      `${
+        this.storeKeyPrefix
+      }/${APP_INSTANCE_ID_TO_APP_INSTANCE_UUID}/${appInstanceId}`
+    );
   }
 
   // setters
 
-  async save(channel: Channel) {
+  async save(channel: Channel, ownersHash: string) {
     await this.store.set([
       {
-        key: `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+        key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
         value: channel
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
+        value: channel.multisigAddress
       }
     ]);
   }
@@ -218,17 +253,26 @@ export class Channels {
     appInstanceId: string,
     appInstanceUUID: string
   ) {
-    this.appInstanceUUIDToAppInstanceId[appInstanceUUID] = appInstanceId;
-    this.appInstanceIdToAppInstanceUUID[appInstanceId] = appInstanceUUID;
-
     const appInstance = channel.proposedAppInstances[appInstanceUUID];
     delete channel.proposedAppInstances[appInstanceUUID];
 
     channel.appInstances[appInstanceId] = appInstance;
     await this.store.set([
       {
-        key: `${this.multisigKeyPrefix}/${channel.multisigAddress}`,
+        key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
         value: channel
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${APP_INSTANCE_UUID_TO_APP_INSTANCE_ID}/${appInstanceUUID}`,
+        value: appInstanceId
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${APP_INSTANCE_ID_TO_APP_INSTANCE_UUID}/${appInstanceId}`,
+        value: appInstanceUUID
       }
     ]);
   }
@@ -246,17 +290,32 @@ export class Channels {
     appInstance: AppInstanceInfo,
     appInstanceUUID: string
   ) {
-    this.appInstanceUUIDToMultisigAddress[appInstanceUUID] =
-      channel.multisigAddress;
     channel.proposedAppInstances[appInstanceUUID] = appInstance;
     await this.store.set([
       {
-        key: `${this.multisigKeyPrefix}/${
+        key: `${this.storeKeyPrefix}/${CHANNEL}/${
           channel.multisigAddress
         }/proposedAppInstances`,
         value: channel.proposedAppInstances
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS}/${appInstanceUUID}`,
+        value: channel.multisigAddress
       }
     ]);
+  }
+
+  /**
+   * Returns the address of the multisig belonging to a specified set of owners
+   * via the hash of the owners
+   * @param ownersHash
+   */
+  async getMultisigAddressFromOwnersHash(ownersHash: string): Promise<string> {
+    return await this.store.get(
+      `${this.storeKeyPrefix}/${OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
+    );
   }
 
   // private utility methods
@@ -265,12 +324,14 @@ export class Channels {
     peerAddress: Address
   ): Promise<Channel> {
     const ownersHash = orderedAddressesHash([this.selfAddress, peerAddress]);
-    const multisigAddress = this.ownersHashToMultisigAddress[ownersHash];
+    const multisigAddress = await this.getMultisigAddressFromOwnersHash(
+      ownersHash
+    );
     const channel = await this.getChannelJSONFromStore(multisigAddress);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
-      channel.appsNonce,
+      channel.rootNonce,
       channel.freeBalances,
       channel.appInstances,
       channel.proposedAppInstances
@@ -282,11 +343,15 @@ export class Channels {
    * the AppInstances.
    * @param appInstances
    */
-  private replaceAppInstanceIdWithUUID(appInstances: object): object {
-    Object.values(appInstances).forEach(appInstance => {
-      const uuid = this.appInstanceIdToAppInstanceUUID[appInstance.id];
+  private async replaceAppInstanceIdWithUUID(
+    appInstances: object
+  ): Promise<object> {
+    for (const appInstance of Object.values(appInstances)) {
+      const uuid = await this.getAppInstanceUUIDFromAppInstanceId(
+        appInstance.id
+      );
       appInstance.id = uuid;
-    });
+    }
     return appInstances;
   }
 
@@ -300,9 +365,9 @@ export class Channels {
   private async getInstalledAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
     const channels = await this.getAllChannelsJSON();
-    Object.values(channels).forEach((channel: Channel) => {
+    for (const channel of Object.values(channels)) {
       if (channel.appInstances) {
-        const modifiedAppInstances = this.replaceAppInstanceIdWithUUID(
+        const modifiedAppInstances = await this.replaceAppInstanceIdWithUUID(
           channel.appInstances
         );
         apps.push(...Object.values(modifiedAppInstances));
@@ -313,7 +378,7 @@ export class Channels {
           }`
         );
       }
-    });
+    }
     return apps;
   }
 
@@ -341,14 +406,14 @@ export class Channels {
   private async getChannelFromAppInstanceId(
     appInstanceId: string
   ): Promise<Channel> {
-    const multisigAddress = this.appInstanceUUIDToMultisigAddress[
+    const multisigAddress = await this.getMultisigAddressFromAppInstanceUUID(
       appInstanceId
-    ];
+    );
     const channel = await this.getChannelJSONFromStore(multisigAddress);
     return new Channel(
       channel.multisigAddress,
       channel.multisigOwners,
-      channel.appsNonce,
+      channel.rootNonce,
       channel.freeBalances,
       channel.appInstances,
       channel.proposedAppInstances

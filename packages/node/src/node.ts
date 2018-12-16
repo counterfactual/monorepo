@@ -7,9 +7,9 @@ import { RequestHandler } from "./methods/request-handler";
 import { IMessagingService, IStoreService } from "./service-interfaces";
 
 export interface NodeConfig {
-  // A channel is indexed by its multisig address. The prefix for this key
-  // depends on the execution environment.
-  MULTISIG_KEY_PREFIX: string;
+  // The prefix for any keys used in the store by this Node depends on the
+  // execution environment.
+  STORE_KEY_PREFIX: string;
 }
 
 export class Node {
@@ -41,8 +41,8 @@ export class Node {
     this.channels = new Channels(
       this.signer.address,
       this.storeService,
-      // naive, account-based multisig indexing
-      `${nodeConfig.MULTISIG_KEY_PREFIX}/${this.signer.address}`
+      // account-address-based indexing
+      `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(

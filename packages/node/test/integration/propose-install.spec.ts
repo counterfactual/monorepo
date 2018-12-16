@@ -45,7 +45,7 @@ describe("Node method follows spec - proposeInstall", () => {
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
     nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
   });
 
