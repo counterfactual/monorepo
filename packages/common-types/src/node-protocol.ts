@@ -43,7 +43,7 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    MULTISIG_CREATED = "createMultisigEvent"
+    CREATE_MULTISIG = "createMultisigEvent"
   }
 
   export interface GetAppInstancesParams {}
