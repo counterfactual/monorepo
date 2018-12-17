@@ -21,7 +21,7 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   terms: Terms;
   isMetachannelApp: boolean;
-  dependencyReferenceNonce: number;
+  appSeqNo: number;
   latestState: object;
   latestNonce: number;
   latestTimeout: number;
@@ -64,7 +64,7 @@ export class AppInstance {
     appInterface: AppInterface,
     terms: Terms,
     isMetachannelApp: boolean,
-    dependencyReferenceNonce: number,
+    appSeqNo: number,
     latestState: object,
     latestNonce: number,
     latestTimeout: number
@@ -76,7 +76,7 @@ export class AppInstance {
       appInterface,
       terms,
       isMetachannelApp,
-      dependencyReferenceNonce,
+      appSeqNo,
       latestState,
       latestNonce,
       latestTimeout,
@@ -92,7 +92,7 @@ export class AppInstance {
       json.appInterface,
       json.terms,
       json.isMetachannelApp,
-      json.dependencyReferenceNonce,
+      json.appSeqNo,
       json.latestState,
       json.latestNonce,
       json.latestTimeout
@@ -153,13 +153,16 @@ export class AppInstance {
               // In this case, we expect the <app nonce> variable to be
               // 1 since this newly installed app is the only app installed
               // after the ETH FreeBalance was installed.
-              [this.json.dependencyReferenceNonce]
+              [this.json.appSeqNo]
             )
           )
         ]
       )
     );
   }
+
+  // TODO: All these getters seems a bit silly, would be nice to improve
+  //       the implementation to make it cleaner.
 
   public get terms() {
     return this.json.terms;
@@ -186,7 +189,7 @@ export class AppInstance {
   }
 
   public get appSeqNo() {
-    return this.json.dependencyReferenceNonce;
+    return this.json.appSeqNo;
   }
 
   public get multisigAddress() {
