@@ -1,7 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { AssetType, NetworkContext, ETHBucketAppState } from "@counterfactual/types";
 import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -56,15 +56,15 @@ describe("OpUninstall", () => {
   // Create free balance for ETH
   stateChannel.setupChannel(networkContext);
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   // Set the state to some test values
-  freeBalanceETH.state = [
-    stateChannel.multisigOwners[0],
-    stateChannel.multisigOwners[1],
-    WeiPerEther,
-    WeiPerEther
-  ];
+  freeBalanceETH = freeBalanceETH.setState({
+    alice: stateChannel.multisigOwners[0],
+    bob: stateChannel.multisigOwners[1],
+    aliceBalance: WeiPerEther,
+    bobBalance: WeiPerEther
+  });
 
   const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
 
@@ -75,14 +75,9 @@ describe("OpUninstall", () => {
       stateChannel.multisigOwners,
       freeBalanceETH.identity,
       freeBalanceETH.terms,
-      {
-        alice: freeBalanceETH.latestState[0],
-        bob: freeBalanceETH.latestState[1],
-        aliceBalance: freeBalanceETH.latestState[2],
-        bobBalance: freeBalanceETH.latestState[3]
-      },
-      freeBalanceETH.latestNonce,
-      freeBalanceETH.latestTimeout,
+      freeBalanceETH.state as ETHBucketAppState,
+      freeBalanceETH.nonce,
+      freeBalanceETH.timeout,
       appBeingUninstalledSeqNo
     ).getTransactionDetails();
   });
@@ -161,8 +156,8 @@ describe("OpUninstall", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
 
           expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalanceETH.latestNonce));
-          expect(timeout).toEqual(bigNumberify(freeBalanceETH.latestTimeout));
+          expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
+          expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
           expect(signatures).toBe(HashZero);
         });
       });

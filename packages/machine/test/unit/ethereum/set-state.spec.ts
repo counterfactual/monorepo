@@ -69,8 +69,8 @@ describe("SetupCommitment", () => {
       networkContext,
       app.identity,
       app.encodedLatestState,
-      app.latestNonce,
-      app.latestTimeout
+      app.nonce,
+      app.timeout
     );
     // TODO: (question) Should there be a way to retrieve the version
     //       of this transaction sent to the multisig vs sent
@@ -119,8 +119,8 @@ describe("SetupCommitment", () => {
     it("should contain expected SignedStateHashUpdate argument", () => {
       const [stateHash, nonce, timeout, []] = desc.args[1];
       expect(stateHash).toBe(app.hashOfLatestState);
-      expect(nonce).toEqual(bigNumberify(app.latestNonce));
-      expect(timeout).toEqual(bigNumberify(app.latestTimeout));
+      expect(nonce).toEqual(bigNumberify(app.nonce));
+      expect(timeout).toEqual(bigNumberify(app.timeout));
     });
   });
 
@@ -136,8 +136,8 @@ describe("SetupCommitment", () => {
         [
           "0x19",
           appIdentityToHash(app.identity),
-          app.latestNonce,
-          app.latestTimeout,
+          app.nonce,
+          app.timeout,
           app.hashOfLatestState
         ]
       )

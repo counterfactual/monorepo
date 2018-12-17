@@ -1,4 +1,4 @@
-import { AssetType } from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
@@ -88,7 +88,7 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const [, , aliceBalance, bobBalance] = fb.latestState as any[];
+      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
       expect(aliceBalance).toEqual(WeiPerEther);
       expect(bobBalance).toEqual(WeiPerEther);
     });

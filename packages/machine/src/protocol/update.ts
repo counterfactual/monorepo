@@ -90,7 +90,7 @@ export function constructUpdateOp(
     network,
     app.identity,
     app.hashOfLatestState,
-    app.latestNonce,
-    app.latestTimeout
+    app.nonce,
+    app.timeout
   );
 }

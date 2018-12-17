@@ -128,8 +128,8 @@ export function constructInstallOp(
     freeBalance.identity,
     freeBalance.terms,
     freeBalance.hashOfLatestState,
-    freeBalance.latestNonce,
-    freeBalance.latestTimeout,
-    freeBalance.dependencyReferenceNonce
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
   );
 }

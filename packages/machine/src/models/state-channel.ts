@@ -1,4 +1,4 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { AssetType, NetworkContext, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
@@ -8,6 +8,7 @@ import {
 } from "../ethereum/utils/free-balance";
 
 import { AppInstance } from "./app-instance";
+import { INSUFFICIENT_FUNDS } from "ethers/errors";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -19,7 +20,8 @@ const enum Errors {
   APPS_NOT_EMPTY = "Expected the apps list to be empty but size was nonzero",
   APP_DOES_NOT_EXIST = "Attempted to edit an app that does not exist",
   FREE_BALANCE_MISSING = "Cannot find ETH Free Balance App in StateChannel",
-  FREE_BALANCE_IDX_CORRUPT = "Index used to find ETH Free Balance is broken"
+  FREE_BALANCE_IDX_CORRUPT = "Index used to find ETH Free Balance is broken",
+  INSUFFICIENT_FUNDS = "Attempted to install an app without sufficient funds"
 }
 
 function createETHFreeBalance(
@@ -35,12 +37,18 @@ function createETHFreeBalance(
     freeBalanceTerms,
     false,
     0,
-    [multisigOwners[0], multisigOwners[1], Zero, Zero],
+    {
+      alice: multisigOwners[0],
+      bob: multisigOwners[1],
+      aliceBalance: Zero,
+      bobBalance: Zero
+    },
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout
   );
 }
 
+// TODO: Make this immutable
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
@@ -93,7 +101,7 @@ export class StateChannel {
 
     if (app === undefined) throw Error(Errors.APP_DOES_NOT_EXIST);
 
-    app.state = state;
+    this.apps.set(appid, app.setState(state));
 
     return this;
   }
@@ -105,13 +113,21 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
+    const currentState = fb.state as ETHBucketAppState;
+    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceDecrement);
+    const bobBalance = currentState.bobBalance.sub(bobBalanceDecrement);
+
+    if (aliceBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
+    if (bobBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
 
     // Install the App
     this.apps.set(app.id, app);
 
     // Update ETH FreeBalance
-    fb.latestState[2] = fb.latestState[2].sub(aliceBalanceDecrement);
-    fb.latestState[3] = fb.latestState[3].sub(bobBalanceDecrement);
+    this.apps.set(
+      fb.id,
+      fb.setState({ ...currentState, aliceBalance, bobBalance })
+    );
 
     return this;
   }
@@ -128,10 +144,15 @@ export class StateChannel {
     if (!appToBeUninstalled) throw Error(Errors.APP_DOES_NOT_EXIST);
 
     // TODO: Hard-coded for ETH at the moment
-    fb.latestState[2] = fb.latestState[2].add(aliceBalanceIncrement);
-    fb.latestState[3] = fb.latestState[3].add(bobBalanceIncrement);
-
-    fb.latestNonce += 1;
+    const currentState = fb.state as ETHBucketAppState;
+    this.apps.set(
+      fb.id,
+      fb.setState({
+        ...currentState,
+        aliceBalance: currentState.aliceBalance.add(aliceBalanceIncrement),
+        bobBalance: currentState.bobBalance.add(bobBalanceIncrement)
+      })
+    );
 
     // Delete the old app.
     this.apps.delete(appInstanceId);

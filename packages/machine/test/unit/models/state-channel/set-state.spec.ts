@@ -73,7 +73,7 @@ describe("StateChannel::setState", () => {
     });
 
     it("should have the new state", () => {
-      expect(app.latestState).toEqual({
+      expect(app.state).toEqual({
         foo: AddressZero,
         bar: 1337
       });
@@ -81,11 +81,11 @@ describe("StateChannel::setState", () => {
 
     it("should have bumped the nonce", () => {
       // TODO: make 999 a const var in the test
-      expect(app.latestNonce).toBe(999 + 1);
+      expect(app.nonce).toBe(999 + 1);
     });
 
     it("should have used the default timeout", () => {
-      expect(app.latestTimeout).toBe(app.defaultTimeout);
+      expect(app.timeout).toBe(app.timeout);
     });
   });
 });

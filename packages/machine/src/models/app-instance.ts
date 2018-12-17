@@ -1,4 +1,5 @@
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
+
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
@@ -24,7 +25,7 @@ export type AppInstanceJson = {
   latestState: object;
   latestNonce: number;
   latestTimeout: number;
-  dependencyValue: DependencyValue;
+  hasBeenUninstalled: boolean;
 };
 
 /**
@@ -54,23 +55,33 @@ export type AppInstanceJson = {
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
-  public dependencyValue: DependencyValue;
+  private readonly json: AppInstanceJson;
 
   constructor(
-    public readonly multisigAddress: string,
-    public readonly signingKeys: string[],
-    public readonly defaultTimeout: number,
-    // @ts-ignore
-    public readonly appInterface: AppInterface,
-    public readonly terms: Terms,
-    public readonly isMetachannelApp: boolean,
-    public readonly dependencyReferenceNonce: number,
-    public latestState: object, // FIXME: it could also be any[]
-    public latestNonce: number,
-    public latestTimeout: number
+    multisigAddress: string,
+    signingKeys: string[],
+    defaultTimeout: number,
+    appInterface: AppInterface,
+    terms: Terms,
+    isMetachannelApp: boolean,
+    dependencyReferenceNonce: number,
+    latestState: object,
+    latestNonce: number,
+    latestTimeout: number
   ) {
-    // Set the value of the uninstall key to 0 on construction
-    this.dependencyValue = DependencyValue.NOT_UNINSTALLED;
+    this.json = {
+      multisigAddress,
+      signingKeys,
+      defaultTimeout,
+      appInterface,
+      terms,
+      isMetachannelApp,
+      dependencyReferenceNonce,
+      latestState,
+      latestNonce,
+      latestTimeout,
+      hasBeenUninstalled: false
+    };
   }
 
   public static fromJson(json: AppInstanceJson) {
@@ -86,7 +97,7 @@ export class AppInstance {
       json.latestNonce,
       json.latestTimeout
     );
-    ret.dependencyValue = json.dependencyValue;
+    ret.json.hasBeenUninstalled = json.hasBeenUninstalled;
     return ret;
   }
 
@@ -97,14 +108,17 @@ export class AppInstance {
 
   @Memoize()
   public get identity(): AppIdentity {
-    const iface = defaultAbiCoder.encode([APP_INTERFACE], [this.appInterface]);
-    const terms = defaultAbiCoder.encode([TERMS], [this.terms]);
+    const iface = defaultAbiCoder.encode(
+      [APP_INTERFACE],
+      [this.json.appInterface]
+    );
+    const terms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
     return {
-      owner: this.multisigAddress,
-      signingKeys: this.signingKeys,
+      owner: this.json.multisigAddress,
+      signingKeys: this.json.signingKeys as string[],
       appInterfaceHash: keccak256(iface),
       termsHash: keccak256(terms),
-      defaultTimeout: this.defaultTimeout
+      defaultTimeout: this.json.defaultTimeout
     };
   }
 
@@ -116,8 +130,8 @@ export class AppInstance {
   @Memoize()
   public get encodedLatestState() {
     return defaultAbiCoder.encode(
-      [this.appInterface.stateEncoding],
-      [this.latestState]
+      [this.json.appInterface.stateEncoding],
+      [this.json.latestState]
     );
   }
 
@@ -131,7 +145,7 @@ export class AppInstance {
       solidityPack(
         ["address", "uint256", "bytes32"],
         [
-          this.multisigAddress,
+          this.json.multisigAddress,
           0,
           keccak256(
             solidityPack(
@@ -139,7 +153,7 @@ export class AppInstance {
               // In this case, we expect the <app nonce> variable to be
               // 1 since this newly installed app is the only app installed
               // after the ETH FreeBalance was installed.
-              [this.dependencyReferenceNonce]
+              [this.json.dependencyReferenceNonce]
             )
           )
         ]
@@ -147,21 +161,68 @@ export class AppInstance {
     );
   }
 
-  // TODO: add some other method for setting state with custom timeout too
-  public set state(newState: object) {
-    // TODO: I think this code could be written cleaner by checking for
-    //       ethers.errors.INVALID_ARGUMENT specifically in catch {}
+  public get terms() {
+    return this.json.terms;
+  }
+
+  public get state() {
+    return this.json.latestState;
+  }
+
+  public get nonce() {
+    return this.json.latestNonce;
+  }
+
+  public get timeout() {
+    return this.json.latestTimeout;
+  }
+
+  public get appInterface() {
+    return this.json.appInterface;
+  }
+
+  public get defaultTimeout() {
+    return this.json.defaultTimeout;
+  }
+
+  public get appSeqNo() {
+    return this.json.dependencyReferenceNonce;
+  }
+
+  public get multisigAddress() {
+    return this.json.multisigAddress;
+  }
+
+  public get signingKeys() {
+    return this.json.signingKeys;
+  }
+
+  public get isMetachannelApp() {
+    return this.json.isMetachannelApp;
+  }
+
+  public setState(
+    newState: object,
+    timeout: number = this.json.defaultTimeout
+  ) {
     try {
-      defaultAbiCoder.encode([this.appInterface.stateEncoding], [newState]);
+      defaultAbiCoder.encode(
+        [this.json.appInterface.stateEncoding],
+        [newState]
+      );
     } catch (e) {
+      // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
       console.error(
         "Attempted to setState on an app with an invalid state object"
       );
       throw e;
     }
 
-    this.latestState = newState;
-    this.latestNonce += 1;
-    this.latestTimeout = this.defaultTimeout;
+    return AppInstance.fromJson({
+      ...this.json,
+      latestState: newState,
+      latestNonce: this.json.latestNonce + 1,
+      latestTimeout: timeout
+    });
   }
 }

@@ -1,8 +1,8 @@
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
-import { AssetType } from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import {
-  formatParamType,
+  // formatParamType,
   getAddress,
   hexlify,
   Interface,
@@ -72,16 +72,16 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should have nonce 0 to start", () => {
-      expect(fb.latestNonce).toBe(0);
+      expect(fb.nonce).toBe(0);
     });
 
     it("should have a default timeout defined by the hard-coded assumption", () => {
       // See HARD_CODED_ASSUMPTIONS in state-channel.ts
-      expect(fb.defaultTimeout).toBe(100);
+      expect(fb.timeout).toBe(100);
     });
 
     it("should use the default timeout for the initial timeout", () => {
-      expect(fb.latestTimeout).toBe(fb.defaultTimeout);
+      expect(fb.timeout).toBe(fb.defaultTimeout);
     });
 
     it("should use the multisig owners as the signing keys", () => {
@@ -91,9 +91,10 @@ describe("StateChannel::setupChannel", () => {
     it("should use the ETHBucketApp as the app target", () => {
       const iface = new Interface(ETHBucket.abi);
       expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
-      expect(fb.appInterface.stateEncoding).toBe(
-        formatParamType(iface.functions.resolve.inputs[0])
-      );
+      // Have to wait for formatParamType to include names
+      // expect(fb.appInterface.stateEncoding).toBe(
+      //   formatParamType(iface.functions.resolve.inputs[0])
+      // );
       expect(fb.appInterface.applyAction).toBe("0x00000000");
       expect(fb.appInterface.isStateTerminal).toBe("0x00000000");
       expect(fb.appInterface.getTurnTaker).toBe("0x00000000");
@@ -103,17 +104,17 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have seqNo of 0", () => {
       // TODO: Rename this field to seqNo or something like that
-      expect(fb.dependencyReferenceNonce).toBe(0);
+      expect(fb.appSeqNo).toBe(0);
     });
 
     it("should set the signingKeys as the multisigOwners", () => {
-      const [alice, bob] = fb.latestState as any[];
+      const { alice, bob } = fb.state as ETHBucketAppState;
       expect(alice).toBe(sc1.multisigOwners[0]);
       expect(bob).toBe(sc1.multisigOwners[1]);
     });
 
     it("should have 0 balances for Alice and Bob", () => {
-      const [, , aliceBalance, bobBalance] = fb.latestState as any[];
+      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
       expect(aliceBalance).toBe(Zero);
       expect(bobBalance).toBe(Zero);
     });

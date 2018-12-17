@@ -3,7 +3,7 @@ import { AppInterface, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, MaxUint256 } from "ethers/constants";
 import {
   defaultAbiCoder,
-  formatParamType,
+  // formatParamType,
   Interface,
   keccak256
 } from "ethers/utils";
@@ -12,9 +12,18 @@ import { AppInstance } from "../../models";
 
 import { APP_INTERFACE, TERMS } from "./encodings";
 
-export const freeBalanceStateEncoding = formatParamType(
-  new Interface(ETHBucket.abi).functions.resolve.inputs[0]
-);
+// FIXME: Use this when it returns named version.
+// export const freeBalanceStateEncoding = formatParamType(
+//   new Interface(ETHBucket.abi).functions.resolve.inputs[0]
+// );
+export const freeBalanceStateEncoding = `
+  tuple(
+    address alice,
+    address bob,
+    uint256 aliceBalance,
+    uint256 bobBalance
+  )
+`;
 
 export function getFreeBalanceAppInterface(addr: string): AppInterface {
   return {
@@ -56,7 +65,8 @@ export function encodeFreeBalanceState(state: ETHBucketAppState) {
     // NOTE: We will be able to replace the following line with [state] after
     //       @ricmoo implements the feature to add tuple names to the result of
     //       formatParamType. See: github.com/ethers-io/ethers.js/issues/325
-    [[state.alice, state.bob, state.aliceBalance, state.bobBalance]]
+    // [[state.alice, state.bob, state.aliceBalance, state.bobBalance]]
+    [state]
   );
 }
 
@@ -79,12 +89,7 @@ export class ETHFreeBalanceApp extends AppInstance {
       false,
       0,
       // TODO: See line 56...
-      [
-        latestState.alice,
-        latestState.bob,
-        latestState.aliceBalance,
-        latestState.bobBalance
-      ],
+      latestState,
       latestNonce,
       latestTimeout
     );
@@ -92,10 +97,10 @@ export class ETHFreeBalanceApp extends AppInstance {
 
   public get formattedState(): ETHBucketAppState {
     return {
-      alice: this.latestState[0],
-      bob: this.latestState[1],
-      aliceBalance: this.latestState[2],
-      bobBalance: this.latestState[3]
+      alice: this.state[0],
+      bob: this.state[1],
+      aliceBalance: this.state[2],
+      bobBalance: this.state[3]
     };
   }
 }

@@ -129,9 +129,9 @@ export function constructUninstallOp(
     stateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.terms,
-    freeBalance.latestState as ETHBucketAppState,
-    freeBalance.latestNonce,
-    freeBalance.latestTimeout,
-    freeBalance.dependencyReferenceNonce
+    freeBalance.state as ETHBucketAppState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
   );
 }

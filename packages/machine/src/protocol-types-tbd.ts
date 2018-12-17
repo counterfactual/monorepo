@@ -1,3 +1,5 @@
+// TODO: Probably merge this file with ./types.ts
+
 import { AppInterface, Terms } from "@counterfactual/types";
 import { BigNumber, Signature } from "ethers/utils";
 

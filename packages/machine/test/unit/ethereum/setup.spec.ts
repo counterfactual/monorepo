@@ -55,15 +55,15 @@ describe("SetupCommitment", () => {
   // Create free balance for ETH
   stateChannel.setupChannel(networkContext);
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   // Set the state to some test values
-  freeBalanceETH.state = [
-    stateChannel.multisigOwners[0],
-    stateChannel.multisigOwners[1],
-    WeiPerEther,
-    WeiPerEther
-  ];
+  freeBalanceETH = freeBalanceETH.setState({
+    alice: stateChannel.multisigOwners[0],
+    bob: stateChannel.multisigOwners[1],
+    aliceBalance: WeiPerEther,
+    bobBalance: WeiPerEther
+  });
 
   beforeAll(() => {
     tx = new SetupCommitment(

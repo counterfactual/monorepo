@@ -6,14 +6,7 @@ import {
   InstructionMiddlewares
 } from "./types";
 
-/**
- * Middleware is the container holding the groups of middleware responsible
- * for executing a given instruction in the Counterfactual InstructionExecutor.
- */
 export class Middleware {
-  /**
-   * Maps instruction to list of middleware that will process the instruction.
-   */
   public readonly middlewares: InstructionMiddlewares = {
     [Opcode.IO_SEND]: [],
     [Opcode.IO_WAIT]: [],

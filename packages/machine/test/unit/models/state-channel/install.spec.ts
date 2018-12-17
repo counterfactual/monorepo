@@ -1,5 +1,5 @@
-import { AssetType } from "@counterfactual/types";
-import { AddressZero, WeiPerEther } from "ethers/constants";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
+import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
@@ -65,6 +65,17 @@ describe("StateChannel::uninstallApp", () => {
 
     appInstanceId = app.id;
 
+    // Give 1 ETH to Alice and to Bob so they can spend it on the new app
+    const fb = sc1.getFreeBalanceFor(AssetType.ETH);
+    sc1.apps.set(
+      fb.id,
+      fb.setState({
+        ...fb.state,
+        aliceBalance: WeiPerEther,
+        bobBalance: WeiPerEther
+      })
+    );
+
     sc2 = sc1.installApp(app, WeiPerEther, WeiPerEther);
   });
 
@@ -90,9 +101,9 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const [, , aliceBalance, bobBalance] = fb.latestState as any[];
-      expect(aliceBalance).toEqual(WeiPerEther.mul(-1));
-      expect(bobBalance).toEqual(WeiPerEther.mul(-1));
+      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
+      expect(aliceBalance).toEqual(Zero);
+      expect(bobBalance).toEqual(Zero);
     });
   });
 

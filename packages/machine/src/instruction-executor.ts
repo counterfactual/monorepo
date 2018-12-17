@@ -19,9 +19,10 @@ import {
   Protocol
 } from "./types";
 
-function protocolMessageFields(sc: StateChannel) {
+function genericProtocolMessageFields(sc: StateChannel) {
   return {
     multisigAddress: sc.multisigAddress,
+    // TODO: Figure out how to fetch these
     fromAddress: "0x0",
     toAddress: "0x0",
     seq: 0,
@@ -56,7 +57,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...protocolMessageFields(sc)
+      ...genericProtocolMessageFields(sc)
     });
   }
 
@@ -65,7 +66,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...protocolMessageFields(sc)
+      ...genericProtocolMessageFields(sc)
     });
   }
 
@@ -74,7 +75,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...protocolMessageFields(sc)
+      ...genericProtocolMessageFields(sc)
     });
   }
 
@@ -83,7 +84,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       protocol,
       params: {},
-      ...protocolMessageFields(sc)
+      ...genericProtocolMessageFields(sc)
     });
   }
 
@@ -95,7 +96,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...protocolMessageFields(sc)
+      ...genericProtocolMessageFields(sc)
     });
   }
 

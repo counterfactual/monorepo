@@ -55,15 +55,15 @@ describe("InstallCommitment", () => {
   // Create free balance for ETH
   stateChannel.setupChannel(networkContext);
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   // Set the state to some test values
-  freeBalanceETH.state = [
-    stateChannel.multisigOwners[0],
-    stateChannel.multisigOwners[1],
-    WeiPerEther,
-    WeiPerEther
-  ];
+  freeBalanceETH = freeBalanceETH.setState({
+    alice: stateChannel.multisigOwners[0],
+    bob: stateChannel.multisigOwners[1],
+    aliceBalance: WeiPerEther,
+    bobBalance: WeiPerEther
+  });
 
   const app = new AppInstance(
     stateChannel.multisigAddress,
@@ -103,8 +103,8 @@ describe("InstallCommitment", () => {
       freeBalanceETH.identity,
       freeBalanceETH.terms,
       freeBalanceETH.hashOfLatestState,
-      freeBalanceETH.latestNonce,
-      freeBalanceETH.latestTimeout,
+      freeBalanceETH.nonce,
+      freeBalanceETH.timeout,
       stateChannel.sequenceNumber + 1
     ).getTransactionDetails();
   });
@@ -180,8 +180,8 @@ describe("InstallCommitment", () => {
         it("should build the expected SignedStateHashUpdate argument", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
           expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalanceETH.latestNonce));
-          expect(timeout).toEqual(bigNumberify(freeBalanceETH.defaultTimeout));
+          expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
+          expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
           expect(signatures).toBe(HashZero);
         });
       });
