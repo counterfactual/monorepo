@@ -1,5 +1,10 @@
-import { AssetType, NetworkContext, ETHBucketAppState } from "@counterfactual/types";
+import {
+  AssetType,
+  ETHBucketAppState,
+  NetworkContext
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
+import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber } from "ethers/utils";
 
 import {
@@ -8,7 +13,6 @@ import {
 } from "../ethereum/utils/free-balance";
 
 import { AppInstance } from "./app-instance";
-import { INSUFFICIENT_FUNDS } from "ethers/errors";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -48,22 +52,17 @@ function createETHFreeBalance(
   );
 }
 
-// TODO: Make this immutable
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    public apps: Map<string, AppInstance>,
-    private freeBalanceAppIndexes: Map<AssetType, string>,
-    private sequenceNo: number = 0
+    public readonly apps: Readonly<Map<string, AppInstance>>,
+    private readonly freeBalanceAppIndexes: Readonly<Map<AssetType, string>>,
+    private readonly monotonicallyIncreasingSeqNo: number = 0
   ) {}
 
   public get sequenceNumber() {
-    return this.sequenceNo;
-  }
-
-  public bumpSequenceNumber() {
-    this.sequenceNo += 1;
+    return this.monotonicallyIncreasingSeqNo;
   }
 
   public getFreeBalanceFor(assetType: AssetType) {
@@ -87,13 +86,16 @@ export class StateChannel {
       network.ETHBucket
     );
 
-    this.apps.set(fb.id, fb);
+    const apps = new Map<string, AppInstance>(this.apps.entries());
+    const xs = new Map<AssetType, string>(this.freeBalanceAppIndexes.entries());
 
-    this.freeBalanceAppIndexes.set(AssetType.ETH, fb.id);
-
-    this.bumpSequenceNumber();
-
-    return this;
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      apps.set(fb.id, fb),
+      xs.set(AssetType.ETH, fb.id),
+      this.monotonicallyIncreasingSeqNo + 1
+    );
   }
 
   public setState(appid: string, state: object) {
@@ -101,12 +103,18 @@ export class StateChannel {
 
     if (app === undefined) throw Error(Errors.APP_DOES_NOT_EXIST);
 
-    this.apps.set(appid, app.setState(state));
+    const apps = new Map<string, AppInstance>(this.apps.entries());
+    const xs = new Map<AssetType, string>(this.freeBalanceAppIndexes.entries());
 
-    return this;
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      apps.set(appid, app.setState(state)),
+      xs,
+      this.monotonicallyIncreasingSeqNo
+    );
   }
 
-  // FIXME: Include sub-deposit information
   public installApp(
     app: AppInstance,
     aliceBalanceDecrement: BigNumber,
@@ -114,22 +122,25 @@ export class StateChannel {
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const currentState = fb.state as ETHBucketAppState;
+
     const aliceBalance = currentState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentState.bobBalance.sub(bobBalanceDecrement);
 
     if (aliceBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
     if (bobBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
 
-    // Install the App
-    this.apps.set(app.id, app);
+    const apps = new Map<string, AppInstance>(this.apps.entries());
+    const xs = new Map<AssetType, string>(this.freeBalanceAppIndexes.entries());
 
-    // Update ETH FreeBalance
-    this.apps.set(
-      fb.id,
-      fb.setState({ ...currentState, aliceBalance, bobBalance })
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      apps
+        .set(app.id, app)
+        .set(fb.id, fb.setState({ ...currentState, aliceBalance, bobBalance })),
+      xs,
+      this.monotonicallyIncreasingSeqNo + 1
     );
-
-    return this;
   }
 
   public uninstallApp(
@@ -143,20 +154,25 @@ export class StateChannel {
 
     if (!appToBeUninstalled) throw Error(Errors.APP_DOES_NOT_EXIST);
 
-    // TODO: Hard-coded for ETH at the moment
     const currentState = fb.state as ETHBucketAppState;
-    this.apps.set(
-      fb.id,
-      fb.setState({
-        ...currentState,
-        aliceBalance: currentState.aliceBalance.add(aliceBalanceIncrement),
-        bobBalance: currentState.bobBalance.add(bobBalanceIncrement)
-      })
+
+    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceIncrement);
+    const bobBalance = currentState.bobBalance.sub(bobBalanceIncrement);
+
+    const apps = new Map<string, AppInstance>(this.apps.entries());
+    const xs = new Map<AssetType, string>(this.freeBalanceAppIndexes.entries());
+
+    apps.delete(appToBeUninstalled.id);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      apps.set(
+        fb.id,
+        fb.setState({ ...currentState, aliceBalance, bobBalance })
+      ),
+      xs,
+      this.monotonicallyIncreasingSeqNo
     );
-
-    // Delete the old app.
-    this.apps.delete(appInstanceId);
-
-    return this;
   }
 }

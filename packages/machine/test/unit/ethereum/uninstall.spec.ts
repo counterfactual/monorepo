@@ -1,7 +1,11 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import { AssetType, NetworkContext, ETHBucketAppState } from "@counterfactual/types";
+import {
+  AssetType,
+  ETHBucketAppState,
+  NetworkContext
+} from "@counterfactual/types";
 import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -51,10 +55,7 @@ describe("OpUninstall", () => {
     ),
     new Map<string, AppInstance>(),
     new Map<AssetType, string>()
-  );
-
-  // Create free balance for ETH
-  stateChannel.setupChannel(networkContext);
+  ).setupChannel(networkContext);
 
   let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 

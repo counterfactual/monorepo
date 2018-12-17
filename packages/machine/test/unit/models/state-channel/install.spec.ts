@@ -31,9 +31,7 @@ describe("StateChannel::uninstallApp", () => {
       multisigOwners,
       new Map<string, AppInstance>(),
       new Map<AssetType, string>()
-    );
-
-    sc1.setupChannel(networkContext);
+    ).setupChannel(networkContext);
 
     const app = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
@@ -84,8 +82,7 @@ describe("StateChannel::uninstallApp", () => {
     expect(sc2.multisigOwners).toBe(sc1.multisigOwners);
   });
 
-  // FIXME: immutable
-  it.skip("should have bumped the sequence number", () => {
+  it("should have bumped the sequence number", () => {
     expect(sc2.sequenceNumber).toBe(sc1.sequenceNumber + 1);
   });
 

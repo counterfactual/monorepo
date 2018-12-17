@@ -1,5 +1,5 @@
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
-import { AddressZero, WeiPerEther } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
@@ -24,47 +24,44 @@ describe("StateChannel::uninstallApp", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
+    const testApp = new AppInstance(
+      getAddress(hexlify(randomBytes(20))),
+      [
+        getAddress(hexlify(randomBytes(20))),
+        getAddress(hexlify(randomBytes(20)))
+      ],
+      Math.ceil(Math.random() * 2e10),
+      {
+        addr: getAddress(hexlify(randomBytes(20))),
+        applyAction: hexlify(randomBytes(4)),
+        resolve: hexlify(randomBytes(4)),
+        isStateTerminal: hexlify(randomBytes(4)),
+        getTurnTaker: hexlify(randomBytes(4)),
+        stateEncoding: "tuple(address foo, uint256 bar)",
+        actionEncoding: undefined
+      },
+      {
+        assetType: AssetType.ETH,
+        limit: bigNumberify(Math.ceil(Math.random() * 2e10)),
+        token: AddressZero
+      },
+      false,
+      Math.ceil(Math.random() * 2e10),
+      { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
+      999, // <------ nonce
+      Math.ceil(1000 * Math.random())
+    );
+
     sc1 = new StateChannel(
       multisigAddress,
       multisigOwners,
       new Map<string, AppInstance>(),
       new Map<AssetType, string>()
-    );
+    )
+      .setupChannel(networkContext)
+      .installApp(testApp, Zero, Zero);
 
-    sc1.setupChannel(networkContext);
-
-    sc1.apps.set(
-      "test-identifier",
-      new AppInstance(
-        getAddress(hexlify(randomBytes(20))),
-        [
-          getAddress(hexlify(randomBytes(20))),
-          getAddress(hexlify(randomBytes(20)))
-        ],
-        Math.ceil(Math.random() * 2e10),
-        {
-          addr: getAddress(hexlify(randomBytes(20))),
-          applyAction: hexlify(randomBytes(4)),
-          resolve: hexlify(randomBytes(4)),
-          isStateTerminal: hexlify(randomBytes(4)),
-          getTurnTaker: hexlify(randomBytes(4)),
-          stateEncoding: "tuple(address foo, uint256 bar)",
-          actionEncoding: undefined
-        },
-        {
-          assetType: AssetType.ETH,
-          limit: bigNumberify(Math.ceil(Math.random() * 2e10)),
-          token: AddressZero
-        },
-        false,
-        Math.ceil(Math.random() * 2e10),
-        { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
-        999, // <------ nonce
-        Math.ceil(1000 * Math.random())
-      )
-    );
-
-    sc2 = sc1.uninstallApp("test-identifier", WeiPerEther, WeiPerEther);
+    sc2 = sc1.uninstallApp(testApp.id, Zero, Zero);
   });
 
   it("should not alter any of the base properties", () => {
@@ -89,8 +86,8 @@ describe("StateChannel::uninstallApp", () => {
 
     it("should have updated balances for Alice and Bob", () => {
       const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
-      expect(aliceBalance).toEqual(WeiPerEther);
-      expect(bobBalance).toEqual(WeiPerEther);
+      expect(aliceBalance).toEqual(Zero);
+      expect(bobBalance).toEqual(Zero);
     });
   });
 });

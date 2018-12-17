@@ -10,16 +10,6 @@
 
     "prettier": true,
 
-    // TODO: Remove this override once tslint-microsoft-contrib releases 5.2.2.
-    // https://github.com/counterfactual/monorepo/issues/216
-    "function-name": [true, {
-      "method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
-      "private-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
-      "protected-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
-      "static-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$",
-      "function-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]+\\]?$"
-    }],
-
     // NOTE: Added by Liam. I just prefer this rule to be on. Looks clean.
     "ordered-imports": [
       true,

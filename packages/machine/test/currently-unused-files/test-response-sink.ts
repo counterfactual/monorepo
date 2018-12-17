@@ -1,6 +1,7 @@
 import { legacy } from "@counterfactual/cf.js";
 import { NetworkContext } from "@counterfactual/types";
 import { ethers } from "ethers";
+import { AddressZero } from "ethers/constants";
 
 import {
   Context,
@@ -12,8 +13,6 @@ import { InternalMessage } from "../../src/types";
 
 import { TestCommitmentStore } from "./test-commitment-store";
 import { TestIOProvider } from "./test-io-provider";
-
-import { AddressZero } from "ethers/constants";
 
 export class TestResponseSink implements legacy.node.ResponseSink {
   public instructionExecutor: InstructionExecutor;

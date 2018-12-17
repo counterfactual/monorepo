@@ -50,10 +50,7 @@ describe("SetupCommitment", () => {
     ),
     new Map<string, AppInstance>(),
     new Map<AssetType, string>()
-  );
-
-  // Create free balance for ETH
-  stateChannel.setupChannel(networkContext);
+  ).setupChannel(networkContext);
 
   let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 

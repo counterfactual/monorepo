@@ -51,8 +51,7 @@ describe("StateChannel::setupChannel", () => {
     expect(fb).not.toBe(undefined);
   });
 
-  // FIXME: immutable
-  it.skip("should have bumped the sequence number", () => {
+  it("should have bumped the sequence number", () => {
     expect(sc2.sequenceNumber).toBe(sc1.sequenceNumber + 1);
   });
 
