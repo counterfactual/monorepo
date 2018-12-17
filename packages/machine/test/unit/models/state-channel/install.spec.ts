@@ -26,12 +26,9 @@ describe("StateChannel::uninstallApp", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
-    sc1 = new StateChannel(
-      multisigAddress,
-      multisigOwners,
-      new Map<string, AppInstance>(),
-      new Map<AssetType, string>()
-    ).setupChannel(networkContext);
+    sc1 = new StateChannel(multisigAddress, multisigOwners).setupChannel(
+      networkContext
+    );
 
     const app = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
@@ -65,14 +62,12 @@ describe("StateChannel::uninstallApp", () => {
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
     const fb = sc1.getFreeBalanceFor(AssetType.ETH);
-    sc1.apps.set(
-      fb.id,
-      fb.setState({
-        ...fb.state,
-        aliceBalance: WeiPerEther,
-        bobBalance: WeiPerEther
-      })
-    );
+
+    sc1 = sc1.setState(fb.id, {
+      ...fb.state,
+      aliceBalance: WeiPerEther,
+      bobBalance: WeiPerEther
+    });
 
     sc2 = sc1.installApp(app, WeiPerEther, WeiPerEther);
   });
@@ -87,7 +82,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should have added something at the id of thew new app", () => {
-    expect(sc2.apps.get(appInstanceId)).not.toBe(undefined);
+    expect(sc2.getAppInstance(appInstanceId)).not.toBe(undefined);
   });
 
   describe("the updated ETH Free Balance", () => {
@@ -108,7 +103,7 @@ describe("StateChannel::uninstallApp", () => {
     let app: AppInstance;
 
     beforeAll(() => {
-      app = sc2.apps.get(appInstanceId)!;
+      app = sc2.getAppInstance(appInstanceId)!;
     });
 
     it("should not be a metachannel app", () => {

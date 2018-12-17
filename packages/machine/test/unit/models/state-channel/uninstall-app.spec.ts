@@ -16,6 +16,7 @@ describe("StateChannel::uninstallApp", () => {
 
   let sc1: StateChannel;
   let sc2: StateChannel;
+  let testApp: AppInstance;
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
@@ -24,7 +25,7 @@ describe("StateChannel::uninstallApp", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
-    const testApp = new AppInstance(
+    testApp = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
       [
         getAddress(hexlify(randomBytes(20))),
@@ -52,12 +53,7 @@ describe("StateChannel::uninstallApp", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    sc1 = new StateChannel(
-      multisigAddress,
-      multisigOwners,
-      new Map<string, AppInstance>(),
-      new Map<AssetType, string>()
-    )
+    sc1 = new StateChannel(multisigAddress, multisigOwners)
       .setupChannel(networkContext)
       .installApp(testApp, Zero, Zero);
 
@@ -74,7 +70,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should have deleted the app being uninstalled", () => {
-    expect(sc2.apps.get("test-identifier")).toBe(undefined);
+    expect(sc2.isAppInstanceInstalled(testApp.id)).toBe(false);
   });
 
   describe("the updated ETH Free Balance", () => {

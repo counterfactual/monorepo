@@ -31,12 +31,7 @@ describe("StateChannel::setupChannel", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
-    sc1 = new StateChannel(
-      multisigAddress,
-      multisigOwners,
-      new Map<string, AppInstance>(),
-      new Map<AssetType, string>()
-    );
+    sc1 = new StateChannel(multisigAddress, multisigOwners);
 
     sc2 = sc1.setupChannel(networkContext);
   });
@@ -101,8 +96,7 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 
-    it("should have seqNo of 0", () => {
-      // TODO: Rename this field to seqNo or something like that
+    it("should have seqNo of 0 (b/c it is the first ever app)", () => {
       expect(fb.appSeqNo).toBe(0);
     });
 

@@ -43,24 +43,25 @@ describe("InstallCommitment", () => {
   };
 
   // State channel testing values
-  const stateChannel = new StateChannel(
+  let stateChannel = new StateChannel(
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    ),
-    new Map<string, AppInstance>(),
-    new Map<AssetType, string>()
+    )
   ).setupChannel(networkContext);
 
-  let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
   // Set the state to some test values
-  freeBalanceETH = freeBalanceETH.setState({
-    alice: stateChannel.multisigOwners[0],
-    bob: stateChannel.multisigOwners[1],
-    aliceBalance: WeiPerEther,
-    bobBalance: WeiPerEther
-  });
+  stateChannel = stateChannel.setState(
+    stateChannel.getFreeBalanceFor(AssetType.ETH).id,
+    {
+      alice: stateChannel.multisigOwners[0],
+      bob: stateChannel.multisigOwners[1],
+      aliceBalance: WeiPerEther,
+      bobBalance: WeiPerEther
+    }
+  );
+
+  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   const app = new AppInstance(
     stateChannel.multisigAddress,

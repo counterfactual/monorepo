@@ -30,9 +30,7 @@ describe("InstructionExecutor", () => {
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    ),
-    new Map<string, AppInstance>(),
-    new Map<AssetType, string>()
+    )
   );
 
   let instructionExecutor: InstructionExecutor;
@@ -51,14 +49,10 @@ describe("InstructionExecutor", () => {
     middleware.add(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
-  // const signingKey = new SigningKey(randomBytes(32));
-  // const signature = signingKey.signDigest(op.hashToSign());
-  // context.signature = signature;
-  // next();
-
   describe("the result of STATE_TRANSITION_PROPOSE for the Setup Protocol", () => {
     let commitment: SetupCommitment;
     let channel: StateChannel;
+    let fb: AppInstance;
 
     beforeAll(() => {
       instructionExecutor.middleware.add(
@@ -70,6 +64,8 @@ describe("InstructionExecutor", () => {
       );
 
       instructionExecutor.runSetupProtocol(stateChannel);
+
+      fb = channel.getFreeBalanceFor(AssetType.ETH);
     });
 
     describe("the proposed state transition of the channel", () => {
@@ -85,13 +81,13 @@ describe("InstructionExecutor", () => {
         expect(commitment.networkContext).toEqual(networkContext);
       });
 
-      // it("should use the default free balance terms", () => {
-      //   expect(commitment.freeBalanceTerms).toEqual(freeBalanceETH.terms);
-      // });
+      it("should use the default free balance terms", () => {
+        expect(commitment.freeBalanceTerms).toEqual(fb.terms);
+      });
 
-      // it("should use the default free balance app identity", () => {
-      //   expect(commitment.freeBalanceAppIdentity).toEqual(freeBalanceETH.id);
-      // });
+      it("should use the default free balance app identity", () => {
+        expect(commitment.freeBalanceAppIdentity).toEqual(fb.identity);
+      });
 
       it("should be based on the multisig passed into the protocol executor", () => {
         expect(commitment.multisigAddress).toBe(stateChannel.multisigAddress);
@@ -101,17 +97,17 @@ describe("InstructionExecutor", () => {
         expect(commitment.multisigOwners).toEqual(stateChannel.multisigOwners);
       });
 
-      // it("should construct the correct hash digest to sign", () => {
-      //   expect(commitment.hashToSign()).toBe(
-      //     new SetupCommitment(
-      //       networkContext,
-      //       stateChannel.multisigAddress,
-      //       stateChannel.multisigOwners,
-      //       freeBalanceETH.identity,
-      //       freeBalanceETH.terms
-      //     ).hashToSign()
-      //   );
-      // });
+      it("should construct the correct hash digest to sign", () => {
+        expect(commitment.hashToSign()).toBe(
+          new SetupCommitment(
+            networkContext,
+            stateChannel.multisigAddress,
+            stateChannel.multisigOwners,
+            fb.identity,
+            fb.terms
+          ).hashToSign()
+        );
+      });
     });
   });
 });

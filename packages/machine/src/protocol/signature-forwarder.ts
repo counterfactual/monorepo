@@ -9,7 +9,7 @@ export function prepareToSendSignature(
 ) {
   context.outbox.push({
     ...message,
-    signature: context.signature!,
+    signature: context.signature,
     seq: message.seq + 1
   });
 }

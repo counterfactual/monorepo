@@ -53,12 +53,7 @@ describe("StateChannel::setState", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    sc1 = new StateChannel(
-      multisigAddress,
-      multisigOwners,
-      new Map<string, AppInstance>(),
-      new Map<AssetType, string>()
-    )
+    sc1 = new StateChannel(multisigAddress, multisigOwners)
       .setupChannel(networkContext)
       .installApp(testApp, Zero, Zero);
 
@@ -78,7 +73,7 @@ describe("StateChannel::setState", () => {
     let app: AppInstance;
 
     beforeAll(() => {
-      app = sc2.apps.get(testApp.id)!;
+      app = sc2.getAppInstance(testApp.id)!;
     });
 
     it("should have the new state", () => {

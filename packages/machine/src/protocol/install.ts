@@ -83,8 +83,10 @@ function proposeStateTransition(
     // KEY: Sets it to NOT be a MetaChannelApp
     false,
     // KEY: The app sequence number
-    // FIXME: Add to InstallData?
-    42,
+    // TODO: Should validate that the proposed app sequence number is also
+    //       the computed value here and is ALSO still the number compute
+    //       inside the installApp function below
+    state.sequenceNumber + 1,
     initialState,
     // KEY: Set the nonce to be 0
     0,
@@ -109,13 +111,7 @@ export function constructInstallOp(
   stateChannel: StateChannel,
   appInstanceId: string
 ) {
-  const app = stateChannel.apps.get(appInstanceId);
-
-  if (app === undefined) {
-    throw Error(
-      "Attempted to construct InstallApp commitment with undefined app"
-    );
-  }
+  const app = stateChannel.getAppInstance(appInstanceId);
 
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 

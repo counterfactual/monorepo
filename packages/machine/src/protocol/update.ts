@@ -78,13 +78,7 @@ export function constructUpdateOp(
   stateChannel: StateChannel,
   appInstanceId: string
 ) {
-  const app = stateChannel.apps.get(appInstanceId);
-
-  if (app === undefined) {
-    throw Error(
-      "Attempted to construct SetState commitment with undefined app"
-    );
-  }
+  const app = stateChannel.getAppInstance(appInstanceId);
 
   return new SetStateCommitment(
     network,

@@ -1,6 +1,5 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
-import { WeiPerEther } from "ethers/constants";
 import {
   getAddress,
   hexlify,
@@ -12,7 +11,7 @@ import {
 import { SetupCommitment } from "../../../src/ethereum";
 import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
 import { MultisigTransaction } from "../../../src/ethereum/utils/types";
-import { AppInstance, StateChannel } from "../../../src/models";
+import { StateChannel } from "../../../src/models";
 
 /**
  * This test suite decodes a constructed SetupCommitment transaction object according
@@ -47,20 +46,10 @@ describe("SetupCommitment", () => {
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    ),
-    new Map<string, AppInstance>(),
-    new Map<AssetType, string>()
+    )
   ).setupChannel(networkContext);
 
-  let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-  // Set the state to some test values
-  freeBalanceETH = freeBalanceETH.setState({
-    alice: stateChannel.multisigOwners[0],
-    bob: stateChannel.multisigOwners[1],
-    aliceBalance: WeiPerEther,
-    bobBalance: WeiPerEther
-  });
+  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   beforeAll(() => {
     tx = new SetupCommitment(
