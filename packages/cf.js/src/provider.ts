@@ -220,6 +220,17 @@ export class Provider {
         };
         break;
       }
+      case Node.EventName.INSTALL: {
+        const { appInstanceId } = nodeEvent.data as Node.InstallEventData;
+        const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+        event = {
+          type: EventType.INSTALL,
+          data: {
+            appInstance
+          }
+        };
+        break;
+      }
       default:
         event = {
           type: EventType.ERROR,

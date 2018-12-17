@@ -43,7 +43,7 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    MULTISIG_CREATED = "multisigCreatedEvent"
+    MULTISIG_CREATED = "createMultisigEvent"
   }
 
   export interface GetAppInstancesParams {}
@@ -166,12 +166,17 @@ export namespace Node {
     myPayout: BigNumber;
     peerPayout: BigNumber;
   }
+  export interface CreateMultisigEventData {
+    owners: Address[];
+    multisigAddress: Address;
+  }
 
   export type EventData =
     | InstallEventData
     | RejectInstallEventData
     | UpdateStateEventData
-    | UninstallEventData;
+    | UninstallEventData
+    | CreateMultisigEventData;
 
   export interface MethodMessage {
     type: MethodName;

@@ -1,4 +1,4 @@
-import { AppAction, AppState } from "@counterfactual/common-types";
+import { Address, AppAction, AppState } from "@counterfactual/common-types";
 import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../app-instance";
@@ -8,6 +8,7 @@ export enum EventType {
   REJECT_INSTALL = "rejectInstall",
   UNINSTALL = "uninstall",
   UPDATE_STATE = "updateState",
+  CREATE_MULTISIG = "createMultisig",
   ERROR = "error"
 }
 
@@ -30,6 +31,11 @@ export interface UpdateStateEventData extends AppEventData {
   action?: AppAction;
 }
 
+export interface CreateMultisigEventData {
+  owners: Address[];
+  multisigAddress: Address;
+}
+
 export interface ErrorEventData {
   errorName: string;
   message?: string;
@@ -42,7 +48,8 @@ export type EventData =
   | RejectInstallEventData
   | UninstallEventData
   | UpdateStateEventData
-  | ErrorEventData;
+  | ErrorEventData
+  | CreateMultisigEventData;
 
 export interface CounterfactualEvent {
   readonly type: EventType;
