@@ -45,7 +45,9 @@ library Signatures {
   {
     address lastSigner = address(0);
     for (uint256 i = 0; i < signers.length; i++) {
-      require((signers[i] == recoverKey(signatures, txHash, i)), "Invalid signature");
+      require(
+        signers[i] == recoverKey(signatures, txHash, i), "Invalid signature"
+      );
       require(signers[i] > lastSigner, "Signers not in ascending order");
       lastSigner = signers[i];
     }
