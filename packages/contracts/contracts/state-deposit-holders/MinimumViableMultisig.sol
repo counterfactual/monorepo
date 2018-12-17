@@ -82,7 +82,9 @@ contract MinimumViableMultisig is LibSignature {
     view
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(byte(0x19), _owners, to, value, data, uint8(operation)));
+    return keccak256(
+      abi.encodePacked(byte(0x19), _owners, to, value, data, uint8(operation))
+    );
   }
 
   /// @notice A getter function for the owners of the multisig
