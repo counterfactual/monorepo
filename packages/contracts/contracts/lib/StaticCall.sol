@@ -100,7 +100,9 @@ library StaticCall {
     private
     view
   {
-    require(to.isContract(), "Attempted to make a static call on non-conract address");
+    require(
+      to.isContract(), "Attempted to make a static call on non-contract address"
+    );
     assembly {
       let result := staticcall(gas, to, add(data, 0x20), mload(data), 0, 0)
       let size := returndatasize
