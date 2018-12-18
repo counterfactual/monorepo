@@ -177,72 +177,91 @@ export class Provider {
 
   private async handleNodeEvent(nodeEvent: Node.Event) {
     switch (nodeEvent.type) {
-      case Node.EventName.REJECT_INSTALL: {
-        const data = nodeEvent.data as Node.RejectInstallEventData;
-        const info = data.appInstance;
-        const appInstance = await this.getOrCreateAppInstance(info.id, info);
-        const event = {
-          type: EventType.REJECT_INSTALL,
-          data: {
-            appInstance
-          }
-        };
-        return this.eventEmitter.emit(event.type, event);
-      }
-      case Node.EventName.UPDATE_STATE: {
-        const {
-          appInstanceId,
-          action,
-          newState,
-          oldState
-        } = nodeEvent.data as Node.UpdateStateEventData;
-        const appInstance = await this.getOrCreateAppInstance(appInstanceId);
-        const event = {
-          type: EventType.UPDATE_STATE,
-          data: {
-            action,
-            newState,
-            oldState,
-            appInstance
-          }
-        };
-        return this.eventEmitter.emit(event.type, event);
-      }
-      case Node.EventName.UNINSTALL: {
-        const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
-        const appInstance = await this.getOrCreateAppInstance(info.id, info);
-        const event = {
-          type: EventType.UNINSTALL,
-          data: {
-            appInstance
-          }
-        };
-        return this.eventEmitter.emit(event.type, event);
-      }
-      case Node.EventName.INSTALL: {
-        const { appInstanceId } = nodeEvent.data as Node.InstallEventData;
-        const appInstance = await this.getOrCreateAppInstance(appInstanceId);
-        const event = {
-          type: EventType.INSTALL,
-          data: {
-            appInstance
-          }
-        };
-        return this.eventEmitter.emit(event.type, event);
-      }
-      default: {
-        const event = {
-          type: EventType.ERROR,
-          data: {
-            errorName: "unexpected_event_type",
-            message: `Unexpected event type: ${
-              nodeEvent.type
-            }: ${JSON.stringify(nodeEvent)}`
-          }
-        };
-        return this.eventEmitter.emit(event.type, event);
-      }
+      case Node.EventName.REJECT_INSTALL:
+        return this.handleRejectInstallEvent(nodeEvent);
+
+      case Node.EventName.UPDATE_STATE:
+        return this.handleUpdateStateEvent(nodeEvent);
+
+      case Node.EventName.UNINSTALL:
+        return this.handleUninstallEvent(nodeEvent);
+
+      case Node.EventName.INSTALL:
+        return this.handleInstallEvent(nodeEvent);
+
+      default:
+        return this.handleUnexpectedEvent(nodeEvent);
     }
+  }
+
+  private handleUnexpectedEvent(nodeEvent: Node.Event) {
+    const event = {
+      type: EventType.ERROR,
+      data: {
+        errorName: "unexpected_event_type",
+        message: `Unexpected event type: ${nodeEvent.type}: ${JSON.stringify(
+          nodeEvent
+        )}`
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  private async handleInstallEvent(nodeEvent: Node.Event) {
+    const { appInstanceId } = nodeEvent.data as Node.InstallEventData;
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+    const event = {
+      type: EventType.INSTALL,
+      data: {
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  private async handleUninstallEvent(nodeEvent: Node.Event) {
+    const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
+    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const event = {
+      type: EventType.UNINSTALL,
+      data: {
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  private async handleUpdateStateEvent(nodeEvent: Node.Event) {
+    const {
+      appInstanceId,
+      action,
+      newState,
+      oldState
+    } = nodeEvent.data as Node.UpdateStateEventData;
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+    const event = {
+      type: EventType.UPDATE_STATE,
+      data: {
+        action,
+        newState,
+        oldState,
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  private async handleRejectInstallEvent(nodeEvent: Node.Event) {
+    const data = nodeEvent.data as Node.RejectInstallEventData;
+    const info = data.appInstance;
+    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const event = {
+      type: EventType.REJECT_INSTALL,
+      data: {
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
   }
 
   private setupAppInstanceEventListeners() {

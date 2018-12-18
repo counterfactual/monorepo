@@ -197,9 +197,7 @@ describe("CF.js AppInstance", () => {
     });
 
     it("can unsubscribe from events", done => {
-      const callback = () => {
-        done.fail();
-      };
+      const callback = () => done.fail();
       appInstance.on(AppInstanceEventType.UNINSTALL, callback);
       appInstance.off(AppInstanceEventType.UNINSTALL, callback);
       nodeProvider.simulateMessageFromNode({
