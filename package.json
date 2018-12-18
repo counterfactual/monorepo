@@ -45,6 +45,7 @@
     "ganache-cli": "6.1.8",
     "lerna": "^3.4.3",
     "prettier": "1.15.3",
+    "random": "2.0.12",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
