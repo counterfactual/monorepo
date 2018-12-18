@@ -16,7 +16,5 @@ contract AppRegistry is
   MixinCancelChallenge,
   MixinSetResolution
 {
-  constructor ()
-    public
-    {}
+  constructor () public {}
 }

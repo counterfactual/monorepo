@@ -6,6 +6,7 @@ import "../libs/Transfer.sol";
 
 import "./MAppRegistryCore.sol";
 
+
 /// @title MixinAppRegistryCore
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Core functionality and utilities for the AppRegistry

@@ -32,7 +32,11 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
   /// @param appInterface An `AppInterface` struct
   /// @param appState The ABI encoded version of some application state
   /// @return An address representing the turn taker in the `signingKeys`
-  function getTurnTaker(AppInterface appInterface, address[] signingKeys, bytes appState)
+  function getTurnTaker(
+    AppInterface appInterface,
+    address[] signingKeys,
+    bytes appState
+  )
     internal
     view
     returns (address)

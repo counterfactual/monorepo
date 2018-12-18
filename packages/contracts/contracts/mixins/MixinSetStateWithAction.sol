@@ -75,10 +75,17 @@ contract MixinSetStateWithAction is
       "setStateWithAction called with action signed by incorrect turn taker"
     );
 
-    bytes memory newState = MAppCaller.applyAction(appInterface, req.encodedState, action.encodedAction);
+    bytes memory newState = MAppCaller.applyAction(
+      appInterface,
+      req.encodedState,
+      action.encodedAction
+    );
 
     if (action.checkForTerminal) {
-      require(MAppCaller.isStateTerminal(appInterface, newState));
+      require(
+        MAppCaller.isStateTerminal(appInterface, newState),
+        "Attempted to claim non-terminal state was terminal in setStateWithAction"
+      );
       challenge.finalizesAt = block.number;
       challenge.status = AppStatus.OFF;
     } else {

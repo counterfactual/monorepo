@@ -1,13 +1,13 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { ethers } from "ethers";
+import { AddressZero, WeiPerEther } from "ethers/constants";
 
 import PaymentApp from "../build/PaymentApp.json";
 
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-import { AddressZero, WeiPerEther } from "ethers/constants";
 
 const [A, B] = [
   "0xb37e49bFC97A948617bF3B63BC6942BB15285715",

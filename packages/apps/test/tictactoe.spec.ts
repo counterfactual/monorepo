@@ -1,13 +1,13 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { ethers } from "ethers";
+import { AddressZero } from "ethers/constants";
 
 import TicTacToeApp from "../build/TicTacToeApp.json";
 
 chai.use(waffle.solidity);
 
 const { expect } = chai;
-import { AddressZero } from "ethers/constants";
 
 type TicTacToeAppState = {
   players: string[];
