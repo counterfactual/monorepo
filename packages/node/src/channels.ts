@@ -7,7 +7,7 @@ import { IStoreService } from "./service-interfaces";
 import { orderedAddressesHash } from "./utils";
 
 /**
- * Namepsace under which the channels are stored.
+ * Namespace under which the channels are stored.
  */
 const CHANNEL = "channel";
 
@@ -114,9 +114,7 @@ export class Channels {
     return await this.getProposedAppInstances();
   }
 
-  async getUUIDFromProposalInstall(
-    params: Node.ProposeInstallParams
-  ): Promise<string> {
+  async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
     const uuid = generateUUID();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
 

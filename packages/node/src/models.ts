@@ -61,6 +61,10 @@ import FreeBalance = legacy.utils.FreeBalance;
  * }
  */
 
+type AppInstancesMap = { [key: string]: AppInstanceInfo };
+
+const INITIAL_NONCE = new Nonce(true, 0, 0);
+
 /**
  * This class is only a type implementation of a channel schema for the
  * purposes of updating and retrieving a channel's state from the store.
@@ -72,16 +76,12 @@ export class Channel {
   constructor(
     readonly multisigAddress: Address,
     readonly multisigOwners: Address[],
-    readonly rootNonce: Nonce = new Nonce(true, 0, 0),
+    readonly rootNonce: Nonce = INITIAL_NONCE,
     readonly freeBalances: {
       [assetType: number]: FreeBalance;
     } = Channel.initialFreeBalances(multisigOwners, rootNonce),
-    readonly appInstances: {
-      [appInstanceId: string]: AppInstanceInfo;
-    } = {},
-    readonly proposedAppInstances: {
-      [appInstanceId: string]: AppInstanceInfo;
-    } = {}
+    readonly appInstances: AppInstancesMap = {},
+    readonly proposedAppInstances: AppInstancesMap = {}
   ) {}
 
   static initialFreeBalances(

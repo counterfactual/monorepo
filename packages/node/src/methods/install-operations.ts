@@ -19,7 +19,7 @@ export async function proposeInstall(
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
-  const uuid = await channels.getUUIDFromProposalInstall(params);
+  const uuid = await channels.proposeInstall(params);
 
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
