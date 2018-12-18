@@ -45,7 +45,7 @@
     "eth-gas-reporter": "0.1.12",
     "ethereum-waffle": "1.0.5",
     "ethers": "4.0.18",
-    "ganache-cli": "^6.2.3",
+    "ganache-cli": "6.2.4",
     "openzeppelin-eth": "^2.0.2",
     "shx": "^0.3.2",
     "solc": "^0.4.25",
