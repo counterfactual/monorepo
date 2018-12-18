@@ -16,25 +16,25 @@
     - Lifecycle
         - `on(eventType, callback: Function)`
             - `install`
-                - [Node event](#event-installEvent)
+                - [Node event](#event-installevent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `rejectInstall`
-                - [Node event](#event-rejectInstallEvent)
+                - [Node event](#event-rejectinstallevent)
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
-                - [Node event](#event-updateStateEvent)
+                - [Node event](#event-updatestateevent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `proposeState`
-                - [Node event](#event-proposeStateEvent)
+                - [Node event](#event-proposestateevent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
             - `rejectState`
-                - [Node event](#event-rejectStateEvent)
+                - [Node event](#event-rejectstateevent)
                 - Callback Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
-                - [Node event](#event-uninstallEvent)
+                - [Node event](#event-uninstallevent)
                 - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
             - `multisigCreated`
-                - [Node event](#event-multisigCreatedEvent)
+                - [Node event](#event-multisigcreatedevent)
                 - Callback Params: `(multisigAddress: Address, owners: Address[])`
 - `AppFactory`
     - Properties
@@ -85,13 +85,13 @@
         - `on(eventType, callback: Function)`
             - eventTypes
                 - `updateState`
-                    - [Node event](#event-updatestate)
+                    - [Node event](#event-updatestateevent)
                 - `uninstall`
-                    - [Node event](#event-uninstall)
+                    - [Node event](#event-uninstallevent)
                 - `proposeState`
-                    - [Node event](#event-proposestate)
+                    - [Node event](#event-proposestateevent)
                 - `rejectState`
-                    - [Node event](#event-rejectstate)
+                    - [Node event](#event-rejectstateevent)
 - `types`
     - Everything under [Data Types](#data-types) except `AppInstanceInfo`
     - `AppManifest`
@@ -245,11 +245,7 @@ Params:
 - `appInstanceId: string`
     - ID of the app instance to uninstall
 
-Result:
-- `myPayout: BigNumber`
-    - Amount of the asset paid out to this user
-- `peerPayout: BigNumber`
-    - Amount of the asset paid out to peer
+Result: "OK"
 
 Errors: (TODO)
 - App state not terminal
@@ -328,10 +324,6 @@ Fired if app instance is successfully uninstalled
 Data:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - Uninstalled app instance
-- `myPayout: BigNumber`
-    - Amount of the asset paid out to this user
-- `peerPayout: BigNumber`
-    - Amount of the asset paid out to peer
 
 ### Event: `proposeStateEvent`
 
