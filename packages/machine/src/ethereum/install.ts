@@ -1,5 +1,5 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
-import { AppIdentity, Terms } from "@counterfactual/types";
+import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import {
   defaultAbiCoder,
   Interface,
