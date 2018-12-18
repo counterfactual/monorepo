@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # This script file builds the entire monorepo.
 #
 # This is necessary because we're using IIFEs and symlinks
@@ -6,8 +8,11 @@
 
 set -e
 
-bold=$(tput bold)
-normal=$(tput sgr0)
+if tty -s
+then
+  bold=$(tput bold)
+  normal=$(tput sgr0)
+fi
 
 packages="contracts common-types cf.js machine node node-provider playground dapp-high-roller"
 
