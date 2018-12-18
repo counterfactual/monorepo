@@ -15,7 +15,6 @@
     "test:windows": "tsc -b && truffle test",
     "ganache:start": "ganache-cli -q -i 7777777 -l 0xfffffffffff -g 0x01 > /dev/null &",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
-    "clean": "git clean -Xdf",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "yarn lint:sol --fix",
