@@ -32,7 +32,6 @@
     "typescript-memoize": "^1.0.0-alpha.3"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/contracts": "0.0.3",
     "ethers": "4.0.18"
   }

@@ -1,7 +1,7 @@
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import { defaultAbiCoder, Interface, keccak256, Signature } from "ethers/utils";
 
-import { utils } from "@counterfactual/cf.js";
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import { signaturesToSortedBytes } from "../utils/signature";
 
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
 
@@ -18,10 +18,7 @@ export abstract class MultisigTransactionCommitment extends EthereumCommitment {
   public transaction(sigs: Signature[]): Transaction {
     const multisigInput = this.getTransactionDetails();
 
-    const signatureBytes = utils.signaturesToSortedBytes(
-      this.hashToSign(),
-      ...sigs
-    );
+    const signatureBytes = signaturesToSortedBytes(this.hashToSign(), ...sigs);
 
     const txData = new Interface(
       MinimumViableMultisig.abi
