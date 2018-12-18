@@ -26,7 +26,10 @@ contract MixinSetState is
   /// @notice Set the application state to a given value.
   /// This value must have been signed off by all parties to the channel, that is,
   /// this must be called with the correct msg.sender or signatures must be provided.
-  // TODO:
+  /// @param appIdentity an AppIdentity struct with all information encoded within
+  ///        it to represent which particular app is having state submitted
+  /// @param req An object containing the update to be applied to the
+  ///        applications state including the signatures of the users needed
   /// @dev This function is only callable when the state channel is in an ON state.
   function setState(
     AppIdentity appIdentity,
