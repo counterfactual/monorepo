@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # This script file builds the entire monorepo.
 #
@@ -8,11 +8,8 @@
 
 set -e
 
-if tty -s
-then
-  bold=$(tput bold)
-  normal=$(tput sgr0)
-fi
+bold=$(tput bold)
+normal=$(tput sgr0)
 
 packages="contracts common-types cf.js machine node node-provider playground dapp-high-roller"
 
