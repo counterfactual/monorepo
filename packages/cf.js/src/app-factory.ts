@@ -1,4 +1,11 @@
-import { Address, AppABIEncodings, AppInstanceID, AppState, BlockchainAsset, Node } from "@counterfactual/common-types";
+import {
+  Address,
+  AppABIEncodings,
+  AppInstanceID,
+  AppState,
+  BlockchainAsset,
+  Node
+} from "@counterfactual/common-types";
 import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
 
 import { Provider } from "./provider";
