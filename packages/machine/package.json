@@ -24,7 +24,7 @@
     "@types/node": "^10.9.3",
     "ethers": "^4.0.17",
     "jest": "^23.6.0",
-    "rollup": "^0.67.0",
+    "rollup": "^0.68.0",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "ts-jest": "^23.1.4",
