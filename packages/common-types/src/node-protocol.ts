@@ -107,10 +107,7 @@ export namespace Node {
   export type UninstallParams = {
     appInstanceId: AppInstanceID;
   };
-  export type UninstallResult = {
-    myPayout: BigNumber;
-    peerPayout: BigNumber;
-  };
+  export type UninstallResult = {};
 
   export type CreateMultisigParams = {
     owners: Address[];
@@ -163,8 +160,6 @@ export namespace Node {
   };
   export type UninstallEventData = {
     appInstance: AppInstanceInfo;
-    myPayout: BigNumber;
-    peerPayout: BigNumber;
   };
   export type CreateMultisigEventData = {
     owners: Address[];
