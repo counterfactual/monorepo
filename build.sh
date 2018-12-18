@@ -8,8 +8,13 @@
 
 set -e
 
-bold=$(tput bold)
-normal=$(tput sgr0)
+bold=; normal=;
+case ${TERM} in
+  '') ;;
+  *)
+      bold=`tput bold`
+      normal=`tput sgr0`;;
+esac
 
 packages="contracts common-types cf.js machine node node-provider playground dapp-high-roller"
 
