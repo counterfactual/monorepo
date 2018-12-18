@@ -137,7 +137,7 @@ contract("CountingApp", (accounts: string[]) => {
     expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
     expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
     expect(ret.value[0].toString()).to.be.eql(Utils.UNIT_ETH.mul(2).toString());
-    expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(0));
+    expect(ret.value[1]).to.eq(0);
   });
 
   describe("setting a resolution", async () => {
@@ -167,7 +167,7 @@ contract("CountingApp", (accounts: string[]) => {
       expect(ret.value[0].toString()).to.be.eql(
         Utils.UNIT_ETH.mul(2).toString()
       );
-      expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(0));
+      expect(ret.value[1]).to.eq(0);
     });
   });
 
@@ -222,9 +222,9 @@ contract("CountingApp", (accounts: string[]) => {
       expect(onchain.status).to.be.eql(Status.DISPUTE);
       expect(onchain.appStateHash).to.be.equalIgnoreCase(expectedStateHash);
       expect(onchain.latestSubmitter).to.be.equalIgnoreCase(accounts[0]);
-      expect(onchain.nonce).to.be.eql(new ethers.utils.BigNumber(1));
-      expect(onchain.disputeNonce).to.be.eql(new ethers.utils.BigNumber(0));
-      expect(onchain.disputeCounter).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(onchain.nonce).to.eq(1);
+      expect(onchain.disputeNonce).to.eq(0);
+      expect(onchain.disputeCounter).to.eq(1);
       expect(onchain.finalizesAt).to.be.eql(
         new ethers.utils.BigNumber(expectedFinalizeBlock)
       );
@@ -267,7 +267,7 @@ contract("CountingApp", (accounts: string[]) => {
         expectedStateHash
       );
       expect(channelState.latestSubmitter).to.be.equalIgnoreCase(accounts[0]);
-      expect(channelState.nonce).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(channelState.nonce).to.eq(1);
       expect(channelState.disputeNonce).to.be.eql(
         new ethers.utils.BigNumber(0)
       );

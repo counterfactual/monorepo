@@ -118,7 +118,7 @@ contract("Transfer", (accounts: string[]) => {
 
       const balTarget = await dolphinCoin.functions.balanceOf(randomTarget);
 
-      expect(balTarget).to.be.eql(new ethers.utils.BigNumber(10));
+      expect(balTarget).to.eq(10);
     });
 
     it("for many addresses", async () => {
@@ -142,7 +142,7 @@ contract("Transfer", (accounts: string[]) => {
 
       for (const target of randomTargets) {
         const bal = await dolphinCoin.functions.balanceOf(target);
-        expect(bal).to.be.eql(new ethers.utils.BigNumber(1));
+        expect(bal).to.eq(1);
       }
     });
   });

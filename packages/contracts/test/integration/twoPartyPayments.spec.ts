@@ -124,8 +124,8 @@ contract("PaymentApp", (accounts: string[]) => {
     expect(ret.token).to.be.equalIgnoreCase(ethers.constants.AddressZero);
     expect(ret.to[0]).to.be.equalIgnoreCase(A.address);
     expect(ret.to[1]).to.be.equalIgnoreCase(B.address);
-    expect(ret.value[0]).to.be.eql(new ethers.utils.BigNumber(Utils.UNIT_ETH));
-    expect(ret.value[1]).to.be.eql(new ethers.utils.BigNumber(Utils.UNIT_ETH));
+    expect(ret.value[0]).to.be.eql(Utils.UNIT_ETH);
+    expect(ret.value[1]).to.be.eql(Utils.UNIT_ETH);
   });
 
   describe("setting a resolution", async () => {

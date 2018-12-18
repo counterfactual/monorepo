@@ -29,9 +29,9 @@ contract("NonceRegistry", accounts => {
     const ret = await registry.functions.table(
       computeKey(timeout, ethers.constants.HashZero)
     );
-    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(1));
-    expect(ret.finalizesAt).to.be.eql(
-      new ethers.utils.BigNumber((await provider.getBlockNumber()) + 10)
+    expect(ret.nonceValue).to.eq(1);
+    expect(ret.finalizesAt).to.eq(
+      (await provider.getBlockNumber()) + 10
     );
   });
 
@@ -56,7 +56,7 @@ contract("NonceRegistry", accounts => {
       nonceValue
     );
     const ret = await registry.functions.table(nonceKey);
-    expect(ret.nonceValue).to.be.eql(new ethers.utils.BigNumber(nonceValue));
+    expect(ret.nonceValue).to.be.eql(nonceValue);
     expect(ret.finalizesAt).to.be.eql(
       new ethers.utils.BigNumber(await provider.getBlockNumber())
     );

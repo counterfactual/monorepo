@@ -40,12 +40,10 @@ contract("Nim", (accounts: string[]) => {
         ret
       )[0];
 
-      expect(postState.pileHeights[0]).to.be.eql(new ethers.utils.BigNumber(1));
-      expect(postState.pileHeights[1]).to.be.eql(new ethers.utils.BigNumber(5));
-      expect(postState.pileHeights[2]).to.be.eql(
-        new ethers.utils.BigNumber(12)
-      );
-      expect(postState.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(postState.pileHeights[0]).to.eq(1);
+      expect(postState.pileHeights[1]).to.eq(5);
+      expect(postState.pileHeights[2]).to.eq(12);
+      expect(postState.turnNum).to.eq(1);
     });
 
     it("can take to produce an empty pile", async () => {
@@ -67,12 +65,10 @@ contract("Nim", (accounts: string[]) => {
         ret
       )[0];
 
-      expect(postState.pileHeights[0]).to.be.eql(new ethers.utils.BigNumber(0));
-      expect(postState.pileHeights[1]).to.be.eql(new ethers.utils.BigNumber(5));
-      expect(postState.pileHeights[2]).to.be.eql(
-        new ethers.utils.BigNumber(12)
-      );
-      expect(postState.turnNum).to.be.eql(new ethers.utils.BigNumber(1));
+      expect(postState.pileHeights[0]).to.eq(0);
+      expect(postState.pileHeights[1]).to.eq(5);
+      expect(postState.pileHeights[2]).to.eq(12);
+      expect(postState.turnNum).to.eq(1);
     });
 
     it("should fail for taking too much", async () => {
