@@ -80,9 +80,6 @@ describe("CF.js AppInstance", () => {
     it("can be uninstalled", async () => {
       expect.assertions(2);
 
-      const expectedMyPayout = bigNumberify(2000);
-      const expectedPeerPayout = Zero;
-
       nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
         expect(request.type).toBe(Node.MethodName.UNINSTALL);
         const params = request.params as Node.UninstallParams;
@@ -91,10 +88,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.UNINSTALL,
           requestId: request.requestId,
-          result: {
-            myPayout: expectedMyPayout,
-            peerPayout: expectedPeerPayout
-          }
+          result: {}
         });
       });
 
