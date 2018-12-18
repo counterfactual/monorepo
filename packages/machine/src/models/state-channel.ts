@@ -89,7 +89,7 @@ export class StateChannel {
   }
 
   public isAppInstanceInstalled(appInstanceId: string) {
-    return this.appInstances.get(appInstanceId) !== undefined;
+    return this.appInstances.has(appInstanceId);
   }
 
   public getFreeBalanceFor(assetType: AssetType) {
