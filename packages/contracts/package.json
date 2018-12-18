@@ -56,6 +56,7 @@
     "ts-node": "^7.0.0",
     "tslint": "5.11.0",
     "typescript": "^3.1.2",
+    "ethereum-waffle": "1.0.5",
     "zos-lib": "^2.0.0"
   },
   "repository": {
