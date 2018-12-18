@@ -1,11 +1,4 @@
-import {
-  Address,
-  AppABIEncodings,
-  AppInstanceID,
-  AppState,
-  BlockchainAsset,
-  Node
-} from "@counterfactual/common-types";
+import { Address, AppABIEncodings, AppInstanceID, AppState, BlockchainAsset, Node } from "@counterfactual/common-types";
 import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
 
 import { Provider } from "./provider";
@@ -62,19 +55,18 @@ export class AppFactory {
     } catch (e) {
       throw createInvalidParamError(params.peerAddress, "peerAddress", e);
     }
-    const nodeParams: Node.ProposeInstallParams = {
-      timeout,
-      peerDeposit,
-      myDeposit,
-      asset: params.asset,
-      peerAddress: params.peerAddress,
-      initialState: params.initialState,
-      appId: this.appId,
-      abiEncodings: this.encodings
-    };
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.PROPOSE_INSTALL,
-      nodeParams
+      {
+        timeout,
+        peerDeposit,
+        myDeposit,
+        asset: params.asset,
+        peerAddress: params.peerAddress,
+        initialState: params.initialState,
+        appId: this.appId,
+        abiEncodings: this.encodings
+      }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
     return appInstanceId;

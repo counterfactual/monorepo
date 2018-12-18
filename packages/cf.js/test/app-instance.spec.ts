@@ -1,7 +1,6 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
-import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
@@ -81,8 +80,8 @@ describe("CF.js AppInstance", () => {
     it("can be uninstalled", async () => {
       expect.assertions(2);
 
-      const testMyPayout = new BigNumber("2000");
-      const testPeerPayout = ethers.constants.Zero;
+      const testMyPayout = bigNumberify(2000);
+      const testPeerPayout = Zero;
 
       nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
         expect(request.type).toBe(Node.MethodName.UNINSTALL);
@@ -107,9 +106,9 @@ describe("CF.js AppInstance", () => {
     it("fires update state events", async () => {
       expect.assertions(4);
 
-      const testOldState = "1000";
-      const testAction = "200";
-      const testNewState = "1200";
+      const testOldState = bigNumberify(1000);
+      const testAction = bigNumberify(200);
+      const testNewState = bigNumberify(1200);
       appInstance.on(AppInstanceEventType.UPDATE_STATE, event => {
         expect(event.type).toBe(AppInstanceEventType.UPDATE_STATE);
         const {
