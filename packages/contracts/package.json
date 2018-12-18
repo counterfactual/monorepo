@@ -50,7 +50,7 @@
     "solc": "^0.4.25",
     "solidity-coverage": "0.5.11",
     "solium": "1.1.8",
-    "truffle": "5.0.0-beta.1",
+    "truffle": "5.0.0",
     "truffle-deploy-registry": "^0.4.1",
     "truffle-hdwallet-provider": "1.0.0-web3one.0",
     "ts-node": "^7.0.0",
