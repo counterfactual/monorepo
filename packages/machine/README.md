@@ -1,6 +1,6 @@
 # [Machine](https://counterfactual.com) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
 
-This is the typescript implementation of the [Counterfactual protocol](https://github.com/counterfactual/specs/blob/master/v0/protocols.md). It's responsible for executing these protocols, _producing state commitments_, and thereby effectively facilitating user interaction for off-chain channelized applications.
+This is the core functional TypeScript implementation of the [Counterfactual protocol](https://github.com/counterfactual/specs/blob/master/v0/protocols.md). It is responsible for executing the protocols described by Counterfactual and producing correctly constructed signed commitments that correspond to state transitions of the users' state channels.
 
 The specific design philosophy it adopts is the middleware pattern. That is, all of these protocols are naturally broken down into steps, for each of which there is a middleware responsible for executing that step.
 
