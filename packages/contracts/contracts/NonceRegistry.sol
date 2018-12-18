@@ -30,7 +30,10 @@ contract NonceRegistry {
     view
     returns (bool)
   {
-    return (table[key].finalizesAt <= block.number) && (table[key].nonceValue == expectedNonceValue);
+    return (
+      (table[key].finalizesAt <= block.number) && 
+      (table[key].nonceValue == expectedNonceValue)
+    );
   }
 
   function isNonceSet(bytes32 key) external view returns (bool) {
@@ -41,7 +44,9 @@ contract NonceRegistry {
   /// Trigger the timeout period to begin if the nonce is set for the first time.
   /// @param salt A salt used to generate the nonce key
   /// @param nonceValue A nonce at which to set the computed key's value in the mapping
-  function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue) external {
+  function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue)
+    external
+  {
     bytes32 key = computeKey(msg.sender, timeout, salt);
     require(
       table[key].nonceValue < nonceValue,
