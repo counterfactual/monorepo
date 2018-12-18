@@ -176,19 +176,18 @@ export class Provider {
   }
 
   private async handleNodeEvent(nodeEvent: Node.Event) {
-    let event: CounterfactualEvent;
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL: {
         const data = nodeEvent.data as Node.RejectInstallEventData;
         const info = data.appInstance;
         const appInstance = await this.getOrCreateAppInstance(info.id, info);
-        event = {
+        const event = {
           type: EventType.REJECT_INSTALL,
           data: {
             appInstance
           }
         };
-        break;
+        return this.eventEmitter.emit(event.type, event);
       }
       case Node.EventName.UPDATE_STATE: {
         const {
@@ -198,7 +197,7 @@ export class Provider {
           oldState
         } = nodeEvent.data as Node.UpdateStateEventData;
         const appInstance = await this.getOrCreateAppInstance(appInstanceId);
-        event = {
+        const event = {
           type: EventType.UPDATE_STATE,
           data: {
             action,
@@ -207,32 +206,32 @@ export class Provider {
             appInstance
           }
         };
-        break;
+        return this.eventEmitter.emit(event.type, event);
       }
       case Node.EventName.UNINSTALL: {
         const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
         const appInstance = await this.getOrCreateAppInstance(info.id, info);
-        event = {
+        const event = {
           type: EventType.UNINSTALL,
           data: {
             appInstance
           }
         };
-        break;
+        return this.eventEmitter.emit(event.type, event);
       }
       case Node.EventName.INSTALL: {
         const { appInstanceId } = nodeEvent.data as Node.InstallEventData;
         const appInstance = await this.getOrCreateAppInstance(appInstanceId);
-        event = {
+        const event = {
           type: EventType.INSTALL,
           data: {
             appInstance
           }
         };
-        break;
+        return this.eventEmitter.emit(event.type, event);
       }
-      default:
-        event = {
+      default: {
+        const event = {
           type: EventType.ERROR,
           data: {
             errorName: "unexpected_event_type",
@@ -241,8 +240,9 @@ export class Provider {
             }: ${JSON.stringify(nodeEvent)}`
           }
         };
+        return this.eventEmitter.emit(event.type, event);
+      }
     }
-    this.eventEmitter.emit(event.type, event);
   }
 
   private setupAppInstanceEventListeners() {
