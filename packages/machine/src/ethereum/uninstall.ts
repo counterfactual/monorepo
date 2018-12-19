@@ -12,7 +12,7 @@ const nonceRegistryIface = new Interface(NonceRegistry.abi);
 
 export class UninstallCommitment extends MultiSendCommitment {
   constructor(
-    public readonly networkContext: any,
+    public readonly networkContext: NetworkContext,
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
