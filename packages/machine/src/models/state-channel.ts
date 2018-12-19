@@ -174,8 +174,9 @@ export class StateChannel {
     const aliceBalance = currentState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentState.bobBalance.sub(bobBalanceDecrement);
 
-    if (aliceBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
-    if (bobBalance.lt(Zero)) throw Error(INSUFFICIENT_FUNDS);
+    if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
+      throw Error(INSUFFICIENT_FUNDS);
+    }
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
