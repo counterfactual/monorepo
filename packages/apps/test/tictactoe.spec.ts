@@ -1,7 +1,9 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
-import { ethers } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
+import { Web3Provider } from "ethers/providers";
+import { defaultAbiCoder } from "ethers/utils";
 
 import TicTacToeApp from "../build/TicTacToeApp.json";
 
@@ -17,7 +19,7 @@ type TicTacToeAppState = {
 };
 
 function decodeAppState(encodedAppState: string): TicTacToeAppState {
-  return ethers.utils.defaultAbiCoder.decode(
+  return defaultAbiCoder.decode(
     [
       "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
     ],
@@ -26,11 +28,11 @@ function decodeAppState(encodedAppState: string): TicTacToeAppState {
 }
 
 describe("TicTacToeApp", () => {
-  let tictactoe: ethers.Contract;
+  let tictactoe: Contract;
 
   before(async () => {
-    const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
-    const wallet: ethers.Wallet = (await waffle.getWallets(provider))[0];
+    const provider: Web3Provider = waffle.createMockProvider();
+    const wallet: Wallet = (await waffle.getWallets(provider))[0];
     tictactoe = await waffle.deployContract(wallet, TicTacToeApp);
   });
 
