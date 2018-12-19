@@ -32,7 +32,11 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-        callback(snapshot.val());
+
+        const value = snapshot.val();
+        if (value) {
+          callback(value);
+        }
       });
   }
 }
