@@ -30,7 +30,7 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/types": "1.0.0",
+    "@counterfactual/types": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",

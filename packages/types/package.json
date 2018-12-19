@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/types",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
