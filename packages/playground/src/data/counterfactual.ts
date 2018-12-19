@@ -9,7 +9,8 @@ declare class Node {
   constructor(
     privateKey: string,
     messagingService: IMessagingService,
-    storeService: IStoreService
+    storeService: IStoreService,
+    nodeConfig: { MULTISIG_KEY_PREFIX: string }
   );
   on(event: string, callback: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
@@ -30,11 +31,13 @@ export default class CounterfactualNode {
     privateKey: string;
     messagingService: IMessagingService;
     storeService: IStoreService;
+    nodeConfig: { MULTISIG_KEY_PREFIX: string };
   }): Node {
     CounterfactualNode.node = new Node(
       settings.privateKey,
       settings.messagingService,
-      settings.storeService
+      settings.storeService,
+      settings.nodeConfig
     );
 
     return CounterfactualNode.getInstance();

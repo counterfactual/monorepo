@@ -75,7 +75,14 @@ export class NodeListener {
     );
     const storeService = serviceProvider.createStoreService("storage");
 
-    CounterfactualNode.create({ privateKey, messagingService, storeService });
+    CounterfactualNode.create({
+      privateKey,
+      messagingService,
+      storeService,
+      nodeConfig: {
+        MULTISIG_KEY_PREFIX: "multisig"
+      }
+    });
   }
 
   componentDidLoad() {
