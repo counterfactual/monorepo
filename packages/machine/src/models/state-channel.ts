@@ -66,12 +66,13 @@ export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    private readonly appInstances: Readonly<Map<string, AppInstance>> = new Map<
+    private readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
     >([]),
-    private readonly freeBalanceAppIndexes: Readonly<
-      Map<AssetType, string>
+    private readonly freeBalanceAppIndexes: ReadonlyMap<
+      AssetType,
+      string
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0
   ) {}
