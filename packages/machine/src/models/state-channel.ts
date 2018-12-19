@@ -128,11 +128,15 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
+    appInstances.set(fb.id, fb);
+
+    freeBalanceAppIndexes.set(AssetType.ETH, fb.id);
+
     return new StateChannel(
       this.multisigAddress,
       this.multisigOwners,
-      appInstances.set(fb.id, fb),
-      freeBalanceAppIndexes.set(AssetType.ETH, fb.id),
+      appInstances,
+      freeBalanceAppIndexes,
       this.monotonicallyIncreasingSeqNo + 1
     );
   }
@@ -148,10 +152,12 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
+    appInstances.set(appInstanceId, appInstance.setState(state));
+
     return new StateChannel(
       this.multisigAddress,
       this.multisigOwners,
-      appInstances.set(appInstanceId, appInstance.setState(state)),
+      appInstances,
       freeBalanceAppIndexes,
       this.monotonicallyIncreasingSeqNo
     );
@@ -179,12 +185,14 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
+    appInstances
+      .set(appInstance.id, appInstance)
+      .set(fb.id, fb.setState({ ...currentState, aliceBalance, bobBalance }));
+
     return new StateChannel(
       this.multisigAddress,
       this.multisigOwners,
-      appInstances
-        .set(appInstance.id, appInstance)
-        .set(fb.id, fb.setState({ ...currentState, aliceBalance, bobBalance })),
+      appInstances,
       freeBalanceAppIndexes,
       this.monotonicallyIncreasingSeqNo + 1
     );
@@ -211,16 +219,17 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
-    // Must do this inline because `delete` returns a boolean unlike `set`
     appInstances.delete(appToBeUninstalled.id);
+
+    appInstances.set(
+      fb.id,
+      fb.setState({ ...currentState, aliceBalance, bobBalance })
+    );
 
     return new StateChannel(
       this.multisigAddress,
       this.multisigOwners,
-      appInstances.set(
-        fb.id,
-        fb.setState({ ...currentState, aliceBalance, bobBalance })
-      ),
+      appInstances,
       freeBalanceAppIndexes,
       this.monotonicallyIncreasingSeqNo
     );
