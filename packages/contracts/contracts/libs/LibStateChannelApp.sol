@@ -31,7 +31,7 @@ contract LibStateChannelApp {
     uint256 defaultTimeout;
   }
 
-  // A minimal structure representing the state of an App from POV of the blockchain
+  // A structure representing the state of an AppInstance from POV of the blockchain
   struct AppChallenge {
     AppStatus status;
     address latestSubmitter;
