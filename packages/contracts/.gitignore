@@ -41,6 +41,4 @@ networks/*.json
 
 .env
 
-test/**/*.js
-test/**/*.js.map
-test/**/*.d.ts
+test/**/*[.js, .js.map, .d.ts]
