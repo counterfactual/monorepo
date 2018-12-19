@@ -115,9 +115,6 @@ export class Terms {
 }
 
 // TS version of MAppRegistryCore::computeStateHash
-// export const;
-
-// TS version of MAppRegistryCore::computeStateHash
 export const computeStateHash = (
   id: string,
   appStateHash: string,
@@ -186,20 +183,3 @@ export class AppInstance {
     );
   }
 }
-
-// export class OffChainState {
-//   public signatures: Map<string, Signature[]>;
-//   constructor(
-//     readonly state: object,
-//     readonly nonce: number,
-//     readonly timeout: number
-//   ) {}
-//   public signWith(wallet: SigningKey) {
-//     this.signatures[wallet.address] = wallet.signDigest()
-//   }
-// }
-
-// export class AppRegistry {
-//   constructor(readonly contract: ethers.Contract) {}
-//   setState(app: App, state: StateUpdate) {}
-// }
