@@ -6,21 +6,19 @@ import { SETUP_PROTOCOL } from "./setup";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
 import { UPDATE_PROTOCOL } from "./update";
 
+const protocolsByName = {
+  [Protocol.Setup]: SETUP_PROTOCOL,
+  [Protocol.Install]: INSTALL_PROTOCOL,
+  [Protocol.SetState]: UPDATE_PROTOCOL,
+  [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
+  [Protocol.MetaChannelInstallApp]: METACHANNEL_INSTALL_APP_PROTOCOL
+};
+
 export function getProtocolFromName(protocolName: Protocol) {
-  switch (protocolName) {
-    case Protocol.Setup:
-      return SETUP_PROTOCOL;
-    case Protocol.Install:
-      return INSTALL_PROTOCOL;
-    case Protocol.SetState:
-      return UPDATE_PROTOCOL;
-    case Protocol.Uninstall:
-      return UNINSTALL_PROTOCOL;
-    case Protocol.MetaChannelInstallApp:
-      return METACHANNEL_INSTALL_APP_PROTOCOL;
-    default:
-      throw Error(`Received invalid protocol type ${protocolName}`);
+  if (!(protocolName in protocolsByName)) {
+    throw Error(`Received invalid protocol type ${protocolName}`);
   }
+  return protocolsByName[protocolName];
 }
 
 export {
