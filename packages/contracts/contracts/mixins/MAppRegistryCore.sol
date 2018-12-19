@@ -13,7 +13,8 @@ contract MAppRegistryCore {
   // the current on-chain status of some particular applications state.
   mapping (bytes32 => LibStateChannelApp.AppChallenge) public appStates;
 
-  // Tracking of resolutions of applications that have finished
+  // A mapping of AppInstanceIds to Transaction structs which represents
+  // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 
   // TODO: docs
