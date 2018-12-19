@@ -73,14 +73,14 @@ export class StateChannel {
     private readonly freeBalanceAppIndexes: Readonly<
       Map<AssetType, string>
     > = new Map<AssetType, string>([]),
-    private readonly monotonicallyIncreasingSeqNo: number = 0
+    private readonly monotonicNumInstalledApps: number = 0
   ) {}
 
-  public get sequenceNumber() {
-    return this.monotonicallyIncreasingSeqNo;
+  public get numInstalledApps() {
+    return this.monotonicNumInstalledApps;
   }
 
-  public get numberOfApps() {
+  public get numActiveApps() {
     return this.appInstances.size;
   }
 
@@ -137,7 +137,7 @@ export class StateChannel {
       this.multisigOwners,
       appInstances,
       freeBalanceAppIndexes,
-      this.monotonicallyIncreasingSeqNo + 1
+      this.monotonicNumInstalledApps + 1
     );
   }
 
@@ -159,7 +159,7 @@ export class StateChannel {
       this.multisigOwners,
       appInstances,
       freeBalanceAppIndexes,
-      this.monotonicallyIncreasingSeqNo
+      this.monotonicNumInstalledApps
     );
   }
 
@@ -195,7 +195,7 @@ export class StateChannel {
       this.multisigOwners,
       appInstances,
       freeBalanceAppIndexes,
-      this.monotonicallyIncreasingSeqNo + 1
+      this.monotonicNumInstalledApps + 1
     );
   }
 
@@ -232,7 +232,7 @@ export class StateChannel {
       this.multisigOwners,
       appInstances,
       freeBalanceAppIndexes,
-      this.monotonicallyIncreasingSeqNo
+      this.monotonicNumInstalledApps
     );
   }
 }

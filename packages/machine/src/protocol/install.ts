@@ -86,7 +86,7 @@ function proposeStateTransition(
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
-    state.sequenceNumber + 1,
+    state.numInstalledApps + 1,
     initialState,
     // KEY: Set the nonce to be 0
     0,

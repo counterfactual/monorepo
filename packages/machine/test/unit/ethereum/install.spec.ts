@@ -85,7 +85,7 @@ describe("InstallCommitment", () => {
       token: AddressZero
     },
     false,
-    stateChannel.sequenceNumber + 1,
+    stateChannel.numInstalledApps + 1,
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random())
@@ -103,7 +103,7 @@ describe("InstallCommitment", () => {
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
-      stateChannel.sequenceNumber + 1
+      stateChannel.numInstalledApps + 1
     ).getTransactionDetails();
   });
 

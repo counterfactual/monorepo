@@ -16,7 +16,7 @@ describe("StateChannel", () => {
     expect(sc).not.toBe(undefined);
     expect(sc.multisigAddress).toBe(multisigAddress);
     expect(sc.multisigOwners).toBe(multisigOwners);
-    expect(sc.numberOfApps).toBe(0);
-    expect(sc.sequenceNumber).toBe(0);
+    expect(sc.numActiveApps).toBe(0);
+    expect(sc.numInstalledApps).toBe(0);
   });
 });

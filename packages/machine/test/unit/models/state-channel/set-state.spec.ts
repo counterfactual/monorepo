@@ -66,7 +66,7 @@ describe("StateChannel::setState", () => {
   });
 
   it("should not have bumped the sequence number", () => {
-    expect(sc2.sequenceNumber).toBe(sc1.sequenceNumber);
+    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps);
   });
 
   describe("the updated app", () => {

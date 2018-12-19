@@ -66,7 +66,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should not have bumped the sequence number", () => {
-    expect(sc2.sequenceNumber).toBe(sc1.sequenceNumber);
+    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps);
   });
 
   it("should have deleted the app being uninstalled", () => {

@@ -78,7 +78,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should have bumped the sequence number", () => {
-    expect(sc2.sequenceNumber).toBe(sc1.sequenceNumber + 1);
+    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps + 1);
   });
 
   it("should have added something at the id of thew new app", () => {
