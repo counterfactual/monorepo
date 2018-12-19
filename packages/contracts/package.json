@@ -12,7 +12,6 @@
     "build": "truffle compile --all",
     "migrate": "truffle migrate --reset",
     "test": "tsc -b && yarn ganache:start && yarn truffle:test && yarn ganache:stop",
-    "test:windows": "tsc -b && truffle test",
     "ganache:start": "ganache-cli -q -i 7777777 -l 0xfffffffffff -g 0x01 > /dev/null &",
     "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
