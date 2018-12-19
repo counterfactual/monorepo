@@ -1,5 +1,4 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
-import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";
@@ -136,8 +135,6 @@ describe("CF.js AppInstance", () => {
       nodeProvider.simulateMessageFromNode({
         type: Node.EventName.UNINSTALL,
         data: {
-          myPayout: Zero,
-          peerPayout: Zero,
           appInstance: TEST_APP_INSTANCE_INFO
         }
       });

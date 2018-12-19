@@ -1,5 +1,4 @@
 import { Address, AppAction, AppState } from "@counterfactual/common-types";
-import { BigNumber } from "ethers/utils";
 
 import { AppInstance } from "../app-instance";
 
@@ -20,10 +19,7 @@ export type InstallEventData = AppEventData;
 
 export type RejectInstallEventData = AppEventData;
 
-export type UninstallEventData = AppEventData & {
-  myPayout: BigNumber;
-  peerPayout: BigNumber;
-};
+export type UninstallEventData = AppEventData;
 
 export type UpdateStateEventData = AppEventData & {
   oldState: AppState;
