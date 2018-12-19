@@ -8,8 +8,6 @@ import {
   keccak256
 } from "ethers/utils";
 
-import { AppInstance } from "../../models";
-
 import { APP_INTERFACE, TERMS } from "./encodings";
 
 // FIXME: Use this when it returns named version.
@@ -68,39 +66,4 @@ export function encodeFreeBalanceState(state: ETHBucketAppState) {
     // [[state.alice, state.bob, state.aliceBalance, state.bobBalance]]
     [state]
   );
-}
-
-export class ETHFreeBalanceApp extends AppInstance {
-  constructor(
-    multisigAddress: string,
-    signingKeys: string[],
-    defaultTimeout: number,
-    ethBucketAddress: string,
-    latestState: ETHBucketAppState,
-    latestNonce: number,
-    latestTimeout: number
-  ) {
-    super(
-      multisigAddress,
-      signingKeys,
-      defaultTimeout,
-      getFreeBalanceAppInterface(ethBucketAddress),
-      freeBalanceTerms,
-      false,
-      0,
-      // TODO: See line 56...
-      latestState,
-      latestNonce,
-      latestTimeout
-    );
-  }
-
-  public get formattedState(): ETHBucketAppState {
-    return {
-      alice: this.state[0],
-      bob: this.state[1],
-      aliceBalance: this.state[2],
-      bobBalance: this.state[3]
-    };
-  }
 }
