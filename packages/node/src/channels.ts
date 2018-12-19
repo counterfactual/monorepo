@@ -17,22 +17,42 @@ const CHANNEL = "channel";
 const OWNERS_HASH_TO_MULTISIG_ADDRESS = "ownersHashToMultisigAddress";
 
 /**
- * Namespace providing a convenience lookup table from appInstance UUID to multisig address.
- */
-const APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS =
-  "appInstanceUUIDToMultisigAddress";
+ * clientAppInstanceID explanation:
+ *
+ * When a Node client initiates an AppInstance installation proposal, a UUID is
+ * generated in the Node to identify this proposed app instance. To the Node
+ * clients, this UUID becomes the ID of the AppInstance they proposed to install,
+ * hence clientAppInstanceID.
+ * This enables the client to immediately get a response from the Node with
+ * an ID to use as a handle for the proposed AppInstance.
+ *
+ * When a peer Node receiving this proposal accepts it and installs it, this
+ * installation generates the channelAppInstanceID for the app instance as the
+ * act of installation updates the state of the channel. The two IDs,
+ * clientAppInstanceID and channelAppInstanceID are then globally mapped
+ * (i.e. by all participating Nodes) to each other. Any time any clients use the
+ * clientAppInstanceID to refer to the AppInstance, the Node does a look up
+ * for the channelAppInstanceID to get/set any state for that AppInstance inside
+ * the relevant channel.
+ *
 
 /**
- * Namespace providing a lookup table from client-side AppInstance UUID to channel-specific
- * AppInstanceId.
+ * Namespace providing a convenience lookup table from clientAppInstanceID to multisig address.
  */
-const APP_INSTANCE_UUID_TO_APP_INSTANCE_ID = "appInstanceUUIDToAppInstanceId";
+const CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
+  "clientAppInstanceIDToMultisigAddress";
 
 /**
- * Namespace providing a lookup table from client-side AppInstance UUID to channel-specific
- * AppInstanceId.
+ * Namespace providing a lookup table from clientAppInstanceID to channelAppInstanceID.
  */
-const APP_INSTANCE_ID_TO_APP_INSTANCE_UUID = "appInstanceIdToAppInstanceUUID";
+const CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID =
+  "clientAppInstanceIDToChannelAppInstanceId";
+
+/**
+ * Namespace providing a lookup table from channelAppInstanceID to clientAppInstanceID.
+ */
+const CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID =
+  "channelAppInstanceIdToClientAppInstanceID";
 
 /**
  * This class itelf does not hold any meaningful state.
@@ -62,7 +82,7 @@ export class Channels {
     const multisigAddress = this.generateNewMultisigAddress(params.owners);
     const channel: Channel = new Channel(multisigAddress, params.owners);
     const ownersHash = orderedAddressesHash(params.owners);
-    await this.save(channel, ownersHash);
+    await this.saveChannel(channel, ownersHash);
     return multisigAddress;
   }
 
@@ -74,7 +94,7 @@ export class Channels {
   async addMultisig(multisigAddress: Address, owners: Address[]) {
     const channel = new Channel(multisigAddress, owners);
     const ownersHash = orderedAddressesHash(owners);
-    await this.save(channel, ownersHash);
+    await this.saveChannel(channel, ownersHash);
   }
 
   async getAddresses(): Promise<Address[]> {
@@ -82,11 +102,11 @@ export class Channels {
     return Object.keys(channels);
   }
 
-  async getPeersAddressFromAppInstanceUUID(
-    appInstanceUUID: string
+  async getPeersAddressFromClientAppInstanceID(
+    clientAppInstanceID: string
   ): Promise<Address[]> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstanceUUID(
-      appInstanceUUID
+    const multisigAddress = await this.getMultisigAddressFromClientAppInstanceID(
+      clientAppInstanceID
     );
     const channel: Channel = await this.getChannelJSONFromStore(
       multisigAddress
@@ -118,6 +138,7 @@ export class Channels {
     const uuid = generateUUID();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
 
+    // The ID is being set to "" because it represents the channelAppInstanceID
     const proposedAppInstance = { id: "", ...params };
     delete proposedAppInstance.peerAddress;
 
@@ -125,9 +146,9 @@ export class Channels {
     return uuid;
   }
 
-  async setUUIDForProposeInstall(
+  async setClientAppInstanceIDForProposeInstall(
     params: Node.ProposeInstallParams,
-    appInstanceUUID: string
+    clientAppInstanceID: string
   ) {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
     const proposedAppInstance = { id: "", ...params };
@@ -136,7 +157,7 @@ export class Channels {
     await this.addAppInstanceProposal(
       channel,
       proposedAppInstance,
-      appInstanceUUID
+      clientAppInstanceID
     );
   }
 
@@ -145,22 +166,22 @@ export class Channels {
       return Promise.reject("No AppInstance ID specified to install");
     }
 
-    const channel = await this.getChannelFromAppInstanceId(
+    const channel = await this.getChannelFromClientAppInstanceID(
       params.appInstanceId
     );
     // TODO: execute machine code to update channel state to include installation
     // this will obviously also correct the ID being used here
     const appInstanceId = channel.rootNonce.nonceValue.toString();
 
-    const appInstanceUUID = params.appInstanceId;
+    const clientAppInstanceID = params.appInstanceId;
     const appInstance: AppInstanceInfo =
-      channel.proposedAppInstances[appInstanceUUID];
+      channel.proposedAppInstances[clientAppInstanceID];
     appInstance.id = appInstanceId;
 
-    await this.installAppInstance(channel, appInstanceId, appInstanceUUID);
+    await this.installAppInstance(channel, appInstanceId, clientAppInstanceID);
 
     // modify this since we're returning it to the client
-    appInstance.id = appInstanceUUID;
+    appInstance.id = clientAppInstanceID;
     return appInstance;
   }
 
@@ -194,36 +215,41 @@ export class Channels {
   /**
    * Returns a string identifying the multisig address the specified app instance
    * belongs to.
-   * @param appInstanceUUID
+   * @param clientAppInstanceID
    */
-  async getMultisigAddressFromAppInstanceUUID(
-    appInstanceUUID: string
+  async getMultisigAddressFromClientAppInstanceID(
+    clientAppInstanceID: string
   ): Promise<string> {
     return this.store.get(
       `${
         this.storeKeyPrefix
-      }/${APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS}/${appInstanceUUID}`
+      }/${CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${clientAppInstanceID}`
     );
   }
 
   /**
-   * Returns a string identifying the app instance UUID that is mapped to the
-   * given app instance ID.
-   * @param appInstanceId
+   * Returns a string identifying the client app instance ID that is mapped to
+   * the given channel app instance ID.
+   * @param channelAppInstanceID
    */
-  async getAppInstanceUUIDFromAppInstanceId(
-    appInstanceId: string
+  async getClientAppInstanceIDFromChannelAppInstanceID(
+    channelAppInstanceID: string
   ): Promise<string> {
     return this.store.get(
       `${
         this.storeKeyPrefix
-      }/${APP_INSTANCE_ID_TO_APP_INSTANCE_UUID}/${appInstanceId}`
+      }/${CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${channelAppInstanceID}`
     );
   }
 
   // setters
 
-  async save(channel: Channel, ownersHash: string) {
+  /**
+   * This persists the initial state of a channel upon channel creation.
+   * @param channel
+   * @param ownersHash
+   */
+  async saveChannel(channel: Channel, ownersHash: string) {
     await this.store.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
@@ -243,18 +269,18 @@ export class Channels {
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from pending to installed.
    * @param channel
-   * @param appInstance
-   * @param appInstanceUUID
+   * @param channelAppInstanceID
+   * @param clientAppInstanceID
    */
   async installAppInstance(
     channel: Channel,
-    appInstanceId: string,
-    appInstanceUUID: string
+    channelAppInstanceID: string,
+    clientAppInstanceID: string
   ) {
-    const appInstance = channel.proposedAppInstances[appInstanceUUID];
-    delete channel.proposedAppInstances[appInstanceUUID];
+    const appInstance = channel.proposedAppInstances[clientAppInstanceID];
+    delete channel.proposedAppInstances[clientAppInstanceID];
 
-    channel.appInstances[appInstanceId] = appInstance;
+    channel.appInstances[channelAppInstanceID] = appInstance;
     await this.store.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
@@ -263,14 +289,14 @@ export class Channels {
       {
         key: `${
           this.storeKeyPrefix
-        }/${APP_INSTANCE_UUID_TO_APP_INSTANCE_ID}/${appInstanceUUID}`,
-        value: appInstanceId
+        }/${CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID}/${clientAppInstanceID}`,
+        value: channelAppInstanceID
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${APP_INSTANCE_ID_TO_APP_INSTANCE_UUID}/${appInstanceId}`,
-        value: appInstanceUUID
+        }/${CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${channelAppInstanceID}`,
+        value: clientAppInstanceID
       }
     ]);
   }
@@ -280,15 +306,15 @@ export class Channels {
    * app instances.
    * @param channel
    * @param appInstance
-   * @param appInstanceUUID The UUID to refer to this AppInstance before a
-   *        channel-specific ID can be created.
+   * @param clientAppInstanceID The ID to refer to this AppInstance before a
+   *        channelAppInstanceID can be created.
    */
   async addAppInstanceProposal(
     channel: Channel,
     appInstance: AppInstanceInfo,
-    appInstanceUUID: string
+    clientAppInstanceID: string
   ) {
-    channel.proposedAppInstances[appInstanceUUID] = appInstance;
+    channel.proposedAppInstances[clientAppInstanceID] = appInstance;
     await this.store.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${
@@ -299,7 +325,7 @@ export class Channels {
       {
         key: `${
           this.storeKeyPrefix
-        }/${APP_INSTANCE_UUID_TO_MULTISIG_ADDRESS}/${appInstanceUUID}`,
+        }/${CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${clientAppInstanceID}`,
         value: channel.multisigAddress
       }
     ]);
@@ -339,16 +365,17 @@ export class Channels {
   /**
    * A JSON object with keys being the app instance IDs and the values being
    * the AppInstances.
+   *
    * @param appInstances
    */
-  private async replaceAppInstanceIdWithUUID(
+  private async replaceChannelAppInstanceIDWithClientAppInstanceID(
     appInstances: object
   ): Promise<object> {
     for (const appInstance of Object.values(appInstances)) {
-      const uuid = await this.getAppInstanceUUIDFromAppInstanceId(
+      const clientAppInstanceID = await this.getClientAppInstanceIDFromChannelAppInstanceID(
         appInstance.id
       );
-      appInstance.id = uuid;
+      appInstance.id = clientAppInstanceID;
     }
     return appInstances;
   }
@@ -357,15 +384,15 @@ export class Channels {
    * Gets all installed appInstances across all of the channels open on
    * this Node.
    *
-   * Note that the AppInstance IDs that are returned are the AppInstanceUUIDs
-   * that the clients are expecting, and not the internal AppInstance IDs.
+   * Note that the AppInstance IDs that are returned are the clientAppInstanceIDs
+   * that the clients are expecting, and not the channelAppInstanceIDs.
    */
   private async getInstalledAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
     const channels = await this.getAllChannelsJSON();
     for (const channel of Object.values(channels)) {
       if (channel.appInstances) {
-        const modifiedAppInstances = await this.replaceAppInstanceIdWithUUID(
+        const modifiedAppInstances = await this.replaceChannelAppInstanceIDWithClientAppInstanceID(
           channel.appInstances
         );
         apps.push(...Object.values(modifiedAppInstances));
@@ -401,11 +428,11 @@ export class Channels {
     return apps;
   }
 
-  private async getChannelFromAppInstanceId(
-    appInstanceId: string
+  private async getChannelFromClientAppInstanceID(
+    clientAppInstanceID: string
   ): Promise<Channel> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstanceUUID(
-      appInstanceId
+    const multisigAddress = await this.getMultisigAddressFromClientAppInstanceID(
+      clientAppInstanceID
     );
     const channel = await this.getChannelJSONFromStore(multisigAddress);
     return new Channel(

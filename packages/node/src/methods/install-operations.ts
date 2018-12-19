@@ -53,7 +53,7 @@ export async function install(
   const appInstance = await channels.install(params);
   const appInstanceUUID = appInstance.id;
 
-  const [peerAddress] = await channels.getPeersAddressFromAppInstanceUUID(
+  const [peerAddress] = await channels.getPeersAddressFromClientAppInstanceID(
     appInstanceUUID
   );
 
@@ -77,21 +77,6 @@ export async function install(
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
  *
- * Client ID / UUID / AppInstanceId explanation:
- *
- * When a Node client initiates an AppInstance installation proposal, a UUID is
- * generated in the Node to identify this proposed app instance. To the Node
- * clients, this UUID becomes the ID of the AppInstance they proposed to install.
- * This enables the client to immediately get a response from the Node with
- * an ID to use as a handle for the proposed AppInstance.
- *
- * When a peer Node receiving this proposal accepts it and installs it, this
- * installation generates the channel-specific ID for the app instance as the
- * act of installation updates the state of the channel. This ID is then globablly
- * mapped (i.e. by all Nodes) to the UUID generated for the proposal. Any time
- * any clients use the UUID to refer to the AppInstance, the Node does a look up
- * for the internal, channel-specific ID to get/set any state for that AppInstance.
- *
  * @param channels
  * @param messagingService
  * @param params
@@ -107,7 +92,10 @@ export async function addAppInstance(
   if (nodeMsg.data.proposal) {
     const appInstanceUUID = params.appInstanceId;
     delete params.appInstanceId;
-    await channels.setUUIDForProposeInstall(params, appInstanceUUID);
+    await channels.setClientAppInstanceIDForProposeInstall(
+      params,
+      appInstanceUUID
+    );
   } else {
     await channels.install(params);
   }

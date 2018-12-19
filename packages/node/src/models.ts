@@ -63,7 +63,7 @@ import FreeBalance = legacy.utils.FreeBalance;
 
 type AppInstancesMap = { [key: string]: AppInstanceInfo };
 
-const INITIAL_NONCE = new Nonce(true, 0, 0);
+const INITIAL_NONCE = new Nonce(false, 0, 0);
 
 /**
  * This class is only a type implementation of a channel schema for the
