@@ -43,20 +43,20 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    MULTISIG_CREATED = "multisigCreatedEvent"
+    CREATE_MULTISIG = "createMultisigEvent"
   }
 
-  export interface GetAppInstancesParams {}
-  export interface GetProposedAppInstancesParams {}
+  export type GetAppInstancesParams = {};
+  export type GetProposedAppInstancesParams = {};
 
-  export interface GetAppInstancesResult {
+  export type GetAppInstancesResult = {
     appInstances: AppInstanceInfo[];
-  }
-  export interface GetProposedAppInstancesResult {
+  };
+  export type GetProposedAppInstancesResult = {
     appInstances: AppInstanceInfo[];
-  }
+  };
 
-  export interface ProposeInstallParams {
+  export type ProposeInstallParams = {
     peerAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
@@ -65,64 +65,61 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: AppState;
-  }
-  export interface ProposeInstallResult {
+  };
+  export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
-  }
+  };
 
-  export interface RejectInstallParams {
+  export type RejectInstallParams = {
     appInstanceId: AppInstanceID;
-  }
-  export interface RejectInstallResult {}
+  };
+  export type RejectInstallResult = {};
 
-  export interface InstallParams {
+  export type InstallParams = {
     appInstanceId: AppInstanceID;
-  }
-  export interface InstallResult {
+  };
+  export type InstallResult = {
     appInstance: AppInstanceInfo;
-  }
+  };
 
-  export interface GetStateParams {
+  export type GetStateParams = {
     appInstanceId: AppInstanceID;
-  }
-  export interface GetStateResult {
+  };
+  export type GetStateResult = {
     state: AppState;
-  }
+  };
 
-  export interface GetAppInstanceDetailsParams {
+  export type GetAppInstanceDetailsParams = {
     appInstanceId: AppInstanceID;
-  }
-  export interface GetAppInstanceDetailsResult {
+  };
+  export type GetAppInstanceDetailsResult = {
     appInstance: AppInstanceInfo;
-  }
+  };
 
-  export interface TakeActionParams {
+  export type TakeActionParams = {
     appInstanceId: AppInstanceID;
     action: AppAction;
-  }
-  export interface TakeActionResult {
+  };
+  export type TakeActionResult = {
     newState: AppState;
-  }
+  };
 
-  export interface UninstallParams {
+  export type UninstallParams = {
     appInstanceId: AppInstanceID;
-  }
-  export interface UninstallResult {
-    myPayout: BigNumber;
-    peerPayout: BigNumber;
-  }
+  };
+  export type UninstallResult = {};
 
-  export interface CreateMultisigParams {
+  export type CreateMultisigParams = {
     owners: Address[];
-  }
-  export interface CreateMultisigResult {
+  };
+  export type CreateMultisigResult = {
     multisigAddress: Address;
-  }
+  };
 
-  export interface GetChannelAddressesParams {}
-  export interface GetChannelAddressesResult {
+  export type GetChannelAddressesParams = {};
+  export type GetChannelAddressesResult = {
     multisigAddresses: Address[];
-  }
+  };
 
   export type MethodParams =
     | GetAppInstancesParams
@@ -149,57 +146,61 @@ export namespace Node {
     | CreateMultisigResult
     | GetChannelAddressesResult;
 
-  export interface InstallEventData {
+  export type InstallEventData = {
     appInstanceId: AppInstanceID;
-  }
-  export interface RejectInstallEventData {
+  };
+  export type RejectInstallEventData = {
     appInstance: AppInstanceInfo;
-  }
-  export interface UpdateStateEventData {
+  };
+  export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
     newState: AppState;
     oldState: AppState;
     action?: AppAction;
-  }
-  export interface UninstallEventData {
+  };
+  export type UninstallEventData = {
     appInstance: AppInstanceInfo;
-    myPayout: BigNumber;
-    peerPayout: BigNumber;
-  }
+  };
+  export type CreateMultisigEventData = {
+    owners: Address[];
+    multisigAddress: Address;
+  };
 
   export type EventData =
     | InstallEventData
     | RejectInstallEventData
     | UpdateStateEventData
-    | UninstallEventData;
+    | UninstallEventData
+    | CreateMultisigEventData;
 
-  export interface MethodMessage {
+  export type MethodMessage = {
     type: MethodName;
     requestId: string;
-  }
+  };
 
-  export interface MethodRequest extends MethodMessage {
+  export type MethodRequest = MethodMessage & {
     params: MethodParams;
-  }
+  };
 
-  export interface MethodResponse extends MethodMessage {
+  export type MethodResponse = MethodMessage & {
     result: MethodResult;
-  }
+  };
 
-  export interface Event {
+  export type Event = {
     type: EventName;
     data: EventData;
-  }
+  };
 
-  export interface Error {
+  export type Error = {
     type: ErrorType;
     requestId?: string;
     data: {
       errorName: string;
       message?: string;
+      appInstanceId?: string;
       extra?: { [k: string]: string | number | boolean | object };
     };
-  }
+  };
 
   export type Message = MethodRequest | MethodResponse | Event | Error;
 }

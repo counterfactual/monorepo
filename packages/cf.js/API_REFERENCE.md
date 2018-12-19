@@ -32,7 +32,7 @@
                 - Callback Params: `(appInstance: AppInstance, state: AppState)`
             - `uninstall`
                 - [Node event](#event-uninstallevent)
-                - Callback Params: `(appInstance: AppInstance, finalState: AppState, myPayout: BigNumber, peerPayout: BigNumber)`
+                - Callback Params: `(appInstance: AppInstance)`
             - `multisigCreated`
                 - [Node event](#event-multisigcreatedevent)
                 - Callback Params: `(multisigAddress: Address, owners: Address[])`
