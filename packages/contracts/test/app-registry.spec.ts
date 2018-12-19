@@ -146,14 +146,12 @@ contract("AppRegistry", (accounts: string[]) => {
       });
 
       it("shouldn't work with an equal nonce", async () => {
-        // @ts-ignore
         await expect(setStateAsOwner(0)).to.be.reverted;
         expect(await latestNonce()).to.eq(0);
       });
 
       it("shouldn't work with an lower nonce", async () => {
         await setStateAsOwner(1);
-        // @ts-ignore
         await expect(setStateAsOwner(0)).to.be.reverted;
         expect(await latestNonce()).to.eq(1);
       });
@@ -185,14 +183,12 @@ contract("AppRegistry", (accounts: string[]) => {
       });
 
       it("shouldn't work with an equal nonce", async () => {
-        // @ts-ignore
         await expect(setStateWithSignatures(0)).to.be.reverted;
         expect(await latestNonce()).to.eq(0);
       });
 
       it("shouldn't work with a lower nonce", async () => {
         await setStateWithSignatures(1);
-        // @ts-ignore
         await expect(setStateWithSignatures(0)).to.be.reverted;
         expect(await latestNonce()).to.eq(1);
       });
@@ -219,10 +215,8 @@ contract("AppRegistry", (accounts: string[]) => {
 
       expect(await isStateFinalized()).to.be.true;
 
-      // @ts-ignore
       await expect(setStateAsOwner(2)).to.be.reverted;
 
-      // @ts-ignore
       await expect(setStateWithSignatures(0)).to.be.reverted;
     });
   });
