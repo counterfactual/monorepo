@@ -7,5 +7,7 @@ export interface IMessagingService {
 
 export interface IStoreService {
   get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<boolean>;
+  // Multiple pairs could be written simultaneously if an atomic write
+  // among multiple records is required
+  set(pairs: { key: string; value: any }[]): Promise<boolean>;
 }

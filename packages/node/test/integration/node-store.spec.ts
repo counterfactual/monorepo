@@ -27,7 +27,7 @@ describe("Node can use storage service", () => {
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
     nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
     node = new Node(
       A_PRIVATE_KEY,
@@ -49,8 +49,30 @@ describe("Node can use storage service", () => {
         ethers.constants.AddressZero
       ]
     };
-    await storeService.set("multisigAddress/0x111", channelA);
-    await storeService.set("multisigAddress/0x222", channelB);
+    await storeService.set([{ key: "multisigAddress/0x111", value: channelA }]);
+    await storeService.set([{ key: "multisigAddress/0x222", value: channelB }]);
+    expect(await storeService.get("multisigAddress")).toEqual({
+      "0x111": {
+        ...channelA
+      },
+      "0x222": {
+        ...channelB
+      }
+    });
+  });
+
+  it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
+    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelB = {
+      owners: [
+        new ethers.Wallet(B_PRIVATE_KEY).address,
+        ethers.constants.AddressZero
+      ]
+    };
+    await storeService.set([
+      { key: "multisigAddress/0x111", value: channelA },
+      { key: "multisigAddress/0x222", value: channelB }
+    ]);
     expect(await storeService.get("multisigAddress")).toEqual({
       "0x111": {
         ...channelA
