@@ -7,7 +7,7 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { APP_INTERFACE, TERMS } from "../ethereum/utils/encodings";
 
 /**
- * Represenation of the values a dependency nonce can take on.
+ * Representation of the values a dependency nonce can take on.
  */
 export enum DependencyValue {
   NOT_UNINSTALLED = 0,

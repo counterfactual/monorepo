@@ -1,5 +1,5 @@
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import { AppIdentity, ETHBucketAppState, Terms } from "@counterfactual/types";
+import { AppIdentity, ETHBucketAppState, NetworkContext, Terms } from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
 import { DependencyValue } from "../models/app-instance";
@@ -12,7 +12,7 @@ const nonceRegistryIface = new Interface(NonceRegistry.abi);
 
 export class UninstallCommitment extends MultiSendCommitment {
   constructor(
-    public readonly networkContext: any,
+    public readonly networkContext: NetworkContext,
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,

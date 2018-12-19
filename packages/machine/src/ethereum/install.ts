@@ -1,5 +1,5 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
-import { AppIdentity, Terms } from "@counterfactual/types";
+import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import {
   defaultAbiCoder,
   Interface,
@@ -17,7 +17,7 @@ const iface = new Interface(StateChannelTransaction.abi);
 
 export class InstallCommitment extends MultiSendCommitment {
   constructor(
-    public readonly networkContext: any,
+    public readonly networkContext: NetworkContext,
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly appIdentity: AppIdentity,
