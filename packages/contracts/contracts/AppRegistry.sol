@@ -8,7 +8,7 @@ import "./mixins/MixinSetState.sol";
 import "./mixins/MixinSetStateWithAction.sol";
 
 
-/// @dev Base contract implmenting all logic needed for full-featured App registry
+/// @dev Base contract implementing all logic needed for full-featured App registry
 contract AppRegistry is
   MixinAppRegistryCore,
   MixinSetState,
