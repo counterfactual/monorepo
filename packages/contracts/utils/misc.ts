@@ -106,7 +106,8 @@ export async function assertRejects(q: Promise<any>) {
       chai.assert.fail(
         res,
         null,
-        "assertRejects: expected a promise rejection");
+        "assertRejects: expected a promise rejection"
+      );
     }
   }
 }
