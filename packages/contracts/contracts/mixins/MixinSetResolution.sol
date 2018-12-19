@@ -28,9 +28,9 @@ contract MixinSetResolution is
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
     doTermsCheck(terms, appIdentity.termsHash)
   {
-    bytes32 _id = computeAppIdentityHash(appIdentity);
+    bytes32 id = computeAppIdentityHash(appIdentity);
 
-    AppChallenge storage app = appStates[_id];
+    AppChallenge storage app = appStates[id];
 
     require(
       app.status == AppStatus.OFF ||
@@ -43,7 +43,7 @@ contract MixinSetResolution is
       "setResolution called with incorrect witness data of finalState"
     );
 
-    appResolutions[_id] = MAppCaller.resolve(appInterface, finalState, terms);
+    appResolutions[id] = MAppCaller.resolve(appInterface, finalState, terms);
   }
 
 }

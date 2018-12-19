@@ -54,13 +54,13 @@ contract MAppRegistryCore {
   }
 
   /// @notice Compute a unique hash for a state of this state channel and application
-  /// @param _id The unique hash of an `AppIdentity`
+  /// @param id The unique hash of an `AppIdentity`
   /// @param appStateHash The hash of a state to be signed
   /// @param nonce The nonce corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
   function computeStateHash(
-    bytes32 _id,
+    bytes32 id,
     bytes32 appStateHash,
     uint256 nonce,
     uint256 timeout
@@ -72,7 +72,7 @@ contract MAppRegistryCore {
     return keccak256(
       abi.encodePacked(
         byte(0x19),
-        _id,
+        id,
         nonce,
         timeout,
         appStateHash

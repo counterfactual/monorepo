@@ -45,12 +45,12 @@ contract MixinSetStateWithAction is
     public
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
   {
-    bytes32 _id = computeAppIdentityHash(appIdentity);
+    bytes32 id = computeAppIdentityHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[_id];
+    AppChallenge storage challenge = appStates[id];
 
     require(
-      correctKeysSignedTheStateUpdate(_id, appIdentity.signingKeys, req),
+      correctKeysSignedTheStateUpdate(id, appIdentity.signingKeys, req),
       "Call to setStateWithAction included incorrectly signed state update"
     );
 
@@ -101,7 +101,7 @@ contract MixinSetStateWithAction is
   }
 
   function correctKeysSignedTheStateUpdate(
-    bytes32 _id,
+    bytes32 id,
     address[] signingKeys,
     SignedStateUpdate req
   )
@@ -110,7 +110,7 @@ contract MixinSetStateWithAction is
     returns (bool)
   {
     bytes32 digest = computeStateHash(
-      _id,
+      id,
       keccak256(req.encodedState),
       req.nonce,
       req.timeout
