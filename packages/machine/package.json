@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p . && rollup -c",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "lint:fix": "yarn lint --fix",
     "lint": "tslint -c tslint.json -p ."
   },
