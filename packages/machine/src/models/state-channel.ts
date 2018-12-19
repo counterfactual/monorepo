@@ -21,13 +21,17 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
-const enum Errors {
-  APPS_NOT_EMPTY = "Expected the appInstances list to be empty but size was nonzero",
-  APP_DOES_NOT_EXIST = "Attempted to edit an appInstance that does not exist",
-  FREE_BALANCE_MISSING = "Cannot find ETH Free Balance App in StateChannel",
-  FREE_BALANCE_IDX_CORRUPT = "Index used to find ETH Free Balance is broken",
-  INSUFFICIENT_FUNDS = "Attempted to install an appInstance without sufficient funds"
-}
+const ERRORS = {
+  APPS_NOT_EMPTY: size =>
+    `Expected the appInstances list to be empty but size ${size}`,
+  APP_DOES_NOT_EXIST: id =>
+    `Attempted to edit an appInstance that does not exist: id = ${id}`,
+  FREE_BALANCE_MISSING: "Cannot find ETH Free Balance App in StateChannel",
+  FREE_BALANCE_IDX_CORRUPT: idx =>
+    `Index ${idx} used to find ETH Free Balance is broken`,
+  INSUFFICIENT_FUNDS:
+    "Attempted to install an appInstance without sufficient funds"
+};
 
 function createETHFreeBalance(
   multisigAddress: string,
@@ -80,32 +84,35 @@ export class StateChannel {
     return this.appInstances.size;
   }
 
-  public getAppInstance(appInstanceId: string) {
-    const appInstance = this.appInstances.get(appInstanceId);
-
-    if (appInstance === undefined) throw Error(Errors.APP_DOES_NOT_EXIST);
-
-    return appInstance;
+  public getAppInstance(appInstanceId: string): AppInstance {
+    if (!this.appInstances.has(appInstanceId)) {
+      throw Error(`${ERRORS.APP_DOES_NOT_EXIST}({appInstance.id})`);
+    }
+    return this.appInstances.get(appInstanceId)!;
   }
 
   public isAppInstanceInstalled(appInstanceId: string) {
-    return this.appInstances.get(appInstanceId) !== undefined;
+    return this.appInstances.has(appInstanceId);
   }
 
-  public getFreeBalanceFor(assetType: AssetType) {
+  public getFreeBalanceFor(assetType: AssetType): AppInstance {
+    if (!this.freeBalanceAppIndexes.has(assetType)) {
+      throw Error(ERRORS.FREE_BALANCE_MISSING);
+    }
+
     const idx = this.freeBalanceAppIndexes.get(assetType);
 
-    if (!idx) throw Error(Errors.FREE_BALANCE_MISSING);
+    if (!this.appInstances.has(idx!)) {
+      throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT}({idx})`);
+    }
 
-    const fb = this.appInstances.get(idx);
-
-    if (!fb) throw Error(Errors.FREE_BALANCE_IDX_CORRUPT);
-
-    return fb;
+    return this.appInstances.get(idx!)!;
   }
 
   public setupChannel(network: NetworkContext) {
-    if (this.appInstances.size !== 0) throw Error(Errors.APPS_NOT_EMPTY);
+    const size = this.appInstances.size;
+
+    if (size > 0) throw Error(`${ERRORS.APPS_NOT_EMPTY}({size})`);
 
     const fb = createETHFreeBalance(
       this.multisigAddress,
