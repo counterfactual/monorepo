@@ -88,7 +88,7 @@ export class ETHFreeBalanceApp extends AppInstance {
       freeBalanceTerms,
       false,
       0,
-      // TODO: See line 56...
+      // TODO: See line 65...
       latestState,
       latestNonce,
       latestTimeout
