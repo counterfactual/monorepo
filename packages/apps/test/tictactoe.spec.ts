@@ -108,7 +108,6 @@ describe("TicTacToeApp", () => {
 
       await expect(
         tictactoe.functions.applyAction(preState, action)
-        // @ts-ignore
       ).to.be.revertedWith("playMove: square is not empty");
     });
 
@@ -157,7 +156,6 @@ describe("TicTacToeApp", () => {
 
       await expect(
         tictactoe.functions.applyAction(preState, action)
-        // @ts-ignore
       ).to.be.revertedWith("assertBoardIsFull: square is empty");
     });
 
@@ -206,7 +204,6 @@ describe("TicTacToeApp", () => {
 
       await expect(
         tictactoe.functions.applyAction(preState, action)
-        // @ts-ignore
       ).to.be.revertedWith("assertBoardIsFull: square is empty");
     });
 
@@ -255,7 +252,6 @@ describe("TicTacToeApp", () => {
 
       await expect(
         tictactoe.functions.applyAction(preState, action)
-        // @ts-ignore
       ).to.be.revertedWith("Win Claim not valid");
     });
   });
