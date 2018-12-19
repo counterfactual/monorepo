@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "@counterfactual/contracts": "0.0.3",
-    "ethers": "4.0.18"
+    "ethers": "4.0.20"
   }
 }

@@ -4053,23 +4053,7 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.18:
-  version "4.0.18"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.18.tgz#04870405fe2066ccdaafe99d34a8806fd2191bc6"
-  integrity sha512-yz4CTgDjPeIrYEarT4lNE/7A7t0XWj5xiOu+8RmHj26S4py+6iW6NlzmukH1K670QsxFmFdp9FiukNiD0SO76w==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.4"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
-
-ethers@^4.0.0:
+ethers@4.0.20, ethers@^4.0.0:
   version "4.0.20"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.20.tgz#2b072b283bb19f4870daf42cf5593e5375697504"
   integrity sha512-1XEejqGYWlcXoVCPFPRfJmf1QQGHW7TNfprtdT1Up66nSuqWE/lYSLgvTNvH/nbSTMRFZqM6ANAbv/1+eUDb7g==
