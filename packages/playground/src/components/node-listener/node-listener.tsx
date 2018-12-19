@@ -58,7 +58,7 @@ export class NodeListener {
   }
 
   componentWillLoad() {
-    // TODO: This configuration is a mockup. Should be elsewhere.
+    // TODO: This is a non-existant firebase data provider.
     const serviceProvider = new FirebaseDataProvider({
       apiKey: "AIzaSyBne_N_gQgaGnyfIPOs9T0PhOPdwRUeUsI",
       authDomain: "joey-firebase-1.firebaseapp.com",
