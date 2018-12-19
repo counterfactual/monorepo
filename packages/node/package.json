@@ -28,7 +28,8 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/common-types": "0.0.1",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.0",
+    "uuid": "^3.3.2"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
