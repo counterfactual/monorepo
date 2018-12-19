@@ -23,7 +23,9 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     return appStates[_id];
   }
 
-  // TODO:
+  /// @notice Checks whether or not some application's state is OFF or timed out
+  /// @param _id The unique hash of an `AppIdentity`
+  /// @return A boolean indicator
   function isStateFinalized(bytes32 _id)
     external
     view
