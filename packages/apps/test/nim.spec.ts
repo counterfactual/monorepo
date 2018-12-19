@@ -1,8 +1,7 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
-import { Contract, Wallet } from "ethers";
+import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
-import { Web3Provider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import NimApp from "../build/NimApp.json";
