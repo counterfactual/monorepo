@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc -p ."
   },
-  "dependencies": {
+  "devDependencies": {
     "ethers": "4.0.18"
   }
 }
