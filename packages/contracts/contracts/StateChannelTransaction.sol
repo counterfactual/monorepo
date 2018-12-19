@@ -35,10 +35,10 @@ contract StateChannelTransaction is LibCondition {
       "App has been uninstalled"
     );
 
-    // require(
-    //   appRegistry.isFinalized(appCfAddress),
-    //   "App is not in an OFF state yet"
-    // );
+    require(
+      appRegistry.isStateFinalized(appCfAddress),
+      "App is not finalized yet"
+    );
 
     Transfer.Transaction memory txn = appRegistry.getResolution(appCfAddress);
 
