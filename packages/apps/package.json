@@ -20,10 +20,11 @@
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.3",
+    "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
-    "ethereum-waffle": "1.0.5",
+    "ethereum-waffle": "^1.0.5",
     "ethers": "4.0.18",
     "mocha": "^4.1.0",
     "solium": "^1.1.8",

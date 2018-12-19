@@ -28,8 +28,8 @@ describe("Nim", () => {
   let nim: Contract;
 
   before(async () => {
-    const provider: Web3Provider = waffle.createMockProvider();
-    const wallet: Wallet = (await waffle.getWallets(provider))[0];
+    const provider = waffle.createMockProvider();
+    const wallet = (await waffle.getWallets(provider))[0];
     nim = await waffle.deployContract(wallet, NimApp);
   });
 
@@ -92,7 +92,6 @@ describe("Nim", () => {
 
       await expect(
         nim.functions.applyAction(preState, action)
-        // @ts-ignore
       ).to.be.revertedWith("invalid pileIdx");
     });
   });

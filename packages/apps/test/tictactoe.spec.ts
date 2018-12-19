@@ -1,8 +1,7 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
-import { Contract, Wallet } from "ethers";
+import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
-import { Web3Provider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
 import TicTacToeApp from "../build/TicTacToeApp.json";
@@ -31,8 +30,8 @@ describe("TicTacToeApp", () => {
   let tictactoe: Contract;
 
   before(async () => {
-    const provider: Web3Provider = waffle.createMockProvider();
-    const wallet: Wallet = (await waffle.getWallets(provider))[0];
+    const provider = waffle.createMockProvider();
+    const wallet = (await waffle.getWallets(provider))[0];
     tictactoe = await waffle.deployContract(wallet, TicTacToeApp);
   });
 

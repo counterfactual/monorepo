@@ -1,8 +1,7 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
-import { Contract, Wallet } from "ethers";
+import { Contract } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
-import { Web3Provider } from "ethers/providers";
 
 import PaymentApp from "../build/PaymentApp.json";
 
@@ -19,8 +18,8 @@ describe("PaymentApp", () => {
   let pc: Contract;
 
   before(async () => {
-    const provider: Web3Provider = waffle.createMockProvider();
-    const wallet: Wallet = (await waffle.getWallets(provider))[0];
+    const provider = waffle.createMockProvider();
+    const wallet = (await waffle.getWallets(provider))[0];
     pc = await waffle.deployContract(wallet, PaymentApp);
   });
 
