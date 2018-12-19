@@ -13,7 +13,7 @@ import {
 } from "./utils";
 
 // HELPER DATA
-const TIMEOUT = 30;
+const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
 contract("AppRegistry", (accounts: string[]) => {
   let provider: ethers.providers.Web3Provider;
@@ -78,7 +78,7 @@ contract("AppRegistry", (accounts: string[]) => {
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
         stateHash: appState || ethers.constants.HashZero,
-        timeout: TIMEOUT,
+        timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: ethers.constants.HashZero
       });
 
@@ -92,13 +92,13 @@ contract("AppRegistry", (accounts: string[]) => {
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
         stateHash: appState || ethers.constants.HashZero,
-        timeout: TIMEOUT,
+        timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: await wallet.signMessage(
           computeStateHash(
             appInstance.id,
             appState || ethers.constants.HashZero,
             nonce,
-            TIMEOUT
+            ONCHAIN_CHALLENGE_TIMEOUT
           )
         )
       });
@@ -213,7 +213,7 @@ contract("AppRegistry", (accounts: string[]) => {
 
       await setStateAsOwner(1);
 
-      for (const _ of Array(TIMEOUT + 1)) {
+      for (const _ of Array(ONCHAIN_CHALLENGE_TIMEOUT + 1)) {
         await provider.send("evm_mine", []);
       }
 
