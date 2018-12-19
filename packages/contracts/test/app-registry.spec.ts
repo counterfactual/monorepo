@@ -1,5 +1,8 @@
 import { ethers } from "ethers";
+import { Web3Provider } from "ethers/providers";
+import { hexlify, randomBytes } from "ethers/utils";
 
+import { ALICE, BOB } from "./constants";
 import {
   AppInstance,
   AppInterface,
@@ -8,8 +11,6 @@ import {
   expect,
   Terms
 } from "./utils";
-
-import { ALICE, BOB } from "./constants";
 
 // HELPER DATA
 const TIMEOUT = 30;
@@ -31,9 +32,7 @@ contract("AppRegistry", (accounts: string[]) => {
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
-    provider = new ethers.providers.Web3Provider(
-      (global as any).web3.currentProvider
-    );
+    provider = new Web3Provider((global as any).web3.currentProvider);
 
     wallet = await provider.getSigner(accounts[0]);
 
@@ -55,11 +54,11 @@ contract("AppRegistry", (accounts: string[]) => {
       accounts[0],
       [ALICE.address, BOB.address],
       new AppInterface(
-        ethers.utils.hexlify(ethers.utils.randomBytes(20)),
-        ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-        ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-        ethers.utils.hexlify(ethers.utils.randomBytes(4)),
-        ethers.utils.hexlify(ethers.utils.randomBytes(4))
+        hexlify(randomBytes(20)),
+        hexlify(randomBytes(4)),
+        hexlify(randomBytes(4)),
+        hexlify(randomBytes(4)),
+        hexlify(randomBytes(4))
       ),
       new Terms(AssetType.ETH, 0, ethers.constants.AddressZero),
       10
