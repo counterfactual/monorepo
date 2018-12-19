@@ -23,22 +23,23 @@ export class AppWager {
     e.preventDefault();
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
 
-    // TODO: Here there be dragons-- I mean, CF.js!
-    // const appFactory = new AppFactory(appID, encodings, cfjs);
-    // appFactory.proposeInstall();
     const appFactory = new cf.AppFactory(
+      // TODO: This probably should be in a configuration, somewhere.
       "0x1515151515151515151515151515151515151515",
       { actionEncoding: "uint256", stateEncoding: "uint256" },
       cfjs
     );
 
     await appFactory.proposeInstall({
+      // TODO: This should be provided by the Playground.
       peerAddress: "0x0101010101010101010101010101010101010101",
       asset: {
         assetType: AssetType.ETH
       },
+      // TODO: Do we assume the same bet for both parties?
       peerDeposit: ethers.utils.parseEther(this.betAmount),
       myDeposit: ethers.utils.parseEther(this.betAmount),
+      // TODO: Check the timeout.
       timeout: 100,
       initialState: null
     });

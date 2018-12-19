@@ -1,3 +1,6 @@
+// This is a copy of what was implemented on the Node's integration tests
+// to provider support for a Firebase layer.
+
 import { Address } from "@counterfactual/common-types";
 import firebase from "firebase";
 
