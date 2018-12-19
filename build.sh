@@ -6,7 +6,7 @@
 
 set -e
 
-packages="contracts common-types cf.js machine node node-provider playground dapp-high-roller"
+packages="contracts apps common-types cf.js machine node node-provider playground dapp-high-roller"
 
 for package in $packages; do
   echo "⚙️  Building package: ${package}"
