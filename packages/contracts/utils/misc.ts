@@ -94,16 +94,19 @@ export function getParamFromTxEvent(
   return contractFactory != null ? contractFactory.at(param) : param;
 }
 
-export async function assertRejects(q, msg?) {
+export async function assertRejects(q: Promise<any>) {
   let res;
-  let catchFlag = false;
+  let exceptionThrown = false;
   try {
     res = await q;
   } catch (e) {
-    catchFlag = true;
+    exceptionThrown = true;
   } finally {
-    if (!catchFlag) {
-      chai.assert.fail(res, null, msg);
+    if (!exceptionThrown) {
+      chai.assert.fail(
+        res,
+        null,
+        "assertRejects: expected a promise rejection");
     }
   }
 }
