@@ -52,8 +52,9 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
     );
 
     // Tell the AppRegistry to start timer
+    const stateHash = hexlify(randomBytes(32));
     await appRegistry.functions.setState(appInstance.appIdentity, {
-      stateHash: hexlify(randomBytes(32)),
+      stateHash,
       nonce: 1,
       timeout: 10,
       signatures: HashZero
@@ -70,16 +71,12 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
       nonce
     } = await appRegistry.functions.appStates(appInstance.id);
 
-    console.log({
-      status,
-      latestSubmitter,
-      appStateHash,
-      disputeCounter,
-      disputeNonce,
-      finalizesAt,
-      nonce
-    });
-
     expect(status).to.be.eq(1);
+    expect(latestSubmitter).to.be.eq(await unlockedAccount.getAddress());
+    expect(appStateHash).to.be.eq(stateHash);
+    expect(disputeCounter).to.be.eq(1);
+    expect(disputeNonce).to.be.eq(0);
+    expect(finalizesAt).to.be.eq((await provider.getBlockNumber()) + 10);
+    expect(nonce).to.be.eq(1);
   });
 });
