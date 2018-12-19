@@ -37,7 +37,7 @@ export class SetupCommitment extends MultisigTransactionCommitment {
         appIdentityToHash(this.freeBalanceAppIdentity),
         this.freeBalanceTerms
       ]),
-      operation: MultisigOperation.Delegatecall
+      operation: MultisigOperation.DelegateCall
     };
   }
 

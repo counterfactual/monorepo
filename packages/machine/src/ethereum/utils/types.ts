@@ -7,7 +7,7 @@ export abstract class EthereumCommitment {
 
 export enum MultisigOperation {
   Call = 0,
-  Delegatecall = 1,
+  DelegateCall = 1,
   // Gnosis Safe uses "2" for CREATE, but we don't actually
   // make use of it in our code. Still, I put this here to be
   // maximally explicit that we based the data structure on

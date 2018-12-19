@@ -4,7 +4,7 @@
 
 // const enum Operation {
 //   Call = 0,
-//   Delegatecall = 1
+//   DelegateCall = 1
 // }
 
 // /**
@@ -55,7 +55,7 @@
 //    * @param args Arguments for the function call
 //    * @param signers The signers of the transaction
 //    */
-//   public async execDelegatecall(
+//   public async execDelegateCall(
 //     toContract: ethers.Contract,
 //     funcName: string,
 //     args: any[],
@@ -70,7 +70,7 @@
 //       toContract,
 //       funcName,
 //       args,
-//       Operation.Delegatecall,
+//       Operation.DelegateCall,
 //       signers
 //     );
 //   }
@@ -124,7 +124,7 @@
 
 //     // estimateGas() doesn't work well for delegatecalls, so need to hardcode gas limit
 //     const options =
-//       operation === Operation.Delegatecall
+//       operation === Operation.DelegateCall
 //         ? {
 //             gasLimit: 2e6
 //           }

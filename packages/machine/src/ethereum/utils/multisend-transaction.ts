@@ -37,7 +37,7 @@ export abstract class MultiSendCommitment extends MultisigTransactionCommitment 
       data: multisendIface.functions.multiSend.encode([
         encodeTransactions(this.eachMultisigInput())
       ]),
-      operation: MultisigOperation.Delegatecall
+      operation: MultisigOperation.DelegateCall
     };
   }
 

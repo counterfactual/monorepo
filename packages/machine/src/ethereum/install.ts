@@ -69,7 +69,7 @@ export class InstallCommitment extends MultiSendCommitment {
         appInstanceId,
         this.terms
       ]),
-      operation: MultisigOperation.Delegatecall
+      operation: MultisigOperation.DelegateCall
     };
   }
 }
