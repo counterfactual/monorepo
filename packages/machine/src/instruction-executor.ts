@@ -53,7 +53,7 @@ export class InstructionExecutor {
   }
 
   public async runUpdateProtocol(sc: StateChannel, params: UpdateData) {
-    const protocol = Protocol.SetState;
+    const protocol = Protocol.Update;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,

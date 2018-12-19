@@ -9,7 +9,7 @@ import { UPDATE_PROTOCOL } from "./update";
 const protocolsByName = {
   [Protocol.Setup]: SETUP_PROTOCOL,
   [Protocol.Install]: INSTALL_PROTOCOL,
-  [Protocol.SetState]: UPDATE_PROTOCOL,
+  [Protocol.Update]: UPDATE_PROTOCOL,
   [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
   [Protocol.MetaChannelInstallApp]: METACHANNEL_INSTALL_APP_PROTOCOL
 };

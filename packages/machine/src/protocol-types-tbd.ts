@@ -5,6 +5,15 @@ import { BigNumber, Signature } from "ethers/utils";
 
 import { Protocol } from "./types";
 
+export type StateData = {
+  [x: string]: string | number | boolean | StateData | StateDataArray;
+};
+
+// I think this should be a `type` not an `interface` but self-referencial
+// types is not supported: github.com/Microsoft/TypeScript/issues/6230
+export interface StateDataArray
+  extends Array<string | number | boolean | StateData | StateDataArray> {}
+
 export type ProtocolMessage = {
   protocol: Protocol;
   multisigAddress: string;
@@ -19,14 +28,14 @@ export type SetupData = {};
 
 export type UpdateData = {
   appInstanceId: string;
-  newState: object;
+  newState: StateData;
 };
 
 export type InstallData = {
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
   signingKeys: string[];
-  initialState: object;
+  initialState: StateData;
   terms: Terms;
   appInterface: AppInterface;
   defaultTimeout: number;

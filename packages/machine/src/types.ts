@@ -9,7 +9,7 @@ import { ProtocolMessage } from "./protocol-types-tbd";
 export enum Protocol {
   Setup = "setup",
   Install = "install",
-  SetState = "set-state",
+  Update = "update",
   Uninstall = "uninstall",
   MetaChannelInstallApp = "metachannel-install-app"
 }
