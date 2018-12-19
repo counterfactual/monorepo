@@ -1,5 +1,5 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { Zero } from "ethers/constants";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
@@ -22,9 +22,9 @@ describe("CF.js Provider", () => {
     asset: { assetType: AssetType.ETH },
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appId: "0x1515151515151515151515151515151515151515",
-    myDeposit: ethers.constants.Zero,
-    peerDeposit: ethers.constants.Zero,
-    timeout: ethers.constants.Zero
+    myDeposit: Zero,
+    peerDeposit: Zero,
+    timeout: Zero
   };
 
   beforeEach(() => {

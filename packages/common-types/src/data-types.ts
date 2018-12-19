@@ -3,7 +3,7 @@ import { BigNumber } from "ethers/utils";
 
 import { ABIEncoding, Address, AppInstanceID } from "./simple-types";
 
-export interface AppInstanceInfo {
+export type AppInstanceInfo = {
   id: AppInstanceID;
   appId: Address;
   abiEncodings: AppABIEncodings;
@@ -11,12 +11,12 @@ export interface AppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-}
+};
 
-export interface AppABIEncodings {
+export type AppABIEncodings = {
   stateEncoding: ABIEncoding;
   actionEncoding?: ABIEncoding;
-}
+};
 
 export enum AssetType {
   ETH = 0,
@@ -24,7 +24,7 @@ export enum AssetType {
   Other = 2
 }
 
-export interface BlockchainAsset {
+export type BlockchainAsset = {
   assetType: AssetType;
   token?: Address;
-}
+};
