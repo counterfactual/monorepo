@@ -101,7 +101,7 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.MULTISIG_CREATED, addMultisig);
+    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig);
     this.events.set(Node.EventName.INSTALL, addAppInstance);
   }
 
