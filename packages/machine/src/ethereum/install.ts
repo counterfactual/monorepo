@@ -17,7 +17,7 @@ const iface = new Interface(StateChannelTransaction.abi);
 
 export class InstallCommitment extends MultiSendCommitment {
   constructor(
-    public readonly networkContext: any,
+    public readonly networkContext: NetworkContext,
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly appIdentity: AppIdentity,
