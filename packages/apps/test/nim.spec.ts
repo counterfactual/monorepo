@@ -1,7 +1,9 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
-import { ethers } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
+import { Web3Provider } from "ethers/providers";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import NimApp from "../build/NimApp.json";
 
@@ -11,23 +13,23 @@ const { expect } = chai;
 
 type NimAppState = {
   players: string[];
-  turnNum: ethers.utils.BigNumber;
-  pileHeights: ethers.utils.BigNumber[];
+  turnNum: BigNumber;
+  pileHeights: BigNumber[];
 };
 
 function decodeAppState(encodedAppState: string): NimAppState {
-  return ethers.utils.defaultAbiCoder.decode(
+  return defaultAbiCoder.decode(
     ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
   )[0];
 }
 
 describe("Nim", () => {
-  let nim: ethers.Contract;
+  let nim: Contract;
 
   before(async () => {
-    const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
-    const wallet: ethers.Wallet = (await waffle.getWallets(provider))[0];
+    const provider: Web3Provider = waffle.createMockProvider();
+    const wallet: Wallet = (await waffle.getWallets(provider))[0];
     nim = await waffle.deployContract(wallet, NimApp);
   });
 
