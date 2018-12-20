@@ -108,16 +108,16 @@ export class AppInstance {
 
   @Memoize()
   public get identity(): AppIdentity {
-    const iface = defaultAbiCoder.encode(
+    const encodedAppInterface = defaultAbiCoder.encode(
       [APP_INTERFACE],
       [this.json.appInterface]
     );
-    const terms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
+    const encodedTerms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys as string[],
-      appInterfaceHash: keccak256(iface),
-      termsHash: keccak256(terms),
+      appInterfaceHash: keccak256(encodedAppInterface),
+      termsHash: keccak256(encodedTerms),
       defaultTimeout: this.json.defaultTimeout
     };
   }
