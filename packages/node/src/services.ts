@@ -13,6 +13,38 @@ export interface IStoreService {
   set(pairs: { key: string; value: any }[]): Promise<boolean>;
 }
 
+export interface FirebaseAppConfiguration {
+  databaseURL: string;
+  projectId: string;
+  apiKey: string;
+  authDomain: string;
+  storageBucket: string;
+  messagingSenderId: string;
+}
+
+/**
+ * This factory exposes default implementations of the service interfaces
+ * described above, using Firebase as the implementation backend.
+ */
+export class FirebaseServiceFactory {
+  private app: firebase.app.App;
+
+  constructor(configuration: FirebaseAppConfiguration) {
+    this.app = firebase.initializeApp(configuration);
+  }
+
+  createMessagingService(messagingServiceKey: string): IMessagingService {
+    return new FirebaseMessagingService(
+      this.app.database(),
+      messagingServiceKey
+    );
+  }
+
+  createStoreService(storeServiceKey: string): IStoreService {
+    return new FirebaseStoreService(this.app.database(), storeServiceKey);
+  }
+}
+
 class FirebaseMessagingService implements IMessagingService {
   // naive caching - firebase fires observers twice upon initial callback
   // registration and invocation
@@ -91,33 +123,5 @@ class FirebaseStoreService implements IStoreService {
     }
 
     return await this.firebase.ref(this.storeServiceKey).update(updates);
-  }
-}
-
-export interface FirebaseAppConfiguration {
-  databaseURL: string;
-  projectId: string;
-  apiKey: string;
-  authDomain: string;
-  storageBucket: string;
-  messagingSenderId: string;
-}
-
-export class FirebaseServiceFactory {
-  private app: firebase.app.App;
-
-  constructor(configuration: FirebaseAppConfiguration) {
-    this.app = firebase.initializeApp(configuration);
-  }
-
-  createMessagingService(messagingServiceKey: string): IMessagingService {
-    return new FirebaseMessagingService(
-      this.app.database(),
-      messagingServiceKey
-    );
-  }
-
-  createStoreService(storeServiceKey: string): IStoreService {
-    return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 }
