@@ -55,7 +55,7 @@ export class AppWager {
     });
   }
 
-  handleChange(e: KeyboardEvent, prop: string): void {
+  handleChange(e: Event, prop: string): void {
     this[prop] = (e.target as HTMLInputElement).value;
   }
 
