@@ -10,7 +10,6 @@ import {
   NodeConfig,
   NodeMessage
 } from "../../src";
-
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
 import FirebaseServiceFactory from "./services/firebase-service";

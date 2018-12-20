@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
-
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
 import FirebaseServiceFactory from "./services/firebase-service";
