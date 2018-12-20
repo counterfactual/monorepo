@@ -9,8 +9,16 @@ import {
   Node
 } from "@counterfactual/common-types";
 import { BigNumber } from "ethers/utils";
+import EventEmitter from "eventemitter3";
 
 import { Provider } from "./provider";
+import { CounterfactualEvent } from "./types";
+
+export enum AppInstanceEventType {
+  UPDATE_STATE = "updateState",
+  UNINSTALL = "uninstall",
+  ERROR = "error"
+}
 
 export class AppInstance {
   readonly id: AppInstanceID;
@@ -20,6 +28,7 @@ export class AppInstance {
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
   readonly timeout: BigNumber;
+  private readonly eventEmitter: EventEmitter = new EventEmitter();
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
     this.id = info.id;
@@ -59,5 +68,30 @@ export class AppInstance {
     await this.provider.callRawNodeMethod(Node.MethodName.UNINSTALL, {
       appInstanceId: this.id
     });
+  }
+
+  on(
+    eventType: AppInstanceEventType,
+    callback: (event: CounterfactualEvent) => void
+  ) {
+    this.eventEmitter.on(eventType, callback);
+  }
+
+  once(
+    eventType: AppInstanceEventType,
+    callback: (event: CounterfactualEvent) => void
+  ) {
+    this.eventEmitter.once(eventType, callback);
+  }
+
+  off(
+    eventType: AppInstanceEventType,
+    callback: (event: CounterfactualEvent) => void
+  ) {
+    this.eventEmitter.off(eventType, callback);
+  }
+
+  emit(eventType: AppInstanceEventType, event: CounterfactualEvent) {
+    this.eventEmitter.emit(eventType, event);
   }
 }

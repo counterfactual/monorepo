@@ -62,19 +62,18 @@ export class AppFactory {
     } catch (e) {
       throw createInvalidParamError(params.peerAddress, "peerAddress", e);
     }
-    const nodeParams: Node.ProposeInstallParams = {
-      timeout,
-      peerDeposit,
-      myDeposit,
-      asset: params.asset,
-      peerAddress: params.peerAddress,
-      initialState: params.initialState,
-      appId: this.appId,
-      abiEncodings: this.encodings
-    };
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.PROPOSE_INSTALL,
-      nodeParams
+      {
+        timeout,
+        peerDeposit,
+        myDeposit,
+        asset: params.asset,
+        peerAddress: params.peerAddress,
+        initialState: params.initialState,
+        appId: this.appId,
+        abiEncodings: this.encodings
+      }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
     return appInstanceId;

@@ -24,7 +24,7 @@ export async function createMultisig(
 
   const multisigCreatedMsg: NodeMessage = {
     from: selfAddress,
-    event: Node.EventName.MULTISIG_CREATED,
+    event: Node.EventName.CREATE_MULTISIG,
     // TODO: define interface for cross-Node payloads
     data: {
       multisigAddress: result.multisigAddress,

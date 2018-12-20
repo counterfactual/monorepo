@@ -1,5 +1,4 @@
-import { AppAction, AppState } from "@counterfactual/common-types";
-import { BigNumber } from "ethers/utils";
+import { Address, AppAction, AppState } from "@counterfactual/common-types";
 
 import { AppInstance } from "../app-instance";
 
@@ -8,42 +7,47 @@ export enum EventType {
   REJECT_INSTALL = "rejectInstall",
   UNINSTALL = "uninstall",
   UPDATE_STATE = "updateState",
+  CREATE_MULTISIG = "createMultisig",
   ERROR = "error"
 }
 
-interface AppEventData {
+type AppEventData = {
   appInstance: AppInstance;
-}
+};
 
-export interface InstallEventData extends AppEventData {}
+export type InstallEventData = AppEventData;
 
-export interface RejectInstallEventData extends AppEventData {}
+export type RejectInstallEventData = AppEventData;
 
-export interface UninstallEventData extends AppEventData {
-  myPayout: BigNumber;
-  peerPayout: BigNumber;
-}
+export type UninstallEventData = AppEventData;
 
-export interface UpdateStateEventData extends AppEventData {
+export type UpdateStateEventData = AppEventData & {
   oldState: AppState;
   newState: AppState;
   action?: AppAction;
-}
+};
 
-export interface ErrorEventData {
+export type CreateMultisigEventData = {
+  owners: Address[];
+  multisigAddress: Address;
+};
+
+export type ErrorEventData = {
   errorName: string;
   message?: string;
+  appInstanceId?: string;
   extra?: { [k: string]: string | number | boolean | object };
-}
+};
 
 export type EventData =
   | InstallEventData
   | RejectInstallEventData
   | UninstallEventData
   | UpdateStateEventData
-  | ErrorEventData;
+  | ErrorEventData
+  | CreateMultisigEventData;
 
-export interface CounterfactualEvent {
+export type CounterfactualEvent = {
   readonly type: EventType;
   readonly data: EventData;
-}
+};

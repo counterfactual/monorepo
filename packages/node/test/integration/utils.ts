@@ -8,7 +8,7 @@ import cuid from "cuid";
 import { ethers } from "ethers";
 
 import { Node } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/channels";
+import { APP_INSTANCE_STATUS } from "../../src/models";
 
 export async function getNewMultisig(
   node: Node,

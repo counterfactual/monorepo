@@ -11,20 +11,22 @@ import { IMessagingService } from "../service-interfaces";
  * @param channels
  * @param messagingService
  * @param params
+ * @returns A UUID for the proposed AppInstance, effectively the AppInstanceID
+ *          for the client
  */
 export async function proposeInstall(
   channels: Channels,
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
-  const appInstanceId = await channels.proposeInstall(params);
+  const uuid = await channels.proposeInstall(params);
 
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
       ...params,
-      appInstanceId,
+      appInstanceId: uuid,
       proposal: true
     }
   };
@@ -32,7 +34,7 @@ export async function proposeInstall(
   await messagingService.send(params.peerAddress, proposalMsg);
 
   return {
-    appInstanceId
+    appInstanceId: uuid
   };
 }
 
@@ -49,22 +51,22 @@ export async function install(
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   const appInstance = await channels.install(params);
-  const appInstanceId = appInstance.id;
+  const appInstanceUUID = appInstance.id;
 
-  const peerAddresses = await channels.getPeersAddressFromAppInstanceId(
-    appInstanceId
+  const [peerAddress] = await channels.getPeersAddressFromClientAppInstanceID(
+    appInstanceUUID
   );
 
   const installApprovalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
-      appInstanceId,
+      appInstanceId: appInstanceUUID,
       proposal: false
     }
   };
 
-  await messagingService.send(peerAddresses[0], installApprovalMsg);
+  await messagingService.send(peerAddress, installApprovalMsg);
   return {
     appInstance
   };
@@ -74,6 +76,7 @@ export async function install(
  * This function adds the app instance as a pending installation if the proposal
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
+ *
  * @param channels
  * @param messagingService
  * @param params
@@ -87,8 +90,12 @@ export async function addAppInstance(
   params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
+    const appInstanceUUID = params.appInstanceId;
     delete params.appInstanceId;
-    await channels.proposeInstall(params);
+    await channels.setClientAppInstanceIDForProposeInstall(
+      params,
+      appInstanceUUID
+    );
   } else {
     await channels.install(params);
   }

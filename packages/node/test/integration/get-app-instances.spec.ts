@@ -37,7 +37,7 @@ describe("Node method follows spec - getAppInstances", () => {
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
     nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
   });
 
