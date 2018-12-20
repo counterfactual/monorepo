@@ -16,7 +16,7 @@ describe("Primitive Node operations", () => {
 
   it("can be instantiated", () => {
     const nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
     const node = new Node(
       A_PRIVATE_KEY,
