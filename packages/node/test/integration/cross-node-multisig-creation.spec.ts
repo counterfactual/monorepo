@@ -5,7 +5,7 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
-import FirebaseServiceFactory from "./services/firebase-service";
+import TestFirebaseServiceFactory from "./services/firebase-service";
 import { getChannelAddresses, getNewMultisig } from "./utils";
 
 dotenv.config();
@@ -19,7 +19,7 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeConfig: NodeConfig;
 
   beforeAll(() => {
-    const firebaseServiceFactory = new FirebaseServiceFactory(
+    const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
