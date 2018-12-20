@@ -1,9 +1,6 @@
 import { ethers } from "ethers";
 
-export enum AssetType {
-  ETH = 0,
-  ERC20 = 1
-}
+import { AssetType } from "./index"
 
 export interface Terms {
   assetType: AssetType;
