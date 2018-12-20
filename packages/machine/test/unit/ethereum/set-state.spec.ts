@@ -18,11 +18,11 @@ import { Transaction } from "../../../src/ethereum/utils/types";
 import { AppInstance } from "../../../src/models";
 
 /**
- * This test suite decodes a constructed SetupCommitment transaction object
+ * This test suite decodes a constructed SetState Commitment transaction object
  * to the specifications defined by Counterfactual as can be found here:
  * https://specs.counterfactual.com/06-update-protocol#commitments
  */
-describe("SetupCommitment", () => {
+describe("Set State Commitment", () => {
   let commitment: SetStateCommitment;
   let tx: Transaction;
 
