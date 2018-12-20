@@ -11,7 +11,9 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p . && rollup -c",
-    "test": "jest --detectOpenHandles",
+    "test": "yarn ganache:start && jest --detectOpenHandles && yarn ganache:stop",
+    "ganache:start": "ganache-cli -q -i 8888 -l 0xfffffffffff -g 0x01 > /dev/null &",
+    "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
     "lint:fix": "yarn lint --fix",
     "lint": "tslint -c tslint.json -p ."
   },
@@ -22,6 +24,7 @@
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
     "chai": "^4.2.0",
+    "ganache-cli": "6.2.4",
     "jest": "^23.6.0",
     "rollup": "^0.68.0",
     "rollup-plugin-json": "^3.1.0",
