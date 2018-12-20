@@ -58,14 +58,15 @@ export class NodeListener {
   }
 
   componentWillLoad() {
-    // TODO: This is a non-existant firebase data provider.
+    // TODO: This is a dummy firebase data provider.
+    // TODO: This configuration should come from the backend.
     const serviceProvider = new FirebaseDataProvider({
-      apiKey: "AIzaSyBne_N_gQgaGnyfIPOs9T0PhOPdwRUeUsI",
-      authDomain: "joey-firebase-1.firebaseapp.com",
-      databaseURL: "https://joey-firebase-1.firebaseio.com",
-      projectId: "joey-firebase-1",
-      storageBucket: "joey-firebase-1.appspot.com",
-      messagingSenderId: "86354058442"
+      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+      authDomain: "foobar-91a31.firebaseapp.com",
+      databaseURL: "https://foobar-91a31.firebaseio.com",
+      projectId: "foobar-91a31",
+      storageBucket: "foobar-91a31.appspot.com",
+      messagingSenderId: "432199632441"
     });
 
     const privateKey =
