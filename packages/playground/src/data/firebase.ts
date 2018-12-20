@@ -2,9 +2,8 @@
 // to provider support for a Firebase layer.
 
 import { Address } from "@counterfactual/common-types";
-import firebase from "firebase";
-
 import { IMessagingService, IStoreService } from "@counterfactual/node";
+import firebase from "firebase";
 
 class FirebaseMessagingService implements IMessagingService {
   constructor(
@@ -66,8 +65,17 @@ class FirebaseStoreService implements IStoreService {
     return result;
   }
 
-  async set(key: string, value: any): Promise<any> {
-    return await this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
+  async set(pairs: { key: string; value: any }[]): Promise<boolean> {
+    try {
+      await Promise.all(
+        pairs.map(({ key, value }) => {
+          return this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
+        })
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 

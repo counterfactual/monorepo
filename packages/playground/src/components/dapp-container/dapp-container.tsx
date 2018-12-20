@@ -22,7 +22,7 @@ export class DappContainer {
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
 
-  private $onMessage: EventListenerObject = {} as EventListenerObject;
+  private $onMessage: (event: MessageEvent) => void = () => {};
 
   render() {
     return <layout-header />;
