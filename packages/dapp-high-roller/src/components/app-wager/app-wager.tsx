@@ -53,12 +53,10 @@ export class AppWager {
       query: {},
       key: ""
     });
-
-    return Promise.resolve();
   }
-  handleChange(e, prop: string): void {
-    // TODO What is the type of e?
-    this[prop] = e.target.value;
+
+  handleChange(e: KeyboardEvent, prop: string): void {
+    this[prop] = (e.target as HTMLInputElement).value;
   }
 
   render() {
