@@ -12,7 +12,7 @@ import { IStoreService, Node, NodeConfig } from "../../src";
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
-import FirebaseServiceFactory from "./services/firebase-service";
+import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   getInstalledAppInstances,
   getNewMultisig,
@@ -28,7 +28,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let nodeConfig: NodeConfig;
 
   beforeAll(() => {
-    const firebaseServiceFactory = new FirebaseServiceFactory(
+    const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

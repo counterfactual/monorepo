@@ -13,7 +13,7 @@ import {
 
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
-import FirebaseServiceFactory from "./services/firebase-service";
+import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   getInstalledAppInstances,
@@ -32,8 +32,8 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let nodeConfig: NodeConfig;
 
-  beforeAll(() => {
-    const firebaseServiceFactory = new FirebaseServiceFactory(
+  beforeAll(async () => {
+    const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

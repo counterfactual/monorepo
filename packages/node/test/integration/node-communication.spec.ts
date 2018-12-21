@@ -4,7 +4,7 @@ import FirebaseServer from "firebase-server";
 
 import { IMessagingService } from "../../src";
 
-import FirebaseServiceFactory from "./services/firebase-service";
+import TestFirebaseServiceFactory from "./services/firebase-service";
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ describe("Two nodes can communicate with each other", () => {
   let messagingService: IMessagingService;
 
   beforeAll(() => {
-    const firebaseServiceFactory = new FirebaseServiceFactory(
+    const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

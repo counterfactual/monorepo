@@ -53,6 +53,8 @@ ganache-cli \
 PID_FOR_GANACHE_CLI=$!
 
 echo "⚙️ Running migrations with build artifacts from @counterfactual/contracts"
+# TODO: For some reason this re-compiles all of the contracts unnecessarily
+#       and there isn't a --no-compile option on the command :(
 yarn run truffle migrate --network machine --reset > /dev/null
 
 echo "🧪 Starting jest test suites"

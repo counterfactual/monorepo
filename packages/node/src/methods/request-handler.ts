@@ -3,7 +3,7 @@ import EventEmitter from "eventemitter3";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../service-interfaces";
+import { IMessagingService } from "../services";
 
 import {
   getInstalledAppInstances,
