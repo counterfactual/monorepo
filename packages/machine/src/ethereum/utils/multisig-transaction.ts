@@ -1,5 +1,5 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
-import { defaultAbiCoder, Interface, keccak256, Signature } from "ethers/utils";
+import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { signaturesToSortedBytes } from "../utils/signature";
 
@@ -37,7 +37,7 @@ export abstract class MultisigTransactionCommitment extends EthereumCommitment {
   public hashToSign(): string {
     const { to, value, data, operation } = this.getTransactionDetails();
     return keccak256(
-      defaultAbiCoder.encode(
+      solidityPack(
         ["bytes1", "address[]", "address", "uint256", "bytes", "uint8"],
         ["0x19", this.multisigOwners, to, value, data, operation]
       )
