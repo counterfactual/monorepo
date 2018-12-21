@@ -71,7 +71,7 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have a default timeout defined by the hard-coded assumption", () => {
       // See HARD_CODED_ASSUMPTIONS in state-channel.ts
-      expect(fb.timeout).toBe(100);
+      expect(fb.timeout).toBe(10);
     });
 
     it("should use the default timeout for the initial timeout", () => {
