@@ -16,8 +16,8 @@ import { AppInstance } from "./app-instance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 100,
-  freeBalanceInitialStateTimeout: 100,
+  freeBalanceDefaultTimeout: 10,
+  freeBalanceInitialStateTimeout: 10,
   appSequenceNumberForFreeBalance: 0
 };
 
