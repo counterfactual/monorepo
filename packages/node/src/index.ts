@@ -1,2 +1,2 @@
 export * from "./node";
-export * from "./service-interfaces";
+export * from "./services";

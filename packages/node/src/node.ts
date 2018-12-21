@@ -4,7 +4,7 @@ import EventEmitter from "eventemitter3";
 
 import { Channels } from "./channels";
 import { RequestHandler } from "./methods/request-handler";
-import { IMessagingService, IStoreService } from "./service-interfaces";
+import { IMessagingService, IStoreService } from "./services";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the

@@ -1,4 +1,4 @@
-import { IStoreService } from "../../src/service-interfaces";
+import { IStoreService } from "../../src/services";
 
 class MockStoreService implements IStoreService {
   get(key: string): Promise<any> {

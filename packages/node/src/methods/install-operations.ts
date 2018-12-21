@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/common-types";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../service-interfaces";
+import { IMessagingService } from "../services";
 
 /**
  * This creates an entry of a proposed app instance into the relevant channel
