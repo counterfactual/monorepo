@@ -1,95 +1,201 @@
-// import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
+import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
+import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+
 import { AssetType, NetworkContext } from "@counterfactual/types";
-import { Wallet } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { Contract, Wallet } from "ethers";
+import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
-  bigNumberify,
-  getAddress,
+  BigNumber,
   hexlify,
-  // Interface,
-  // keccak256,
-  randomBytes
-  // solidityPack,
-  // TransactionDescription
+  Interface,
+  randomBytes,
+  SigningKey
 } from "ethers/utils";
 
-import { SetStateCommitment } from "../../../src/ethereum";
-// import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
-import { Transaction } from "../../../src/ethereum/utils/types";
-import { AppInstance } from "../../../src/models";
+import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
+import { StateChannel } from "../../../src/models";
 
-require("dotenv").config();
+// To be honest, 30000 is an arbitrary large number that has never failed
+// to reach the done() call in the test case, not intelligency chosen
+const JEST_TEST_WAIT_TIME = 30000;
 
-const ganacheHost = process.env.DEV_GANACHE_HOST || "127.0.0.1";
-const ganachePort = process.env.DEV_GANACHE_PORT || "8546";
+// ProxyFactory.createProxy uses assembly `call` so we can't estimate
+// gas needed, so we hard-code this number to ensure the tx completes
+const CREATE_PROXY_AND_SETUP_GAS = 6e9;
+
+// Similarly, the SetupCommitment is a `delegatecall`, so we estimate
+const SETUP_COMMITMENT_GAS = 6e9;
+
+// The AppRegistry.setState call _could_ be estimated but we haven't
+// written this test to do that yet
+const SETSTATE_COMMITMENT_GAS = 6e9;
+
+let networkId: number;
+let provider: JsonRpcProvider;
+let wallet: Wallet;
+
+// TODO: When we add a second use case of this custom mathcer,
+//       move it and its typigns into somewhere re-usable
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeEq(expected: BigNumber): BigNumber;
+    }
+  }
+}
+expect.extend({
+  toBeEq(received: BigNumber, argument: BigNumber) {
+    return {
+      pass: received.eq(argument),
+      message: () => `expected ${received} not to be equal to ${argument}`
+    };
+  }
+});
+
+// TODO: This will be re-used for all integration tests, so
+//       move it somewhere re-usable when we add a new test
+beforeAll(async () => {
+  require("dotenv-safe").config();
+
+  // Can use ! because dotenv-safe ensures value is set
+  const host = process.env.DEV_GANACHE_HOST!;
+  const port = process.env.DEV_GANACHE_PORT!;
+  const mnemonic = process.env.DEV_GANACHE_MNEMONIC!;
+
+  provider = new JsonRpcProvider(`http://${host}:${port}`);
+  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+  networkId = (await provider.getNetwork()).chainId;
+});
 
 /**
  * This test suite tests submitting a generated Set State Commitment
  * to the blockchain and observing the result
  */
-describe("Set State Commitment Submitted to Blockchain", () => {
-  let commitment: SetStateCommitment;
-  let tx: Transaction;
+describe("Scenario - open channel, updated free balance, on-chain resolution", () => {
+  jest.setTimeout(JEST_TEST_WAIT_TIME);
 
-  // Test network context
-  const networkContext: NetworkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  it("should not fail when submitted to blockchain", async done => {
+    const relevantArtifacts = [
+      AppRegistry,
+      ETHBucket,
+      NonceRegistry,
+      StateChannelTransaction
+    ];
 
-  const app = new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    Math.ceil(1000 * Math.random()),
-    {
-      addr: getAddress(hexlify(randomBytes(20))),
-      applyAction: hexlify(randomBytes(4)),
-      resolve: hexlify(randomBytes(4)),
-      isStateTerminal: hexlify(randomBytes(4)),
-      getTurnTaker: hexlify(randomBytes(4)),
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    Math.ceil(1000 * Math.random()),
-    { foo: AddressZero, bar: 0 },
-    0,
-    Math.ceil(1000 * Math.random())
-  );
+    const network = {
+      // Fetches the values from build artifacts of the contracts needed
+      // for this test and sets the ones we don't care about to 0x0
+      MultiSend: AddressZero,
+      ETHBalanceRefund: AddressZero,
+      ...relevantArtifacts.reduce(
+        (accumulator, artifact) => ({
+          ...accumulator,
+          [artifact.contractName]: artifact.networks[networkId].address
+        }),
+        {}
+      )
+    } as NetworkContext;
 
-  beforeAll(() => {
-    commitment = new SetStateCommitment(
-      networkContext,
-      app.identity,
-      app.encodedLatestState,
-      app.nonce,
-      app.timeout
+    const signingKeys = [
+      new SigningKey(hexlify(randomBytes(32))),
+      new SigningKey(hexlify(randomBytes(32)))
+    ].sort((a, b) =>
+      parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
     );
 
-    tx = commitment.transaction([
-      /* NOTE: Passing in no signatures for test only */
-    ]);
-  });
+    const users = signingKeys.map(x => x.address);
 
-  it("should not fail", async () => {
-    const provider = new JsonRpcProvider(
-      `http://${ganacheHost}:${ganachePort}`
+    const proxyFactory = new Contract(
+      ProxyFactory.networks[networkId].address,
+      ProxyFactory.abi,
+      wallet
     );
-    console.log(provider);
-    console.log(tx);
-    // console.log(x);
+
+    proxyFactory.on("ProxyCreation", async proxy => {
+      let stateChannel = new StateChannel(proxy, users).setupChannel(network);
+      let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+      const state = {
+        alice: stateChannel.multisigOwners[0],
+        bob: stateChannel.multisigOwners[1],
+        aliceBalance: WeiPerEther,
+        bobBalance: WeiPerEther
+      };
+
+      stateChannel = stateChannel.setState(freeBalanceETH.id, state);
+      freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+      const setStateCommitment = new SetStateCommitment(
+        network,
+        freeBalanceETH.identity,
+        freeBalanceETH.encodedLatestState,
+        freeBalanceETH.nonce,
+        freeBalanceETH.timeout
+      );
+
+      const setStateTx = setStateCommitment.transaction([
+        signingKeys[0].signDigest(setStateCommitment.hashToSign()),
+        signingKeys[1].signDigest(setStateCommitment.hashToSign())
+      ]);
+
+      await wallet.sendTransaction({
+        ...setStateTx,
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      for (const _ of Array(freeBalanceETH.timeout)) {
+        await provider.send("evm_mine", []);
+      }
+
+      const appRegistry = new Contract(
+        AppRegistry.networks[networkId].address,
+        AppRegistry.abi,
+        wallet
+      );
+
+      await appRegistry.functions.setResolution(
+        freeBalanceETH.identity,
+        freeBalanceETH.appInterface,
+        freeBalanceETH.encodedLatestState,
+        freeBalanceETH.encodedTerms
+      );
+
+      const setupCommitment = new SetupCommitment(
+        network,
+        stateChannel.multisigAddress,
+        stateChannel.multisigOwners,
+        stateChannel.getFreeBalanceFor(AssetType.ETH).identity,
+        stateChannel.getFreeBalanceFor(AssetType.ETH).terms
+      );
+
+      const setupTx = setupCommitment.transaction([
+        signingKeys[0].signDigest(setupCommitment.hashToSign()),
+        signingKeys[1].signDigest(setupCommitment.hashToSign())
+      ]);
+
+      await wallet.sendTransaction({ to: proxy, value: WeiPerEther.mul(2) });
+
+      await wallet.sendTransaction({
+        ...setupTx,
+        gasLimit: SETUP_COMMITMENT_GAS
+      });
+
+      expect(await provider.getBalance(proxy)).toBeEq(Zero);
+      expect(await provider.getBalance(users[0])).toBeEq(WeiPerEther);
+      expect(await provider.getBalance(users[1])).toBeEq(WeiPerEther);
+
+      done();
+    });
+
+    await proxyFactory.functions.createProxy(
+      MinimumViableMultisig.networks[networkId].address,
+      new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
+      { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
+    );
   });
 });
