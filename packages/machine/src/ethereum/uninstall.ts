@@ -1,5 +1,10 @@
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import { AppIdentity, ETHBucketAppState, NetworkContext, Terms } from "@counterfactual/types";
+import {
+  AppIdentity,
+  ETHBucketAppState,
+  NetworkContext,
+  Terms
+} from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
 import { DependencyValue } from "../models/app-instance";
