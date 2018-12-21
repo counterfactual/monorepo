@@ -115,7 +115,7 @@ export class AppInstance {
     const encodedTerms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
     return {
       owner: this.json.multisigAddress,
-      signingKeys: this.json.signingKeys as string[],
+      signingKeys: this.json.signingKeys,
       appInterfaceHash: keccak256(encodedAppInterface),
       termsHash: keccak256(encodedTerms),
       defaultTimeout: this.json.defaultTimeout
@@ -133,6 +133,11 @@ export class AppInstance {
       [this.json.appInterface.stateEncoding],
       [this.json.latestState]
     );
+  }
+
+  @Memoize()
+  public get encodedTerms() {
+    return defaultAbiCoder.encode([TERMS], [this.json.terms]);
   }
 
   @Memoize()
