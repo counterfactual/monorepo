@@ -76,10 +76,10 @@ beforeAll(async () => {
  * This test suite tests submitting a generated Set State Commitment
  * to the blockchain and observing the result
  */
-describe("Scenario - open channel, updated free balance, on-chain resolution", () => {
+describe("Scenario - open channel, update free balance, on-chain resolution", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
-  it("should not fail when submitted to blockchain", async done => {
+  it("should distribute resolution returned from ETH Free Balance App", async done => {
     const relevantArtifacts = [
       AppRegistry,
       ETHBucket,
