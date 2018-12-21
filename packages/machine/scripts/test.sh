@@ -45,7 +45,7 @@ ganache-cli \
   --host ${DEV_GANACHE_HOST} \
   --port ${DEV_GANACHE_PORT} \
   --mnemonic "${DEV_GANACHE_MNEMONIC}" `# must be quoted to include spaces` \
-  --networkId 8888888 \
+  --networkId ${DEV_GANACHE_NETWORK_ID} \
   --quiet \
   > /dev/null \
   &
