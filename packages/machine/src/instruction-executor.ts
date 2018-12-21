@@ -167,7 +167,7 @@ export class InstructionExecutor {
             toDeposit,
             intermediaryAddress,
             initiating: fromAddress,
-            responding: toAddress,
+            responding: toAddress
           }
         },
         this
