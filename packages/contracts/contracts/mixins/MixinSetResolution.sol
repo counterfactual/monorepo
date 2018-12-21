@@ -34,7 +34,7 @@ contract MixinSetResolution is
 
     require(
       app.status == AppStatus.OFF ||
-      (app.status == AppStatus.DISPUTE && block.number < app.finalizesAt),
+      (app.status == AppStatus.DISPUTE && block.number > app.finalizesAt),
       "setResolution called on an app either still ON or in DISPUTE"
     );
 
