@@ -17,7 +17,7 @@ export class SetStateCommitment extends EthereumCommitment {
   constructor(
     public readonly networkContext: NetworkContext,
     public readonly appIdentity: AppIdentity,
-    public readonly appState: string,
+    public readonly encodedAppState: string,
     public readonly appLocalNonce: number,
     public readonly timeout: number
   ) {
@@ -33,7 +33,7 @@ export class SetStateCommitment extends EthereumCommitment {
           appIdentityToHash(this.appIdentity),
           this.appLocalNonce,
           this.timeout,
-          keccak256(this.appState)
+          keccak256(this.encodedAppState)
         ]
       )
     );
@@ -54,7 +54,7 @@ export class SetStateCommitment extends EthereumCommitment {
     signatures: Signature[]
   ): SignedStateHashUpdate {
     return {
-      stateHash: keccak256(this.appState),
+      stateHash: keccak256(this.encodedAppState),
       nonce: this.appLocalNonce,
       timeout: this.timeout,
       signatures: signaturesToSortedBytes(this.hashToSign(), ...signatures)
