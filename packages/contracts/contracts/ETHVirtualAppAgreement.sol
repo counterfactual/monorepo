@@ -1,8 +1,8 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/libs/Transfer.sol";
-import "@counterfactual/contracts/contracts/AppRegistry.sol";
+import "./libs/Transfer.sol";
+import "./AppRegistry.sol";
 
 
 /// @title ETHVirtualAppAgreement
