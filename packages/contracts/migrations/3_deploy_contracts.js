@@ -3,6 +3,7 @@ const tdr = require("truffle-deploy-registry");
 const AppRegistry = artifacts.require("AppRegistry");
 const ContractRegistry = artifacts.require("ContractRegistry");
 const ETHBucket = artifacts.require("ETHBucket");
+const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
 const MultiSend = artifacts.require("MultiSend");
 const NonceRegistry = artifacts.require("NonceRegistry");
 const ProxyFactory = artifacts.require("ProxyFactory");
@@ -12,6 +13,7 @@ const ARTIFACTS = [
   AppRegistry,
   ContractRegistry,
   ETHBucket,
+  MinimumViableMultisig,
   MultiSend,
   NonceRegistry,
   ProxyFactory,
