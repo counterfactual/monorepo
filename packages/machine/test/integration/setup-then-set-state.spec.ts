@@ -17,8 +17,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
-import { StateChannel } from "../../../src/models";
+import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
+import { StateChannel } from "../../src/models";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligency chosen
