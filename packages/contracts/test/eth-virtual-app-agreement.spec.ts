@@ -1,8 +1,14 @@
-import { expect } from "chai";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { BigNumber, parseEther } from "ethers/utils";
+import {
+  BigNumber,
+  bigNumberify,
+  defaultAbiCoder,
+  keccak256
+} from "ethers/utils";
+
+import { expect } from "./utils/index";
 
 const provider = new Web3Provider((global as any).web3.currentProvider);
 
@@ -12,6 +18,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
   let appRegistry: Contract;
   let virtualAppAgreement: Contract;
   let fixedResolutionApp: Contract;
+  let appInstanceId: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
   /// FixedResolutionApp with random beneficiaries
@@ -33,7 +40,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
 
     await unlockedAccount.sendTransaction({
       to: delegateProxy.address,
-      value: parseEther("0.0100")
+      value: bigNumberify(100)
     });
 
     const beneficiaries = [
@@ -46,7 +53,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         beneficiaries,
         expiry,
         capitalProvided,
-        appRegistry: appRegistry.address,
+        registry: appRegistry.address,
         terms: {
           assetType,
           limit: 0,
@@ -99,6 +106,85 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     await appRegistry.deployed();
     await virtualAppAgreement.deployed();
     await fixedResolutionApp.deployed();
+
+    const appInterface = {
+      addr: fixedResolutionApp.address,
+      getTurnTaker: "0x00000000",
+      applyAction: "0x00000000",
+      resolve: fixedResolutionApp.interface.functions.getResolution.sighash,
+      isStateTerminal: "0x00000000"
+    };
+
+    const terms = {
+      assetType: 0,
+      limit: 0,
+      token: AddressZero
+    };
+
+    const encodedTerms = defaultAbiCoder.encode(
+      [
+        `tuple(
+          uint8 assetType,
+          uint256 limit,
+          address token
+        )`
+      ],
+      [terms]
+    );
+
+    const appIdentity = {
+      owner: await unlockedAccount.getAddress(),
+      signingKeys: [],
+      appInterfaceHash: keccak256(
+        defaultAbiCoder.encode(
+          [
+            `tuple(
+              address addr,
+              bytes4 getTurnTaker,
+              bytes4 applyAction,
+              bytes4 resolve,
+              bytes4 isStateTerminal
+            )`
+          ],
+          [appInterface]
+        )
+      ),
+      termsHash: keccak256(encodedTerms),
+      defaultTimeout: 10
+    };
+
+    appInstanceId = keccak256(
+      defaultAbiCoder.encode(
+        [
+          `tuple(
+            address owner,
+            address[] signingKeys,
+            bytes32 appInterfaceHash,
+            bytes32 termsHash,
+            uint256 defaultTimeout
+          )`
+        ],
+        [appIdentity]
+      )
+    );
+
+    await appRegistry.functions.setState(appIdentity, {
+      stateHash: keccak256(HashZero),
+      nonce: 1,
+      timeout: 0,
+      signatures: HashZero
+    });
+
+    // Can be called immediately without waiting for blocks to be mined
+    // because the timeout was set to 0 in the previous call to setState
+    await appRegistry.functions.setResolution(
+      appIdentity,
+      appInterface,
+      HashZero,
+      encodedTerms
+    );
+
+    console.log(await appRegistry.functions.getResolution(appInstanceId));
   });
 
   describe("ETHVirtualAppAgreement", () => {
@@ -106,16 +192,16 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
       const beneficiaries = await delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
-        fixedResolutionApp.cfAddress,
+        appInstanceId,
         0,
-        parseEther("0.010"),
+        bigNumberify(10),
         0
       );
       expect(await provider.getBalance(beneficiaries[0])).to.eq(
-        parseEther("0.05")
+        bigNumberify(5)
       );
       expect(await provider.getBalance(beneficiaries[1])).to.eq(
-        parseEther("0.05")
+        bigNumberify(5)
       );
     });
 
@@ -126,7 +212,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           appRegistry,
           HashZero,
           0,
-          parseEther("0.010"),
+          bigNumberify(10),
           0
         )
       ).to.be.reverted;
@@ -137,9 +223,9 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          fixedResolutionApp.cfAddress,
+          appInstanceId,
           (await provider.getBlockNumber()) + 10,
-          parseEther("0.010"),
+          bigNumberify(10),
           0
         )
       ).to.be.reverted;
@@ -150,9 +236,9 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          fixedResolutionApp.cfAddress,
+          appInstanceId,
           0,
-          parseEther("0.02"),
+          bigNumberify(2),
           0
         )
       ).to.be.reverted;
@@ -163,9 +249,9 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          fixedResolutionApp.cfAddress,
+          appInstanceId,
           0,
-          parseEther("0.010"),
+          bigNumberify(10),
           1
         )
       ).to.be.reverted;

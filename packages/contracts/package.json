@@ -11,17 +11,14 @@
   "scripts": {
     "build": "truffle compile --all",
     "migrate": "truffle migrate",
-    "test": "tsc -b && yarn ganache:start && yarn truffle:test && yarn ganache:stop",
-    "ganache:start": "ganache-cli -q -i 7777777 -l 0xfffffffffff -g 0x01 > /dev/null &",
-    "ganache:stop": "ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9",
+    "test": "./scripts/test.sh",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "yarn lint:sol --fix",
     "lint:sol": "solium -d .",
     "lint:ts:fix": "yarn lint:ts --fix",
     "lint:ts": "tslint -c tslint.json -p .",
-    "test:coverage": "solidity-coverage",
-    "truffle:test": "truffle test --network ganache"
+    "test:coverage": "solidity-coverage"
   },
   "keywords": [
     "ethereum",
