@@ -9,7 +9,7 @@ import {
 
 import { appIdentityToHash } from "./utils/app-identity";
 import { signaturesToSortedBytes } from "./utils/signature";
-import { EthereumCommitment, Transaction } from "./utils/types";
+import { EthereumCommitment, Transaction } from "./types";
 
 const iface = new Interface(AppRegistry.abi);
 

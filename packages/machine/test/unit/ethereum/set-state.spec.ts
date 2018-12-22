@@ -12,9 +12,9 @@ import {
   TransactionDescription
 } from "ethers/utils";
 
-import { SetStateCommitment } from "../../../src/ethereum";
-import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
-import { Transaction } from "../../../src/ethereum/utils/types";
+import { SetStateCommitment } from "../../../src/middleware/protocol-operation";
+import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
+import { Transaction } from "../../../src/middleware/protocol-operation/types";
 import { AppInstance } from "../../../src/models";
 
 /**

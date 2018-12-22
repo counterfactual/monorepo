@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from "ethers/utils";
 
-import { MultisigTransaction } from "./types";
+import { MultisigTransaction } from "../types";
 
 const ENCODING = ["uint256", "address", "uint256", "bytes"];
 

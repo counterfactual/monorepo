@@ -8,9 +8,9 @@ import {
   TransactionDescription
 } from "ethers/utils";
 
-import { SetupCommitment } from "../../../src/ethereum";
-import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
-import { MultisigTransaction } from "../../../src/ethereum/utils/types";
+import { SetupCommitment } from "../../../src/middleware/protocol-operation";
+import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
+import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
 import { StateChannel } from "../../../src/models";
 
 /**

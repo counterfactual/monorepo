@@ -18,9 +18,9 @@ import {
   TransactionDescription
 } from "ethers/utils";
 
-import { UninstallCommitment } from "../../../src/ethereum";
-import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
-import { MultisigTransaction } from "../../../src/ethereum/utils/types";
+import { UninstallCommitment } from "../../../src/middleware/protocol-operation";
+import { decodeMultisendCalldata } from "../../../src/middleware/protocol-operation/utils/multisend-decoder";
+import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
 import { StateChannel } from "../../../src/models";
 
 /**

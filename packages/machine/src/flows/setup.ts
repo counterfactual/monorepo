@@ -1,6 +1,6 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
-import { SetupCommitment } from "../ethereum";
+import { SetupCommitment } from "../middleware/protocol-operation";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
 import { ProtocolMessage } from "../protocol-types-tbd";

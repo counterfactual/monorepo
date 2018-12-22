@@ -4,7 +4,7 @@ import {
   NetworkContext
 } from "@counterfactual/types";
 
-import { UninstallCommitment } from "../ethereum";
+import { UninstallCommitment } from "../middleware/protocol-operation";
 import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
 import { ProtocolMessage, UninstallData } from "../protocol-types-tbd";

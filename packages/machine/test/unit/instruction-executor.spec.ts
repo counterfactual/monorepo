@@ -1,7 +1,7 @@
 import { AssetType } from "@counterfactual/types";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
-import { SetupCommitment } from "../../src/ethereum";
+import { SetupCommitment } from "../../src/middleware/protocol-operation";
 
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";

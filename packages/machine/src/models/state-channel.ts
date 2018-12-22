@@ -10,7 +10,7 @@ import { BigNumber } from "ethers/utils";
 import {
   freeBalanceTerms,
   getFreeBalanceAppInterface
-} from "../ethereum/utils/free-balance";
+} from "../middleware/protocol-operation/utils/free-balance";
 
 import { AppInstance } from "./app-instance";
 

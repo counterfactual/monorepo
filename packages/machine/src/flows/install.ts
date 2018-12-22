@@ -1,6 +1,6 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
-import { InstallCommitment } from "../ethereum";
+import { InstallCommitment } from "../middleware/protocol-operation";
 import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
 import { InstallData, ProtocolMessage } from "../protocol-types-tbd";
