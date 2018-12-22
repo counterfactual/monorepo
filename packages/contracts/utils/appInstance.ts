@@ -19,6 +19,15 @@ export interface TransferTerms {
   token?: string;
 }
 
+export interface TransferTransaction {
+  assetType: AssetType;
+  limit: ethers.utils.BigNumber;
+  token?: string;
+  to: string[];
+  value: ethers.utils.BigNumber[];
+  data: string[];
+}
+
 export interface AppDefinition {
   addr: string;
   applyAction: string;

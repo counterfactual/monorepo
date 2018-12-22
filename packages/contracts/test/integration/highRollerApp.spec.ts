@@ -1,8 +1,20 @@
 import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
-import { BigNumber, defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
+import {
+  BigNumber,
+  defaultAbiCoder,
+  parseEther,
+  solidityKeccak256
+} from "ethers/utils";
 
 import {
+  AbstractContract,
+  AssetType,
+  buildArtifacts,
+  expect,
+  TransferTerms,
+  TransferTransaction
+} from "../../utils";
 import * as Utils from "../../utils/misc";
 
 const web3 = (global as any).web3;
@@ -143,6 +155,33 @@ contract("HighRollerApp", (accounts: string[]) => {
       const state = decodeAppState(ret);
       expect(state.stage).to.be.eql(new BigNumber(3));
       expect(state.playerSecondNumber).to.be.eql(new BigNumber(2));
+    });
+    it("can end game", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerFirstNumber = 1;
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.DONE,
+        salt: numberSalt,
+        commitHash: hash,
+        playerFirstNumber: 1,
+        playerSecondNumber: 2
+      };
+
+      const terms: TransferTerms = {
+        assetType: AssetType.ETH,
+        limit: parseEther("2"),
+        token: ""
+      };
+      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+        preState,
+        terms
+      );
+
+      expect(transaction.limit).to.be.eql(new BigNumber(3));
     });
   });
 });
