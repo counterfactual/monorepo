@@ -1,4 +1,5 @@
 version: 2
+
 jobs:
   build:
     docker:
@@ -9,6 +10,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
+      - run: yarn build
       - save_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
@@ -24,11 +26,6 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
       - run: yarn build
-      - run:
-          name: "Run ganache"
-          command: yarn ganache:ci
-          background: true
-      - run: cd packages/contracts/ && yarn migrate --network ganache
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
