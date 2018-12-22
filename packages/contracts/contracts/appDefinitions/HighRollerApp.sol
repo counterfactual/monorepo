@@ -13,11 +13,13 @@ import "../lib/Transfer.sol";
 contract HighRollerApp {
 
   enum ActionType {
+    START_GAME,
     COMMIT_TO_HASH,
     COMMIT_TO_NUM
   }
 
   enum Stage {
+    PRE_GAME,
     COMMITTING_HASH, 
     COMMITTING_NUM, 
     DONE
@@ -65,7 +67,13 @@ contract HighRollerApp {
     returns (bytes)
   {
     AppState memory nextState = state;
-    if (action.actionType == ActionType.COMMIT_TO_HASH) {
+    if (action.actionType == ActionType.START_GAME) {
+      require(
+        state.stage == Stage.PRE_GAME, 
+        "Cannot apply START_GAME on PRE_GAME"
+      );
+      nextState.stage = Stage.COMMITTING_HASH;
+    } else if (action.actionType == ActionType.COMMIT_TO_HASH) {
       require(
         state.stage == Stage.COMMITTING_HASH, 
         "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH"
