@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/Transfer.sol";
 
 
-/// @title ResolveToPay5ETHApp
+/// @title ResolveToPay5WeiApp
 /// @notice This contract is a test fixture meant to emulate an AppInstance
 /// contract. An AppInstance has a getResolution() function that returns a
 /// `Transfer.Transaction` object when the channel is closed.

@@ -50,34 +50,32 @@ contract ETHVirtualAppAgreement {
       "returned incompatible resolution"
     );
 
-    // Seems like there is an error here when returning from
-    // ResolveToPay5WeiApp when resolving [0] of resolution.value
     require(
       agreement.capitalProvided > resolution.value[0],
       "returned incompatible resolution"
     );
 
-    // uint256[] memory amount = new uint256[](2);
+    uint256[] memory amount = new uint256[](2);
 
-    // amount[0] = resolution.value[0];
-    // amount[1] = agreement.capitalProvided - amount[0];
+    amount[0] = resolution.value[0];
+    amount[1] = agreement.capitalProvided - amount[0];
 
-    // bytes[] memory data = new bytes[](2);
+    bytes[] memory data = new bytes[](2);
 
-    // address[] memory beneficiaries = new address[](2);
+    address[] memory beneficiaries = new address[](2);
 
-    // beneficiaries[0] = agreement.beneficiaries[0];
-    // beneficiaries[1] = agreement.beneficiaries[1];
+    beneficiaries[0] = agreement.beneficiaries[0];
+    beneficiaries[1] = agreement.beneficiaries[1];
 
-    // Transfer.Transaction memory ret = Transfer.Transaction(
-    //   agreement.terms.assetType,
-    //   agreement.terms.token,
-    //   beneficiaries,
-    //   amount,
-    //   data
-    // );
+    Transfer.Transaction memory ret = Transfer.Transaction(
+      agreement.terms.assetType,
+      agreement.terms.token,
+      beneficiaries,
+      amount,
+      data
+    );
 
-    // ret.execute();
+    ret.execute();
   }
 
 }
