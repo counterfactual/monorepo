@@ -9,9 +9,9 @@ import {
 
 import { DependencyValue } from "../../models/app-instance";
 
+import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 import { MultisigTransactionCommitment } from "./utils/multisig-tx-op";
-import { MultisigOperation, MultisigTransaction } from "./types";
 
 const iface = new Interface(StateChannelTransaction.abi);
 

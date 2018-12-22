@@ -13,8 +13,8 @@ import {
 } from "ethers/utils";
 
 import { SetStateCommitment } from "../../../src/middleware/protocol-operation";
-import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
 import { Transaction } from "../../../src/middleware/protocol-operation/types";
+import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
 import { AppInstance } from "../../../src/models";
 
 /**

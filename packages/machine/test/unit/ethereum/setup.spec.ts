@@ -9,8 +9,8 @@ import {
 } from "ethers/utils";
 
 import { SetupCommitment } from "../../../src/middleware/protocol-operation";
-import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
 import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
+import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
 import { StateChannel } from "../../../src/models";
 
 /**

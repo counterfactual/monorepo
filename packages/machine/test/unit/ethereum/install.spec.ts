@@ -13,9 +13,9 @@ import {
 } from "ethers/utils";
 
 import { InstallCommitment } from "../../../src/middleware/protocol-operation";
+import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
 import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
 import { decodeMultisendCalldata } from "../../../src/middleware/protocol-operation/utils/multisend-decoder";
-import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
 import { AppInstance, StateChannel } from "../../../src/models";
 
 /**

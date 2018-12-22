@@ -1,9 +1,9 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
-import { signaturesToSortedBytes } from "./signature";
-
 import { EthereumCommitment, MultisigTransaction, Transaction } from "../types";
+
+import { signaturesToSortedBytes } from "./signature";
 
 export abstract class MultisigTransactionCommitment extends EthereumCommitment {
   constructor(

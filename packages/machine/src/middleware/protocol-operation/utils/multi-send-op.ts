@@ -1,13 +1,13 @@
-import { HashZero } from "ethers/constants";
-import { Interface } from "ethers/utils";
-
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import { AppIdentity, Terms } from "@counterfactual/types";
+import { HashZero } from "ethers/constants";
+import { Interface } from "ethers/utils";
+
+import { MultisigOperation, MultisigTransaction } from "../types";
 
 import { encodeTransactions } from "./multisend-encoder";
 import { MultisigTransactionCommitment } from "./multisig-tx-op";
-import { MultisigOperation, MultisigTransaction } from "../types";
 
 const appRegistryIface = new Interface(AppRegistry.abi);
 const multisendIface = new Interface(MultiSend.abi);
