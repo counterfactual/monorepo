@@ -14,8 +14,8 @@
   },
   "scripts": {
     "build": "sh build.sh",
-    "clean": "git clean -Xdf",
-    "clean:dry": "git clean -Xdn",
+    "clean": "git clean -Xdf --exclude=\"!.env\"",
+    "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
     "test": "lerna run --stream --concurrency 1 test",
     "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
     "lint": "lerna run lint --parallel --no-bail",
