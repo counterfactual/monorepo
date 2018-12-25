@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import {
   BigNumber,
   defaultAbiCoder,
