@@ -14,7 +14,7 @@ ganache-cli \
   --gasPrice 0x01 \
   --networkId 7777777 \
   --quiet \
-  > /dev/null \
+  &> /dev/null \
   &
 
 PID_FOR_GANACHE_CLI=$!

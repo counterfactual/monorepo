@@ -3,7 +3,7 @@
 set -e
 
 function clean {
-  kill $PID_FOR_GANACHE_CLI
+  kill ${PID_FOR_GANACHE_CLI}
 }
 
 trap clean INT TERM EXIT
@@ -47,7 +47,7 @@ ganache-cli \
   --mnemonic "${DEV_GANACHE_MNEMONIC}" `# must be quoted to include spaces` \
   --networkId ${DEV_GANACHE_NETWORK_ID} \
   --quiet \
-  > /dev/null \
+  &> /dev/null \
   &
 
 PID_FOR_GANACHE_CLI=$!
@@ -59,4 +59,3 @@ yarn run truffle migrate --network machine --reset > /dev/null
 
 echo "🧪 Starting jest test suites"
 jest --detectOpenHandles $1
-
