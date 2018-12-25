@@ -1,12 +1,14 @@
-import { Contract, ContractFactory } from "ethers";
+import * as waffle from "ethereum-waffle";
+import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { Web3Provider } from "ethers/providers";
 import { defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 import * as solc from "solc";
 
-import { expect } from "./utils";
+import ContractRegistry from "../build/ContractRegistry.json";
+import Proxy from "../build/Proxy.json";
 
-const provider = new Web3Provider((global as any).web3.currentProvider);
+import { expect } from "./utils";
 
 const TEST_CONTRACT_SOLIDITY_CODE = {
   language: "Solidity",
@@ -29,8 +31,9 @@ const TEST_CONTRACT_SOLIDITY_CODE = {
   }
 };
 
-contract("ContractRegistry", accounts => {
-  let unlockedAccount: JsonRpcSigner;
+describe("ContractRegistry", () => {
+  let provider: Web3Provider;
+  let wallet: Wallet;
 
   let contractRegistry: Contract;
   let simpleContract: Contract;
@@ -43,17 +46,12 @@ contract("ContractRegistry", accounts => {
   }
 
   before(async () => {
-    unlockedAccount = await provider.getSigner(accounts[0]);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
   });
 
   beforeEach(async () => {
-    contractRegistry = await new ContractFactory(
-      artifacts.require("ContractRegistry").abi,
-      artifacts.require("ContractRegistry").bytecode,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    await contractRegistry.deployed();
+    contractRegistry = await waffle.deployContract(wallet, ContractRegistry);
   });
 
   it("computes counterfactual addresses of bytes deployments", async () => {
@@ -77,7 +75,7 @@ contract("ContractRegistry", accounts => {
       expect(deployedAddress).to.eq(
         await contractRegistry.resolver(cfaddress(bytecode, 2))
       );
-      simpleContract = new Contract(deployedAddress, iface, unlockedAccount);
+      simpleContract = new Contract(deployedAddress, iface, wallet);
       expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
@@ -101,7 +99,7 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(bytecode, 3))
       );
 
-      simpleContract = new Contract(deployedAddress, iface, unlockedAccount);
+      simpleContract = new Contract(deployedAddress, iface, wallet);
       expect(await simpleContract.sayHello()).to.eq("hi");
       done();
     };
@@ -115,7 +113,8 @@ contract("ContractRegistry", accounts => {
     );
     const iface = output.contracts["test.sol"]["Test"].abi;
     const initcode =
-      artifacts.require("Proxy").bytecode +
+      Proxy.bytecode +
+      // IMPORTANT: simpleContract will be undefined if the prior test failed
       defaultAbiCoder.encode(["address"], [simpleContract.address]).substr(2);
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
@@ -125,7 +124,7 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(initcode, 3))
       );
 
-      const contract = new Contract(deployedAddress, iface, unlockedAccount);
+      const contract = new Contract(deployedAddress, iface, wallet);
       expect(await contract.sayHello()).to.eq("hi");
       done();
     };
@@ -169,7 +168,8 @@ contract("ContractRegistry", accounts => {
     }`;
 
     const initcode =
-      bytecode + defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
+      bytecode +
+      defaultAbiCoder.encode(["address"], [wallet.address]).substr(2);
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
@@ -178,8 +178,8 @@ contract("ContractRegistry", accounts => {
         await contractRegistry.resolver(cfaddress(initcode, 4))
       );
 
-      const contract = new Contract(deployedAddress, iface, unlockedAccount);
-      expect(await contract.sayHello()).to.eq(accounts[0]);
+      const contract = new Contract(deployedAddress, iface, wallet);
+      expect(await contract.sayHello()).to.eq(wallet.address);
       done();
     };
 

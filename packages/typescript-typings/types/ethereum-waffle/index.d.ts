@@ -22,7 +22,7 @@ declare module "ethereum-waffle" {
   ): Promise<Contract>;
 
   export const link: (
-    contract: Contract,
+    contract: ContractJSON,
     libraryName: string,
     libraryAddress: string
   ) => void;

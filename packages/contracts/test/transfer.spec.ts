@@ -1,19 +1,24 @@
-import { Contract, ContractFactory } from "ethers";
-import { AddressZero, WeiPerEther } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes } from "ethers/utils";
+import * as waffle from "ethereum-waffle";
+import { Contract, ethers } from "ethers";
+
+import DelegateProxy from "../build/DelegateProxy.json";
+import DolphinCoin from "../build/DolphinCoin.json";
+import ExampleTransfer from "../build/ExampleTransfer.json";
+import Transfer from "../build/Transfer.json";
 
 import { expect } from "./utils";
 
-const provider = new Web3Provider((global as any).web3.currentProvider);
+const { hexlify, randomBytes } = ethers.utils;
+const { WeiPerEther, AddressZero } = ethers.constants;
 
 // It's necessary to pass in this argument since the DelegateProxy
 // uses delegatecall which ethers can't estimate gas for.
 const APPROXIMATE_ERC20_TRANSFER_GAS = 75000;
 const APPROXIMATE_ERC20_TRANSFER_10_GAS = 425000;
 
-contract("Transfer", (accounts: string[]) => {
-  let unlockedAccount: JsonRpcSigner;
+describe("Transfer", () => {
+  let provider: ethers.providers.Web3Provider;
+  let wallet: ethers.Wallet;
 
   let exampleTransfer: Contract;
   let delegateProxy: Contract;
@@ -26,36 +31,20 @@ contract("Transfer", (accounts: string[]) => {
   }
 
   before(async () => {
-    unlockedAccount = await provider.getSigner(accounts[0]);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
 
-    const artifact = await artifacts.require("ExampleTransfer");
-    artifact.link(artifacts.require("Transfer"));
-    exampleTransfer = await new ContractFactory(
-      artifact.abi,
-      artifact.binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
+    const transfer = await waffle.deployContract(wallet, Transfer);
+    waffle.link(ExampleTransfer, "Transfer", transfer.address);
 
-    delegateProxy = await new ContractFactory(
-      artifacts.require("DelegateProxy").abi,
-      artifacts.require("DelegateProxy").bytecode,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    dolphinCoin = await new ContractFactory(
-      artifacts.require("DolphinCoin").abi,
-      artifacts.require("DolphinCoin").bytecode,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    await exampleTransfer.deployed();
-    await delegateProxy.deployed();
-    await dolphinCoin.deployed();
+    exampleTransfer = await waffle.deployContract(wallet, ExampleTransfer);
+    delegateProxy = await waffle.deployContract(wallet, DelegateProxy);
+    dolphinCoin = await waffle.deployContract(wallet, DolphinCoin);
   });
 
   describe("Executes delegated transfers for ETH", () => {
     beforeEach(async () => {
-      await unlockedAccount.sendTransaction({
+      await wallet.sendTransaction({
         to: delegateProxy.address,
         value: WeiPerEther
       });

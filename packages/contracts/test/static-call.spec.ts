@@ -1,41 +1,30 @@
-import { Contract, ContractFactory } from "ethers";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import {
-  defaultAbiCoder,
-  hexlify,
-  randomBytes,
-  toUtf8Bytes
-} from "ethers/utils";
+import * as waffle from "ethereum-waffle";
+import { ethers } from "ethers";
+
+import Echo from "../build/Echo.json";
+import LibStaticCall from "../build/LibStaticCall.json";
+import TestCaller from "../build/TestCaller.json";
 
 import { expect } from "./utils";
 
-const provider = new Web3Provider((global as any).web3.currentProvider);
+const { defaultAbiCoder, hexlify, randomBytes, toUtf8Bytes } = ethers.utils;
 
-contract("StaticCall", (accounts: string[]) => {
-  let unlockedAccount: JsonRpcSigner;
-  let testCaller: Contract;
-  let echo: Contract;
+describe("StaticCall", () => {
+  let provider: ethers.providers.Web3Provider;
+  let wallet: ethers.Wallet;
+
+  let testCaller: ethers.Contract;
+  let echo: ethers.Contract;
 
   before(async () => {
-    unlockedAccount = await provider.getSigner(accounts[0]);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
 
-    const testCallerArtifact = artifacts.require("TestCaller");
-    testCallerArtifact.link(artifacts.require("LibStaticCall"));
-    testCaller = await new ContractFactory(
-      testCallerArtifact.abi,
-      testCallerArtifact.binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
+    const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
+    waffle.link(TestCaller, "LibStaticCall", libStaticCall.address);
 
-    const echoArtifact = artifacts.require("Echo");
-    echo = await new ContractFactory(
-      echoArtifact.abi,
-      echoArtifact.binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    await testCaller.deployed();
-    await echo.deployed();
+    testCaller = await waffle.deployContract(wallet, TestCaller);
+    echo = await waffle.deployContract(wallet, Echo);
   });
 
   describe("execStaticCall", () => {

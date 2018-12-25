@@ -1,6 +1,7 @@
+import * as waffle from "ethereum-waffle";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { Web3Provider } from "ethers/providers";
 import {
   BigNumber,
   bigNumberify,
@@ -8,12 +9,17 @@ import {
   keccak256
 } from "ethers/utils";
 
+import AppRegistry from "../build/AppRegistry.json";
+import ETHVirtualAppAgreement from "../build/ETHBalanceRefundApp.json";
+import LibStaticCall from "../build/LibStaticCall.json";
+import ResolveToPay5WeiApp from "../build/ResolveToPay5WeiApp.json";
+import Transfer from "../build/Transfer.json";
+
 import { expect } from "./utils/index";
 
-const provider = new Web3Provider((global as any).web3.currentProvider);
-
-contract("ETHVirtualAppAgreement", (accounts: string[]) => {
-  let unlockedAccount: JsonRpcSigner;
+describe("ETHVirtualAppAgreement", () => {
+  let provider: Web3Provider;
+  let wallet: Wallet;
 
   let appRegistry: Contract;
   let virtualAppAgreement: Contract;
@@ -33,12 +39,12 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     const delegateProxy = await new ContractFactory(
       artifacts.require("DelegateProxy").abi,
       artifacts.require("DelegateProxy").binary,
-      unlockedAccount
+      wallet
     ).deploy({ gasLimit: 6e9 });
 
     await delegateProxy.deployed();
 
-    await unlockedAccount.sendTransaction({
+    await wallet.sendTransaction({
       to: delegateProxy.address,
       value: bigNumberify(100)
     });
@@ -74,38 +80,26 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
   };
 
   before(async () => {
-    unlockedAccount = await provider.getSigner(accounts[0]);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
 
-    const artifact1 = artifacts.require("ETHVirtualAppAgreement");
-    artifact1.link(artifacts.require("Transfer"));
+    virtualAppAgreement = await waffle.deployContract(
+      wallet,
+      ETHVirtualAppAgreement
+    );
 
-    virtualAppAgreement = await new ContractFactory(
-      artifact1.abi,
-      artifact1.binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
+    const transfer = await waffle.deployContract(wallet, Transfer);
+    const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
 
-    const artifact2 = artifacts.require("AppRegistry");
-    artifact2.link(artifacts.require("LibStaticCall"));
-    artifact2.link(artifacts.require("Transfer"));
+    waffle.link(AppRegistry, "LibStaticCall", libStaticCall.address);
+    waffle.link(AppRegistry, "Transfer", transfer.address);
 
-    appRegistry = await await new ContractFactory(
-      artifact2.abi,
-      artifact2.binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
+    appRegistry = await waffle.deployContract(wallet, AppRegistry);
 
-    await appRegistry.deployed();
-
-    fixedResolutionApp = await new ContractFactory(
-      artifacts.require("ResolveToPay5WeiApp").abi,
-      artifacts.require("ResolveToPay5WeiApp").binary,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    await appRegistry.deployed();
-    await virtualAppAgreement.deployed();
-    await fixedResolutionApp.deployed();
+    fixedResolutionApp = await waffle.deployContract(
+      wallet,
+      ResolveToPay5WeiApp
+    );
 
     const terms = {
       assetType: 0,
@@ -125,7 +119,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     );
 
     const appIdentity = {
-      owner: await unlockedAccount.getAddress(),
+      owner: await wallet.getAddress(),
       signingKeys: [],
       appDefinitionAddress: fixedResolutionApp.address,
       termsHash: keccak256(encodedTerms),
