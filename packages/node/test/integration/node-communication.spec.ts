@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { ethers } from "ethers";
 import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 

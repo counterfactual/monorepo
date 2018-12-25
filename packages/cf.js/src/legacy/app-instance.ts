@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { formatParamType, Interface, ParamType } from "ethers/utils";
 
 import { Terms } from "./app";
