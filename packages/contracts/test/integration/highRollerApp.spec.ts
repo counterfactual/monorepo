@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import {
   BigNumber,
   defaultAbiCoder,
@@ -181,7 +181,11 @@ contract("HighRollerApp", (accounts: string[]) => {
         terms
       );
 
-      expect(transaction.limit).to.be.eql(new BigNumber(3));
+      expect(transaction.assetType).to.be.eql(AssetType.ETH);
+      expect(transaction.token).to.be.eql(AddressZero);
+      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
+      expect(transaction.value).to.be.eql([Zero, parseEther("2")]);
+      expect(transaction.data).to.be.eql(["0x", "0x"]);
     });
   });
 });
