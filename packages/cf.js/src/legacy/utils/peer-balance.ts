@@ -1,6 +1,6 @@
-import { ethers } from "ethers";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { Address } from ".";
+import { Address } from "./index";
 
 export class PeerBalance {
   /**
@@ -8,9 +8,9 @@ export class PeerBalance {
    */
   public static balances(
     address1: Address,
-    balance1: ethers.utils.BigNumber,
+    balance1: BigNumber,
     address2: Address,
-    balance2: ethers.utils.BigNumber
+    balance2: BigNumber
   ): CanonicalPeerBalance {
     if (address2.localeCompare(address1) < 0) {
       return new CanonicalPeerBalance(
@@ -61,13 +61,10 @@ export class PeerBalance {
       )
     ];
   }
-  public balance: ethers.utils.BigNumber;
+  public balance: BigNumber;
 
-  constructor(
-    readonly address: Address,
-    balance: number | ethers.utils.BigNumber
-  ) {
-    this.balance = ethers.utils.bigNumberify(balance.toString());
+  constructor(readonly address: Address, balance: number | BigNumber) {
+    this.balance = bigNumberify(balance.toString());
   }
 }
 

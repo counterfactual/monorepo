@@ -1,13 +1,13 @@
-import { ethers } from "ethers";
+import { Arrayish, defaultAbiCoder, solidityPack } from "ethers/utils";
 
 export function encode(types: string[], values: any[]) {
-  return ethers.utils.defaultAbiCoder.encode(types, values);
+  return defaultAbiCoder.encode(types, values);
 }
 
-export function decode(types: string[], data: ethers.utils.Arrayish) {
-  return ethers.utils.defaultAbiCoder.decode(types, data);
+export function decode(types: string[], data: Arrayish) {
+  return defaultAbiCoder.decode(types, data);
 }
 
 export function encodePacked(types: string[], values: any[]) {
-  return ethers.utils.solidityPack(types, values);
+  return solidityPack(types, values);
 }

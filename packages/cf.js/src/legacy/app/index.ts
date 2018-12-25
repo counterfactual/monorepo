@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
-import { defaultAbiCoder, keccak256 } from "ethers/utils";
+import { HashZero } from "ethers/constants";
+import { BigNumber, defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import * as abi from "../../utils/abi";
 import { StateChannelInfo } from "../channel";
@@ -67,7 +67,7 @@ export class AppInterface {
       console.error(
         "WARNING: Can't compute hash for AppInterface because its address is 0x0"
       );
-      return ethers.constants.HashZero;
+      return HashZero;
     }
     return keccak256(
       abi.encode(
@@ -91,7 +91,7 @@ export class AppInterface {
 export class Terms {
   constructor(
     readonly assetType: number,
-    readonly limit: ethers.utils.BigNumber,
+    readonly limit: BigNumber,
     readonly token: Address
   ) {}
 
@@ -118,8 +118,8 @@ export interface UpdateData {
 }
 
 export interface UninstallOptions {
-  peerABalance: ethers.utils.BigNumber;
-  peerBBalance: ethers.utils.BigNumber;
+  peerABalance: BigNumber;
+  peerBBalance: BigNumber;
 }
 
 export interface InstallData {
@@ -138,8 +138,8 @@ export interface InstallOptions {
   stateEncoding: string;
   abiEncoding: string;
   state: object;
-  peerABalance: ethers.utils.BigNumber;
-  peerBBalance: ethers.utils.BigNumber;
+  peerABalance: BigNumber;
+  peerBBalance: BigNumber;
 }
 
 export interface AppInstanceInfo {

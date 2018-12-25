@@ -1,5 +1,5 @@
 import { AssetType, Node } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
 import { Provider } from "../src/provider";
@@ -37,7 +37,7 @@ describe("CF.js AppFactory", () => {
         expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
         const params = request.params as Node.ProposeInstallParams;
         expect(params.initialState).toBe(testState);
-        expect(params.myDeposit).toEqual(ethers.utils.parseEther("0.5"));
+        expect(params.myDeposit).toEqual(parseEther("0.5"));
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.PROPOSE_INSTALL,
           requestId: request.requestId,
@@ -51,8 +51,8 @@ describe("CF.js AppFactory", () => {
         asset: {
           assetType: AssetType.ETH
         },
-        peerDeposit: ethers.utils.parseEther("0.5"),
-        myDeposit: ethers.utils.parseEther("0.5"),
+        peerDeposit: parseEther("0.5"),
+        myDeposit: parseEther("0.5"),
         timeout: "100",
         initialState: testState
       });
@@ -66,8 +66,8 @@ describe("CF.js AppFactory", () => {
           asset: {
             assetType: AssetType.ETH
           },
-          peerDeposit: ethers.utils.parseEther("0.5"),
-          myDeposit: ethers.utils.parseEther("0.5"),
+          peerDeposit: parseEther("0.5"),
+          myDeposit: parseEther("0.5"),
           timeout: "100",
           initialState: "4000"
         });
@@ -86,7 +86,7 @@ describe("CF.js AppFactory", () => {
           asset: {
             assetType: AssetType.ETH
           },
-          peerDeposit: ethers.utils.parseEther("0.5"),
+          peerDeposit: parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
           initialState: "4000"
