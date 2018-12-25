@@ -3,10 +3,10 @@
 set -e
 
 function clean {
-  kill $PID_FOR_GANACHE_CLI
+  kill ${PID_FOR_GANACHE_CLI}
 }
 
-trap clean EXIT
+trap clean INT TERM EXIT
 
 ganache-cli \
   --defaultBalanceEther 10000 \
@@ -22,5 +22,3 @@ PID_FOR_GANACHE_CLI=$!
 yarn run tsc -p .
 
 yarn run truffle test --network ganache $1
-
-

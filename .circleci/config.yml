@@ -18,7 +18,7 @@ jobs:
 
   run-tests:
     docker:
-      - image: circleci/node:10-browsers
+      - image: circleci/node:10
     steps:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum

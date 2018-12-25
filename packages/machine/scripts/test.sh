@@ -6,7 +6,7 @@ function clean {
   kill $PID_FOR_GANACHE_CLI
 }
 
-trap clean EXIT
+trap clean INT TERM EXIT
 
 # Gets the val of a key=val pair by key specified in an env file
 #
