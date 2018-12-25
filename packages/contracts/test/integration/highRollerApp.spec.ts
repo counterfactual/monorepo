@@ -174,7 +174,7 @@ contract("HighRollerApp", (accounts: string[]) => {
       const terms: TransferTerms = {
         assetType: AssetType.ETH,
         limit: parseEther("2"),
-        token: ""
+        token: AddressZero
       };
       const transaction: TransferTransaction = await highRollerApp.functions.resolve(
         preState,
