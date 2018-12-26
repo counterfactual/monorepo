@@ -26,4 +26,4 @@ if (!process.env.AWS_LAMBDA_JS_RUNTIME) {
   });
 }
 
-export default serverless(app);
+module.exports = { handler: serverless(app) };
