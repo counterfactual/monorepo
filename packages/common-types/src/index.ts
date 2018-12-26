@@ -4,9 +4,7 @@ import {
   AssetType,
   BlockchainAsset
 } from "./data-types";
-
 import { INodeProvider, Node } from "./node-protocol";
-
 import {
   ABIEncoding,
   Address,
