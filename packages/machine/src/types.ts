@@ -1,7 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 import { Signature } from "ethers/utils";
 
-import { EthereumCommitment } from "./middleware/protocol-operation/utils";
+import { EthereumCommitment } from "./ethereum/utils";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { ProtocolMessage } from "./protocol-types-tbd";

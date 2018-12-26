@@ -4,10 +4,9 @@ import { AppIdentity, Terms } from "@counterfactual/types";
 import { HashZero } from "ethers/constants";
 import { Interface } from "ethers/utils";
 
-import { MultisigOperation, MultisigTransaction } from "../types";
-
-import { encodeTransactions } from "./multisend-encoder";
-import { MultisigTransactionCommitment } from "./multisig-tx-op";
+import { MultisigTransactionCommitment } from "./multisig-commitment";
+import { MultisigOperation, MultisigTransaction } from "./types";
+import { encodeTransactions } from "./utils/multisend-encoder";
 
 const appRegistryIface = new Interface(AppRegistry.abi);
 const multisendIface = new Interface(MultiSend.abi);

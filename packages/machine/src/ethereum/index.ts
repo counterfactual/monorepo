@@ -1,7 +1,7 @@
-import { InstallCommitment } from "./op-install";
-import { SetStateCommitment } from "./op-set-state";
-import { SetupCommitment } from "./op-setup";
-import { UninstallCommitment } from "./op-uninstall";
+import { InstallCommitment } from "./install-commitment";
+import { SetStateCommitment } from "./set-state-commitment";
+import { SetupCommitment } from "./setup-commitment";
+import { UninstallCommitment } from "./uninstall-commitment";
 
 export {
   InstallCommitment,
