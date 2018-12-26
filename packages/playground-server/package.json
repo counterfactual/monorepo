@@ -21,7 +21,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "ts-node src/api.ts",
+    "start": "netlify-lambda -c webpack.config.js serve src",
     "build": "netlify-lambda build src",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },

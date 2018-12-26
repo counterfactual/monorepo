@@ -8,7 +8,7 @@ import Router from "koa-router";
 const app = new Koa();
 const router = new Router();
 
-router.get("/hello", async (ctx, next) => {
+router.get("/api/hello", async (ctx, next) => {
   ctx.body = { hello: ctx.request.query.name };
   ctx.status = 200;
   return next();
@@ -19,11 +19,6 @@ app
   .use(bodyParser({ json: true }))
   .use(cors());
 
-if (!process.env.AWS_LAMBDA_JS_RUNTIME) {
-  // If running in local context, start the API.
-  app.listen(3132, () => {
-    console.log("Listening in localhost:3132");
-  });
-}
+const handler = serverless(app);
 
-module.exports = { handler: serverless(app) };
+export { handler };
