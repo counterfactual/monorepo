@@ -6,9 +6,7 @@
     ],
     "nohoist": [
       "**/eventemitter3",
-      "**/eventemitter3/**",
-      "**/serverless-http",
-      "**/serverless-http/**"
+      "**/eventemitter3/**"
     ]
   },
   "engines": {
