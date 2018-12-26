@@ -1,9 +1,5 @@
 import { legacy } from "@counterfactual/cf.js";
-import {
-  Address,
-  AppInstanceInfo,
-  AssetType
-} from "@counterfactual/types";
+import { Address, AppInstanceInfo, AssetType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 
 import Nonce = legacy.utils.Nonce;
