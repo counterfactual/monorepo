@@ -1,12 +1,10 @@
 import ETHBalanceRefundApp from "@counterfactual/contracts/build/contracts/ETHBalanceRefundApp.json";
 
-import { AppInstance } from "../../src/legacy/app-instance";
+import { generateAbiEncodings } from "../../src/utils";
 
 describe("AppInstance", async () => {
   it("generateAbiEncodings correctly generates a appStateEncoding and appActionEncoding", () => {
-    const abiEncodings = AppInstance.generateAbiEncodings(
-      ETHBalanceRefundApp.abi
-    );
+    const abiEncodings = generateAbiEncodings(ETHBalanceRefundApp.abi);
 
     expect(abiEncodings.appStateEncoding).toEqual(
       "tuple(address,address,uint256)"
