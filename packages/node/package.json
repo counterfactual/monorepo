@@ -12,6 +12,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@firebase/app-types": "^0.3.2",
     "@types/dotenv": "^6.1.0",
     "@types/node": "^10.9.3",
     "cuid": "^2.1.4",
@@ -19,6 +20,7 @@
     "ethers": "4.0.20",
     "firebase": "^5.6.0",
     "firebase-server": "^1.0.1",
+    "jest": "^23.6.0",
     "rollup": "^0.68.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
