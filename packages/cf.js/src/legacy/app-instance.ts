@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { formatParamType, Interface, ParamType } from "ethers/utils";
 
 import { Terms } from "./app";
 import { AbiEncodings, AppDefinition } from "./types";
@@ -13,25 +13,23 @@ export class AppInstance {
 
   // TODO: temp hack necessary until ethers support https://github.com/ethers-io/ethers.js/issues/325
   static generateAbiEncodings(
-    abi: string | (string | ethers.utils.ParamType)[]
+    abi: string | (string | ParamType)[]
   ): AbiEncodings {
-    const iface = new ethers.utils.Interface(abi);
+    const iface = new Interface(abi);
     const appFunctionNames = Object.keys(iface.functions).filter(fn => {
       return fn.indexOf("(") === -1;
     });
     const appActions = appFunctionNames.map(fn => {
       const inputs = iface.functions[fn].inputs;
       const tuples = inputs.map(input => {
-        return ethers.utils.formatParamType(input);
+        return formatParamType(input);
       });
 
       return `${fn}(${tuples.join(",")})`;
     });
 
     return {
-      appStateEncoding: ethers.utils.formatParamType(
-        iface.functions.resolve.inputs[0]
-      ),
+      appStateEncoding: formatParamType(iface.functions.resolve.inputs[0]),
       appActionEncoding: JSON.stringify([appActions.join(",")])
     };
   }

@@ -1,5 +1,6 @@
-import { ethers } from "ethers";
-import { Web3Provider } from "ethers/providers";
+import { Contract, ContractFactory } from "ethers";
+import { AddressZero, HashZero } from "ethers/constants";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 
 import { ALICE, BOB } from "./constants";
@@ -16,9 +17,9 @@ import {
 const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
 contract("AppRegistry", (accounts: string[]) => {
-  let provider: ethers.providers.Web3Provider;
-  let wallet: ethers.providers.JsonRpcSigner;
-  let appRegistry: ethers.Contract;
+  let provider: Web3Provider;
+  let wallet: JsonRpcSigner;
+  let appRegistry: Contract;
 
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
   let setStateWithSignatures: (
@@ -40,7 +41,7 @@ contract("AppRegistry", (accounts: string[]) => {
     artifact.link(artifacts.require("LibStaticCall"));
     artifact.link(artifacts.require("Transfer"));
 
-    appRegistry = await new ethers.ContractFactory(
+    appRegistry = await new ContractFactory(
       artifact.abi,
       artifact.binary,
       wallet
@@ -60,7 +61,7 @@ contract("AppRegistry", (accounts: string[]) => {
         hexlify(randomBytes(4)),
         hexlify(randomBytes(4))
       ),
-      new Terms(AssetType.ETH, 0, ethers.constants.AddressZero),
+      new Terms(AssetType.ETH, 0, AddressZero),
       10
     );
 
@@ -77,26 +78,23 @@ contract("AppRegistry", (accounts: string[]) => {
     setStateAsOwner = (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
-        stateHash: appState || ethers.constants.HashZero,
+        stateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: ethers.constants.HashZero
+        signatures: HashZero
       });
 
     cancelChallenge = () =>
-      appRegistry.functions.cancelChallenge(
-        appInstance.appIdentity,
-        ethers.constants.HashZero
-      );
+      appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
     setStateWithSignatures = async (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
-        stateHash: appState || ethers.constants.HashZero,
+        stateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: await wallet.signMessage(
           computeStateHash(
             appInstance.id,
-            appState || ethers.constants.HashZero,
+            appState || HashZero,
             nonce,
             ONCHAIN_CHALLENGE_TIMEOUT
           )

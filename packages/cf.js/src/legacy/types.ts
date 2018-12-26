@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber } from "ethers/utils";
 
 export interface AppDefinition {
   address: string;
@@ -12,7 +12,7 @@ export interface AbiEncodings {
 }
 
 export interface Deposits {
-  [s: string]: ethers.utils.BigNumber;
+  [s: string]: BigNumber;
 }
 
 export type DeserializationCondition = {

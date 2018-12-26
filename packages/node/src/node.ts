@@ -1,5 +1,5 @@
 import { Address, Node as NodeTypes } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
 import { Channels } from "./channels";
@@ -22,7 +22,7 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly channels: Channels;
-  private readonly signer: ethers.utils.SigningKey;
+  private readonly signer: SigningKey;
   protected readonly requestHandler: RequestHandler;
 
   /**
@@ -35,7 +35,7 @@ export class Node {
     private readonly storeService: IStoreService,
     nodeConfig: NodeConfig
   ) {
-    this.signer = new ethers.utils.SigningKey(privateKey);
+    this.signer = new SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.channels = new Channels(

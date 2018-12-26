@@ -4,8 +4,7 @@ import {
   AppInstanceInfo,
   AssetType
 } from "@counterfactual/common-types";
-
-import { zeroBalance } from "./utils";
+import { Zero } from "ethers/constants";
 
 import Nonce = legacy.utils.Nonce;
 import FreeBalance = legacy.utils.FreeBalance;
@@ -93,9 +92,9 @@ export class Channel {
     // TODO: extend to all asset types
     const ethFreeBalance = new FreeBalance(
       multisigOwners[0],
-      zeroBalance,
+      Zero,
       multisigOwners[1],
-      zeroBalance,
+      Zero,
       0,
       0,
       0,
