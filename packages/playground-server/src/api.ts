@@ -21,4 +21,4 @@ app
 
 const handler = serverless(app);
 
-export { handler };
+export { handler, app };
