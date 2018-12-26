@@ -62,7 +62,7 @@ expect.extend({
 // TODO: This will be re-used for all integration tests, so
 //       move it somewhere re-usable when we add a new test
 beforeAll(async () => {
-  require("dotenv-safe").config();
+  import("dotenv-safe").config()
 
   // Can use ! because dotenv-safe ensures value is set
   const host = process.env.DEV_GANACHE_HOST!;
