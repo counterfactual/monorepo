@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "ts-node src/api.ts",
-    "build": "yarn install && rm -rf functions && tsc -b",
+    "build": "netlify-lambda build src",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
@@ -33,6 +33,7 @@
     "koa": "^2.6.2",
     "koa-body": "^4.0.6",
     "koa-router": "^7.4.0",
+    "netlify-lambda": "^1.1.1",
     "serverless-http": "^1.8.0"
   },
   "devDependencies": {
