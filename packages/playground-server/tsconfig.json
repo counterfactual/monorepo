@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "functions/"
+    "outDir": "functions/",
+    "declaration": false
   }
 }
