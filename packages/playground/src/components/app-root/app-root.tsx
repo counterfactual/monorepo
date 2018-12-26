@@ -26,6 +26,7 @@ export class AppRoot {
         </main>
 
         <layout-footer />
+        <node-listener />
       </div>
     );
   }

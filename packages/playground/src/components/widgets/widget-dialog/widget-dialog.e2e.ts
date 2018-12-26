@@ -1,11 +1,11 @@
 import { newE2EPage } from "@stencil/core/testing";
 
-describe.skip("layout-footer", () => {
+describe.skip("widget-dialog", () => {
   it("renders", async () => {
     const page = await newE2EPage();
-    await page.setContent("<layout-footer></layout-footer>");
+    await page.setContent("<widget-dialog></widget-dialog>");
 
-    const element = await page.find("layout-footer");
+    const element = await page.find("widget-dialog");
     expect(element).toHaveClass("hydrated");
   });
 });
