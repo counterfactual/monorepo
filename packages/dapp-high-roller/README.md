@@ -1,4 +1,4 @@
-# [High Roller dApp](https://counterfactual.com) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
+# [High Roller](https://github.com/counterfactual/monorepo/packages/dapp-high-roller) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
 
 This is a demo dApp (state channel-based decentralized applications) using [CF.js](../cf.js) that runs inside of the [Playground](../playground).
 
