@@ -17,7 +17,8 @@ export default {
       format: "iife",
       exports: "named",
       globals: {
-        "ethers/utils": "ethers.utils"
+        "ethers/utils": "ethers.utils",
+        "ethers/constants": "ethers.constants"
       }
     }
   ],
