@@ -23,7 +23,8 @@
   "scripts": {
     "start": "netlify-lambda -c webpack.config.js serve src",
     "build": "netlify-lambda -c webpack.config.js build src",
-    "test": "jest"
+    "dev": "NODE_ENV=dev netlify-lambda -c webpack.config.js serve src",
+    "test": "NODE_ENV=dev jest"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
