@@ -2,7 +2,7 @@
   "name": "@counterfactual/playground-server",
   "version": "0.0.1",
   "description": "A backend for the Playground app.",
-  "author": "Joel Alejandro Villarreal Bertoldi <joel.a.villarreal@gmail.com>",
+  "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "main": "src/index.ts",
