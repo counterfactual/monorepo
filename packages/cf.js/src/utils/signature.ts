@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
-
 import { Bytes32 } from "@counterfactual/common-types";
+import { ethers } from "ethers";
 
 export function signaturesToBytes(
   ...signatures: ethers.utils.Signature[]

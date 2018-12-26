@@ -1,9 +1,7 @@
 import dotenv from "dotenv";
 
 import { Node } from "../../src/node";
-
 import { A_PRIVATE_KEY } from "../env";
-
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 import { MOCK_STORE_SERVICE } from "../mock-services/mock-store-service";
 
