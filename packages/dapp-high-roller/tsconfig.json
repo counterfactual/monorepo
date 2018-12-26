@@ -1,16 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "declaration": false,
     "experimentalDecorators": true,
     "lib": [
       "es2015"
     ],
-    "moduleResolution": "node",
     "module": "esnext",
-    "target": "es2017",
     "jsx": "react",
     "jsxFactory": "h"
   },
