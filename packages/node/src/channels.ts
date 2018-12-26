@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS, Channel } from "./models";
-import { IStoreService } from "./service-interfaces";
+import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
 
 /**

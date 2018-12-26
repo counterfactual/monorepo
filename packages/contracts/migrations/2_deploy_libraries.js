@@ -4,7 +4,7 @@ const Conditional = artifacts.require("Conditional");
 const ConditionalTransaction = artifacts.require("ConditionalTransaction");
 const StaticCall = artifacts.require("StaticCall");
 const Transfer = artifacts.require("Transfer");
-const VirtualAppAgreement = artifacts.require("VirtualAppAgreement");
+const VirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
 
 /// Deploy the libraries Transfer and StaticCall and link their dependents
 /// against them.

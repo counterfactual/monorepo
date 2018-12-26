@@ -1,6 +1,6 @@
 import { Address } from "@counterfactual/common-types";
 
-import { IMessagingService } from "../../src/service-interfaces";
+import { IMessagingService } from "../../src/services";
 
 class MockMessagingService implements IMessagingService {
   send(peerAddress: Address, msg: object) {}
