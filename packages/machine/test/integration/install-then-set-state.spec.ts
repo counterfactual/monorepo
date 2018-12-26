@@ -1,6 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
@@ -13,12 +14,13 @@ import {
   BigNumber,
   hexlify,
   Interface,
+  parseEther,
   randomBytes,
   SigningKey
 } from "ethers/utils";
 
-import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
-import { StateChannel } from "../../src/models";
+import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
+import { AppInstance, StateChannel } from "../../src/models";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligency chosen
@@ -28,12 +30,13 @@ const JEST_TEST_WAIT_TIME = 30000;
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 
-// Similarly, the SetupCommitment is a `delegatecall`, so we estimate
-const SETUP_COMMITMENT_GAS = 6e9;
-
 // The AppRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
+
+// Also we can't estimate the install commitment gas b/c it uses
+// delegatecall for the conditional transaction
+const INSTALL_COMMITMENT_GAS = 6e9;
 
 let networkId: number;
 let provider: JsonRpcProvider;
@@ -68,13 +71,18 @@ beforeAll(async () => {
   const port = process.env.DEV_GANACHE_PORT!;
   const mnemonic = process.env.DEV_GANACHE_MNEMONIC!;
 
+  function pathForAccount(idx: number) {
+    return `m/44'/60'/0'/0/${idx}`;
+  }
+
   provider = new JsonRpcProvider(`http://${host}:${port}`);
-  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+  wallet = Wallet.fromMnemonic(mnemonic, pathForAccount(1)).connect(provider);
   networkId = (await provider.getNetwork()).chainId;
 
   const relevantArtifacts = [
     AppRegistry,
     ETHBucket,
+    MultiSend,
     NonceRegistry,
     StateChannelTransaction
   ];
@@ -93,14 +101,17 @@ beforeAll(async () => {
   } as NetworkContext;
 });
 
-describe("Commitment tests on ganache-cli", () => {
+/**
+ * This test suite tests setting up a channel and then installing a new app into it.
+ * We re-use the ETHBucket App (which is the app ETH Free Balance uses) as the
+ * test app being installed. We then set the values to [1, 1] in that app
+ * and trigger the InstallCommitment on-chain to resolve that app and verify
+ * the balances have been updated on-chain.
+ */
+describe("Scenario: install app, set state, put on-chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
-  /**
-   * This test suite tests submitting a generated Set State Commitment
-   * to the blockchain and observing the result
-   */
-  it("Scenario - open channel, update free balance, on-chain resolution", async done => {
+  it("returns the funds the app had locked up", async done => {
     const signingKeys = [
       new SigningKey(hexlify(randomBytes(32))),
       new SigningKey(hexlify(randomBytes(32)))
@@ -130,25 +141,43 @@ describe("Commitment tests on ganache-cli", () => {
       stateChannel = stateChannel.setState(freeBalanceETH.id, state);
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-      const setStateCommitment = new SetStateCommitment(
-        network,
-        freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState,
-        freeBalanceETH.nonce,
-        freeBalanceETH.timeout
+      const app = new AppInstance(
+        stateChannel.multisigAddress,
+        stateChannel.multisigOwners,
+        freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
+        freeBalanceETH.appInterface, // Re-use the ETHBucket App
+        {
+          assetType: AssetType.ETH,
+          limit: parseEther("2"),
+          token: AddressZero
+        },
+        false,
+        stateChannel.numInstalledApps + 1,
+        state,
+        0,
+        freeBalanceETH.timeout // Re-use ETH FreeBalance timeout
       );
 
-      const setStateTx = setStateCommitment.transaction([
-        signingKeys[0].signDigest(setStateCommitment.hashToSign()),
-        signingKeys[1].signDigest(setStateCommitment.hashToSign())
-      ]);
+      stateChannel = stateChannel.installApp(app, WeiPerEther, WeiPerEther);
+      freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+      const setStateCommitment = new SetStateCommitment(
+        network,
+        app.identity,
+        app.encodedLatestState,
+        app.nonce + 1,
+        app.timeout
+      );
 
       await wallet.sendTransaction({
-        ...setStateTx,
+        ...setStateCommitment.transaction([
+          signingKeys[0].signDigest(setStateCommitment.hashToSign()),
+          signingKeys[1].signDigest(setStateCommitment.hashToSign())
+        ]),
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      for (const _ of Array(freeBalanceETH.timeout)) {
+      for (const _ of Array(app.timeout)) {
         await provider.send("evm_mine", []);
       }
 
@@ -159,30 +188,36 @@ describe("Commitment tests on ganache-cli", () => {
       );
 
       await appRegistry.functions.setResolution(
-        freeBalanceETH.identity,
-        freeBalanceETH.appInterface,
-        freeBalanceETH.encodedLatestState,
-        freeBalanceETH.encodedTerms
+        app.identity,
+        app.appInterface,
+        app.encodedLatestState,
+        app.encodedTerms
       );
 
-      const setupCommitment = new SetupCommitment(
+      const installCommitment = new InstallCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).terms
+        app.identity,
+        app.terms,
+        freeBalanceETH.identity,
+        freeBalanceETH.terms,
+        freeBalanceETH.hashOfLatestState,
+        freeBalanceETH.nonce,
+        freeBalanceETH.timeout,
+        app.appSeqNo
       );
 
-      const setupTx = setupCommitment.transaction([
-        signingKeys[0].signDigest(setupCommitment.hashToSign()),
-        signingKeys[1].signDigest(setupCommitment.hashToSign())
+      const installTx = installCommitment.transaction([
+        signingKeys[0].signDigest(installCommitment.hashToSign()),
+        signingKeys[1].signDigest(installCommitment.hashToSign())
       ]);
 
       await wallet.sendTransaction({ to: proxy, value: WeiPerEther.mul(2) });
 
       await wallet.sendTransaction({
-        ...setupTx,
-        gasLimit: SETUP_COMMITMENT_GAS
+        ...installTx,
+        gasLimit: INSTALL_COMMITMENT_GAS
       });
 
       expect(await provider.getBalance(proxy)).toBeEq(Zero);
