@@ -8276,6 +8276,11 @@ serve-static@1.13.2:
     parseurl "~1.3.2"
     send "0.16.2"
 
+serverless-http@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/serverless-http/-/serverless-http-1.8.0.tgz#b91736c31c8dc3aa1c0832a89e9852f37206125c"
+  integrity sha512-zLQp6iPvnJUPQ7r7rqSUQEoeK/1FQnS/4KYpP/lMcgbvIv1nOf+3mQn+ATUUz0Sjh4991oug7tnHjaDp/xWcdQ==
+
 servify@^0.1.12:
   version "0.1.12"
   resolved "https://registry.yarnpkg.com/servify/-/servify-0.1.12.tgz#142ab7bee1f1d033b66d0707086085b17c06db95"
