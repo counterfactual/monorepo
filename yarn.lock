@@ -1369,6 +1369,15 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@stencil/core@0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.16.0.tgz#d92cc2ae148b7934c36651094bc0c4447b6526ce"
+  integrity sha512-ijRanqHwJlnLlEs8iMA7mn3d1Df0lOPXDqJTBNTwNCF1rxjh9/3aDgYFS/h5COS26bz1qmbmtaN2omaQmI9S/Q==
+  dependencies:
+    chokidar "2.0.3"
+    jsdom "11.11.0"
+    typescript "~3.1.6"
+
 "@stencil/core@~0.15.1":
   version "0.15.2"
   resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.15.2.tgz#2429f05a31a3df95d30b2e4e2e6d7a01619fd8fb"
@@ -10941,6 +10950,11 @@ typescript@~2.9.1:
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
   integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
+
+typescript@~3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.6.tgz#b6543a83cfc8c2befb3f4c8fba6896f5b0c9be68"
+  integrity sha512-tDMYfVtvpb96msS1lDX9MEdHrW4yOuZ4Kdc4Him9oU796XldPYF/t2+uKoX0BBa0hXXwDlqYQbXY5Rzjzc5hBA==
 
 uglify-es@^3.3.9:
   version "3.3.9"
