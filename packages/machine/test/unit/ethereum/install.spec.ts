@@ -227,13 +227,13 @@ describe("InstallCommitment", () => {
             appRegistryAddress,
             nonceRegistryAddress,
             uninstallKey,
-            appCfAddress,
+            appInstanceId,
             terms
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
           expect(uninstallKey).toBe(app.uninstallKey);
-          expect(appCfAddress).toBe(appIdentityToHash(app.identity));
+          expect(appInstanceId).toBe(appIdentityToHash(app.identity));
           expect(terms[0]).toBe(app.terms.assetType);
           expect(terms[1]).toEqual(app.terms.limit);
           expect(terms[2]).toBe(app.terms.token);

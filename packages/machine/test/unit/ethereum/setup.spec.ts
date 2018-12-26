@@ -89,13 +89,13 @@ describe("SetupCommitment", () => {
         appRegistry,
         nonceRegistry,
         uninstallKey,
-        appCfAddress, // FIXME: Rename this field on the contract
+        appInstanceId,
         [assetType, limit, token]
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
-      expect(appCfAddress).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(appInstanceId).toBe(appIdentityToHash(freeBalanceETH.identity));
       expect(assetType).toBe(freeBalanceETH.terms.assetType);
       expect(limit).toEqual(freeBalanceETH.terms.limit);
       expect(token).toBe(freeBalanceETH.terms.token);

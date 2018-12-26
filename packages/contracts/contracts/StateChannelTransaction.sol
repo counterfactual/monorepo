@@ -19,13 +19,13 @@ contract StateChannelTransaction is LibCondition {
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param uninstallKey The key in the nonce registry
-  /// @param appCfAddress Counterfactual address of the app contract
+  /// @param appInstanceId AppInstanceId to be resolved
   /// @param terms The pre-agreed upon terms of the funds transfer
   function executeAppConditionalTransaction(
     AppRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
-    bytes32 appCfAddress,
+    bytes32 appInstanceId,
     Transfer.Terms terms
   )
     public
@@ -36,11 +36,11 @@ contract StateChannelTransaction is LibCondition {
     );
 
     require(
-      appRegistry.isStateFinalized(appCfAddress),
+      appRegistry.isStateFinalized(appInstanceId),
       "App is not finalized yet"
     );
 
-    Transfer.Transaction memory txn = appRegistry.getResolution(appCfAddress);
+    Transfer.Transaction memory txn = appRegistry.getResolution(appInstanceId);
 
     require(
       Transfer.meetsTerms(txn, terms),
