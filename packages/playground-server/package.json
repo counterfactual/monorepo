@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "ts-node src/api.ts",
-    "build": "rm -rf build && tsc -b",
+    "build": "yarn install && rm -rf functions && tsc -b",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
