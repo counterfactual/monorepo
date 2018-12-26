@@ -38,7 +38,7 @@ export class InstallCommitment extends MultiSendCommitment {
       freeBalanceStateHash,
       freeBalanceNonce,
       freeBalanceTimeout,
-      keccak256(defaultAbiCoder.encode(["uint256"], [dependencyNonce])),
+      keccak256(solidityPack(["uint256"], [dependencyNonce])),
       DependencyValue.NOT_UNINSTALLED
     );
   }
