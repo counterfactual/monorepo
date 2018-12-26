@@ -1,4 +1,4 @@
-import { Bytes32 } from "@counterfactual/common-types";
+import { Bytes32 } from "@counterfactual/types";
 import {
   BigNumber,
   joinSignature,

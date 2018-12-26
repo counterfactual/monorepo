@@ -11,6 +11,7 @@
         "packages/node-provider/package.json",
         "packages/playground/package.json",
         "packages/playground-poc/package.json",
+        "packages/types/package.json",
         "packages/typescript-typings/package.json"
       ]
     }

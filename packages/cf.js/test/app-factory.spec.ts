@@ -1,4 +1,4 @@
-import { AssetType, Node } from "@counterfactual/common-types";
+import { AssetType, Node } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";

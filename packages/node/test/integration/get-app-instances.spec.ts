@@ -1,7 +1,7 @@
 import {
   AppInstanceInfo,
   Node as NodeTypes
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import cuid from "cuid";
 import dotenv from "dotenv";
 import { Wallet } from "ethers";

@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@counterfactual/contracts": "0.0.3",
-    "@counterfactual/common-types": "0.0.1",
+    "@counterfactual/types": "0.0.1",
     "cuid": "^2.1.4",
     "ethers": "4.0.20",
     "eventemitter3": "^3.1.0"

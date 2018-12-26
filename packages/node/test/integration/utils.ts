@@ -3,7 +3,7 @@ import {
   AppInstanceInfo,
   AssetType,
   Node as NodeTypes
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import cuid from "cuid";
 import { One } from "ethers/constants";
 
