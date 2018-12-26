@@ -37,7 +37,7 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@firebase/app-types@0.3.2":
+"@firebase/app-types@0.3.2", "@firebase/app-types@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.2.tgz#a92dc544290e2893bd8c02a81e684dae3d8e7c85"
   integrity sha512-ZD8lTgW07NGgo75bTyBJA8Lt9+NweNzot7lrsBtIvfciwUzaFJLsv2EShqjBeuhF7RpG6YFucJ6m67w5buCtzw==
@@ -5325,7 +5325,7 @@ jest-worker@^23.2.0:
   dependencies:
     merge-stream "^1.0.1"
 
-jest@^23.6.0:
+jest@23.6.0, jest@^23.6.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/jest/-/jest-23.6.0.tgz#ad5835e923ebf6e19e7a1d7529a432edfee7813d"
   integrity sha512-lWzcd+HSiqeuxyhG+EnZds6iO3Y3ZEnMrfZq/OTGvF/C+Z4fPMCdhWTGSAiO2Oym9rbEXfwddHhh6jqrTF3+Lw==
@@ -9149,7 +9149,7 @@ truffle@5.0.0-beta.1:
     original-require "1.0.1"
     solc "0.4.25"
 
-ts-jest@^23.1.4:
+ts-jest@23.10.5:
   version "23.10.5"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-23.10.5.tgz#cdb550df4466a30489bf70ba867615799f388dd5"
   integrity sha512-MRCs9qnGoyKgFc8adDEntAOP64fWK1vZKnOYU1o2HxaqjdJvGqmkLCPCnVq1/If4zkUmEjKPnCiUisTrlX2p2A==
