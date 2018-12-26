@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "netlify-lambda -c webpack.config.js serve src",
-    "build": "netlify-lambda build src",
+    "build": "netlify-lambda -c webpack.config.js build src",
     "test": "jest"
   },
   "bugs": {
