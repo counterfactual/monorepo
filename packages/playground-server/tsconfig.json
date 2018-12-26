@@ -2,6 +2,6 @@
   "extends": "../../tsconfig.json",
   "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "build/"
+    "outDir": "functions/"
   }
 }
