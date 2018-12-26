@@ -5,6 +5,7 @@ import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegist
 import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
+import dotenv from "dotenv-safe";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -62,7 +63,7 @@ expect.extend({
 // TODO: This will be re-used for all integration tests, so
 //       move it somewhere re-usable when we add a new test
 beforeAll(async () => {
-  import("dotenv-safe").config()
+  dotenv.config();
 
   // Can use ! because dotenv-safe ensures value is set
   const host = process.env.DEV_GANACHE_HOST!;
