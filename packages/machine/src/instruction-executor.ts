@@ -1,9 +1,7 @@
+import { getProtocolFromName } from "./flows";
 import { Middleware } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
-
-import { getProtocolFromName } from "./flows";
-
 import {
   InstallData,
   MetaChannelInstallAppData,
@@ -11,7 +9,6 @@ import {
   UninstallData,
   UpdateData
 } from "./protocol-types-tbd";
-
 import {
   Context,
   Instruction,

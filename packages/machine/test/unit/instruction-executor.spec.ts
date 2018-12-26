@@ -1,9 +1,8 @@
 import { AssetType } from "@counterfactual/types";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
-import { SetupCommitment } from "../../src/middleware/protocol-operation";
-
 import { InstructionExecutor } from "../../src/instruction-executor";
+import { SetupCommitment } from "../../src/middleware/protocol-operation";
 import { AppInstance, StateChannel } from "../../src/models";
 import { Opcode } from "../../src/opcodes";
 import { Context } from "../../src/types";

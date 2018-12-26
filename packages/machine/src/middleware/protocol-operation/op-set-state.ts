@@ -1,11 +1,10 @@
-import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
-
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import {
   AppIdentity,
   NetworkContext,
   SignedStateHashUpdate
 } from "@counterfactual/types";
+import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";

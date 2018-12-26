@@ -1,5 +1,4 @@
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
-
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 

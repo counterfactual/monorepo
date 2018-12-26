@@ -1,6 +1,5 @@
-import { defaultAbiCoder, keccak256 } from "ethers/utils";
-
 import { AppIdentity } from "@counterfactual/types";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import { APP_IDENTITY } from "./encodings";
 

@@ -4,7 +4,6 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/Min
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
-
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
