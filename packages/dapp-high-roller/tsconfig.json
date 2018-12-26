@@ -3,7 +3,6 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": false,
-    "experimentalDecorators": true,
     "lib": [
       "dom",
       "es2015"
