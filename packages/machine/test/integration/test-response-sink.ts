@@ -136,7 +136,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     return promise;
   }
 
-  public async runInstallMetachannelAppProtocol(
+  public async runInstallVirtualAppProtocol(
     fromAddress: string,
     toAddress: string,
     intermediary: string,
@@ -146,7 +146,7 @@ export class TestResponseSink implements cf.legacy.node.ResponseSink {
     const promise = new Promise<cf.legacy.node.Response>((resolve, reject) => {
       this.runProtocolContinuation = resolve;
     });
-    this.instructionExecutor.runInstallMetachannelAppProtocol(
+    this.instructionExecutor.runInstallVirtualAppProtocol(
       fromAddress, toAddress, intermediary, multisigAddress);
     return promise;
   }

@@ -144,7 +144,7 @@ export class InstructionExecutor {
     );
   }
 
-  public runInstallMetachannelAppProtocol(
+  public runInstallVirtualAppProtocol(
     fromAddress: string,
     toAddress: string,
     intermediaryAddress: string,
@@ -152,14 +152,14 @@ export class InstructionExecutor {
   ) {
     this.execute(
       new ActionExecution(
-        cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP,
-        FLOWS[cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP][0],
+        cf.legacy.node.ActionName.INSTALL_VIRTUAL_APP,
+        FLOWS[cf.legacy.node.ActionName.INSTALL_VIRTUAL_APP][0],
         {
           multisigAddress,
           toAddress,
           fromAddress,
           seq: 0,
-          action: cf.legacy.node.ActionName.INSTALL_METACHANNEL_APP,
+          action: cf.legacy.node.ActionName.INSTALL_VIRTUAL_APP,
           data: {
             initiating: fromAddress,
             responding: toAddress,
