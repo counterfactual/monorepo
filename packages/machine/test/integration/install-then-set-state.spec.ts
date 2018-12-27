@@ -9,19 +9,14 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import {
-  hexlify,
-  Interface,
-  parseEther,
-  randomBytes,
-  SigningKey
-} from "ethers/utils";
+import { Interface, parseEther } from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
+import { getSortedRandomSigningKeys } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligency chosen
@@ -83,12 +78,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("returns the funds the app had locked up", async done => {
-    const signingKeys = [
-      new SigningKey(hexlify(randomBytes(32))),
-      new SigningKey(hexlify(randomBytes(32)))
-    ].sort((a, b) =>
-      parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
-    );
+    const signingKeys = getSortedRandomSigningKeys(2);
 
     const users = signingKeys.map(x => x.address);
 
