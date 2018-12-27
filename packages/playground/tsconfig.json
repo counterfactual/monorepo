@@ -3,15 +3,12 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": false,
-    "lib": [
-      "dom",
-      "es2015"
-    ],
+    "lib": ["dom", "es2015"],
+    "moduleResolution": "node",
     "module": "esnext",
     "jsx": "react",
     "jsxFactory": "h"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "exclude": ["__mocks__"]
 }
