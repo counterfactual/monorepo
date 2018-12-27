@@ -4963,19 +4963,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-1.0.5.tgz#929cddf5ad6151afa6278f584bf3a92bf1f17173"
-  integrity sha512-rm7VE92fmJtA9g03DxNkan7vRU5IIvHwZSRNwTcony84xCkAbONCH/C2YVbbdE9jUSMbtsdQgzeInWqn4wFhpw==
-  dependencies:
-    ethers "^4.0.0"
-    ganache-core "2.2.1"
-    solc "^0.4.24"
-
-ethereum-waffle@^1.0.5:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-1.0.6.tgz#49514745e58e0bdc848a05e39e36cd8efeded50e"
-  integrity sha512-euZidN4wJiTzQyLnS2OV8B1nKNZv16kD4if4eQ5eVfLKtjCT+AwYc4incf/wo99XMp/qPMI5tIWtLE5aj6WaKg==
+ethereum-waffle@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-1.2.0.tgz#832717d55734e8f111f1a3d0f9c4599d3484f9d0"
+  integrity sha512-eTtXioTXeGj3V3PTVI8OlTMP4l8InnYKHFHS57cDW91PQ+YdXgT24mTDkSStPBuE5/acxxvFDwJqwgi3UaJRaA==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
@@ -11220,37 +11211,10 @@ solium@1.1.8:
     solparse "2.2.5"
     text-table "^0.2.0"
 
-solium@^1.1.8:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/solium/-/solium-1.2.0.tgz#17520a4c1323f04f17c640c1304d31e8a46fd55f"
-  integrity sha512-bimekyJTudFb0m31HZFBYMg0+DQQV7FchxXn/5G/iU/5kINnvQBguNSmPIG2KyvJsGLO+TCDOeYj2gV+E0ehnw==
-  dependencies:
-    ajv "^5.2.2"
-    chokidar "^1.6.0"
-    colors "^1.1.2"
-    commander "^2.9.0"
-    eol "^0.9.1"
-    js-string-escape "^1.0.1"
-    lodash "^4.14.2"
-    sol-digger "0.0.2"
-    sol-explore "1.6.1"
-    solium-plugin-security "0.1.1"
-    solparse "2.2.6"
-    text-table "^0.2.0"
-
 solparse@2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/solparse/-/solparse-2.2.5.tgz#72709c867cd6bfc50ec2325f4b81d2b3ea365d99"
   integrity sha512-t7tvtR6KU6QfPYLMv1nlCh9DA8HYIu5tbjHpKu0fhGFZ1NuSp0KKDHfFHv07g6v1xgcuUY3rVqNFjZt5b9+5qA==
-  dependencies:
-    mocha "^4.0.1"
-    pegjs "^0.10.0"
-    yargs "^10.0.3"
-
-solparse@2.2.6:
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/solparse/-/solparse-2.2.6.tgz#e66bca4b77b3d1886d57f6a62c282708916844b9"
-  integrity sha512-PceVEKx1DATJtICwAu8AeE1xzLaSfAbrGhtCYuWXCk7fAiTihkLf2Tivu9N19sf6FULqt7Q1wSUD9ofX4eMQpw==
   dependencies:
     mocha "^4.0.1"
     pegjs "^0.10.0"
