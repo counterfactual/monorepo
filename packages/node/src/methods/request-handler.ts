@@ -3,7 +3,7 @@ import EventEmitter from "eventemitter3";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../service-interfaces";
+import { IMessagingService } from "../services";
 
 import {
   getInstalledAppInstances,
@@ -101,7 +101,7 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.MULTISIG_CREATED, addMultisig);
+    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig);
     this.events.set(Node.EventName.INSTALL, addAppInstance);
   }
 

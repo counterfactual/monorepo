@@ -1,11 +1,11 @@
-import { IStoreService } from "../../src/service-interfaces";
+import { IStoreService } from "../../src/services";
 
 class MockStoreService implements IStoreService {
   get(key: string): Promise<any> {
     return Promise.resolve(true);
   }
 
-  set(key: string, value: any): Promise<any> {
+  set(pairs: { key: string; value: any }[]): Promise<boolean> {
     return Promise.resolve(true);
   }
 }

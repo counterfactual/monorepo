@@ -1,7 +1,8 @@
 import { Node } from "@counterfactual/common-types";
 
-import { APP_INSTANCE_STATUS, Channels } from "../channels";
-import { IMessagingService } from "../service-interfaces";
+import { Channels } from "../channels";
+import { APP_INSTANCE_STATUS } from "../models";
+import { IMessagingService } from "../services";
 
 export async function getInstalledAppInstances(
   channels: Channels,

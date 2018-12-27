@@ -13,6 +13,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@firebase/app-types": "^0.3.2",
     "@types/dotenv": "^6.1.0",
     "@types/node": "^10.9.3",
     "cuid": "^2.1.4",
@@ -20,7 +21,8 @@
     "ethers": "^4.0.17",
     "firebase": "^5.6.0",
     "firebase-server": "^1.0.1",
-    "rollup": "^0.67.0",
+    "jest": "^23.6.0",
+    "rollup": "^0.68.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
@@ -28,7 +30,8 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/common-types": "0.0.1",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.0",
+    "uuid": "^3.3.2"
   },
   "config": {
     "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",

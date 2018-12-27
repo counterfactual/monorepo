@@ -10,10 +10,9 @@ import {
   NodeConfig,
   NodeMessage
 } from "../../src";
-
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
-import FirebaseServiceFactory from "./services/firebase-service";
+import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   getInstalledAppInstances,
@@ -32,8 +31,8 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let nodeConfig: NodeConfig;
 
-  beforeAll(() => {
-    const firebaseServiceFactory = new FirebaseServiceFactory(
+  beforeAll(async () => {
+    const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
@@ -45,7 +44,7 @@ describe("Node method follows spec - proposeInstall", () => {
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
     nodeConfig = {
-      MULTISIG_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
   });
 

@@ -5,6 +5,7 @@ packages/**/yarn.lock
 # production
 build/
 dist/
+functions/
 
 # cache
 .rpt2_cache
@@ -23,3 +24,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+jest-cache/

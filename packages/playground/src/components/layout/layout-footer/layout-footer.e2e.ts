@@ -1,6 +1,6 @@
 import { newE2EPage } from "@stencil/core/testing";
 
-describe("layout-footer", () => {
+describe.skip("layout-footer", () => {
   it("renders", async () => {
     const page = await newE2EPage();
     await page.setContent("<layout-footer></layout-footer>");

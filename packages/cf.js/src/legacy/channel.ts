@@ -1,5 +1,4 @@
 import { AppInstanceInfos } from "./app";
-
 import { Address, FreeBalance } from "./utils";
 
 export interface StateChannelInfo {

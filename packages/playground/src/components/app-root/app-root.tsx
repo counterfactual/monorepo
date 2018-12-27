@@ -1,4 +1,6 @@
 import { Component, State } from "@stencil/core";
+// @ts-ignore
+// Needed due to https://github.com/ionic-team/stencil-router/issues/62
 import { MatchResults } from "@stencil/router";
 
 import AccountTunnel, { State as AccountState } from "../../data/account";
@@ -43,8 +45,8 @@ export class AppRoot {
                 </stencil-route-switch>
               </stencil-router>
             </main>
-
             <layout-footer />
+            <node-listener />
           </div>
         </AccountTunnel.Provider>
       </NetworkTunnel.Provider>

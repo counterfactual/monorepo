@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/common-types";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../service-interfaces";
+import { IMessagingService } from "../services";
 
 /**
  * This creates a multisig while sending details about this multisig
@@ -24,7 +24,7 @@ export async function createMultisig(
 
   const multisigCreatedMsg: NodeMessage = {
     from: selfAddress,
-    event: Node.EventName.MULTISIG_CREATED,
+    event: Node.EventName.CREATE_MULTISIG,
     // TODO: define interface for cross-Node payloads
     data: {
       multisigAddress: result.multisigAddress,
