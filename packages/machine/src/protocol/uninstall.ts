@@ -10,7 +10,7 @@ import { Opcode } from "../opcodes";
 import { ProtocolMessage, UninstallData } from "../protocol-types-tbd";
 import { Context } from "../types";
 
-import { prepareToSendSignature } from "./signature-forwarder";
+import { prepareToSendSignature } from "./utils/signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
