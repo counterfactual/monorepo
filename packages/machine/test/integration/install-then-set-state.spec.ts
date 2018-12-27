@@ -72,13 +72,14 @@ beforeAll(async () => {
 });
 
 /**
- * This test suite tests setting up a channel and then installing a new app into it.
- * We re-use the ETHBucket App (which is the app ETH Free Balance uses) as the
- * test app being installed. We then set the values to [1, 1] in that app
+ * @summary Set up a StateChannel and then install a new AppInstance into it.
+ *
+ * @description We re-use the ETHBucket App (which is the app ETH Free Balance uses)
+ * as the test app being installed. We then set the values to [1, 1] in that app
  * and trigger the InstallCommitment on-chain to resolve that app and verify
  * the balances have been updated on-chain.
  */
-describe("Scenario: install app, set state, put on-chain", () => {
+describe("Scenario: install AppInstance, set state, put on-chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("returns the funds the app had locked up", async done => {

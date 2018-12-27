@@ -64,14 +64,13 @@ beforeAll(async () => {
   } as NetworkContext;
 });
 
-describe("Commitment tests on ganache-cli", () => {
+/**
+ * @summary Setup a StateChannel then set state on ETH Free Balance
+ */
+describe("Scenario: Setup, set state on free balance, go on chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
-  /**
-   * This test suite tests submitting a generated Set State Commitment
-   * to the blockchain and observing the result
-   */
-  it("Scenario - open channel, update free balance, on-chain resolution", async done => {
+  it("should distribute funds in ETH free balance when put on chain", async done => {
     const signingKeys = [
       new SigningKey(hexlify(randomBytes(32))),
       new SigningKey(hexlify(randomBytes(32)))
