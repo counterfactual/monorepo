@@ -134,7 +134,7 @@ Result:
 
 ### Method: `proposeInstall`
 
-Requests that a peer authorize the installation of an app instance. At the same time, generate and returns a fresh ID for it, and authorize the installation of that app instance.
+Requests that a peer start the install protocol for an app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
 - `peerAddress: string`
@@ -156,7 +156,7 @@ Params:
 
 Result:
 - `appInstanceId: string`
-    - ID of an app instance whose proposed installation was accepted
+    - Generated appInstanceId
 
 Errors: (TODO)
 - Not enough funds
