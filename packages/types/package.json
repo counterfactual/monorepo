@@ -1,0 +1,18 @@
+{
+  "name": "@counterfactual/types",
+  "version": "0.0.1",
+  "description": "TypeScript typings for common Counterfactual types",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "iife": "dist/index-iife.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p . && rollup -c"
+  },
+  "devDependencies": {
+    "ethers": "4.0.20",
+    "rollup-plugin-typescript2": "^0.18.0",
+    "rollup": "^0.68.0",
+    "typescript": "^3.1.2"
+  }
+}

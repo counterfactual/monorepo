@@ -9,7 +9,6 @@
   ],
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf .rpt2_cache jest-cache build dist",
     "build": "tsc -p tsconfig.json && rollup -c",
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail --forceExit",
     "test-debug": "node --inspect-brk jest --runInBand",
@@ -18,7 +17,7 @@
   },
   "devDependencies": {
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/common-types": "0.0.1",
+    "@counterfactual/types": "0.0.1",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
     "jest": "23.6.0",

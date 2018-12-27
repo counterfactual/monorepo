@@ -1,10 +1,7 @@
-import {
-  AppInstanceInfo,
-  Node as NodeTypes
-} from "@counterfactual/common-types";
+import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
 import cuid from "cuid";
 import dotenv from "dotenv";
-import { ethers } from "ethers";
+import { Wallet } from "ethers";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -62,7 +59,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // the peer with whom an installation proposal is being made
-    const peerAddress = new ethers.Wallet(B_PRIVATE_KEY).address;
+    const peerAddress = new Wallet(B_PRIVATE_KEY).address;
 
     // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(node, [

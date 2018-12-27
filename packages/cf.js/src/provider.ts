@@ -3,7 +3,7 @@ import {
   AppInstanceInfo,
   INodeProvider,
   Node
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import cuid from "cuid";
 import EventEmitter from "eventemitter3";
 

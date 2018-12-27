@@ -10,60 +10,34 @@
   ],
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf .rpt2_cache jest-cache build dist",
-    "build": "tsc -p tsconfig.test.json && rollup -c",
-    "test": "tsc -b && node --trace-warnings node_modules/.bin/jest --runInBand --detectOpenHandles --bail",
-    "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
-    "test-debug-ide": "node $NODE_DEBUG_OPTION node_modules/.bin/jest --runInBand",
-    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "build": "tsc -p . && rollup -c",
+    "test": "./scripts/test.sh",
+    "test:unit": "jest --detectOpenHandles unit",
+    "lint:fix": "yarn lint --fix",
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.0.2",
+    "@counterfactual/types": "0.0.1",
+    "@counterfactual/typescript-typings": "0.0.1",
+    "@types/chai": "^4.1.7",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
-    "ethers": "^4.0.17",
+    "chai": "^4.2.0",
+    "dotenv-safe": "^6.1.0",
+    "ganache-cli": "6.2.4",
     "jest": "23.6.0",
     "rollup": "^0.68.0",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.18.0",
+    "truffle": "5.0.0-beta.1",
+    "truffle-hdwallet-provider": "^1.0.0-web3one.5",
     "ts-jest": "23.10.5",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "typescript": "^3.1.2",
+    "typescript-memoize": "^1.0.0-alpha.3"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/typescript-typings": "0.0.1",
-    "ethers": "^4.0.17"
-  },
-  "config": {
-    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
-    "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257b",
-    "unlockedAccount2": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257c",
-    "unlockedAccount3": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d",
-    "etherBalance": "1000000000000000000000000"
-  },
-  "jest": {
-    "verbose": false,
-    "bail": true,
-    "rootDir": ".",
-    "cacheDirectory": "jest-cache",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "\\.spec.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist"
-    ],
-    "roots": [
-      "test"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ],
-    "testURL": "http://localhost/"
+    "@counterfactual/contracts": "0.0.3",
+    "ethers": "4.0.20"
   }
 }

@@ -71,20 +71,7 @@ yarn lint:fix
 
 ### Tests
 
-Presently for some of the tests to work, you need to have a `ganache-cli` instance running in the background. To do this, run using:
-
-```shell
-yarn ganache
-```
-
-You also need to migrate the contracts in the contracts package to generate a `networks` file which the `machine` package directly consume (for now).
-
-```shell
-cd packages/contracts
-yarn migrate --network ganache
-```
-
-Finally, to run all tests:
+To run all tests:
 
 ```shell
 yarn test

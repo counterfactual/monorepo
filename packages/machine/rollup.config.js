@@ -36,9 +36,7 @@ export default [
       ...Object.keys(pkg.peerDependencies || {})
     ],
     plugins: [
-      typescript({
-        typescript: require("typescript")
-      }),
+      typescript(),
       json({ compact: true })
     ]
   }

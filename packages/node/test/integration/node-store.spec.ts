@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
-import { ethers } from "ethers";
+import { Wallet } from "ethers";
+import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -41,12 +42,9 @@ describe("Node can use storage service", () => {
   });
 
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
-    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [
-        new ethers.Wallet(B_PRIVATE_KEY).address,
-        ethers.constants.AddressZero
-      ]
+      owners: [new Wallet(B_PRIVATE_KEY).address, AddressZero]
     };
     await storeService.set([{ key: "multisigAddress/0x111", value: channelA }]);
     await storeService.set([{ key: "multisigAddress/0x222", value: channelB }]);
@@ -61,12 +59,9 @@ describe("Node can use storage service", () => {
   });
 
   it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
-    const channelA = { owners: [node.address, ethers.constants.AddressZero] };
+    const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [
-        new ethers.Wallet(B_PRIVATE_KEY).address,
-        ethers.constants.AddressZero
-      ]
+      owners: [new Wallet(B_PRIVATE_KEY).address, AddressZero]
     };
     await storeService.set([
       { key: "multisigAddress/0x111", value: channelA },

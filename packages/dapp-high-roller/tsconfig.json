@@ -9,7 +9,9 @@
     ],
     "module": "esnext",
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    // @types/mocha has a duplicate conflict, this is the suggested temp fix.
+    "skipLibCheck": true,
   },
   "include": [
     "src"

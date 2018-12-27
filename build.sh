@@ -6,11 +6,11 @@
 
 set -e
 
-packages="contracts common-types cf.js machine node node-provider playground-server playground dapp-high-roller"
+packages="types apps contracts cf.js machine node node-provider playground-server playground dapp-high-roller"
 
 for package in $packages; do
-  echo ">>> Building package: $package"
-  cd packages/$package
+  echo "⚙️  Building package: ${package}"
+  cd packages/${package}
   yarn build
   cd -
 done

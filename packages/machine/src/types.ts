@@ -1,39 +1,21 @@
-import * as cf from "@counterfactual/cf.js";
+import { NetworkContext } from "@counterfactual/types";
+import { Signature } from "ethers/utils";
 
-import { Context } from "./instruction-executor";
-import { Node } from "./node";
+import { EthereumCommitment } from "./ethereum/utils";
+import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
+import { ProtocolMessage } from "./protocol-types-tbd";
 
-/**
- * The return value from the STATE_TRANSITION_PROPOSE middleware.
- */
-export interface StateProposal {
-  state: cf.legacy.channel.StateChannelInfos;
-  cfAddr?: cf.legacy.utils.H256;
-}
-
-export type ProposerActionsHash = {
-  [Name in cf.legacy.node.ActionName]?: ContextualizedStateProposer
-};
-
-export interface ContextualizedStateProposer {
-  propose(
-    message: InternalMessage,
-    context: Context,
-    node: Node
-  ): StateProposal;
-}
-
-export class InternalMessage {
-  constructor(
-    public actionName: cf.legacy.node.ActionName,
-    public opCode: Opcode,
-    public clientMessage: cf.legacy.node.ClientActionMessage
-  ) {}
+export enum Protocol {
+  Setup = "setup",
+  Install = "install",
+  Update = "update",
+  Uninstall = "uninstall",
+  InstallVirtualApp = "install-virtual-app"
 }
 
 export type InstructionMiddlewareCallback = {
-  (message: InternalMessage, next: Function, context: Context);
+  (message: ProtocolMessage, next: Function, context: Context);
 };
 
 export interface InstructionMiddleware {
@@ -41,4 +23,15 @@ export interface InstructionMiddleware {
   method: InstructionMiddlewareCallback;
 }
 
+export type Instruction = Function | Opcode;
+
 export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };
+
+export interface Context {
+  network: NetworkContext;
+  outbox: ProtocolMessage[];
+  inbox: ProtocolMessage[];
+  stateChannel: StateChannel;
+  operation?: EthereumCommitment;
+  signature?: Signature;
+}
