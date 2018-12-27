@@ -102,7 +102,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       stateChannel = stateChannel.setState(freeBalanceETH.id, state);
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-      const app = new AppInstance(
+      const appInstance = new AppInstance(
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
         freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
@@ -119,15 +119,19 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.timeout // Re-use ETH FreeBalance timeout
       );
 
-      stateChannel = stateChannel.installApp(app, WeiPerEther, WeiPerEther);
+      stateChannel = stateChannel.installApp(
+        appInstance,
+        WeiPerEther,
+        WeiPerEther
+      );
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
       const setStateCommitment = new SetStateCommitment(
         network,
-        app.identity,
-        app.encodedLatestState,
-        app.nonce + 1,
-        app.timeout
+        appInstance.identity,
+        appInstance.encodedLatestState,
+        appInstance.nonce + 1,
+        appInstance.timeout
       );
 
       await wallet.sendTransaction({
@@ -138,7 +142,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      for (const _ of Array(app.timeout)) {
+      for (const _ of Array(appInstance.timeout)) {
         await provider.send("evm_mine", []);
       }
 
@@ -149,24 +153,24 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       await appRegistry.functions.setResolution(
-        app.identity,
-        app.appInterface,
-        app.encodedLatestState,
-        app.encodedTerms
+        appInstance.identity,
+        appInstance.appInterface,
+        appInstance.encodedLatestState,
+        appInstance.encodedTerms
       );
 
       const installCommitment = new InstallCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        app.identity,
-        app.terms,
+        appInstance.identity,
+        appInstance.terms,
         freeBalanceETH.identity,
         freeBalanceETH.terms,
         freeBalanceETH.hashOfLatestState,
         freeBalanceETH.nonce,
         freeBalanceETH.timeout,
-        app.appSeqNo
+        appInstance.appSeqNo
       );
 
       const installTx = installCommitment.transaction([
