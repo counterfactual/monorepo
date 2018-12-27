@@ -18,7 +18,7 @@ import { connectToGanache } from "./connect-ganache";
 import { getSortedRandomSigningKeys } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
-// to reach the done() call in the test case, not intelligency chosen
+// to reach the done() call in the test case, not intelligently chosen
 const JEST_TEST_WAIT_TIME = 30000;
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
