@@ -17,6 +17,7 @@ export default {
       format: "iife",
       exports: "named",
       globals: {
+        "@counterfactual/types": "commonTypes",
         "ethers/utils": "ethers.utils",
         "ethers/constants": "ethers.constants"
       }
