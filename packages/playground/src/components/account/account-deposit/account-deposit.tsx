@@ -1,5 +1,7 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+
+import AccountTunnel from "../../../data/account";
 
 @Component({
   tag: "account-deposit",
@@ -7,11 +9,16 @@ import { RouterHistory } from "@stencil/router";
   shadow: true
 })
 export class AccountDeposit {
+  @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
+  @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   formSubmitionHandler(e) {
     console.log(e.target.value);
+    this.updateAccount({
+      balance: parseFloat(e.target.value)
+    });
     this.history.push("/");
   }
 
@@ -35,3 +42,5 @@ export class AccountDeposit {
     );
   }
 }
+
+AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount"]);

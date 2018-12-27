@@ -1,6 +1,7 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import AccountTunnel from "../../../data/account";
 import { UserChangeset } from "../../../types";
 
 @Component({
@@ -9,6 +10,11 @@ import { UserChangeset } from "../../../types";
   shadow: true
 })
 export class AccountEdit {
+  @Element() el!: HTMLStencilElement;
+  @Prop() address: string = "";
+  @Prop() email: string = "";
+  @Prop() username: string = "";
+  @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   changeset: UserChangeset = {
@@ -17,12 +23,28 @@ export class AccountEdit {
     address: ""
   };
 
+  // required to initialize the changeset
+  // as `injectProps` runs after the constructor
+  @Watch("address")
+  updateAddress() {
+    this.changeset.address = this.address;
+  }
+  @Watch("email")
+  updateEmail() {
+    this.changeset.email = this.email;
+  }
+  @Watch("username")
+  updateUsername() {
+    this.changeset.username = this.username;
+  }
+
   change(key, event) {
     this.changeset[key] = event.target.value;
   }
 
   formSubmitionHandler() {
     console.log(this.changeset);
+    this.updateAccount(this.changeset);
     this.history.push("/");
   }
 
@@ -60,3 +82,10 @@ export class AccountEdit {
     ];
   }
 }
+
+AccountTunnel.injectProps(AccountEdit, [
+  "address",
+  "email",
+  "updateAccount",
+  "username"
+]);
