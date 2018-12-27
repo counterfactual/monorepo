@@ -1,6 +1,5 @@
 import * as abi from "./abi";
-import { generateAbiEncodings } from "./encodings";
 
-export { abi, generateAbiEncodings };
+export { abi };
 
 export * from "./signature";
