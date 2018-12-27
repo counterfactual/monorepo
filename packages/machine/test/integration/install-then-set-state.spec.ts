@@ -71,12 +71,8 @@ beforeAll(async () => {
   const port = process.env.DEV_GANACHE_PORT!;
   const mnemonic = process.env.DEV_GANACHE_MNEMONIC!;
 
-  function pathForAccount(idx: number) {
-    return `m/44'/60'/0'/0/${idx}`;
-  }
-
   provider = new JsonRpcProvider(`http://${host}:${port}`);
-  wallet = Wallet.fromMnemonic(mnemonic, pathForAccount(1)).connect(provider);
+  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
   networkId = (await provider.getNetwork()).chainId;
 
   const relevantArtifacts = [
