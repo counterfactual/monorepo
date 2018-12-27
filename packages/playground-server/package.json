@@ -21,10 +21,10 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "netlify-lambda -c webpack.config.js serve src",
-    "build": "netlify-lambda -c webpack.config.js build src",
-    "dev": "NODE_ENV=development netlify-lambda -c webpack.config.js serve src",
-    "test": "NODE_ENV=development jest"
+    "start": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js serve src",
+    "build": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js build src",
+    "dev": "PLAYGROUND_SERVER_ENV=development netlify-lambda -c webpack.config.js serve src",
+    "test": "PLAYGROUND_SERVER_ENV=development jest"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
