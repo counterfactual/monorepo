@@ -10,6 +10,8 @@ import { Opcode } from "../opcodes";
 import { ProtocolMessage, UninstallData } from "../protocol-types-tbd";
 import { Context } from "../types";
 
+import { prepareToSendSignature } from "./signature-forwarder";
+
 /**
  * @description This exchange is described at the following URL:
  *
@@ -83,18 +85,6 @@ function proposeStateTransition(
     context.stateChannel,
     appInstanceId
   );
-}
-
-function prepareToSendSignature(
-  message: ProtocolMessage,
-  context: Context,
-  state: StateChannel
-) {
-  context.outbox.push({
-    ...message,
-    signature: context.signature!,
-    seq: message.seq + 1
-  });
 }
 
 export function constructUninstallOp(
