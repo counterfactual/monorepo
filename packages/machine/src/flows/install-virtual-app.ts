@@ -1,50 +1,56 @@
-import { Context } from "../instruction-executor";
+import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { InternalMessage } from "../types";
+import { ProtocolMessage } from "../protocol-types-tbd";
+import { Context } from "../types";
 
-export const INSTALL_VIRTUAL_APP_FLOW = {
+/**
+ * @description This exchange is described at the following URL:
+ *
+ * FIXME: @xuanji pls add
+ *
+ */
+// FIXME: Not fully implemented yet
+export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   0: [
-    (message: InternalMessage, context: Context, node) => {
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
       // copy client message
-      context.intermediateResults.outbox.push(message.clientMessage);
-      context.intermediateResults.outbox[0].seq = 1;
-      context.intermediateResults.outbox[0].toAddress =
-        message.clientMessage.data.intermediary;
+      context.outbox.push(message);
+      context.outbox[0].seq = 1;
+      // context.outbox[0].toAddress = message.data.intermediary;
     },
 
     // send to intermediary
     Opcode.IO_SEND
   ],
+
   1: [
-    (message: InternalMessage, context: Context, node) => {
-      const clientMessage = message.clientMessage;
-      context.intermediateResults.outbox.push(clientMessage);
-      context.intermediateResults.outbox[0].seq = 2;
-      context.intermediateResults.outbox[0].fromAddress =
-        clientMessage.data.initiating;
-      context.intermediateResults.outbox[0].toAddress =
-        clientMessage.data.responding;
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+      context.outbox.push(message);
+      context.outbox[0].seq = 2;
+      // context.outbox[0].fromAddress = message.data.initiating;
+      // context.outbox[0].toAddress = message.data.responding;
     },
+
     Opcode.IO_SEND,
+
     // wait for the install countersign
     Opcode.IO_WAIT,
+
     () => {}
 
     // // send the self-remove
     // Opcode.IO_SEND,
     // Opcode.IO_SEND
   ],
+
   2: [
-    (message: InternalMessage, context: Context, node) => {
-      // countersign
-      const clientMessage = message.clientMessage;
-      context.intermediateResults.outbox.push(clientMessage);
-      context.intermediateResults.outbox[0].seq = 3;
-      context.intermediateResults.outbox[0].fromAddress =
-        clientMessage.data.responding;
-      context.intermediateResults.outbox[0].toAddress =
-        clientMessage.data.intermediary;
+    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+      context.outbox.push(message);
+      context.outbox[0].seq = 3;
+      // context.outbox[0].fromAddress = message.data.responding;
+      // context.outbox[0].toAddress = message.data.intermediary;
     },
+
     Opcode.IO_SEND
 
     // // wait for self-remove

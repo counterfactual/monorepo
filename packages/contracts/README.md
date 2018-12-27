@@ -12,29 +12,15 @@ To install the dependencies:
 yarn
 ```
 
-### Building the package
+### Compiling Solidity
 
-To build the machine package:
+To compile the Solidity source code into bytecode and ABI, run:
 
 ```shell
 yarn build
 ```
 
 ### Tests
-
-To ensure correctness of the Solidity contracts, the tests run against `ganache-cli` instance running in the background. To do this, run:
-
-```shell
-cd ../../
-yarn ganache
-cd packages/contracts
-```
-
-You also need to migrate the contracts in the contracts package to generate a `networks` file which the tests consume:
-
-```shell
-yarn migrate --network ganache
-```
 
 To run all tests:
 
@@ -45,10 +31,8 @@ yarn test
 To run only specific tests:
 
 ```shell
-yarn run tsc -b
-yarn run truffle test --network ganache dist/test/<path/to/test.js>
+yarn test [test/<filename of specific test>.spec.ts ...]
 ```
-
 
 # Migrations
 

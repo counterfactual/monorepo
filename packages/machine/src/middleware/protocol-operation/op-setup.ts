@@ -1,52 +1,63 @@
-import * as cf from "@counterfactual/cf.js";
-import ConditionalTransactionJson from "@counterfactual/contracts/build/contracts/ConditionalTransaction.json";
-import { ethers } from "ethers";
+import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
+import {
+  defaultAbiCoder,
+  Interface,
+  keccak256,
+  solidityPack
+} from "ethers/utils";
 
-import { MultisigTxOp } from "./multisig-tx-op";
-import { MultisigInput, Operation } from "./types";
+import { DependencyValue } from "../../models/app-instance";
 
-const { keccak256 } = ethers.utils;
-const { abi } = cf.utils;
+import { MultisigOperation, MultisigTransaction } from "./types";
+import { appIdentityToHash } from "./utils/app-identity";
+import { MultisigTransactionCommitment } from "./utils/multisig-tx-op";
 
-export class OpSetup extends MultisigTxOp {
+const iface = new Interface(StateChannelTransaction.abi);
+
+export class SetupCommitment extends MultisigTransactionCommitment {
   public constructor(
-    readonly networkContext: cf.legacy.network.NetworkContext,
-    readonly multisig: cf.legacy.utils.Address,
-    readonly freeBalanceStateChannel: cf.legacy.app.AppInstance,
-    readonly freeBalance: cf.legacy.utils.FreeBalance,
-    readonly dependencyNonce: cf.legacy.utils.Nonce
+    public readonly networkContext: NetworkContext,
+    public readonly multisigAddress: string,
+    public readonly multisigOwners: string[],
+    public readonly freeBalanceAppIdentity: AppIdentity,
+    public readonly freeBalanceTerms: Terms
   ) {
-    super(multisig, freeBalance);
-    if (dependencyNonce === undefined) {
-      throw new Error("Undefined dependency nonce");
-    }
+    super(multisigAddress, multisigOwners);
   }
 
-  multisigInput(): MultisigInput {
-    const terms = cf.legacy.utils.FreeBalance.terms();
+  public getTransactionDetails(): MultisigTransaction {
+    return {
+      to: this.networkContext.StateChannelTransaction,
+      value: 0,
+      data: iface.functions.executeAppConditionalTransaction.encode([
+        this.networkContext.AppRegistry,
+        this.networkContext.NonceRegistry,
+        this.getUninstallKeyForNonceRegistry(),
+        appIdentityToHash(this.freeBalanceAppIdentity),
+        this.freeBalanceTerms
+      ]),
+      operation: MultisigOperation.DelegateCall
+    };
+  }
 
-    const uninstallKey = keccak256(
-      abi.encodePacked(
-        ["address", "uint256", "uint256"],
-        [this.multisig, 0, this.dependencyNonce.salt]
+  private getUninstallKeyForNonceRegistry() {
+    return keccak256(
+      solidityPack(
+        ["address", "uint256", "bytes32"],
+        [
+          this.multisigAddress,
+          // The timeout is hard-coded to be 0 as is defined by the protocol
+          0,
+          this.getSaltForDependencyNonce()
+        ]
       )
     );
+  }
 
-    const multisigCalldata = new ethers.utils.Interface(
-      ConditionalTransactionJson.abi
-    ).functions.executeAppConditionalTransaction.encode([
-      this.networkContext.registryAddr,
-      this.networkContext.nonceRegistryAddr,
-      uninstallKey,
-      this.freeBalanceStateChannel.cfAddress(),
-      [terms.assetType, terms.limit, terms.token]
-    ]);
-
-    return new MultisigInput(
-      this.networkContext.conditionalTransactionAddr,
-      0,
-      multisigCalldata,
-      Operation.Delegatecall
+  private getSaltForDependencyNonce() {
+    return keccak256(
+      defaultAbiCoder.encode(["uint256"], [DependencyValue.NOT_UNINSTALLED])
     );
   }
 }

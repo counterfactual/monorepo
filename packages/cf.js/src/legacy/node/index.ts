@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { Signature } from "ethers/utils";
 
 // FIXME: move operation action names away from client action names
 // https://github.com/counterfactual/monorepo/issues/144
@@ -47,5 +47,5 @@ export interface ClientActionMessage {
   toAddress: string;
   fromAddress: string;
   seq: number;
-  signature?: ethers.utils.Signature;
+  signature?: Signature;
 }

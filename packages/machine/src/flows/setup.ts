@@ -1,67 +1,84 @@
-import { ClientActionMessage } from "@counterfactual/cf.js/dist/src/legacy/node";
+import { AssetType, NetworkContext } from "@counterfactual/types";
 
-import { Context } from "../instruction-executor";
-import { NextMsgGenerator } from "../middleware/middleware";
-import { EthOpGenerator } from "../middleware/protocol-operation";
-import { SetupProposer } from "../middleware/state-transition/setup-proposer";
+import { SetupCommitment } from "../middleware/protocol-operation";
+import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
-import { InternalMessage } from "../types";
+import { ProtocolMessage } from "../protocol-types-tbd";
+import { Context } from "../types";
 
-const swap = (msg: ClientActionMessage) => {
-  const from = msg.fromAddress;
-  const to = msg.toAddress;
-  msg.fromAddress = to;
-  msg.toAddress = from;
-};
+import { prepareToSendSignature } from "./signature-forwarder";
 
-export const SETUP_FLOW = {
+/**
+ * @description This exchange is described at the following URL:
+ *
+ * specs.counterfactual.com/04-setup-protocol#messages
+ *
+ */
+export const SETUP_PROTOCOL = {
   0: [
-    (message, context, node) => {
-      context.intermediateResults.proposedStateTransition = SetupProposer.propose(
-        message
-      );
-      context.intermediateResults.operation = EthOpGenerator.setup(
-        message,
-        node,
-        context.intermediateResults.proposedStateTransition.state
-      );
-    },
+    // Compute the next state of the channel
+    proposeStateTransition,
+
+    // Decide whether or not to sign the transition
     Opcode.OP_SIGN,
-    (message: InternalMessage, context: Context) => {
-      const ret = NextMsgGenerator.generate2(
-        message.clientMessage,
-        context.intermediateResults.signature!
-      );
-      context.intermediateResults.outbox.push(ret);
-    },
+
+    // Wrap the signature into a message to be sent
+    prepareToSendSignature,
+
+    // Send the message to your counterparty
     Opcode.IO_SEND,
+
+    // Wait for them to countersign the message
     Opcode.IO_WAIT,
+
+    // Verify they did indeed countersign the right thing
     Opcode.OP_SIGN_VALIDATE,
+
+    // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
   ],
-  1: [
-    (message: InternalMessage, context: Context, node) => {
-      swap(message.clientMessage);
 
-      context.intermediateResults.proposedStateTransition = SetupProposer.propose(
-        message
-      );
-      context.intermediateResults.operation = EthOpGenerator.setup(
-        message,
-        node,
-        context.intermediateResults.proposedStateTransition.state
-      );
-    },
+  1: [
+    // Compute the _proposed_ next state of the channel
+    proposeStateTransition,
+
+    // Validate your counterparties signature is for the above proposal
     Opcode.OP_SIGN_VALIDATE,
+
+    // Sign the same state update yourself
     Opcode.OP_SIGN,
-    (message: InternalMessage, context: Context) => {
-      const ret = NextMsgGenerator.generate2(
-        message.clientMessage,
-        context.intermediateResults.signature!
-      );
-      context.intermediateResults.outbox.push(ret);
-    },
+
+    // Wrap the signature into a message to be sent
+    prepareToSendSignature,
+
+    // Send the message to your counterparty
     Opcode.IO_SEND,
+
+    // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
   ]
 };
+
+function proposeStateTransition(
+  message: ProtocolMessage,
+  context: Context,
+  state: StateChannel
+) {
+  context.stateChannel = state.setupChannel(context.network);
+  context.operation = constructSetupOp(context.network, context.stateChannel);
+}
+
+export function constructSetupOp(
+  network: NetworkContext,
+  stateChannel: StateChannel
+) {
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+  return new SetupCommitment(
+    network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    freeBalance.identity,
+    freeBalance.terms
+  );
+}

@@ -40,3 +40,7 @@ networks/*.json
 !networks/61717561.json
 
 .env
+
+test/**/*.js
+test/**/*js.map
+test/**/*.d.ts

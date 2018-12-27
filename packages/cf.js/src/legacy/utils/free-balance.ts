@@ -1,7 +1,7 @@
-import { ethers } from "ethers";
+import { AddressZero } from "ethers/constants";
+import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { AppInterface, Terms } from "../app";
-import { NetworkContext } from "../network";
 
 import { Address } from ".";
 import { Nonce } from "./nonce";
@@ -16,15 +16,14 @@ export class FreeBalance {
     // https://github.com/counterfactual/monorepo/issues/118
     return new Terms(
       0, // 0 means ETH
-      ethers.utils.parseEther("0.001"), // FIXME: un-hardcode (https://github.com/counterfactual/monorepo/issues/117)
-      ethers.constants.AddressZero
+      parseEther("0.001"), // FIXME: un-hardcode (https://github.com/counterfactual/monorepo/issues/117)
+      AddressZero
     );
   }
 
-  public static contractInterface(ctx: NetworkContext): AppInterface {
-    const address = ctx.paymentAppAddr;
+  public static contractInterface(address: string): AppInterface {
     const applyAction = "0x00000000"; // not used
-    const resolver = new ethers.utils.Interface([
+    const resolver = new Interface([
       // TODO: Put this somewhere eh
       // https://github.com/counterfactual/monorepo/issues/134
       "resolve(tuple(address,address,uint256,uint256),tuple(uint8,uint256,address))"
@@ -43,16 +42,16 @@ export class FreeBalance {
 
   constructor(
     readonly alice: Address, // first person in free balance object
-    readonly aliceBalance: ethers.utils.BigNumber,
+    readonly aliceBalance: BigNumber,
     readonly bob: Address, // second person in free balance object
-    readonly bobBalance: ethers.utils.BigNumber,
+    readonly bobBalance: BigNumber,
     readonly uniqueId: number,
     readonly localNonce: number,
     readonly timeout: number,
     readonly dependencyNonce: Nonce
   ) {}
 
-  public balanceOfAddress(address: Address): ethers.utils.BigNumber {
+  public balanceOfAddress(address: Address): BigNumber {
     if (address === this.alice) return this.aliceBalance;
     if (address === this.bob) return this.bobBalance;
     throw Error(`address ${address} not in free balance`);

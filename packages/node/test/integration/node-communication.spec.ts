@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { ethers } from "ethers";
+import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
 import { IMessagingService } from "../../src";
@@ -28,7 +28,7 @@ describe("Two nodes can communicate with each other", () => {
   });
 
   it("can setup listeners for events through messaging service", done => {
-    const address = ethers.constants.AddressZero;
+    const address = AddressZero;
     const testMsg = {
       event: "testEvent",
       data: {

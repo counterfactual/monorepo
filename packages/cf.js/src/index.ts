@@ -1,8 +1,17 @@
+import { AppFactory } from "./app-factory";
 import * as legacy from "./legacy";
+import { Provider } from "./provider";
 import * as types from "./types";
 import * as utils from "./utils";
 
-export { legacy, types, utils };
+const cf = {
+  AppFactory,
+  Provider,
+  legacy,
+  types,
+  utils
+};
 
-export { Provider } from "./provider";
-export { AppFactory } from "./app-factory";
+export { AppFactory, Provider, legacy, types, utils };
+
+export default cf;

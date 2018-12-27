@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { bigNumberify } from "ethers/utils";
 
 import { DeserializationCase } from "../types";
 
@@ -24,7 +24,7 @@ const isSignature = data =>
 
 const deserializeArray = data => data.map(value => deserialize(value));
 
-const deserializeBigNumber = data => ethers.utils.bigNumberify(data._hex);
+const deserializeBigNumber = data => bigNumberify(data._hex);
 
 const identity = data => data;
 

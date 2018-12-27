@@ -1,7 +1,11 @@
-import { EthOpGenerator } from "./op-generator";
-import { OpInstall } from "./op-install";
-import { OpSetState } from "./op-set-state";
-import { OpSetup } from "./op-setup";
-import { OpUninstall } from "./op-uninstall";
+import { InstallCommitment } from "./op-install";
+import { SetStateCommitment } from "./op-set-state";
+import { SetupCommitment } from "./op-setup";
+import { UninstallCommitment } from "./op-uninstall";
 
-export { OpInstall, OpSetState, OpSetup, OpUninstall, EthOpGenerator };
+export {
+  InstallCommitment,
+  SetStateCommitment,
+  SetupCommitment,
+  UninstallCommitment
+};

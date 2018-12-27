@@ -1,11 +1,14 @@
 import { Bytes32 } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import {
+  BigNumber,
+  joinSignature,
+  recoverAddress,
+  Signature
+} from "ethers/utils";
 
-export function signaturesToBytes(
-  ...signatures: ethers.utils.Signature[]
-): string {
+export function signaturesToBytes(...signatures: Signature[]): string {
   const signaturesHexString = signatures
-    .map(ethers.utils.joinSignature)
+    .map(joinSignature)
     .map(s => s.substr(2))
     .join("");
   return `0x${signaturesHexString}`;
@@ -13,13 +16,13 @@ export function signaturesToBytes(
 
 export function signaturesToSortedBytes(
   digest: Bytes32,
-  ...signatures: ethers.utils.Signature[]
+  ...signatures: Signature[]
 ): string {
   const sigs = signatures.slice();
   sigs.sort((sigA, sigB) => {
-    const addrA = ethers.utils.recoverAddress(digest, signaturesToBytes(sigA));
-    const addrB = ethers.utils.recoverAddress(digest, signaturesToBytes(sigB));
-    return new ethers.utils.BigNumber(addrA).lt(addrB) ? -1 : 1;
+    const addrA = recoverAddress(digest, signaturesToBytes(sigA));
+    const addrB = recoverAddress(digest, signaturesToBytes(sigB));
+    return new BigNumber(addrA).lt(addrB) ? -1 : 1;
   });
   return signaturesToBytes(...sigs);
 }

@@ -13,6 +13,17 @@ export interface INodeProvider {
 }
 
 export namespace Node {
+  export type NetworkContext = {
+    // Protocol
+    ConditionalTransaction: Address;
+    MultiSend: Address;
+    NonceRegistry: Address;
+    AppRegistry: Address;
+    // App-specific
+    PaymentApp: Address;
+    ETHBalanceRefund: Address;
+  };
+
   export enum ErrorType {
     ERROR = "error"
   }
