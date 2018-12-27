@@ -6,12 +6,10 @@ import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegist
 import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
-import dotenv from "dotenv-safe";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
-  BigNumber,
   hexlify,
   Interface,
   parseEther,
@@ -23,6 +21,7 @@ import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
+import { connectToGanache } from "./connect-ganache";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligency chosen
@@ -47,19 +46,8 @@ let network: NetworkContext;
 
 expect.extend({ toBeEq });
 
-// TODO: This will be re-used for all integration tests, so
-//       move it somewhere re-usable when we add a new test
 beforeAll(async () => {
-  dotenv.config();
-
-  // Can use ! because dotenv-safe ensures value is set
-  const host = process.env.DEV_GANACHE_HOST!;
-  const port = process.env.DEV_GANACHE_PORT!;
-  const mnemonic = process.env.DEV_GANACHE_MNEMONIC!;
-
-  provider = new JsonRpcProvider(`http://${host}:${port}`);
-  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-  networkId = (await provider.getNetwork()).chainId;
+  [provider, wallet, networkId] = await connectToGanache();
 
   const relevantArtifacts = [
     AppRegistry,
