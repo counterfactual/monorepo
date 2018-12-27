@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 export enum ActionName {
   SETUP = "setup",
   INSTALL = "install",
-  INSTALL_METACHANNEL_APP = "install_metachannel_app",
+  INSTALL_VIRTUAL_APP = "install_virtual_app",
   UPDATE = "update",
   UNINSTALL = "uninstall",
   DEPOSIT = "deposit",

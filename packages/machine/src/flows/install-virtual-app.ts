@@ -2,7 +2,7 @@ import { Context } from "../instruction-executor";
 import { Opcode } from "../opcodes";
 import { InternalMessage } from "../types";
 
-export const METACHANNEL_INSTALL_APP_FLOW = {
+export const INSTALL_VIRTUAL_APP_FLOW = {
   0: [
     (message: InternalMessage, context: Context, node) => {
       // copy client message

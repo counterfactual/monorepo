@@ -29,7 +29,7 @@ describe("Machine State Lifecycle", async () => {
     await Depositor.makeDeposits(peerA, peerI);
     await SetupProtocol.run(peerI, peerB);
     await Depositor.makeDeposits(peerI, peerB);
-    await peerA.runInstallMetachannelAppProtocol(
+    await peerA.runInstallVirtualAppProtocol(
       A_ADDRESS, B_ADDRESS, I_ADDRESS, UNUSED_FUNDED_ACCOUNT
     );
   });
