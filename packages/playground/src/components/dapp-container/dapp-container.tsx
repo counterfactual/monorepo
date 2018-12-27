@@ -22,7 +22,7 @@ export class DappContainer {
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
 
-  private $onMessage: EventListenerObject = {} as EventListenerObject;
+  private $onMessage: (event: MessageEvent) => void = () => {};
 
   render() {
     return <layout-header />;
@@ -82,7 +82,7 @@ export class DappContainer {
    *
    * @param message {any}
    */
-  private postOrQueueMessage(message: any): void {
+  public postOrQueueMessage(message: any): void {
     if (this.port) {
       this.port.postMessage(message);
     } else {
