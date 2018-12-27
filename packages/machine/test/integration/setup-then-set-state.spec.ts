@@ -36,6 +36,7 @@ let networkId: number;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
+let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
@@ -63,6 +64,12 @@ beforeAll(async () => {
       {}
     )
   } as NetworkContext;
+
+  appRegistry = new Contract(
+    AppRegistry.networks[networkId].address,
+    AppRegistry.abi,
+    wallet
+  );
 });
 
 /**
@@ -117,12 +124,6 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       for (const _ of Array(freeBalanceETH.timeout)) {
         await provider.send("evm_mine", []);
       }
-
-      const appRegistry = new Contract(
-        AppRegistry.networks[networkId].address,
-        AppRegistry.abi,
-        wallet
-      );
 
       await appRegistry.functions.setResolution(
         freeBalanceETH.identity,

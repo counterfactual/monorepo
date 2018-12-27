@@ -38,6 +38,7 @@ let networkId: number;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
+let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
@@ -64,6 +65,12 @@ beforeAll(async () => {
       {}
     )
   } as NetworkContext;
+
+  appRegistry = new Contract(
+    AppRegistry.networks[networkId].address,
+    AppRegistry.abi,
+    wallet
+  );
 });
 
 /**
@@ -145,12 +152,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       for (const _ of Array(appInstance.timeout)) {
         await provider.send("evm_mine", []);
       }
-
-      const appRegistry = new Contract(
-        AppRegistry.networks[networkId].address,
-        AppRegistry.abi,
-        wallet
-      );
 
       await appRegistry.functions.setResolution(
         appInstance.identity,
