@@ -1,8 +1,8 @@
 // This is a copy of what was implemented on the Node's integration tests
 // to provider support for a Firebase layer.
 
-import { Address } from "@counterfactual/common-types";
 import { IMessagingService, IStoreService } from "@counterfactual/node";
+import { Address } from "@counterfactual/types";
 import firebase from "firebase";
 
 class FirebaseMessagingService implements IMessagingService {

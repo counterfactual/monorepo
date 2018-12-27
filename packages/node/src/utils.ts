@@ -1,4 +1,4 @@
-import { Address } from "@counterfactual/common-types";
+import { Address } from "@counterfactual/types";
 import { BigNumber, hashMessage } from "ethers/utils";
 
 export function orderedAddressesHash(addresses: Address[]): string {

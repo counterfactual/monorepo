@@ -1,4 +1,4 @@
-import { Address, AppInstanceInfo, Node } from "@counterfactual/common-types";
+import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { v4 as generateUUID } from "uuid";
 

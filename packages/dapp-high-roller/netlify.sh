@@ -9,7 +9,7 @@
 
 npm i -g yarn@1.10.1
 
-packages="contracts common-types cf.js node-provider dapp-high-roller"
+packages="contracts types cf.js node-provider dapp-high-roller"
 
 cd ../..
 

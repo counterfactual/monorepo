@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/common-types";
+import { Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 import { Channels } from "../channels";
