@@ -1,4 +1,6 @@
-const apiBasePath = "http://localhost:9000/api";
+const apiBasePath = location.href.includes("localhost")
+  ? "http://localhost:9000/api"
+  : "/.netlify/functions/api";
 
 type StringHashMap = { [key: string]: string | StringHashMap };
 
