@@ -4,8 +4,12 @@ import bodyParser from "koa-body";
 import Router from "koa-router";
 import serverless from "serverless-http";
 
-const app = new Koa();
+import { firebaseConfiguration, token } from "./methods";
+import { expiredTokenControl, injectToken, jsonWebToken } from "./middlewares";
 
+const jwtSecret = process.env.PLAYGROUND_SERVER_SECRET as string;
+
+const app = new Koa();
 const router = new Router();
 
 if (process.env.PLAYGROUND_SERVER_ENV !== "development") {
@@ -14,16 +18,20 @@ if (process.env.PLAYGROUND_SERVER_ENV !== "development") {
   router.prefix("/api");
 }
 
-router.get("/hello", async (ctx, next) => {
-  ctx.body = { hello: ctx.request.query.name };
-  ctx.status = 200;
-  return next();
-});
+router.get("/firebase", firebaseConfiguration());
+router.get("/token", token());
 
 app
+  .use(expiredTokenControl())
+  .use(jsonWebToken(jwtSecret))
+  .use(cors())
   .use(router.routes())
-  .use(bodyParser({ json: true }))
-  .use(cors());
+  .use(
+    injectToken(jwtSecret).unless({
+      path: [/firebase$/]
+    })
+  )
+  .use(bodyParser({ json: true }));
 
 const handler = serverless(app);
 

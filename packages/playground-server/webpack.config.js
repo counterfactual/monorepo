@@ -1,10 +1,25 @@
 const webpack = require("webpack");
+const path = require("path");
 
 module.exports = {
   /**
    * This allows to use a non-minified version of the dist filed.
    */
   mode: "development",
+
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: "ts-loader",
+        exclude: /node_modules/
+      }
+    ]
+  },
+
+  resolve: {
+    extensions: [".ts", ".js"]
+  },
 
   /**
    * A Node module called "node-formidable" attempts to redefine "require",

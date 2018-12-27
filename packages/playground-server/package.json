@@ -21,27 +21,33 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js serve src",
-    "build": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js build src",
-    "dev": "PLAYGROUND_SERVER_ENV=development netlify-lambda -c webpack.config.js serve src",
-    "test": "PLAYGROUND_SERVER_ENV=development jest"
+    "start": "netlify-lambda -c webpack.config.js serve src",
+    "build": "netlify-lambda -c webpack.config.js build src",
+    "dev": "cross-env FIREBASE_API_KEY= FIREBASE_AUTH_DOMAIN= FIREBASE_DATABASE_URL= FIREBASE_PROJECT_ID= FIREBASE_STORAGE_BUCKET= FIREBASE_MESSAGING_SENDER_ID= PLAYGROUND_SERVER_SECRET=foo PLAYGROUND_SERVER_ENV=development netlify-lambda -c webpack.config.js serve src",
+    "test": "cross-env FIREBASE_API_KEY=a FIREBASE_AUTH_DOMAIN=b FIREBASE_DATABASE_URL=c FIREBASE_PROJECT_ID=d FIREBASE_STORAGE_BUCKET=e FIREBASE_MESSAGING_SENDER_ID=f PLAYGROUND_SERVER_SECRET=foo PLAYGROUND_SERVER_ENV=development jest"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
+    "jsonwebtoken": "^8.4.0",
     "koa": "^2.6.2",
     "koa-body": "^4.0.6",
+    "koa-jwt": "^3.5.1",
     "koa-router": "^7.4.0",
+    "koa-unless": "^1.0.7",
     "netlify-lambda": "^1.1.1",
-    "serverless-http": "^1.8.0"
+    "serverless-http": "^1.8.0",
+    "ts-loader": "^5.3.2"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.3.0",
     "@types/koa": "^2.0.47",
     "@types/koa-router": "^7.0.35",
     "@types/koa__cors": "^2.2.3",
     "axios": "^0.18.0",
+    "cross-env": "^5.2.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
@@ -74,6 +80,7 @@
       "node_modules",
       "dist"
     ],
+    "testEnvironment": "node",
     "testRegex": "\\.spec.(jsx?|tsx?)$",
     "testURL": "http://localhost/",
     "transform": {
