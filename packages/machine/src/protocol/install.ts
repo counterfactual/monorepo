@@ -1,20 +1,20 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
-import { SetupCommitment } from "../middleware/protocol-operation";
-import { StateChannel } from "../models/state-channel";
+import { InstallCommitment } from "../ethereum";
+import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { ProtocolMessage } from "../protocol-types-tbd";
+import { InstallData, ProtocolMessage } from "../protocol-types-tbd";
 import { Context } from "../types";
 
-import { prepareToSendSignature } from "./signature-forwarder";
+import { prepareToSendSignature } from "./utils/signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
  *
- * specs.counterfactual.com/04-setup-protocol#messages
+ * specs.counterfactual.com/05-install-protocol#messages
  *
  */
-export const SETUP_PROTOCOL = {
+export const INSTALL_PROTOCOL = {
   0: [
     // Compute the next state of the channel
     proposeStateTransition,
@@ -64,21 +64,68 @@ function proposeStateTransition(
   context: Context,
   state: StateChannel
 ) {
-  context.stateChannel = state.setupChannel(context.network);
-  context.operation = constructSetupOp(context.network, context.stateChannel);
+  const {
+    aliceBalanceDecrement,
+    bobBalanceDecrement,
+    signingKeys,
+    initialState,
+    terms,
+    appInterface,
+    defaultTimeout
+  } = message.params as InstallData;
+
+  const app = new AppInstance(
+    state.multisigAddress,
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    terms,
+    // KEY: Sets it to NOT be a MetaChannelApp
+    false,
+    // KEY: The app sequence number
+    // TODO: Should validate that the proposed app sequence number is also
+    //       the computed value here and is ALSO still the number compute
+    //       inside the installApp function below
+    state.numInstalledApps + 1,
+    initialState,
+    // KEY: Set the nonce to be 0
+    0,
+    defaultTimeout
+  );
+
+  context.stateChannel = state.installApp(
+    app,
+    aliceBalanceDecrement,
+    bobBalanceDecrement
+  );
+
+  context.operation = constructInstallOp(
+    context.network,
+    context.stateChannel,
+    app.id
+  );
 }
 
-export function constructSetupOp(
+export function constructInstallOp(
   network: NetworkContext,
-  stateChannel: StateChannel
+  stateChannel: StateChannel,
+  appInstanceId: string
 ) {
+  const app = stateChannel.getAppInstance(appInstanceId);
+
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  return new SetupCommitment(
+  return new InstallCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
+    app.identity,
+    app.terms,
     freeBalance.identity,
-    freeBalance.terms
+    freeBalance.terms,
+    freeBalance.hashOfLatestState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
   );
 }

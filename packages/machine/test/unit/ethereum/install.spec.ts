@@ -12,10 +12,10 @@ import {
   TransactionDescription
 } from "ethers/utils";
 
-import { InstallCommitment } from "../../../src/middleware/protocol-operation";
-import { MultisigTransaction } from "../../../src/middleware/protocol-operation/types";
-import { appIdentityToHash } from "../../../src/middleware/protocol-operation/utils/app-identity";
-import { decodeMultisendCalldata } from "../../../src/middleware/protocol-operation/utils/multisend-decoder";
+import { InstallCommitment } from "../../../src/ethereum";
+import { MultisigTransaction } from "../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
+import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
 import { AppInstance, StateChannel } from "../../../src/models";
 
 /**

@@ -1,6 +1,6 @@
-import { StateChannel } from "../models";
-import { ProtocolMessage } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { StateChannel } from "../../models";
+import { ProtocolMessage } from "../../protocol-types-tbd";
+import { Context } from "../../types";
 
 export function prepareToSendSignature(
   message: ProtocolMessage,

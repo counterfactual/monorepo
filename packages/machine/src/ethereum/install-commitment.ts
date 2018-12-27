@@ -7,11 +7,11 @@ import {
   solidityPack
 } from "ethers/utils";
 
-import { DependencyValue } from "../../models/app-instance";
+import { DependencyValue } from "../models/app-instance";
 
+import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { APP_IDENTITY } from "./utils/encodings";
-import { MultiSendCommitment } from "./utils/multi-send-op";
 
 const iface = new Interface(StateChannelTransaction.abi);
 

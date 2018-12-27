@@ -7,11 +7,11 @@ import {
 } from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
-import { DependencyValue } from "../../models/app-instance";
+import { DependencyValue } from "../models/app-instance";
 
+import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { encodeFreeBalanceState } from "./utils/free-balance";
-import { MultiSendCommitment } from "./utils/multi-send-op";
 
 const nonceRegistryIface = new Interface(NonceRegistry.abi);
 

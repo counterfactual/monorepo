@@ -1,12 +1,12 @@
 import { NetworkContext } from "@counterfactual/types";
 
-import { SetStateCommitment } from "../middleware/protocol-operation";
+import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
 import { ProtocolMessage, UpdateData } from "../protocol-types-tbd";
 import { Context } from "../types";
 
-import { prepareToSendSignature } from "./signature-forwarder";
+import { prepareToSendSignature } from "./utils/signature-forwarder";
 
 /**
  * @description This exchange is described at the following URL:
