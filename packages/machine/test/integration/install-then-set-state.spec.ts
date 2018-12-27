@@ -22,6 +22,8 @@ import {
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
 
+import { toBeEq } from "./bignumber-jest-matcher";
+
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligency chosen
 const JEST_TEST_WAIT_TIME = 30000;
@@ -43,23 +45,7 @@ let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
 
-// TODO: When we add a second use case of this custom mathcer,
-//       move it and its typigns into somewhere re-usable
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeEq(expected: BigNumber): BigNumber;
-    }
-  }
-}
-expect.extend({
-  toBeEq(received: BigNumber, argument: BigNumber) {
-    return {
-      pass: received.eq(argument),
-      message: () => `expected ${received} not to be equal to ${argument}`
-    };
-  }
-});
+expect.extend({ toBeEq });
 
 // TODO: This will be re-used for all integration tests, so
 //       move it somewhere re-usable when we add a new test
