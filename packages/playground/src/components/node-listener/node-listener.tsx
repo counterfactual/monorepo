@@ -1,13 +1,8 @@
-declare var commonTypes;
-
 import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
 import { WidgetDialogSettings } from "../../types";
-
-// TODO: This should be imported from @counterfactual/common-types.
-const { MethodName } = commonTypes.Node;
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
@@ -36,8 +31,8 @@ export class NodeListener {
   };
 
   private nodeMessageResolver: NodeMessageResolver = {
-    [MethodName.PROPOSE_INSTALL]: this.handleProposeInstall.bind(this),
-    [MethodName.REJECT_INSTALL]: this.handleRejectInstall.bind(this)
+    proposeInstall: this.handleProposeInstall.bind(this),
+    rejectInstall: this.handleRejectInstall.bind(this)
   };
 
   private modalVisible: boolean = false;
