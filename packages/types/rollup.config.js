@@ -8,12 +8,12 @@ export default [
     output: [
       {
         file: pkg.main,
-        format: "cjs",
+        format: "cjs"
       },
       {
         file: pkg.iife,
         format: "iife",
-        name: "window.commonTypes"
+        name: "window.types"
       }
     ],
     plugins: [

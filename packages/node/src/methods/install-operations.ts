@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/common-types";
+import { Node } from "@counterfactual/types";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";

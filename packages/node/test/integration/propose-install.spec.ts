@@ -1,4 +1,4 @@
-import { Node as NodeTypes } from "@counterfactual/common-types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import cuid from "cuid";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";

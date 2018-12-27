@@ -5,7 +5,7 @@ import {
   AppState,
   BlockchainAsset,
   Node
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
 
 import { Provider } from "./provider";

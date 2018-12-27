@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@counterfactual/cf.js": "0.0.1",
-    "@counterfactual/common-types": "0.0.1",
+    "@counterfactual/types": "0.0.1",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
     "jest": "23.6.0",

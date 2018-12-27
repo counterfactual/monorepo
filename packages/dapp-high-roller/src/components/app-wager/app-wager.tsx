@@ -1,4 +1,4 @@
-declare var commonTypes;
+// declare var commonTypes;
 declare var ethers;
 
 import { Component, Prop, State } from "@stencil/core";
@@ -6,7 +6,8 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 
-const { AssetType } = commonTypes;
+// FIXME: Figure out how to import @counterfactual-types
+// const { AssetType } = commonTypes;
 
 @Component({
   tag: "app-wager",
@@ -34,7 +35,7 @@ export class AppWager {
       // TODO: This should be provided by the Playground.
       peerAddress: "0x0101010101010101010101010101010101010101",
       asset: {
-        assetType: AssetType.ETH
+        assetType: 0 /* AssetType.ETH */
       },
       // TODO: Do we assume the same bet for both parties?
       peerDeposit: ethers.utils.parseEther(this.betAmount),

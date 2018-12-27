@@ -3,7 +3,7 @@ import {
   AppInstanceInfo,
   AssetType,
   Bytes32
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, keccak256, solidityPack } from "ethers/utils";
 

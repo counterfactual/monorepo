@@ -1,4 +1,4 @@
-import { Address } from "@counterfactual/common-types";
+import { Address } from "@counterfactual/types";
 import firebase from "firebase";
 
 export interface IMessagingService {

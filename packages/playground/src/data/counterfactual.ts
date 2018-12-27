@@ -1,5 +1,5 @@
-import { Address, Node as NodeTypes } from "@counterfactual/common-types";
 import { IMessagingService, IStoreService } from "@counterfactual/node";
+import { Address, Node as NodeTypes } from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
 // Stencil from blowing up due to "member not exported" errors.
