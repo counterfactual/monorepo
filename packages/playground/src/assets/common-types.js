@@ -1,1 +1,1 @@
-../../../common-types/dist/index-iife.js
+../../../cf.js/dist/index-iife.js
