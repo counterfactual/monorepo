@@ -1,5 +1,6 @@
 import { Component } from "@stencil/core";
 
+import PlaygroundApi from "../../data/api";
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
 import { WidgetDialogSettings } from "../../types";
@@ -52,17 +53,10 @@ export class NodeListener {
     return null;
   }
 
-  componentWillLoad() {
+  async componentWillLoad() {
     // TODO: This is a dummy firebase data provider.
-    // TODO: This configuration should come from the backend.
-    const serviceProvider = new FirebaseDataProvider({
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    });
+    const firebaseConfiguration = await PlaygroundApi.getFirebaseConfiguration();
+    const serviceProvider = new FirebaseDataProvider(firebaseConfiguration);
 
     const privateKey =
       "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a";
