@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
+    "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
     "eventemitter3": "^3.1.0",
     "uuid": "^3.3.2"

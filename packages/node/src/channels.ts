@@ -1,8 +1,9 @@
+import { StateChannel } from "@counterfactual/machine";
 import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
-import { APP_INSTANCE_STATUS, Channel } from "./models";
+import { APP_INSTANCE_STATUS } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
 
@@ -80,9 +81,12 @@ export class Channels {
    */
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
     const multisigAddress = this.generateNewMultisigAddress(params.owners);
-    const channel: Channel = new Channel(multisigAddress, params.owners);
+    const stateChannel: StateChannel = new StateChannel(
+      multisigAddress,
+      params.owners
+    );
     const ownersHash = orderedAddressesHash(params.owners);
-    await this.saveChannel(channel, ownersHash);
+    await this.saveChannel(stateChannel, ownersHash);
     return multisigAddress;
   }
 
@@ -92,9 +96,9 @@ export class Channels {
    * @param owners
    */
   async addMultisig(multisigAddress: Address, owners: Address[]) {
-    const channel = new Channel(multisigAddress, owners);
+    const stateChannel = new StateChannel(multisigAddress, owners);
     const ownersHash = orderedAddressesHash(owners);
-    await this.saveChannel(channel, ownersHash);
+    await this.saveChannel(stateChannel, ownersHash);
   }
 
   async getAddresses(): Promise<Address[]> {
@@ -108,10 +112,10 @@ export class Channels {
     const multisigAddress = await this.getMultisigAddressFromClientAppInstanceID(
       clientAppInstanceID
     );
-    const channel: Channel = await this.getChannelJSONFromStore(
+    const stateChannel: StateChannel = await this.getChannelJSONFromStore(
       multisigAddress
     );
-    const owners = channel.multisigOwners;
+    const owners = stateChannel.multisigOwners;
     return owners.filter(owner => owner !== this.selfAddress);
   }
 
@@ -206,7 +210,7 @@ export class Channels {
    * Returns a JSON object matching the channel schema.
    * @param multisigAddress
    */
-  async getChannelJSONFromStore(multisigAddress: Address): Promise<Channel> {
+  async getChannelJSONFromStore(multisigAddress: Address): Promise<any> {
     return await this.store.get(
       `${this.storeKeyPrefix}/${CHANNEL}/${multisigAddress}`
     );
@@ -249,17 +253,19 @@ export class Channels {
    * @param channel
    * @param ownersHash
    */
-  async saveChannel(channel: Channel, ownersHash: string) {
+  async saveChannel(stateChannel: StateChannel, ownersHash: string) {
     await this.store.set([
       {
-        key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
-        value: channel
+        key: `${this.storeKeyPrefix}/${CHANNEL}/${
+          stateChannel.multisigAddress
+        }`,
+        value: stateChannel
       },
       {
         key: `${
           this.storeKeyPrefix
         }/${OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
-        value: channel.multisigAddress
+        value: stateChannel.multisigAddress
       }
     ]);
   }
@@ -273,18 +279,20 @@ export class Channels {
    * @param clientAppInstanceID
    */
   async installAppInstance(
-    channel: Channel,
+    stateChannel: StateChannel,
     channelAppInstanceID: string,
     clientAppInstanceID: string
   ) {
-    const appInstance = channel.proposedAppInstances[clientAppInstanceID];
-    delete channel.proposedAppInstances[clientAppInstanceID];
+    const appInstance = stateChannel.proposedAppInstances[clientAppInstanceID];
+    delete stateChannel.proposedAppInstances[clientAppInstanceID];
 
-    channel.appInstances[channelAppInstanceID] = appInstance;
+    stateChannel.appInstances[channelAppInstanceID] = appInstance;
     await this.store.set([
       {
-        key: `${this.storeKeyPrefix}/${CHANNEL}/${channel.multisigAddress}`,
-        value: channel
+        key: `${this.storeKeyPrefix}/${CHANNEL}/${
+          stateChannel.multisigAddress
+        }`,
+        value: stateChannel
       },
       {
         key: `${
@@ -310,23 +318,23 @@ export class Channels {
    *        channelAppInstanceID can be created.
    */
   async addAppInstanceProposal(
-    channel: Channel,
+    stateChannel: StateChannel,
     appInstance: AppInstanceInfo,
     clientAppInstanceID: string
   ) {
-    channel.proposedAppInstances[clientAppInstanceID] = appInstance;
+    stateChannel.proposedAppInstances[clientAppInstanceID] = appInstance;
     await this.store.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${
-          channel.multisigAddress
+          stateChannel.multisigAddress
         }/proposedAppInstances`,
-        value: channel.proposedAppInstances
+        value: stateChannel.proposedAppInstances
       },
       {
         key: `${
           this.storeKeyPrefix
         }/${CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${clientAppInstanceID}`,
-        value: channel.multisigAddress
+        value: stateChannel.multisigAddress
       }
     ]);
   }
@@ -346,19 +354,18 @@ export class Channels {
 
   private async getChannelFromPeerAddress(
     peerAddress: Address
-  ): Promise<Channel> {
+  ): Promise<StateChannel> {
     const ownersHash = orderedAddressesHash([this.selfAddress, peerAddress]);
     const multisigAddress = await this.getMultisigAddressFromOwnersHash(
       ownersHash
     );
     const channel = await this.getChannelJSONFromStore(multisigAddress);
-    return new Channel(
+    return new StateChannel(
       channel.multisigAddress,
       channel.multisigOwners,
-      channel.rootNonce,
-      channel.freeBalances,
-      channel.appInstances,
-      channel.proposedAppInstances
+      channel.appInstnaces,
+      channel.freeBalanceAppIndexes,
+      channel.monotonicNumInstalledApps
     );
   }
 
@@ -414,13 +421,13 @@ export class Channels {
   private async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
     const channels = await this.getAllChannelsJSON();
-    Object.values(channels).forEach((channel: Channel) => {
-      if (channel.proposedAppInstances) {
+    Object.values(channels).forEach((stateChannel: StateChannel) => {
+      if (stateChannel.proposedAppInstances) {
         apps.push(...Object.values(channel.proposedAppInstances));
       } else {
         console.log(
           `No app instances exist for channel with multisig address: ${
-            channel.multisigAddress
+            stateChannel.multisigAddress
           }`
         );
       }
@@ -430,18 +437,17 @@ export class Channels {
 
   private async getChannelFromClientAppInstanceID(
     clientAppInstanceID: string
-  ): Promise<Channel> {
+  ): Promise<StateChannel> {
     const multisigAddress = await this.getMultisigAddressFromClientAppInstanceID(
       clientAppInstanceID
     );
     const channel = await this.getChannelJSONFromStore(multisigAddress);
-    return new Channel(
+    return new StateChannel(
       channel.multisigAddress,
       channel.multisigOwners,
-      channel.rootNonce,
-      channel.freeBalances,
-      channel.appInstances,
-      channel.proposedAppInstances
+      channel.appInstnaces,
+      channel.freeBalanceAppIndexes,
+      channel.monotonicNumInstalledApps
     );
   }
 
