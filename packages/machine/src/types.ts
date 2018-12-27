@@ -11,7 +11,7 @@ export enum Protocol {
   Install = "install",
   Update = "update",
   Uninstall = "uninstall",
-  MetaChannelInstallApp = "metachannel-install-app"
+  InstallVirtualApp = "install-virtual-app"
 }
 
 export type InstructionMiddlewareCallback = {

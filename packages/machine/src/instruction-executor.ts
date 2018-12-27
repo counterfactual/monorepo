@@ -85,11 +85,11 @@ export class InstructionExecutor {
     });
   }
 
-  public async runMetaChannelInstallAppProtocol(
+  public async runInstallVirtualAppProtocol(
     sc: StateChannel,
     params: MetaChannelInstallAppData
   ) {
-    const protocol = Protocol.MetaChannelInstallApp;
+    const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,

@@ -10,7 +10,7 @@ import { Context } from "../types";
  *
  */
 // FIXME: Not fully implemented yet
-export const METACHANNEL_INSTALL_APP_PROTOCOL = {
+export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   0: [
     (message: ProtocolMessage, context: Context, state: StateChannel) => {
       // copy client message

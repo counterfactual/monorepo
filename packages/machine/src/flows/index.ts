@@ -1,7 +1,7 @@
 import { Protocol } from "../types";
 
 import { INSTALL_PROTOCOL } from "./install";
-import { METACHANNEL_INSTALL_APP_PROTOCOL } from "./metachannel-install-app";
+import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";
 import { SETUP_PROTOCOL } from "./setup";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
 import { UPDATE_PROTOCOL } from "./update";
@@ -11,7 +11,7 @@ const protocolsByName = {
   [Protocol.Install]: INSTALL_PROTOCOL,
   [Protocol.Update]: UPDATE_PROTOCOL,
   [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
-  [Protocol.MetaChannelInstallApp]: METACHANNEL_INSTALL_APP_PROTOCOL
+  [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL
 };
 
 export function getProtocolFromName(protocolName: Protocol) {
@@ -23,7 +23,7 @@ export function getProtocolFromName(protocolName: Protocol) {
 
 export {
   INSTALL_PROTOCOL,
-  METACHANNEL_INSTALL_APP_PROTOCOL,
+  INSTALL_VIRTUAL_APP_PROTOCOL,
   SETUP_PROTOCOL,
   UNINSTALL_PROTOCOL,
   UPDATE_PROTOCOL
