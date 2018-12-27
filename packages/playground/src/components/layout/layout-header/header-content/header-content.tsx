@@ -41,7 +41,7 @@ export class HeaderContent {
             </a>
           </div>
           <div class="connection">
-            <widget-connection connected={this.connected} />
+            <widget-connection />
           </div>
         </div>
         <div class="right" />

@@ -16,10 +16,14 @@ export class AccountEthForm {
     this.value = event.target.value;
   }
 
+  handleSubmit(event) {
+    this.submit.emit(event);
+  }
+
   render() {
     return (
       <div>
-        <form-container onFormSubmitted={e => this.submit.emit(e)}>
+        <form-container onFormSubmitted={e => this.handleSubmit(e)}>
           <form-input
             type="number"
             unit="ETH"
@@ -31,7 +35,7 @@ export class AccountEthForm {
               <div>{this.available} ETH</div>
             </div>
           </form-input>
-          <form-button onButtonPressed={e => this.submit.emit(e)}>
+          <form-button onButtonPressed={e => this.handleSubmit(e)}>
             {this.button}
           </form-button>
         </form-container>
