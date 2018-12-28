@@ -7,7 +7,7 @@ import {
   AppState,
   BlockchainAsset,
   Node
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 

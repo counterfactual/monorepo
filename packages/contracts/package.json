@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/contracts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Smart contracts for Counterfactual",
   "license": "MIT",
   "files": [
@@ -9,22 +9,16 @@
     "networks"
   ],
   "scripts": {
-    "build": "truffle compile --all && tsc -b",
-    "migrate": "truffle migrate --reset",
-    "test": "tsc -b && truffle test --network ganache $npm_package_config_testFiles",
-    "test:windows": "tsc -b && truffle test --network ganache %npm_package_config_testFiles%",
-    "clean": "rm -rf dist build networks/7777777.json",
+    "build": "truffle compile --all",
+    "migrate": "truffle migrate",
+    "test": "./scripts/test.sh",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
-    "lint:sol:fix": "solium -d contracts/ --fix",
+    "lint:sol:fix": "yarn lint:sol --fix",
     "lint:sol": "solium -d .",
-    "lint:ts:fix": "tslint -c tslint.json -p . --fix",
+    "lint:ts:fix": "yarn lint:ts --fix",
     "lint:ts": "tslint -c tslint.json -p .",
     "test:coverage": "solidity-coverage"
-  },
-  "config": {
-    "testFiles": "dist/test/**/*.spec.js",
-    "unlockedAccount": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a"
   },
   "keywords": [
     "ethereum",
@@ -33,17 +27,15 @@
     "solidity"
   ],
   "devDependencies": {
+    "@counterfactual/types": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
-    "@types/chai-as-promised": "^7.1.0",
-    "@types/chai-string": "^1.4.1",
+    "@types/chai": "^4.1.7",
     "@types/node": "^10.9.3",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^3.0.0",
-    "chai-string": "^1.5.0",
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "0.1.12",
-    "ethers": "^4.0.17",
+    "ethereum-waffle": "1.2.0",
+    "ethers": "4.0.20",
     "ganache-cli": "6.2.5",
     "openzeppelin-eth": "^2.0.2",
     "shx": "^0.3.2",
@@ -57,13 +49,5 @@
     "tslint": "5.11.0",
     "typescript": "^3.1.2",
     "zos-lib": "^2.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/counterfactual/contracts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/counterfactual/contracts/issues"
-  },
-  "homepage": "https://github.com/counterfactual/contracts#readme"
+  }
 }

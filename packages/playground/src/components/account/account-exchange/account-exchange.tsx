@@ -1,4 +1,6 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
+
+import AccountTunnel from "../../../data/account";
 
 @Component({
   tag: "account-exchange",
@@ -6,15 +8,27 @@ import { Component, Prop } from "@stencil/core";
   shadow: true
 })
 export class AccountExchange {
+  @Element() el!: HTMLStencilElement;
   @Prop() availableDeposit: number = 0;
-  @Prop() availableWithdraw: number = 0;
+  @Prop() balance: number = 0;
+  @Prop() updateAccount: (e) => void = e => {};
+  @State() depositValue: number | string = "";
+  @State() withdrawValue: number | string = "";
 
   deposit(e) {
     console.log(e.target.value);
+    this.updateAccount({
+      balance: this.balance + parseFloat(e.target.value)
+    });
+    this.depositValue = "";
   }
 
   withdraw(e) {
     console.log(e.target.value);
+    this.updateAccount({
+      balance: this.balance - parseFloat(e.target.value)
+    });
+    this.withdrawValue = "";
   }
 
   render() {
@@ -27,6 +41,7 @@ export class AccountExchange {
             onSubmit={e => this.deposit(e)}
             button="Deposit"
             available={this.availableDeposit}
+            value={this.depositValue}
           />
         </div>
 
@@ -35,10 +50,13 @@ export class AccountExchange {
           <account-eth-form
             onSubmit={e => this.withdraw(e)}
             button="Withdraw"
-            available={this.availableWithdraw}
+            available={this.balance}
+            value={this.withdrawValue}
           />
         </div>
       </div>
     ];
   }
 }
+
+AccountTunnel.injectProps(AccountExchange, ["balance", "updateAccount"]);

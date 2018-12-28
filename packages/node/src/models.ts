@@ -1,14 +1,43 @@
-import { legacy } from "@counterfactual/cf.js";
 import {
   Address,
   AppInstanceInfo,
-  AssetType
-} from "@counterfactual/common-types";
+  AssetType,
+  Bytes32
+} from "@counterfactual/types";
+import { Zero } from "ethers/constants";
+import { BigNumber, keccak256, solidityPack } from "ethers/utils";
 
-import { zeroBalance } from "./utils";
+// FIXME: Remove usage of legacy object
+class Nonce {
+  public isSet: boolean;
+  public salt: Bytes32;
+  public nonceValue: number;
 
-import Nonce = legacy.utils.Nonce;
-import FreeBalance = legacy.utils.FreeBalance;
+  constructor(isSet: boolean, uniqueId: number, nonceValue: number) {
+    this.isSet = isSet;
+    this.salt = keccak256(solidityPack(["uint256"], [uniqueId]));
+    this.nonceValue = nonceValue;
+  }
+}
+
+// FIXME: Remove usage of legacy object
+class FreeBalance {
+  constructor(
+    readonly alice: Address, // first person in free balance object
+    readonly aliceBalance: BigNumber,
+    readonly bob: Address, // second person in free balance object
+    readonly bobBalance: BigNumber,
+    readonly uniqueId: number,
+    readonly localNonce: number,
+    readonly timeout: number,
+    readonly dependencyNonce: Nonce
+  ) {}
+  public balanceOfAddress(address: Address): BigNumber {
+    if (address === this.alice) return this.aliceBalance;
+    if (address === this.bob) return this.bobBalance;
+    throw Error(`address ${address} not in free balance`);
+  }
+}
 
 /**
  * The schema of a channel is below.
@@ -93,9 +122,9 @@ export class Channel {
     // TODO: extend to all asset types
     const ethFreeBalance = new FreeBalance(
       multisigOwners[0],
-      zeroBalance,
+      Zero,
       multisigOwners[1],
-      zeroBalance,
+      Zero,
       0,
       0,
       0,

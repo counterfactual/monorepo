@@ -1,4 +1,4 @@
-import { Address } from "@counterfactual/common-types";
+import { Address } from "@counterfactual/types";
 
 import { IMessagingService } from "../../src/services";
 

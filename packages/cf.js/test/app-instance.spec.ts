@@ -1,4 +1,4 @@
-import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
+import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";

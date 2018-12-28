@@ -3,9 +3,9 @@ import {
   AppInstanceInfo,
   AssetType,
   Node as NodeTypes
-} from "@counterfactual/common-types";
+} from "@counterfactual/types";
 import cuid from "cuid";
-import { ethers } from "ethers";
+import { One } from "ethers/constants";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/models";
@@ -95,9 +95,9 @@ export function makeProposalRequest(
     asset: {
       assetType: AssetType.ETH
     },
-    myDeposit: ethers.utils.bigNumberify("1"),
-    peerDeposit: ethers.utils.bigNumberify("1"),
-    timeout: ethers.utils.bigNumberify("1"),
+    myDeposit: One,
+    peerDeposit: One,
+    timeout: One,
     initialState: {
       propertyA: "A",
       propertyB: "B"

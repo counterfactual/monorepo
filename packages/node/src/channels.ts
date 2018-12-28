@@ -1,5 +1,5 @@
-import { Address, AppInstanceInfo, Node } from "@counterfactual/common-types";
-import { ethers } from "ethers";
+import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
+import { Wallet } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS, Channel } from "./models";
@@ -447,6 +447,6 @@ export class Channels {
 
   private generateNewMultisigAddress(owners: Address[]): Address {
     // TODO: implement this using CREATE2
-    return ethers.Wallet.createRandom().address;
+    return Wallet.createRandom().address;
   }
 }

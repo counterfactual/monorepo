@@ -1,4 +1,4 @@
-import { Address, AppAction, AppState } from "@counterfactual/common-types";
+import { Address, AppAction, AppState } from "@counterfactual/types";
 
 import { AppInstance } from "../app-instance";
 

@@ -1,14 +1,14 @@
-import { ethers } from "ethers";
+import { keccak256, SigningKey, toUtf8Bytes } from "ethers/utils";
 
 import { signaturesToBytes, signaturesToSortedBytes } from "../../src/utils";
 
 const privateKey =
   "0x0123456789012345678901234567890123456789012345678901234567890123";
-const signingKey = new ethers.utils.SigningKey(privateKey);
+const signingKey = new SigningKey(privateKey);
 
 const signaturesAndDigests = ["sig1", "sig3", "sig2"].map(message => {
-  const bytes = ethers.utils.toUtf8Bytes(message);
-  const digest = ethers.utils.keccak256(bytes);
+  const bytes = toUtf8Bytes(message);
+  const digest = keccak256(bytes);
   const signature = signingKey.signDigest(digest);
 
   return {

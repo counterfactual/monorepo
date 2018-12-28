@@ -1,4 +1,4 @@
-import { INodeProvider, Node } from "@counterfactual/common-types";
+import { INodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 export default class NodeProvider implements INodeProvider {

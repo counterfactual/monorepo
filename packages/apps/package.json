@@ -1,0 +1,34 @@
+{
+  "name": "@counterfactual/apps",
+  "version": "0.0.1",
+  "description": "Collection of various apps built on Counterfactual",
+  "repository": "github.com/counterfactual/monorepo",
+  "license": "MIT",
+  "private": true,
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "waffle waffle.json",
+    "test": "ts-mocha test/*",
+    "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
+    "lint": "yarn lint:ts && yarn lint:sol",
+    "lint:sol:fix": "solium -d contracts/ --fix",
+    "lint:sol": "solium -d .",
+    "lint:ts:fix": "tslint -c tslint.json -p . --fix",
+    "lint:ts": "tslint -c tslint.json -p ."
+  },
+  "devDependencies": {
+    "@counterfactual/contracts": "0.0.3",
+    "@counterfactual/typescript-typings": "0.0.1",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "1.2.0",
+    "ethers": "4.0.20",
+    "mocha": "^4.1.0",
+    "solium": "1.1.8",
+    "ts-mocha": "^2.0.0",
+    "tslint": "^5.11.0"
+  }
+}

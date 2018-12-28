@@ -8,14 +8,17 @@ export default {
   output: [
     {
       file: pkg.main,
-      format: "cjs"
+      format: "cjs",
+      exports: "named",
     },
     {
       file: pkg.iife,
       name: "window.cf",
       format: "iife",
+      exports: "named",
       globals: {
-        "ethers/utils": "ethers.utils"
+        "ethers/utils": "ethers.utils",
+        "ethers/constants": "ethers.constants"
       }
     }
   ],
@@ -24,8 +27,7 @@ export default {
     json({
       include: [
         // FIXME: these shouldn't be required
-        "../contracts/build/contracts/ETHBalanceRefundApp.json",
-        "../contracts/build/contracts/AppInstance.json"
+        "../contracts/build/contracts/ETHBalanceRefundApp.json"
       ]
     })
   ]

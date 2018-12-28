@@ -1,4 +1,4 @@
-import { AppInstanceInfo, AssetType, Node } from "@counterfactual/common-types";
+import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 
 import { AppInstance } from "../src/app-instance";

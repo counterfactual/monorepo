@@ -1,4 +1,4 @@
-import { Node as NodeTypes } from "@counterfactual/common-types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import cuid from "cuid";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
@@ -10,7 +10,6 @@ import {
   NodeConfig,
   NodeMessage
 } from "../../src";
-
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";

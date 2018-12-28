@@ -5,6 +5,7 @@ packages/**/yarn.lock
 # production
 build/
 dist/
+functions/
 
 # cache
 .rpt2_cache
