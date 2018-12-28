@@ -31,14 +31,14 @@ export type ProtocolMessage = {
   signature?: Signature;
 };
 
-export type SetupData = {};
+export type SetupParams = {};
 
 export type UpdateData = {
   appInstanceId: string;
   newState: AppState;
 };
 
-export type InstallData = {
+export type InstallParams = {
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
   signingKeys: string[];
@@ -48,7 +48,7 @@ export type InstallData = {
   defaultTimeout: number;
 };
 
-export type UninstallData = {
+export type UninstallParams = {
   appInstanceId: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
@@ -59,8 +59,8 @@ export type MetaChannelInstallAppData = {
 };
 
 type ProtocolParameters =
-  | SetupData
+  | SetupParams
   | UpdateData
-  | InstallData
-  | UninstallData
+  | InstallParams
+  | UninstallParams
   | MetaChannelInstallAppData;
