@@ -74,7 +74,7 @@ function proposeStateTransition(
     defaultTimeout
   } = message.params as InstallData;
 
-  const app = new AppInstance(
+  const appInstance = new AppInstance(
     state.multisigAddress,
     signingKeys,
     defaultTimeout,
@@ -94,7 +94,7 @@ function proposeStateTransition(
   );
 
   context.stateChannel = state.installApp(
-    app,
+    appInstance,
     aliceBalanceDecrement,
     bobBalanceDecrement
   );
@@ -102,7 +102,7 @@ function proposeStateTransition(
   context.operation = constructInstallOp(
     context.network,
     context.stateChannel,
-    app.id
+    appInstance.id
   );
 }
 
