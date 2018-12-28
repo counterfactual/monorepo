@@ -8,7 +8,7 @@ function clean {
 
 trap clean INT TERM EXIT
 
-ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9
+pkill -9 ganache-cli
 
 ganache-cli \
   --defaultBalanceEther 10000 \
