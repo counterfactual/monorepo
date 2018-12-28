@@ -25,7 +25,7 @@ import { StateChannel } from "../../../src/models";
 describe("SetupCommitment", () => {
   let tx: MultisigTransaction;
 
-  // Test network context
+  // Dummy network context
   const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),

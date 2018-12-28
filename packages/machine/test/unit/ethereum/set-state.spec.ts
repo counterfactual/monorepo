@@ -26,7 +26,7 @@ describe("Set State Commitment", () => {
   let commitment: SetStateCommitment;
   let tx: Transaction;
 
-  // Test network context
+  // Dummy network context
   const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),

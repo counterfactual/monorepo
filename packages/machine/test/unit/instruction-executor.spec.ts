@@ -8,7 +8,7 @@ import { Opcode } from "../../src/opcodes";
 import { Context } from "../../src/types";
 
 describe("InstructionExecutor", () => {
-  // Test network context
+  // Dummy network context
   const networkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
@@ -37,7 +37,7 @@ describe("InstructionExecutor", () => {
   beforeAll(() => {
     instructionExecutor = new InstructionExecutor(networkContext);
 
-    // We must define _some_ methods for each opcode or the machine
+    // We must register _some_ middleware for each opcode or the machine
     // will fail with an error like "While executing op number <x> at seq
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
