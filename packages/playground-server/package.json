@@ -5,7 +5,7 @@
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
-  "main": "functions/api.js",
+  "main": "src/index.ts",
   "directories": {
     "lib": "src",
     "test": "tests"
@@ -21,15 +21,14 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js serve src",
-    "build": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js build src",
-    "dev": "PLAYGROUND_SERVER_ENV=development netlify-lambda -c webpack.config.js serve src",
+    "start": "ts-node src/",
     "test": "PLAYGROUND_SERVER_ENV=development jest"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/node": "^0.0.1",
     "@koa/cors": "^2.2.3",
     "koa": "^2.6.2",
     "koa-body": "^4.0.6",
