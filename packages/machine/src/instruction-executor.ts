@@ -5,10 +5,10 @@ import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
 import {
-  InstallData,
+  InstallParams,
   MetaChannelInstallAppData,
   ProtocolMessage,
-  UninstallData,
+  UninstallParams,
   UpdateData
 } from "./protocol-types-tbd";
 import {
@@ -60,7 +60,7 @@ export class InstructionExecutor {
     });
   }
 
-  public async runUninstallProtocol(sc: StateChannel, params: UninstallData) {
+  public async runUninstallProtocol(sc: StateChannel, params: UninstallParams) {
     const protocol = Protocol.Uninstall;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
@@ -69,7 +69,7 @@ export class InstructionExecutor {
     });
   }
 
-  public async runInstallProtocol(sc: StateChannel, params: InstallData) {
+  public async runInstallProtocol(sc: StateChannel, params: InstallParams) {
     const protocol = Protocol.Install;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,

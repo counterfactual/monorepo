@@ -7,7 +7,7 @@ import {
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { ProtocolMessage, UninstallData } from "../protocol-types-tbd";
+import { ProtocolMessage, UninstallParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
@@ -72,7 +72,7 @@ function proposeStateTransition(
     appInstanceId,
     aliceBalanceIncrement,
     bobBalanceIncrement
-  } = message.params as UninstallData;
+  } = message.params as UninstallParams;
 
   context.stateChannel = state.uninstallApp(
     appInstanceId,

@@ -63,7 +63,7 @@ describe("InstallCommitment", () => {
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const app = new AppInstance(
+  const appInstance = new AppInstance(
     stateChannel.multisigAddress,
     [
       getAddress(hexlify(randomBytes(20))),
@@ -96,8 +96,8 @@ describe("InstallCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      app.identity,
-      app.terms,
+      appInstance.identity,
+      appInstance.terms,
       freeBalanceETH.identity,
       freeBalanceETH.terms,
       freeBalanceETH.hashOfLatestState,
@@ -232,11 +232,11 @@ describe("InstallCommitment", () => {
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
-          expect(uninstallKey).toBe(app.uninstallKey);
-          expect(appInstanceId).toBe(appIdentityToHash(app.identity));
-          expect(terms[0]).toBe(app.terms.assetType);
-          expect(terms[1]).toEqual(app.terms.limit);
-          expect(terms[2]).toBe(app.terms.token);
+          expect(uninstallKey).toBe(appInstance.uninstallKey);
+          expect(appInstanceId).toBe(appIdentityToHash(appInstance.identity));
+          expect(terms[0]).toBe(appInstance.terms.assetType);
+          expect(terms[1]).toEqual(appInstance.terms.limit);
+          expect(terms[2]).toBe(appInstance.terms.token);
         });
       });
     });

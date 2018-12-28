@@ -3,7 +3,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { InstallData, ProtocolMessage } from "../protocol-types-tbd";
+import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
@@ -72,9 +72,9 @@ function proposeStateTransition(
     terms,
     appInterface,
     defaultTimeout
-  } = message.params as InstallData;
+  } = message.params as InstallParams;
 
-  const app = new AppInstance(
+  const appInstance = new AppInstance(
     state.multisigAddress,
     signingKeys,
     defaultTimeout,
@@ -94,7 +94,7 @@ function proposeStateTransition(
   );
 
   context.stateChannel = state.installApp(
-    app,
+    appInstance,
     aliceBalanceDecrement,
     bobBalanceDecrement
   );
@@ -102,7 +102,7 @@ function proposeStateTransition(
   context.operation = constructInstallOp(
     context.network,
     context.stateChannel,
-    app.id
+    appInstance.id
   );
 }
 
