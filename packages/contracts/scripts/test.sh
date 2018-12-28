@@ -8,7 +8,7 @@ function clean {
 
 trap clean INT TERM EXIT
 
-bash -c 'pkill -9 ganache-cli; exit 0'
+bash -c 'lsof -ti :8545 | xargs kill -9; exit 0'
 
 ganache-cli \
   --defaultBalanceEther 10000 \
