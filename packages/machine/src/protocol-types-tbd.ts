@@ -54,7 +54,7 @@ export type UninstallParams = {
   bobBalanceIncrement: BigNumber;
 };
 
-export type MetaChannelInstallAppData = {
+export type InstallVirtualAppParams = {
   /* TODO: @xuanji */
 };
 
@@ -63,4 +63,4 @@ type ProtocolParameters =
   | UpdateData
   | InstallParams
   | UninstallParams
-  | MetaChannelInstallAppData;
+  | InstallVirtualAppParams;
