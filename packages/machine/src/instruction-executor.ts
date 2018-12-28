@@ -4,7 +4,7 @@ import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
 import {
   InstallParams,
-  MetaChannelInstallAppData,
+  InstallVirtualAppParams,
   ProtocolMessage,
   UninstallParams,
   UpdateData
@@ -87,7 +87,7 @@ export class InstructionExecutor {
 
   public async runInstallVirtualAppProtocol(
     sc: StateChannel,
-    params: MetaChannelInstallAppData
+    params: InstallVirtualAppData
   ) {
     const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {

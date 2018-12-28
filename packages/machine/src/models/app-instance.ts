@@ -19,7 +19,7 @@ export type AppInstanceJson = {
   defaultTimeout: number;
   appInterface: AppInterface;
   terms: Terms;
-  isMetachannelApp: boolean;
+  isVirtualApp: boolean;
   appSeqNo: number;
   latestState: object;
   latestNonce: number;
@@ -41,8 +41,9 @@ export type AppInstanceJson = {
  * @property appInterface An AppInterface object representing the logic this
  *           AppInstance relies on for verifying and proposing state updates.
 
- * @property isMetachannelApp A flag indicating whether this AppInstance's state
- *           deposits are within a metachannel or in a single on-chain deposit.
+ * @property isVirtualApp A flag indicating whether this AppInstance's state
+ *           deposits come directly from a multisig or through a virtual app
+ *           proxy agreement (ETHVirtualAppAgreement.sol)
 
  * @property terms The terms for which this AppInstance is based on.
 
@@ -62,7 +63,7 @@ export class AppInstance {
     defaultTimeout: number,
     appInterface: AppInterface,
     terms: Terms,
-    isMetachannelApp: boolean,
+    isVirtualApp: boolean,
     appSeqNo: number,
     latestState: object,
     latestNonce: number,
@@ -74,7 +75,7 @@ export class AppInstance {
       defaultTimeout,
       appInterface,
       terms,
-      isMetachannelApp,
+      isVirtualApp,
       appSeqNo,
       latestState,
       latestNonce,
@@ -90,7 +91,7 @@ export class AppInstance {
       json.defaultTimeout,
       json.appInterface,
       json.terms,
-      json.isMetachannelApp,
+      json.isVirtualApp,
       json.appSeqNo,
       json.latestState,
       json.latestNonce,
@@ -204,8 +205,8 @@ export class AppInstance {
     return this.json.signingKeys;
   }
 
-  public get isMetachannelApp() {
-    return this.json.isMetachannelApp;
+  public get isVirtualApp() {
+    return this.json.isVirtualApp;
   }
 
   public setState(
