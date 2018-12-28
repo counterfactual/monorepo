@@ -12,7 +12,7 @@ export default function injectToken(jwtSecret: string): ConditionalMiddleware {
   ) {
     ctx.body = {
       ...ctx.body,
-      token: sign(ctx.body || {}, jwtSecret, { expiresIn: "30s" })
+      token: sign(ctx.body || {}, jwtSecret, { expiresIn: "5s" })
     };
     return next();
   };
