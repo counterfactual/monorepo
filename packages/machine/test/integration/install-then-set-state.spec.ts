@@ -10,6 +10,7 @@ import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, parseEther } from "ethers/utils";
+import { BuildArtifact } from "truffle";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
@@ -45,7 +46,7 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
-  const relevantArtifacts = [
+  const relevantArtifacts: BuildArtifact[] = [
     AppRegistry,
     ETHBucket,
     MultiSend,
@@ -58,7 +59,7 @@ beforeAll(async () => {
     // for this test and sets the ones we don't care about to 0x0
     ETHBalanceRefund: AddressZero,
     ...relevantArtifacts.reduce(
-      (accumulator, artifact) => ({
+      (accumulator: { [x: string]: string }, artifact: BuildArtifact) => ({
         ...accumulator,
         [artifact.contractName]: artifact.networks[networkId].address
       }),
@@ -67,7 +68,7 @@ beforeAll(async () => {
   } as NetworkContext;
 
   appRegistry = new Contract(
-    AppRegistry.networks[networkId].address,
+    (AppRegistry as BuildArtifact).networks[networkId].address,
     AppRegistry.abi,
     wallet
   );
@@ -90,7 +91,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     const users = signingKeys.map(x => x.address);
 
     const proxyFactory = new Contract(
-      ProxyFactory.networks[networkId].address,
+      (ProxyFactory as BuildArtifact).networks[networkId].address,
       ProxyFactory.abi,
       wallet
     );
@@ -194,7 +195,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     });
 
     await proxyFactory.functions.createProxy(
-      MinimumViableMultisig.networks[networkId].address,
+      (MinimumViableMultisig as BuildArtifact).networks[networkId].address,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );

@@ -22,12 +22,12 @@ const HARD_CODED_ASSUMPTIONS = {
 };
 
 const ERRORS = {
-  APPS_NOT_EMPTY: size =>
+  APPS_NOT_EMPTY: (size: number) =>
     `Expected the appInstances list to be empty but size ${size}`,
-  APP_DOES_NOT_EXIST: id =>
+  APP_DOES_NOT_EXIST: (id: number) =>
     `Attempted to edit an appInstance that does not exist: id = ${id}`,
   FREE_BALANCE_MISSING: "Cannot find ETH Free Balance App in StateChannel",
-  FREE_BALANCE_IDX_CORRUPT: idx =>
+  FREE_BALANCE_IDX_CORRUPT: (idx: number) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
     "Attempted to install an appInstance without sufficient funds"
