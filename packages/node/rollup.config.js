@@ -4,7 +4,11 @@ import pkg from "./package.json";
 
 const globals = {
   "@counterfactual/cf.js": "cfjs",
-  "eventemitter3": "EventEmitter"
+  "@counterfactual/types": "types",
+  "eventemitter3": "EventEmitter",
+  "ethers/constants": "ethers.constants",
+  "ethers/utils": "ethers.utils",
+  "ethers/wallet": "ethers.wallet",
 }
 
 export default [
