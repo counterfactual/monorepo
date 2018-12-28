@@ -54,7 +54,7 @@ export type UninstallParams = {
   bobBalanceIncrement: BigNumber;
 };
 
-export type InstallVirtualAppData = {
+export type InstallVirtualAppParams = {
   /* TODO: @xuanji */
 };
 

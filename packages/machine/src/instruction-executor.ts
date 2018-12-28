@@ -87,7 +87,7 @@ export class InstructionExecutor {
 
   public async runInstallVirtualAppProtocol(
     sc: StateChannel,
-    params: InstallVirtualAppData
+    params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
