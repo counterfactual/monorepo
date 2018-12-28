@@ -64,7 +64,7 @@ function decodeAppState(encodedAppState: string): HighRollerAppState {
 const nullValueBytes32 =
   "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
 
-describe("HighRollerApp", (accounts: string[]) => {
+describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
   // @ts-ignore
