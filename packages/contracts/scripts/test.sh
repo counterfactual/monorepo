@@ -8,7 +8,7 @@ function clean {
 
 trap clean INT TERM EXIT
 
-pkill -9 ganache-cli
+bash -c 'pkill -9 ganache-cli; exit 0'
 
 ganache-cli \
   --defaultBalanceEther 10000 \
