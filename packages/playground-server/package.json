@@ -33,9 +33,7 @@
     "@koa/cors": "^2.2.3",
     "koa": "^2.6.2",
     "koa-body": "^4.0.6",
-    "koa-router": "^7.4.0",
-    "netlify-lambda": "^1.1.1",
-    "serverless-http": "^1.8.0"
+    "koa-router": "^7.4.0"
   },
   "devDependencies": {
     "@types/koa": "^2.0.47",
