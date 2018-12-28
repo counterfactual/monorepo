@@ -5,10 +5,10 @@ import {
   Node as NodeTypes
 } from "@counterfactual/types";
 import cuid from "cuid";
-import { One } from "ethers/constants";
+import { AddressZero, One } from "ethers/constants";
 
 import { Node } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/models";
+import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
 export async function getNewMultisig(
   node: Node,
@@ -128,3 +128,12 @@ export function confirmProposedAppInstanceOnNode(
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
+
+export const EMPTY_NETWORK = {
+  AppRegistry: AddressZero,
+  ETHBalanceRefund: AddressZero,
+  ETHBucket: AddressZero,
+  MultiSend: AddressZero,
+  NonceRegistry: AddressZero,
+  StateChannelTransaction: AddressZero
+};

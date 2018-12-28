@@ -33,6 +33,14 @@ const ERRORS = {
     "Attempted to install an appInstance without sufficient funds"
 };
 
+export type StateChannelJSON = {
+  readonly multisigAddress: string;
+  readonly multisigOwners: string[];
+  readonly appInstances: string;
+  readonly freeBalanceAppIndexes: string;
+  readonly monotonicNumInstalledApps: number;
+};
+
 function createETHFreeBalance(
   multisigAddress: string,
   multisigOwners: string[],
@@ -234,6 +242,28 @@ export class StateChannel {
       appInstances,
       freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
+    );
+  }
+
+  toJson(): StateChannelJSON {
+    return {
+      multisigAddress: this.multisigAddress,
+      multisigOwners: this.multisigOwners,
+      appInstances: JSON.stringify(Array.from(this.appInstances.entries())),
+      freeBalanceAppIndexes: JSON.stringify(
+        Array.from(this.freeBalanceAppIndexes.entries())
+      ),
+      monotonicNumInstalledApps: this.monotonicNumInstalledApps
+    };
+  }
+
+  static fromJson(json: StateChannelJSON): StateChannel {
+    return new StateChannel(
+      json.multisigAddress,
+      json.multisigOwners,
+      new Map(JSON.parse(json.appInstances)),
+      new Map(JSON.parse(json.freeBalanceAppIndexes)),
+      json.monotonicNumInstalledApps
     );
   }
 }

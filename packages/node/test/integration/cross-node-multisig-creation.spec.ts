@@ -5,7 +5,7 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { getChannelAddresses, getNewMultisig } from "./utils";
+import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
 
 dotenv.config();
 
@@ -35,8 +35,20 @@ describe("Node can create multisig, other owners get notified", () => {
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService, storeService, nodeConfig);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService, storeService, nodeConfig);
+    nodeA = new Node(
+      A_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
+    nodeB = new Node(
+      B_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
   });
 
   afterAll(() => {

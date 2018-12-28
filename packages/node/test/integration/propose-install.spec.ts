@@ -15,6 +15,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
+  EMPTY_NETWORK,
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstances,
@@ -49,8 +50,20 @@ describe("Node method follows spec - proposeInstall", () => {
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService, storeService, nodeConfig);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService, storeService, nodeConfig);
+    nodeA = new Node(
+      A_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
+    nodeB = new Node(
+      B_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
   });
 
   afterAll(() => {
