@@ -58,4 +58,7 @@ echo "⚙️ Running migrations with build artifacts from @counterfactual/contra
 yarn run truffle migrate --network machine --reset > /dev/null
 
 echo "🧪 Starting jest test suites"
-jest --detectOpenHandles $1
+jest \
+  --runInBand `#integration tests fail parallelized (tx nonce out of sync)` \
+  --detectOpenHandles \
+  $1

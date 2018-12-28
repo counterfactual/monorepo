@@ -31,7 +31,7 @@ import { StateChannel } from "../../../src/models";
 describe("Uninstall Commitment", () => {
   let tx: MultisigTransaction;
 
-  // Test network context
+  // Dummy network context
   const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
