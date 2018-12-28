@@ -1,3 +1,6 @@
+import { AssetType, Terms, Transaction } from "@counterfactual/types";
+import chai from "chai";
+import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
 import {
@@ -7,18 +10,11 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import {
-  AbstractContract,
-  AssetType,
-  buildArtifacts,
-  expect,
-  TransferTerms,
-  TransferTransaction
-} from "../../utils";
-import * as Utils from "../../utils/misc";
+import HighRollerApp from "../build/HighRollerApp.json";
 
-const web3 = (global as any).web3;
-const { unlockedAccount } = Utils.setupTestEnv(web3);
+chai.use(waffle.solidity);
+
+const { expect } = chai;
 
 /// Returns the commit hash that can be used to commit to chosenNumber
 /// using appSalt
@@ -68,19 +64,14 @@ function decodeAppState(encodedAppState: string): HighRollerAppState {
 const nullValueBytes32 =
   "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
 
-contract("HighRollerApp", (accounts: string[]) => {
+describe("HighRollerApp", (accounts: string[]) => {
   let highRollerApp: Contract;
 
   // @ts-ignore
   before(async () => {
-    const staticCall = buildArtifacts.StaticCall;
-    const highRollerContract = await AbstractContract.fromArtifactName(
-      "HighRollerApp",
-      {
-        StaticCall: staticCall
-      }
-    );
-    highRollerApp = await highRollerContract.deploy(unlockedAccount);
+    const provider = waffle.createMockProvider();
+    const wallet = (await waffle.getWallets(provider))[0];
+    highRollerApp = await waffle.deployContract(wallet, HighRollerApp);
   });
 
   describe("applyAction", () => {
@@ -171,12 +162,12 @@ contract("HighRollerApp", (accounts: string[]) => {
         playerSecondNumber: 2
       };
 
-      const terms: TransferTerms = {
+      const terms: Terms = {
         assetType: AssetType.ETH,
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+      const transaction: Transaction = await highRollerApp.functions.resolve(
         preState,
         terms
       );
@@ -202,12 +193,12 @@ contract("HighRollerApp", (accounts: string[]) => {
         playerSecondNumber: 2
       };
 
-      const terms: TransferTerms = {
+      const terms: Terms = {
         assetType: AssetType.ETH,
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+      const transaction: Transaction = await highRollerApp.functions.resolve(
         preState,
         terms
       );
@@ -233,12 +224,12 @@ contract("HighRollerApp", (accounts: string[]) => {
         playerSecondNumber: 2
       };
 
-      const terms: TransferTerms = {
+      const terms: Terms = {
         assetType: AssetType.ETH,
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+      const transaction: Transaction = await highRollerApp.functions.resolve(
         preState,
         terms
       );

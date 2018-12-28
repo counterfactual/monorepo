@@ -19,6 +19,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@counterfactual/types": "0.0.1",
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",

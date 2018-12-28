@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 pragma experimental "ABIEncoderV2";
 
-import "../lib/Transfer.sol";
+import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 
 
 /// @title High Roller App
