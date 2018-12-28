@@ -1,3 +1,5 @@
+import { NetworkContext } from "@counterfactual/types";
+
 import { Middleware } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
@@ -30,7 +32,7 @@ function genericProtocolMessageFields(sc: StateChannel) {
 export class InstructionExecutor {
   public middleware: Middleware;
 
-  constructor(public readonly network) {
+  constructor(public readonly network: NetworkContext) {
     this.middleware = new Middleware();
   }
 

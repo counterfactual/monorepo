@@ -14,8 +14,12 @@ export enum Protocol {
   InstallVirtualApp = "install-virtual-app"
 }
 
+export type ProtocolExecutionFlow = {
+  [x: number]: Instruction[];
+};
+
 export type InstructionMiddlewareCallback = {
-  (message: ProtocolMessage, next: Function, context: Context);
+  (message: ProtocolMessage, next: Function, context: Context): void;
 };
 
 export interface InstructionMiddleware {
