@@ -156,7 +156,7 @@ contract("HighRollerApp", (accounts: string[]) => {
       expect(state.stage).to.be.eql(new BigNumber(3));
       expect(state.playerSecondNumber).to.be.eql(new BigNumber(2));
     });
-    it("can end game", async () => {
+    it("can end game - playerSecond wins", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
       const playerFirstNumber = 1;
@@ -185,6 +185,68 @@ contract("HighRollerApp", (accounts: string[]) => {
       expect(transaction.token).to.be.eql(AddressZero);
       expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
       expect(transaction.value).to.be.eql([Zero, parseEther("2")]);
+      expect(transaction.data).to.be.eql(["0x", "0x"]);
+    });
+    it("can end game - draw", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerFirstNumber = 111;
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.DONE,
+        salt: numberSalt,
+        commitHash: hash,
+        playerFirstNumber: 111,
+        playerSecondNumber: 2
+      };
+
+      const terms: TransferTerms = {
+        assetType: AssetType.ETH,
+        limit: parseEther("2"),
+        token: AddressZero
+      };
+      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+        preState,
+        terms
+      );
+
+      expect(transaction.assetType).to.be.eql(AssetType.ETH);
+      expect(transaction.token).to.be.eql(AddressZero);
+      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
+      expect(transaction.value).to.be.eql([parseEther("1"), parseEther("1")]);
+      expect(transaction.data).to.be.eql(["0x", "0x"]);
+    });
+    it("can end game - playerFirst wins", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerFirstNumber = 3;
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.DONE,
+        salt: numberSalt,
+        commitHash: hash,
+        playerFirstNumber: 3,
+        playerSecondNumber: 2
+      };
+
+      const terms: TransferTerms = {
+        assetType: AssetType.ETH,
+        limit: parseEther("2"),
+        token: AddressZero
+      };
+      const transaction: TransferTransaction = await highRollerApp.functions.resolve(
+        preState,
+        terms
+      );
+
+      expect(transaction.assetType).to.be.eql(AssetType.ETH);
+      expect(transaction.token).to.be.eql(AddressZero);
+      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
+      expect(transaction.value).to.be.eql([parseEther("2"), Zero]);
       expect(transaction.data).to.be.eql(["0x", "0x"]);
     });
   });
