@@ -3,7 +3,7 @@ import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
 
-const app = new Koa();
+const api = new Koa();
 
 const router = new Router({ prefix: "/api" });
 
@@ -13,9 +13,9 @@ router.get("/hello", async (ctx, next) => {
   return next();
 });
 
-app
+api
   .use(router.routes())
   .use(bodyParser({ json: true }))
   .use(cors());
 
-export { app };
+export default api;
