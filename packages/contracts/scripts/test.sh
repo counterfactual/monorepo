@@ -8,12 +8,13 @@ function clean {
 
 trap clean INT TERM EXIT
 
+ps aux | grep ganache-cli | grep -v grep | awk '{print $2}' | xargs kill -9
+
 ganache-cli \
   --defaultBalanceEther 10000 \
   --gasLimit 0xfffffffffff \
   --gasPrice 0x01 \
   --networkId 7777777 \
-  --quiet \
   &> /dev/null \
   &
 
