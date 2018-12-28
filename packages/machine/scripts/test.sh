@@ -32,6 +32,8 @@ export DEV_GANACHE_MNEMONIC=$(
   "brain surround have swap horror body response double fire dumb bring hazard"
 )
 
+bash -c "lsof -ti :${DEV_GANACHE_PORT} | xargs kill -9; exit 0"
+
 {
   long_console_info="⛓ Starting ganache-cli at "
   long_console_info+="http://${DEV_GANACHE_HOST}:${DEV_GANACHE_PORT} "
