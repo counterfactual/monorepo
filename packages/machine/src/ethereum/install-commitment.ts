@@ -51,7 +51,7 @@ export class InstallCommitment extends MultiSendCommitment {
       )
     );
 
-    const appInstanceId = appIdentityToHash(this.appIdentity);
+    const appIdentityHash = appIdentityToHash(this.appIdentity);
 
     return {
       to: this.networkContext.StateChannelTransaction,
@@ -60,8 +60,8 @@ export class InstallCommitment extends MultiSendCommitment {
         this.networkContext.AppRegistry,
         this.networkContext.NonceRegistry,
         uninstallKey,
-        appInstanceId,
         this.rootNonceValue,
+        appIdentityHash,
         this.terms
       ]),
       operation: MultisigOperation.DelegateCall

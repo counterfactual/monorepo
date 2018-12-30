@@ -17,7 +17,7 @@ describe("StateChannel::uninstallApp", () => {
   let sc1: StateChannel;
   let sc2: StateChannel;
 
-  let appInstanceId: string;
+  let appIdentityHash: string;
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
@@ -59,7 +59,7 @@ describe("StateChannel::uninstallApp", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    appInstanceId = appInstance.id;
+    appIdentityHash = appInstance.id;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
     const fb = sc1.getFreeBalanceFor(AssetType.ETH);
@@ -83,7 +83,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should have added something at the id of thew new app", () => {
-    expect(sc2.getAppInstance(appInstanceId)).not.toBe(undefined);
+    expect(sc2.getAppInstance(appIdentityHash)).not.toBe(undefined);
   });
 
   describe("the updated ETH Free Balance", () => {
@@ -104,7 +104,7 @@ describe("StateChannel::uninstallApp", () => {
     let app: AppInstance;
 
     beforeAll(() => {
-      app = sc2.getAppInstance(appInstanceId)!;
+      app = sc2.getAppInstance(appIdentityHash)!;
     });
 
     it("should not be a virtual app", () => {

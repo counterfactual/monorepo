@@ -90,17 +90,17 @@ describe("SetupCommitment", () => {
         appRegistry,
         nonceRegistry,
         uninstallKey,
-        appInstanceId,
         rootNonceValue,
+        appIdentityHash,
         [assetType, limit, token]
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
-      expect(appInstanceId).toBe(appIdentityToHash(freeBalanceETH.identity));
       expect(rootNonceValue).toEqual(
         bigNumberify(freeBalanceETH.rootNonceValue)
       );
+      expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
       expect(assetType).toBe(freeBalanceETH.terms.assetType);
       expect(limit).toEqual(freeBalanceETH.terms.limit);
       expect(token).toBe(freeBalanceETH.terms.token);

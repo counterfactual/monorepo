@@ -9,11 +9,11 @@ contract MAppRegistryCore {
 
   using Transfer for Transfer.Transaction;
 
-  // A mapping of AppInstanceIds to AppChallenge structs which represents
+  // A mapping of appIdentityHash to AppChallenge structs which represents
   // the current on-chain status of some particular applications state.
   mapping (bytes32 => LibStateChannelApp.AppChallenge) public appStates;
 
-  // A mapping of AppInstanceIds to Transaction structs which represents
+  // A mapping of appIdentityHash to Transaction structs which represents
   // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 

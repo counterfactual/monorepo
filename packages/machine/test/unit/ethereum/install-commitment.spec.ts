@@ -229,14 +229,14 @@ describe("InstallCommitment", () => {
             appRegistryAddress,
             nonceRegistryAddress,
             uninstallKey,
-            appInstanceId,
+            appIdentityHash,
             rootNonceValue,
             terms
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
           expect(uninstallKey).toBe(appInstance.uninstallKey);
-          expect(appInstanceId).toBe(appIdentityToHash(appInstance.identity));
+          expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
           expect(rootNonceValue).toEqual(
             bigNumberify(appInstance.rootNonceValue)
           );
