@@ -3,8 +3,8 @@ import { Component, State } from "@stencil/core";
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
 import { MatchResults } from "@stencil/router";
 
-import AccountTunnel, { State as AccountState } from "../../data/account";
-import NetworkTunnel, { State as NetworkState } from "../../data/network";
+import AccountTunnel, { AccountState } from "../../data/account";
+import NetworkTunnel, { NetworkState } from "../../data/network";
 
 @Component({
   tag: "app-root",
@@ -17,18 +17,21 @@ export class AppRoot {
     network: "Lorem"
   };
 
-  updateAccount(newProps) {
-    this.accountState = Object.assign({}, this.accountState, newProps);
+  async updateAccount(newProps: AccountState) {
+    this.accountState = { ...this.accountState, ...newProps };
+  }
+
+  async updateNetwork(newProps: NetworkState) {
+    this.networkState = { ...this.networkState, ...newProps };
   }
 
   render() {
-    const accountState = this.accountState;
-
-    accountState.updateAccount = this.updateAccount.bind(this);
+    this.accountState.updateAccount = this.updateAccount.bind(this);
+    this.networkState.updateNetwork = this.updateNetwork.bind(this);
 
     return (
       <NetworkTunnel.Provider state={this.networkState}>
-        <AccountTunnel.Provider state={accountState}>
+        <AccountTunnel.Provider state={this.accountState}>
           <div class="app-root wrapper">
             <main class="wrapper__content">
               <stencil-router>
@@ -47,6 +50,10 @@ export class AppRoot {
             </main>
             <layout-footer />
             <node-listener />
+            <web3-connector
+              accountState={this.accountState}
+              networkState={this.networkState}
+            />
           </div>
         </AccountTunnel.Provider>
       </NetworkTunnel.Provider>

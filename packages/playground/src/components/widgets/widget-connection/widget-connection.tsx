@@ -2,6 +2,12 @@ import { Component, Element, Prop } from "@stencil/core";
 
 import NetworkTunnel from "../../../data/network";
 
+const NETWORK_NAMES = {
+  "1": "Ethereum (Mainnet)",
+  "3": "Ropsten (Private)",
+  "42": "Kovan (Testnet)",
+  "4": "Rinkeby (Private)"
+};
 @Component({
   tag: "widget-connection",
   styleUrl: "widget-connection.scss",
@@ -16,7 +22,9 @@ export class WidgetConnection {
       <div class="connection">
         <span class={this.network ? "dot connected" : "dot"} />
         <span class="status">
-          {this.network ? `Connected to ${this.network}` : "No Connection"}
+          {this.network
+            ? `Connected to ${NETWORK_NAMES[this.network]}`
+            : "No Connection"}
         </span>
       </div>
     );
