@@ -1,21 +1,22 @@
+import { Node } from "@counterfactual/node";
 import cors from "@koa/cors";
 import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
 
-const api = new Koa();
+import { createAccount } from "./middleware";
 
-const router = new Router({ prefix: "/api" });
+export default function mountApi(node: Node) {
+  const api = new Koa();
 
-router.get("/hello", async (ctx, next) => {
-  ctx.body = { hello: ctx.request.query.name };
-  ctx.status = 200;
-  return next();
-});
+  const router = new Router({ prefix: "/api" });
 
-api
-  .use(router.routes())
-  .use(bodyParser({ json: true }))
-  .use(cors());
+  router.post("/create-account", createAccount(node));
 
-export default api;
+  api
+    .use(bodyParser({ json: true }))
+    .use(router.routes())
+    .use(cors());
+
+  return api;
+}
