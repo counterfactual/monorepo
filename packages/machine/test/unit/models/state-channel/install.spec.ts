@@ -106,8 +106,8 @@ describe("StateChannel::uninstallApp", () => {
       app = sc2.getAppInstance(appInstanceId)!;
     });
 
-    it("should not be a metachannel app", () => {
-      expect(app.isMetachannelApp).toBe(false);
+    it("should not be a virtual app", () => {
+      expect(app.isVirtualApp).toBe(false);
     });
 
     // TODO: moar tests pl0x

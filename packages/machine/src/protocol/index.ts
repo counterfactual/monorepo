@@ -1,4 +1,4 @@
-import { Protocol } from "../types";
+import { Protocol, ProtocolExecutionFlow } from "../types";
 
 import { INSTALL_PROTOCOL } from "./install";
 import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";
@@ -14,7 +14,9 @@ const protocolsByName = {
   [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL
 };
 
-export function getProtocolFromName(protocolName: Protocol) {
+export function getProtocolFromName(
+  protocolName: Protocol
+): ProtocolExecutionFlow {
   if (!(protocolName in protocolsByName)) {
     throw Error(`Received invalid protocol type ${protocolName}`);
   }

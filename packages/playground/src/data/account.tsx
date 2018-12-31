@@ -1,13 +1,13 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-export interface State {
+export interface AccountState {
   balance?: number;
   username?: string;
   email?: string;
   address?: string;
-  updateAccount?: (e) => void;
+  updateAccount?(data: AccountState): Promise<void>;
 }
 
-export default createProviderConsumer<State>({}, (subscribe, child) => (
+export default createProviderConsumer<AccountState>({}, (subscribe, child) => (
   <context-consumer subscribe={subscribe} renderer={child} />
 ));

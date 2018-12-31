@@ -1,10 +1,12 @@
+import { NetworkContext } from "@counterfactual/types";
+
 import { Middleware } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
 import {
   InstallParams,
-  MetaChannelInstallAppData,
+  InstallVirtualAppParams,
   ProtocolMessage,
   UninstallParams,
   UpdateData
@@ -30,7 +32,7 @@ function genericProtocolMessageFields(sc: StateChannel) {
 export class InstructionExecutor {
   public middleware: Middleware;
 
-  constructor(public readonly network) {
+  constructor(public readonly network: NetworkContext) {
     this.middleware = new Middleware();
   }
 
@@ -87,7 +89,7 @@ export class InstructionExecutor {
 
   public async runInstallVirtualAppProtocol(
     sc: StateChannel,
-    params: MetaChannelInstallAppData
+    params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {

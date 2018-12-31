@@ -20,6 +20,7 @@
     "@counterfactual/types": "0.0.1",
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",
+    "@types/dotenv-safe": "^5.0.3",
     "@types/jest": "^23.3.3",
     "@types/node": "^10.9.3",
     "chai": "^4.2.0",
