@@ -13,7 +13,7 @@ contract LibStateChannelApp {
     OFF
   }
 
-  // An interface to the App used to make function calls to it
+  // An interface to the App Definition used to make function calls to it
   struct AppInterface {
     address addr;
     bytes4 getTurnTaker;
