@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import NodeProvider from "../../src/node-provider";
 import {
+  Context,
   createMockMessageChannel,
   mockAddEventListenerFunction,
   MockMessagePort,
@@ -17,7 +18,7 @@ const context = {
   connected: false,
   dappPort: new MockMessagePort(),
   nodeProviderPort: new MockMessagePort()
-};
+} as Context;
 
 describe("NodeProvider", () => {
   beforeAll(() => {
