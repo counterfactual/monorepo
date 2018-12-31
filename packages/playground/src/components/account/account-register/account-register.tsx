@@ -1,3 +1,8 @@
+import {
+  ApiResponse,
+  CreateAccountResponseData,
+  ErrorResponse
+} from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -33,9 +38,32 @@ export class AccountRegister {
     this.changeset[key] = event.target.value;
   }
 
-  formSubmitionHandler() {
-    console.log(this.changeset);
-    this.updateAccount(this.changeset);
+  async formSubmitionHandler() {
+    const data = this.changeset;
+
+    const httpResponse = await fetch(
+      "http://localhost:9000/api/create-account",
+      {
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        method: "POST"
+      }
+    );
+
+    const apiResponse = (await httpResponse.json()) as ApiResponse;
+
+    if (!apiResponse.ok) {
+      const error = apiResponse.error as ErrorResponse;
+      alert(`Something went wrong: ${error.status}`);
+      return;
+    }
+
+    const { multisigAddress } = apiResponse.data as CreateAccountResponseData;
+    window.localStorage.setItem("playground:multisig", multisigAddress);
+
+    this.updateAccount(data);
     this.history.push("/deposit");
   }
 
