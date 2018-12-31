@@ -4,9 +4,9 @@ import NetworkTunnel from "../../../data/network";
 
 const NETWORK_NAMES = {
   "1": "Ethereum (Mainnet)",
-  "3": "Ropsten (Private)",
+  "3": "Ropsten (Testnet)",
   "42": "Kovan (Testnet)",
-  "4": "Rinkeby (Private)"
+  "4": "Rinkeby (Testnet)"
 };
 @Component({
   tag: "widget-connection",
