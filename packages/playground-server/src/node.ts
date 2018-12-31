@@ -6,7 +6,6 @@ import {
 import { Node as NodeTypes } from "@counterfactual/types";
 
 const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
-const { CREATE_MULTISIG } = NodeTypes.MethodName;
 
 const serviceFactory = new FirebaseServiceFactory({
   apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
