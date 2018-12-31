@@ -4,6 +4,6 @@
     "outDir": "dist/",
     "noImplicitAny": true
   },
-  "include": ["src"],
+  "include": ["src", "test"],
   "exclude": ["dist"]
 }
