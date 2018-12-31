@@ -2,6 +2,7 @@ import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import NetworkTunnel from "../../../data/network";
 import { UserChangeset } from "../../../types";
 
 @Component({
@@ -11,6 +12,7 @@ import { UserChangeset } from "../../../types";
 })
 export class AccountRegister {
   @Element() el!: HTMLStencilElement;
+  @Prop() connected: boolean = false;
   @Prop() address: string = "";
   @Prop() email: string = "";
   @Prop() username: string = "";
@@ -20,7 +22,7 @@ export class AccountRegister {
   changeset: UserChangeset = {
     username: "",
     email: "",
-    address: ""
+    address: this.address
   };
 
   login() {
@@ -38,6 +40,10 @@ export class AccountRegister {
   }
 
   render() {
+    if (this.address) {
+      this.changeset.address = this.address;
+    }
+
     return (
       <widget-screen>
         <div slot="header">Create a Playground account</div>
@@ -56,7 +62,10 @@ export class AccountRegister {
           <form-input
             label="Ethereum address"
             value={this.changeset.address}
-            onChange={e => this.change("address", e)}
+            disabled={this.connected}
+            onChange={
+              !this.connected ? e => this.change("address", e) : () => {}
+            }
           />
           <form-button onButtonPressed={e => this.formSubmitionHandler()}>
             Create account
@@ -77,3 +86,5 @@ AccountTunnel.injectProps(AccountRegister, [
   "updateAccount",
   "username"
 ]);
+
+NetworkTunnel.injectProps(AccountRegister, ["connected"]);
