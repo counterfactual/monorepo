@@ -21,8 +21,8 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "ts-node src/",
-    "test": "PLAYGROUND_SERVER_ENV=development jest"
+    "start": "PLAYGROUND_SERVER_PORT=9000 ts-node src/",
+    "test": "PLAYGROUND_SERVER_PORT=9000 PLAYGROUND_SERVER_ENV=development jest"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
