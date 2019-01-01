@@ -24,9 +24,9 @@ export class Middleware {
     let counter = 0;
     const middlewares = this.middlewares;
 
-    async function callback() {
+    async function callback(): Promise<void> {
       if (counter === middlewares[opCode].length - 1) {
-        return null;
+        return;
       }
 
       // This is hacky, prevents next from being called more than once

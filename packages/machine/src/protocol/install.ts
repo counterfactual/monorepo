@@ -80,7 +80,7 @@ function proposeStateTransition(
     defaultTimeout,
     appInterface,
     terms,
-    // KEY: Sets it to NOT be a MetaChannelApp
+    // KEY: Sets it to NOT be a virtual app
     false,
     // KEY: The app sequence number
     // TODO: Should validate that the proposed app sequence number is also

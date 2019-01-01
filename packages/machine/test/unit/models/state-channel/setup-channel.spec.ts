@@ -61,8 +61,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.multisigAddress).toBe(sc2.multisigAddress);
     });
 
-    it("should not be a metachannel app", () => {
-      expect(fb.isMetachannelApp).toBe(false);
+    it("should not be a virtual app", () => {
+      expect(fb.isVirtualApp).toBe(false);
     });
 
     it("should have nonce 0 to start", () => {
