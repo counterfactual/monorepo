@@ -18,7 +18,9 @@ import { AppInstance } from "./app-instance";
 const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 10,
   freeBalanceInitialStateTimeout: 10,
-  appSequenceNumberForFreeBalance: 0
+  appSequenceNumberForFreeBalance: 0,
+  // We assume the Free Balance is installed when the Root Nonce value is 0
+  rootNonceValueAtFreeBalanceInstall: 0
 };
 
 const ERRORS = {
@@ -51,6 +53,7 @@ function createETHFreeBalance(
     freeBalanceTerms,
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
+    HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
     {
       alice: signingKeyForFreeBalanceForPerson1,
       bob: signingKeyForFreeBalanceForPerson2,
@@ -74,7 +77,8 @@ export class StateChannel {
       AssetType,
       string
     > = new Map<AssetType, string>([]),
-    private readonly monotonicNumInstalledApps: number = 0
+    private readonly monotonicNumInstalledApps: number = 0,
+    public readonly rootNonceValue: number = 0
   ) {}
 
   public get numInstalledApps() {

@@ -87,6 +87,7 @@ function proposeStateTransition(
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
     state.numInstalledApps + 1,
+    state.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
@@ -126,6 +127,7 @@ export function constructInstallOp(
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
-    freeBalance.appSeqNo
+    freeBalance.appSeqNo,
+    freeBalance.rootNonceValue
   );
 }

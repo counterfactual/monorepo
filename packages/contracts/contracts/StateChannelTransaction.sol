@@ -26,10 +26,19 @@ contract StateChannelTransaction is LibCondition {
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     bytes32 appInstanceId,
+    uint256 rootNonceExpectedValue,
     Transfer.Terms terms
   )
     public
   {
+    require(
+      nonceRegistry.isFinalized(
+        keccak256(address(this)),
+        rootNonceExpectedValue
+      ),
+      "Root nonce not finalized or finalized at an incorrect value"
+    );
+
     require(
       !nonceRegistry.isFinalized(uninstallKey, 1),
       "App has been uninstalled"
