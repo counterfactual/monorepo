@@ -18,6 +18,7 @@ import { AppInstance } from "./app-instance";
 const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 10,
   freeBalanceInitialStateTimeout: 10,
+  // We assume the Free Balance is the first app ever installed
   appSequenceNumberForFreeBalance: 0
 };
 
