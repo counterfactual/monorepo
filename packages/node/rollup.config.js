@@ -1,15 +1,24 @@
+import nodeResolve from 'rollup-plugin-node-resolve';
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
 
 const globals = {
   "@counterfactual/cf.js": "cfjs",
-  "@counterfactual/types": "types",
   "eventemitter3": "EventEmitter",
   "ethers/constants": "ethers.constants",
   "ethers/utils": "ethers.utils",
   "ethers/wallet": "ethers.wallet",
+  "firebase": "firebase",
+  "uuid": "uuid"
 }
+
+const external = [
+  ...(Object.keys(pkg.dependencies || {})).filter(dependency => {
+    return (dependency !== "@counterfactual/types");
+  }),
+  ...Object.keys(pkg.peerDependencies || {})
+];
 
 export default [
   {
@@ -30,11 +39,12 @@ export default [
         globals: globals
       }
     ],
-    external: [
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
+    sourceMap: true,
+    external: external,
     plugins: [
+      nodeResolve({
+        only: ["@counterfactual/types"]
+      }),
       typescript({
         tsconfig: "tsconfig.rollup.json"
       })

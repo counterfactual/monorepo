@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "iife": "dist/index-iife.js",
   "license": "MIT",
