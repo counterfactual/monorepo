@@ -2,11 +2,9 @@ graph LR
     subgraph Registry
         proxyCall
     end
-    subgraph AppInstance
+    subgraph AppRegistry
         setState
         proxyCall-->setState
-        setState-->appStateHash
-        setState-->nonce
-        setState-->timeout
-        setState-->signatures
+        setState-->appIdentity:AppIdentity
+        setState-->req:SignedStateHashUpdate
     end

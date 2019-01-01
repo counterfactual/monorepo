@@ -10,13 +10,11 @@ graph LR
     subgraph Registry
         proxyCall
     end
-    subgraph AppInstance
+    subgraph AppRegistry
         setState
         proxyCall-->setState
-        setState-->appStateHash
-        setState-->nonce
-        setState-->timeout
-        setState-->0x0
+        setState-->appIdentity:AppIdentity
+        setState-->req:SignedStateHashUpdate
     end
     subgraph MultiSend
         multiSend

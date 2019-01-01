@@ -1,60 +1,51 @@
 # State Machine Based Applications
 
-The following is a loose description of the concepts we use for an off-chain application. Most importantly, an `AppInstance` is the actual contract that is responsible for adjudicating a challenge on-chain and it uses an `App` (defined using an `AppDefinition`) to handle cases where adjudication requires on-chain logic to determine state validity.
+The following is a loose description of the concepts we use for an off-chain application. Most importantly, the `AppRegistry` is the actual contract that is responsible for adjudicating a challenge on-chain and it uses an `App` (defined using an `AppDefinition`) to handle cases where adjudication requires on-chain logic to determine state validity.
 
 # Table of Contents
 
-- [AppInstance](#appinstance)
+- [AppRegistry](#appregistry)
 - [AppDefinition](#appdefinitions)
 
-## AppInstance
+## AppRegistry
 
-We refer to the contract that adjudicates a dispute in a state channel application as an [`AppInstance`](#appinstance). This is the most fundamental contract for providing the security guarantees that off-chain state updates of the latest nonce and valid update status can be considered "final". It does this by implementing the challenge-response mechanism.
+We refer to the contract that adjudicates a dispute in a state channel application as the [`AppRegistry`](#appregistry). This is the most fundamental contract for providing the security guarantees that off-chain state updates of the latest nonce and valid update status can be considered "final". It does this by implementing the challenge-response mechanism.
 
-An AppInstance exists in three main states or “statuses”, namely `ON`, `OFF` and `DISPUTE`. The `ON` state represents the state where a dispute has not started, while the `OFF` state represents one where a dispute has finished (typically through moving to a terminal app state). In the Solidity code this is implemented as an `enum`:
+An app challenge exists in three main states or "statuses", namely `ON`, `OFF` and `DISPUTE`. The `ON` state represents the state where a dispute has not started, while the `OFF` state represents one where a dispute has finished (typically through moving to a terminal app state). In the Solidity code this is implemented as an `enum`:
 
 ```solidity
-enum Status {
+enum AppStatus {
   ON,
   DISPUTE,
   OFF
 }
 ```
 
-In the stored state channel `State` struct, which is the encapsulation of all the information needed to know what is the "final" state pertaining to an application, the `Status` variable is included in addition to the hash of the application's state and a nonce.
+The `AppChallenge` struct (which is written to storage in `AppRegistry`) is the encapsulation of all the information needed to know what is the "latest" state pertaining to an application. The fields include `status` a hash of the application's state and a nonce.
 
 ```solidity
-struct State {
-  Status status;
+struct AppChallenge {
+  AppStatus status;
   bytes32 appStateHash;
-  uint256 nonce;
   uint256 finalizesAt;
+  uint256 nonce;
   ...
 }
 ```
 
-In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing the block height before which a responding `progressDispute` call must be made. Hence, the functions in `AppInstance.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
+In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing the block height after which the conditional transfer succeeds. Hence, the functions in `AppRegistry.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
 
 The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
 
 ![statechannel statuses](./img/statechannel-statuses.svg)
 
-To transition between these states, Counterfactual defines an interface to an AppInstance that can be used to transition between the logical states defined above.
-
-- [`setState`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L161) (`ON` to `DISPUTE`): Supports submitting the latest signed state and turning on the timer.
-- [`createDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L214) (`ON` to `DISPUTE`): Supports submitting latest state _and_ a valid action on the state.
-- [`progressDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L301) (`DISPUTE` to `DISPUTE`): Supports submitting a valid action that progresses the state.
-- [`cancelDispute`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L359) (`DISPUTE` to `ON`): Supports unanimously cancelling the dispute and resuming off-chain.
-
-There is additionally a final function that sets the resolution of an off-chain application to be determined if the AppInstance is in an `OFF` state (after a timeout has occured).
-
-- [`setResolution`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppInstance.sol#L387)
+> TODO: enumerate methods defined on AppRegistry.sol that can change status
 
 ## AppDefinitions
 
-Counterfactual is opinionated in terms of which types of applications it supports being installed by supporting stateless contracts that implement the interface for an `App` as defined in the [`AppInstance`](#appinstance) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
+Counterfactual is opinionated in terms of which types of applications it supports being installed by supporting stateless contracts that implement the interface for an `App` as defined in the [`AppRegistry`](#appregistry) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
 
-The actual `App` functionality is isolated and defined in a single stateless contract. This contract defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-storage-modifying functions. By non-storage-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `STATICCALL` opcode in the [`AppInstance`](#appinstance) contract.
+The actual `App` functionality is isolated and defined in a single stateless contract referred to as the App Definition contract. This contract defines the data structure used for app state, typically a struct named `AppState`, as well as app logic through non-storage-modifying functions. By non-storage-modifying we mean that they cannot use the `SSTORE` instruction; this corresponds to the solidity function modifiers `pure` or `view`. To enforce this restriction, these functions are called through the `STATICCALL` opcode in the [`AppRegistry`](#appregistry) contract.
 
 Up to four functions can be implemented. The signatures are as follows:
 
@@ -63,13 +54,15 @@ Up to four functions can be implemented. The signatures are as follows:
 - `applyAction: (AppState, Action) → AppState`
 - `resolve: AppState → Transfer.Transaction`
 
-In designing the framework we must try to achieve two sometimes contradictory goals. On the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized. In the future, improvements such as `abi.decode` will allow us to remove these and other restrictions and move to a cleaner API.
+In designing the framework we must try to achieve two sometimes contradictory goals. On the one hand, we wish to allow app developers to view application state as a structured data type, the same way the developer of a non-channelized dapp would interact with contract storage. On the other hand, the framework would like to treat application state as a blob of unstructured data. Current limitations around the Solidity type system sometimes put these in conflict; for instance, we enforce the limitation that the `AppState` struct must not be dynamically sized.
 
 Another consequence is that the return type of `resolve` is actually `bytes`. We expect that application developers simply end their `resolve` function with something like
 
 `return abi.encode(nextState);`
 
 where `nextState` has type `AppState`.
+
+> In the future, improvements such as `abi.decode` will allow us to remove these and other restrictions and move to a cleaner API.
 
 ### `applyAction` and `getTurnTaker`: The Application State Transition Function
 
