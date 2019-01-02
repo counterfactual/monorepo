@@ -427,6 +427,10 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
+- `isVirtual: boolean`
+    - Whether this app instance is virtual i.e. uses a metachannel
+- `intermediaries?: Address[]`
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
