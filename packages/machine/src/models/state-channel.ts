@@ -18,9 +18,10 @@ import { AppInstance } from "./app-instance";
 const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 10,
   freeBalanceInitialStateTimeout: 10,
-  appSequenceNumberForFreeBalance: 0,
   // We assume the Free Balance is installed when the Root Nonce value is 0
-  rootNonceValueAtFreeBalanceInstall: 0
+  rootNonceValueAtFreeBalanceInstall: 0,
+  // We assume the Free Balance is the first app ever installed
+  appSequenceNumberForFreeBalance: 0
 };
 
 const ERRORS = {
