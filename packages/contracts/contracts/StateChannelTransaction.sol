@@ -33,7 +33,8 @@ contract StateChannelTransaction is LibCondition {
   {
     require(
       nonceRegistry.isFinalized(
-        keccak256(address(this)),
+        // TODO: Allow ability to set timeout off-chain
+        nonceRegistry.computeKey(address(this), 100, 0x0),
         rootNonceExpectedValue
       ),
       "Root nonce not finalized or finalized at an incorrect value"
