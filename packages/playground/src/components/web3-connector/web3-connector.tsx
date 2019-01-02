@@ -3,16 +3,6 @@ import { Component, Prop } from "@stencil/core";
 import { AccountState } from "../../data/account";
 import { NetworkState } from "../../data/network";
 
-declare var web3: {
-  currentProvider: {
-    enable: () => Promise<void>;
-    selectedAddress: string;
-  };
-  version: {
-    network: string;
-  };
-};
-
 @Component({
   tag: "web3-connector",
   shadow: true

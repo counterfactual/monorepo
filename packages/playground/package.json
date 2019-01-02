@@ -29,6 +29,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@counterfactual/playground-server": "^0.0.1",
+    "@counterfactual/typescript-typings": "^0.0.1",
     "@types/puppeteer": "1.11.1",
     "puppeteer": "1.8.0",
     "rollup-plugin-replace": "^2.1.0"
