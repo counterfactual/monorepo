@@ -1,11 +1,10 @@
 import { Address } from "@counterfactual/types";
-import { Signature } from "ethers/utils";
 
 export type CreateAccountRequest = {
   username: string;
   email: string;
   address: Address;
-  signature?: Signature;
+  signature?: string;
 };
 
 export type ErrorResponse = {
