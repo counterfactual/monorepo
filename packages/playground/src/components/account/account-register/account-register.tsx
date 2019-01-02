@@ -1,3 +1,15 @@
+declare var web3: {
+  personal: {
+    // API matches version 0.20.3 of Web3
+    sign: (
+      dataToSign: string,
+      from: string | number,
+      callback: (err: Error, signedData: string) => void
+    ) => void;
+  };
+};
+
+import { CreateAccountRequest } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -5,6 +17,15 @@ import AccountTunnel from "../../../data/account";
 import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
 import { UserChangeset } from "../../../types";
+
+function buildSignaturePayload(data: UserChangeset) {
+  return [
+    "PLAYGROUND ACCOUNT REGISTRATION",
+    `Username: ${data.username}`,
+    `E-mail: ${data.email}`,
+    `Ethereum address: ${data.address}`
+  ].join("\n");
+}
 
 @Component({
   tag: "account-register",
@@ -34,18 +55,33 @@ export class AccountRegister {
     this.changeset[key] = event.target.value;
   }
 
-  async formSubmitionHandler() {
-    const data = this.changeset;
+  formSubmitionHandler() {
+    const data: CreateAccountRequest = this.changeset;
 
-    const apiResponse = await PlaygroundAPIClient.createAccount(data);
+    // We use personal#sign() because eth#sign() is dangerous.
+    // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
+    web3.personal.sign(
+      buildSignaturePayload(data),
+      data.address,
+      async (error: Error, signedData: string) => {
+        // TODO: Handle errors.
+        if (error) {
+          throw error;
+        }
 
-    window.localStorage.setItem(
-      "playground:multisig",
-      apiResponse.multisigAddress
+        // Call the API and store the multisig.
+        data.signature = signedData;
+        const apiResponse = await PlaygroundAPIClient.createAccount(data);
+
+        window.localStorage.setItem(
+          "playground:multisig",
+          apiResponse.multisigAddress
+        );
+
+        this.updateAccount(data);
+        this.history.push("/deposit");
+      }
     );
-
-    this.updateAccount(data);
-    this.history.push("/deposit");
   }
 
   render() {
