@@ -11,46 +11,6 @@ export enum AssetType {
   ANY
 }
 
-export class App {
-  private static readonly ABI_ENCODER_V2_ENCODING = `
-    tuple(
-      address owner,
-      address[] signingKeys,
-      bytes32 appInterfaceHash,
-      bytes32 termsHash,
-      uint256 defaultTimeout
-    )
-  `;
-
-  get id(): string {
-    return this.hashOfEncoding();
-  }
-
-  constructor(
-    readonly owner: string,
-    readonly signingKeys: string[],
-    readonly appInterfaceHash: string,
-    readonly termsHash: string,
-    readonly defaultTimeout: number
-  ) {}
-
-  public toJson(): AppIdentity {
-    return {
-      owner: this.owner,
-      signingKeys: this.signingKeys,
-      appInterfaceHash: this.appInterfaceHash,
-      termsHash: this.termsHash,
-      defaultTimeout: this.defaultTimeout
-    };
-  }
-
-  public hashOfEncoding(): string {
-    return keccak256(
-      defaultAbiCoder.encode([App.ABI_ENCODER_V2_ENCODING], [this.toJson()])
-    );
-  }
-}
-
 export class AppInterface {
   private static readonly ABI_ENCODER_V2_ENCODING = `
     tuple(
