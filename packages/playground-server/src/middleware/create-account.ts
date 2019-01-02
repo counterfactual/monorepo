@@ -1,8 +1,6 @@
-import { Node } from "@counterfactual/node";
-import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { Context } from "koa";
-import { v4 as generateUUID } from "uuid";
 
+import { createMultisigFor } from "../node";
 import {
   ApiResponse,
   CreateAccountRequest,
@@ -46,25 +44,7 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
   return { ok: true };
 }
 
-async function createMultisigFor(
-  node: Node,
-  userAddress: Address
-): Promise<NodeTypes.CreateMultisigResult> {
-  const multisigResponse = await node.call(
-    NodeTypes.MethodName.CREATE_MULTISIG,
-    {
-      params: {
-        owners: [node.address, userAddress]
-      },
-      type: NodeTypes.MethodName.CREATE_MULTISIG,
-      requestId: generateUUID()
-    }
-  );
-
-  return multisigResponse.result as NodeTypes.CreateMultisigResult;
-}
-
-export default function createAccount(node: Node) {
+export default function createAccount() {
   return async (ctx: Context, next: () => Promise<void>) => {
     const request = ctx.request.body as CreateAccountRequest;
 
@@ -81,7 +61,7 @@ export default function createAccount(node: Node) {
     }
 
     // Create the multisig and return its address.
-    const multisig = await createMultisigFor(node, request.address);
+    const multisig = await createMultisigFor(request.address);
 
     response.data = {
       ...response.data,

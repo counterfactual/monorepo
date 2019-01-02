@@ -2,10 +2,9 @@ import axios from "axios";
 import { Server } from "http";
 
 import mountApi from "../src/api";
-import node from "../src/node";
 import { ErrorCode } from "../src/types";
 
-const api = mountApi(node);
+const api = mountApi();
 let server: Server;
 
 const client = axios.create({
