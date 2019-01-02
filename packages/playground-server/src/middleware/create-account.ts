@@ -1,4 +1,6 @@
+import { verifyMessage } from "ethers/utils";
 import { Context } from "koa";
+import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
 import { createMultisigFor } from "../node";
 import {
@@ -7,6 +9,15 @@ import {
   CreateAccountResponseData,
   ErrorCode
 } from "../types";
+
+function buildSignaturePayload(data: CreateAccountRequest) {
+  return [
+    "PLAYGROUND ACCOUNT REGISTRATION",
+    `Username: ${data.username}`,
+    `E-mail: ${data.email}`,
+    `Ethereum address: ${data.address}`
+  ].join("\n");
+}
 
 function validateRequest(params: CreateAccountRequest): ApiResponse {
   if (!params.username) {
@@ -39,7 +50,26 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
     };
   }
 
-  // TODO: Add signature check.
+  const providedSignature = params.signature as string;
+  const expectedMessage = buildSignaturePayload(params);
+  const expectedAddress = verifyMessage(expectedMessage, providedSignature);
+
+  if (
+    // We compare the addresses case-insensitively.
+    // verifyMessage() returns mixed upper and lower case characters,
+    // while eth.accounts[0] always returns lower-case characters.
+    params.address.localeCompare(expectedAddress, "en", {
+      sensitivity: "base"
+    }) !== 0
+  ) {
+    return {
+      ok: false,
+      error: {
+        status: 403,
+        errorCode: ErrorCode.InvalidSignature
+      }
+    };
+  }
 
   return { ok: true };
 }
