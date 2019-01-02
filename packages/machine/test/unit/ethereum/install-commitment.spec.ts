@@ -86,6 +86,7 @@ describe("InstallCommitment", () => {
     },
     false,
     stateChannel.numInstalledApps + 1,
+    0,
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random())
@@ -103,7 +104,8 @@ describe("InstallCommitment", () => {
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
-      stateChannel.numInstalledApps + 1
+      stateChannel.numInstalledApps + 1,
+      stateChannel.rootNonceValue
     ).getTransactionDetails();
   });
 
@@ -228,12 +230,16 @@ describe("InstallCommitment", () => {
             nonceRegistryAddress,
             uninstallKey,
             appInstanceId,
+            rootNonceValue,
             terms
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
           expect(uninstallKey).toBe(appInstance.uninstallKey);
           expect(appInstanceId).toBe(appIdentityToHash(appInstance.identity));
+          expect(rootNonceValue).toEqual(
+            bigNumberify(appInstance.rootNonceValue)
+          );
           expect(terms[0]).toBe(appInstance.terms.assetType);
           expect(terms[1]).toEqual(appInstance.terms.limit);
           expect(terms[2]).toBe(appInstance.terms.token);

@@ -1,23 +1,14 @@
 {
-
   "extends": [
     "tslint-config-airbnb",
     "tslint-plugin-prettier",
     "tslint-config-prettier"
   ],
-
   "rules": {
-
     "prettier": true,
-
     // NOTE: Added by Liam. I just prefer this rule to be on. Looks clean.
-    "ordered-imports": [
-      true,
-      {"grouped-imports": true}
-    ],
-
+    "ordered-imports": [true, {"grouped-imports": true}],
     // See https://github.com/counterfactual/monorepo/pull/231#discussion_r233860710
     "import-name": false
-
   }
 }
