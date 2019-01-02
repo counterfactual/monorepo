@@ -30,7 +30,7 @@ describe("StateChannel::uninstallApp", () => {
       networkContext
     );
 
-    const app = new AppInstance(
+    const appInstance = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
       [
         getAddress(hexlify(randomBytes(20))),
@@ -53,12 +53,13 @@ describe("StateChannel::uninstallApp", () => {
       },
       false,
       Math.ceil(Math.random() * 2e10),
+      0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
       Math.ceil(1000 * Math.random())
     );
 
-    appInstanceId = app.id;
+    appInstanceId = appInstance.id;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
     const fb = sc1.getFreeBalanceFor(AssetType.ETH);
@@ -69,7 +70,7 @@ describe("StateChannel::uninstallApp", () => {
       bobBalance: WeiPerEther
     });
 
-    sc2 = sc1.installApp(app, WeiPerEther, WeiPerEther);
+    sc2 = sc1.installApp(appInstance, WeiPerEther, WeiPerEther);
   });
 
   it("should not alter any of the base properties", () => {
@@ -106,8 +107,8 @@ describe("StateChannel::uninstallApp", () => {
       app = sc2.getAppInstance(appInstanceId)!;
     });
 
-    it("should not be a metachannel app", () => {
-      expect(app.isMetachannelApp).toBe(false);
+    it("should not be a virtual app", () => {
+      expect(app.isVirtualApp).toBe(false);
     });
 
     // TODO: moar tests pl0x

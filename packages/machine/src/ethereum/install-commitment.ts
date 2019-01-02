@@ -1,17 +1,12 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
-import {
-  defaultAbiCoder,
-  Interface,
-  keccak256,
-  solidityPack
-} from "ethers/utils";
+import { Interface, keccak256, solidityPack } from "ethers/utils";
 
 import { DependencyValue } from "../models/app-instance";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
-import { APP_IDENTITY } from "./utils/encodings";
+import { appIdentityToHash } from "./utils/app-identity";
 
 const iface = new Interface(StateChannelTransaction.abi);
 
@@ -27,7 +22,8 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly freeBalanceStateHash: string,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
-    public readonly dependencyNonce: number
+    public readonly dependencyNonce: number,
+    public readonly rootNonceValue: number
   ) {
     super(
       networkContext,
@@ -38,7 +34,7 @@ export class InstallCommitment extends MultiSendCommitment {
       freeBalanceStateHash,
       freeBalanceNonce,
       freeBalanceTimeout,
-      keccak256(defaultAbiCoder.encode(["uint256"], [dependencyNonce])),
+      keccak256(solidityPack(["uint256"], [dependencyNonce])),
       DependencyValue.NOT_UNINSTALLED
     );
   }
@@ -50,14 +46,12 @@ export class InstallCommitment extends MultiSendCommitment {
   private conditionalTransactionInput(): MultisigTransaction {
     const uninstallKey = keccak256(
       solidityPack(
-        ["address", "uint256", "uint256"],
+        ["address", "uint256", "bytes32"],
         [this.multisig, 0, this.dependencyNonceSalt]
       )
     );
 
-    const appInstanceId = keccak256(
-      defaultAbiCoder.encode([APP_IDENTITY], [this.appIdentity])
-    );
+    const appInstanceId = appIdentityToHash(this.appIdentity);
 
     return {
       to: this.networkContext.StateChannelTransaction,
@@ -67,6 +61,7 @@ export class InstallCommitment extends MultiSendCommitment {
         this.networkContext.NonceRegistry,
         uninstallKey,
         appInstanceId,
+        this.rootNonceValue,
         this.terms
       ]),
       operation: MultisigOperation.DelegateCall

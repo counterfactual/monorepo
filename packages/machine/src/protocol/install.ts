@@ -3,7 +3,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { InstallData, ProtocolMessage } from "../protocol-types-tbd";
+import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
@@ -72,21 +72,22 @@ function proposeStateTransition(
     terms,
     appInterface,
     defaultTimeout
-  } = message.params as InstallData;
+  } = message.params as InstallParams;
 
-  const app = new AppInstance(
+  const appInstance = new AppInstance(
     state.multisigAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
     terms,
-    // KEY: Sets it to NOT be a MetaChannelApp
+    // KEY: Sets it to NOT be a virtual app
     false,
     // KEY: The app sequence number
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
     state.numInstalledApps + 1,
+    state.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
@@ -94,7 +95,7 @@ function proposeStateTransition(
   );
 
   context.stateChannel = state.installApp(
-    app,
+    appInstance,
     aliceBalanceDecrement,
     bobBalanceDecrement
   );
@@ -102,7 +103,7 @@ function proposeStateTransition(
   context.operation = constructInstallOp(
     context.network,
     context.stateChannel,
-    app.id
+    appInstance.id
   );
 }
 
@@ -126,6 +127,7 @@ export function constructInstallOp(
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
-    freeBalance.appSeqNo
+    freeBalance.appSeqNo,
+    freeBalance.rootNonceValue
   );
 }

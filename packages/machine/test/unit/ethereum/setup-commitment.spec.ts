@@ -1,6 +1,7 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import {
+  bigNumberify,
   getAddress,
   hexlify,
   Interface,
@@ -25,7 +26,7 @@ import { StateChannel } from "../../../src/models";
 describe("SetupCommitment", () => {
   let tx: MultisigTransaction;
 
-  // Test network context
+  // Dummy network context
   const networkContext: NetworkContext = {
     ETHBucket: getAddress(hexlify(randomBytes(20))),
     StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
@@ -90,12 +91,16 @@ describe("SetupCommitment", () => {
         nonceRegistry,
         uninstallKey,
         appInstanceId,
+        rootNonceValue,
         [assetType, limit, token]
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(appInstanceId).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(rootNonceValue).toEqual(
+        bigNumberify(freeBalanceETH.rootNonceValue)
+      );
       expect(assetType).toBe(freeBalanceETH.terms.assetType);
       expect(limit).toEqual(freeBalanceETH.terms.limit);
       expect(token).toBe(freeBalanceETH.terms.token);

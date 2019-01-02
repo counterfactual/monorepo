@@ -34,7 +34,7 @@ contract CommitRevealApp {
   struct Action {
     ActionType actionType;
     uint256 number;
-    bytes32 hash;
+    bytes32 actionHash;
   }
 
   function isStateTerminal(AppState state)
@@ -71,7 +71,7 @@ contract CommitRevealApp {
       require(state.stage == Stage.CHOOSING, "Cannot apply CHOOSE_NUMBER on CHOOSING");
       nextState.stage = Stage.GUESSING;
 
-      nextState.commitHash = action.hash;
+      nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.GUESS_NUMBER) {
       require(state.stage == Stage.GUESSING, "Cannot apply GUESS_NUMBER on GUESSING");
       nextState.stage = Stage.REVEALING;
@@ -82,7 +82,7 @@ contract CommitRevealApp {
       require(state.stage == Stage.REVEALING, "Cannot apply REVEAL_NUMBER on REVEALING");
       nextState.stage = Stage.DONE;
 
-      bytes32 salt = action.hash;
+      bytes32 salt = action.actionHash;
       uint256 chosenNumber = action.number;
       if (keccak256(abi.encodePacked(salt, chosenNumber)) == state.commitHash && state.guessedNumber != chosenNumber && chosenNumber < state.maximum) {
         nextState.winner = Player.CHOOSING;

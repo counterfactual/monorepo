@@ -1,4 +1,15 @@
-export function createMockMessageEvent(message, transferables) {
+export interface Context {
+  originalAddEventListener: typeof addEventListener;
+  messageCallbacks: any[];
+  connected: boolean;
+  dappPort: MockMessagePort;
+  nodeProviderPort: MockMessagePort;
+}
+
+export function createMockMessageEvent(
+  message: string,
+  transferables: MockMessagePort[]
+) {
   return {
     data: message,
     ports: transferables,
@@ -40,7 +51,7 @@ export class MockMessagePort {
     }
   }
 
-  postMessage(message, transferables) {
+  postMessage(message: string, transferables: MockMessagePort[]) {
     this.onMessageCallback.forEach(callback =>
       createMockMessageEvent(message, transferables)
     );
@@ -54,8 +65,10 @@ export function createMockMessagePort() {
   return new MockMessagePort();
 }
 
-export function mockAddEventListenerFunction(context) {
-  return (eventName, callback) => {
+export function mockAddEventListenerFunction(
+  context: Context
+): typeof window.addEventListener {
+  return (eventName: string, callback: EventListenerOrEventListenerObject) => {
     if (eventName !== "message") {
       context.originalAddEventListener(eventName, callback);
       return;
@@ -65,8 +78,12 @@ export function mockAddEventListenerFunction(context) {
   };
 }
 
-export function mockPostMessageFunction(context) {
-  return (message, target, transferables) => {
+export function mockPostMessageFunction(context: Context) {
+  return (
+    message: string,
+    target: string,
+    transferables: MockMessagePort[]
+  ) => {
     context.messageCallbacks.forEach(callback => {
       callback(createMockMessageEvent(message, transferables));
     });

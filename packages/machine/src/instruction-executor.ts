@@ -1,12 +1,14 @@
+import { NetworkContext } from "@counterfactual/types";
+
 import { Middleware } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
 import {
-  InstallData,
-  MetaChannelInstallAppData,
+  InstallParams,
+  InstallVirtualAppParams,
   ProtocolMessage,
-  UninstallData,
+  UninstallParams,
   UpdateData
 } from "./protocol-types-tbd";
 import {
@@ -30,7 +32,7 @@ function genericProtocolMessageFields(sc: StateChannel) {
 export class InstructionExecutor {
   public middleware: Middleware;
 
-  constructor(public readonly network) {
+  constructor(public readonly network: NetworkContext) {
     this.middleware = new Middleware();
   }
 
@@ -58,7 +60,7 @@ export class InstructionExecutor {
     });
   }
 
-  public async runUninstallProtocol(sc: StateChannel, params: UninstallData) {
+  public async runUninstallProtocol(sc: StateChannel, params: UninstallParams) {
     const protocol = Protocol.Uninstall;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
@@ -67,7 +69,7 @@ export class InstructionExecutor {
     });
   }
 
-  public async runInstallProtocol(sc: StateChannel, params: InstallData) {
+  public async runInstallProtocol(sc: StateChannel, params: InstallParams) {
     const protocol = Protocol.Install;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
@@ -87,7 +89,7 @@ export class InstructionExecutor {
 
   public async runInstallVirtualAppProtocol(
     sc: StateChannel,
-    params: MetaChannelInstallAppData
+    params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {

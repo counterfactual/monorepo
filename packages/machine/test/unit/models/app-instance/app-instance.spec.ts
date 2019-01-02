@@ -12,7 +12,7 @@ describe("AppInstance", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
-    const app = new AppInstance(
+    const appInstance = new AppInstance(
       multisigAddress,
       signingKeys,
       Math.ceil(Math.random() * 2e10),
@@ -32,15 +32,16 @@ describe("AppInstance", () => {
       },
       false,
       Math.ceil(Math.random() * 2e10),
+      0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
       Math.ceil(1000 * Math.random())
     );
 
-    expect(app).not.toBe(null);
-    expect(app).not.toBe(undefined);
-    expect(app.multisigAddress).toBe(multisigAddress);
-    expect(app.signingKeys).toBe(signingKeys);
+    expect(appInstance).not.toBe(null);
+    expect(appInstance).not.toBe(undefined);
+    expect(appInstance.multisigAddress).toBe(multisigAddress);
+    expect(appInstance.signingKeys).toBe(signingKeys);
 
     // TODO: moar tests pl0x
   });

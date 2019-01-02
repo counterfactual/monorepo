@@ -1,34 +1,29 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
-import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
+import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import { AssetType, NetworkContext } from "@counterfactual/types";
+import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
-  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
-  keccak256,
   randomBytes,
   TransactionDescription
 } from "ethers/utils";
 
-import { UninstallCommitment } from "../../../src/ethereum";
+import { InstallCommitment } from "../../../src/ethereum";
 import { MultisigTransaction } from "../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
 import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
-import { StateChannel } from "../../../src/models";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 /**
- * This test suite decodes a constructed Uninstall Commitment transaction object
+ * This test suite decodes a constructed OpInstall transaction object according
  * to the specifications defined by Counterfactual as can be found here:
- * https://specs.counterfactual.com/07-uninstall-protocol#commitments
+ * https://specs.counterfactual.com/05-install-protocol#commitments
  */
-describe("Uninstall Commitment", () => {
+describe("InstallCommitment", () => {
   let tx: MultisigTransaction;
 
   // Test network context
@@ -68,19 +63,49 @@ describe("Uninstall Commitment", () => {
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
+  const appInstance = new AppInstance(
+    stateChannel.multisigAddress,
+    [
+      getAddress(hexlify(randomBytes(20))),
+      getAddress(hexlify(randomBytes(20)))
+    ],
+    Math.ceil(1000 * Math.random()),
+    {
+      addr: getAddress(hexlify(randomBytes(20))),
+      applyAction: hexlify(randomBytes(4)),
+      resolve: hexlify(randomBytes(4)),
+      isStateTerminal: hexlify(randomBytes(4)),
+      getTurnTaker: hexlify(randomBytes(4)),
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    },
+    {
+      assetType: AssetType.ETH,
+      limit: bigNumberify(2),
+      token: AddressZero
+    },
+    false,
+    stateChannel.numInstalledApps + 1,
+    0,
+    { foo: AddressZero, bar: 0 },
+    0,
+    Math.ceil(1000 * Math.random())
+  );
 
   beforeAll(() => {
-    tx = new UninstallCommitment(
+    tx = new InstallCommitment(
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
+      appInstance.identity,
+      appInstance.terms,
       freeBalanceETH.identity,
       freeBalanceETH.terms,
-      freeBalanceETH.state as ETHBucketAppState,
+      freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
-      appBeingUninstalledSeqNo
+      stateChannel.numInstalledApps + 1,
+      stateChannel.rootNonceValue
     ).getTransactionDetails();
   });
 
@@ -137,16 +162,14 @@ describe("Uninstall Commitment", () => {
         });
 
         it("should be directed at the setState method", () => {
-          expect(calldata.sighash).toEqual(iface.functions.setState.sighash);
+          expect(calldata.sighash).toBe(iface.functions.setState.sighash);
         });
 
         it("should build the expected AppIdentity argument", () => {
           const [
             [owner, signingKeys, appInterfaceHash, termsHash, defaultTimeout]
           ] = calldata.args;
-
           const expected = freeBalanceETH.identity;
-
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appInterfaceHash).toBe(expected.appInterfaceHash);
@@ -156,7 +179,6 @@ describe("Uninstall Commitment", () => {
 
         it("should build the expected SignedStateHashUpdate argument", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
-
           expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
           expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
           expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
@@ -165,7 +187,7 @@ describe("Uninstall Commitment", () => {
       });
     });
 
-    describe("the transaction to update the dependency nonce", () => {
+    describe("the transaction to execute the conditional transaction", () => {
       let to: string;
       let val: number;
       let data: string;
@@ -175,16 +197,16 @@ describe("Uninstall Commitment", () => {
         [op, to, val, data] = transactions[1];
       });
 
-      it("should be to the NonceRegistry", () => {
-        expect(to).toBe(networkContext.NonceRegistry);
+      it("should be to the StateChannelTransaction", () => {
+        expect(to).toBe(networkContext.StateChannelTransaction);
       });
 
       it("should be of value 0", () => {
         expect(val).toEqual(Zero);
       });
 
-      it("should be a Call", () => {
-        expect(op).toBe(0);
+      it("should be a DelegateCall", () => {
+        expect(op).toBe(1);
       });
 
       describe("the calldata", () => {
@@ -192,24 +214,35 @@ describe("Uninstall Commitment", () => {
         let calldata: TransactionDescription;
 
         beforeAll(() => {
-          iface = new Interface(NonceRegistry.abi);
+          iface = new Interface(StateChannelTransaction.abi);
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the setNonce method", () => {
-          expect(calldata.sighash).toEqual(iface.functions.setNonce.sighash);
+        it("should be directed at the executeAppConditionalTransaction method", () => {
+          expect(calldata.sighash).toBe(
+            iface.functions.executeAppConditionalTransaction.sighash
+          );
         });
 
-        it("should build set the nonce to 1 (uninstalled)", () => {
-          const [timeout, salt, nonceValue] = calldata.args;
-
-          expect(timeout).toEqual(Zero);
-          expect(salt).toEqual(
-            keccak256(
-              defaultAbiCoder.encode(["uint256"], [appBeingUninstalledSeqNo])
-            )
+        it("should have correctly constructed arguments", () => {
+          const [
+            appRegistryAddress,
+            nonceRegistryAddress,
+            uninstallKey,
+            appInstanceId,
+            rootNonceValue,
+            terms
+          ] = calldata.args;
+          expect(appRegistryAddress).toBe(networkContext.AppRegistry);
+          expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
+          expect(uninstallKey).toBe(appInstance.uninstallKey);
+          expect(appInstanceId).toBe(appIdentityToHash(appInstance.identity));
+          expect(rootNonceValue).toEqual(
+            bigNumberify(appInstance.rootNonceValue)
           );
-          expect(nonceValue).toEqual(One);
+          expect(terms[0]).toBe(appInstance.terms.assetType);
+          expect(terms[1]).toEqual(appInstance.terms.limit);
+          expect(terms[2]).toBe(appInstance.terms.token);
         });
       });
     });
