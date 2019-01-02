@@ -22,7 +22,7 @@ export type AppInstanceJson = {
   isVirtualApp: boolean;
   appSeqNo: number;
   rootNonceValue: number;
-  latestState: object;
+  latestState: any;
   latestNonce: number;
   latestTimeout: number;
   hasBeenUninstalled: boolean;
@@ -67,7 +67,7 @@ export class AppInstance {
     isVirtualApp: boolean,
     appSeqNo: number,
     rootNonceValue: number,
-    latestState: object,
+    latestState: any,
     latestNonce: number,
     latestTimeout: number
   ) {
@@ -103,6 +103,10 @@ export class AppInstance {
     );
     ret.json.hasBeenUninstalled = json.hasBeenUninstalled;
     return ret;
+  }
+
+  public toJson(): AppInstanceJson {
+    return this.json;
   }
 
   @Memoize()

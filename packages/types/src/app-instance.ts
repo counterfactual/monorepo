@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { Address } from "./simple-types";
 
@@ -55,9 +55,22 @@ export interface SignedStateHashUpdate {
   signatures: string;
 }
 
-export interface ETHBucketAppState {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
+export type ETHBucketApp = {
+  readonly alice: string;
+  readonly bob: string;
+  readonly aliceBalance: string | BigNumber;
+  readonly bobBalance: string | BigNumber;
+};
+
+export class ETHBucketAppState {
+  readonly alice: string;
+  readonly bob: string;
+  readonly aliceBalance: BigNumber;
+  readonly bobBalance: BigNumber;
+  constructor(ethBucketApp: ETHBucketApp) {
+    this.alice = ethBucketApp.alice;
+    this.bob = ethBucketApp.bob;
+    this.aliceBalance = bigNumberify(ethBucketApp.aliceBalance);
+    this.bobBalance = bigNumberify(ethBucketApp.bobBalance);
+  }
 }

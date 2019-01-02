@@ -12,7 +12,7 @@ import {
   getFreeBalanceAppInterface
 } from "../ethereum/utils/free-balance";
 
-import { AppInstance } from "./app-instance";
+import { AppInstance, AppInstanceJson } from "./app-instance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -39,8 +39,8 @@ const ERRORS = {
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly multisigOwners: string[];
-  readonly appInstances: string;
-  readonly freeBalanceAppIndexes: string;
+  readonly appInstances: { [appInstanceId: string]: AppInstanceJson };
+  readonly freeBalanceAppIndexes: [number, string][];
   readonly monotonicNumInstalledApps: number;
 };
 
@@ -183,10 +183,11 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentState = fb.state as ETHBucketAppState;
+    console.log(ETHBucketAppState);
+    const currentFBState = new ETHBucketAppState(fb.state);
 
-    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceDecrement);
-    const bobBalance = currentState.bobBalance.sub(bobBalanceDecrement);
+    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
+    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
 
     if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
       throw Error(INSUFFICIENT_FUNDS);
@@ -202,7 +203,7 @@ export class StateChannel {
 
     appInstances
       .set(appInstance.id, appInstance)
-      .set(fb.id, fb.setState({ ...currentState, aliceBalance, bobBalance }));
+      .set(fb.id, fb.setState({ ...currentFBState, aliceBalance, bobBalance }));
 
     return new StateChannel(
       this.multisigAddress,
@@ -251,23 +252,33 @@ export class StateChannel {
   }
 
   toJson(): StateChannelJSON {
+    const appInstanceJsons: { [appInstanceId: string]: AppInstanceJson } = {};
+    this.appInstances.forEach((appInstance: AppInstance) => {
+      appInstanceJsons[appInstance.id] = appInstance.toJson();
+    });
+
     return {
       multisigAddress: this.multisigAddress,
       multisigOwners: this.multisigOwners,
-      appInstances: JSON.stringify(Array.from(this.appInstances.entries())),
-      freeBalanceAppIndexes: JSON.stringify(
-        Array.from(this.freeBalanceAppIndexes.entries())
-      ),
+      appInstances: appInstanceJsons,
+      freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
       monotonicNumInstalledApps: this.monotonicNumInstalledApps
     };
   }
 
   static fromJson(json: StateChannelJSON): StateChannel {
+    const appInstances: Map<string, AppInstance> = new Map();
+    Object.entries(json.appInstances).forEach(appInstanceEntry => {
+      appInstances.set(
+        appInstanceEntry[0],
+        AppInstance.fromJson(appInstanceEntry[1])
+      );
+    });
     return new StateChannel(
       json.multisigAddress,
       json.multisigOwners,
-      new Map(JSON.parse(json.appInstances)),
-      new Map(JSON.parse(json.freeBalanceAppIndexes)),
+      appInstances,
+      new Map(json.freeBalanceAppIndexes),
       json.monotonicNumInstalledApps
     );
   }

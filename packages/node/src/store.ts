@@ -96,7 +96,7 @@ export class Store {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${
           stateChannel.multisigAddress
         }`,
-        value: stateChannel.toJson()
+        value: Store.sanitize(stateChannel.toJson())
       },
       {
         key: `${
@@ -220,5 +220,17 @@ export class Store {
         this.storeKeyPrefix
       }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
     );
+  }
+
+  /**
+   * This removes any fields whose values are `undefined`, which are invalid
+   * JSON values.
+   * @param json
+   */
+  private static sanitize(json: StateChannelJSON) {
+    return {
+      ...json,
+      appInstances: JSON.parse(JSON.stringify(json.appInstances))
+    } as StateChannelJSON;
   }
 }
