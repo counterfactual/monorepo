@@ -4,6 +4,7 @@ import {
   NodeMessage
 } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
+import { v4 as generateUUID } from "uuid";
 
 const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
 
@@ -33,4 +34,19 @@ node.on(REJECT_INSTALL, async (msg: NodeMessage) => {
   console.log("REJECT_INSTALL event:", msg);
 });
 
-export default node;
+export async function createMultisigFor(
+  userAddress: string
+): Promise<NodeTypes.CreateMultisigResult> {
+  const multisigResponse = await node.call(
+    NodeTypes.MethodName.CREATE_MULTISIG,
+    {
+      params: {
+        owners: [node.address, userAddress]
+      },
+      type: NodeTypes.MethodName.CREATE_MULTISIG,
+      requestId: generateUUID()
+    }
+  );
+
+  return multisigResponse.result as NodeTypes.CreateMultisigResult;
+}
