@@ -15,7 +15,8 @@ export type ErrorResponse = {
 export enum ErrorCode {
   UsernameRequired = "username_required",
   EmailRequired = "email_required",
-  AddressRequired = "address_required"
+  AddressRequired = "address_required",
+  InvalidSignature = "invalid_signature"
 }
 
 export type ApiResponse = {
