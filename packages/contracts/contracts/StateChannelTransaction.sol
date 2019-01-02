@@ -31,7 +31,7 @@ contract StateChannelTransaction is LibCondition {
     public
   {
     require(
-      !nonceRegistry.isFinalized(uninstallKey, 1),
+      !nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
       "App has been uninstalled"
     );
 
