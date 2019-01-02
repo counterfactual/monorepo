@@ -1,4 +1,4 @@
-import { verifyMessage } from "ethers/utils";
+import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
 import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
@@ -61,17 +61,11 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
   }
 
   const providedSignature = params.signature;
+  const providedAddress = getAddress(params.address);
   const expectedMessage = buildSignaturePayload(params);
   const expectedAddress = verifyMessage(expectedMessage, providedSignature);
 
-  if (
-    // We compare the addresses case-insensitively.
-    // verifyMessage() returns mixed upper and lower case characters,
-    // while eth.accounts[0] always returns lower-case characters.
-    params.address.localeCompare(expectedAddress, "en", {
-      sensitivity: "base"
-    }) !== 0
-  ) {
+  if (providedAddress !== expectedAddress) {
     return {
       ok: false,
       error: {
