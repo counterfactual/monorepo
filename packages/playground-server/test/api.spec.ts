@@ -18,9 +18,11 @@ describe("playground-server", () => {
   beforeEach(done => {
     server = api.listen(9001, done);
   });
+
   afterEach(done => {
     server.close(done);
   });
+
   describe("/api/create-account", () => {
     it("fails when username is not passed to the request", () => {
       client.post("/create-account").catch(({ response }) => {
@@ -34,6 +36,7 @@ describe("playground-server", () => {
         });
       });
     });
+
     it("fails when email is not passed to the request", () => {
       client
         .post("/create-account", {
@@ -50,6 +53,7 @@ describe("playground-server", () => {
           });
         });
     });
+
     it("fails when address is not passed to the request", async () => {
       client
         .post("/create-account", {
@@ -67,6 +71,7 @@ describe("playground-server", () => {
           });
         });
     });
+
     it("fails when signature is not passed to the request", async () => {
       client
         .post("/create-account", {
@@ -85,6 +90,7 @@ describe("playground-server", () => {
           });
         });
     });
+
     it("fails when an invalid signature is passed to the request", async () => {
       client
         .post("/create-account", {
@@ -105,6 +111,7 @@ describe("playground-server", () => {
           });
         });
     });
+
     it("creates an account and returns 201 + the multisig address", async () => {
       const response = await client.post("/create-account", {
         username: "alice",
