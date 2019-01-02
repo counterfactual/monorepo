@@ -50,7 +50,17 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
     };
   }
 
-  const providedSignature = params.signature as string;
+  if (!params.signature) {
+    return {
+      ok: false,
+      error: {
+        status: 400,
+        errorCode: ErrorCode.SignatureRequired
+      }
+    };
+  }
+
+  const providedSignature = params.signature;
   const expectedMessage = buildSignaturePayload(params);
   const expectedAddress = verifyMessage(expectedMessage, providedSignature);
 
