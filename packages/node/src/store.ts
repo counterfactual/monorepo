@@ -1,4 +1,4 @@
-import { StateChannel } from "@counterfactual/machine";
+import { StateChannel, StateChannelJSON } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 

@@ -183,8 +183,7 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    console.log(ETHBucketAppState);
-    const currentFBState = new ETHBucketAppState(fb.state);
+    const currentFBState = fb.state as ETHBucketAppState;
 
     const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
