@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { Context } from "koa";
 import { v4 as generateUUID } from "uuid";
 
@@ -9,8 +9,6 @@ import {
   CreateAccountResponseData,
   ErrorCode
 } from "../types";
-
-// Send { username, email, account_address=<web3_account>, signature=<signed msg by account> }
 
 function validateRequest(params: CreateAccountRequest): ApiResponse {
   if (!params.username) {
@@ -43,15 +41,38 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
     };
   }
 
+  // TODO: Add signature check.
+
   return { ok: true };
+}
+
+async function createMultisigFor(
+  node: Node,
+  userAddress: Address
+): Promise<NodeTypes.CreateMultisigResult> {
+  const multisigResponse = await node.call(
+    NodeTypes.MethodName.CREATE_MULTISIG,
+    {
+      params: {
+        owners: [node.address, userAddress]
+      },
+      type: NodeTypes.MethodName.CREATE_MULTISIG,
+      requestId: generateUUID()
+    }
+  );
+
+  return multisigResponse.result as NodeTypes.CreateMultisigResult;
 }
 
 export default function createAccount(node: Node) {
   return async (ctx: Context, next: () => Promise<void>) => {
     const request = ctx.request.body as CreateAccountRequest;
+
+    // Check that all required data is available.
     const response = validateRequest(request);
 
     if (!response.ok) {
+      // Return a HTTP error if something's missing.
       ctx.body = response;
       if (response.error) {
         ctx.status = response.error.status;
@@ -59,24 +80,14 @@ export default function createAccount(node: Node) {
       return next();
     }
 
-    const multisigResponse = await node.call(
-      NodeTypes.MethodName.CREATE_MULTISIG,
-      {
-        params: {
-          owners: [node.address, request.address]
-        },
-        type: NodeTypes.MethodName.CREATE_MULTISIG,
-        requestId: generateUUID()
-      }
-    );
+    // Create the multisig and return its address.
+    const multisig = await createMultisigFor(node, request.address);
 
-    const {
-      multisigAddress
-    } = multisigResponse.result as NodeTypes.CreateMultisigResult;
+    response.data = {
+      multisigAddress: multisig.multisigAddress
+    } as CreateAccountResponseData;
 
-    response.data = { multisigAddress } as CreateAccountResponseData;
-
-    ctx.status = 200;
+    ctx.status = 201;
     ctx.body = response;
     return next();
   };
