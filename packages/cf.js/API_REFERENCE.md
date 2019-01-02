@@ -11,6 +11,8 @@
             - [Node method](#method-getappinstances)
         - `async install(appInstanceId: AppInstanceID): Promise<AppInstance>`
             - [Node method](#method-install)
+        - `async installVirtual(appInstanceId: AppInstanceID, intermediaries: Address[]): Promise<AppInstance>`
+            - [Node method](#method-install)
         - `async rejectInstall(appInstanceId: AppInstanceID)`
             - [Node method](#method-rejectinstall)
     - Lifecycle
@@ -223,6 +225,24 @@ Params:
     - ID of the app instance to install
     - Counterparty must have called `proposedInstall` and generated this ID
 
+
+Result:
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
+    - Successfully installed app instance
+
+Errors: (TODO)
+- Counterparty rejected installation
+
+### Method: `installVirtual`
+
+Install a virtual app instance.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance to install
+    - Counterparty must have called `proposedInstall` and generated this ID
+- `intermediaries: Address[]`
+    - List of addresses of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
