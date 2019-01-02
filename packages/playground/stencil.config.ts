@@ -22,7 +22,7 @@ export const config: Config = {
       ]
     }),
     replace({
-      "ENV:API_HOST": process.env.API_HOST
+      "ENV:API_HOST": process.env.API_HOST || "http://localhost:9000"
     })
   ]
 };
