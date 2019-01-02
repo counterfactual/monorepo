@@ -1,8 +1,10 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import {
   Address,
   NetworkContext,
   Node as NodeTypes
 } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -27,6 +29,9 @@ export class Node {
 
   private readonly channels: Channels;
   private readonly signer: SigningKey;
+
+  private readonly instructionExecutor: InstructionExecutor;
+
   protected readonly requestHandler: RequestHandler;
 
   /**
@@ -50,12 +55,22 @@ export class Node {
       // account-address-based indexing
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    this.instructionExecutor = new InstructionExecutor({
+      // TODO: Pass in NetworkContext into Node constructor
+      AppRegistry: AddressZero,
+      ETHBalanceRefund: AddressZero,
+      ETHBucket: AddressZero,
+      MultiSend: AddressZero,
+      NonceRegistry: AddressZero,
+      StateChannelTransaction: AddressZero
+    });
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
       this.outgoing,
       this.channels,
-      this.messagingService
+      this.messagingService,
+      this.instructionExecutor
     );
   }
 
