@@ -84,7 +84,8 @@ export default function createAccount(node: Node) {
     const multisig = await createMultisigFor(node, request.address);
 
     response.data = {
-      multisigAddress: multisig.multisigAddress
+      ...response.data,
+      ...multisig
     } as CreateAccountResponseData;
 
     ctx.status = 201;
