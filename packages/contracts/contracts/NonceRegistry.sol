@@ -25,7 +25,10 @@ contract NonceRegistry {
   /// @param key A unique entry in the mapping, computed using `computeKey`
   /// @param expectedNonceValue The nonce value that the key is expected to be finalized at
   /// @return A boolean referring to whether or not the key has been finalized at the nonce
-  function isFinalized(bytes32 key, uint256 expectedNonceValue)
+  function isFinalizedOrHasNeverBeenSetBefore(
+    bytes32 key,
+    uint256 expectedNonceValue
+  )
     external
     view
     returns (bool)
