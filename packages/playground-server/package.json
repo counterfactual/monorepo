@@ -23,7 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "start": "PLAYGROUND_SERVER_PORT=9000 ts-node src/",
-    "test": "PLAYGROUND_SERVER_PORT=9000 PLAYGROUND_SERVER_ENV=development jest"
+    "test": "NODE_PRIVATE_KEY=0x0123456789012345678901234567890123456789012345678901234567890123 PLAYGROUND_SERVER_PORT=9001 PLAYGROUND_SERVER_ENV=development jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
@@ -74,6 +74,7 @@
       "node_modules",
       "dist"
     ],
+    "testEnvironment": "node",
     "testRegex": "\\.spec.(jsx?|tsx?)$",
     "testURL": "http://localhost/",
     "transform": {
