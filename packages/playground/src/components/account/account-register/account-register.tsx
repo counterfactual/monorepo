@@ -1,14 +1,3 @@
-declare var web3: {
-  personal: {
-    // API matches version 0.20.3 of Web3
-    sign: (
-      dataToSign: string,
-      from: string | number,
-      callback: (err: Error, signedData: string) => void
-    ) => void;
-  };
-};
-
 import { CreateAccountRequest } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
