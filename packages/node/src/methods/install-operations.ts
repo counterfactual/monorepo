@@ -1,3 +1,4 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
 import { Channels } from "../channels";
@@ -17,6 +18,7 @@ import { IMessagingService } from "../services";
 export async function proposeInstall(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
   if (params.abiEncodings.actionEncoding === undefined) {
@@ -52,6 +54,7 @@ export async function proposeInstall(
 export async function install(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   const appInstance = await channels.install(params);
@@ -88,6 +91,7 @@ export async function install(
 export async function addAppInstance(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   nodeMsg: NodeMessage
 ) {
   const params = { ...nodeMsg.data };
