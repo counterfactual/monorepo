@@ -66,7 +66,10 @@ contract("NonceRegistry", accounts => {
     await nonceRegistry.functions.setNonce(timeout, salt, value);
 
     const ret = await nonceRegistry.functions.table(key);
-    const isFinal = await nonceRegistry.functions.isFinalized(key, value);
+    const isFinal = await nonceRegistry.functions.isFinalizedOrHasNeverBeenSetBefore(
+      key,
+      value
+    );
     const blockNumber = bigNumberify(await provider.getBlockNumber());
 
     expect(ret.nonceValue).to.eq(value);

@@ -32,7 +32,7 @@ contract StateChannelTransaction is LibCondition {
     public
   {
     require(
-      nonceRegistry.isFinalized(
+      nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(
         // TODO: Allow ability to set timeout off-chain
         nonceRegistry.computeKey(address(this), 100, 0x0),
         rootNonceExpectedValue
@@ -41,7 +41,7 @@ contract StateChannelTransaction is LibCondition {
     );
 
     require(
-      !nonceRegistry.isFinalized(uninstallKey, 1),
+      !nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
       "App has been uninstalled"
     );
 
