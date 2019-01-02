@@ -22,7 +22,8 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly freeBalanceStateHash: string,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
-    public readonly dependencyNonce: number
+    public readonly dependencyNonce: number,
+    public readonly rootNonceValue: number
   ) {
     super(
       networkContext,
@@ -60,6 +61,7 @@ export class InstallCommitment extends MultiSendCommitment {
         this.networkContext.NonceRegistry,
         uninstallKey,
         appInstanceId,
+        this.rootNonceValue,
         this.terms
       ]),
       operation: MultisigOperation.DelegateCall

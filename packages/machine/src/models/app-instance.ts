@@ -21,6 +21,7 @@ export type AppInstanceJson = {
   terms: Terms;
   isVirtualApp: boolean;
   appSeqNo: number;
+  rootNonceValue: number;
   latestState: object;
   latestNonce: number;
   latestTimeout: number;
@@ -65,6 +66,7 @@ export class AppInstance {
     terms: Terms,
     isVirtualApp: boolean,
     appSeqNo: number,
+    rootNonceValue: number,
     latestState: object,
     latestNonce: number,
     latestTimeout: number
@@ -77,6 +79,7 @@ export class AppInstance {
       terms,
       isVirtualApp,
       appSeqNo,
+      rootNonceValue,
       latestState,
       latestNonce,
       latestTimeout,
@@ -93,6 +96,7 @@ export class AppInstance {
       json.terms,
       json.isVirtualApp,
       json.appSeqNo,
+      json.rootNonceValue,
       json.latestState,
       json.latestNonce,
       json.latestTimeout
@@ -207,6 +211,10 @@ export class AppInstance {
 
   public get isVirtualApp() {
     return this.json.isVirtualApp;
+  }
+
+  public get rootNonceValue() {
+    return this.json.rootNonceValue;
   }
 
   public setState(

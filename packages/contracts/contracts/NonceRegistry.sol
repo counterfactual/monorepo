@@ -69,7 +69,7 @@ contract NonceRegistry {
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(address sender, uint256 timeout, bytes32 salt)
-    internal
+    public
     pure
     returns (bytes32)
   {

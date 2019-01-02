@@ -59,6 +59,7 @@ describe("Set State Commitment", () => {
     },
     false,
     Math.ceil(1000 * Math.random()),
+    0,
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random())
