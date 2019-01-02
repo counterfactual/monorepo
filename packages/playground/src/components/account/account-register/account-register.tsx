@@ -56,7 +56,7 @@ export class AccountRegister {
   }
 
   formSubmitionHandler() {
-    const data: CreateAccountRequest = this.changeset;
+    const data = this.changeset;
 
     // We use personal#sign() because eth#sign() is dangerous.
     // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
@@ -70,8 +70,11 @@ export class AccountRegister {
         }
 
         // Call the API and store the multisig.
-        data.signature = signedData;
-        const apiResponse = await PlaygroundAPIClient.createAccount(data);
+        const payload: CreateAccountRequest = {
+          ...data,
+          signature: signedData
+        };
+        const apiResponse = await PlaygroundAPIClient.createAccount(payload);
 
         window.localStorage.setItem(
           "playground:multisig",
