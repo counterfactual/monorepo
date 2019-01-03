@@ -60,11 +60,7 @@ export const INSTALL_PROTOCOL = {
   ]
 };
 
-function proposeStateTransition(
-  message: ProtocolMessage,
-  context: Context,
-  stateChannel: StateChannel
-) {
+function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const {
     aliceBalanceDecrement,
     bobBalanceDecrement,
@@ -72,11 +68,12 @@ function proposeStateTransition(
     initialState,
     terms,
     appInterface,
-    defaultTimeout
+    defaultTimeout,
+    multisigAddress
   } = message.params as InstallParams;
 
   const appInstance = new AppInstance(
-    stateChannel.multisigAddress,
+    multisigAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
@@ -87,25 +84,24 @@ function proposeStateTransition(
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
-    stateChannel.numInstalledApps + 1,
-    stateChannel.rootNonceValue,
+    context.stateChannel.get(multisigAddress)!.numInstalledApps + 1,
+    context.stateChannel.get(multisigAddress)!.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
     defaultTimeout
   );
 
-  context.stateChannel = stateChannel.installApp(
-    appInstance,
-    aliceBalanceDecrement,
-    bobBalanceDecrement
-  );
+  const newStateChannel = context.stateChannel
+    .get(multisigAddress)!
+    .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
+  context.stateChannel.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
   context.commitment = constructInstallOp(
     context.network,
-    context.stateChannel,
+    context.stateChannel.get(multisigAddress)!,
     appIdentityHash
   );
 

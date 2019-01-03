@@ -113,8 +113,9 @@ export class RequestHandler {
         ]);
         const { protocol } = message;
         if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
           await this.store.setSetupCommitmentForMultisig(
-            message.multisigAddress,
+            params.multisigAddress,
             transaction
           );
         } else {

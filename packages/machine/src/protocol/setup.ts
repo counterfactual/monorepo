@@ -3,7 +3,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
-import { ProtocolMessage } from "../protocol-types-tbd";
+import { ProtocolMessage, SetupParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
@@ -60,13 +60,16 @@ export const SETUP_PROTOCOL = {
   ]
 };
 
-function proposeStateTransition(
-  message: ProtocolMessage,
-  context: Context,
-  stateChannel: StateChannel
-) {
-  context.stateChannel = stateChannel.setupChannel(context.network);
-  context.commitment = constructSetupOp(context.network, context.stateChannel);
+function proposeStateTransition(message: ProtocolMessage, context: Context) {
+  const { multisigAddress } = message.params as SetupParams;
+  const sc = context.stateChannel.get(multisigAddress)!;
+  if (sc === undefined) {
+    console.log("sc keys=", context.stateChannel.keys());
+    throw Error(`no such channel at multisig address ${multisigAddress}`);
+  }
+  const newStateChannel = sc.setupChannel(context.network);
+  context.stateChannel.set(multisigAddress, newStateChannel);
+  context.commitment = constructSetupOp(context.network, newStateChannel);
 }
 
 export function constructSetupOp(

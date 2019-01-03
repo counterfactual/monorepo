@@ -1,8 +1,12 @@
 import { Signature } from "ethers/utils";
 
 export abstract class EthereumCommitment {
-  public abstract hashToSign(): string;
-  public abstract transaction(sigs: Signature[]): Transaction;
+  // todo(ldct): hack hack hack
+  public abstract hashToSign(signerIsIntermediary?: boolean): string;
+  public abstract transaction(
+    signatures: Signature[],
+    intermediarySignature?: Signature
+  ): Transaction;
 }
 
 export enum MultisigOperation {

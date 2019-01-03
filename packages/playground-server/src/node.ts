@@ -28,7 +28,8 @@ const node = new Node(
     ETHBucket: AddressZero,
     MultiSend: AddressZero,
     NonceRegistry: AddressZero,
-    StateChannelTransaction: AddressZero
+    StateChannelTransaction: AddressZero,
+    ETHVirtualAppAgreement: AddressZero
   },
   {
     STORE_KEY_PREFIX: "store"

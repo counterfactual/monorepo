@@ -12,7 +12,7 @@ export function signaturesToBytes(...signatures: Signature[]): string {
     .reduce((acc, v) => acc + v, "0x");
 }
 
-function sortSignaturesBySignerAddress(
+export function sortSignaturesBySignerAddress(
   digest: string,
   signatures: Signature[]
 ): Signature[] {

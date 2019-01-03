@@ -8,21 +8,11 @@ import {
   InstallParams,
   InstallVirtualAppParams,
   ProtocolMessage,
+  SetupParams,
   UninstallParams,
   UpdateParams
 } from "./protocol-types-tbd";
 import { Context, Instruction, Middleware, Protocol } from "./types";
-
-function genericProtocolMessageFields(sc: StateChannel) {
-  return {
-    multisigAddress: sc.multisigAddress,
-    // TODO: Figure out how to fetch these
-    fromAddress: "0x0",
-    toAddress: "0x0",
-    seq: 0,
-    signature: undefined
-  };
-}
 
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
@@ -35,7 +25,10 @@ export class InstructionExecutor {
     this.middlewares.add(scope, method);
   }
 
-  public async dispatchReceivedMessage(msg: ProtocolMessage, sc: StateChannel) {
+  public async dispatchReceivedMessage(
+    msg: ProtocolMessage,
+    sc: Map<string, StateChannel>
+  ) {
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
@@ -46,59 +39,81 @@ export class InstructionExecutor {
     return this.runProtocol(sc, step, msg);
   }
 
-  public async runUpdateProtocol(sc: StateChannel, params: UpdateParams) {
+  public async runUpdateProtocol(
+    sc: Map<string, StateChannel>,
+    params: UpdateParams
+  ) {
     const protocol = Protocol.Update;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
-  public async runUninstallProtocol(sc: StateChannel, params: UninstallParams) {
+  public async runUninstallProtocol(
+    sc: Map<string, StateChannel>,
+    params: UninstallParams
+  ) {
     const protocol = Protocol.Uninstall;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
-  public async runInstallProtocol(sc: StateChannel, params: InstallParams) {
+  public async runInstallProtocol(
+    sc: Map<string, StateChannel>,
+    params: InstallParams
+  ) {
     const protocol = Protocol.Install;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
-  public async runSetupProtocol(sc: StateChannel) {
+  public async runSetupProtocol(
+    sc: Map<string, StateChannel>,
+    params: SetupParams
+  ) {
     const protocol = Protocol.Setup;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       protocol,
-      params: {},
-      ...genericProtocolMessageFields(sc)
+      params,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
   public async runInstallVirtualAppProtocol(
-    sc: StateChannel,
+    sc: Map<string, StateChannel>,
     params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.intermediaryAddress
     });
   }
 
   private async runProtocol(
-    sc: StateChannel,
+    sc: Map<string, StateChannel>,
     instructions: Instruction[],
     msg: ProtocolMessage
-  ) {
+  ): Promise<Map<string, StateChannel>> {
     const context: Context = {
       network: this.network,
       outbox: [],
@@ -114,8 +129,7 @@ export class InstructionExecutor {
       const instruction = instructions[instructionPointer];
       try {
         if (typeof instruction === "function") {
-          // TODO: it might be possible to not have to pass in sc
-          instruction.call(null, msg, context, sc);
+          instruction.call(null, msg, context);
         } else {
           await this.middlewares.run(msg, instruction, context);
         }

@@ -9,7 +9,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, parseEther } from "ethers/utils";
+import { Interface, keccak256, parseEther } from "ethers/utils";
 import { BuildArtifact } from "truffle";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
@@ -138,7 +138,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       const setStateCommitment = new SetStateCommitment(
         network,
         appInstance.identity,
-        appInstance.encodedLatestState,
+        keccak256(appInstance.encodedLatestState),
         appInstance.nonce + 1,
         appInstance.timeout
       );

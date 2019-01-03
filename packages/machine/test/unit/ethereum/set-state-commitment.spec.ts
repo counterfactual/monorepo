@@ -59,7 +59,7 @@ describe("Set State Commitment", () => {
     commitment = new SetStateCommitment(
       networkContext,
       appInstance.identity,
-      appInstance.encodedLatestState,
+      keccak256(appInstance.encodedLatestState),
       appInstance.nonce,
       appInstance.timeout
     );

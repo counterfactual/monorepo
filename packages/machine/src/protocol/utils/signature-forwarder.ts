@@ -1,11 +1,9 @@
-import { StateChannel } from "../../models";
 import { ProtocolMessage } from "../../protocol-types-tbd";
 import { Context } from "../../types";
 
 export function prepareToSendSignature(
   message: ProtocolMessage,
-  context: Context,
-  stateChannel: StateChannel
+  context: Context
 ) {
   context.outbox.push({
     ...message,
