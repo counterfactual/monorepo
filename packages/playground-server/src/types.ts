@@ -1,9 +1,6 @@
 import { Address } from "@counterfactual/types";
 
-export type CreateAccountRequest = {
-  username: string;
-  email: string;
-  address: Address;
+export type CreateAccountRequest = PlaygroundUserData & {
   signature: string;
 };
 
@@ -17,7 +14,9 @@ export enum ErrorCode {
   EmailRequired = "email_required",
   AddressRequired = "address_required",
   SignatureRequired = "signature_required",
-  InvalidSignature = "invalid_signature"
+  InvalidSignature = "invalid_signature",
+  UserSaveFailed = "user_save_failed",
+  AddressAlreadyRegistered = "address_already_registered"
 }
 
 export type ApiResponse = {
@@ -31,5 +30,15 @@ export type ApiResponse = {
 };
 
 export type CreateAccountResponseData = {
+  user: PlaygroundUser;
   multisigAddress: Address;
 };
+
+export type PlaygroundUserData = {
+  email: string;
+  username: string;
+  address: Address;
+  multisigAddress: Address;
+};
+
+export type PlaygroundUser = PlaygroundUserData & { id: string };

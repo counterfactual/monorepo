@@ -2,15 +2,19 @@ import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
 import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
+import { createErrorResponse } from "../api";
+import { createUser } from "../db";
 import { createMultisigFor } from "../node";
 import {
   ApiResponse,
   CreateAccountRequest,
   CreateAccountResponseData,
-  ErrorCode
+  ErrorCode,
+  PlaygroundUser,
+  PlaygroundUserData
 } from "../types";
 
-function buildSignaturePayload(data: CreateAccountRequest) {
+function buildSignaturePayload(data: PlaygroundUserData) {
   return [
     "PLAYGROUND ACCOUNT REGISTRATION",
     `Username: ${data.username}`,
@@ -21,43 +25,19 @@ function buildSignaturePayload(data: CreateAccountRequest) {
 
 function validateRequest(params: CreateAccountRequest): ApiResponse {
   if (!params.username) {
-    return {
-      ok: false,
-      error: {
-        status: 400,
-        errorCode: ErrorCode.UsernameRequired
-      }
-    };
+    return createErrorResponse(400, ErrorCode.UsernameRequired);
   }
 
   if (!params.email) {
-    return {
-      ok: false,
-      error: {
-        status: 400,
-        errorCode: ErrorCode.EmailRequired
-      }
-    };
+    return createErrorResponse(400, ErrorCode.EmailRequired);
   }
 
   if (!params.address) {
-    return {
-      ok: false,
-      error: {
-        status: 400,
-        errorCode: ErrorCode.AddressRequired
-      }
-    };
+    return createErrorResponse(400, ErrorCode.AddressRequired);
   }
 
   if (!params.signature) {
-    return {
-      ok: false,
-      error: {
-        status: 400,
-        errorCode: ErrorCode.SignatureRequired
-      }
-    };
+    return createErrorResponse(400, ErrorCode.SignatureRequired);
   }
 
   const providedSignature = params.signature;
@@ -66,13 +46,7 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
   const expectedAddress = verifyMessage(expectedMessage, providedSignature);
 
   if (providedAddress !== expectedAddress) {
-    return {
-      ok: false,
-      error: {
-        status: 403,
-        errorCode: ErrorCode.InvalidSignature
-      }
-    };
+    return createErrorResponse(403, ErrorCode.InvalidSignature);
   }
 
   return { ok: true };
@@ -97,13 +71,36 @@ export default function createAccount() {
     // Create the multisig and return its address.
     const multisig = await createMultisigFor(request.address);
 
+    // Create the Playground User.
+    let user: PlaygroundUser;
+
+    try {
+      user = await createUser({
+        username: request.username,
+        address: request.address,
+        email: request.email,
+        multisigAddress: multisig.multisigAddress
+      });
+    } catch (e) {
+      // Return 400 for handled errors, 500 for unexpected throws.
+      if (!(e instanceof Error)) {
+        ctx.body = createErrorResponse(400, e as ErrorCode);
+      } else {
+        ctx.body = createErrorResponse(500, ErrorCode.UserSaveFailed);
+      }
+      ctx.status = ctx.body.error.status;
+      return next();
+    }
+
     response.data = {
       ...response.data,
-      ...multisig
+      ...multisig,
+      user
     } as CreateAccountResponseData;
 
     ctx.status = 201;
     ctx.body = response;
+
     return next();
   };
 }
