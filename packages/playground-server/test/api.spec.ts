@@ -2,6 +2,7 @@ import axios from "axios";
 import { Server } from "http";
 
 import mountApi from "../src/api";
+import { getDatabase } from "../src/db";
 import { ErrorCode } from "../src/types";
 
 const api = mountApi();
@@ -14,7 +15,13 @@ const client = axios.create({
   }
 });
 
+const db = getDatabase();
+
 describe("playground-server", () => {
+  beforeAll(async () => {
+    await db("users").delete();
+  });
+
   beforeEach(done => {
     server = api.listen(9001, done);
   });
@@ -23,8 +30,12 @@ describe("playground-server", () => {
     server.close(done);
   });
 
+  afterAll(async () => {
+    await db("users").delete();
+  });
+
   describe("/api/create-account", () => {
-    it("fails when username is not passed to the request", () => {
+    it("fails when username is not passed to the request", done => {
       client.post("/create-account").catch(({ response }) => {
         expect(response.status).toEqual(400);
         expect(response.data).toEqual({
@@ -34,10 +45,11 @@ describe("playground-server", () => {
             errorCode: ErrorCode.UsernameRequired
           }
         });
+        done();
       });
     });
 
-    it("fails when email is not passed to the request", () => {
+    it("fails when email is not passed to the request", done => {
       client
         .post("/create-account", {
           username: "alice"
@@ -51,10 +63,11 @@ describe("playground-server", () => {
               errorCode: ErrorCode.EmailRequired
             }
           });
+          done();
         });
     });
 
-    it("fails when address is not passed to the request", async () => {
+    it("fails when address is not passed to the request", done => {
       client
         .post("/create-account", {
           username: "alice",
@@ -69,10 +82,11 @@ describe("playground-server", () => {
               errorCode: ErrorCode.AddressRequired
             }
           });
+          done();
         });
     });
 
-    it("fails when signature is not passed to the request", async () => {
+    it("fails when signature is not passed to the request", done => {
       client
         .post("/create-account", {
           username: "alice",
@@ -88,10 +102,11 @@ describe("playground-server", () => {
               errorCode: ErrorCode.SignatureRequired
             }
           });
+          done();
         });
     });
 
-    it("fails when an invalid signature is passed to the request", async () => {
+    it("fails when an invalid signature is passed to the request", done => {
       client
         .post("/create-account", {
           username: "alice",
@@ -109,20 +124,51 @@ describe("playground-server", () => {
               errorCode: ErrorCode.InvalidSignature
             }
           });
+          done();
         });
     });
 
-    it("creates an account and returns 201 + the multisig address", async () => {
-      const response = await client.post("/create-account", {
-        username: "alice",
-        email: "alice@wonder.land",
-        address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-        signature:
-          "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
-      });
-      expect(response.status).toEqual(201);
-      expect(response.data.ok).toBe(true);
-      expect(response.data.data.multisigAddress).toBeDefined();
+    it("creates an account for the first time and returns 201 + the multisig address", done => {
+      client
+        .post("/create-account", {
+          username: "alice",
+          email: "alice@wonder.land",
+          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+          signature:
+            "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
+        })
+        .then(response => {
+          expect(response.status).toEqual(201);
+          expect(response.data.ok).toBe(true);
+          expect(response.data.data.multisigAddress).toBeDefined();
+          done();
+        })
+        .catch(({ response }) => {
+          fail("It should return HTTP 201");
+          done();
+        });
+    });
+
+    it("creates an account for the second time with the same address and returns 400", done => {
+      client
+        .post("/create-account", {
+          username: "alice",
+          email: "alice@wonder.land",
+          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+          signature:
+            "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
+        })
+        .catch(({ response }) => {
+          expect(response.status).toEqual(400);
+          expect(response.data).toEqual({
+            ok: false,
+            error: {
+              status: 400,
+              errorCode: ErrorCode.AddressAlreadyRegistered
+            }
+          });
+          done();
+        });
     });
   });
 });
