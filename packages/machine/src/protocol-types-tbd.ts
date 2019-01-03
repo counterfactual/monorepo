@@ -60,7 +60,7 @@ export type InstallVirtualAppParams = {
 
 type ProtocolParameters =
   | SetupParams
-  | UpdateData
+  | UpdateParams
   | InstallParams
   | UninstallParams
   | InstallVirtualAppParams;
