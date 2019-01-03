@@ -121,7 +121,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           token: AddressZero
         },
         false,
-        stateChannel.numInstalledApps,
+        stateChannel.numInstalledApps + 1,
         stateChannel.rootNonceValue,
         state,
         0,

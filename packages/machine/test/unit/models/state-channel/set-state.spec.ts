@@ -47,7 +47,7 @@ describe("StateChannel::setState", () => {
         token: AddressZero
       },
       false,
-      1,
+      Math.ceil(Math.random() * 2e10),
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce

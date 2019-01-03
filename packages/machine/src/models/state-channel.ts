@@ -33,9 +33,7 @@ const ERRORS = {
   FREE_BALANCE_IDX_CORRUPT: (idx: string) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
-    "Attempted to install an appInstance without sufficient funds",
-  INVALID_SEQ_NO:
-    "Attempted to install an appInstance with invalid sequence number"
+    "Attempted to install an appInstance without sufficient funds"
 };
 
 function createETHFreeBalance(
@@ -117,7 +115,7 @@ export class StateChannel {
     return this.appInstances.get(idx!)!;
   }
 
-  public setupChannel(network: NetworkContext): StateChannel {
+  public setupChannel(network: NetworkContext) {
     const size = this.appInstances.size;
 
     if (size > 0) throw Error(`${ERRORS.APPS_NOT_EMPTY(size)})`);
@@ -175,11 +173,7 @@ export class StateChannel {
     appInstance: AppInstance,
     aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
-  ): StateChannel {
-    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
-      throw Error(ERRORS.INVALID_SEQ_NO);
-    }
-
+  ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const currentState = fb.state as ETHBucketAppState;
 
