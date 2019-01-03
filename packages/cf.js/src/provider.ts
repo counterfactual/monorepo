@@ -63,7 +63,7 @@ export class Provider {
         intermediaries
       }
     );
-    const { appInstance } = response.result as Node.InstallResult;
+    const { appInstance } = response.result as Node.InstallVirtualResult;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 
