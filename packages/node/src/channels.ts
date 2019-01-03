@@ -1,4 +1,8 @@
-import { AppInstance, StateChannel } from "@counterfactual/machine";
+import {
+  AppInstance,
+  StateChannel,
+  StateChannelJSON
+} from "@counterfactual/machine";
 import {
   Address,
   AppFunctionsSigHashes,
@@ -19,6 +23,7 @@ import { IStoreService } from "./services";
 import { Store } from "./store";
 import { ProposedAppInstanceInfo } from "./types";
 import { orderedAddressesHash } from "./utils";
+import { AppInstanceJson } from "@counterfactual/machine/dist/src/models/app-instance";
 
 /**
  * This class itelf does not hold any meaningful state.
@@ -163,10 +168,12 @@ export class Channels {
       appInstanceInfo,
       channel
     );
+    delete appInstanceInfo.initialState;
     await this.store.installAppInstance(
       appInstance,
       channel,
-      clientAppInstanceID
+      clientAppInstanceID,
+      appInstanceInfo
     );
 
     return appInstanceInfo;
@@ -204,17 +211,17 @@ export class Channels {
    *
    * @param appInstances
    */
-  private async replaceChannelAppInstanceIDWithClientAppInstanceID(
-    appInstances: object
-  ): Promise<object> {
-    for (const appInstance of Object.values(appInstances)) {
-      const clientAppInstanceID = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
-        appInstance.id
-      );
-      appInstance.id = clientAppInstanceID;
-    }
-    return appInstances;
-  }
+  // private async replaceChannelAppInstanceIDWithClientAppInstanceID(
+  //   appInstances: AppInstanceJson[]
+  // ): Promise<AppInstance[]> {
+  //   for (const appInstance of Object.values(appInstances)) {
+  //     const clientAppInstanceID = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
+  //       appInstance.id
+  //     );
+  //     appInstance.id = clientAppInstanceID;
+  //   }
+  //   return appInstances;
+  // }
 
   /**
    * Gets all installed appInstances across all of the channels open on
@@ -228,10 +235,13 @@ export class Channels {
     const channels = await this.store.getAllChannelsJSON();
     for (const channel of Object.values(channels)) {
       if (channel.appInstances) {
-        const modifiedAppInstances = await this.replaceChannelAppInstanceIDWithClientAppInstanceID(
-          channel.appInstances
+        const nonFreeBalanceAppInstancesJSON = this.getNonFreeBalanceAppInstancesJSON(
+          channel
         );
-        apps.push(...Object.values(modifiedAppInstances));
+        const appInstanceInfos = await this.getAppInstanceInfoFromAppInstance(
+          nonFreeBalanceAppInstancesJSON
+        );
+        apps.push(...Object.values(appInstanceInfos));
       } else {
         console.log(
           `No app instances exist for channel with multisig address: ${
@@ -265,28 +275,25 @@ export class Channels {
     proposedAppInstanceInfo: ProposedAppInstanceInfo,
     channel: StateChannel
   ): AppInstance {
-    const appFunctionSigHashes = getAppFunctionSigHashes(
-      proposedAppInstanceInfo
-    );
+    const appInstanceInfo = { ...proposedAppInstanceInfo };
+    const appFunctionSigHashes = this.getAppFunctionSigHashes(appInstanceInfo);
 
     const appInterface: AppInterface = {
-      addr: proposedAppInstanceInfo.appId,
+      addr: appInstanceInfo.appId,
       applyAction: appFunctionSigHashes.applyAction,
       resolve: appFunctionSigHashes.resolve,
       getTurnTaker: appFunctionSigHashes.getTurnTaker,
       isStateTerminal: appFunctionSigHashes.isStateTerminal,
-      stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
-      actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
+      stateEncoding: appInstanceInfo.abiEncodings.stateEncoding,
+      actionEncoding: appInstanceInfo.abiEncodings.actionEncoding
     };
 
     const terms: Terms = {
-      assetType: proposedAppInstanceInfo.asset.assetType,
-      limit: proposedAppInstanceInfo.myDeposit.add(
-        proposedAppInstanceInfo.peerDeposit
-      )
+      assetType: appInstanceInfo.asset.assetType,
+      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit)
     };
-    if (proposedAppInstanceInfo.asset.token) {
-      terms.token = proposedAppInstanceInfo.asset.token;
+    if (appInstanceInfo.asset.token) {
+      terms.token = appInstanceInfo.asset.token;
     } else {
       terms.token = AddressZero;
     }
@@ -295,7 +302,7 @@ export class Channels {
       channel.multisigAddress,
       // TODO: generate ephemeral app-specific keys
       channel.multisigOwners,
-      proposedAppInstanceInfo.timeout.toNumber(),
+      appInstanceInfo.timeout.toNumber(),
       appInterface,
       terms,
       // TODO: pass correct value when virtual app support gets added
@@ -303,20 +310,52 @@ export class Channels {
       // TODO: this should be thread-safe
       channel.numInstalledApps,
       channel.rootNonceValue,
-      proposedAppInstanceInfo.initialState,
+      appInstanceInfo.initialState,
       0,
-      proposedAppInstanceInfo.timeout.toNumber()
+      appInstanceInfo.timeout.toNumber()
     );
   }
-}
 
-function getAppFunctionSigHashes(
-  appInstanceInfo: AppInstanceInfo
-): AppFunctionsSigHashes {
-  return {
-    applyAction: hexlify(randomBytes(4)),
-    resolve: hexlify(randomBytes(4)),
-    getTurnTaker: hexlify(randomBytes(4)),
-    isStateTerminal: hexlify(randomBytes(4))
-  };
+  async getAppInstanceInfoFromAppInstance(
+    appInstancesJson: AppInstanceJson[]
+  ): Promise<AppInstanceInfo[]> {
+    const appInstanceInfos: AppInstanceInfo[] = [];
+    for (const appInstanceJson of appInstancesJson) {
+      const appInstance = AppInstance.fromJson(appInstanceJson);
+      const clientAppInstanceId = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
+        appInstance.id
+      );
+      appInstanceInfos.push(
+        await this.store.getAppInstanceInfo(clientAppInstanceId)
+      );
+    }
+    return appInstanceInfos;
+  }
+
+  getNonFreeBalanceAppInstancesJSON(
+    stateChannelJSON: StateChannelJSON
+  ): AppInstanceJson[] {
+    const stateChannel = StateChannel.fromJson(stateChannelJSON);
+    const appInstances = stateChannelJSON.appInstances;
+    const nonFreeBalanceAppInstances: AppInstanceJson[] = [];
+    Object.entries(appInstances).forEach(entry => {
+      const appInstanceId = entry[0];
+      const appInstanceJson = entry[1];
+      if (!stateChannel.appInstanceIsFreeBalance(appInstanceId)) {
+        nonFreeBalanceAppInstances.push(appInstanceJson);
+      }
+    });
+    return nonFreeBalanceAppInstances;
+  }
+
+  getAppFunctionSigHashes(
+    appInstanceInfo: AppInstanceInfo
+  ): AppFunctionsSigHashes {
+    return {
+      applyAction: hexlify(randomBytes(4)),
+      resolve: hexlify(randomBytes(4)),
+      getTurnTaker: hexlify(randomBytes(4)),
+      isStateTerminal: hexlify(randomBytes(4))
+    };
+  }
 }

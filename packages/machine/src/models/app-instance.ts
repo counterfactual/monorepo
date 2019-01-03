@@ -108,6 +108,8 @@ export class AppInstance {
 
   public toJson(): AppInstanceJson {
     // removes any fields which have an `undefined` value, as that's invalid JSON
+    // an example would be having an `undefined` value for the `actionEncoding`
+    // of an AppInstance that's not turn based
     return JSON.parse(JSON.stringify(this.json));
   }
 

@@ -110,8 +110,19 @@ export class StateChannel {
     return this.appInstances.has(appInstanceId);
   }
 
+  public appInstanceIsFreeBalance(appInstanceId: string): boolean {
+    if (!this.hasAppInstance(appInstanceId)) {
+      return false;
+    }
+    return new Set(this.freeBalanceAppIndexes.values()).has(appInstanceId);
+  }
+
   public isAppInstanceInstalled(appInstanceId: string) {
     return this.appInstances.has(appInstanceId);
+  }
+
+  public hasFreeBalanceFor(assetType: AssetType): boolean {
+    return this.freeBalanceAppIndexes.has(assetType);
   }
 
   public getFreeBalanceFor(assetType: AssetType): AppInstance {

@@ -54,6 +54,13 @@ export const CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
   "clientAppInstanceIdToProposedAppInstance";
 
 /**
+ * Namespace providing a lookup table from a clientAppInstanceID to the AppInstanceInfo
+ * that was installed.
+ */
+export const CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
+  "clientAppInstanceIdToAppInstanceInfo";
+
+/**
  * Used in standardizing how to set/get app instances within a channel according
  * to their correct status.
  */

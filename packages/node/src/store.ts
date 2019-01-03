@@ -12,7 +12,8 @@ import {
   CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID,
   CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
-  OWNERS_HASH_TO_MULTISIG_ADDRESS
+  OWNERS_HASH_TO_MULTISIG_ADDRESS,
+  CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO
 } from "./db-schema";
 import { IStoreService } from "./services";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./types";
@@ -33,7 +34,9 @@ export class Store {
    * Returns a JSON object with the keys being the multisig addresses and the
    * values being objects reflecting the StateChannel schema..
    */
-  async getAllChannelsJSON(): Promise<object> {
+  async getAllChannelsJSON(): Promise<{
+    [multisigAddress: string]: StateChannelJSON;
+  }> {
     const channels = await this.storeService.get(
       `${this.storeKeyPrefix}/${CHANNEL}`
     );
@@ -123,7 +126,8 @@ export class Store {
   async installAppInstance(
     appInstance: AppInstance,
     stateChannel: StateChannel,
-    clientAppInstanceID: string
+    clientAppInstanceID: string,
+    appInstanceInfo: AppInstanceInfo
   ) {
     // TODO: give the right big numbers
     const updatedStateChannel = stateChannel.installApp(
@@ -158,6 +162,12 @@ export class Store {
           this.storeKeyPrefix
         }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`,
         value: null
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${clientAppInstanceID}`,
+        value: appInstanceInfo
       }
     ]);
   }
@@ -189,6 +199,16 @@ export class Store {
         value: stateChannel.multisigAddress
       }
     ]);
+  }
+
+  async getAppInstanceInfo(
+    clientAppInstanceID: string
+  ): Promise<AppInstanceInfo> {
+    return (await this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${clientAppInstanceID}`
+    )) as AppInstanceInfo;
   }
 
   /**
