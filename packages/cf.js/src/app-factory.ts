@@ -20,10 +20,20 @@ interface ProposeInstallParams {
   initialState: AppState;
 }
 
+interface ProposeVirtualInstallParams {
+  peerAddress: Address;
+  asset: BlockchainAsset;
+  myDeposit: BigNumberish;
+  peerDeposit: BigNumberish;
+  timeout: BigNumberish;
+  initialState: AppState;
+  intermediaries: Address[];
+}
+
 function createInvalidParamError(
   val: any,
   paramName: string,
-  originalError: any
+  originalError?: any
 ): CounterfactualEvent {
   return {
     type: EventType.ERROR,
@@ -46,6 +56,21 @@ function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
   }
 }
 
+function checkAddress(address: Address, paramName: string) {
+  try {
+    getAddress(address);
+  } catch (e) {
+    throw createInvalidParamError(address, paramName, e);
+  }
+}
+
+function parseBigNumberParams(params: ProposeInstallParams) {
+  const timeout = parseBigNumber(params.timeout, "timeout");
+  const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+  const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
+  return { timeout, myDeposit, peerDeposit };
+}
+
 export class AppFactory {
   constructor(
     readonly appId: Address,
@@ -54,14 +79,8 @@ export class AppFactory {
   ) {}
 
   async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
-    const timeout = parseBigNumber(params.timeout, "timeout");
-    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
-    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
-    try {
-      getAddress(params.peerAddress);
-    } catch (e) {
-      throw createInvalidParamError(params.peerAddress, "peerAddress", e);
-    }
+    const { timeout, myDeposit, peerDeposit } = parseBigNumberParams(params);
+    checkAddress(params.peerAddress, "peerAddress");
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.PROPOSE_INSTALL,
       {
@@ -76,6 +95,36 @@ export class AppFactory {
       }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
+    return appInstanceId;
+  }
+
+  async proposeVirtualInstall(
+    params: ProposeVirtualInstallParams
+  ): Promise<AppInstanceID> {
+    const { timeout, myDeposit, peerDeposit } = parseBigNumberParams(params);
+    if (params.intermediaries.length === 0) {
+      throw createInvalidParamError(params.intermediaries, "intermediaries");
+    }
+    checkAddress(params.peerAddress, "peerAddress");
+    for (const address of params.intermediaries) {
+      checkAddress(address, "intermediaries");
+    }
+    const response = await this.provider.callRawNodeMethod(
+      Node.MethodName.PROPOSE_INSTALL,
+      {
+        timeout,
+        peerDeposit,
+        myDeposit,
+        asset: params.asset,
+        peerAddress: params.peerAddress,
+        initialState: params.initialState,
+        appId: this.appId,
+        abiEncodings: this.encodings
+      }
+    );
+    const {
+      appInstanceId
+    } = response.result as Node.ProposeVirtualInstallResult;
     return appInstanceId;
   }
 }

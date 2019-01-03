@@ -24,7 +24,8 @@ describe("CF.js Provider", () => {
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: Zero,
     peerDeposit: Zero,
-    timeout: Zero
+    timeout: Zero,
+    isVirtual: false
   };
 
   beforeEach(() => {

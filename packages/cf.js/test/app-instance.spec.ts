@@ -19,7 +19,8 @@ describe("CF.js AppInstance", () => {
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: bigNumberify(1000),
     peerDeposit: bigNumberify(1000),
-    timeout: bigNumberify(10)
+    timeout: bigNumberify(10),
+    isVirtual: false
   };
 
   beforeEach(async () => {
