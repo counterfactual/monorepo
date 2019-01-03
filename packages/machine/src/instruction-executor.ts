@@ -1,6 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 
-import { Middleware } from "./middleware";
+import { MiddlewareContainer } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
@@ -11,12 +11,7 @@ import {
   UninstallParams,
   UpdateData
 } from "./protocol-types-tbd";
-import {
-  Context,
-  Instruction,
-  InstructionMiddlewareCallback,
-  Protocol
-} from "./types";
+import { Context, Instruction, Middleware, Protocol } from "./types";
 
 function genericProtocolMessageFields(sc: StateChannel) {
   return {
@@ -30,14 +25,14 @@ function genericProtocolMessageFields(sc: StateChannel) {
 }
 
 export class InstructionExecutor {
-  public middleware: Middleware;
+  public middlewares: MiddlewareContainer;
 
   constructor(public readonly network: NetworkContext) {
-    this.middleware = new Middleware();
+    this.middlewares = new MiddlewareContainer();
   }
 
-  public register(scope: Opcode, method: InstructionMiddlewareCallback) {
-    this.middleware.add(scope, method);
+  public register(scope: Opcode, method: Middleware) {
+    this.middlewares.add(scope, method);
   }
 
   public async dispatchReceivedMessage(msg: ProtocolMessage, sc: StateChannel) {
@@ -122,7 +117,7 @@ export class InstructionExecutor {
           // TODO: it might be possible to not have to pass in sc
           instruction.call(null, msg, context, sc);
         } else {
-          await this.middleware.run(msg, instruction, context);
+          await this.middlewares.run(msg, instruction, context);
         }
         instructionPointer += 1;
       } catch (e) {

@@ -40,14 +40,6 @@ export interface AppInterface {
   actionEncoding: string | undefined;
 }
 
-export interface AppInstance {
-  owner: string;
-  signingKeys: string[];
-  appInterface: AppInterface;
-  terms: Terms;
-  defaultTimeout: number;
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
   nonce: number;

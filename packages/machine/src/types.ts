@@ -18,18 +18,11 @@ export type ProtocolExecutionFlow = {
   [x: number]: Instruction[];
 };
 
-export type InstructionMiddlewareCallback = {
+export type Middleware = {
   (message: ProtocolMessage, next: Function, context: Context): void;
 };
 
-export interface InstructionMiddleware {
-  scope: Opcode;
-  method: InstructionMiddlewareCallback;
-}
-
 export type Instruction = Function | Opcode;
-
-export type InstructionMiddlewares = { [I in Opcode]: InstructionMiddleware[] };
 
 export interface Context {
   network: NetworkContext;
