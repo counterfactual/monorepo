@@ -11,6 +11,7 @@ export class FormInput {
   @Prop() label: string = "";
   @Prop() unit: string = "";
   @Prop() type: string = "text";
+  @Prop({ mutable: true }) error: string = "";
   @Prop({ mutable: true }) value: string | number = "";
 
   handleChange(event) {
@@ -36,6 +37,7 @@ export class FormInput {
             onInput={event => this.handleChange(event)}
           />
           {this.unit ? <div class="unit">{this.unit}</div> : null}
+          {this.error ? <div class="error">{this.error}</div> : null}
         </div>
       </label>
     );

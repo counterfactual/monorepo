@@ -36,6 +36,12 @@ export class AccountRegister {
     address: this.address
   };
 
+  errors: UserChangeset = {
+    username: "",
+    email: "",
+    address: ""
+  };
+
   login() {
     console.log("login");
   }
@@ -63,17 +69,53 @@ export class AccountRegister {
           ...data,
           signature: signedData
         };
-        const apiResponse = await PlaygroundAPIClient.createAccount(payload);
 
-        window.localStorage.setItem(
-          "playground:multisig",
-          apiResponse.multisigAddress
-        );
+        try {
+          const apiResponse = await PlaygroundAPIClient.createAccount(payload);
 
-        this.updateAccount(data);
-        this.history.push("/deposit");
+          window.localStorage.setItem(
+            "playground:multisig",
+            apiResponse.multisigAddress
+          );
+
+          this.updateAccount(data);
+          this.history.push("/deposit");
+        } catch (e) {
+          this.setErrorMessage(e.errorCode);
+        }
       }
     );
+  }
+
+  setErrorMessage(errorCode: string) {
+    this.errors.username = "";
+    this.errors.email = "";
+    this.errors.address = "";
+
+    switch (errorCode) {
+      case "username_required":
+        this.errors.username = "This field is required";
+        break;
+      case "email_required":
+        this.errors.email = "This field is required";
+        break;
+      case "signature_required":
+        this.errors.address =
+          "You must sign the operation with Metamask in order to continue";
+        break;
+      case "invalid_signature":
+        this.errors.address =
+          "Something went wrong with your signature. Please try again.";
+        break;
+      case "address_already_registered":
+        this.errors.address =
+          "You already have a Playground account with this address.";
+        break;
+      case "user_save_failed":
+        this.errors.address =
+          "Something went wrong while saving your data. Please try again later.";
+        break;
+    }
   }
 
   render() {
@@ -89,16 +131,19 @@ export class AccountRegister {
           <form-input
             label="Username"
             value={this.changeset.username}
+            error={this.errors.username}
             onChange={e => this.change("username", e)}
           />
           <form-input
             label="Email address"
             value={this.changeset.email}
+            error={this.errors.email}
             onChange={e => this.change("email", e)}
           />
           <form-input
             label="Ethereum address"
             value={this.changeset.address}
+            error={this.errors.address}
             disabled={this.connected}
             onChange={
               !this.connected ? e => this.change("address", e) : () => {}
