@@ -10,7 +10,7 @@
 	height: 90px;
 	width: 90px;
   transform-style: preserve-3d;
-  transition: transform 600ms;
+  transition: transform 600ms ease-out;
   
   img {
     position: absolute;

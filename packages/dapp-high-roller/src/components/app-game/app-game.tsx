@@ -49,6 +49,7 @@ export class AppGame {
   }
 
   async animateRoll(roller): Promise<void> {
+    this.shakeAudio.loop = true;
     this.shakeAudio.play();
 
     for (let i = 0; i < 10; ++i) {
