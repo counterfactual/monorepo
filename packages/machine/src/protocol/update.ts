@@ -3,7 +3,7 @@ import { NetworkContext } from "@counterfactual/types";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
-import { ProtocolMessage, UpdateData } from "../protocol-types-tbd";
+import { ProtocolMessage, UpdateParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
@@ -64,7 +64,7 @@ function proposeStateTransition(
   context: Context,
   state: StateChannel
 ) {
-  const { appInstanceId, newState } = message.params as UpdateData;
+  const { appInstanceId, newState } = message.params as UpdateParams;
   context.stateChannel = state.setState(appInstanceId, newState);
   context.operation = constructUpdateOp(
     context.network,
