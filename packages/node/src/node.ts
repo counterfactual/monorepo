@@ -4,7 +4,6 @@ import {
   NetworkContext,
   Node as NodeTypes
 } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
