@@ -10,6 +10,12 @@
     "jsxFactory": "h",
     // @types/mocha has a duplicate conflict, this is the suggested temp fix.
     "skipLibCheck": true,
+    // This is needed because typeRoots doesn't auto-resolve
+    // to the root node_modules.
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../node_modules/@counterfactual/typescript-typings/types"
+    ]
   },
   "include": ["src"],
   "exclude": ["__mocks__"]
