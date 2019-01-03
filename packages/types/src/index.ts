@@ -1,6 +1,5 @@
 import {
   AppIdentity,
-  AppInstance,
   AppInterface,
   AssetType,
   ETHBucketAppState,
@@ -38,7 +37,6 @@ export {
   AppABIEncodings,
   AppAction,
   AppIdentity,
-  AppInstance,
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
