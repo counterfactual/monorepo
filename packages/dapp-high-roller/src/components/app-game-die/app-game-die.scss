@@ -1,0 +1,76 @@
+// inspired by https://davidwalsh.name/css-cube
+
+.die__wrapper {
+	perspective: 800px;
+	perspective-origin: 50% 45px;
+}
+
+.die__faces {
+	position: relative;
+	height: 90px;
+	width: 90px;
+  transform-style: preserve-3d;
+  transition: transform 600ms;
+  
+  img {
+    position: absolute;
+    height: 90px;
+    width: 90px;
+    transform-style: preserve-3d;
+
+    &.white {
+      background-color: white;
+    }
+
+    &.black {
+      background-color:#323233;
+    }
+  }
+
+  &.die__face-1 {
+    transform: rotateX(0) rotateY(0);
+  }
+
+  &.die__face-2 {
+    transform: rotateX(0) rotateY(180deg);
+  }
+
+  &.die__face-5 {
+    transform: rotateX(0) rotateY(270deg);
+  }
+
+  &.die__face-6 {
+    transform: rotateX(0) rotateY(-270deg);
+  }
+
+  &.die__face-3 {
+    transform: rotateX(-90deg) rotateY(0);
+  }
+
+  &.die__face-4 {
+    transform: rotateX(90deg) rotateY(0);
+  }
+}
+
+.die__2 {
+	transform: translateZ(-45px) rotateY(180deg);
+}
+.die__5 {
+	transform: rotateY(-270deg) translateX(45px);
+	transform-origin: top right;
+}
+.die__6 {
+	transform: rotateY(270deg) translateX(-45px);
+	transform-origin: center left;
+}
+.die__3 {
+	transform: rotateX(-90deg) translateY(-45px);
+	transform-origin: top center;
+}
+.die__4 {
+	transform: rotateX(90deg) translateY(45px);
+	transform-origin: bottom center;
+}
+.die__1 {
+	transform: translateZ(45px);
+}

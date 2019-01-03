@@ -16,7 +16,6 @@ export class AppGamePlayer {
   @Prop() playerRoll: number[] = [1, 1];
 
   render() {
-    const dicePath = DICE_PATH.replace(/TYPE/gi, this.playerType);
     const colorClass = this.playerType === PlayerType.Dark ? "black" : "white";
 
     return (
@@ -32,8 +31,8 @@ export class AppGamePlayer {
         </div>
 
         <div class="player__dice">
-          <img src={`${dicePath}${this.playerRoll[0]}.svg`} alt="" />
-          <img src={`${dicePath}${this.playerRoll[1]}.svg`} alt="" />
+          <app-game-die playerType={this.playerType} value={this.playerRoll[0]} colorClass={colorClass} />
+          <app-game-die playerType={this.playerType} value={this.playerRoll[1]} colorClass={colorClass} />
         </div>
       </div>
     );
