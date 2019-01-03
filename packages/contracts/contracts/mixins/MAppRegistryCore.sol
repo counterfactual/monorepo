@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -19,7 +19,7 @@ contract MAppRegistryCore {
 
   // TODO: docs
   modifier doAppInterfaceCheck(
-    LibStateChannelApp.AppInterface appInterface,
+    LibStateChannelApp.AppInterface memory appInterface,
     bytes32 appInterfaceHash
   ) {
     // TODO: This is inefficient from a gas point of view since we could just include
@@ -32,7 +32,7 @@ contract MAppRegistryCore {
   }
 
   modifier doTermsCheck(
-    bytes terms,
+    bytes memory terms,
     bytes32 termsHash
   ) {
     require(
@@ -45,7 +45,7 @@ contract MAppRegistryCore {
   /// @notice Compute a unique hash for a single instance of an App
   /// @param appIdentity An `AppIdentity` struct that encodes all unqiue info for an App
   /// @return A bytes32 hash of the AppIdentity
-  function computeAppIdentityHash(LibStateChannelApp.AppIdentity appIdentity)
+  function computeAppIdentityHash(LibStateChannelApp.AppIdentity memory appIdentity)
     internal
     pure
     returns (bytes32)
@@ -91,7 +91,7 @@ contract MAppRegistryCore {
   function computeActionHash(
     address turnTaker,
     bytes32 previousState,
-    bytes action,
+    bytes memory action,
     uint256 setStateNonce,
     uint256 disputeNonce
   )

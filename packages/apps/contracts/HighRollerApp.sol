@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
@@ -20,8 +20,8 @@ contract HighRollerApp {
 
   enum Stage {
     PRE_GAME,
-    COMMITTING_HASH, 
-    COMMITTING_NUM, 
+    COMMITTING_HASH,
+    COMMITTING_NUM,
     DONE
   }
 
@@ -45,7 +45,7 @@ contract HighRollerApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(AppState state)
+  function isStateTerminal(AppState memory state)
     public
     pure
     returns (bool)
@@ -53,7 +53,7 @@ contract HighRollerApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState state)
+  function getTurnTaker(AppState memory state)
     public
     pure
     returns (Player)
@@ -61,21 +61,21 @@ contract HighRollerApp {
     return state.stage == Stage.COMMITTING_NUM ? Player.SECOND : Player.FIRST;
   }
 
-  function applyAction(AppState state, Action action)
+  function applyAction(AppState memory state, Action memory action)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     AppState memory nextState = state;
     if (action.actionType == ActionType.START_GAME) {
       require(
-        state.stage == Stage.PRE_GAME, 
+        state.stage == Stage.PRE_GAME,
         "Cannot apply START_GAME on PRE_GAME"
       );
       nextState.stage = Stage.COMMITTING_HASH;
     } else if (action.actionType == ActionType.COMMIT_TO_HASH) {
       require(
-        state.stage == Stage.COMMITTING_HASH, 
+        state.stage == Stage.COMMITTING_HASH,
         "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH"
       );
       nextState.stage = Stage.COMMITTING_NUM;
@@ -83,7 +83,7 @@ contract HighRollerApp {
       nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(
-        state.stage == Stage.COMMITTING_NUM, 
+        state.stage == Stage.COMMITTING_NUM,
         "Cannot apply COMMITTING_NUM on COMMITTING_NUM"
       );
       nextState.stage = Stage.DONE;
@@ -95,10 +95,10 @@ contract HighRollerApp {
     return abi.encode(nextState);
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
@@ -127,7 +127,7 @@ contract HighRollerApp {
     );
   }
 
-  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit) 
+  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit)
     public
     pure
     returns (uint256[] memory)
@@ -153,19 +153,18 @@ contract HighRollerApp {
     pure
     returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
   {
-    (bytes8 hash1, bytes8 hash2, 
+    (bytes8 hash1, bytes8 hash2,
     bytes8 hash3, bytes8 hash4) = cutBytes32(randomness);
     playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
     playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
   }
-  
-  function calculateRandomSalt(uint256 num1, uint256 num2) 
+
+  function calculateRandomSalt(uint256 num1, uint256 num2)
     public
     pure
     returns (bytes32)
   {
-    uint256 mult = num1 * num2;
-    return keccak256(mult);
+    return keccak256(abi.encodePacked(num1 * num2));
   }
 
   /// @notice Splits a bytes32 into 4 bytes8 by cutting every 8 bytes
@@ -173,7 +172,7 @@ contract HighRollerApp {
   /// @dev Takes advantage of implicitly recognizing the length of each bytes8
   ///      variable when being read by `mload`. We point to the start of each
   ///      string (e.g., 0x08, 0x10) by incrementing by 8 bytes each time.
-  function cutBytes32(bytes32 h) 
+  function cutBytes32(bytes32 h)
     public
     pure
     returns (bytes8 q1, bytes8 q2, bytes8 q3, bytes8 q4)
@@ -185,7 +184,7 @@ contract HighRollerApp {
       q2 := mload(add(ptr, 0x08))
       q3 := mload(add(ptr, 0x10))
       q4 := mload(add(ptr, 0x18))
-    }  
+    }
   }
 
   /// @notice Converts a bytes8 into a uint64 between 1-6
@@ -194,8 +193,10 @@ contract HighRollerApp {
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
-    returns (uint8)
+    returns (uint8 ret)
   {
-    return uint8(q) % 6;
+    assembly {
+      ret := mod(mload(add(q, 8)), 6)
+    }
   }
 }

@@ -19,6 +19,4 @@ ganache-cli \
 
 PID_FOR_GANACHE_CLI=$!
 
-yarn run tsc -p .
-
 yarn run truffle test --network ganache $1

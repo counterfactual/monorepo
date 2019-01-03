@@ -1,7 +1,7 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-eth/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 
 /// @title Transfer - A library to encode a generic asset transfer data type
@@ -36,7 +36,7 @@ library Transfer {
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
   function execute(Transfer.Transaction memory txn) public {
     for (uint256 i = 0; i < txn.to.length; i++) {
-      address to = txn.to[i];
+      address payable to = address(uint160(txn.to[i]));
       uint256 value = txn.value[i];
 
       if (txn.assetType == uint8(Transfer.Asset.ETH)) {
@@ -56,7 +56,7 @@ library Transfer {
   /// @return A boolean indicating if the terms are met
   function meetsTerms(
     Transfer.Transaction memory txn,
-    Transfer.Terms terms
+    Transfer.Terms memory terms
   )
     public
     pure

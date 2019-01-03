@@ -8,7 +8,7 @@ const signingKey = new SigningKey(privateKey);
 
 const signaturesAndDigests = ["sig1", "sig3", "sig2"].map(message => {
   const bytes = toUtf8Bytes(message);
-  const digest = keccak256(bytes);
+  const digest = keccak256(bytes memory);
   const signature = signingKey.signDigest(digest);
 
   return {

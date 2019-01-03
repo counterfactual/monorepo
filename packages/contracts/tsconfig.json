@@ -2,6 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
+    // Truffle v5 breaks if .d.ts files are in the test folder
+    "declaration": false
   },
   "include": ["src", "utils", "test"]
 }

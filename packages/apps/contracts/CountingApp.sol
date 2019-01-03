@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
@@ -20,7 +20,7 @@ contract CountingApp {
     uint256 turnNum;
   }
 
-  function isStateTerminal(AppState state)
+  function isStateTerminal(AppState memory state)
     public
     pure
     returns (bool)
@@ -28,7 +28,7 @@ contract CountingApp {
     return state.count == 2;
   }
 
-  function getTurnTaker(AppState state)
+  function getTurnTaker(AppState memory state)
     public
     pure
     returns (uint256)
@@ -36,10 +36,10 @@ contract CountingApp {
     return state.turnNum % 2;
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = terms.limit;
@@ -59,10 +59,10 @@ contract CountingApp {
     );
   }
 
-  function applyAction(AppState state, Action action)
+  function applyAction(AppState memory state, Action memory action)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     if (action.actionType == ActionTypes.INCREMENT) {
       return onIncrement(state, action);
@@ -73,10 +73,10 @@ contract CountingApp {
     }
   }
 
-  function onIncrement(AppState state, Action inc)
+  function onIncrement(AppState memory state, Action memory inc)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     AppState memory ret = state;
     state.count += inc.byHowMuch;
@@ -84,10 +84,10 @@ contract CountingApp {
     return abi.encode(ret);
   }
 
-  function onDecrement(AppState state, Action dec)
+  function onDecrement(AppState memory state, Action memory dec)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     AppState memory ret = state;
     state.count -= dec.byHowMuch;
