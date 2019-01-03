@@ -1,4 +1,9 @@
-import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
+import {
+  Address,
+  AppInstanceInfo,
+  NetworkContext,
+  Node
+} from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
@@ -68,6 +73,7 @@ export class Channels {
    */
   constructor(
     public readonly selfAddress: Address,
+    readonly networkContext: NetworkContext,
     private readonly store: IStoreService,
     private readonly storeKeyPrefix: string
   ) {}

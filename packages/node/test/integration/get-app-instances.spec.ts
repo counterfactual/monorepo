@@ -10,6 +10,7 @@ import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service"
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
+  EMPTY_NETWORK,
   getInstalledAppInstances,
   getNewMultisig,
   makeProposalRequest
@@ -42,6 +43,7 @@ describe("Node method follows spec - getAppInstances", () => {
       A_PRIVATE_KEY,
       MOCK_MESSAGING_SERVICE,
       storeService,
+      EMPTY_NETWORK,
       nodeConfig
     );
   });
