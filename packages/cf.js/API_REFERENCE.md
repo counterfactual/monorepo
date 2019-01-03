@@ -11,6 +11,8 @@
             - [Node method](#method-getappinstances)
         - `async install(appInstanceId: AppInstanceID): Promise<AppInstance>`
             - [Node method](#method-install)
+        - `async installVirtual(appInstanceId: AppInstanceID, intermediaries: Address[]): Promise<AppInstance>`
+            - [Node method](#method-install)
         - `async rejectInstall(appInstanceId: AppInstanceID)`
             - [Node method](#method-rejectinstall)
     - Lifecycle
@@ -51,6 +53,15 @@
                 initialState: AppState
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
+        - `async proposeVirtualInstall({
+                peerAddress: Address,
+                asset: BlockchainAsset,
+                myDeposit: BigNumberish,
+                peerDeposit: BigNumberish,
+                initialState: AppState,
+                intermediaries: Address[]
+           }): Promise<AppInstanceID>`
+           - [Node method](#method-proposevirtualinstall)
 - `AppInstance`
     - Extends [`AppInstanceInfo` data type](#data-type-appinstanceinfo)
     - Properties
@@ -161,6 +172,37 @@ Result:
 Errors: (TODO)
 - Not enough funds
 
+### Method: `proposeVirtualInstall`
+
+Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
+
+Params:
+- `peerAddress: string`
+    - Address of the peer to request installation of the app with
+- `appId: string`
+    - On-chain address of App Definition contract
+- `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
+    - ABI encodings used for states and actions of this app
+- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
+    - The asset used for deposits into this app
+- `myDeposit: BigNumber`
+    - Amount of the asset deposited by this user
+- `peerDeposit: BigNumber`
+    - Amount of the asset deposited by the counterparty
+- `timeout: BigNumber`
+    - Number of blocks until a submitted state for this app is considered finalized
+- `initialState:`[`AppState`](#data-type-appstate)
+    - Initial state of app instance
+- `intermediaries: Address[]`
+    - List of addresses of intermediaries to route the virtual app installation through
+
+Result:
+- `appInstanceId: string`
+    - Generated appInstanceId
+
+Errors: (TODO)
+- Not enough funds
+
 ### Method: `rejectInstall`
 
 Reject an app instance installation.
@@ -183,6 +225,24 @@ Params:
     - ID of the app instance to install
     - Counterparty must have called `proposedInstall` and generated this ID
 
+
+Result:
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
+    - Successfully installed app instance
+
+Errors: (TODO)
+- Counterparty rejected installation
+
+### Method: `installVirtual`
+
+Install a virtual app instance.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance to install
+    - Counterparty must have called `proposedInstall` and generated this ID
+- `intermediaries: Address[]`
+    - List of addresses of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -367,6 +427,10 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
+- `isVirtual: boolean`
+    - Whether this app instance is virtual i.e. uses a metachannel
+- `intermediaries?: Address[]`
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
