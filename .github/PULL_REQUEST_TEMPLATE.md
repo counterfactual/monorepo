@@ -1,13 +1,13 @@
->Yay! You're creating a new PR. Keep in mind these guidelines:
+> Yay! You're creating a new PR. Keep in mind these guidelines:
 >
->- Set the title following this convention:
+> - Set the title following this convention:
 >
->    [feature-group] [change-summary]
+>   [feature-group][change-summary]
 >
->    where:
+>   where:
 >
->    - `feature-group` represents either a monorepo package, or other features such as "documentation" or "lint".
->    - `change-summary` is a one-sentence version of the PR description.
+>   - `feature-group` represents either a monorepo package, or other features such as "documentation" or "lint".
+>   - `change-summary` is a one-sentence version of the PR description.
 >
 > - Tag the PR appropriately:
 >   - If you're early-opening a PR in do further work on it, tag it with the "in progress" label.
@@ -24,3 +24,5 @@
 ### Related issues
 
 [Link here any issues relevant to this PR, using the GitHub `fixes/resolves/closes` keywords to close related issues automatically.]
+
+- [ ] Deploy preview is functional
