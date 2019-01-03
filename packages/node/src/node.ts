@@ -55,15 +55,7 @@ export class Node {
       // account-address-based indexing
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
-    this.instructionExecutor = new InstructionExecutor({
-      // TODO: Pass in NetworkContext into Node constructor
-      AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero
-    });
+    this.instructionExecutor = new InstructionExecutor(networkContext);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
