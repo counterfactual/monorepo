@@ -98,7 +98,7 @@ export class AppGame {
           <app-game-player
             playerName={this.opponentName}
             playerScore={this.opponentScore}
-            playerType={PlayerType.Dark}
+            playerType={PlayerType.Black}
             playerRoll={this.opponentRoll}
           />
           <app-game-status
@@ -108,7 +108,7 @@ export class AppGame {
           <app-game-player
             playerName={this.myName}
             playerScore={this.myScore}
-            playerType={PlayerType.Light}
+            playerType={PlayerType.White}
             playerRoll={this.myRoll}
           />
           {this.gameState === GameState.Play ? (

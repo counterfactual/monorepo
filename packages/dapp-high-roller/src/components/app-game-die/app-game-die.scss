@@ -28,49 +28,49 @@
   }
 
   &.die__face-1 {
-    transform: rotateX(0) rotateY(0);
+    transform: rotateX(-90deg) rotateY(0);
   }
 
   &.die__face-2 {
     transform: rotateX(0) rotateY(180deg);
   }
 
-  &.die__face-5 {
-    transform: rotateX(0) rotateY(270deg);
-  }
-
-  &.die__face-6 {
-    transform: rotateX(0) rotateY(-270deg);
-  }
-
   &.die__face-3 {
-    transform: rotateX(-90deg) rotateY(0);
+    transform: rotateX(0) rotateY(90deg);
   }
 
   &.die__face-4 {
+    transform: rotateX(0) rotateY(-90deg);
+  }
+
+  &.die__face-5 {
+    transform: rotateX(0) rotateY(0);
+  }
+
+  &.die__face-6 {
     transform: rotateX(90deg) rotateY(0);
   }
 }
 
-.die__2 {
-	transform: translateZ(-45px) rotateY(180deg);
-}
-.die__5 {
-	transform: rotateY(-270deg) translateX(45px);
-	transform-origin: top right;
-}
-.die__6 {
-	transform: rotateY(270deg) translateX(-45px);
-	transform-origin: center left;
-}
-.die__3 {
+.die__1 {
 	transform: rotateX(-90deg) translateY(-45px);
 	transform-origin: top center;
 }
+.die__2 {
+	transform: rotateY(180deg) translateZ(45px);
+}
+.die__3 {
+	transform: rotateY(-90deg) translateX(-45px);
+	transform-origin: center left;
+}
 .die__4 {
+	transform: rotateY(90deg) translateX(45px);
+	transform-origin: top right;
+}
+.die__5 {
+	transform: translateZ(45px);
+}
+.die__6 {
 	transform: rotateX(90deg) translateY(45px);
 	transform-origin: bottom center;
-}
-.die__1 {
-	transform: translateZ(45px);
 }
