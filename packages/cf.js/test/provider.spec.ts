@@ -234,6 +234,28 @@ describe("CF.js Provider", () => {
         }
       });
     });
+
+    it("can subscribe to install events", async () => {
+      expect.assertions(3);
+      provider.once(EventType.INSTALL, e => {
+        expect(e.type).toBe(EventType.INSTALL);
+        const appInstance = (e.data as InstallEventData).appInstance;
+        expect(appInstance).toBeInstanceOf(AppInstance);
+        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      });
+
+      await provider.getOrCreateAppInstance(
+        TEST_APP_INSTANCE_INFO.id,
+        TEST_APP_INSTANCE_INFO
+      );
+
+      nodeProvider.simulateMessageFromNode({
+        type: Node.EventName.INSTALL,
+        data: {
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        }
+      });
+    });
   });
 
   describe("AppInstance management", () => {
