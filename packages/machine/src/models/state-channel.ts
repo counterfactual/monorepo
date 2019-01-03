@@ -176,7 +176,7 @@ export class StateChannel {
     aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
   ): StateChannel {
-    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps + 1) {
+    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
       throw Error(ERRORS.INVALID_SEQ_NO);
     }
 

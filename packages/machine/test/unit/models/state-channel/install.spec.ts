@@ -52,7 +52,7 @@ describe("StateChannel::uninstallApp", () => {
         token: AddressZero
       },
       false,
-      sc1.numInstalledApps + 1,
+      sc1.numInstalledApps,
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
