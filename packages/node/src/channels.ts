@@ -17,6 +17,7 @@ import { APP_INSTANCE_STATUS } from "./db-schema";
 import { IStoreService } from "./services";
 import { Store } from "./store";
 import { orderedAddressesHash } from "./utils";
+import { ProposedAppInstanceInfo } from "./types";
 
 /**
  * This class itelf does not hold any meaningful state.
@@ -131,8 +132,10 @@ export class Channels {
     const clientAppInstanceID = generateUUID();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
 
-    const proposedAppInstance = { id: clientAppInstanceID, ...params };
-    delete proposedAppInstance.peerAddress;
+    const proposedAppInstance = new ProposedAppInstanceInfo(
+      clientAppInstanceID,
+      params
+    );
 
     await this.store.addAppInstanceProposal(
       channel,
@@ -140,21 +143,6 @@ export class Channels {
       clientAppInstanceID
     );
     return clientAppInstanceID;
-  }
-
-  async setClientAppInstanceIDForProposeInstall(
-    params: Node.InterNodeProposeInstallParams,
-    clientAppInstanceID: string
-  ) {
-    const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-    const proposedAppInstance = { id: params.id, ...params };
-    delete proposedAppInstance.peerAddress;
-
-    await this.store.addAppInstanceProposal(
-      channel,
-      proposedAppInstance,
-      clientAppInstanceID
-    );
   }
 
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
@@ -167,11 +155,10 @@ export class Channels {
     );
 
     const clientAppInstanceID = params.appInstanceId;
-    const appInstanceInfo: AppInstanceInfo = await this.store.getProposedAppInstance(
+    const appInstanceInfo = await this.store.getProposedAppInstanceInfo(
       clientAppInstanceID
     );
     const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
-      {},
       appInstanceInfo,
       channel
     );
@@ -182,6 +169,20 @@ export class Channels {
     );
 
     return appInstanceInfo;
+  }
+
+  async setClientAppInstanceIDForProposeInstall(
+    params: Node.InterNodeProposeInstallParams,
+    clientAppInstanceID: string
+  ) {
+    const channel = await this.getChannelFromPeerAddress(params.peerAddress);
+    const proposedAppInstance = new ProposedAppInstanceInfo(params.id, params);
+
+    await this.store.addAppInstanceProposal(
+      channel,
+      proposedAppInstance,
+      clientAppInstanceID
+    );
   }
 
   // private utility methods
@@ -260,32 +261,38 @@ export class Channels {
    * @param channel The channel the AppInstanceInfo belongs to
    */
   private createAppInstanceFromAppInstanceInfo(
-    initialState: any,
-    appInstanceInfo: AppInstanceInfo,
+    proposedAppInstanceInfo: ProposedAppInstanceInfo,
     channel: StateChannel
   ): AppInstance {
-    const appFunctionSigHashes = getAppFunctionSigHashes(appInstanceInfo);
+    const appFunctionSigHashes = getAppFunctionSigHashes(
+      proposedAppInstanceInfo
+    );
 
     const appInterface: AppInterface = {
-      addr: appInstanceInfo.appId,
+      addr: proposedAppInstanceInfo.appId,
       applyAction: appFunctionSigHashes.applyAction,
       resolve: appFunctionSigHashes.resolve,
       getTurnTaker: appFunctionSigHashes.getTurnTaker,
       isStateTerminal: appFunctionSigHashes.isStateTerminal,
-      stateEncoding: appInstanceInfo.abiEncodings.stateEncoding,
-      actionEncoding: appInstanceInfo.abiEncodings.actionEncoding
+      stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
+      actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
     };
 
     const terms: Terms = {
-      assetType: appInstanceInfo.asset.assetType,
-      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit)
+      assetType: proposedAppInstanceInfo.asset.assetType,
+      limit: proposedAppInstanceInfo.myDeposit.add(
+        proposedAppInstanceInfo.peerDeposit
+      )
     };
+    if (proposedAppInstanceInfo.asset.token) {
+      terms.token = proposedAppInstanceInfo.asset.token;
+    }
 
     return new AppInstance(
       channel.multisigAddress,
       // TODO: generate ephemeral app-specific keys
       channel.multisigOwners,
-      appInstanceInfo.timeout.toNumber(),
+      proposedAppInstanceInfo.timeout.toNumber(),
       appInterface,
       terms,
       // TODO: pass correct value when virtual app support gets added
@@ -293,11 +300,10 @@ export class Channels {
       // TODO: this should be thread-safe
       channel.numInstalledApps,
       channel.rootNonceValue,
-      {},
+      proposedAppInstanceInfo.initialState,
       0,
-      appInstanceInfo.timeout.toNumber()
+      proposedAppInstanceInfo.timeout.toNumber()
     );
-    // token: appInstanceInfo.asset.token ? appInstanceInfo.asset.token : null
   }
 }
 

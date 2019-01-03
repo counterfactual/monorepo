@@ -192,7 +192,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`,
-        value: proposedAppInstance
+        value: JSON.parse(JSON.stringify(proposedAppInstance))
       },
       {
         key: `${
@@ -217,26 +217,33 @@ export class Store {
   /**
    * Returns a list of proposed AppInstances.
    */
-  async getProposedAppInstances(): Promise<ProposedAppInstanceInfo[]> {
+  async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const storeProposedAppInstances = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
-    )) as { [clientAppInstanceID: string]: ProposedAppInstanceInfo };
+    )) as { [clientAppInstanceID: string]: AppInstanceInfo };
     return Object.values(storeProposedAppInstances);
   }
 
   /**
    * Returns the proposed AppInstance with the specified clientAppInstanceID.
    */
-  async getProposedAppInstance(
+  async getProposedAppInstanceInfo(
     clientAppInstanceID: string
-  ): Promise<AppInstanceInfo> {
-    return await this.storeService.get(
+  ): Promise<ProposedAppInstanceInfo> {
+    const proposedAppInstanceInfoJSON = await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
     );
+    console.log("fetched proposed app instance");
+    console.log(proposedAppInstanceInfoJSON);
+    const proposedAppInstanceInfo = ProposedAppInstanceInfo.fromJson(
+      proposedAppInstanceInfoJSON
+    );
+    console.log(proposedAppInstanceInfo);
+    return proposedAppInstanceInfo;
   }
 
   /**

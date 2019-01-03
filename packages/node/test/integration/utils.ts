@@ -1,11 +1,14 @@
 import {
   Address,
+  AppABIEncodings,
   AppInstanceInfo,
+  AppState,
   AssetType,
+  BlockchainAsset,
   Node as NodeTypes
 } from "@counterfactual/types";
-import cuid from "cuid";
 import { AddressZero, One } from "ethers/constants";
+import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
@@ -15,7 +18,7 @@ export async function getNewMultisig(
   owners: Address[]
 ): Promise<Address> {
   const req: NodeTypes.MethodRequest = {
-    requestId: cuid(),
+    requestId: generateUUID(),
     type: NodeTypes.MethodName.CREATE_MULTISIG,
     params: {
       owners
@@ -34,7 +37,7 @@ export async function getNewMultisig(
  */
 export async function getChannelAddresses(node: Node): Promise<Address[]> {
   const req: NodeTypes.MethodRequest = {
-    requestId: cuid(),
+    requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
     params: {} as NodeTypes.CreateMultisigParams
   };
@@ -64,7 +67,7 @@ async function getApps(
   let result;
   if (appInstanceStatus === APP_INSTANCE_STATUS.INSTALLED) {
     request = {
-      requestId: cuid(),
+      requestId: generateUUID(),
       type: NodeTypes.MethodName.GET_APP_INSTANCES,
       params: {} as NodeTypes.GetAppInstancesParams
     };
@@ -73,7 +76,7 @@ async function getApps(
     return result.appInstances;
   }
   request = {
-    requestId: cuid(),
+    requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCES,
     params: {} as NodeTypes.GetProposedAppInstancesParams
   };
@@ -86,26 +89,26 @@ export function makeProposalRequest(
   peerAddress: Address
 ): NodeTypes.MethodRequest {
   const params: NodeTypes.ProposeInstallParams = {
-    peerAddress,
-    appId: cuid(),
+    peerAddress: peerAddress as Address,
+    appId: generateUUID(),
     abiEncodings: {
-      stateEncoding: "stateEncoding",
-      actionEncoding: "actionEncoding"
-    },
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    } as AppABIEncodings,
     asset: {
       assetType: AssetType.ETH
-    },
+    } as BlockchainAsset,
     myDeposit: One,
     peerDeposit: One,
     timeout: One,
     initialState: {
-      propertyA: "A",
-      propertyB: "B"
-    }
+      foo: AddressZero,
+      bar: 0
+    } as AppState
   };
   return {
     params,
-    requestId: cuid(),
+    requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
 }
