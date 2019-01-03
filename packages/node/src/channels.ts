@@ -10,14 +10,15 @@ import {
   Terms
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { bigNumberify } from "ethers/utils";
+import { AddressZero } from "ethers/constants";
+import { bigNumberify, hexlify, randomBytes } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS } from "./db-schema";
 import { IStoreService } from "./services";
 import { Store } from "./store";
-import { orderedAddressesHash } from "./utils";
 import { ProposedAppInstanceInfo } from "./types";
+import { orderedAddressesHash } from "./utils";
 
 /**
  * This class itelf does not hold any meaningful state.
@@ -286,6 +287,8 @@ export class Channels {
     };
     if (proposedAppInstanceInfo.asset.token) {
       terms.token = proposedAppInstanceInfo.asset.token;
+    } else {
+      terms.token = AddressZero;
     }
 
     return new AppInstance(
@@ -311,9 +314,9 @@ function getAppFunctionSigHashes(
   appInstanceInfo: AppInstanceInfo
 ): AppFunctionsSigHashes {
   return {
-    applyAction: "",
-    resolve: "",
-    getTurnTaker: "",
-    isStateTerminal: ""
+    applyAction: hexlify(randomBytes(4)),
+    resolve: hexlify(randomBytes(4)),
+    getTurnTaker: hexlify(randomBytes(4)),
+    isStateTerminal: hexlify(randomBytes(4))
   };
 }

@@ -6,7 +6,7 @@ import {
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
   freeBalanceTerms,
@@ -128,8 +128,8 @@ export class StateChannel {
     const appInstanceJson = this.appInstances.get(idx!)!.toJson();
     appInstanceJson.latestState = {
       ...appInstanceJson.latestState,
-      aliceBalance: appInstanceJson.latestState.aliceBalance,
-      bobBalance: appInstanceJson.latestState.bobBalance
+      aliceBalance: bigNumberify(appInstanceJson.latestState.aliceBalance),
+      bobBalance: bigNumberify(appInstanceJson.latestState.bobBalance)
     };
     return AppInstance.fromJson(appInstanceJson);
   }
@@ -274,16 +274,11 @@ export class StateChannel {
       freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
       monotonicNumInstalledApps: this.monotonicNumInstalledApps
     };
-    console.log("converting to json");
-    console.log(channelJSON);
     return channelJSON;
   }
 
   static fromJson(json: StateChannelJSON): StateChannel {
     const appInstances: Map<string, AppInstance> = new Map();
-    console.log("converting from json");
-    console.log(json);
-    console.log(json.appInstances);
     if (json.appInstances) {
       Object.entries(json.appInstances).forEach(appInstanceEntry => {
         appInstances.set(

@@ -15,7 +15,7 @@ import {
   OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
 import { IStoreService } from "./services";
-import { ProposedAppInstanceInfo } from "./types";
+import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./types";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -37,8 +37,6 @@ export class Store {
     const channels = await this.storeService.get(
       `${this.storeKeyPrefix}/${CHANNEL}`
     );
-    console.log("got channels");
-    console.log(channels);
     if (!channels) {
       console.log("No channels exist yet");
       return {};
@@ -127,21 +125,19 @@ export class Store {
     stateChannel: StateChannel,
     clientAppInstanceID: string
   ) {
-    console.log("got app instance");
-    console.log(appInstance);
-
     // TODO: give the right big numbers
-    stateChannel.installApp(appInstance, bigNumberify(0), bigNumberify(0));
-    console.log("installed app");
-    console.log(appInstance);
-    console.log(stateChannel);
+    const updatedStateChannel = stateChannel.installApp(
+      appInstance,
+      bigNumberify(0),
+      bigNumberify(0)
+    );
 
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${
           stateChannel.multisigAddress
         }`,
-        value: stateChannel.toJson()
+        value: updatedStateChannel.toJson()
       },
       {
         key: `${
@@ -164,12 +160,6 @@ export class Store {
         value: null
       }
     ]);
-    console.log("getting installed app");
-    console.log(
-      await this.storeService.get(
-        `${this.storeKeyPrefix}/${CHANNEL}/${stateChannel.multisigAddress}`
-      )
-    );
   }
 
   /**
@@ -185,8 +175,6 @@ export class Store {
     proposedAppInstance: ProposedAppInstanceInfo,
     clientAppInstanceID: string
   ) {
-    console.log("adding proposed app instance");
-    console.log(proposedAppInstance);
     await this.storeService.set([
       {
         key: `${
@@ -218,12 +206,16 @@ export class Store {
    * Returns a list of proposed AppInstances.
    */
   async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
-    const storeProposedAppInstances = (await this.storeService.get(
+    const proposedAppInstancesJson = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
-    )) as { [clientAppInstanceID: string]: AppInstanceInfo };
-    return Object.values(storeProposedAppInstances);
+    )) as { [clientAppInstanceID: string]: ProposedAppInstanceInfoJSON };
+    return Array.from(Object.values(proposedAppInstancesJson)).map(
+      proposedAppInstanceJson => {
+        return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
+      }
+    );
   }
 
   /**
@@ -232,18 +224,13 @@ export class Store {
   async getProposedAppInstanceInfo(
     clientAppInstanceID: string
   ): Promise<ProposedAppInstanceInfo> {
-    const proposedAppInstanceInfoJSON = await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
+    return ProposedAppInstanceInfo.fromJson(
+      await this.storeService.get(
+        `${
+          this.storeKeyPrefix
+        }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
+      )
     );
-    console.log("fetched proposed app instance");
-    console.log(proposedAppInstanceInfoJSON);
-    const proposedAppInstanceInfo = ProposedAppInstanceInfo.fromJson(
-      proposedAppInstanceInfoJSON
-    );
-    console.log(proposedAppInstanceInfo);
-    return proposedAppInstanceInfo;
   }
 
   /**

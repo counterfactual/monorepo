@@ -90,7 +90,7 @@ export function makeProposalRequest(
 ): NodeTypes.MethodRequest {
   const params: NodeTypes.ProposeInstallParams = {
     peerAddress: peerAddress as Address,
-    appId: generateUUID(),
+    appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined

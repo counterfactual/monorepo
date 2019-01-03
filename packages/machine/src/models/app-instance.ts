@@ -107,7 +107,8 @@ export class AppInstance {
   }
 
   public toJson(): AppInstanceJson {
-    return this.json;
+    // removes any fields which have an `undefined` value, as that's invalid JSON
+    return JSON.parse(JSON.stringify(this.json));
   }
 
   @Memoize()
