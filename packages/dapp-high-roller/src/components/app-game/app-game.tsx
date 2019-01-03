@@ -52,10 +52,12 @@ export class AppGame {
     this.shakeAudio.loop = true;
     this.shakeAudio.play();
 
-    for (let i = 0; i < 10; ++i) {
+    for (const i = 0; i < 10; i + 1) {
       this[roller] = this.generateRoll();
 
-      await new Promise(resolve => setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150))));
+      await new Promise(resolve =>
+        setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
+      );
     }
 
     this.shakeAudio.pause();
@@ -63,7 +65,10 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
-    await Promise.all([this.animateRoll("myRoll"), this.animateRoll("opponentRoll")]);
+    await Promise.all([
+      this.animateRoll("myRoll"),
+      this.animateRoll("opponentRoll")
+    ]);
 
     this.myRoll = this.generateRoll();
     this.opponentRoll = this.generateRoll();
@@ -132,10 +137,10 @@ export class AppGame {
           )}
 
           <div>
-            <audio  ref={(el) => this.shakeAudio = el as HTMLAudioElement} >
+            <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
               <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
             </audio>
-            <audio  ref={(el) => this.rollAudio = el as HTMLAudioElement} >
+            <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
               <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
             </audio>
           </div>

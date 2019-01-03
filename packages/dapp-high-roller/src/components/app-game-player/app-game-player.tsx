@@ -29,8 +29,14 @@ export class AppGamePlayer {
         </div>
 
         <div class="player__dice">
-          <app-game-die playerType={this.playerType} value={this.playerRoll[0]} />
-          <app-game-die playerType={this.playerType} value={this.playerRoll[1]} />
+          <app-game-die
+            playerType={this.playerType}
+            value={this.playerRoll[0]}
+          />
+          <app-game-die
+            playerType={this.playerType}
+            value={this.playerRoll[1]}
+          />
         </div>
       </div>
     );
