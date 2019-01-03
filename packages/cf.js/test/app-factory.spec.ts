@@ -59,26 +59,6 @@ describe("CF.js AppFactory", () => {
       expect(appInstanceId).toBe(testAppInstanceId);
     });
 
-    it("throws an error if peer address invalid", async done => {
-      try {
-        await appFactory.proposeInstall({
-          peerAddress: "$%GARBAGE$%",
-          asset: {
-            assetType: AssetType.ETH
-          },
-          peerDeposit: parseEther("0.5"),
-          myDeposit: parseEther("0.5"),
-          timeout: "100",
-          initialState: "4000"
-        });
-        done.fail("Expected an error for invalid peer address");
-      } catch (e) {
-        expect(e.data.errorName).toBe("invalid_param");
-        expect(e.data.extra.paramName).toBe("peerAddress");
-        done();
-      }
-    });
-
     it("throws an error if BigNumber param invalid", async done => {
       try {
         await appFactory.proposeInstall({

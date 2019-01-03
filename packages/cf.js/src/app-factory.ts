@@ -6,10 +6,10 @@ import {
   BlockchainAsset,
   Node
 } from "@counterfactual/types";
-import { BigNumber, BigNumberish, getAddress } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { Provider } from "./provider";
-import { CounterfactualEvent, EventType } from "./types";
+import { EventType } from "./types";
 
 interface ProposeInstallParams {
   peerAddress: Address;
@@ -20,7 +20,7 @@ interface ProposeInstallParams {
   initialState: AppState;
 }
 
-interface ProposeVirtualInstallParams {
+interface ProposeInstallVirtualParams {
   peerAddress: Address;
   asset: BlockchainAsset;
   myDeposit: BigNumberish;
@@ -30,45 +30,22 @@ interface ProposeVirtualInstallParams {
   intermediaries: Address[];
 }
 
-function createInvalidParamError(
-  val: any,
-  paramName: string,
-  originalError?: any
-): CounterfactualEvent {
-  return {
-    type: EventType.ERROR,
-    data: {
-      errorName: "invalid_param",
-      message: `Invalid value for parameter '${paramName}': ${val}`,
-      extra: {
-        paramName,
-        originalError
-      }
-    }
-  };
-}
-
 function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
   try {
     return new BigNumber(val);
   } catch (e) {
-    throw createInvalidParamError(val, paramName, e);
+    throw {
+      type: EventType.ERROR,
+      data: {
+        errorName: "invalid_param",
+        message: `Invalid value for parameter '${paramName}': ${val}`,
+        extra: {
+          paramName,
+          originalError: e
+        }
+      }
+    };
   }
-}
-
-function checkAddress(address: Address, paramName: string) {
-  try {
-    getAddress(address);
-  } catch (e) {
-    throw createInvalidParamError(address, paramName, e);
-  }
-}
-
-function parseBigNumberParams(params: ProposeInstallParams) {
-  const timeout = parseBigNumber(params.timeout, "timeout");
-  const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
-  const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
-  return { timeout, myDeposit, peerDeposit };
 }
 
 export class AppFactory {
@@ -79,8 +56,10 @@ export class AppFactory {
   ) {}
 
   async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
-    const { timeout, myDeposit, peerDeposit } = parseBigNumberParams(params);
-    checkAddress(params.peerAddress, "peerAddress");
+    const timeout = parseBigNumber(params.timeout, "timeout");
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
+
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.PROPOSE_INSTALL,
       {
@@ -98,19 +77,15 @@ export class AppFactory {
     return appInstanceId;
   }
 
-  async proposeVirtualInstall(
-    params: ProposeVirtualInstallParams
+  async proposeInstallVirtual(
+    params: ProposeInstallVirtualParams
   ): Promise<AppInstanceID> {
-    const { timeout, myDeposit, peerDeposit } = parseBigNumberParams(params);
-    if (params.intermediaries.length === 0) {
-      throw createInvalidParamError(params.intermediaries, "intermediaries");
-    }
-    checkAddress(params.peerAddress, "peerAddress");
-    for (const address of params.intermediaries) {
-      checkAddress(address, "intermediaries");
-    }
+    const timeout = parseBigNumber(params.timeout, "timeout");
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
+
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.PROPOSE_INSTALL,
+      Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
       {
         timeout,
         peerDeposit,
@@ -118,13 +93,14 @@ export class AppFactory {
         asset: params.asset,
         peerAddress: params.peerAddress,
         initialState: params.initialState,
+        intermediaries: params.intermediaries,
         appId: this.appId,
         abiEncodings: this.encodings
       }
     );
     const {
       appInstanceId
-    } = response.result as Node.ProposeVirtualInstallResult;
+    } = response.result as Node.ProposeInstallVirtualResult;
     return appInstanceId;
   }
 }

@@ -33,7 +33,7 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     PROPOSE_INSTALL = "proposeInstall",
-    PROPOSE_VIRTUAL_INSTALL = "proposeVirtualInstall",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
@@ -83,10 +83,10 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
 
-  export type ProposeVirtualInstallParams = ProposeInstallParams & {
+  export type ProposeInstallVirtualParams = ProposeInstallParams & {
     intermediaries: Address[];
   };
-  export type ProposeVirtualInstallResult = ProposeInstallResult;
+  export type ProposeInstallVirtualResult = ProposeInstallResult;
 
   export type RejectInstallParams = {
     appInstanceId: AppInstanceID;
@@ -148,7 +148,7 @@ export namespace Node {
     | GetAppInstancesParams
     | GetProposedAppInstancesParams
     | ProposeInstallParams
-    | ProposeVirtualInstallParams
+    | ProposeInstallVirtualParams
     | RejectInstallParams
     | InstallParams
     | InstallVirtualParams
@@ -162,7 +162,7 @@ export namespace Node {
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
     | ProposeInstallResult
-    | ProposeVirtualInstallResult
+    | ProposeInstallVirtualResult
     | RejectInstallResult
     | InstallResult
     | InstallVirtualResult
