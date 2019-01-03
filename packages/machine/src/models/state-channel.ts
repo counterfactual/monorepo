@@ -177,7 +177,7 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ): StateChannel {
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps + 1) {
-      throw Error(`${ERRORS.INVALID_SEQ_NO}`);
+      throw Error(ERRORS.INVALID_SEQ_NO);
     }
 
     const fb = this.getFreeBalanceFor(AssetType.ETH);
