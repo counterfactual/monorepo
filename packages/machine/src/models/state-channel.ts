@@ -1,4 +1,5 @@
 import {
+  AppState,
   AssetType,
   ETHBucketAppState,
   NetworkContext
@@ -105,6 +106,10 @@ export class StateChannel {
     return this.appInstances.get(appInstanceId)!;
   }
 
+  public hasAppInstance(appInstanceId: string): boolean {
+    return this.appInstances.has(appInstanceId);
+  }
+
   public isAppInstanceInstalled(appInstanceId: string) {
     return this.appInstances.has(appInstanceId);
   }
@@ -120,7 +125,13 @@ export class StateChannel {
       throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!)}`);
     }
 
-    return this.appInstances.get(idx!)!;
+    const appInstanceJson = this.appInstances.get(idx!)!.toJson();
+    appInstanceJson.latestState = {
+      ...appInstanceJson.latestState,
+      aliceBalance: appInstanceJson.latestState.aliceBalance,
+      bobBalance: appInstanceJson.latestState.bobBalance
+    };
+    return AppInstance.fromJson(appInstanceJson);
   }
 
   public setupChannel(network: NetworkContext) {
@@ -155,7 +166,7 @@ export class StateChannel {
     );
   }
 
-  public setState(appInstanceId: string, state: object) {
+  public setState(appInstanceId: string, state: AppState) {
     const appInstance = this.getAppInstance(appInstanceId);
 
     const appInstances = new Map<string, AppInstance>(
@@ -183,7 +194,7 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state as ETHBucketAppState;
+    const currentFBState = fb.state;
 
     const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
@@ -256,23 +267,31 @@ export class StateChannel {
       appInstanceJsons[appInstance.id] = appInstance.toJson();
     });
 
-    return {
+    const channelJSON = {
       multisigAddress: this.multisigAddress,
       multisigOwners: this.multisigOwners,
       appInstances: appInstanceJsons,
       freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
       monotonicNumInstalledApps: this.monotonicNumInstalledApps
     };
+    console.log("converting to json");
+    console.log(channelJSON);
+    return channelJSON;
   }
 
   static fromJson(json: StateChannelJSON): StateChannel {
     const appInstances: Map<string, AppInstance> = new Map();
-    Object.entries(json.appInstances).forEach(appInstanceEntry => {
-      appInstances.set(
-        appInstanceEntry[0],
-        AppInstance.fromJson(appInstanceEntry[1])
-      );
-    });
+    console.log("converting from json");
+    console.log(json);
+    console.log(json.appInstances);
+    if (json.appInstances) {
+      Object.entries(json.appInstances).forEach(appInstanceEntry => {
+        appInstances.set(
+          appInstanceEntry[0],
+          AppInstance.fromJson(appInstanceEntry[1])
+        );
+      });
+    }
     return new StateChannel(
       json.multisigAddress,
       json.multisigOwners,

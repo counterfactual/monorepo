@@ -4,6 +4,7 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { APP_INTERFACE, TERMS } from "../ethereum/utils/encodings";
+import { AppState } from "../protocol-types-tbd";
 
 /**
  * Representation of the values a dependency nonce can take on.
@@ -222,7 +223,7 @@ export class AppInstance {
   }
 
   public setState(
-    newState: object,
+    newState: AppState,
     timeout: number = this.json.defaultTimeout
   ) {
     try {

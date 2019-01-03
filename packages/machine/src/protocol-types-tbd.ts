@@ -13,7 +13,7 @@ import { Protocol } from "./types";
 // todo(ldct): top-level arrays are probably illegal since they are not
 // structs...
 export type AppState = {
-  [x: string]: string | number | boolean | AppState | AppStateArray;
+  [x: string]: string | BigNumber | boolean | AppState | AppStateArray;
 };
 
 // Ideally this should be a `type` not an `interface` but self-referencial

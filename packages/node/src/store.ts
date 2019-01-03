@@ -1,4 +1,8 @@
-import { StateChannel, StateChannelJSON } from "@counterfactual/machine";
+import {
+  AppInstance,
+  StateChannel,
+  StateChannelJSON
+} from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
@@ -32,6 +36,8 @@ export class Store {
     const channels = await this.storeService.get(
       `${this.storeKeyPrefix}/${CHANNEL}`
     );
+    console.log("got channels");
+    console.log(channels);
     if (!channels) {
       console.log("No channels exist yet");
       return {};
@@ -116,36 +122,38 @@ export class Store {
    * @param clientAppInstanceID
    */
   async installAppInstance(
+    appInstance: AppInstance,
     stateChannel: StateChannel,
-    channelAppInstanceID: string,
     clientAppInstanceID: string
   ) {
-    const appInstance = await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
-    );
+    console.log("got app instance");
+    console.log(appInstance);
 
     // TODO: give the right big numbers
     stateChannel.installApp(appInstance, bigNumberify(0), bigNumberify(0));
+    console.log("installed app");
+    console.log(appInstance);
+    console.log(stateChannel);
 
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${CHANNEL}/${
           stateChannel.multisigAddress
         }`,
-        value: stateChannel
+        value: stateChannel.toJson()
       },
       {
         key: `${
           this.storeKeyPrefix
         }/${CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID}/${clientAppInstanceID}`,
-        value: channelAppInstanceID
+        value: appInstance.id
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${channelAppInstanceID}`,
+        }/${CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${
+          appInstance.id
+        }`,
         value: clientAppInstanceID
       },
       {
@@ -155,19 +163,25 @@ export class Store {
         value: null
       }
     ]);
+    console.log("getting installed app");
+    console.log(
+      await this.storeService.get(
+        `${this.storeKeyPrefix}/${CHANNEL}/${stateChannel.multisigAddress}`
+      )
+    );
   }
 
   /**
    * Adds the given proposed appInstance to a channel's collection of proposed
    * app instances.
    * @param channel
-   * @param appInstance
+   * @param proposedAppInstance
    * @param clientAppInstanceID The ID to refer to this AppInstance before a
    *        channelAppInstanceID can be created.
    */
   async addAppInstanceProposal(
     stateChannel: StateChannel,
-    appInstance: AppInstanceInfo,
+    proposedAppInstance: AppInstanceInfo,
     clientAppInstanceID: string
   ) {
     await this.storeService.set([
@@ -175,7 +189,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`,
-        value: appInstance
+        value: proposedAppInstance
       },
       {
         key: `${

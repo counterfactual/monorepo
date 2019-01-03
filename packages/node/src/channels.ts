@@ -1,4 +1,4 @@
-import { StateChannel } from "@counterfactual/machine";
+import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
   Address,
   AppInstanceInfo,
@@ -125,23 +125,26 @@ export class Channels {
   }
 
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
-    const uuid = generateUUID();
+    const clientAppInstanceID = generateUUID();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
 
-    // The ID is being set to "" because it represents the channelAppInstanceID
-    const proposedAppInstance = { id: "", ...params };
+    const proposedAppInstance = { id: clientAppInstanceID, ...params };
     delete proposedAppInstance.peerAddress;
 
-    await this.store.addAppInstanceProposal(channel, proposedAppInstance, uuid);
-    return uuid;
+    await this.store.addAppInstanceProposal(
+      channel,
+      proposedAppInstance,
+      clientAppInstanceID
+    );
+    return clientAppInstanceID;
   }
 
   async setClientAppInstanceIDForProposeInstall(
-    params: Node.ProposeInstallParams,
+    params: Node.InterNodeProposeInstallParams,
     clientAppInstanceID: string
   ) {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-    const proposedAppInstance = { id: "", ...params };
+    const proposedAppInstance = { id: params.id, ...params };
     delete proposedAppInstance.peerAddress;
 
     await this.store.addAppInstanceProposal(
@@ -159,26 +162,22 @@ export class Channels {
     const channel = await this.getChannelFromClientAppInstanceID(
       params.appInstanceId
     );
-    // TODO: execute machine code to update channel state to include installation
-    // this will obviously also correct the ID being used here
-    // const appInstanceId = channel.rootNonce.nonceValue.toString();
-    const appInstanceId = "0";
 
     const clientAppInstanceID = params.appInstanceId;
-    const appInstance: AppInstanceInfo = await this.store.getProposedAppInstance(
+    const appInstanceInfo: AppInstanceInfo = await this.store.getProposedAppInstance(
       clientAppInstanceID
     );
-    appInstance.id = appInstanceId;
-
+    const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
+      appInstanceInfo,
+      channel
+    );
     await this.store.installAppInstance(
+      appInstance,
       channel,
-      appInstanceId,
       clientAppInstanceID
     );
 
-    // modify this since we're returning it to the client
-    appInstance.id = clientAppInstanceID;
-    return appInstance;
+    return appInstanceInfo;
   }
 
   // private utility methods
@@ -251,4 +250,55 @@ export class Channels {
     // TODO: implement this using CREATE2
     return Wallet.createRandom().address;
   }
+
+  /**
+   * @param appInstanceInfo The AppInstanceInfo to convert
+   * @param channel The channel the AppInstanceInfo belongs to
+   */
+  private createAppInstanceFromAppInstanceInfo(
+    appInstanceInfo: AppInstanceInfo,
+    channel: StateChannel
+  ): AppInstance {
+    const appFunctionSigHashes = getAppFunctionSigHashes(appInstanceInfo);
+    const appInstance: AppInstance = {
+      multisigAddress: channel.multisigAddress,
+      // TODO: generate ephemeral app-specific keys
+      signingKeys: channel.multisigOwners,
+      defaultTimeout: appInstanceInfo.timeout.toNumber(),
+      appInterface: {
+        addr: appInstanceInfo.appId
+      }
+    };
+  }
 }
+
+interface;
+
+function getAppFunctionSigHashes(appInstanceInfo: AppInstanceInfo): {};
+
+// console.log src/store.ts:135
+// { abiEncodings:
+//    { actionEncoding: 'actionEncoding',
+//      stateEncoding: 'stateEncoding' },
+//   appId: 'cjqg1d69h00025orwn3m03ocq',
+//   asset: { assetType: 0 },
+//   id: '',
+//   initialState: { propertyA: 'A', propertyB: 'B' },
+//   myDeposit: { _hex: '0x01' },
+//   peerDeposit: { _hex: '0x01' },
+//   timeout: { _hex: '0x01' } }
+// console.log src/store.ts:137
+// AppInstance {
+//   json:
+//    { multisigAddress: undefined,
+//      signingKeys: undefined,
+//      defaultTimeout: undefined,
+//      appInterface: undefined,
+//      terms: undefined,
+//      isVirtualApp: undefined,
+//      appSeqNo: undefined,
+//      rootNonceValue: undefined,
+//      latestState: undefined,
+//      latestNonce: undefined,
+//      latestTimeout: undefined,
+//      hasBeenUninstalled: undefined } }
