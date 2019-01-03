@@ -38,7 +38,9 @@ export type PlaygroundUserData = {
   email: string;
   username: string;
   address: Address;
-  multisigAddress: Address;
 };
 
-export type PlaygroundUser = PlaygroundUserData & { id: string };
+export type PlaygroundUser = PlaygroundUserData & {
+  id: string;
+  multisigAddress: Address;
+};

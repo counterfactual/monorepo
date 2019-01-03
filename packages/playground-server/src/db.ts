@@ -34,7 +34,7 @@ export async function ethAddressAlreadyRegistered(
 }
 
 export async function createUser(
-  data: PlaygroundUserData
+  data: PlaygroundUserData & { multisigAddress: Address }
 ): Promise<PlaygroundUser> {
   if (await ethAddressAlreadyRegistered(data.address)) {
     throw ErrorCode.AddressAlreadyRegistered;
