@@ -154,6 +154,39 @@ describe("CF.js Provider", () => {
       expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
     });
 
+    it("can install an app instance virtually", async () => {
+      expect.assertions(7);
+      const expectedIntermediaries = [
+        "0x6001600160016001600160016001600160016001"
+      ];
+
+      nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
+        expect(request.type).toBe(Node.MethodName.INSTALL_VIRTUAL);
+        const params = request.params as Node.InstallVirtualParams;
+        expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(params.intermediaries).toBe(expectedIntermediaries);
+
+        nodeProvider.simulateMessageFromNode({
+          type: Node.MethodName.INSTALL_VIRTUAL,
+          requestId: request.requestId,
+          result: {
+            appInstance: {
+              intermediaries: expectedIntermediaries,
+              ...TEST_APP_INSTANCE_INFO
+            }
+          }
+        });
+      });
+      const appInstance = await provider.installVirtual(
+        TEST_APP_INSTANCE_INFO.id,
+        expectedIntermediaries
+      );
+      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+      expect(appInstance.isVirtual).toBeTruthy();
+      expect(appInstance.intermediaries).toBe(expectedIntermediaries);
+    });
+
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
         expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
