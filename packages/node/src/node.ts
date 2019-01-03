@@ -1,9 +1,4 @@
-import { InstructionExecutor } from "@counterfactual/machine";
-import {
-  Address,
-  NetworkContext,
-  Node as NodeTypes
-} from "@counterfactual/types";
+import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -28,9 +23,6 @@ export class Node {
 
   private readonly channels: Channels;
   private readonly signer: SigningKey;
-
-  private readonly instructionExecutor: InstructionExecutor;
-
   protected readonly requestHandler: RequestHandler;
 
   /**
@@ -41,7 +33,6 @@ export class Node {
     privateKey: string,
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
-    readonly networkContext: NetworkContext,
     nodeConfig: NodeConfig
   ) {
     this.signer = new SigningKey(privateKey);
@@ -49,19 +40,16 @@ export class Node {
     this.outgoing = new EventEmitter();
     this.channels = new Channels(
       this.signer.address,
-      networkContext,
       this.storeService,
       // account-address-based indexing
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
-    this.instructionExecutor = new InstructionExecutor(networkContext);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
       this.outgoing,
       this.channels,
-      this.messagingService,
-      this.instructionExecutor
+      this.messagingService
     );
   }
 

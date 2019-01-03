@@ -33,7 +33,7 @@ export type ProtocolMessage = {
 
 export type SetupParams = {};
 
-export type UpdateParams = {
+export type UpdateData = {
   appInstanceId: string;
   newState: AppState;
 };
@@ -60,7 +60,7 @@ export type InstallVirtualAppParams = {
 
 type ProtocolParameters =
   | SetupParams
-  | UpdateParams
+  | UpdateData
   | InstallParams
   | UninstallParams
   | InstallVirtualAppParams;
