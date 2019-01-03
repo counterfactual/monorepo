@@ -1,3 +1,4 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
 import { Channels } from "../channels";
@@ -17,6 +18,7 @@ export async function getInstalledAppInstances(
 export async function getProposedAppInstances(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
   return {

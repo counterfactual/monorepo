@@ -1,3 +1,4 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
 import { Channels } from "../channels";
@@ -14,6 +15,7 @@ import { IMessagingService } from "../services";
 export async function createMultisig(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const result = {
@@ -44,6 +46,7 @@ export async function createMultisig(
 export async function addMultisig(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   nodeMsg: NodeMessage
 ) {
   const params = nodeMsg.data;
@@ -53,6 +56,7 @@ export async function addMultisig(
 export async function getChannelAddresses(
   channels: Channels,
   messagingService: IMessagingService,
+  instructionExecutor: InstructionExecutor,
   nodeMsg: NodeMessage
 ): Promise<Node.GetChannelAddressesResult> {
   return {
