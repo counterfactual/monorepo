@@ -1,6 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 
-import { Middleware } from "./middleware";
+import { MiddlewareContainer } from "./middleware";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
@@ -14,7 +14,7 @@ import {
 import {
   Context,
   Instruction,
-  InstructionMiddlewareCallback,
+  Middleware,
   Protocol
 } from "./types";
 
@@ -30,13 +30,13 @@ function genericProtocolMessageFields(sc: StateChannel) {
 }
 
 export class InstructionExecutor {
-  public middleware: Middleware;
+  public middleware: MiddlewareContainer;
 
   constructor(public readonly network: NetworkContext) {
-    this.middleware = new Middleware();
+    this.middleware = new MiddlewareContainer();
   }
 
-  public register(scope: Opcode, method: InstructionMiddlewareCallback) {
+  public register(scope: Opcode, method: Middleware) {
     this.middleware.add(scope, method);
   }
 

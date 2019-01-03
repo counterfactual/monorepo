@@ -2,12 +2,11 @@ import { Opcode } from "./opcodes";
 import { ProtocolMessage } from "./protocol-types-tbd";
 import {
   Context,
-  InstructionMiddlewareCallback,
-  InstructionMiddlewares
+  Middleware,
 } from "./types";
 
-export class Middleware {
-  public readonly middlewares: InstructionMiddlewares = {
+export class MiddlewareContainer {
+  public readonly middlewares: { [I in Opcode]: Middleware[] } = {
     [Opcode.IO_SEND]: [],
     [Opcode.IO_WAIT]: [],
     [Opcode.OP_SIGN]: [],
@@ -16,8 +15,8 @@ export class Middleware {
     [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
-  public add(scope: Opcode, method: InstructionMiddlewareCallback) {
-    this.middlewares[scope].push({ scope, method });
+  public add(scope: Opcode, method: Middleware) {
+    this.middlewares[scope].push(method);
   }
 
   public async run(msg: ProtocolMessage, opCode: Opcode, context: Context) {
@@ -34,7 +33,7 @@ export class Middleware {
 
       const middleware = middlewares[opCode][counter];
 
-      return middleware.method(msg, callback, context);
+      return middleware(msg, callback, context);
     }
 
     const middleware = this.middlewares[opCode][0];
@@ -45,6 +44,6 @@ export class Middleware {
       );
     }
 
-    return middleware.method(msg, callback, context);
+    return middleware(msg, callback, context);
   }
 }
