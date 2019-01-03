@@ -15,6 +15,7 @@ import {
   OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
 import { IStoreService } from "./services";
+import { ProposedAppInstanceInfo } from "./types";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -181,9 +182,11 @@ export class Store {
    */
   async addAppInstanceProposal(
     stateChannel: StateChannel,
-    proposedAppInstance: AppInstanceInfo,
+    proposedAppInstance: ProposedAppInstanceInfo,
     clientAppInstanceID: string
   ) {
+    console.log("adding proposed app instance");
+    console.log(proposedAppInstance);
     await this.storeService.set([
       {
         key: `${
@@ -214,12 +217,12 @@ export class Store {
   /**
    * Returns a list of proposed AppInstances.
    */
-  async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
+  async getProposedAppInstances(): Promise<ProposedAppInstanceInfo[]> {
     const storeProposedAppInstances = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
-    )) as { [clientAppInstanceID: string]: AppInstanceInfo };
+    )) as { [clientAppInstanceID: string]: ProposedAppInstanceInfo };
     return Object.values(storeProposedAppInstances);
   }
 

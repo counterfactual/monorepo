@@ -1,4 +1,5 @@
 import {
+  AppFunctionsSigHashes,
   AppIdentity,
   AppInterface,
   AssetType,
@@ -36,6 +37,7 @@ export {
   Address,
   AppABIEncodings,
   AppAction,
+  AppFunctionsSigHashes,
   AppIdentity,
   AppInstanceID,
   AppInstanceInfo,

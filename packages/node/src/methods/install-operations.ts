@@ -19,14 +19,14 @@ export async function proposeInstall(
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
-  const uuid = await channels.proposeInstall(params);
+  const clientAppInstanceId = await channels.proposeInstall(params);
 
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
       ...params,
-      appInstanceId: uuid,
+      appInstanceId: clientAppInstanceId,
       proposal: true
     }
   };
@@ -34,7 +34,7 @@ export async function proposeInstall(
   await messagingService.send(params.peerAddress, proposalMsg);
 
   return {
-    appInstanceId: uuid
+    appInstanceId: clientAppInstanceId
   };
 }
 

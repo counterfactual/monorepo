@@ -1,10 +1,13 @@
 import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
   Address,
+  AppFunctionsSigHashes,
   AppInstanceInfo,
+  AppInterface,
   AssetType,
   NetworkContext,
-  Node
+  Node,
+  Terms
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { bigNumberify } from "ethers/utils";
@@ -168,6 +171,7 @@ export class Channels {
       clientAppInstanceID
     );
     const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
+      {},
       appInstanceInfo,
       channel
     );
@@ -256,49 +260,54 @@ export class Channels {
    * @param channel The channel the AppInstanceInfo belongs to
    */
   private createAppInstanceFromAppInstanceInfo(
+    initialState: any,
     appInstanceInfo: AppInstanceInfo,
     channel: StateChannel
   ): AppInstance {
     const appFunctionSigHashes = getAppFunctionSigHashes(appInstanceInfo);
-    const appInstance: AppInstance = {
-      multisigAddress: channel.multisigAddress,
-      // TODO: generate ephemeral app-specific keys
-      signingKeys: channel.multisigOwners,
-      defaultTimeout: appInstanceInfo.timeout.toNumber(),
-      appInterface: {
-        addr: appInstanceInfo.appId
-      }
+
+    const appInterface: AppInterface = {
+      addr: appInstanceInfo.appId,
+      applyAction: appFunctionSigHashes.applyAction,
+      resolve: appFunctionSigHashes.resolve,
+      getTurnTaker: appFunctionSigHashes.getTurnTaker,
+      isStateTerminal: appFunctionSigHashes.isStateTerminal,
+      stateEncoding: appInstanceInfo.abiEncodings.stateEncoding,
+      actionEncoding: appInstanceInfo.abiEncodings.actionEncoding
     };
+
+    const terms: Terms = {
+      assetType: appInstanceInfo.asset.assetType,
+      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit)
+    };
+
+    return new AppInstance(
+      channel.multisigAddress,
+      // TODO: generate ephemeral app-specific keys
+      channel.multisigOwners,
+      appInstanceInfo.timeout.toNumber(),
+      appInterface,
+      terms,
+      // TODO: pass correct value when virtual app support gets added
+      false,
+      // TODO: this should be thread-safe
+      channel.numInstalledApps,
+      channel.rootNonceValue,
+      {},
+      0,
+      appInstanceInfo.timeout.toNumber()
+    );
+    // token: appInstanceInfo.asset.token ? appInstanceInfo.asset.token : null
   }
 }
 
-interface;
-
-function getAppFunctionSigHashes(appInstanceInfo: AppInstanceInfo): {};
-
-// console.log src/store.ts:135
-// { abiEncodings:
-//    { actionEncoding: 'actionEncoding',
-//      stateEncoding: 'stateEncoding' },
-//   appId: 'cjqg1d69h00025orwn3m03ocq',
-//   asset: { assetType: 0 },
-//   id: '',
-//   initialState: { propertyA: 'A', propertyB: 'B' },
-//   myDeposit: { _hex: '0x01' },
-//   peerDeposit: { _hex: '0x01' },
-//   timeout: { _hex: '0x01' } }
-// console.log src/store.ts:137
-// AppInstance {
-//   json:
-//    { multisigAddress: undefined,
-//      signingKeys: undefined,
-//      defaultTimeout: undefined,
-//      appInterface: undefined,
-//      terms: undefined,
-//      isVirtualApp: undefined,
-//      appSeqNo: undefined,
-//      rootNonceValue: undefined,
-//      latestState: undefined,
-//      latestNonce: undefined,
-//      latestTimeout: undefined,
-//      hasBeenUninstalled: undefined } }
+function getAppFunctionSigHashes(
+  appInstanceInfo: AppInstanceInfo
+): AppFunctionsSigHashes {
+  return {
+    applyAction: "",
+    resolve: "",
+    getTurnTaker: "",
+    isStateTerminal: ""
+  };
+}
