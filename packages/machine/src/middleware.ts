@@ -12,7 +12,6 @@ export class MiddlewareContainer {
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
     [Opcode.STATE_TRANSITION_COMMIT]: [],
-    [Opcode.STATE_TRANSITION_PROPOSE]: []
   };
 
   public add(scope: Opcode, method: Middleware) {

@@ -48,7 +48,7 @@ describe("InstructionExecutor", () => {
     middleware.add(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
-  describe("the result of STATE_TRANSITION_PROPOSE for the Setup Protocol", () => {
+  describe("the result of proposeStateTransition for the Setup Protocol", () => {
     let commitment: SetupCommitment;
     let channel: StateChannel;
     let fb: AppInstance;
