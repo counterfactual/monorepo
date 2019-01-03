@@ -24,9 +24,7 @@ async function post(endpoint: string, body: JsonBody): Promise<ApiResponse> {
 
   if (!response.ok) {
     const error = response.error as ErrorResponse;
-    throw new Error(
-      `The Playground API returned a ${error.status} error: ${error.errorCode}`
-    );
+    throw error;
   }
 
   return response;
