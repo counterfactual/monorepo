@@ -2,10 +2,11 @@ import {
   Address,
   AppInstanceInfo,
   AssetType,
+  NetworkContext,
   Node as NodeTypes
 } from "@counterfactual/types";
 import cuid from "cuid";
-import { One } from "ethers/constants";
+import { AddressZero, One } from "ethers/constants";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/models";
@@ -128,3 +129,12 @@ export function confirmProposedAppInstanceOnNode(
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
+
+export const EMPTY_NETWORK: NetworkContext = {
+  AppRegistry: AddressZero,
+  ETHBalanceRefund: AddressZero,
+  ETHBucket: AddressZero,
+  MultiSend: AddressZero,
+  NonceRegistry: AddressZero,
+  StateChannelTransaction: AddressZero
+};
