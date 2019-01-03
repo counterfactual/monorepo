@@ -42,7 +42,7 @@ First we introduce a new type which we label `InstallData`.
 | `data`        | An `InstallData` object describing the proposed app         |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | `0`                                                         |
+| `seq`         | `1`                                                         |
 | `signature`   | Alice's signed commitment digest                            |
 
 ### The **`InstallAck`** Message
@@ -54,7 +54,7 @@ First we introduce a new type which we label `InstallData`.
 | `data`        | An `InstallData` object describing the proposed app         |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
-| `seq`         | `1`                                                         |
+| `seq`         | `2`                                                         |
 | `signature`   | Bob's signed commitment digest                              |
 
 ## Commitments

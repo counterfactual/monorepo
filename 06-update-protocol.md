@@ -36,7 +36,7 @@ keccak256(
 | `data`        | An object containing the `bytes32` representation of the `appStateHash`     |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | `0`                                                                         |
+| `seq`         | `1`                                                                         |
 | `signature`   | Alice's signed commitment digest                                            |
 
 > TODO: Use the ABIEncoderV2 encoded application state instead of the `appStateHash`; without it the receiving client can't decode the message to determine whether or not to sign
@@ -52,7 +52,7 @@ keccak256(
 | `data`        | `""`                                                                        |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | `1`                                                                         |
+| `seq`         | `2`                                                                         |
 | `signature`   | Bob's signed commitment digest                                              |
 
 ## Commitments

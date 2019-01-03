@@ -21,7 +21,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 | `data`        | A object representing the updated balances of the of the free balance application |
 | `fromAddress` | The address of Alice                                                              |
 | `toAddress`   | The address of Bob                                                                |
-| `seq`         | `0`                                                                               |
+| `seq`         | `1`                                                                               |
 | `signature`   | Alice's signed commitment digest                                                  |
 
 ### The **`UninstallAck`** Message
@@ -33,7 +33,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 | `data`        | `""`                                                                        |
 | `fromAddress` | The address of Alice                                                        |
 | `toAddress`   | The address of Bob                                                          |
-| `seq`         | `1`                                                                         |
+| `seq`         | `2`                                                                         |
 | `signature`   | Bob's signed commitment digest                                              |
 
 ## Commitments
