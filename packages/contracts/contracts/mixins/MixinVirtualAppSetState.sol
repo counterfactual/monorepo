@@ -1,0 +1,118 @@
+pragma solidity 0.5;
+pragma experimental "ABIEncoderV2";
+
+import "../libs/LibStateChannelApp.sol";
+import "../libs/LibSignature.sol";
+import "../libs/LibStaticCall.sol";
+
+import "./MAppRegistryCore.sol";
+import "./MAppCaller.sol";
+
+
+contract MixinVirtualAppSetState is
+  LibSignature,
+  LibStateChannelApp,
+  MAppRegistryCore,
+  MAppCaller
+{
+
+  /// signatures[intermediaryIdx], instead of signing a message that authorizes
+  /// a state update with a given stateHash, signs a message that authorizes all
+  /// updates with nonce < nonceExpiry
+  struct VirtualAppSignedStateHashUpdate {
+    bytes32 stateHash;
+    uint256 nonce;
+    uint256 timeout;
+    bytes signatures;
+    uint256 intermediaryIdx;
+    uint256 nonceExpiry;
+  }
+
+  function virtualAppSetState(
+    AppIdentity memory appIdentity,
+    VirtualAppSignedStateHashUpdate memory req
+  )
+    public
+  {
+    bytes32 identityHash = appIdentityToHash(appIdentity);
+
+    AppChallenge storage challenge = appStates[identityHash];
+
+    require(
+      challenge.status == AppStatus.ON,
+      "setState was called on a virtual app that is either in DISPUTE or OFF"
+    );
+
+    require(
+      correctKeysSignedTheStateUpdate(
+        identityHash,
+        appIdentity.signingKeys,
+        req
+      ),
+      "Call to setState included incorrectly signed state update"
+    );
+
+    require(
+      req.nonce > challenge.nonce,
+      "Tried to call setState with an outdated nonce version"
+    );
+
+    require(
+      req.nonce < req.nonceExpiry,
+      "Tried to call setState with nonce greater than intemediary nonce expiry");
+
+    challenge.status = req.timeout > 0 ? AppStatus.DISPUTE : AppStatus.OFF;
+    challenge.appStateHash = req.stateHash;
+    challenge.nonce = req.nonce;
+    challenge.finalizesAt = block.number + req.timeout;
+    challenge.disputeNonce = 0;
+    challenge.disputeCounter += 1;
+    challenge.latestSubmitter = msg.sender;
+  }
+
+  function correctKeysSignedTheStateUpdate(
+    bytes32 identityHash,
+    address[] memory signingKeys,
+    VirtualAppSignedStateHashUpdate memory req
+  )
+    private
+    pure
+    returns (bool)
+  {
+    bytes32 digest1 = computeStateHash(
+      identityHash,
+      req.stateHash,
+      req.nonce,
+      req.timeout
+    );
+
+    bytes32 digest2 = keccak256(
+      abi.encodePacked(
+        byte(0x19),
+        identityHash,
+        req.nonceExpiry,
+        req.timeout,
+        byte(0x01)
+      )
+    );
+
+    address lastSigner = address(0);
+    for (uint256 i = 0; i < signingKeys.length; i++) {
+      if (i == req.intermediaryIdx) {
+        require(
+          signingKeys[i] == recoverKey(req.signatures, digest2, i), "Invalid signature"
+        );
+      } else {
+        require(
+          signingKeys[i] == recoverKey(req.signatures, digest1, i), "Invalid signature"
+        );
+      }
+
+      require(signingKeys[i] > lastSigner, "Signers not in ascending order");
+
+      lastSigner = signingKeys[i];
+    }
+    return true;
+  }
+
+}

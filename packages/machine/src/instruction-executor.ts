@@ -8,21 +8,11 @@ import {
   InstallParams,
   InstallVirtualAppParams,
   ProtocolMessage,
+  SetupParams,
   UninstallParams,
   UpdateParams
 } from "./protocol-types-tbd";
 import { Context, Instruction, Middleware, Protocol } from "./types";
-
-function genericProtocolMessageFields(sc: StateChannel) {
-  return {
-    multisigAddress: sc.multisigAddress,
-    // TODO: Figure out how to fetch these
-    fromAddress: "0x0",
-    toAddress: "0x0",
-    seq: 0,
-    signature: undefined
-  };
-}
 
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
@@ -51,7 +41,10 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      multisigAddress: sc.multisigAddress,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
@@ -60,7 +53,10 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      multisigAddress: sc.multisigAddress,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
@@ -69,16 +65,22 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      multisigAddress: sc.multisigAddress,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
-  public async runSetupProtocol(sc: StateChannel) {
+  public async runSetupProtocol(sc: StateChannel, params: SetupParams) {
     const protocol = Protocol.Setup;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       protocol,
-      params: {},
-      ...genericProtocolMessageFields(sc)
+      params,
+      multisigAddress: sc.multisigAddress,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.respondingAddress
     });
   }
 
@@ -90,7 +92,10 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
-      ...genericProtocolMessageFields(sc)
+      multisigAddress: sc.multisigAddress,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.intermediaryAddress
     });
   }
 

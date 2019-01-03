@@ -30,6 +30,7 @@ export interface NetworkContext {
   MultiSend: string;
   NonceRegistry: string;
   StateChannelTransaction: string;
+  ETHVirtualAppAgreement: string;
 }
 
 export {

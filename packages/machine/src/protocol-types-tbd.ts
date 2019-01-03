@@ -29,14 +29,21 @@ export type ProtocolMessage = {
   signature?: Signature;
 };
 
-export type SetupParams = {};
+export type SetupParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+};
 
 export type UpdateParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
   appIdentityHash: string;
   newState: AppState;
 };
 
 export type InstallParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
   signingKeys: string[];
@@ -48,12 +55,23 @@ export type InstallParams = {
 
 export type UninstallParams = {
   appIdentityHash: string;
+  initiatingAddress: string;
+  respondingAddress: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
 };
 
 export type InstallVirtualAppParams = {
-  /* TODO: @xuanji */
+  initiatingAddress: string;
+  respondingAddress: string;
+  intermediaryAddress: string;
+  signingKeys: string[];
+  defaultTimeout: number;
+  appInterface: AppInterface;
+  initialState: AppState;
+  aliceBalanceDecrement: BigNumber;
+  bobBalanceDecrement: BigNumber;
+  terms: Terms;
 };
 
 type ProtocolParameters =

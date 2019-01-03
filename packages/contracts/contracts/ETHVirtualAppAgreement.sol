@@ -4,6 +4,8 @@ pragma experimental "ABIEncoderV2";
 import "./libs/Transfer.sol";
 import "./AppRegistry.sol";
 
+/// todo(ldct): make this agreement cancellable ("uninstallKey")
+
 
 /// @title ETHVirtualAppAgreement
 /// @notice Commitment target to support "virtual apps", i.e., apps which have

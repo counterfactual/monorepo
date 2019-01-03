@@ -79,7 +79,8 @@ export class NodeListener {
       ETHBucket: addressZero,
       MultiSend: addressZero,
       NonceRegistry: addressZero,
-      StateChannelTransaction: addressZero
+      StateChannelTransaction: addressZero,
+      ETHVirtualAppAgreement: addressZero
     };
 
     CounterfactualNode.create({

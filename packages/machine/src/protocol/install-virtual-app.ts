@@ -1,6 +1,13 @@
-import { StateChannel } from "../models";
+// import { NetworkContext } from "@counterfactual/types";
+
+import { BigNumber } from "ethers/utils";
+
+import { AppInstance, ETHVirtualAppAgreement, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
-import { ProtocolMessage } from "../protocol-types-tbd";
+import {
+  InstallVirtualAppParams,
+  ProtocolMessage
+} from "../protocol-types-tbd";
 import { Context } from "../types";
 
 /**
@@ -9,26 +16,36 @@ import { Context } from "../types";
  * FIXME: @xuanji pls add
  *
  */
-// FIXME: Not fully implemented yet
 export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   0: [
+    proposeStateTransition1,
+
+    // Sign `context.commitment.getHash()`
+    Opcode.OP_SIGN,
+
     (message: ProtocolMessage, context: Context, state: StateChannel) => {
-      // copy client message
-      context.outbox.push(message);
-      context.outbox[0].seq = 1;
-      // context.outbox[0].toAddress = message.data.intermediary;
+      context.outbox.push({
+        ...message,
+        signature: context.signature,
+        seq: 1
+      });
     },
 
     // send to intermediary
-    Opcode.IO_SEND
+    Opcode.IO_SEND,
+
+    // wait for the install countersign and the setState authorization
+    Opcode.IO_WAIT
+
+    /// FIN
   ],
 
   1: [
     (message: ProtocolMessage, context: Context, state: StateChannel) => {
       context.outbox.push(message);
       context.outbox[0].seq = 2;
-      // context.outbox[0].fromAddress = message.data.initiating;
-      // context.outbox[0].toAddress = message.data.responding;
+      context.outbox[0].fromAddress = message.params.initiatingAddress;
+      context.outbox[0].toAddress = message.params.respondingAddress;
     },
 
     Opcode.IO_SEND,
@@ -38,7 +55,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL = {
 
     () => {}
 
-    // // send the self-remove
+    // send the self-remove
     // Opcode.IO_SEND,
     // Opcode.IO_SEND
   ],
@@ -57,3 +74,73 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL = {
     // Opcode.IO_WAIT
   ]
 };
+
+function proposeStateTransition1(
+  message: ProtocolMessage,
+  context: Context,
+  state: StateChannel
+) {
+  const {
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    initialState,
+    aliceBalanceDecrement,
+    bobBalanceDecrement,
+    terms
+  } = message.params as InstallVirtualAppParams;
+
+  const targetAppInstance = new AppInstance(
+    "0x00",
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    {
+      assetType: 0,
+      limit: new BigNumber(0),
+      token: ""
+    },
+    // KEY: Sets it to be a virtual app
+    true,
+    // KEY: The app sequence number
+    // TODO: Should validate that the proposed app sequence number is also
+    //       the computed value here and is ALSO still the number compute
+    //       inside the installApp function below
+    state.numInstalledApps + 1,
+    state.rootNonceValue,
+    initialState,
+    // KEY: Set the app nonce to be 0
+    0,
+    defaultTimeout
+  );
+  context.targetVirtualAppInstance = targetAppInstance;
+
+  const ethVirtualAppAgreementInstance = new ETHVirtualAppAgreement(
+    state.multisigAddress,
+    terms,
+    state.numInstalledApps + 1,
+    state.rootNonceValue
+  );
+
+  context.stateChannel = state.installETHVirtualAppAgreementInstance(
+    ethVirtualAppAgreementInstance,
+    aliceBalanceDecrement,
+    bobBalanceDecrement
+  );
+
+  // TBD
+
+  // context.commitment = constructInstallOp(
+  //   context.network,
+  //   context.stateChannel,
+  //   appInstance.id
+  // );
+}
+
+// function constructInstallOp(
+//   network: NetworkContext,
+//   stateChannel: StateChannel,
+//   appIdentityHash: string
+// ) {
+
+// }

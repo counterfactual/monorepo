@@ -16,14 +16,12 @@ export enum Opcode {
   OP_SIGN_VALIDATE,
 
   /**
-   * Sends a ClientMessage to a peer.
+   * Middleware hook to send a ProtocolMessage to a peer.
    */
   IO_SEND,
 
   /**
-   * Blocks the action execution until the next message is received by a peer.
-   * The registered middleware for this instruction *must* return the received
-   * ClientMessage from the peer.
+   * Middleware hook to receive a ProtocolMessage from a peer.
    */
   IO_WAIT
 }

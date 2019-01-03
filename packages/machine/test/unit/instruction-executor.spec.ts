@@ -50,6 +50,8 @@ describe("InstructionExecutor", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
+      // extract the commitment passed to the OP_SIGN middleware for testing
+      // purposes
       instructionExecutor.middlewares.add(
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
@@ -58,7 +60,10 @@ describe("InstructionExecutor", () => {
         }
       );
 
-      instructionExecutor.runSetupProtocol(stateChannel);
+      instructionExecutor.runSetupProtocol(stateChannel, {
+        initiatingAddress: "0x00",
+        respondingAddress: "0x00"
+      });
 
       fb = channel.getFreeBalanceFor(AssetType.ETH);
     });

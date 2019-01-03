@@ -33,7 +33,8 @@ describe("InstallCommitment", () => {
     MultiSend: getAddress(hexlify(randomBytes(20))),
     NonceRegistry: getAddress(hexlify(randomBytes(20))),
     AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
+    ETHBalanceRefund: getAddress(hexlify(randomBytes(20))),
+    ETHVirtualAppAgreement: getAddress(hexlify(randomBytes(20)))
   };
 
   // General interaction testing values

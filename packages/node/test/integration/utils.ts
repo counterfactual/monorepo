@@ -139,5 +139,6 @@ export const EMPTY_NETWORK: NetworkContext = {
   ETHBucket: AddressZero,
   MultiSend: AddressZero,
   NonceRegistry: AddressZero,
-  StateChannelTransaction: AddressZero
+  StateChannelTransaction: AddressZero,
+  ETHVirtualAppAgreement: AddressZero
 };
