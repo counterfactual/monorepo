@@ -1,9 +1,6 @@
 import { Opcode } from "./opcodes";
 import { ProtocolMessage } from "./protocol-types-tbd";
-import {
-  Context,
-  Middleware,
-} from "./types";
+import { Context, Middleware } from "./types";
 
 export class MiddlewareContainer {
   public readonly middlewares: { [I in Opcode]: Middleware[] } = {
@@ -11,7 +8,7 @@ export class MiddlewareContainer {
     [Opcode.IO_WAIT]: [],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
-    [Opcode.STATE_TRANSITION_COMMIT]: [],
+    [Opcode.STATE_TRANSITION_COMMIT]: []
   };
 
   public add(scope: Opcode, method: Middleware) {

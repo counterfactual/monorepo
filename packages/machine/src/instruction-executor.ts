@@ -11,12 +11,7 @@ import {
   UninstallParams,
   UpdateParams
 } from "./protocol-types-tbd";
-import {
-  Context,
-  Instruction,
-  Middleware,
-  Protocol
-} from "./types";
+import { Context, Instruction, Middleware, Protocol } from "./types";
 
 function genericProtocolMessageFields(sc: StateChannel) {
   return {
