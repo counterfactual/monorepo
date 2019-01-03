@@ -33,7 +33,7 @@ export type ProtocolMessage = {
 
 export type SetupParams = {};
 
-export type UpdateData = {
+export type UpdateParams = {
   appInstanceId: string;
   newState: AppState;
 };
