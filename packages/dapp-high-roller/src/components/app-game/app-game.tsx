@@ -52,7 +52,7 @@ export class AppGame {
     this.shakeAudio.loop = true;
     this.shakeAudio.play();
 
-    for (const i = 0; i < 10; i + 1) {
+    for (let i = 0; i < 10; i += 1) {
       this[roller] = this.generateRoll();
 
       await new Promise(resolve =>
