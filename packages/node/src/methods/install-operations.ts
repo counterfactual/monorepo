@@ -21,11 +21,13 @@ export async function proposeInstall(
 ): Promise<Node.ProposeInstallResult> {
   const clientAppInstanceId = await channels.proposeInstall(params);
 
+  // TODO: shouldn't sanitize here
+  const sanitizedParams = JSON.parse(JSON.stringify(params));
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
-      ...params,
+      ...sanitizedParams,
       appInstanceId: clientAppInstanceId,
       proposal: true
     }

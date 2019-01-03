@@ -206,24 +206,6 @@ export class Channels {
   }
 
   /**
-   * A JSON object with keys being the app instance IDs and the values being
-   * the AppInstances.
-   *
-   * @param appInstances
-   */
-  // private async replaceChannelAppInstanceIDWithClientAppInstanceID(
-  //   appInstances: AppInstanceJson[]
-  // ): Promise<AppInstance[]> {
-  //   for (const appInstance of Object.values(appInstances)) {
-  //     const clientAppInstanceID = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
-  //       appInstance.id
-  //     );
-  //     appInstance.id = clientAppInstanceID;
-  //   }
-  //   return appInstances;
-  // }
-
-  /**
    * Gets all installed appInstances across all of the channels open on
    * this Node.
    *
