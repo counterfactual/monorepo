@@ -4,6 +4,7 @@ import bodyParser from "koa-body";
 import Router from "koa-router";
 
 import { createAccount } from "./middleware";
+import { ApiResponse, ErrorCode } from "./types";
 
 export default function mountApi() {
   const api = new Koa();
@@ -18,4 +19,14 @@ export default function mountApi() {
     .use(cors());
 
   return api;
+}
+
+export function createErrorResponse(
+  status: number,
+  errorCode: ErrorCode
+): ApiResponse {
+  return {
+    ok: false,
+    error: { status, errorCode }
+  };
 }
