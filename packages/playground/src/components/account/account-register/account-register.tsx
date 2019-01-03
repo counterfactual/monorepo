@@ -40,8 +40,8 @@ export class AccountRegister {
     console.log("login");
   }
 
-  change(key, event) {
-    this.changeset[key] = event.target.value;
+  change(key: keyof UserChangeset, event: Event) {
+    this.changeset[key] = (event.target as HTMLInputElement).value;
   }
 
   formSubmitionHandler() {
