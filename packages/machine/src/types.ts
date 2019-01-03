@@ -22,7 +22,7 @@ export type InstructionMiddlewareCallback = {
   (message: ProtocolMessage, next: Function, context: Context): void;
 };
 
-export interface InstructionMiddleware {
+interface InstructionMiddleware {
   scope: Opcode;
   method: InstructionMiddlewareCallback;
 }
