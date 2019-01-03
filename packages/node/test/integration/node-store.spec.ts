@@ -8,7 +8,6 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { EMPTY_NETWORK } from "./utils";
 
 dotenv.config();
 
@@ -34,7 +33,6 @@ describe("Node can use storage service", () => {
       A_PRIVATE_KEY,
       MOCK_MESSAGING_SERVICE,
       storeService,
-      EMPTY_NETWORK,
       nodeConfig
     );
   });
