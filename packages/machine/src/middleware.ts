@@ -34,11 +34,7 @@ export class Middleware {
 
       const middleware = middlewares[opCode][counter];
 
-      if (middleware.scope === opCode) {
-        return middleware.method(msg, callback, context);
-      }
-
-      return callback();
+      return middleware.method(msg, callback, context);
     }
 
     const middleware = this.middlewares[opCode][0];
