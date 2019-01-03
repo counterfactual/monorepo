@@ -41,11 +41,11 @@ describe("InstructionExecutor", () => {
     // will fail with an error like "While executing op number <x> at seq
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
-    const { middleware } = instructionExecutor;
-    middleware.add(Opcode.OP_SIGN_VALIDATE, () => {});
-    middleware.add(Opcode.IO_SEND, () => {});
-    middleware.add(Opcode.IO_WAIT, () => {});
-    middleware.add(Opcode.STATE_TRANSITION_COMMIT, () => {});
+    const { middlewares } = instructionExecutor;
+    middlewares.add(Opcode.OP_SIGN_VALIDATE, () => {});
+    middlewares.add(Opcode.IO_SEND, () => {});
+    middlewares.add(Opcode.IO_WAIT, () => {});
+    middlewares.add(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
   describe("the result of proposeStateTransition for the Setup Protocol", () => {
@@ -54,7 +54,7 @@ describe("InstructionExecutor", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      instructionExecutor.middleware.add(
+      instructionExecutor.middlewares.add(
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
           commitment = context.operation as SetupCommitment;

@@ -25,14 +25,14 @@ function genericProtocolMessageFields(sc: StateChannel) {
 }
 
 export class InstructionExecutor {
-  public middleware: MiddlewareContainer;
+  public middlewares: MiddlewareContainer;
 
   constructor(public readonly network: NetworkContext) {
-    this.middleware = new MiddlewareContainer();
+    this.middlewares = new MiddlewareContainer();
   }
 
   public register(scope: Opcode, method: Middleware) {
-    this.middleware.add(scope, method);
+    this.middlewares.add(scope, method);
   }
 
   public async dispatchReceivedMessage(msg: ProtocolMessage, sc: StateChannel) {
@@ -117,7 +117,7 @@ export class InstructionExecutor {
           // TODO: it might be possible to not have to pass in sc
           instruction.call(null, msg, context, sc);
         } else {
-          await this.middleware.run(msg, instruction, context);
+          await this.middlewares.run(msg, instruction, context);
         }
         instructionPointer += 1;
       } catch (e) {
