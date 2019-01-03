@@ -9,7 +9,7 @@ import {
   InstallVirtualAppParams,
   ProtocolMessage,
   UninstallParams,
-  UpdateParams
+  UpdateData
 } from "./protocol-types-tbd";
 import {
   Context,
@@ -51,7 +51,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, step, msg);
   }
 
-  public async runUpdateProtocol(sc: StateChannel, params: UpdateParams) {
+  public async runUpdateProtocol(sc: StateChannel, params: UpdateData) {
     const protocol = Protocol.Update;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
