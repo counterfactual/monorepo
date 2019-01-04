@@ -67,7 +67,6 @@ const nullValueBytes32 =
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
-  // @ts-ignore
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -178,10 +177,16 @@ describe("HighRollerApp", () => {
       expect(transaction.value).to.be.eql([Zero, parseEther("2")]);
       expect(transaction.data).to.be.eql(["0x", "0x"]);
     });
+
+    /**
+     * IMPORTANT: The numbers 75 and 45 were calculated by brute-force
+     * computing getWinningAmounts with some numbersless than 100
+     * until getting back a result where both players tie.
+     */
     it("can end game - draw", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-      const playerFirstNumber = 111;
+      const playerFirstNumber = 75;
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
@@ -189,8 +194,8 @@ describe("HighRollerApp", () => {
         stage: HighRollerStage.DONE,
         salt: numberSalt,
         commitHash: hash,
-        playerFirstNumber: 111,
-        playerSecondNumber: 2
+        playerFirstNumber: 75,
+        playerSecondNumber: 45
       };
 
       const terms: Terms = {

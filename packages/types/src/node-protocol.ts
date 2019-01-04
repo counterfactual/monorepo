@@ -33,8 +33,10 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     PROPOSE_INSTALL = "proposeInstall",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
+    INSTALL_VIRTUAL = "installVirtual",
     GET_STATE = "getState",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
@@ -84,6 +86,11 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
 
+  export type ProposeInstallVirtualParams = ProposeInstallParams & {
+    intermediaries: Address[];
+  };
+  export type ProposeInstallVirtualResult = ProposeInstallResult;
+
   export type RejectInstallParams = {
     appInstanceId: AppInstanceID;
   };
@@ -95,6 +102,11 @@ export namespace Node {
   export type InstallResult = {
     appInstance: AppInstanceInfo;
   };
+
+  export type InstallVirtualParams = InstallParams & {
+    intermediaries: Address[];
+  };
+  export type InstallVirtualResult = InstallResult;
 
   export type GetStateParams = {
     appInstanceId: AppInstanceID;
@@ -139,8 +151,10 @@ export namespace Node {
     | GetAppInstancesParams
     | GetProposedAppInstancesParams
     | ProposeInstallParams
+    | ProposeInstallVirtualParams
     | RejectInstallParams
     | InstallParams
+    | InstallVirtualParams
     | GetStateParams
     | GetAppInstanceDetailsParams
     | TakeActionParams
@@ -151,8 +165,10 @@ export namespace Node {
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
     | ProposeInstallResult
+    | ProposeInstallVirtualResult
     | RejectInstallResult
     | InstallResult
+    | InstallVirtualResult
     | GetStateResult
     | GetAppInstanceDetailsResult
     | TakeActionResult

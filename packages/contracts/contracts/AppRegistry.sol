@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./mixins/MixinAppRegistryCore.sol";

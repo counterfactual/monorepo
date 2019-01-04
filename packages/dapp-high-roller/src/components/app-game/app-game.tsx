@@ -3,9 +3,6 @@ import { RouterHistory } from "@stencil/router";
 
 import { GameState, PlayerType } from "../../enums/enums";
 
-const DARK_PATH = "./assets/images/dice/Dark/Dice-Dark-0";
-const LIGHT_PATH = "./assets/images/dice/Light/Dice-Light-0";
-
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
@@ -97,7 +94,7 @@ export class AppGame {
   }
 
   render() {
-    return (
+    return [
       <div class="wrapper">
         <div class="game">
           <app-game-player
@@ -145,7 +142,8 @@ export class AppGame {
             </audio>
           </div>
         </div>
-      </div>
-    );
+      </div>,
+      this.gameState === GameState.Won ? <app-game-coins /> : undefined
+    ];
   }
 }

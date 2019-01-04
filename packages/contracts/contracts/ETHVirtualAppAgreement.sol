@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
@@ -31,7 +31,7 @@ contract ETHVirtualAppAgreement {
     address[2] beneficiaries;
   }
 
-  function delegateTarget(Agreement agreement) public {
+  function delegateTarget(Agreement memory agreement) public {
     require(
       agreement.expiry <= block.number,
       "agreement lockup time has not elapsed"

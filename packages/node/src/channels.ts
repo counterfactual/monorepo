@@ -13,9 +13,9 @@ import {
   Node,
   Terms
 } from "@counterfactual/types";
-import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, hexlify, randomBytes } from "ethers/utils";
+import { Wallet } from "ethers/wallet";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS } from "./db-schema";

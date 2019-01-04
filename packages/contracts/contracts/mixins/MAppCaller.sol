@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
@@ -18,7 +18,10 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
   /// @param appInterface An `AppInterface` struct
   /// @param appState The ABI encoded version of some application state
   /// @return A boolean indicating if the application state is terminal or not
-  function isStateTerminal(AppInterface appInterface, bytes appState)
+  function isStateTerminal(
+    AppInterface memory appInterface,
+    bytes memory appState
+  )
     internal
     view
     returns (bool)
@@ -33,9 +36,9 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
   /// @param appState The ABI encoded version of some application state
   /// @return An address representing the turn taker in the `signingKeys`
   function getTurnTaker(
-    AppInterface appInterface,
-    address[] signingKeys,
-    bytes appState
+    AppInterface memory appInterface,
+    address[] memory signingKeys,
+    bytes memory appState
   )
     internal
     view
@@ -58,10 +61,14 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
   /// @param appState The ABI encoded version of some application state
   /// @param action The ABI encoded version of some application action
   /// @return A bytes array of the ABI encoded newly computed application state
-  function applyAction(AppInterface appInterface, bytes appState, bytes action)
+  function applyAction(
+    AppInterface memory appInterface,
+    bytes memory appState,
+    bytes memory action
+  )
     internal
     view
-    returns (bytes)
+    returns (bytes memory)
   {
     return appInterface.addr.staticcall_as_bytes(
       abi.encodePacked(appInterface.applyAction, appState, action)
@@ -73,10 +80,14 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
   /// @return A `Transfer.Transaction` struct with all encoded information of the resolution
-  function resolve(AppInterface appInterface, bytes appState, bytes terms)
+  function resolve(
+    AppInterface memory appInterface,
+    bytes memory appState,
+    bytes memory terms
+  )
     internal
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     return appInterface.addr.staticcall_as_TransferDetails(
       abi.encodePacked(appInterface.resolve, appState, terms)

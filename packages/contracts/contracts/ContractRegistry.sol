@@ -1,6 +1,6 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
-import "openzeppelin-eth/contracts/utils/Address.sol";
+import "openzeppelin-solidity/contracts/utils/Address.sol";
 
 
 /// @title ContractRegistry - A global Ethereum deterministic address translator
@@ -21,7 +21,7 @@ contract ContractRegistry {
   /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
   /// @return A deterministic "counterfactual address". This depends on the initcode,
   /// msg.sender and salt, but importantly does NOT depend on the sending account's account nonce.
-  function cfaddress(bytes initcode, uint256 salt)
+  function cfaddress(bytes memory initcode, uint256 salt)
     public
     pure
     returns (bytes32)
@@ -32,14 +32,14 @@ contract ContractRegistry {
   /// @notice Deploy a contract and add a mapping from counterfactual address to deployed address to storage
   /// @param initcode Contract bytecode concatenated with ABI encoded constructor arguments
   /// @param salt Unique salt used in address computation that allows multiple contracts with the same initcode to exist.
-  function deploy(bytes initcode, uint256 salt)
+  function deploy(bytes memory initcode, uint256 salt)
     public
   {
     address deployed;
     bytes32 ptr = cfaddress(initcode, salt);
 
     require(
-      resolver[ptr] == 0x0,
+      resolver[ptr] == address(0),
       "This contract was already deployed."
     );
 
@@ -48,7 +48,7 @@ contract ContractRegistry {
     }
 
     require(
-      deployed != 0x0,
+      deployed != address(0),
       "There was an error deploying the contract."
     );
 
@@ -61,10 +61,12 @@ contract ContractRegistry {
   /// @param registry The address of a registry
   /// @param ptr A counterfactual address
   /// @param data The data being sent in the call to the counterfactual contract
-  function proxyCall(address registry, bytes32 ptr, bytes data) public {
+  function proxyCall(address registry, bytes32 ptr, bytes memory data) public {
     address to = ContractRegistry(registry).resolver(ptr);
     require(to != address(0), "Resolved to a 0x0 address");
     require(to.isContract(), "Tried to call function on a non-contract");
-    require(to.call(data), "Registry.proxyCall failed.");
+    // solium-disable-next-line no-unused-vars
+    (bool success, bytes memory _) = to.call(data);
+    require(success, "Registry.proxyCall failed.");
   }
 }

@@ -17,7 +17,7 @@
     "lint:sol:fix": "yarn lint:sol --fix",
     "lint:sol": "solium -d .",
     "lint:ts:fix": "yarn lint:ts --fix",
-    "lint:ts": "tslint -c tslint.json -p .",
+    "lint:ts": "tslint -c tslint.json test/**/*.ts",
     "test:coverage": "solidity-coverage"
   },
   "keywords": [
@@ -34,20 +34,19 @@
     "chai": "^4.2.0",
     "dotenv": "^6.1.0",
     "eth-gas-reporter": "0.1.12",
-    "ethereum-waffle": "1.2.0",
+    "ethereum-waffle": "2.0.0-beta.0",
     "ethers": "4.0.20",
     "ganache-cli": "6.2.5",
-    "openzeppelin-eth": "^2.0.2",
+    "openzeppelin-solidity": "next",
     "shx": "^0.3.2",
     "solc": "^0.4.25",
     "solidity-coverage": "0.5.11",
-    "solium": "1.1.8",
-    "truffle": "5.0.0-beta.1",
+    "ethlint": "1.2.1",
+    "truffle": "5.0.1",
     "truffle-deploy-registry": "^0.4.1",
-    "truffle-hdwallet-provider": "1.0.1",
+    "truffle-hdwallet-provider": "1.0.2",
     "ts-node": "^7.0.0",
-    "tslint": "5.11.0",
-    "typescript": "^3.1.2",
+    "tslint": "5.12.0",
     "zos-lib": "^2.0.0"
   }
 }
