@@ -4549,7 +4549,7 @@ diff@3.3.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.3.1.tgz#aa8567a6eed03c531fc89d3f711cd0e5259dec75"
   integrity sha512-MKPHZDMB0o6yHyDryUOScqZibp914ksXwAMYMTHj6KO8UeKsRYNJD3oNCKjTqZon+V488P7N/HzXF8t7ZR95ww==
 
-diff@3.5.0, diff@^3.1.0, diff@^3.2.0:
+diff@3.5.0, diff@^3.1.0, diff@^3.2.0, diff@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
@@ -5070,10 +5070,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.0-beta.0:
-  version "2.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.0.tgz#00f88686b6dd0308dfc0f0b7d93f52fe45ccff23"
-  integrity sha512-6++soEVVPPPIIPD4Qbvyg4sYGjM/cxfji+RkSueXDNsVAwFH0Enh+MCBPvGCuBHPM/RryEceN8yUS0f4HWrw0A==
+ethereum-waffle@2.0.0-beta.3:
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.3.tgz#79c548ad37e821491913718214811fe47be32c61"
+  integrity sha512-UXwzY6MwAw4D9EUOrixPRRzsfKG0V7G1U3lE9AC/Kb2+dx7T8mSBltSOD9TcBDCgvifOAdtgIIqbNMGkcAMLVQ==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
