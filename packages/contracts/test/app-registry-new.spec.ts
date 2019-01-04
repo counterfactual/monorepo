@@ -69,7 +69,7 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
       disputeNonce,
       finalizesAt,
       nonce
-    } = await appRegistry.functions.appStates(appInstance.id);
+    } = await appRegistry.functions.appStates(appInstance.identityHash);
 
     expect(status).to.be.eq(1);
     expect(latestSubmitter).to.be.eq(await unlockedAccount.getAddress());

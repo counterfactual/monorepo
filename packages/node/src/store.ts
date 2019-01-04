@@ -147,13 +147,13 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID}/${clientAppInstanceID}`,
-        value: appInstance.id
+        value: appInstance.identityHash
       },
       {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${
-          appInstance.id
+          appInstance.identityHash
         }`,
         value: clientAppInstanceID
       },

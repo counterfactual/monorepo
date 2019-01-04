@@ -58,7 +58,7 @@ describe("StateChannel::uninstallApp", () => {
       .setupChannel(networkContext)
       .installApp(testApp, Zero, Zero);
 
-    sc2 = sc1.uninstallApp(testApp.id, Zero, Zero);
+    sc2 = sc1.uninstallApp(testApp.identityHash, Zero, Zero);
   });
 
   it("should not alter any of the base properties", () => {
@@ -71,7 +71,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should have deleted the app being uninstalled", () => {
-    expect(sc2.isAppInstanceInstalled(testApp.id)).toBe(false);
+    expect(sc2.isAppInstanceInstalled(testApp.identityHash)).toBe(false);
   });
 
   describe("the updated ETH Free Balance", () => {

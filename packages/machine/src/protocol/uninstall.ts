@@ -69,13 +69,13 @@ function proposeStateTransition(
   state: StateChannel
 ) {
   const {
-    appInstanceId,
+    appIdentityHash,
     aliceBalanceIncrement,
     bobBalanceIncrement
   } = message.params as UninstallParams;
 
   context.stateChannel = state.uninstallApp(
-    appInstanceId,
+    appIdentityHash,
     aliceBalanceIncrement,
     bobBalanceIncrement
   );
@@ -83,7 +83,7 @@ function proposeStateTransition(
   context.operation = constructUninstallOp(
     context.network,
     context.stateChannel,
-    appInstanceId
+    appIdentityHash
   );
 }
 

@@ -34,10 +34,10 @@ export class SetupCommitment extends MultisigTransactionCommitment {
         this.networkContext.AppRegistry,
         this.networkContext.NonceRegistry,
         this.getUninstallKeyForNonceRegistry(),
-        appIdentityToHash(this.freeBalanceAppIdentity),
         // NOTE: We *assume* here that the root nonce value will be 0
         //       when creating the setup commitment
         0,
+        appIdentityToHash(this.freeBalanceAppIdentity),
         this.freeBalanceTerms
       ]),
       operation: MultisigOperation.DelegateCall

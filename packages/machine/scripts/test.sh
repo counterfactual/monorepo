@@ -32,6 +32,12 @@ export DEV_GANACHE_MNEMONIC=$(
   "brain surround have swap horror body response double fire dumb bring hazard"
 )
 
+if lsof -ti :${DEV_GANACHE_PORT}
+then
+  echo "Detected a process (probably an existing ganache instance) listening on ${DEV_GANACHE_PORT}. Exiting."
+  exit 1
+fi
+
 {
   long_console_info="⛓ Starting ganache-cli at "
   long_console_info+="http://${DEV_GANACHE_HOST}:${DEV_GANACHE_PORT} "

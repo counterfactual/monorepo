@@ -68,7 +68,7 @@ export class Channels {
       bobBalance: bigNumberify(0)
     };
 
-    stateChannel = stateChannel.setState(freeBalanceETH.id, state);
+    stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
     const ownersHash = orderedAddressesHash(params.owners);
     await this.store.saveChannel(stateChannel, ownersHash);
     return multisigAddress;
@@ -92,7 +92,7 @@ export class Channels {
       bobBalance: bigNumberify(0)
     };
 
-    stateChannel = stateChannel.setState(freeBalanceETH.id, state);
+    stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
     const ownersHash = orderedAddressesHash(owners);
     await this.store.saveChannel(stateChannel, ownersHash);
   }
@@ -308,7 +308,7 @@ export class Channels {
     for (const appInstanceJson of appInstancesJson) {
       const appInstance = AppInstance.fromJson(appInstanceJson);
       const clientAppInstanceId = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
-        appInstance.id
+        appInstance.identityHash
       );
       appInstanceInfos.push(
         await this.store.getAppInstanceInfo(clientAppInstanceId)

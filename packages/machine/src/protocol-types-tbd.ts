@@ -34,7 +34,7 @@ export type ProtocolMessage = {
 export type SetupParams = {};
 
 export type UpdateData = {
-  appInstanceId: string;
+  appIdentityHash: string;
   newState: AppState;
 };
 
@@ -49,7 +49,7 @@ export type InstallParams = {
 };
 
 export type UninstallParams = {
-  appInstanceId: string;
+  appIdentityHash: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
 };
