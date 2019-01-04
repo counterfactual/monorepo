@@ -15,11 +15,18 @@ export class AppGameCoin {
   @Prop() delay: number = 0;
   @Prop() speed: number = 0;
   @Prop() x: number = 0;
+
   @State() image: string = "01";
 
-  animating: boolean = true;
-  set: number = Math.floor(Math.random() * 3);
-  index: number = Math.floor(Math.random() * 4);
+  animating: boolean;
+  set: number;
+  index: number;
+
+  constructor() {
+    this.animating = true;
+    this.set = Math.floor(Math.random() * 3);
+    this.index = Math.floor(Math.random() * coinSets[this.set].length);
+  }
 
   componentWillLoad() {
     this.switchImage();
