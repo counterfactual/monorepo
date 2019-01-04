@@ -27,8 +27,8 @@ const HARD_CODED_ASSUMPTIONS = {
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
     `Expected the appInstances list to be empty but size ${size}`,
-  APP_DOES_NOT_EXIST: (id: string) =>
-    `Attempted to edit an appInstance that does not exist: id = ${id}`,
+  APP_DOES_NOT_EXIST: (identityHash: string) =>
+    `Attempted to edit an appInstance that does not exist: identity hash = ${identityHash}`,
   FREE_BALANCE_MISSING: "Cannot find ETH Free Balance App in StateChannel",
   FREE_BALANCE_IDX_CORRUPT: (idx: string) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
@@ -90,15 +90,15 @@ export class StateChannel {
     return this.appInstances.size;
   }
 
-  public getAppInstance(appInstanceId: string): AppInstance {
-    if (!this.appInstances.has(appInstanceId)) {
-      throw Error(`${ERRORS.APP_DOES_NOT_EXIST(appInstanceId)}`);
+  public getAppInstance(appInstanceIdentityHash: string): AppInstance {
+    if (!this.appInstances.has(appInstanceIdentityHash)) {
+      throw Error(`${ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash)}`);
     }
-    return this.appInstances.get(appInstanceId)!;
+    return this.appInstances.get(appInstanceIdentityHash)!;
   }
 
-  public isAppInstanceInstalled(appInstanceId: string) {
-    return this.appInstances.has(appInstanceId);
+  public isAppInstanceInstalled(appInstanceIdentityHash: string) {
+    return this.appInstances.has(appInstanceIdentityHash);
   }
 
   public getFreeBalanceFor(assetType: AssetType): AppInstance {
@@ -134,9 +134,9 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
-    appInstances.set(fb.id, fb);
+    appInstances.set(fb.identityHash, fb);
 
-    freeBalanceAppIndexes.set(AssetType.ETH, fb.id);
+    freeBalanceAppIndexes.set(AssetType.ETH, fb.identityHash);
 
     return new StateChannel(
       this.multisigAddress,
@@ -147,8 +147,8 @@ export class StateChannel {
     );
   }
 
-  public setState(appInstanceId: string, state: object) {
-    const appInstance = this.getAppInstance(appInstanceId);
+  public setState(appInstanceIdentityHash: string, state: object) {
+    const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
@@ -158,7 +158,7 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
-    appInstances.set(appInstanceId, appInstance.setState(state));
+    appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
 
     return new StateChannel(
       this.multisigAddress,
@@ -193,8 +193,11 @@ export class StateChannel {
     );
 
     appInstances
-      .set(appInstance.id, appInstance)
-      .set(fb.id, fb.setState({ ...currentState, aliceBalance, bobBalance }));
+      .set(appInstance.identityHash, appInstance)
+      .set(
+        fb.identityHash,
+        fb.setState({ ...currentState, aliceBalance, bobBalance })
+      );
 
     return new StateChannel(
       this.multisigAddress,
@@ -206,12 +209,12 @@ export class StateChannel {
   }
 
   public uninstallApp(
-    appInstanceId: string,
+    appInstanceIdentityHash: string,
     aliceBalanceIncrement: BigNumber,
     bobBalanceIncrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const appToBeUninstalled = this.getAppInstance(appInstanceId);
+    const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
     const currentState = fb.state as ETHBucketAppState;
 
@@ -226,10 +229,10 @@ export class StateChannel {
       this.freeBalanceAppIndexes.entries()
     );
 
-    appInstances.delete(appToBeUninstalled.id);
+    appInstances.delete(appToBeUninstalled.identityHash);
 
     appInstances.set(
-      fb.id,
+      fb.identityHash,
       fb.setState({ ...currentState, aliceBalance, bobBalance })
     );
 

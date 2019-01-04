@@ -106,7 +106,7 @@ export class AppInstance {
   }
 
   @Memoize()
-  public get id() {
+  public get identityHash() {
     return appIdentityToHash(this.identity);
   }
 

@@ -103,16 +103,16 @@ function proposeStateTransition(
   context.operation = constructInstallOp(
     context.network,
     context.stateChannel,
-    appInstance.id
+    appInstance.identityHash
   );
 }
 
 export function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  appInstanceId: string
+  appIdentityHash: string
 ) {
-  const app = stateChannel.getAppInstance(appInstanceId);
+  const app = stateChannel.getAppInstance(appIdentityHash);
 
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 

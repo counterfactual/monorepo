@@ -104,7 +104,7 @@ export const computeActionHash = (
   );
 
 export class AppInstance {
-  get id(): string {
+  get identityHash(): string {
     return this.hashOfEncoding();
   }
 

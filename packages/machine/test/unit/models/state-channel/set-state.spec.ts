@@ -58,7 +58,7 @@ describe("StateChannel::setState", () => {
       .setupChannel(networkContext)
       .installApp(testApp, Zero, Zero);
 
-    sc2 = sc1.setState(testApp.id, { foo: AddressZero, bar: 1337 });
+    sc2 = sc1.setState(testApp.identityHash, { foo: AddressZero, bar: 1337 });
   });
 
   it("should not alter any of the base properties", () => {
@@ -74,7 +74,7 @@ describe("StateChannel::setState", () => {
     let app: AppInstance;
 
     beforeAll(() => {
-      app = sc2.getAppInstance(testApp.id)!;
+      app = sc2.getAppInstance(testApp.identityHash)!;
     });
 
     it("should have the new state", () => {
