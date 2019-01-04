@@ -123,14 +123,13 @@ export class Store {
    * The app's installation is confirmed iff the store write operation
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from pending to installed.
-   * @param channel
-   * @param AppInstanceIdentityHash
-   * @param appInstanceId
-   * @param appInstanceId
+   * @param stateChannel
+   * @param appInstance
+   * @param appInstanceInfo
    */
   async installAppInstance(
-    appInstance: AppInstance,
     stateChannel: StateChannel,
+    appInstance: AppInstance,
     appInstanceInfo: AppInstanceInfo
   ) {
     await this.storeService.set([

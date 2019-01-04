@@ -1,8 +1,4 @@
-import {
-  AppInstance,
-  AppInstanceJson,
-  StateChannel
-} from "@counterfactual/machine";
+import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
   Address,
   AppFunctionsSigHashes,
@@ -173,8 +169,8 @@ export class Channels {
     );
 
     await this.store.installAppInstance(
-      appInstance,
       updatedStateChannel,
+      appInstance,
       appInstanceInfo
     );
 
@@ -222,11 +218,11 @@ export class Channels {
     const channels = await this.store.getAllChannels();
     for (const channel of Object.values(channels)) {
       if (channel.appInstances) {
-        const nonFreeBalanceAppInstancesJSON = this.getNonFreeBalanceAppInstancesJSON(
+        const nonFreeBalanceAppInstances = this.getNonFreeBalanceAppInstancesJSON(
           channel
         );
         const appInstanceInfos = await this.getAppInstanceInfoFromAppInstance(
-          nonFreeBalanceAppInstancesJSON
+          nonFreeBalanceAppInstances
         );
         apps.push(...Object.values(appInstanceInfos));
       } else {
@@ -304,11 +300,10 @@ export class Channels {
   }
 
   async getAppInstanceInfoFromAppInstance(
-    appInstancesJson: AppInstanceJson[]
+    appInstances: AppInstance[]
   ): Promise<AppInstanceInfo[]> {
     const appInstanceInfos: AppInstanceInfo[] = [];
-    for (const appInstanceJson of appInstancesJson) {
-      const appInstance = AppInstance.fromJson(appInstanceJson);
+    for (const appInstance of appInstances) {
       const appInstanceId = await this.store.getAppInstanceIDFromAppInstanceIdentityHash(
         appInstance.identityHash
       );
@@ -317,14 +312,12 @@ export class Channels {
     return appInstanceInfos;
   }
 
-  getNonFreeBalanceAppInstancesJSON(
-    stateChannel: StateChannel
-  ): AppInstanceJson[] {
+  getNonFreeBalanceAppInstancesJSON(stateChannel: StateChannel): AppInstance[] {
     const appInstances = stateChannel.appInstances;
-    const nonFreeBalanceAppInstances: AppInstanceJson[] = [];
+    const nonFreeBalanceAppInstances: AppInstance[] = [];
     appInstances.forEach((appInstance, appInstanceIdentityHash) => {
       if (!stateChannel.appInstanceIsFreeBalance(appInstanceIdentityHash)) {
-        nonFreeBalanceAppInstances.push(appInstance.toJson());
+        nonFreeBalanceAppInstances.push(appInstance);
       }
     });
     return nonFreeBalanceAppInstances;
