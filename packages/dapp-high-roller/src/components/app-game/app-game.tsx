@@ -97,7 +97,7 @@ export class AppGame {
   }
 
   render() {
-    return (
+    return [
       <div class="wrapper">
         <div class="game">
           <app-game-player
@@ -145,7 +145,8 @@ export class AppGame {
             </audio>
           </div>
         </div>
-      </div>
-    );
+      </div>,
+      this.gameState === GameState.Won ? <app-game-coins /> : undefined
+    ];
   }
 }
