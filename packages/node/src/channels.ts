@@ -90,15 +90,15 @@ export class Channels {
     await this.store.saveChannel(stateChannel);
   }
 
-  async getAddresses(): Promise<Address[]> {
+  async getAllChannelAddresses(): Promise<Address[]> {
     const channels = await this.store.getAllChannels();
     return Object.keys(channels);
   }
 
-  async getPeersAddressFromClientAppInstanceID(
+  async getPeersAddressFromAppInstanceID(
     appInstanceId: string
   ): Promise<Address[]> {
-    const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
+    const multisigAddress = await this.store.getMultisigAddressFromAppInstanceID(
       appInstanceId
     );
     const stateChannel: StateChannel = await this.store.getStateChannel(
@@ -149,7 +149,7 @@ export class Channels {
       return Promise.reject("No AppInstance ID specified to install");
     }
 
-    const stateChannel = await this.getChannelFromClientAppInstanceID(
+    const stateChannel = await this.store.getChannelFromAppInstanceID(
       params.appInstanceId
     );
 
@@ -168,7 +168,7 @@ export class Channels {
       appInstanceInfo.peerDeposit
     );
 
-    await this.store.installAppInstance(
+    await this.store.updateChannelWithAppInstanceInstallation(
       updatedStateChannel,
       appInstance,
       appInstanceInfo
@@ -177,7 +177,7 @@ export class Channels {
     return appInstanceInfo;
   }
 
-  async setClientAppInstanceIDForProposeInstall(
+  async setAppInstanceIDForProposeInstall(
     params: Node.InterNodeProposeInstallParams,
     appInstanceId: string
   ) {
@@ -209,9 +209,6 @@ export class Channels {
   /**
    * Gets all installed appInstances across all of the channels open on
    * this Node.
-   *
-   * Note that the AppInstance IDs that are returned are the clientAppInstanceIDs
-   * that the clients are expecting, and not the channelAppInstanceIDs.
    */
   private async getInstalledAppInstances(): Promise<AppInstanceInfo[]> {
     const apps: AppInstanceInfo[] = [];
@@ -234,15 +231,6 @@ export class Channels {
       }
     }
     return apps;
-  }
-
-  private async getChannelFromClientAppInstanceID(
-    appInstanceId: string
-  ): Promise<StateChannel> {
-    const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
-      appInstanceId
-    );
-    return await this.store.getStateChannel(multisigAddress);
   }
 
   private generateNewMultisigAddress(owners: Address[]): Address {

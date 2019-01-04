@@ -57,7 +57,7 @@ export async function install(
   const appInstance = await channels.install(params);
   const appInstanceUUID = appInstance.id;
 
-  const [peerAddress] = await channels.getPeersAddressFromClientAppInstanceID(
+  const [peerAddress] = await channels.getPeersAddressFromAppInstanceID(
     appInstanceUUID
   );
 
@@ -96,10 +96,7 @@ export async function addAppInstance(
   if (nodeMsg.data.proposal) {
     const appInstanceUUID = params.appInstanceId;
     delete params.appInstanceId;
-    await channels.setClientAppInstanceIDForProposeInstall(
-      params,
-      appInstanceUUID
-    );
+    await channels.setAppInstanceIDForProposeInstall(params, appInstanceUUID);
   } else {
     await channels.install(params);
   }

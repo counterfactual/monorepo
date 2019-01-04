@@ -69,7 +69,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  async getMultisigAddressFromClientAppInstanceID(
+  async getMultisigAddressFromAppInstanceID(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -122,12 +122,12 @@ export class Store {
   /**
    * The app's installation is confirmed iff the store write operation
    * succeeds as the write operation's confirmation provides the desired
-   * atomicity of moving an app instance from pending to installed.
+   * atomicity of moving an app instance from being proposed to installed.
    * @param stateChannel
    * @param appInstance
    * @param appInstanceInfo
    */
-  async installAppInstance(
+  async updateChannelWithAppInstanceInstallation(
     stateChannel: StateChannel,
     appInstance: AppInstance,
     appInstanceInfo: AppInstanceInfo
@@ -177,7 +177,7 @@ export class Store {
   /**
    * Adds the given proposed appInstance to a channel's collection of proposed
    * app instances.
-   * @param channel
+   * @param stateChannel
    * @param proposedAppInstance
    * @param appInstanceId The ID to refer to this AppInstance before a
    *        AppInstanceIdentityHash can be created.
@@ -192,7 +192,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
-        value: JSON.parse(JSON.stringify(proposedAppInstance))
+        value: proposedAppInstance.toJson()
       },
       {
         key: `${
@@ -225,7 +225,7 @@ export class Store {
   }
 
   /**
-   * Returns a list of proposed AppInstances.
+   * Returns a list of proposed `AppInstanceInfo`s.
    */
   async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const proposedAppInstancesJson = (await this.storeService.get(
@@ -253,5 +253,17 @@ export class Store {
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
       )
     );
+  }
+
+  /**
+   * @param appInstanceId
+   */
+  async getChannelFromAppInstanceID(
+    appInstanceId: string
+  ): Promise<StateChannel> {
+    const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
+      appInstanceId
+    );
+    return await this.getStateChannel(multisigAddress);
   }
 }
