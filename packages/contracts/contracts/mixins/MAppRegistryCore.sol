@@ -23,7 +23,7 @@ contract MAppRegistryCore {
     bytes32 appInterfaceHash
   ) {
     // TODO: This is inefficient from a gas point of view since we could just include
-    // the hash of appInterface in the call to computeAppIdentityHash. Cleanup in the fututre.
+    // the hash of appInterface in the call to appIdentityToHash. Cleanup in the fututre.
     require(
       keccak256(abi.encode(appInterface)) == appInterfaceHash,
       "Call to AppRegistry included mismatched appInterface and appInterfaceHash"
@@ -45,7 +45,7 @@ contract MAppRegistryCore {
   /// @notice Compute a unique hash for a single instance of an App
   /// @param appIdentity An `AppIdentity` struct that encodes all unqiue info for an App
   /// @return A bytes32 hash of the AppIdentity
-  function computeAppIdentityHash(
+  function appIdentityToHash(
     LibStateChannelApp.AppIdentity memory appIdentity
   )
     internal
@@ -56,13 +56,13 @@ contract MAppRegistryCore {
   }
 
   /// @notice Compute a unique hash for a state of this state channel and application
-  /// @param id The unique hash of an `AppIdentity`
+  /// @param identityHash The unique hash of an `AppIdentity`
   /// @param appStateHash The hash of a state to be signed
   /// @param nonce The nonce corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
   function computeStateHash(
-    bytes32 id,
+    bytes32 identityHash,
     bytes32 appStateHash,
     uint256 nonce,
     uint256 timeout
@@ -74,7 +74,7 @@ contract MAppRegistryCore {
     return keccak256(
       abi.encodePacked(
         byte(0x19),
-        id,
+        identityHash,
         nonce,
         timeout,
         appStateHash

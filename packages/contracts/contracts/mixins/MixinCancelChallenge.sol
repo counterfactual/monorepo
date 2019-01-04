@@ -28,9 +28,9 @@ contract MixinCancelChallenge is
     // external
     public
   {
-    bytes32 id = computeAppIdentityHash(appIdentity);
+    bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[id];
+    AppChallenge storage challenge = appStates[identityHash];
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
@@ -38,7 +38,7 @@ contract MixinCancelChallenge is
     );
 
     bytes32 stateHash = computeStateHash(
-      id,
+      identityHash,
       challenge.appStateHash,
       challenge.nonce,
       appIdentity.defaultTimeout
