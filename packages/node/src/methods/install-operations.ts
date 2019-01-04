@@ -19,15 +19,17 @@ export async function proposeInstall(
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
+  if (params.abiEncodings.actionEncoding === undefined) {
+    delete params.abiEncodings.actionEncoding;
+  }
+
   const appInstanceId = await channels.proposeInstall(params);
 
-  // TODO: shouldn't sanitize here
-  const sanitizedParams = JSON.parse(JSON.stringify(params));
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
-      ...sanitizedParams,
+      ...params,
       appInstanceId,
       proposal: true
     }

@@ -32,7 +32,7 @@ export class Store {
 
   /**
    * Returns a JSON object with the keys being the multisig addresses and the
-   * values being objects reflecting the StateChannel schema..
+   * values being objects reflecting the StateChannel schema.
    */
   async getAllChannelsJSON(): Promise<{
     [multisigAddress: string]: StateChannelJSON;
