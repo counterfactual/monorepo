@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="72px" height="72px" viewBox="0 0 72 72" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>#UI / Components / Icons / X</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M28.8828108,24.4393014 L53.3221122,2.84217094e-14 L57.7656216,4.44350935 L33.3263201,28.8828108 L57.7656216,53.3221122 L53.3221122,57.7656216 L28.8828108,33.3263201 L4.44350935,57.7656216 L-7.81597009e-14,53.3221122 L24.4393014,28.8828108 L-6.39488462e-14,4.44350935 L4.44350935,2.13162821e-14 L28.8828108,24.4393014 Z" id="path-1"></path>
+    </defs>
+    <g id="UI" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Your-Turn" transform="translate(-215.000000, -165.000000)">
+            <g id="#UI-/-Components-/-Icons-/-X" transform="translate(223.000000, 165.000000)">
+                <g transform="translate(-0.800000, 0.000000)" id="#UI-/-🎨Color-/-Blue">
+                    <g>
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <use id="Mask" fill="#979797" xlink:href="#path-1"></use>
+                        <g mask="url(#mask-2)" fill="#4DCDEF" id="Icon-Shade">
+                            <g transform="translate(-5.600000, -6.400000)">
+                                <rect x="0" y="0" width="68.5241338" height="68.5241338"></rect>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
