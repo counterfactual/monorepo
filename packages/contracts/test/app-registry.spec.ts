@@ -267,4 +267,55 @@ describe("AppRegistry", () => {
 
     // expect(status).to.be.eq(1);
   });
+
+  it("is possible to call setState to put state on-chain", async () => {
+    // Test AppInterface
+    const appInterface = new AppInterface(
+      AddressZero,
+      hexlify(randomBytes(4)),
+      hexlify(randomBytes(4)),
+      hexlify(randomBytes(4)),
+      hexlify(randomBytes(4))
+    );
+
+    // Test Terms
+    const terms = new Terms(AssetType.ETH, 0, AddressZero);
+
+    // Setup AppInstance
+    const appInstance = new AppInstance(
+      wallet.address,
+      [AddressZero, AddressZero],
+      appInterface,
+      terms,
+      10
+    );
+
+    // Tell the AppRegistry to start timer
+    const stateHash = hexlify(randomBytes(32));
+    await appRegistry.functions.setState(appInstance.appIdentity, {
+      stateHash,
+      nonce: 1,
+      timeout: 10,
+      signatures: HashZero
+    });
+
+    // Verify the correct data was put on-chain
+    const {
+      status,
+      latestSubmitter,
+      appStateHash,
+      disputeCounter,
+      disputeNonce,
+      finalizesAt,
+      nonce
+    } = await appRegistry.functions.appStates(appInstance.id);
+
+    expect(status).to.be.eq(1);
+    expect(latestSubmitter).to.be.eq(await wallet.getAddress());
+    expect(appStateHash).to.be.eq(stateHash);
+    expect(disputeCounter).to.be.eq(1);
+    expect(disputeNonce).to.be.eq(0);
+    expect(finalizesAt).to.be.eq((await provider.getBlockNumber()) + 10);
+    expect(nonce).to.be.eq(1);
+  });
 });
