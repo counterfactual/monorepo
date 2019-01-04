@@ -8,12 +8,17 @@ function clean {
 
 trap clean INT TERM EXIT
 
+if lsof -ti :8545
+then
+  echo "Detected a process (probably an existing ganache instance) listening on 8545. Exiting."
+  exit 1
+fi
+
 ganache-cli \
   --defaultBalanceEther 10000 \
   --gasLimit 0xfffffffffff \
   --gasPrice 0x01 \
   --networkId 7777777 \
-  --quiet \
   &> /dev/null \
   &
 
