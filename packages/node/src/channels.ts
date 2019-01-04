@@ -26,7 +26,7 @@ import { Store } from "./store";
 import { orderedAddressesHash } from "./utils";
 
 /**
- * This class itelf does not hold any meaningful state.
+ * This class itself does not hold any meaningful state.
  * It encapsulates the operations performed on relevant appInstances and
  * abstracts the persistence to the store service.
  */
@@ -154,7 +154,7 @@ export class Channels {
       return Promise.reject("No AppInstance ID specified to install");
     }
 
-    const channel = await this.getChannelFromClientAppInstanceID(
+    const stateChannel = await this.getChannelFromClientAppInstanceID(
       params.appInstanceId
     );
 
@@ -164,12 +164,19 @@ export class Channels {
     );
     const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
       appInstanceInfo,
-      channel
+      stateChannel
     );
     delete appInstanceInfo.initialState;
+
+    const updatedStateChannel = stateChannel.installApp(
+      appInstance,
+      appInstanceInfo.myDeposit,
+      appInstanceInfo.peerDeposit
+    );
+
     await this.store.installAppInstance(
       appInstance,
-      channel,
+      updatedStateChannel,
       appInstanceId,
       appInstanceInfo
     );

@@ -4,7 +4,6 @@ import {
   StateChannelJSON
 } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
 
 import {
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
@@ -131,19 +130,12 @@ export class Store {
     appInstanceId: string,
     appInstanceInfo: AppInstanceInfo
   ) {
-    // TODO: give the right big numbers
-    const updatedStateChannel = stateChannel.installApp(
-      appInstance,
-      bigNumberify(0),
-      bigNumberify(0)
-    );
-
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
           stateChannel.multisigAddress
         }`,
-        value: updatedStateChannel.toJson()
+        value: stateChannel.toJson()
       },
       {
         key: `${

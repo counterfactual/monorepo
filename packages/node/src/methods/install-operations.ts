@@ -28,7 +28,7 @@ export async function proposeInstall(
     event: Node.EventName.INSTALL,
     data: {
       ...sanitizedParams,
-      appInstanceId: appInstanceId,
+      appInstanceId,
       proposal: true
     }
   };
@@ -36,7 +36,7 @@ export async function proposeInstall(
   await messagingService.send(params.peerAddress, proposalMsg);
 
   return {
-    appInstanceId: appInstanceId
+    appInstanceId
   };
 }
 

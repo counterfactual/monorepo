@@ -7,7 +7,7 @@ import {
   BlockchainAsset,
   Node as NodeTypes
 } from "@counterfactual/types";
-import { AddressZero, One } from "ethers/constants";
+import { AddressZero, One, Zero } from "ethers/constants";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
@@ -98,8 +98,8 @@ export function makeProposalRequest(
     asset: {
       assetType: AssetType.ETH
     } as BlockchainAsset,
-    myDeposit: One,
-    peerDeposit: One,
+    myDeposit: Zero,
+    peerDeposit: Zero,
     timeout: One,
     initialState: {
       foo: AddressZero,
