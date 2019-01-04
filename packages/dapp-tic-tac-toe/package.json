@@ -11,8 +11,6 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "lint": "tslint -c tslint.json -p tsconfig.json",
-    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "CI=true react-scripts test",
     "eject": "react-scripts eject"
   },
