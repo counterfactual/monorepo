@@ -15,13 +15,11 @@
     "@firebase/app-types": "^0.3.2",
     "@types/dotenv": "^6.1.0",
     "@types/node": "^10.9.3",
-    "cuid": "^2.1.4",
     "dotenv": "^6.1.0",
-    "ethers": "4.0.20",
-    "firebase": "5.7.1",
     "firebase-server": "^1.0.1",
     "jest": "^23.6.0",
     "rollup": "^1.0.1",
+    "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
@@ -29,7 +27,9 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.0.1",
     "@counterfactual/types": "0.0.1",
+    "ethers": "4.0.20",
     "eventemitter3": "^3.1.0",
+    "firebase": "5.7.1",
     "uuid": "^3.3.2"
   },
   "config": {
