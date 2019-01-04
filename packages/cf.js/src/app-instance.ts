@@ -28,6 +28,7 @@ export class AppInstance {
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
   readonly timeout: BigNumber;
+  readonly intermediaries?: Address[];
   private readonly eventEmitter: EventEmitter = new EventEmitter();
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
@@ -38,6 +39,11 @@ export class AppInstance {
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
+    this.intermediaries = info.intermediaries;
+  }
+
+  get isVirtual(): boolean {
+    return !!(this.intermediaries && this.intermediaries.length !== 0);
   }
 
   async getState(): Promise<AppState> {

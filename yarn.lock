@@ -8670,10 +8670,10 @@ only@~0.0.2:
   resolved "https://registry.yarnpkg.com/only/-/only-0.0.2.tgz#2afde84d03e50b9a8edc444e30610a70295edfb4"
   integrity sha1-Kv3oTQPlC5qO3EROMGEKcCle37Q=
 
-openzeppelin-solidity@^2.1.0-rc.2:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.0.tgz#5a4677478673598dd653913c35f97748eb65ea0e"
-  integrity sha512-FMRP0ydy0s0IohRUMb6FPjPaAkoEBn8LyjcUZZO0A901993aAxWWOoXyFt65gYh9pjCZt0nCx58Tv/QbUqNIAA==
+openzeppelin-solidity@next:
+  version "2.1.0-rc.2"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.0-rc.2.tgz#704b7c86cc45fc82bc23ab706d767d04cf3391dc"
+  integrity sha512-2Yf0c4k1v0L354ZXobBn6wL207fBw+906icm4F0DYix4U+4fUMA2xgjWzVFi6zdJKZnCgBRkg+eddF8ZZY6gNA==
 
 openzeppelin-solidity@~1.10.0:
   version "1.10.0"

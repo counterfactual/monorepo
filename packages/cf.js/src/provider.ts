@@ -1,4 +1,5 @@
 import {
+  Address,
   AppInstanceID,
   AppInstanceInfo,
   INodeProvider,
@@ -48,6 +49,21 @@ export class Provider {
       appInstanceId
     });
     const { appInstance } = response.result as Node.InstallResult;
+    return this.getOrCreateAppInstance(appInstanceId, appInstance);
+  }
+
+  async installVirtual(
+    appInstanceId: AppInstanceID,
+    intermediaries: Address[]
+  ): Promise<AppInstance> {
+    const response = await this.callRawNodeMethod(
+      Node.MethodName.INSTALL_VIRTUAL,
+      {
+        appInstanceId,
+        intermediaries
+      }
+    );
+    const { appInstance } = response.result as Node.InstallVirtualResult;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 

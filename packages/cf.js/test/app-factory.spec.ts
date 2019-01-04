@@ -30,19 +30,20 @@ describe("CF.js AppFactory", () => {
     it("can propose valid app installs", async () => {
       expect.assertions(4);
 
-      const testState = "4000";
-      const testAppInstanceId = "TEST_ID";
+      const expectedDeposit = parseEther("0.5");
+      const expectedState = "4000";
+      const expectedAppInstanceId = "TEST_ID";
 
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
         expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
         const params = request.params as Node.ProposeInstallParams;
-        expect(params.initialState).toBe(testState);
-        expect(params.myDeposit).toEqual(parseEther("0.5"));
+        expect(params.initialState).toBe(expectedState);
+        expect(params.myDeposit).toEqual(expectedDeposit);
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.PROPOSE_INSTALL,
           requestId: request.requestId,
           result: {
-            appInstanceId: testAppInstanceId
+            appInstanceId: expectedAppInstanceId
           }
         });
       });
@@ -51,32 +52,53 @@ describe("CF.js AppFactory", () => {
         asset: {
           assetType: AssetType.ETH
         },
-        peerDeposit: parseEther("0.5"),
-        myDeposit: parseEther("0.5"),
+        peerDeposit: expectedDeposit,
+        myDeposit: expectedDeposit,
         timeout: "100",
-        initialState: testState
+        initialState: expectedState
       });
-      expect(appInstanceId).toBe(testAppInstanceId);
+      expect(appInstanceId).toBe(expectedAppInstanceId);
     });
 
-    it("throws an error if peer address invalid", async done => {
-      try {
-        await appFactory.proposeInstall({
-          peerAddress: "$%GARBAGE$%",
-          asset: {
-            assetType: AssetType.ETH
-          },
-          peerDeposit: parseEther("0.5"),
-          myDeposit: parseEther("0.5"),
-          timeout: "100",
-          initialState: "4000"
-        });
-        done.fail("Expected an error for invalid peer address");
-      } catch (e) {
-        expect(e.data.errorName).toBe("invalid_param");
-        expect(e.data.extra.paramName).toBe("peerAddress");
-        done();
-      }
+    it("can propose valid virtual app installs", async () => {
+      expect.assertions(5);
+
+      const expectedDeposit = parseEther("0.5");
+      const expectedState = "4000";
+      const expectedAppInstanceId = "TEST_ID";
+      const expectedIntermediaries = [
+        "0x6001600160016001600160016001600160016001"
+      ];
+
+      nodeProvider.onMethodRequest(
+        Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+        request => {
+          expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL_VIRTUAL);
+          const params = request.params as Node.ProposeInstallVirtualParams;
+          expect(params.initialState).toBe(expectedState);
+          expect(params.intermediaries).toBe(expectedIntermediaries);
+          expect(params.myDeposit).toEqual(expectedDeposit);
+          nodeProvider.simulateMessageFromNode({
+            type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+            requestId: request.requestId,
+            result: {
+              appInstanceId: expectedAppInstanceId
+            }
+          });
+        }
+      );
+      const appInstanceId = await appFactory.proposeInstallVirtual({
+        peerAddress: "0x0101010101010101010101010101010101010101",
+        asset: {
+          assetType: AssetType.ETH
+        },
+        peerDeposit: expectedDeposit,
+        myDeposit: expectedDeposit,
+        timeout: "100",
+        initialState: expectedState,
+        intermediaries: expectedIntermediaries
+      });
+      expect(appInstanceId).toBe(expectedAppInstanceId);
     });
 
     it("throws an error if BigNumber param invalid", async done => {
