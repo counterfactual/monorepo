@@ -15,8 +15,8 @@ import {
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
+import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
-import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./types";
 import { orderedAddressesHash } from "./utils";
 
 /**

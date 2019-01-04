@@ -20,9 +20,9 @@ import { Wallet } from "ethers/wallet";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS } from "./db-schema";
+import { ProposedAppInstanceInfo } from "./models";
 import { IStoreService } from "./services";
 import { Store } from "./store";
-import { ProposedAppInstanceInfo } from "./types";
 import { orderedAddressesHash } from "./utils";
 
 /**
