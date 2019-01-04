@@ -1,5 +1,8 @@
 import { Component } from "@stencil/core";
 
+// coin audio attribution:
+// https://freesound.org/people/Robinhood76/sounds/51671/
+
 @Component({
   tag: "app-game-coins",
   styleUrl: "app-game-coins.scss",
