@@ -53,12 +53,10 @@ export class Store {
   }
 
   /**
-   * Returns a JSON object matching the channel schema.
+   * Returns the StateChannel instance with the specified multisig address.
    * @param multisigAddress
    */
-  async getChannelJSONFromStore(
-    multisigAddress: Address
-  ): Promise<StateChannel> {
+  async getStateChannel(multisigAddress: Address): Promise<StateChannel> {
     return StateChannel.fromJson(
       await this.storeService.get(
         `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`

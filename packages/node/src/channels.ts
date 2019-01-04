@@ -105,7 +105,7 @@ export class Channels {
     const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
       appInstanceId
     );
-    const stateChannel: StateChannel = await this.store.getChannelJSONFromStore(
+    const stateChannel: StateChannel = await this.store.getStateChannel(
       multisigAddress
     );
     const owners = stateChannel.multisigOwners;
@@ -209,7 +209,7 @@ export class Channels {
     const multisigAddress = await this.store.getMultisigAddressFromOwnersHash(
       ownersHash
     );
-    return await this.store.getChannelJSONFromStore(multisigAddress);
+    return await this.store.getStateChannel(multisigAddress);
   }
 
   /**
@@ -248,7 +248,7 @@ export class Channels {
     const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
       appInstanceId
     );
-    return await this.store.getChannelJSONFromStore(multisigAddress);
+    return await this.store.getStateChannel(multisigAddress);
   }
 
   private generateNewMultisigAddress(owners: Address[]): Address {
