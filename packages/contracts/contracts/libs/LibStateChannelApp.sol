@@ -42,12 +42,4 @@ contract LibStateChannelApp {
     uint256 nonce;
   }
 
-  // A minimal structure representing a state update that can be signed
-  struct AppStateProof {
-    bytes32 identityHash;
-    bytes32 appStateHash;
-    uint256 nonce;
-    uint256 timeout;
-  }
-
 }
