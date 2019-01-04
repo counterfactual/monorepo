@@ -1,5 +1,5 @@
 import { CreateAccountRequest } from "@counterfactual/playground-server";
-import { Component, Element, Prop } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
@@ -36,7 +36,7 @@ export class AccountRegister {
     address: this.address
   };
 
-  errors: UserChangeset = {
+  @State() errors: UserChangeset = {
     username: "",
     email: "",
     address: ""
@@ -58,64 +58,86 @@ export class AccountRegister {
     web3.personal.sign(
       buildSignaturePayload(data),
       data.address,
-      async (error: Error, signedData: string) => {
-        // TODO: Handle errors.
-        if (error) {
-          throw error;
-        }
-
-        // Call the API and store the multisig.
-        const payload: CreateAccountRequest = {
-          ...data,
-          signature: signedData
-        };
-
-        try {
-          const apiResponse = await PlaygroundAPIClient.createAccount(payload);
-
-          window.localStorage.setItem(
-            "playground:multisig",
-            apiResponse.multisigAddress
-          );
-
-          this.updateAccount(data);
-          this.history.push("/deposit");
-        } catch (e) {
-          this.setErrorMessage(e.errorCode);
-        }
-      }
+      this.register.bind(this)
     );
   }
 
+  handleMetamaskErrors(error) {
+    if (error.message.match(/User denied message signature/)) {
+      this.setErrorMessage("user_denied_signature");
+    }
+  }
+
+  async register(error: Error, signedData: string) {
+    // TODO: Handle errors.
+    if (error) {
+      this.handleMetamaskErrors(error);
+      return;
+    }
+
+    // Call the API and store the multisig.
+    const payload: CreateAccountRequest = {
+      ...this.changeset,
+      signature: signedData
+    };
+
+    try {
+      const apiResponse = await PlaygroundAPIClient.createAccount(payload);
+
+      window.localStorage.setItem(
+        "playground:multisig",
+        apiResponse.multisigAddress
+      );
+
+      this.updateAccount(this.changeset);
+      this.history.push("/deposit");
+    } catch (e) {
+      this.setErrorMessage(e.errorCode);
+    }
+  }
+
   setErrorMessage(errorCode: string) {
-    this.errors.username = "";
-    this.errors.email = "";
-    this.errors.address = "";
+    let update = {};
+    this.errors = { username: "", email: "", address: "" };
 
     switch (errorCode) {
       case "username_required":
-        this.errors.username = "This field is required";
+        update = { username: "This field is required" };
         break;
       case "email_required":
-        this.errors.email = "This field is required";
+        update = { email: "This field is required" };
         break;
       case "signature_required":
-        this.errors.address =
-          "You must sign the operation with Metamask in order to continue";
+        update = {
+          address:
+            "You must sign the operation with Metamask in order to continue"
+        };
         break;
       case "invalid_signature":
-        this.errors.address =
-          "Something went wrong with your signature. Please try again.";
+        update = {
+          address: "Something went wrong with your signature. Please try again."
+        };
         break;
       case "address_already_registered":
-        this.errors.address =
-          "You already have a Playground account with this address.";
+        update = {
+          address: "You already have a Playground account with this address."
+        };
         break;
       case "user_save_failed":
-        this.errors.address =
-          "Something went wrong while saving your data. Please try again later.";
+        update = {
+          address:
+            "Something went wrong while saving your data. Please try again later."
+        };
+        break;
+      case "user_denied_signature":
+        update = {
+          address:
+            "You must approve the message signature at Metamask in order to proceed."
+        };
         break;
     }
+
+    this.errors = { ...this.errors, ...update };
   }
 
   render() {
