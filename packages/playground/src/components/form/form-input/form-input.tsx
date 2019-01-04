@@ -16,6 +16,7 @@ export class FormInput {
 
   handleChange(event) {
     this.value = event.target.value;
+    this.error = "";
     this.change.emit(event);
   }
 
@@ -37,8 +38,8 @@ export class FormInput {
             onInput={event => this.handleChange(event)}
           />
           {this.unit ? <div class="unit">{this.unit}</div> : null}
-          {this.error ? <div class="error">{this.error}</div> : null}
         </div>
+        {this.error ? <div class="error">{this.error}</div> : null}
       </label>
     );
   }
