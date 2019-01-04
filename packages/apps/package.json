@@ -27,8 +27,8 @@
     "chai": "^4.2.0",
     "ethereum-waffle": "1.2.0",
     "ethers": "4.0.20",
+    "mocha": "^5.2.0",
     "ethlint": "^1.2.1",
-    "mocha": "^4.1.0",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.11.0"
   }

@@ -44,9 +44,9 @@
     "ethlint": "1.2.1",
     "truffle": "5.0.0-beta.1",
     "truffle-deploy-registry": "^0.4.1",
-    "truffle-hdwallet-provider": "1.0.1",
+    "truffle-hdwallet-provider": "1.0.2",
     "ts-node": "^7.0.0",
-    "tslint": "5.11.0",
+    "tslint": "5.12.0",
     "typescript": "^3.1.2",
     "zos-lib": "^2.0.0"
   }
