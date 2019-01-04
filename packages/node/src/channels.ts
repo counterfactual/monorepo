@@ -1,4 +1,4 @@
-import { AppInstance, StateChannel } from "@counterfactual/machine";
+import { AppInstance, StateChannel, TERMS } from "@counterfactual/machine";
 import {
   Address,
   AppFunctionsSigHashes,
@@ -10,7 +10,7 @@ import {
   Terms
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { bigNumberify, hexlify, randomBytes } from "ethers/utils";
+import { bigNumberify, Interface } from "ethers/utils";
 import { Wallet } from "ethers/wallet";
 import { v4 as generateUUID } from "uuid";
 
@@ -314,11 +314,34 @@ export class Channels {
   getAppFunctionSigHashes(
     appInstanceInfo: AppInstanceInfo
   ): AppFunctionsSigHashes {
+    const stateEncoding = appInstanceInfo.abiEncodings.stateEncoding;
+
+    const resolveSigHash = new Interface([
+      `function resolve(${stateEncoding}, ${TERMS})`
+    ]).functions.resolve.sighash;
+
+    const getTurnTakerSigHash = new Interface([
+      `function getTurnTaker(${stateEncoding})`
+    ]).functions.getTurnTaker.sighash;
+
+    const isStateTerminalSigHash = new Interface([
+      `function isStateTerminal(${stateEncoding})`
+    ]).functions.isStateTerminal.sighash;
+
+    let applyActionSigHash = "0x00000000";
+    if (appInstanceInfo.abiEncodings.actionEncoding !== undefined) {
+      applyActionSigHash = new Interface([
+        `function applyAction(${stateEncoding}, ${
+          appInstanceInfo.abiEncodings.actionEncoding
+        })`
+      ]).functions.applyAction.sighash;
+    }
+
     return {
-      applyAction: hexlify(randomBytes(4)),
-      resolve: hexlify(randomBytes(4)),
-      getTurnTaker: hexlify(randomBytes(4)),
-      isStateTerminal: hexlify(randomBytes(4))
+      resolve: resolveSigHash,
+      applyAction: applyActionSigHash,
+      getTurnTaker: getTurnTakerSigHash,
+      isStateTerminal: isStateTerminalSigHash
     };
   }
 }
