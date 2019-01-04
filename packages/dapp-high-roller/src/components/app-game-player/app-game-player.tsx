@@ -2,8 +2,6 @@ import { Component, Prop } from "@stencil/core";
 
 import { PlayerType } from "../../enums/enums";
 
-const DICE_PATH = "./assets/images/dice/TYPE/Dice-TYPE-0";
-
 @Component({
   tag: "app-game-player",
   styleUrl: "app-game-player.scss",
