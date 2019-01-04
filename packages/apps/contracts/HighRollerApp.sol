@@ -193,10 +193,8 @@ contract HighRollerApp {
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
-    returns (uint8 ret)
+    returns (uint8)
   {
-    assembly {
-      ret := mod(mload(add(q, 8)), 6)
-    }
+    return uint8(uint64(q) % 6);
   }
 }
