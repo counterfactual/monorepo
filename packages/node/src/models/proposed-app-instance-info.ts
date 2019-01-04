@@ -66,9 +66,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       appId: this.appId,
       abiEncodings: this.abiEncodings,
       asset: this.asset,
-      myDeposit: this.myDeposit.toString(),
-      peerDeposit: this.peerDeposit.toString(),
-      timeout: this.timeout.toString(),
+      myDeposit: this.myDeposit,
+      peerDeposit: this.peerDeposit,
+      timeout: this.timeout,
       initialState: this.initialState
     };
   }
