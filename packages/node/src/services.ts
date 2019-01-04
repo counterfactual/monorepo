@@ -1,5 +1,5 @@
 import { Address } from "@counterfactual/types";
-import firebase from "firebase";
+import firebase from "firebase/app";
 
 export interface IMessagingService {
   send(peerAddress: Address, msg: any);
