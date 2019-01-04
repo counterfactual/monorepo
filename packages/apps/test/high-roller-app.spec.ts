@@ -67,7 +67,6 @@ const nullValueBytes32 =
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
-  // @ts-ignore
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
