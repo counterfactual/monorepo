@@ -1,5 +1,6 @@
 import {
   AppInstance,
+  AppInstanceJson,
   StateChannel,
   StateChannelJSON
 } from "@counterfactual/machine";
@@ -23,7 +24,6 @@ import { IStoreService } from "./services";
 import { Store } from "./store";
 import { ProposedAppInstanceInfo } from "./types";
 import { orderedAddressesHash } from "./utils";
-import { AppInstanceJson } from "@counterfactual/machine/dist/src/models/app-instance";
 
 /**
  * This class itelf does not hold any meaningful state.
