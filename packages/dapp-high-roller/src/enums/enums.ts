@@ -6,6 +6,6 @@ export enum GameState {
 }
 
 export enum PlayerType {
-  Dark = "Dark",
-  Light = "Light"
+  Black = "black",
+  White = "white"
 }

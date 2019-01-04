@@ -28,7 +28,7 @@
     "ethereum-waffle": "1.2.0",
     "ethers": "4.0.20",
     "mocha": "^5.2.0",
-    "solium": "1.1.8",
+    "ethlint": "^1.2.1",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.11.0"
   }
