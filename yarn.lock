@@ -5070,10 +5070,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.0-beta.3:
-  version "2.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.3.tgz#79c548ad37e821491913718214811fe47be32c61"
-  integrity sha512-UXwzY6MwAw4D9EUOrixPRRzsfKG0V7G1U3lE9AC/Kb2+dx7T8mSBltSOD9TcBDCgvifOAdtgIIqbNMGkcAMLVQ==
+ethereum-waffle@2.0.0-beta.4:
+  version "2.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.4.tgz#2c376c53af8f8d66e997d5b439a5826871683152"
+  integrity sha512-OIBKW+hfBl0nyVk/ISqXxsQNh3pkB3nX2zxX2W5hEOiyu8lp/cetaWwbvQ7AkowYUSJLVgfsXcgMieslPFqZ0Q==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
