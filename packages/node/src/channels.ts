@@ -69,8 +69,7 @@ export class Channels {
     };
 
     stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-    const ownersHash = orderedAddressesHash(params.owners);
-    await this.store.saveChannel(stateChannel, ownersHash);
+    await this.store.saveChannel(stateChannel);
     return multisigAddress;
   }
 
@@ -93,8 +92,7 @@ export class Channels {
     };
 
     stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-    const ownersHash = orderedAddressesHash(owners);
-    await this.store.saveChannel(stateChannel, ownersHash);
+    await this.store.saveChannel(stateChannel);
   }
 
   async getAddresses(): Promise<Address[]> {

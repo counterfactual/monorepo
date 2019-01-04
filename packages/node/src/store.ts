@@ -17,6 +17,7 @@ import {
 } from "./db-schema";
 import { IStoreService } from "./services";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./types";
+import { orderedAddressesHash } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -98,7 +99,8 @@ export class Store {
    * @param channel
    * @param ownersHash
    */
-  async saveChannel(stateChannel: StateChannel, ownersHash?: string) {
+  async saveChannel(stateChannel: StateChannel) {
+    const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
