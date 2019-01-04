@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 
 /// @title LibSignature - A library wrapper around signature verification
@@ -15,7 +15,7 @@ contract LibSignature {
   /// @param txHash operation ethereum signed message hash
   /// @param pos which signature to read
   function recoverKey(
-    bytes messageSignature,
+    bytes memory messageSignature,
     bytes32 txHash,
     uint256 pos
   )
@@ -35,9 +35,9 @@ contract LibSignature {
   /// @param txHash operation ethereum signed message hash
   /// @param signers addresses of all signers in order
   function verifySignatures(
-    bytes signatures,
+    bytes memory signatures,
     bytes32 txHash,
-    address[] signers
+    address[] memory signers
   )
     public
     pure
@@ -57,7 +57,7 @@ contract LibSignature {
   /// @dev divides bytes signature into `uint8 v, bytes32 r, bytes32 s`
   /// @param pos which signature to read
   /// @param signatures concatenated rsv signatures
-  function signatureSplit(bytes signatures, uint256 pos)
+  function signatureSplit(bytes memory signatures, uint256 pos)
     public
     pure
     returns (uint8 v, bytes32 r, bytes32 s)

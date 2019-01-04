@@ -4,8 +4,8 @@ declare module "ethereum-waffle" {
   import * as waffle from "ethereum-waffle";
 
   type ContractJSON = {
-    interface: any;
-    bytecode: string;
+    abi: any;
+    evm: any
   };
 
   export function solidity(chai, utils): void;

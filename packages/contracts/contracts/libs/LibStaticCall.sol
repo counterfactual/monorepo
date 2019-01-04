@@ -1,7 +1,7 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
-import "openzeppelin-eth/contracts/utils/Address.sol";
+import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "../libs/Transfer.sol";
 
 
@@ -18,7 +18,7 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return A boolean indicating whether or not the transaction didn't fail
-  function staticcall_no_error(address to, bytes data)
+  function staticcall_no_error(address to, bytes memory data)
     public
     view
     returns (bool success)
@@ -33,7 +33,7 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a boolean
-  function staticcall_as_bool(address to, bytes data)
+  function staticcall_as_bool(address to, bytes memory data)
     public
     view
     returns (bool)
@@ -46,7 +46,7 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a uint256
-  function staticcall_as_uint256(address to, bytes data)
+  function staticcall_as_uint256(address to, bytes memory data)
     public
     view
     returns (uint256)
@@ -59,7 +59,7 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a address
-  function staticcall_as_address(address to, bytes data)
+  function staticcall_as_address(address to, bytes memory data)
     public
     view
     returns (address)
@@ -72,10 +72,10 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a bytes
-  function staticcall_as_bytes(address to, bytes data)
+  function staticcall_as_bytes(address to, bytes memory data)
     public
     view
-    returns (bytes)
+    returns (bytes memory)
   {
     executeStaticCall(to, data);
     assembly { return(mload(0x40), returndatasize) }
@@ -85,10 +85,10 @@ library LibStaticCall {
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
   /// @return The return data of the static call encoded as a Transfer.Transaction
-  function staticcall_as_TransferDetails(address to, bytes data)
+  function staticcall_as_TransferDetails(address to, bytes memory data)
     public
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     executeStaticCall(to, data);
     assembly { return(mload(0x40), returndatasize) }
@@ -97,7 +97,7 @@ library LibStaticCall {
   /// @notice The internal method that executes the STATICCALL
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called
-  function executeStaticCall(address to, bytes data)
+  function executeStaticCall(address to, bytes memory data)
     private
     view
   {

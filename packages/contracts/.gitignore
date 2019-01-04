@@ -41,6 +41,8 @@ networks/*.json
 
 .env
 
+# NOTE: These shouldn't even be getting generated anymore.
+#       Keeping here for devs with stale files saved locally.
 test/**/*.js
 test/**/*js.map
 test/**/*.d.ts
