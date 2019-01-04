@@ -1,7 +1,7 @@
 import {
   Address,
-  Node as NodeTypes,
-  NetworkContext
+  NetworkContext,
+  Node as NodeTypes
 } from "@counterfactual/types";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
