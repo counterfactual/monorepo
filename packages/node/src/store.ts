@@ -7,12 +7,12 @@ import { Address, AppInstanceInfo } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import {
+  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
+  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
+  DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
+  DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
+  DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID,
   DB_NAMESPACE_CHANNEL,
-  DB_NAMESPACE_CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID,
-  DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
-  DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID,
-  DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
-  DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
 import { IStoreService } from "./services";
@@ -65,30 +65,30 @@ export class Store {
   /**
    * Returns a string identifying the multisig address the specified app instance
    * belongs to.
-   * @param clientAppInstanceID
+   * @param appInstanceId
    */
   async getMultisigAddressFromClientAppInstanceID(
-    clientAppInstanceID: string
+    appInstanceId: string
   ): Promise<string> {
     return this.storeService.get(
       `${
         this.storeKeyPrefix
-      }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${clientAppInstanceID}`
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`
     );
   }
 
   /**
    * Returns a string identifying the client app instance ID that is mapped to
    * the given channel app instance ID.
-   * @param channelAppInstanceID
+   * @param appInstanceIdentityHash
    */
   async getClientAppInstanceIDFromChannelAppInstanceID(
-    channelAppInstanceID: string
+    appInstanceIdentityHash: string
   ): Promise<string> {
     return this.storeService.get(
       `${
         this.storeKeyPrefix
-      }/${DB_NAMESPACE_CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${channelAppInstanceID}`
+      }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${appInstanceIdentityHash}`
     );
   }
 
@@ -122,13 +122,13 @@ export class Store {
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from pending to installed.
    * @param channel
-   * @param channelAppInstanceID
-   * @param clientAppInstanceID
+   * @param AppInstanceIdentityHash
+   * @param appInstanceId
    */
   async installAppInstance(
     appInstance: AppInstance,
     stateChannel: StateChannel,
-    clientAppInstanceID: string,
+    appInstanceId: string,
     appInstanceInfo: AppInstanceInfo
   ) {
     // TODO: give the right big numbers
@@ -148,27 +148,27 @@ export class Store {
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID}/${clientAppInstanceID}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`,
         value: appInstance.identityHash
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID}/${
+        }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${
           appInstance.identityHash
         }`,
-        value: clientAppInstanceID
+        value: appInstanceId
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
         value: null
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${clientAppInstanceID}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`,
         value: appInstanceInfo
       }
     ]);
@@ -179,37 +179,35 @@ export class Store {
    * app instances.
    * @param channel
    * @param proposedAppInstance
-   * @param clientAppInstanceID The ID to refer to this AppInstance before a
-   *        channelAppInstanceID can be created.
+   * @param appInstanceId The ID to refer to this AppInstance before a
+   *        AppInstanceIdentityHash can be created.
    */
   async addAppInstanceProposal(
     stateChannel: StateChannel,
     proposedAppInstance: ProposedAppInstanceInfo,
-    clientAppInstanceID: string
+    appInstanceId: string
   ) {
     await this.storeService.set([
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
         value: JSON.parse(JSON.stringify(proposedAppInstance))
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${clientAppInstanceID}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
         value: stateChannel.multisigAddress
       }
     ]);
   }
 
-  async getAppInstanceInfo(
-    clientAppInstanceID: string
-  ): Promise<AppInstanceInfo> {
+  async getAppInstanceInfo(appInstanceId: string): Promise<AppInstanceInfo> {
     return (await this.storeService.get(
       `${
         this.storeKeyPrefix
-      }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${clientAppInstanceID}`
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`
     )) as AppInstanceInfo;
   }
 
@@ -233,8 +231,8 @@ export class Store {
     const proposedAppInstancesJson = (await this.storeService.get(
       `${
         this.storeKeyPrefix
-      }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
-    )) as { [clientAppInstanceID: string]: ProposedAppInstanceInfoJSON };
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
+    )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
@@ -243,16 +241,16 @@ export class Store {
   }
 
   /**
-   * Returns the proposed AppInstance with the specified clientAppInstanceID.
+   * Returns the proposed AppInstance with the specified appInstanceId.
    */
   async getProposedAppInstanceInfo(
-    clientAppInstanceID: string
+    appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
     return ProposedAppInstanceInfo.fromJson(
       await this.storeService.get(
         `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${clientAppInstanceID}`
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
       )
     );
   }

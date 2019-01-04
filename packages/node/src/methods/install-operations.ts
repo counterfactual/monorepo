@@ -19,7 +19,7 @@ export async function proposeInstall(
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
-  const clientAppInstanceId = await channels.proposeInstall(params);
+  const appInstanceId = await channels.proposeInstall(params);
 
   // TODO: shouldn't sanitize here
   const sanitizedParams = JSON.parse(JSON.stringify(params));
@@ -28,7 +28,7 @@ export async function proposeInstall(
     event: Node.EventName.INSTALL,
     data: {
       ...sanitizedParams,
-      appInstanceId: clientAppInstanceId,
+      appInstanceId: appInstanceId,
       proposal: true
     }
   };
@@ -36,7 +36,7 @@ export async function proposeInstall(
   await messagingService.send(params.peerAddress, proposalMsg);
 
   return {
-    appInstanceId: clientAppInstanceId
+    appInstanceId: appInstanceId
   };
 }
 

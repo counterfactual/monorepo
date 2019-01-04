@@ -48,11 +48,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: AppState;
-  constructor(
-    clientAppInstanceId: string,
-    proposeParams: IProposedAppInstanceInfo
-  ) {
-    this.id = clientAppInstanceId;
+  constructor(appInstanceId: string, proposeParams: IProposedAppInstanceInfo) {
+    this.id = appInstanceId;
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
     this.asset = proposeParams.asset;

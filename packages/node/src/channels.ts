@@ -101,10 +101,10 @@ export class Channels {
   }
 
   async getPeersAddressFromClientAppInstanceID(
-    clientAppInstanceID: string
+    appInstanceId: string
   ): Promise<Address[]> {
     const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
-      clientAppInstanceID
+      appInstanceId
     );
     const stateChannel: StateChannel = await this.store.getChannelJSONFromStore(
       multisigAddress
@@ -133,20 +133,20 @@ export class Channels {
   }
 
   async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
-    const clientAppInstanceID = generateUUID();
+    const appInstanceId = generateUUID();
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
 
     const proposedAppInstance = new ProposedAppInstanceInfo(
-      clientAppInstanceID,
+      appInstanceId,
       params
     );
 
     await this.store.addAppInstanceProposal(
       channel,
       proposedAppInstance,
-      clientAppInstanceID
+      appInstanceId
     );
-    return clientAppInstanceID;
+    return appInstanceId;
   }
 
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
@@ -158,9 +158,9 @@ export class Channels {
       params.appInstanceId
     );
 
-    const clientAppInstanceID = params.appInstanceId;
+    const appInstanceId = params.appInstanceId;
     const appInstanceInfo = await this.store.getProposedAppInstanceInfo(
-      clientAppInstanceID
+      appInstanceId
     );
     const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
       appInstanceInfo,
@@ -170,7 +170,7 @@ export class Channels {
     await this.store.installAppInstance(
       appInstance,
       channel,
-      clientAppInstanceID,
+      appInstanceId,
       appInstanceInfo
     );
 
@@ -179,18 +179,18 @@ export class Channels {
 
   async setClientAppInstanceIDForProposeInstall(
     params: Node.InterNodeProposeInstallParams,
-    clientAppInstanceID: string
+    appInstanceId: string
   ) {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
     const proposedAppInstance = new ProposedAppInstanceInfo(
-      clientAppInstanceID,
+      appInstanceId,
       params
     );
 
     await this.store.addAppInstanceProposal(
       channel,
       proposedAppInstance,
-      clientAppInstanceID
+      appInstanceId
     );
   }
 
@@ -237,10 +237,10 @@ export class Channels {
   }
 
   private async getChannelFromClientAppInstanceID(
-    clientAppInstanceID: string
+    appInstanceId: string
   ): Promise<StateChannel> {
     const multisigAddress = await this.store.getMultisigAddressFromClientAppInstanceID(
-      clientAppInstanceID
+      appInstanceId
     );
     return await this.store.getChannelJSONFromStore(multisigAddress);
   }
@@ -305,12 +305,10 @@ export class Channels {
     const appInstanceInfos: AppInstanceInfo[] = [];
     for (const appInstanceJson of appInstancesJson) {
       const appInstance = AppInstance.fromJson(appInstanceJson);
-      const clientAppInstanceId = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
+      const appInstanceId = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
         appInstance.identityHash
       );
-      appInstanceInfos.push(
-        await this.store.getAppInstanceInfo(clientAppInstanceId)
-      );
+      appInstanceInfos.push(await this.store.getAppInstanceInfo(appInstanceId));
     }
     return appInstanceInfos;
   }
