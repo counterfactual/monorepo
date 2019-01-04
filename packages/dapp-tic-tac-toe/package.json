@@ -1,6 +1,6 @@
 {
-  "name": "tic-tac-toe",
-  "version": "0.1.0",
+  "name": "@counterfactual/dapp-tic-tac-toe",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
     "react": "^16.7.0",
@@ -11,7 +11,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
+    "test": "CI=true react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -22,5 +24,27 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "description": "> TODO: description",
+  "author": "Patience Tema Baron <patience.tema.baron@gmail.com>",
+  "homepage": "https://counterfactual.com",
+  "license": "MIT",
+  "main": "lib/dapp-tic-tac-toe.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/counterfactual/monorepo/issues"
+  }
 }

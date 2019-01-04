@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "declaration": false,
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "module": "esnext",
+    "jsx": "react",
+    "jsxFactory": "h",
+    // @types/mocha has a duplicate conflict, this is the suggested temp fix.
+    "skipLibCheck": true,
+  },
+  "include": [
+    "lib",
+    "src"
+  ]
+}
