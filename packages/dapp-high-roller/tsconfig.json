@@ -12,6 +12,7 @@
     "jsxFactory": "h",
     // @types/mocha has a duplicate conflict, this is the suggested temp fix.
     "skipLibCheck": true,
+    "types": []
   },
   "include": [
     "src"
