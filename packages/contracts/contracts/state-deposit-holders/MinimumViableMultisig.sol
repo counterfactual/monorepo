@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 import "../libs/LibSignature.sol";
 
@@ -31,7 +31,7 @@ contract MinimumViableMultisig is LibSignature {
 
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
-  function setup(address[] owners) public {
+  function setup(address[] memory owners) public {
     require(_owners.length == 0, "Contract hasn't been set up before");
     _owners = owners;
   }
@@ -48,9 +48,9 @@ contract MinimumViableMultisig is LibSignature {
   function execTransaction(
     address to,
     uint256 value,
-    bytes data,
+    bytes memory data,
     Operation operation,
-    bytes signatures
+    bytes memory signatures
   )
     public
   {
@@ -75,7 +75,7 @@ contract MinimumViableMultisig is LibSignature {
   function getTransactionHash(
     address to,
     uint256 value,
-    bytes data,
+    bytes memory data,
     Operation operation
   )
     public
@@ -92,7 +92,7 @@ contract MinimumViableMultisig is LibSignature {
   function getOwners()
     public
     view
-    returns (address[])
+    returns (address[] memory)
   {
     return _owners;
   }
@@ -102,7 +102,12 @@ contract MinimumViableMultisig is LibSignature {
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
   /// @param operation An `Operation` referring to the use of `CALL` or `DELEGATECALL`
-  function execute(address to, uint256 value, bytes data, Operation operation)
+  function execute(
+    address to,
+    uint256 value,
+    bytes memory data,
+    Operation operation
+  )
     internal
   {
     if (operation == Operation.Call)
@@ -116,7 +121,7 @@ contract MinimumViableMultisig is LibSignature {
   /// @param value The amount of ETH being sent in the transaction
   /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
-  function executeCall(address to, uint256 value, bytes data)
+  function executeCall(address to, uint256 value, bytes memory data)
     internal
     returns (bool success)
   {
@@ -129,7 +134,7 @@ contract MinimumViableMultisig is LibSignature {
   /// @param to The address the transaction is addressed to
   /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
-  function executeDelegateCall(address to, bytes data)
+  function executeDelegateCall(address to, bytes memory data)
     internal
     returns (bool success)
   {

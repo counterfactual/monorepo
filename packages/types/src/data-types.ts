@@ -12,6 +12,7 @@ export type AppInstanceInfo = {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
+  intermediaries?: Address[];
 };
 
 export type AppABIEncodings = {

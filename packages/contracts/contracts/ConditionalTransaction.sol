@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
@@ -17,7 +17,7 @@ contract ConditionalTransaction is LibCondition {
   using Transfer for Transfer.Transaction;
 
   function executeSimpleConditionalTransaction(
-    Condition condition,
+    Condition memory condition,
     Transfer.Transaction memory txn
   )
     public

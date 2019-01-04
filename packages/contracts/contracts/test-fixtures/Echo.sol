@@ -1,12 +1,16 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 
 
 contract Echo {
-  function helloWorld() external pure returns (string) {
+  function helloWorld() external pure returns (string memory)  {
     return "hello world";
   }
 
-  function helloWorldArg(string arg) external pure returns (string) {
+  function helloWorldArg(string calldata arg)
+    external
+    pure
+    returns (string memory)
+  {
     return arg;
   }
 

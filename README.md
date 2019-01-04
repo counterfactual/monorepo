@@ -31,7 +31,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Installing dependencies
 
-**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+**Make sure you have Yarn v1.10.1 installed or higher**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
 
 To install the dependencies:
 
@@ -76,5 +76,10 @@ To run all tests:
 ```shell
 yarn test
 ```
+
+### Patches
+
+We generate patches using the [`patch-package`](https://github.com/ds300/patch-package) tool with a workaround described in [this issue](https://github.com/ds300/patch-package/issues/42#issuecomment-435992316) for `yarn` workspaces.
+
 
 [counterfactual-discord-url]: https://counterfactual.com/chat

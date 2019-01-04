@@ -53,7 +53,7 @@
                 initialState: AppState
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
-        - `async proposeVirtualInstall({
+        - `async proposeInstallVirtual({
                 peerAddress: Address,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
@@ -61,7 +61,7 @@
                 initialState: AppState,
                 intermediaries: Address[]
            }): Promise<AppInstanceID>`
-           - [Node method](#method-proposevirtualinstall)
+           - [Node method](#method-proposeinstallvirtual)
 - `AppInstance`
     - Extends [`AppInstanceInfo` data type](#data-type-appinstanceinfo)
     - Properties
@@ -172,7 +172,7 @@ Result:
 Errors: (TODO)
 - Not enough funds
 
-### Method: `proposeVirtualInstall`
+### Method: `proposeInstallVirtual`
 
 Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
@@ -427,8 +427,6 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `isVirtual: boolean`
-    - Whether this app instance is virtual i.e. uses a metachannel
 - `intermediaries?: Address[]`
     - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
 

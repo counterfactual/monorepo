@@ -3,8 +3,9 @@ import { RouterHistory } from "@stencil/router";
 
 import { GameState, PlayerType } from "../../enums/enums";
 
-const DARK_PATH = "./assets/images/dice/Dark/Dice-Dark-0";
-const LIGHT_PATH = "./assets/images/dice/Light/Dice-Light-0";
+// dice sound effect attributions:
+// http://soundbible.com/182-Shake-And-Roll-Dice.html
+// http://soundbible.com/181-Roll-Dice-2.html
 
 @Component({
   tag: "app-game",
@@ -25,6 +26,9 @@ export class AppGame {
   @State() opponentRoll: number[] = [1, 1];
   @State() opponentScore: number = 0;
 
+  shakeAudio!: HTMLAudioElement;
+  rollAudio!: HTMLAudioElement;
+
   componentWillLoad() {
     this.myName = this.history.location.state.myName
       ? this.history.location.state.myName
@@ -34,15 +38,37 @@ export class AppGame {
       : this.betAmount;
   }
 
-  handleRoll(): void {
-    this.myRoll = [
+  generateRoll() {
+    return [
       1 + Math.floor(Math.random() * Math.floor(6)),
       1 + Math.floor(Math.random() * Math.floor(6))
     ];
-    this.opponentRoll = [
-      1 + Math.floor(Math.random() * Math.floor(6)),
-      1 + Math.floor(Math.random() * Math.floor(6))
-    ];
+  }
+
+  async animateRoll(roller): Promise<void> {
+    this.shakeAudio.loop = true;
+    this.shakeAudio.play();
+
+    for (let i = 0; i < 10; i += 1) {
+      this[roller] = this.generateRoll();
+
+      await new Promise(resolve =>
+        setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
+      );
+    }
+
+    this.shakeAudio.pause();
+    this.rollAudio.play();
+  }
+
+  async handleRoll(): Promise<void> {
+    await Promise.all([
+      this.animateRoll("myRoll"),
+      this.animateRoll("opponentRoll")
+    ]);
+
+    this.myRoll = this.generateRoll();
+    this.opponentRoll = this.generateRoll();
     const totalMyRoll = this.myRoll[0] + this.myRoll[1];
     const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
     if (totalMyRoll > totalOpponentRoll) {
@@ -68,13 +94,13 @@ export class AppGame {
   }
 
   render() {
-    return (
+    return [
       <div class="wrapper">
         <div class="game">
           <app-game-player
             playerName={this.opponentName}
             playerScore={this.opponentScore}
-            playerType={PlayerType.Dark}
+            playerType={PlayerType.Black}
             playerRoll={this.opponentRoll}
           />
           <app-game-status
@@ -84,7 +110,7 @@ export class AppGame {
           <app-game-player
             playerName={this.myName}
             playerScore={this.myScore}
-            playerType={PlayerType.Light}
+            playerType={PlayerType.White}
             playerRoll={this.myRoll}
           />
           {this.gameState === GameState.Play ? (
@@ -106,8 +132,18 @@ export class AppGame {
               </button>
             </div>
           )}
+
+          <div>
+            <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
+              <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
+            </audio>
+            <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
+              <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
+            </audio>
+          </div>
         </div>
-      </div>
-    );
+      </div>,
+      this.gameState === GameState.Won ? <app-game-coins /> : undefined
+    ];
   }
 }
