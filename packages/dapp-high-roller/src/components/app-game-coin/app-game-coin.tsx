@@ -41,13 +41,11 @@ export class AppGameCoin {
       setTimeout(resolve, 100 + Math.floor(Math.random() * 150))
     );
 
-    if (!this.animating) return;
-
     this.index += 1;
     if (this.index >= coinSets[this.set].length) this.index = 0;
     this.image = coinSets[this.set][this.index];
 
-    this.switchImage();
+    if (this.animating) this.switchImage();
   }
 
   render() {
