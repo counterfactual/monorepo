@@ -11,6 +11,10 @@ export default [
         format: "cjs"
       },
       {
+        file: pkg.module,
+        format: "esm"
+      },
+      {
         file: pkg.iife,
         format: "iife",
         name: "window.types"
