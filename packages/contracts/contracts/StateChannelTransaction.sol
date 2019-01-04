@@ -25,8 +25,8 @@ contract StateChannelTransaction is LibCondition {
     AppRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
-    bytes32 appIdentityHash,
     uint256 rootNonceExpectedValue,
+    bytes32 appIdentityHash,
     Transfer.Terms memory terms
   )
     public

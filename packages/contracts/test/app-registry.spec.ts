@@ -66,14 +66,14 @@ contract("AppRegistry", (accounts: string[]) => {
     );
 
     latestState = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.id))
+      (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
     latestNonce = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.id)).nonce;
+      (await appRegistry.functions.getAppChallenge(appInstance.identityHash)).nonce;
 
     isStateFinalized = async () =>
-      await appRegistry.functions.isStateFinalized(appInstance.id);
+      await appRegistry.functions.isStateFinalized(appInstance.identityHash);
 
     setStateAsOwner = (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
@@ -93,7 +93,7 @@ contract("AppRegistry", (accounts: string[]) => {
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: await wallet.signMessage(
           computeStateHash(
-            appInstance.id,
+            appInstance.identityHash,
             appState || HashZero,
             nonce,
             ONCHAIN_CHALLENGE_TIMEOUT
@@ -108,7 +108,7 @@ contract("AppRegistry", (accounts: string[]) => {
         timeout: 0,
         signatures: await wallet.signMessage(
           computeStateHash(
-            appInstance.id,
+            appInstance.identityHash,
             await latestState(),
             await latestNonce(),
             0

@@ -59,12 +59,12 @@ describe("StateChannel::uninstallApp", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    appIdentityHash = appInstance.id;
+    appIdentityHash = appInstance.identityHash;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
     const fb = sc1.getFreeBalanceFor(AssetType.ETH);
 
-    sc1 = sc1.setState(fb.id, {
+    sc1 = sc1.setState(fb.identityHash, {
       ...fb.state,
       aliceBalance: WeiPerEther,
       bobBalance: WeiPerEther

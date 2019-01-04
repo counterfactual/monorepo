@@ -103,7 +103,7 @@ function proposeStateTransition(
   context.operation = constructInstallOp(
     context.network,
     context.stateChannel,
-    appInstance.id
+    appInstance.identityHash
   );
 }
 

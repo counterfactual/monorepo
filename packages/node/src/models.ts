@@ -48,7 +48,7 @@ class FreeBalance {
  *  multisigAddress: Address,
  *  multisigOwners: Address[],
  *  rootNonce: Nonce,
- *  appInstances: Map<AppInstanceID,
+ *  appInstances: Map<AppInstanceIdentityHash>,
  *    appInstance: {
  *      id: string,
  *      appId: Address,
