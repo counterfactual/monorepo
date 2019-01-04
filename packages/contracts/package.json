@@ -17,7 +17,7 @@
     "lint:sol:fix": "yarn lint:sol --fix",
     "lint:sol": "solium -d .",
     "lint:ts:fix": "yarn lint:ts --fix",
-    "lint:ts": "tslint -c tslint.json -p .",
+    "lint:ts": "tslint -c tslint.json test/**/*.ts",
     "test:coverage": "solidity-coverage"
   },
   "keywords": [
