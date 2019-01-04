@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
@@ -50,7 +50,7 @@ contract TicTacToeApp {
     WinClaim winClaim;
   }
 
-  function turn(AppState state)
+  function turn(AppState memory state)
     public
     pure
     returns (uint256)
@@ -58,10 +58,10 @@ contract TicTacToeApp {
     return state.turnNum % 2;
   }
 
-  function applyAction(AppState state, Action action)
+  function applyAction(AppState memory state, Action memory action)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     AppState memory postState;
     if (action.actionType == ActionType.PLAY) {
@@ -85,10 +85,10 @@ contract TicTacToeApp {
     return abi.encode(postState);
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     require(state.winner != 0, "Winner was set to 0; invalid");
 
@@ -132,7 +132,7 @@ contract TicTacToeApp {
 
   }
 
-  function isStateTerminal(AppState state)
+  function isStateTerminal(AppState memory state)
     public
     pure
     returns (bool)
@@ -140,10 +140,15 @@ contract TicTacToeApp {
     return state.winner != GAME_IN_PROGRESS;
   }
 
-  function playMove(AppState state, uint256 playerId, uint256 x, uint256 y)
+  function playMove(
+    AppState memory state,
+    uint256 playerId,
+    uint256 x,
+    uint256 y
+  )
     internal
     pure
-    returns (AppState)
+    returns (AppState memory)
   {
     require(state.board[x][y] == 0, "playMove: square is not empty");
     require(
@@ -155,7 +160,7 @@ contract TicTacToeApp {
     return state;
   }
 
-  function assertBoardIsFull(AppState preState) 
+  function assertBoardIsFull(AppState memory preState)
     internal
     pure
   {
@@ -168,9 +173,13 @@ contract TicTacToeApp {
     }
   }
 
-  function assertWin(uint256 playerId, AppState state, WinClaim winClaim) 
-    internal 
-    pure 
+  function assertWin(
+    uint256 playerId,
+    AppState memory state,
+    WinClaim memory winClaim
+  )
+    internal
+    pure
   {
     uint256 expectedSquareState = playerId + 1;
     if (winClaim.winClaimType == WinClaimType.COL) {

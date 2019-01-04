@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -19,10 +19,10 @@ contract MixinSetResolution is
   /// @param terms The ABI encoded version of the already agreed upon terms
   /// @dev Note this function is only callable when the state channel is in an OFF state
   function setResolution(
-    AppIdentity appIdentity,
-    AppInterface appInterface,
-    bytes finalState,
-    bytes terms
+    AppIdentity memory appIdentity,
+    AppInterface memory appInterface,
+    bytes memory finalState,
+    bytes memory terms
   )
     public
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)

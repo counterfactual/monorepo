@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
@@ -21,7 +21,7 @@ contract NimApp {
     uint256[3] pileHeights;
   }
 
-  function isStateTerminal(AppState state)
+  function isStateTerminal(AppState memory state)
     public
     pure
     returns (bool)
@@ -29,7 +29,7 @@ contract NimApp {
     return isWin(state);
   }
 
-  function getTurnTaker(AppState state)
+  function getTurnTaker(AppState memory state)
     public
     pure
     returns (uint256)
@@ -37,10 +37,10 @@ contract NimApp {
     return state.turnNum % 2;
   }
 
-  function applyAction(AppState state, Action action)
+  function applyAction(AppState memory state, Action memory action)
     public
     pure
-    returns (bytes)
+    returns (bytes memory)
   {
     require(action.pileIdx < 3, "pileIdx must be 0, 1 or 2");
     require(
@@ -55,10 +55,10 @@ contract NimApp {
     return abi.encode(ret);
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     require(isWin(state), "Resolution state was not in a winning position");
     address loser = state.players[state.turnNum % 2];
@@ -82,7 +82,7 @@ contract NimApp {
     );
   }
 
-  function isWin(AppState state)
+  function isWin(AppState memory state)
     internal
     pure
     returns (bool)

@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
@@ -13,10 +13,10 @@ contract ETHBucket {
     uint256 bobBalance;
   }
 
-  function resolve(AppState state, Transfer.Terms terms)
+  function resolve(AppState memory state, Transfer.Terms memory terms)
     public
     pure
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = state.aliceBalance;

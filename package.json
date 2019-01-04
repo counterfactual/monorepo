@@ -20,7 +20,8 @@
     "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
-    "dev:playground": "lerna run start --parallel --scope=**/playground --scope=**/dapp-high-roller"
+    "dev:playground": "lerna run start --parallel --scope=**/playground --scope=**/dapp-high-roller",
+    "postinstall": "patch-package"
   },
   "keywords": [
     "ethereum",
@@ -28,13 +29,15 @@
     "state channels"
   ],
   "devDependencies": {
-    "lerna": "^3.4.3",
+    "lerna": "^3.8.4",
     "prettier": "1.15.3",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
     "tslint-plugin-prettier": "^2.0.0",
-    "typescript": "^3.1.3"
+    "typescript": "^3.1.3",
+    "patch-package": "^5.1.1",
+    "postinstall-postinstall": "^2.0.0"
   },
   "resolutions": {
     "**/tslint-microsoft-contrib": "^6.0.0"
