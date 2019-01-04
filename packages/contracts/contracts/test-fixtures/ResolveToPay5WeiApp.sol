@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
@@ -13,7 +13,7 @@ contract ResolveToPay5WeiApp {
   function getResolution()
     public
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = 5 wei;

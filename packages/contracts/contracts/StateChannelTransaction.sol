@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
@@ -26,12 +26,22 @@ contract StateChannelTransaction is LibCondition {
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     bytes32 appInstanceId,
-    Transfer.Terms terms
+    uint256 rootNonceExpectedValue,
+    Transfer.Terms memory terms
   )
     public
   {
     require(
-      !nonceRegistry.isFinalized(uninstallKey, 1),
+      nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(
+        // TODO: Allow ability to set timeout off-chain
+        nonceRegistry.computeKey(address(this), 100, 0x0),
+        rootNonceExpectedValue
+      ),
+      "Root nonce not finalized or finalized at an incorrect value"
+    );
+
+    require(
+      !nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
       "App has been uninstalled"
     );
 

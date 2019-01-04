@@ -122,6 +122,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         },
         false,
         stateChannel.numInstalledApps + 1,
+        stateChannel.rootNonceValue,
         state,
         0,
         freeBalanceETH.timeout // Re-use ETH FreeBalance timeout
@@ -172,7 +173,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.hashOfLatestState,
         freeBalanceETH.nonce,
         freeBalanceETH.timeout,
-        appInstance.appSeqNo
+        appInstance.appSeqNo,
+        stateChannel.rootNonceValue
       );
 
       const installTx = installCommitment.transaction([

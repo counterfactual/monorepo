@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -18,7 +18,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
   function getAppChallenge(bytes32 id)
     external
     view
-    returns (LibStateChannelApp.AppChallenge)
+    returns (LibStateChannelApp.AppChallenge memory)
   {
     return appStates[id];
   }
@@ -46,7 +46,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
   function getResolution(bytes32 id)
     external
     view
-    returns (Transfer.Transaction)
+    returns (Transfer.Transaction memory)
   {
     return appResolutions[id];
   }
