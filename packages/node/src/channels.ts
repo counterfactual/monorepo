@@ -184,7 +184,10 @@ export class Channels {
     clientAppInstanceID: string
   ) {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-    const proposedAppInstance = new ProposedAppInstanceInfo(params.id, params);
+    const proposedAppInstance = new ProposedAppInstanceInfo(
+      clientAppInstanceID,
+      params
+    );
 
     await this.store.addAppInstanceProposal(
       channel,
