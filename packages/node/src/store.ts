@@ -31,18 +31,23 @@ export class Store {
   // getters
 
   /**
-   * Returns a JSON object with the keys being the multisig addresses and the
-   * values being objects reflecting the StateChannel schema.
+   * Returns an object with the keys being the multisig addresses and the
+   * values being `StateChannel` instances.
    */
-  async getAllChannelsJSON(): Promise<{
-    [multisigAddress: string]: StateChannelJSON;
+  async getAllChannels(): Promise<{
+    [multisigAddress: string]: StateChannel;
   }> {
-    const channels = await this.storeService.get(
+    const channels = {};
+    const channelsJSON = (await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
-    );
-    if (!channels) {
+    )) as { [multisigAddress: string]: StateChannelJSON };
+
+    if (!channelsJSON) {
       console.log("No channels exist yet");
-      return {};
+    } else {
+      for (const entry of Object.entries(channelsJSON)) {
+        channels[entry[0]] = StateChannel.fromJson(entry[1]);
+      }
     }
     return channels;
   }

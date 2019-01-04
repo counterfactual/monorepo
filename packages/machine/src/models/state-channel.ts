@@ -79,7 +79,7 @@ export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    private readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
+    readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
     >([]),
