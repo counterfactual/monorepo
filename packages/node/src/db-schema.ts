@@ -1,12 +1,13 @@
 /**
  * Namespace under which the channels are stored.
  */
-export const CHANNEL = "channel";
+export const DB_NAMESPACE_CHANNEL = "channel";
 
 /**
  * Namespace providing a convenience lookup table from a set of owners to multisig address.
  */
-export const OWNERS_HASH_TO_MULTISIG_ADDRESS = "ownersHashToMultisigAddress";
+export const DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS =
+  "ownersHashToMultisigAddress";
 
 /**
  * clientAppInstanceID explanation:
@@ -31,33 +32,33 @@ export const OWNERS_HASH_TO_MULTISIG_ADDRESS = "ownersHashToMultisigAddress";
 /**
  * Namespace providing a convenience lookup table from clientAppInstanceID to multisig address.
  */
-export const CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
+export const DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
   "clientAppInstanceIDToMultisigAddress";
 
 /**
  * Namespace providing a lookup table from clientAppInstanceID to channelAppInstanceID.
  */
-export const CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID =
+export const DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_CHANNEL_APP_INSTANCE_ID =
   "clientAppInstanceIDToChannelAppInstanceId";
 
 /**
  * Namespace providing a lookup table from channelAppInstanceID to clientAppInstanceID.
  */
-export const CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID =
+export const DB_NAMESPACE_CHANNEL_APP_INSTANCE_ID_TO_CLIENT_APP_INSTANCE_ID =
   "channelAppInstanceIdToClientAppInstanceID";
 
 /**
  * Namespace providing a lookup table from a clientAppInstanceID to the AppInstance
  * that was proposed to be installed.
  */
-export const CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
+export const DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
   "clientAppInstanceIdToProposedAppInstance";
 
 /**
  * Namespace providing a lookup table from a clientAppInstanceID to the AppInstanceInfo
  * that was installed.
  */
-export const CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
+export const DB_NAMESPACE_CLIENT_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
   "clientAppInstanceIdToAppInstanceInfo";
 
 /**
