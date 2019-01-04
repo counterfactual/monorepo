@@ -1,5 +1,5 @@
 import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
-import { Wallet } from "ethers";
+import { Wallet } from "ethers/wallet";
 import { v4 as generateUUID } from "uuid";
 
 import { APP_INSTANCE_STATUS, Channel } from "./models";
