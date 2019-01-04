@@ -71,7 +71,7 @@ export class Store {
    */
   async getMultisigAddressFromClientAppInstanceID(
     appInstanceId: string
-  ): Promise<string> {
+  ): Promise<Address> {
     return this.storeService.get(
       `${
         this.storeKeyPrefix
@@ -80,11 +80,11 @@ export class Store {
   }
 
   /**
-   * Returns a string identifying the client app instance ID that is mapped to
-   * the given channel app instance ID.
+   * Returns a string identifying the `AppInstanceId` that is mapped to
+   * the given `appInstanceIdentityHash`.
    * @param appInstanceIdentityHash
    */
-  async getClientAppInstanceIDFromChannelAppInstanceID(
+  async getAppInstanceIDFromAppInstanceIdentityHash(
     appInstanceIdentityHash: string
   ): Promise<string> {
     return this.storeService.get(
@@ -108,7 +108,7 @@ export class Store {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
           stateChannel.multisigAddress
         }`,
-        value: Store.sanitize(stateChannel.toJson())
+        value: stateChannel.toJson()
       },
       {
         key: `${
@@ -126,11 +126,11 @@ export class Store {
    * @param channel
    * @param AppInstanceIdentityHash
    * @param appInstanceId
+   * @param appInstanceId
    */
   async installAppInstance(
     appInstance: AppInstance,
     stateChannel: StateChannel,
-    appInstanceId: string,
     appInstanceInfo: AppInstanceInfo
   ) {
     await this.storeService.set([
@@ -143,7 +143,9 @@ export class Store {
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${
+          appInstanceInfo.id
+        }`,
         value: appInstance.identityHash
       },
       {
@@ -152,18 +154,22 @@ export class Store {
         }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${
           appInstance.identityHash
         }`,
-        value: appInstanceId
+        value: appInstanceInfo.id
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+          appInstanceInfo.id
+        }`,
         value: null
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
+          appInstanceInfo.id
+        }`,
         value: appInstanceInfo
       }
     ]);
@@ -248,17 +254,5 @@ export class Store {
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
       )
     );
-  }
-
-  /**
-   * This removes any fields whose values are `undefined`, which are invalid
-   * JSON values.
-   * @param json
-   */
-  private static sanitize(json: StateChannelJSON) {
-    return {
-      ...json,
-      appInstances: JSON.parse(JSON.stringify(json.appInstances))
-    } as StateChannelJSON;
   }
 }

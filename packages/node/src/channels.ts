@@ -157,9 +157,8 @@ export class Channels {
       params.appInstanceId
     );
 
-    const appInstanceId = params.appInstanceId;
     const appInstanceInfo = await this.store.getProposedAppInstanceInfo(
-      appInstanceId
+      params.appInstanceId
     );
     const appInstance: AppInstance = this.createAppInstanceFromAppInstanceInfo(
       appInstanceInfo,
@@ -176,7 +175,6 @@ export class Channels {
     await this.store.installAppInstance(
       appInstance,
       updatedStateChannel,
-      appInstanceId,
       appInstanceInfo
     );
 
@@ -311,7 +309,7 @@ export class Channels {
     const appInstanceInfos: AppInstanceInfo[] = [];
     for (const appInstanceJson of appInstancesJson) {
       const appInstance = AppInstance.fromJson(appInstanceJson);
-      const appInstanceId = await this.store.getClientAppInstanceIDFromChannelAppInstanceID(
+      const appInstanceId = await this.store.getAppInstanceIDFromAppInstanceIdentityHash(
         appInstance.identityHash
       );
       appInstanceInfos.push(await this.store.getAppInstanceInfo(appInstanceId));
