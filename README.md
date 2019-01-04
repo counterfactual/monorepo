@@ -31,7 +31,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Installing dependencies
 
-**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+**Make sure you have Yarn v1.10.1 installed or higher**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
 
 To install the dependencies:
 
