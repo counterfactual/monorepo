@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
@@ -27,7 +27,7 @@ contract StateChannelTransaction is LibCondition {
     bytes32 uninstallKey,
     bytes32 appInstanceId,
     uint256 rootNonceExpectedValue,
-    Transfer.Terms terms
+    Transfer.Terms memory terms
   )
     public
   {

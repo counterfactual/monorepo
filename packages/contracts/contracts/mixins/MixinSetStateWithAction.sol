@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -37,10 +37,10 @@ contract MixinSetStateWithAction is
   // TODO: Docs
   /// @dev Note this function is only callable when the state channel is in an ON state
   function setStateWithAction(
-    AppIdentity appIdentity,
-    AppInterface appInterface,
-    SignedStateUpdate req,
-    SignedAction action
+    AppIdentity memory appIdentity,
+    AppInterface memory appInterface,
+    SignedStateUpdate memory req,
+    SignedAction memory action
   )
     public
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
@@ -102,8 +102,8 @@ contract MixinSetStateWithAction is
 
   function correctKeysSignedTheStateUpdate(
     bytes32 id,
-    address[] signingKeys,
-    SignedStateUpdate req
+    address[] memory signingKeys,
+    SignedStateUpdate memory req
   )
     private
     pure
@@ -119,11 +119,11 @@ contract MixinSetStateWithAction is
   }
 
   function correctKeySignedTheAction(
-    AppInterface appInterface,
-    address[] signingKeys,
+    AppInterface memory appInterface,
+    address[] memory signingKeys,
     uint256 disputeNonce,
-    SignedStateUpdate req,
-    SignedAction action
+    SignedStateUpdate memory req,
+    SignedAction memory action
   )
     private
     view

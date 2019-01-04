@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
@@ -20,8 +20,8 @@ contract MixinCancelChallenge is
   /// state; an indication of agreement of this state and valid to cancel a dispute
   /// @dev Note this function is only callable when the state channel is in a DISPUTE state
   function cancelChallenge(
-    AppIdentity appIdentity,
-    bytes signatures
+    AppIdentity memory appIdentity,
+    bytes memory signatures
   )
     // TODO: Uncomment when ABIEncoderV2 supports `external`
     //       ref: https://github.com/ethereum/solidity/issues/3199

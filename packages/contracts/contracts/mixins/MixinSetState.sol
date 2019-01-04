@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -33,8 +33,8 @@ contract MixinSetState is
   ///        applications state including the signatures of the users needed
   /// @dev This function is only callable when the state channel is in an ON state.
   function setState(
-    AppIdentity appIdentity,
-    SignedStateHashUpdate req
+    AppIdentity memory appIdentity,
+    SignedStateHashUpdate memory req
   )
     public
   {
@@ -74,8 +74,8 @@ contract MixinSetState is
 
   function correctKeysSignedTheStateUpdate(
     bytes32 id,
-    address[] signingKeys,
-    SignedStateHashUpdate req
+    address[] memory signingKeys,
+    SignedStateHashUpdate memory req
   )
     private
     pure
