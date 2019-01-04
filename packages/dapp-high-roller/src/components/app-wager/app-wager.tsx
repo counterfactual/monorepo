@@ -31,19 +31,19 @@ export class AppWager {
       cfjs
     );
 
-    await appFactory.proposeInstall({
-      // TODO: This should be provided by the Playground.
-      peerAddress: "0x0101010101010101010101010101010101010101",
-      asset: {
-        assetType: 0 /* AssetType.ETH */
-      },
-      // TODO: Do we assume the same bet for both parties?
-      peerDeposit: ethers.utils.parseEther(this.betAmount),
-      myDeposit: ethers.utils.parseEther(this.betAmount),
-      // TODO: Check the timeout.
-      timeout: 100,
-      initialState: null
-    });
+    // await appFactory.proposeInstall({
+    //   // TODO: This should be provided by the Playground.
+    //   peerAddress: "0x0101010101010101010101010101010101010101",
+    //   asset: {
+    //     assetType: 0 /* AssetType.ETH */
+    //   },
+    //   // TODO: Do we assume the same bet for both parties?
+    //   peerDeposit: ethers.utils.parseEther(this.betAmount),
+    //   myDeposit: ethers.utils.parseEther(this.betAmount),
+    //   // TODO: Check the timeout.
+    //   timeout: 100,
+    //   initialState: null
+    // });
 
     this.history.push({
       pathname: "/game",

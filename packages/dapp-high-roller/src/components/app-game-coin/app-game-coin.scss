@@ -1,0 +1,10 @@
+.coin {
+  position: absolute;
+  animation: fall infinite linear;
+  transform: translateY(-30vh);
+}
+
+@keyframes fall {
+	from { transform: translateY(-30vh); }
+	to { transform: translateY(130vh); }
+}
