@@ -38,9 +38,9 @@ contract MixinSetState is
   )
     public
   {
-    bytes32 id = computeAppIdentityHash(appIdentity);
+    bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[id];
+    AppChallenge storage challenge = appStates[identityHash];
 
     require(
       challenge.status == AppStatus.ON,
@@ -50,7 +50,7 @@ contract MixinSetState is
     if (msg.sender != appIdentity.owner) {
       require(
         correctKeysSignedTheStateUpdate(
-          id,
+          identityHash,
           appIdentity.signingKeys,
           req
         ),
@@ -73,7 +73,7 @@ contract MixinSetState is
   }
 
   function correctKeysSignedTheStateUpdate(
-    bytes32 id,
+    bytes32 identityHash,
     address[] memory signingKeys,
     SignedStateHashUpdate memory req
   )
@@ -82,7 +82,7 @@ contract MixinSetState is
     returns (bool)
   {
     bytes32 digest = computeStateHash(
-      id,
+      identityHash,
       req.stateHash,
       req.nonce,
       req.timeout

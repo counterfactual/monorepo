@@ -101,7 +101,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         bobBalance: WeiPerEther
       };
 
-      stateChannel = stateChannel.setState(freeBalanceETH.id, state);
+      stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
       const setStateCommitment = new SetStateCommitment(

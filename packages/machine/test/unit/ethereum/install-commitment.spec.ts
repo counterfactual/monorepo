@@ -52,7 +52,7 @@ describe("InstallCommitment", () => {
 
   // Set the state to some test values
   stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).id,
+    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
     {
       alice: stateChannel.multisigOwners[0],
       bob: stateChannel.multisigOwners[1],
@@ -229,14 +229,14 @@ describe("InstallCommitment", () => {
             appRegistryAddress,
             nonceRegistryAddress,
             uninstallKey,
-            appInstanceId,
             rootNonceValue,
+            appIdentityHash,
             terms
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
           expect(uninstallKey).toBe(appInstance.uninstallKey);
-          expect(appInstanceId).toBe(appIdentityToHash(appInstance.identity));
+          expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
           expect(rootNonceValue).toEqual(
             bigNumberify(appInstance.rootNonceValue)
           );
