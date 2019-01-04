@@ -1,7 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import cuid from "cuid";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
+import { v4 as generateUUID } from "uuid";
 
 import {
   IMessagingService,
@@ -100,7 +100,7 @@ describe("Node method follows spec - proposeInstall", () => {
           // some approval logic happens in this callback, we proceed
           // to approve the proposal, and install the app instance
           const installRequest: NodeTypes.MethodRequest = {
-            requestId: cuid(),
+            requestId: generateUUID(),
             type: NodeTypes.MethodName.INSTALL,
             params: {
               appInstanceId: msg.data.appInstanceId
