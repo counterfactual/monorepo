@@ -1,5 +1,5 @@
 import { Component, Prop } from "@stencil/core";
-import { MatchResults } from "@stencil/router";
+import { MatchResults, RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 
@@ -11,11 +11,27 @@ import CounterfactualTunnel from "../../data/counterfactual";
 export class AppRoot {
   // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
   @Prop() match: MatchResults;
+  @Prop() history: RouterHistory;
 
   nodeProvider: any;
   cfjs: any;
 
   componentWillLoad() {
+    if (
+      this.history &&
+      this.history.location &&
+      this.history.location.query &&
+      this.history.location.query.standalone
+    ) {
+      // This is supposed to work as per: https://stenciljs.com/docs/router-tutorials#route-query-parameters
+      // However this.history seems to always be undefined... Maybe because this is the root?
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("standalone")) {
+      return;
+    }
     // Using promise syntax because lifecycle events aren't
     // async/await-friendly.
     this.nodeProvider = new NodeProvider();
