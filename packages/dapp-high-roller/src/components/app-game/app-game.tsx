@@ -17,7 +17,7 @@ export class AppGame {
 
   @Prop({ mutable: true }) myName: string = "Facundo";
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
-  @Prop() opponentName: string = "John";
+  @Prop({ mutable: true }) opponentName: string = "John";
 
   @State() gameState: GameState = GameState.Play;
   @State() myRoll: number[] = [1, 1];
@@ -36,6 +36,9 @@ export class AppGame {
     this.betAmount = this.history.location.state.betAmount
       ? this.history.location.state.betAmount
       : this.betAmount;
+    this.opponentName = this.history.location.state.opponentName
+      ? this.history.location.state.opponentName
+      : this.opponentName;
   }
 
   generateRoll() {
