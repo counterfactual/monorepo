@@ -17,7 +17,7 @@ import CounterfactualTunnel from "../../data/counterfactual";
 export class AppWager {
   @Prop() history: RouterHistory;
 
-  @State() betAmount: string = "";
+  @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
   async handlePlay(e: Event, nodeProvider, cfjs): Promise<void> {
@@ -88,12 +88,16 @@ export class AppWager {
                   value={this.myName}
                   onInput={e => this.handleChange(e, "myName")}
                 />
+                <label htmlFor="betAmount">Bet Amount ( ETH )</label>
                 <input
                   class="form__input"
+                  id="betAmount"
                   type="number"
                   placeholder="3 ETH"
                   value={this.betAmount}
                   onInput={e => this.handleChange(e, "betAmount")}
+                  readonly={true}
+                  step="0.01"
                 />
                 <button class="form__button">
                   <div>Play!</div>
