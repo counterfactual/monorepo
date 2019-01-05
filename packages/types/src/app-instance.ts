@@ -10,7 +10,7 @@ export enum AssetType {
 export interface Terms {
   assetType: AssetType;
   limit: BigNumber;
-  token?: Address;
+  token: Address;
 }
 
 export interface Transaction {

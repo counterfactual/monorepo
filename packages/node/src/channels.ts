@@ -250,15 +250,14 @@ export class Channels {
       actionEncoding: appInstanceInfo.abiEncodings.actionEncoding
     };
 
+    // TODO: throw if asset type is ETH and token is also set
     const terms: Terms = {
       assetType: appInstanceInfo.asset.assetType,
-      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit)
+      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit),
+      token: appInstanceInfo.asset.token
+        ? appInstanceInfo.asset.token
+        : AddressZero
     };
-    if (appInstanceInfo.asset.token) {
-      terms.token = appInstanceInfo.asset.token;
-    } else {
-      terms.token = AddressZero;
-    }
 
     return new AppInstance(
       channel.multisigAddress,
