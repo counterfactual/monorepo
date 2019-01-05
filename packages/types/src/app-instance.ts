@@ -51,8 +51,8 @@ export interface SignedStateHashUpdate {
 }
 
 export interface ETHBucketAppState {
-  readonly alice: string;
-  readonly bob: string;
-  readonly aliceBalance: BigNumber;
-  readonly bobBalance: BigNumber;
+  alice: string;
+  bob: string;
+  aliceBalance: BigNumber;
+  bobBalance: BigNumber;
 }
