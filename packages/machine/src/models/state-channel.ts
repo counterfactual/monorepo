@@ -40,7 +40,7 @@ const ERRORS = {
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly multisigOwners: string[];
-  readonly appInstances: { [appInstanceId: string]: AppInstanceJson };
+  readonly appInstances: [string, AppInstanceJson][];
   readonly freeBalanceAppIndexes: [number, string][];
   readonly monotonicNumInstalledApps: number;
 };
@@ -276,35 +276,33 @@ export class StateChannel {
   }
 
   toJson(): StateChannelJSON {
-    const appInstanceJsons: { [appInstanceId: string]: AppInstanceJson } = {};
-    this.appInstances.forEach((appInstance: AppInstance) => {
-      appInstanceJsons[appInstance.identityHash] = appInstance.toJson();
-    });
-
-    const channelJSON = {
+    return {
       multisigAddress: this.multisigAddress,
       multisigOwners: this.multisigOwners,
-      appInstances: appInstanceJsons,
+      appInstances: [...this.appInstances.entries()].map(
+        (appInstanceEntry): [string, AppInstanceJson] => {
+          return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
+        }
+      ),
       freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
       monotonicNumInstalledApps: this.monotonicNumInstalledApps
     };
-    return channelJSON;
   }
 
   static fromJson(json: StateChannelJSON): StateChannel {
-    const appInstances: Map<string, AppInstance> = new Map();
-    if (json.appInstances) {
-      Object.entries(json.appInstances).forEach(appInstanceEntry => {
-        appInstances.set(
-          appInstanceEntry[0],
-          AppInstance.fromJson(appInstanceEntry[1])
-        );
-      });
-    }
     return new StateChannel(
       json.multisigAddress,
       json.multisigOwners,
-      appInstances,
+      new Map(
+        [...Object.values(json.appInstances)].map(
+          (appInstanceEntry): [string, AppInstance] => {
+            return [
+              appInstanceEntry[0],
+              AppInstance.fromJson(appInstanceEntry[1])
+            ];
+          }
+        )
+      ),
       new Map(json.freeBalanceAppIndexes),
       json.monotonicNumInstalledApps
     );
