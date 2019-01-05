@@ -28,8 +28,6 @@ export class Store {
     private readonly storeKeyPrefix: string
   ) {}
 
-  // getters
-
   /**
    * Returns an object with the keys being the multisig addresses and the
    * values being `StateChannel` instances.
@@ -93,8 +91,6 @@ export class Store {
       }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${appInstanceIdentityHash}`
     );
   }
-
-  // setters
 
   /**
    * This persists the initial state of a channel upon channel creation.

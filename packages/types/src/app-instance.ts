@@ -30,14 +30,14 @@ export interface AppIdentity {
   defaultTimeout: number;
 }
 
-export interface AppFunctionsSigHashes {
+export interface AppInterfaceSighashParameters {
   applyAction: string;
   resolve: string;
   getTurnTaker: string;
   isStateTerminal: string;
 }
 
-export interface AppInterface extends AppFunctionsSigHashes {
+export interface AppInterface extends AppInterfaceSighashParameters {
   addr: string;
   stateEncoding: string;
   actionEncoding: string | undefined;

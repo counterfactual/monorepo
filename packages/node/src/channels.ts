@@ -1,9 +1,9 @@
 import { AppInstance, StateChannel, TERMS } from "@counterfactual/machine";
 import {
   Address,
-  AppFunctionsSigHashes,
   AppInstanceInfo,
   AppInterface,
+  AppInterfaceSighashParameters,
   AssetType,
   NetworkContext,
   Node,
@@ -313,7 +313,7 @@ export class Channels {
 
   getAppFunctionSigHashes(
     appInstanceInfo: AppInstanceInfo
-  ): AppFunctionsSigHashes {
+  ): AppInterfaceSighashParameters {
     const stateEncoding = appInstanceInfo.abiEncodings.stateEncoding;
 
     const resolveSigHash = new Interface([
@@ -342,6 +342,6 @@ export class Channels {
       applyAction: applyActionSigHash,
       getTurnTaker: getTurnTakerSigHash,
       isStateTerminal: isStateTerminalSigHash
-    };
+    } as AppInterfaceSighashParameters;
   }
 }

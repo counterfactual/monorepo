@@ -1,7 +1,7 @@
 import {
-  AppFunctionsSigHashes,
   AppIdentity,
   AppInterface,
+  AppInterfaceSighashParameters,
   AssetType,
   ETHBucketAppState,
   SignedStateHashUpdate,
@@ -37,7 +37,7 @@ export {
   Address,
   AppABIEncodings,
   AppAction,
-  AppFunctionsSigHashes,
+  AppInterfaceSighashParameters,
   AppIdentity,
   AppInstanceID,
   AppInstanceInfo,
