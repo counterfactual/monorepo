@@ -36,7 +36,7 @@ export class AppWaiting {
 
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
-  @Prop() opponentName: string = "";
+  @Prop({ mutable: true }) opponentName: string = "";
   @Prop() shouldMatchmake: boolean = false;
   @State() seconds: number = 5;
 
@@ -59,14 +59,26 @@ export class AppWaiting {
         : this.history.location.query && this.history.location.query.betAmount
         ? this.history.location.query.betAmount
         : this.betAmount;
+    this.opponentName =
+      this.history.location.state && this.history.location.state.opponentName
+        ? this.history.location.state.opponentName
+        : this.history.location.query &&
+          this.history.location.query.opponentName
+        ? this.history.location.query.opponentName
+        : this.opponentName;
     if (
       this.history.location.state &&
       this.history.location.state.shouldMatchmake
     ) {
       this.countDown();
       matchmake(this.seconds * 1000).then(async (opponent: Player) => {
-        this.goToGame(opponent);
+        this.installAndGoToGame(opponent);
       });
+    } else {
+      this.countDown();
+      setTimeout(() => {
+        this.goToGame(this.opponentName);
+      }, this.seconds * 1000);
     }
   }
 
@@ -85,7 +97,7 @@ export class AppWaiting {
    * Alice(Accepting) approves the initiation. Playground calls CF.js install
    * Bob(Proposing) moves out of the waiting room and into the game
    */
-  async goToGame(opponent: Player) {
+  async installAndGoToGame(opponent: Player) {
     // const appFactory = new cf.AppFactory(
     //   // TODO: This probably should be in a configuration, somewhere.
     //   "0x1515151515151515151515151515151515151515",
@@ -106,14 +118,16 @@ export class AppWaiting {
     //   timeout: 100,
     //   initialState: null
     // });
-    console.log(opponent);
+    this.goToGame(opponent.name);
+  }
 
+  goToGame(opponentName: string) {
     this.history.push({
       pathname: "/game",
       state: {
+        opponentName,
         betAmount: this.betAmount,
-        myName: this.myName,
-        opponentName: opponent.name
+        myName: this.myName
       },
       query: {},
       key: ""

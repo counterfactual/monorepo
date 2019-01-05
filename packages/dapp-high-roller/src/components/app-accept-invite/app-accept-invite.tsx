@@ -33,7 +33,7 @@ export class AppAcceptInvite {
         : this.opponentName;
 
     this.history.push({
-      pathname: "/game",
+      pathname: "/waiting",
       state: {
         betAmount,
         myName,
