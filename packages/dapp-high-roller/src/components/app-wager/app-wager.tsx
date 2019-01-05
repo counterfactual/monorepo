@@ -9,6 +9,12 @@ import CounterfactualTunnel from "../../data/counterfactual";
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
 
+/**
+ * User Story
+ * 0.1 ETH is staked hard coded
+ * The username is retrieved from the Playground?
+ */
+
 @Component({
   tag: "app-wager",
   styleUrl: "app-wager.scss",
@@ -21,43 +27,46 @@ export class AppWager {
   @State() myName: string = "";
 
   componentWillLoad() {
-    if (
-      this.history &&
-      this.history.location &&
-      this.history.location.query &&
-      this.history.location.query.myName
-    ) {
+    if (this.history.location.query && this.history.location.query.myName) {
       this.myName = this.history.location.query.myName;
     }
   }
 
+  /**
+   * Bob(Proposing) clicks the Play! button. Wait for matchmaking to get an Accepting player. Call to Playground.
+   * Bob(Proposing) makes a call to CF.js proposeInstall.
+   * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
+   * @param e
+   * @param nodeProvider
+   * @param cfjs
+   */
   async handlePlay(e: Event, nodeProvider, cfjs): Promise<void> {
     e.preventDefault();
 
-    const appFactory = new cf.AppFactory(
-      // TODO: This probably should be in a configuration, somewhere.
-      "0x1515151515151515151515151515151515151515",
-      { actionEncoding: "uint256", stateEncoding: "uint256" },
-      cfjs
-    );
+    // const appFactory = new cf.AppFactory(
+    //   // TODO: This probably should be in a configuration, somewhere.
+    //   "0x1515151515151515151515151515151515151515",
+    //   { actionEncoding: "uint256", stateEncoding: "uint256" },
+    //   cfjs
+    // );
 
-    await appFactory.proposeInstall({
-      // TODO: This should be provided by the Playground.
-      peerAddress: "0x0101010101010101010101010101010101010101",
-      asset: {
-        assetType: 0 /* AssetType.ETH */
-      },
-      // TODO: Do we assume the same bet for both parties?
-      peerDeposit: ethers.utils.parseEther(this.betAmount),
-      myDeposit: ethers.utils.parseEther(this.betAmount),
-      // TODO: Check the timeout.
-      timeout: 100,
-      initialState: null
-    });
+    // await appFactory.proposeInstall({
+    //   // TODO: This should be provided by the Playground.
+    //   peerAddress: "0x0101010101010101010101010101010101010101",
+    //   asset: {
+    //     assetType: 0 /* AssetType.ETH */
+    //   },
+    //   // TODO: Do we assume the same bet for both parties?
+    //   peerDeposit: ethers.utils.parseEther(this.betAmount),
+    //   myDeposit: ethers.utils.parseEther(this.betAmount),
+    //   // TODO: Check the timeout.
+    //   timeout: 100,
+    //   initialState: null
+    // });
 
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     this.history.push({
-      pathname: "/game",
+      pathname: "/waiting",
       state: {
         betAmount: this.betAmount,
         myName: this.myName

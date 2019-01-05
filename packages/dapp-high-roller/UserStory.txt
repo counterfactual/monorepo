@@ -28,11 +28,11 @@ Merged:
 		4. Bob(Proposing) clicks Available Apps: High Roller. Is taken into High Roller dApp
 		5. Bob(Proposing) clicks the High Roller logo.
 		6. 0.01 ETH is staked hard coded
-		7. Bob(Proposing) clicks the Play! button. Wait for matchmatching to get an Accepting player. Call to Playground.
+		7. Bob(Proposing) clicks the Play! button. Wait for matchmaking to get an Accepting player. Call to Playground.
 		8. Bob(Proposing) makes a call to CF.js proposeInstall.
 		9. Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
 		10. Alice(Accepting) receives a notification that Bob(Proposing) has invited them to play High Roller
-		11. Alice(Accepting) approves the invititation. Playground calls CF.js install
+		11. Alice(Accepting) approves the initiation. Playground calls CF.js install
 		12. Bob(Proposing) moves out of the waiting room and into the game
 		
 		Need to allow, after accepting, to jump straight into a dapp using QP. Either into Waiting room or/then straight into the dapp. 

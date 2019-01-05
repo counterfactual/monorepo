@@ -51,6 +51,7 @@ export class AppRoot {
                 <stencil-route url="/" component="app-logo" exact={true} />
                 <stencil-route url="/wager" component="app-wager" />
                 <stencil-route url="/game" component="app-game" />
+                <stencil-route url="/waiting" component="app-waiting" />
               </stencil-route-switch>
             </stencil-router>
           </CounterfactualTunnel.Provider>
