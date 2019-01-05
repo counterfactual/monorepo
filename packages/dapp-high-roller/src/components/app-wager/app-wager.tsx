@@ -20,9 +20,19 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
+  componentWillLoad() {
+    if (
+      this.history &&
+      this.history.location &&
+      this.history.location.query &&
+      this.history.location.query.myName
+    ) {
+      this.myName = this.history.location.query.myName;
+    }
+  }
+
   async handlePlay(e: Event, nodeProvider, cfjs): Promise<void> {
     e.preventDefault();
-    // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
 
     const appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
@@ -45,6 +55,7 @@ export class AppWager {
       initialState: null
     });
 
+    // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     this.history.push({
       pathname: "/game",
       state: {
@@ -81,8 +92,10 @@ export class AppWager {
                 class="form"
                 onSubmit={e => this.handlePlay(e, nodeProvider, cfjs)}
               >
+                <label htmlFor="myName">Your Name</label>
                 <input
                   class="form__input"
+                  id="myName"
                   type="text"
                   placeholder="Your name"
                   value={this.myName}
