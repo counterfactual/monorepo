@@ -175,25 +175,26 @@ export class Store {
    * app instances.
    * @param stateChannel
    * @param proposedAppInstance
-   * @param appInstanceId The ID to refer to this AppInstance before a
-   *        AppInstanceIdentityHash can be created.
    */
   async addAppInstanceProposal(
     stateChannel: StateChannel,
-    proposedAppInstance: ProposedAppInstanceInfo,
-    appInstanceId: string
+    proposedAppInstance: ProposedAppInstanceInfo
   ) {
     await this.storeService.set([
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+          proposedAppInstance.id
+        }`,
         value: proposedAppInstance.toJson()
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
+          proposedAppInstance.id
+        }`,
         value: stateChannel.multisigAddress
       }
     ]);

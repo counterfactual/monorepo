@@ -94,9 +94,7 @@ export async function addAppInstance(
   params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    const appInstanceUUID = params.appInstanceId;
-    delete params.appInstanceId;
-    await channels.setAppInstanceIDForProposeInstall(params, appInstanceUUID);
+    await channels.setAppInstanceIDForProposeInstall(params);
   } else {
     await channels.install(params);
   }

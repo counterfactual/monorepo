@@ -136,11 +136,7 @@ export class Channels {
       params
     );
 
-    await this.store.addAppInstanceProposal(
-      channel,
-      proposedAppInstance,
-      appInstanceId
-    );
+    await this.store.addAppInstanceProposal(channel, proposedAppInstance);
     return appInstanceId;
   }
 
@@ -178,20 +174,15 @@ export class Channels {
   }
 
   async setAppInstanceIDForProposeInstall(
-    params: Node.InterNodeProposeInstallParams,
-    appInstanceId: string
+    params: Node.InterNodeProposeInstallParams
   ) {
     const channel = await this.getChannelFromPeerAddress(params.peerAddress);
     const proposedAppInstance = new ProposedAppInstanceInfo(
-      appInstanceId,
+      params.appInstanceId,
       params
     );
 
-    await this.store.addAppInstanceProposal(
-      channel,
-      proposedAppInstance,
-      appInstanceId
-    );
+    await this.store.addAppInstanceProposal(channel, proposedAppInstance);
   }
 
   // private utility methods

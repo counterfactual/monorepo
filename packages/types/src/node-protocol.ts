@@ -80,7 +80,7 @@ export namespace Node {
     initialState: AppState;
   };
   export interface InterNodeProposeInstallParams extends ProposeInstallParams {
-    id: string;
+    appInstanceId: AppInstanceID;
   }
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
