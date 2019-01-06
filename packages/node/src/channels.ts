@@ -305,21 +305,21 @@ export class Channels {
     const stateEncoding = appInstanceInfo.abiEncodings.stateEncoding;
 
     const resolveSigHash = new Interface([
-      `function resolve(${stateEncoding}, ${TERMS})`
+      `resolve(${stateEncoding}, ${TERMS})`
     ]).functions.resolve.sighash;
 
     const getTurnTakerSigHash = new Interface([
-      `function getTurnTaker(${stateEncoding})`
+      `getTurnTaker(${stateEncoding})`
     ]).functions.getTurnTaker.sighash;
 
     const isStateTerminalSigHash = new Interface([
-      `function isStateTerminal(${stateEncoding})`
+      `isStateTerminal(${stateEncoding})`
     ]).functions.isStateTerminal.sighash;
 
     let applyActionSigHash = "0x00000000";
     if (appInstanceInfo.abiEncodings.actionEncoding !== undefined) {
       applyActionSigHash = new Interface([
-        `function applyAction(${stateEncoding}, ${
+        `applyAction(${stateEncoding}, ${
           appInstanceInfo.abiEncodings.actionEncoding
         })`
       ]).functions.applyAction.sighash;
