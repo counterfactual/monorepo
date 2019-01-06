@@ -50,7 +50,7 @@ export class Channels {
    */
   async createMultisig(params: Node.CreateMultisigParams): Promise<Address> {
     const multisigAddress = this.generateNewMultisigAddress(params.owners);
-    let stateChannel: StateChannel = new StateChannel(
+    let stateChannel = new StateChannel(
       multisigAddress,
       params.owners
     ).setupChannel(this.networkContext);
@@ -101,9 +101,7 @@ export class Channels {
     const multisigAddress = await this.store.getMultisigAddressFromAppInstanceID(
       appInstanceId
     );
-    const stateChannel: StateChannel = await this.store.getStateChannel(
-      multisigAddress
-    );
+    const stateChannel = await this.store.getStateChannel(multisigAddress);
     const owners = stateChannel.multisigOwners;
     return owners.filter(owner => owner !== this.selfAddress);
   }
@@ -142,7 +140,7 @@ export class Channels {
 
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
     if (!params.appInstanceId) {
-      return Promise.reject("No AppInstance ID specified to install");
+      return Promise.reject("No AppInstanceId specified to install");
     }
 
     const stateChannel = await this.store.getChannelFromAppInstanceID(
@@ -184,8 +182,6 @@ export class Channels {
 
     await this.store.addAppInstanceProposal(channel, proposedAppInstance);
   }
-
-  // private utility methods
 
   private async getChannelFromPeerAddress(
     peerAddress: Address
@@ -237,25 +233,28 @@ export class Channels {
     proposedAppInstanceInfo: ProposedAppInstanceInfo,
     channel: StateChannel
   ): AppInstance {
-    const appInstanceInfo = { ...proposedAppInstanceInfo };
-    const appFunctionSigHashes = this.getAppFunctionSigHashes(appInstanceInfo);
+    const appFunctionSigHashes = this.getAppFunctionSigHashes(
+      proposedAppInstanceInfo
+    );
 
     const appInterface: AppInterface = {
-      addr: appInstanceInfo.appId,
+      addr: proposedAppInstanceInfo.appId,
       applyAction: appFunctionSigHashes.applyAction,
       resolve: appFunctionSigHashes.resolve,
       getTurnTaker: appFunctionSigHashes.getTurnTaker,
       isStateTerminal: appFunctionSigHashes.isStateTerminal,
-      stateEncoding: appInstanceInfo.abiEncodings.stateEncoding,
-      actionEncoding: appInstanceInfo.abiEncodings.actionEncoding
+      stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
+      actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
     };
 
     // TODO: throw if asset type is ETH and token is also set
     const terms: Terms = {
-      assetType: appInstanceInfo.asset.assetType,
-      limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit),
-      token: appInstanceInfo.asset.token
-        ? appInstanceInfo.asset.token
+      assetType: proposedAppInstanceInfo.asset.assetType,
+      limit: proposedAppInstanceInfo.myDeposit.add(
+        proposedAppInstanceInfo.peerDeposit
+      ),
+      token: proposedAppInstanceInfo.asset.token
+        ? proposedAppInstanceInfo.asset.token
         : AddressZero
     };
 
@@ -263,7 +262,7 @@ export class Channels {
       channel.multisigAddress,
       // TODO: generate ephemeral app-specific keys
       channel.multisigOwners,
-      appInstanceInfo.timeout.toNumber(),
+      proposedAppInstanceInfo.timeout.toNumber(),
       appInterface,
       terms,
       // TODO: pass correct value when virtual app support gets added
@@ -271,34 +270,33 @@ export class Channels {
       // TODO: this should be thread-safe
       channel.numInstalledApps,
       channel.rootNonceValue,
-      appInstanceInfo.initialState,
+      proposedAppInstanceInfo.initialState,
       0,
-      appInstanceInfo.timeout.toNumber()
+      proposedAppInstanceInfo.timeout.toNumber()
     );
   }
 
   async getAppInstanceInfoFromAppInstance(
     appInstances: AppInstance[]
   ): Promise<AppInstanceInfo[]> {
-    const appInstanceInfos: AppInstanceInfo[] = [];
-    for (const appInstance of appInstances) {
-      const appInstanceId = await this.store.getAppInstanceIDFromAppInstanceIdentityHash(
-        appInstance.identityHash
-      );
-      appInstanceInfos.push(await this.store.getAppInstanceInfo(appInstanceId));
-    }
-    return appInstanceInfos;
+    return await Promise.all(
+      appInstances.map<Promise<AppInstanceInfo>>(
+        async (appInstance: AppInstance): Promise<AppInstanceInfo> => {
+          const appInstanceId = await this.store.getAppInstanceIDFromAppInstanceIdentityHash(
+            appInstance.identityHash
+          );
+          return await this.store.getAppInstanceInfo(appInstanceId);
+        }
+      )
+    );
   }
 
   getNonFreeBalanceAppInstancesJSON(stateChannel: StateChannel): AppInstance[] {
-    const appInstances = stateChannel.appInstances;
-    const nonFreeBalanceAppInstances: AppInstance[] = [];
-    appInstances.forEach((appInstance, appInstanceIdentityHash) => {
-      if (!stateChannel.appInstanceIsFreeBalance(appInstanceIdentityHash)) {
-        nonFreeBalanceAppInstances.push(appInstance);
+    return [...stateChannel.appInstances.values()].filter(
+      (appInstance: AppInstance) => {
+        return !stateChannel.appInstanceIsFreeBalance(appInstance.identityHash);
       }
-    });
-    return nonFreeBalanceAppInstances;
+    );
   }
 
   getAppFunctionSigHashes(
