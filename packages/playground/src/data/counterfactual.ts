@@ -1,5 +1,9 @@
 import { IMessagingService, IStoreService } from "@counterfactual/node";
-import { Address, Node as NodeTypes } from "@counterfactual/types";
+import {
+  Address,
+  NetworkContext,
+  Node as NodeTypes
+} from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
 // Stencil from blowing up due to "member not exported" errors.
@@ -9,7 +13,8 @@ declare class Node {
     privateKey: string,
     messagingService: IMessagingService,
     storeService: IStoreService,
-    nodeConfig: { MULTISIG_KEY_PREFIX: string }
+    networkContext: NetworkContext,
+    nodeConfig: { STORE_KEY_PREFIX: string }
   );
   on(event: string, callback: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
@@ -30,12 +35,14 @@ export default class CounterfactualNode {
     privateKey: string;
     messagingService: IMessagingService;
     storeService: IStoreService;
-    nodeConfig: { MULTISIG_KEY_PREFIX: string };
+    networkContext: NetworkContext;
+    nodeConfig: { STORE_KEY_PREFIX: string };
   }): Node {
     CounterfactualNode.node = new Node(
       settings.privateKey,
       settings.messagingService,
       settings.storeService,
+      settings.networkContext,
       settings.nodeConfig
     );
 
