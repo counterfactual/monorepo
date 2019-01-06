@@ -11,25 +11,9 @@ import { BigNumber, BigNumberish } from "ethers/utils";
 import { Provider } from "./provider";
 import { EventType } from "./types";
 
-interface ProposeInstallParams {
-  peerAddress: Address;
-  asset: BlockchainAsset;
-  myDeposit: BigNumberish;
-  peerDeposit: BigNumberish;
-  timeout: BigNumberish;
-  initialState: AppState;
-}
-
-interface ProposeInstallVirtualParams {
-  peerAddress: Address;
-  asset: BlockchainAsset;
-  myDeposit: BigNumberish;
-  peerDeposit: BigNumberish;
-  timeout: BigNumberish;
-  initialState: AppState;
-  intermediaries: Address[];
-}
-
+/**
+ * @ignore
+ */
 function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
   try {
     return new BigNumber(val);
@@ -48,14 +32,43 @@ function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
   }
 }
 
+/**
+ * Proposes installations of a given app
+ */
 export class AppFactory {
+  /**
+   * Constructs a new instance
+   * @param appId Address of the on-chain contract containing the app logic.
+   * @param encodings ABI encodings to encode and decode the app's state and actions
+   * @param provider CFjs provider
+   */
   constructor(
     readonly appId: Address,
     readonly encodings: AppABIEncodings,
     readonly provider: Provider
   ) {}
 
-  async proposeInstall(params: ProposeInstallParams): Promise<AppInstanceID> {
+  /**
+   * Propose installation of a non-virtual app instance i.e. installed in direct channel between you and peer
+   *
+   * @async
+   * @param params Proposal parameters
+   * @return ID of proposed app instance
+   */
+  async proposeInstall(params: {
+    /** Address of peer to install instance with */
+    peerAddress: Address;
+    /** Asset to use for deposit */
+    asset: BlockchainAsset;
+    /** Amount to be deposited by you */
+    myDeposit: BigNumberish;
+    /** Amount to be deposited by peer */
+    peerDeposit: BigNumberish;
+    /** Number of blocks until an on-chain submitted state is considered final */
+    timeout: BigNumberish;
+    /** Initial state of app instance */
+    initialState: AppState;
+  }): Promise<AppInstanceID> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
@@ -77,9 +90,29 @@ export class AppFactory {
     return appInstanceId;
   }
 
-  async proposeInstallVirtual(
-    params: ProposeInstallVirtualParams
-  ): Promise<AppInstanceID> {
+  /**
+   * Propose installation of a virtual app instance i.e. routed through at least one intermediary node
+   *
+   * @async
+   * @param params Proposal parameters
+   * @return ID of proposed app instance
+   */
+  async proposeInstallVirtual(params: {
+    /** Address of peer to install instance with */
+    peerAddress: Address;
+    /** Asset to use for deposit */
+    asset: BlockchainAsset;
+    /** Amount to be deposited by you */
+    myDeposit: BigNumberish;
+    /** Amount to be deposited by peer */
+    peerDeposit: BigNumberish;
+    /** Number of blocks until an on-chain submitted state is considered final */
+    timeout: BigNumberish;
+    /** Initial state of app instance */
+    initialState: AppState;
+    /** List of intermediary peers to route installation through */
+    intermediaries: Address[];
+  }): Promise<AppInstanceID> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");

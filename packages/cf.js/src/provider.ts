@@ -17,20 +17,39 @@ import {
   UpdateStateEventData
 } from "./types";
 
+/**
+ * Milliseconds until a method request to the Node is considered timed out.
+ */
 const NODE_REQUEST_TIMEOUT = 1500;
 
+/**
+ * Provides convenience methods for interacting with a Counterfactual node
+ */
 export class Provider {
+  /** @ignore */
   private readonly requestListeners: {
     [requestId: string]: (msg: Node.Message) => void;
   } = {};
+  /** @ignore */
   private readonly eventEmitter = new EventEmitter();
+  /** @ignore */
   private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
 
+  /**
+   * Construct a new instance
+   * @param nodeProvider NodeProvider instance that enables communication with the Counterfactual node
+   */
   constructor(readonly nodeProvider: INodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
     this.setupAppInstanceEventListeners();
   }
 
+  /**
+   * Get all currently installed app instances
+   *
+   * @async
+   * @return Array of currently installed app instances
+   */
   async getAppInstances(): Promise<AppInstance[]> {
     const response = await this.callRawNodeMethod(
       Node.MethodName.GET_APP_INSTANCES,
@@ -44,6 +63,18 @@ export class Provider {
     );
   }
 
+  /**
+   * Install a non-virtual app instance given its ID.
+   *
+   * @note
+   * Installs non-virtual app instances i.e. in a direct channel between you and your peer.
+   * For virtual app instances use [[installVirtual]].
+   *
+   * @async
+   *
+   * @param appInstanceId ID of the app instance to be installed, generated using [[AppFactory.proposeInstall]]
+   * @return Installed AppInstance
+   */
   async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
       appInstanceId
@@ -52,6 +83,19 @@ export class Provider {
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 
+  /**
+   * Install a virtual app instance given its ID and a list of intermediaries.
+   *
+   * @note
+   * Installs virtual app instances i.e. routed through at least one intermediary channel.
+   * For non-virtual app instances use [[install]].
+   *
+   * @async
+   *
+   * @param appInstanceId ID of the app instance to be installed, generated with [[AppFactory.proposeInstallVirtual]].
+   * @param intermediaries Array of addresses of intermediary peers to route installation through
+   * @return Installed AppInstance
+   */
   async installVirtual(
     appInstanceId: AppInstanceID,
     intermediaries: Address[]
@@ -67,24 +111,57 @@ export class Provider {
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 
+  /**
+   * Reject installation of a proposed app instance
+   *
+   * @async
+   *
+   * @param appInstanceId ID of the app instance to reject
+   */
   async rejectInstall(appInstanceId: AppInstanceID) {
     await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
       appInstanceId
     });
   }
 
-  on(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.eventEmitter.on(eventName, callback);
+  /**
+   * Subscribe to event.
+   *
+   * @async
+   *
+   * @param eventType Event type to subscribe to.
+   * @param callback Function to be called when event is fired.
+   */
+  on(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.on(eventType, callback);
   }
 
-  once(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.eventEmitter.once(eventName, callback);
+  /**
+   * Subscribe to event. Unsubscribe once event is fired once.
+   *
+   * @param eventType Event type to subscribe to.
+   * @param callback Function to be called when event is fired.
+   */
+  once(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.once(eventType, callback);
   }
 
-  off(eventName: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.eventEmitter.off(eventName, callback);
+  /**
+   * Unsubscribe from event.
+   *
+   * @param eventType Event type to unsubscribe from.
+   * @param callback Original callback passed to subscribe call.
+   */
+  off(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.eventEmitter.off(eventType, callback);
   }
 
+  /**
+   * Call a Node method
+   *
+   * @param methodName Name of Node method to call
+   * @param params Method-specific parameter object
+   */
   async callRawNodeMethod(
     methodName: Node.MethodName,
     params: Node.MethodParams
@@ -132,6 +209,14 @@ export class Provider {
     });
   }
 
+  /**
+   * Get app instance given its ID.
+   * If one doesn't exist, it will be created and its details will be loaded from the Node.
+   *
+   * @param id ID of app instance
+   * @param info Optional info to be used to create app instance if it doesn't exist
+   * @return App instance
+   */
   async getOrCreateAppInstance(
     id: AppInstanceID,
     info?: AppInstanceInfo
@@ -152,6 +237,9 @@ export class Provider {
     return this.appInstances[id];
   }
 
+  /**
+   * @ignore
+   */
   private onNodeMessage(message: Node.Message) {
     const type = message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
@@ -163,6 +251,9 @@ export class Provider {
     }
   }
 
+  /**
+   * @ignore
+   */
   private handleNodeError(error: Node.Error) {
     const requestId = error.requestId;
     if (requestId && this.requestListeners[requestId]) {
@@ -172,6 +263,9 @@ export class Provider {
     this.eventEmitter.emit(error.type, error);
   }
 
+  /**
+   * @ignore
+   */
   private handleNodeMethodResponse(response: Node.MethodResponse) {
     const { requestId } = response;
     if (requestId in this.requestListeners) {
@@ -191,6 +285,9 @@ export class Provider {
     }
   }
 
+  /**
+   * @ignore
+   */
   private async handleNodeEvent(nodeEvent: Node.Event) {
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
@@ -210,6 +307,9 @@ export class Provider {
     }
   }
 
+  /**
+   * @ignore
+   */
   private handleUnexpectedEvent(nodeEvent: Node.Event) {
     const event = {
       type: EventType.ERROR,
@@ -223,6 +323,9 @@ export class Provider {
     return this.eventEmitter.emit(event.type, event);
   }
 
+  /**
+   * @ignore
+   */
   private async handleInstallEvent(nodeEvent: Node.Event) {
     const { appInstanceId } = nodeEvent.data as Node.InstallEventData;
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
@@ -235,6 +338,9 @@ export class Provider {
     return this.eventEmitter.emit(event.type, event);
   }
 
+  /**
+   * @ignore
+   */
   private async handleUninstallEvent(nodeEvent: Node.Event) {
     const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
     const appInstance = await this.getOrCreateAppInstance(info.id, info);
@@ -247,6 +353,9 @@ export class Provider {
     return this.eventEmitter.emit(event.type, event);
   }
 
+  /**
+   * @ignore
+   */
   private async handleUpdateStateEvent(nodeEvent: Node.Event) {
     const {
       appInstanceId,
@@ -267,6 +376,9 @@ export class Provider {
     return this.eventEmitter.emit(event.type, event);
   }
 
+  /**
+   * @ignore
+   */
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
@@ -280,6 +392,9 @@ export class Provider {
     return this.eventEmitter.emit(event.type, event);
   }
 
+  /**
+   * @ignore
+   */
   private setupAppInstanceEventListeners() {
     this.on(EventType.UPDATE_STATE, event => {
       const { appInstance } = event.data as UpdateStateEventData;
