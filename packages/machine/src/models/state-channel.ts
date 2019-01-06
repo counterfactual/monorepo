@@ -1,18 +1,19 @@
 import {
+  AppState,
   AssetType,
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
   freeBalanceTerms,
   getFreeBalanceAppInterface
 } from "../ethereum/utils/free-balance";
 
-import { AppInstance } from "./app-instance";
+import { AppInstance, AppInstanceJson } from "./app-instance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -34,6 +35,14 @@ const ERRORS = {
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
     "Attempted to install an appInstance without sufficient funds"
+};
+
+export type StateChannelJSON = {
+  readonly multisigAddress: string;
+  readonly multisigOwners: string[];
+  readonly appInstances: [string, AppInstanceJson][];
+  readonly freeBalanceAppIndexes: [number, string][];
+  readonly monotonicNumInstalledApps: number;
 };
 
 function createETHFreeBalance(
@@ -70,7 +79,7 @@ export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    private readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
+    readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
     >([]),
@@ -97,8 +106,23 @@ export class StateChannel {
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
 
+  public hasAppInstance(appInstanceId: string): boolean {
+    return this.appInstances.has(appInstanceId);
+  }
+
+  public appInstanceIsFreeBalance(appInstanceId: string): boolean {
+    if (!this.hasAppInstance(appInstanceId)) {
+      return false;
+    }
+    return new Set(this.freeBalanceAppIndexes.values()).has(appInstanceId);
+  }
+
   public isAppInstanceInstalled(appInstanceIdentityHash: string) {
     return this.appInstances.has(appInstanceIdentityHash);
+  }
+
+  public hasFreeBalanceFor(assetType: AssetType): boolean {
+    return this.freeBalanceAppIndexes.has(assetType);
   }
 
   public getFreeBalanceFor(assetType: AssetType): AppInstance {
@@ -112,7 +136,13 @@ export class StateChannel {
       throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!)}`);
     }
 
-    return this.appInstances.get(idx!)!;
+    const appInstanceJson = this.appInstances.get(idx!)!.toJson();
+    appInstanceJson.latestState = {
+      ...appInstanceJson.latestState,
+      aliceBalance: bigNumberify(appInstanceJson.latestState.aliceBalance),
+      bobBalance: bigNumberify(appInstanceJson.latestState.bobBalance)
+    };
+    return AppInstance.fromJson(appInstanceJson);
   }
 
   public setupChannel(network: NetworkContext) {
@@ -147,7 +177,7 @@ export class StateChannel {
     );
   }
 
-  public setState(appInstanceIdentityHash: string, state: object) {
+  public setState(appInstanceIdentityHash: string, state: AppState) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(
@@ -175,10 +205,10 @@ export class StateChannel {
     bobBalanceDecrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentState = fb.state as ETHBucketAppState;
+    const currentFBState = fb.state;
 
-    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceDecrement);
-    const bobBalance = currentState.bobBalance.sub(bobBalanceDecrement);
+    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
+    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
 
     if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
       throw Error(INSUFFICIENT_FUNDS);
@@ -196,7 +226,7 @@ export class StateChannel {
       .set(appInstance.identityHash, appInstance)
       .set(
         fb.identityHash,
-        fb.setState({ ...currentState, aliceBalance, bobBalance })
+        fb.setState({ ...currentFBState, aliceBalance, bobBalance })
       );
 
     return new StateChannel(
@@ -242,6 +272,39 @@ export class StateChannel {
       appInstances,
       freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
+    );
+  }
+
+  toJson(): StateChannelJSON {
+    return {
+      multisigAddress: this.multisigAddress,
+      multisigOwners: this.multisigOwners,
+      appInstances: [...this.appInstances.entries()].map(
+        (appInstanceEntry): [string, AppInstanceJson] => {
+          return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
+        }
+      ),
+      freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
+      monotonicNumInstalledApps: this.monotonicNumInstalledApps
+    };
+  }
+
+  static fromJson(json: StateChannelJSON): StateChannel {
+    return new StateChannel(
+      json.multisigAddress,
+      json.multisigOwners,
+      new Map(
+        [...Object.values(json.appInstances)].map(
+          (appInstanceEntry): [string, AppInstance] => {
+            return [
+              appInstanceEntry[0],
+              AppInstance.fromJson(appInstanceEntry[1])
+            ];
+          }
+        )
+      ),
+      new Map(json.freeBalanceAppIndexes),
+      json.monotonicNumInstalledApps
     );
   }
 }

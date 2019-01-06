@@ -1,7 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import cuid from "cuid";
 import dotenv from "dotenv";
 import FirebaseServer from "firebase-server";
+import { v4 as generateUUID } from "uuid";
 
 import {
   IMessagingService,
@@ -15,6 +15,7 @@ import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
+  EMPTY_NETWORK,
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstances,
@@ -44,13 +45,25 @@ describe("Node method follows spec - proposeInstall", () => {
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
     nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
   });
 
   beforeEach(() => {
-    nodeA = new Node(A_PRIVATE_KEY, messagingService, storeService, nodeConfig);
-    nodeB = new Node(B_PRIVATE_KEY, messagingService, storeService, nodeConfig);
+    nodeA = new Node(
+      A_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
+    nodeB = new Node(
+      B_PRIVATE_KEY,
+      messagingService,
+      storeService,
+      EMPTY_NETWORK,
+      nodeConfig
+    );
   });
 
   afterAll(() => {
@@ -87,7 +100,7 @@ describe("Node method follows spec - proposeInstall", () => {
           // some approval logic happens in this callback, we proceed
           // to approve the proposal, and install the app instance
           const installRequest: NodeTypes.MethodRequest = {
-            requestId: cuid(),
+            requestId: generateUUID(),
             type: NodeTypes.MethodName.INSTALL,
             params: {
               appInstanceId: msg.data.appInstanceId

@@ -56,6 +56,6 @@ export async function getChannelAddresses(
   nodeMsg: NodeMessage
 ): Promise<Node.GetChannelAddressesResult> {
   return {
-    multisigAddresses: await channels.getAddresses()
+    multisigAddresses: await channels.getAllChannelAddresses()
   };
 }

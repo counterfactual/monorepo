@@ -1,8 +1,8 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
-import cuid from "cuid";
 import dotenv from "dotenv";
 import { Wallet } from "ethers";
 import FirebaseServer from "firebase-server";
+import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
 import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
@@ -10,6 +10,7 @@ import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service"
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
+  EMPTY_NETWORK,
   getInstalledAppInstances,
   getNewMultisig,
   makeProposalRequest
@@ -33,7 +34,7 @@ describe("Node method follows spec - getAppInstances", () => {
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
     nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
   });
 
@@ -42,6 +43,7 @@ describe("Node method follows spec - getAppInstances", () => {
       A_PRIVATE_KEY,
       MOCK_MESSAGING_SERVICE,
       storeService,
+      EMPTY_NETWORK,
       nodeConfig
     );
   });
@@ -75,11 +77,11 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // third, the pending app instance needs to be installed
     // its installation request will be the callback to the proposal response
-    const installAppInstanceRequestId = cuid();
+    const installAppInstanceRequestId = generateUUID();
     let installedAppInstance: AppInstanceInfo;
 
     // fourth, a call to get app instances can be made
-    const getAppInstancesRequestId = cuid();
+    const getAppInstancesRequestId = generateUUID();
     const getAppInstancesRequest: NodeTypes.MethodRequest = {
       requestId: getAppInstancesRequestId,
       type: NodeTypes.MethodName.GET_APP_INSTANCES,

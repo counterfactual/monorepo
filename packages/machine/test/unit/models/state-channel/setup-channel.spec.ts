@@ -79,7 +79,7 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should use the multisig owners as the signing keys", () => {
-      expect(fb.signingKeys).toBe(sc2.multisigOwners);
+      expect(fb.signingKeys).toEqual(sc2.multisigOwners);
     });
 
     it("should use the ETHBucketApp as the app target", () => {
@@ -108,8 +108,8 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have 0 balances for Alice and Bob", () => {
       const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
-      expect(aliceBalance).toBe(Zero);
-      expect(bobBalance).toBe(Zero);
+      expect(aliceBalance).toEqual(Zero);
+      expect(bobBalance).toEqual(Zero);
     });
   });
 });

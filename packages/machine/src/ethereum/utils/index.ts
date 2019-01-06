@@ -1,3 +1,5 @@
 import { EthereumCommitment } from "../types";
 
-export { EthereumCommitment };
+import { TERMS } from "./encodings";
+
+export { EthereumCommitment, TERMS };
