@@ -1,7 +1,7 @@
 // TODO: Probably merge this file with ./types.ts
 
 import { AppInterface, Terms } from "@counterfactual/types";
-import { BigNumber, Signature } from "ethers/utils";
+import { BigNumber, BigNumberish, Signature } from "ethers/utils";
 
 import { Protocol } from "./types";
 
@@ -13,7 +13,7 @@ import { Protocol } from "./types";
 // todo(ldct): top-level arrays are probably illegal since they are not
 // structs...
 export type AppState = {
-  [x: string]: string | number | boolean | AppState | AppStateArray;
+  [x: string]: string | BigNumberish | boolean | AppState | AppStateArray;
 };
 
 // Ideally this should be a `type` not an `interface` but self-referencial
@@ -34,7 +34,7 @@ export type ProtocolMessage = {
 export type SetupParams = {};
 
 export type UpdateData = {
-  appInstanceId: string;
+  appIdentityHash: string;
   newState: AppState;
 };
 
@@ -49,7 +49,7 @@ export type InstallParams = {
 };
 
 export type UninstallParams = {
-  appInstanceId: string;
+  appIdentityHash: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
 };

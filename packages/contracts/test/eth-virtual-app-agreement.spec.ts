@@ -18,7 +18,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
   let appRegistry: Contract;
   let virtualAppAgreement: Contract;
   let fixedResolutionApp: Contract;
-  let appInstanceId: string;
+  let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
   /// FixedResolutionApp with random beneficiaries
@@ -59,7 +59,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           limit: 0,
           token: AddressZero
         },
-        appInstanceId: resolutionAddr
+        appIdentityHash: resolutionAddr
       }
     ]);
 
@@ -153,7 +153,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
       defaultTimeout: 10
     };
 
-    appInstanceId = keccak256(
+    appIdentityHash = keccak256(
       defaultAbiCoder.encode(
         [
           `tuple(
@@ -192,7 +192,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
       const beneficiaries = await delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
-        appInstanceId,
+        appIdentityHash,
         0,
         bigNumberify(10),
         0
@@ -223,7 +223,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          appInstanceId,
+          appIdentityHash,
           (await provider.getBlockNumber()) + 10,
           bigNumberify(10),
           0
@@ -237,7 +237,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          appInstanceId,
+          appIdentityHash,
           0,
           bigNumberify(2),
           0
@@ -251,7 +251,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
         delegatecallVirtualAppAgreement(
           virtualAppAgreement,
           appRegistry,
-          appInstanceId,
+          appIdentityHash,
           0,
           bigNumberify(10),
           1

@@ -57,7 +57,7 @@ describe("Uninstall Commitment", () => {
 
   // Set the state to some test values
   stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).id,
+    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
     {
       alice: stateChannel.multisigOwners[0],
       bob: stateChannel.multisigOwners[1],

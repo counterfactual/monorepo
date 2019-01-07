@@ -20,8 +20,15 @@ export enum AppInstanceEventType {
   ERROR = "error"
 }
 
+/**
+ * Represents an installed app instance
+ */
 export class AppInstance {
+  /**
+   * Unique ID of this app instance.
+   */
   readonly id: AppInstanceID;
+
   readonly appId: Address;
   readonly abiEncodings: AppABIEncodings;
   readonly asset: BlockchainAsset;
@@ -42,10 +49,19 @@ export class AppInstance {
     this.intermediaries = info.intermediaries;
   }
 
+  /**
+   * Whether this app is virtual i.e. installation was routed through intermediaries
+   */
   get isVirtual(): boolean {
     return !!(this.intermediaries && this.intermediaries.length !== 0);
   }
 
+  /**
+   * Get latest state of this app instance
+   *
+   * @async
+   * @return JSON representation of latest state
+   */
   async getState(): Promise<AppState> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
@@ -57,6 +73,15 @@ export class AppInstance {
     return result.state;
   }
 
+  /**
+   * Take an action on the state, modifying it.
+   *
+   * @note Throws an error if action is illegal given the latest state.
+   *
+   * @async
+   * @param action Action to take
+   * @return JSON representation of latest state after applying the action
+   */
   async takeAction(action: AppAction): Promise<AppState> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
@@ -70,12 +95,23 @@ export class AppInstance {
   }
 
   // FIXME: uninstall() should return details about payout. What should they look like?
+  /**
+   * Uninstall this app instance
+   *
+   * @async
+   */
   async uninstall() {
     await this.provider.callRawNodeMethod(Node.MethodName.UNINSTALL, {
       appInstanceId: this.id
     });
   }
 
+  /**
+   * Subscribe to event.
+   *
+   * @param eventType Event type to subscribe to.
+   * @param callback Function to be called when event is fired.
+   */
   on(
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
@@ -83,6 +119,12 @@ export class AppInstance {
     this.eventEmitter.on(eventType, callback);
   }
 
+  /**
+   * Subscribe to event. Unsubscribe once event is fired once.
+   *
+   * @param eventType Event type to subscribe to.
+   * @param callback Function to be called when event is fired.
+   */
   once(
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
@@ -90,6 +132,12 @@ export class AppInstance {
     this.eventEmitter.once(eventType, callback);
   }
 
+  /**
+   * Unsubscribe from event.
+   *
+   * @param eventType Event type to unsubscribe from.
+   * @param callback Original callback passed to subscribe call.
+   */
   off(
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
@@ -97,6 +145,9 @@ export class AppInstance {
     this.eventEmitter.off(eventType, callback);
   }
 
+  /**
+   * @ignore
+   */
   emit(eventType: AppInstanceEventType, event: CounterfactualEvent) {
     this.eventEmitter.emit(eventType, event);
   }

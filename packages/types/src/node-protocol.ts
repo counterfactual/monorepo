@@ -79,6 +79,9 @@ export namespace Node {
     timeout: BigNumber;
     initialState: AppState;
   };
+  export interface InterNodeProposeInstallParams extends ProposeInstallParams {
+    appInstanceId: AppInstanceID;
+  }
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };

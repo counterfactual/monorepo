@@ -1,3 +1,4 @@
+import { NetworkContext } from "@counterfactual/types";
 import { Component } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
@@ -71,12 +72,23 @@ export class NodeListener {
     );
     const storeService = serviceProvider.createStoreService("storage");
 
+    const addressZero = "0x0000000000000000000000000000000000000000";
+    const networkContext: NetworkContext = {
+      AppRegistry: addressZero,
+      ETHBalanceRefund: addressZero,
+      ETHBucket: addressZero,
+      MultiSend: addressZero,
+      NonceRegistry: addressZero,
+      StateChannelTransaction: addressZero
+    };
+
     CounterfactualNode.create({
       privateKey,
       messagingService,
       storeService,
+      networkContext,
       nodeConfig: {
-        MULTISIG_KEY_PREFIX: "multisig"
+        STORE_KEY_PREFIX: "store"
       }
     });
   }

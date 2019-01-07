@@ -8,3 +8,11 @@
 	from { transform: translateY(-30vh); }
 	to { transform: translateY(130vh); }
 }
+
+
+@media screen and (max-width: 600px) {
+  .coin {
+    height: 66px;
+    width: 66px;
+  }
+}

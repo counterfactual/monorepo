@@ -64,21 +64,21 @@ function proposeStateTransition(
   context: Context,
   state: StateChannel
 ) {
-  const { appInstanceId, newState } = message.params as UpdateData;
-  context.stateChannel = state.setState(appInstanceId, newState);
+  const { appIdentityHash, newState } = message.params as UpdateData;
+  context.stateChannel = state.setState(appIdentityHash, newState);
   context.operation = constructUpdateOp(
     context.network,
     context.stateChannel,
-    appInstanceId
+    appIdentityHash
   );
 }
 
 export function constructUpdateOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  appInstanceId: string
+  appIdentityHash: string
 ) {
-  const app = stateChannel.getAppInstance(appInstanceId);
+  const app = stateChannel.getAppInstance(appIdentityHash);
 
   return new SetStateCommitment(
     network,

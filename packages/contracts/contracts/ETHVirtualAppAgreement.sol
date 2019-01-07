@@ -26,7 +26,7 @@ contract ETHVirtualAppAgreement {
     AppRegistry registry;
     Transfer.Terms terms;
     uint256 expiry;
-    bytes32 appInstanceId;
+    bytes32 appIdentityHash;
     uint256 capitalProvided;
     address[2] beneficiaries;
   }
@@ -38,7 +38,7 @@ contract ETHVirtualAppAgreement {
     );
 
     Transfer.Transaction memory resolution = agreement.registry
-      .getResolution(agreement.appInstanceId);
+      .getResolution(agreement.appIdentityHash);
 
     require(
       agreement.terms.assetType == resolution.assetType,

@@ -1,0 +1,459 @@
+/*********************
+Variables
+**********************/
+:root {
+  /* Colors */
+  --primary: #375163;
+  --secondary: #4DCDEF;
+  --white: #fff;
+
+  /* Font Sizes */
+  --f-rem: 16px;
+  --f-xl: 1.75rem;
+  --f-title: 1.5rem;
+  --f-md: 1.375rem;
+  --f-body: 1.125rem;
+
+  --f-reg: 500;
+  --f-bold: 700;
+  --f-extra-bold: 900;
+
+  /* Measurements */
+  --app-width: 20rem;
+}
+
+
+
+/**********************
+Box Sizing
+**********************/
+html {
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+
+
+/**********************
+Resets
+**********************/
+body {
+  position: relative;
+  margin: 0;
+  font-family: 'Dosis', sans-serif;
+  color: var(--white);
+  background: var(--primary);
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: inset 0 0 200px 10px rgba(0, 0, 0, 0.65);
+  font-size: var(--f-rem);
+}
+
+body::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('./assets/images/texture.svg');
+  background-repeat: repeat;
+  content: '';
+  z-index: -1;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 1rem 0;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: 'Dosis', sans-serif;
+}
+
+input {
+  background: none;
+  border: 0;
+  font-family: 'Dosis', sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+
+
+/**********************
+Typography 
+**********************/
+.f-xl {
+  font-size: var(--f-xl);
+}
+
+.f-title {
+  font-size: var(--f-title);
+}
+
+.f-body {
+  font-size: var(--f-body);
+}
+
+
+
+/**********************
+Wrappers - sets playable app area
+**********************/
+.App {
+  position: relative;
+  max-width: var(--app-width);
+  height: 100vh;
+  margin: 0 auto;
+}
+
+.wager {  /* sets padding around wager screen */
+  padding: 4rem 2rem 2rem;
+}
+
+.game { /* sets padding around game screen */
+  padding: 1.5rem 1.5rem 0;
+}
+
+
+
+/**********************
+Welcome Screen 
+**********************/
+.welcome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-height: 50rem;
+  margin: 0 auto;
+}
+
+.welcome__logo {
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+}
+
+.welcome__logo > svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
+/**********************
+Message
+**********************/
+.message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.message > svg {
+  width: 3.75rem;
+  height: 3.75rem;
+  margin: 0 auto;
+}
+
+.message__title {
+  margin: 1rem 0 0;
+  font-size: var(--f-title);
+  text-transform: uppercase;
+}
+
+.message__body {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: var(--f-body);
+}
+
+
+
+/**********************
+Forms
+**********************/
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form > * + * {
+  margin-top: 0.5rem;
+}
+
+.form__input {
+  width: 100%;
+  padding: 0.68rem 1.3rem;
+  background: #375163;
+  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0,0,0,0.50);
+  border-radius: 6px;
+  font-size: var(--f-rem);
+  font-weight: var(--f-bold);
+  color: var(--white);
+  letter-spacing: 0.47px;
+}
+
+.form__input::placeholder {
+  color: var(--white);
+}
+
+.form__button {
+  position: relative;
+  align-self: center;
+  width: 10rem;
+  margin-top: 1.5rem;
+  padding: 0.68rem 1.3rem; 
+  background: var(--secondary);
+  border: 1px solid #0FA9D2;
+  box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.40);
+  border-radius: 6px;
+  font-size: var(--f-rem);
+  font-weight: var(--f-bold);
+  color: var(--white);
+  letter-spacing: 0.47px;
+  text-align: center;
+}
+
+
+
+/**********************
+Game Screen - Winning Screen
+**********************/
+/* If game is won */
+.game::after {
+  /* display: none; @TODO: Conditional logic is needed to show coins when game is won */
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: calc(100% - 2rem);
+  background-image: url('./assets/images/coins.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  content: '';
+  z-index: 0;
+}
+
+
+
+/**********************
+Game Screen - Player Info
+**********************/
+.player {
+  position: relative;
+  width: calc(100% - 2.5rem);
+  margin: 0 auto 1rem;
+  border: 1px solid #406077;
+  border-radius: 18px;
+  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0,0,0,0.50);
+  background: #375163;
+  letter-spacing: 0.59px;
+  text-align: center;
+}
+
+.player::before {
+  position: absolute;
+  top: 50%;
+  left: -1.25rem;
+  width: calc(100% + 2.5rem);
+  height: 1px;
+  background: #406077;
+  content: '';
+  z-index: -1;
+}
+
+.player__status {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.25rem 1rem;
+  text-transform: uppercase;
+  font-weight: var(--f-extra-bold);
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.player__status--turn {
+  justify-content: center;
+}
+
+.player__status--won > .result {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: #F2D549;
+}
+
+.player__status--won > .result > * + * {
+  color: var(--white);
+}
+
+.player__status--lost {
+  background: #AD071C;
+  box-shadow: inset 0 -1px 0 0 rgba(255,255,255,0.30), inset 0 0 6px 0 rgba(0,0,0,0.50);
+  border-radius: 18px;
+}
+
+.player__status--lost > .result {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+
+
+/**********************
+Game Screen - Timer
+**********************/
+.timer {
+  font-size: var(--f-body);
+  font-weight: var(--f-bold);
+  text-align: center;
+}
+
+
+
+/**********************
+Game Screen - Board
+**********************/
+.board {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.board > .board-row + .board-row {
+  border-top: 2px solid #547791;
+}
+
+.board-row > .square + .square {
+  border-left: 2px solid #547791;
+}
+
+.board-row {
+  display: flex;
+}
+
+.square {
+  position: relative;
+  width: calc(100% / 3);
+  height: 0;
+  padding-top: calc(100% / 3);
+}
+
+.square > svg { /* Styles player marker, when squares are clicked */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  height: 85%;
+}
+
+.btn {
+  position: relative;
+  display: block;
+  margin: 4rem auto 0;
+  width: 10rem;
+  padding: 0.68rem 1.3rem; 
+  background: var(--secondary);
+  border: 1px solid #0FA9D2;
+  box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.40);
+  border-radius: 6px;
+  font-size: var(--f-rem);
+  font-weight: var(--f-bold);
+  color: var(--white);
+  letter-spacing: 0.47px;
+  text-align: center;
+}
+
+
+
+/**********************
+Game Screen - Strike Through
+**********************/
+.strike-through { /* relative to '.board' */ 
+  position: absolute;
+  height: 95%;
+}
+
+/* verticle wins */
+.strike-through.left-verticle {
+  top: 50%;
+  left: calc(100% / 6);
+  transform: translate(-50%, -50%);
+}
+
+.strike-through.mid-verticle {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.strike-through.right-verticle {
+  top: 50%;
+  right: calc(100% / 9);
+  transform: translate(-50%, -50%);
+}
+
+/* horizontal wins */
+.strike-through.top-horizontal {
+  top: calc(100% / 6);
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.strike-through.mid-horizontal {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.strike-through.bottom-horizontal {
+  top: calc(100% / 1.25);
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+/* diagonal wins */
+.strike-through.left-diagonal {
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.strike-through.right-diagonal {
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}

@@ -19,14 +19,18 @@ export async function proposeInstall(
   messagingService: IMessagingService,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
-  const uuid = await channels.proposeInstall(params);
+  if (params.abiEncodings.actionEncoding === undefined) {
+    delete params.abiEncodings.actionEncoding;
+  }
+
+  const appInstanceId = await channels.proposeInstall(params);
 
   const proposalMsg: NodeMessage = {
     from: channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
       ...params,
-      appInstanceId: uuid,
+      appInstanceId,
       proposal: true
     }
   };
@@ -34,7 +38,7 @@ export async function proposeInstall(
   await messagingService.send(params.peerAddress, proposalMsg);
 
   return {
-    appInstanceId: uuid
+    appInstanceId
   };
 }
 
@@ -53,7 +57,7 @@ export async function install(
   const appInstance = await channels.install(params);
   const appInstanceUUID = appInstance.id;
 
-  const [peerAddress] = await channels.getPeersAddressFromClientAppInstanceID(
+  const [peerAddress] = await channels.getPeersAddressFromAppInstanceID(
     appInstanceUUID
   );
 
@@ -90,12 +94,7 @@ export async function addAppInstance(
   params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    const appInstanceUUID = params.appInstanceId;
-    delete params.appInstanceId;
-    await channels.setClientAppInstanceIDForProposeInstall(
-      params,
-      appInstanceUUID
-    );
+    await channels.setAppInstanceIDForProposeInstall(params);
   } else {
     await channels.install(params);
   }
