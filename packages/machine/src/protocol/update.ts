@@ -65,7 +65,7 @@ function proposeStateTransition(
   state: StateChannel
 ) {
   const { appIdentityHash, newState } = message.params as UpdateParams;
-  context.stateChannel = state.setState(appInstanceHash, newState);
+  context.stateChannel = state.setState(appIdentityHash, newState);
   context.operation = constructUpdateOp(
     context.network,
     context.stateChannel,
