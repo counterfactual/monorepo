@@ -1,5 +1,5 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { AssetType } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import {
   bigNumberify,
@@ -16,6 +16,7 @@ import { SetStateCommitment } from "../../../src/ethereum";
 import { Transaction } from "../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
 import { AppInstance } from "../../../src/models";
+import { generateRandomNetworkContext } from "../../mocks";
 
 /**
  * This test suite decodes a constructed SetState Commitment transaction object
@@ -27,14 +28,7 @@ describe("Set State Commitment", () => {
   let tx: Transaction;
 
   // Dummy network context
-  const networkContext: NetworkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   const appInstance = new AppInstance(
     getAddress(hexlify(randomBytes(20))),

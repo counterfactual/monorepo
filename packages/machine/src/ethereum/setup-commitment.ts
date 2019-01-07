@@ -9,13 +9,13 @@ import {
 
 import { DependencyValue } from "../models/app-instance";
 
-import { MultisigTransactionCommitment } from "./multisig-commitment";
+import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
 const iface = new Interface(StateChannelTransaction.abi);
 
-export class SetupCommitment extends MultisigTransactionCommitment {
+export class SetupCommitment extends MultisigCommitment {
   public constructor(
     public readonly networkContext: NetworkContext,
     public readonly multisigAddress: string,

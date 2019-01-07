@@ -19,7 +19,7 @@ export const UPDATE_PROTOCOL = {
     // Compute the next state of the channel
     proposeStateTransition,
 
-    // Decide whether or not to sign the transition
+    // Sign `context.commitment.hashToSign`
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
@@ -66,7 +66,7 @@ function proposeStateTransition(
 ) {
   const { appIdentityHash, newState } = message.params as UpdateParams;
   context.stateChannel = state.setState(appIdentityHash, newState);
-  context.operation = constructUpdateOp(
+  context.commitment = constructUpdateOp(
     context.network,
     context.stateChannel,
     appIdentityHash

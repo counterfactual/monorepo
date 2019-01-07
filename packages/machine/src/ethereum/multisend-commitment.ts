@@ -4,14 +4,14 @@ import { AppIdentity, Terms } from "@counterfactual/types";
 import { HashZero } from "ethers/constants";
 import { Interface } from "ethers/utils";
 
-import { MultisigTransactionCommitment } from "./multisig-commitment";
+import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { encodeTransactions } from "./utils/multisend-encoder";
 
 const appRegistryIface = new Interface(AppRegistry.abi);
 const multisendIface = new Interface(MultiSend.abi);
 
-export abstract class MultiSendCommitment extends MultisigTransactionCommitment {
+export abstract class MultiSendCommitment extends MultisigCommitment {
   public abstract eachMultisigInput(): MultisigTransaction[];
 
   constructor(

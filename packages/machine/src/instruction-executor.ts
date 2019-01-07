@@ -104,7 +104,7 @@ export class InstructionExecutor {
       outbox: [],
       inbox: [],
       stateChannel: sc,
-      operation: undefined,
+      commitment: undefined,
       signature: undefined
     };
 
