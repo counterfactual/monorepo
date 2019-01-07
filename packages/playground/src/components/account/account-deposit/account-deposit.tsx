@@ -33,11 +33,11 @@ export class AccountDeposit {
       return;
     }
 
-    this.balance = parseFloat(web3.fromWei(balance.toNumber(), "ether"));
+    this.balance = parseFloat(ethers.utils.formatEther(balance.toString()));
   }
 
   formSubmitionHandler(e) {
-    this.amountDeposited = web3.toWei(e.target.value, "ether").toString();
+    this.amountDeposited = ethers.utils.parseEther(e.target.value).toString();
 
     web3.eth.sendTransaction(
       {
@@ -56,7 +56,7 @@ export class AccountDeposit {
     }
 
     this.updateAccount({
-      balance: web3.fromWei(parseFloat(this.amountDeposited), "ether")
+      balance: ethers.utils.formatEther(this.amountDeposited)
     });
 
     this.history.push("/");
