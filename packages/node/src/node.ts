@@ -45,19 +45,14 @@ export class Node {
     this.signer = new SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.channels = new Channels(
-      this.signer.address,
-      networkContext,
-      this.storeService,
-      `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
-    );
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
       this.outgoing,
-      this.channels,
+      this.storeService,
       this.messagingService,
-      new InstructionExecutor(networkContext)
+      new InstructionExecutor(networkContext),
+      `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }
 

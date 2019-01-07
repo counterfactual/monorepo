@@ -4,7 +4,8 @@ import EventEmitter from "eventemitter3";
 
 import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../services";
+import { IMessagingService, IStoreService } from "../services";
+import { Store } from "../store";
 
 import {
   getInstalledAppInstances,
@@ -24,13 +25,16 @@ import {
 export class RequestHandler {
   private methods = new Map();
   private events = new Map();
+  store: Store;
   constructor(
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
-    readonly channels: Channels,
+    readonly storeService: IStoreService,
     readonly messagingService: IMessagingService,
-    readonly instructionExecutor: InstructionExecutor
+    readonly instructionExecutor: InstructionExecutor,
+    storeKeyPrefix: string
   ) {
+    this.store = new Store(storeService, storeKeyPrefix);
     this.registerMethods();
     this.mapEventHandlers();
   }
