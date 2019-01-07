@@ -1,3 +1,4 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
@@ -27,7 +28,8 @@ export class RequestHandler {
     private readonly incoming: EventEmitter,
     private readonly outgoing: EventEmitter,
     private readonly channels: Channels,
-    private readonly messagingService: IMessagingService
+    private readonly messagingService: IMessagingService,
+    private readonly instructionExecutor: InstructionExecutor
   ) {
     this.registerMethods();
     this.mapEventHandlers();
@@ -49,6 +51,7 @@ export class RequestHandler {
       result: await this.methods.get(method)(
         this.channels,
         this.messagingService,
+        this.instructionExecutor,
         req.params
       )
     };
@@ -87,7 +90,12 @@ export class RequestHandler {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await method(this.channels, this.messagingService, req.params)
+          result: await method(
+            this.channels,
+            this.messagingService,
+            this.instructionExecutor,
+            req.params
+          )
         };
         this.outgoing.emit(req.type, res);
       });
@@ -112,6 +120,11 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: Node.EventName, msg: NodeMessage) {
-    await this.events.get(event)(this.channels, this.messagingService, msg);
+    await this.events.get(event)(
+      this.channels,
+      this.messagingService,
+      this.instructionExecutor,
+      msg
+    );
   }
 }
