@@ -1,4 +1,4 @@
-import { Component, Element, Prop } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
@@ -10,15 +10,55 @@ import AccountTunnel from "../../../data/account";
 })
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
-  @Prop() balance: number = 0;
+  @State() balance: number = 0;
+  @Prop() address: string = "";
+  @Prop() multisigAddress: string = "";
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
+  @State() error: string = "";
+  @State() amountDeposited: string = "";
+
+  componentWillLoad() {
+    web3.eth.getBalance(
+      this.address,
+      web3.eth.defaultBlock,
+      this.showBalance.bind(this)
+    );
+  }
+
+  showBalance(error: Error, balance: BigNumber) {
+    if (error) {
+      // TODO: What happens if we can't get the account balance?
+      return;
+    }
+
+    this.balance = parseFloat(web3.fromWei(balance.toNumber(), "ether"));
+  }
+
   formSubmitionHandler(e) {
-    console.log(e.target.value);
+    this.amountDeposited = web3.toWei(e.target.value, "ether").toString();
+
+    web3.eth.sendTransaction(
+      {
+        from: this.address,
+        to: this.multisigAddress,
+        value: this.amountDeposited
+      },
+      this.depositCompleted.bind(this)
+    );
+  }
+
+  depositCompleted(error: Error, result: any) {
+    if (error) {
+      this.error = error.message;
+      return;
+    }
+
     this.updateAccount({
-      balance: parseFloat(e.target.value)
+      balance: web3.fromWei(parseFloat(this.amountDeposited), "ether")
     });
+
     this.history.push("/");
   }
 
@@ -37,10 +77,16 @@ export class AccountDeposit {
           onSubmit={e => this.formSubmitionHandler(e)}
           button="Proceed"
           available={this.balance}
+          error={this.error}
         />
       </widget-screen>
     );
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount"]);
+AccountTunnel.injectProps(AccountDeposit, [
+  "balance",
+  "updateAccount",
+  "address",
+  "multisigAddress"
+]);
