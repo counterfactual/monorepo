@@ -2,7 +2,8 @@ import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
 
-import apps from "../../utils/app-list";
+import AppRegistryTunnel from "../../data/app-registry";
+import { AppDefinition } from "../../types";
 
 @Component({
   tag: "dapp-container",
@@ -15,6 +16,8 @@ export class DappContainer {
   @Prop() match: MatchResults = {} as MatchResults;
 
   @Prop({ mutable: true }) url: string = "";
+
+  @Prop() apps: AppDefinition[] = [];
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -30,13 +33,13 @@ export class DappContainer {
 
   getDappUrl(): string {
     const dappSlug = this.match.params.dappName;
-    for (const address in apps) {
-      if (dappSlug === apps[address].slug) {
-        return apps[address].url;
-      }
+    const dapp = this.apps.find(app => app.slug === dappSlug);
+
+    if (!dapp) {
+      return "";
     }
 
-    return "";
+    return dapp.url;
   }
 
   componentDidLoad(): void {
@@ -162,3 +165,5 @@ export class DappContainer {
     }
   }
 }
+
+AppRegistryTunnel.injectProps(DappContainer, ["apps"]);

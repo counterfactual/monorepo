@@ -1,5 +1,7 @@
 import axios from "axios";
+import { readFileSync } from "fs";
 import { Server } from "http";
+import { resolve } from "path";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
@@ -169,6 +171,21 @@ describe("playground-server", () => {
           });
           done();
         });
+    });
+  });
+
+  describe("/api/apps", () => {
+    it("gets a list of apps", done => {
+      client.get("/apps").then(response => {
+        expect(response.status).toEqual(200);
+        expect(response.data).toEqual({
+          ok: true,
+          data: JSON.parse(
+            readFileSync(resolve(__dirname, "../registry.json")).toString()
+          )
+        });
+        done();
+      });
     });
   });
 });
