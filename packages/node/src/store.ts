@@ -100,6 +100,21 @@ export class Store {
   }
 
   /**
+   * Returns a string identifying the `AppInstanceIdentityHash` that is mapped to
+   * the given `appInstanceId`.
+   * @param appInstanceId
+   */
+  async getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId: string
+  ): Promise<string> {
+    return this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
+    );
+  }
+
+  /**
    * This persists the initial state of a channel upon channel creation.
    * @param channel
    * @param ownersHash

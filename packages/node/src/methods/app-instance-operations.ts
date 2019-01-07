@@ -45,6 +45,20 @@ export async function getInstalledAppInstances(
   };
 }
 
+export async function getAppInstanceState(
+  this: RequestHandler,
+  params: Node.GetStateParams
+): Promise<Node.GetStateResult> {
+  const channel = await this.store.getChannelFromAppInstanceID(
+    params.appInstanceId
+  );
+  return channel.getAppInstance(
+    await this.store.getAppInstanceIdentityHashFromAppInstanceId(
+      params.appInstanceId
+    )
+  ).state;
+}
+
 async function getAppInstanceInfoFromAppInstance(
   store: Store,
   appInstances: AppInstance[]
