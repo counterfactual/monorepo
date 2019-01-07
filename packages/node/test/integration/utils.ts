@@ -5,6 +5,7 @@ import {
   AppState,
   AssetType,
   BlockchainAsset,
+  NetworkContext,
   Node as NodeTypes
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -132,7 +133,7 @@ export function confirmProposedAppInstanceOnNode(
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
 
-export const EMPTY_NETWORK = {
+export const EMPTY_NETWORK: NetworkContext = {
   AppRegistry: AddressZero,
   ETHBalanceRefund: AddressZero,
   ETHBucket: AddressZero,

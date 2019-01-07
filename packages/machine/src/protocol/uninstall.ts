@@ -23,7 +23,7 @@ export const UNINSTALL_PROTOCOL = {
     // Compute the next state of the channel
     proposeStateTransition,
 
-    // Decide whether or not to sign the transition
+    // Sign `context.commitment.hashToSign`
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
@@ -80,7 +80,7 @@ function proposeStateTransition(
     bobBalanceIncrement
   );
 
-  context.operation = constructUninstallOp(
+  context.commitment = constructUninstallOp(
     context.network,
     context.stateChannel,
     appIdentityHash

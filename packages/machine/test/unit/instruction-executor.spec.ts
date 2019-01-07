@@ -6,17 +6,11 @@ import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
 import { Opcode } from "../../src/opcodes";
 import { Context } from "../../src/types";
+import { generateRandomNetworkContext } from "../mocks";
 
 describe("InstructionExecutor", () => {
   // Dummy network context
-  const networkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   // General interaction testing values
   const interaction = {
@@ -35,6 +29,8 @@ describe("InstructionExecutor", () => {
   let instructionExecutor: InstructionExecutor;
 
   beforeAll(() => {
+    // extract the commitment passed to the OP_SIGN middleware for testing
+    // purposes
     instructionExecutor = new InstructionExecutor(networkContext);
 
     // We must register _some_ middleware for each opcode or the machine
@@ -57,7 +53,7 @@ describe("InstructionExecutor", () => {
       instructionExecutor.middlewares.add(
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
-          commitment = context.operation as SetupCommitment;
+          commitment = context.commitment as SetupCommitment;
           channel = context.stateChannel;
         }
       );

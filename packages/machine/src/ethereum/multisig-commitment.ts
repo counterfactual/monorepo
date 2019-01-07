@@ -2,9 +2,10 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/Min
 import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
-import { signaturesToSortedBytes } from "./utils/signature";
+import { signaturesToBytesSortedBySignerAddress } from "./utils/signature";
 
-export abstract class MultisigTransactionCommitment extends EthereumCommitment {
+/// A commitment to make MinimumViableMultisig perform a message call
+export abstract class MultisigCommitment extends EthereumCommitment {
   constructor(
     readonly multisigAddress: string,
     readonly multisigOwners: string[]
@@ -17,7 +18,10 @@ export abstract class MultisigTransactionCommitment extends EthereumCommitment {
   public transaction(sigs: Signature[]): Transaction {
     const multisigInput = this.getTransactionDetails();
 
-    const signatureBytes = signaturesToSortedBytes(this.hashToSign(), ...sigs);
+    const signatureBytes = signaturesToBytesSortedBySignerAddress(
+      this.hashToSign(),
+      ...sigs
+    );
 
     const txData = new Interface(
       MinimumViableMultisig.abi

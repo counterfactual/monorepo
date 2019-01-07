@@ -7,22 +7,30 @@ import {
 } from "ethers/utils";
 
 export function signaturesToBytes(...signatures: Signature[]): string {
-  const signaturesHexString = signatures
+  return signatures
     .map(joinSignature)
     .map(s => s.substr(2))
-    .join("");
-  return `0x${signaturesHexString}`;
+    .reduce((acc, v) => acc + v, "0x");
 }
 
-export function signaturesToSortedBytes(
-  digest: Bytes32,
-  ...signatures: Signature[]
-): string {
-  const sigs = signatures.slice();
-  sigs.sort((sigA, sigB) => {
+function sortSignaturesBySignerAddress(
+  digest: string,
+  signatures: Signature[]
+): Signature[] {
+  const ret = signatures.slice();
+  ret.sort((sigA, sigB) => {
     const addrA = recoverAddress(digest, signaturesToBytes(sigA));
     const addrB = recoverAddress(digest, signaturesToBytes(sigB));
     return new BigNumber(addrA).lt(addrB) ? -1 : 1;
   });
-  return signaturesToBytes(...sigs);
+  return ret;
+}
+
+export function signaturesToBytesSortedBySignerAddress(
+  digest: Bytes32,
+  ...signatures: Signature[]
+): string {
+  return signaturesToBytes(
+    ...sortSignaturesBySignerAddress(digest, signatures)
+  );
 }

@@ -10,8 +10,6 @@ import { Protocol } from "./types";
 // around in protocol messages and include this in transaction data in disputes,
 // we impose some restrictions on the type; they must be serializable both as
 // JSON and as solidity structs.
-// todo(ldct): top-level arrays are probably illegal since they are not
-// structs...
 export type AppState = {
   [x: string]: string | BigNumberish | boolean | AppState | AppStateArray;
 };
