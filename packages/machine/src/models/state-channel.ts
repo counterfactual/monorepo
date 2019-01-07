@@ -161,7 +161,6 @@ export class StateChannel {
     );
     appInstances.set(fb.identityHash, fb);
 
-
     const freeBalanceAppIndexes = new Map<AssetType, string>(
       this.freeBalanceAppIndexes.entries()
     );
