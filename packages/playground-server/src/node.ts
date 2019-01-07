@@ -4,6 +4,7 @@ import {
   NodeMessage
 } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { v4 as generateUUID } from "uuid";
 
 const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
@@ -21,6 +22,14 @@ const node = new Node(
   process.env.NODE_PRIVATE_KEY as string,
   serviceFactory.createMessagingService("messaging"),
   serviceFactory.createStoreService("storage"),
+  {
+    AppRegistry: AddressZero,
+    ETHBalanceRefund: AddressZero,
+    ETHBucket: AddressZero,
+    MultiSend: AddressZero,
+    NonceRegistry: AddressZero,
+    StateChannelTransaction: AddressZero
+  },
   {
     STORE_KEY_PREFIX: "store"
   }
