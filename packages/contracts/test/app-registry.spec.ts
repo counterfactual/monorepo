@@ -6,7 +6,7 @@ import { hexlify, randomBytes } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 import LibStaticCall from "../build/LibStaticCall.json";
-import Transfer from "../build/Transfer.json";
+// import Transfer from "../build/Transfer.json";
 
 import {
   AppInstance,
@@ -53,10 +53,19 @@ describe("AppRegistry", () => {
     wallet = (await waffle.getWallets(provider))[0];
 
     const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
-    const transfer = await waffle.deployContract(wallet, Transfer);
+    // const transfer = await waffle.deployContract(wallet, Transfer);
 
-    waffle.link(AppRegistry, "Transfer", transfer.address);
-    waffle.link(AppRegistry, "LibStaticCall", libStaticCall.address);
+    // waffle.link(
+    //   AppRegistry,
+    //   "contracts/libs/Transfer.sol:Transfer",
+    //   transfer.address
+    // );
+
+    waffle.link(
+      AppRegistry,
+      "contracts/libs/LibStaticCall.sol:LibStaticCall",
+      libStaticCall.address
+    );
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry);
   });
@@ -75,7 +84,8 @@ describe("AppRegistry", () => {
         .appStateHash;
 
     latestNonce = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.identityHash)).nonce;
+      (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
+        .nonce;
 
     isStateFinalized = async () =>
       await appRegistry.functions.isStateFinalized(appInstance.identityHash);
