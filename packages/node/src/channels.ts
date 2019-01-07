@@ -125,19 +125,6 @@ export class Channels {
     return await this.store.getProposedAppInstances();
   }
 
-  async proposeInstall(params: Node.ProposeInstallParams): Promise<string> {
-    const appInstanceId = generateUUID();
-    const channel = await this.getChannelFromPeerAddress(params.peerAddress);
-
-    const proposedAppInstance = new ProposedAppInstanceInfo(
-      appInstanceId,
-      params
-    );
-
-    await this.store.addAppInstanceProposal(channel, proposedAppInstance);
-    return appInstanceId;
-  }
-
   async install(params: Node.InstallParams): Promise<AppInstanceInfo> {
     if (!params.appInstanceId) {
       return Promise.reject("No AppInstanceId specified to install");

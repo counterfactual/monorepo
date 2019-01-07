@@ -87,3 +87,18 @@ export async function addAppInstance(
     await this.channels.install(params);
   }
 }
+
+async function proposeInstall(
+  params: Node.ProposeInstallParams
+): Promise<string> {
+  const appInstanceId = generateUUID();
+  const channel = await this.getChannelFromPeerAddress(params.peerAddress);
+
+  const proposedAppInstance = new ProposedAppInstanceInfo(
+    appInstanceId,
+    params
+  );
+
+  await this.store.addAppInstanceProposal(channel, proposedAppInstance);
+  return appInstanceId;
+}
