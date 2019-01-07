@@ -11,6 +11,9 @@ export class FormInput {
   @Prop() label: string = "";
   @Prop() unit: string = "";
   @Prop() type: string = "text";
+  @Prop() min: number = -Infinity;
+  @Prop() max: number = Infinity;
+  @Prop() step: number = 1;
   @Prop({ mutable: true }) error: string = "";
   @Prop({ mutable: true }) value: string | number = "";
 
@@ -35,6 +38,9 @@ export class FormInput {
             disabled={this.disabled}
             type={this.type}
             value={this.value}
+            max={this.max}
+            min={this.min}
+            step={this.step}
             onInput={event => this.handleChange(event)}
           />
           {this.unit ? <div class="unit">{this.unit}</div> : null}
