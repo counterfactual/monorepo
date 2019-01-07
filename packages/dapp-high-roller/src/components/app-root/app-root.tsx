@@ -2,6 +2,7 @@ import { Component, Prop } from "@stencil/core";
 import { MatchResults, RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import MockNodeProvider from "../../data/node-provider";
 
 @Component({
   tag: "app-root",
@@ -29,12 +30,12 @@ export class AppRoot {
     }
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("standalone")) {
-      return;
-    }
+
     // Using promise syntax because lifecycle events aren't
     // async/await-friendly.
-    this.nodeProvider = new NodeProvider();
+    this.nodeProvider = params.get("standalone")
+      ? new MockNodeProvider()
+      : new NodeProvider();
     return this.nodeProvider.connect().then(() => {
       this.cfjs = new cf.Provider(this.nodeProvider);
     });

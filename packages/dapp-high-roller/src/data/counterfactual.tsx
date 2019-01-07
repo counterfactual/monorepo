@@ -1,8 +1,10 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
+import NodeProvider from "./node-provider";
+
 export interface State {
   // NodeProvider interface
-  nodeProvider: any;
+  nodeProvider: NodeProvider;
 
   // CF.js instance
   cfjs: any;
@@ -10,7 +12,7 @@ export interface State {
 
 export default createProviderConsumer<State>(
   {
-    nodeProvider: null,
+    nodeProvider: new NodeProvider(),
     cfjs: null
   },
   (subscribe, child) => (

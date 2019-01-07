@@ -1,25 +1,13 @@
-declare var ethers;
-
 import { Component, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import NodeProvider from "../../data/node-provider";
+import { Node } from "../../data/types";
 
 interface Player {
   address: string;
   name: string;
-}
-
-function matchmake(timeout: number) {
-  return new Promise<Player>((resolve, reject) => {
-    const opponent: Player = {
-      address: "0x0101010101010101010101010101010101010101",
-      name: "Alice"
-    };
-    return setTimeout(() => {
-      return resolve(opponent);
-    }, timeout);
-  });
 }
 
 /**
@@ -39,6 +27,8 @@ export class AppWaiting {
   @Prop({ mutable: true }) opponentName: string = "";
   @Prop({ mutable: true }) shouldMatchmake: boolean = false;
   @State() seconds: number = 5;
+  @State() cfjs: any;
+  @State() nodeProvider: NodeProvider = new NodeProvider();
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -73,17 +63,24 @@ export class AppWaiting {
           this.history.location.query.shouldMatchmake
         ? this.history.location.query.shouldMatchmake
         : this.shouldMatchmake;
-    if (this.shouldMatchmake) {
-      this.countDown();
-      matchmake(this.seconds * 1000).then(async (opponent: Player) => {
-        this.installAndGoToGame(opponent);
-      });
-    } else {
-      this.countDown();
-      setTimeout(() => {
-        this.goToGame(this.opponentName);
-      }, this.seconds * 1000);
-    }
+  }
+
+  matchmake(timeout: number) {
+    const matchMakeMessage: Node.Message = {
+      type: Node.MethodName.GET_STATE,
+      requestId: "123",
+      params: ""
+    };
+    this.nodeProvider.sendMessage(matchMakeMessage);
+    return new Promise<Player>((resolve, reject) => {
+      const opponent: Player = {
+        address: "0x0101010101010101010101010101010101010101",
+        name: "Alice"
+      };
+      return setTimeout(() => {
+        return resolve(opponent);
+      }, timeout);
+    });
   }
 
   countDown() {
@@ -139,10 +136,30 @@ export class AppWaiting {
     });
   }
 
+  setupCFjs(nodeProvider, cfjs) {
+    if (this.cfjs) {
+      return;
+    }
+    this.nodeProvider = nodeProvider;
+    this.cfjs = cfjs;
+    if (this.shouldMatchmake) {
+      this.countDown();
+      this.matchmake(this.seconds * 1000).then(async (opponent: Player) => {
+        this.installAndGoToGame(opponent);
+      });
+    } else {
+      this.countDown();
+      setTimeout(() => {
+        this.goToGame(this.opponentName);
+      }, this.seconds * 1000);
+    }
+  }
+
   render() {
     return (
       <CounterfactualTunnel.Consumer>
-        {({ nodeProvider, cfjs }) => (
+        {({ nodeProvider, cfjs }) => [
+          <div>{this.setupCFjs(nodeProvider, cfjs)}</div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">
@@ -163,7 +180,7 @@ export class AppWaiting {
               </div>
             </div>
           </div>
-        )}
+        ]}
       </CounterfactualTunnel.Consumer>
     );
   }
