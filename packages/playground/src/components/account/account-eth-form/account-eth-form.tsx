@@ -11,8 +11,10 @@ export class AccountEthForm {
   @Prop() button: string = "";
   @Prop() available: number = 0;
   @Prop({ mutable: true }) value: string | number = "";
+  @Prop({ mutable: true }) error: string = "";
 
   update(event) {
+    this.error = "";
     this.value = event.target.value;
   }
 
@@ -28,6 +30,10 @@ export class AccountEthForm {
             type="number"
             unit="ETH"
             value={this.value}
+            error={this.error}
+            min={0}
+            max={this.available as number}
+            step={0.0001}
             onChange={e => this.update(e)}
           >
             <div class="balance-label" slot="label">
