@@ -7,8 +7,6 @@ import { RequestHandler } from "./request-handler";
 /**
  * This creates a multisig while sending details about this multisig
  * to the peer with whom the multisig is owned.
- * @param channels
- * @param messagingService
  * @param params
  */
 export async function createMultisig(
@@ -36,8 +34,6 @@ export async function createMultisig(
 
 /**
  * This creates an entry for an already-created multisig sent by a peer.
- * @param channels
- * @param messagingService
  * @param nodeMsg
  */
 export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {

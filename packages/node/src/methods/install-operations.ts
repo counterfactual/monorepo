@@ -8,11 +8,8 @@ import { RequestHandler } from "./request-handler";
  * This creates an entry of a proposed app instance into the relevant channel
  * while sending the proposal to the peer with whom this app instance is
  * indicated to be instantiated with.
- * @param channels
- * @param messagingService
  * @param params
- * @returns A UUID for the proposed AppInstance, effectively the AppInstanceID
- *          for the client
+ * @returns The AppInstanceId for the proposed AppInstance
  */
 export async function proposeInstall(
   this: RequestHandler,
@@ -44,8 +41,6 @@ export async function proposeInstall(
 /**
  * This converts a proposed app instance to an installed app instance while
  * sending an approved ack to the proposer.
- * @param channels
- * @param messagingService
  * @param params
  */
 export async function install(
@@ -78,10 +73,6 @@ export async function install(
  * This function adds the app instance as a pending installation if the proposal
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
- *
- * @param channels
- * @param messagingService
- * @param params
  */
 export async function addAppInstance(
   this: RequestHandler,
