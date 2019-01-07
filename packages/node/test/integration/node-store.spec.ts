@@ -1,16 +1,15 @@
-import dotenv from "dotenv";
+import dotenv from "dotenv-extended";
 import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
 import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK } from "./utils";
 
-dotenv.config();
+dotenv.load();
 
 describe("Node can use storage service", () => {
   let firebaseServer: FirebaseServer;
@@ -31,7 +30,7 @@ describe("Node can use storage service", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
     node = new Node(
-      A_PRIVATE_KEY,
+      process.env.A_PRIVATE_KEY!,
       MOCK_MESSAGING_SERVICE,
       storeService,
       EMPTY_NETWORK,
@@ -46,7 +45,7 @@ describe("Node can use storage service", () => {
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
     const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [new Wallet(B_PRIVATE_KEY).address, AddressZero]
+      owners: [new Wallet(process.env.B_PRIVATE_KEY!).address, AddressZero]
     };
     await storeService.set([{ key: "multisigAddress/0x111", value: channelA }]);
     await storeService.set([{ key: "multisigAddress/0x222", value: channelB }]);
@@ -63,7 +62,7 @@ describe("Node can use storage service", () => {
   it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
     const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [new Wallet(B_PRIVATE_KEY).address, AddressZero]
+      owners: [new Wallet(process.env.B_PRIVATE_KEY!).address, AddressZero]
     };
     await storeService.set([
       { key: "multisigAddress/0x111", value: channelA },

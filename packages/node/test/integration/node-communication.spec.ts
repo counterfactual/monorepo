@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import dotenv from "dotenv-extended";
 import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
@@ -6,7 +6,7 @@ import { IMessagingService } from "../../src";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 
-dotenv.config();
+dotenv.load();
 
 describe("Two nodes can communicate with each other", () => {
   let firebaseServer: FirebaseServer;
