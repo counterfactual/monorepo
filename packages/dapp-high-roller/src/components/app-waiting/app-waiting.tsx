@@ -37,7 +37,7 @@ export class AppWaiting {
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
   @Prop({ mutable: true }) opponentName: string = "";
-  @Prop() shouldMatchmake: boolean = false;
+  @Prop({ mutable: true }) shouldMatchmake: boolean = false;
   @State() seconds: number = 5;
 
   /**
@@ -66,10 +66,14 @@ export class AppWaiting {
           this.history.location.query.opponentName
         ? this.history.location.query.opponentName
         : this.opponentName;
-    if (
-      this.history.location.state &&
-      this.history.location.state.shouldMatchmake
-    ) {
+    this.shouldMatchmake =
+      this.history.location.state && this.history.location.state.shouldMatchmake
+        ? this.history.location.state.shouldMatchmake
+        : this.history.location.query &&
+          this.history.location.query.shouldMatchmake
+        ? this.history.location.query.shouldMatchmake
+        : this.shouldMatchmake;
+    if (this.shouldMatchmake) {
       this.countDown();
       matchmake(this.seconds * 1000).then(async (opponent: Player) => {
         this.installAndGoToGame(opponent);
@@ -127,7 +131,8 @@ export class AppWaiting {
       state: {
         opponentName,
         betAmount: this.betAmount,
-        myName: this.myName
+        myName: this.myName,
+        isProposing: this.shouldMatchmake
       },
       query: {},
       key: ""
