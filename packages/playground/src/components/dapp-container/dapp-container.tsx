@@ -32,7 +32,6 @@ export class DappContainer {
   }
 
   getDappUrl(): string {
-    debugger;
     const dappSlug = this.match.params.dappName;
     const dapp = this.apps.find(app => app.slug === dappSlug);
 
