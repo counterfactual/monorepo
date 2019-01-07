@@ -84,12 +84,11 @@ export class AccountRegister {
     try {
       const apiResponse = await PlaygroundAPIClient.createAccount(payload);
 
-      window.localStorage.setItem(
-        "playground:multisig",
-        apiResponse.multisigAddress
-      );
+      this.updateAccount({
+        ...this.changeset,
+        multisigAddress: apiResponse.multisigAddress
+      });
 
-      this.updateAccount(this.changeset);
       this.history.push("/deposit");
     } catch (e) {
       this.setErrorMessage(e.errorCode);

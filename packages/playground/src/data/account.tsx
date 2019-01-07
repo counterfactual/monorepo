@@ -5,6 +5,7 @@ export interface AccountState {
   username?: string;
   email?: string;
   address?: string;
+  multisigAddress?: string;
   updateAccount?(data: AccountState): Promise<void>;
 }
 
