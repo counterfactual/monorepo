@@ -1,17 +1,11 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
-import apps from "../../../utils/app-list";
-
-const runningAppKey = Object.keys(apps)[0];
-const runningApps = {
-  [runningAppKey]: Object.assign(
-    {
-      notifications: 11
-    },
-    apps[runningAppKey]
-  )
-};
+import AppRegistryTunnel, {
+  AppRegistryState
+} from "../../../data/app-registry";
+import PlaygroundAPIClient from "../../../data/playground-api-client";
+import { AppDefinition } from "../../../types";
 
 @Component({
   tag: "app-home",
@@ -19,10 +13,26 @@ const runningApps = {
   shadow: true
 })
 export class AppHome {
+  @Element() private element: HTMLElement | undefined;
+
   @Prop() history: RouterHistory = {} as RouterHistory;
+
+  @State() apps: AppDefinition[] = [];
+  @State() runningApps: AppDefinition[] = [];
+  @Prop() updateAppRegistry: (data: AppRegistryState) => void = () => {};
 
   appClickedHandler(e) {
     this.history.push(e.detail.dappContainerUrl, e.detail);
+  }
+
+  async componentWillLoad() {
+    this.apps = await PlaygroundAPIClient.getApps();
+
+    // TODO: This is still mocked.
+    this.runningApps = [{ ...this.apps[0], notifications: 11 }];
+
+    // Save to global state.
+    this.updateAppRegistry!({ apps: this.apps });
   }
 
   render() {
@@ -31,13 +41,15 @@ export class AppHome {
       <section class="section">
         <div class="container">
           <apps-list
-            apps={apps}
+            apps={this.apps}
             onAppClicked={e => this.appClickedHandler(e)}
             name="Available Apps"
           />
-          <apps-list apps={runningApps} name="Running Apps" />
+          <apps-list apps={this.runningApps} name="Running Apps" />
         </div>
       </section>
     ];
   }
 }
+
+AppRegistryTunnel.injectProps(AppHome, ["updateAppRegistry"]);

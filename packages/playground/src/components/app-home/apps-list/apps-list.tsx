@@ -9,12 +9,8 @@ import { AppDefinition } from "../../../types";
 })
 export class AppsList {
   @Event() appClicked: EventEmitter = {} as EventEmitter;
-  @Prop() apps: { [s: string]: AppDefinition } = {};
+  @Prop() apps: AppDefinition[] = [];
   @Prop() name: string = "";
-
-  public get appsList(): AppDefinition[] {
-    return Object.keys(this.apps).map(key => this.apps[key]);
-  }
 
   appClickedHandler(event) {
     this.appClicked.emit(event.detail);
@@ -26,7 +22,7 @@ export class AppsList {
         <h2 class="title">{this.name}</h2>
 
         <ul class="list">
-          {this.appsList.map(app => (
+          {this.apps.map(app => (
             <apps-list-item
               onAppClicked={e => this.appClickedHandler(e)}
               icon={app.icon}
