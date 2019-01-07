@@ -2,8 +2,9 @@ import cors from "@koa/cors";
 import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
+import path from "path";
 
-import { createAccount } from "./middleware";
+import { createAccount, getApps } from "./middleware";
 import { ApiResponse, ErrorCode } from "./types";
 
 export default function mountApi() {
@@ -12,6 +13,7 @@ export default function mountApi() {
   const router = new Router({ prefix: "/api" });
 
   router.post("/create-account", createAccount());
+  router.get("/apps", getApps(path.resolve(__dirname, "../registry.json")));
 
   api
     .use(bodyParser({ json: true }))

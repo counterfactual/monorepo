@@ -16,7 +16,8 @@ export enum ErrorCode {
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
   UserSaveFailed = "user_save_failed",
-  AddressAlreadyRegistered = "address_already_registered"
+  AddressAlreadyRegistered = "address_already_registered",
+  AppRegistryNotAvailable = "app_registry_not_available"
 }
 
 export type ApiResponse = {
@@ -24,6 +25,7 @@ export type ApiResponse = {
   ok: boolean;
   data?:
     | CreateAccountResponseData
+    | GetAppsResponseData
     | {
         /* other types */
       };
@@ -32,6 +34,17 @@ export type ApiResponse = {
 export type CreateAccountResponseData = {
   user: PlaygroundUser;
   multisigAddress: Address;
+};
+
+export type PlaygroundAppDefinition = {
+  name: string;
+  slug: string;
+  url: string;
+  icon: string;
+};
+
+export type GetAppsResponseData = {
+  apps: PlaygroundAppDefinition[];
 };
 
 export type PlaygroundUserData = {
