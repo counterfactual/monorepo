@@ -159,13 +159,12 @@ export class StateChannel {
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
+    appInstances.set(fb.identityHash, fb);
+
 
     const freeBalanceAppIndexes = new Map<AssetType, string>(
       this.freeBalanceAppIndexes.entries()
     );
-
-    appInstances.set(fb.identityHash, fb);
-
     freeBalanceAppIndexes.set(AssetType.ETH, fb.identityHash);
 
     return new StateChannel(
@@ -184,17 +183,13 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>(
-      this.freeBalanceAppIndexes.entries()
-    );
-
     appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
 
     return new StateChannel(
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
-      freeBalanceAppIndexes,
+      this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
     );
   }
@@ -218,10 +213,6 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>(
-      this.freeBalanceAppIndexes.entries()
-    );
-
     appInstances
       .set(appInstance.identityHash, appInstance)
       .set(
@@ -233,7 +224,7 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
-      freeBalanceAppIndexes,
+      this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1
     );
   }
@@ -255,10 +246,6 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>(
-      this.freeBalanceAppIndexes.entries()
-    );
-
     appInstances.delete(appToBeUninstalled.identityHash);
 
     appInstances.set(
@@ -270,7 +257,7 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
-      freeBalanceAppIndexes,
+      this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
     );
   }
