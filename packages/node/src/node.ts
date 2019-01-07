@@ -29,8 +29,6 @@ export class Node {
   private readonly channels: Channels;
   private readonly signer: SigningKey;
 
-  private readonly instructionExecutor: InstructionExecutor;
-
   protected readonly requestHandler: RequestHandler;
 
   /**
@@ -51,17 +49,15 @@ export class Node {
       this.signer.address,
       networkContext,
       this.storeService,
-      // account-address-based indexing
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
-    this.instructionExecutor = new InstructionExecutor(networkContext);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
       this.outgoing,
       this.channels,
       this.messagingService,
-      this.instructionExecutor
+      new InstructionExecutor(networkContext)
     );
   }
 

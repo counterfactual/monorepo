@@ -1,9 +1,8 @@
-import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
-import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../services";
+
+import { RequestHandler } from "./request-handler";
 
 /**
  * This creates a multisig while sending details about this multisig
@@ -13,15 +12,13 @@ import { IMessagingService } from "../services";
  * @param params
  */
 export async function createMultisig(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
+  this: RequestHandler,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const result = {
-    multisigAddress: await channels.createMultisig(params)
+    multisigAddress: await this.channels.createMultisig(params)
   };
-  const selfAddress = channels.selfAddress;
+  const selfAddress = this.channels.selfAddress;
   const [peerAddress] = params.owners.filter(owner => owner !== selfAddress);
 
   const multisigCreatedMsg: NodeMessage = {
@@ -33,7 +30,7 @@ export async function createMultisig(
       owners: params.owners
     }
   };
-  await messagingService.send(peerAddress, multisigCreatedMsg);
+  await this.messagingService.send(peerAddress, multisigCreatedMsg);
   return result;
 }
 
@@ -43,23 +40,15 @@ export async function createMultisig(
  * @param messagingService
  * @param nodeMsg
  */
-export async function addMultisig(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
-  nodeMsg: NodeMessage
-) {
+export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {
   const params = nodeMsg.data;
-  await channels.addMultisig(params.multisigAddress, params.owners);
+  await this.channels.addMultisig(params.multisigAddress, params.owners);
 }
 
 export async function getChannelAddresses(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
-  nodeMsg: NodeMessage
+  this: RequestHandler
 ): Promise<Node.GetChannelAddressesResult> {
   return {
-    multisigAddresses: await channels.getAllChannelAddresses()
+    multisigAddresses: await this.channels.getAllChannelAddresses()
   };
 }

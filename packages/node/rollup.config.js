@@ -31,9 +31,6 @@ const external = [
   }),
 ];
 
-console.log("external");
-console.log(external);
-
 export default [
   {
     input: "src/index.ts",

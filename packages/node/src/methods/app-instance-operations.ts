@@ -1,27 +1,25 @@
-import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
-import { Channels } from "../channels";
 import { APP_INSTANCE_STATUS } from "../db-schema";
-import { IMessagingService } from "../services";
+
+import { RequestHandler } from "./request-handler";
 
 export async function getInstalledAppInstances(
-  channels: Channels,
-  messagingService: IMessagingService,
-  params: Node.GetAppInstancesParams
+  this: RequestHandler
 ): Promise<Node.GetAppInstancesResult> {
   return {
-    appInstances: await channels.getAppInstances(APP_INSTANCE_STATUS.INSTALLED)
+    appInstances: await this.channels.getAppInstances(
+      APP_INSTANCE_STATUS.INSTALLED
+    )
   };
 }
 
 export async function getProposedAppInstances(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
-  params: Node.GetAppInstancesParams
+  this: RequestHandler
 ): Promise<Node.GetAppInstancesResult> {
   return {
-    appInstances: await channels.getAppInstances(APP_INSTANCE_STATUS.PROPOSED)
+    appInstances: await this.channels.getAppInstances(
+      APP_INSTANCE_STATUS.PROPOSED
+    )
   };
 }
