@@ -7,7 +7,6 @@ import {
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
-import { Channels } from "./channels";
 import { RequestHandler } from "./methods/request-handler";
 import { IMessagingService, IStoreService } from "./services";
 
@@ -26,7 +25,6 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly channels: Channels;
   private readonly signer: SigningKey;
 
   protected readonly requestHandler: RequestHandler;
@@ -47,11 +45,13 @@ export class Node {
     this.outgoing = new EventEmitter();
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
+      this.signer.address,
       this.incoming,
       this.outgoing,
       this.storeService,
       this.messagingService,
       new InstructionExecutor(networkContext),
+      networkContext,
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }
