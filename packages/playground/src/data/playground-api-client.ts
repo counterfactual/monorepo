@@ -63,7 +63,15 @@ export default class PlaygroundAPIClient {
     try {
       return ((await get("apps")).data as GetAppsResponseData).apps;
     } catch (e) {
-      return Promise.reject(e);
+      // TODO: This backup registry is temporary until we deploy the Playground Server.
+      return [
+        {
+          name: "High Roller",
+          url: "https://high-roller-staging.counterfactual.com",
+          slug: "high-roller",
+          icon: "assets/images/logo.svg"
+        }
+      ];
     }
   }
 }
