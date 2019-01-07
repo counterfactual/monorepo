@@ -40,3 +40,10 @@
   color: $c-blue;
   flex-shrink: 0;
 }
+
+.error {
+  color: $c-darkred;
+  font-size: 85%;
+  padding-bottom: $rhythm * 2;
+  margin-top: -$rhythm;
+}

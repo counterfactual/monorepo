@@ -27,3 +27,17 @@ If using Firefox or any browsers without full support to Custom Elements, you ca
 ```shell
 yarn start --es5
 ```
+
+### Execution requeriments
+
+Ideally, you'd run in parallel at least three packages in order to fully use the Playground:
+
+- The Playground itself (this package)
+- The [Playground Server](../playground-server)
+- At least one dApp (i.e. [High Roller](../dapp-high-roller))
+
+You can use the following command at the monorepo's root to run all three projects:
+
+```shell
+yarn run:playground
+```
