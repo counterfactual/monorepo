@@ -3,11 +3,10 @@
 declare class BigNumber {
   constructor(num: string);
   toNumber(): number;
+  toString(): string;
 }
 
 declare var web3: {
-  fromWei: (amount: number, unit: string) => string;
-  toWei: (amount: BigNumber, unit: string) => string | BigNumber;
   BigNumber: (num: string) => void;
   eth: {
     defaultBlock: number | string;
