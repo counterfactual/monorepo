@@ -1,8 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import { Node } from "@counterfactual/types";
+import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { Channels } from "../channels";
 import { NodeMessage } from "../node";
 import { IMessagingService, IStoreService } from "../services";
 import { Store } from "../store";
@@ -11,11 +10,15 @@ import {
   getInstalledAppInstances,
   getProposedAppInstances
 } from "./app-instance-operations";
-import { addAppInstance, install, proposeInstall } from "./install-operations";
+import {
+  addAppInstance,
+  installAppInstance,
+  proposeAppInstanceInstall
+} from "./install-operations";
 import {
   addMultisig,
   createMultisig,
-  getChannelAddresses
+  getAllChannelAddresses
 } from "./multisig-operations";
 
 /**
@@ -27,11 +30,13 @@ export class RequestHandler {
   private events = new Map();
   store: Store;
   constructor(
+    readonly selfAddress: Address,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
     readonly storeService: IStoreService,
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
+    readonly networkContext: NetworkContext,
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
@@ -66,7 +71,7 @@ export class RequestHandler {
     );
     this.methods.set(
       Node.MethodName.GET_CHANNEL_ADDRESSES,
-      getChannelAddresses.bind(this)
+      getAllChannelAddresses.bind(this)
     );
     this.methods.set(
       Node.MethodName.GET_APP_INSTANCES,
@@ -78,9 +83,9 @@ export class RequestHandler {
     );
     this.methods.set(
       Node.MethodName.PROPOSE_INSTALL,
-      proposeInstall.bind(this)
+      proposeAppInstanceInstall.bind(this)
     );
-    this.methods.set(Node.MethodName.INSTALL, install.bind(this));
+    this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
   }
 
   /**
