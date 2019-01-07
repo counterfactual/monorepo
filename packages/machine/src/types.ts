@@ -29,6 +29,6 @@ export interface Context {
   outbox: ProtocolMessage[];
   inbox: ProtocolMessage[];
   stateChannel: StateChannel;
-  operation?: EthereumCommitment;
+  commitment?: EthereumCommitment;
   signature?: Signature;
 }

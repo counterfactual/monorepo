@@ -1,8 +1,6 @@
 export enum Opcode {
   /**
-   * Saves the new state upon completion of a protocol, using the state from
-   * STATE_TRANSITION_PROPOSE. Assumes all messages have been exchanged and
-   * the state has gone through PROPOSE and PREPARE already.
+   * Currently unused.
    */
   STATE_TRANSITION_COMMIT,
 
@@ -12,8 +10,8 @@ export enum Opcode {
   OP_SIGN,
 
   /**
-   * Ensures a signature is both correclty signed and is representative of a
-   * correctly formed cf operation.
+   * todo(ldct): replace all occurrences of this by javascript code that does
+   * some actual ecrecover and validation work
    */
   OP_SIGN_VALIDATE,
 

@@ -8,7 +8,7 @@ import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-import { signaturesToSortedBytes } from "./utils/signature";
+import { signaturesToBytesSortedBySignerAddress } from "./utils/signature";
 
 const iface = new Interface(AppRegistry.abi);
 
@@ -56,7 +56,10 @@ export class SetStateCommitment extends EthereumCommitment {
       stateHash: keccak256(this.encodedAppState),
       nonce: this.appLocalNonce,
       timeout: this.timeout,
-      signatures: signaturesToSortedBytes(this.hashToSign(), ...signatures)
+      signatures: signaturesToBytesSortedBySignerAddress(
+        this.hashToSign(),
+        ...signatures
+      )
     };
   }
 }

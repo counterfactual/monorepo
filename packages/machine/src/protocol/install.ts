@@ -19,7 +19,7 @@ export const INSTALL_PROTOCOL = {
     // Compute the next state of the channel
     proposeStateTransition,
 
-    // Decide whether or not to sign the transition
+    // Sign `context.commitment.hashToSign`
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
@@ -100,14 +100,14 @@ function proposeStateTransition(
     bobBalanceDecrement
   );
 
-  context.operation = constructInstallOp(
+  context.commitment = constructInstallOp(
     context.network,
     context.stateChannel,
     appInstance.identityHash
   );
 }
 
-export function constructInstallOp(
+function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
   appIdentityHash: string

@@ -12,15 +12,24 @@ export function signaturesToBytes(...signatures: Signature[]): string {
     .reduce((acc, v) => acc + v, "0x");
 }
 
-export function signaturesToSortedBytes(
+function sortSignaturesBySignerAddress(
   digest: string,
-  ...signatures: Signature[]
-): string {
-  const sigs = signatures.slice();
-  sigs.sort((sigA, sigB) => {
+  signatures: Signature[]
+): Signature[] {
+  const ret = signatures.slice();
+  ret.sort((sigA, sigB) => {
     const addrA = recoverAddress(digest, signaturesToBytes(sigA));
     const addrB = recoverAddress(digest, signaturesToBytes(sigB));
     return new BigNumber(addrA).lt(addrB) ? -1 : 1;
   });
-  return signaturesToBytes(...sigs);
+  return ret;
+}
+
+export function signaturesToBytesSortedBySignerAddress(
+  digest: string,
+  ...signatures: Signature[]
+): string {
+  return signaturesToBytes(
+    ...sortSignaturesBySignerAddress(digest, signatures)
+  );
 }

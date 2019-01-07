@@ -19,7 +19,7 @@ export const SETUP_PROTOCOL = {
     // Compute the next state of the channel
     proposeStateTransition,
 
-    // Decide whether or not to sign the transition
+    // Sign `context.commitment.hashToSign`
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
@@ -65,7 +65,7 @@ function proposeStateTransition(
   state: StateChannel
 ) {
   context.stateChannel = state.setupChannel(context.network);
-  context.operation = constructSetupOp(context.network, context.stateChannel);
+  context.commitment = constructSetupOp(context.network, context.stateChannel);
 }
 
 export function constructSetupOp(
