@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@counterfactual/node": "^0.0.1",
-    "@stencil/core": "0.16.0",
+    "@stencil/core": "0.16.2",
     "@stencil/router": "~0.2.6",
     "@stencil/sass": "^0.1.1",
     "eventemitter3": "^3.1.0"
