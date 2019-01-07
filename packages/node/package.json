@@ -13,9 +13,8 @@
   },
   "devDependencies": {
     "@firebase/app-types": "^0.3.2",
-    "@types/dotenv": "^6.1.0",
     "@types/node": "^10.9.3",
-    "dotenv": "^6.1.0",
+    "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
     "jest": "^23.6.0",
     "rollup": "^1.0.1",
