@@ -24,7 +24,3 @@ export type Transaction = {
 export type MultisigTransaction = Transaction & {
   operation: MultisigOperation;
 };
-
-export type ExecTransactionCalldata = MultisigTransaction & {
-  signatures: Signature[];
-};
