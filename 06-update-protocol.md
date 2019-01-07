@@ -27,33 +27,35 @@ keccak256(
 );
 ```
 
+**Type: `UpdateParams`**
+
+|      Field      |          Type          |     Description     |
+| --------------- | ---------------------- | ------------------- |
+| `appInstanceId` | `bytes32`              | Hashed App Identity |
+| `newState`      | `AppState / JSON-like` | New state to set to |
+
 ### The **`SetState`** Message
 
-| Field         | Description                                                                 |
-| ------------- | --------------------------------------------------------------------------- |
-| `protocol`    | `3`                                                                         |
-| `cfAddress`   | The counterfactual address / unique identifier of the off-chain application |
-| `data`        | An object containing the `bytes32` representation of the `appStateHash`     |
-| `fromAddress` | The address of Alice                                                        |
-| `toAddress`   | The address of Bob                                                          |
-| `seq`         | `1`                                                                         |
-| `signature`   | Alice's signed commitment digest                                            |
-
-> TODO: Use the ABIEncoderV2 encoded application state instead of the `appStateHash`; without it the receiving client can't decode the message to determine whether or not to sign
+|     Field     |           Description            |
+| ------------- | -------------------------------- |
+| `protocol`    | `"update"`                       |
+| `params`      | An `UpdateParams` object         |
+| `fromAddress` | The address of Alice             |
+| `toAddress`   | The address of Bob               |
+| `seq`         | `1`                              |
+| `signature`   | Alice's signed commitment digest |
 
 > TODO: Add a field for the ABIEncoderV2 encoded action
 
 ### The **`SetStateAck`** Message
 
-| Field         | Description                                                                 |
-| ------------- | --------------------------------------------------------------------------- |
-| `protocol`    | `3`                                                                         |
-| `cfAddress`   | The counterfactual address / unique identifier of the off-chain application |
-| `data`        | `""`                                                                        |
-| `fromAddress` | The address of Alice                                                        |
-| `toAddress`   | The address of Bob                                                          |
-| `seq`         | `2`                                                                         |
-| `signature`   | Bob's signed commitment digest                                              |
+|     Field     |          Description           |
+| ------------- | ------------------------------ |
+| `protocol`    | `"update"`                     |
+| `fromAddress` | The address of Alice           |
+| `toAddress`   | The address of Bob             |
+| `seq`         | `2`                            |
+| `signature`   | Bob's signed commitment digest |
 
 ## Commitments
 
@@ -63,4 +65,4 @@ The commitment can be visually represented like:
 
 ![](./build/setstate-protocol-commitment.png)
 
-This transaction uses the global, on-chain Registry contract to translate the counterfactual address of the application into an on-chain address, and subsequently invoke the `setState` function with the signatures exchanged during the protocol.
+This transaction invoke the `setState` function with the signatures exchanged during the protocol.

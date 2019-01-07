@@ -14,9 +14,9 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 ### The **`Uninstall`** Message
 
-| Field         | Description                                                                       |
+|     Field     |                                    Description                                    |
 | ------------- | --------------------------------------------------------------------------------- |
-| `protocol`    | `4`                                                                               |
+| `protocol`    | `"uninstall"`                                                                     |
 | `cfAddress`   | The counterfactual address / unique identifier of the off-chain application       |
 | `data`        | A object representing the updated balances of the of the free balance application |
 | `fromAddress` | The address of Alice                                                              |
@@ -26,9 +26,9 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 ### The **`UninstallAck`** Message
 
-| Field         | Description                                                                 |
+|     Field     |                                 Description                                 |
 | ------------- | --------------------------------------------------------------------------- |
-| `protocol`    | `4`                                                                         |
+| `protocol`    | `"uninstall"`                                                               |
 | `cfAddress`   | The counterfactual address / unique identifier of the off-chain application |
 | `data`        | `""`                                                                        |
 | `fromAddress` | The address of Alice                                                        |

@@ -16,46 +16,46 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 
 ### The **`SetRootNonce`** Message
 
-| Field         | Description                      |
+|     Field     |           Description            |
 | ------------- | -------------------------------- |
-| `protocol`    | `1`                              |
+| `protocol`    | `"setup"`                        |
 | `fromAddress` | The address of Alice             |
 | `toAddress`   | The address of Bob               |
-| `seq`         | `0`                              |
+| `seq`         | `1`                              |
 | `signature`   | Alice's signed commitment digest |
 
 ### The **`SetRootNonceAck`** Message
 
-| Field         | Description                    |
+|     Field     |          Description           |
 | ------------- | ------------------------------ |
-| `protocol`    | `1`                            |
+| `protocol`    | `"setup"`                      |
 | `fromAddress` | The address of Alice           |
 | `toAddress`   | The address of Bob             |
-| `seq`         | `1`                            |
+| `seq`         | `2`                            |
 | `signature`   | Bob's signed commitment digest |
 
 ### The **`Setup`** Message
 
-| Field         | Description                                                 |
+|     Field     |                         Description                         |
 | ------------- | ----------------------------------------------------------- |
-| `protocol`    | `1`                                                         |
-| `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
-| `data`        | `""`                                                        |
-| `fromAddress` | The address of Alice                                        |
-| `toAddress`   | The address of Bob                                          |
-| `seq`         | `2`                                                         |
-| `signature`   | Alice's signed commitment digest                            |
-
-### The **`SetupAck`** Message
-
-| Field         | Description                                                 |
-| ------------- | ----------------------------------------------------------- |
-| `protocol`    | `1`                                                         |
+| `protocol`    | `"setup"`                                                   |
 | `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
 | `data`        | `""`                                                        |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
 | `seq`         | `3`                                                         |
+| `signature`   | Alice's signed commitment digest                            |
+
+### The **`SetupAck`** Message
+
+|     Field     |                         Description                         |
+| ------------- | ----------------------------------------------------------- |
+| `protocol`    | `"setup"`                                                   |
+| `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
+| `data`        | `""`                                                        |
+| `fromAddress` | The address of Alice                                        |
+| `toAddress`   | The address of Bob                                          |
+| `seq`         | `4`                                                         |
 | `signature`   | Bob's signed commitment digest                              |
 
 ## Commitments
@@ -64,7 +64,7 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 
 The commitments that these two messages rely on have the following parameters:
 
-| Parameter              | Type      | Description                                                      |
+|       Parameter        |   Type    |                           Description                            |
 | ---------------------- | --------- | ---------------------------------------------------------------- |
 | **`rootNonceTimeout`** | `uint256` | Relative timeout in seconds after which the root nonce finalizes |
 | **`rootNonceSalt`**    | `bytes32` | Arbitrary value to facilitate uniqueness of the root nonce       |
@@ -77,16 +77,16 @@ The commitment can be visually represented like:
 
 The commitments that these two messages rely on have the following explicit parameters:
 
-| Parameter           | Type      | Description                                                                                                        |
-| ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| **`uninstallKey`**  | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the Nonce Registry |
+|     Parameter      |   Type    |                                                    Description                                                     |
+| ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the Nonce Registry |
 
 Additionally, the following parameters are implicitly computed:
 
-| Parameter                   | Type      | Description                                                                                                                            |
-| --------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **`terms`**                 | `Terms`   | Set to the default value                                                                                                               |
-| **`freeBalanceCfAddress`**  | `bytes32` | Set to the computed value for a counterfactual address of a `PaymentApp` with the initial signing keys of both users and default terms |
+|         Parameter          |   Type    |                                                              Description                                                               |
+| -------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **`terms`**                | `Terms`   | Set to the default value                                                                                                               |
+| **`freeBalanceCfAddress`** | `bytes32` | Set to the computed value for a counterfactual address of a `PaymentApp` with the initial signing keys of both users and default terms |
 
 The commitment can be visually represented like:
 

@@ -6,14 +6,14 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 **Global Variables**:
 
-| Variable Name        | Type      | Description                                                              |
-| -------------------- | --------- | -------------------------------------------------------------------------|
-| **`REGISTRY`**       | `address` | The deployed on-chain address of the `Registry` singleton contract       |
-| **`NONCE_REGISTRY`** | `address` | The deployed on-chain address of the `NonceRegistry` singleton contract  |
+|    Variable Name     |   Type    |                               Description                               |
+| -------------------- | --------- | ----------------------------------------------------------------------- |
+| **`REGISTRY`**       | `address` | The deployed on-chain address of the `Registry` singleton contract      |
+| **`NONCE_REGISTRY`** | `address` | The deployed on-chain address of the `NonceRegistry` singleton contract |
 
 **Type: `Terms`**
 
-| Field       | Type      | Description                                             |
+|    Field    |   Type    |                       Description                       |
 | ----------- | --------- | ------------------------------------------------------- |
 | `assetType` | `uint8`   | A value in the enum of `{ETH, ERC20, Other}`            |
 | `limit`     | `uint256` | The exact total budget that an application can spend    |
@@ -21,7 +21,7 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 **Type: `CfAppInterface`**
 
-| Field             | Type      | Description                                                                                          |
+|       Field       |   Type    |                                             Description                                              |
 | ----------------- | --------- | ---------------------------------------------------------------------------------------------------- |
 | `address`         | `address` | The on-chain address of the `AppDefinition` contract implementing the application logic              |
 | `applyAction`     | `bytes4`  | The sighash of the `applyAction` method on the `AppDefinition` contract                              |
@@ -35,7 +35,7 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 **Type: `PeerBalance`**
 
-| Field     | Type      | Description                                               |
+|   Field   |   Type    |                        Description                        |
 | --------- | --------- | --------------------------------------------------------- |
 | `address` | `address` | The address of a party that deposited into an application |
 | `balance` | `uint256` | The amount deposited into the application                 |

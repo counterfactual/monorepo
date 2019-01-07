@@ -14,9 +14,9 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 
 ### The **`CleanupInstall`** Message
 
-| Field         | Description                      |
+|     Field     |           Description            |
 | ------------- | -------------------------------- |
-| `protocol`    | `5`                              |
+| `protocol`    | `"cleanup"`                      |
 | `fromAddress` | The address of Alice             |
 | `toAddress`   | The address of Bob               |
 | `seq`         | `0`                              |
@@ -24,9 +24,9 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 
 ### The **`CleanupInstallAck`** Message
 
-| Field         | Description                    |
+|     Field     |          Description           |
 | ------------- | ------------------------------ |
-| `protocol`    | `5`                            |
+| `protocol`    | `"cleanup`                     |
 | `fromAddress` | The address of Alice           |
 | `toAddress`   | The address of Bob             |
 | `seq`         | `1`                            |

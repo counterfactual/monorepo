@@ -15,31 +15,31 @@ When the application has been decided between both parties and a connection is e
 
 ### Types
 
-First we introduce a new type which we label `InstallData`.
+First we introduce a new type which we label `InstallParams`.
 
-**Type: `InstallData`**
+**Type: `InstallParams`**
 
-| Field     | Type             | Description                                                        |
-| --------- | ---------------- | ------------------------------------------------------------------ |
-| `peer1`   | `PeerBalance`    | The proposed sub-deposit into the application of the first party   |
-| `peer2`   | `PeerBalance`    | The proposed sub-deposit into the application of the second party  |
-| `keyA`    | `address`        | The signing key that the first party will use for the application  |
-| `keyB`    | `address`        | The signing key that the second party will use for the application |
-| `terms`   | `Terms`          | The terms of agreement for this application                        |
-| `app`     | `CfAppInterface` | The definition of the interface of the application to be installed |
-| `timeout` | `uint256`        | The challenge period length for this application                   |
+|          Field          |       Type       |                            Description                             |
+| ----------------------- | ---------------- | ------------------------------------------------------------------ |
+| `aliceBalanceDecrement` | `uint256`        | The proposed sub-deposit into the application of the first party   |
+| `bobBalanceDecrement`   | `uint256`        | The proposed sub-deposit into the application of the second party  |
+| `signingKeys`           | `address[]`      | TBD                                                                |
+| `terms`                 | `Terms`          | The terms of agreement for this application                        |
+| `initialState`          | JSON-like        | TBD                                                                |
+| `appInterface`          | `CfAppInterface` | The definition of the interface of the application to be installed |
+| `defaultTimeout`        | `uint256`        | The challenge period length for this application                   |
 
-> NOTE: `keyA` and `keyB` are deterministically generated based on the nonce of the application in relation to the entire channel lifecycle. Further detail still to be provided in these specifications in the future. See [this issue](https://github.com/counterfactual/specs/issues/15) for discussion
+> NOTE: `signingKeys` are deterministically generated based on the nonce of the application in relation to the entire channel lifecycle. Further detail still to be provided in these specifications in the future. See [this issue](https://github.com/counterfactual/specs/issues/15) for discussion
 
 > NOTE: At the moment, this message requires that the hexidecimal value of `peer1.address` is strictly less than the value of `peer2.address` to enforce deterministic ordering of the `signingKey` variable in new application installs. This can be improved in the future
 
 ### The **`Install`** Message
 
-| Field         | Description                                                 |
+|     Field     |                         Description                         |
 | ------------- | ----------------------------------------------------------- |
-| `protocol`    | `2`                                                         |
+| `protocol`    | `"install"`                                                 |
 | `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
-| `data`        | An `InstallData` object describing the proposed app         |
+| `params`      | An `InstallParams` object describing the proposed app       |
 | `fromAddress` | The address of Alice                                        |
 | `toAddress`   | The address of Bob                                          |
 | `seq`         | `1`                                                         |
@@ -47,9 +47,9 @@ First we introduce a new type which we label `InstallData`.
 
 ### The **`InstallAck`** Message
 
-| Field         | Description                                                 |
+|     Field     |                         Description                         |
 | ------------- | ----------------------------------------------------------- |
-| `protocol`    | `2`                                                         |
+| `protocol`    | `"install"`                                                 |
 | `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
 | `data`        | An `InstallData` object describing the proposed app         |
 | `fromAddress` | The address of Alice                                        |
@@ -68,7 +68,7 @@ Let `c1` and `c2` be the amounts that parties 1 and 2 wish to contribute towards
 
 The following parameters are included in the commitment:
 
-| Parameter          | Type      | Description                                                                                           |
+|     Parameter      |   Type    |                                              Description                                              |
 | ------------------ | --------- | ----------------------------------------------------------------------------------------------------- |
 | **`uninstallKey`** | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the Nonce Registry |
 | **`appStateHash`** | `bytes32` | The computed `keccak256` hash of the initial ABIEncoderV2 encoded state of the application            |
