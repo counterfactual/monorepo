@@ -2,29 +2,31 @@ import cors from "@koa/cors";
 import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
-import serverless from "serverless-http";
 
-const app = new Koa();
+import { createAccount } from "./middleware";
+import { ApiResponse, ErrorCode } from "./types";
 
-const router = new Router();
+export default function mountApi() {
+  const api = new Koa();
 
-if (process.env.PLAYGROUND_SERVER_ENV !== "development") {
-  router.prefix("/.netlify/functions/api");
-} else {
-  router.prefix("/api");
+  const router = new Router({ prefix: "/api" });
+
+  router.post("/create-account", createAccount());
+
+  api
+    .use(bodyParser({ json: true }))
+    .use(router.routes())
+    .use(cors());
+
+  return api;
 }
 
-router.get("/hello", async (ctx, next) => {
-  ctx.body = { hello: ctx.request.query.name };
-  ctx.status = 200;
-  return next();
-});
-
-app
-  .use(router.routes())
-  .use(bodyParser({ json: true }))
-  .use(cors());
-
-const handler = serverless(app);
-
-export { handler, app };
+export function createErrorResponse(
+  status: number,
+  errorCode: ErrorCode
+): ApiResponse {
+  return {
+    ok: false,
+    error: { status, errorCode }
+  };
+}

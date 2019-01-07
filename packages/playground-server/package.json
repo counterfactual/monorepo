@@ -5,7 +5,7 @@
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
-  "main": "functions/api.js",
+  "main": "src/index.ts",
   "directories": {
     "lib": "src",
     "test": "tests"
@@ -21,27 +21,33 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js serve src",
-    "build": "PLAYGROUND_SERVER_ENV=production netlify-lambda -c webpack.config.js build src",
-    "dev": "PLAYGROUND_SERVER_ENV=development netlify-lambda -c webpack.config.js serve src",
-    "test": "PLAYGROUND_SERVER_ENV=development jest"
+    "build": "echo 'No build necessary'",
+    "start": "env-cmd development ts-node src/",
+    "test": "env-cmd test jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/node": "^0.0.1",
     "@koa/cors": "^2.2.3",
+    "knex": "^0.16.3",
     "koa": "^2.6.2",
     "koa-body": "^4.0.6",
     "koa-router": "^7.4.0",
-    "netlify-lambda": "^1.1.1",
-    "serverless-http": "^1.8.0"
+    "pg": "^7.7.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@types/knex": "^0.15.1",
     "@types/koa": "^2.0.48",
     "@types/koa-router": "^7.0.36",
+    "@types/knex": "^0.15.1",
     "@types/koa__cors": "^2.2.3",
+    "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
+    "env-cmd": "^8.0.2",
+    "sqlite3": "^4.0.4",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
@@ -74,6 +80,7 @@
       "node_modules",
       "dist"
     ],
+    "testEnvironment": "node",
     "testRegex": "\\.spec.(jsx?|tsx?)$",
     "testURL": "http://localhost/",
     "transform": {

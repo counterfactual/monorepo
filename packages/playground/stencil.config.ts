@@ -1,5 +1,6 @@
 import { Config } from "@stencil/core";
 import { sass } from "@stencil/sass";
+import replace from "rollup-plugin-replace";
 
 // https://stenciljs.com/docs/config
 
@@ -19,6 +20,9 @@ export const config: Config = {
         "src/global/responsive.scss",
         "src/global/button.scss"
       ]
+    }),
+    replace({
+      "ENV:API_HOST": process.env.API_HOST || "http://localhost:9000"
     })
   ]
 };
