@@ -285,9 +285,31 @@ export class Channels {
           const appInstanceId = await this.store.getAppInstanceIDFromAppInstanceIdentityHash(
             appInstance.identityHash
           );
-          return await this.store.getAppInstanceInfo(appInstanceId);
+          return this.store.getAppInstanceInfo(appInstanceId);
         }
       )
+    );
+  }
+
+  async getCommitmentForAppInstanceHash(
+    appInstanceHash: string,
+    protocol: string
+  ): Promise<string> {
+    return this.store.getCommitmentForAppInstanceHash(
+      appInstanceHash,
+      protocol
+    );
+  }
+
+  async setCommitmentForAppInstanceHash(
+    appInstanceHash: string,
+    protocol: string,
+    commitment: string
+  ) {
+    return this.store.setCommitmentForAppInstanceHash(
+      appInstanceHash,
+      protocol,
+      commitment
     );
   }
 

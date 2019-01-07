@@ -6,6 +6,7 @@ import {
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 
 import {
+  DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
@@ -262,5 +263,34 @@ export class Store {
       appInstanceId
     );
     return await this.getStateChannel(multisigAddress);
+  }
+
+  async setCommitmentForAppInstanceHash(
+    appInstanceHash: string,
+    protocol: string,
+    commitment: string
+  ) {
+    const key = this.computeCommitmentKey(appInstanceHash, protocol);
+    const value = JSON.stringify(commitment);
+    await this.storeService.set([
+      {
+        key,
+        value
+      }
+    ]);
+  }
+
+  async getCommitmentForAppInstanceHash(
+    appInstanceHash: string,
+    protocol: string
+  ): Promise<string> {
+    const key = this.computeCommitmentKey(appInstanceHash, protocol);
+    return this.storeService.get(key);
+  }
+
+  private computeCommitmentKey(appInstanceHash: string, protocol: string) {
+    return `${
+      this.storeKeyPrefix
+    }/${DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT}/${appInstanceHash}/${protocol}`;
   }
 }

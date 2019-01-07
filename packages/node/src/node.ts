@@ -1,4 +1,5 @@
 import { InstructionExecutor } from "@counterfactual/machine";
+import { Opcode } from "@counterfactual/machine/dist/src/opcodes";
 import {
   Address,
   NetworkContext,
@@ -55,6 +56,21 @@ export class Node {
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
     this.instructionExecutor = new InstructionExecutor(networkContext);
+    this.instructionExecutor.middlewares.add(
+      Opcode.STATE_TRANSITION_COMMIT,
+      async (message, next, context) => {
+        const { appIdentityHash } = message.params as any; // TODO: not every params has an appIdentityHash field
+        const transaction = context.commitment!.transaction([
+          context.signature! // TODO: need counterparty signature as well!
+        ]);
+        await this.channels.setCommitmentForAppInstanceHash(
+          appIdentityHash,
+          message.protocol,
+          JSON.stringify(transaction)
+        );
+        next();
+      }
+    );
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,

@@ -59,7 +59,11 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
  * that was installed.
  */
 export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
-  "AppInstanceIdToAppInstanceInfo";
+  "appInstanceIdToAppInstanceInfo";
+
+// TODO: description
+export const DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT =
+  "appInstanceHashToCommitment";
 
 /**
  * Used in standardizing how to set/get app instances within a channel according
