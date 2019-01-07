@@ -12,7 +12,7 @@
     "test:e2e": "echo 'E2E tests are disabled, skipping'"
   },
   "dependencies": {
-    "@stencil/core": "~0.15.1",
+    "@stencil/core": "~0.16.2",
     "@stencil/router": "0.2.6"
   },
   "repository": {
