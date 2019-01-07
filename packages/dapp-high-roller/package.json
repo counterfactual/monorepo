@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@stencil/core": "~0.15.1",
-    "@stencil/router": "0.2.6"
+    "@stencil/router": "0.3.2"
   },
   "repository": {
     "type": "git",
