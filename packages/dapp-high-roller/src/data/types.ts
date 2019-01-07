@@ -119,7 +119,8 @@ export namespace Node {
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
     CREATE_MULTISIG = "createMultisig",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
+    MATCHMAKE = "matchmake"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events

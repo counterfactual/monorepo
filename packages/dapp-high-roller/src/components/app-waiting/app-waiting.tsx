@@ -65,22 +65,13 @@ export class AppWaiting {
         : this.shouldMatchmake;
   }
 
-  matchmake(timeout: number) {
+  matchmake(/* timeout: number */) {
     const matchMakeMessage: Node.Message = {
-      type: Node.MethodName.GET_STATE,
+      type: Node.MethodName.MATCHMAKE,
       requestId: "123",
       params: ""
     };
     this.nodeProvider.sendMessage(matchMakeMessage);
-    return new Promise<Player>((resolve, reject) => {
-      const opponent: Player = {
-        address: "0x0101010101010101010101010101010101010101",
-        name: "Alice"
-      };
-      return setTimeout(() => {
-        return resolve(opponent);
-      }, timeout);
-    });
   }
 
   countDown() {
@@ -142,16 +133,27 @@ export class AppWaiting {
     }
     this.nodeProvider = nodeProvider;
     this.cfjs = cfjs;
+    this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
+
     if (this.shouldMatchmake) {
       this.countDown();
-      this.matchmake(this.seconds * 1000).then(async (opponent: Player) => {
-        this.installAndGoToGame(opponent);
-      });
+      this.matchmake();
     } else {
       this.countDown();
       setTimeout(() => {
         this.goToGame(this.opponentName);
       }, this.seconds * 1000);
+    }
+  }
+
+  onNodeMessage(message /* : Node.Message */) {
+    switch (message.type) {
+      case Node.MethodName.MATCHMAKE:
+        const opponent: Player = {
+          address: message.params.peerAddress,
+          name: message.params.peerName
+        };
+        this.installAndGoToGame(opponent);
     }
   }
 

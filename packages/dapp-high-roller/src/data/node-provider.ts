@@ -1,3 +1,5 @@
+import { NODATA } from "dns";
+
 import { Node } from "./types";
 
 interface INodeProvider {
@@ -14,23 +16,43 @@ export default class NodeProvider implements INodeProvider {
    * of MessagePort stored locally.
    */
   private isConnected: boolean;
+  private callback: (message: Node.Message) => void;
 
   constructor() {
     this.isConnected = false;
+    this.callback = () => {};
   }
 
   public onMessage(callback: (message: Node.Message) => void) {
-    // this.eventEmitter.on("message", callback);
+    this.callback = callback;
   }
 
   public sendMessage(message: Node.Message) {
-    console.log(message);
     if (!this.isConnected) {
       // We fail because we do not have a messagePort available.
       throw new Error(
         "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
       );
     }
+    console.log(message);
+    switch (message.type) {
+      case Node.MethodName.MATCHMAKE:
+        const message = {
+          type: Node.MethodName.MATCHMAKE,
+          requestId: "123",
+          params: {
+            peerAddress: "0x123456",
+            peerName: "Alice"
+          }
+        };
+        this.sendCallback(message, 5000);
+    }
+  }
+
+  private sendCallback(message: Node.Message, timeout: number) {
+    setTimeout(() => {
+      this.callback(message);
+    }, timeout);
   }
 
   public async connect(): Promise<NodeProvider> {
