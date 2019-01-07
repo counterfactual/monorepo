@@ -1,34 +1,28 @@
-import { InstructionExecutor } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
-import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../services";
+
+import { RequestHandler } from "./request-handler";
 
 /**
  * This creates an entry of a proposed app instance into the relevant channel
  * while sending the proposal to the peer with whom this app instance is
  * indicated to be instantiated with.
- * @param channels
- * @param messagingService
  * @param params
- * @returns A UUID for the proposed AppInstance, effectively the AppInstanceID
- *          for the client
+ * @returns The AppInstanceId for the proposed AppInstance
  */
 export async function proposeInstall(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
+  this: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
   if (params.abiEncodings.actionEncoding === undefined) {
     delete params.abiEncodings.actionEncoding;
   }
 
-  const appInstanceId = await channels.proposeInstall(params);
+  const appInstanceId = await this.channels.proposeInstall(params);
 
   const proposalMsg: NodeMessage = {
-    from: channels.selfAddress,
+    from: this.channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
       ...params,
@@ -37,7 +31,7 @@ export async function proposeInstall(
     }
   };
 
-  await messagingService.send(params.peerAddress, proposalMsg);
+  await this.messagingService.send(params.peerAddress, proposalMsg);
 
   return {
     appInstanceId
@@ -47,25 +41,21 @@ export async function proposeInstall(
 /**
  * This converts a proposed app instance to an installed app instance while
  * sending an approved ack to the proposer.
- * @param channels
- * @param messagingService
  * @param params
  */
 export async function install(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
+  this: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
-  const appInstance = await channels.install(params);
+  const appInstance = await this.channels.install(params);
   const appInstanceUUID = appInstance.id;
 
-  const [peerAddress] = await channels.getPeersAddressFromAppInstanceID(
+  const [peerAddress] = await this.channels.getPeersAddressFromAppInstanceID(
     appInstanceUUID
   );
 
   const installApprovalMsg: NodeMessage = {
-    from: channels.selfAddress,
+    from: this.channels.selfAddress,
     event: Node.EventName.INSTALL,
     data: {
       appInstanceId: appInstanceUUID,
@@ -73,7 +63,7 @@ export async function install(
     }
   };
 
-  await messagingService.send(peerAddress, installApprovalMsg);
+  await this.messagingService.send(peerAddress, installApprovalMsg);
   return {
     appInstance
   };
@@ -83,23 +73,17 @@ export async function install(
  * This function adds the app instance as a pending installation if the proposal
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
- *
- * @param channels
- * @param messagingService
- * @param params
  */
 export async function addAppInstance(
-  channels: Channels,
-  messagingService: IMessagingService,
-  instructionExecutor: InstructionExecutor,
+  this: RequestHandler,
   nodeMsg: NodeMessage
 ) {
   const params = { ...nodeMsg.data };
   params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    await channels.setAppInstanceIDForProposeInstall(params);
+    await this.channels.setAppInstanceIDForProposeInstall(params);
   } else {
-    await channels.install(params);
+    await this.channels.install(params);
   }
 }
