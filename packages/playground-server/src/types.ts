@@ -16,7 +16,10 @@ export type MatchmakeResponseData = {
 export type ErrorResponse = {
   status: number;
   errorCode: ErrorCode;
+  context?: Error;
 };
+
+export type StatusCodeMapping = Map<ErrorCode | "default", number>;
 
 export enum ErrorCode {
   UsernameRequired = "username_required",
@@ -24,12 +27,11 @@ export enum ErrorCode {
   AddressRequired = "address_required",
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
-  UserSaveFailed = "user_save_failed",
   AddressAlreadyRegistered = "address_already_registered",
   AppRegistryNotAvailable = "app_registry_not_available",
   UserAddressRequired = "user_address_required",
   NoUsersAvailable = "no_users_available",
-  MatchmakeFailed = "matchmake_failed"
+  UnhandledError = "unhandled_error"
 }
 
 export type ApiResponse = {

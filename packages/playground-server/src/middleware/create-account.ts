@@ -2,7 +2,6 @@ import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
 import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
-import { createErrorResponse, createErrorResponseForDatabase } from "../api";
 import { createUser } from "../db";
 import { createMultisigFor } from "../node";
 import {
@@ -25,19 +24,19 @@ function buildSignaturePayload(data: PlaygroundUserData) {
 
 function validateRequest(params: CreateAccountRequest): ApiResponse {
   if (!params.username) {
-    return createErrorResponse(400, ErrorCode.UsernameRequired);
+    throw ErrorCode.UsernameRequired;
   }
 
   if (!params.email) {
-    return createErrorResponse(400, ErrorCode.EmailRequired);
+    throw ErrorCode.EmailRequired;
   }
 
   if (!params.address) {
-    return createErrorResponse(400, ErrorCode.AddressRequired);
+    throw ErrorCode.AddressRequired;
   }
 
   if (!params.signature) {
-    return createErrorResponse(400, ErrorCode.SignatureRequired);
+    throw ErrorCode.SignatureRequired;
   }
 
   const providedSignature = params.signature;
@@ -46,7 +45,7 @@ function validateRequest(params: CreateAccountRequest): ApiResponse {
   const expectedAddress = verifyMessage(expectedMessage, providedSignature);
 
   if (providedAddress !== expectedAddress) {
-    return createErrorResponse(403, ErrorCode.InvalidSignature);
+    throw ErrorCode.InvalidSignature;
   }
 
   return { ok: true };
@@ -59,33 +58,16 @@ export default function createAccount() {
     // Check that all required data is available.
     const response = validateRequest(request);
 
-    if (!response.ok) {
-      // Return a HTTP error if something's missing.
-      ctx.body = response;
-      if (response.error) {
-        ctx.status = response.error.status;
-      }
-      return next();
-    }
-
     // Create the multisig and return its address.
     const multisig = await createMultisigFor(request.address);
 
     // Create the Playground User.
-    let user: PlaygroundUser;
-
-    try {
-      user = await createUser({
-        username: request.username,
-        address: request.address,
-        email: request.email,
-        multisigAddress: multisig.multisigAddress
-      });
-    } catch (e) {
-      ctx.body = createErrorResponseForDatabase(e, ErrorCode.UserSaveFailed);
-      ctx.status = ctx.body.error.status;
-      return next();
-    }
+    const user: PlaygroundUser = await createUser({
+      username: request.username,
+      address: request.address,
+      email: request.email,
+      multisigAddress: multisig.multisigAddress
+    });
 
     response.data = {
       ...response.data,

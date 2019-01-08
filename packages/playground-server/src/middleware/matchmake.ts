@@ -1,7 +1,6 @@
 import { Context } from "koa";
 import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
-import { createErrorResponse, createErrorResponseForDatabase } from "../api";
 import { matchmakeUser } from "../db";
 import {
   ApiResponse,
@@ -13,7 +12,7 @@ import {
 
 function validateRequest(params: MatchmakeRequest): ApiResponse {
   if (!params.userAddress) {
-    return createErrorResponse(400, ErrorCode.UserAddressRequired);
+    throw ErrorCode.UserAddressRequired;
   }
 
   return { ok: true };
@@ -21,30 +20,14 @@ function validateRequest(params: MatchmakeRequest): ApiResponse {
 
 export default function matchmake() {
   return async (ctx: Context, next: () => Promise<void>) => {
-    // TODO: Do we need signature validation here?
+    // TODO: Implement authentication.
     const request = ctx.request.body as MatchmakeRequest;
 
     // Check that all required data is available.
     const response = validateRequest(request);
-
-    if (!response.ok) {
-      // Return a HTTP error if something's missing.
-      ctx.body = response;
-      if (response.error) {
-        ctx.status = response.error.status;
-      }
-      return next();
-    }
-
-    let matchedUser: PlaygroundUserData;
-
-    try {
-      matchedUser = await matchmakeUser(request.userAddress);
-    } catch (e) {
-      ctx.body = createErrorResponseForDatabase(e, ErrorCode.MatchmakeFailed);
-      ctx.status = ctx.body.error.status;
-      return next();
-    }
+    const matchedUser: PlaygroundUserData = await matchmakeUser(
+      request.userAddress
+    );
 
     response.data = {
       username: matchedUser.username,
