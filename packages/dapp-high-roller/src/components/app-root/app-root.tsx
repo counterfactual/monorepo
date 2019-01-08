@@ -17,7 +17,7 @@ export class AppRoot {
   // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
   @Prop() match: MatchResults = {} as MatchResults;
   @Prop() history: RouterHistory;
-  
+
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;
@@ -48,7 +48,7 @@ export class AppRoot {
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
     this.cfProvider.on("updateState", this.onUpdateState.bind(this));
-    this.cfProvider.on("install", this.onInstall.bind(this));
+    // this.cfProvider.on("install", this.onInstall.bind(this));
 
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
@@ -79,7 +79,8 @@ export class AppRoot {
 
   render() {
     const state = {
-      appFactory: this.appFactory
+      appFactory: this.appFactory,
+      cfProvider: this.cfProvider
     };
     return (
       <div class="height-100">

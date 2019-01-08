@@ -29,6 +29,7 @@ export class AppWager {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
 
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
@@ -59,6 +60,8 @@ export class AppWager {
   async handlePlay(e: Event): Promise<void> {
     e.preventDefault();
 
+    this.cfProvider.on("install", this.onInstall.bind(this));
+
     const opponent = await this.matchmake();
 
     try {
@@ -77,7 +80,10 @@ export class AppWager {
     } catch (e) {
       debugger;
     }
+  }
 
+  onInstall(data) {
+    console.log("INSTALL", data);
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     this.history.push({
       pathname: "/waiting",
@@ -89,6 +95,17 @@ export class AppWager {
       query: {},
       key: ""
     });
+    // this.history.push({
+    //   pathname: "/game",
+    //   state: {
+    //     opponentName: "Bob",
+    //     betAmount: "0.1",
+    //     myName: "Alice",
+    //     isProposing: true
+    //   },
+    //   query: {},
+    //   key: ""
+    // });
   }
 
   handleChange(e: Event, prop: string): void {
@@ -141,4 +158,4 @@ export class AppWager {
   }
 }
 
-CounterfactualTunnel.injectProps(AppWager, ["appFactory"]);
+CounterfactualTunnel.injectProps(AppWager, ["appFactory", "cfProvider"]);
