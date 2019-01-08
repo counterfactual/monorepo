@@ -99,12 +99,15 @@ export class Store {
    */
   async saveChannel(stateChannel: StateChannel) {
     const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
+    const key = `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
+      stateChannel.multisigAddress
+    }`;
+    const value = stateChannel.toJson() as any;
+    value.randomField = 3;
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
-          stateChannel.multisigAddress
-        }`,
-        value: stateChannel.toJson()
+        key,
+        value: value
       },
       {
         key: `${
@@ -113,6 +116,9 @@ export class Store {
         value: stateChannel.multisigAddress
       }
     ]);
+    if ((await this.storeService.get(key)).randomField !== 3) {
+      throw Error('storeService lost a field');
+    }
   }
 
   /**
