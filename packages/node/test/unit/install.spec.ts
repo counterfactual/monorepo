@@ -15,7 +15,7 @@ import { openStateChannel } from "../../src/methods/multisig-operations";
 import { ProposedAppInstanceInfo } from "../../src/models";
 import { Store, STORE_ERRORS } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
-import MEMORY_STORE_SERVICE from "../services/memory-store-service";
+import memoryStoreService from "../services/memory-store-service";
 
 dotenv.load();
 
@@ -23,13 +23,21 @@ describe("Can handle correct & incorrect installs", () => {
   const storeKeyPrefix = "store";
 
   it("fails to install without appInstanceId", () => {
-    const store = new Store(MEMORY_STORE_SERVICE, storeKeyPrefix);
+    const store = new Store(memoryStoreService, storeKeyPrefix);
+    const params = { appInstanceId: undefined };
+    // ignoring here to simulate an undefined `appInstanceId` being passed in
+    // @ts-ignore
+    expect(install(store, params)).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID);
+  });
+
+  it("fails to install without appInstanceId", () => {
+    const store = new Store(memoryStoreService, storeKeyPrefix);
     const params = { appInstanceId: "" };
     expect(install(store, params)).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
-    const store = new Store(MEMORY_STORE_SERVICE, storeKeyPrefix);
+    const store = new Store(memoryStoreService, storeKeyPrefix);
     const params = { appInstanceId: generateUUID() };
     expect(install(store, params)).rejects.toEqual(
       STORE_ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID

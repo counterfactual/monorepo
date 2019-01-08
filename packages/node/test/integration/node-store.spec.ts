@@ -4,7 +4,7 @@ import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import MOCK_MESSAGING_SERVICE from "../services/mock-messaging-service";
+import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK } from "./utils";
@@ -31,7 +31,7 @@ describe("Node can use storage service", () => {
     };
     node = new Node(
       process.env.A_PRIVATE_KEY!,
-      MOCK_MESSAGING_SERVICE,
+      mockMessagingService,
       storeService,
       EMPTY_NETWORK,
       nodeConfig

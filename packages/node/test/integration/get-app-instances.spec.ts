@@ -5,7 +5,7 @@ import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import MOCK_MESSAGING_SERVICE from "../services/mock-messaging-service";
+import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -40,7 +40,7 @@ describe("Node method follows spec - getAppInstances", () => {
   beforeEach(() => {
     node = new Node(
       process.env.A_PRIVATE_KEY!,
-      MOCK_MESSAGING_SERVICE,
+      mockMessagingService,
       storeService,
       EMPTY_NETWORK,
       nodeConfig

@@ -15,5 +15,5 @@ class MemoryStoreService implements IStoreService {
   }
 }
 
-const MEMORY_STORE_SERVICE = new MemoryStoreService();
-export default MEMORY_STORE_SERVICE;
+const memoryStoreService = new MemoryStoreService();
+export default memoryStoreService;
