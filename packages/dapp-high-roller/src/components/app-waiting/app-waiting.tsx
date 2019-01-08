@@ -65,15 +65,6 @@ export class AppWaiting {
         : this.shouldMatchmake;
   }
 
-  matchmake(/* timeout: number */) {
-    const matchMakeMessage: Node.Message = {
-      type: Node.MethodName.MATCHMAKE,
-      requestId: "123",
-      params: ""
-    };
-    this.nodeProvider.sendMessage(matchMakeMessage);
-  }
-
   countDown() {
     if (this.seconds === 1) {
       return;
@@ -137,7 +128,7 @@ export class AppWaiting {
 
     if (this.shouldMatchmake) {
       this.countDown();
-      this.matchmake();
+      // this.matchmake();
     } else {
       this.countDown();
       setTimeout(() => {

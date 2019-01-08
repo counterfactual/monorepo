@@ -1,5 +1,3 @@
-import { NODATA } from "dns";
-
 import { Node } from "./types";
 
 interface INodeProvider {
@@ -34,7 +32,7 @@ export default class NodeProvider implements INodeProvider {
         "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
       );
     }
-    console.log(message);
+    // console.log(message);
     switch (message.type) {
       case Node.MethodName.MATCHMAKE:
         const message = {

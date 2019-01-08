@@ -61,7 +61,7 @@ function onUpdateState(): Promise<HighRollerAppState> {
 }
 
 async function takeAction(action: Action): Promise<HighRollerAppState> {
-  console.log(action);
+  // console.log(action);
   if (action.actionType === ActionType.START_GAME) {
     const state: HighRollerAppState = {
       playerAddrs: [AddressZero, AddressZero],

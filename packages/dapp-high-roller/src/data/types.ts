@@ -1,4 +1,6 @@
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
+
+import NodeProvider from "./node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
@@ -131,7 +133,8 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_MULTISIG = "createMultisigEvent"
+    CREATE_MULTISIG = "createMultisigEvent",
+    MATCH_MADE = "matchmade"
   }
 
   export type GetAppInstancesParams = {};
@@ -305,4 +308,37 @@ export namespace Node {
   };
 
   export type Message = MethodRequest | MethodResponse | Event | Error;
+}
+
+export namespace cf {
+  export type AppFactory = {
+    new (
+      appID: string,
+      encodings: AppABIEncodings,
+      provider: cf.Provider
+    ): AppFactory;
+    proposeInstall(parameters: {
+      peerAddress: Address;
+      asset: BlockchainAsset;
+      myDeposit: BigNumberish;
+      peerDeposit: BigNumberish;
+      initialState: AppState;
+    }): Promise<AppInstanceID>;
+    proposeVirtualInstall(parameters: {
+      peerAddress: Address;
+      asset: BlockchainAsset;
+      myDeposit: BigNumberish;
+      peerDeposit: BigNumberish;
+      initialState: AppState;
+      intermediaries: Address[];
+    }): Promise<AppInstanceID>;
+  };
+
+  export type Provider = {
+    on: (
+      message: Node.EventName,
+      callback: (data: Node.EventData) => void
+    ) => void;
+    nodeProvider: NodeProvider;
+  };
 }

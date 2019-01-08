@@ -3,6 +3,10 @@ import { MatchResults, RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import MockNodeProvider from "../../data/node-provider";
+import { cf, Node } from "../../data/types";
+
+declare var NodeProvider;
+declare var cf;
 
 @Component({
   tag: "app-root",
@@ -11,11 +15,11 @@ import MockNodeProvider from "../../data/node-provider";
 })
 export class AppRoot {
   // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
-  @Prop() match: MatchResults;
-  @Prop() history: RouterHistory;
+  @Prop() match: MatchResults = {} as MatchResults;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   nodeProvider: any;
-  cfjs: any;
+  cfProvider: cf.Provider = {} as cf.Provider;
 
   componentWillLoad() {
     if (
@@ -36,13 +40,33 @@ export class AppRoot {
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
       : new NodeProvider();
-    return this.nodeProvider.connect().then(() => {
-      this.cfjs = new cf.Provider(this.nodeProvider);
-    });
+    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
+  }
+
+  setupCfProvider() {
+    this.cfProvider = new cf.Provider(this.nodeProvider);
+
+    this.cfProvider.on(Node.EventName.MATCH_MADE, this.onMatchMade.bind(this));
+    this.cfProvider.on(
+      Node.EventName.UPDATE_STATE,
+      this.onUpdateState.bind(this)
+    );
+  }
+
+  // TODO: These callbacks should do the routing magic.
+  onMatchMade(data: Node.EventData) {
+    console.log("MATCH_MADE", data);
+  }
+
+  onUpdateState(data: Node.EventData) {
+    console.log("UPDATE_STATE", data);
   }
 
   render() {
-    const state = { nodeProvider: this.nodeProvider, cfjs: this.cfjs };
+    const state = {
+      nodeProvider: this.nodeProvider,
+      cfProvider: this.cfProvider
+    };
     return (
       <div class="height-100">
         <main class="height-100">
