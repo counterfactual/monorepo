@@ -14,7 +14,8 @@ contract MixinSetResolution is
 {
 
   /// @notice Fetch and store the resolution of a state channel application
-  // TODO: docs
+  /// @param appIdentity An `ppIdentity pointing to the app having the resolution set
+  /// @param appInterface An AppInterface representing the ABI with the `resolve` method
   /// @param finalState The ABI encoded version of the finalized application state
   /// @param terms The ABI encoded version of the already agreed upon terms
   /// @dev Note this function is only callable when the state channel is in an OFF state
@@ -24,7 +25,7 @@ contract MixinSetResolution is
     bytes memory finalState,
     bytes memory terms
   )
-    external
+    public
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
     doTermsCheck(terms, appIdentity.termsHash)
   {
