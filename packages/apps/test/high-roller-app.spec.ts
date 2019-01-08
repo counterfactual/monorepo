@@ -100,6 +100,7 @@ describe("HighRollerApp", () => {
       const state = decodeAppState(ret);
       expect(state.stage).to.eq(1);
     });
+
     it("can commit to hash", async () => {
       const preState: HighRollerAppState = {
         playerAddrs: [AddressZero, AddressZero],
@@ -126,6 +127,7 @@ describe("HighRollerApp", () => {
       expect(state.stage).to.eq(2);
       expect(state.commitHash).to.be.eql(hash);
     });
+
     it("can commit to num", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
@@ -152,6 +154,7 @@ describe("HighRollerApp", () => {
       expect(state.stage).to.eq(3);
       expect(state.playerSecondNumber).to.eq(2);
     });
+
     it("can end game - playerSecond wins", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
@@ -220,6 +223,7 @@ describe("HighRollerApp", () => {
       expect(transaction.value).to.be.eql([parseEther("1"), parseEther("1")]);
       expect(transaction.data).to.be.eql(["0x", "0x"]);
     });
+
     it("can end game - playerFirst wins", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
