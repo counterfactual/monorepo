@@ -6,10 +6,6 @@ import { RouterHistory } from "@stencil/router";
 import CounterfactualTunnel from "../../data/counterfactual";
 import { cf, Node } from "../../data/types";
 
-declare var cf: {
-  AppFactory: cf.AppFactory;
-};
-
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
 
@@ -28,7 +24,7 @@ export class AppWager {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
-  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @Prop() appFactory: cf.AppFactory;
 
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
@@ -39,22 +35,9 @@ export class AppWager {
     }
   }
 
-  async matchmake(/* timeout: number */): Promise<any> {
-    // TODO: make an ajax call to the playground server
-
-    return new Promise(resolve => {
-      resolve({
-        username: "Bob",
-        address: "0x1234567890abcdefghijklmnop"
-      });
-    });
-  }
-
   /**
    * Bob(Proposing) clicks the Play! button. He is routed to a waiting room to wait for an opponent
    * @param e
-   * @param nodeProvider
-   * @param cfjs
    */
   async handlePlay(e: Event): Promise<void> {
     e.preventDefault();
@@ -88,6 +71,17 @@ export class AppWager {
       },
       query: {},
       key: ""
+    });
+  }
+
+  async matchmake(/* timeout: number */): Promise<any> {
+    // TODO: make an ajax call to the playground server
+
+    return new Promise<any>(resolve => {
+      resolve({
+        username: "Alice",
+        address: "0x1234567890abcdefghijklmnop"
+      });
     });
   }
 

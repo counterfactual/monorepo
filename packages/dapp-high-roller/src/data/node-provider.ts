@@ -37,24 +37,33 @@ export default class NodeProvider implements INodeProvider {
     const appInstanceId = `app-instance-${new Date().valueOf()}`;
     switch (message.type) {
       case Node.MethodName.PROPOSE_INSTALL_VIRTUAL:
-        this.sendCallback({
-          type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
-          result: { appInstanceId },
-          requestId: message.requestId
-        }, 100);
+        this.sendCallback(
+          {
+            type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+            result: { appInstanceId },
+            requestId: message.requestId
+          },
+          100
+        );
 
         // then emulate the other party installing...
-        this.sendCallback({
-          type: Node.EventName.INSTALL,
-          data: { appInstanceId }
-        }, 200);
+        this.sendCallback(
+          {
+            type: Node.EventName.INSTALL,
+            data: { appInstanceId }
+          },
+          200
+        );
         break;
       case Node.MethodName.GET_APP_INSTANCE_DETAILS:
-        this.sendCallback({
-          type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
-          result: { appInstance: { id: message.params.appInstanceId } },
-          requestId: message.requestId
-        }, 1);
+        this.sendCallback(
+          {
+            type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
+            result: { appInstance: { id: message.params.appInstanceId } },
+            requestId: message.requestId
+          },
+          1
+        );
         break;
       default:
         console.error("Unhandled message in MockNodeProvider:", message);

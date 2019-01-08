@@ -1,5 +1,6 @@
 import { BigNumber, BigNumberish } from "ethers/utils";
 
+import { AppInstance } from "./mock-app-instance";
 import NodeProvider from "./node-provider";
 
 export type ABIEncoding = string;
@@ -336,10 +337,12 @@ export namespace cf {
   };
 
   export type Provider = {
-    on: (
-      eventName: any,
-      callback: (data: Node.EventData) => void
-    ) => void;
+    on: (eventName: any, callback: (data: Node.EventData) => void) => void;
+    callRawNodeMethod: (
+      methodName: Node.MethodName,
+      params: Node.MethodParams
+    ) => Promise<Node.MethodResponse>;
+    appInstances: { [appInstanceId: string]: AppInstance };
     nodeProvider: NodeProvider;
   };
 }

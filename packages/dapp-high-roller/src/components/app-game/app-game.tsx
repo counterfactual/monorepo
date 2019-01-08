@@ -4,11 +4,12 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
+import { cf } from "../../data/types";
 import { GameState, PlayerType } from "../../enums/enums";
 
 const { AddressZero } = ethers.constants;
 const { solidityKeccak256 } = ethers.utils;
-
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
@@ -132,6 +133,10 @@ export class AppGame {
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
   @Prop({ mutable: true }) opponentName: string = "John";
   @Prop({ mutable: true }) isProposing: boolean = false;
+  @Prop({ mutable: true }) appInstanceId: string = "";
+
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
 
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
@@ -166,6 +171,9 @@ export class AppGame {
     this.isProposing = this.history.location.state.isProposing
       ? this.history.location.state.isProposing
       : this.isProposing;
+    this.appInstanceId = this.history.location.state.appInstanceId
+      ? this.history.location.state.appInstanceId
+      : this.appInstanceId;
   }
 
   generateRandomRoll() {
@@ -200,6 +208,9 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
+    // this.appInstance = this.cfProvider.appInstances[this.appInstanceId]; // this works but is private/not recommended
+    console.log(this.appInstance); // this should be the injected appInstance from the Tunnel
+
     if (this.isProposing) {
       if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
         await Promise.all([
@@ -260,58 +271,72 @@ export class AppGame {
   }
 
   render() {
-    return [
-      <div class="wrapper">
-        <div class="game">
-          <app-game-player
-            playerName={this.opponentName}
-            playerScore={this.opponentScore}
-            playerType={PlayerType.Black}
-            playerRoll={this.opponentRoll}
-          />
-          <app-game-status
-            gameState={this.gameState}
-            betAmount={this.betAmount}
-          />
-          <app-game-player
-            playerName={this.myName}
-            playerScore={this.myScore}
-            playerType={PlayerType.White}
-            playerRoll={this.myRoll}
-          />
-          {this.gameState === GameState.Play ? (
-            <div class="actions">
-              <button class="btn btn--center" onClick={() => this.handleRoll()}>
-                Roll your dice!
-              </button>
-            </div>
-          ) : (
-            <div class="actions">
-              <button class="btn btn--exit" onClick={() => this.handleExit()}>
-                Exit
-              </button>
-              <button
-                class="btn btn--rematch"
-                onClick={() => this.handleRematch()}
-              >
-                Rematch
-              </button>
-            </div>
-          )}
+    return (
+      <CounterfactualTunnel.Consumer>
+        {({ appInstance }) => [
+          // for some reason this isn't being injected correctly. It is always equal to {}
+          <div class="wrapper">
+            <div class="game">
+              <app-game-player
+                playerName={this.opponentName}
+                playerScore={this.opponentScore}
+                playerType={PlayerType.Black}
+                playerRoll={this.opponentRoll}
+              />
+              <app-game-status
+                gameState={this.gameState}
+                betAmount={this.betAmount}
+              />
+              <app-game-player
+                playerName={this.myName}
+                playerScore={this.myScore}
+                playerType={PlayerType.White}
+                playerRoll={this.myRoll}
+              />
+              {this.gameState === GameState.Play ? (
+                <div class="actions">
+                  <button
+                    class="btn btn--center"
+                    onClick={() => this.handleRoll()}
+                  >
+                    Roll your dice!
+                  </button>
+                </div>
+              ) : (
+                <div class="actions">
+                  <button
+                    class="btn btn--exit"
+                    onClick={() => this.handleExit()}
+                  >
+                    Exit
+                  </button>
+                  <button
+                    class="btn btn--rematch"
+                    onClick={() => this.handleRematch()}
+                  >
+                    Rematch
+                  </button>
+                </div>
+              )}
 
-          <div>
-            <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
-              <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
-            </audio>
-            <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
-              <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
-            </audio>
-          </div>
-        </div>
-      </div>,
-      this.gameState === GameState.Won ? <app-game-coins /> : undefined
-    ];
+              <div>
+                <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
+                  <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
+                </audio>
+                <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
+                  <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
+                </audio>
+              </div>
+            </div>
+          </div>,
+          this.gameState === GameState.Won ? <app-game-coins /> : undefined
+        ]}
+      </CounterfactualTunnel.Consumer>
+    );
   }
 }
 
-CounterfactualTunnel.injectProps(AppGame, ["appFactory"]);
+CounterfactualTunnel.injectProps(AppGame, [
+  "appFactory",
+  "appInstance" // for some reason this isn't being injected correctly. It is always equal to {}
+]);

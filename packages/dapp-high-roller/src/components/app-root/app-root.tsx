@@ -1,7 +1,7 @@
-import { Component, Element, Prop } from "@stencil/core";
-import { MatchResults, RouterHistory, injectHistory } from "@stencil/router";
+import { Component, Element, Prop, State } from "@stencil/core";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/node-provider";
 import { cf, Node } from "../../data/types";
 
@@ -14,80 +14,34 @@ declare var cf;
   shadow: true
 })
 export class AppRoot {
-  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
-  // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
-  @Prop() match: MatchResults = {} as MatchResults;
-  @Prop() history: RouterHistory;
-
+  @Prop({ mutable: true }) state : any;
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @State() appInstance: AppInstance = {} as AppInstance;
 
-  componentWillLoad() {
-    if (
-      this.history &&
-      this.history.location &&
-      this.history.location.query &&
-      this.history.location.query.standalone
-    ) {
-      // This is supposed to work as per: https://stenciljs.com/docs/router-tutorials#route-query-parameters
-      // However this.history seems to always be undefined... Maybe because this is the root?
-      return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-
-    // Using promise syntax because lifecycle events aren't
-    // async/await-friendly.
-    this.nodeProvider = params.get("standalone")
-      ? new MockNodeProvider()
-      : new NodeProvider();
-    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
+  constructor() {
+    this.state = {
+      appInstance: null,
+      appFactory: null,
+      updateAppInstance: this.updateAppInstance.bind(this),
+      updateAppFactory: this.updateAppFactory.bind(this)
+    };
   }
 
-  setupCfProvider() {
-    this.cfProvider = new cf.Provider(this.nodeProvider);
-
-    this.cfProvider.on("updateState", this.onUpdateState.bind(this));
-    this.cfProvider.on("install", this.onInstall.bind(this));
-
-    this.appFactory = new cf.AppFactory(
-      // TODO: This probably should be in a configuration, somewhere.
-      "0x1515151515151515151515151515151515151515",
-      { actionEncoding: "uint256", stateEncoding: "uint256" },
-      this.cfProvider
-    );
+  updateAppInstance(appInstance: AppInstance) {
+    this.state = { ...this.state, appInstance };
   }
 
-  onUpdateState(data: Node.EventData) {
-    console.log("UPDATE_STATE", data);
-  }
-
-  onInstall(data) {
-    console.log("INSTALL", data);
-
-    // TODO: why isn't this working?
-    // this.history.push({
-    //   pathname: "/game",
-    //   state: {
-    //     opponentName: "Bob",
-    //     betAmount: "0.1",
-    //     myName: "Alice",
-    //     isProposing: true
-    //   },
-    //   query: {},
-    //   key: ""
-    // });
+  updateAppFactory(appFactory: cf.AppFactory) {
+    this.state = { ...this.state, appFactory };
   }
 
   render() {
-    const state = {
-      appFactory: this.appFactory
-    };
     return (
       <div class="height-100">
         <main class="height-100">
-          <CounterfactualTunnel.Provider state={state}>
+          <CounterfactualTunnel.Provider state={this.state}>
             <stencil-router>
               <stencil-route-switch scrollTopOffset={0}>
                 <stencil-route url="/" component="app-logo" exact={true} />
@@ -99,6 +53,7 @@ export class AppRoot {
                   component="app-accept-invite"
                 />
               </stencil-route-switch>
+              <app-provider updateAppInstance={this.updateAppInstance} updateAppFactory={this.updateAppFactory} />
             </stencil-router>
           </CounterfactualTunnel.Provider>
         </main>
@@ -106,5 +61,3 @@ export class AppRoot {
     );
   }
 }
-
-injectHistory(AppRoot);

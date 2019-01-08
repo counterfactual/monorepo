@@ -1,13 +1,16 @@
-import { Component, Prop, State } from "@stencil/core";
+declare var ethers;
+
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
 import NodeProvider from "../../data/node-provider";
-import { Node } from "../../data/types";
+import { cf } from "../../data/types";
 
 interface Player {
   address: string;
-  name: string;
+  username: string;
 }
 
 /**
@@ -20,7 +23,9 @@ interface Player {
   shadow: true
 })
 export class AppWaiting {
-  @Prop() history: RouterHistory;
+  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
@@ -29,6 +34,11 @@ export class AppWaiting {
   @State() seconds: number = 5;
   @State() cfjs: any;
   @State() nodeProvider: NodeProvider = new NodeProvider();
+  @State() isCountdownStarted: boolean = false;
+  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop() updateAppInstance = (instance: AppInstance) => {};
+  // @Prop() proposeInstall = () => {};
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -75,14 +85,58 @@ export class AppWaiting {
     }, 1000);
   }
 
-  goToGame(opponentName: string) {
+  goToGame(opponentName: string, appInstanceId: string) {
+    console.log(`GO TO GAME: ${opponentName}`);
+    // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
+    this.history.push({
+      pathname: "/game",
+      state: {
+        appInstanceId,
+        opponentName,
+        betAmount: this.betAmount,
+        myName: this.myName,
+        isProposing: this.shouldMatchmake
+      },
+      query: {},
+      key: ""
+    });
+
     // The INSTALL event should trigger us moving to the game state
   }
 
   startCountdown() {
+    if (this.isCountdownStarted) {
+      return;
+    }
+    this.isCountdownStarted = true;
     this.countDown();
+  }
+
+  setupWaiting() {
+    if (this.shouldMatchmake) {
+      // this.proposeInstall();
+      this.setupWaitingProposing();
+    } else {
+      this.setupWaitingAccepting();
+    }
+  }
+
+  setupWaitingProposing() {
+    if (this.isCountdownStarted) {
+      return;
+    }
+
+    this.startCountdown();
+
+  }
+
+  setupWaitingAccepting() {
+    this.startCountdown();
+
+    // TODO Need to do cfjs.on('updateState', () => {this.goToGame(this.opponentName);}
+
     setTimeout(() => {
-      this.goToGame(this.opponentName);
+      this.goToGame(this.opponentName, "123");
     }, this.seconds * 1000);
   }
 
@@ -90,7 +144,7 @@ export class AppWaiting {
     return (
       <CounterfactualTunnel.Consumer>
         {() => [
-          <div>{this.startCountdown()}</div>,
+          <div>{this.setupWaiting()}</div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">
@@ -116,3 +170,9 @@ export class AppWaiting {
     );
   }
 }
+CounterfactualTunnel.injectProps(AppWaiting, [
+  "appFactory",
+  "cfProvider",
+  "updateAppInstance",
+  "appInstance"
+]);
