@@ -1,5 +1,5 @@
-import { Component, Prop } from "@stencil/core";
-import { MatchResults, RouterHistory } from "@stencil/router";
+import { Component, Element, Prop } from "@stencil/core";
+import { MatchResults, RouterHistory, injectHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import MockNodeProvider from "../../data/node-provider";
@@ -14,10 +14,11 @@ declare var cf;
   shadow: true
 })
 export class AppRoot {
+  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
   // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
   @Prop() match: MatchResults = {} as MatchResults;
   @Prop() history: RouterHistory;
-  
+
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;
@@ -64,17 +65,19 @@ export class AppRoot {
 
   onInstall(data) {
     console.log("INSTALL", data);
-    this.history.push({
-      pathname: "/game",
-      state: {
-        opponentName: "Bob",
-        betAmount: "0.1",
-        myName: "Alice",
-        isProposing: true
-      },
-      query: {},
-      key: ""
-    });
+
+    // TODO: why isn't this working?
+    // this.history.push({
+    //   pathname: "/game",
+    //   state: {
+    //     opponentName: "Bob",
+    //     betAmount: "0.1",
+    //     myName: "Alice",
+    //     isProposing: true
+    //   },
+    //   query: {},
+    //   key: ""
+    // });
   }
 
   render() {
@@ -103,3 +106,5 @@ export class AppRoot {
     );
   }
 }
+
+injectHistory(AppRoot);
