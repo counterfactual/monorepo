@@ -14,7 +14,7 @@ contract MixinSetResolution is
 {
 
   /// @notice Fetch and store the resolution of a state channel application
-  /// @param appIdentity An `ppIdentity pointing to the app having the resolution set
+  /// @param appIdentity An AppIdentity pointing to the app having the resolution set
   /// @param appInterface An AppInterface representing the ABI with the `resolve` method
   /// @param finalState The ABI encoded version of the finalized application state
   /// @param terms The ABI encoded version of the already agreed upon terms
