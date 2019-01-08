@@ -336,10 +336,7 @@ export namespace cf {
   };
 
   export type Provider = {
-    on: (
-      eventName: any,
-      callback: (data: Node.EventData) => void
-    ) => void;
+    on: (eventName: any, callback: (data: Node.EventData) => void) => void;
     nodeProvider: NodeProvider;
   };
 }

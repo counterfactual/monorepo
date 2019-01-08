@@ -9,7 +9,6 @@ import { GameState, PlayerType } from "../../enums/enums";
 const { AddressZero } = ethers.constants;
 const { solidityKeccak256 } = ethers.utils;
 
-
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
