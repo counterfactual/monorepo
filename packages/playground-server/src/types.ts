@@ -26,7 +26,10 @@ export enum ErrorCode {
   InvalidSignature = "invalid_signature",
   UserSaveFailed = "user_save_failed",
   AddressAlreadyRegistered = "address_already_registered",
-  AppRegistryNotAvailable = "app_registry_not_available"
+  AppRegistryNotAvailable = "app_registry_not_available",
+  UserAddressRequired = "user_address_required",
+  NoUsersAvailable = "no_users_available",
+  MatchmakeFailed = "matchmake_failed"
 }
 
 export type ApiResponse = {
