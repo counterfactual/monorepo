@@ -107,7 +107,7 @@ export class Store {
     await this.storeService.set([
       {
         key,
-        value: value
+        value
       },
       {
         key: `${
@@ -119,7 +119,7 @@ export class Store {
     const gotten = await this.storeService.get(key);
     console.log(gotten);
     if (gotten.randomField !== []) {
-      throw Error('storeService lost a field');
+      throw Error("storeService lost a field");
     }
   }
 
