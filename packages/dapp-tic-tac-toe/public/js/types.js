@@ -1,1 +1,0 @@
-../../../types/dist/index-iife.js
