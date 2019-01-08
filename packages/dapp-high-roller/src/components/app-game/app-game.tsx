@@ -1,12 +1,14 @@
 declare var ethers;
 
-import { Component, Prop, State } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import CounterfactualTunnel from "../../data/counterfactual";
 import { GameState, PlayerType } from "../../enums/enums";
 
 const { AddressZero } = ethers.constants;
 const { solidityKeccak256 } = ethers.utils;
+
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
@@ -123,6 +125,7 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
   shadow: true
 })
 export class AppGame {
+  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() history: RouterHistory;
 
   @Prop({ mutable: true }) myName: string = "Facundo";
@@ -310,3 +313,5 @@ export class AppGame {
     ];
   }
 }
+
+CounterfactualTunnel.injectProps(AppGame, ["appFactory"]);

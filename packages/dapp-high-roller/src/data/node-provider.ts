@@ -22,32 +22,46 @@ export default class NodeProvider implements INodeProvider {
   }
 
   public onMessage(callback: (message: Node.Message) => void) {
+    console.log("NodeProvider#onMessage called with", callback);
     this.callback = callback;
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message) {
     if (!this.isConnected) {
       // We fail because we do not have a messagePort available.
       throw new Error(
         "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
       );
     }
-    // console.log(message);
+
+    const appInstanceId = `app-instance-${new Date().valueOf()}`;
     switch (message.type) {
-      case Node.MethodName.MATCHMAKE:
-        const message = {
-          type: Node.MethodName.MATCHMAKE,
-          requestId: "123",
-          params: {
-            peerAddress: "0x123456",
-            peerName: "Alice"
-          }
-        };
-        this.sendCallback(message, 5000);
+      case Node.MethodName.PROPOSE_INSTALL_VIRTUAL:
+        this.sendCallback({
+          type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+          result: { appInstanceId },
+          requestId: message.requestId
+        }, 100);
+
+        // then emulate the other party installing...
+        this.sendCallback({
+          type: Node.EventName.INSTALL,
+          data: { appInstanceId }
+        }, 200);
+        break;
+      case Node.MethodName.GET_APP_INSTANCE_DETAILS:
+        this.sendCallback({
+          type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          result: { appInstance: { id: message.params.appInstanceId } },
+          requestId: message.requestId
+        }, 1);
+        break;
+      default:
+        console.error("Unhandled message in MockNodeProvider:", message);
     }
   }
 
-  private sendCallback(message: Node.Message, timeout: number) {
+  private sendCallback(message: any, timeout: number) {
     setTimeout(() => {
       this.callback(message);
     }, timeout);

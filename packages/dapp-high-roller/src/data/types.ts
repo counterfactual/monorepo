@@ -324,19 +324,20 @@ export namespace cf {
       peerDeposit: BigNumberish;
       initialState: AppState;
     }): Promise<AppInstanceID>;
-    proposeVirtualInstall(parameters: {
+    proposeInstallVirtual(parameters: {
       peerAddress: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: AppState;
       intermediaries: Address[];
+      timeout: number;
     }): Promise<AppInstanceID>;
   };
 
   export type Provider = {
     on: (
-      message: Node.EventName,
+      eventName: any,
       callback: (data: Node.EventData) => void
     ) => void;
     nodeProvider: NodeProvider;

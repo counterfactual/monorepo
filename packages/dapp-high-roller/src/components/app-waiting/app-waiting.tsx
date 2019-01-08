@@ -75,84 +75,22 @@ export class AppWaiting {
     }, 1000);
   }
 
-  /**
-   * Alice(Accepting) receives a notification that Bob(Proposing) has invited them to play High Roller
-   * Alice(Accepting) approves the initiation. Playground calls CF.js install
-   * Bob(Proposing) moves out of the waiting room and into the game
-   */
-  async installAndGoToGame(opponent: Player) {
-    // const appFactory = new cf.AppFactory(
-    //   // TODO: This probably should be in a configuration, somewhere.
-    //   "0x1515151515151515151515151515151515151515",
-    //   { actionEncoding: "uint256", stateEncoding: "uint256" },
-    //   cfjs
-    // );
-
-    // await appFactory.proposeInstall({
-    //   // TODO: This should be provided by the Playground.
-    //   peerAddress: opponent.address,
-    //   asset: {
-    //     assetType: 0 /* AssetType.ETH */
-    //   },
-    //   // TODO: Do we assume the same bet for both parties?
-    //   peerDeposit: ethers.utils.parseEther(this.betAmount),
-    //   myDeposit: ethers.utils.parseEther(this.betAmount),
-    //   // TODO: Check the timeout.
-    //   timeout: 100,
-    //   initialState: null
-    // });
-    this.goToGame(opponent.name);
-  }
-
   goToGame(opponentName: string) {
-    this.history.push({
-      pathname: "/game",
-      state: {
-        opponentName,
-        betAmount: this.betAmount,
-        myName: this.myName,
-        isProposing: this.shouldMatchmake
-      },
-      query: {},
-      key: ""
-    });
+    // The INSTALL event should trigger us moving to the game state
   }
 
-  setupCFjs(nodeProvider, cfjs) {
-    if (this.cfjs) {
-      return;
-    }
-    this.nodeProvider = nodeProvider;
-    this.cfjs = cfjs;
-    this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
-
-    if (this.shouldMatchmake) {
-      this.countDown();
-      // this.matchmake();
-    } else {
-      this.countDown();
-      setTimeout(() => {
-        this.goToGame(this.opponentName);
-      }, this.seconds * 1000);
-    }
-  }
-
-  onNodeMessage(message /* : Node.Message */) {
-    switch (message.type) {
-      case Node.MethodName.MATCHMAKE:
-        const opponent: Player = {
-          address: message.params.peerAddress,
-          name: message.params.peerName
-        };
-        this.installAndGoToGame(opponent);
-    }
+  startCountdown() {
+    this.countDown();
+    setTimeout(() => {
+      this.goToGame(this.opponentName);
+    }, this.seconds * 1000);
   }
 
   render() {
     return (
       <CounterfactualTunnel.Consumer>
-        {({ nodeProvider, cfjs }) => [
-          <div>{this.setupCFjs(nodeProvider, cfjs)}</div>,
+        {() => [
+          <div>{this.startCountdown()}</div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">

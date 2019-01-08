@@ -16,10 +16,11 @@ declare var cf;
 export class AppRoot {
   // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
   @Prop() match: MatchResults = {} as MatchResults;
-  @Prop() history: RouterHistory = {} as RouterHistory;
-
+  @Prop() history: RouterHistory;
+  
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
+  appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   componentWillLoad() {
     if (
@@ -46,26 +47,39 @@ export class AppRoot {
   setupCfProvider() {
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
-    this.cfProvider.on(Node.EventName.MATCH_MADE, this.onMatchMade.bind(this));
-    this.cfProvider.on(
-      Node.EventName.UPDATE_STATE,
-      this.onUpdateState.bind(this)
-    );
-  }
+    this.cfProvider.on("updateState", this.onUpdateState.bind(this));
+    this.cfProvider.on("install", this.onInstall.bind(this));
 
-  // TODO: These callbacks should do the routing magic.
-  onMatchMade(data: Node.EventData) {
-    console.log("MATCH_MADE", data);
+    this.appFactory = new cf.AppFactory(
+      // TODO: This probably should be in a configuration, somewhere.
+      "0x1515151515151515151515151515151515151515",
+      { actionEncoding: "uint256", stateEncoding: "uint256" },
+      this.cfProvider
+    );
   }
 
   onUpdateState(data: Node.EventData) {
     console.log("UPDATE_STATE", data);
   }
 
+  onInstall(data) {
+    console.log("INSTALL", data);
+    this.history.push({
+      pathname: "/game",
+      state: {
+        opponentName: "Bob",
+        betAmount: "0.1",
+        myName: "Alice",
+        isProposing: true
+      },
+      query: {},
+      key: ""
+    });
+  }
+
   render() {
     const state = {
-      nodeProvider: this.nodeProvider,
-      cfProvider: this.cfProvider
+      appFactory: this.appFactory
     };
     return (
       <div class="height-100">
