@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "High Roller",
+      "url": "https://high-roller-staging.counterfactual.com",
+      "slug": "high-roller",
+      "icon": "assets/images/logo.svg"
+    }
+  ]
+}
