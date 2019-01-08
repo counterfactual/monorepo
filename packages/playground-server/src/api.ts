@@ -4,7 +4,7 @@ import bodyParser from "koa-body";
 import Router from "koa-router";
 import path from "path";
 
-import { createAccount, getApps } from "./middleware";
+import { createAccount, getApps, matchmake } from "./middleware";
 import { ApiResponse, ErrorCode } from "./types";
 
 export default function mountApi() {
@@ -13,6 +13,8 @@ export default function mountApi() {
   const router = new Router({ prefix: "/api" });
 
   router.post("/create-account", createAccount());
+  router.post("/matchmake", matchmake());
+
   router.get("/apps", getApps(path.resolve(__dirname, "../registry.json")));
 
   api
