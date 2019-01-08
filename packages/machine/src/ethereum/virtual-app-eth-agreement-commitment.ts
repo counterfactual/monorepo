@@ -14,15 +14,15 @@ export class VirtualAppETHAgreementCommitment extends MultiSendCommitment {
     public readonly networkContext: NetworkContext,
     public readonly multisig: string,
     public readonly multisigOwners: string[],
-    public readonly appIdentity: AppIdentity,
-    public readonly terms: Terms,
+    public readonly targetAppIdentityHash: string,
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceTerms: Terms,
     public readonly freeBalanceStateHash: string,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
-    public readonly rootNonceValue: number
+    public readonly rootNonceValue: number,
+    public readonly terms?: Terms,
   ) {
     super(
       networkContext,

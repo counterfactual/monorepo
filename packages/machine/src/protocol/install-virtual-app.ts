@@ -9,6 +9,8 @@ import {
   ProtocolMessage
 } from "../protocol-types-tbd";
 import { Context } from "../types";
+import { NetworkContext, AssetType } from "@counterfactual/types";
+import { VirtualAppETHAgreementCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-eth-agreement-commitment";
 
 /**
  * @description This exchange is described at the following URL:
@@ -128,19 +130,34 @@ function proposeStateTransition1(
     bobBalanceDecrement
   );
 
-  // TBD
-
-  // context.commitment = constructInstallOp(
-  //   context.network,
-  //   context.stateChannel,
-  //   appInstance.id
-  // );
+  context.commitment = constructAgreementInstallCommitment(
+    context.network,
+    context.stateChannel,
+    targetAppInstance,
+    ethVirtualAppAgreementInstance
+  );
 }
 
-// function constructInstallOp(
-//   network: NetworkContext,
-//   stateChannel: StateChannel,
-//   appIdentityHash: string
-// ) {
+function constructAgreementInstallCommitment(
+  network: NetworkContext,
+  stateChannel: StateChannel,
+  targetAppInstance: AppInstance,
+  agreement: ETHVirtualAppAgreement
+) {
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-// }
+  return new VirtualAppETHAgreementCommitment(
+    network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    targetAppInstance.identityHash,
+    freeBalance.identity,
+    freeBalance.terms,
+    freeBalance.hashOfLatestState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo,
+    freeBalance.rootNonceValue
+
+  );
+}
