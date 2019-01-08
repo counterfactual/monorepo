@@ -7,4 +7,5 @@ class MockMessagingService implements IMessagingService {
   receive(address: Address, callback: (msg: object) => void) {}
 }
 
-export const MOCK_MESSAGING_SERVICE = new MockMessagingService();
+const MOCK_MESSAGING_SERVICE = new MockMessagingService();
+export default MOCK_MESSAGING_SERVICE;

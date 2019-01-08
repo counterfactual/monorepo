@@ -5,7 +5,7 @@ import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
+import MOCK_MESSAGING_SERVICE from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {

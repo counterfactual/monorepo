@@ -21,6 +21,10 @@ import {
 
 import { RequestHandler } from "./request-handler";
 
+export const ERRORS = {
+  NO_APP_INSTANCE_ID: "No AppInstanceId specified to install"
+};
+
 /**
  * This creates an entry of a proposed app instance into the relevant channel
  * while sending the proposal to the peer with whom this app instance is
@@ -142,17 +146,20 @@ async function createProposedAppInstance(
   return appInstanceId;
 }
 
-async function install(
+export async function install(
   store: Store,
   params: Node.InstallParams
 ): Promise<AppInstanceInfo> {
   const { appInstanceId } = params;
-  if (!appInstanceId) {
-    return Promise.reject("No AppInstanceId specified to install");
+  if (
+    !appInstanceId ||
+    (typeof appInstanceId === "string" && appInstanceId.trim() === "")
+  ) {
+    return Promise.reject(ERRORS.NO_APP_INSTANCE_ID);
   }
 
-  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
+  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
   const appInstance = createAppInstanceFromAppInstanceInfo(
     appInstanceInfo,
     stateChannel

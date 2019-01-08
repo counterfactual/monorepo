@@ -4,7 +4,7 @@ import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
+import MOCK_MESSAGING_SERVICE from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK } from "./utils";

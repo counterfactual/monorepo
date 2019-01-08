@@ -18,6 +18,13 @@ import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
 
+export const STORE_ERRORS = {
+  NO_MULTISIG_FOR_APP_INSTANCE_ID:
+    "No multisig address exists for the given appInstanceId",
+  NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID:
+    "No proposed AppInstance exists for the given appInstanceId"
+};
+
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
  * StoreService.
@@ -243,13 +250,17 @@ export class Store {
   async getProposedAppInstanceInfo(
     appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
-    return ProposedAppInstanceInfo.fromJson(
-      await this.storeService.get(
-        `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
-      )
+    const proposedAppInstance = await this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
+    if (!proposedAppInstance) {
+      return Promise.reject(
+        STORE_ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
+      );
+    }
+    return ProposedAppInstanceInfo.fromJson(proposedAppInstance);
   }
 
   /**
@@ -261,6 +272,9 @@ export class Store {
     const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
       appInstanceId
     );
+    if (!multisigAddress) {
+      return Promise.reject(STORE_ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    }
     return await this.getStateChannel(multisigAddress);
   }
 }
