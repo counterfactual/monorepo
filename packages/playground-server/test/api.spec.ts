@@ -222,11 +222,11 @@ describe("playground-server", () => {
         });
     });
 
-    it("returns a user as a match", async done => {
+    it("returns the only possible user as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert({
         username: "bob",
-        email: "bob@wonderland",
+        email: "bob@wonder.land",
         eth_address: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
       });
 
@@ -241,6 +241,38 @@ describe("playground-server", () => {
             username: "bob",
             peerAddress: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
           });
+          done();
+        });
+    });
+
+    it("returns one of two possible users as a match", async done => {
+      // Mock an extra user into the DB first.
+      await db("users").insert({
+        username: "charlie",
+        email: "charlie@wonder.land",
+        eth_address: "0x5faddca4889ddc5791cf65446371151f29653285"
+      });
+
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .then(response => {
+          expect(response.status).toEqual(200);
+          expect(response.data.ok).toBe(true);
+
+          const { username, peerAddress } = response.data.data;
+          const bobAddress = "0x93678a4828d07708ad34272d61404dd06ae2ca64";
+          const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
+
+          if (username === "bob") {
+            expect(peerAddress).toEqual(bobAddress);
+          } else if (username === "charlie") {
+            expect(peerAddress).toEqual(charlieAddress);
+          } else {
+            fail("It should have matched either Bob or Charlie");
+          }
+
           done();
         });
     });
