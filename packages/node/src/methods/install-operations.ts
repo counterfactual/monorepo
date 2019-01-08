@@ -146,18 +146,14 @@ async function install(
   store: Store,
   params: Node.InstallParams
 ): Promise<AppInstanceInfo> {
-  if (!params.appInstanceId) {
+  const { appInstanceId } = params;
+  if (!appInstanceId) {
     return Promise.reject("No AppInstanceId specified to install");
   }
 
-  const stateChannel = await store.getChannelFromAppInstanceID(
-    params.appInstanceId
-  );
-
-  const appInstanceInfo = await store.getProposedAppInstanceInfo(
-    params.appInstanceId
-  );
-  const appInstance: AppInstance = createAppInstanceFromAppInstanceInfo(
+  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+  const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
+  const appInstance = createAppInstanceFromAppInstanceInfo(
     appInstanceInfo,
     stateChannel
   );
@@ -256,7 +252,7 @@ function getAppFunctionSigHashes(
     applyAction: applyActionSigHash,
     getTurnTaker: getTurnTakerSigHash,
     isStateTerminal: isStateTerminalSigHash
-  } as AppInterfaceSighashParameters;
+  };
 }
 
 async function setAppInstanceIDForProposeInstall(
