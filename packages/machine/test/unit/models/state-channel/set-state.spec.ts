@@ -50,7 +50,7 @@ describe("StateChannel::setState", () => {
       Math.ceil(Math.random() * 2e10),
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
-      999, // <------ nonce
+      Math.ceil(Math.random() * 10000),
       Math.ceil(1000 * Math.random())
     );
 
@@ -85,8 +85,7 @@ describe("StateChannel::setState", () => {
     });
 
     it("should have bumped the nonce", () => {
-      // TODO: make 999 a const var in the test
-      expect(app.nonce).toBe(999 + 1);
+      expect(app.nonce).toBe(testApp.nonce + 1);
     });
 
     it("should have used the default timeout", () => {

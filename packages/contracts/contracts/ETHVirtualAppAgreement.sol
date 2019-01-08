@@ -42,12 +42,12 @@ contract ETHVirtualAppAgreement {
 
     require(
       agreement.terms.assetType == resolution.assetType,
-      "returned incompatible resolution"
+      "returned incompatible resolution based on bad asset type"
     );
 
     require(
       agreement.terms.token == resolution.token,
-      "returned incompatible resolution"
+      "returned incompatible resolution based on bad token value"
     );
 
     require(
