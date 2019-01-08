@@ -97,7 +97,7 @@ export class Store {
    * @param channel
    * @param ownersHash
    */
-  async saveChannel(stateChannel: StateChannel) {
+  async saveStateChannel(stateChannel: StateChannel) {
     const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
     await this.storeService.set([
       {

@@ -33,7 +33,7 @@ export async function createMultisig(
   };
 
   stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-  await this.store.saveChannel(stateChannel);
+  await this.store.saveStateChannel(stateChannel);
 
   const [peerAddress] = params.owners.filter(
     owner => owner !== this.selfAddress
@@ -74,7 +74,7 @@ export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {
   };
 
   stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-  await this.store.saveChannel(stateChannel);
+  await this.store.saveStateChannel(stateChannel);
 }
 
 export async function getAllChannelAddresses(
