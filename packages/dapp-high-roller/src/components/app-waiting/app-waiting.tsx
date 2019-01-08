@@ -29,6 +29,7 @@ export class AppWaiting {
   @State() seconds: number = 5;
   @State() cfjs: any;
   @State() nodeProvider: NodeProvider = new NodeProvider();
+  @State() isCountdownStarted: boolean = false;
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -80,6 +81,10 @@ export class AppWaiting {
   }
 
   startCountdown() {
+    if (this.isCountdownStarted) {
+      return;
+    }
+    this.isCountdownStarted = true;
     this.countDown();
     setTimeout(() => {
       this.goToGame(this.opponentName);
