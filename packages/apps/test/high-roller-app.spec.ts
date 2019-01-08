@@ -51,10 +51,16 @@ type Action = {
 };
 
 function decodeAppState(encodedAppState: string): HighRollerAppState {
-  // TODO Is it correct that Stage is of type uint here? Using Stage or enum didn't work
   return defaultAbiCoder.decode(
     [
-      "tuple(address[2] playerAddrs, uint stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
+      `tuple(
+        address[2] playerAddrs,
+        uint8 stage,
+        bytes32 salt,
+        bytes32 commitHash,
+        uint256 playerFirstNumber,
+        uint256 playerSecondNumber
+      )`
     ],
     encodedAppState
   )[0];
