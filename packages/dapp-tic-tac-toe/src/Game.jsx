@@ -14,15 +14,15 @@ class Game extends Component {
             state: turn, won, lost
             classNames: 'player__status--turn', 'player__status--won', 'player__status--lost
           */}
-          <div className="player__status player__status--won">
+          <div className="player__status player__status--turn">
             {/* STATE: 'turn' */}
-            {/* <span>JOHN'S TURN</span> */}
+            <span>JOHN'S TURN</span>
 
             {/* STATE: 'won' */}
-            <div className="result">
+            {/* <div className="result">
               <span>YOU WON!</span>
               <span>2 ETH</span>
-            </div>
+            </div> */}
 
             {/* STATE: 'lost' */}
             {/* <div className="result">
@@ -34,7 +34,7 @@ class Game extends Component {
 
         <Timer />
         
-        <Board />
+        <Board appInstance={this.appInstance} />
 
         <Link to="/wager" className="btn">PLAY AGAIN!</Link>
       </div>

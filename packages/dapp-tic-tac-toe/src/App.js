@@ -39,6 +39,12 @@ export default class App extends Component {
     });
   }
 
+  appInstanceInstalled(appInstance) {
+    this.setState({
+      appInstance: appInstance
+    })
+  }
+
   render() {
       gameState
     }
@@ -71,10 +77,17 @@ export default class App extends Component {
                 <Waiting {...props}
                   cfProvider={this.state.cfProvider}
                   gameState={this.state.gameState}
+                  onAppInstanceInstalled={this.appInstanceInstalled.bind(this)}
+                />}
+            />
+            <Route path="/game"
+              render={(props) =>
+                <Game {...props}
+                  appInstance={this.state.appInstance}
+                  gameState={this.state.gameState}
                 />}
             />
           />
-            <Route path="/game" component={Game} />
           </div>
         </Router> :
         <h1 className="App message">connecting....</h1>

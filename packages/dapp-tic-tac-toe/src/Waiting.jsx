@@ -40,6 +40,7 @@ export default class Waiting extends Component {
   }
 
   onInstall(appInstance) {
+    this.props.onAppInstanceInstalled(appInstance)
     this.props.history.push('/game');
   }
 
@@ -83,7 +84,7 @@ export default class Waiting extends Component {
       timeout: 100,
       initialState: {
         address: [myAddress, opponent.address],
-        turnName: 0,
+        turnNum: 0,
         winner: 0,
         board: [
           [0, 0, 0],
@@ -115,7 +116,7 @@ export default class Waiting extends Component {
       "0x1515151515151515151515151515151515151515",
       {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
-        stateEncoding: "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)"
+        stateEncoding: "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
       },
       this.props.cfProvider
     );

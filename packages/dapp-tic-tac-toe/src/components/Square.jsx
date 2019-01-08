@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-// import { ReactComponent as XIcon } from '../assets/images/x.svg'
+import { ReactComponent as XIcon } from '../assets/images/x.svg'
 import { ReactComponent as OIcon } from '../assets/images/o.svg'
 
 class Square extends Component {
@@ -14,8 +14,12 @@ class Square extends Component {
   render() {
     return (
       <button className="square">
-        {/* <XIcon /> */}
-        <OIcon />
+        {
+          this.mark === 1 ?
+            <XIcon /> :
+            this.mark === 2 ?
+              <OIcon /> : undefined
+        }
       </button>
     );
   }
