@@ -1,3 +1,4 @@
+import { AppInstance } from "@counterfactual/machine";
 import {
   AppABIEncodings,
   AppState,
@@ -5,6 +6,7 @@ import {
   BlockchainAsset
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { ProposedAppInstanceInfo } from "../../src/models";
 
@@ -26,4 +28,37 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
       bar: 0
     } as AppState
   });
+}
+
+export function createAppInstance() {
+  return new AppInstance(
+    getAddress(hexlify(randomBytes(20))),
+    // TODO: generate ephemeral app-specific keys
+    [
+      getAddress(hexlify(randomBytes(20))),
+      getAddress(hexlify(randomBytes(20)))
+    ],
+    0,
+    {
+      addr: getAddress(hexlify(randomBytes(20))),
+      applyAction: hexlify(randomBytes(4)),
+      resolve: hexlify(randomBytes(4)),
+      getTurnTaker: hexlify(randomBytes(4)),
+      isStateTerminal: hexlify(randomBytes(4)),
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    },
+    {
+      assetType: AssetType.ETH,
+      limit: bigNumberify(2),
+      token: AddressZero
+    },
+    false,
+    // TODO: this should be thread-safe
+    1,
+    0,
+    { foo: AddressZero, bar: 0 },
+    0,
+    0
+  );
 }

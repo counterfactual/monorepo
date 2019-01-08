@@ -49,7 +49,7 @@ export async function getInstalledAppInstances(
  * @param this
  * @param params
  */
-export async function handleAppInstanceState(
+export async function handleGetAppInstanceState(
   this: RequestHandler,
   params: Node.GetStateParams
 ): Promise<Node.GetStateResult> {
