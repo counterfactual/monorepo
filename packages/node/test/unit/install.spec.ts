@@ -23,7 +23,9 @@ describe("Can handle correct & incorrect installs", () => {
     const params = { appInstanceId: undefined };
     // ignoring here to simulate an undefined `appInstanceId` being passed in
     // @ts-ignore
-    expect(install(store, params)).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID);
+    expect(install(store, params)).rejects.toEqual(
+      ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL
+    );
   });
 
   it("fails to install without appInstanceId", () => {
