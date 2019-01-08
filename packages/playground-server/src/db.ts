@@ -2,7 +2,12 @@ import { Address } from "@counterfactual/types";
 import knex from "knex";
 import { v4 as generateUuid } from "uuid";
 
-import { ErrorCode, PlaygroundUser, PlaygroundUserData } from "./types";
+import {
+  ErrorCode,
+  MatchmakeUserData,
+  PlaygroundUser,
+  PlaygroundUserData
+} from "./types";
 
 const DATABASE_CONFIGURATION: knex.Config = {
   client: process.env.DB_ENGINE as string,
@@ -35,7 +40,7 @@ export async function ethAddressAlreadyRegistered(
 
 export async function matchmakeUser(
   userAddress: Address
-): Promise<PlaygroundUserData> {
+): Promise<MatchmakeUserData> {
   const db = getDatabase();
 
   const matchmakeResults: {

@@ -40,10 +40,7 @@ export type ApiResponse = {
   data?:
     | CreateAccountResponseData
     | GetAppsResponseData
-    | MatchmakeResponseData
-    | {
-        /* other types */
-      };
+    | MatchmakeResponseData;
 };
 
 export type CreateAccountResponseData = {
@@ -63,7 +60,12 @@ export type GetAppsResponseData = {
 };
 
 export type PlaygroundUserData = {
-  email?: string;
+  email: string;
+  username: string;
+  address: Address;
+};
+
+export type MatchmakeUserData = {
   username: string;
   address: Address;
 };

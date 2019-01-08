@@ -7,7 +7,7 @@ import {
   ErrorCode,
   MatchmakeRequest,
   MatchmakeResponseData,
-  PlaygroundUserData
+  MatchmakeUserData
 } from "../types";
 
 function validateRequest(params: MatchmakeRequest): ApiResponse {
@@ -25,7 +25,7 @@ export default function matchmake() {
 
     // Check that all required data is available.
     const response = validateRequest(request);
-    const matchedUser: PlaygroundUserData = await matchmakeUser(
+    const matchedUser: MatchmakeUserData = await matchmakeUser(
       request.userAddress
     );
 
