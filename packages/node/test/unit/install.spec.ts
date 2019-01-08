@@ -38,8 +38,7 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install without the AppInstance being proposed first", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
-    const params = { appInstanceId: generateUUID() };
-    expect(install(store, params)).rejects.toEqual(
+    expect(install(store, { appInstanceId: generateUUID() })).rejects.toEqual(
       STORE_ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
     );
   });
@@ -62,9 +61,8 @@ describe("Can handle correct & incorrect installs", () => {
       STORE_ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
 
-    const params = { appInstanceId };
     try {
-      await install(store, params);
+      await install(store, { appInstanceId });
     } catch (e) {
       expect(e).toEqual(STORE_ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
@@ -95,10 +93,11 @@ describe("Can handle correct & incorrect installs", () => {
       stateChannel
     );
 
-    const params = { appInstanceId };
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed
-    expect(await install(store, params)).toEqual(proposedAppInstanceInfo);
+    expect(await install(store, { appInstanceId })).toEqual(
+      proposedAppInstanceInfo
+    );
   });
 });
 
