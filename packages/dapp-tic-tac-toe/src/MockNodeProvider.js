@@ -1,6 +1,3 @@
-import Node from "./Node";
-import { bigNumberify } from 'ethers/utils';
-
 export default class NodeProvider {
   constructor() {
     this.isConnected = false;
@@ -20,16 +17,16 @@ export default class NodeProvider {
     }
     console.log("message in", message);
     switch (message.type) {
-      case Node.MethodName.PROPOSE_INSTALL_VIRTUAL: {
+      case window.types.Node.MethodName.PROPOSE_INSTALL_VIRTUAL: {
         this.sendCallback({
-          type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+          type: window.types.Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
           requestId: message.requestId,
           result: {
             appInstanceId: "0x654321"
           }
         }, 100);
         this.sendCallback({
-          type: Node.EventName.INSTALL,
+          type: window.types.Node.EventName.INSTALL,
           data: {
             appInstance: this.generateAppInstanceDetail({
               intermediaries: message.params.intermediaries
@@ -38,28 +35,28 @@ export default class NodeProvider {
         }, 500);
         break;
       }
-      case Node.MethodName.INSTALL_VIRTUAL: {
+      case window.types.Node.MethodName.INSTALL_VIRTUAL: {
         const appInstance = this.generateAppInstanceDetail({
           intermediaries: message.params.intermediaries
         });
         this.sendCallback(Object.assign({
-          type: Node.MethodName.INSTALL_VIRTUAL,
+          type: window.types.Node.MethodName.INSTALL_VIRTUAL,
           requestId: message.requestId,
           result: {
             appInstance
           }
         }), 100); // method
         this.sendCallback({
-          type: Node.EventName.INSTALL,
+          type: window.types.Node.EventName.INSTALL,
           data: {
             appInstance
           }
         }, 500); // event
         break;
       }
-      case Node.MethodName.GET_APP_INSTANCE_DETAILS: {
+      case window.types.Node.MethodName.GET_APP_INSTANCE_DETAILS: {
         this.sendCallback({
-          type: Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          type: window.types.Node.MethodName.GET_APP_INSTANCE_DETAILS,
           requestId: message.requestId,
           result: {
             appInstance: this.generateAppInstanceDetail()
@@ -106,7 +103,7 @@ export default class NodeProvider {
       return setTimeout(() => {
         this.isConnected = true;
         return resolve(this);
-      }, 1000);
+      }, 100);
     });
   }
 }

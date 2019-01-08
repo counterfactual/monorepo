@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Node from "./Node";
 
 /**
  * User Story
@@ -30,9 +29,7 @@ export default class Waiting extends Component {
   }
 
   async initialize() {
-    await this.props.nodeProvider.connect();
-    
-    if (!this.props.state.appInstanceId) {
+    if (!this.props.gameState.appInstanceId) {
       const opponent = await this.matchmake();
       this.proposeInstall(opponent)
     } else {
@@ -68,8 +65,8 @@ export default class Waiting extends Component {
   }
 
   /**
-	 * Bob(Proposing) makes a call to CF.js proposeInstall.
-	 * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
+   * Bob(Proposing) makes a call to CF.js proposeInstall.
+   * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   async proposeInstall(opponent) {
     const appFactory = this.createAppFactory();
@@ -79,8 +76,8 @@ export default class Waiting extends Component {
       asset: {
         assetType: 0 /* AssetType.ETH */
       },
-      peerDeposit: window.ethers.utils.parseEther(this.props.state.betAmount),
-      myDeposit: window.ethers.utils.parseEther(this.props.state.betAmount),
+      peerDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
+      myDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
       timeout: 100,
       initialState: null,
       // TODO: provide valid intermediary addresses, namely the playground server's eth addr
@@ -95,7 +92,7 @@ export default class Waiting extends Component {
    */
   async install() {
     this.props.cfProvider.installVirtual({
-      appInstanceId: this.props.state.appInstanceId,
+      appInstanceId: this.props.gameState.appInstanceId,
       // TODO: provide valid intermediary addresses, namely the playground server's eth addr
       intermediaries: ["0x2515151515151515151515151515151515151515"]
     });
@@ -124,8 +121,8 @@ export default class Waiting extends Component {
             </p>
             <p className="countdown">{this.state.seconds}</p>
             <p>
-              Player: {this.props.state.myName} <br />
-              Bet Amount: {this.props.state.betAmount} ETH
+              Player: {this.props.gameState.myName} <br />
+              Bet Amount: {this.props.gameState.betAmount} ETH
             </p>
           </div>
         </div>

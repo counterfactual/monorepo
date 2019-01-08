@@ -1,1 +1,1 @@
-../../../node-provider/dist/index-iife.js
+../../node-provider/dist/index-iife.js
