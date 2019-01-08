@@ -98,7 +98,7 @@ describe("HighRollerApp", () => {
       const ret = await highRollerApp.functions.applyAction(preState, action);
 
       const state = decodeAppState(ret);
-      expect(state.stage).to.be.eql(new BigNumber(1));
+      expect(state.stage).to.eq(1);
     });
     it("can commit to hash", async () => {
       const preState: HighRollerAppState = {
@@ -123,7 +123,7 @@ describe("HighRollerApp", () => {
       const ret = await highRollerApp.functions.applyAction(preState, action);
 
       const state = decodeAppState(ret);
-      expect(state.stage).to.be.eql(new BigNumber(2));
+      expect(state.stage).to.eq(2);
       expect(state.commitHash).to.be.eql(hash);
     });
     it("can commit to num", async () => {
@@ -149,8 +149,8 @@ describe("HighRollerApp", () => {
       const ret = await highRollerApp.functions.applyAction(preState, action);
 
       const state = decodeAppState(ret);
-      expect(state.stage).to.be.eql(new BigNumber(3));
-      expect(state.playerSecondNumber).to.be.eql(new BigNumber(2));
+      expect(state.stage).to.eq(3);
+      expect(state.playerSecondNumber).to.eq(2);
     });
     it("can end game - playerSecond wins", async () => {
       const numberSalt =
