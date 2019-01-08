@@ -69,6 +69,8 @@ export default class Waiting extends Component {
    * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   async proposeInstall(opponent) {
+    // TODO: provide user's actual address
+    const myAddress = "888";
     const appFactory = this.createAppFactory();
 
     appFactory.proposeInstallVirtual({
@@ -79,7 +81,16 @@ export default class Waiting extends Component {
       peerDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
       myDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
       timeout: 100,
-      initialState: null,
+      initialState: {
+        address: [myAddress, opponent.address],
+        turnName: 0,
+        winner: 0,
+        board: [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0]
+        ]
+      },
       // TODO: provide valid intermediary addresses, namely the playground server's eth addr
       intermediaries: ["0x2515151515151515151515151515151515151515"]
     });
