@@ -65,8 +65,7 @@ function getNonFreeBalanceAppInstancesJSON(
   stateChannel: StateChannel
 ): AppInstance[] {
   return [...stateChannel.appInstances.values()].filter(
-    (appInstance: AppInstance) => {
-      return !stateChannel.appInstanceIsFreeBalance(appInstance.identityHash);
-    }
+    (appInstance: AppInstance) =>
+      !stateChannel.appInstanceIsFreeBalance(appInstance.identityHash)
   );
 }
