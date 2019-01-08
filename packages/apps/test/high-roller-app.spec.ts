@@ -3,12 +3,7 @@ import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
-import {
-  BigNumber,
-  defaultAbiCoder,
-  parseEther,
-  solidityKeccak256
-} from "ethers/utils";
+import { defaultAbiCoder, parseEther, solidityKeccak256 } from "ethers/utils";
 
 import HighRollerApp from "../build/HighRollerApp.json";
 
