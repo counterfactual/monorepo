@@ -4,7 +4,10 @@ class MemoryStoreService implements IStoreService {
   private store: Map<string, any> = new Map();
   constructor() {}
   async get(key: string): Promise<any> {
-    return this.store.get(key);
+    if (this.store.has(key)) {
+      return this.store.get(key);
+    }
+    return Promise.resolve(null);
   }
 
   async set(pairs: { key: string; value: any }[]): Promise<boolean> {

@@ -14,16 +14,10 @@ import {
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
+import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
-
-export const STORE_ERRORS = {
-  NO_MULTISIG_FOR_APP_INSTANCE_ID:
-    "No multisig address exists for the given appInstanceId",
-  NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID:
-    "No proposed AppInstance exists for the given appInstanceId"
-};
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -257,7 +251,7 @@ export class Store {
     );
     if (!proposedAppInstance) {
       return Promise.reject(
-        STORE_ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
+        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
       );
     }
     return ProposedAppInstanceInfo.fromJson(proposedAppInstance);
@@ -273,8 +267,23 @@ export class Store {
       appInstanceId
     );
     if (!multisigAddress) {
-      return Promise.reject(STORE_ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
     return await this.getStateChannel(multisigAddress);
+  }
+
+  /**
+   * Returns a string identifying the `AppInstanceIdentityHash` that is mapped to
+   * the given `appInstanceId`.
+   * @param appInstanceId
+   */
+  async getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId: string
+  ): Promise<string> {
+    return this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
+    );
   }
 }

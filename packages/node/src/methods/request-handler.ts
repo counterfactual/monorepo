@@ -7,6 +7,7 @@ import { IMessagingService, IStoreService } from "../services";
 import { Store } from "../store";
 
 import {
+  getAppInstanceState,
   getInstalledAppInstances,
   getProposedAppInstances
 } from "./app-instance-operations";
@@ -86,6 +87,7 @@ export class RequestHandler {
       proposeAppInstanceInstall.bind(this)
     );
     this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
+    this.methods.set(Node.MethodName.GET_STATE, getAppInstanceState.bind(this));
   }
 
   /**
