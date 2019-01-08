@@ -1,13 +1,15 @@
-import { Component, Prop, State } from "@stencil/core";
+declare var ethers;
+
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import NodeProvider from "../../data/node-provider";
-import { Node } from "../../data/types";
+import { cf } from "../../data/types";
 
 interface Player {
   address: string;
-  name: string;
+  username: string;
 }
 
 /**
@@ -20,7 +22,9 @@ interface Player {
   shadow: true
 })
 export class AppWaiting {
-  @Prop() history: RouterHistory;
+  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
@@ -30,6 +34,8 @@ export class AppWaiting {
   @State() cfjs: any;
   @State() nodeProvider: NodeProvider = new NodeProvider();
   @State() isCountdownStarted: boolean = false;
+  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -77,6 +83,20 @@ export class AppWaiting {
   }
 
   goToGame(opponentName: string) {
+    console.log(`GO TO GAME: ${opponentName}`);
+    // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
+    this.history.push({
+      pathname: "/game",
+      state: {
+        opponentName,
+        betAmount: this.betAmount,
+        myName: this.myName,
+        isProposing: this.shouldMatchmake
+      },
+      query: {},
+      key: ""
+    });
+
     // The INSTALL event should trigger us moving to the game state
   }
 
@@ -86,6 +106,65 @@ export class AppWaiting {
     }
     this.isCountdownStarted = true;
     this.countDown();
+  }
+
+  setupWaiting() {
+    if (this.shouldMatchmake) {
+      this.setupWaitingProposing();
+    } else {
+      this.setupWaitingAccepting();
+    }
+  }
+
+  setupWaitingProposing() {
+    if (!Object.keys(this.cfProvider).length || this.isCountdownStarted) {
+      return;
+    }
+    this.startCountdown();
+
+    this.cfProvider.on("install", this.onInstall.bind(this));
+    this.matchmake().then(async (opponent: Player) => {
+      this.opponentName = opponent.username; // This should be received after install?
+      try {
+        await this.appFactory.proposeInstallVirtual({
+          peerAddress: opponent.address,
+          asset: {
+            assetType: 0 /* AssetType.ETH */
+          },
+          peerDeposit: ethers.utils.parseEther(this.betAmount),
+          myDeposit: ethers.utils.parseEther(this.betAmount),
+          timeout: 10000,
+          // TODO: Playground Server address for the current env
+          intermediaries: ["0x1234567890playgroundServer1234567890"],
+          initialState: null
+        });
+      } catch (e) {
+        debugger;
+      }
+    });
+  }
+
+  setupWaitingAccepting() {
+    this.startCountdown();
+
+    setTimeout(() => {
+      this.goToGame(this.opponentName);
+    }, this.seconds * 1000);
+  }
+
+  async matchmake(/* timeout: number */): Promise<Player> {
+    // TODO: make an ajax call to the playground server
+
+    return new Promise<Player>(resolve => {
+      resolve({
+        username: "Alice",
+        address: "0x1234567890abcdefghijklmnop"
+      });
+    });
+  }
+
+  onInstall(data) {
+    console.log("INSTALL", data); // data should contain opponentName?
     setTimeout(() => {
       this.goToGame(this.opponentName);
     }, this.seconds * 1000);
@@ -95,7 +174,7 @@ export class AppWaiting {
     return (
       <CounterfactualTunnel.Consumer>
         {() => [
-          <div>{this.startCountdown()}</div>,
+          <div>{this.setupWaiting()}</div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">
@@ -121,3 +200,4 @@ export class AppWaiting {
     );
   }
 }
+CounterfactualTunnel.injectProps(AppWaiting, ["appFactory", "cfProvider"]);

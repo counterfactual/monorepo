@@ -1,14 +1,5 @@
-declare var ethers;
-
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
-
-import CounterfactualTunnel from "../../data/counterfactual";
-import { cf, Node } from "../../data/types";
-
-declare var cf: {
-  AppFactory: cf.AppFactory;
-};
 
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
@@ -28,8 +19,6 @@ export class AppWager {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
-  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
-  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
 
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
@@ -40,50 +29,13 @@ export class AppWager {
     }
   }
 
-  async matchmake(/* timeout: number */): Promise<any> {
-    // TODO: make an ajax call to the playground server
-
-    return new Promise(resolve => {
-      resolve({
-        username: "Bob",
-        address: "0x1234567890abcdefghijklmnop"
-      });
-    });
-  }
-
   /**
    * Bob(Proposing) clicks the Play! button. He is routed to a waiting room to wait for an opponent
    * @param e
-   * @param nodeProvider
-   * @param cfjs
    */
   async handlePlay(e: Event): Promise<void> {
     e.preventDefault();
 
-    this.cfProvider.on("install", this.onInstall.bind(this));
-
-    const opponent = await this.matchmake();
-
-    try {
-      await this.appFactory.proposeInstallVirtual({
-        peerAddress: opponent.address,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
-        peerDeposit: ethers.utils.parseEther(this.betAmount),
-        myDeposit: ethers.utils.parseEther(this.betAmount),
-        timeout: 10000,
-        // TODO: Playground Server address for the current env
-        intermediaries: ["0x1234567890playgroundServer1234567890"],
-        initialState: null
-      });
-    } catch (e) {
-      debugger;
-    }
-  }
-
-  onInstall(data) {
-    console.log("INSTALL", data);
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     this.history.push({
       pathname: "/waiting",
@@ -95,17 +47,6 @@ export class AppWager {
       query: {},
       key: ""
     });
-    // this.history.push({
-    //   pathname: "/game",
-    //   state: {
-    //     opponentName: "Bob",
-    //     betAmount: "0.1",
-    //     myName: "Alice",
-    //     isProposing: true
-    //   },
-    //   query: {},
-    //   key: ""
-    // });
   }
 
   handleChange(e: Event, prop: string): void {
@@ -157,5 +98,3 @@ export class AppWager {
     );
   }
 }
-
-CounterfactualTunnel.injectProps(AppWager, ["appFactory", "cfProvider"]);
