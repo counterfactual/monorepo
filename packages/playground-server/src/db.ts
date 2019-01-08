@@ -33,6 +33,38 @@ export async function ethAddressAlreadyRegistered(
   return userId.length > 0;
 }
 
+export async function matchmakeUser(
+  userAddress: Address
+): Promise<PlaygroundUserData> {
+  const db = getDatabase();
+
+  const matchmakeResults: {
+    username: string;
+    address: string;
+  }[] = await db("users")
+    .columns({ username: "username", address: "eth_address" })
+    .select()
+    .where("eth_address", "!=", userAddress);
+
+  await db.destroy();
+
+  if (matchmakeResults.length === 1) {
+    // If there is only one user, just select that one.
+    return matchmakeResults[0];
+  }
+
+  if (matchmakeResults.length === 0) {
+    // If there are no users, throw an error.
+    throw ErrorCode.NoUsersAvailable;
+  }
+
+  // We do the random selection of the user outside of the DB
+  // to avoid engine coupling; could've been solved using `.orderBy("RANDOM()")`.
+  const randomIndex = Math.floor(Math.random() * matchmakeResults.length);
+
+  return matchmakeResults[randomIndex];
+}
+
 export async function createUser(
   data: PlaygroundUserData & { multisigAddress: Address }
 ): Promise<PlaygroundUser> {
