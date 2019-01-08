@@ -2,7 +2,7 @@ import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
 import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
 
-import { createErrorResponse } from "../api";
+import { createErrorResponse, createErrorResponseForDatabase } from "../api";
 import { createUser } from "../db";
 import { createMultisigFor } from "../node";
 import {
@@ -82,12 +82,7 @@ export default function createAccount() {
         multisigAddress: multisig.multisigAddress
       });
     } catch (e) {
-      // Return 400 for handled errors, 500 for unexpected throws.
-      if (!(e instanceof Error)) {
-        ctx.body = createErrorResponse(400, e as ErrorCode);
-      } else {
-        ctx.body = createErrorResponse(500, ErrorCode.UserSaveFailed);
-      }
+      ctx.body = createErrorResponseForDatabase(e, ErrorCode.UserSaveFailed);
       ctx.status = ctx.body.error.status;
       return next();
     }
