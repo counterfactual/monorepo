@@ -22,7 +22,7 @@ export class VirtualAppETHAgreementCommitment extends MultiSendCommitment {
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
-    public readonly terms?: Terms,
+    public readonly terms?: Terms
   ) {
     super(
       networkContext,

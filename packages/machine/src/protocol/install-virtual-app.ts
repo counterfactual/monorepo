@@ -1,5 +1,7 @@
 // import { NetworkContext } from "@counterfactual/types";
 
+import { VirtualAppETHAgreementCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-eth-agreement-commitment";
+import { AssetType, NetworkContext } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import { AppInstance, ETHVirtualAppAgreement, StateChannel } from "../models";
@@ -9,8 +11,6 @@ import {
   ProtocolMessage
 } from "../protocol-types-tbd";
 import { Context } from "../types";
-import { NetworkContext, AssetType } from "@counterfactual/types";
-import { VirtualAppETHAgreementCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-eth-agreement-commitment";
 
 /**
  * @description This exchange is described at the following URL:
@@ -158,6 +158,5 @@ function constructAgreementInstallCommitment(
     freeBalance.timeout,
     freeBalance.appSeqNo,
     freeBalance.rootNonceValue
-
   );
 }
