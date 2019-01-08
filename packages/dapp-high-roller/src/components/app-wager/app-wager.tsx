@@ -69,7 +69,7 @@ export class AppWager {
     );
 
     // TODO: This should be triggered.
-    this.matchmake();.
+    this.matchmake();
 
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     // TODO: This should be encapsulated as a "onMatchMake()" callback?
