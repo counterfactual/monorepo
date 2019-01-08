@@ -60,7 +60,7 @@ export type GetAppsResponseData = {
 };
 
 export type PlaygroundUserData = {
-  email: string;
+  email?: string;
   username: string;
   address: Address;
 };
