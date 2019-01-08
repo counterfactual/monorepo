@@ -1,11 +1,17 @@
 import { StateChannel } from "@counterfactual/machine";
-import { Address, AssetType, Node } from "@counterfactual/types";
+import {
+  Address,
+  AssetType,
+  Node,
+  NetworkContext
+} from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { bigNumberify } from "ethers/utils";
 
 import { NodeMessage } from "../node";
 
 import { RequestHandler } from "./request-handler";
+import { Store } from "../store";
 
 /**
  * This creates a multisig while sending details about this multisig
@@ -19,21 +25,12 @@ export async function createMultisig(
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const multisigAddress = generateNewMultisigAddress(params.owners);
-  let stateChannel = new StateChannel(
+  await openStateChannel(
     multisigAddress,
-    params.owners
-  ).setupChannel(this.networkContext);
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-  const state = {
-    alice: stateChannel.multisigOwners[0],
-    bob: stateChannel.multisigOwners[1],
-    aliceBalance: bigNumberify(0),
-    bobBalance: bigNumberify(0)
-  };
-
-  stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-  await this.store.saveStateChannel(stateChannel);
+    params.owners,
+    this.store,
+    this.networkContext
+  );
 
   const [peerAddress] = params.owners.filter(
     owner => owner !== this.selfAddress
@@ -52,6 +49,37 @@ export async function createMultisig(
   return {
     multisigAddress
   };
+}
+
+/**
+ * This also instantiates a StateChannel object to encapsulate the "channel"
+ * having been opened via the creation of the multisig.
+ * @param multisigAddress
+ * @param owners
+ * @param store
+ * @param networkContext
+ */
+export async function openStateChannel(
+  multisigAddress: Address,
+  owners: Address[],
+  store: Store,
+  networkContext: NetworkContext
+): Promise<StateChannel> {
+  let stateChannel = new StateChannel(multisigAddress, owners).setupChannel(
+    networkContext
+  );
+  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+  const state = {
+    alice: stateChannel.multisigOwners[0],
+    bob: stateChannel.multisigOwners[1],
+    aliceBalance: bigNumberify(0),
+    bobBalance: bigNumberify(0)
+  };
+
+  stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
+  await store.saveStateChannel(stateChannel);
+  return stateChannel;
 }
 
 /**
