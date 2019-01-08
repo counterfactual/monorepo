@@ -103,7 +103,7 @@ export class Store {
       stateChannel.multisigAddress
     }`;
     const value = stateChannel.toJson() as any;
-    value.randomField = 3;
+    value.randomField = [];
     await this.storeService.set([
       {
         key,
@@ -116,7 +116,9 @@ export class Store {
         value: stateChannel.multisigAddress
       }
     ]);
-    if ((await this.storeService.get(key)).randomField !== 3) {
+    const gotten = await this.storeService.get(key);
+    console.log(gotten);
+    if (gotten.randomField !== []) {
       throw Error('storeService lost a field');
     }
   }
