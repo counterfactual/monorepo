@@ -38,6 +38,7 @@ export type ApiResponse = {
   data?:
     | CreateAccountResponseData
     | GetAppsResponseData
+    | MatchmakeResponseData
     | {
         /* other types */
       };
