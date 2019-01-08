@@ -23,6 +23,18 @@ export default function mountApi() {
   return api;
 }
 
+export function createErrorResponseForDatabase(
+  handledError: Error | ErrorCode,
+  failureErrorCode: ErrorCode
+): ApiResponse {
+  // Return 400 for handled errors, 500 for unexpected throws.
+  if (!(handledError instanceof Error)) {
+    return createErrorResponse(400, handledError as ErrorCode);
+  }
+
+  return createErrorResponse(500, failureErrorCode);
+}
+
 export function createErrorResponse(
   status: number,
   errorCode: ErrorCode
