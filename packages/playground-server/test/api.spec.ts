@@ -188,4 +188,61 @@ describe("playground-server", () => {
       });
     });
   });
+
+  describe("/api/matchmake", () => {
+    it("fails when no user address is provided", done => {
+      client.post("/matchmake").catch(({ response }) => {
+        expect(response.status).toEqual(400);
+        expect(response.data).toEqual({
+          ok: false,
+          error: {
+            status: 400,
+            errorCode: ErrorCode.UserAddressRequired
+          }
+        });
+        done();
+      });
+    });
+
+    it("fails when there are no users to match with", done => {
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .catch(({ response }) => {
+          expect(response.status).toEqual(400);
+          expect(response.data).toEqual({
+            ok: false,
+            error: {
+              status: 400,
+              errorCode: ErrorCode.NoUsersAvailable
+            }
+          });
+          done();
+        });
+    });
+
+    it("returns a user as a match", async done => {
+      // Mock an extra user into the DB first.
+      await db("users").insert({
+        username: "bob",
+        email: "bob@wonderland",
+        eth_address: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+      });
+
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .then(response => {
+          expect(response.status).toEqual(200);
+          expect(response.data.ok).toBe(true);
+          expect(response.data.data).toEqual({
+            username: "bob",
+            peerAddress: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+          });
+          done();
+        });
+    });
+  });
 });
