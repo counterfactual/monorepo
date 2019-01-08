@@ -1,7 +1,8 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
 import { MatchResults, RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/node-provider";
 import { cf, Node } from "../../data/types";
 
@@ -21,7 +22,7 @@ export class AppRoot {
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;
-  // @State() appInstanceId: string = "";
+  @State() appInstance: AppInstance = {} as AppInstance;
 
   componentWillLoad() {
     if (
@@ -78,6 +79,10 @@ export class AppRoot {
     });
   }
 
+  updateAppInstance(instance: AppInstance) {
+    this.appInstance = instance;
+  }
+
   // updateAppInstanceId(id: string) {
   //   this.appInstanceId = id;
   // }
@@ -85,7 +90,9 @@ export class AppRoot {
   render() {
     const state = {
       appFactory: this.appFactory,
-      cfProvider: this.cfProvider
+      cfProvider: this.cfProvider,
+      appInstance: this.appInstance,
+      updateAppInstance: this.updateAppInstance
       // appInstanceId: this.appInstanceId,
       // updateAppInstanceId: this.updateAppInstanceId
     };

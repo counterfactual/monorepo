@@ -4,6 +4,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
 import NodeProvider from "../../data/node-provider";
 import { cf } from "../../data/types";
 
@@ -36,7 +37,7 @@ export class AppWaiting {
   @State() isCountdownStarted: boolean = false;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
-  // @Prop() updateAppInstanceId = (appInstanceId: string) => {};
+  @Prop() updateAppInstance = (instance: AppInstance) => {};
   // @Prop() proposeInstall = () => {};
 
   /**
@@ -171,7 +172,10 @@ export class AppWaiting {
 
   onInstall(data) {
     console.log("INSTALL", data); // data should contain opponentName?
-
+    // here this.appInstance is equal {}
+    this.updateAppInstance(data.data.appInstance);
+    // here this.appInstance is equal to the actual appInstance
+    // here the Tunnel is working correctly
     setTimeout(() => {
       this.goToGame(this.opponentName, data.data.appInstance.id);
     }, this.seconds * 1000);
@@ -207,4 +211,9 @@ export class AppWaiting {
     );
   }
 }
-CounterfactualTunnel.injectProps(AppWaiting, ["appFactory", "cfProvider"]);
+CounterfactualTunnel.injectProps(AppWaiting, [
+  "appFactory",
+  "cfProvider",
+  "updateAppInstance",
+  "appInstance"
+]);
