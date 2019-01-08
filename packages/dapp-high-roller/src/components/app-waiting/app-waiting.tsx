@@ -36,6 +36,8 @@ export class AppWaiting {
   @State() isCountdownStarted: boolean = false;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  // @Prop() updateAppInstanceId = (appInstanceId: string) => {};
+  // @Prop() proposeInstall = () => {};
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -82,12 +84,13 @@ export class AppWaiting {
     }, 1000);
   }
 
-  goToGame(opponentName: string) {
+  goToGame(opponentName: string, appInstanceId: string) {
     console.log(`GO TO GAME: ${opponentName}`);
     // TODO Fix history.push is broken in v0.2.6+ https://github.com/ionic-team/stencil-router/issues/77
     this.history.push({
       pathname: "/game",
       state: {
+        appInstanceId,
         opponentName,
         betAmount: this.betAmount,
         myName: this.myName,
@@ -110,6 +113,7 @@ export class AppWaiting {
 
   setupWaiting() {
     if (this.shouldMatchmake) {
+      // this.proposeInstall();
       this.setupWaitingProposing();
     } else {
       this.setupWaitingAccepting();
@@ -147,8 +151,10 @@ export class AppWaiting {
   setupWaitingAccepting() {
     this.startCountdown();
 
+    // TODO Need to do cfjs.on('updateState', () => {this.goToGame(this.opponentName);}
+
     setTimeout(() => {
-      this.goToGame(this.opponentName);
+      this.goToGame(this.opponentName, "123");
     }, this.seconds * 1000);
   }
 
@@ -165,8 +171,9 @@ export class AppWaiting {
 
   onInstall(data) {
     console.log("INSTALL", data); // data should contain opponentName?
+
     setTimeout(() => {
-      this.goToGame(this.opponentName);
+      this.goToGame(this.opponentName, data.data.appInstance.id);
     }, this.seconds * 1000);
   }
 

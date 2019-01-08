@@ -4,6 +4,8 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
+import { cf } from "../../data/types";
 import { GameState, PlayerType } from "../../enums/enums";
 
 const { AddressZero } = ethers.constants;
@@ -131,6 +133,10 @@ export class AppGame {
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
   @Prop({ mutable: true }) opponentName: string = "John";
   @Prop({ mutable: true }) isProposing: boolean = false;
+  @Prop({ mutable: true }) appInstanceId: string = "";
+
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @State() appInstance: AppInstance = {} as AppInstance;
 
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
@@ -165,6 +171,9 @@ export class AppGame {
     this.isProposing = this.history.location.state.isProposing
       ? this.history.location.state.isProposing
       : this.isProposing;
+    this.appInstanceId = this.history.location.state.appInstanceId
+      ? this.history.location.state.appInstanceId
+      : this.appInstanceId;
   }
 
   generateRandomRoll() {
@@ -199,6 +208,9 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
+    this.appInstance = this.cfProvider.appInstances[this.appInstanceId];
+    console.log(this.appInstance);
+
     if (this.isProposing) {
       if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
         await Promise.all([
@@ -313,4 +325,4 @@ export class AppGame {
   }
 }
 
-CounterfactualTunnel.injectProps(AppGame, ["appFactory"]);
+CounterfactualTunnel.injectProps(AppGame, ["appFactory", "cfProvider"]);

@@ -21,6 +21,7 @@ export class AppRoot {
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;
+  // @State() appInstanceId: string = "";
 
   componentWillLoad() {
     if (
@@ -77,10 +78,16 @@ export class AppRoot {
     });
   }
 
+  // updateAppInstanceId(id: string) {
+  //   this.appInstanceId = id;
+  // }
+
   render() {
     const state = {
       appFactory: this.appFactory,
       cfProvider: this.cfProvider
+      // appInstanceId: this.appInstanceId,
+      // updateAppInstanceId: this.updateAppInstanceId
     };
     return (
       <div class="height-100">
@@ -96,6 +103,7 @@ export class AppRoot {
                   url="/accept-invite"
                   component="app-accept-invite"
                 />
+                {/* <app-provider /> */}
               </stencil-route-switch>
             </stencil-router>
           </CounterfactualTunnel.Provider>
