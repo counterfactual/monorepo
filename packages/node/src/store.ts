@@ -1,12 +1,13 @@
 import {
   AppInstance,
   StateChannel,
-  StateChannelJSON
+  StateChannelJSON,
+  types as machineTypes
 } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 
 import {
-  DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT,
+  DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
@@ -18,6 +19,8 @@ import {
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
+
+const { Protocol } = machineTypes;
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -265,14 +268,17 @@ export class Store {
     return await this.getStateChannel(multisigAddress);
   }
 
-  async setCommitmentForAppInstanceHash(
-    appInstanceHash: string,
+  async setCommitmentForAppIdentityHash(
+    appIdentityHash: string,
     protocol: string,
     commitment: string
   ) {
-    const key = this.computeCommitmentKey(appInstanceHash, protocol);
+    if (!(protocol in Protocol)) {
+      throw new Error(`No such protocol: ${protocol}`);
+    }
+    const key = this.computeCommitmentKey(appIdentityHash, protocol);
     const value = JSON.stringify(commitment);
-    await this.storeService.set([
+    return this.storeService.set([
       {
         key,
         value
@@ -288,9 +294,9 @@ export class Store {
     return this.storeService.get(key);
   }
 
-  private computeCommitmentKey(appInstanceHash: string, protocol: string) {
+  private computeCommitmentKey(appIdentityHash: string, protocol: string) {
     return `${
       this.storeKeyPrefix
-    }/${DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT}/${appInstanceHash}/${protocol}`;
+    }/${DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT}/${appIdentityHash}/${protocol}`;
   }
 }

@@ -31,4 +31,7 @@ export interface Context {
   stateChannel: StateChannel;
   commitment?: EthereumCommitment;
   signature?: Signature;
+  appIdentityHash?: string;
 }
+
+export { ProtocolMessage, Opcode };

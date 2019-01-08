@@ -1,5 +1,7 @@
-import { InstructionExecutor } from "@counterfactual/machine";
-import { Opcode } from "@counterfactual/machine/dist/src/opcodes";
+import {
+  InstructionExecutor,
+  types as machineTypes
+} from "@counterfactual/machine";
 import {
   Address,
   NetworkContext,
@@ -56,21 +58,7 @@ export class Node {
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
     this.instructionExecutor = new InstructionExecutor(networkContext);
-    this.instructionExecutor.middlewares.add(
-      Opcode.STATE_TRANSITION_COMMIT,
-      async (message, next, context) => {
-        const { appIdentityHash } = message.params as any; // TODO: not every params has an appIdentityHash field
-        const transaction = context.commitment!.transaction([
-          context.signature! // TODO: need counterparty signature as well!
-        ]);
-        await this.channels.setCommitmentForAppInstanceHash(
-          appIdentityHash,
-          message.protocol,
-          JSON.stringify(transaction)
-        );
-        next();
-      }
-    );
+    this.startStoringCommitments();
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.incoming,
@@ -114,6 +102,32 @@ export class Node {
     req: NodeTypes.MethodRequest
   ): Promise<NodeTypes.MethodResponse> {
     return this.requestHandler.callMethod(method, req);
+  }
+
+  private startStoringCommitments() {
+    this.instructionExecutor.register(
+      machineTypes.Opcode.STATE_TRANSITION_COMMIT,
+      async (
+        message: machineTypes.ProtocolMessage,
+        next: Function,
+        context: machineTypes.Context
+      ) => {
+        const { appIdentityHash } = context;
+        if (appIdentityHash) {
+          const transaction = context.commitment!.transaction([
+            context.signature!
+          ]);
+          await this.channels.setCommitmentForAppIdentityHash(
+            appIdentityHash,
+            message.protocol,
+            JSON.stringify(transaction)
+          );
+        } else {
+
+        }
+        next();
+      }
+    );
   }
 
   /**

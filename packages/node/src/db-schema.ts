@@ -62,7 +62,7 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
   "appInstanceIdToAppInstanceInfo";
 
 // TODO: description
-export const DB_NAMESPACE_APP_INSTANCE_HASH_TO_COMMITMENT =
+export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
   "appInstanceHashToCommitment";
 
 /**

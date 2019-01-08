@@ -301,13 +301,13 @@ export class Channels {
     );
   }
 
-  async setCommitmentForAppInstanceHash(
-    appInstanceHash: string,
+  async setCommitmentForAppIdentityHash(
+    appIdentityHash: string,
     protocol: string,
     commitment: string
   ) {
-    return this.store.setCommitmentForAppInstanceHash(
-      appInstanceHash,
+    return this.store.setCommitmentForAppIdentityHash(
+      appIdentityHash,
       protocol,
       commitment
     );
