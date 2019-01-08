@@ -41,8 +41,6 @@ let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
-// TODO: This will be re-used for all integration tests, so
-//       move it somewhere re-usable when we add a new test
 beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
