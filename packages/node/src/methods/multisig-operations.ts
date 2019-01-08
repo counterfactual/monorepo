@@ -2,16 +2,16 @@ import { StateChannel } from "@counterfactual/machine";
 import {
   Address,
   AssetType,
-  Node,
-  NetworkContext
+  NetworkContext,
+  Node
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { bigNumberify } from "ethers/utils";
 
 import { NodeMessage } from "../node";
+import { Store } from "../store";
 
 import { RequestHandler } from "./request-handler";
-import { Store } from "../store";
 
 /**
  * This creates a multisig while sending details about this multisig
