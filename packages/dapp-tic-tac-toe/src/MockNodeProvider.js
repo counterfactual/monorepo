@@ -17,16 +17,16 @@ export default class NodeProvider {
     }
     console.log("message in", message);
     switch (message.type) {
-      case window.types.Node.MethodName.PROPOSE_INSTALL_VIRTUAL: {
+      case "proposeInstallVirtual": {
         this.sendCallback({
-          type: window.types.Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+          type: "proposeInstallVirtual",
           requestId: message.requestId,
           result: {
             appInstanceId: "0x654321"
           }
         }, 100);
         this.sendCallback({
-          type: window.types.Node.EventName.INSTALL,
+          type: "installEvent",
           data: {
             appInstance: this.generateAppInstanceDetail({
               intermediaries: message.params.intermediaries
@@ -35,28 +35,28 @@ export default class NodeProvider {
         }, 500);
         break;
       }
-      case window.types.Node.MethodName.INSTALL_VIRTUAL: {
+      case "installVirtual": {
         const appInstance = this.generateAppInstanceDetail({
           intermediaries: message.params.intermediaries
         });
         this.sendCallback(Object.assign({
-          type: window.types.Node.MethodName.INSTALL_VIRTUAL,
+          type: "installVirtual",
           requestId: message.requestId,
           result: {
             appInstance
           }
         }), 100); // method
         this.sendCallback({
-          type: window.types.Node.EventName.INSTALL,
+          type: "installEvent",
           data: {
             appInstance
           }
         }, 500); // event
         break;
       }
-      case window.types.Node.MethodName.GET_APP_INSTANCE_DETAILS: {
+      case "getAppInstanceDetails": {
         this.sendCallback({
-          type: window.types.Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          type: "getAppInstanceDetails",
           requestId: message.requestId,
           result: {
             appInstance: this.generateAppInstanceDetail()
