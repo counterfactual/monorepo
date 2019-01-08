@@ -7,6 +7,20 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import MockNodeProvider from './MockNodeProvider';
 
 export default class App extends Component {
+  render() {
+    const params = new URLSearchParams(window.location.search);
+    const nodeProvider = params.get("standalone")
+      ? new MockNodeProvider()
+      : new window.NodeProvider();
+    const cfProvider = new window.cf.Provider(nodeProvider);
+    const state = {
+      myName: params.get("myName") || "Bob",
+      betAmount: params.get("betAmount") || "0.1",
+      opponentName: params.get("opponentName") || "Alice",
+      appInstanceId: params.get("appInstanceId")
+    }
+      
+export default class App extends Component {
   constructor(props) {
     super(props);
     const params = new URLSearchParams(window.location.search);
@@ -58,6 +72,7 @@ export default class App extends Component {
                   gameState={this.state.gameState}
                 />}
             />
+          />
             <Route path="/game" component={Game} />
           </div>
         </Router> :

@@ -8,6 +8,6 @@ it('renders without crashing', () => {
   };
   window.NodeProvider = function() {};
   const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
+  ReactDOM.render(<App standalone={true}/>, div);
   ReactDOM.unmountComponentAtNode(div);
 });
