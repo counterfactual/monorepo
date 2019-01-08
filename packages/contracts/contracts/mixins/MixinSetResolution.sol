@@ -24,7 +24,7 @@ contract MixinSetResolution is
     bytes memory finalState,
     bytes memory terms
   )
-    public
+    external
     doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
     doTermsCheck(terms, appIdentity.termsHash)
   {

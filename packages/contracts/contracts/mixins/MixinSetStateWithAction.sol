@@ -33,8 +33,10 @@ contract MixinSetStateWithAction is
 
   /// @notice Create a dispute regarding the latest signed state and immediately after,
   /// performs a unilateral action to update it.
-  // @param app An `App` struct specifying the application logic
-  // TODO: Docs
+  /// @param appIdentity An `ppIdentity pointing to the app having its challenge progressed
+  /// @param appInterface An AppInterface representing the ABI of the app being operated on
+  /// @param req A struct with the signed state update in it
+  /// @param action A struct with the signed action being taken
   /// @dev Note this function is only callable when the state channel is in an ON state
   function setStateWithAction(
     AppIdentity memory appIdentity,
