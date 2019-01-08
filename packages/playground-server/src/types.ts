@@ -4,6 +4,15 @@ export type CreateAccountRequest = PlaygroundUserData & {
   signature: string;
 };
 
+export type MatchmakeRequest = {
+  userAddress: Address;
+};
+
+export type MatchmakeResponseData = {
+  username: string;
+  peerAddress: Address;
+};
+
 export type ErrorResponse = {
   status: number;
   errorCode: ErrorCode;
