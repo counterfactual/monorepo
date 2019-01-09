@@ -1,0 +1,60 @@
+Logic for High Roller Game:
+Player Proposing:
+	1. Go to Playground
+	2. Click Available Apps: High Roller
+	3. Click High Roller
+	4. 0.1 ETH is staked hard coded
+	5. Click Play! button
+		5.a await - Call to CF.js proposeInstall. Wait for Player Accepting to approve?
+		5.b Start Game - Call takeAction(action.actionType: START_GAME)
+		5.b Roll Dice - Call takeAction(action.actionType: COMMIT_TO_HASH, hash)
+		5.c Wait for Player Accepting to Roll Dice - onUpdateState()? Call takeAction() to validate
+		5.d Did I win? Call resolve(currentState, terms)
+Player Accepting:
+	1. Go to Playground
+	2. Wait to be invited to a game.
+	3. Receive notification that Player Proposing has invited to play High Roller - Approve
+		3.a Wait for Player Proposing to Roll Dice - onUpdateState()? Call takeAction() to validate
+		3.b Roll Dice - Call takeAction(action.actionType: COMMIT_TO_NUM, num)
+		3.c Wait for Player Proposing to resolve()
+		3.d Did I win? Call resolve() to validate
+		
+		
+Merged:
+	Before Game:
+		1. Bob(Proposing) goes to Playground.
+		2. Alice(Accepting) goes to Playground. Might not be live. Can take days?
+		3. Alice(Accepting) waits to be invited to a game.
+		4. Bob(Proposing) clicks Available Apps: High Roller. Is taken into High Roller dApp
+		5. Bob(Proposing) clicks the High Roller logo.
+		6. 0.01 ETH is staked hard coded
+		7. Bob(Proposing) clicks the Play! button. Wait for matchmaking to get an Accepting player. Call to Playground.
+		8. Bob(Proposing) makes a call to CF.js proposeInstall.
+		9. Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
+		10. Alice(Accepting) receives a notification that Bob(Proposing) has invited them to play High Roller
+		11. Alice(Accepting) approves the initiation. Playground calls CF.js install
+		12. Bob(Proposing) moves out of the waiting room and into the game
+		
+		Need to allow, after accepting, to jump straight into a dapp using QP. Either into Waiting room or/then straight into the dapp. 
+		
+		Alice is in Waiting room until Bob calls START_GAME. Now the game is "live"
+		
+	Game Started:
+		1. Alice(Accepting) waits in the Waiting Room for Bob(Proposing) to start the game and roll dice. onUpdateState()? Call takeAction() to validate
+		2. Bob(Proposing) Clicks "Roll" and starts the game - Call takeAction(action.actionType: START_GAME) - Called after Alice joins Waiting Room
+		3. Bob(Proposing) rolls dice - Call takeAction(action.actionType: COMMIT_TO_HASH, hash)
+		4. Bob(Proposing) waits for Alice(Accepting) to roll dice - onUpdateState()?
+		5. Alice(Accepting) rolls dice - Call takeAction(action.actionType: COMMIT_TO_NUM, num)
+		6. Alice(Accepting) waits for Bob(Proposing) to reveal. onUpdateState()?
+		7. Bob(Proposing) checks if they won or lost (Uninstall). Call resolve(currentState, terms). This happens during uninstall.
+			Maybe reimplement resolve in JS? Or call eth_call.
+		8. Bob(Proposing) and Alice(Accepting) finish the game knowing who won and who lost.
+		9. The game is finished. Both Bob(Proposing) and Alice(Accepting) make a call to CF.js to uninstall?
+		
+	Rematch:
+		1. Call proposeInstall and then install to start the game again? Or allow restarting the game without uninstalling. Talk to Liam.
+		
+		Node calls resolve. App might want to call resolve? To update UI.
+		
+		
+		
