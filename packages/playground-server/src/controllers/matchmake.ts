@@ -1,40 +1,26 @@
-import { Context } from "koa";
-import "koa-body"; // Needed for ctx.request.body to be detected by TS, see: https://github.com/dlau/koa-body/issues/109
-
 import { matchmakeUser } from "../db";
 import {
   ApiResponse,
-  ErrorCode,
-  MatchmakeRequest,
-  MatchmakeResponseData,
-  MatchmakeUserData
+  AuthenticatedContext,
+  HttpStatusCode,
+  MatchmakeUserData,
+  PlaygroundUser
 } from "../types";
 
-function validateRequest(params: MatchmakeRequest): ApiResponse {
-  if (!params.userAddress) {
-    throw ErrorCode.UserAddressRequired;
-  }
-
-  return { ok: true };
-}
-
 export default function matchmake() {
-  return async (ctx: Context, next: () => Promise<void>) => {
-    // TODO: Implement authentication.
-    const request = ctx.request.body as MatchmakeRequest;
+  return async (ctx: AuthenticatedContext, next: () => Promise<void>) => {
+    const user = ctx.user as PlaygroundUser;
+    const matchedUser: MatchmakeUserData = await matchmakeUser(user.address);
 
-    // Check that all required data is available.
-    const response = validateRequest(request);
-    const matchedUser: MatchmakeUserData = await matchmakeUser(
-      request.userAddress
-    );
+    const response = {
+      ok: true,
+      data: {
+        username: matchedUser.username,
+        peerAddress: matchedUser.address
+      }
+    } as ApiResponse;
 
-    response.data = {
-      username: matchedUser.username,
-      peerAddress: matchedUser.address
-    } as MatchmakeResponseData;
-
-    ctx.status = 200;
+    ctx.status = HttpStatusCode.OK;
     ctx.body = response;
 
     return next();
