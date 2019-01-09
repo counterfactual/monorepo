@@ -70,6 +70,48 @@ export async function matchmakeUser(
   return matchmakeResults[randomIndex];
 }
 
+export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
+  const db = getDatabase();
+
+  const users: PlaygroundUser[] = await db("users")
+    .columns({
+      id: "id",
+      username: "username",
+      email: "email",
+      address: "eth_address",
+      multisigAddress: "multisig_address"
+    })
+    .select()
+    .where("eth_address", "=", userAddress);
+
+  await db.destroy();
+
+  if (users.length === 0) {
+    throw ErrorCode.UserNotFound;
+  }
+
+  return users[0];
+}
+
+export async function userExists(user: PlaygroundUser): Promise<boolean> {
+  const db = getDatabase();
+
+  const users: PlaygroundUser[] = await db("users")
+    .select()
+    .where({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      address: user.address,
+      multisigAddress: user.multisigAddress
+    })
+    .limit(1);
+
+  await db.destroy();
+
+  return users.length === 1;
+}
+
 export async function createUser(
   data: PlaygroundUserData & { multisigAddress: Address }
 ): Promise<PlaygroundUser> {

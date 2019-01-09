@@ -10,6 +10,8 @@ export enum HttpStatusCode {
   InternalServerError = 500
 }
 
+export type AuthenticatedContext = Context & { user?: PlaygroundUser };
+
 // `any` is needed since `ctx.request.body` is typed like that.
 export type TypedRequest<T = any> = Request & { body: T };
 
@@ -33,19 +35,19 @@ export type ErrorResponse = {
   context?: Error;
 };
 
-export type StatusCodeMapping = Map<ErrorCode | "default", number>;
+export type StatusCodeMapping = Map<ErrorCode | "default", HttpStatusCode>;
 
 export enum ErrorCode {
-  UsernameRequired = "username_required",
-  EmailRequired = "email_required",
-  AddressRequired = "address_required",
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
   AddressAlreadyRegistered = "address_already_registered",
   AppRegistryNotAvailable = "app_registry_not_available",
   UserAddressRequired = "user_address_required",
   NoUsersAvailable = "no_users_available",
-  UnhandledError = "unhandled_error"
+  UnhandledError = "unhandled_error",
+  UserNotFound = "user_not_found",
+  TokenRequired = "token_required",
+  InvalidToken = "invalid_token"
 }
 
 export type ApiResponse = {
@@ -54,12 +56,18 @@ export type ApiResponse = {
   data?:
     | CreateAccountResponseData
     | GetAppsResponseData
-    | MatchmakeResponseData;
+    | MatchmakeResponseData
+    | LoginResponseData;
 };
 
 export type CreateAccountResponseData = {
   user: PlaygroundUser;
   multisigAddress: Address;
+};
+
+export type LoginResponseData = {
+  user: PlaygroundUser;
+  token: string;
 };
 
 export type PlaygroundAppDefinition = {
