@@ -9,7 +9,7 @@ import "openzeppelin-solidity/contracts/utils/Address.sol";
 /// @dev Will be obsolete for most use cases when CREATE2 is added to the EVM https://github.com/ethereum/EIPs/pull/1014
 contract ContractRegistry {
 
-  // using Address for address;
+  using Address for address;
 
   event ContractCreated(bytes32 indexed cfAddress, address deployedAddress);
 
