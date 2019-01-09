@@ -3,10 +3,10 @@ declare var ethers;
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
-import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf } from "../../data/types";
 import { GameState, PlayerType } from "../../enums/enums";
+import { getProp } from "../../utils/utils";
 
 const { AddressZero } = ethers.constants;
 const { solidityKeccak256 } = ethers.utils;
@@ -127,7 +127,7 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
 })
 export class AppGame {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
-  @Prop() history: RouterHistory;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) myName: string = "Facundo";
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
@@ -159,21 +159,11 @@ export class AppGame {
   rollAudio!: HTMLAudioElement;
 
   componentWillLoad() {
-    this.myName = this.history.location.state.myName
-      ? this.history.location.state.myName
-      : this.myName;
-    this.betAmount = this.history.location.state.betAmount
-      ? this.history.location.state.betAmount
-      : this.betAmount;
-    this.opponentName = this.history.location.state.opponentName
-      ? this.history.location.state.opponentName
-      : this.opponentName;
-    this.isProposing = this.history.location.state.isProposing
-      ? this.history.location.state.isProposing
-      : this.isProposing;
-    this.appInstanceId = this.history.location.state.appInstanceId
-      ? this.history.location.state.appInstanceId
-      : this.appInstanceId;
+    this.myName = getProp("myName", this);
+    this.betAmount = getProp("betAmount", this);
+    this.opponentName = getProp("opponentName", this);
+    this.isProposing = getProp("isProposing", this);
+    this.appInstanceId = getProp("appInstanceId", this);
   }
 
   generateRandomRoll() {

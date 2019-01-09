@@ -2,6 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { getProp } from "../../utils/utils";
 
 interface Player {
   address: string;
@@ -36,32 +37,10 @@ export class AppWaiting {
    * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   componentWillLoad() {
-    this.myName =
-      this.history.location.state && this.history.location.state.myName
-        ? this.history.location.state.myName
-        : this.history.location.query && this.history.location.query.myName
-        ? this.history.location.query.myName
-        : this.myName;
-    this.betAmount =
-      this.history.location.state && this.history.location.state.betAmount
-        ? this.history.location.state.betAmount
-        : this.history.location.query && this.history.location.query.betAmount
-        ? this.history.location.query.betAmount
-        : this.betAmount;
-    this.opponentName =
-      this.history.location.state && this.history.location.state.opponentName
-        ? this.history.location.state.opponentName
-        : this.history.location.query &&
-          this.history.location.query.opponentName
-        ? this.history.location.query.opponentName
-        : this.opponentName;
-    this.shouldMatchmake =
-      this.history.location.state && this.history.location.state.shouldMatchmake
-        ? this.history.location.state.shouldMatchmake
-        : this.history.location.query &&
-          this.history.location.query.shouldMatchmake
-        ? this.history.location.query.shouldMatchmake
-        : this.shouldMatchmake;
+    this.myName = getProp("myName", this);
+    this.betAmount = getProp("betAmount", this);
+    this.opponentName = getProp("opponentName", this);
+    this.shouldMatchmake = getProp("shouldMatchmake", this);
   }
 
   countDown() {

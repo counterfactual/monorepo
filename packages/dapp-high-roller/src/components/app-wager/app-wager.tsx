@@ -4,7 +4,8 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { cf, Node } from "../../data/types";
+import { cf } from "../../data/types";
+import { getProp } from "../../utils/utils";
 
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
@@ -30,9 +31,7 @@ export class AppWager {
   @State() myName: string = "";
 
   componentWillLoad() {
-    if (this.history.location.query && this.history.location.query.myName) {
-      this.myName = this.history.location.query.myName;
-    }
+    this.myName = getProp("myName", this);
   }
 
   /**
