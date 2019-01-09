@@ -22,6 +22,14 @@ const db = getDatabase();
 describe("playground-server", () => {
   beforeAll(async () => {
     await db("users").delete();
+
+    await db("users").insert({
+      id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
+      username: "joe",
+      email: "joe@joe.com",
+      eth_address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+      multisig_address: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+    });
   });
 
   beforeEach(done => {
@@ -82,11 +90,11 @@ describe("playground-server", () => {
     it("creates an account for the first time and returns 201 + the multisig address", done => {
       client
         .post("/create-account", {
-          username: "alice",
-          email: "alice@wonder.land",
-          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+          username: "delilah",
+          email: "delilah@wonder.land",
+          address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca",
           signature:
-            "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
+            "0x7e39d3d9a111c685fb8bc265ddc793c2a60070c84030bba63d53e206e9ac6de82b4511aa5ac907e97004342b4e803dc05db538aca89edfecad034a09a4cbf3251c"
         })
         .then(response => {
           expect(response.status).toEqual(HttpStatusCode.Created);
@@ -103,11 +111,11 @@ describe("playground-server", () => {
     it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", done => {
       client
         .post("/create-account", {
-          username: "alice",
-          email: "alice@wonder.land",
-          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+          username: "delilah",
+          email: "delilah@wonder.land",
+          address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca",
           signature:
-            "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
+            "0x7e39d3d9a111c685fb8bc265ddc793c2a60070c84030bba63d53e206e9ac6de82b4511aa5ac907e97004342b4e803dc05db538aca89edfecad034a09a4cbf3251c"
         })
         .catch(({ response }) => {
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
@@ -152,6 +160,7 @@ describe("playground-server", () => {
         done();
       });
     });
+
     it("fails if there is user account associated to the address", done => {
       client.post("/login").catch(({ response }) => {
         expect(response.status).toEqual(HttpStatusCode.BadRequest);
@@ -165,9 +174,71 @@ describe("playground-server", () => {
         done();
       });
     });
+
+    it("returns user data + session token", done => {
+      client
+        .post("/login", {
+          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+          signature:
+            "0x0d89ad46772a1ae1e3ae7202da31a32de00d8c8993fa448cc2e6265608c8bd1e493a75ab3e3bc67aa28cce29691a0b013c9c96c06fdf35834b82ad27e46e9d2b1c"
+        })
+        .then(response => {
+          expect(response.status).toEqual(HttpStatusCode.OK);
+          expect(response.data.data.user).toEqual({
+            id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
+            username: "joe",
+            email: "joe@joe.com",
+            address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+            multisigAddress: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+          });
+          expect(response.data.data.token).toBeDefined();
+          done();
+        });
+    });
+  });
+
+  describe("/api/user", () => {
+    const API_TOKEN =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJiODNjYjE0LWM3YWEtNDIwOC04ZGE4LTI2OWFlYjFhM2YyNCIsInVzZXJuYW1lIjoiam9lIiwiZW1haWwiOiJqb2VAam9lLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDNiMWM1ZEZFMDkxODdhQzNGMDE1MTM5QUQ3OWZmN0U5YTc3ODI4Q2YiLCJpYXQiOjE1NDcwNzE0OTcsImV4cCI6MTU3ODYyOTA5N30.NfNBCMVxliiaVyXixM7vNpCdn7xHd34ZCA3NL-LZEW0";
+
+    it("fails if no token is provided", done => {
+      client.get("/matchmake").catch(({ response }) => {
+        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
+        expect(response.data).toEqual({
+          ok: false,
+          error: {
+            status: HttpStatusCode.Unauthorized,
+            errorCode: ErrorCode.TokenRequired
+          }
+        });
+        done();
+      });
+    });
+    it("returns user data from a token", done => {
+      client
+        .get("/user", {
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`
+          }
+        })
+        .then(response => {
+          expect(response.status).toEqual(HttpStatusCode.OK);
+          expect(response.data.data.user).toEqual({
+            id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
+            username: "joe",
+            email: "joe@joe.com",
+            address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+            multisigAddress: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+          });
+          done();
+        });
+    });
   });
 
   describe("/api/matchmake", () => {
+    const API_TOKEN =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJiODNjYjE0LWM3YWEtNDIwOC04ZGE4LTI2OWFlYjFhM2YyNCIsInVzZXJuYW1lIjoiam9lIiwiZW1haWwiOiJqb2VAam9lLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDNiMWM1ZEZFMDkxODdhQzNGMDE1MTM5QUQ3OWZmN0U5YTc3ODI4Q2YiLCJpYXQiOjE1NDcwNjk5NDQsImV4cCI6MTU3ODYyNzU0NH0.4mGpRY_96-11l8ydUqkOl6hyb9_MtBzdScwp8riTwe4";
+
     it("fails if no token is provided", done => {
       client.post("/matchmake").catch(({ response }) => {
         expect(response.status).toEqual(HttpStatusCode.Unauthorized);
@@ -182,11 +253,22 @@ describe("playground-server", () => {
       });
     });
 
-    it("fails when there are no users to match with", done => {
+    it("fails when there are no users to match with", async done => {
+      // Remove Delilah.
+      await db("users")
+        .delete()
+        .where({ username: "delilah" });
+
       client
-        .post("/matchmake", {
-          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-        })
+        .post(
+          "/matchmake",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${API_TOKEN}`
+            }
+          }
+        )
         .catch(({ response }) => {
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
@@ -201,29 +283,35 @@ describe("playground-server", () => {
     });
 
     it("returns the only possible user as a match", async done => {
-      // Mock an extra user into the DB first.
+      // Bring Delilah back!
       await db("users").insert({
-        username: "bob",
-        email: "bob@wonder.land",
-        eth_address: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+        username: "delilah",
+        email: "delilah@wonder.land",
+        eth_address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
       });
 
       client
-        .post("/matchmake", {
-          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-        })
+        .post(
+          "/matchmake",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${API_TOKEN}`
+            }
+          }
+        )
         .then(response => {
           expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
           expect(response.data.data).toEqual({
-            username: "bob",
-            peerAddress: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+            username: "delilah",
+            peerAddress: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
           });
           done();
         });
     });
 
-    it("returns one of two possible users as a match", async done => {
+    it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert({
         username: "charlie",
@@ -232,21 +320,30 @@ describe("playground-server", () => {
       });
 
       client
-        .post("/matchmake", {
-          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-        })
+        .post(
+          "/matchmake",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${API_TOKEN}`
+            }
+          }
+        )
         .then(response => {
           expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
 
           const { username, peerAddress } = response.data.data;
-          const bobAddress = "0x93678a4828d07708ad34272d61404dd06ae2ca64";
+          const bobAddress = "0x93678a4828d07708ad34272d61404dd06twoae2ca64";
           const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
+          const delilahAddress = "0xdab500c650725c2f1af0b09df327d2d3ef3cefca";
 
           if (username === "bob") {
             expect(peerAddress).toEqual(bobAddress);
           } else if (username === "charlie") {
             expect(peerAddress).toEqual(charlieAddress);
+          } else if (username === "delilah") {
+            expect(peerAddress).toEqual(delilahAddress);
           } else {
             fail("It should have matched either Bob or Charlie");
           }
