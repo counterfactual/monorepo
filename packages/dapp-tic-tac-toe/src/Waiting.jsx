@@ -29,7 +29,7 @@ export default class Waiting extends Component {
   }
 
   async initialize() {
-    if (!this.props.gameState.appInstanceId) {
+    if (!this.props.gameInfo.shouldMatchmake) {
       const opponent = await this.matchmake();
       this.proposeInstall(opponent)
     } else {
@@ -39,8 +39,9 @@ export default class Waiting extends Component {
     this.props.cfProvider.once("install", this.onInstall.bind(this));
   }
 
-  onInstall(appInstance) {
-    this.props.history.push('/game');
+  onInstall({ data: { appInstance }}) {
+    this.props.onChangeAppInstance(appInstance);
+    this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
   }
 
   matchmake() {
@@ -78,12 +79,12 @@ export default class Waiting extends Component {
       asset: {
         assetType: 0 /* AssetType.ETH */
       },
-      peerDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
-      myDeposit: window.ethers.utils.parseEther(this.props.gameState.betAmount),
+      peerDeposit: window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
+      myDeposit: window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
       timeout: 100,
       initialState: {
         address: [myAddress, opponent.address],
-        turnName: 0,
+        turnNum: 0,
         winner: 0,
         board: [
           [0, 0, 0],
@@ -103,7 +104,7 @@ export default class Waiting extends Component {
    */
   async install() {
     this.props.cfProvider.installVirtual({
-      appInstanceId: this.props.gameState.appInstanceId,
+      appInstanceId: this.props.gameInfo.appInstanceId,
       // TODO: provide valid intermediary addresses, namely the playground server's eth addr
       intermediaries: ["0x2515151515151515151515151515151515151515"]
     });
@@ -115,7 +116,7 @@ export default class Waiting extends Component {
       "0x1515151515151515151515151515151515151515",
       {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
-        stateEncoding: "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)"
+        stateEncoding: "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
       },
       this.props.cfProvider
     );
@@ -132,8 +133,8 @@ export default class Waiting extends Component {
             </p>
             <p className="countdown">{this.state.seconds}</p>
             <p>
-              Player: {this.props.gameState.myName} <br />
-              Bet Amount: {this.props.gameState.betAmount} ETH
+              Player: {this.props.gameInfo.myName} <br />
+              Bet Amount: {this.props.gameInfo.betAmount} ETH
             </p>
           </div>
         </div>
