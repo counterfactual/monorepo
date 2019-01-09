@@ -75,7 +75,7 @@ export default class PlaygroundAPIClient {
           name: "Tic Tac Toe",
           url: "https://tic-tac-toe-staging.counterfactual.com",
           slug: "tic-tac-toe",
-          icon: "public/images/logo.svg"
+          icon: "public/images/logo-blue.svg"
         }
       ];
     }
