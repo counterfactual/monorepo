@@ -1,13 +1,13 @@
 import fs from "fs";
 import { Context } from "koa";
 
-import { ErrorCode } from "../types";
+import { ErrorCode, HttpStatusCode } from "../types";
 
 export default function getApps(registryPath: string) {
   return async (ctx: Context, next: () => Promise<void>) => {
     try {
       const registry = JSON.parse(fs.readFileSync(registryPath).toString());
-      ctx.status = 200;
+      ctx.status = HttpStatusCode.OK;
       ctx.body = {
         ok: true,
         data: registry

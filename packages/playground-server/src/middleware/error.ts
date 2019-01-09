@@ -1,10 +1,20 @@
 import App, { Context } from "koa";
 
-import { ApiResponse, ErrorCode, StatusCodeMapping } from "../types";
+import {
+  ApiResponse,
+  ErrorCode,
+  HttpStatusCode,
+  StatusCodeMapping
+} from "../types";
 
-const statusCodes: StatusCodeMapping = new Map<ErrorCode | "default", number>([
-  ["default", 400],
-  [ErrorCode.InvalidSignature, 403]
+const statusCodes: StatusCodeMapping = new Map<
+  ErrorCode | "default",
+  HttpStatusCode
+>([
+  ["default", HttpStatusCode.BadRequest],
+  [ErrorCode.InvalidSignature, HttpStatusCode.Forbidden],
+  [ErrorCode.InvalidToken, HttpStatusCode.Forbidden],
+  [ErrorCode.TokenRequired, HttpStatusCode.Unauthorized]
 ]);
 
 function createErrorResponse(
@@ -18,7 +28,7 @@ function createErrorResponse(
   };
 }
 
-function processError(error, ctx) {
+function processError(error: ErrorCode | Error, ctx: Context) {
   // Return 4xx for handled errors, 500 for unexpected throws.
   if (typeof error === "string") {
     const errorCode = error as ErrorCode;
@@ -28,9 +38,13 @@ function processError(error, ctx) {
     );
   } else {
     const errorObject = error as Error;
-    ctx.body = createErrorResponse(500, ErrorCode.UnhandledError, {
-      ...errorObject
-    });
+    ctx.body = createErrorResponse(
+      HttpStatusCode.InternalServerError,
+      ErrorCode.UnhandledError,
+      {
+        ...errorObject
+      }
+    );
   }
 
   ctx.status = ctx.body.error.status;
