@@ -15,7 +15,7 @@
         "packages/types/package.json",
         "packages/typescript-typings/package.json"
       ]
-    },
-    "ignore": ["@stencil/core", "@stencil/router"]
-  }
+    }
+  },
+  "ignore": ["@stencil/core", "@stencil/router"]
 }
