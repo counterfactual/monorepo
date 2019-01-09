@@ -146,6 +146,11 @@ export class RequestHandler {
         next: Function,
         context: machineTypes.Context
       ) => {
+        if (!context.commitment) {
+          throw new Error(
+            `State transition without commitment: ${JSON.stringify(message)}`
+          );
+        }
         const transaction = context.commitment!.transaction([
           context.signature! // TODO: add counterparty signature
         ]);
