@@ -1,12 +1,7 @@
-declare var ethers;
-
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { AppInstance } from "../../data/mock-app-instance";
-import NodeProvider from "../../data/node-provider";
-import { cf } from "../../data/types";
 
 interface Player {
   address: string;
@@ -32,13 +27,7 @@ export class AppWaiting {
   @Prop({ mutable: true }) opponentName: string = "";
   @Prop({ mutable: true }) shouldMatchmake: boolean = false;
   @State() seconds: number = 5;
-  @State() cfjs: any;
-  @State() nodeProvider: NodeProvider = new NodeProvider();
   @State() isCountdownStarted: boolean = false;
-  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
-  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
-  // @Prop() updateAppInstance = (instance: AppInstance) => {};
-  // @Prop() proposeInstall = () => {};
 
   /**
    * Bob(Proposing) enters waiting room.
@@ -132,8 +121,6 @@ export class AppWaiting {
   setupWaitingAccepting() {
     this.startCountdown();
 
-    // TODO Need to do cfjs.on('updateState', () => {this.goToGame(this.opponentName);}
-
     setTimeout(() => {
       this.goToGame(this.opponentName, "123");
     }, this.seconds * 1000);
@@ -169,9 +156,3 @@ export class AppWaiting {
     );
   }
 }
-CounterfactualTunnel.injectProps(AppWaiting, [
-  "appFactory",
-  "cfProvider",
-  "updateAppInstance",
-  "appInstance"
-]);

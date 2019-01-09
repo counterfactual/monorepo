@@ -1,7 +1,6 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 import { injectHistory, RouterHistory } from "@stencil/router";
 
-import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/node-provider";
 import { cf, Node } from "../../data/types";
@@ -26,17 +25,6 @@ export class AppProvider {
   @State() appInstance: AppInstance = {} as AppInstance;
 
   componentWillLoad() {
-    if (
-      this.history &&
-      this.history.location &&
-      this.history.location.query &&
-      this.history.location.query.standalone
-    ) {
-      // This is supposed to work as per: https://stenciljs.com/docs/router-tutorials#route-query-parameters
-      // However this.history seems to always be undefined... Maybe because this is the root?
-      return;
-    }
-
     const params = new URLSearchParams(window.location.search);
 
     // Using promise syntax because lifecycle events aren't
@@ -48,7 +36,6 @@ export class AppProvider {
   }
 
   setupCfProvider() {
-    console.log("setupCfProvider called");
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
     this.cfProvider.on("updateState", this.onUpdateState.bind(this));
@@ -65,14 +52,14 @@ export class AppProvider {
   }
 
   onUpdateState(data: Node.EventData) {
+    // TODO implement logic
     console.log("UPDATE_STATE", data);
   }
 
   onInstall(data) {
-    console.log("INSTALL", data);
-
     this.updateAppInstance(data.appInstance);
 
+    // TODO get history.push working
     this.history.push({
       pathname: "/game",
       state: {

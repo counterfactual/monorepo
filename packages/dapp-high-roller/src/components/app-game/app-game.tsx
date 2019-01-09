@@ -208,9 +208,6 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
-    // this.appInstance = this.cfProvider.appInstances[this.appInstanceId]; // this works but is private/not recommended
-    console.log(this.appInstance); // this should be the injected appInstance from the Tunnel
-
     if (this.isProposing) {
       if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
         await Promise.all([
@@ -271,72 +268,56 @@ export class AppGame {
   }
 
   render() {
-    return (
-      <CounterfactualTunnel.Consumer>
-        {({ appInstance }) => [
-          // for some reason this isn't being injected correctly. It is always equal to {}
-          <div class="wrapper">
-            <div class="game">
-              <app-game-player
-                playerName={this.opponentName}
-                playerScore={this.opponentScore}
-                playerType={PlayerType.Black}
-                playerRoll={this.opponentRoll}
-              />
-              <app-game-status
-                gameState={this.gameState}
-                betAmount={this.betAmount}
-              />
-              <app-game-player
-                playerName={this.myName}
-                playerScore={this.myScore}
-                playerType={PlayerType.White}
-                playerRoll={this.myRoll}
-              />
-              {this.gameState === GameState.Play ? (
-                <div class="actions">
-                  <button
-                    class="btn btn--center"
-                    onClick={() => this.handleRoll()}
-                  >
-                    Roll your dice!
-                  </button>
-                </div>
-              ) : (
-                <div class="actions">
-                  <button
-                    class="btn btn--exit"
-                    onClick={() => this.handleExit()}
-                  >
-                    Exit
-                  </button>
-                  <button
-                    class="btn btn--rematch"
-                    onClick={() => this.handleRematch()}
-                  >
-                    Rematch
-                  </button>
-                </div>
-              )}
-
-              <div>
-                <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
-                  <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
-                </audio>
-                <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
-                  <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
-                </audio>
-              </div>
+    return [
+      <div class="wrapper">
+        <div class="game">
+          <app-game-player
+            playerName={this.opponentName}
+            playerScore={this.opponentScore}
+            playerType={PlayerType.Black}
+            playerRoll={this.opponentRoll}
+          />
+          <app-game-status
+            gameState={this.gameState}
+            betAmount={this.betAmount}
+          />
+          <app-game-player
+            playerName={this.myName}
+            playerScore={this.myScore}
+            playerType={PlayerType.White}
+            playerRoll={this.myRoll}
+          />
+          {this.gameState === GameState.Play ? (
+            <div class="actions">
+              <button class="btn btn--center" onClick={() => this.handleRoll()}>
+                Roll your dice!
+              </button>
             </div>
-          </div>,
-          this.gameState === GameState.Won ? <app-game-coins /> : undefined
-        ]}
-      </CounterfactualTunnel.Consumer>
-    );
+          ) : (
+            <div class="actions">
+              <button class="btn btn--exit" onClick={() => this.handleExit()}>
+                Exit
+              </button>
+              <button
+                class="btn btn--rematch"
+                onClick={() => this.handleRematch()}
+              >
+                Rematch
+              </button>
+            </div>
+          )}
+
+          <div>
+            <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
+              <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
+            </audio>
+            <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
+              <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
+            </audio>
+          </div>
+        </div>
+      </div>,
+      this.gameState === GameState.Won ? <app-game-coins /> : undefined
+    ];
   }
 }
-
-CounterfactualTunnel.injectProps(AppGame, [
-  "appFactory",
-  "appInstance" // for some reason this isn't being injected correctly. It is always equal to {}
-]);
