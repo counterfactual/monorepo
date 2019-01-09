@@ -36,7 +36,7 @@ function processError(error, ctx) {
   ctx.status = ctx.body.error.status;
 }
 
-export default function handleError(app: App) {
+export default function errorHandler(app: App) {
   app.on("error", processError);
 
   return async (ctx: Context, next: () => Promise<void>) => {

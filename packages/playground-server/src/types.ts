@@ -1,12 +1,26 @@
 import { Address } from "@counterfactual/types";
+import { Context, Request } from "koa";
 
-export type CreateAccountRequest = PlaygroundUserData & {
+export enum HttpStatusCode {
+  OK = 200,
+  Created = 201,
+  BadRequest = 400,
+  Unauthorized = 401,
+  Forbidden = 403,
+  InternalServerError = 500
+}
+
+// `any` is needed since `ctx.request.body` is typed like that.
+export type TypedRequest<T = any> = Request & { body: T };
+
+export type SignedRequest = {
+  address: string;
   signature: string;
 };
 
-export type MatchmakeRequest = {
-  userAddress: Address;
-};
+export type CreateAccountRequest = PlaygroundUserData & SignedRequest;
+
+export type LoginRequest = SignedRequest;
 
 export type MatchmakeResponseData = {
   username: string;
