@@ -1,7 +1,6 @@
 import fs from "fs";
 import { Context } from "koa";
 
-import { createErrorResponse } from "../api";
 import { ErrorCode } from "../types";
 
 export default function getApps(registryPath: string) {
@@ -13,10 +12,8 @@ export default function getApps(registryPath: string) {
         ok: true,
         data: registry
       };
-    } catch (e) {
-      ctx.body = createErrorResponse(500, ErrorCode.AppRegistryNotAvailable);
-      ctx.status = ctx.body.error.status;
-      console.log(e);
+    } catch {
+      throw ErrorCode.AppRegistryNotAvailable;
     }
 
     return next();

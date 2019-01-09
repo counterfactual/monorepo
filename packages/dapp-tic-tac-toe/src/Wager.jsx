@@ -13,9 +13,9 @@ class Wager extends Component {
         </div>
   
         <form className="form">
-          <input className="form__input" type="text" placeholder="Your name" />
-          <input className="form__input" type="text" placeholder="3 eth" />
-          <Link to="/game" className="form__button">PLAY!</Link>
+          <input className="form__input" type="text" placeholder="Your name" disabled={true} value={this.props.gameState.myName} />
+          <input className="form__input" type="text" placeholder="3 eth" disabled={true} value={this.props.gameState.betAmount}  />
+          <Link to="/waiting" className="form__button">PLAY!</Link>
         </form>  
       </div>
     );

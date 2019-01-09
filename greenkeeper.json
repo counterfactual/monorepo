@@ -3,17 +3,19 @@
     "default": {
       "packages": [
         "package.json",
+        "packages/apps/package.json",
         "packages/cf.js/package.json",
-        "packages/dapp-high-roller/package.json",
         "packages/contracts/package.json",
+        "packages/dapp-high-roller/package.json",
+        "packages/dapp-tic-tac-toe/package.json",
         "packages/machine/package.json",
-        "packages/node/package.json",
         "packages/node-provider/package.json",
+        "packages/node/package.json",
         "packages/playground/package.json",
-        "packages/playground-poc/package.json",
         "packages/types/package.json",
         "packages/typescript-typings/package.json"
       ]
     }
-  }
+  },
+  "ignore": ["@stencil/core", "@stencil/router"]
 }

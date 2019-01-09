@@ -242,6 +242,37 @@ Forms
 }
 
 
+/**********************
+Waiting Room
+**********************/
+.waiting {
+  padding: 4rem 2rem 2rem;
+}
+.message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.message__icon {
+  width: 3.75rem;
+  margin: 0 auto;
+}
+.message__title {
+  font-size: 1.5rem;
+  margin: 1rem 0 0;
+  text-transform: uppercase;
+}
+.message__body {
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+ .countdown {
+  font-size: 4rem;
+}
+
 
 /**********************
 Game Screen - Winning Screen
