@@ -70,6 +70,12 @@ export default class PlaygroundAPIClient {
           url: "https://high-roller-staging.counterfactual.com",
           slug: "high-roller",
           icon: "assets/images/logo.svg"
+        },
+        {
+          name: "Tic Tac Toe",
+          url: "https://tic-tac-toe-staging.counterfactual.com",
+          slug: "tic-tac-toe",
+          icon: "public/images/logo.svg"
         }
       ];
     }
