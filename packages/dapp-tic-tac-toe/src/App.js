@@ -46,21 +46,6 @@ export default class App extends Component {
   }
 
   render() {
-      gameState
-    }
-
-    this.connect(nodeProvider);
-  }
-
-  async connect() {
-    await this.state.nodeProvider.connect();
-    console.log("connected")
-    this.setState({
-      connected: true
-    });
-  }
-
-  render() {
     return (
       this.state.connected ? 
         <Router>
@@ -89,7 +74,6 @@ export default class App extends Component {
                   onChangeAppInstance={this.appInstanceChanged.bind(this)}
                 />}
             />
-          />
           </div>
         </Router> :
         <h1 className="App message">connecting....</h1>
