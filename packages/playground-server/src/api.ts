@@ -7,6 +7,7 @@ import path from "path";
 // API Controllers
 import createAccount from "./controllers/create-account";
 import getApps from "./controllers/get-apps";
+import getUser from "./controllers/get-user";
 import login from "./controllers/login";
 import matchmake from "./controllers/matchmake";
 // Middlewares
@@ -22,18 +23,18 @@ export default function mountApi() {
   router.post("/create-account", createAccount());
   router.post("/login", login());
 
-  // TODO: Protect this route!
   router.post("/matchmake", matchmake());
+  router.get("/user", getUser());
 
   router.get("/apps", getApps(path.resolve(__dirname, "../registry.json")));
 
   api
     .use(errorHandler(api))
     .use(bodyParser({ json: true }))
+    .use(cors())
     .use(signatureValidator())
-    .use(authentication("/api/matchmake"))
-    .use(router.routes())
-    .use(cors());
+    .use(authentication("/api/matchmake", "/api/user"))
+    .use(router.routes());
 
   return api;
 }

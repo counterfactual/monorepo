@@ -57,7 +57,8 @@ export type ApiResponse = {
     | CreateAccountResponseData
     | GetAppsResponseData
     | MatchmakeResponseData
-    | LoginResponseData;
+    | LoginResponseData
+    | UserResponseData;
 };
 
 export type CreateAccountResponseData = {
@@ -68,6 +69,10 @@ export type CreateAccountResponseData = {
 export type LoginResponseData = {
   user: PlaygroundUser;
   token: string;
+};
+
+export type UserResponseData = {
+  user: PlaygroundUser;
 };
 
 export type PlaygroundAppDefinition = {
