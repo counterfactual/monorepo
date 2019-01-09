@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../lib/Transfer.sol";
 
 
-contract StateChannelApp {
+contract CounterfactualApp {
 
   function isStateTerminal(bytes memory)
     public
