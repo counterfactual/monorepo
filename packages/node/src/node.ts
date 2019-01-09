@@ -1,6 +1,4 @@
-import {
-  InstructionExecutor,
-} from "@counterfactual/machine";
+import { InstructionExecutor } from "@counterfactual/machine";
 import {
   Address,
   NetworkContext,
