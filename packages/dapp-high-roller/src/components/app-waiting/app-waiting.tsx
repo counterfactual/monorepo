@@ -127,7 +127,6 @@ export class AppWaiting {
     }
 
     this.startCountdown();
-
   }
 
   setupWaitingAccepting() {

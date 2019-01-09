@@ -14,7 +14,7 @@ declare var cf;
   shadow: true
 })
 export class AppRoot {
-  @Prop({ mutable: true }) state : any;
+  @Prop({ mutable: true }) state: any;
   nodeProvider: any;
   cfProvider: cf.Provider = {} as cf.Provider;
   appFactory: cf.AppFactory = {} as cf.AppFactory;

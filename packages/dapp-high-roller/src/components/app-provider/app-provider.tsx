@@ -1,5 +1,5 @@
 import { Component, Element, Prop, State } from "@stencil/core";
-import { RouterHistory, injectHistory } from "@stencil/router";
+import { injectHistory, RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
@@ -14,13 +14,14 @@ declare var cf;
 })
 export class AppProvider {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
-  @Prop() history: RouterHistory;
-  @Prop() updateAppInstance: (appInstance: AppInstance) => void;
-  @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void;
-  @Prop({ mutable: true }) nodeProvider: MockNodeProvider;
-  
-  @Prop({ mutable: true }) cfProvider: cf.Provider;
-  @Prop({ mutable: true }) appFactory: cf.AppFactory;
+  @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
+  @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
+  @Prop({ mutable: true })
+  nodeProvider: MockNodeProvider = {} as MockNodeProvider;
+
+  @Prop({ mutable: true }) cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @State() appInstance: AppInstance = {} as AppInstance;
 
@@ -47,7 +48,7 @@ export class AppProvider {
   }
 
   setupCfProvider() {
-    console.log('setupCfProvider called');
+    console.log("setupCfProvider called");
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
     this.cfProvider.on("updateState", this.onUpdateState.bind(this));

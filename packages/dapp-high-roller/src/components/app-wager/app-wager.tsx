@@ -24,7 +24,7 @@ export class AppWager {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
-  @Prop() appFactory: cf.AppFactory;
+  @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
