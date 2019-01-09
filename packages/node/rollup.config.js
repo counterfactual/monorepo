@@ -64,9 +64,7 @@ export default [
       nodeResolve({
         only: [...bundledDependencies]
       }),
-      typescript({
-        tsconfig: "tsconfig.rollup.json"
-      })
+      typescript(),
     ]
   }
 ];
