@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import "koa-body"; // See: https://github.com/dlau/koa-body/issues/109
+import "koa-body"; // Needed for ctx.request.body to be detected by TS, see: https://github.com/dlau/koa-body/issues/109
 
 import { matchmakeUser } from "../db";
 import {
