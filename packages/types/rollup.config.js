@@ -20,8 +20,6 @@ export default [
         name: "window.types"
       }
     ],
-    plugins: [
-      typescript()
-    ]
+    plugins: [typescript()]
   }
 ];
