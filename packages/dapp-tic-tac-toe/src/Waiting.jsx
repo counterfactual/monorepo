@@ -29,7 +29,7 @@ export default class Waiting extends Component {
   }
 
   async initialize() {
-    if (!this.props.gameInfo.appInstanceId) {
+    if (!this.props.gameInfo.shouldMatchmake) {
       const opponent = await this.matchmake();
       this.proposeInstall(opponent)
     } else {

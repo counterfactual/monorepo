@@ -9,7 +9,15 @@ class Square extends Component {
     switch (this.props.mark) {
       case 1: return "/images/x.svg";
       case 2: return "/images/o.svg";
-      default: return;
+      default: return false;
+    }
+  }
+
+  get alt() {
+    switch (this.props.mark) {
+      case 1: return "X";
+      case 2: return "O";
+      default: return false;
     }
   }
 
@@ -20,7 +28,7 @@ class Square extends Component {
   render() {
     return (
       <button className="square" disabled={this.disabled} onClick={this.handleClick.bind(this)}>
-        {this.src ? <img src={this.src} /> : undefined}
+        {this.src ? <img src={this.src} alt={this.alt} /> : undefined}
       </button>
     );
   }

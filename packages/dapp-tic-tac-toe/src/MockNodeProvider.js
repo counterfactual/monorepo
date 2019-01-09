@@ -49,7 +49,6 @@ export default class NodeProvider {
         break;
       }
       case "installVirtual": {
-        this.activeState = message.params.initialState;
         const appInstance = this.generateAppInstanceDetail({
           intermediaries: message.params.intermediaries
         });
