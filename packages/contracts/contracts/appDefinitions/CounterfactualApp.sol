@@ -6,23 +6,23 @@ import "../libs/Transfer.sol";
 
 contract CounterfactualApp {
 
-  function isStateTerminal(bytes calldata)
-    external
+  function isStateTerminal(bytes memory)
+    public
     pure
     returns (bool);
 
-  function getTurnTaker(bytes calldata, address[] calldata)
-    external
+  function getTurnTaker(bytes memory, address[] memory)
+    public
     pure
     returns (address);
 
-  function applyAction(bytes calldata, bytes calldata)
-    external
+  function applyAction(bytes memory, bytes memory)
+    public
     pure
     returns (bytes memory);
 
-  function resolve(bytes calldata, Transfer.Terms calldata)
-    external
+  function resolve(bytes memory, Transfer.Terms memory)
+    public
     pure
     returns (Transfer.Transaction memory);
 
