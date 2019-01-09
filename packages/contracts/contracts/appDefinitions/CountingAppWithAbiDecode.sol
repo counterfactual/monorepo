@@ -2,7 +2,7 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
-import "./CounterfactualApp.sol";
+import "../CounterfactualApp.sol";
 
 contract CountingAppWithAbiDecode is CounterfactualApp {
 
