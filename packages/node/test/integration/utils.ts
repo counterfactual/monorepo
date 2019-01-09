@@ -1,6 +1,7 @@
 import {
   Address,
   AppABIEncodings,
+  AppInstanceID,
   AppInstanceInfo,
   AppState,
   AssetType,
@@ -141,3 +142,15 @@ export const EMPTY_NETWORK: NetworkContext = {
   NonceRegistry: AddressZero,
   StateChannelTransaction: AddressZero
 };
+
+export function generateGetStateRequest(
+  appInstanceId: AppInstanceID
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId
+    },
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_STATE
+  };
+}

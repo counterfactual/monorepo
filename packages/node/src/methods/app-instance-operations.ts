@@ -87,7 +87,7 @@ function getNonFreeBalanceAppInstances(
 }
 
 /**
- * Retrieves the state
+ * Retrieves the state of the specified AppInstance.
  * @param appInstanceId
  * @param store
  */
