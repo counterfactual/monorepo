@@ -285,12 +285,10 @@ export class Store {
     if (!(protocol in Protocol)) {
       throw new Error(`No such protocol: ${protocol}`);
     }
-    const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
-    const value = JSON.stringify(commitment);
     return this.storeService.set([
       {
-        key,
-        value
+        key: this.computeAppInstanceCommitmentKey(appIdentityHash, protocol),
+        value: commitment
       }
     ]);
   }
@@ -299,14 +297,21 @@ export class Store {
     multisigAddress: string,
     commitment: machineTypes.Transaction
   ) {
-    const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
-    const value = JSON.stringify(commitment);
     return this.storeService.set([
       {
-        key,
-        value
+        key: this.computeMultisigSetupCommitmentKey(multisigAddress),
+        value: commitment
       }
     ]);
+  }
+
+  private async loadCommitment(key: string): Promise<machineTypes.Transaction> {
+    const { to, value, data } = await this.storeService.get(key);
+    return {
+      to,
+      data,
+      value: parseInt(value, 10)
+    };
   }
 
   async getCommitmentForAppIdentityHash(
@@ -314,14 +319,14 @@ export class Store {
     protocol: string
   ): Promise<machineTypes.Transaction> {
     const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
-    return JSON.parse(await this.storeService.get(key));
+    return this.loadCommitment(key);
   }
 
   async getSetupCommitmentForMultisig(
     multisigAddress: string
   ): Promise<machineTypes.Transaction> {
     const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
-    return JSON.parse(await this.storeService.get(key));
+    return this.loadCommitment(key);
   }
 
   private computeAppInstanceCommitmentKey(
