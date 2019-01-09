@@ -1,3 +1,4 @@
+import { LoginRequest } from "@counterfactual/playground-server";
 import {
   Component,
   Element,
@@ -8,6 +9,13 @@ import {
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
+import PlaygroundAPIClient from "../../../../data/playground-api-client";
+
+function buildSignaturePayload(address: string) {
+  return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
+    "\n"
+  );
+}
 
 @Component({
   tag: "header-account",
@@ -18,8 +26,10 @@ export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
   @Prop() username: string = "";
+  @Prop() address: string = "";
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() fakeConnect: boolean = false;
+  @Prop() updateAccount: (e) => void = e => {};
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
   @Watch("authenticated")
@@ -27,17 +37,81 @@ export class HeaderAccount {
     this.authenticationChanged.emit({ authenticated: this.authenticated });
   }
 
-  login() {
-    // This will make the UI behave as if the user is really logged in.
-    if (this.fakeConnect) {
-      console.warn(
-        "Faked connection, app thinks it's authenticated but it's not"
-      );
-      this.authenticated = true;
+  onLoginClicked() {
+    web3.personal.sign(
+      buildSignaturePayload(this.address),
+      this.address,
+      this.login.bind(this)
+    );
+  }
+
+  async componentWillLoad() {
+    const token = window.localStorage.getItem(
+      "playground:user:token"
+    ) as string;
+
+    if (!token) {
       return;
     }
 
-    console.log("login");
+    const user = await PlaygroundAPIClient.getUser(token);
+
+    web3.eth.getBalance(
+      user.multisigAddress,
+      web3.eth.defaultBlock,
+      (err, result) => {
+        const balance = parseFloat(ethers.utils.formatEther(result.toString()));
+
+        this.updateAccount({
+          ...user,
+          balance
+        });
+
+        this.authenticated = true;
+      }
+    );
+  }
+
+  async login(error: Error, signedData: string) {
+    // TODO: Handle errors.
+    if (error) {
+      throw error;
+    }
+
+    // Call the API and store the multisig.
+    const payload: LoginRequest = {
+      address: this.address,
+      signature: signedData
+    };
+
+    try {
+      const apiResponse = await PlaygroundAPIClient.login(payload);
+
+      web3.eth.getBalance(
+        apiResponse.user.multisigAddress,
+        web3.eth.defaultBlock,
+        (err, result) => {
+          const balance = parseFloat(
+            ethers.utils.formatEther(result.toString())
+          );
+
+          this.updateAccount({
+            ...apiResponse.user,
+            balance
+          });
+
+          this.authenticated = true;
+
+          // TODO: Define schema for DB in localStorage.
+          window.localStorage.setItem(
+            "playground:user:token",
+            apiResponse.token
+          );
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   get ethBalance() {
@@ -64,7 +138,7 @@ export class HeaderAccount {
       </div>
     ) : (
       <div class="btn-container">
-        <button onClick={this.login.bind(this)} class="btn">
+        <button onClick={this.onLoginClicked.bind(this)} class="btn">
           Login
         </button>
         <stencil-route-link url="/register">
@@ -75,4 +149,9 @@ export class HeaderAccount {
   }
 }
 
-AccountTunnel.injectProps(HeaderAccount, ["balance", "username"]);
+AccountTunnel.injectProps(HeaderAccount, [
+  "balance",
+  "username",
+  "address",
+  "updateAccount"
+]);

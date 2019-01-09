@@ -4,7 +4,11 @@ import {
   CreateAccountResponseData,
   ErrorResponse,
   GetAppsResponseData,
-  PlaygroundAppDefinition
+  LoginRequest,
+  LoginResponseData,
+  PlaygroundAppDefinition,
+  PlaygroundUser,
+  UserResponseData
 } from "@counterfactual/playground-server";
 
 const BASE_URL = `ENV:API_HOST`;
@@ -32,9 +36,14 @@ async function post(endpoint: string, body: JsonBody): Promise<ApiResponse> {
   return response;
 }
 
-async function get(endpoint: string): Promise<ApiResponse> {
+async function get(endpoint: string, token?: string): Promise<ApiResponse> {
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    method: "GET"
+    method: "GET",
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`
+        }
+      : {}
   });
 
   const response = (await httpResponse.json()) as ApiResponse;
@@ -54,6 +63,22 @@ export default class PlaygroundAPIClient {
     try {
       return (await post("create-account", data))
         .data as CreateAccountResponseData;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async login(data: LoginRequest): Promise<LoginResponseData> {
+    try {
+      return (await post("login", data)).data as LoginResponseData;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async getUser(token: string): Promise<PlaygroundUser> {
+    try {
+      return ((await get("user", token)).data as UserResponseData).user;
     } catch (e) {
       return Promise.reject(e);
     }

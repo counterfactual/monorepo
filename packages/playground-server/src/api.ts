@@ -4,9 +4,16 @@ import bodyParser from "koa-body";
 import Router from "koa-router";
 import path from "path";
 
-// TODO: Refactor this. The only real middleware here is "handleError",
-// the rest are controllers.
-import { createAccount, getApps, handleError, matchmake } from "./middleware";
+// API Controllers
+import createAccount from "./controllers/create-account";
+import getApps from "./controllers/get-apps";
+import getUser from "./controllers/get-user";
+import login from "./controllers/login";
+import matchmake from "./controllers/matchmake";
+// Middlewares
+import authentication from "./middleware/authentication";
+import errorHandler from "./middleware/error";
+import signatureValidator from "./middleware/signature";
 
 export default function mountApi() {
   const api = new Koa();
@@ -14,15 +21,20 @@ export default function mountApi() {
   const router = new Router({ prefix: "/api" });
 
   router.post("/create-account", createAccount());
+  router.post("/login", login());
+
   router.post("/matchmake", matchmake());
+  router.get("/user", getUser());
 
   router.get("/apps", getApps(path.resolve(__dirname, "../registry.json")));
 
   api
-    .use(handleError(api))
+    .use(errorHandler(api))
     .use(bodyParser({ json: true }))
-    .use(router.routes())
-    .use(cors());
+    .use(cors())
+    .use(signatureValidator())
+    .use(authentication("/api/matchmake", "/api/user"))
+    .use(router.routes());
 
   return api;
 }
