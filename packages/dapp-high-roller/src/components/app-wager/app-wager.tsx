@@ -31,6 +31,7 @@ export class AppWager {
   @State() myName: string = "";
 
   componentWillLoad() {
+    // TODO: figure out how the Playground UI provides Dapps their user data
     this.myName = getProp("myName", this);
   }
 
@@ -74,7 +75,7 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    // TODO: make an ajax call to the playground server
+    // TODO: make an ajax call to the playground server when not in standalone mode
 
     return new Promise<any>(resolve => {
       resolve({

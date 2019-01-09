@@ -48,6 +48,7 @@ type Action = {
  * Alice(Accepting) rolls dice - Call takeAction(action.actionType: COMMIT_TO_NUM, num)
  */
 function onUpdateState(): Promise<HighRollerAppState> {
+  // TODO this should be used instead: cfjs.on('updateState', ...)
   return new Promise<HighRollerAppState>((resolve, reject) => {
     const state: HighRollerAppState = {
       playerAddrs: [AddressZero, AddressZero],
@@ -209,7 +210,9 @@ export class AppGame {
           actionType: ActionType.START_GAME,
           actionHash: nullValueBytes32
         };
-        this.highRollerState = await takeAction(startGameAction);
+
+        this.highRollerState = await takeAction(startGameAction); // TODO call appInstance.takeAction
+
         const numberSalt =
           "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
         const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
@@ -220,8 +223,11 @@ export class AppGame {
           actionType: ActionType.COMMIT_TO_HASH,
           actionHash: hash
         };
-        this.highRollerState = await takeAction(commitHashAction);
+
+        this.highRollerState = await takeAction(commitHashAction); // TODO call appInstance.takeAction
+
         onUpdateState().then((state: HighRollerAppState) => {
+          // TODO use updateState event in app-provider
           const rolls = this.highRoller(
             state.playerFirstNumber,
             state.playerSecondNumber

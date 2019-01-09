@@ -27,12 +27,11 @@ export class AppProvider {
   componentWillLoad() {
     const params = new URLSearchParams(window.location.search);
 
-    // Using promise syntax because lifecycle events aren't
-    // async/await-friendly.
+    // TODO use async/await
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
       : new NodeProvider();
-    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
+    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this)); // TODO have this block rendering
   }
 
   setupCfProvider() {
