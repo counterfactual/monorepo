@@ -14,7 +14,7 @@ export default class App extends Component {
       ? new MockNodeProvider()
       : new window.NodeProvider();
     const cfProvider = new window.cf.Provider(nodeProvider);
-    const gameState = {
+    const gameInfo = {
       myName: params.get("myName") || "Bob",
       betAmount: params.get("betAmount") || "0.1",
       opponentName: params.get("opponentName") || "Alice",
@@ -25,7 +25,7 @@ export default class App extends Component {
       connected: false,
       nodeProvider,
       cfProvider,
-      gameState
+      gameInfo
     }
 
     this.connect(nodeProvider);
@@ -33,16 +33,16 @@ export default class App extends Component {
 
   async connect() {
     await this.state.nodeProvider.connect();
-    console.log("connected")
+    
     this.setState({
       connected: true
     });
   }
 
-  appInstanceInstalled(appInstance) {
+  appInstanceChanged(appInstance) {
     this.setState({
       appInstance: appInstance
-    })
+    });
   }
 
   render() {
@@ -69,22 +69,24 @@ export default class App extends Component {
             <Route path="/wager"
               render={(props) =>
                 <Wager {...props}
-                  gameState={this.state.gameState}
+                  gameInfo={this.state.gameInfo}
                 />}
             />
             <Route path="/waiting"
               render={(props) =>
                 <Waiting {...props}
                   cfProvider={this.state.cfProvider}
-                  gameState={this.state.gameState}
-                  onAppInstanceInstalled={this.appInstanceInstalled.bind(this)}
+                  gameInfo={this.state.gameInfo}
+                  onChangeAppInstance={this.appInstanceChanged.bind(this)}
                 />}
             />
             <Route path="/game"
               render={(props) =>
                 <Game {...props}
+                  cfProvider={this.state.cfProvider}
                   appInstance={this.state.appInstance}
-                  gameState={this.state.gameState}
+                  gameInfo={this.state.gameInfo}
+                  onChangeAppInstance={this.appInstanceChanged.bind(this)}
                 />}
             />
           />

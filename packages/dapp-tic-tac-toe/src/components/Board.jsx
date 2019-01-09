@@ -1,55 +1,29 @@
 import React, { Component } from 'react';
 import Square from './Square';
 import { ReactComponent as StrikeThrough } from '../assets/images/strike-through.svg';
+import { checkVictory } from '../utils/check-end-conditions';
 
 class Board extends Component {
-  componentDidMount() {
-    this.board = [[], [], []]
-    this.appInstance.on("updateState", this.updateBoard.bind(this));
-    this.initializeBoard();
-  }
-
-  async initializeBoard() {
-    const state = await this.appInstance.getState();
-    this.updateBoard(state);
-  }
-
-  updateBoard(state) {
-    this.setState({
-      board: state.board
-    })
-  }
-
-  renderSquare(mark) {
-    return <Square mark={mark}/>;
-  }
-
   render() {
-
+    const winClaim = checkVictory(this.props.board, 1) || checkVictory(this.props.board, 2);
+  
     return (
       <div className="board">
-        {this.board.map((row) =>
-          <div className="board-row">
-            {row.map((square) =>
-              {this.renderSquare(square)}
+        {this.props.board.map((row, x) =>
+          <div className="board-row" key={x}>
+            {row.map((mark, y) =>
+              <Square mark={mark} disabled={!this.props.isMyTurn} key={`${x}-${y}`} x={x} y={y} onTakeAction={this.props.onTakeAction}/>
             )}
           </div>
         )}
-        
-  
-        {/* <StrikeThrough className="strike-through left-verticle"/> */}
-        {/* <StrikeThrough className="strike-through mid-verticle"/>
-        <StrikeThrough className="strike-through right-verticle"/>
 
-        <StrikeThrough className="strike-through top-horizontal"/>
-        <StrikeThrough className="strike-through mid-horizontal"/>
-        <StrikeThrough className="strike-through bottom-horizontal"/>
+        {
+          winClaim ?
+            <StrikeThrough className={`strike-through dir-${winClaim.winClaimType}-${winClaim.idx}`} />
+            : undefined
+        }
 
-
-        <StrikeThrough className="strike-through left-diagonal"/>
-        <StrikeThrough className="strike-through right-diagonal"/>
-
-        <div className="winning-game"></div> */}
+        {/* <div className="winning-game"></div> */}
       </div>
     );
   }
