@@ -14,6 +14,7 @@ import {
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
+import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
@@ -97,7 +98,7 @@ export class Store {
    * @param channel
    * @param ownersHash
    */
-  async saveChannel(stateChannel: StateChannel) {
+  async saveStateChannel(stateChannel: StateChannel) {
     const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
     await this.storeService.set([
       {
@@ -243,13 +244,17 @@ export class Store {
   async getProposedAppInstanceInfo(
     appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
-    return ProposedAppInstanceInfo.fromJson(
-      await this.storeService.get(
-        `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
-      )
+    const proposedAppInstance = await this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
+    if (!proposedAppInstance) {
+      return Promise.reject(
+        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
+      );
+    }
+    return ProposedAppInstanceInfo.fromJson(proposedAppInstance);
   }
 
   /**
@@ -261,6 +266,24 @@ export class Store {
     const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
       appInstanceId
     );
+    if (!multisigAddress) {
+      return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    }
     return await this.getStateChannel(multisigAddress);
+  }
+
+  /**
+   * Returns a string identifying the `AppInstanceIdentityHash` that is mapped to
+   * the given `appInstanceId`.
+   * @param appInstanceId
+   */
+  async getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId: string
+  ): Promise<string> {
+    return this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
+    );
   }
 }

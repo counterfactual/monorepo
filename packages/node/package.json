@@ -5,9 +5,9 @@
   "iife": "dist/index.iife.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b && rollup -c",
-    "test": "tsc -b && jest --runInBand --detectOpenHandles --bail",
-    "test:coverage": "tsc -b && jest --runInBand --detectOpenHandles --bail --coverage",
+    "build": "rollup -c",
+    "test": "jest --runInBand --detectOpenHandles --bail",
+    "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
@@ -22,6 +22,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.18.0",
+    "ts-mockito": "^2.3.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   },

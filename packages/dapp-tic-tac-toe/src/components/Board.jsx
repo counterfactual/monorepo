@@ -1,46 +1,29 @@
 import React, { Component } from 'react';
 import Square from './Square';
 import { ReactComponent as StrikeThrough } from '../assets/images/strike-through.svg';
+import { checkVictory } from '../utils/check-end-conditions';
 
 class Board extends Component {
-  renderSquare(i) {
-    return <Square />;
-  }
-
   render() {
-
+    const winClaim = checkVictory(this.props.board, 1) || checkVictory(this.props.board, 2);
+  
     return (
       <div className="board">
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-        
-  
-        {/* <StrikeThrough className="strike-through left-verticle"/> */}
-        <StrikeThrough className="strike-through mid-verticle"/>
-        <StrikeThrough className="strike-through right-verticle"/>
+        {this.props.board.map((row, x) =>
+          <div className="board-row" key={x}>
+            {row.map((mark, y) =>
+              <Square mark={mark} disabled={!this.props.isMyTurn} key={`${x}-${y}`} x={x} y={y} onTakeAction={this.props.onTakeAction}/>
+            )}
+          </div>
+        )}
 
-        <StrikeThrough className="strike-through top-horizontal"/>
-        <StrikeThrough className="strike-through mid-horizontal"/>
-        <StrikeThrough className="strike-through bottom-horizontal"/>
+        {
+          winClaim ?
+            <StrikeThrough className={`strike-through dir-${winClaim.winClaimType}-${winClaim.idx}`} />
+            : undefined
+        }
 
-
-        <StrikeThrough className="strike-through left-diagonal"/>
-        <StrikeThrough className="strike-through right-diagonal"/>
-
-        <div className="winning-game">{/* COINS */}</div>
+        {/* <div className="winning-game"></div> */}
       </div>
     );
   }
