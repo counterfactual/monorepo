@@ -102,8 +102,8 @@ export async function userExists(user: PlaygroundUser): Promise<boolean> {
       id: user.id,
       username: user.username,
       email: user.email,
-      address: user.address,
-      multisigAddress: user.multisigAddress
+      eth_address: user.address,
+      multisig_address: user.multisigAddress
     })
     .limit(1);
 
