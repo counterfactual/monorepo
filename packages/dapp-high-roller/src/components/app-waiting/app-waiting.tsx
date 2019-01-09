@@ -37,7 +37,7 @@ export class AppWaiting {
   @State() isCountdownStarted: boolean = false;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
-  @Prop() updateAppInstance = (instance: AppInstance) => {};
+  // @Prop() updateAppInstance = (instance: AppInstance) => {};
   // @Prop() proposeInstall = () => {};
 
   /**
