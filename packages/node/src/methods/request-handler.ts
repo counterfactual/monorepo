@@ -8,7 +8,8 @@ import { Store } from "../store";
 
 import {
   getInstalledAppInstances,
-  getProposedAppInstances
+  getProposedAppInstances,
+  handleGetAppInstanceState
 } from "./app-instance-operations";
 import {
   addAppInstance,
@@ -86,6 +87,10 @@ export class RequestHandler {
       proposeAppInstanceInstall.bind(this)
     );
     this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
+    this.methods.set(
+      Node.MethodName.GET_STATE,
+      handleGetAppInstanceState.bind(this)
+    );
   }
 
   /**
