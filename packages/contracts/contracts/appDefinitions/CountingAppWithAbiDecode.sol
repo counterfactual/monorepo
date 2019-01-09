@@ -2,9 +2,9 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../lib/Transfer.sol";
-import "./StateChannelApp.sol";
+import "./CounterfactualApp.sol";
 
-contract CountingAppWithAbiDecode is StateChannelApp {
+contract CountingAppWithAbiDecode is CounterfactualApp {
 
   enum ActionTypes { INCREMENT, DECREMENT}
 
