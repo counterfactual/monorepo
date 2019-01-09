@@ -1,17 +1,17 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-export interface State {
-  // NodeProvider interface
-  nodeProvider: any;
+import { AppInstance } from "./mock-app-instance";
+import { cf } from "./types";
 
-  // CF.js instance
-  cfjs: any;
-}
-
-export default createProviderConsumer<State>(
+export default createProviderConsumer<any>(
   {
-    nodeProvider: null,
-    cfjs: null
+    appFactory: {} as cf.AppFactory,
+    cfProvider: {} as cf.Provider,
+    appInstance: {} as AppInstance,
+    updateAppInstance: () => {}
+    // appInstanceId: ""
+    // proposeInstall: () => {},
+    // install: () => {}
   },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />

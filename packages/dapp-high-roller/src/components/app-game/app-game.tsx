@@ -1,11 +1,125 @@
-import { Component, Prop, State } from "@stencil/core";
+declare var ethers;
+
+import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import { AppInstance } from "../../data/mock-app-instance";
+import { cf } from "../../data/types";
 import { GameState, PlayerType } from "../../enums/enums";
+import { getProp } from "../../utils/utils";
+
+const { AddressZero } = ethers.constants;
+const { solidityKeccak256 } = ethers.utils;
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
+
+enum HighRollerStage {
+  PRE_GAME,
+  COMMITTING_HASH,
+  COMMITTING_NUM,
+  DONE
+}
+
+type HighRollerAppState = {
+  playerAddrs: string[];
+  stage: HighRollerStage;
+  salt: string;
+  commitHash: string;
+  playerFirstNumber: number;
+  playerSecondNumber: number;
+};
+
+enum ActionType {
+  START_GAME,
+  COMMIT_TO_HASH,
+  COMMIT_TO_NUM
+}
+
+type Action = {
+  actionType: ActionType;
+  number: number;
+  actionHash: string;
+};
+
+/**
+ * Bob(Proposing) waits for Alice(Accepting) to roll dice - onUpdateState()?
+ * Alice(Accepting) rolls dice - Call takeAction(action.actionType: COMMIT_TO_NUM, num)
+ */
+function onUpdateState(): Promise<HighRollerAppState> {
+  // TODO this should be used instead: cfjs.on('updateState', ...)
+  return new Promise<HighRollerAppState>((resolve, reject) => {
+    const state: HighRollerAppState = {
+      playerAddrs: [AddressZero, AddressZero],
+      stage: HighRollerStage.COMMITTING_NUM,
+      salt: nullValueBytes32,
+      commitHash: nullValueBytes32,
+      playerFirstNumber: 0,
+      playerSecondNumber: 3
+    };
+    return setTimeout(() => {
+      return resolve(state);
+    }, 3000);
+  });
+}
+
+async function takeAction(action: Action): Promise<HighRollerAppState> {
+  // console.log(action);
+  if (action.actionType === ActionType.START_GAME) {
+    const state: HighRollerAppState = {
+      playerAddrs: [AddressZero, AddressZero],
+      stage: HighRollerStage.COMMITTING_HASH,
+      salt: nullValueBytes32,
+      commitHash: nullValueBytes32,
+      playerFirstNumber: 0,
+      playerSecondNumber: 0
+    };
+    return new Promise<HighRollerAppState>((resolve, reject) => {
+      return setTimeout(() => {
+        return resolve(state);
+      }, 3000);
+    });
+  }
+  if (action.actionType === ActionType.COMMIT_TO_HASH) {
+    const state: HighRollerAppState = {
+      playerAddrs: [AddressZero, AddressZero],
+      stage: HighRollerStage.COMMITTING_NUM,
+      salt: nullValueBytes32,
+      commitHash: nullValueBytes32,
+      playerFirstNumber: 0,
+      playerSecondNumber: 0
+    };
+    return new Promise<HighRollerAppState>((resolve, reject) => {
+      return setTimeout(() => {
+        return resolve(state);
+      }, 3000);
+    });
+  }
+  const state: HighRollerAppState = {
+    playerAddrs: [AddressZero, AddressZero],
+    stage: HighRollerStage.DONE,
+    salt: nullValueBytes32,
+    commitHash: nullValueBytes32,
+    playerFirstNumber: 0,
+    playerSecondNumber: 0
+  };
+  return new Promise<HighRollerAppState>((resolve, reject) => {
+    return setTimeout(() => {
+      return resolve(state);
+    }, 3000);
+  });
+}
+
+// Default value instead of null Bytes32
+const nullValueBytes32 =
+  "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
+
+/// Returns the commit hash that can be used to commit to chosenNumber
+/// using appSalt
+function computeCommitHash(appSalt: string, chosenNumber: number) {
+  return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
+}
 
 @Component({
   tag: "app-game",
@@ -13,12 +127,28 @@ import { GameState, PlayerType } from "../../enums/enums";
   shadow: true
 })
 export class AppGame {
-  @Prop() history: RouterHistory;
+  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) myName: string = "Facundo";
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
-  @Prop() opponentName: string = "John";
+  @Prop({ mutable: true }) opponentName: string = "John";
+  @Prop({ mutable: true }) isProposing: boolean = false;
+  @Prop({ mutable: true }) appInstanceId: string = "";
 
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
+
+  defaultHighRollerState: HighRollerAppState = {
+    playerAddrs: [AddressZero, AddressZero],
+    stage: HighRollerStage.PRE_GAME,
+    salt: nullValueBytes32,
+    commitHash: nullValueBytes32,
+    playerFirstNumber: 0,
+    playerSecondNumber: 0
+  };
+
+  @State() highRollerState: HighRollerAppState = this.defaultHighRollerState;
   @State() gameState: GameState = GameState.Play;
   @State() myRoll: number[] = [1, 1];
   @State() myScore: number = 0;
@@ -30,19 +160,26 @@ export class AppGame {
   rollAudio!: HTMLAudioElement;
 
   componentWillLoad() {
-    this.myName = this.history.location.state.myName
-      ? this.history.location.state.myName
-      : this.myName;
-    this.betAmount = this.history.location.state.betAmount
-      ? this.history.location.state.betAmount
-      : this.betAmount;
+    this.myName = getProp("myName", this);
+    this.betAmount = getProp("betAmount", this);
+    this.opponentName = getProp("opponentName", this);
+    this.isProposing = getProp("isProposing", this);
+    this.appInstanceId = getProp("appInstanceId", this);
   }
 
-  generateRoll() {
+  generateRandomRoll() {
     return [
       1 + Math.floor(Math.random() * Math.floor(6)),
       1 + Math.floor(Math.random() * Math.floor(6))
     ];
+  }
+
+  highRoller(num1: number, num2: number) {
+    const randomness = solidityKeccak256(["uint256", "uint256"], [num1, num2]);
+    return {
+      myRoll: this.generateRandomRoll(),
+      opponentRoll: this.generateRandomRoll()
+    };
   }
 
   async animateRoll(roller): Promise<void> {
@@ -50,7 +187,7 @@ export class AppGame {
     this.shakeAudio.play();
 
     for (let i = 0; i < 10; i += 1) {
-      this[roller] = this.generateRoll();
+      this[roller] = this.generateRandomRoll();
 
       await new Promise(resolve =>
         setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
@@ -62,27 +199,60 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
-    await Promise.all([
-      this.animateRoll("myRoll"),
-      this.animateRoll("opponentRoll")
-    ]);
+    if (this.isProposing) {
+      if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
+        await Promise.all([
+          this.animateRoll("myRoll"),
+          this.animateRoll("opponentRoll")
+        ]);
+        const startGameAction: Action = {
+          number: 0,
+          actionType: ActionType.START_GAME,
+          actionHash: nullValueBytes32
+        };
 
-    this.myRoll = this.generateRoll();
-    this.opponentRoll = this.generateRoll();
-    const totalMyRoll = this.myRoll[0] + this.myRoll[1];
-    const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
-    if (totalMyRoll > totalOpponentRoll) {
-      this.myScore += 1;
-      this.gameState = GameState.Won;
-    } else if (totalMyRoll < totalOpponentRoll) {
-      this.opponentScore += 1;
-      this.gameState = GameState.Lost;
-    } else {
-      this.gameState = GameState.Tie;
+        this.highRollerState = await takeAction(startGameAction); // TODO call appInstance.takeAction
+
+        const numberSalt =
+          "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+        const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
+        const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+        const commitHashAction: Action = {
+          number: playerFirstNumber,
+          actionType: ActionType.COMMIT_TO_HASH,
+          actionHash: hash
+        };
+
+        this.highRollerState = await takeAction(commitHashAction); // TODO call appInstance.takeAction
+
+        onUpdateState().then((state: HighRollerAppState) => {
+          // TODO use updateState event in app-provider
+          const rolls = this.highRoller(
+            state.playerFirstNumber,
+            state.playerSecondNumber
+          );
+          this.myRoll = rolls.myRoll;
+          this.opponentRoll = rolls.opponentRoll;
+          const totalMyRoll = this.myRoll[0] + this.myRoll[1];
+          const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
+          if (totalMyRoll > totalOpponentRoll) {
+            this.myScore += 1;
+            this.gameState = GameState.Won;
+          } else if (totalMyRoll < totalOpponentRoll) {
+            this.opponentScore += 1;
+            this.gameState = GameState.Lost;
+          } else {
+            this.gameState = GameState.Tie;
+          }
+          this.highRollerState = state;
+        });
+      }
     }
   }
   handleRematch(): void {
     this.gameState = GameState.Play;
+    this.highRollerState = this.defaultHighRollerState;
   }
   handleExit(): void {
     this.history.push({

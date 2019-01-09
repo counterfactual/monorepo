@@ -1,7 +1,12 @@
-import { Component, Prop } from "@stencil/core";
-import { MatchResults } from "@stencil/router";
+import { Component, Element, Prop, State } from "@stencil/core";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
+import MockNodeProvider from "../../data/node-provider";
+import { cf, Node } from "../../data/types";
+
+declare var NodeProvider;
+declare var cf;
 
 @Component({
   tag: "app-root",
@@ -9,33 +14,49 @@ import CounterfactualTunnel from "../../data/counterfactual";
   shadow: true
 })
 export class AppRoot {
-  // TODO Tracking this issue: https://github.com/ionic-team/stencil-router/issues/77
-  @Prop() match: MatchResults;
-
+  @Prop({ mutable: true }) state: any;
   nodeProvider: any;
-  cfjs: any;
+  cfProvider: cf.Provider = {} as cf.Provider;
+  appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @State() appInstance: AppInstance = {} as AppInstance;
 
-  componentWillLoad() {
-    // Using promise syntax because lifecycle events aren't
-    // async/await-friendly.
-    this.nodeProvider = new NodeProvider();
-    return this.nodeProvider.connect().then(() => {
-      this.cfjs = new cf.Provider(this.nodeProvider);
-    });
+  constructor() {
+    this.state = {
+      appInstance: null,
+      appFactory: null,
+      updateAppInstance: this.updateAppInstance.bind(this),
+      updateAppFactory: this.updateAppFactory.bind(this)
+    };
+  }
+
+  updateAppInstance(appInstance: AppInstance) {
+    this.state = { ...this.state, appInstance };
+  }
+
+  updateAppFactory(appFactory: cf.AppFactory) {
+    this.state = { ...this.state, appFactory };
   }
 
   render() {
-    const state = { nodeProvider: this.nodeProvider, cfjs: this.cfjs };
     return (
       <div class="height-100">
         <main class="height-100">
-          <CounterfactualTunnel.Provider state={state}>
+          <CounterfactualTunnel.Provider state={this.state}>
             <stencil-router>
               <stencil-route-switch scrollTopOffset={0}>
                 <stencil-route url="/" component="app-logo" exact={true} />
                 <stencil-route url="/wager" component="app-wager" />
                 <stencil-route url="/game" component="app-game" />
+                <stencil-route url="/waiting" component="app-waiting" />
+                <stencil-route
+                  url="/accept-invite"
+                  component="app-accept-invite"
+                />
               </stencil-route-switch>
+              <app-provider
+                updateAppInstance={this.state.updateAppInstance}
+                updateAppFactory={this.state.updateAppFactory}
+              />
             </stencil-router>
           </CounterfactualTunnel.Provider>
         </main>
