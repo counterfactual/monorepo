@@ -12,11 +12,13 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     view
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = address(state.multisig).balance - state.threshold;
 
