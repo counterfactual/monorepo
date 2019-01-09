@@ -53,7 +53,10 @@ export class AppRoot {
                   component="app-accept-invite"
                 />
               </stencil-route-switch>
-              <app-provider updateAppInstance={this.updateAppInstance} updateAppFactory={this.updateAppFactory} />
+              <app-provider
+                updateAppInstance={this.state.updateAppInstance}
+                updateAppFactory={this.state.updateAppFactory}
+              />
             </stencil-router>
           </CounterfactualTunnel.Provider>
         </main>
