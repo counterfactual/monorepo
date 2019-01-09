@@ -4,9 +4,12 @@ import bodyParser from "koa-body";
 import Router from "koa-router";
 import path from "path";
 
-// TODO: Refactor this. The only real middleware here is "handleError",
-// the rest are controllers.
-import { createAccount, getApps, handleError, matchmake } from "./middleware";
+// API Controllers
+import createAccount from "./controllers/create-account";
+import getApps from "./controllers/get-apps";
+import matchmake from "./controllers/matchmake";
+// Middlewares
+import handleError from "./middleware/error";
 
 export default function mountApi() {
   const api = new Koa();
