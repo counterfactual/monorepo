@@ -10,4 +10,5 @@ class MockStoreService implements IStoreService {
   }
 }
 
-export const MOCK_STORE_SERVICE = new MockStoreService();
+const mockStoreService = new MockStoreService();
+export default mockStoreService;

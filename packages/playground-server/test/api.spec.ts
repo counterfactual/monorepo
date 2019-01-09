@@ -1,5 +1,7 @@
 import axios from "axios";
+import { readFileSync } from "fs";
 import { Server } from "http";
+import { resolve } from "path";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
@@ -167,6 +169,110 @@ describe("playground-server", () => {
               errorCode: ErrorCode.AddressAlreadyRegistered
             }
           });
+          done();
+        });
+    });
+  });
+
+  describe("/api/apps", () => {
+    it("gets a list of apps", done => {
+      client.get("/apps").then(response => {
+        expect(response.status).toEqual(200);
+        expect(response.data).toEqual({
+          ok: true,
+          data: JSON.parse(
+            readFileSync(resolve(__dirname, "../registry.json")).toString()
+          )
+        });
+        done();
+      });
+    });
+  });
+
+  describe("/api/matchmake", () => {
+    it("fails when no user address is provided", done => {
+      client.post("/matchmake").catch(({ response }) => {
+        expect(response.status).toEqual(400);
+        expect(response.data).toEqual({
+          ok: false,
+          error: {
+            status: 400,
+            errorCode: ErrorCode.UserAddressRequired
+          }
+        });
+        done();
+      });
+    });
+
+    it("fails when there are no users to match with", done => {
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .catch(({ response }) => {
+          expect(response.status).toEqual(400);
+          expect(response.data).toEqual({
+            ok: false,
+            error: {
+              status: 400,
+              errorCode: ErrorCode.NoUsersAvailable
+            }
+          });
+          done();
+        });
+    });
+
+    it("returns the only possible user as a match", async done => {
+      // Mock an extra user into the DB first.
+      await db("users").insert({
+        username: "bob",
+        email: "bob@wonder.land",
+        eth_address: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+      });
+
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .then(response => {
+          expect(response.status).toEqual(200);
+          expect(response.data.ok).toBe(true);
+          expect(response.data.data).toEqual({
+            username: "bob",
+            peerAddress: "0x93678a4828d07708ad34272d61404dd06ae2ca64"
+          });
+          done();
+        });
+    });
+
+    it("returns one of two possible users as a match", async done => {
+      // Mock an extra user into the DB first.
+      await db("users").insert({
+        username: "charlie",
+        email: "charlie@wonder.land",
+        eth_address: "0x5faddca4889ddc5791cf65446371151f29653285"
+      });
+
+      client
+        .post("/matchmake", {
+          userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+        })
+        .then(response => {
+          expect(response.status).toEqual(200);
+          expect(response.data.ok).toBe(true);
+
+          const { username, peerAddress } = response.data.data;
+          const bobAddress = "0x93678a4828d07708ad34272d61404dd06ae2ca64";
+          const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
+
+          if (username === "bob") {
+            expect(peerAddress).toEqual(bobAddress);
+          } else if (username === "charlie") {
+            expect(peerAddress).toEqual(charlieAddress);
+          } else {
+            fail("It should have matched either Bob or Charlie");
+          }
+
           done();
         });
     });

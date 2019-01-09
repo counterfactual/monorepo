@@ -15,7 +15,7 @@ contract MixinCancelChallenge is
 {
 
   /// @notice Unanimously agree to cancel a dispute
-  // TODO: Docs
+  /// @param appIdentity an AppIdentity object pointing to the app being cancelled
   /// @param signatures Signatures by all signing keys of the currently latest disputed
   /// state; an indication of agreement of this state and valid to cancel a dispute
   /// @dev Note this function is only callable when the state channel is in a DISPUTE state

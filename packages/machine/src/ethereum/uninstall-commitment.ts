@@ -43,7 +43,6 @@ export class UninstallCommitment extends MultiSendCommitment {
     );
   }
 
-  // TODO: I am suspicious of this
   public dependencyNonceInput(): MultisigTransaction {
     return {
       to: this.networkContext.NonceRegistry,

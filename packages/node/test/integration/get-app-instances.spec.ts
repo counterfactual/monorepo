@@ -1,12 +1,11 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
-import dotenv from "dotenv";
+import dotenv from "dotenv-extended";
 import { Wallet } from "ethers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
-import { A_PRIVATE_KEY, B_PRIVATE_KEY } from "../env";
-import { MOCK_MESSAGING_SERVICE } from "../mock-services/mock-messaging-service";
+import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -16,7 +15,7 @@ import {
   makeProposalRequest
 } from "./utils";
 
-dotenv.config();
+dotenv.load();
 
 describe("Node method follows spec - getAppInstances", () => {
   let firebaseServer: FirebaseServer;
@@ -40,8 +39,8 @@ describe("Node method follows spec - getAppInstances", () => {
 
   beforeEach(() => {
     node = new Node(
-      A_PRIVATE_KEY,
-      MOCK_MESSAGING_SERVICE,
+      process.env.A_PRIVATE_KEY!,
+      mockMessagingService,
       storeService,
       EMPTY_NETWORK,
       nodeConfig
@@ -61,7 +60,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // the peer with whom an installation proposal is being made
-    const peerAddress = new Wallet(B_PRIVATE_KEY).address;
+    const peerAddress = new Wallet(process.env.B_PRIVATE_KEY!).address;
 
     // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(node, [

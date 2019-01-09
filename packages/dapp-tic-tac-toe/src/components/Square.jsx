@@ -1,21 +1,34 @@
 import React, { Component } from 'react';
 
-// import { ReactComponent as XIcon } from '../assets/images/x.svg'
-import { ReactComponent as OIcon } from '../assets/images/o.svg'
-
 class Square extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: null,
-    };
+  handleClick() {
+    this.props.onTakeAction(this.props.x, this.props.y);
+  }
+
+  get src() {
+    switch (this.props.mark) {
+      case 1: return "/images/x.svg";
+      case 2: return "/images/o.svg";
+      default: return false;
+    }
+  }
+
+  get alt() {
+    switch (this.props.mark) {
+      case 1: return "X";
+      case 2: return "O";
+      default: return false;
+    }
+  }
+
+  get disabled() {
+    return this.props.disabled || this.props.mark !== 0;
   }
 
   render() {
     return (
-      <button className="square">
-        {/* <XIcon /> */}
-        <OIcon />
+      <button className="square" disabled={this.disabled} onClick={this.handleClick.bind(this)}>
+        {this.src ? <img src={this.src} alt={this.alt} /> : undefined}
       </button>
     );
   }

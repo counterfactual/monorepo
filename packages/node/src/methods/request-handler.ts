@@ -1,20 +1,25 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import { Node } from "@counterfactual/types";
+import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { Channels } from "../channels";
 import { NodeMessage } from "../node";
-import { IMessagingService } from "../services";
+import { IMessagingService, IStoreService } from "../services";
+import { Store } from "../store";
 
 import {
   getInstalledAppInstances,
-  getProposedAppInstances
+  getProposedAppInstances,
+  handleGetAppInstanceState
 } from "./app-instance-operations";
-import { addAppInstance, install, proposeInstall } from "./install-operations";
+import {
+  addAppInstance,
+  installAppInstance,
+  proposeAppInstanceInstall
+} from "./install-operations";
 import {
   addMultisig,
   createMultisig,
-  getChannelAddresses
+  getAllChannelAddresses
 } from "./multisig-operations";
 
 /**
@@ -24,13 +29,18 @@ import {
 export class RequestHandler {
   private methods = new Map();
   private events = new Map();
+  store: Store;
   constructor(
-    private readonly incoming: EventEmitter,
-    private readonly outgoing: EventEmitter,
-    private readonly channels: Channels,
-    private readonly messagingService: IMessagingService,
-    private readonly instructionExecutor: InstructionExecutor
+    readonly selfAddress: Address,
+    readonly incoming: EventEmitter,
+    readonly outgoing: EventEmitter,
+    readonly storeService: IStoreService,
+    readonly messagingService: IMessagingService,
+    readonly instructionExecutor: InstructionExecutor,
+    readonly networkContext: NetworkContext,
+    storeKeyPrefix: string
   ) {
+    this.store = new Store(storeService, storeKeyPrefix);
     this.registerMethods();
     this.mapEventHandlers();
   }
@@ -48,12 +58,7 @@ export class RequestHandler {
     return {
       type: req.type,
       requestId: req.requestId,
-      result: await this.methods.get(method)(
-        this.channels,
-        this.messagingService,
-        this.instructionExecutor,
-        req.params
-      )
+      result: await this.methods.get(method)(req.params)
     };
   }
 
@@ -61,21 +66,31 @@ export class RequestHandler {
    * This maps the Node method names to their respective handlers.
    */
   private mapMethodHandlers() {
-    this.methods.set(Node.MethodName.CREATE_MULTISIG, createMultisig);
+    this.methods.set(
+      Node.MethodName.CREATE_MULTISIG,
+      createMultisig.bind(this)
+    );
     this.methods.set(
       Node.MethodName.GET_CHANNEL_ADDRESSES,
-      getChannelAddresses
+      getAllChannelAddresses.bind(this)
     );
     this.methods.set(
       Node.MethodName.GET_APP_INSTANCES,
-      getInstalledAppInstances
+      getInstalledAppInstances.bind(this)
     );
     this.methods.set(
       Node.MethodName.GET_PROPOSED_APP_INSTANCES,
-      getProposedAppInstances
+      getProposedAppInstances.bind(this)
     );
-    this.methods.set(Node.MethodName.PROPOSE_INSTALL, proposeInstall);
-    this.methods.set(Node.MethodName.INSTALL, install);
+    this.methods.set(
+      Node.MethodName.PROPOSE_INSTALL,
+      proposeAppInstanceInstall.bind(this)
+    );
+    this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
+    this.methods.set(
+      Node.MethodName.GET_STATE,
+      handleGetAppInstanceState.bind(this)
+    );
   }
 
   /**
@@ -90,12 +105,7 @@ export class RequestHandler {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await method(
-            this.channels,
-            this.messagingService,
-            this.instructionExecutor,
-            req.params
-          )
+          result: await method(req.params)
         };
         this.outgoing.emit(req.type, res);
       });
@@ -109,8 +119,8 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig);
-    this.events.set(Node.EventName.INSTALL, addAppInstance);
+    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig.bind(this));
+    this.events.set(Node.EventName.INSTALL, addAppInstance.bind(this));
   }
 
   /**
@@ -120,11 +130,6 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: Node.EventName, msg: NodeMessage) {
-    await this.events.get(event)(
-      this.channels,
-      this.messagingService,
-      this.instructionExecutor,
-      msg
-    );
+    await this.events.get(event)(msg);
   }
 }

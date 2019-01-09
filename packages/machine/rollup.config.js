@@ -10,17 +10,14 @@ export default [
       {
         file: pkg.main,
         sourcemap: true,
-        format: "cjs",
+        format: "cjs"
       },
       {
         file: pkg.module,
         sourcemap: true,
-        format: "es",
+        format: "es"
       }
     ],
-    plugins: [
-      json({ compact: true }),
-      typescript()
-    ]
+    plugins: [json({ compact: true }), typescript()]
   }
 ];

@@ -17,7 +17,10 @@ contract MAppRegistryCore {
   // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 
-  // TODO: docs
+  /// @notice Verify the hash of ap AppInterface is a bytes32
+  /// @param appInterface the AppInterface being checked
+  /// @param appInterfaceHash the hash to check against
+  /// @return a boolean dictating the equality of the hashed AppInterface and the hash
   modifier doAppInterfaceCheck(
     LibStateChannelApp.AppInterface memory appInterface,
     bytes32 appInterfaceHash

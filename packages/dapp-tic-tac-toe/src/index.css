@@ -242,13 +242,43 @@ Forms
 }
 
 
+/**********************
+Waiting Room
+**********************/
+.waiting {
+  padding: 4rem 2rem 2rem;
+}
+.message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.message__icon {
+  width: 3.75rem;
+  margin: 0 auto;
+}
+.message__title {
+  font-size: 1.5rem;
+  margin: 1rem 0 0;
+  text-transform: uppercase;
+}
+.message__body {
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+ .countdown {
+  font-size: 4rem;
+}
+
 
 /**********************
 Game Screen - Winning Screen
 **********************/
 /* If game is won */
-.game::after {
-  /* display: none; @TODO: Conditional logic is needed to show coins when game is won */
+/* .game::after {
   position: absolute;
   top: 1rem;
   left: 50%;
@@ -260,7 +290,7 @@ Game Screen - Winning Screen
   background-size: contain;
   content: '';
   z-index: 0;
-}
+} */
 
 
 
@@ -369,7 +399,7 @@ Game Screen - Board
   padding-top: calc(100% / 3);
 }
 
-.square > svg { /* Styles player marker, when squares are clicked */
+.square > img { /* Styles player marker, when squares are clicked */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -406,52 +436,52 @@ Game Screen - Strike Through
 }
 
 /* verticle wins */
-.strike-through.left-verticle {
+.strike-through.dir-1-0 {
   top: 50%;
   left: calc(100% / 6);
   transform: translate(-50%, -50%);
 }
 
-.strike-through.mid-verticle {
+.strike-through.dir-1-1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-.strike-through.right-verticle {
+.strike-through.dir-1-2 {
   top: 50%;
   right: calc(100% / 9);
   transform: translate(-50%, -50%);
 }
 
 /* horizontal wins */
-.strike-through.top-horizontal {
+.strike-through.dir-0-0 {
   top: calc(100% / 6);
   left: 50%;
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-.strike-through.mid-horizontal {
+.strike-through.dir-0-1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-.strike-through.bottom-horizontal {
+.strike-through.dir-0-2 {
   top: calc(100% / 1.25);
   left: 50%;
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
 /* diagonal wins */
-.strike-through.left-diagonal {
+.strike-through.dir-2-0 {
   top: 50%;
   left: 50%;
   height: 100%;
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.strike-through.right-diagonal {
+.strike-through.dir-3-0 {
   top: 50%;
   left: 50%;
   height: 100%;

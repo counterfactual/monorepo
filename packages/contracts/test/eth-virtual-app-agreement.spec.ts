@@ -228,8 +228,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           bigNumberify(10),
           0
         )
-        // TODO: Add revert reason (to.be.revertedWith(...))
-      ).to.be.reverted;
+      ).to.be.revertedWith("Delegate call failed.");
     });
 
     it("fails if resolution value is larger than capital provided", async () => {
@@ -242,8 +241,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           bigNumberify(2),
           0
         )
-        // TODO: Add revert reason (to.be.revertedWith(...))
-      ).to.be.reverted;
+      ).to.be.revertedWith("Delegate call failed.");
     });
 
     it("fails if resolution returns different token type", async () => {
@@ -256,8 +254,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           bigNumberify(10),
           1
         )
-        // TODO: Add revert reason (to.be.revertedWith(...))
-      ).to.be.reverted;
+      ).to.be.revertedWith("Delegate call failed.");
     });
   });
 });

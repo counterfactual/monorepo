@@ -4,10 +4,22 @@ export type CreateAccountRequest = PlaygroundUserData & {
   signature: string;
 };
 
+export type MatchmakeRequest = {
+  userAddress: Address;
+};
+
+export type MatchmakeResponseData = {
+  username: string;
+  peerAddress: Address;
+};
+
 export type ErrorResponse = {
   status: number;
   errorCode: ErrorCode;
+  context?: Error;
 };
+
+export type StatusCodeMapping = Map<ErrorCode | "default", number>;
 
 export enum ErrorCode {
   UsernameRequired = "username_required",
@@ -15,8 +27,11 @@ export enum ErrorCode {
   AddressRequired = "address_required",
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
-  UserSaveFailed = "user_save_failed",
-  AddressAlreadyRegistered = "address_already_registered"
+  AddressAlreadyRegistered = "address_already_registered",
+  AppRegistryNotAvailable = "app_registry_not_available",
+  UserAddressRequired = "user_address_required",
+  NoUsersAvailable = "no_users_available",
+  UnhandledError = "unhandled_error"
 }
 
 export type ApiResponse = {
@@ -24,9 +39,8 @@ export type ApiResponse = {
   ok: boolean;
   data?:
     | CreateAccountResponseData
-    | {
-        /* other types */
-      };
+    | GetAppsResponseData
+    | MatchmakeResponseData;
 };
 
 export type CreateAccountResponseData = {
@@ -34,8 +48,24 @@ export type CreateAccountResponseData = {
   multisigAddress: Address;
 };
 
+export type PlaygroundAppDefinition = {
+  name: string;
+  slug: string;
+  url: string;
+  icon: string;
+};
+
+export type GetAppsResponseData = {
+  apps: PlaygroundAppDefinition[];
+};
+
 export type PlaygroundUserData = {
   email: string;
+  username: string;
+  address: Address;
+};
+
+export type MatchmakeUserData = {
   username: string;
   address: Address;
 };

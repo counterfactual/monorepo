@@ -1,10 +1,10 @@
-export interface AppDefinition {
+export type AppDefinition = {
   name: string;
   notifications?: number;
   slug: string;
   url: string;
   icon: string;
-}
+};
 
 export interface UserChangeset {
   username: string;
