@@ -1,6 +1,5 @@
 import {
   InstructionExecutor,
-  types as machineTypes
 } from "@counterfactual/machine";
 import {
   Address,
@@ -92,32 +91,6 @@ export class Node {
     req: NodeTypes.MethodRequest
   ): Promise<NodeTypes.MethodResponse> {
     return this.requestHandler.callMethod(method, req);
-  }
-
-  private startStoringCommitments() {
-    this.instructionExecutor.register(
-      machineTypes.Opcode.STATE_TRANSITION_COMMIT,
-      async (
-        message: machineTypes.ProtocolMessage,
-        next: Function,
-        context: machineTypes.Context
-      ) => {
-        const { appIdentityHash } = context;
-        if (appIdentityHash) {
-          const transaction = context.commitment!.transaction([
-            context.signature!
-          ]);
-          await this.channels.setCommitmentForAppIdentityHash(
-            appIdentityHash,
-            message.protocol,
-            JSON.stringify(transaction)
-          );
-        } else {
-
-        }
-        next();
-      }
-    );
   }
 
   /**

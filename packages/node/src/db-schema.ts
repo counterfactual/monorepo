@@ -61,9 +61,19 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
 export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
   "appInstanceIdToAppInstanceInfo";
 
-// TODO: description
+/**
+ * Namespace providing a lookup table from an appIdentityHash and protocol to the
+ * corresponding commitment transaction.
+ */
 export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
   "appInstanceHashToCommitment";
+
+/**
+ * Namespace providing a lookup table from a multisig address to the
+ * corresponding Setup commitment transaction.
+ */
+export const DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT =
+  "multisigAddressToSetupCommitment";
 
 /**
  * Used in standardizing how to set/get app instances within a channel according

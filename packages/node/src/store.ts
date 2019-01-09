@@ -14,6 +14,7 @@ import {
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID,
   DB_NAMESPACE_CHANNEL,
+  DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
 import { ERRORS } from "./methods/errors";
@@ -279,12 +280,12 @@ export class Store {
   async setCommitmentForAppIdentityHash(
     appIdentityHash: string,
     protocol: string,
-    commitment: string
+    commitment: machineTypes.Transaction
   ) {
     if (!(protocol in Protocol)) {
       throw new Error(`No such protocol: ${protocol}`);
     }
-    const key = this.computeCommitmentKey(appIdentityHash, protocol);
+    const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
     const value = JSON.stringify(commitment);
     return this.storeService.set([
       {
@@ -294,18 +295,53 @@ export class Store {
     ]);
   }
 
-  async getCommitmentForAppInstanceHash(
-    appInstanceHash: string,
-    protocol: string
-  ): Promise<string> {
-    const key = this.computeCommitmentKey(appInstanceHash, protocol);
-    return this.storeService.get(key);
+  async setSetupCommitmentForMultisig(
+    multisigAddress: string,
+    commitment: machineTypes.Transaction
+  ) {
+    const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
+    const value = JSON.stringify(commitment);
+    return this.storeService.set([
+      {
+        key,
+        value
+      }
+    ]);
   }
 
-  private computeCommitmentKey(appIdentityHash: string, protocol: string) {
-    return `${
-      this.storeKeyPrefix
-    }/${DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT}/${appIdentityHash}/${protocol}`;
+  async getCommitmentForAppIdentityHash(
+    appIdentityHash: string,
+    protocol: string
+  ): Promise<machineTypes.Transaction> {
+    const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
+    return JSON.parse(await this.storeService.get(key));
+  }
+
+  async getSetupCommitmentForMultisig(
+    multisigAddress: string
+  ): Promise<machineTypes.Transaction> {
+    const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
+    return JSON.parse(await this.storeService.get(key));
+  }
+
+  private computeAppInstanceCommitmentKey(
+    protocol: string,
+    appIdentityHash: string
+  ): string {
+    return [
+      this.storeKeyPrefix,
+      DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
+      appIdentityHash,
+      protocol
+    ].join("/");
+  }
+
+  private computeMultisigSetupCommitmentKey(multisigAddress: string): string {
+    return [
+      this.storeKeyPrefix,
+      DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
+      multisigAddress
+    ].join("/");
   }
 
   /**

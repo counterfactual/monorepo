@@ -1,6 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 import { Signature } from "ethers/utils";
 
+import { Transaction } from "./ethereum/types";
 import { EthereumCommitment } from "./ethereum/utils";
 import { StateChannel } from "./models";
 import { Opcode } from "./opcodes";
@@ -34,4 +35,4 @@ export interface Context {
   appIdentityHash?: string;
 }
 
-export { ProtocolMessage, Opcode };
+export { ProtocolMessage, Opcode, Transaction };

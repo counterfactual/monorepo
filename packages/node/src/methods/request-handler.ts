@@ -1,4 +1,8 @@
-import { InstructionExecutor } from "@counterfactual/machine";
+import {
+  InstructionExecutor,
+  types as machineTypes
+} from "@counterfactual/machine";
+import { Protocol } from "@counterfactual/machine/dist/src/types";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
@@ -43,6 +47,7 @@ export class RequestHandler {
     this.store = new Store(storeService, storeKeyPrefix);
     this.registerMethods();
     this.mapEventHandlers();
+    this.startStoringCommitments();
   }
 
   /**
@@ -131,5 +136,39 @@ export class RequestHandler {
    */
   public async callEvent(event: Node.EventName, msg: NodeMessage) {
     await this.events.get(event)(msg);
+  }
+
+  private startStoringCommitments() {
+    this.instructionExecutor.register(
+      machineTypes.Opcode.STATE_TRANSITION_COMMIT,
+      async (
+        message: machineTypes.ProtocolMessage,
+        next: Function,
+        context: machineTypes.Context
+      ) => {
+        const transaction = context.commitment!.transaction([
+          context.signature! // TODO: add counterparty signature
+        ]);
+        const { protocol } = message;
+        if (protocol === Protocol.Setup) {
+          await this.store.setSetupCommitmentForMultisig(
+            message.multisigAddress,
+            transaction
+          );
+        } else {
+          if (!context.appIdentityHash) {
+            throw new Error(
+              `appIdentityHash required to store commitment. protocol=${protocol}`
+            );
+          }
+          await this.store.setCommitmentForAppIdentityHash(
+            context.appIdentityHash!,
+            protocol,
+            transaction
+          );
+        }
+        next();
+      }
+    );
   }
 }
