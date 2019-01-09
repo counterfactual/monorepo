@@ -5,7 +5,7 @@ import { resolve } from "path";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
-import { ErrorCode } from "../src/types";
+import { ErrorCode, HttpStatusCode } from "../src/types";
 
 const api = mountApi();
 let server: Server;
@@ -37,57 +37,6 @@ describe("playground-server", () => {
   });
 
   describe("/api/create-account", () => {
-    it("fails when username is not passed to the request", done => {
-      client.post("/create-account").catch(({ response }) => {
-        expect(response.status).toEqual(400);
-        expect(response.data).toEqual({
-          ok: false,
-          error: {
-            status: 400,
-            errorCode: ErrorCode.UsernameRequired
-          }
-        });
-        done();
-      });
-    });
-
-    it("fails when email is not passed to the request", done => {
-      client
-        .post("/create-account", {
-          username: "alice"
-        })
-        .catch(({ response }) => {
-          expect(response.status).toEqual(400);
-          expect(response.data).toEqual({
-            ok: false,
-            error: {
-              status: 400,
-              errorCode: ErrorCode.EmailRequired
-            }
-          });
-          done();
-        });
-    });
-
-    it("fails when address is not passed to the request", done => {
-      client
-        .post("/create-account", {
-          username: "alice",
-          email: "alice@wonder.land"
-        })
-        .catch(({ response }) => {
-          expect(response.status).toEqual(400);
-          expect(response.data).toEqual({
-            ok: false,
-            error: {
-              status: 400,
-              errorCode: ErrorCode.AddressRequired
-            }
-          });
-          done();
-        });
-    });
-
     it("fails when signature is not passed to the request", done => {
       client
         .post("/create-account", {
@@ -96,11 +45,11 @@ describe("playground-server", () => {
           address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
         })
         .catch(({ response }) => {
-          expect(response.status).toEqual(400);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
             ok: false,
             error: {
-              status: 400,
+              status: HttpStatusCode.BadRequest,
               errorCode: ErrorCode.SignatureRequired
             }
           });
@@ -118,11 +67,11 @@ describe("playground-server", () => {
             "0xc157208c17b60bf325500914d0b4ddf57ee4c9c2ff1509e318c3d138a4ccb08b3258f9ac4e72d824fef67a40c3959e2f6480cdf6fbbf2590ea4a8bb17e7d5c980d"
         })
         .catch(({ response }) => {
-          expect(response.status).toEqual(403);
+          expect(response.status).toEqual(HttpStatusCode.Forbidden);
           expect(response.data).toEqual({
             ok: false,
             error: {
-              status: 403,
+              status: HttpStatusCode.Forbidden,
               errorCode: ErrorCode.InvalidSignature
             }
           });
@@ -140,7 +89,7 @@ describe("playground-server", () => {
             "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
         })
         .then(response => {
-          expect(response.status).toEqual(201);
+          expect(response.status).toEqual(HttpStatusCode.Created);
           expect(response.data.ok).toBe(true);
           expect(response.data.data.multisigAddress).toBeDefined();
           done();
@@ -151,7 +100,7 @@ describe("playground-server", () => {
         });
     });
 
-    it("creates an account for the second time with the same address and returns 400", done => {
+    it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", done => {
       client
         .post("/create-account", {
           username: "alice",
@@ -161,11 +110,11 @@ describe("playground-server", () => {
             "0xd089c5d7e71bb8a4ae0952fbbf6fdc0846f2e9593c04a76fef428d27e4ca9f8523b80bcc4a831d3c813e9051ff2c9c4ee75fdd4b0d419005523fb06b71c802751c"
         })
         .catch(({ response }) => {
-          expect(response.status).toEqual(400);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
             ok: false,
             error: {
-              status: 400,
+              status: HttpStatusCode.BadRequest,
               errorCode: ErrorCode.AddressAlreadyRegistered
             }
           });
@@ -177,7 +126,7 @@ describe("playground-server", () => {
   describe("/api/apps", () => {
     it("gets a list of apps", done => {
       client.get("/apps").then(response => {
-        expect(response.status).toEqual(200);
+        expect(response.status).toEqual(HttpStatusCode.OK);
         expect(response.data).toEqual({
           ok: true,
           data: JSON.parse(
@@ -189,15 +138,44 @@ describe("playground-server", () => {
     });
   });
 
-  describe("/api/matchmake", () => {
-    it("fails when no user address is provided", done => {
-      client.post("/matchmake").catch(({ response }) => {
-        expect(response.status).toEqual(400);
+  describe("/api/login", () => {
+    it("fails if no signature is provided", done => {
+      client.post("/login").catch(({ response }) => {
+        expect(response.status).toEqual(HttpStatusCode.BadRequest);
         expect(response.data).toEqual({
           ok: false,
           error: {
-            status: 400,
-            errorCode: ErrorCode.UserAddressRequired
+            status: HttpStatusCode.BadRequest,
+            errorCode: ErrorCode.SignatureRequired
+          }
+        });
+        done();
+      });
+    });
+    it("fails if there is user account associated to the address", done => {
+      client.post("/login").catch(({ response }) => {
+        expect(response.status).toEqual(HttpStatusCode.BadRequest);
+        expect(response.data).toEqual({
+          ok: false,
+          error: {
+            status: HttpStatusCode.BadRequest,
+            errorCode: ErrorCode.SignatureRequired
+          }
+        });
+        done();
+      });
+    });
+  });
+
+  describe("/api/matchmake", () => {
+    it("fails if no token is provided", done => {
+      client.post("/matchmake").catch(({ response }) => {
+        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
+        expect(response.data).toEqual({
+          ok: false,
+          error: {
+            status: HttpStatusCode.Unauthorized,
+            errorCode: ErrorCode.TokenRequired
           }
         });
         done();
@@ -210,11 +188,11 @@ describe("playground-server", () => {
           userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
         })
         .catch(({ response }) => {
-          expect(response.status).toEqual(400);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
             ok: false,
             error: {
-              status: 400,
+              status: HttpStatusCode.BadRequest,
               errorCode: ErrorCode.NoUsersAvailable
             }
           });
@@ -235,7 +213,7 @@ describe("playground-server", () => {
           userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
         })
         .then(response => {
-          expect(response.status).toEqual(200);
+          expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
           expect(response.data.data).toEqual({
             username: "bob",
@@ -258,7 +236,7 @@ describe("playground-server", () => {
           userAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
         })
         .then(response => {
-          expect(response.status).toEqual(200);
+          expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
 
           const { username, peerAddress } = response.data.data;
