@@ -4,7 +4,7 @@ import { AppInstanceInfo, AppState, Node } from "@counterfactual/types";
 import { Store } from "../store";
 
 import { ERRORS } from "./errors";
-import { RequestHandler } from "./request-handler";
+import { RequestHandler } from "../request-handler";
 
 export async function getProposedAppInstances(
   this: RequestHandler

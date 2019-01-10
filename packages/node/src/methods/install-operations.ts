@@ -11,6 +11,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../models";
 import { NodeMessage } from "../node";
+import { RequestHandler } from "../request-handler";
 import { Store } from "../store";
 import {
   getChannelFromPeerAddress,
@@ -18,7 +19,6 @@ import {
 } from "../utils";
 
 import { ERRORS } from "./errors";
-import { RequestHandler } from "./request-handler";
 
 /**
  * This creates an entry of a proposed app instance into the relevant channel

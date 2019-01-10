@@ -7,7 +7,7 @@ import {
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
-import { RequestHandler } from "./methods/request-handler";
+import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 
 export interface NodeConfig {
