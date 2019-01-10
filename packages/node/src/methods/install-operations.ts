@@ -1,14 +1,12 @@
-import { AppInstance, StateChannel, TERMS } from "@counterfactual/machine";
+import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
   Address,
   AppInstanceInfo,
   AppInterface,
-  AppInterfaceSighashParameters,
   Node,
   Terms
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { Interface } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../models";
@@ -186,14 +184,8 @@ function createAppInstanceFromAppInstanceInfo(
   proposedAppInstanceInfo: ProposedAppInstanceInfo,
   channel: StateChannel
 ): AppInstance {
-  const appFunctionSigHashes = getAppFunctionSigHashes(proposedAppInstanceInfo);
-
   const appInterface: AppInterface = {
     addr: proposedAppInstanceInfo.appId,
-    applyAction: appFunctionSigHashes.applyAction,
-    resolve: appFunctionSigHashes.resolve,
-    getTurnTaker: appFunctionSigHashes.getTurnTaker,
-    isStateTerminal: appFunctionSigHashes.isStateTerminal,
     stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
     actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
   };
@@ -225,38 +217,6 @@ function createAppInstanceFromAppInstanceInfo(
     0,
     proposedAppInstanceInfo.timeout.toNumber()
   );
-}
-
-function getAppFunctionSigHashes(
-  appInstanceInfo: AppInstanceInfo
-): AppInterfaceSighashParameters {
-  const stateEncoding = appInstanceInfo.abiEncodings.stateEncoding;
-
-  const resolveSigHash = new Interface([`resolve(${stateEncoding}, ${TERMS})`])
-    .functions.resolve.sighash;
-
-  const getTurnTakerSigHash = new Interface([`getTurnTaker(${stateEncoding})`])
-    .functions.getTurnTaker.sighash;
-
-  const isStateTerminalSigHash = new Interface([
-    `isStateTerminal(${stateEncoding})`
-  ]).functions.isStateTerminal.sighash;
-
-  let applyActionSigHash = "0x00000000";
-  if (appInstanceInfo.abiEncodings.actionEncoding !== undefined) {
-    applyActionSigHash = new Interface([
-      `applyAction(${stateEncoding}, ${
-        appInstanceInfo.abiEncodings.actionEncoding
-      })`
-    ]).functions.applyAction.sighash;
-  }
-
-  return {
-    resolve: resolveSigHash,
-    applyAction: applyActionSigHash,
-    getTurnTaker: getTurnTakerSigHash,
-    isStateTerminal: isStateTerminalSigHash
-  };
 }
 
 async function setAppInstanceIDForProposeInstall(

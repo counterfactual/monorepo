@@ -126,7 +126,6 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
       await appRegistry.functions.setResolution(
         freeBalanceETH.identity,
-        freeBalanceETH.appInterface,
         freeBalanceETH.encodedLatestState,
         freeBalanceETH.encodedTerms
       );
