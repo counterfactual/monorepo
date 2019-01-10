@@ -5,7 +5,7 @@ import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 
 import { ALICE, BOB } from "./constants";
-import { AppInstance, AppInterface, AssetType, Terms } from "./utils";
+import { AppInstance, AssetType, Terms } from "./utils";
 
 const provider = new Web3Provider((global as any).web3.currentProvider);
 
@@ -30,14 +30,8 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
   });
 
   it("is possible to call setState to put state on-chain", async () => {
-    // Test AppInterface
-    const appInterface = new AppInterface(
-      AddressZero,
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4))
-    );
+    // Test appDefinitionAddress
+    const appDefinitionAddress = AddressZero;
 
     // Test Terms
     const terms = new Terms(AssetType.ETH, 0, AddressZero);
@@ -46,7 +40,7 @@ contract("AppRegistry - Counterparty is Unresponsive", (accounts: string[]) => {
     const appInstance = new AppInstance(
       accounts[0],
       [ALICE.address, BOB.address],
-      appInterface,
+      appDefinitionAddress,
       terms,
       10
     );

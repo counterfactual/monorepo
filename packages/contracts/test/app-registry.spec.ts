@@ -6,7 +6,6 @@ import { hexlify, randomBytes } from "ethers/utils";
 import { ALICE, BOB } from "./constants";
 import {
   AppInstance,
-  AppInterface,
   AssetType,
   computeStateHash,
   expect,
@@ -54,13 +53,7 @@ contract("AppRegistry", (accounts: string[]) => {
     const appInstance = new AppInstance(
       accounts[0],
       [ALICE.address, BOB.address],
-      new AppInterface(
-        hexlify(randomBytes(20)),
-        hexlify(randomBytes(4)),
-        hexlify(randomBytes(4)),
-        hexlify(randomBytes(4)),
-        hexlify(randomBytes(4))
-      ),
+      hexlify(randomBytes(20)),
       new Terms(AssetType.ETH, 0, AddressZero),
       10
     );
