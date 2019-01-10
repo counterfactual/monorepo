@@ -1,5 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import dotenv from "dotenv-extended";
+import { ethers } from "ethers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
@@ -54,6 +55,7 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
     nodeB = new Node(
@@ -61,6 +63,7 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
   });

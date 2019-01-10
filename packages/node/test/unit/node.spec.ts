@@ -1,4 +1,5 @@
 import dotenv from "dotenv-extended";
+import { ethers } from "ethers";
 
 import { Node } from "../../src/node";
 import { EMPTY_NETWORK } from "../integration/utils";
@@ -21,6 +22,7 @@ describe("Primitive Node operations", () => {
       mockMessagingService,
       mockStoreService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
     expect(node).toBeDefined();

@@ -1,10 +1,22 @@
 import { AppInstance, StateChannel } from "@counterfactual/machine";
-import { AppInstanceInfo, AppState, Node } from "@counterfactual/types";
+import {
+  AppAction,
+  AppInstanceInfo,
+  AppState,
+  Node
+} from "@counterfactual/types";
 import { deepEqual } from "deep-equal";
+import { Contract } from "ethers";
+import { BaseProvider } from "ethers/providers";
 
 import { NodeMessage } from "../node";
 import { Store } from "../store";
-import { getPeersAddressFromAppInstanceID } from "../utils";
+import {
+  confirmAppInstanceExists,
+  decodeAppState,
+  getAppContractToApplyAction,
+  getPeersAddressFromAppInstanceID
+} from "../utils";
 
 import { ERRORS } from "./errors";
 import { RequestHandler } from "./request-handler";
@@ -82,14 +94,23 @@ export async function handleTakeAction(
     Promise.reject(ERRORS.NO_ACTION_SPECIFIED_TO_TAKE);
   }
 
-  const updatedStateChannel = await takeAction(this.store, params);
-  await this.store.updateChannelWithAppInstanceUpdate(updatedStateChannel);
+  // TODO: refactor to decorate relevant functions with this
+  await confirmAppInstanceExists(this.store, appInstanceId);
 
-  const newState = updatedStateChannel.getAppInstance(
-    await this.store.getAppInstanceIdentityHashFromAppInstanceId(
-      params.appInstanceId
+  const updatedAppInstance = await updateAppInstance(
+    this.store,
+    this.provider,
+    params
+  );
+  const appInstanceIdentityHash = await this.store.getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId
+  );
+  await this.store.updateChannelWithAppInstanceUpdate(
+    (await this.store.getChannelFromAppInstanceID(appInstanceId)).setState(
+      appInstanceIdentityHash,
+      updatedAppInstance.state
     )
-  ).state;
+  );
 
   const [peerAddress] = await getPeersAddressFromAppInstanceID(
     this.selfAddress,
@@ -102,14 +123,14 @@ export async function handleTakeAction(
     event: Node.EventName.UPDATE_STATE,
     data: {
       params,
-      newState
+      newState: updatedAppInstance.state
     }
   };
 
   await this.messagingService.send(peerAddress, stateUpdateMsg);
 
   return {
-    newState
+    newState: updatedAppInstance.state
   };
 }
 
@@ -136,17 +157,24 @@ export async function updateAppInstanceStateFromPeerNode(
     return;
   }
 
-  const updatedStateChannel = await takeAction(this.store, params);
-  const newState = updatedStateChannel.getAppInstance(
-    await this.store.getAppInstanceIdentityHashFromAppInstanceId(
-      params.appInstanceId
-    )
-  ).state;
+  const updatedAppInstance = await updateAppInstance(
+    this.store,
+    this.provider,
+    params
+  );
 
-  if (!deepEqual(newState, newPeerState)) {
+  if (!deepEqual(updatedAppInstance.state, newPeerState)) {
     console.error(ERRORS.INVALID_UPDATED_STATE_SUPPLIED);
   }
-  await this.store.updateChannelWithAppInstanceUpdate(updatedStateChannel);
+  const appInstanceIdentityHash = await this.store.getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId
+  );
+  await this.store.updateChannelWithAppInstanceUpdate(
+    (await this.store.getChannelFromAppInstanceID(appInstanceId)).setState(
+      appInstanceIdentityHash,
+      updatedAppInstance.state
+    )
+  );
 }
 
 async function getAppInstanceInfoFromAppInstance(
@@ -193,28 +221,48 @@ export async function getAppInstanceState(
 }
 
 /**
- *
+ * Takes an action for a specified AppInstance and produces an updated AppInstance.
  * @param store
  * @param params
  */
-async function takeAction(
+export async function updateAppInstance(
   store: Store,
+  blockchainProvider: BaseProvider,
   params: Node.TakeActionParams
-): Promise<StateChannel> {
+): Promise<AppInstance> {
   const stateChannel = await store.getChannelFromAppInstanceID(
     params.appInstanceId
   );
-  if (!stateChannel) {
-    return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
-  }
-
   const appInstanceIdentityHash = await store.getAppInstanceIdentityHashFromAppInstanceId(
     params.appInstanceId
   );
-  const updatedStateChannel = stateChannel.setState(
-    appInstanceIdentityHash,
-    params.action
+
+  const appInstance = stateChannel.getAppInstance(appInstanceIdentityHash);
+  let appContract: Contract;
+  try {
+    appContract = getAppContractToApplyAction(appInstance, blockchainProvider);
+  } catch (e) {
+    return Promise.reject(`${ERRORS.APP_CONTRACT_CREATION_FAILED}: ${e}`);
+  }
+
+  const newState = await applyAction(
+    appContract,
+    appInstance.state,
+    params.action,
+    appInstance.appInterface.stateEncoding
   );
 
-  return updatedStateChannel;
+  return appInstance.setState(newState);
+}
+
+export async function applyAction(
+  appContract: Contract,
+  currentState: AppState,
+  action: AppAction,
+  stateEncoding: string
+): Promise<AppState> {
+  return decodeAppState(
+    await appContract.functions.applyAction(currentState, action),
+    stateEncoding
+  );
 }

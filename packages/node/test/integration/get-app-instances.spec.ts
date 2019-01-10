@@ -1,6 +1,6 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
 import dotenv from "dotenv-extended";
-import { Wallet } from "ethers";
+import { ethers, Wallet } from "ethers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
@@ -43,6 +43,7 @@ describe("Node method follows spec - getAppInstances", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
   });

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rollup -c",
     "test": "jest --runInBand --detectOpenHandles --bail",
-    "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
+    "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage --verbose=true",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
@@ -16,6 +16,7 @@
     "@types/node": "^10.9.3",
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
+    "ganache-core": "2.3.3",
     "jest": "^23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -34,10 +35,6 @@
     "eventemitter3": "^3.1.0",
     "firebase": "5.7.1",
     "uuid": "^3.3.2"
-  },
-  "config": {
-    "unlockedAccount0": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a",
-    "unlockedAccount1": "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257b"
   },
   "jest": {
     "bail": true,

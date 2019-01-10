@@ -1,5 +1,6 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 
 import { NodeMessage } from "../node";
@@ -40,6 +41,7 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
+    readonly provider: BaseProvider,
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);

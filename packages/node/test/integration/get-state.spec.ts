@@ -1,5 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import dotenv from "dotenv-extended";
+import { ethers } from "ethers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
@@ -44,6 +45,7 @@ describe("Node method follows spec - getAppInstances", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
   });

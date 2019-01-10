@@ -4,6 +4,7 @@ import {
   NetworkContext,
   Node as NodeTypes
 } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -27,7 +28,7 @@ export class Node {
 
   private readonly signer: SigningKey;
 
-  protected readonly requestHandler: RequestHandler;
+  private readonly requestHandler: RequestHandler;
 
   /**
    * @param privateKey
@@ -36,8 +37,9 @@ export class Node {
   constructor(
     privateKey: string,
     private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService,
-    readonly networkContext: NetworkContext,
+    storeService: IStoreService,
+    networkContext: NetworkContext,
+    provider: BaseProvider,
     nodeConfig: NodeConfig
   ) {
     this.signer = new SigningKey(privateKey);
@@ -48,10 +50,11 @@ export class Node {
       this.signer.address,
       this.incoming,
       this.outgoing,
-      this.storeService,
+      storeService,
       this.messagingService,
       new InstructionExecutor(networkContext),
       networkContext,
+      provider,
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }

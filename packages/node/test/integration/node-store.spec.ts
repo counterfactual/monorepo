@@ -1,5 +1,5 @@
 import dotenv from "dotenv-extended";
-import { Wallet } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
 
@@ -34,6 +34,7 @@ describe("Node can use storage service", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
   });

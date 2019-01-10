@@ -1,4 +1,5 @@
 import dotenv from "dotenv-extended";
+import { ethers } from "ethers";
 import FirebaseServer from "firebase-server";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -39,6 +40,7 @@ describe("Node can create multisig, other owners get notified", () => {
       messagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
     nodeB = new Node(
@@ -46,6 +48,7 @@ describe("Node can create multisig, other owners get notified", () => {
       messagingService,
       storeService,
       EMPTY_NETWORK,
+      ethers.getDefaultProvider(),
       nodeConfig
     );
   });
