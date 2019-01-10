@@ -2,12 +2,6 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { getProp } from "../../utils/utils";
-
-interface Player {
-  address: string;
-  username: string;
-}
 
 /**
  * User Story
@@ -29,19 +23,6 @@ export class AppWaiting {
   @Prop({ mutable: true }) shouldMatchmake: boolean = false;
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
-
-  /**
-   * Bob(Proposing) enters waiting room.
-   * Bob(Proposing) makes a call to Playground for matchmaking and waits to get an Accepting player.
-   * Bob(Proposing) makes a call to CF.js proposeInstall.
-   * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
-   */
-  componentWillLoad() {
-    this.myName = getProp("myName", this);
-    this.betAmount = getProp("betAmount", this);
-    this.opponentName = getProp("opponentName", this);
-    this.shouldMatchmake = getProp("shouldMatchmake", this);
-  }
 
   countDown() {
     if (this.seconds === 1) {
