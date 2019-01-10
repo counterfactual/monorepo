@@ -91,8 +91,8 @@ export async function installAppInstance(
 }
 
 /**
- * This creates an entry of a proposed Virtual AppInstance into the relevant channel
- * while sending the proposal to the intermediaries and peer with whom this app instance is
+ * This creates an entry of a proposed Virtual AppInstance while sending the
+ * proposal to the intermediaries and peer with whom this app instance is
  * indicated to be instantiated with.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
