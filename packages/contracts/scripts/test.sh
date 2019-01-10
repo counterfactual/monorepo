@@ -2,11 +2,8 @@
 
 set -e
 
-function clean {
-  kill ${PID_FOR_GANACHE_CLI}
-}
-
-trap clean INT TERM EXIT
+trap "exit" INT TERM
+trap "kill 0" EXIT
 
 if lsof -ti :8545
 then
@@ -21,7 +18,5 @@ ganache-cli \
   --networkId 7777777 \
   &> /dev/null \
   &
-
-PID_FOR_GANACHE_CLI=$!
 
 yarn run truffle test --network ganache $1

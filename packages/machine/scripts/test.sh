@@ -2,11 +2,8 @@
 
 set -e
 
-function clean {
-  kill ${PID_FOR_GANACHE_CLI}
-}
-
-trap clean INT TERM EXIT
+trap "exit" INT TERM
+trap "kill 0" EXIT
 
 # Gets the val of a key=val pair by key specified in an env file
 #
@@ -55,8 +52,6 @@ ganache-cli \
   --quiet \
   &> /dev/null \
   &
-
-PID_FOR_GANACHE_CLI=$!
 
 echo "⚙️ Running migrations with build artifacts from @counterfactual/contracts"
 # TODO: For some reason this re-compiles all of the contracts unnecessarily
