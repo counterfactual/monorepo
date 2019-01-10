@@ -17,6 +17,7 @@ import { MultisigTransaction } from "../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
 import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 
 /**
  * This test suite decodes a constructed OpInstall transaction object according
@@ -27,14 +28,7 @@ describe("InstallCommitment", () => {
   let tx: MultisigTransaction;
 
   // Test network context
-  const networkContext: NetworkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   // General interaction testing values
   const interaction = {

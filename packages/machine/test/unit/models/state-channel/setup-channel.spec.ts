@@ -10,19 +10,13 @@ import {
 } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 
 describe("StateChannel::setupChannel", () => {
   let sc1: StateChannel;
   let sc2: StateChannel;
 
-  const networkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));

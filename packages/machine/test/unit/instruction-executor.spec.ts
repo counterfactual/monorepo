@@ -19,7 +19,7 @@ describe("InstructionExecutor", () => {
   };
 
   // State channel testing values
-  const stateChannel = new StateChannel(
+  const stateChannelBeforeSetup = new StateChannel(
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
@@ -46,7 +46,7 @@ describe("InstructionExecutor", () => {
 
   describe("the result of proposeStateTransition for the Setup Protocol", () => {
     let commitment: SetupCommitment;
-    let channel: StateChannel;
+    let stateChannelAfterSetup: StateChannel;
     let fb: AppInstance;
 
     beforeAll(() => {
@@ -54,20 +54,20 @@ describe("InstructionExecutor", () => {
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
           commitment = context.commitment as SetupCommitment;
-          channel = context.stateChannel;
+          stateChannelAfterSetup = context.stateChannel;
         }
       );
 
-      instructionExecutor.runSetupProtocol(stateChannel);
+      instructionExecutor.runSetupProtocol(stateChannelBeforeSetup);
 
-      fb = channel.getFreeBalanceFor(AssetType.ETH);
+      fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
     });
 
     describe("the proposed state transition of the channel", () => {
       it("should have the right metadatas", () => {
-        expect(channel.multisigAddress).toBe(stateChannel.multisigAddress);
-        expect(channel.multisigOwners).toContain(interaction.sender);
-        expect(channel.multisigOwners).toContain(interaction.receiver);
+        expect(stateChannelAfterSetup.multisigAddress).toBe(stateChannelBeforeSetup.multisigAddress);
+        expect(stateChannelAfterSetup.multisigOwners).toContain(interaction.sender);
+        expect(stateChannelAfterSetup.multisigOwners).toContain(interaction.receiver);
       });
     });
 
@@ -85,19 +85,19 @@ describe("InstructionExecutor", () => {
       });
 
       it("should be based on the multisig passed into the protocol executor", () => {
-        expect(commitment.multisigAddress).toBe(stateChannel.multisigAddress);
+        expect(commitment.multisigAddress).toBe(stateChannelBeforeSetup.multisigAddress);
       });
 
       it("should assume from and to as the owners of the multisig, sorted", () => {
-        expect(commitment.multisigOwners).toEqual(stateChannel.multisigOwners);
+        expect(commitment.multisigOwners).toEqual(stateChannelBeforeSetup.multisigOwners);
       });
 
       it("should construct the correct hash digest to sign", () => {
         expect(commitment.hashToSign()).toBe(
           new SetupCommitment(
             networkContext,
-            stateChannel.multisigAddress,
-            stateChannel.multisigOwners,
+            stateChannelBeforeSetup.multisigAddress,
+            stateChannelBeforeSetup.multisigOwners,
             fb.identity,
             fb.terms
           ).hashToSign()
