@@ -44,7 +44,16 @@ export class AppRoot {
           <CounterfactualTunnel.Provider state={this.state}>
             <stencil-router>
               <stencil-route-switch scrollTopOffset={0}>
-                <stencil-route url="/" component="app-logo" exact={true} />
+                {/* <stencil-route url="/" component="app-logo" exact={true} /> */}
+                <stencil-route
+                  url="/"
+                  component="app-provider"
+                  exact={true}
+                  componentProps={{
+                    updateAppInstance: this.state.updateAppInstance,
+                    updateAppFactory: this.state.updateAppFactory
+                  }}
+                />
                 <stencil-route url="/wager" component="app-wager" />
                 <stencil-route url="/game" component="app-game" />
                 <stencil-route url="/waiting" component="app-waiting" />
@@ -52,11 +61,11 @@ export class AppRoot {
                   url="/accept-invite"
                   component="app-accept-invite"
                 />
+                {/* <app-provider
+                  updateAppInstance={this.state.updateAppInstance}
+                  updateAppFactory={this.state.updateAppFactory}
+                /> */}
               </stencil-route-switch>
-              <app-provider
-                updateAppInstance={this.state.updateAppInstance}
-                updateAppFactory={this.state.updateAppFactory}
-              />
             </stencil-router>
           </CounterfactualTunnel.Provider>
         </main>

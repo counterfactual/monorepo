@@ -73,8 +73,8 @@ export class AppProvider {
   }
 
   render() {
-    return <div />;
+    return <app-logo />;
   }
 }
 
-injectHistory(AppProvider);
+// injectHistory(AppProvider);
