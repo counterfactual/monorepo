@@ -112,7 +112,7 @@ export class AppInstance {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
-      appAddress: this.appInterface.addr,
+      appDefinitionAddress: this.appInterface.addr,
       termsHash: this.terms.hashOfPackedEncoding(),
       defaultTimeout: this.defaultTimeout
     };
@@ -133,7 +133,7 @@ export class AppInstance {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appAddress,
+            address appDefinitionAddress,
             bytes32 termsHash,
             uint256 defaultTimeout
           )`

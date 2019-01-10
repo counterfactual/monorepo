@@ -135,7 +135,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     const appIdentity = {
       owner: await unlockedAccount.getAddress(),
       signingKeys: [],
-      appAddress: appInterface.addr,
+      appDefinitionAddress: appInterface.addr,
       termsHash: keccak256(encodedTerms),
       defaultTimeout: 10
     };
@@ -146,7 +146,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appAddress,
+            address appDefinitionAddress,
             bytes32 termsHash,
             uint256 defaultTimeout
           )`

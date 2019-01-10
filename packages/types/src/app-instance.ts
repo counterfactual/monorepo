@@ -25,7 +25,7 @@ export interface Transaction {
 export interface AppIdentity {
   owner: string;
   signingKeys: string[];
-  appAddress: string;
+  appDefinitionAddress: string;
   termsHash: string;
   defaultTimeout: number;
 }

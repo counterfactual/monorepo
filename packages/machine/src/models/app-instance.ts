@@ -124,7 +124,7 @@ export class AppInstance {
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
-      appAddress: this.json.appInterface.addr,
+      appDefinitionAddress: this.json.appInterface.addr,
       termsHash: keccak256(encodedTerms),
       defaultTimeout: this.json.defaultTimeout
     };
