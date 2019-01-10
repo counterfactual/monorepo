@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { AppInstance } from "./mock-app-instance";
-import NodeProvider from "./node-provider";
+import NodeProvider from "./mock-node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
