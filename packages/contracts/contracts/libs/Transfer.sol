@@ -40,7 +40,9 @@ library Transfer {
       uint256 value = txn.value[i];
 
       if (txn.assetType == uint8(Transfer.Asset.ETH)) {
-        to.transfer(value);
+        // solidity.readthedocs.io/en/v0.5.0/050-breaking-changes.html
+        address payable receiver = address(uint160(to));
+        receiver.transfer(value);
       } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
         require(
           ERC20(txn.token).transfer(to, value),

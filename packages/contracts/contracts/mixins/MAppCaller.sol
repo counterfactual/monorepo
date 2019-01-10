@@ -6,13 +6,13 @@ import "../libs/LibStateChannelApp.sol";
 import "../libs/LibStaticCall.sol";
 import "../libs/Transfer.sol";
 
+import "../CounterfactualApp.sol";
+
 
 /// @title MAppCaller
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice A mixin for the AppRegistry to make staticcalls to Apps
 contract MAppCaller is LibSignature, LibStateChannelApp {
-
-  using LibStaticCall for address;
 
   /// @notice A helper method to check if the state of an application is terminal or not
   /// @param appInterface An `AppInterface` struct
@@ -26,9 +26,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (bool)
   {
-    return appInterface.addr.staticcall_as_bool(
-      abi.encodePacked(appInterface.isStateTerminal, appState)
-    );
+    return CounterfactualApp(appInterface.addr).isStateTerminal(appState);
   }
 
   /// @notice A helper method to get the turn taker for an app
@@ -44,16 +42,8 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (address)
   {
-    uint256 idx = appInterface.addr.staticcall_as_uint256(
-      abi.encodePacked(appInterface.getTurnTaker, appState)
-    );
-
-    require(
-      signingKeys[idx] != address(0),
-      "Application returned invalid turn taker index"
-    );
-
-    return signingKeys[idx];
+    return CounterfactualApp(appInterface.addr)
+      .getTurnTaker(appState, signingKeys);
   }
 
   /// @notice Execute the application's applyAction function to compute new state
@@ -70,9 +60,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (bytes memory)
   {
-    return appInterface.addr.staticcall_as_bytes(
-      abi.encodePacked(appInterface.applyAction, appState, action)
-    );
+    return CounterfactualApp(appInterface.addr).applyAction(appState, action);
   }
 
   /// @notice Execute the application's resolve function to compute a resolution
@@ -89,9 +77,8 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (Transfer.Transaction memory)
   {
-    return appInterface.addr.staticcall_as_TransferDetails(
-      abi.encodePacked(appInterface.resolve, appState, terms)
-    );
+    Transfer.Terms memory termsStruct = abi.decode(terms, (Transfer.Terms));
+    return CounterfactualApp(appInterface.addr).resolve(appState, termsStruct);
   }
 
 }

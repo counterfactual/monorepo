@@ -111,7 +111,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
       addr: fixedResolutionApp.address,
       getTurnTaker: "0x00000000",
       applyAction: "0x00000000",
-      resolve: fixedResolutionApp.interface.functions.getResolution.sighash,
+      resolve: fixedResolutionApp.interface.functions.resolve.sighash,
       isStateTerminal: "0x00000000"
     };
 

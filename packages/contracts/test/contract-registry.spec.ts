@@ -8,12 +8,26 @@ import { expect } from "./utils";
 
 const provider = new Web3Provider((global as any).web3.currentProvider);
 
-const TEST_CONTRACT_SOLIDITY_CODE = `
-  contract Test {
-    function sayHello() public pure returns (string) {
-      return "hi";
+const TEST_CONTRACT_SOLIDITY_CODE = {
+  language: "Solidity",
+  sources: {
+    "test.sol": {
+      content: `
+      contract Test {
+        function sayHello() public pure returns (string memory) {
+          return "hi";
+        }
+      }`
     }
-  }`;
+  },
+  settings: {
+    outputSelection: {
+      "*": {
+        "*": ["*"]
+      }
+    }
+  }
+};
 
 contract("ContractRegistry", accounts => {
   let unlockedAccount: JsonRpcSigner;
@@ -49,9 +63,13 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a contract", done => {
-    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
-    const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
+    const output = JSON.parse(
+      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
+    );
+    const iface = output.contracts["test.sol"]["Test"].abi;
+    const bytecode = `0x${
+      output.contracts["test.sol"]["Test"].evm.bytecode.object
+    }`;
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
@@ -68,9 +86,13 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a contract using msg.sender", done => {
-    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
-    const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
+    const output = JSON.parse(
+      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
+    );
+    const iface = output.contracts["test.sol"]["Test"].abi;
+    const bytecode = `0x${
+      output.contracts["test.sol"]["Test"].evm.bytecode.object
+    }`;
 
     const filter = contractRegistry.filters.ContractCreated(null, null);
     const callback = async (from, to, value, event) => {
@@ -88,8 +110,10 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a Proxy contract contract through as owner", done => {
-    const output = (solc as any).compile(TEST_CONTRACT_SOLIDITY_CODE, 0);
-    const iface = JSON.parse(output.contracts[":Test"].interface);
+    const output = JSON.parse(
+      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
+    );
+    const iface = output.contracts["test.sol"]["Test"].abi;
     const initcode =
       artifacts.require("Proxy").bytecode +
       defaultAbiCoder.encode(["address"], [simpleContract.address]).substr(2);
@@ -111,19 +135,38 @@ contract("ContractRegistry", accounts => {
   });
 
   it("deploys a contract and passes arguments", done => {
-    const source = `
-        contract Test {
-            address whatToSay;
-            function Test(address _whatToSay) public {
-                whatToSay = _whatToSay;
+    const output = JSON.parse(
+      (solc as any).compile(
+        JSON.stringify({
+          language: "Solidity",
+          sources: {
+            "test.sol": {
+              content: `
+              contract Test {
+                  address whatToSay;
+                  constructor(address _whatToSay) public {
+                      whatToSay = _whatToSay;
+                  }
+                  function sayHello() public view returns (address) {
+                      return whatToSay;
+                  }
+              }`
             }
-            function sayHello() public view returns (address) {
-                return whatToSay;
+          },
+          settings: {
+            outputSelection: {
+              "*": {
+                "*": ["*"]
+              }
             }
-        }`;
-    const output = (solc as any).compile(source, 0);
-    const iface = JSON.parse(output.contracts[":Test"].interface);
-    const bytecode = `0x${output.contracts[":Test"].bytecode}`;
+          }
+        })
+      )
+    );
+    const iface = output.contracts["test.sol"]["Test"].abi;
+    const bytecode = `0x${
+      output.contracts["test.sol"]["Test"].evm.bytecode.object
+    }`;
 
     const initcode =
       bytecode + defaultAbiCoder.encode(["address"], [accounts[0]]).substr(2);
