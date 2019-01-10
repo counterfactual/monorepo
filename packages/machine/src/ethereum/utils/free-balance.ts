@@ -8,7 +8,7 @@ import {
   keccak256
 } from "ethers/utils";
 
-import { APP_INTERFACE, TERMS } from "./encodings";
+import { TERMS } from "./encodings";
 
 // FIXME: Use this when it returns named version.
 // export const freeBalanceStateEncoding = formatParamType(
@@ -36,15 +36,6 @@ export function getFreeBalanceAppInterface(addr: string): AppInterface {
     stateEncoding: freeBalanceStateEncoding,
     actionEncoding: undefined // because no actions exist for ETHBucket
   };
-}
-
-export function getFreeBalanceAppInterfaceHash(ethBucketAppAddress: string) {
-  return keccak256(
-    defaultAbiCoder.encode(
-      [APP_INTERFACE],
-      [getFreeBalanceAppInterface(ethBucketAppAddress)]
-    )
-  );
 }
 
 export const freeBalanceTerms = {

@@ -21,7 +21,7 @@ export const APP_IDENTITY = `
   tuple(
     address owner,
     address[] signingKeys,
-    bytes32 appInterfaceHash,
+    address appDefinitionAddress,
     bytes32 termsHash,
     uint256 defaultTimeout
   )`;

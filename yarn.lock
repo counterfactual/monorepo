@@ -2654,7 +2654,7 @@ async-eventemitter@^0.2.2:
   dependencies:
     async "^2.4.0"
 
-"async-eventemitter@github:ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c":
+async-eventemitter@ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c:
   version "0.2.3"
   resolved "https://codeload.github.com/ahultgren/async-eventemitter/tar.gz/fa06e39e56786ba541c180061dbf2c0a5bbf951c"
   dependencies:
@@ -6412,10 +6412,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.0-beta.6:
-  version "2.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.6.tgz#8594d677001582fe8fff28807bb3a7fd83b88312"
-  integrity sha512-FXQkgXB/cwIQorWd1GWXjQ0AyKmzSUwYDrIpMDHcb60BCuqoVGAQif8iCELNHJNkJvPzcaBAWwXnqPab9NzaaA==
+ethereum-waffle@2.0.0-beta.8:
+  version "2.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.8.tgz#bf661771670ba489b9530c1df609d6638b671d40"
+  integrity sha512-k7fYmXJBpUCvWXh1zXEgEF1iC4TfghUwuk23ybAHjBGEw+1ydaw3xgovVl91Bexsu4f6NOa16rKSRsU9LsIqIg==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
