@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
 
 class Wager extends Component {
-  // This should have a model hook to /api/matchmake.
   constructor(props) {
     super(props);
     this.state = {
@@ -107,7 +106,6 @@ class Wager extends Component {
     });
   }
 
-  // TODO: What do we do with this?
   onInstall({ data: { appInstance } }) {
     this.props.onChangeAppInstance(appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
@@ -124,7 +122,6 @@ class Wager extends Component {
   }
 
   render() {
-    // PLAY! is not a link, it's a button. It'll call proposeInstallVirtual.
     const { error, isLoaded, user } = this.state;
 
     if (error) {
