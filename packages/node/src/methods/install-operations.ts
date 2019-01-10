@@ -97,7 +97,7 @@ export async function installAppInstance(
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.
  */
-export async function addAppInstance(
+export async function addAppInstanceFromPeerNode(
   this: RequestHandler,
   nodeMsg: NodeMessage
 ) {

@@ -171,6 +171,17 @@ export class Store {
     ]);
   }
 
+  async updateChannelWithAppInstanceUpdate(stateChannel: StateChannel) {
+    await this.storeService.set([
+      {
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
+          stateChannel.multisigAddress
+        }`,
+        value: stateChannel.toJson()
+      }
+    ]);
+  }
+
   /**
    * Adds the given proposed appInstance to a channel's collection of proposed
    * app instances.

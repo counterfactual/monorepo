@@ -9,15 +9,17 @@ import { Store } from "../store";
 import {
   getInstalledAppInstances,
   getProposedAppInstances,
-  handleGetAppInstanceState
+  handleGetAppInstanceState,
+  handleTakeAction,
+  updateAppInstanceStateFromPeerNode
 } from "./app-instance-operations";
 import {
-  addAppInstance,
+  addAppInstanceFromPeerNode,
   installAppInstance,
   proposeAppInstanceInstall
 } from "./install-operations";
 import {
-  addMultisig,
+  addMultisig as addMultisigFromPeerNode,
   createMultisig,
   getAllChannelAddresses
 } from "./multisig-operations";
@@ -91,6 +93,7 @@ export class RequestHandler {
       Node.MethodName.GET_STATE,
       handleGetAppInstanceState.bind(this)
     );
+    this.methods.set(Node.MethodName.TAKE_ACTION, handleTakeAction.bind(this));
   }
 
   /**
@@ -119,8 +122,18 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig.bind(this));
-    this.events.set(Node.EventName.INSTALL, addAppInstance.bind(this));
+    this.events.set(
+      Node.EventName.CREATE_MULTISIG,
+      addMultisigFromPeerNode.bind(this)
+    );
+    this.events.set(
+      Node.EventName.INSTALL,
+      addAppInstanceFromPeerNode.bind(this)
+    );
+    this.events.set(
+      Node.EventName.UPDATE_STATE,
+      updateAppInstanceStateFromPeerNode.bind(this)
+    );
   }
 
   /**

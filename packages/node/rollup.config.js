@@ -57,6 +57,9 @@ export default [
         namedExports: {
           "../../node_modules/typescript-memoize/dist/memoize-decorator.js": [
             "Memoize"
+          ],
+          "../../node_modules/deep-equal/index.js": [
+            "deepEqual"
           ]
         }
       }),
