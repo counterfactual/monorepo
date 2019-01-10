@@ -3,6 +3,7 @@ import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
 
 import AppRegistryTunnel from "../../data/app-registry";
+import CounterfactualNode from "../../data/counterfactual";
 import { AppDefinition } from "../../types";
 
 @Component({
@@ -24,6 +25,7 @@ export class DappContainer {
   private eventEmitter: EventEmitter = new EventEmitter();
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
+  private node = CounterfactualNode.getInstance();
 
   private $onMessage: (event: MessageEvent) => void = () => {};
 
@@ -43,8 +45,10 @@ export class DappContainer {
   }
 
   componentDidLoad(): void {
-    this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
+    // this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
     this.url = this.getDappUrl();
+
+    this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME
@@ -86,6 +90,7 @@ export class DappContainer {
    * @param message {any}
    */
   public postOrQueueMessage(message: any): void {
+    console.log("sending", message);
     if (this.port) {
       this.port.postMessage(message);
     } else {
@@ -137,7 +142,9 @@ export class DappContainer {
    * @param event {MessageEvent}
    */
   private relayMessage(event: MessageEvent): void {
-    this.eventEmitter.emit("message", event.data);
+    console.log("relaying", event);
+    this.node.emit(event.data.type, event.data);
+    // this.eventEmitter.emit("message", event.data);
   }
 
   /**

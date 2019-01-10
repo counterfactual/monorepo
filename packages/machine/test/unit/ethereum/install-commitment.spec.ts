@@ -66,10 +66,6 @@ describe("InstallCommitment", () => {
     Math.ceil(1000 * Math.random()),
     {
       addr: getAddress(hexlify(randomBytes(20))),
-      applyAction: hexlify(randomBytes(4)),
-      resolve: hexlify(randomBytes(4)),
-      isStateTerminal: hexlify(randomBytes(4)),
-      getTurnTaker: hexlify(randomBytes(4)),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },

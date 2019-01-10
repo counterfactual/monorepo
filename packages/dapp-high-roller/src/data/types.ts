@@ -39,16 +39,6 @@ export interface AppIdentity {
   defaultTimeout: number;
 }
 
-export interface AppInterface {
-  addr: string;
-  applyAction: string;
-  resolve: string;
-  getTurnTaker: string;
-  isStateTerminal: string;
-  stateEncoding: string;
-  actionEncoding: string | undefined;
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
   nonce: number;
