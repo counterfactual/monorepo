@@ -89,18 +89,6 @@ class Wager extends Component {
     });
   }
 
-  /**
-   * Alice(Accepting) receives a notification that Bob(Proposing) has invited them to play High Roller
-   * Alice(Accepting) approves the initiation. Playground calls CF.js install
-   * Bob(Proposing) moves out of the waiting room and into the game
-   */
-  async install(intermediary) {
-    this.props.cfProvider.installVirtual({
-      appInstanceId: this.props.gameInfo.appInstanceId,
-      intermediaries: [intermediary]
-    });
-  }
-
   onInstall({ data: { appInstance } }) {
     this.props.onChangeAppInstance(appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
@@ -109,11 +97,7 @@ class Wager extends Component {
   onPlayClicked() {
     const { user, opponent, intermediary } = this.state;
 
-    if (!this.props.gameInfo.shouldMatchmake) {
-      this.proposeInstall(user, opponent, intermediary);
-    } else {
-      this.install(intermediary);
-    }
+    this.proposeInstall(user, opponent, intermediary);
   }
 
   render() {

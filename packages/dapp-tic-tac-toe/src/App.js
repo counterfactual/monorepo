@@ -18,7 +18,6 @@ export default class App extends Component {
       myName: params.get("myName") || "Bob",
       betAmount: params.get("betAmount") || "0.1",
       opponentName: params.get("opponentName") || "Alice",
-      shouldMatchmake: params.get("shouldMatchmake"),
       appInstanceId: params.get("appInstanceId")
     };
 
