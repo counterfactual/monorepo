@@ -6,19 +6,35 @@
 
 set -e
 
-packages=" \
-  types \
-  apps \
-  contracts \
-  cf.js \
-  machine \
-  node \
-  node-provider \
-  playground-server \
-  playground \
-  dapp-high-roller \
-  dapp-tic-tac-toe \
-"
+if [ "$PLAYGROUND_SCOPE" = "server" ]
+then
+  packages=" \
+    types \
+    apps \
+    contracts \
+    cf.js \
+    machine \
+    node \
+    node-provider \
+    playground-server \
+  "
+else
+  packages=" \
+    types \
+    apps \
+    contracts \
+    cf.js \
+    machine \
+    node \
+    node-provider \
+    playground-server \
+    playground \
+    dapp-high-roller \
+    dapp-tic-tac-toe \
+  "
+fi
+
+echo "Will build packages: $packages"
 
 for package in $packages; do
   echo "⚙️  Building package: ${package}"
