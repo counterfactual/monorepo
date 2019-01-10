@@ -7,6 +7,7 @@ import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
+import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -32,7 +33,7 @@ export const INSTALL_PROTOCOL = {
     Opcode.IO_WAIT,
 
     // Verify they did indeed countersign the right thing
-    Opcode.OP_SIGN_VALIDATE,
+    validateSignature,
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -43,7 +44,7 @@ export const INSTALL_PROTOCOL = {
     proposeStateTransition,
 
     // Validate your counterparties signature is for the above proposal
-    Opcode.OP_SIGN_VALIDATE,
+    validateSignature,
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,
@@ -62,7 +63,7 @@ export const INSTALL_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   const {
     aliceBalanceDecrement,
@@ -75,7 +76,7 @@ function proposeStateTransition(
   } = message.params as InstallParams;
 
   const appInstance = new AppInstance(
-    state.multisigAddress,
+    stateChannel.multisigAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
@@ -86,15 +87,15 @@ function proposeStateTransition(
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
-    state.numInstalledApps + 1,
-    state.rootNonceValue,
+    stateChannel.numInstalledApps + 1,
+    stateChannel.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
     defaultTimeout
   );
 
-  context.stateChannel = state.installApp(
+  context.stateChannel = stateChannel.installApp(
     appInstance,
     aliceBalanceDecrement,
     bobBalanceDecrement

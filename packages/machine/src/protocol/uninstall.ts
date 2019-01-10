@@ -11,6 +11,7 @@ import { ProtocolMessage, UninstallParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
 import { prepareToSendSignature } from "./utils/signature-forwarder";
+import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -36,7 +37,7 @@ export const UNINSTALL_PROTOCOL = {
     Opcode.IO_WAIT,
 
     // Verify they did indeed countersign the right thing
-    Opcode.OP_SIGN_VALIDATE,
+    validateSignature,
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -47,7 +48,7 @@ export const UNINSTALL_PROTOCOL = {
     proposeStateTransition,
 
     // Validate your counterparties signature is for the above proposal
-    Opcode.OP_SIGN_VALIDATE,
+    validateSignature,
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,
@@ -66,7 +67,7 @@ export const UNINSTALL_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   const {
     appIdentityHash,
@@ -74,7 +75,7 @@ function proposeStateTransition(
     bobBalanceIncrement
   } = message.params as UninstallParams;
 
-  context.stateChannel = state.uninstallApp(
+  context.stateChannel = stateChannel.uninstallApp(
     appIdentityHash,
     aliceBalanceIncrement,
     bobBalanceIncrement

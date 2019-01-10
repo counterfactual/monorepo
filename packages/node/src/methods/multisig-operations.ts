@@ -9,9 +9,8 @@ import { Wallet } from "ethers";
 import { bigNumberify } from "ethers/utils";
 
 import { NodeMessage } from "../node";
+import { RequestHandler } from "../request-handler";
 import { Store } from "../store";
-
-import { RequestHandler } from "./request-handler";
 
 /**
  * This creates a multisig while sending details about this multisig
