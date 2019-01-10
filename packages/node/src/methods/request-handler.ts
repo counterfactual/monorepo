@@ -1,10 +1,10 @@
-import { InstructionExecutor } from "@counterfactual/machine";
 import {
   Context,
+  InstructionExecutor,
   Opcode,
   Protocol,
   ProtocolMessage
-} from "@counterfactual/machine/dist/src/types";
+} from "@counterfactual/machine";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
