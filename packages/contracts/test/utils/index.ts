@@ -11,43 +11,6 @@ export enum AssetType {
   ANY
 }
 
-export class AppInterface {
-  private static readonly ABI_ENCODER_V2_ENCODING = `
-    tuple(
-      address addr,
-      bytes4 getTurnTaker,
-      bytes4 applyAction,
-      bytes4 resolve,
-      bytes4 isStateTerminal
-    )
-  `;
-
-  constructor(
-    readonly addr: string,
-    readonly getTurnTaker: string,
-    readonly applyAction: string,
-    readonly resolve: string,
-    readonly isStateTerminal: string
-  ) {}
-
-  public hashOfPackedEncoding(): string {
-    return keccak256(
-      defaultAbiCoder.encode(
-        [AppInterface.ABI_ENCODER_V2_ENCODING],
-        [
-          {
-            addr: this.addr,
-            getTurnTaker: this.getTurnTaker,
-            applyAction: this.applyAction,
-            resolve: this.resolve,
-            isStateTerminal: this.isStateTerminal
-          }
-        ]
-      )
-    );
-  }
-}
-
 export class Terms {
   private static readonly ABI_ENCODER_V2_ENCODING =
     "tuple(uint8 assetType, uint256 limit, address token)";
@@ -112,7 +75,7 @@ export class AppInstance {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
-      appDefinitionAddress: this.appInterface.addr,
+      appDefinitionAddress: this.appDefinitionAddress,
       termsHash: this.terms.hashOfPackedEncoding(),
       defaultTimeout: this.defaultTimeout
     };
@@ -121,7 +84,7 @@ export class AppInstance {
   constructor(
     readonly owner: string,
     readonly signingKeys: string[],
-    readonly appInterface: AppInterface,
+    readonly appDefinitionAddress: string,
     readonly terms: Terms,
     readonly defaultTimeout: number
   ) {}

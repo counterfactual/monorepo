@@ -13,15 +13,6 @@ contract LibStateChannelApp {
     OFF
   }
 
-  // An interface to the App Definition used to make function calls to it
-  struct AppInterface {
-    address addr;
-    bytes4 getTurnTaker;
-    bytes4 applyAction;
-    bytes4 resolve;
-    bytes4 isStateTerminal;
-  }
-
   // A minimal structure that uniquely identifies a single instance of an App
   struct AppIdentity {
     address owner;
