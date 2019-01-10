@@ -21,7 +21,14 @@ const db = getDatabase();
 
 describe("playground-server", () => {
   beforeAll(async () => {
-    await db("users").delete();
+    await db.schema.dropTableIfExists("users");
+    await db.schema.createTable("users", table => {
+      table.uuid("id");
+      table.string("username");
+      table.string("email");
+      table.string("eth_address");
+      table.string("multisig_address");
+    });
 
     await db("users").insert({
       id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
