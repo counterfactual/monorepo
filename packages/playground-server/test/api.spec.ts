@@ -304,8 +304,15 @@ describe("playground-server", () => {
           expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
           expect(response.data.data).toEqual({
-            username: "delilah",
-            peerAddress: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+            user: {
+              username: "joe",
+              address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+            },
+            opponent: {
+              username: "delilah",
+              address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+            },
+            intermediary: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
           });
           done();
         });
@@ -333,17 +340,17 @@ describe("playground-server", () => {
           expect(response.status).toEqual(HttpStatusCode.OK);
           expect(response.data.ok).toBe(true);
 
-          const { username, peerAddress } = response.data.data;
+          const { username, address } = response.data.data.opponent;
           const bobAddress = "0x93678a4828d07708ad34272d61404dd06twoae2ca64";
           const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
           const delilahAddress = "0xdab500c650725c2f1af0b09df327d2d3ef3cefca";
 
           if (username === "bob") {
-            expect(peerAddress).toEqual(bobAddress);
+            expect(address).toEqual(bobAddress);
           } else if (username === "charlie") {
-            expect(peerAddress).toEqual(charlieAddress);
+            expect(address).toEqual(charlieAddress);
           } else if (username === "delilah") {
-            expect(peerAddress).toEqual(delilahAddress);
+            expect(address).toEqual(delilahAddress);
           } else {
             fail("It should have matched either Bob or Charlie");
           }
