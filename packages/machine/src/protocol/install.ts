@@ -100,11 +100,15 @@ function proposeStateTransition(
     bobBalanceDecrement
   );
 
+  const appIdentityHash = appInstance.identityHash;
+
   context.commitment = constructInstallOp(
     context.network,
     context.stateChannel,
-    appInstance.identityHash
+    appIdentityHash
   );
+
+  context.appIdentityHash = appIdentityHash;
 }
 
 function constructInstallOp(

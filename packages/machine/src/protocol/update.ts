@@ -71,6 +71,7 @@ function proposeStateTransition(
     context.stateChannel,
     appIdentityHash
   );
+  context.appIdentityHash = appIdentityHash;
 }
 
 export function constructUpdateOp(
