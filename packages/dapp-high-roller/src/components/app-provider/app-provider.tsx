@@ -73,6 +73,6 @@ export class AppProvider {
   }
 
   render() {
-    return <div />;
+    return <app-logo />;
   }
 }
