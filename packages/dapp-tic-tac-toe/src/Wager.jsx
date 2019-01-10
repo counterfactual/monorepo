@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
+import Waiting from "./Waiting";
 
 class Wager extends Component {
   constructor(props) {
@@ -7,6 +8,7 @@ class Wager extends Component {
     this.state = {
       error: null,
       isLoaded: false,
+      isWaiting: false,
       user: {},
       opponent: {},
       intermediary: null
@@ -97,11 +99,13 @@ class Wager extends Component {
   onPlayClicked() {
     const { user, opponent, intermediary } = this.state;
 
+    this.setState({ isWaiting: true });
+
     this.proposeInstall(user, opponent, intermediary);
   }
 
   render() {
-    const { error, isLoaded, user } = this.state;
+    const { error, isLoaded, user, isWaiting } = this.state;
 
     if (error) {
       return (
@@ -134,6 +138,10 @@ class Wager extends Component {
           </div>
         </div>
       );
+    }
+
+    if (isWaiting) {
+      return <Waiting gameInfo={this.props.gameInfo} />;
     }
 
     return (

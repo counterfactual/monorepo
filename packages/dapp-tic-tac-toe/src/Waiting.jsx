@@ -11,7 +11,6 @@ export default class Waiting extends Component {
 
   componentDidMount() {
     this.countDown();
-    this.initialize();
   }
 
   componentWillUnmount() {
