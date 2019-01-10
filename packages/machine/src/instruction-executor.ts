@@ -132,7 +132,11 @@ export class InstructionExecutor {
     }
 
     if (context.stateChannel === undefined) {
-      throw Error("State transition was computed to be undefined :(");
+      throw Error(
+        `After protocol ${
+          msg.protocol
+        } executed, expected context.stateChannel to be set, but it is undefined`
+      );
     }
 
     // TODO: it is possible to compute a diff of the original state channel
