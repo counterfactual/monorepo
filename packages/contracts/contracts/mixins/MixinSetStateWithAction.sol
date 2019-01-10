@@ -34,18 +34,15 @@ contract MixinSetStateWithAction is
   /// @notice Create a dispute regarding the latest signed state and immediately after,
   /// performs a unilateral action to update it.
   /// @param appIdentity An AppIdentity pointing to the app having its challenge progressed
-  /// @param appInterface An AppInterface representing the ABI of the app being operated on
   /// @param req A struct with the signed state update in it
   /// @param action A struct with the signed action being taken
   /// @dev Note this function is only callable when the state channel is in an ON state
   function setStateWithAction(
     AppIdentity memory appIdentity,
-    AppInterface memory appInterface,
     SignedStateUpdate memory req,
     SignedAction memory action
   )
     public
-    doAppInterfaceCheck(appInterface, appIdentity.appDefinitionAddress)
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
@@ -68,7 +65,7 @@ contract MixinSetStateWithAction is
 
     require(
       correctKeySignedTheAction(
-        appInterface,
+        appIdentity.appDefinitionAddress,
         appIdentity.signingKeys,
         challenge.disputeNonce,
         req,
@@ -78,14 +75,14 @@ contract MixinSetStateWithAction is
     );
 
     bytes memory newState = MAppCaller.applyAction(
-      appInterface.addr,
+      appIdentity.appDefinitionAddress,
       req.encodedState,
       action.encodedAction
     );
 
     if (action.checkForTerminal) {
       require(
-        MAppCaller.isStateTerminal(appInterface.addr, newState),
+        MAppCaller.isStateTerminal(appIdentity.appDefinitionAddress, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
@@ -121,7 +118,7 @@ contract MixinSetStateWithAction is
   }
 
   function correctKeySignedTheAction(
-    AppInterface memory appInterface,
+    address appDefinitionAddress,
     address[] memory signingKeys,
     uint256 disputeNonce,
     SignedStateUpdate memory req,
@@ -132,7 +129,7 @@ contract MixinSetStateWithAction is
     returns (bool)
   {
     address turnTaker = MAppCaller.getTurnTaker(
-      appInterface.addr,
+      appDefinitionAddress,
       signingKeys,
       req.encodedState
     );

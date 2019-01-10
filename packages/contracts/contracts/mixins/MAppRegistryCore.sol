@@ -17,23 +17,6 @@ contract MAppRegistryCore {
   // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 
-  /// @notice Verify the hash of ap AppInterface is a bytes32
-  /// @param appInterface the AppInterface being checked
-  /// @param appDefinitionAddress the address to check against
-  /// @return a boolean dictating the equality of the hashed AppInterface and the hash
-  modifier doAppInterfaceCheck(
-    LibStateChannelApp.AppInterface memory appInterface,
-    address appDefinitionAddress
-  ) {
-    // TODO: This is inefficient from a gas point of view since we could just include
-    // the hash of appInterface in the call to appIdentityToHash. Cleanup in the fututre.
-    require(
-      appInterface.addr == appDefinitionAddress,
-      "Call to AppRegistry included mismatched appDefinitionAddress"
-    );
-    _;
-  }
-
   modifier doTermsCheck(
     bytes memory terms,
     bytes32 termsHash
