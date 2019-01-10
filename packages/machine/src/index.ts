@@ -1,7 +1,33 @@
 import { InstructionExecutor } from "./instruction-executor";
-import * as types from "./types";
+import {
+  AppInstance,
+  AppInstanceJson,
+  StateChannel,
+  StateChannelJSON
+} from "./models";
+import {
+  Context,
+  Instruction,
+  Middleware,
+  Opcode,
+  Protocol,
+  ProtocolExecutionFlow,
+  ProtocolMessage,
+  Transaction
+} from "./types";
 
-export { TERMS } from "./ethereum";
-export * from "./models";
-
-export { InstructionExecutor, types };
+export {
+  AppInstance,
+  AppInstanceJson,
+  StateChannel,
+  StateChannelJSON,
+  InstructionExecutor,
+  Context,
+  Instruction,
+  Middleware,
+  Opcode,
+  Protocol,
+  ProtocolExecutionFlow,
+  ProtocolMessage,
+  Transaction
+};
