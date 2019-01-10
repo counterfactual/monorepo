@@ -8,26 +8,12 @@ import {
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { NodeMessage } from "../node";
-import { IMessagingService, IStoreService } from "../services";
-import { Store } from "../store";
-
-import {
-  getInstalledAppInstances,
-  getProposedAppInstances,
-  handleGetAppInstanceState
-} from "./app-instance-operations";
-import {
-  addAppInstance,
-  installAppInstance,
-  proposeAppInstanceInstall,
-  proposeAppInstanceVirtualInstall
-} from "./install-operations";
-import {
-  addMultisig,
-  createMultisig,
-  getAllChannelAddresses
-} from "./multisig-operations";
+import { methodNameToImplementation } from "./api-spec";
+import { addAppInstance } from "./methods/install-operations";
+import { addMultisig } from "./methods/multisig-operations";
+import { NodeMessage } from "./node";
+import { IMessagingService, IStoreService } from "./services";
+import { Store } from "./store";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -48,7 +34,7 @@ export class RequestHandler {
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
-    this.registerMethods();
+    this.mapPublicApiMethods();
     this.mapEventHandlers();
     this.startStoringCommitments();
   }
@@ -71,57 +57,25 @@ export class RequestHandler {
   }
 
   /**
-   * This maps the Node method names to their respective handlers.
-   */
-  private mapMethodHandlers() {
-    this.methods.set(
-      Node.MethodName.CREATE_MULTISIG,
-      createMultisig.bind(this)
-    );
-    this.methods.set(
-      Node.MethodName.GET_CHANNEL_ADDRESSES,
-      getAllChannelAddresses.bind(this)
-    );
-    this.methods.set(
-      Node.MethodName.GET_APP_INSTANCES,
-      getInstalledAppInstances.bind(this)
-    );
-    this.methods.set(
-      Node.MethodName.GET_PROPOSED_APP_INSTANCES,
-      getProposedAppInstances.bind(this)
-    );
-    this.methods.set(
-      Node.MethodName.PROPOSE_INSTALL,
-      proposeAppInstanceInstall.bind(this)
-    );
-    this.methods.set(
-      Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
-      proposeAppInstanceVirtualInstall.bind(this)
-    );
-    this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
-    this.methods.set(
-      Node.MethodName.GET_STATE,
-      handleGetAppInstanceState.bind(this)
-    );
-  }
-
-  /**
    * This registers all of the methods the Node is expected to have
    * as described at https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
-   *
    */
-  private registerMethods() {
-    this.mapMethodHandlers();
-    this.methods.forEach((method: Function, methodName: string) => {
+  private mapPublicApiMethods() {
+    for (const methodName in methodNameToImplementation) {
+      this.methods.set(
+        methodName,
+        methodNameToImplementation[methodName].bind(this)
+      );
+
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await method(req.params)
+          result: await this.methods.get(methodName)(req.params)
         };
         this.outgoing.emit(req.type, res);
       });
-    });
+    }
   }
 
   /**
