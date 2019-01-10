@@ -1,4 +1,4 @@
-# [@counterfactual/cf.js](https://github.com/counterfactual/monorepo/packages/cf.js) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
+# [@counterfactual/cf.js](https://github.com/counterfactual/monorepo/tree/master/packages/cf.js) <img align="right" src="https://static1.squarespace.com/static/59ee6243268b96cc1fb2b14a/t/5af73bca1ae6cf80fc1cc250/1529369816810/?format=1500w" height="80px" />
 
 CF.js is a library that enables web applications to communicate with a user's Counterfactual-enabled wallet. It allows developers to install and interact with apps on the Counterfactual network.
 
@@ -10,7 +10,7 @@ CF.js is a library that enables web applications to communicate with a user's Co
 
 ## Experimental Usage
 
-**Make sure you have Yarn v1.10.1**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+**Make sure you have Yarn v1.10.1 installed or higher**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
 
 To install the dependencies:
 
@@ -27,4 +27,5 @@ yarn build
 ```
 
 ## API Reference
+
 [Found here](API_REFERENCE.md)
