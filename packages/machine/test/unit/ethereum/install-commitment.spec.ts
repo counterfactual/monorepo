@@ -1,7 +1,8 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
+import { AssetType } from "@counterfactual/types";
 import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -27,14 +28,7 @@ describe("InstallCommitment", () => {
   let tx: MultisigTransaction;
 
   // Test network context
-  const networkContext: NetworkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   // General interaction testing values
   const interaction = {

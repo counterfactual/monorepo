@@ -1,3 +1,4 @@
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
@@ -5,14 +6,7 @@ import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { AppInstance, StateChannel } from "../../../../src/models";
 
 describe("StateChannel::uninstallApp", () => {
-  const networkContext = {
-    ETHBucket: getAddress(hexlify(randomBytes(20))),
-    StateChannelTransaction: getAddress(hexlify(randomBytes(20))),
-    MultiSend: getAddress(hexlify(randomBytes(20))),
-    NonceRegistry: getAddress(hexlify(randomBytes(20))),
-    AppRegistry: getAddress(hexlify(randomBytes(20))),
-    ETHBalanceRefund: getAddress(hexlify(randomBytes(20)))
-  };
+  const networkContext = generateRandomNetworkContext();
 
   let sc1: StateChannel;
   let sc2: StateChannel;
