@@ -63,10 +63,10 @@ export const UPDATE_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   const { appIdentityHash, newState } = message.params as UpdateParams;
-  context.stateChannel = state.setState(appIdentityHash, newState);
+  context.stateChannel = stateChannel.setState(appIdentityHash, newState);
   context.commitment = constructUpdateOp(
     context.network,
     context.stateChannel,

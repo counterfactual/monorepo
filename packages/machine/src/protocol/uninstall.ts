@@ -67,7 +67,7 @@ export const UNINSTALL_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   const {
     appIdentityHash,
@@ -75,7 +75,7 @@ function proposeStateTransition(
     bobBalanceIncrement
   } = message.params as UninstallParams;
 
-  context.stateChannel = state.uninstallApp(
+  context.stateChannel = stateChannel.uninstallApp(
     appIdentityHash,
     aliceBalanceIncrement,
     bobBalanceIncrement

@@ -12,7 +12,11 @@ import { Context } from "../types";
 // FIXME: Not fully implemented yet
 export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   0: [
-    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+    (
+      message: ProtocolMessage,
+      context: Context,
+      stateChannel: StateChannel
+    ) => {
       // copy client message
       context.outbox.push(message);
       context.outbox[0].seq = 1;
@@ -24,7 +28,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   ],
 
   1: [
-    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+    (
+      message: ProtocolMessage,
+      context: Context,
+      stateChannel: StateChannel
+    ) => {
       context.outbox.push(message);
       context.outbox[0].seq = 2;
       // context.outbox[0].fromAddress = message.data.initiating;
@@ -44,7 +52,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL = {
   ],
 
   2: [
-    (message: ProtocolMessage, context: Context, state: StateChannel) => {
+    (
+      message: ProtocolMessage,
+      context: Context,
+      stateChannel: StateChannel
+    ) => {
       context.outbox.push(message);
       context.outbox[0].seq = 3;
       // context.outbox[0].fromAddress = message.data.responding;

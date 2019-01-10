@@ -63,7 +63,7 @@ export const INSTALL_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   const {
     aliceBalanceDecrement,
@@ -76,7 +76,7 @@ function proposeStateTransition(
   } = message.params as InstallParams;
 
   const appInstance = new AppInstance(
-    state.multisigAddress,
+    stateChannel.multisigAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
@@ -87,15 +87,15 @@ function proposeStateTransition(
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
-    state.numInstalledApps + 1,
-    state.rootNonceValue,
+    stateChannel.numInstalledApps + 1,
+    stateChannel.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
     defaultTimeout
   );
 
-  context.stateChannel = state.installApp(
+  context.stateChannel = stateChannel.installApp(
     appInstance,
     aliceBalanceDecrement,
     bobBalanceDecrement

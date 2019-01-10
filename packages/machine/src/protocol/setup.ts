@@ -63,9 +63,9 @@ export const SETUP_PROTOCOL = {
 function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
-  context.stateChannel = state.setupChannel(context.network);
+  context.stateChannel = stateChannel.setupChannel(context.network);
   context.commitment = constructSetupOp(context.network, context.stateChannel);
 }
 
