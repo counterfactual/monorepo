@@ -65,9 +65,15 @@ describe("InstructionExecutor", () => {
 
     describe("the proposed state transition of the channel", () => {
       it("should have the right metadatas", () => {
-        expect(stateChannelAfterSetup.multisigAddress).toBe(stateChannelBeforeSetup.multisigAddress);
-        expect(stateChannelAfterSetup.multisigOwners).toContain(interaction.sender);
-        expect(stateChannelAfterSetup.multisigOwners).toContain(interaction.receiver);
+        expect(stateChannelAfterSetup.multisigAddress).toBe(
+          stateChannelBeforeSetup.multisigAddress
+        );
+        expect(stateChannelAfterSetup.multisigOwners).toContain(
+          interaction.sender
+        );
+        expect(stateChannelAfterSetup.multisigOwners).toContain(
+          interaction.receiver
+        );
       });
     });
 
@@ -85,11 +91,15 @@ describe("InstructionExecutor", () => {
       });
 
       it("should be based on the multisig passed into the protocol executor", () => {
-        expect(commitment.multisigAddress).toBe(stateChannelBeforeSetup.multisigAddress);
+        expect(commitment.multisigAddress).toBe(
+          stateChannelBeforeSetup.multisigAddress
+        );
       });
 
       it("should assume from and to as the owners of the multisig, sorted", () => {
-        expect(commitment.multisigOwners).toEqual(stateChannelBeforeSetup.multisigOwners);
+        expect(commitment.multisigOwners).toEqual(
+          stateChannelBeforeSetup.multisigOwners
+        );
       });
 
       it("should construct the correct hash digest to sign", () => {

@@ -1,9 +1,9 @@
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 
 describe("StateChannel::setState", () => {
   const networkContext = generateRandomNetworkContext();

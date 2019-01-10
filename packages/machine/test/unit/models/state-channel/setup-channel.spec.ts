@@ -1,4 +1,5 @@
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
+import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import {
@@ -10,7 +11,6 @@ import {
 } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 
 describe("StateChannel::setupChannel", () => {
   let sc1: StateChannel;
