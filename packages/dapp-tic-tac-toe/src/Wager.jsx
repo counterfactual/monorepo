@@ -13,43 +13,38 @@ class Wager extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.cfProvider.once("install", this.onInstall.bind(this));
 
     // TODO: This token should be obtained from LocalStorage.
     const token =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5OGRhZTNmLWNmYjctNGNmNC05OTZiLWZiNDI5NDI3ZGQ4NSIsInVzZXJuYW1lIjoiam9lbCIsImVtYWlsIjoiZXN0dWRpb0Bqb2VsYWxlamFuZHJvLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDE0NTczMjUzMTkxRDJDMjUxQTg1Y0JBMTQ1NjY0RWUwYUViNDA4NjgiLCJpYXQiOjE1NDcwODU4MTcsImV4cCI6MTU3ODY0MzQxN30.AQ-ataiWl9emPRWtHVinEXYgyHHZquP9DOXLjmcTKJI";
 
-    fetch(
-      "https://server.playground-staging.counterfactual.com/api/matchmake",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    )
-      .then(res => res.json())
-      .then(
-        result => {
-          this.setState({
-            isLoaded: true,
-            user: result.data.user,
-            opponent: result.data.opponent,
-            intermediary: result.data.intermediary,
-            error: result.error
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        error => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
+    try {
+      const response = await fetch(
+        "https://server.playground-staging.counterfactual.com/api/matchmake",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
+      const result = await response.json();
+
+      this.setState({
+        isLoaded: true,
+        user: result.data.user,
+        opponent: result.data.opponent,
+        intermediary: result.data.intermediary,
+        error: result.error
+      });
+    } catch (error) {
+      this.setState({
+        isLoaded: true,
+        error
+      });
+    }
   }
 
   createAppFactory() {
