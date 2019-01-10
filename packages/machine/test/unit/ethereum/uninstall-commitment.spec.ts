@@ -132,14 +132,14 @@ describe("Uninstall Commitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [owner, signingKeys, appInterfaceHash, termsHash, defaultTimeout]
+            [owner, signingKeys, appAddress, termsHash, defaultTimeout]
           ] = calldata.args;
 
           const expected = freeBalanceETH.identity;
 
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
-          expect(appInterfaceHash).toBe(expected.appInterfaceHash);
+          expect(appAddress).toBe(expected.appAddress);
           expect(termsHash).toBe(expected.termsHash);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });

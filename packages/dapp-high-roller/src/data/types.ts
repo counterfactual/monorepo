@@ -34,7 +34,7 @@ export interface Transaction {
 export interface AppIdentity {
   owner: string;
   signingKeys: string[];
-  appInterfaceHash: string;
+  appAddress: string;
   termsHash: string;
   defaultTimeout: number;
 }

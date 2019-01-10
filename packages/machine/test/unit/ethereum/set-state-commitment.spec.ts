@@ -100,13 +100,13 @@ describe("Set State Commitment", () => {
       const [
         owner,
         signingKeys,
-        appInterfaceHash,
+        appAddress,
         termsHash,
         defaultTimeout
       ] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
-      expect(appInterfaceHash).toBe(appInstance.identity.appInterfaceHash);
+      expect(appAddress).toBe(appInstance.identity.appAddress);
       expect(termsHash).toBe(appInstance.identity.termsHash);
       expect(defaultTimeout).toEqual(
         bigNumberify(appInstance.identity.defaultTimeout)

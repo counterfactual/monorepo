@@ -19,17 +19,17 @@ contract MAppRegistryCore {
 
   /// @notice Verify the hash of ap AppInterface is a bytes32
   /// @param appInterface the AppInterface being checked
-  /// @param appInterfaceHash the hash to check against
+  /// @param appAddress the address to check against
   /// @return a boolean dictating the equality of the hashed AppInterface and the hash
   modifier doAppInterfaceCheck(
     LibStateChannelApp.AppInterface memory appInterface,
-    bytes32 appInterfaceHash
+    address appAddress
   ) {
     // TODO: This is inefficient from a gas point of view since we could just include
     // the hash of appInterface in the call to appIdentityToHash. Cleanup in the fututre.
     require(
-      keccak256(abi.encode(appInterface)) == appInterfaceHash,
-      "Call to AppRegistry included mismatched appInterface and appInterfaceHash"
+      appInterface.addr == appAddress,
+      "Call to AppRegistry included mismatched appAddress"
     );
     _;
   }

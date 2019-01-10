@@ -45,7 +45,7 @@ contract MixinSetStateWithAction is
     SignedAction memory action
   )
     public
-    doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
+    doAppInterfaceCheck(appInterface, appIdentity.appAddress)
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
