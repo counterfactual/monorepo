@@ -107,14 +107,6 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     await virtualAppAgreement.deployed();
     await fixedResolutionApp.deployed();
 
-    const appInterface = {
-      addr: fixedResolutionApp.address,
-      getTurnTaker: "0x00000000",
-      applyAction: "0x00000000",
-      resolve: fixedResolutionApp.interface.functions.resolve.sighash,
-      isStateTerminal: "0x00000000"
-    };
-
     const terms = {
       assetType: 0,
       limit: 0,
@@ -135,7 +127,7 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     const appIdentity = {
       owner: await unlockedAccount.getAddress(),
       signingKeys: [],
-      appDefinitionAddress: appInterface.addr,
+      appDefinitionAddress: fixedResolutionApp.address,
       termsHash: keccak256(encodedTerms),
       defaultTimeout: 10
     };
@@ -166,7 +158,6 @@ contract("ETHVirtualAppAgreement", (accounts: string[]) => {
     // because the timeout was set to 0 in the previous call to setState
     await appRegistry.functions.setResolution(
       appIdentity,
-      appInterface,
       HashZero,
       encodedTerms
     );

@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import Welcome from './Welcome';
-import Wager from './Wager';
-import Waiting from './Waiting';
-import Game from './Game';
+import React, { Component } from "react";
+import Welcome from "./Welcome";
+import Wager from "./Wager";
+import Waiting from "./Waiting";
+import Game from "./Game";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import MockNodeProvider from './MockNodeProvider';
+import MockNodeProvider from "./MockNodeProvider";
 
 export default class App extends Component {
   constructor(props) {
@@ -18,23 +18,22 @@ export default class App extends Component {
       myName: params.get("myName") || "Bob",
       betAmount: params.get("betAmount") || "0.1",
       opponentName: params.get("opponentName") || "Alice",
-      shouldMatchmake: params.get("shouldMatchmake"),
       appInstanceId: params.get("appInstanceId")
-    }
+    };
 
     this.state = {
       connected: false,
       nodeProvider,
       cfProvider,
       gameInfo
-    }
+    };
 
     this.connect(nodeProvider);
   }
 
   async connect() {
     await this.state.nodeProvider.connect();
-    
+
     this.setState({
       connected: true
     });
@@ -47,37 +46,47 @@ export default class App extends Component {
   }
 
   render() {
-    return (
-      this.state.connected ? 
-        <Router>
-          <div className="App">
-            <Route exact path="/" component={Welcome} />
-            <Route path="/wager"
-              render={(props) =>
-                <Wager {...props}
-                  gameInfo={this.state.gameInfo}
-                />}
-            />
-            <Route path="/waiting"
-              render={(props) =>
-                <Waiting {...props}
-                  cfProvider={this.state.cfProvider}
-                  gameInfo={this.state.gameInfo}
-                  onChangeAppInstance={this.appInstanceChanged.bind(this)}
-                />}
-            />
-            <Route path="/game"
-              render={(props) =>
-                <Game {...props}
-                  cfProvider={this.state.cfProvider}
-                  appInstance={this.state.appInstance}
-                  gameInfo={this.state.gameInfo}
-                  onChangeAppInstance={this.appInstanceChanged.bind(this)}
-                />}
-            />
-          </div>
-        </Router> :
-        <h1 className="App message">connecting....</h1>
+    return this.state.connected ? (
+      <Router>
+        <div className="App">
+          <Route exact path="/" component={Welcome} />
+          <Route
+            path="/wager"
+            render={props => (
+              <Wager
+                {...props}
+                gameInfo={this.state.gameInfo}
+                cfProvider={this.state.cfProvider}
+                onChangeAppInstance={this.appInstanceChanged.bind(this)}
+              />
+            )}
+          />
+          <Route
+            path="/waiting"
+            render={props => (
+              <Waiting
+                {...props}
+                cfProvider={this.state.cfProvider}
+                gameInfo={this.state.gameInfo}
+              />
+            )}
+          />
+          <Route
+            path="/game"
+            render={props => (
+              <Game
+                {...props}
+                cfProvider={this.state.cfProvider}
+                appInstance={this.state.appInstance}
+                gameInfo={this.state.gameInfo}
+                onChangeAppInstance={this.appInstanceChanged.bind(this)}
+              />
+            )}
+          />
+        </div>
+      </Router>
+    ) : (
+      <h1 className="App message">connecting....</h1>
     );
   }
 }

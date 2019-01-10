@@ -1,14 +1,7 @@
-import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
 import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import {
-  // formatParamType,
-  getAddress,
-  hexlify,
-  Interface,
-  randomBytes
-} from "ethers/utils";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
 
@@ -77,16 +70,7 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should use the ETHBucketApp as the app target", () => {
-      const iface = new Interface(ETHBucket.abi);
       expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
-      // Have to wait for formatParamType to include names
-      // expect(fb.appInterface.stateEncoding).toBe(
-      //   formatParamType(iface.functions.resolve.inputs[0])
-      // );
-      expect(fb.appInterface.applyAction).toBe("0x00000000");
-      expect(fb.appInterface.isStateTerminal).toBe("0x00000000");
-      expect(fb.appInterface.getTurnTaker).toBe("0x00000000");
-      expect(fb.appInterface.resolve).toBe(iface.functions.resolve.sighash);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 

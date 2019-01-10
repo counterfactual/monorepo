@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { AppInstance } from "./mock-app-instance";
-import NodeProvider from "./node-provider";
+import NodeProvider from "./mock-node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
@@ -37,16 +37,6 @@ export interface AppIdentity {
   appDefinitionAddress: string;
   termsHash: string;
   defaultTimeout: number;
-}
-
-export interface AppInterface {
-  addr: string;
-  applyAction: string;
-  resolve: string;
-  getTurnTaker: string;
-  isStateTerminal: string;
-  stateEncoding: string;
-  actionEncoding: string | undefined;
 }
 
 export interface SignedStateHashUpdate {

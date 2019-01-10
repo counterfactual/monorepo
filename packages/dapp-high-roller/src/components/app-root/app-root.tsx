@@ -2,7 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
-import MockNodeProvider from "../../data/node-provider";
+import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, Node } from "../../data/types";
 
 declare var NodeProvider;

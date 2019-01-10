@@ -157,7 +157,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await appRegistry.functions.setResolution(
         appInstance.identity,
-        appInstance.appInterface,
         appInstance.encodedLatestState,
         appInstance.encodedTerms
       );
