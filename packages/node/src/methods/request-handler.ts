@@ -1,8 +1,10 @@
 import {
+  Context,
   InstructionExecutor,
-  types as machineTypes
+  Opcode,
+  Protocol,
+  ProtocolMessage
 } from "@counterfactual/machine";
-import { Protocol } from "@counterfactual/machine/dist/src/types";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
@@ -18,7 +20,8 @@ import {
 import {
   addAppInstance,
   installAppInstance,
-  proposeAppInstanceInstall
+  proposeAppInstanceInstall,
+  proposeAppInstanceVirtualInstall
 } from "./install-operations";
 import {
   addMultisig,
@@ -91,6 +94,10 @@ export class RequestHandler {
       Node.MethodName.PROPOSE_INSTALL,
       proposeAppInstanceInstall.bind(this)
     );
+    this.methods.set(
+      Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+      proposeAppInstanceVirtualInstall.bind(this)
+    );
     this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
     this.methods.set(
       Node.MethodName.GET_STATE,
@@ -140,12 +147,8 @@ export class RequestHandler {
 
   private startStoringCommitments() {
     this.instructionExecutor.register(
-      machineTypes.Opcode.STATE_TRANSITION_COMMIT,
-      async (
-        message: machineTypes.ProtocolMessage,
-        next: Function,
-        context: machineTypes.Context
-      ) => {
+      Opcode.STATE_TRANSITION_COMMIT,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
         if (!context.commitment) {
           throw new Error(
             `State transition without commitment: ${JSON.stringify(message)}`

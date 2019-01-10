@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { AppInstance } from "./mock-app-instance";
-import NodeProvider from "./node-provider";
+import NodeProvider from "./mock-node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
@@ -243,7 +243,7 @@ export namespace Node {
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
-    appInstanceId: AppInstanceID;
+    appInstance: { id: AppInstanceID };
   };
   export type RejectInstallEventData = {
     appInstance: AppInstanceInfo;
@@ -327,6 +327,7 @@ export namespace cf {
   };
 
   export type Provider = {
+    once: (eventName: any, callback: (data: Node.EventData) => void) => void;
     on: (eventName: any, callback: (data: Node.EventData) => void) => void;
     callRawNodeMethod: (
       methodName: Node.MethodName,

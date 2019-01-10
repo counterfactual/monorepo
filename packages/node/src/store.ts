@@ -1,8 +1,9 @@
 import {
   AppInstance,
+  Protocol,
   StateChannel,
   StateChannelJSON,
-  types as machineTypes
+  Transaction
 } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 
@@ -21,8 +22,6 @@ import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
-
-const { Protocol } = machineTypes;
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -280,7 +279,7 @@ export class Store {
   async setCommitmentForAppIdentityHash(
     appIdentityHash: string,
     protocol: string,
-    commitment: machineTypes.Transaction
+    commitment: Transaction
   ) {
     if (!(protocol in Protocol)) {
       throw new Error(`No such protocol: ${protocol}`);
@@ -295,7 +294,7 @@ export class Store {
 
   async setSetupCommitmentForMultisig(
     multisigAddress: string,
-    commitment: machineTypes.Transaction
+    commitment: Transaction
   ) {
     return this.storeService.set([
       {
@@ -305,7 +304,7 @@ export class Store {
     ]);
   }
 
-  private async loadCommitment(key: string): Promise<machineTypes.Transaction> {
+  private async loadCommitment(key: string): Promise<Transaction> {
     const { to, value, data } = await this.storeService.get(key);
     return {
       to,
@@ -317,14 +316,14 @@ export class Store {
   async getCommitmentForAppIdentityHash(
     appIdentityHash: string,
     protocol: string
-  ): Promise<machineTypes.Transaction> {
+  ): Promise<Transaction> {
     const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
     return this.loadCommitment(key);
   }
 
   async getSetupCommitmentForMultisig(
     multisigAddress: string
-  ): Promise<machineTypes.Transaction> {
+  ): Promise<Transaction> {
     const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
     return this.loadCommitment(key);
   }
