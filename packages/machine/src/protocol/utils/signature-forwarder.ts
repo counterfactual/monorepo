@@ -5,7 +5,7 @@ import { Context } from "../../types";
 export function prepareToSendSignature(
   message: ProtocolMessage,
   context: Context,
-  state: StateChannel
+  stateChannel: StateChannel
 ) {
   context.outbox.push({
     ...message,
