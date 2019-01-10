@@ -15,26 +15,26 @@ import "../CounterfactualApp.sol";
 contract MAppCaller is LibSignature, LibStateChannelApp {
 
   /// @notice A helper method to check if the state of an application is terminal or not
-  /// @param appInterface An `AppInterface` struct
+  /// @param appDefinitionAddress An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
   /// @return A boolean indicating if the application state is terminal or not
   function isStateTerminal(
-    AppInterface memory appInterface,
+    address appDefinitionAddress,
     bytes memory appState
   )
     internal
     view
     returns (bool)
   {
-    return CounterfactualApp(appInterface.addr).isStateTerminal(appState);
+    return CounterfactualApp(appDefinitionAddress).isStateTerminal(appState);
   }
 
   /// @notice A helper method to get the turn taker for an app
-  /// @param appInterface An `AppInterface` struct
+  /// @param appDefinitionAddress An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
   /// @return An address representing the turn taker in the `signingKeys`
   function getTurnTaker(
-    AppInterface memory appInterface,
+    address appDefinitionAddress,
     address[] memory signingKeys,
     bytes memory appState
   )
@@ -42,17 +42,17 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (address)
   {
-    return CounterfactualApp(appInterface.addr)
+    return CounterfactualApp(appDefinitionAddress)
       .getTurnTaker(appState, signingKeys);
   }
 
   /// @notice Execute the application's applyAction function to compute new state
-  /// @param appInterface An `AppInterface` struct
+  /// @param appDefinitionAddress An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
   /// @param action The ABI encoded version of some application action
   /// @return A bytes array of the ABI encoded newly computed application state
   function applyAction(
-    AppInterface memory appInterface,
+    address appDefinitionAddress,
     bytes memory appState,
     bytes memory action
   )
@@ -60,16 +60,17 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (bytes memory)
   {
-    return CounterfactualApp(appInterface.addr).applyAction(appState, action);
+    return CounterfactualApp(appDefinitionAddress)
+      .applyAction(appState, action);
   }
 
   /// @notice Execute the application's resolve function to compute a resolution
-  /// @param appInterface An `AppInterface` struct
+  /// @param appDefinitionAddress An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
   /// @param terms The ABI encoded version of the transfer terms
   /// @return A `Transfer.Transaction` struct with all encoded information of the resolution
   function resolve(
-    AppInterface memory appInterface,
+    address appDefinitionAddress,
     bytes memory appState,
     bytes memory terms
   )
@@ -78,7 +79,8 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     returns (Transfer.Transaction memory)
   {
     Transfer.Terms memory termsStruct = abi.decode(terms, (Transfer.Terms));
-    return CounterfactualApp(appInterface.addr).resolve(appState, termsStruct);
+    return CounterfactualApp(appDefinitionAddress)
+      .resolve(appState, termsStruct);
   }
 
 }
