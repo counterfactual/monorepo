@@ -8,6 +8,7 @@ import "../libs/Transfer.sol";
 
 import "../CounterfactualApp.sol";
 
+
 /// @title MAppCaller
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice A mixin for the AppRegistry to make staticcalls to Apps
@@ -41,7 +42,8 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     view
     returns (address)
   {
-    return CounterfactualApp(appInterface.addr).getTurnTaker(appState, signingKeys);
+    return CounterfactualApp(appInterface.addr)
+      .getTurnTaker(appState, signingKeys);
   }
 
   /// @notice Execute the application's applyAction function to compute new state

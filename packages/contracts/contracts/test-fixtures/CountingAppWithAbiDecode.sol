@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/Transfer.sol";
 import "../CounterfactualApp.sol";
 
+
 contract CountingAppWithAbiDecode is CounterfactualApp {
 
   enum ActionTypes { INCREMENT, DECREMENT}
@@ -99,9 +100,9 @@ contract CountingAppWithAbiDecode is CounterfactualApp {
     returns (bytes memory)
   {
     State memory ret = state;
-    state.count += inc.byHowMuch;
-    state.turnNum += 1;
-    return abi.encode(state);
+    ret.count += inc.byHowMuch;
+    ret.turnNum += 1;
+    return abi.encode(ret);
   }
 
   function onDecrement(State memory state, Decrement memory dec)
@@ -110,9 +111,9 @@ contract CountingAppWithAbiDecode is CounterfactualApp {
     returns (bytes memory)
   {
     State memory ret = state;
-    state.count -= dec.byHowMuch;
-    state.turnNum += 1;
-    return abi.encode(state);
+    ret.count -= dec.byHowMuch;
+    ret.turnNum += 1;
+    return abi.encode(ret);
   }
 
 }

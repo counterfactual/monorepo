@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/Transfer.sol";
 import "../CounterfactualApp.sol";
 
+
 /// @title ResolveToPay5WeiApp
 /// @notice This contract is a test fixture meant to emulate an AppInstance
 /// contract. An AppInstance has a resolve() function that returns a
