@@ -243,7 +243,7 @@ export namespace Node {
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
-    appInstanceId: AppInstanceID;
+    appInstance: { id: AppInstanceID };
   };
   export type RejectInstallEventData = {
     appInstance: AppInstanceInfo;
@@ -327,6 +327,7 @@ export namespace cf {
   };
 
   export type Provider = {
+    once: (eventName: any, callback: (data: Node.EventData) => void) => void;
     on: (eventName: any, callback: (data: Node.EventData) => void) => void;
     callRawNodeMethod: (
       methodName: Node.MethodName,
