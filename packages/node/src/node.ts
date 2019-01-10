@@ -27,6 +27,8 @@ export class Node {
 
   private readonly signer: SigningKey;
 
+  private readonly instructionExecutor: InstructionExecutor;
+
   protected readonly requestHandler: RequestHandler;
 
   /**
@@ -44,13 +46,16 @@ export class Node {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.registerMessagingConnection();
+
+    this.instructionExecutor = new InstructionExecutor(networkContext);
+
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
       this.outgoing,
       this.storeService,
       this.messagingService,
-      new InstructionExecutor(networkContext),
+      this.instructionExecutor,
       networkContext,
       `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
