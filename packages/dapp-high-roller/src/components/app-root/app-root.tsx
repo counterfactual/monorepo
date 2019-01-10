@@ -45,6 +45,15 @@ export class AppRoot {
             <stencil-router>
               <stencil-route-switch scrollTopOffset={0}>
                 <stencil-route url="/" component="app-logo" exact={true} />
+                <stencil-route
+                  url="/"
+                  exact={true}
+                  component="app-provider"
+                  componentProps={{
+                    updateAppInstance: this.state.updateAppInstance,
+                    updateAppFactory: this.state.updateAppFactory
+                  }}
+                />
                 <stencil-route url="/wager" component="app-wager" />
                 <stencil-route url="/game" component="app-game" />
                 <stencil-route url="/waiting" component="app-waiting" />
@@ -53,10 +62,6 @@ export class AppRoot {
                   component="app-accept-invite"
                 />
               </stencil-route-switch>
-              <app-provider
-                updateAppInstance={this.state.updateAppInstance}
-                updateAppFactory={this.state.updateAppFactory}
-              />
             </stencil-router>
           </CounterfactualTunnel.Provider>
         </main>

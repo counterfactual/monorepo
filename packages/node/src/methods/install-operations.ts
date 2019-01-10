@@ -91,6 +91,44 @@ export async function installAppInstance(
 }
 
 /**
+ * This creates an entry of a proposed Virtual AppInstance while sending the
+ * proposal to the intermediaries and peer with whom this app instance is
+ * indicated to be instantiated with.
+ * @param params
+ * @returns The AppInstanceId for the proposed AppInstance
+ */
+export async function proposeAppInstanceVirtualInstall(
+  this: RequestHandler,
+  params: Node.ProposeInstallVirtualParams
+): Promise<Node.ProposeInstallVirtualResult> {
+  if (params.abiEncodings.actionEncoding === undefined) {
+    delete params.abiEncodings.actionEncoding;
+  }
+
+  const appInstanceId = await createProposedAppInstance(
+    this.selfAddress,
+    this.store,
+    params
+  );
+
+  const proposalMsg: NodeMessage = {
+    from: this.selfAddress,
+    event: Node.EventName.INSTALL,
+    data: {
+      ...params,
+      appInstanceId,
+      proposal: true
+    }
+  };
+
+  await this.messagingService.send(params.peerAddress, proposalMsg);
+
+  return {
+    appInstanceId
+  };
+}
+
+/**
  * This function adds the app instance as a pending installation if the proposal
  * flag is set. Otherwise it adds the app instance as an installed app into the
  * appropriate channel.

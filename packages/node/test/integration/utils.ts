@@ -87,7 +87,7 @@ async function getApps(
   return result.appInstances;
 }
 
-export function makeProposalRequest(
+export function makeInstallProposalRequest(
   peerAddress: Address
 ): NodeTypes.MethodRequest {
   const params: NodeTypes.ProposeInstallParams = {
@@ -115,6 +115,24 @@ export function makeProposalRequest(
   } as NodeTypes.MethodRequest;
 }
 
+export function makeInstallVirtualProposalRequest(
+  peerAddress: Address,
+  intermediaries: Address[]
+): NodeTypes.MethodRequest {
+  const installProposalParams = makeInstallProposalRequest(peerAddress)
+    .params as NodeTypes.ProposeInstallParams;
+
+  const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
+    ...installProposalParams,
+    intermediaries
+  };
+  return {
+    params: installVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL
+  } as NodeTypes.MethodRequest;
+}
+
 /**
  * @param proposalParams The parameters of the installation proposal.
  * @param proposedAppInstance The proposed app instance contained in the Node.
@@ -132,6 +150,17 @@ export function confirmProposedAppInstanceOnNode(
   expect(proposalParams.timeout).toEqual(proposedAppInstance.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
+}
+
+export function confirmProposedVirtualAppInstanceOnNode(
+  methodParams: NodeTypes.MethodParams,
+  proposedAppInstance: AppInstanceInfo
+) {
+  confirmProposedAppInstanceOnNode(methodParams, proposedAppInstance);
+  const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
+  expect(proposalParams.intermediaries).toEqual(
+    proposedAppInstance.intermediaries
+  );
 }
 
 export const EMPTY_NETWORK: NetworkContext = {
