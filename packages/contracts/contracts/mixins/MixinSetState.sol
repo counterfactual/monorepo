@@ -6,14 +6,12 @@ import "../libs/LibSignature.sol";
 import "../libs/LibStaticCall.sol";
 
 import "./MAppRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinSetState is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore,
-  MAppCaller
+  MAppRegistryCore
 {
 
   struct SignedStateHashUpdate {
