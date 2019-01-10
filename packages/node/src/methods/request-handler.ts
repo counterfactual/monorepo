@@ -18,7 +18,8 @@ import {
 import {
   addAppInstance,
   installAppInstance,
-  proposeAppInstanceInstall
+  proposeAppInstanceInstall,
+  proposeAppInstanceVirtualInstall
 } from "./install-operations";
 import {
   addMultisig,
@@ -90,6 +91,10 @@ export class RequestHandler {
     this.methods.set(
       Node.MethodName.PROPOSE_INSTALL,
       proposeAppInstanceInstall.bind(this)
+    );
+    this.methods.set(
+      Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+      proposeAppInstanceVirtualInstall.bind(this)
     );
     this.methods.set(Node.MethodName.INSTALL, installAppInstance.bind(this));
     this.methods.set(

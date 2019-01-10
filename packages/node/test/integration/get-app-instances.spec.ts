@@ -12,7 +12,7 @@ import {
   EMPTY_NETWORK,
   getInstalledAppInstances,
   getNewMultisig,
-  makeProposalRequest
+  makeInstallProposalRequest
 } from "./utils";
 
 dotenv.load();
@@ -70,7 +70,7 @@ describe("Node method follows spec - getAppInstances", () => {
     expect(multisigAddress).toBeDefined();
 
     // second, an app instance must be proposed to be installed into that channel
-    const appInstanceInstallationProposalRequest = makeProposalRequest(
+    const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
       peerAddress
     );
 
