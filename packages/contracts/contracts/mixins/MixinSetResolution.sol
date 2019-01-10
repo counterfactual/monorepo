@@ -26,7 +26,7 @@ contract MixinSetResolution is
     bytes memory terms
   )
     public
-    doAppInterfaceCheck(appInterface, appIdentity.appInterfaceHash)
+    doAppInterfaceCheck(appInterface, appIdentity.appDefinitionAddress)
     doTermsCheck(terms, appIdentity.termsHash)
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);

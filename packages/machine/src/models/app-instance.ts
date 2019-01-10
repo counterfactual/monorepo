@@ -3,7 +3,7 @@ import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
-import { APP_INTERFACE, TERMS } from "../ethereum/utils/encodings";
+import { TERMS } from "../ethereum/utils/encodings";
 import { AppState } from "../protocol-types-tbd";
 
 /**
@@ -120,15 +120,11 @@ export class AppInstance {
 
   @Memoize()
   public get identity(): AppIdentity {
-    const encodedAppInterface = defaultAbiCoder.encode(
-      [APP_INTERFACE],
-      [this.json.appInterface]
-    );
     const encodedTerms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
-      appInterfaceHash: keccak256(encodedAppInterface),
+      appDefinitionAddress: this.json.appInterface.addr,
       termsHash: keccak256(encodedTerms),
       defaultTimeout: this.json.defaultTimeout
     };

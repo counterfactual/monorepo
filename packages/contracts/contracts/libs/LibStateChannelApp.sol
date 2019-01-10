@@ -26,7 +26,7 @@ contract LibStateChannelApp {
   struct AppIdentity {
     address owner;
     address[] signingKeys;
-    bytes32 appInterfaceHash;
+    address appDefinitionAddress;
     bytes32 termsHash;
     uint256 defaultTimeout;
   }
