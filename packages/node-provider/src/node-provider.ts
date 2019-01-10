@@ -27,30 +27,32 @@ export default class NodeProvider implements INodeProvider {
   }
 
   private detectDebugMode() {
-    if (process && process.env.CF_NODE_PROVIDER_DEBUG) {
-      this.debugMode = "shell";
-      this.debugEmitter = (source: string, message: string, data?: any) => {
-        console.log(`[NodeProvider] ${source}(): ${message}`);
-        if (data) {
-          console.log("   ", data);
-        }
-      };
-    } else if (
-      window.localStorage.getItem("cf:node-provider:debug") === "true"
-    ) {
-      this.debugMode = "browser";
-      this.debugEmitter = (source: string, message: string, data?: any) => {
-        console.log(
-          ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
-          "color: gray;",
-          "color: green;",
-          "color: black;"
-        );
+    try {
+      if (process && process.env.CF_NODE_PROVIDER_DEBUG) {
+        this.debugMode = "shell";
+        this.debugEmitter = (source: string, message: string, data?: any) => {
+          console.log(`[NodeProvider] ${source}(): ${message}`);
+          if (data) {
+            console.log("   ", data);
+          }
+        };
+      }
+    } catch {
+      if (window.localStorage.getItem("cf:node-provider:debug") === "true") {
+        this.debugMode = "browser";
+        this.debugEmitter = (source: string, message: string, data?: any) => {
+          console.log(
+            ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
+            "color: gray;",
+            "color: green;",
+            "color: black;"
+          );
 
-        if (data) {
-          console.log("   ", data);
-        }
-      };
+          if (data) {
+            console.log("   ", data);
+          }
+        };
+      }
     }
   }
 
