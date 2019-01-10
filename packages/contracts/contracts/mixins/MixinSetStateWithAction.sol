@@ -78,14 +78,14 @@ contract MixinSetStateWithAction is
     );
 
     bytes memory newState = MAppCaller.applyAction(
-      appInterface.appDefinitionAddress,
+      appInterface.addr,
       req.encodedState,
       action.encodedAction
     );
 
     if (action.checkForTerminal) {
       require(
-        MAppCaller.isStateTerminal(appInterface.appDefinitionAddress, newState),
+        MAppCaller.isStateTerminal(appInterface.addr, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
@@ -132,7 +132,7 @@ contract MixinSetStateWithAction is
     returns (bool)
   {
     address turnTaker = MAppCaller.getTurnTaker(
-      appInterface.appDefinitionAddress,
+      appInterface.addr,
       signingKeys,
       req.encodedState
     );
