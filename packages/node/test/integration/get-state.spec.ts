@@ -13,7 +13,7 @@ import {
   EMPTY_NETWORK,
   generateGetStateRequest,
   getNewMultisig,
-  makeProposalRequest
+  makeInstallProposalRequest
 } from "./utils";
 
 dotenv.load();
@@ -69,7 +69,7 @@ describe("Node method follows spec - getAppInstances", () => {
     ]);
     expect(multisigAddress).toBeDefined();
 
-    const appInstanceInstallationProposalRequest = makeProposalRequest(
+    const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
       peerAddress
     );
 

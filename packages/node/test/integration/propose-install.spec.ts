@@ -18,7 +18,7 @@ import {
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstances,
-  makeProposalRequest
+  makeInstallProposalRequest
 } from "./utils";
 
 dotenv.load();
@@ -84,7 +84,7 @@ describe("Node method follows spec - proposeInstall", () => {
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
 
       // second, an app instance must be proposed to be installed into that channel
-      const appInstanceInstallationProposalRequest = makeProposalRequest(
+      const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
         nodeB.address
       );
 

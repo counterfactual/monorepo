@@ -17,6 +17,7 @@ export interface IProposedAppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: AppState;
+  intermediaries?: Address[];
 }
 
 export interface ProposedAppInstanceInfoJSON {
@@ -28,6 +29,7 @@ export interface ProposedAppInstanceInfoJSON {
   peerDeposit: string;
   timeout: string;
   initialState: AppState;
+  intermediaries?: Address[];
 }
 
 /**
@@ -49,6 +51,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: AppState;
+  intermediaries?: Address[];
+
   constructor(
     appInstanceId: AppInstanceID,
     proposeParams: IProposedAppInstanceInfo
@@ -61,10 +65,14 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
     this.initialState = proposeParams.initialState;
+    if (proposeParams.intermediaries) {
+      this.intermediaries = proposeParams.intermediaries;
+    }
   }
 
   toJson() {
-    return {
+    let json;
+    json = {
       id: this.id,
       appId: this.appId,
       abiEncodings: this.abiEncodings,
@@ -74,6 +82,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       timeout: this.timeout,
       initialState: this.initialState
     };
+    if (this.intermediaries) {
+      json.intermediaries = this.intermediaries;
+    }
+    return json;
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
@@ -85,7 +97,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
-      initialState: json.initialState
+      initialState: json.initialState,
+      intermediaries: json.intermediaries
     };
     return new ProposedAppInstanceInfo(json.id, proposeParams);
   }
