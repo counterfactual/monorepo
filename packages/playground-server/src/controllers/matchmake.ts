@@ -15,8 +15,16 @@ export default function matchmake() {
     const response = {
       ok: true,
       data: {
-        username: matchedUser.username,
-        peerAddress: matchedUser.address
+        user: {
+          username: user.username,
+          address: user.address
+        },
+        opponent: {
+          username: matchedUser.username,
+          address: matchedUser.address
+        },
+        // TODO: This shouldn't be the multisig address.
+        intermediary: user.multisigAddress
       }
     } as ApiResponse;
 

@@ -25,8 +25,9 @@ export type CreateAccountRequest = PlaygroundUserData & SignedRequest;
 export type LoginRequest = SignedRequest;
 
 export type MatchmakeResponseData = {
-  username: string;
-  peerAddress: Address;
+  user: MatchmakeUserData;
+  opponent: MatchmakeUserData;
+  intermediary: Address;
 };
 
 export type ErrorResponse = {
