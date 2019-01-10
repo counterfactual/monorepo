@@ -41,9 +41,10 @@ export default class NodeProvider implements INodeProvider {
       this.debugMode = "browser";
       this.debugEmitter = (source: string, message: string, data?: any) => {
         console.log(
-          ["%c[NodeProvider]", `%c#${source}()`, message].join(" "),
+          ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
           "color: gray;",
-          "color: green;"
+          "color: green;",
+          "color: black;"
         );
 
         if (data) {
