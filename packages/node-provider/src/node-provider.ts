@@ -23,6 +23,10 @@ export default class NodeProvider implements INodeProvider {
     this.isConnected = false;
     this.eventEmitter = new EventEmitter();
 
+    this.detectDebugMode();
+  }
+
+  private detectDebugMode() {
     if (process && process.env.CF_NODE_PROVIDER_DEBUG) {
       this.debugMode = "shell";
       this.debugEmitter = (source: string, message: string, data?: any) => {
