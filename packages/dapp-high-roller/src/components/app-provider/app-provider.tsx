@@ -1,5 +1,5 @@
 import { Component, Element, Prop, State } from "@stencil/core";
-import { injectHistory, RouterHistory } from "@stencil/router";
+import { RouterHistory } from "@stencil/router";
 
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
@@ -76,5 +76,3 @@ export class AppProvider {
     return <div />;
   }
 }
-
-injectHistory(AppProvider);
