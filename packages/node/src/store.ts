@@ -1,23 +1,28 @@
 import {
   AppInstance,
   StateChannel,
-  StateChannelJSON
+  StateChannelJSON,
+  types as machineTypes
 } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
 
 import {
+  DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID,
   DB_NAMESPACE_CHANNEL,
+  DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
 } from "./db-schema";
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
 import { orderedAddressesHash } from "./utils";
+
+const { Protocol } = machineTypes;
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -281,6 +286,78 @@ export class Store {
       return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
     return await this.getStateChannel(multisigAddress);
+  }
+
+  async setCommitmentForAppIdentityHash(
+    appIdentityHash: string,
+    protocol: string,
+    commitment: machineTypes.Transaction
+  ) {
+    if (!(protocol in Protocol)) {
+      throw new Error(`No such protocol: ${protocol}`);
+    }
+    return this.storeService.set([
+      {
+        key: this.computeAppInstanceCommitmentKey(appIdentityHash, protocol),
+        value: commitment
+      }
+    ]);
+  }
+
+  async setSetupCommitmentForMultisig(
+    multisigAddress: string,
+    commitment: machineTypes.Transaction
+  ) {
+    return this.storeService.set([
+      {
+        key: this.computeMultisigSetupCommitmentKey(multisigAddress),
+        value: commitment
+      }
+    ]);
+  }
+
+  private async loadCommitment(key: string): Promise<machineTypes.Transaction> {
+    const { to, value, data } = await this.storeService.get(key);
+    return {
+      to,
+      data,
+      value: parseInt(value, 10)
+    };
+  }
+
+  async getCommitmentForAppIdentityHash(
+    appIdentityHash: string,
+    protocol: string
+  ): Promise<machineTypes.Transaction> {
+    const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
+    return this.loadCommitment(key);
+  }
+
+  async getSetupCommitmentForMultisig(
+    multisigAddress: string
+  ): Promise<machineTypes.Transaction> {
+    const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
+    return this.loadCommitment(key);
+  }
+
+  private computeAppInstanceCommitmentKey(
+    protocol: string,
+    appIdentityHash: string
+  ): string {
+    return [
+      this.storeKeyPrefix,
+      DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
+      appIdentityHash,
+      protocol
+    ].join("/");
+  }
+
+  private computeMultisigSetupCommitmentKey(multisigAddress: string): string {
+    return [
+      this.storeKeyPrefix,
+      DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
+      multisigAddress
+    ].join("/");
   }
 
   /**

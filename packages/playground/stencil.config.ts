@@ -24,5 +24,6 @@ export const config: Config = {
     replace({
       "ENV:API_HOST": process.env.API_HOST || "http://localhost:9000"
     })
-  ]
+  ],
+  excludeSrc: ["node_modules/playground-server/src"]
 };

@@ -2,6 +2,7 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
+import "../CounterfactualApp.sol";
 
 
 contract ETHBalanceRefundApp {
@@ -12,11 +13,13 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     view
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = address(state.multisig).balance - state.threshold;
 
@@ -32,5 +35,29 @@ contract ETHBalanceRefundApp {
       amounts,
       data
     );
+  }
+
+  function isStateTerminal(bytes memory)
+    public
+    pure
+    returns (bool)
+  {
+    revert("Not implemented");
+  }
+
+  function getTurnTaker(bytes memory, address[] memory)
+    public
+    pure
+    returns (address)
+  {
+    revert("Not implemented");
+  }
+
+  function applyAction(bytes memory, bytes memory)
+    public
+    pure
+    returns (bytes memory)
+  {
+    revert("Not implemented");
   }
 }

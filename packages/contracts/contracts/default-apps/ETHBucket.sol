@@ -2,9 +2,10 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
+import "../CounterfactualApp.sol";
 
 
-contract ETHBucket {
+contract ETHBucket is CounterfactualApp {
 
   struct AppState {
     address alice;
@@ -13,11 +14,13 @@ contract ETHBucket {
     uint256 bobBalance;
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = state.aliceBalance;
     amounts[1] = state.bobBalance;
@@ -34,6 +37,30 @@ contract ETHBucket {
       amounts,
       data
     );
+  }
+
+  function isStateTerminal(bytes memory)
+    public
+    pure
+    returns (bool)
+  {
+    revert("Not implemented");
+  }
+
+  function getTurnTaker(bytes memory, address[] memory)
+    public
+    pure
+    returns (address)
+  {
+    revert("Not implemented");
+  }
+
+  function applyAction(bytes memory, bytes memory)
+    public
+    pure
+    returns (bytes memory)
+  {
+    revert("Not implemented");
   }
 
 }
