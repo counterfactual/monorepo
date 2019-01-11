@@ -24,10 +24,6 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 |       Field       |   Type    |                                             Description                                              |
 | ----------------- | --------- | ---------------------------------------------------------------------------------------------------- |
 | `address`         | `address` | The on-chain address of the `AppDefinition` contract implementing the application logic              |
-| `applyAction`     | `bytes4`  | The sighash of the `applyAction` method on the `AppDefinition` contract                              |
-| `resolve`         | `bytes4`  | The sighash of the `resolve` method on the `AppDefinition` contract                                  |
-| `isStateTerminal` | `bytes4`  | The sighash of the `isStateTerminal` method on the `AppDefinition` contract                          |
-| `getTurnTaker`    | `bytes4`  | The sighash of the `getTurnTaker` method on the `AppDefinition` contract                             |
 | `token`           | `address` | If `assetType` is `ERC20` then the address of the token                                              |
 | `abiEncoding`     | `bytes4`  | The ABIEncoderV2 representation of the application's state encoding (e.g., `"tuple(address,uint8)"`) |
 
