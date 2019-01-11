@@ -3,7 +3,7 @@
 set -e
 
 function clean {
-  kill -9 ${PID_FOR_GANACHE_CLI}
+  kill ${PID_FOR_GANACHE_CLI}
 }
 
 trap clean INT TERM EXIT
