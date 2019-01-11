@@ -50,15 +50,25 @@ describe("InstructionExecutor", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
+      // extract the commitment passed to the OP_SIGN middleware for testing
+      // purposes
       instructionExecutor.middlewares.add(
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
           commitment = context.commitment as SetupCommitment;
-          stateChannelAfterSetup = context.stateChannel;
+          stateChannelAfterSetup = context.stateChannelsMap.get("0x00")!;
         }
       );
 
-      instructionExecutor.runSetupProtocol(stateChannelBeforeSetup);
+      const scm = new Map<string, StateChannel>([
+        ["0x00", stateChannelBeforeSetup]
+      ]);
+
+      instructionExecutor.runSetupProtocol(scm, {
+        initiatingAddress: "0x00",
+        respondingAddress: "0x00",
+        multisigAddress: "0x00"
+      });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
     });

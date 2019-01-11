@@ -21,22 +21,33 @@ export interface AppStateArray
 
 export type ProtocolMessage = {
   protocol: Protocol;
-  multisigAddress: string;
   params: ProtocolParameters;
   fromAddress: string;
   toAddress: string;
   seq: number;
   signature?: Signature;
+  signature2?: Signature;
+  signature3?: Signature;
 };
 
-export type SetupParams = {};
+export type SetupParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisigAddress: string;
+};
 
 export type UpdateParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisigAddress: string;
   appIdentityHash: string;
   newState: AppState;
 };
 
 export type InstallParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisigAddress: string;
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
   signingKeys: string[];
@@ -48,12 +59,26 @@ export type InstallParams = {
 
 export type UninstallParams = {
   appIdentityHash: string;
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisigAddress: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
 };
 
 export type InstallVirtualAppParams = {
-  /* TODO: @xuanji */
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisig1Address: string;
+  multisig2Address: string;
+  intermediaryAddress: string;
+  signingKeys: string[];
+  defaultTimeout: number;
+  appInterface: AppInterface;
+  initialState: AppState;
+  aliceBalanceDecrement: BigNumber;
+  bobBalanceDecrement: BigNumber;
+  terms: Terms;
 };
 
 type ProtocolParameters =

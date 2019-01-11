@@ -14,6 +14,10 @@ import {
 } from "../ethereum/utils/free-balance";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
+import {
+  ETHVirtualAppAgreementInstance,
+  ETHVirtualAppAgreementJson
+} from "./eth-virtual-app-agreement-instance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -41,6 +45,10 @@ export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly multisigOwners: string[];
   readonly appInstances: [string, AppInstanceJson][];
+  readonly ETHVirtualAppAgreementInstances: [
+    string,
+    ETHVirtualAppAgreementJson
+  ][];
   readonly freeBalanceAppIndexes: [number, string][];
   readonly monotonicNumInstalledApps: number;
 };
@@ -83,6 +91,10 @@ export class StateChannel {
       string,
       AppInstance
     >([]),
+    readonly ethVirtualAppAgreementInstances: ReadonlyMap<
+      string,
+      ETHVirtualAppAgreementInstance
+    > = new Map<string, ETHVirtualAppAgreementInstance>([]),
     private readonly freeBalanceAppIndexes: ReadonlyMap<
       AssetType,
       string
@@ -170,6 +182,7 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
+      this.ethVirtualAppAgreementInstances,
       freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1
     );
@@ -188,16 +201,19 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
+      this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
     );
   }
 
-  public installApp(
-    appInstance: AppInstance,
+  public installETHVirtualAppAgreementInstance(
+    evaaInstance: ETHVirtualAppAgreementInstance,
     aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
   ) {
+    /// Decrement from FB
+
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const currentFBState = fb.state;
 
@@ -207,6 +223,55 @@ export class StateChannel {
     if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
       throw Error(INSUFFICIENT_FUNDS);
     }
+
+    /// Add modified FB to appInstances
+
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.set(
+      fb.identityHash,
+      fb.setState({ ...currentFBState, aliceBalance, bobBalance })
+    );
+
+    // Add to ethVirtualAppAgreementInstances
+
+    const evaaInstances = new Map<string, ETHVirtualAppAgreementInstance>(
+      this.ethVirtualAppAgreementInstances.entries()
+    );
+
+    // todo(ldct: what key?)
+    evaaInstances.set("", evaaInstance);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      this.appInstances,
+      evaaInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps + 1
+    );
+  }
+
+  public installApp(
+    appInstance: AppInstance,
+    aliceBalanceDecrement: BigNumber,
+    bobBalanceDecrement: BigNumber
+  ) {
+    /// Decrement from FB
+
+    const fb = this.getFreeBalanceFor(AssetType.ETH);
+    const currentFBState = fb.state;
+
+    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
+    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
+
+    if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
+      throw Error(INSUFFICIENT_FUNDS);
+    }
+
+    /// Add modified FB and new AppInstance to appInstances
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
@@ -223,6 +288,7 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
+      this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1
     );
@@ -256,6 +322,7 @@ export class StateChannel {
       this.multisigAddress,
       this.multisigOwners,
       appInstances,
+      this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
     );
@@ -271,7 +338,14 @@ export class StateChannel {
         }
       ),
       freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
-      monotonicNumInstalledApps: this.monotonicNumInstalledApps
+      monotonicNumInstalledApps: this.monotonicNumInstalledApps,
+      ETHVirtualAppAgreementInstances: [
+        ...this.ethVirtualAppAgreementInstances.entries()
+      ].map(
+        (appInstanceEntry): [string, ETHVirtualAppAgreementJson] => {
+          return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
+        }
+      )
     };
   }
 
@@ -280,11 +354,21 @@ export class StateChannel {
       json.multisigAddress,
       json.multisigOwners,
       new Map(
-        [...Object.values(json.appInstances)].map(
+        [...Object.values(json.appInstances || [])].map(
           (appInstanceEntry): [string, AppInstance] => {
             return [
               appInstanceEntry[0],
               AppInstance.fromJson(appInstanceEntry[1])
+            ];
+          }
+        )
+      ),
+      new Map(
+        [...Object.values(json.ETHVirtualAppAgreementInstances || [])].map(
+          (appInstanceEntry): [string, ETHVirtualAppAgreementInstance] => {
+            return [
+              appInstanceEntry[0],
+              ETHVirtualAppAgreementInstance.fromJson(appInstanceEntry[1])
             ];
           }
         )

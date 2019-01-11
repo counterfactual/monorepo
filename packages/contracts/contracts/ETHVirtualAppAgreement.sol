@@ -15,6 +15,8 @@ import "./AppRegistry.sol";
 /// treated as the amount assigned to our first beneficiary (i.e.,
 /// `agreement.beneficiaries[0]`). Note that `terms.limit` is explicitly
 /// ignored since limits are enforced by `capitalProvided`.
+/// todo(xuanji): this agreement is not cancellable, so uninstallation of
+/// virtual apps do not work yet.
 contract ETHVirtualAppAgreement {
 
   using Transfer for Transfer.Transaction;
