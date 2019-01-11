@@ -56,7 +56,7 @@ export class AppProvider {
   }
 
   onInstall(data) {
-    this.updateAppInstance(data.appInstance);
+    this.updateAppInstance(data.data.appInstance);
 
     // TODO get history.push working
     this.history.push({
