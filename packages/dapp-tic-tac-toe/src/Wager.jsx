@@ -9,7 +9,6 @@ class Wager extends Component {
       error: null,
       isLoaded: false,
       isWaiting: false,
-      user: {},
       opponent: {},
       intermediary: null
     };
@@ -18,25 +17,19 @@ class Wager extends Component {
   async componentDidMount() {
     this.props.cfProvider.once("install", this.onInstall.bind(this));
 
-    // TODO: This token should be obtained from LocalStorage.
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5OGRhZTNmLWNmYjctNGNmNC05OTZiLWZiNDI5NDI3ZGQ4NSIsInVzZXJuYW1lIjoiam9lbCIsImVtYWlsIjoiZXN0dWRpb0Bqb2VsYWxlamFuZHJvLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDE0NTczMjUzMTkxRDJDMjUxQTg1Y0JBMTQ1NjY0RWUwYUViNDA4NjgiLCJpYXQiOjE1NDcwODU4MTcsImV4cCI6MTU3ODY0MzQxN30.AQ-ataiWl9emPRWtHVinEXYgyHHZquP9DOXLjmcTKJI";
+    const { token } = this.props.user;
 
     try {
-      const response = await fetch(
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const response = await fetch("http://localhost:9000/api/matchmake", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      });
       const result = await response.json();
 
       this.setState({
         isLoaded: true,
-        user: result.data.user,
         opponent: result.data.opponent,
         intermediary: result.data.intermediary,
         error: result.error
@@ -97,7 +90,8 @@ class Wager extends Component {
   }
 
   onPlayClicked() {
-    const { user, opponent, intermediary } = this.state;
+    const { opponent, intermediary } = this.state;
+    const { user } = this.props;
 
     this.setState({ isWaiting: true });
 
@@ -105,7 +99,8 @@ class Wager extends Component {
   }
 
   render() {
-    const { error, isLoaded, user, isWaiting } = this.state;
+    const { error, isLoaded, isWaiting } = this.state;
+    const { user } = this.props;
 
     if (error) {
       return (

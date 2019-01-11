@@ -29,20 +29,33 @@ export default class App extends Component {
     };
 
     this.connect(nodeProvider);
+    this.requestUserData();
   }
 
   async connect() {
     await this.state.nodeProvider.connect();
-
-    this.setState({
-      connected: true
-    });
   }
 
   appInstanceChanged(appInstance) {
     this.setState({
       appInstance: appInstance
     });
+  }
+
+  requestUserData() {
+    window.addEventListener("message", event => {
+      if (
+        typeof event.data === "string" &&
+        event.data.startsWith("playground:response:user")
+      ) {
+        const [, data] = event.data.split("|");
+        const user = JSON.parse(data);
+        this.setState({ user, connected: true });
+        console.log(this.state);
+      }
+    });
+
+    window.parent.postMessage("playground:request:user", "*");
   }
 
   render() {
@@ -57,6 +70,7 @@ export default class App extends Component {
                 {...props}
                 gameInfo={this.state.gameInfo}
                 cfProvider={this.state.cfProvider}
+                user={this.state.user}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}
