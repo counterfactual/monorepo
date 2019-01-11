@@ -1,10 +1,10 @@
 import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
 import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
 import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
