@@ -21,7 +21,11 @@ describe("StaticCall", () => {
     wallet = (await waffle.getWallets(provider))[0];
 
     const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
-    waffle.link(TestCaller, "LibStaticCall", libStaticCall.address);
+    waffle.link(
+      TestCaller,
+      "contracts/libs/LibStaticCall.sol:LibStaticCall",
+      libStaticCall.address
+    );
 
     testCaller = await waffle.deployContract(wallet, TestCaller);
     echo = await waffle.deployContract(wallet, Echo);

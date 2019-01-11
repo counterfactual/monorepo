@@ -5,8 +5,6 @@ import { Web3Provider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
-import LibStaticCall from "../build/LibStaticCall.json";
-// import Transfer from "../build/Transfer.json";
 
 import {
   AppInstance,
@@ -51,21 +49,6 @@ describe("AppRegistry", () => {
   before(async () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
-
-    const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
-    // const transfer = await waffle.deployContract(wallet, Transfer);
-
-    // waffle.link(
-    //   AppRegistry,
-    //   "contracts/libs/Transfer.sol:Transfer",
-    //   transfer.address
-    // );
-
-    waffle.link(
-      AppRegistry,
-      "contracts/libs/LibStaticCall.sol:LibStaticCall",
-      libStaticCall.address
-    );
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry);
   });
@@ -235,15 +218,6 @@ describe("AppRegistry", () => {
   });
 
   it("is possible to call setState to put state on-chain", async () => {
-    // Test AppInterface
-    const appInterface = new AppInterface(
-      AddressZero,
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4))
-    );
-
     // Test Terms
     const terms = new Terms(AssetType.ETH, 0, AddressZero);
 
@@ -251,7 +225,7 @@ describe("AppRegistry", () => {
     const appInstance = new AppInstance(
       wallet.address,
       [ALICE.address, BOB.address],
-      appInterface,
+      AddressZero,
       terms,
       10
     );
@@ -279,15 +253,6 @@ describe("AppRegistry", () => {
   });
 
   it("is possible to call setState to put state on-chain", async () => {
-    // Test AppInterface
-    const appInterface = new AppInterface(
-      AddressZero,
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4)),
-      hexlify(randomBytes(4))
-    );
-
     // Test Terms
     const terms = new Terms(AssetType.ETH, 0, AddressZero);
 
@@ -295,7 +260,7 @@ describe("AppRegistry", () => {
     const appInstance = new AppInstance(
       wallet.address,
       [AddressZero, AddressZero],
-      appInterface,
+      AddressZero,
       terms,
       10
     );
@@ -318,7 +283,7 @@ describe("AppRegistry", () => {
       disputeNonce,
       finalizesAt,
       nonce
-    } = await appRegistry.functions.appStates(appInstance.id);
+    } = await appRegistry.functions.appStates(appInstance.identityHash);
 
     expect(status).to.be.eq(1);
     expect(latestSubmitter).to.be.eq(await wallet.getAddress());

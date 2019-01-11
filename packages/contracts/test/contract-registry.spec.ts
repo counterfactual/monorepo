@@ -6,7 +6,6 @@ import { defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 import * as solc from "solc";
 
 import ContractRegistry from "../build/ContractRegistry.json";
-import Proxy from "../build/Proxy.json";
 
 import { expect } from "./utils";
 
@@ -16,7 +15,14 @@ const TEST_CONTRACT_SOLIDITY_CODE = {
     "test.sol": {
       content: `
       contract Test {
-        function sayHello() public pure returns (string memory) {
+        address whatToSay;
+        constructor(address _whatToSay) public {
+            whatToSay = _whatToSay;
+        }
+        function sayHello() public view returns (address) {
+            return whatToSay;
+        }
+        function sayHelloSimple() public pure returns (string memory) {
           return "hi";
         }
       }`
@@ -31,23 +37,37 @@ const TEST_CONTRACT_SOLIDITY_CODE = {
   }
 };
 
-describe("ContractRegistry", () => {
+describe("ContractRegistry", function(this: Mocha) {
+  this.timeout(6000);
+
   let provider: Web3Provider;
   let wallet: Wallet;
 
   let contractRegistry: Contract;
-  let simpleContract: Contract;
 
-  function cfaddress(initcode, i) {
+  let output: any;
+  let iface: any;
+  let bytecode: string;
+
+  function cfaddress(initcode: string, i: number) {
     return solidityKeccak256(
       ["bytes1", "bytes", "uint256"],
       ["0x19", initcode, i]
     );
   }
 
+  const TEST_ADDRESS = Wallet.createRandom().address;
+
   before(async () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
+    output = JSON.parse(
+      solc.compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
+    );
+    iface = output.contracts["test.sol"]["Test"].abi;
+    bytecode = `0x${
+      output.contracts["test.sol"]["Test"].evm.bytecode.object
+    }${defaultAbiCoder.encode(["address"], [TEST_ADDRESS]).substr(2)}`;
   });
 
   beforeEach(async () => {
@@ -60,130 +80,16 @@ describe("ContractRegistry", () => {
     );
   });
 
-  it("deploys a contract", done => {
-    const output = JSON.parse(
-      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
+  it("deploys a contract", async () => {
+    await contractRegistry.functions.deploy(bytecode, 2);
+
+    const test = new Contract(
+      await contractRegistry.functions.resolver(cfaddress(bytecode, 2)),
+      iface,
+      wallet
     );
-    const iface = output.contracts["test.sol"]["Test"].abi;
-    const bytecode = `0x${
-      output.contracts["test.sol"]["Test"].evm.bytecode.object
-    }`;
 
-    const filter = contractRegistry.filters.ContractCreated(null, null);
-    const callback = async (from, to, value, event) => {
-      const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eq(
-        await contractRegistry.resolver(cfaddress(bytecode, 2))
-      );
-      simpleContract = new Contract(deployedAddress, iface, wallet);
-      expect(await simpleContract.sayHello()).to.eq("hi");
-      done();
-    };
-    const registryContract = contractRegistry.on(filter, callback);
-    registryContract.deploy(bytecode, 2);
-  });
-
-  it("deploys a contract using msg.sender", done => {
-    const output = JSON.parse(
-      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
-    );
-    const iface = output.contracts["test.sol"]["Test"].abi;
-    const bytecode = `0x${
-      output.contracts["test.sol"]["Test"].evm.bytecode.object
-    }`;
-
-    const filter = contractRegistry.filters.ContractCreated(null, null);
-    const callback = async (from, to, value, event) => {
-      const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eq(
-        await contractRegistry.resolver(cfaddress(bytecode, 3))
-      );
-
-      simpleContract = new Contract(deployedAddress, iface, wallet);
-      expect(await simpleContract.sayHello()).to.eq("hi");
-      done();
-    };
-    const registryContract = contractRegistry.on(filter, callback);
-    registryContract.deploy(bytecode, 3);
-  });
-
-  it("deploys a Proxy contract contract through as owner", done => {
-    const output = JSON.parse(
-      (solc as any).compile(JSON.stringify(TEST_CONTRACT_SOLIDITY_CODE))
-    );
-    const iface = output.contracts["test.sol"]["Test"].abi;
-    const initcode =
-      Proxy.bytecode +
-      // IMPORTANT: simpleContract will be undefined if the prior test failed
-      defaultAbiCoder.encode(["address"], [simpleContract.address]).substr(2);
-
-    const filter = contractRegistry.filters.ContractCreated(null, null);
-    const callback = async (from, to, value, event) => {
-      const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eq(
-        await contractRegistry.resolver(cfaddress(initcode, 3))
-      );
-
-      const contract = new Contract(deployedAddress, iface, wallet);
-      expect(await contract.sayHello()).to.eq("hi");
-      done();
-    };
-
-    const registryContract = contractRegistry.on(filter, callback);
-    registryContract.deploy(initcode, 3);
-  });
-
-  it("deploys a contract and passes arguments", done => {
-    const output = JSON.parse(
-      (solc as any).compile(
-        JSON.stringify({
-          language: "Solidity",
-          sources: {
-            "test.sol": {
-              content: `
-              contract Test {
-                  address whatToSay;
-                  constructor(address _whatToSay) public {
-                      whatToSay = _whatToSay;
-                  }
-                  function sayHello() public view returns (address) {
-                      return whatToSay;
-                  }
-              }`
-            }
-          },
-          settings: {
-            outputSelection: {
-              "*": {
-                "*": ["*"]
-              }
-            }
-          }
-        })
-      )
-    );
-    const iface = output.contracts["test.sol"]["Test"].abi;
-    const bytecode = `0x${
-      output.contracts["test.sol"]["Test"].evm.bytecode.object
-    }`;
-
-    const initcode =
-      bytecode +
-      defaultAbiCoder.encode(["address"], [wallet.address]).substr(2);
-
-    const filter = contractRegistry.filters.ContractCreated(null, null);
-    const callback = async (from, to, value, event) => {
-      const deployedAddress = value.args.deployedAddress;
-      expect(deployedAddress).to.eq(
-        await contractRegistry.resolver(cfaddress(initcode, 4))
-      );
-
-      const contract = new Contract(deployedAddress, iface, wallet);
-      expect(await contract.sayHello()).to.eq(wallet.address);
-      done();
-    };
-
-    const registryContract = contractRegistry.on(filter, callback);
-    registryContract.deploy(initcode, 4);
+    expect(await test.sayHelloSimple()).to.eq("hi");
+    expect(await test.sayHello()).to.eq(TEST_ADDRESS);
   });
 });

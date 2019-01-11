@@ -35,7 +35,11 @@ describe("Transfer", () => {
     wallet = (await waffle.getWallets(provider))[0];
 
     const transfer = await waffle.deployContract(wallet, Transfer);
-    waffle.link(ExampleTransfer, "Transfer", transfer.address);
+    waffle.link(
+      ExampleTransfer,
+      "contracts/libs/Transfer.sol:Transfer",
+      transfer.address
+    );
 
     exampleTransfer = await waffle.deployContract(wallet, ExampleTransfer);
     delegateProxy = await waffle.deployContract(wallet, DelegateProxy);

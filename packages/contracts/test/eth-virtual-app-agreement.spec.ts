@@ -1,5 +1,5 @@
 import * as waffle from "ethereum-waffle";
-import { Contract, ContractFactory, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import {
@@ -10,8 +10,8 @@ import {
 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
-import ETHVirtualAppAgreement from "../build/ETHBalanceRefundApp.json";
-import LibStaticCall from "../build/LibStaticCall.json";
+import DelegateProxy from "../build/DelegateProxy.json";
+import ETHVirtualAppAgreement from "../build/ETHVirtualAppAgreement.json";
 import ResolveToPay5WeiApp from "../build/ResolveToPay5WeiApp.json";
 import Transfer from "../build/Transfer.json";
 
@@ -36,13 +36,7 @@ describe("ETHVirtualAppAgreement", () => {
     capitalProvided: BigNumber,
     assetType: number
   ): Promise<string[]> => {
-    const delegateProxy = await new ContractFactory(
-      artifacts.require("DelegateProxy").abi,
-      artifacts.require("DelegateProxy").binary,
-      wallet
-    ).deploy({ gasLimit: 6e9 });
-
-    await delegateProxy.deployed();
+    const delegateProxy = await waffle.deployContract(wallet, DelegateProxy);
 
     await wallet.sendTransaction({
       to: delegateProxy.address,
@@ -83,16 +77,18 @@ describe("ETHVirtualAppAgreement", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
+    const transfer = await waffle.deployContract(wallet, Transfer);
+
+    waffle.link(
+      ETHVirtualAppAgreement,
+      "contracts/libs/Transfer.sol:Transfer",
+      transfer.address
+    );
+
     virtualAppAgreement = await waffle.deployContract(
       wallet,
       ETHVirtualAppAgreement
     );
-
-    const transfer = await waffle.deployContract(wallet, Transfer);
-    const libStaticCall = await waffle.deployContract(wallet, LibStaticCall);
-
-    waffle.link(AppRegistry, "LibStaticCall", libStaticCall.address);
-    waffle.link(AppRegistry, "Transfer", transfer.address);
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry);
 
