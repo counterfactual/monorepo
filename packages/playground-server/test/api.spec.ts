@@ -106,7 +106,8 @@ describe("playground-server", () => {
         .then(response => {
           expect(response.status).toEqual(HttpStatusCode.Created);
           expect(response.data.ok).toBe(true);
-          expect(response.data.data.multisigAddress).toBeDefined();
+          expect(response.data.data.user.multisigAddress).toBeDefined();
+          expect(response.data.data.token).toBeDefined();
           done();
         })
         .catch(({ response }) => {
