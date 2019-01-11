@@ -56,7 +56,7 @@ describe("InstructionExecutor", () => {
         Opcode.OP_SIGN,
         (_, __, context: Context) => {
           commitment = context.commitment as SetupCommitment;
-          stateChannelAfterSetup = context.stateChannel.get("0x00")!;
+          stateChannelAfterSetup = context.stateChannelsMap.get("0x00")!;
         }
       );
 

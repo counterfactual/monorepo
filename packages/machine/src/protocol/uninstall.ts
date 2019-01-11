@@ -72,10 +72,10 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     multisigAddress
   } = message.params as UninstallParams;
 
-  const newStateChannel = context.stateChannel
+  const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .uninstallApp(appIdentityHash, aliceBalanceIncrement, bobBalanceIncrement);
-  context.stateChannel.set!(multisigAddress, newStateChannel);
+  context.stateChannelsMap.set!(multisigAddress, newStateChannel);
 
   context.commitment = constructUninstallOp(
     context.network,

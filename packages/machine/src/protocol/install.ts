@@ -84,24 +84,24 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     // TODO: Should validate that the proposed app sequence number is also
     //       the computed value here and is ALSO still the number compute
     //       inside the installApp function below
-    context.stateChannel.get(multisigAddress)!.numInstalledApps + 1,
-    context.stateChannel.get(multisigAddress)!.rootNonceValue,
+    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps + 1,
+    context.stateChannelsMap.get(multisigAddress)!.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
     defaultTimeout
   );
 
-  const newStateChannel = context.stateChannel
+  const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
-  context.stateChannel.set(multisigAddress, newStateChannel);
+  context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
   context.commitment = constructInstallOp(
     context.network,
-    context.stateChannel.get(multisigAddress)!,
+    context.stateChannelsMap.get(multisigAddress)!,
     appIdentityHash
   );
 

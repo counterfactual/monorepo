@@ -66,10 +66,10 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     newState,
     multisigAddress
   } = message.params as UpdateParams;
-  const newStateChannel = context.stateChannel
+  const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .setState(appIdentityHash, newState);
-  context.stateChannel.set(multisigAddress, newStateChannel);
+  context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitment = constructUpdateOp(
     context.network,
     newStateChannel,

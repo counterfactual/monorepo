@@ -118,7 +118,7 @@ export class InstructionExecutor {
       network: this.network,
       outbox: [],
       inbox: [],
-      stateChannel: sc,
+      stateChannelsMap: sc,
       commitment: undefined,
       signature: undefined
     };
@@ -145,7 +145,7 @@ export class InstructionExecutor {
       }
     }
 
-    if (context.stateChannel === undefined) {
+    if (context.stateChannelsMap === undefined) {
       throw Error(
         `After protocol ${
           msg.protocol
@@ -159,6 +159,6 @@ export class InstructionExecutor {
     //
     // const diff = sc.diff(context.stateChannel)
 
-    return context.stateChannel;
+    return context.stateChannelsMap;
   }
 }
