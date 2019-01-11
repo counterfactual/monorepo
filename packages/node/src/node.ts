@@ -1,4 +1,9 @@
-import { InstructionExecutor } from "@counterfactual/machine";
+import {
+  Context,
+  InstructionExecutor,
+  Opcode,
+  ProtocolMessage
+} from "@counterfactual/machine";
 import {
   Address,
   NetworkContext,
@@ -49,6 +54,8 @@ export class Node {
 
     this.instructionExecutor = new InstructionExecutor(networkContext);
 
+    this.registerOpSignMiddleware();
+
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
@@ -63,6 +70,23 @@ export class Node {
 
   get address() {
     return this.signer.address;
+  }
+
+  private registerOpSignMiddleware() {
+    this.instructionExecutor.register(
+      Opcode.OP_SIGN,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        if (!context.commitment) {
+          throw Error(
+            "Reached OP_SIGN middleware without generated commitment."
+          );
+        }
+        context.signature = this.signer.signDigest(
+          context.commitment.hashToSign()
+        );
+        next();
+      }
+    );
   }
 
   /**
