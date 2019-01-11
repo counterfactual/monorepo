@@ -17,7 +17,8 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     public readonly appIdentity: AppIdentity,
     public readonly appLocalNonceExpiry: number,
     public readonly timeout: number,
-    // set the following two to null for intermediary
+    // todo(xuanji): the following two are set to null for intermediary. This
+    //   is bad API design and should be fixed eventually.
     public readonly hashedAppState?: string,
     public readonly appLocalNonce?: number
   ) {
