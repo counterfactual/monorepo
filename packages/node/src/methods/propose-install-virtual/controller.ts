@@ -11,7 +11,7 @@ import { createProposedAppInstance } from "../propose-install/controller";
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeInstallVirtualAppInstanceController(
+export default async function proposeInstallVirtualAppInstanceController(
   this: RequestHandler,
   params: Node.ProposeInstallVirtualParams
 ): Promise<Node.ProposeInstallVirtualResult> {

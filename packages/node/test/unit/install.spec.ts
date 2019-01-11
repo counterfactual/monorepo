@@ -6,7 +6,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { ERRORS } from "../../src/methods/errors";
 import { install } from "../../src/methods/install/app-instance";
-import { openStateChannel } from "../../src/methods/multisig-operations";
+import { openStateChannel } from "../../src/methods/state-channel/create/instance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";

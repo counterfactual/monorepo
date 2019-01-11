@@ -11,7 +11,7 @@ import EventEmitter from "eventemitter3";
 
 import { methodNameToImplementation } from "./api-router";
 import { addAppInstance } from "./methods/install/app-instance";
-import { addMultisig } from "./methods/multisig-operations";
+import { addMultisig } from "./methods/state-channel/add";
 import { NodeMessage } from "./node";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
