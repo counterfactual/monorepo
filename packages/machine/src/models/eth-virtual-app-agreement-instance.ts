@@ -17,8 +17,9 @@ export class ETHVirtualAppAgreementInstance {
     public terms: Terms,
     public appSeqNo: number,
     public rootNonceValue: number,
-    // todo(ldct): bignumberify
     public expiry: number,
+    // todo(xuanji): The following field is a js `number`, which is
+    // unsafe since even 1 ETH will exceed `Number.MAX_SAFE_INTEGER`
     public capitalProvided: number
   ) {
     this.json = {

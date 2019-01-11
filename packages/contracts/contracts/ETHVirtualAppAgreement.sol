@@ -4,8 +4,6 @@ pragma experimental "ABIEncoderV2";
 import "./libs/Transfer.sol";
 import "./AppRegistry.sol";
 
-/// todo(ldct): make this agreement cancellable ("uninstallKey")
-
 
 /// @title ETHVirtualAppAgreement
 /// @notice Commitment target to support "virtual apps", i.e., apps which have
@@ -17,6 +15,8 @@ import "./AppRegistry.sol";
 /// treated as the amount assigned to our first beneficiary (i.e.,
 /// `agreement.beneficiaries[0]`). Note that `terms.limit` is explicitly
 /// ignored since limits are enforced by `capitalProvided`.
+/// todo(xuanji): this agreement is not cancellable, so uninstallation of
+/// virtual apps do not work yet.
 contract ETHVirtualAppAgreement {
 
   using Transfer for Transfer.Transaction;
