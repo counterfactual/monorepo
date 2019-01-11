@@ -92,7 +92,7 @@ export default class NodeProvider {
         const victory = message.params.action.actionType === 1;
         const tie = message.params.action.actionType === 2;
 
-        this.setWinner(victory, tie, 2);
+        this.setWinner(victory, tie, 1);
         this.takeAction(playX, playY, 1)
         this.sendActionEvent(message.params.appInstanceId);
 
