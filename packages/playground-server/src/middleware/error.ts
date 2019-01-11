@@ -42,7 +42,9 @@ function processError(error: ErrorCode | Error, ctx: Context) {
       HttpStatusCode.InternalServerError,
       ErrorCode.UnhandledError,
       {
-        ...errorObject
+        message: errorObject.message,
+        name: errorObject.name,
+        stack: errorObject.stack
       }
     );
   }
