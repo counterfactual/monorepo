@@ -28,13 +28,13 @@
   "author": "Patience Tema Baron <patience.tema.baron@gmail.com>",
   "homepage": "https://counterfactual.com",
   "license": "MIT",
-  "main": "lib/dapp-tic-tac-toe.js",
+  "main": "src/index.js",
   "directories": {
-    "lib": "lib",
+    "lib": "src",
     "test": "__tests__"
   },
   "files": [
-    "lib"
+    "src"
   ],
   "publishConfig": {
     "registry": "https://registry.yarnpkg.com"
