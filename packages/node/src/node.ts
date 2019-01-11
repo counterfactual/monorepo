@@ -87,7 +87,6 @@ export class Node {
         next();
       }
     );
-    console.info("Successfully registered OP_SIGN middleware.");
   }
 
   /**
