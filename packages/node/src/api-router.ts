@@ -1,14 +1,14 @@
 import { Node } from "@counterfactual/types";
 
 import {
-  appInstanceInstallController,
-  appInstanceProposeInstallController,
   createMultisigController,
   getAllChannelAddressesController,
   getAppInstanceStateController,
   getInstalledAppInstancesController,
   getProposedAppInstancesController,
-  virtualAppInstanceProposeInstallController
+  installAppInstanceController,
+  proposeInstallAppInstanceController,
+  proposeInstallVirtualAppInstanceController
 } from "./methods";
 
 export const methodNameToImplementation = {
@@ -18,8 +18,8 @@ export const methodNameToImplementation = {
   [Node.MethodName
     .GET_PROPOSED_APP_INSTANCES]: getProposedAppInstancesController,
   [Node.MethodName.GET_STATE]: getAppInstanceStateController,
-  [Node.MethodName.INSTALL]: appInstanceInstallController,
+  [Node.MethodName.INSTALL]: installAppInstanceController,
   [Node.MethodName
-    .PROPOSE_INSTALL_VIRTUAL]: virtualAppInstanceProposeInstallController,
-  [Node.MethodName.PROPOSE_INSTALL]: appInstanceProposeInstallController
+    .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
+  [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController
 };

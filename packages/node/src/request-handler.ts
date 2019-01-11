@@ -9,8 +9,8 @@ import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { methodNameToImplementation } from "./api-spec";
-import { addAppInstance } from "./methods/install-operations";
+import { methodNameToImplementation } from "./api-router";
+import { addAppInstance } from "./methods/install/app-instance";
 import { addMultisig } from "./methods/multisig-operations";
 import { NodeMessage } from "./node";
 import { IMessagingService, IStoreService } from "./services";
