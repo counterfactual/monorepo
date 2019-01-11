@@ -20,12 +20,16 @@ class Wager extends Component {
     const { token } = this.props.user;
 
     try {
-      const response = await fetch("http://localhost:9000/api/matchmake", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await fetch(
+        // TODO: This URL must come from an environment variable.
+        "https://server.playground-stating.counterfactual.com/api/matchmake",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
+      );
       const result = await response.json();
 
       this.setState({
