@@ -6,7 +6,7 @@ import { Store } from "../store";
 
 import { ERRORS } from "./errors";
 
-export async function getProposedAppInstances(
+export async function getProposedAppInstancesController(
   this: RequestHandler
 ): Promise<Node.GetAppInstancesResult> {
   return {
@@ -18,7 +18,7 @@ export async function getProposedAppInstances(
  * Gets all installed appInstances across all of the channels open on
  * this Node.
  */
-export async function getInstalledAppInstances(
+export async function getInstalledAppInstancesController(
   this: RequestHandler
 ): Promise<Node.GetAppInstancesResult> {
   const appInstances: AppInstanceInfo[] = [];
@@ -49,7 +49,7 @@ export async function getInstalledAppInstances(
  * @param this
  * @param params
  */
-export async function handleGetAppInstanceState(
+export async function getAppInstanceStateController(
   this: RequestHandler,
   params: Node.GetStateParams
 ): Promise<Node.GetStateResult> {

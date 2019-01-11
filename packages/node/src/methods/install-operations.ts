@@ -21,13 +21,12 @@ import {
 import { ERRORS } from "./errors";
 
 /**
- * This creates an entry of a proposed app instance into the relevant channel
- * while sending the proposal to the peer with whom this app instance is
- * indicated to be instantiated with.
+ * This creates an entry of a proposed AppInstance while sending the proposal
+ * to the peer with whom this AppInstance is specified to be installed.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeAppInstanceInstall(
+export async function appInstanceProposeInstallController(
   this: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
@@ -63,7 +62,7 @@ export async function proposeAppInstanceInstall(
  * sending an approved ack to the proposer.
  * @param params
  */
-export async function installAppInstance(
+export async function appInstanceInstallController(
   this: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
@@ -97,7 +96,7 @@ export async function installAppInstance(
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeAppInstanceVirtualInstall(
+export async function virtualAppInstanceProposeInstallController(
   this: RequestHandler,
   params: Node.ProposeInstallVirtualParams
 ): Promise<Node.ProposeInstallVirtualResult> {

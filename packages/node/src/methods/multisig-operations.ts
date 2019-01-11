@@ -19,7 +19,7 @@ import { Store } from "../store";
  * having been opened via the creation of the multisig.
  * @param params
  */
-export async function createMultisig(
+export async function createMultisigController(
   this: RequestHandler,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
@@ -104,7 +104,7 @@ export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {
   await this.store.saveStateChannel(stateChannel);
 }
 
-export async function getAllChannelAddresses(
+export async function getAllChannelAddressesController(
   this: RequestHandler
 ): Promise<Node.GetChannelAddressesResult> {
   const channels = await this.store.getAllChannels();

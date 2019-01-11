@@ -1,22 +1,25 @@
 import {
-  getInstalledAppInstances,
-  getProposedAppInstances,
-  handleGetAppInstanceState
+  getAppInstanceStateController,
+  getInstalledAppInstancesController,
+  getProposedAppInstancesController
 } from "./app-instance-operations";
 import {
-  installAppInstance,
-  proposeAppInstanceInstall,
-  proposeAppInstanceVirtualInstall
+  appInstanceInstallController,
+  appInstanceProposeInstallController,
+  virtualAppInstanceProposeInstallController
 } from "./install-operations";
-import { createMultisig, getAllChannelAddresses } from "./multisig-operations";
+import {
+  createMultisigController,
+  getAllChannelAddressesController
+} from "./multisig-operations";
 
 export {
-  createMultisig,
-  getAllChannelAddresses,
-  getInstalledAppInstances,
-  getProposedAppInstances,
-  handleGetAppInstanceState,
-  installAppInstance,
-  proposeAppInstanceInstall,
-  proposeAppInstanceVirtualInstall
+  appInstanceInstallController,
+  appInstanceProposeInstallController,
+  createMultisigController,
+  getAllChannelAddressesController,
+  getAppInstanceStateController,
+  getInstalledAppInstancesController,
+  getProposedAppInstancesController,
+  virtualAppInstanceProposeInstallController
 };
