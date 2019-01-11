@@ -86,8 +86,10 @@ export class AccountRegister {
 
       this.updateAccount({
         ...this.changeset,
-        multisigAddress: apiResponse.multisigAddress
+        multisigAddress: apiResponse.user.multisigAddress
       });
+
+      window.localStorage.setItem("playground:user:token", apiResponse.token);
 
       this.history.push("/deposit");
     } catch (e) {

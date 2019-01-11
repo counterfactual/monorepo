@@ -1,7 +1,6 @@
 import {
   ApiResponse,
   CreateAccountRequest,
-  CreateAccountResponseData,
   ErrorResponse,
   GetAppsResponseData,
   LoginRequest,
@@ -59,10 +58,9 @@ async function get(endpoint: string, token?: string): Promise<ApiResponse> {
 export default class PlaygroundAPIClient {
   public static async createAccount(
     data: CreateAccountRequest
-  ): Promise<CreateAccountResponseData> {
+  ): Promise<LoginResponseData> {
     try {
-      return (await post("create-account", data))
-        .data as CreateAccountResponseData;
+      return (await post("create-account", data)).data as LoginResponseData;
     } catch (e) {
       return Promise.reject(e);
     }

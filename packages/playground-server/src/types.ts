@@ -55,16 +55,10 @@ export type ApiResponse = {
   error?: ErrorResponse;
   ok: boolean;
   data?:
-    | CreateAccountResponseData
     | GetAppsResponseData
     | MatchmakeResponseData
     | LoginResponseData
     | UserResponseData;
-};
-
-export type CreateAccountResponseData = {
-  user: PlaygroundUser;
-  multisigAddress: Address;
 };
 
 export type LoginResponseData = {
