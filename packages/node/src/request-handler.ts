@@ -14,6 +14,7 @@ import { addMultisig } from "./methods/multisig-operations";
 import { NodeMessage } from "./node";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
+import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd";
 
 /**
  * This class registers handlers for requests to get or set some information
