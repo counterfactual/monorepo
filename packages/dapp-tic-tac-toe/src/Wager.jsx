@@ -22,7 +22,7 @@ class Wager extends Component {
     try {
       const response = await fetch(
         // TODO: This URL must come from an environment variable.
-        "https://server.playground-stating.counterfactual.com/api/matchmake",
+        "https://server.playground-staging.counterfactual.com/api/matchmake",
         {
           method: "POST",
           headers: {
