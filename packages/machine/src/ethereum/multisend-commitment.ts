@@ -11,6 +11,7 @@ import { encodeTransactions } from "./utils/multisend-encoder";
 const appRegistryIface = new Interface(AppRegistry.abi);
 const multisendIface = new Interface(MultiSend.abi);
 
+/// A commitment to make MinimumViableMultisig perform a message call to the MultiSend contract
 export abstract class MultiSendCommitment extends MultisigCommitment {
   public abstract eachMultisigInput(): MultisigTransaction[];
 
@@ -40,6 +41,7 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
     };
   }
 
+  /// A convenience function for children to include a subcall to set the free balance state
   public freeBalanceInput(): MultisigTransaction {
     return {
       to: this.networkContext.AppRegistry,

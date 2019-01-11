@@ -8,7 +8,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface } from "ethers/utils";
+import { Interface, keccak256 } from "ethers/utils";
 import { BuildArtifact } from "truffle";
 
 import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
@@ -105,7 +105,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       const setStateCommitment = new SetStateCommitment(
         network,
         freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState,
+        keccak256(freeBalanceETH.encodedLatestState),
         freeBalanceETH.nonce,
         freeBalanceETH.timeout
       );

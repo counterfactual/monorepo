@@ -60,22 +60,25 @@ export const UPDATE_PROTOCOL = {
   ]
 };
 
-function proposeStateTransition(
-  message: ProtocolMessage,
-  context: Context,
-  stateChannel: StateChannel
-) {
-  const { appIdentityHash, newState } = message.params as UpdateParams;
-  context.stateChannel = stateChannel.setState(appIdentityHash, newState);
+function proposeStateTransition(message: ProtocolMessage, context: Context) {
+  const {
+    appIdentityHash,
+    newState,
+    multisigAddress
+  } = message.params as UpdateParams;
+  const newStateChannel = context.stateChannelsMap
+    .get(multisigAddress)!
+    .setState(appIdentityHash, newState);
+  context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitment = constructUpdateOp(
     context.network,
-    context.stateChannel,
+    newStateChannel,
     appIdentityHash
   );
   context.appIdentityHash = appIdentityHash;
 }
 
-export function constructUpdateOp(
+function constructUpdateOp(
   network: NetworkContext,
   stateChannel: StateChannel,
   appIdentityHash: string

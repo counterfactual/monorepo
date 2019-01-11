@@ -64,26 +64,22 @@ export const UNINSTALL_PROTOCOL = {
   ]
 };
 
-function proposeStateTransition(
-  message: ProtocolMessage,
-  context: Context,
-  stateChannel: StateChannel
-) {
+function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const {
     appIdentityHash,
     aliceBalanceIncrement,
-    bobBalanceIncrement
+    bobBalanceIncrement,
+    multisigAddress
   } = message.params as UninstallParams;
 
-  context.stateChannel = stateChannel.uninstallApp(
-    appIdentityHash,
-    aliceBalanceIncrement,
-    bobBalanceIncrement
-  );
+  const newStateChannel = context.stateChannelsMap
+    .get(multisigAddress)!
+    .uninstallApp(appIdentityHash, aliceBalanceIncrement, bobBalanceIncrement);
+  context.stateChannelsMap.set!(multisigAddress, newStateChannel);
 
   context.commitment = constructUninstallOp(
     context.network,
-    context.stateChannel,
+    newStateChannel,
     appIdentityHash
   );
 

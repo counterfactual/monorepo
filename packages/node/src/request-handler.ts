@@ -5,6 +5,7 @@ import {
   Protocol,
   ProtocolMessage
 } from "@counterfactual/machine";
+import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
@@ -113,8 +114,9 @@ export class RequestHandler {
         ]);
         const { protocol } = message;
         if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
           await this.store.setSetupCommitmentForMultisig(
-            message.multisigAddress,
+            params.multisigAddress,
             transaction
           );
         } else {
