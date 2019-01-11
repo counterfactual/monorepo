@@ -22,11 +22,32 @@ export class AppRoot {
 
   constructor() {
     this.state = {
+      user: {},
       appInstance: null,
       appFactory: null,
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this)
     };
+  }
+
+  async componentDidLoad() {
+    window.addEventListener("message", (event: MessageEvent) => {
+      if (
+        typeof event.data === "string" &&
+        event.data.startsWith("playground:response:user")
+      ) {
+        const [, data] = event.data.split("|");
+        const user = JSON.parse(data);
+        this.updateUser(user);
+        console.log(this.state);
+      }
+    });
+
+    window.parent.postMessage("playground:request:user", "*");
+  }
+
+  updateUser(user: any) {
+    this.state = { ...this.state, user };
   }
 
   updateAppInstance(appInstance: AppInstance) {

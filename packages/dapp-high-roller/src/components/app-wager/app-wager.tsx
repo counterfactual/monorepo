@@ -5,7 +5,6 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { Address, AppInstanceID, cf } from "../../data/types";
-import { getProp } from "../../utils/utils";
 
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
@@ -34,14 +33,14 @@ export class AppWager {
   @State() isError: boolean = false;
   @State() isWaiting: boolean = false;
   @State() error: any;
+  @Prop() user: any;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
 
   async componentWillLoad() {
-    // TODO: figure out how the Playground UI provides Dapps their user data
-    this.myName = getProp("myName", this);
+    this.myName = this.user.username;
 
     return await this.matchmake();
   }
@@ -73,26 +72,18 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    // TODO: make an ajax call to the playground server when not in standalone mode
-
-    // TODO: This token should be obtained from LocalStorage.
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5OGRhZTNmLWNmYjctNGNmNC05OTZiLWZiNDI5NDI3ZGQ4NSIsInVzZXJuYW1lIjoiam9lbCIsImVtYWlsIjoiZXN0dWRpb0Bqb2VsYWxlamFuZHJvLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDE0NTczMjUzMTkxRDJDMjUxQTg1Y0JBMTQ1NjY0RWUwYUViNDA4NjgiLCJpYXQiOjE1NDcwODU4MTcsImV4cCI6MTU3ODY0MzQxN30.AQ-ataiWl9emPRWtHVinEXYgyHHZquP9DOXLjmcTKJI";
+    const { token } = this.user;
 
     try {
-      const response = await fetch(
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const response = await fetch("http://localhost:9000/api/matchmake", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      });
       const result = await response.json();
 
       this.opponent = result.data.opponent;
-      this.myName = result.data.user.username;
       this.intermediary = result.data.intermediary;
       this.isError = false;
       this.error = null;
@@ -181,4 +172,8 @@ export class AppWager {
   }
 }
 
-CounterfactualTunnel.injectProps(AppWager, ["appFactory", "updateAppInstance"]);
+CounterfactualTunnel.injectProps(AppWager, [
+  "appFactory",
+  "updateAppInstance",
+  "user"
+]);
