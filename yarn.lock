@@ -10671,10 +10671,10 @@ lodash@4.17.10:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
-logepi@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/logepi/-/logepi-1.0.4.tgz#fed0a47637a93581a4d2a44415021e5fbc6c5b25"
-  integrity sha512-idykzeheuoVnsA/Qr3s682xKOckPWpF+xE99SPXUhxchGZDCgpOF17Mq1j3bUoxAccrqxv5eW8nWUfpFOuBXkw==
+logepi@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/logepi/-/logepi-1.0.5.tgz#b7b16a336c94d29d4f68b4296f88e98c0be40c36"
+  integrity sha512-ZJ2uCSoGpK4OQtMnQA9kUOwEvVo/zRIwCvKwMNiqMcrfinEMifJ+3O/QLBQv18T+AxV6BN/EQgvIlB+VP6ZcQw==
   dependencies:
     ember-cli-string-utils "^1.1.0"
     lodash "^4.17.11"
@@ -16346,10 +16346,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
-  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
+tslint-microsoft-contrib@~5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
+  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 

@@ -3,7 +3,7 @@ import { Log, LogLevel } from "logepi";
 import mountApi from "./api";
 import "./node";
 
-Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || "info");
+Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 (async () => {
   const api = mountApi();

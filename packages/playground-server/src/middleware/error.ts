@@ -1,4 +1,5 @@
 import App, { Context } from "koa";
+import { Log } from "logepi";
 
 import {
   ApiResponse,
@@ -36,6 +37,9 @@ function processError(error: ErrorCode | Error, ctx: Context) {
       (statusCodes.get(errorCode) || statusCodes.get("default")) as number,
       errorCode
     );
+    Log.debug("Emitting handled error", {
+      tags: { error: JSON.stringify(ctx.body) }
+    });
   } else {
     const errorObject = error as Error;
     ctx.body = createErrorResponse(
@@ -47,6 +51,9 @@ function processError(error: ErrorCode | Error, ctx: Context) {
         stack: errorObject.stack
       }
     );
+    Log.debug("Emitting unhandled error", {
+      tags: { error: JSON.stringify(ctx.body) }
+    });
   }
 
   ctx.status = ctx.body.error.status;
