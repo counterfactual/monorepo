@@ -1,3 +1,4 @@
+import { sign } from "jsonwebtoken";
 import { Context } from "koa";
 import "koa-body"; // Needed for ctx.request.body to be detected by TS, see: https://github.com/dlau/koa-body/issues/109
 
@@ -25,11 +26,16 @@ export default function createAccount() {
       multisigAddress: multisig.multisigAddress
     });
 
+    // Create token.
+    const token = sign(user, process.env.NODE_PRIVATE_KEY as string, {
+      expiresIn: "1Y"
+    });
+
     const response = {
       ok: true,
       data: {
-        ...multisig,
-        user
+        user,
+        token
       }
     } as ApiResponse;
 
