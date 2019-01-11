@@ -2,6 +2,7 @@ import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
 
+import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import { AppDefinition } from "../../types";
@@ -19,6 +20,12 @@ export class DappContainer {
   @Prop({ mutable: true }) url: string = "";
 
   @Prop() apps: AppDefinition[] = [];
+
+  @Prop() balance: number = 0;
+  @Prop() address: string = "";
+  @Prop() multisigAddress: string = "";
+  @Prop() username: string = "";
+  @Prop() email: string = "";
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -45,7 +52,6 @@ export class DappContainer {
   }
 
   componentDidLoad(): void {
-    // this.eventEmitter.on("message", this.postOrQueueMessage.bind(this));
     this.url = this.getDappUrl();
 
     this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this));
@@ -62,7 +68,11 @@ export class DappContainer {
     this.frameWindow = iframe.contentWindow as Window;
     this.$onMessage = this.configureMessageChannel.bind(this);
 
+    // Callback for setting up the MessageChannel with the NodeProvider
     window.addEventListener("message", this.$onMessage);
+
+    // Callback for processing Playground UI messages
+    window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
 
     this.iframe = iframe;
   }
@@ -80,6 +90,22 @@ export class DappContainer {
     }
 
     this.iframe.remove();
+  }
+
+  private handlePlaygroundMessage(event: MessageEvent): void {
+    if (event.data === "playground:request:user" && this.frameWindow) {
+      this.frameWindow.postMessage(
+        `playground:response:user|${JSON.stringify({
+          username: this.username,
+          email: this.email,
+          address: this.address,
+          multisigAddress: this.multisigAddress,
+          balance: this.balance,
+          token: window.localStorage.getItem("playground:user:token") as string
+        })}`,
+        "*"
+      );
+    }
   }
 
   /**
@@ -174,3 +200,10 @@ export class DappContainer {
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
+AccountTunnel.injectProps(DappContainer, [
+  "balance",
+  "username",
+  "email",
+  "address",
+  "multisigAddress"
+]);
