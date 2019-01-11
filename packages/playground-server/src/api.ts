@@ -31,7 +31,7 @@ export default function mountApi() {
   api
     .use(errorHandler(api))
     .use(bodyParser({ json: true }))
-    .use(cors())
+    .use(cors({ keepHeadersOnError: false }))
     .use(signatureValidator())
     .use(authentication("/api/matchmake", "/api/user"))
     .use(router.routes());
