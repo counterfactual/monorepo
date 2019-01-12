@@ -9,9 +9,9 @@ import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { methodNameToImplementation } from "./api-spec";
-import { addAppInstance } from "./methods/install-operations";
-import { addMultisig } from "./methods/multisig-operations";
+import { methodNameToImplementation } from "./api-router";
+import { installEventController } from "./events/install/controller";
+import { addMultisig } from "./methods/state-channel/add";
 import { NodeMessage } from "./node";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
@@ -87,7 +87,7 @@ export class RequestHandler {
    */
   private mapEventHandlers() {
     this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig.bind(this));
-    this.events.set(Node.EventName.INSTALL, addAppInstance.bind(this));
+    this.events.set(Node.EventName.INSTALL, installEventController.bind(this));
   }
 
   /**
