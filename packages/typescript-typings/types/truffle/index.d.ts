@@ -6,8 +6,8 @@ declare module "truffle" {
   }
 
   interface BuildArtifact {
-    contractName: string;
-    networks: {
+    contractName?: string;
+    networks?: {
       [x: string]: {
         address: string,
         events: {},

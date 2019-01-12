@@ -1,10 +1,10 @@
-import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
-import ETHBucket from "@counterfactual/contracts/build/contracts/ETHBucket.json";
-import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
-import ProxyFactory from "@counterfactual/contracts/build/contracts/ProxyFactory.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
+import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
@@ -47,28 +47,27 @@ beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
   const relevantArtifacts: BuildArtifact[] = [
-    AppRegistry,
-    ETHBucket,
-    MultiSend,
-    NonceRegistry,
-    StateChannelTransaction
+    { contractName: "AppRegistry", ...AppRegistry },
+    { contractName: "ETHBucket", ...ETHBucket },
+    { contractName: "MultiSend", ...MultiSend },
+    { contractName: "NonceRegistry", ...NonceRegistry },
+    { contractName: "StateChannelTransaction", ...StateChannelTransaction }
   ];
 
   network = {
     // Fetches the values from build artifacts of the contracts needed
     // for this test and sets the ones we don't care about to 0x0
-    ETHBalanceRefund: AddressZero,
     ...relevantArtifacts.reduce(
       (accumulator: { [x: string]: string }, artifact: BuildArtifact) => ({
         ...accumulator,
-        [artifact.contractName]: artifact.networks[networkId].address
+        [artifact.contractName!]: artifact.networks![networkId].address
       }),
       {}
     )
   } as NetworkContext;
 
   appRegistry = new Contract(
-    (AppRegistry as BuildArtifact).networks[networkId].address,
+    (AppRegistry as BuildArtifact).networks![networkId].address,
     AppRegistry.abi,
     wallet
   );
@@ -91,7 +90,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     const users = signingKeys.map(x => x.address);
 
     const proxyFactory = new Contract(
-      (ProxyFactory as BuildArtifact).networks[networkId].address,
+      (ProxyFactory as BuildArtifact).networks![networkId].address,
       ProxyFactory.abi,
       wallet
     );
@@ -196,7 +195,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     });
 
     await proxyFactory.functions.createProxy(
-      (MinimumViableMultisig as BuildArtifact).networks[networkId].address,
+      (MinimumViableMultisig as BuildArtifact).networks![networkId].address,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );

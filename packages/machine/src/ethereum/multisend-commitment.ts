@@ -1,5 +1,5 @@
-import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
-import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
+import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import { AppIdentity, Terms } from "@counterfactual/types";
 import { HashZero } from "ethers/constants";
 import { Interface } from "ethers/utils";

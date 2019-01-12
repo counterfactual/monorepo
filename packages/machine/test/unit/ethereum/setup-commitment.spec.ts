@@ -1,4 +1,4 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType } from "@counterfactual/types";
 import {
   bigNumberify,
