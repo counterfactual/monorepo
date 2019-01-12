@@ -1,5 +1,6 @@
 import { Address } from "@counterfactual/types";
 import knex from "knex";
+import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
 import {
@@ -21,6 +22,7 @@ const DATABASE_CONFIGURATION: knex.Config = {
 };
 
 export function getDatabase() {
+  Log.debug("Connected to database", {});
   return knex(DATABASE_CONFIGURATION);
 }
 
@@ -29,9 +31,15 @@ export async function ethAddressAlreadyRegistered(
 ): Promise<boolean> {
   const db = getDatabase();
 
-  const userId: { id: string }[] = await db("users")
+  const query = db("users")
     .select("id")
     .where("eth_address", address);
+
+  const userId: { id: string }[] = await query;
+
+  Log.debug("Executed ethAddressAlreadyRegistered query", {
+    tags: { query: query.toSQL().sql }
+  });
 
   await db.destroy();
 
@@ -43,23 +51,35 @@ export async function matchmakeUser(
 ): Promise<MatchmakeUserData> {
   const db = getDatabase();
 
-  const matchmakeResults: {
-    username: string;
-    address: string;
-  }[] = await db("users")
+  const query = db("users")
     .columns({ username: "username", address: "eth_address" })
     .select()
     .where("eth_address", "!=", userAddress);
+
+  const matchmakeResults: {
+    username: string;
+    address: string;
+  }[] = await query;
+
+  Log.debug("Executed matchmakeUser query", {
+    tags: { query: query.toSQL().sql }
+  });
 
   await db.destroy();
 
   if (matchmakeResults.length === 1) {
     // If there is only one user, just select that one.
+    Log.info("Matchmade completed with only user available", {
+      tags: { users: [userAddress, matchmakeResults[0]] }
+    });
     return matchmakeResults[0];
   }
 
   if (matchmakeResults.length === 0) {
     // If there are no users, throw an error.
+    Log.warn("Cannot matchmake, no users available", {
+      tags: { user: userAddress }
+    });
     throw ErrorCode.NoUsersAvailable;
   }
 
@@ -67,13 +87,17 @@ export async function matchmakeUser(
   // to avoid engine coupling; could've been solved using `.orderBy("RANDOM()")`.
   const randomIndex = Math.floor(Math.random() * matchmakeResults.length);
 
+  Log.info("Matchmade completed via random index selection", {
+    tags: { users: [userAddress, matchmakeResults[randomIndex]] }
+  });
+
   return matchmakeResults[randomIndex];
 }
 
 export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
   const db = getDatabase();
 
-  const users: PlaygroundUser[] = await db("users")
+  const query = db("users")
     .columns({
       id: "id",
       username: "username",
@@ -84,9 +108,18 @@ export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
     .select()
     .where("eth_address", "=", userAddress);
 
+  const users: PlaygroundUser[] = await query;
+
+  Log.debug("Executed getUser query", {
+    tags: { query: query.toSQL().sql }
+  });
+
   await db.destroy();
 
   if (users.length === 0) {
+    Log.info("No user found with provided address", {
+      tags: { user: userAddress }
+    });
     throw ErrorCode.UserNotFound;
   }
 
@@ -96,7 +129,7 @@ export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
 export async function userExists(user: PlaygroundUser): Promise<boolean> {
   const db = getDatabase();
 
-  const users: PlaygroundUser[] = await db("users")
+  const query = db("users")
     .select()
     .where({
       id: user.id,
@@ -106,6 +139,12 @@ export async function userExists(user: PlaygroundUser): Promise<boolean> {
       multisig_address: user.multisigAddress
     })
     .limit(1);
+
+  const users: PlaygroundUser[] = await query;
+
+  Log.debug("Executed userExists query", {
+    tags: { query: query.toSQL().sql }
+  });
 
   await db.destroy();
 
@@ -123,12 +162,18 @@ export async function createUser(
 
   const id = generateUuid();
 
-  await db("users").insert({
+  const query = db("users").insert({
     id,
     username: data.username,
     email: data.email,
     eth_address: data.address,
     multisig_address: data.multisigAddress
+  });
+
+  await query;
+
+  Log.debug("Executed createUser query", {
+    tags: { query: query.toSQL().sql }
   });
 
   await db.destroy();

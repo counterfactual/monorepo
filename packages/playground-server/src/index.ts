@@ -1,11 +1,15 @@
+import { Log, LogLevel } from "logepi";
+
 import mountApi from "./api";
 import "./node";
+
+Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 (async () => {
   const api = mountApi();
   const port = process.env.PORT || 9000;
   await api.listen(port);
-  console.log(`API listening on :${port}`);
+  Log.info("API is now ready", { tags: { port } });
 })();
 
 export * from "./types";
