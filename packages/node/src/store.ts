@@ -278,12 +278,9 @@ export class Store {
 
   async setCommitmentForAppIdentityHash(
     appIdentityHash: string,
-    protocol: string,
+    protocol: Protocol,
     commitment: Transaction
   ) {
-    if (!(protocol in Protocol)) {
-      throw new Error(`No such protocol: ${protocol}`);
-    }
     return this.storeService.set([
       {
         key: this.computeAppInstanceCommitmentKey(appIdentityHash, protocol),
@@ -315,7 +312,7 @@ export class Store {
 
   async getCommitmentForAppIdentityHash(
     appIdentityHash: string,
-    protocol: string
+    protocol: Protocol
   ): Promise<Transaction> {
     const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
     return this.loadCommitment(key);
@@ -329,8 +326,8 @@ export class Store {
   }
 
   private computeAppInstanceCommitmentKey(
-    protocol: string,
-    appIdentityHash: string
+    appIdentityHash: string,
+    protocol: Protocol
   ): string {
     return [
       this.storeKeyPrefix,
