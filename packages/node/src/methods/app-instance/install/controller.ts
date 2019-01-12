@@ -15,12 +15,18 @@ export default async function installAppInstanceController(
   this: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
-  const appInstance = await install(this.store, params);
-
   const [peerAddress] = await getPeersAddressFromAppInstanceID(
     this.selfAddress,
     this.store,
-    appInstance.id
+    params.appInstanceId
+  );
+
+  const appInstance = await install(
+    this.store,
+    this.instructionExecutor,
+    this.selfAddress,
+    peerAddress,
+    params
   );
 
   const installApprovalMsg: NodeMessage = {

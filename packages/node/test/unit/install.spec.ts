@@ -1,3 +1,4 @@
+import { InstructionExecutor } from "@counterfactual/machine";
 import dotenv from "dotenv-extended";
 import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
@@ -30,17 +31,21 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install without appInstanceId", () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
+    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
     const params = { appInstanceId: "" };
-    expect(install(store, params)).rejects.toEqual(
-      ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL
-    );
+    expect(
+      install(store, instructionExecutor, AddressZero, AddressZero, params)
+    ).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
-    expect(install(store, { appInstanceId: generateUUID() })).rejects.toEqual(
-      ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
-    );
+    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    expect(
+      install(store, instructionExecutor, AddressZero, AddressZero, {
+        appInstanceId: generateUUID()
+      })
+    ).rejects.toEqual(ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID);
   });
 
   it("fails to install without the AppInstanceId being in a channel", () => {
@@ -61,9 +66,17 @@ describe("Can handle correct & incorrect installs", () => {
       ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
 
-    expect(install(store, { appInstanceId })).rejects.toEqual(
-      ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID
-    );
+    expect(
+      install(
+        store,
+        instance(mock(InstructionExecutor)),
+        AddressZero,
+        AddressZero,
+        {
+          appInstanceId
+        }
+      )
+    ).rejects.toEqual(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
@@ -93,8 +106,14 @@ describe("Can handle correct & incorrect installs", () => {
 
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed
-    expect(install(store, { appInstanceId })).resolves.toEqual(
-      proposedAppInstanceInfo
-    );
+    expect(
+      install(
+        store,
+        instance(mock(InstructionExecutor)),
+        AddressZero,
+        AddressZero,
+        { appInstanceId }
+      )
+    ).resolves.toEqual(proposedAppInstanceInfo);
   });
 });

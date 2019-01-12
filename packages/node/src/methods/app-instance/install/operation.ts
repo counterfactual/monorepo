@@ -1,4 +1,4 @@
-import { AppInstance, StateChannel } from "@counterfactual/machine";
+import { AppInstance, StateChannel, InstructionExecutor } from "@counterfactual/machine";
 import {
   AppInstanceInfo,
   AppInterface,
@@ -13,6 +13,9 @@ import { ERRORS } from "../../errors";
 
 export async function install(
   store: Store,
+  instructionExecutor: InstructionExecutor,
+  initiatingAddress: string,
+  respondingAddress: string,
   params: Node.InstallParams
 ): Promise<AppInstanceInfo> {
   const { appInstanceId } = params;
@@ -31,14 +34,29 @@ export async function install(
   );
   delete appInstanceInfo.initialState;
 
-  const updatedStateChannel = stateChannel.installApp(
-    appInstance,
-    appInstanceInfo.myDeposit,
-    appInstanceInfo.peerDeposit
+  const updatedStateChannelMap = await instructionExecutor.runInstallProtocol(
+    new Map<string, StateChannel>([
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
+    {
+      initiatingAddress,
+      respondingAddress,
+      multisigAddress: stateChannel.multisigAddress,
+
+      // TODO: Figure out who is alice and who is bob
+      aliceBalanceDecrement: appInstanceInfo.myDeposit,
+      bobBalanceDecrement: appInstanceInfo.peerDeposit,
+
+      signingKeys: appInstance.signingKeys,
+      terms: appInstance.terms,
+      appInterface: appInstance.appInterface,
+      initialState: appInstance.state,
+      defaultTimeout: appInstance.defaultTimeout
+    }
   );
 
   await store.updateChannelWithAppInstanceInstallation(
-    updatedStateChannel,
+    updatedStateChannelMap.get(stateChannel.multisigAddress)!,
     appInstance,
     appInstanceInfo
   );
