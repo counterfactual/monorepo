@@ -1,11 +1,11 @@
 import { Address, Node } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
-import { ProposedAppInstanceInfo } from "../../models";
-import { NodeMessage } from "../../node";
-import { RequestHandler } from "../../request-handler";
-import { Store } from "../../store";
-import { getChannelFromPeerAddress } from "../../utils";
+import { ProposedAppInstanceInfo } from "../../../models";
+import { NodeMessage } from "../../../node";
+import { RequestHandler } from "../../../request-handler";
+import { Store } from "../../../store";
+import { getChannelFromPeerAddress } from "../../../utils";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal

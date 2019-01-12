@@ -1,10 +1,10 @@
 import { Node } from "@counterfactual/types";
 
-import { NodeMessage } from "../../node";
-import { RequestHandler } from "../../request-handler";
-import { getPeersAddressFromAppInstanceID } from "../../utils";
+import { NodeMessage } from "../../../node";
+import { RequestHandler } from "../../../request-handler";
+import { getPeersAddressFromAppInstanceID } from "../../../utils";
 
-import { install } from "./app-instance";
+import { install } from "./operation";
 
 /**
  * This converts a proposed app instance to an installed app instance while

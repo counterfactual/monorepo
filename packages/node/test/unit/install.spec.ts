@@ -4,8 +4,8 @@ import { AddressZero } from "ethers/constants";
 import { instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
+import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
-import { install } from "../../src/methods/install/app-instance";
 import { openStateChannel } from "../../src/methods/state-channel/create/instance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";

@@ -3,7 +3,7 @@ import dotenv from "dotenv-extended";
 import { instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
-import { getAppInstanceState } from "../../src/methods/app-instance-operations";
+import { getAppInstanceState } from "../../src/methods/app-instance/get-state/operation";
 import { ERRORS } from "../../src/methods/errors";
 import { Store } from "../../src/store";
 import memoryStoreService from "../services/memory-store-service";

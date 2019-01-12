@@ -1,6 +1,5 @@
 import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
-  Address,
   AppInstanceInfo,
   AppInterface,
   Node,
@@ -8,36 +7,9 @@ import {
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 
-import { ProposedAppInstanceInfo } from "../../models";
-import { NodeMessage } from "../../node";
-import { RequestHandler } from "../../request-handler";
-import { Store } from "../../store";
-import { getChannelFromPeerAddress } from "../../utils";
-
-import { ERRORS } from "./../errors";
-
-/**
- * This function adds the app instance as a pending installation if the proposal
- * flag is set. Otherwise it adds the app instance as an installed app into the
- * appropriate channel.
- */
-export async function addAppInstance(
-  this: RequestHandler,
-  nodeMsg: NodeMessage
-) {
-  const params = { ...nodeMsg.data };
-  params.peerAddress = nodeMsg.from!;
-  delete params.proposal;
-  if (nodeMsg.data.proposal) {
-    await setAppInstanceIDForProposeInstall(
-      this.selfAddress,
-      this.store,
-      params
-    );
-  } else {
-    await install(this.store, params);
-  }
-}
+import { ProposedAppInstanceInfo } from "../../../models";
+import { Store } from "../../../store";
+import { ERRORS } from "../../errors";
 
 export async function install(
   store: Store,
@@ -115,22 +87,4 @@ function createAppInstanceFromAppInstanceInfo(
     0,
     proposedAppInstanceInfo.timeout.toNumber()
   );
-}
-
-async function setAppInstanceIDForProposeInstall(
-  selfAddress: Address,
-  store: Store,
-  params: Node.InterNodeProposeInstallParams
-) {
-  const channel = await getChannelFromPeerAddress(
-    selfAddress,
-    params.peerAddress,
-    store
-  );
-  const proposedAppInstance = new ProposedAppInstanceInfo(
-    params.appInstanceId,
-    params
-  );
-
-  await store.addAppInstanceProposal(channel, proposedAppInstance);
 }
