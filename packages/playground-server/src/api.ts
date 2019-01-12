@@ -2,6 +2,7 @@ import cors from "@koa/cors";
 import Koa from "koa";
 import bodyParser from "koa-body";
 import Router from "koa-router";
+import { KoaLoggingMiddleware as logs } from "logepi";
 import path from "path";
 
 // API Controllers
@@ -34,7 +35,8 @@ export default function mountApi() {
     .use(cors({ keepHeadersOnError: false }))
     .use(signatureValidator())
     .use(authentication("/api/matchmake", "/api/user"))
-    .use(router.routes());
+    .use(router.routes())
+    .use(logs());
 
   return api;
 }

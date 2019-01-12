@@ -1,6 +1,7 @@
 import axios from "axios";
 import { readFileSync } from "fs";
 import { Server } from "http";
+import { Log, LogLevel } from "logepi";
 import { resolve } from "path";
 
 import mountApi from "../src/api";
@@ -18,6 +19,8 @@ const client = axios.create({
 });
 
 const db = getDatabase();
+
+Log.setOutputLevel(LogLevel.DEBUG);
 
 describe("playground-server", () => {
   beforeAll(async () => {
