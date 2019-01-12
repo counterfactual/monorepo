@@ -1,4 +1,8 @@
-import { AppInstance, StateChannel, InstructionExecutor } from "@counterfactual/machine";
+import {
+  AppInstance,
+  InstructionExecutor,
+  StateChannel
+} from "@counterfactual/machine";
 import {
   AppInstanceInfo,
   AppInterface,
