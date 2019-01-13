@@ -11,6 +11,7 @@ import EventEmitter from "eventemitter3";
 
 import { methodNameToImplementation } from "./api-router";
 import { installEventController } from "./events/install/controller";
+import { proposeInstallVirtualEventController } from "./events/propose-install-virtual/controller";
 import { proposeInstallEventController } from "./events/propose-install/controller";
 import { addMultisig } from "./methods/state-channel/add";
 import { IMessagingService, IStoreService } from "./services";
@@ -92,6 +93,10 @@ export class RequestHandler {
     this.events.set(
       NODE_EVENTS.PROPOSE_INSTALL,
       proposeInstallEventController.bind(this)
+    );
+    this.events.set(
+      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+      proposeInstallVirtualEventController.bind(this)
     );
   }
 

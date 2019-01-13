@@ -129,7 +129,7 @@ export function makeInstallVirtualProposalRequest(
   return {
     params: installVirtualParams,
     requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL
+    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
   } as NodeTypes.MethodRequest;
 }
 

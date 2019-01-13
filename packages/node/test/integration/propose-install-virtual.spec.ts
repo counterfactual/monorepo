@@ -67,7 +67,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     firebaseServer.close();
   });
 
-  it.skip("Node A makes a proposal to install a Virtual AppInstance to Node C, both nodes confirm receipt of proposal", async done => {
+  it("Node A makes a proposal to install a Virtual AppInstance to Node C, both nodes confirm receipt of proposal", async done => {
     const multisigAddress = await getNewMultisig(nodeA, [
       nodeA.address,
       nodeC.address

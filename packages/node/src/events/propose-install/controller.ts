@@ -1,6 +1,7 @@
 import { RequestHandler } from "../../request-handler";
 import { ProposeMessage } from "../../types";
-import { setAppInstanceIDForProposeInstall } from "../install/operation";
+
+import { setAppInstanceIDForProposeInstall } from "./operation";
 
 export async function proposeInstallEventController(
   this: RequestHandler,
