@@ -20,7 +20,7 @@ export class AppWaiting {
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
   @Prop({ mutable: true }) opponentName: string = "";
-  @Prop({ mutable: true }) shouldMatchmake: boolean = false;
+  @Prop({ mutable: true }) isProposing: boolean = false;
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
 
@@ -44,7 +44,7 @@ export class AppWaiting {
         opponentName,
         betAmount: this.betAmount,
         myName: this.myName,
-        isProposing: this.shouldMatchmake
+        isProposing: this.isProposing
       },
       query: {},
       key: ""
@@ -62,7 +62,7 @@ export class AppWaiting {
   }
 
   setupWaiting() {
-    if (this.shouldMatchmake) {
+    if (this.isProposing) {
       // this.proposeInstall();
       this.setupWaitingProposing();
     } else {
