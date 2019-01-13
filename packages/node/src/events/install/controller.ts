@@ -1,31 +1,20 @@
 import { install } from "../../methods/app-instance/install/operation";
 import { RequestHandler } from "../../request-handler";
-import { NodeMessage } from "../../types";
+import { InstallMessage } from "../../types";
 
-import { setAppInstanceIDForProposeInstall } from "./operation";
 /**
- * This function adds the AppInstance as a proposed installation if the proposal
- * flag is set. Otherwise it adds the AppInstance as an installed app into the
- * appropriate channel.
+ * This function responds to a installation proposal approval from a peer Node
+ * by counter installing the AppInstance this Node proposed earlier.
  */
 export async function installEventController(
   this: RequestHandler,
-  nodeMsg: NodeMessage
+  nodeMsg: InstallMessage
 ) {
-  const params = { ...nodeMsg.data };
-  delete params.proposal;
-  if (nodeMsg.data.proposal) {
-    await setAppInstanceIDForProposeInstall(this.address, this.store, {
-      ...params,
-      respondingAddress: nodeMsg.from!
-    });
-  } else {
-    await install(
-      this.store,
-      this.instructionExecutor,
-      this.address,
-      params.respondingAddress,
-      params
-    );
-  }
+  await install(
+    this.store,
+    this.instructionExecutor,
+    this.address,
+    nodeMsg.from,
+    nodeMsg.data.params
+  );
 }

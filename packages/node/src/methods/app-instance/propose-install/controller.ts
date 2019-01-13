@@ -4,7 +4,7 @@ import { v4 as generateUUID } from "uuid";
 import { ProposedAppInstanceInfo } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { NodeMessage } from "../../../types";
+import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { getChannelFromPeerAddress } from "../../../utils";
 
 /**
@@ -27,13 +27,12 @@ export async function proposeInstallAppInstanceController(
     params
   );
 
-  const proposalMsg: NodeMessage = {
+  const proposalMsg: ProposeMessage = {
     from: this.address,
-    event: Node.EventName.INSTALL,
+    event: NODE_EVENTS.PROPOSE_INSTALL,
     data: {
-      ...params,
-      appInstanceId,
-      proposal: true
+      params,
+      appInstanceId
     }
   };
 

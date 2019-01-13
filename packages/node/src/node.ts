@@ -10,7 +10,7 @@ import EventEmitter from "eventemitter3";
 
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
-import { NodeMessage } from "./types";
+import { NODE_EVENTS, NodeMessage } from "./types";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -144,7 +144,7 @@ export class Node {
    * @param msg
    */
   private async preprocessMessage(msg: NodeMessage) {
-    if (!Object.values(NodeTypes.EventName).includes(msg.event)) {
+    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
       console.log("Event not recognized, no-op");
       return;
     }

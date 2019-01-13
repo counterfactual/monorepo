@@ -2,7 +2,7 @@ import { Address, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
 import { RequestHandler } from "../../../request-handler";
-import { NodeMessage } from "../../../types";
+import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
 
 import { openStateChannel } from "./instance";
 
@@ -29,13 +29,14 @@ export default async function createMultisigController(
     owner => owner !== this.address
   );
 
-  const multisigCreatedMsg: NodeMessage = {
+  const multisigCreatedMsg: CreateMultisigMessage = {
     from: this.address,
-    event: Node.EventName.CREATE_MULTISIG,
-    // TODO: define interface for cross-Node payloads
+    event: NODE_EVENTS.CREATE_MULTISIG,
     data: {
       multisigAddress,
-      owners: params.owners
+      params: {
+        owners: params.owners
+      }
     }
   };
   await this.messagingService.send(respondingAddress, multisigCreatedMsg);

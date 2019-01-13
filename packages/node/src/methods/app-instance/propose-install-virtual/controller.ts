@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
-import { NodeMessage } from "../../../types";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
 import { createProposedAppInstance } from "../propose-install/controller";
 
 /**
@@ -25,13 +25,12 @@ export default async function proposeInstallVirtualAppInstanceController(
     params
   );
 
-  const proposalMsg: NodeMessage = {
+  const proposalMsg: ProposeVirtualMessage = {
     from: this.address,
-    event: Node.EventName.INSTALL,
+    event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: {
-      ...params,
-      appInstanceId,
-      proposal: true
+      params,
+      appInstanceId
     }
   };
 

@@ -14,7 +14,7 @@ import { installEventController } from "./events/install/controller";
 import { addMultisig } from "./methods/state-channel/add";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
-import { NodeMessage } from "./types";
+import { NodeEvents, NodeMessage, NODE_EVENTS } from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -86,8 +86,8 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig.bind(this));
-    this.events.set(Node.EventName.INSTALL, installEventController.bind(this));
+    this.events.set(NODE_EVENTS.CREATE_MULTISIG, addMultisig.bind(this));
+    this.events.set(NODE_EVENTS.INSTALL, installEventController.bind(this));
   }
 
   /**
@@ -96,7 +96,7 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: Node.EventName, msg: NodeMessage) {
+  public async callEvent(event: NodeEvents, msg: NodeMessage) {
     await this.events.get(event)(msg);
   }
 
