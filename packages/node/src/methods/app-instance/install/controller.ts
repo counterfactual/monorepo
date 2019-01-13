@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
+import { NodeMessage } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 
 import { install } from "./operation";

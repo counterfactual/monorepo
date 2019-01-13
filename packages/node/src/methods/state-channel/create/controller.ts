@@ -1,8 +1,8 @@
 import { Address, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
+import { NodeMessage } from "../../../types";
 
 import { openStateChannel } from "./instance";
 

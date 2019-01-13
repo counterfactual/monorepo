@@ -2,8 +2,8 @@ import { StateChannel } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
-import { NodeMessage } from "../../node";
 import { RequestHandler } from "../../request-handler";
+import { NodeMessage } from "../../types";
 
 /**
  * This creates an entry for an already-created multisig sent by a peer.

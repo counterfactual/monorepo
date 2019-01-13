@@ -2,9 +2,9 @@ import { Address, Node } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
+import { NodeMessage } from "../../../types";
 import { getChannelFromPeerAddress } from "../../../utils";
 
 /**

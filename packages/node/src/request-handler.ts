@@ -12,9 +12,9 @@ import EventEmitter from "eventemitter3";
 import { methodNameToImplementation } from "./api-router";
 import { installEventController } from "./events/install/controller";
 import { addMultisig } from "./methods/state-channel/add";
-import { NodeMessage } from "./node";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
+import { NodeMessage } from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information

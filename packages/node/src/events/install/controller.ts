@@ -1,6 +1,6 @@
 import { install } from "../../methods/app-instance/install/operation";
-import { NodeMessage } from "../../node";
 import { RequestHandler } from "../../request-handler";
+import { NodeMessage } from "../../types";
 
 import { setAppInstanceIDForProposeInstall } from "./operation";
 /**
