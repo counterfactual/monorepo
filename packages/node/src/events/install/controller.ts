@@ -13,15 +13,19 @@ export async function installEventController(
   nodeMsg: NodeMessage
 ) {
   const params = { ...nodeMsg.data };
-  params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    await setAppInstanceIDForProposeInstall(
-      this.selfAddress,
+    await setAppInstanceIDForProposeInstall(this.selfAddress, this.store, {
+      ...params,
+      peerAddress: nodeMsg.from!
+    });
+  } else {
+    await install(
       this.store,
+      this.instructionExecutor,
+      this.selfAddress,
+      params.peerAddress,
       params
     );
-  } else {
-    await install(this.store, params);
   }
 }

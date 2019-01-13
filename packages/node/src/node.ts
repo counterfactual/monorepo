@@ -56,6 +56,8 @@ export class Node {
 
     this.registerOpSignMiddleware();
 
+    this.registerIoMiddleware();
+
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
@@ -87,6 +89,12 @@ export class Node {
         next();
       }
     );
+  }
+
+  private registerIoMiddleware() {
+    // TODO:
+    this.instructionExecutor.register(Opcode.IO_SEND, () => {});
+    this.instructionExecutor.register(Opcode.IO_WAIT, () => {});
   }
 
   /**
