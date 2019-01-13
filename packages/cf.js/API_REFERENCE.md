@@ -46,7 +46,7 @@
         - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
         - `async proposeInstall({
-                peerAddress: Address,
+                respondingAddress: Address,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
@@ -54,7 +54,7 @@
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
         - `async proposeInstallVirtual({
-                peerAddress: Address,
+                respondingAddress: Address,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
@@ -148,8 +148,8 @@ Result:
 Requests that a peer start the install protocol for an app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `peerAddress: string`
-    - Address of the peer to request installation of the app with
+- `respondingAddress: string`
+    - Address of the peer responding to the installation request of the app
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -177,8 +177,8 @@ Errors: (TODO)
 Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `peerAddress: string`
-    - Address of the peer to request installation of the app with
+- `respondingAddress: string`
+    - Address of the peer responding to the installation request of the app
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
