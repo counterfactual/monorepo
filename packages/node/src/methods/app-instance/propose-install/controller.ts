@@ -37,7 +37,7 @@ export async function proposeInstallAppInstanceController(
     }
   };
 
-  await this.messagingService.send(params.peerAddress, proposalMsg);
+  await this.messagingService.send(params.respondingAddress, proposalMsg);
 
   return {
     appInstanceId
@@ -59,7 +59,7 @@ export async function createProposedAppInstance(
   const appInstanceId = generateUUID();
   const channel = await getChannelFromPeerAddress(
     selfAddress,
-    params.peerAddress,
+    params.respondingAddress,
     store
   );
 

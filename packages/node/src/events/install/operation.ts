@@ -11,7 +11,7 @@ export async function setAppInstanceIDForProposeInstall(
 ) {
   const channel = await getChannelFromPeerAddress(
     selfAddress,
-    params.peerAddress,
+    params.respondingAddress,
     store
   );
   const proposedAppInstance = new ProposedAppInstanceInfo(

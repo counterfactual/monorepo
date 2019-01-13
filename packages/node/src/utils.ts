@@ -13,10 +13,10 @@ export function orderedAddressesHash(addresses: Address[]): string {
 
 export async function getChannelFromPeerAddress(
   selfAddress: Address,
-  peerAddress: Address,
+  respondingAddress: Address,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = orderedAddressesHash([selfAddress, peerAddress]);
+  const ownersHash = orderedAddressesHash([selfAddress, respondingAddress]);
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
   );

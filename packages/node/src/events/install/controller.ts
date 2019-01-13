@@ -17,14 +17,14 @@ export async function installEventController(
   if (nodeMsg.data.proposal) {
     await setAppInstanceIDForProposeInstall(this.selfAddress, this.store, {
       ...params,
-      peerAddress: nodeMsg.from!
+      respondingAddress: nodeMsg.from!
     });
   } else {
     await install(
       this.store,
       this.instructionExecutor,
       this.selfAddress,
-      params.peerAddress,
+      params.respondingAddress,
       params
     );
   }

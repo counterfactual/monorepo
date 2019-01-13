@@ -25,7 +25,7 @@ export default async function createMultisigController(
     this.networkContext
   );
 
-  const [peerAddress] = params.owners.filter(
+  const [respondingAddress] = params.owners.filter(
     owner => owner !== this.selfAddress
   );
 
@@ -38,7 +38,7 @@ export default async function createMultisigController(
       owners: params.owners
     }
   };
-  await this.messagingService.send(peerAddress, multisigCreatedMsg);
+  await this.messagingService.send(respondingAddress, multisigCreatedMsg);
   return {
     multisigAddress
   };

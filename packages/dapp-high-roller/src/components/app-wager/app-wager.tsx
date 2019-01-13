@@ -56,7 +56,7 @@ export class AppWager {
 
     try {
       await this.appFactory.proposeInstallVirtual({
-        peerAddress: this.opponent.address as string,
+        respondingAddress: this.opponent.address as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },

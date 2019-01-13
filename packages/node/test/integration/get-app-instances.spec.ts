@@ -57,18 +57,18 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // the peer with whom an installation proposal is being made
-    const peerAddress = new Wallet(process.env.B_PRIVATE_KEY!).address;
+    const respondingAddress = new Wallet(process.env.B_PRIVATE_KEY!).address;
 
     // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(node, [
       node.address,
-      peerAddress
+      respondingAddress
     ]);
     expect(multisigAddress).toBeDefined();
 
     // second, an app instance must be proposed to be installed into that channel
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      peerAddress
+      respondingAddress
     );
 
     // third, the pending app instance needs to be installed
