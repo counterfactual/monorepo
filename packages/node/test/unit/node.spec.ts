@@ -1,11 +1,7 @@
-import dotenv from "dotenv-extended";
-
 import { Node } from "../../src/node";
 import { EMPTY_NETWORK } from "../integration/utils";
 import mockMessagingService from "../services/mock-messaging-service";
 import mockStoreService from "../services/mock-store-service";
-
-dotenv.load();
 
 describe("Primitive Node operations", () => {
   it("exists", () => {

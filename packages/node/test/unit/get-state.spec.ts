@@ -1,5 +1,4 @@
 import { StateChannel } from "@counterfactual/machine";
-import dotenv from "dotenv-extended";
 import { instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -9,8 +8,6 @@ import { Store } from "../../src/store";
 import memoryStoreService from "../services/memory-store-service";
 
 import { createAppInstance } from "./utils";
-
-dotenv.load();
 
 describe("Can successfully and unsuccessfully handle getState calls", () => {
   const storeKeyPrefix = "store";
