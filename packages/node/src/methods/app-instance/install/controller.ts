@@ -21,7 +21,7 @@ export default async function installAppInstanceController(
     params.appInstanceId
   );
 
-  const appInstance = await install(
+  const appInstanceInfo = await install(
     requestHandler.store,
     requestHandler.instructionExecutor,
     requestHandler.address,
@@ -34,7 +34,7 @@ export default async function installAppInstanceController(
     event: NODE_EVENTS.INSTALL,
     data: {
       params: {
-        appInstanceId: appInstance.id
+        appInstanceId: appInstanceInfo.id
       }
     }
   };
@@ -44,6 +44,6 @@ export default async function installAppInstanceController(
     installApprovalMsg
   );
   return {
-    appInstance
+    appInstance: appInstanceInfo
   };
 }
