@@ -22,13 +22,13 @@ export async function proposeInstallAppInstanceController(
   }
 
   const appInstanceId = await createProposedAppInstance(
-    this.selfAddress,
+    this.address,
     this.store,
     params
   );
 
   const proposalMsg: NodeMessage = {
-    from: this.selfAddress,
+    from: this.address,
     event: Node.EventName.INSTALL,
     data: {
       ...params,
