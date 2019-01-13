@@ -14,7 +14,7 @@ import { getChannelFromPeerAddress } from "../../../utils";
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export async function proposeInstallAppInstanceController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
   if (params.abiEncodings.actionEncoding === undefined) {
@@ -22,13 +22,13 @@ export async function proposeInstallAppInstanceController(
   }
 
   const appInstanceId = await createProposedAppInstance(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     params
   );
 
   const proposalMsg: ProposeMessage = {
-    from: this.address,
+    from: requestHandler.address,
     event: NODE_EVENTS.PROPOSE_INSTALL,
     data: {
       params,
@@ -36,7 +36,10 @@ export async function proposeInstallAppInstanceController(
     }
   };
 
-  await this.messagingService.send(params.respondingAddress, proposalMsg);
+  await requestHandler.messagingService.send(
+    params.respondingAddress,
+    proposalMsg
+  );
 
   return {
     appInstanceId

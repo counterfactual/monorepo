@@ -4,12 +4,12 @@ import { ProposeMessage } from "../../types";
 import { setAppInstanceIDForProposeInstall } from "./operation";
 
 export async function proposeInstallEventController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   nodeMsg: ProposeMessage
 ) {
   await setAppInstanceIDForProposeInstall(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,
     nodeMsg.from!

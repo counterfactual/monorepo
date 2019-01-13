@@ -4,12 +4,12 @@ import { ProposeVirtualMessage } from "../../types";
 import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
 
 export async function proposeInstallVirtualEventController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {
   await setAppInstanceIDForProposeInstallVirtual(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,
     nodeMsg.from!

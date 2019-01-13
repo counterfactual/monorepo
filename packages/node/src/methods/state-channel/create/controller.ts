@@ -14,23 +14,23 @@ import { openStateChannel } from "./instance";
  * @param params
  */
 export default async function createMultisigController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const multisigAddress = generateNewMultisigAddress(params.owners);
   await openStateChannel(
     multisigAddress,
     params.owners,
-    this.store,
-    this.networkContext
+    requestHandler.store,
+    requestHandler.networkContext
   );
 
   const [respondingAddress] = params.owners.filter(
-    owner => owner !== this.address
+    owner => owner !== requestHandler.address
   );
 
   const multisigCreatedMsg: CreateMultisigMessage = {
-    from: this.address,
+    from: requestHandler.address,
     event: NODE_EVENTS.CREATE_MULTISIG,
     data: {
       multisigAddress,
@@ -39,7 +39,10 @@ export default async function createMultisigController(
       }
     }
   };
-  await this.messagingService.send(respondingAddress, multisigCreatedMsg);
+  await requestHandler.messagingService.send(
+    respondingAddress,
+    multisigCreatedMsg
+  );
   return {
     multisigAddress
   };

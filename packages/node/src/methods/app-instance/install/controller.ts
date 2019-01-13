@@ -12,25 +12,25 @@ import { install } from "./operation";
  * @param params
  */
 export default async function installAppInstanceController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   const [respondingAddress] = await getPeersAddressFromAppInstanceID(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     params.appInstanceId
   );
 
   const appInstance = await install(
-    this.store,
-    this.instructionExecutor,
-    this.address,
+    requestHandler.store,
+    requestHandler.instructionExecutor,
+    requestHandler.address,
     respondingAddress,
     params
   );
 
   const installApprovalMsg: InstallMessage = {
-    from: this.address,
+    from: requestHandler.address,
     event: NODE_EVENTS.INSTALL,
     data: {
       params: {
@@ -39,7 +39,10 @@ export default async function installAppInstanceController(
     }
   };
 
-  await this.messagingService.send(respondingAddress, installApprovalMsg);
+  await requestHandler.messagingService.send(
+    respondingAddress,
+    installApprovalMsg
+  );
   return {
     appInstance
   };

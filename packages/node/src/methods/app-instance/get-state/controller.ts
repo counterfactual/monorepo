@@ -11,13 +11,13 @@ import { getAppInstanceState } from "./operation";
  * @param params
  */
 export default async function getAppInstanceStateController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.GetStateParams
 ): Promise<Node.GetStateResult> {
   if (!params.appInstanceId) {
     Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
   }
   return {
-    state: await getAppInstanceState(params.appInstanceId, this.store)
+    state: await getAppInstanceState(params.appInstanceId, requestHandler.store)
   };
 }

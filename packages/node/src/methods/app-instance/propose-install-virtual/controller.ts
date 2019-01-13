@@ -12,7 +12,7 @@ import { createProposedAppInstance } from "../propose-install/controller";
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default async function proposeInstallVirtualAppInstanceController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.ProposeInstallVirtualParams
 ): Promise<Node.ProposeInstallVirtualResult> {
   if (params.abiEncodings.actionEncoding === undefined) {
@@ -20,13 +20,13 @@ export default async function proposeInstallVirtualAppInstanceController(
   }
 
   const appInstanceId = await createProposedAppInstance(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     params
   );
 
   const proposalMsg: ProposeVirtualMessage = {
-    from: this.address,
+    from: requestHandler.address,
     event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: {
       params,
@@ -34,7 +34,10 @@ export default async function proposeInstallVirtualAppInstanceController(
     }
   };
 
-  await this.messagingService.send(params.respondingAddress, proposalMsg);
+  await requestHandler.messagingService.send(
+    params.respondingAddress,
+    proposalMsg
+  );
 
   return {
     appInstanceId

@@ -10,13 +10,13 @@ import { CreateMultisigMessage } from "../../types";
  * @param nodeMsg
  */
 export async function addMultisig(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   nodeMsg: CreateMultisigMessage
 ) {
   let stateChannel = new StateChannel(
     nodeMsg.data.multisigAddress,
     nodeMsg.data.params.owners
-  ).setupChannel(this.networkContext);
+  ).setupChannel(requestHandler.networkContext);
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   const state = {
@@ -27,5 +27,5 @@ export async function addMultisig(
   };
 
   stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-  await this.store.saveStateChannel(stateChannel);
+  await requestHandler.store.saveStateChannel(stateChannel);
 }

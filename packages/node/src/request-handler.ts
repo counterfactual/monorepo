@@ -55,7 +55,7 @@ export class RequestHandler {
     return {
       type: req.type,
       requestId: req.requestId,
-      result: await this.methods.get(method)(req.params)
+      result: await this.methods.get(method)(this, req.params)
     };
   }
 
@@ -65,16 +65,13 @@ export class RequestHandler {
    */
   private mapPublicApiMethods() {
     for (const methodName in methodNameToImplementation) {
-      this.methods.set(
-        methodName,
-        methodNameToImplementation[methodName].bind(this)
-      );
+      this.methods.set(methodName, methodNameToImplementation[methodName]);
 
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await this.methods.get(methodName)(req.params)
+          result: await this.methods.get(methodName)(this, req.params)
         };
         this.outgoing.emit(req.type, res);
       });
@@ -88,15 +85,12 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(NODE_EVENTS.CREATE_MULTISIG, addMultisig.bind(this));
-    this.events.set(NODE_EVENTS.INSTALL, installEventController.bind(this));
-    this.events.set(
-      NODE_EVENTS.PROPOSE_INSTALL,
-      proposeInstallEventController.bind(this)
-    );
+    this.events.set(NODE_EVENTS.CREATE_MULTISIG, addMultisig);
+    this.events.set(NODE_EVENTS.INSTALL, installEventController);
+    this.events.set(NODE_EVENTS.PROPOSE_INSTALL, proposeInstallEventController);
     this.events.set(
       NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      proposeInstallVirtualEventController.bind(this)
+      proposeInstallVirtualEventController
     );
   }
 
@@ -107,7 +101,7 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
-    await this.events.get(event)(msg);
+    await this.events.get(event)(this, msg);
   }
 
   private startStoringCommitments() {

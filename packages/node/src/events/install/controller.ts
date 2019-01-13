@@ -7,13 +7,13 @@ import { InstallMessage } from "../../types";
  * by counter installing the AppInstance this Node proposed earlier.
  */
 export async function installEventController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   nodeMsg: InstallMessage
 ) {
   await install(
-    this.store,
-    this.instructionExecutor,
-    this.address,
+    requestHandler.store,
+    requestHandler.instructionExecutor,
+    requestHandler.address,
     nodeMsg.from,
     nodeMsg.data.params
   );
