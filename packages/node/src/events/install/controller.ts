@@ -13,16 +13,12 @@ export async function installEventController(
   nodeMsg: NodeMessage
 ) {
   const params = { ...nodeMsg.data };
-  // TODO: (question) Why is peerAddress set here? It is not in the description
-  // of the type of params that `install` is expecting in the lines below.
-  params.peerAddress = nodeMsg.from!;
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    await setAppInstanceIDForProposeInstall(
-      this.selfAddress,
-      this.store,
-      params
-    );
+    await setAppInstanceIDForProposeInstall(this.selfAddress, this.store, {
+      ...params,
+      peerAddress: nodeMsg.from!
+    });
   } else {
     await install(
       this.store,
