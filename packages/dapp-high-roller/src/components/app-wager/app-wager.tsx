@@ -14,7 +14,6 @@ import { Address, AppInstanceID, cf } from "../../data/types";
  * 0.1 ETH is staked hard coded
  * The username is retrieved from the Playground?
  */
-
 @Component({
   tag: "app-wager",
   styleUrl: "app-wager.scss",
@@ -129,6 +128,7 @@ export class AppWager {
           myName={this.myName}
           betAmount={this.betAmount}
           opponentName={this.opponent.username}
+          isProposing={true}
         />
       );
     }
@@ -154,6 +154,7 @@ export class AppWager {
               placeholder="Your name"
               value={this.myName}
               onInput={e => this.handleChange(e, "myName")}
+              readOnly={true}
             />
             <label htmlFor="betAmount">Bet Amount ( ETH )</label>
             <input
