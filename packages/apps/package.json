@@ -28,7 +28,7 @@
     "ethereum-waffle": "2.0.0-beta.8",
     "ethers": "4.0.20",
     "mocha": "^5.2.0",
-    "ethlint": "^1.2.1",
+    "ethlint": "^1.2.2",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.11.0"
   }
