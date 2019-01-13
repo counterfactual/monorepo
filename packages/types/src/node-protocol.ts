@@ -70,7 +70,7 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    peerAddress: Address;
+    respondingAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
     asset: BlockchainAsset;

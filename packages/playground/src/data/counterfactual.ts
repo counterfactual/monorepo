@@ -19,7 +19,7 @@ declare class Node {
   on(event: string, callback: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
   readonly address: string;
-  send(peerAddress: Address, msg: object): Promise<void>;
+  send(respondingAddress: Address, msg: object): Promise<void>;
   get(key: string): Promise<any>;
   set(key: string, value: any): Promise<any>;
 }

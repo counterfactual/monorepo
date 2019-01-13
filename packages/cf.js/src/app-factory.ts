@@ -57,7 +57,7 @@ export class AppFactory {
    */
   async proposeInstall(params: {
     /** Address of peer to install instance with */
-    peerAddress: Address;
+    respondingAddress: Address;
     /** Asset to use for deposit */
     asset: BlockchainAsset;
     /** Amount to be deposited by you */
@@ -80,7 +80,7 @@ export class AppFactory {
         peerDeposit,
         myDeposit,
         asset: params.asset,
-        peerAddress: params.peerAddress,
+        respondingAddress: params.respondingAddress,
         initialState: params.initialState,
         appId: this.appId,
         abiEncodings: this.encodings
@@ -99,7 +99,7 @@ export class AppFactory {
    */
   async proposeInstallVirtual(params: {
     /** Address of peer to install instance with */
-    peerAddress: Address;
+    respondingAddress: Address;
     /** Asset to use for deposit */
     asset: BlockchainAsset;
     /** Amount to be deposited by you */
@@ -124,7 +124,7 @@ export class AppFactory {
         peerDeposit,
         myDeposit,
         asset: params.asset,
-        peerAddress: params.peerAddress,
+        respondingAddress: params.respondingAddress,
         initialState: params.initialState,
         intermediaries: params.intermediaries,
         appId: this.appId,

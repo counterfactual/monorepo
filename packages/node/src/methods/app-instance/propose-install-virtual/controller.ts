@@ -35,7 +35,7 @@ export default async function proposeInstallVirtualAppInstanceController(
     }
   };
 
-  await this.messagingService.send(params.peerAddress, proposalMsg);
+  await this.messagingService.send(params.respondingAddress, proposalMsg);
 
   return {
     appInstanceId

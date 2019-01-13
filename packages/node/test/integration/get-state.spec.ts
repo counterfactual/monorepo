@@ -58,16 +58,16 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right state for an installed AppInstance", async () => {
     // the peer with whom an installation proposal is being made
-    const peerAddress = getAddress(hexlify(randomBytes(20)));
+    const respondingAddress = getAddress(hexlify(randomBytes(20)));
 
     const multisigAddress = await getNewMultisig(node, [
       node.address,
-      peerAddress
+      respondingAddress
     ]);
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      peerAddress
+      respondingAddress
     );
 
     const proposalResult = await node.call(

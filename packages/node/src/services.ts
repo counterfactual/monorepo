@@ -3,7 +3,7 @@ import * as firebase from "firebase/app";
 import "firebase/database";
 
 export interface IMessagingService {
-  send(peerAddress: Address, msg: any);
+  send(respondingAddress: Address, msg: any);
   receive(address: Address, callback: (msg: any) => void);
 }
 
@@ -56,9 +56,9 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  async send(peerAddress: Address, msg: object) {
+  async send(respondingAddress: Address, msg: object) {
     await this.firebase
-      .ref(`${this.messagingServerKey}/${peerAddress}`)
+      .ref(`${this.messagingServerKey}/${respondingAddress}`)
       .set(msg);
   }
 

@@ -88,10 +88,10 @@ async function getApps(
 }
 
 export function makeInstallProposalRequest(
-  peerAddress: Address
+  respondingAddress: Address
 ): NodeTypes.MethodRequest {
   const params: NodeTypes.ProposeInstallParams = {
-    peerAddress: peerAddress as Address,
+    respondingAddress: respondingAddress as Address,
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
@@ -116,10 +116,10 @@ export function makeInstallProposalRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
-  peerAddress: Address,
+  respondingAddress: Address,
   intermediaries: Address[]
 ): NodeTypes.MethodRequest {
-  const installProposalParams = makeInstallProposalRequest(peerAddress)
+  const installProposalParams = makeInstallProposalRequest(respondingAddress)
     .params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {

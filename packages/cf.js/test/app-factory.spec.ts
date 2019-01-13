@@ -48,7 +48,7 @@ describe("CF.js AppFactory", () => {
         });
       });
       const appInstanceId = await appFactory.proposeInstall({
-        peerAddress: "0x0101010101010101010101010101010101010101",
+        respondingAddress: "0x0101010101010101010101010101010101010101",
         asset: {
           assetType: AssetType.ETH
         },
@@ -88,7 +88,7 @@ describe("CF.js AppFactory", () => {
         }
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
-        peerAddress: "0x0101010101010101010101010101010101010101",
+        respondingAddress: "0x0101010101010101010101010101010101010101",
         asset: {
           assetType: AssetType.ETH
         },
@@ -104,7 +104,7 @@ describe("CF.js AppFactory", () => {
     it("throws an error if BigNumber param invalid", async done => {
       try {
         await appFactory.proposeInstall({
-          peerAddress: "0x0101010101010101010101010101010101010101",
+          respondingAddress: "0x0101010101010101010101010101010101010101",
           asset: {
             assetType: AssetType.ETH
           },

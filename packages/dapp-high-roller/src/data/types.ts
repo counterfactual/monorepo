@@ -139,7 +139,7 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    peerAddress: Address;
+    respondingAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
     asset: BlockchainAsset;
@@ -309,14 +309,14 @@ export namespace cf {
       provider: cf.Provider
     ): AppFactory;
     proposeInstall(parameters: {
-      peerAddress: Address;
+      respondingAddress: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: AppState;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
-      peerAddress: Address;
+      respondingAddress: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
