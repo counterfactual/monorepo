@@ -1,5 +1,8 @@
 import { Address, Node } from "@counterfactual/types";
 
+// TODO: the contents of this file should probably be in the types package
+// as Node consumers will need access
+
 /**
  * The message interface for Nodes to communicate with each other.
  */
