@@ -1,6 +1,7 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, Node } from "../../data/types";
@@ -13,6 +14,7 @@ declare var cf;
 })
 export class AppProvider {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
   @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
@@ -21,6 +23,8 @@ export class AppProvider {
 
   @Prop({ mutable: true }) cfProvider: cf.Provider = {} as cf.Provider;
   @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
+  @Prop() user: any;
+  @Prop() opponent: any;
 
   @State() appInstance: AppInstance = {} as AppInstance;
 
@@ -31,7 +35,7 @@ export class AppProvider {
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
       : new NodeProvider();
-    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this)); // TODO have this block rendering
+    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
   }
 
   setupCfProvider() {
@@ -57,14 +61,15 @@ export class AppProvider {
 
   onInstall(data) {
     this.updateAppInstance(data.data.appInstance);
+    const user = this.user;
+    const opponent = this.opponent; // Can't seem to get this injected properly. State doesn't update
 
-    // TODO get history.push working
     this.history.push({
       pathname: "/game",
       state: {
-        opponentName: "Bob",
+        opponentName: opponent.username || "Bob",
         betAmount: "0.1",
-        myName: "Alice",
+        myName: user.username || "Alice",
         isProposing: true
       },
       query: {},
@@ -76,3 +81,5 @@ export class AppProvider {
     return <div />;
   }
 }
+
+CounterfactualTunnel.injectProps(AppProvider, ["user", "opponent"]);

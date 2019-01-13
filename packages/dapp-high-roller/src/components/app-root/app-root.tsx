@@ -26,10 +26,13 @@ export class AppRoot {
   constructor() {
     this.state = {
       user: {},
+      opponent: {},
       appInstance: null,
       appFactory: null,
       updateAppInstance: this.updateAppInstance.bind(this),
-      updateAppFactory: this.updateAppFactory.bind(this)
+      updateAppFactory: this.updateAppFactory.bind(this),
+      updateUser: this.updateUser.bind(this),
+      updateOpponent: this.updateOpponent.bind(this)
     };
   }
 
@@ -65,6 +68,10 @@ export class AppRoot {
     this.state = { ...this.state, user };
   }
 
+  updateOpponent(opponent: any) {
+    this.state = { ...this.state, opponent };
+  }
+
   updateAppInstance(appInstance: AppInstance) {
     this.state = { ...this.state, appInstance };
   }
@@ -90,7 +97,11 @@ export class AppRoot {
                     updateAppFactory: this.state.updateAppFactory
                   }}
                 />
-                <stencil-route url="/wager" component="app-wager" />
+                <stencil-route
+                  url="/wager"
+                  component="app-wager"
+                  componentProps={{ updateOpponent: this.state.updateOpponent }}
+                />
                 <stencil-route url="/game" component="app-game" />
                 <stencil-route url="/waiting" component="app-waiting" />
                 <stencil-route

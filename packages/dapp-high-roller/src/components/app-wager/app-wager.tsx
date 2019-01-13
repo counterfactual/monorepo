@@ -27,7 +27,10 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
-  @State() opponent: { username?: string; address?: Address } = {};
+  @Prop({ mutable: true }) opponent: {
+    username?: string;
+    address?: Address;
+  } = {};
   @State() intermediary: string = "";
   @State() isError: boolean = false;
   @State() isWaiting: boolean = false;
@@ -37,6 +40,7 @@ export class AppWager {
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
+  @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.user.username;
@@ -90,6 +94,8 @@ export class AppWager {
       this.intermediary = result.data.intermediary;
       this.isError = false;
       this.error = null;
+
+      this.updateOpponent(this.opponent);
     } catch (error) {
       this.isError = true;
       this.error = error;
@@ -180,5 +186,6 @@ export class AppWager {
 CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
-  "user"
+  "user",
+  "opponent"
 ]);
