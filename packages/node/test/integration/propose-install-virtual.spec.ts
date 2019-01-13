@@ -1,5 +1,4 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import dotenv from "dotenv-extended";
 import FirebaseServer from "firebase-server";
 
 import {
@@ -18,8 +17,6 @@ import {
   getProposedAppInstances,
   makeInstallVirtualProposalRequest
 } from "./utils";
-
-dotenv.load();
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
   let firebaseServer: FirebaseServer;

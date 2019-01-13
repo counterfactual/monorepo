@@ -1,4 +1,3 @@
-import dotenv from "dotenv-extended";
 import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import FirebaseServer from "firebase-server";
@@ -8,8 +7,6 @@ import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK } from "./utils";
-
-dotenv.load();
 
 describe("Node can use storage service", () => {
   let firebaseServer: FirebaseServer;

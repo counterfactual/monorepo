@@ -1,12 +1,9 @@
-import dotenv from "dotenv-extended";
 import FirebaseServer from "firebase-server";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
-
-dotenv.load();
 
 describe("Node can create multisig, other owners get notified", () => {
   let firebaseServer: FirebaseServer;

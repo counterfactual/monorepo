@@ -1,5 +1,4 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import dotenv from "dotenv-extended";
 import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { anything, instance, mock, when } from "ts-mockito";
@@ -13,8 +12,6 @@ import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
 
 import { createProposedAppInstanceInfo } from "./utils";
-
-dotenv.load();
 
 describe("Can handle correct & incorrect installs", () => {
   const storeKeyPrefix = "store";

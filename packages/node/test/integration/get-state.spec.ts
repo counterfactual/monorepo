@@ -1,5 +1,4 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import dotenv from "dotenv-extended";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
@@ -15,8 +14,6 @@ import {
   getNewMultisig,
   makeInstallProposalRequest
 } from "./utils";
-
-dotenv.load();
 
 describe("Node method follows spec - getAppInstances", () => {
   let firebaseServer: FirebaseServer;
