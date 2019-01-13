@@ -25,7 +25,9 @@ export default async function createMultisigController(
     this.networkContext
   );
 
-  const [respondingAddress] = params.owners.filter(owner => owner !== this.address);
+  const [respondingAddress] = params.owners.filter(
+    owner => owner !== this.address
+  );
 
   const multisigCreatedMsg: NodeMessage = {
     from: this.address,
