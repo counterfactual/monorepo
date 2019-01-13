@@ -16,7 +16,7 @@ export default async function installAppInstanceController(
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   const [respondingAddress] = await getPeersAddressFromAppInstanceID(
-    this.selfAddress,
+    this.address,
     this.store,
     params.appInstanceId
   );
@@ -24,13 +24,13 @@ export default async function installAppInstanceController(
   const appInstance = await install(
     this.store,
     this.instructionExecutor,
-    this.selfAddress,
+    this.address,
     respondingAddress,
     params
   );
 
   const installApprovalMsg: NodeMessage = {
-    from: this.selfAddress,
+    from: this.address,
     event: Node.EventName.INSTALL,
     data: {
       appInstanceId: appInstance.id,

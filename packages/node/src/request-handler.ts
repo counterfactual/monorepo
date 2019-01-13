@@ -25,7 +25,7 @@ export class RequestHandler {
   private events = new Map();
   store: Store;
   constructor(
-    readonly selfAddress: Address,
+    readonly address: Address,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
     readonly storeService: IStoreService,

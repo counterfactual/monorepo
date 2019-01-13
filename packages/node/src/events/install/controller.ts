@@ -15,7 +15,7 @@ export async function installEventController(
   const params = { ...nodeMsg.data };
   delete params.proposal;
   if (nodeMsg.data.proposal) {
-    await setAppInstanceIDForProposeInstall(this.selfAddress, this.store, {
+    await setAppInstanceIDForProposeInstall(this.address, this.store, {
       ...params,
       respondingAddress: nodeMsg.from!
     });
@@ -23,7 +23,7 @@ export async function installEventController(
     await install(
       this.store,
       this.instructionExecutor,
-      this.selfAddress,
+      this.address,
       params.respondingAddress,
       params
     );
