@@ -2,13 +2,8 @@ import { Node as NodeTypes } from "@counterfactual/types";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
-import {
-  IMessagingService,
-  IStoreService,
-  Node,
-  NodeConfig,
-  NodeMessage
-} from "../../src";
+import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -86,33 +81,26 @@ describe("Node method follows spec - proposeInstall", () => {
       );
 
       // node B then decides to approve the proposal
-      nodeB.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
-        if (msg.data.proposal) {
-          confirmProposedAppInstanceOnNode(
-            appInstanceInstallationProposalRequest.params,
-            (await getProposedAppInstances(nodeA))[0]
-          );
+      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+        confirmProposedAppInstanceOnNode(
+          appInstanceInstallationProposalRequest.params,
+          (await getProposedAppInstances(nodeA))[0]
+        );
 
-          // some approval logic happens in this callback, we proceed
-          // to approve the proposal, and install the app instance
-          const installRequest: NodeTypes.MethodRequest = {
-            requestId: generateUUID(),
-            type: NodeTypes.MethodName.INSTALL,
-            params: {
-              appInstanceId: msg.data.appInstanceId
-            } as NodeTypes.InstallParams
-          };
+        // some approval logic happens in this callback, we proceed
+        // to approve the proposal, and install the app instance
+        const installRequest: NodeTypes.MethodRequest = {
+          requestId: generateUUID(),
+          type: NodeTypes.MethodName.INSTALL,
+          params: {
+            appInstanceId: msg.data.appInstanceId
+          } as NodeTypes.InstallParams
+        };
 
-          nodeB.emit(installRequest.type, installRequest);
-        } else {
-          throw Error("This is expecting a proposal");
-        }
+        nodeB.emit(installRequest.type, installRequest);
       });
 
-      nodeA.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
-        if (msg.data.proposal) {
-          throw Error("This is not expecting proposal");
-        }
+      nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
         const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
         const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
         expect(appInstanceNodeA).toEqual(appInstanceNodeB);

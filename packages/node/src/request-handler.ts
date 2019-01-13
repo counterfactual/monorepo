@@ -11,10 +11,11 @@ import EventEmitter from "eventemitter3";
 
 import { methodNameToImplementation } from "./api-router";
 import { installEventController } from "./events/install/controller";
+import { proposeInstallEventController } from "./events/propose-install/controller";
 import { addMultisig } from "./methods/state-channel/add";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
-import { NodeEvents, NodeMessage, NODE_EVENTS } from "./types";
+import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -88,6 +89,10 @@ export class RequestHandler {
   private mapEventHandlers() {
     this.events.set(NODE_EVENTS.CREATE_MULTISIG, addMultisig.bind(this));
     this.events.set(NODE_EVENTS.INSTALL, installEventController.bind(this));
+    this.events.set(
+      NODE_EVENTS.PROPOSE_INSTALL,
+      proposeInstallEventController.bind(this)
+    );
   }
 
   /**
