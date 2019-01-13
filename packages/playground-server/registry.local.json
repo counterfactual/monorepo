@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "name": "High Roller",
+      "url": "http://localhost:3333",
+      "slug": "high-roller",
+      "icon": "assets/images/logo.svg"
+    },
+    {
+      "name": "Tic Tac Toe",
+      "url": "http://localhost:3000",
+      "slug": "tic-tac-toe",
+      "icon": "images/logo-blue.svg"
+    }
+  ]
+}
