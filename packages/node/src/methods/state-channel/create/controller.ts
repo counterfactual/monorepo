@@ -25,12 +25,10 @@ export default async function createMultisigController(
     this.networkContext
   );
 
-  const [peerAddress] = params.owners.filter(
-    owner => owner !== this.selfAddress
-  );
+  const [peerAddress] = params.owners.filter(owner => owner !== this.address);
 
   const multisigCreatedMsg: NodeMessage = {
-    from: this.selfAddress,
+    from: this.address,
     event: Node.EventName.CREATE_MULTISIG,
     // TODO: define interface for cross-Node payloads
     data: {
