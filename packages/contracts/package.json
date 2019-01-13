@@ -41,7 +41,7 @@
     "shx": "^0.3.2",
     "solc": "^0.5",
     "solidity-coverage": "0.5.11",
-    "ethlint": "1.2.1",
+    "ethlint": "1.2.2",
     "truffle": "5.0.1",
     "truffle-deploy-registry": "^0.4.1",
     "truffle-hdwallet-provider": "1.0.2",
