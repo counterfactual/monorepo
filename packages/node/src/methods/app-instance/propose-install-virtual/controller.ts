@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
-import { createProposedAppInstance } from "../propose-install/controller";
+import { createProposedAppInstance } from "../propose-install/operation";
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
