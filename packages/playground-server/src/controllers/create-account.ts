@@ -16,6 +16,9 @@ export default function createAccount() {
   return async (ctx: Context, next: () => Promise<void>) => {
     const request = ctx.request.body as CreateAccountRequest;
 
+    // TODO: If the user creation fails, the multisig gets created anyway.
+    // Do we need a way to dispose of it?
+
     // Create the multisig and return its address.
     const multisig = await createMultisigFor(request.address);
 
