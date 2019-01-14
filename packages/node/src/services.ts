@@ -57,9 +57,10 @@ class FirebaseMessagingService implements IMessagingService {
   ) {}
 
   async send(respondingAddress: Address, msg: object) {
+    const sanitizedMsg = JSON.parse(JSON.stringify(msg));
     await this.firebase
       .ref(`${this.messagingServerKey}/${respondingAddress}`)
-      .set(msg);
+      .set(sanitizedMsg);
   }
 
   receive(address: Address, callback: (msg: object) => void) {
