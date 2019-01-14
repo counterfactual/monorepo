@@ -3,6 +3,7 @@ declare var ethers;
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import CounterfactualTunnel from "../../data/counterfactual";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf } from "../../data/types";
 import { GameState, PlayerType } from "../../enums/enums";
@@ -130,14 +131,15 @@ export class AppGame {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() history: RouterHistory = {} as RouterHistory;
 
-  @Prop({ mutable: true }) myName: string = "Facundo";
   @Prop({ mutable: true }) betAmount: string = "3 ETH";
-  @Prop({ mutable: true }) opponentName: string = "John";
   @Prop({ mutable: true }) isProposing: boolean = false;
   @Prop({ mutable: true }) appInstanceId: string = "";
 
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
+
+  @Prop() user: any = { username: "Facundo" };
+  @Prop() opponent: any = { username: "John" };
 
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
@@ -160,9 +162,7 @@ export class AppGame {
   rollAudio!: HTMLAudioElement;
 
   componentWillLoad() {
-    this.myName = getProp("myName", this);
     this.betAmount = getProp("betAmount", this);
-    this.opponentName = getProp("opponentName", this);
     this.isProposing = getProp("isProposing", this);
     this.appInstanceId = getProp("appInstanceId", this);
   }
@@ -268,7 +268,7 @@ export class AppGame {
       <div class="wrapper">
         <div class="game">
           <app-game-player
-            playerName={this.opponentName}
+            playerName={this.opponent.username}
             playerScore={this.opponentScore}
             playerType={PlayerType.Black}
             playerRoll={this.opponentRoll}
@@ -278,7 +278,7 @@ export class AppGame {
             betAmount={this.betAmount}
           />
           <app-game-player
-            playerName={this.myName}
+            playerName={this.user.username}
             playerScore={this.myScore}
             playerType={PlayerType.White}
             playerRoll={this.myRoll}
@@ -317,3 +317,5 @@ export class AppGame {
     ];
   }
 }
+
+CounterfactualTunnel.injectProps(AppGame, ["user", "opponent"]);
