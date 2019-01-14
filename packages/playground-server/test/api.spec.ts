@@ -31,6 +31,7 @@ describe("playground-server", () => {
       table.string("email");
       table.string("eth_address");
       table.string("multisig_address");
+      table.unique(["username"], "uk_users__username");
     });
 
     await db("users").insert({
@@ -135,6 +136,28 @@ describe("playground-server", () => {
             error: {
               status: HttpStatusCode.BadRequest,
               errorCode: ErrorCode.AddressAlreadyRegistered
+            }
+          });
+          done();
+        });
+    });
+
+    it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", done => {
+      client
+        .post("/create-account", {
+          username: "joe",
+          email: "joe@joe.com",
+          address: "0x5faddca4889ddc5791cf65446371151f29653285",
+          signature:
+            "0x586b68a3362c026cdf39c63569fffb8f9106e624ef316e0f0441ea4caef4b73b0d4626f717ec23166bf061ce6728d58bcba01cd63ef8014f696dffb07d0bd3871b"
+        })
+        .catch(({ response }) => {
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
+          expect(response.data).toEqual({
+            ok: false,
+            error: {
+              status: HttpStatusCode.BadRequest,
+              errorCode: ErrorCode.UsernameAlreadyExists
             }
           });
           done();

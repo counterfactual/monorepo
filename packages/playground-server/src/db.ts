@@ -185,7 +185,8 @@ export async function createUser(
     };
   } catch (e) {
     const error = e as Error;
-    if (error.message.match(/uk_users__username/)) {
+
+    if (error.message.match(/unique constraint/i)) {
       throw ErrorCode.UsernameAlreadyExists;
     } else {
       throw e;
