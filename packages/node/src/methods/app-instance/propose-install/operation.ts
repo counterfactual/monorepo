@@ -4,6 +4,7 @@ import { v4 as generateUUID } from "uuid";
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
+
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
  * the client.
