@@ -101,7 +101,10 @@ export class Node {
     this.instructionExecutor.register(
       Opcode.IO_WAIT,
       (message: ProtocolMessage, next: Function, context: Context) => {
-        this.messagingService.receive(message.toAddress, () => {});
+        this.messagingService.receive(
+          message.toAddress,
+          async (msg: NodeMessage) => {}
+        );
       }
     );
   }
