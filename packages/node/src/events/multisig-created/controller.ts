@@ -9,7 +9,7 @@ import { CreateMultisigMessage } from "../../types";
  * This creates an entry for an already-created multisig sent by a peer.
  * @param nodeMsg
  */
-export async function addMultisig(
+export async function addMultisigController(
   requestHandler: RequestHandler,
   nodeMsg: CreateMultisigMessage
 ) {
