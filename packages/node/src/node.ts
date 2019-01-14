@@ -4,16 +4,13 @@ import {
   Opcode,
   ProtocolMessage
 } from "@counterfactual/machine";
-import {
-  Address,
-  NetworkContext,
-  Node as NodeTypes
-} from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
+import { NODE_EVENTS, NodeMessage } from "./types";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -147,19 +144,10 @@ export class Node {
    * @param msg
    */
   private async preprocessMessage(msg: NodeMessage) {
-    if (!Object.values(NodeTypes.EventName).includes(msg.event)) {
+    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
       console.log("Event not recognized, no-op");
       return;
     }
     await this.requestHandler.callEvent(msg.event, msg);
   }
-}
-
-/**
- * The message interface for Nodes to communicate with each other.
- */
-export interface NodeMessage {
-  from?: Address;
-  event: NodeTypes.EventName;
-  data: any;
 }

@@ -150,6 +150,8 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 - `respondingAddress: string`
     - Address of the peer responding to the installation request of the app
+- `initiatingAddress: string`
+    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -179,6 +181,8 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 - `respondingAddress: string`
     - Address of the peer responding to the installation request of the app
+- `initiatingAddress: string`
+    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)

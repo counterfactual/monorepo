@@ -9,12 +9,13 @@ import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { methodNameToImplementation } from "./api-router";
-import { installEventController } from "./events/install/controller";
-import { addMultisig } from "./methods/state-channel/add";
-import { NodeMessage } from "./node";
+import {
+  eventNameToImplementation,
+  methodNameToImplementation
+} from "./api-router";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
+import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -53,7 +54,7 @@ export class RequestHandler {
     return {
       type: req.type,
       requestId: req.requestId,
-      result: await this.methods.get(method)(req.params)
+      result: await this.methods.get(method)(this, req.params)
     };
   }
 
@@ -63,16 +64,13 @@ export class RequestHandler {
    */
   private mapPublicApiMethods() {
     for (const methodName in methodNameToImplementation) {
-      this.methods.set(
-        methodName,
-        methodNameToImplementation[methodName].bind(this)
-      );
+      this.methods.set(methodName, methodNameToImplementation[methodName]);
 
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
-          result: await this.methods.get(methodName)(req.params)
+          result: await this.methods.get(methodName)(this, req.params)
         };
         this.outgoing.emit(req.type, res);
       });
@@ -86,8 +84,9 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(Node.EventName.CREATE_MULTISIG, addMultisig.bind(this));
-    this.events.set(Node.EventName.INSTALL, installEventController.bind(this));
+    for (const eventName of Object.values(NODE_EVENTS)) {
+      this.events.set(eventName, eventNameToImplementation[eventName]);
+    }
   }
 
   /**
@@ -96,8 +95,8 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: Node.EventName, msg: NodeMessage) {
-    await this.events.get(event)(msg);
+  public async callEvent(event: NodeEvents, msg: NodeMessage) {
+    await this.events.get(event)(this, msg);
   }
 
   private startStoringCommitments() {

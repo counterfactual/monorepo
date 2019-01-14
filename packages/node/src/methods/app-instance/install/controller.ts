@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
+import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 
 import { install } from "./operation";
@@ -12,34 +12,38 @@ import { install } from "./operation";
  * @param params
  */
 export default async function installAppInstanceController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
   const [respondingAddress] = await getPeersAddressFromAppInstanceID(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     params.appInstanceId
   );
 
-  const appInstance = await install(
-    this.store,
-    this.instructionExecutor,
-    this.address,
+  const appInstanceInfo = await install(
+    requestHandler.store,
+    requestHandler.instructionExecutor,
+    requestHandler.address,
     respondingAddress,
     params
   );
 
-  const installApprovalMsg: NodeMessage = {
-    from: this.address,
-    event: Node.EventName.INSTALL,
+  const installApprovalMsg: InstallMessage = {
+    from: requestHandler.address,
+    event: NODE_EVENTS.INSTALL,
     data: {
-      appInstanceId: appInstance.id,
-      proposal: false
+      params: {
+        appInstanceId: appInstanceInfo.id
+      }
     }
   };
 
-  await this.messagingService.send(respondingAddress, installApprovalMsg);
+  await requestHandler.messagingService.send(
+    respondingAddress,
+    installApprovalMsg
+  );
   return {
-    appInstance
+    appInstance: appInstanceInfo
   };
 }

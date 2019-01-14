@@ -2,19 +2,21 @@ import { StateChannel } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
-import { NodeMessage } from "../../node";
 import { RequestHandler } from "../../request-handler";
+import { CreateMultisigMessage } from "../../types";
 
 /**
  * This creates an entry for an already-created multisig sent by a peer.
  * @param nodeMsg
  */
-export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {
-  const params = nodeMsg.data;
+export default async function addMultisigController(
+  requestHandler: RequestHandler,
+  nodeMsg: CreateMultisigMessage
+) {
   let stateChannel = new StateChannel(
-    params.multisigAddress,
-    params.owners
-  ).setupChannel(this.networkContext);
+    nodeMsg.data.multisigAddress,
+    nodeMsg.data.params.owners
+  ).setupChannel(requestHandler.networkContext);
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
   const state = {
@@ -25,5 +27,5 @@ export async function addMultisig(this: RequestHandler, nodeMsg: NodeMessage) {
   };
 
   stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-  await this.store.saveStateChannel(stateChannel);
+  await requestHandler.store.saveStateChannel(stateChannel);
 }

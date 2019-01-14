@@ -3,9 +3,9 @@ import { Node } from "@counterfactual/types";
 import { RequestHandler } from "../../../request-handler";
 
 export default async function getAllChannelAddressesController(
-  this: RequestHandler
+  requestHandler: RequestHandler
 ): Promise<Node.GetChannelAddressesResult> {
-  const channels = await this.store.getAllChannels();
+  const channels = await requestHandler.store.getAllChannels();
   return {
     multisigAddresses: Object.keys(channels)
   };
