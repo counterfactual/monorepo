@@ -32,7 +32,7 @@ export class AppProvider {
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
       : new NodeProvider();
-    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this)); // TODO have this block rendering
+    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
   }
 
   setupCfProvider() {
