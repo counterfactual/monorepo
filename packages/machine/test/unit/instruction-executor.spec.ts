@@ -60,14 +60,10 @@ describe("InstructionExecutor", () => {
         }
       );
 
-      const scm = new Map<string, StateChannel>([
-        ["0x00", stateChannelBeforeSetup]
-      ]);
-
-      instructionExecutor.runSetupProtocol(scm, {
+      instructionExecutor.runSetupProtocol(stateChannelBeforeSetup, {
         initiatingAddress: "0x00",
         respondingAddress: "0x00",
-        multisigAddress: "0x00"
+        multisigAddress: stateChannelBeforeSetup.multisigAddress
       });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
