@@ -8,9 +8,6 @@ import { cf, Node } from "../../data/types";
 declare var NodeProvider;
 declare var cf;
 
-const AUTH_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzI5N2JjLTgwMTQtNGM4Mi04Y2VlLTNiN2NhN2RiMDlkNCIsInVzZXJuYW1lIjoiQWxvbnNraTIiLCJhZGRyZXNzIjoiMHhjNjBiOTAyM2JiOGRjMTUzYjQwNDY5NzczMjhjZTc5YWYxMmE3N2UwIiwiZW1haWwiOiJhbG9uMkBleGFtcGxlLmNvbSIsIm11bHRpc2lnQWRkcmVzcyI6IjB4OTQ5OWFjNUE2NmMzNjQ0N2U1MzVkMjUyYzA0OTMwNEQ4MDk2MUNFRCIsImlhdCI6MTU0NzQwNDUzNSwiZXhwIjoxNTc4OTYyMTM1fQ.innx0udzB2fj2_ZWYGugDJlz-Wb-qSckjqjyIBBTyS4";
-
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
@@ -24,9 +21,11 @@ export class AppRoot {
   @State() appInstance: AppInstance = {} as AppInstance;
 
   constructor() {
+    const params = new URLSearchParams(window.location.search);
     this.state = {
       user: {},
       opponent: {},
+      standalone: params.get("standalone") === "true" || false,
       appInstance: null,
       appFactory: null,
       updateAppInstance: this.updateAppInstance.bind(this),
@@ -50,15 +49,13 @@ export class AppRoot {
     });
 
     window.parent.postMessage("playground:request:user", "*");
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("standalone")) {
+    if (this.state.standalone) {
       const mockUser = {
         address: "0xc60b9023bb8dc153b4046977328ce79af12a77e0",
         email: "alon2@example.com",
         id: "687297bc-8014-4c82-8cee-3b7ca7db09d4",
         multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED",
-        username: "Alonski2",
-        token: AUTH_TOKEN
+        username: "MyName"
       };
       this.updateUser(mockUser);
     }

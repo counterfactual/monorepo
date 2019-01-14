@@ -36,6 +36,7 @@ export class AppWager {
   @State() isWaiting: boolean = false;
   @State() error: any;
   @Prop() user: any;
+  @Prop() standalone: boolean = false;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
@@ -75,20 +76,8 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    const { token } = this.user;
-
     try {
-      const response = await fetch(
-        // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      const result = await response.json();
+      const result = await this.fetchMatchmake();
 
       this.opponent = result.data.opponent;
       this.intermediary = result.data.intermediary;
@@ -104,6 +93,38 @@ export class AppWager {
 
   handleChange(e: Event, prop: string): void {
     this[prop] = (e.target as HTMLInputElement).value;
+  }
+
+  private async fetchMatchmake() {
+    if (this.standalone) {
+      return {
+        ok: true,
+        data: {
+          user: {
+            username: this.user.username,
+            address: this.user.address
+          },
+          opponent: {
+            username: "MyOpponent",
+            address: "0x12345"
+          },
+          intermediary: this.user.multisigAddress
+        }
+      };
+    }
+    const { token } = this.user;
+    const response = await fetch(
+      // TODO: This URL must come from an environment variable.
+      "https://server.playground-staging.counterfactual.com/api/matchmake",
+      // "http://localhost:9000/api/matchmake",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return await response.json();
   }
 
   render() {
@@ -187,5 +208,6 @@ CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
   "user",
-  "opponent"
+  "opponent",
+  "standalone"
 ]);
