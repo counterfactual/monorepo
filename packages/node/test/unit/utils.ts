@@ -12,6 +12,8 @@ import { ProposedAppInstanceInfo } from "../../src/models";
 
 export function createProposedAppInstanceInfo(appInstanceId: string) {
   return new ProposedAppInstanceInfo(appInstanceId, {
+    initiatingAddress: getAddress(hexlify(randomBytes(20))),
+    respondingAddress: getAddress(hexlify(randomBytes(20))),
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
