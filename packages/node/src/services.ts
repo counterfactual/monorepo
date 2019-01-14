@@ -2,9 +2,14 @@ import { Address } from "@counterfactual/types";
 import * as firebase from "firebase/app";
 import "firebase/database";
 
+import { NodeMessage } from "./types";
+
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: any);
-  receive(address: Address, callback: (msg: any) => void);
+  send(respondingAddress: Address, msg: NodeMessage);
+  receive(
+    address: Address,
+    callback: (msg: NodeMessage) => Promise<void>
+  ): Promise<void>;
 }
 
 export interface IStoreService {
@@ -56,42 +61,56 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  async send(respondingAddress: Address, msg: object) {
+  send(respondingAddress: Address, msg: object) {
     const sanitizedMsg = JSON.parse(JSON.stringify(msg));
-    await this.firebase
+    this.firebase
       .ref(`${this.messagingServerKey}/${respondingAddress}`)
       .set(sanitizedMsg);
   }
 
-  receive(address: Address, callback: (msg: object) => void) {
+  async receive(
+    address: Address,
+    callback: (msg: NodeMessage) => Promise<void>
+  ) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
       return;
     }
+    new Promise((resolve, reject) => {
+      this.firebase
+        .ref(`${this.messagingServerKey}/${address}`)
+        .on(
+          "value",
+          async (snapshot: firebase.database.DataSnapshot | null) => {
+            if (snapshot === null) {
+              console.debug(
+                `Node with address ${address} received a "null" snapshot`
+              );
+              return reject();
+            }
 
-    this.firebase
-      .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        if (snapshot === null) {
-          console.debug(
-            `Node with address ${address} received a "null" snapshot`
-          );
-          return;
-        }
-        const msg = snapshot.val();
-        const msgKey = JSON.stringify(msg);
-        if (msg === null) {
-          return;
-        }
-        if (msgKey in this.servedMessages) {
-          delete this.servedMessages[msgKey];
-          return;
-        }
-        this.servedMessages[msgKey] = true;
-        callback(msg);
-      });
+            const msg = snapshot.val();
+            const msgKey = JSON.stringify(msg);
+
+            if (msg === null) {
+              return reject();
+            }
+
+            if (msgKey in this.servedMessages) {
+              delete this.servedMessages[msgKey];
+              return reject();
+            }
+
+            this.servedMessages[msgKey] = true;
+
+            await callback(msg);
+
+            resolve();
+          }
+        );
+    });
   }
 }
 

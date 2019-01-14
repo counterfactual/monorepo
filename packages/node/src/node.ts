@@ -89,14 +89,21 @@ export class Node {
   }
 
   private registerIoMiddleware() {
+    this.instructionExecutor.register(Opcode.IO_SEND, (
+      // TODO: Figure out conversion of NodeMessage and ProtocolMessage
+      message: any /* ProtocolMessage */,
+      next: Function,
+      context: Context
+    ) => {
+      this.messagingService.send(message.toAddress, message);
+      next();
+    });
     this.instructionExecutor.register(
-      Opcode.IO_SEND,
+      Opcode.IO_WAIT,
       (message: ProtocolMessage, next: Function, context: Context) => {
-        this.messagingService.send(message.toAddress, message);
-        next();
+        this.messagingService.receive(message.toAddress, () => {});
       }
     );
-    this.instructionExecutor.register(Opcode.IO_WAIT, () => {});
   }
 
   /**

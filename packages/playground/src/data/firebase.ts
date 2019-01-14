@@ -17,7 +17,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(msg);
   }
 
-  receive(address: Address, callback: (msg: object) => void) {
+  async receive(address: Address, callback: (msg: object) => Promise<void>) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -25,21 +25,27 @@ class FirebaseMessagingService implements IMessagingService {
       return;
     }
 
-    this.firebase
-      .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        if (snapshot === null) {
-          console.debug(
-            `Node with address ${address} received a "null" snapshot`
-          );
-          return;
-        }
+    new Promise((resolve, reject) => {
+      this.firebase
+        .ref(`${this.messagingServerKey}/${address}`)
+        .on(
+          "value",
+          async (snapshot: firebase.database.DataSnapshot | null) => {
+            if (snapshot === null) {
+              console.debug(
+                `Node with address ${address} received a "null" snapshot`
+              );
+              return reject();
+            }
 
-        const value = snapshot.val();
-        if (value) {
-          callback(value);
-        }
-      });
+            const value = snapshot.val();
+            if (value) {
+              await callback(value);
+              resolve();
+            }
+          }
+        );
+    });
   }
 }
 
