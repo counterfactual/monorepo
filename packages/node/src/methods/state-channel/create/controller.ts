@@ -1,8 +1,8 @@
 import { Address, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
+import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
 
 import { openStateChannel } from "./instance";
 
@@ -14,31 +14,35 @@ import { openStateChannel } from "./instance";
  * @param params
  */
 export default async function createMultisigController(
-  this: RequestHandler,
+  requestHandler: RequestHandler,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const multisigAddress = generateNewMultisigAddress(params.owners);
   await openStateChannel(
     multisigAddress,
     params.owners,
-    this.store,
-    this.networkContext
+    requestHandler.store,
+    requestHandler.networkContext
   );
 
   const [respondingAddress] = params.owners.filter(
-    owner => owner !== this.address
+    owner => owner !== requestHandler.address
   );
 
-  const multisigCreatedMsg: NodeMessage = {
-    from: this.address,
-    event: Node.EventName.CREATE_MULTISIG,
-    // TODO: define interface for cross-Node payloads
+  const multisigCreatedMsg: CreateMultisigMessage = {
+    from: requestHandler.address,
+    event: NODE_EVENTS.CREATE_MULTISIG,
     data: {
       multisigAddress,
-      owners: params.owners
+      params: {
+        owners: params.owners
+      }
     }
   };
-  await this.messagingService.send(respondingAddress, multisigCreatedMsg);
+  await requestHandler.messagingService.send(
+    respondingAddress,
+    multisigCreatedMsg
+  );
   return {
     multisigAddress
   };

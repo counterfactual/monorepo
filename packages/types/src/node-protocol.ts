@@ -48,6 +48,7 @@ export namespace Node {
     GET_CHANNEL_ADDRESSES = "getChannelAddresses"
   }
 
+  // The events that cf.js clients can listen on
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
     INSTALL = "installEvent",
@@ -70,7 +71,6 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    respondingAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
     asset: BlockchainAsset;
@@ -78,10 +78,9 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: AppState;
+    respondingAddress: Address;
+    initiatingAddress: Address;
   };
-  export interface InterNodeProposeInstallParams extends ProposeInstallParams {
-    appInstanceId: AppInstanceID;
-  }
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };

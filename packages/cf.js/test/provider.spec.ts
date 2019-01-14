@@ -1,5 +1,6 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { Provider } from "../src/provider";
@@ -24,7 +25,9 @@ describe("CF.js Provider", () => {
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: Zero,
     peerDeposit: Zero,
-    timeout: Zero
+    timeout: Zero,
+    initiatingAddress: getAddress(hexlify(randomBytes(20))),
+    respondingAddress: getAddress(hexlify(randomBytes(20)))
   };
 
   beforeEach(() => {

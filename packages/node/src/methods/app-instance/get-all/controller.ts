@@ -12,15 +12,16 @@ import {
  * this Node.
  */
 export default async function getInstalledAppInstancesController(
-  this: RequestHandler
+  requestHandler: RequestHandler,
+  params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
   const appInstances: AppInstanceInfo[] = [];
-  const channels = await this.store.getAllChannels();
+  const channels = await requestHandler.store.getAllChannels();
   for (const channel of Object.values(channels)) {
     if (channel.appInstances) {
       const nonFreeBalanceAppInstances = getNonFreeBalanceAppInstances(channel);
       const appInstanceInfos = await getAppInstanceInfoFromAppInstance(
-        this.store,
+        requestHandler.store,
         nonFreeBalanceAppInstances
       );
       appInstances.push(...Object.values(appInstanceInfos));

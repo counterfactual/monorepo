@@ -1,11 +1,9 @@
-import { Address, Node } from "@counterfactual/types";
-import { v4 as generateUUID } from "uuid";
+import { Node } from "@counterfactual/types";
 
-import { ProposedAppInstanceInfo } from "../../../models";
-import { NodeMessage } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
-import { Store } from "../../../store";
-import { getChannelFromPeerAddress } from "../../../utils";
+import { NODE_EVENTS, ProposeMessage } from "../../../types";
+
+import { createProposedAppInstance } from "./operation";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
@@ -13,61 +11,39 @@ import { getChannelFromPeerAddress } from "../../../utils";
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeInstallAppInstanceController(
-  this: RequestHandler,
+export default async function proposeInstallAppInstanceController(
+  requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
+  // The client can ignore setting the Node's address, but the peers need to know
+  // who the initiating address is
+  params.initiatingAddress = requestHandler.address;
+
   if (params.abiEncodings.actionEncoding === undefined) {
     delete params.abiEncodings.actionEncoding;
   }
 
   const appInstanceId = await createProposedAppInstance(
-    this.address,
-    this.store,
+    requestHandler.address,
+    requestHandler.store,
     params
   );
 
-  const proposalMsg: NodeMessage = {
-    from: this.address,
-    event: Node.EventName.INSTALL,
+  const proposalMsg: ProposeMessage = {
+    from: requestHandler.address,
+    event: NODE_EVENTS.PROPOSE_INSTALL,
     data: {
-      ...params,
-      appInstanceId,
-      proposal: true
+      params,
+      appInstanceId
     }
   };
 
-  await this.messagingService.send(params.respondingAddress, proposalMsg);
+  await requestHandler.messagingService.send(
+    params.respondingAddress,
+    proposalMsg
+  );
 
   return {
     appInstanceId
   };
-}
-
-/**
- * Creates a ProposedAppInstanceInfo to reflect the proposal received from
- * the client.
- * @param selfAddress
- * @param store
- * @param params
- */
-export async function createProposedAppInstance(
-  selfAddress: Address,
-  store: Store,
-  params: Node.ProposeInstallParams
-): Promise<string> {
-  const appInstanceId = generateUUID();
-  const channel = await getChannelFromPeerAddress(
-    selfAddress,
-    params.respondingAddress,
-    store
-  );
-
-  const proposedAppInstance = new ProposedAppInstanceInfo(
-    appInstanceId,
-    params
-  );
-
-  await store.addAppInstanceProposal(channel, proposedAppInstance);
-  return appInstanceId;
 }

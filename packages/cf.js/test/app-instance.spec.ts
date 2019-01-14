@@ -1,5 +1,5 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
@@ -19,7 +19,9 @@ describe("CF.js AppInstance", () => {
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: bigNumberify(1000),
     peerDeposit: bigNumberify(1000),
-    timeout: bigNumberify(10)
+    timeout: bigNumberify(10),
+    initiatingAddress: getAddress(hexlify(randomBytes(20))),
+    respondingAddress: getAddress(hexlify(randomBytes(20)))
   };
 
   beforeEach(async () => {

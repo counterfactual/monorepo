@@ -7,15 +7,17 @@ import { getChannelFromPeerAddress } from "../../utils";
 export async function setAppInstanceIDForProposeInstall(
   selfAddress: Address,
   store: Store,
-  params: Node.InterNodeProposeInstallParams
+  params: Node.ProposeInstallParams,
+  appInstanceId: string,
+  respondingAddress: Address
 ) {
   const channel = await getChannelFromPeerAddress(
     selfAddress,
-    params.respondingAddress,
+    respondingAddress,
     store
   );
   const proposedAppInstance = new ProposedAppInstanceInfo(
-    params.appInstanceId,
+    appInstanceId,
     params
   );
 
