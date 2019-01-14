@@ -39,9 +39,7 @@ export async function install(
   delete appInstanceInfo.initialState;
 
   const updatedStateChannelMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
+    stateChannel,
     {
       initiatingAddress,
       respondingAddress,
