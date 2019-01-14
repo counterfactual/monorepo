@@ -1,13 +1,8 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import FirebaseServer from "firebase-server";
 
-import {
-  IMessagingService,
-  IStoreService,
-  Node,
-  NodeConfig,
-  NodeMessage
-} from "../../src";
+import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -23,7 +18,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let storeService: IStoreService;
   let messagingService: IMessagingService;
   let nodeA: Node;
-  let intermediaryNode: Node;
+  let nodeB: Node;
   let nodeC: Node;
   let nodeConfig: NodeConfig;
 
@@ -52,7 +47,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       EMPTY_NETWORK,
       nodeConfig
     );
-    intermediaryNode = new Node(
+    nodeB = new Node(
       process.env.B_PRIVATE_KEY!,
       messagingService,
       storeService,
@@ -72,41 +67,69 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     firebaseServer.close();
   });
 
-  it("Node A makes a proposal to install a Virtual AppInstance to Node C, both nodes confirm receipt of proposal", async done => {
-    const multisigAddress = await getNewMultisig(nodeA, [
-      nodeA.address,
-      nodeC.address
-    ]);
-    expect(multisigAddress).toBeDefined();
+  it(
+    "Node A makes a proposal through an intermediary Node B to install a " +
+      "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
+    async done => {
+      const multisigAddressAB = await getNewMultisig(nodeA, [
+        nodeA.address,
+        nodeB.address
+      ]);
+      expect(multisigAddressAB).toBeDefined();
 
-    const intermediaries = [intermediaryNode.address];
-    const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-      nodeC.address,
-      intermediaries
-    );
+      const multisigAddressBC = await getNewMultisig(nodeB, [
+        nodeB.address,
+        nodeC.address
+      ]);
+      expect(multisigAddressBC).toBeDefined();
 
-    nodeC.on(NodeTypes.EventName.INSTALL, async (msg: NodeMessage) => {
-      if (msg.data.proposal) {
-        confirmProposedVirtualAppInstanceOnNode(
-          installVirtualAppInstanceProposalRequest.params,
-          (await getProposedAppInstances(nodeA))[0]
-        );
-        confirmProposedVirtualAppInstanceOnNode(
-          installVirtualAppInstanceProposalRequest.params,
-          (await getProposedAppInstances(nodeC))[0]
-        );
-        done();
-      } else {
-        throw Error("This is expecting a proposal");
-      }
-    });
+      const intermediaries = [nodeB.address];
+      const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+        nodeA.address,
+        nodeC.address,
+        intermediaries
+      );
 
-    const response = await nodeA.call(
-      installVirtualAppInstanceProposalRequest.type,
-      installVirtualAppInstanceProposalRequest
-    );
-    const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-      .appInstanceId;
-    expect(appInstanceId).toBeDefined();
-  });
+      nodeC.on(
+        NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+        async (msg: ProposeVirtualMessage) => {
+          const proposedAppInstanceA = (await getProposedAppInstances(
+            nodeA
+          ))[0];
+          const proposedAppInstanceB = (await getProposedAppInstances(
+            nodeB
+          ))[0];
+          const proposedAppInstanceC = (await getProposedAppInstances(
+            nodeC
+          ))[0];
+
+          confirmProposedVirtualAppInstanceOnNode(
+            installVirtualAppInstanceProposalRequest.params,
+            proposedAppInstanceA
+          );
+          confirmProposedVirtualAppInstanceOnNode(
+            installVirtualAppInstanceProposalRequest.params,
+            proposedAppInstanceB
+          );
+          confirmProposedVirtualAppInstanceOnNode(
+            installVirtualAppInstanceProposalRequest.params,
+            proposedAppInstanceC
+          );
+
+          expect(proposedAppInstanceC.initiatingAddress).toEqual(nodeA.address);
+          expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceB.id);
+          expect(proposedAppInstanceB.id).toEqual(proposedAppInstanceC.id);
+          done();
+        }
+      );
+
+      const response = await nodeA.call(
+        installVirtualAppInstanceProposalRequest.type,
+        installVirtualAppInstanceProposalRequest
+      );
+      const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
+        .appInstanceId;
+      expect(appInstanceId).toBeDefined();
+    }
+  );
 });

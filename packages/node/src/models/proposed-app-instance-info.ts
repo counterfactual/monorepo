@@ -17,6 +17,8 @@ export interface IProposedAppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: AppState;
+  initiatingAddress: Address;
+  respondingAddress: Address;
   intermediaries?: Address[];
 }
 
@@ -29,6 +31,8 @@ export interface ProposedAppInstanceInfoJSON {
   peerDeposit: string;
   timeout: string;
   initialState: AppState;
+  initiatingAddress: Address;
+  respondingAddress: Address;
   intermediaries?: Address[];
 }
 
@@ -51,6 +55,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: AppState;
+  initiatingAddress: Address;
+  respondingAddress: Address;
   intermediaries?: Address[];
 
   constructor(
@@ -65,6 +71,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
     this.initialState = proposeParams.initialState;
+    this.initiatingAddress = proposeParams.initiatingAddress;
+    this.respondingAddress = proposeParams.respondingAddress;
     if (proposeParams.intermediaries) {
       this.intermediaries = proposeParams.intermediaries;
     }
@@ -80,7 +88,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
       timeout: this.timeout,
-      initialState: this.initialState
+      initialState: this.initialState,
+      initiatingAddress: this.initiatingAddress,
+      respondingAddress: this.respondingAddress
     };
     if (this.intermediaries) {
       json.intermediaries = this.intermediaries;
@@ -98,6 +108,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
       initialState: json.initialState,
+      initiatingAddress: json.initiatingAddress,
+      respondingAddress: json.respondingAddress,
       intermediaries: json.intermediaries
     };
     return new ProposedAppInstanceInfo(json.id, proposeParams);

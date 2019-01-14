@@ -67,6 +67,7 @@ describe("Node method follows spec - getAppInstances", () => {
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+      node.address,
       respondingAddress
     );
 
