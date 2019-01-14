@@ -170,16 +170,26 @@ export async function createUser(
     multisig_address: data.multisigAddress
   });
 
-  await query;
+  try {
+    await query;
 
-  Log.debug("Executed createUser query", {
-    tags: { query: query.toSQL().sql }
-  });
+    Log.debug("Executed createUser query", {
+      tags: { query: query.toSQL().sql }
+    });
 
-  await db.destroy();
+    await db.destroy();
 
-  return {
-    id,
-    ...data
-  };
+    return {
+      id,
+      ...data
+    };
+  } catch (e) {
+    const error = e as Error;
+
+    if (error.message.match(/unique constraint/i)) {
+      throw ErrorCode.UsernameAlreadyExists;
+    } else {
+      throw e;
+    }
+  }
 }
