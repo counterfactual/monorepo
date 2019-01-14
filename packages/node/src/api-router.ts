@@ -1,6 +1,12 @@
 import { Node } from "@counterfactual/types";
 
 import {
+  addMultisigController,
+  installEventController,
+  proposeInstallEventController,
+  proposeInstallVirtualEventController
+} from "./events";
+import {
   createMultisigController,
   getAllChannelAddressesController,
   getAppInstanceStateController,
@@ -10,6 +16,7 @@ import {
   proposeInstallAppInstanceController,
   proposeInstallVirtualAppInstanceController
 } from "./methods";
+import { NODE_EVENTS } from "./types";
 
 export const methodNameToImplementation = {
   [Node.MethodName.CREATE_MULTISIG]: createMultisigController,
@@ -22,4 +29,17 @@ export const methodNameToImplementation = {
   [Node.MethodName
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController
+};
+
+export const eventNameToImplementation = {
+  [NODE_EVENTS.CREATE_MULTISIG]: addMultisigController,
+  [NODE_EVENTS.INSTALL]: installEventController,
+  [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
+  [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
+  // TODO: implement the rest
+  [NODE_EVENTS.PROPOSE_STATE]: () => {},
+  [NODE_EVENTS.REJECT_INSTALL]: () => {},
+  [NODE_EVENTS.REJECT_STATE]: () => {},
+  [NODE_EVENTS.UNINSTALL]: () => {},
+  [NODE_EVENTS.UPDATE_STATE]: () => {}
 };

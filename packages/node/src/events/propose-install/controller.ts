@@ -3,7 +3,7 @@ import { ProposeMessage } from "../../types";
 
 import { setAppInstanceIDForProposeInstall } from "./operation";
 
-export async function proposeInstallEventController(
+export default async function proposeInstallEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeMessage
 ) {

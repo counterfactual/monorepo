@@ -3,7 +3,7 @@ import { ProposeVirtualMessage } from "../../types";
 
 import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
 
-export async function proposeInstallVirtualEventController(
+export default async function proposeInstallVirtualEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {

@@ -9,11 +9,10 @@ import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
-import { methodNameToImplementation } from "./api-router";
-import { installEventController } from "./events/install/controller";
-import { addMultisigController } from "./events/multisig-created/controller";
-import { proposeInstallVirtualEventController } from "./events/propose-install-virtual/controller";
-import { proposeInstallEventController } from "./events/propose-install/controller";
+import {
+  eventNameToImplementation,
+  methodNameToImplementation
+} from "./api-router";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
@@ -85,13 +84,9 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    this.events.set(NODE_EVENTS.CREATE_MULTISIG, addMultisigController);
-    this.events.set(NODE_EVENTS.INSTALL, installEventController);
-    this.events.set(NODE_EVENTS.PROPOSE_INSTALL, proposeInstallEventController);
-    this.events.set(
-      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      proposeInstallVirtualEventController
-    );
+    for (const eventName of Object.values(NODE_EVENTS)) {
+      this.events.set(eventName, eventNameToImplementation[eventName]);
+    }
   }
 
   /**
