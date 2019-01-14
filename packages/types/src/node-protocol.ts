@@ -48,7 +48,7 @@ export namespace Node {
     GET_CHANNEL_ADDRESSES = "getChannelAddresses"
   }
 
-  // The public facing events that the Node consumers can listen on.
+  // The events that cf.js clients can listen on
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
     INSTALL = "installEvent",

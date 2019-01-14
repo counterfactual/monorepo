@@ -1,8 +1,5 @@
 import { Address, Node } from "@counterfactual/types";
 
-// TODO: the contents of this file should probably be in the types package
-// as Node consumers will need access
-
 /**
  * The message interface for Nodes to communicate with each other.
  */
@@ -11,15 +8,19 @@ export interface NodeMessage {
   event: NodeEvents;
 }
 
-enum InterNodeEvent {
+enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
 // https://github.com/Microsoft/TypeScript/issues/17592
-export type NodeEvents = Node.EventName | InterNodeEvent;
-export const NODE_EVENTS = { ...Node.EventName, ...InterNodeEvent };
+// These are events that Nodes and Node consumers can listen on, but not
+// cf.js clients as not all Node events are directly relevant to cf.js clients
+// for eg: Node consumers are the only relevant party listening on
+// `PROPOSE_INSTALL` in order to _create_ a cf.js client (i.e. dApp)
+export type NodeEvents = Node.EventName | Events;
+export const NODE_EVENTS = { ...Node.EventName, ...Events };
 
 export interface ProposeMessage extends NodeMessage {
   data: {
