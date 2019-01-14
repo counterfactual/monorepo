@@ -39,68 +39,72 @@ export class InstructionExecutor {
     return this.runProtocol(sc, step, msg);
   }
 
-  public async runUpdateProtocol(
-    sc: Map<string, StateChannel>,
-    params: UpdateParams
-  ) {
+  public async runUpdateProtocol(sc: StateChannel, params: UpdateParams) {
     const protocol = Protocol.Update;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
-    });
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
+      getProtocolFromName(protocol)[0],
+      {
+        params,
+        protocol,
+        seq: 0,
+        fromAddress: params.initiatingAddress,
+        toAddress: params.respondingAddress
+      }
+    );
   }
 
-  public async runUninstallProtocol(
-    sc: Map<string, StateChannel>,
-    params: UninstallParams
-  ) {
+  public async runUninstallProtocol(sc: StateChannel, params: UninstallParams) {
     const protocol = Protocol.Uninstall;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
-    });
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
+      getProtocolFromName(protocol)[0],
+      {
+        params,
+        protocol,
+        seq: 0,
+        fromAddress: params.initiatingAddress,
+        toAddress: params.respondingAddress
+      }
+    );
   }
 
-  public async runInstallProtocol(
-    sc: Map<string, StateChannel>,
-    params: InstallParams
-  ) {
+  public async runInstallProtocol(sc: StateChannel, params: InstallParams) {
     const protocol = Protocol.Install;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
-    });
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
+      getProtocolFromName(protocol)[0],
+      {
+        params,
+        protocol,
+        seq: 0,
+        fromAddress: params.initiatingAddress,
+        toAddress: params.respondingAddress
+      }
+    );
   }
 
-  public async runSetupProtocol(
-    sc: Map<string, StateChannel>,
-    params: SetupParams
-  ) {
+  public async runSetupProtocol(sc: StateChannel, params: SetupParams) {
     const protocol = Protocol.Setup;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      protocol,
-      params,
-      seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
-    });
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
+      getProtocolFromName(protocol)[0],
+      {
+        protocol,
+        params,
+        seq: 0,
+        fromAddress: params.initiatingAddress,
+        toAddress: params.respondingAddress
+      }
+    );
   }
 
   public async runInstallVirtualAppProtocol(
-    sc: Map<string, StateChannel>,
+    scm: Map<string, StateChannel>,
     params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+    return this.runProtocol(scm, getProtocolFromName(protocol)[0], {
       params,
       protocol,
       seq: 0,
@@ -110,7 +114,7 @@ export class InstructionExecutor {
   }
 
   private async runProtocol(
-    sc: Map<string, StateChannel>,
+    scm: Map<string, StateChannel>,
     instructions: Instruction[],
     msg: ProtocolMessage
   ): Promise<Map<string, StateChannel>> {
@@ -118,7 +122,7 @@ export class InstructionExecutor {
       network: this.network,
       outbox: [],
       inbox: [],
-      stateChannelsMap: sc,
+      stateChannelsMap: scm,
       commitment: undefined,
       signature: undefined
     };
