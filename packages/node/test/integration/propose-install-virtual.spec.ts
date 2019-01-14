@@ -75,12 +75,14 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeA.address,
         nodeB.address
       ]);
+
       expect(multisigAddressAB).toBeDefined();
 
       const multisigAddressBC = await getNewMultisig(nodeB, [
         nodeB.address,
         nodeC.address
       ]);
+
       expect(multisigAddressBC).toBeDefined();
 
       const intermediaries = [nodeB.address];
@@ -127,6 +129,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         installVirtualAppInstanceProposalRequest.type,
         installVirtualAppInstanceProposalRequest
       );
+
       const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
         .appInstanceId;
       expect(appInstanceId).toBeDefined();

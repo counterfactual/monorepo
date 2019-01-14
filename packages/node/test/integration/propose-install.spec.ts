@@ -71,6 +71,7 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeA.address,
         nodeB.address
       ]);
+
       expect(multisigAddress).toBeDefined();
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);

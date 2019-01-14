@@ -139,6 +139,7 @@ class FirebaseStoreService implements IStoreService {
 
   async set(pairs: { key: string; value: any }[]): Promise<any> {
     const updates = {};
+
     for (const pair of pairs) {
       updates[pair.key] = pair.value;
     }
