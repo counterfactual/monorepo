@@ -15,6 +15,10 @@ export default async function proposeInstallAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
+  // The client can ignore setting the Node's address, but the peers need to know
+  // who the initiating address is
+  params.initiatingAddress = requestHandler.address;
+
   if (params.abiEncodings.actionEncoding === undefined) {
     delete params.abiEncodings.actionEncoding;
   }

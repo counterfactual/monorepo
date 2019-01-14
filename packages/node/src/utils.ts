@@ -11,12 +11,20 @@ export function orderedAddressesHash(addresses: Address[]): string {
   return hashMessage(addresses.join(""));
 }
 
+/**
+ *
+ * @param selfAddress
+ * @param peerAddress Peer Address could either be an intermediary or a
+ *        `respondingAddress` which is the targeted peer in a Virtual AppInstance
+ *        operation.
+ * @param store
+ */
 export async function getChannelFromPeerAddress(
   selfAddress: Address,
-  respondingAddress: Address,
+  peerAddress: Address,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = orderedAddressesHash([selfAddress, respondingAddress]);
+  const ownersHash = orderedAddressesHash([selfAddress, peerAddress]);
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
   );

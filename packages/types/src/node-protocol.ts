@@ -71,7 +71,6 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    respondingAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
     asset: BlockchainAsset;
@@ -79,6 +78,8 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: AppState;
+    respondingAddress: Address;
+    initiatingAddress: Address;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;

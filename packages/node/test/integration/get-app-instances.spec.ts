@@ -68,6 +68,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // second, an app instance must be proposed to be installed into that channel
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+      node.address,
       respondingAddress
     );
 
