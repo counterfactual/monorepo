@@ -33,7 +33,7 @@ export interface AppIdentity {
 export interface AppInterface {
   addr: string;
   stateEncoding: string;
-  actionEncoding: string | undefined;
+  actionEncoding?: string;
 }
 
 export interface SignedStateHashUpdate {
