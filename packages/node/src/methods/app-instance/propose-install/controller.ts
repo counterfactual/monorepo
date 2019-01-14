@@ -11,7 +11,7 @@ import { createProposedAppInstance } from "./operation";
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeInstallAppInstanceController(
+export default async function proposeInstallAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
