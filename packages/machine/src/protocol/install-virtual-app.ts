@@ -232,7 +232,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     terms,
     context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
-    100,
+    100, // todo(xuanji): bug - this should be absolute, not relative
     aliceBalanceDecrement.add(bobBalanceDecrement).toNumber()
   );
 
