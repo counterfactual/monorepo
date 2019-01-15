@@ -6459,10 +6459,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.0-beta.8:
-  version "2.0.0-beta.8"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.8.tgz#bf661771670ba489b9530c1df609d6638b671d40"
-  integrity sha512-k7fYmXJBpUCvWXh1zXEgEF1iC4TfghUwuk23ybAHjBGEw+1ydaw3xgovVl91Bexsu4f6NOa16rKSRsU9LsIqIg==
+ethereum-waffle@2.0.0-beta.10:
+  version "2.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.0-beta.10.tgz#0d4dcda54bb71c888cafa500b1a51b2bc3d0be83"
+  integrity sha512-vDY4JBguiJwD/kEzyEbcqAhBFHRGaHwVoTw8RgHvSVypX3LENq30lfyjgjSokNBwV6950C87Bgou6skqrvaHWg==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
@@ -14298,7 +14298,7 @@ rgba-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/rgba-regex/-/rgba-regex-1.0.0.tgz#43374e2e2ca0968b0ef1523460b7d730ff22eeb3"
   integrity sha1-QzdOLiyglosO8VI0YLfXMP8i7rM=
 
-rimraf@2, rimraf@^2.2.8, rimraf@^2.5.2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@~2.6.2:
+rimraf@2, rimraf@^2.2.8, rimraf@^2.5.2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3, rimraf@~2.6.2:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.3.tgz#b2d104fe0d8fb27cf9e0a1cda8262dd3833c6cab"
   integrity sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==
@@ -16148,12 +16148,15 @@ truffle-contract@^4.0.1:
     web3-eth-abi "^1.0.0-beta.37"
     web3-utils "1.0.0-beta.37"
 
-truffle-deploy-registry@^0.4.1:
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/truffle-deploy-registry/-/truffle-deploy-registry-0.4.5.tgz#7493ab58e76054c812d871e24772efb8e2751b69"
-  integrity sha512-mkofQKd6LloGrLP2qa+WCZBY+LX2NB+27jGEAMPl8JXo3nDr/WMsQqi74xrkCK947pfEDD3vYGMZIDolFxcooA==
+truffle-deploy-registry@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/truffle-deploy-registry/-/truffle-deploy-registry-0.5.0.tgz#d9a01561bc5c1dced8da8d7dae5d9b908e68efea"
+  integrity sha512-KgEiPJQ3RWI02JAL/XvcbjnOeZ7QvHqrD2/PbsbFk44rRqaMtMH98Gj3JAvrjH0WiNe/VP3mhlXQJJEPAxDoDQ==
   dependencies:
+    chalk "^2.4.2"
+    commander "^2.19.0"
     mkdirp "^0.5.1"
+    rimraf "^2.6.3"
 
 truffle-error@^0.0.3:
   version "0.0.3"
