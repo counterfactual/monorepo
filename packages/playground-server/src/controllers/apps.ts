@@ -28,6 +28,7 @@ export default class AppsController extends Controller<
       return registry.map(
         (app: AppRegistryItem) =>
           ({
+            type: "apps",
             id: app.id,
             attributes: {
               name: app.name,
