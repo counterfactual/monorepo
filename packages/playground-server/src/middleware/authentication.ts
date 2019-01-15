@@ -2,7 +2,7 @@ import { decode } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import { userExists } from "../db";
-import { AuthenticatedContext, ErrorCode, PlaygroundUser } from "../types";
+import { AuthenticatedContext, ErrorCode, UserSession } from "../types";
 
 export default function authentication(...protectedRoutes: string[]) {
   return async (ctx: AuthenticatedContext, next: () => Promise<void>) => {
@@ -30,7 +30,7 @@ export default function authentication(...protectedRoutes: string[]) {
     }
 
     const [, token] = authHeader.split(" ");
-    const user = decode(token) as PlaygroundUser;
+    const user = decode(token) as UserSession;
 
     Log.info("Decoded token, checking if it belongs to a valid user", {
       tags: {
