@@ -59,7 +59,7 @@ class FirebaseMessagingService implements IMessagingService {
   async send(respondingAddress: Address, msg: object) {
     await this.firebase
       .ref(`${this.messagingServerKey}/${respondingAddress}`)
-      .set(msg);
+      .set(JSON.parse(JSON.stringify(msg)));
   }
 
   receive(address: Address, callback: (msg: object) => void) {
@@ -120,9 +120,8 @@ class FirebaseStoreService implements IStoreService {
   async set(pairs: { key: string; value: any }[]): Promise<any> {
     const updates = {};
     for (const pair of pairs) {
-      updates[pair.key] = pair.value;
+      updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
     }
-
     return await this.firebase.ref(this.storeServiceKey).update(updates);
   }
 }

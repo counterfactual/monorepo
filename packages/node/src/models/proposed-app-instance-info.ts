@@ -63,10 +63,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     appInstanceId: AppInstanceID,
     proposeParams: IProposedAppInstanceInfo
   ) {
-    if (!proposeParams.abiEncodings.actionEncoding) {
-      delete proposeParams.abiEncodings.actionEncoding;
-    }
-
     this.id = appInstanceId;
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
@@ -77,31 +73,23 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.initiatingAddress = proposeParams.initiatingAddress;
     this.respondingAddress = proposeParams.respondingAddress;
     this.initialState = proposeParams.initialState;
-    if (proposeParams.intermediaries) {
-      this.intermediaries = proposeParams.intermediaries;
-    }
+    this.intermediaries = proposeParams.intermediaries;
   }
 
   toJson() {
-    let json;
-    json = {
+    return {
       id: this.id,
       appId: this.appId,
       abiEncodings: this.abiEncodings,
       asset: this.asset,
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
+      initialState: this.initialState,
       timeout: this.timeout,
       initiatingAddress: this.initiatingAddress,
-      respondingAddress: this.respondingAddress
+      respondingAddress: this.respondingAddress,
+      intermediaries: this.intermediaries
     };
-    if (this.initialState) {
-      json.initialState = this.initialState;
-    }
-    if (this.intermediaries) {
-      json.intermediaries = this.intermediaries;
-    }
-    return json;
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
@@ -113,7 +101,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
-      initialState: json.initialState ? json.initialState : null,
+      initialState: json.initialState,
       initiatingAddress: json.initiatingAddress,
       respondingAddress: json.respondingAddress,
       intermediaries: json.intermediaries
