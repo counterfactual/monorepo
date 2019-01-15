@@ -9,9 +9,26 @@ export enum HttpStatusCode {
   InternalServerError = 500
 }
 
+export enum ControllerMethod {
+  GetById,
+  GetAll,
+  Post
+}
+
 export type UserSession = UserAttributes & { id: string };
 
-export type AuthenticatedContext = IRouterContext & { user: UserSession };
+export type AuthenticatedRequest = {
+  headers: {
+    authorization: string;
+  };
+};
+
+export type Middleware = (
+  ctx: IRouterContext,
+  next: () => Promise<void>
+) => Promise<void>;
+
+export type MiddlewareCollection = Middleware[];
 
 export type APIRequestBodyContainer<T = APIResourceAttributes> = {
   body: APIRequest<T>;
@@ -43,7 +60,13 @@ export type APIResource<T = APIResourceAttributes> = {
 
 export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];
 
-export type APIMetadata = {};
+export type APIMetadata = {
+  signature: APIMessageSignature;
+};
+
+export type APIMessageSignature = {
+  signedMessage: string;
+};
 
 export type APIDataContainer<T = APIResourceAttributes> = {
   data: APIResource<T> | APIResourceCollection<T>;
@@ -54,7 +77,10 @@ export type APIResponse = APIDataContainer & {
   meta?: APIMetadata;
 };
 
-export type APIRequest<T = APIResourceAttributes> = APIDataContainer<T>;
+export type APIRequest<T = APIResourceAttributes> = {
+  data?: APIResource<T> | APIResourceCollection<T>;
+  meta?: APIMetadata;
+};
 
 export type APIError = {
   status: HttpStatusCode;
@@ -64,7 +90,12 @@ export type APIError = {
 };
 
 // Exposed models.
-export type APIResourceType = "users" | "matchmaking" | "matchedUser";
+export type APIResourceType =
+  | "users"
+  | "matchmaking"
+  | "matchedUser"
+  | "session"
+  | "apps";
 
 export type APIResourceAttributes = {
   [key: string]: string | number | boolean | undefined;
@@ -74,7 +105,12 @@ export type APIResourceAttributes = {
 export type UserAttributes = MatchedUserAttributes & {
   email: string;
   multisigAddress: string;
+  nodeAddress: string;
   token?: string;
+};
+
+export type SessionAttributes = {
+  ethAddress: string;
 };
 
 export type MatchedUserAttributes = {
