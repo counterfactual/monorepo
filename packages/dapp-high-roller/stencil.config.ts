@@ -1,6 +1,5 @@
 import { Config } from "@stencil/core";
 import { sass } from "@stencil/sass";
-
 import { resolve } from "path";
 
 // https://stenciljs.com/docs/config

@@ -21,12 +21,17 @@ export class AppRoot {
   @State() appInstance: AppInstance = {} as AppInstance;
 
   constructor() {
+    const params = new URLSearchParams(window.location.search);
     this.state = {
       user: {},
+      opponent: {},
+      standalone: params.get("standalone") === "true" || false,
       appInstance: null,
       appFactory: null,
       updateAppInstance: this.updateAppInstance.bind(this),
-      updateAppFactory: this.updateAppFactory.bind(this)
+      updateAppFactory: this.updateAppFactory.bind(this),
+      updateUser: this.updateUser.bind(this),
+      updateOpponent: this.updateOpponent.bind(this)
     };
   }
 
@@ -44,10 +49,24 @@ export class AppRoot {
     });
 
     window.parent.postMessage("playground:request:user", "*");
+    if (this.state.standalone) {
+      const mockUser = {
+        address: "0xc60b9023bb8dc153b4046977328ce79af12a77e0",
+        email: "alon2@example.com",
+        id: "687297bc-8014-4c82-8cee-3b7ca7db09d4",
+        multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED",
+        username: "MyName"
+      };
+      this.updateUser(mockUser);
+    }
   }
 
   updateUser(user: any) {
     this.state = { ...this.state, user };
+  }
+
+  updateOpponent(opponent: any) {
+    this.state = { ...this.state, opponent };
   }
 
   updateAppInstance(appInstance: AppInstance) {
@@ -75,7 +94,11 @@ export class AppRoot {
                     updateAppFactory: this.state.updateAppFactory
                   }}
                 />
-                <stencil-route url="/wager" component="app-wager" />
+                <stencil-route
+                  url="/wager"
+                  component="app-wager"
+                  componentProps={{ updateOpponent: this.state.updateOpponent }}
+                />
                 <stencil-route url="/game" component="app-game" />
                 <stencil-route url="/waiting" component="app-waiting" />
                 <stencil-route

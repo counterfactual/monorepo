@@ -14,7 +14,6 @@ import { Address, AppInstanceID, cf } from "../../data/types";
  * 0.1 ETH is staked hard coded
  * The username is retrieved from the Playground?
  */
-
 @Component({
   tag: "app-wager",
   styleUrl: "app-wager.scss",
@@ -28,16 +27,21 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
-  @State() opponent: { username?: string; address?: Address } = {};
+  @Prop({ mutable: true }) opponent: {
+    username?: string;
+    address?: Address;
+  } = {};
   @State() intermediary: string = "";
   @State() isError: boolean = false;
   @State() isWaiting: boolean = false;
   @State() error: any;
   @Prop() user: any;
+  @Prop() standalone: boolean = false;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
+  @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.user.username;
@@ -72,25 +76,15 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    const { token } = this.user;
-
     try {
-      const response = await fetch(
-        // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      const result = await response.json();
+      const result = await this.fetchMatchmake();
 
       this.opponent = result.data.opponent;
       this.intermediary = result.data.intermediary;
       this.isError = false;
       this.error = null;
+
+      this.updateOpponent(this.opponent);
     } catch (error) {
       this.isError = true;
       this.error = error;
@@ -99,6 +93,38 @@ export class AppWager {
 
   handleChange(e: Event, prop: string): void {
     this[prop] = (e.target as HTMLInputElement).value;
+  }
+
+  private async fetchMatchmake() {
+    if (this.standalone) {
+      return {
+        ok: true,
+        data: {
+          user: {
+            username: this.user.username,
+            address: this.user.address
+          },
+          opponent: {
+            username: "MyOpponent",
+            address: "0x12345"
+          },
+          intermediary: this.user.multisigAddress
+        }
+      };
+    }
+    const { token } = this.user;
+    const response = await fetch(
+      // TODO: This URL must come from an environment variable.
+      "https://server.playground-staging.counterfactual.com/api/matchmake",
+      // "http://localhost:9000/api/matchmake",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return await response.json();
   }
 
   render() {
@@ -129,6 +155,7 @@ export class AppWager {
           myName={this.myName}
           betAmount={this.betAmount}
           opponentName={this.opponent.username}
+          isProposing={true}
         />
       );
     }
@@ -154,6 +181,7 @@ export class AppWager {
               placeholder="Your name"
               value={this.myName}
               onInput={e => this.handleChange(e, "myName")}
+              readOnly={true}
             />
             <label htmlFor="betAmount">Bet Amount ( ETH )</label>
             <input
@@ -179,5 +207,7 @@ export class AppWager {
 CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
-  "user"
+  "user",
+  "opponent",
+  "standalone"
 ]);
