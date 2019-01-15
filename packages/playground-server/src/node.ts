@@ -44,6 +44,10 @@ node.on(REJECT_INSTALL, async (msg: NodeMessage) => {
   console.log("REJECT_INSTALL event:", msg);
 });
 
+export function getNodeAddress(): string {
+  return node.address;
+}
+
 export async function createMultisigFor(
   userAddress: string
 ): Promise<NodeTypes.CreateMultisigResult> {
