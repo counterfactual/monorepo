@@ -2,18 +2,16 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
-import "./libs/LibCondition.sol";
 
-import "./ContractRegistry.sol";
 import "./NonceRegistry.sol";
 import "./AppRegistry.sol";
 
 
-/// @title ConditionalTransaction - A conditional transfer contract
+/// @title StateChannelTransaction
 /// @author Liam Horne - <liam@l4v.io>
 /// @author Mitchell Van Der Hoeff - <mitchell@l4v.io>
 /// @notice Supports a complex transfer of funds contingent on some condition.
-contract StateChannelTransaction is LibCondition {
+contract StateChannelTransaction {
 
   using Transfer for Transfer.Transaction;
 
