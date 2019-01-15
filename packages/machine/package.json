@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@counterfactual/types": "0.0.1",
     "@counterfactual/contracts": "0.0.3",
-    "ethers": "4.0.20",
+    "ethers": "4.0.21",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
 }
