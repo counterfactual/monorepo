@@ -19,10 +19,6 @@ export default async function proposeInstallAppInstanceController(
   // who the initiating address is
   params.initiatingAddress = requestHandler.address;
 
-  if (params.abiEncodings.actionEncoding === undefined) {
-    delete params.abiEncodings.actionEncoding;
-  }
-
   const appInstanceId = await createProposedAppInstance(
     requestHandler.address,
     requestHandler.store,

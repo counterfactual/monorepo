@@ -16,7 +16,7 @@ export interface IProposedAppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: AppState;
+  initialState?: AppState;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
@@ -30,7 +30,7 @@ export interface ProposedAppInstanceInfoJSON {
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
-  initialState: AppState;
+  initialState?: AppState;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
@@ -63,6 +63,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     appInstanceId: AppInstanceID,
     proposeParams: IProposedAppInstanceInfo
   ) {
+    if (!proposeParams.abiEncodings.actionEncoding) {
+      delete proposeParams.abiEncodings.actionEncoding;
+    }
+
     this.id = appInstanceId;
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
@@ -70,9 +74,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
-    this.initialState = proposeParams.initialState;
     this.initiatingAddress = proposeParams.initiatingAddress;
     this.respondingAddress = proposeParams.respondingAddress;
+    this.initialState = proposeParams.initialState;
     if (proposeParams.intermediaries) {
       this.intermediaries = proposeParams.intermediaries;
     }
@@ -88,10 +92,12 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
       timeout: this.timeout,
-      initialState: this.initialState,
       initiatingAddress: this.initiatingAddress,
       respondingAddress: this.respondingAddress
     };
+    if (this.initialState) {
+      json.initialState = this.initialState;
+    }
     if (this.intermediaries) {
       json.intermediaries = this.intermediaries;
     }
@@ -107,7 +113,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
-      initialState: json.initialState,
+      initialState: json.initialState ? json.initialState : null,
       initiatingAddress: json.initiatingAddress,
       respondingAddress: json.respondingAddress,
       intermediaries: json.intermediaries

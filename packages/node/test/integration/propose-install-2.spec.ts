@@ -9,9 +9,10 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   EMPTY_NETWORK,
+  getInstalledAppInstanceInfo,
   getInstalledAppInstances,
   getNewMultisig,
-  getProposedAppInstances,
+  getProposedAppInstanceInfo,
   makeInstallProposalRequest
 } from "./utils";
 
@@ -65,7 +66,7 @@ describe("Node method follows spec - proposeInstall", () => {
     "Node A gets app install proposal, sends to node B, B approves it, installs it," +
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
-      it("sends proposal with null initial state", async done => {
+      it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
           nodeA.address,
@@ -75,18 +76,19 @@ describe("Node method follows spec - proposeInstall", () => {
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
 
+        let appInstanceId;
+
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
           nodeA.address,
-          nodeB.address,
-          true
+          nodeB.address
         );
 
         // node B then decides to approve the proposal
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           confirmProposedAppInstanceOnNode(
             appInstanceInstallationProposalRequest.params,
-            (await getProposedAppInstances(nodeA))[0]
+            await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );
 
           // some approval logic happens in this callback, we proceed
@@ -103,16 +105,24 @@ describe("Node method follows spec - proposeInstall", () => {
         });
 
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
-          const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
+          const appInstanceNodeA = await getInstalledAppInstanceInfo(
+            nodeA,
+            appInstanceId
+          );
+          const appInstanceNodeB = await getInstalledAppInstanceInfo(
+            nodeB,
+            appInstanceId
+          );
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
           done();
         });
 
-        nodeA.emit(
+        const response = await nodeA.call(
           appInstanceInstallationProposalRequest.type,
           appInstanceInstallationProposalRequest
         );
+        appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
+          .appInstanceId;
       });
     }
   );
