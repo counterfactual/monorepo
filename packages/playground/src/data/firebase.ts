@@ -25,7 +25,7 @@ class FirebaseMessagingService implements IMessagingService {
       return;
     }
 
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.firebase
         .ref(`${this.messagingServerKey}/${address}`)
         .on(
