@@ -8,14 +8,17 @@ jobs:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: cache-{{ checksum ".dependencies_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
       - run: yarn build
       - save_cache:
-          key: cache-{{ checksum ".dependencies_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
-            - packages/types/dist
+      - save_cache:
+          key: build-cache-{{ .Revision }}
+          paths:
+            - packages/**/dist
 
   run-tests:
     docker:
@@ -24,7 +27,9 @@ jobs:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: cache-{{ checksum ".dependencies_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+     - restore_cache:
+          key: build-cache-{{ .Revision }}
       - run: yarn # symlink packages' node_modules
       - run: yarn test:ci-non-playground
 
@@ -35,7 +40,9 @@ jobs:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: cache-{{ checksum ".dependencies_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+     - restore_cache:
+          key: build-cache-{{ .Revision }}
       - run: yarn # symlink packages' node_modules
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
@@ -47,7 +54,9 @@ jobs:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
-          key: cache-{{ checksum ".dependencies_checksum" }}
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+     - restore_cache:
+          key: build-cache-{{ .Revision }}
       - run: yarn lint
 
 workflows:
