@@ -1,4 +1,4 @@
-import { LoginRequest } from "@counterfactual/playground-server";
+import { UserSession } from "@counterfactual/playground-server";
 import {
   Component,
   Element,
@@ -25,8 +25,7 @@ function buildSignaturePayload(address: string) {
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
-  @Prop() username: string = "";
-  @Prop() address: string = "";
+  @Prop() user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
@@ -39,8 +38,8 @@ export class HeaderAccount {
 
   onLoginClicked() {
     web3.personal.sign(
-      buildSignaturePayload(this.address),
-      this.address,
+      buildSignaturePayload(this.user.ethAddress),
+      this.user.ethAddress,
       this.login.bind(this)
     );
   }
@@ -63,7 +62,7 @@ export class HeaderAccount {
         const balance = parseFloat(ethers.utils.formatEther(result.toString()));
 
         this.updateAccount({
-          ...user,
+          user,
           balance
         });
 
@@ -78,17 +77,18 @@ export class HeaderAccount {
       throw error;
     }
 
-    // Call the API and store the multisig.
-    const payload: LoginRequest = {
-      address: this.address,
-      signature: signedData
-    };
-
     try {
-      const apiResponse = await PlaygroundAPIClient.login(payload);
+      const user = await PlaygroundAPIClient.login(
+        {
+          ethAddress: this.user.ethAddress
+        },
+        {
+          signedMessage: signedData
+        }
+      );
 
       web3.eth.getBalance(
-        apiResponse.user.multisigAddress,
+        user.multisigAddress,
         web3.eth.defaultBlock,
         (err, result) => {
           const balance = parseFloat(
@@ -96,7 +96,7 @@ export class HeaderAccount {
           );
 
           this.updateAccount({
-            ...apiResponse.user,
+            user,
             balance
           });
 
@@ -105,7 +105,7 @@ export class HeaderAccount {
           // TODO: Define schema for DB in localStorage.
           window.localStorage.setItem(
             "playground:user:token",
-            apiResponse.token
+            user.token as string
           );
         }
       );
@@ -119,7 +119,7 @@ export class HeaderAccount {
   }
 
   render() {
-    return this.username ? (
+    return this.user.username ? (
       <div class="info-container">
         <stencil-route-link url="/exchange">
           <header-account-info
@@ -132,7 +132,7 @@ export class HeaderAccount {
           <header-account-info
             src="/assets/icon/account.png"
             header="Account"
-            content={this.username}
+            content={this.user.username}
           />
         </stencil-route-link>
       </div>
@@ -149,9 +149,4 @@ export class HeaderAccount {
   }
 }
 
-AccountTunnel.injectProps(HeaderAccount, [
-  "balance",
-  "username",
-  "address",
-  "updateAccount"
-]);
+AccountTunnel.injectProps(HeaderAccount, ["balance", "user", "updateAccount"]);

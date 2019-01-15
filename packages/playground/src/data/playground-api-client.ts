@@ -1,41 +1,51 @@
 import {
-  ApiResponse,
-  CreateAccountRequest,
-  ErrorResponse,
-  GetAppsResponseData,
-  LoginRequest,
-  LoginResponseData,
-  PlaygroundAppDefinition,
-  PlaygroundUser,
-  UserResponseData
+  APIError,
+  APIMessageSignature,
+  APIRequest,
+  APIResource,
+  APIResourceCollection,
+  APIResponse,
+  AppAttributes,
+  SessionAttributes,
+  UserAttributes,
+  UserSession
 } from "@counterfactual/playground-server";
+
+import { AppDefinition, UserChangeset } from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
 
-type JsonBody = {
-  [key: string]: string | number | boolean | JsonBody | undefined;
-};
-
-async function post(endpoint: string, body: JsonBody): Promise<ApiResponse> {
+async function post(
+  endpoint: string,
+  data: APIResource,
+  signature?: APIMessageSignature
+): Promise<APIResponse> {
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      data,
+      meta: signature
+        ? {
+            signature
+          }
+        : {}
+    } as APIRequest),
     headers: {
       "Content-Type": "application/json; charset=utf-8"
     },
     method: "POST"
   });
 
-  const response = (await httpResponse.json()) as ApiResponse;
+  const response = (await httpResponse.json()) as APIResponse;
 
-  if (!response.ok) {
-    const error = response.error as ErrorResponse;
+  if (response.errors) {
+    const error = response.errors[0] as APIError;
     throw error;
   }
 
   return response;
 }
 
-async function get(endpoint: string, token?: string): Promise<ApiResponse> {
+async function get(endpoint: string, token?: string): Promise<APIResponse> {
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     method: "GET",
     headers: token
@@ -45,62 +55,103 @@ async function get(endpoint: string, token?: string): Promise<ApiResponse> {
       : {}
   });
 
-  const response = (await httpResponse.json()) as ApiResponse;
+  const response = (await httpResponse.json()) as APIResponse;
 
-  if (!response.ok) {
-    const error = response.error as ErrorResponse;
+  if (response.errors) {
+    const error = response.errors[0] as APIError;
     throw error;
   }
 
   return response;
 }
 
+function fromAPIResource<TModel, TResource>(
+  resource: APIResource<TResource>
+): TModel {
+  return ({
+    id: resource.id,
+    ...(resource.attributes as {})
+  } as unknown) as TModel;
+}
+
+function toAPIResource<TModel, TResource>(
+  model: TModel
+): APIResource<TResource> {
+  return ({
+    ...(model["id"] ? { id: model["id"] } : {}),
+    attributes: {
+      ...Object.keys(model)
+        .map(key => {
+          return { [key]: model[key] };
+        })
+        .reduce((previous, current) => {
+          return { ...previous, ...current };
+        }, {})
+    }
+  } as unknown) as APIResource<TResource>;
+}
+
 export default class PlaygroundAPIClient {
   public static async createAccount(
-    data: CreateAccountRequest
-  ): Promise<LoginResponseData> {
+    user: UserChangeset,
+    signature: APIMessageSignature
+  ): Promise<UserSession> {
     try {
-      return (await post("create-account", data)).data as LoginResponseData;
+      const data = toAPIResource<UserChangeset, UserAttributes>(user);
+      const json = (await post("users", data, signature)) as APIResponse;
+      const resource = json.data as APIResource<UserAttributes>;
+
+      return fromAPIResource<UserSession, UserAttributes>(resource);
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  public static async login(data: LoginRequest): Promise<LoginResponseData> {
+  public static async login(
+    user: SessionAttributes,
+    signature: APIMessageSignature
+  ): Promise<UserSession> {
     try {
-      return (await post("login", data)).data as LoginResponseData;
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  public static async getUser(token: string): Promise<PlaygroundUser> {
-    try {
-      return ((await get("user", token)).data as UserResponseData).user;
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  public static async getApps(): Promise<PlaygroundAppDefinition[]> {
-    try {
-      return ((await get("apps")).data as GetAppsResponseData).apps;
-    } catch (e) {
-      // TODO: This backup registry is temporary until we deploy the Playground Server.
-      return [
+      const json = (await post(
+        "session",
         {
-          name: "High Roller",
-          url: "https://high-roller-staging.counterfactual.com",
-          slug: "high-roller",
-          icon: "assets/images/logo.svg"
-        },
-        {
-          name: "Tic Tac Toe",
-          url: "https://tic-tac-toe-staging.netlify.com",
-          slug: "tic-tac-toe",
-          icon: "images/logo-blue.svg"
-        }
-      ];
+          type: "session",
+          id: "",
+          attributes: {
+            ethAddress: user.ethAddress
+          } as SessionAttributes
+        } as APIResource,
+        signature
+      )) as APIResponse;
+      const resource = json.data as APIResource<UserAttributes>;
+
+      return fromAPIResource<UserSession, UserAttributes>(resource);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async getUser(token: string): Promise<UserSession> {
+    try {
+      const json = (await get("users", token)) as APIResponse;
+      const resource = json.data[0] as APIResource<UserAttributes>;
+
+      return fromAPIResource<UserSession, UserAttributes>(resource);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async getApps(): Promise<AppDefinition[]> {
+    try {
+      const json = (await get("apps")) as APIResponse;
+      const resources = json.data as APIResourceCollection<AppAttributes>;
+
+      return resources.map(resource =>
+        fromAPIResource<AppDefinition, AppAttributes>(resource)
+      );
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 }

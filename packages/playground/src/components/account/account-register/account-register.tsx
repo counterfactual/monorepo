@@ -1,4 +1,4 @@
-import { CreateAccountRequest } from "@counterfactual/playground-server";
+import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -12,7 +12,7 @@ function buildSignaturePayload(data: UserChangeset) {
     "PLAYGROUND ACCOUNT REGISTRATION",
     `Username: ${data.username}`,
     `E-mail: ${data.email}`,
-    `Ethereum address: ${data.address}`
+    `Ethereum address: ${data.ethAddress}`
   ].join("\n");
 }
 
@@ -24,22 +24,21 @@ function buildSignaturePayload(data: UserChangeset) {
 export class AccountRegister {
   @Element() el!: HTMLStencilElement;
   @Prop() connected: boolean = false;
-  @Prop() address: string = "";
-  @Prop() email: string = "";
-  @Prop() username: string = "";
+
+  @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   changeset: UserChangeset = {
     username: "",
     email: "",
-    address: this.address
+    ethAddress: this.user.ethAddress
   };
 
   @State() errors: UserChangeset = {
     username: "",
     email: "",
-    address: ""
+    ethAddress: ""
   };
 
   login() {
@@ -57,7 +56,7 @@ export class AccountRegister {
     // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
     web3.personal.sign(
       buildSignaturePayload(data),
-      data.address,
+      data.ethAddress,
       this.register.bind(this)
     );
   }
@@ -68,7 +67,7 @@ export class AccountRegister {
     }
   }
 
-  async register(error: Error, signedData: string) {
+  async register(error: Error, signedMessage: string) {
     // TODO: Handle errors.
     if (error) {
       this.handleMetamaskErrors(error);
@@ -76,20 +75,25 @@ export class AccountRegister {
     }
 
     // Call the API and store the multisig.
-    const payload: CreateAccountRequest = {
-      ...this.changeset,
-      signature: signedData
-    };
 
     try {
-      const apiResponse = await PlaygroundAPIClient.createAccount(payload);
+      debugger;
+      const newAccount = await PlaygroundAPIClient.createAccount(
+        this.changeset,
+        {
+          signedMessage
+        }
+      );
 
       this.updateAccount({
         ...this.changeset,
-        multisigAddress: apiResponse.user.multisigAddress
+        multisigAddress: newAccount.multisigAddress
       });
 
-      window.localStorage.setItem("playground:user:token", apiResponse.token);
+      window.localStorage.setItem(
+        "playground:user:token",
+        newAccount.token as string
+      );
 
       this.history.push("/deposit");
     } catch (e) {
@@ -99,7 +103,7 @@ export class AccountRegister {
 
   setErrorMessage(errorCode: string) {
     let update = {};
-    this.errors = { username: "", email: "", address: "" };
+    this.errors = { username: "", email: "", ethAddress: "" };
 
     switch (errorCode) {
       case "username_required":
@@ -110,29 +114,30 @@ export class AccountRegister {
         break;
       case "signature_required":
         update = {
-          address:
+          ethAddress:
             "You must sign the operation with Metamask in order to continue"
         };
         break;
       case "invalid_signature":
         update = {
-          address: "Something went wrong with your signature. Please try again."
+          ethAddress:
+            "Something went wrong with your signature. Please try again."
         };
         break;
       case "address_already_registered":
         update = {
-          address: "You already have a Playground account with this address."
+          ethAddress: "You already have a Playground account with this address."
         };
         break;
       case "user_save_failed":
         update = {
-          address:
+          ethAddress:
             "Something went wrong while saving your data. Please try again later."
         };
         break;
       case "user_denied_signature":
         update = {
-          address:
+          ethAddress:
             "You must approve the message signature at Metamask in order to proceed."
         };
         break;
@@ -142,8 +147,8 @@ export class AccountRegister {
   }
 
   render() {
-    if (this.address) {
-      this.changeset.address = this.address;
+    if (this.user.ethAddress) {
+      this.changeset.ethAddress = this.user.ethAddress;
     }
 
     return (
@@ -165,12 +170,9 @@ export class AccountRegister {
           />
           <form-input
             label="Ethereum address"
-            value={this.changeset.address}
-            error={this.errors.address}
+            value={this.changeset.ethAddress}
+            error={this.errors.ethAddress}
             disabled={this.connected}
-            onChange={
-              !this.connected ? e => this.change("address", e) : () => {}
-            }
           />
           <form-button onButtonPressed={e => this.formSubmitionHandler()}>
             Create account
@@ -185,11 +187,6 @@ export class AccountRegister {
   }
 }
 
-AccountTunnel.injectProps(AccountRegister, [
-  "address",
-  "email",
-  "updateAccount",
-  "username"
-]);
+AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user"]);
 
 NetworkTunnel.injectProps(AccountRegister, ["connected"]);

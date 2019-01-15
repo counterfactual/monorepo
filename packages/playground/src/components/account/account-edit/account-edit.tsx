@@ -1,3 +1,4 @@
+import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -11,31 +12,23 @@ import { UserChangeset } from "../../../types";
 })
 export class AccountEdit {
   @Element() el!: HTMLStencilElement;
-  @Prop() address: string = "";
-  @Prop() email: string = "";
-  @Prop() username: string = "";
+  @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   changeset: UserChangeset = {
     username: "",
     email: "",
-    address: ""
+    ethAddress: ""
   };
 
   // required to initialize the changeset
   // as `injectProps` runs after the constructor
-  @Watch("address")
-  updateAddress() {
-    this.changeset.address = this.address;
-  }
-  @Watch("email")
-  updateEmail() {
-    this.changeset.email = this.email;
-  }
-  @Watch("username")
-  updateUsername() {
-    this.changeset.username = this.username;
+  @Watch("user")
+  updateChangeset() {
+    this.changeset.ethAddress = this.user.ethAddress;
+    this.changeset.email = this.user.email;
+    this.changeset.username = this.user.username;
   }
 
   change(key, event) {
@@ -68,8 +61,7 @@ export class AccountEdit {
           <form-input
             label="Ethereum address"
             disabled={true}
-            value={this.changeset.address}
-            onChange={e => this.change("address", e)}
+            value={this.changeset.ethAddress}
           />
           <form-button
             class="button"
@@ -83,9 +75,4 @@ export class AccountEdit {
   }
 }
 
-AccountTunnel.injectProps(AccountEdit, [
-  "address",
-  "email",
-  "updateAccount",
-  "username"
-]);
+AccountTunnel.injectProps(AccountEdit, ["updateAccount", "user"]);
