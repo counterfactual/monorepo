@@ -152,11 +152,13 @@ export function makeInstallProposalRequest(
 export function makeInstallVirtualProposalRequest(
   initiatingAddress: Address,
   respondingAddress: Address,
-  intermediaries: Address[]
+  intermediaries: Address[],
+  nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
     initiatingAddress,
-    respondingAddress
+    respondingAddress,
+    nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
