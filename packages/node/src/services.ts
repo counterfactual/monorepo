@@ -93,6 +93,7 @@ class FirebaseMessagingService implements IMessagingService {
             const msg = snapshot.val();
             const msgKey = JSON.stringify(msg);
 
+            // TODO: Figure out why sometimes the message is null?
             if (msg === null) {
               return;
             }
