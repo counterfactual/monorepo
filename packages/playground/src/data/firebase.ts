@@ -17,7 +17,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(msg);
   }
 
-  async receive(address: Address, callback: (msg: object) => Promise<void>) {
+  async onReceive(address: Address, callback: (msg: object) => Promise<void>) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"

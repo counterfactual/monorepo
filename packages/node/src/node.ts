@@ -101,7 +101,7 @@ export class Node {
     this.instructionExecutor.register(
       Opcode.IO_WAIT,
       (message: ProtocolMessage, next: Function, context: Context) => {
-        this.messagingService.receive(
+        this.messagingService.onReceive(
           message.toAddress,
           async (msg: NodeMessage) => {}
         );
@@ -147,7 +147,7 @@ export class Node {
    * usually external subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    this.messagingService.receive(this.address, async (msg: NodeMessage) => {
+    this.messagingService.onReceive(this.address, async (msg: NodeMessage) => {
       await this.preprocessMessage(msg);
       this.outgoing.emit(msg.event, msg);
     });

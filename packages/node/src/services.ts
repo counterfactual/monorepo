@@ -6,7 +6,7 @@ import { NodeMessage } from "./types";
 
 export interface IMessagingService {
   send(respondingAddress: Address, msg: NodeMessage);
-  receive(
+  onReceive(
     address: Address,
     callback: (msg: NodeMessage) => Promise<void>
   ): Promise<void>;
@@ -68,7 +68,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(sanitizedMsg);
   }
 
-  async receive(
+  async onReceive(
     address: Address,
     callback: (msg: NodeMessage) => Promise<void>
   ) {

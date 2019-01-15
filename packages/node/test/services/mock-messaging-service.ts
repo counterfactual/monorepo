@@ -5,7 +5,7 @@ import { IMessagingService } from "../../src/services";
 
 class MockMessagingService implements IMessagingService {
   send(respondingAddress: Address, msg: object) {}
-  async receive(
+  async onReceive(
     address: Address,
     callback: (msg: NodeMessage) => Promise<void>
   ) {}
