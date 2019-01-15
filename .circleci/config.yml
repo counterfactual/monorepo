@@ -15,7 +15,7 @@ jobs:
           key: cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
-            - "packages/**/dist"
+            - packages/types/dist
 
   run-tests:
     docker:
