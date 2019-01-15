@@ -8,7 +8,7 @@ export interface IMessagingService {
   send(respondingAddress: Address, msg: NodeMessage);
   onReceive(
     address: Address,
-    callback: (msg: NodeMessage) => Promise<void>
+    callback: (msg: NodeMessage) => void
   ): Promise<void>;
 }
 
@@ -70,42 +70,41 @@ class FirebaseMessagingService implements IMessagingService {
 
   async onReceive(
     address: Address,
-    callback: (msg: NodeMessage) => Promise<void>
-  ) {
+    callback: (msg: NodeMessage) => void
+  ): Promise<void> {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
       return;
     }
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.firebase
         .ref(`${this.messagingServerKey}/${address}`)
         .on(
           "value",
           async (snapshot: firebase.database.DataSnapshot | null) => {
             if (snapshot === null) {
-              console.debug(
+              return reject(
                 `Node with address ${address} received a "null" snapshot`
               );
-              return reject();
             }
 
             const msg = snapshot.val();
             const msgKey = JSON.stringify(msg);
 
             if (msg === null) {
-              return reject();
+              return;
             }
 
             if (msgKey in this.servedMessages) {
               delete this.servedMessages[msgKey];
-              return reject();
+              return;
             }
 
             this.servedMessages[msgKey] = true;
 
-            await callback(msg);
+            callback(msg);
 
             resolve();
           }

@@ -40,10 +40,7 @@ export default async function createMultisigController(
     }
   };
 
-  await requestHandler.messagingService.send(
-    respondingAddress,
-    multisigCreatedMsg
-  );
+  requestHandler.messagingService.send(respondingAddress, multisigCreatedMsg);
 
   return {
     multisigAddress

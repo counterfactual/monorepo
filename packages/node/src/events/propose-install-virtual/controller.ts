@@ -48,8 +48,5 @@ export default async function proposeInstallVirtualEventController(
     nodeMsg.data.params.respondingAddress
   );
 
-  await requestHandler.messagingService.send(
-    nextNodeAddress,
-    relayedProposalMsg
-  );
+  requestHandler.messagingService.send(nextNodeAddress, relayedProposalMsg);
 }
