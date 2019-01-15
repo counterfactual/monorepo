@@ -102,7 +102,8 @@ export async function getUser(
       username: "username",
       email: "email",
       ethAddress: "eth_address",
-      multisigAddress: "multisig_address"
+      multisigAddress: "multisig_address",
+      nodeAddress: "node_address"
     })
     .select()
     .where("eth_address", "=", userAddress);
@@ -131,7 +132,8 @@ export async function getUser(
       username: user.username,
       email: user.email,
       ethAddress: user.ethAddress,
-      multisigAddress: user.multisigAddress
+      multisigAddress: user.multisigAddress,
+      nodeAddress: user.nodeAddress
     }
   };
 }
@@ -145,7 +147,8 @@ export async function userExists(user: UserAttributes): Promise<boolean> {
       username: user.username,
       email: user.email,
       eth_address: user.ethAddress,
-      multisig_address: user.multisigAddress
+      multisig_address: user.multisigAddress,
+      node_address: user.nodeAddress
     })
     .limit(1);
 
