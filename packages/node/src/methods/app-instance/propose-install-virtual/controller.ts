@@ -50,7 +50,7 @@ export default async function proposeInstallVirtualAppInstanceController(
     params.respondingAddress
   );
 
-  requestHandler.messagingService.send(nextNodeAddress, proposalMsg);
+  await requestHandler.messagingService.send(nextNodeAddress, proposalMsg);
 
   return {
     appInstanceId

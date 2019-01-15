@@ -5,7 +5,7 @@ import "firebase/database";
 import { NodeMessage } from "./types";
 
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: NodeMessage);
+  send(respondingAddress: Address, msg: NodeMessage): Promise<void>;
   onReceive(
     address: Address,
     callback: (msg: NodeMessage) => void
@@ -61,9 +61,9 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  send(respondingAddress: Address, msg: object) {
+  async send(respondingAddress: Address, msg: object) {
     const sanitizedMsg = JSON.parse(JSON.stringify(msg));
-    this.firebase
+    await this.firebase
       .ref(`${this.messagingServerKey}/${respondingAddress}`)
       .set(sanitizedMsg);
   }

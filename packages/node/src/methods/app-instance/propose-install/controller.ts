@@ -38,7 +38,10 @@ export default async function proposeInstallAppInstanceController(
     }
   };
 
-  requestHandler.messagingService.send(params.respondingAddress, proposalMsg);
+  await requestHandler.messagingService.send(
+    params.respondingAddress,
+    proposalMsg
+  );
 
   return {
     appInstanceId

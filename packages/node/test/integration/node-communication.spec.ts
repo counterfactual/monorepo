@@ -24,7 +24,7 @@ describe("Two nodes can communicate with each other", () => {
     firebaseServer.close();
   });
 
-  it("can setup listeners for events through messaging service", done => {
+  it("can setup listeners for events through messaging service", async done => {
     const address = AddressZero;
     const testMsg = {
       event: "testEvent",
@@ -32,11 +32,13 @@ describe("Two nodes can communicate with each other", () => {
         some: "data"
       }
     };
+
     messagingService.onReceive(address, (msg: any) => {
       expect(msg.event).toEqual(testMsg.event);
       expect(msg.data).toEqual(testMsg.data);
       done();
     });
-    messagingService.send(address, testMsg as any);
+
+    await messagingService.send(address, testMsg as any);
   });
 });

@@ -89,13 +89,13 @@ export class Node {
   }
 
   private registerIoMiddleware() {
-    this.instructionExecutor.register(Opcode.IO_SEND, (
+    this.instructionExecutor.register(Opcode.IO_SEND, async (
       // TODO: Figure out conversion of NodeMessage and ProtocolMessage
       message: any /* ProtocolMessage */,
       next: Function,
       context: Context
     ) => {
-      this.messagingService.send(message.toAddress, message);
+      await this.messagingService.send(message.toAddress, message);
       next();
     });
     this.instructionExecutor.register(

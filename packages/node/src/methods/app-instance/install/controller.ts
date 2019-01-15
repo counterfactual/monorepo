@@ -39,7 +39,11 @@ export default async function installAppInstanceController(
     }
   };
 
-  requestHandler.messagingService.send(respondingAddress, installApprovalMsg);
+  await requestHandler.messagingService.send(
+    respondingAddress,
+    installApprovalMsg
+  );
+
   return {
     appInstance: appInstanceInfo
   };
