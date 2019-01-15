@@ -86,21 +86,17 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     respondingAddress
   } = message.params as SetupParams;
 
-  if (!context.stateChannelsMap.has(multisigAddress)) {
-    context.stateChannelsMap.set(
-      multisigAddress,
-      new StateChannel(
-        multisigAddress,
-        [initiatingAddress, respondingAddress].sort((a, b) =>
-          parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-        )
-      )
-    );
+  if (context.stateChannelsMap.has(multisigAddress)) {
+    throw Error(`Found an already-setup channel at ${multisigAddress}`);
   }
 
-  const sc = context.stateChannelsMap.get(multisigAddress)!;
-
-  const newStateChannel = sc.setupChannel(context.network);
+  const newStateChannel = StateChannel.setupChannel(
+    context.network,
+    multisigAddress,
+    [initiatingAddress, respondingAddress].sort((a, b) =>
+      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+    )
+  );
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitment = constructSetupOp(context.network, newStateChannel);

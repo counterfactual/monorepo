@@ -81,18 +81,19 @@ export class InstructionExecutor {
     });
   }
 
-  public async runSetupProtocol(
-    sc: Map<string, StateChannel>,
-    params: SetupParams
-  ) {
+  public async runSetupProtocol(params: SetupParams) {
     const protocol = Protocol.Setup;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      protocol,
-      params,
-      seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
-    });
+    return this.runProtocol(
+      new Map<string, StateChannel>(),
+      getProtocolFromName(protocol)[0],
+      {
+        protocol,
+        params,
+        seq: 0,
+        fromAddress: params.initiatingAddress,
+        toAddress: params.respondingAddress
+      }
+    );
   }
 
   public async runInstallVirtualAppProtocol(
@@ -110,15 +111,15 @@ export class InstructionExecutor {
   }
 
   private async runProtocol(
-    sc: Map<string, StateChannel>,
+    stateChannelsMap: Map<string, StateChannel>,
     instructions: Instruction[],
     msg: ProtocolMessage
   ): Promise<Map<string, StateChannel>> {
     const context: Context = {
+      stateChannelsMap,
       network: this.network,
       outbox: [],
       inbox: [],
-      stateChannelsMap: sc,
       commitment: undefined,
       signature: undefined
     };
@@ -154,11 +155,8 @@ export class InstructionExecutor {
     }
 
     // TODO: it is possible to compute a diff of the original state channel
-    //       object and the computed new state channel object at this point
+    //       objects and the new state channel objects at this point
     //       probably useful!
-    //
-    // const diff = sc.diff(context.stateChannel)
-
     return context.stateChannelsMap;
   }
 }

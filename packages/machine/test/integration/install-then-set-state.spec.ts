@@ -96,7 +96,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     );
 
     proxyFactory.on("ProxyCreation", async proxy => {
-      let stateChannel = new StateChannel(proxy, users).setupChannel(network);
+      let stateChannel = StateChannel.setupChannel(network, proxy, users);
       let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
       const state = {

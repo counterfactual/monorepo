@@ -37,12 +37,13 @@ describe("InstallCommitment", () => {
   };
 
   // State channel testing values
-  let stateChannel = new StateChannel(
+  let stateChannel = StateChannel.setupChannel(
+    networkContext,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
     )
-  ).setupChannel(networkContext);
+  );
 
   // Set the state to some test values
   stateChannel = stateChannel.setState(

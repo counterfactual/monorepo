@@ -12,18 +12,18 @@ describe("InstructionExecutor", () => {
   // Dummy network context
   const networkContext = generateRandomNetworkContext();
 
+  const responder = new SigningKey(hexlify(randomBytes(32)));
+
   // General interaction testing values
   const interaction = {
     sender: getAddress(hexlify(randomBytes(20))),
-    receiver: getAddress(hexlify(randomBytes(20)))
+    receiver: responder.address
   };
 
   // State channel testing values
-  const stateChannelBeforeSetup = new StateChannel(
-    getAddress(hexlify(randomBytes(20))),
-    [interaction.sender, interaction.receiver].sort((a, b) =>
-      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    )
+  const multisigAddress = getAddress(hexlify(randomBytes(20)));
+  const multisigOwners = [interaction.sender, interaction.receiver].sort(
+    (a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)
   );
 
   let instructionExecutor: InstructionExecutor;
@@ -41,18 +41,21 @@ describe("InstructionExecutor", () => {
   });
 
   describe("the result of proposeStateTransition for the Setup Protocol", () => {
-    let responder: SigningKey;
     let commitment: SetupCommitment;
     let stateChannelAfterSetup: StateChannel;
     let fb: AppInstance;
 
     beforeAll(async () => {
-      responder = new SigningKey(hexlify(randomBytes(32)));
-
       // Extract the commitment passed to the OP_SIGN middleware for testing
       instructionExecutor.register(Opcode.OP_SIGN, (_, __, context) => {
         commitment = context.commitment as SetupCommitment;
-        stateChannelAfterSetup = context.stateChannelsMap.get("0x00")!;
+        const maybeStateChannelAfterSetup = context.stateChannelsMap.get(
+          multisigAddress
+        );
+        if (!maybeStateChannelAfterSetup) {
+          throw Error("could not find stateChannelAfterSetup");
+        }
+        stateChannelAfterSetup = maybeStateChannelAfterSetup;
       });
 
       // Ensure validateSignature in Setup Protocol does not throw
@@ -61,24 +64,18 @@ describe("InstructionExecutor", () => {
           signature: responder.signDigest(context.commitment!.hashToSign())
         } as ProtocolMessage);
       });
-
-      await instructionExecutor.runSetupProtocol(
-        new Map<string, StateChannel>([["0x00", stateChannelBeforeSetup]]),
-        {
-          initiatingAddress: "0x00",
-          respondingAddress: responder.address,
-          multisigAddress: "0x00"
-        }
-      );
+      await instructionExecutor.runSetupProtocol({
+        multisigAddress,
+        initiatingAddress: interaction.sender,
+        respondingAddress: responder.address
+      });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
     });
 
     describe("the proposed state transition of the channel", () => {
       it("should have the right metadatas", () => {
-        expect(stateChannelAfterSetup.multisigAddress).toBe(
-          stateChannelBeforeSetup.multisigAddress
-        );
+        expect(stateChannelAfterSetup.multisigAddress).toBe(multisigAddress);
         expect(stateChannelAfterSetup.multisigOwners).toContain(
           interaction.sender
         );
@@ -102,23 +99,19 @@ describe("InstructionExecutor", () => {
       });
 
       it("should be based on the multisig passed into the protocol executor", () => {
-        expect(commitment.multisigAddress).toBe(
-          stateChannelBeforeSetup.multisigAddress
-        );
+        expect(commitment.multisigAddress).toBe(multisigAddress);
       });
 
       it("should assume from and to as the owners of the multisig, sorted", () => {
-        expect(commitment.multisigOwners).toEqual(
-          stateChannelBeforeSetup.multisigOwners
-        );
+        expect(commitment.multisigOwners).toEqual(multisigOwners);
       });
 
       it("should construct the correct hash digest to sign", () => {
         expect(commitment.hashToSign()).toBe(
           new SetupCommitment(
             networkContext,
-            stateChannelBeforeSetup.multisigAddress,
-            stateChannelBeforeSetup.multisigOwners,
+            multisigAddress,
+            multisigOwners,
             fb.identity,
             fb.terms
           ).hashToSign()
