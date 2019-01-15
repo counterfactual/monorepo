@@ -15,7 +15,6 @@ export interface INodeProvider {
 export namespace Node {
   export type NetworkContext = {
     // Protocol
-    ConditionalTransaction: Address;
     MultiSend: Address;
     NonceRegistry: Address;
     AppRegistry: Address;
