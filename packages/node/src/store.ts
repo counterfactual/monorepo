@@ -6,6 +6,8 @@ import {
   Transaction
 } from "@counterfactual/machine";
 import { Address, AppInstanceInfo } from "@counterfactual/types";
+import { AddressZero, Zero } from "ethers/constants";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
@@ -201,6 +203,52 @@ export class Store {
           proposedAppInstance.id
         }`,
         value: stateChannel.multisigAddress
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${keccak256(
+          defaultAbiCoder.encode(
+            [
+              `tuple(
+                  address owner,
+                  address[] signingKeys,
+                  address appDefinitionAddress,
+                  bytes32 termsHash,
+                  uint256 defaultTimeout
+                )`
+            ],
+            [
+              {
+                owner: stateChannel.multisigAddress,
+                signingKeys: stateChannel.multisigOwners,
+                appDefinitionAddress: proposedAppInstance.appId,
+                termsHash: keccak256(
+                  defaultAbiCoder.encode(
+                    [
+                      `tuple(
+                          uint8 assetType,
+                          uint256 limit,
+                          address token
+                        )`
+                    ],
+                    [
+                      {
+                        assetType: proposedAppInstance.asset.assetType,
+                        limit: Zero,
+                        token: proposedAppInstance.asset.token
+                          ? proposedAppInstance.asset.token
+                          : AddressZero
+                      }
+                    ]
+                  )
+                ),
+                defaultTimeout: proposedAppInstance.timeout
+              }
+            ]
+          )
+        )}`,
+        value: proposedAppInstance.id
       }
     ]);
   }

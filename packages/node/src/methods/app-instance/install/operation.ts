@@ -36,6 +36,7 @@ export async function install(
     appInstanceInfo,
     stateChannel
   );
+
   delete appInstanceInfo.initialState;
 
   const updatedStateChannelMap = await instructionExecutor.runInstallProtocol(
@@ -72,7 +73,8 @@ export async function install(
  * @param appInstanceInfo The AppInstanceInfo to convert
  * @param channel The channel the AppInstanceInfo belongs to
  */
-function createAppInstanceFromAppInstanceInfo(
+// TODO: Do not export this...
+export function createAppInstanceFromAppInstanceInfo(
   proposedAppInstanceInfo: ProposedAppInstanceInfo,
   channel: StateChannel
 ): AppInstance {

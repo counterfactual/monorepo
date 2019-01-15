@@ -17,15 +17,12 @@ class FirebaseMessagingService implements IMessagingService {
       .set(msg);
   }
 
-  async onReceive(address: Address, callback: (msg: object) => Promise<void>) {
+  onReceive(address: Address, callback: (msg: object) => void) {
     if (!this.firebase.app) {
-      console.error(
+      throw Error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
-      return;
-    }
-
-    return new Promise((resolve, reject) => {
+    } else {
       this.firebase
         .ref(`${this.messagingServerKey}/${address}`)
         .on(
@@ -35,17 +32,15 @@ class FirebaseMessagingService implements IMessagingService {
               console.debug(
                 `Node with address ${address} received a "null" snapshot`
               );
-              return reject();
-            }
-
-            const value = snapshot.val();
-            if (value) {
-              await callback(value);
-              resolve();
+            } else {
+              const receivedSnapshotValue = snapshot.val();
+              if (receivedSnapshotValue) {
+                callback(receivedSnapshotValue);
+              }
             }
           }
         );
-    });
+    }
   }
 }
 

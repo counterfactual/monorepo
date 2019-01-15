@@ -33,7 +33,8 @@ export const INSTALL_PROTOCOL = {
     Opcode.IO_WAIT,
 
     // Verify they did indeed countersign the right thing
-    validateSignature,
+    (message: ProtocolMessage, context: Context, stateChannel: StateChannel) =>
+      validateSignature(context.inbox[0], context, stateChannel),
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -51,6 +52,17 @@ export const INSTALL_PROTOCOL = {
 
     // Wrap the signature into a message to be sent
     prepareToSendSignature,
+
+    function prepareToSendSignature(
+      message: ProtocolMessage,
+      context: Context
+    ) {
+      context.outbox[0] = {
+        ...context.outbox[0],
+        fromAddress: context.outbox[0].toAddress,
+        toAddress: context.outbox[0].fromAddress
+      };
+    },
 
     // Send the message to your counterparty
     Opcode.IO_SEND,

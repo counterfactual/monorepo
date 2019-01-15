@@ -10,17 +10,17 @@ export function validateSignature(
   state: StateChannel
 ) {
   if (context.commitment === undefined) {
-    throw Error("OP_SIGN_VALIDATE received an undefined commitment");
+    throw Error("validateSignature function received an undefined commitment");
   }
 
-  if (context.signature === undefined) {
-    throw Error("OP_SIGN_VALIDATE received an undefined signature");
+  if (message.signature === undefined) {
+    throw Error("validateSignature function received an undefined signature");
   }
 
   if (
     message.fromAddress !==
-    recoverAddress(context.commitment.hashToSign(), context.signature)
+    recoverAddress(context.commitment.hashToSign(), message.signature)
   ) {
-    throw Error("Received invalid signature on OP_SIGN_VALIDATE");
+    throw Error("Received invalid signature on validateSignature function");
   }
 }

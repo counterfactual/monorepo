@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
-import { InstallMessage, NODE_EVENTS } from "../../../types";
+// import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 
 import { install } from "./operation";
@@ -29,20 +29,20 @@ export default async function installAppInstanceController(
     params
   );
 
-  const installApprovalMsg: InstallMessage = {
-    from: requestHandler.address,
-    event: NODE_EVENTS.INSTALL,
-    data: {
-      params: {
-        appInstanceId: appInstanceInfo.id
-      }
-    }
-  };
+  // const installApprovalMsg: InstallMessage = {
+  //   from: requestHandler.address,
+  //   event: NODE_EVENTS.INSTALL,
+  //   data: {
+  //     params: {
+  //       appInstanceId: appInstanceInfo.id
+  //     }
+  //   }
+  // };
 
-  await requestHandler.messagingService.send(
-    respondingAddress,
-    installApprovalMsg
-  );
+  // await requestHandler.messagingService.send(
+  //   respondingAddress,
+  //   installApprovalMsg
+  // );
 
   return {
     appInstance: appInstanceInfo
