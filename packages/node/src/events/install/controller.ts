@@ -6,7 +6,7 @@ import { InstallMessage } from "../../types";
  * This function responds to a installation proposal approval from a peer Node
  * by counter installing the AppInstance this Node proposed earlier.
  */
-export default async function installEventController(
+export async function installEventController(
   requestHandler: RequestHandler,
   nodeMsg: InstallMessage
 ) {

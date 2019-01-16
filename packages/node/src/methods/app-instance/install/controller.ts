@@ -11,7 +11,7 @@ import { install } from "./operation";
  * sending an approved ack to the proposer.
  * @param params
  */
-export default async function installAppInstanceController(
+export async function installAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.InstallParams
 ): Promise<Node.InstallResult> {
@@ -43,6 +43,7 @@ export default async function installAppInstanceController(
     respondingAddress,
     installApprovalMsg
   );
+
   return {
     appInstance: appInstanceInfo
   };

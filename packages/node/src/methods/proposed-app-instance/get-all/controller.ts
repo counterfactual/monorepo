@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 
-export default async function getProposedAppInstancesController(
+export async function getProposedAppInstancesController(
   requestHandler: RequestHandler
 ): Promise<Node.GetAppInstancesResult> {
   return {

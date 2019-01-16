@@ -18,6 +18,7 @@ export async function createProposedAppInstance(
   params: Node.ProposeInstallParams
 ): Promise<string> {
   const appInstanceId = generateUUID();
+
   const channel = await getChannelFromPeerAddress(
     selfAddress,
     params.respondingAddress,
@@ -30,5 +31,6 @@ export async function createProposedAppInstance(
   );
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
+
   return appInstanceId;
 }

@@ -12,7 +12,7 @@ import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
  * @param requestHandler
  * @param nodeMsg
  */
-export default async function proposeInstallVirtualEventController(
+export async function proposeInstallVirtualEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {

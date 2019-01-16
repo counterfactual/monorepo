@@ -37,7 +37,7 @@ export class Store {
    * Returns an object with the keys being the multisig addresses and the
    * values being `StateChannel` instances.
    */
-  async getAllChannels(): Promise<{
+  public async getAllChannels(): Promise<{
     [multisigAddress: string]: StateChannel;
   }> {
     const channels = {};
@@ -59,7 +59,9 @@ export class Store {
    * Returns the StateChannel instance with the specified multisig address.
    * @param multisigAddress
    */
-  async getStateChannel(multisigAddress: Address): Promise<StateChannel> {
+  public async getStateChannel(
+    multisigAddress: Address
+  ): Promise<StateChannel> {
     return StateChannel.fromJson(
       await this.storeService.get(
         `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
@@ -72,7 +74,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  async getMultisigAddressFromAppInstanceID(
+  public async getMultisigAddressFromAppInstanceID(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -83,11 +85,25 @@ export class Store {
   }
 
   /**
+   * Returns an AppInstanceInfo from the DB based on an AppInstance object
+   * @param appInstance
+   */
+  public async getAppInstanceInfoFromAppInstance(
+    appInstance: AppInstance
+  ): Promise<AppInstanceInfo> {
+    return await this.getAppInstanceInfo(
+      await this.getAppInstanceIDFromAppInstanceIdentityHash(
+        appInstance.identityHash
+      )
+    );
+  }
+
+  /**
    * Returns a string identifying the `AppInstanceId` that is mapped to
    * the given `appInstanceIdentityHash`.
    * @param appInstanceIdentityHash
    */
-  async getAppInstanceIDFromAppInstanceIdentityHash(
+  public async getAppInstanceIDFromAppInstanceIdentityHash(
     appInstanceIdentityHash: string
   ): Promise<string> {
     return this.storeService.get(
@@ -102,7 +118,7 @@ export class Store {
    * @param channel
    * @param ownersHash
    */
-  async saveStateChannel(stateChannel: StateChannel) {
+  public async saveStateChannel(stateChannel: StateChannel) {
     const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
     await this.storeService.set([
       {
@@ -128,7 +144,7 @@ export class Store {
    * @param appInstance
    * @param appInstanceInfo
    */
-  async updateChannelWithAppInstanceInstallation(
+  public async updateChannelWithAppInstanceInstallation(
     stateChannel: StateChannel,
     appInstance: AppInstance,
     appInstanceInfo: AppInstanceInfo
@@ -181,7 +197,7 @@ export class Store {
    * @param stateChannel
    * @param proposedAppInstance
    */
-  async addAppInstanceProposal(
+  public async addAppInstanceProposal(
     stateChannel: StateChannel,
     proposedAppInstance: ProposedAppInstanceInfo
   ) {
@@ -205,7 +221,9 @@ export class Store {
     ]);
   }
 
-  async getAppInstanceInfo(appInstanceId: string): Promise<AppInstanceInfo> {
+  public async getAppInstanceInfo(
+    appInstanceId: string
+  ): Promise<AppInstanceInfo> {
     return (await this.storeService.get(
       `${
         this.storeKeyPrefix
@@ -218,7 +236,9 @@ export class Store {
    * via the hash of the owners
    * @param ownersHash
    */
-  async getMultisigAddressFromOwnersHash(ownersHash: string): Promise<string> {
+  public async getMultisigAddressFromOwnersHash(
+    ownersHash: string
+  ): Promise<string> {
     return await this.storeService.get(
       `${
         this.storeKeyPrefix
@@ -229,7 +249,7 @@ export class Store {
   /**
    * Returns a list of proposed `AppInstanceInfo`s.
    */
-  async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
+  public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const proposedAppInstancesJson = (await this.storeService.get(
       `${
         this.storeKeyPrefix
@@ -245,7 +265,7 @@ export class Store {
   /**
    * Returns the proposed AppInstance with the specified appInstanceId.
    */
-  async getProposedAppInstanceInfo(
+  public async getProposedAppInstanceInfo(
     appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
     const proposedAppInstance = await this.storeService.get(
@@ -264,7 +284,7 @@ export class Store {
   /**
    * @param appInstanceId
    */
-  async getChannelFromAppInstanceID(
+  public async getChannelFromAppInstanceID(
     appInstanceId: string
   ): Promise<StateChannel> {
     const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
@@ -276,7 +296,7 @@ export class Store {
     return await this.getStateChannel(multisigAddress);
   }
 
-  async setCommitmentForAppIdentityHash(
+  public async setCommitmentForAppIdentityHash(
     appIdentityHash: string,
     protocol: Protocol,
     commitment: Transaction
@@ -289,7 +309,7 @@ export class Store {
     ]);
   }
 
-  async setSetupCommitmentForMultisig(
+  public async setSetupCommitmentForMultisig(
     multisigAddress: string,
     commitment: Transaction
   ) {
@@ -310,7 +330,7 @@ export class Store {
     };
   }
 
-  async getCommitmentForAppIdentityHash(
+  public async getCommitmentForAppIdentityHash(
     appIdentityHash: string,
     protocol: Protocol
   ): Promise<Transaction> {
@@ -318,7 +338,7 @@ export class Store {
     return this.loadCommitment(key);
   }
 
-  async getSetupCommitmentForMultisig(
+  public async getSetupCommitmentForMultisig(
     multisigAddress: string
   ): Promise<Transaction> {
     const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
@@ -350,7 +370,7 @@ export class Store {
    * the given `appInstanceId`.
    * @param appInstanceId
    */
-  async getAppInstanceIdentityHashFromAppInstanceId(
+  public async getAppInstanceIdentityHashFromAppInstanceId(
     appInstanceId: string
   ): Promise<string> {
     return this.storeService.get(

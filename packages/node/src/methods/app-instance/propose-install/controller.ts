@@ -12,13 +12,14 @@ import { createProposedAppInstance } from "./operation";
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export default async function proposeInstallAppInstanceController(
+export async function proposeInstallAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
   if (!params.initialState) {
     return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
   }
+
   // The client can ignore setting the Node's address, but the peers need to know
   // who the initiating address is
   params.initiatingAddress = requestHandler.address;

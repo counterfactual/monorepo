@@ -1,6 +1,6 @@
 import { StateChannel } from "@counterfactual/machine";
 import { Address, AssetType, NetworkContext } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { Zero } from "ethers/constants";
 
 import { Store } from "../../../store";
 
@@ -18,19 +18,16 @@ export async function openStateChannel(
   store: Store,
   networkContext: NetworkContext
 ): Promise<StateChannel> {
-  let stateChannel = new StateChannel(multisigAddress, owners).setupChannel(
-    networkContext
-  );
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const stateChannel = new StateChannel(multisigAddress, owners)
+    .setupChannel(networkContext)
+    .setFreeBalanceFor(AssetType.ETH, {
+      alice: owners[0],
+      bob: owners[1],
+      aliceBalance: Zero,
+      bobBalance: Zero
+    });
 
-  const state = {
-    alice: stateChannel.multisigOwners[0],
-    bob: stateChannel.multisigOwners[1],
-    aliceBalance: bigNumberify(0),
-    bobBalance: bigNumberify(0)
-  };
-
-  stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
   await store.saveStateChannel(stateChannel);
+
   return stateChannel;
 }
