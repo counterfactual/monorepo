@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
+import { ERRORS } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
 
@@ -15,6 +16,9 @@ export default async function proposeInstallAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallParams
 ): Promise<Node.ProposeInstallResult> {
+  if (!params.initialState) {
+    return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+  }
   // The client can ignore setting the Node's address, but the peers need to know
   // who the initiating address is
   params.initiatingAddress = requestHandler.address;

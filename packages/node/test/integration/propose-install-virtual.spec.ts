@@ -66,12 +66,11 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   afterAll(() => {
     firebaseServer.close();
   });
-
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
-      it("sends proposal with null initial state", async done => {
+      it("sends proposal with non-null initial state", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
           nodeA.address,
           nodeB.address

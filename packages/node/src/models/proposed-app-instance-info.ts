@@ -16,7 +16,7 @@ export interface IProposedAppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState?: AppState;
+  initialState: AppState;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
@@ -30,7 +30,7 @@ export interface ProposedAppInstanceInfoJSON {
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
-  initialState?: AppState;
+  initialState: AppState;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
