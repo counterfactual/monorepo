@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
+  "types": "dist/src/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
@@ -37,7 +38,6 @@
   },
   "jest": {
     "bail": true,
-    "cacheDirectory": "jest-cache",
     "coverageDirectory": "jest-coverage",
     "coveragePathIgnorePatterns": [
       "test"
