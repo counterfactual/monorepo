@@ -1,5 +1,5 @@
-import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -14,7 +14,7 @@ describe("Node can use storage service", () => {
   let node: Node;
   let nodeConfig: NodeConfig;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
@@ -26,8 +26,7 @@ describe("Node can use storage service", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
-    node = new Node(
-      process.env.A_PRIVATE_KEY!,
+    node = await Node.create(
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
@@ -42,7 +41,7 @@ describe("Node can use storage service", () => {
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
     const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [new Wallet(process.env.B_PRIVATE_KEY!).address, AddressZero]
+      owners: [getAddress(hexlify(randomBytes(20))), AddressZero]
     };
     await storeService.set([{ key: "multisigAddress/0x111", value: channelA }]);
     await storeService.set([{ key: "multisigAddress/0x222", value: channelB }]);
@@ -59,7 +58,7 @@ describe("Node can use storage service", () => {
   it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
     const channelA = { owners: [node.address, AddressZero] };
     const channelB = {
-      owners: [new Wallet(process.env.B_PRIVATE_KEY!).address, AddressZero]
+      owners: [getAddress(hexlify(randomBytes(20))), AddressZero]
     };
     await storeService.set([
       { key: "multisigAddress/0x111", value: channelA },

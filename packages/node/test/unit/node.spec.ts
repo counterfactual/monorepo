@@ -1,21 +1,20 @@
 import { Node } from "../../src/node";
 import { EMPTY_NETWORK } from "../integration/utils";
+import memoryStoreService from "../services/memory-store-service";
 import mockMessagingService from "../services/mock-messaging-service";
-import mockStoreService from "../services/mock-store-service";
 
 describe("Primitive Node operations", () => {
   it("exists", () => {
     expect(Node).toBeDefined();
   });
 
-  it("can be instantiated", () => {
+  it("can be instantiated", async () => {
     const nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    const node = new Node(
-      process.env.A_PRIVATE_KEY!,
+    const node = await Node.create(
       mockMessagingService,
-      mockStoreService,
+      memoryStoreService,
       EMPTY_NETWORK,
       nodeConfig
     );

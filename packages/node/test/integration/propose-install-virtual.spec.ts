@@ -1,5 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import FirebaseServer from "firebase-server";
+import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
@@ -15,23 +16,23 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
+  let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
-  let storeService: IStoreService;
   let messagingService: IMessagingService;
   let nodeA: Node;
+  let storeServiceA: IStoreService;
   let nodeB: Node;
+  let storeServiceB: IStoreService;
   let nodeC: Node;
+  let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
 
   beforeAll(async () => {
-    const firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
     firebaseServer = firebaseServiceFactory.createServer();
-    storeService = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY!
-    );
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -40,25 +41,35 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     };
   });
 
-  beforeEach(() => {
-    nodeA = new Node(
-      process.env.A_PRIVATE_KEY!,
+  beforeEach(async () => {
+    // Setting up a different store service to simulate different store services
+    // being used for each Node
+    storeServiceA = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeA = await Node.create(
       messagingService,
-      storeService,
+      storeServiceA,
       EMPTY_NETWORK,
       nodeConfig
     );
-    nodeB = new Node(
-      process.env.B_PRIVATE_KEY!,
+
+    storeServiceB = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeB = await Node.create(
       messagingService,
-      storeService,
+      storeServiceB,
       EMPTY_NETWORK,
       nodeConfig
     );
-    nodeC = new Node(
-      process.env.C_PRIVATE_KEY!,
+
+    storeServiceC = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeC = await Node.create(
       messagingService,
-      storeService,
+      storeServiceC,
       EMPTY_NETWORK,
       nodeConfig
     );
