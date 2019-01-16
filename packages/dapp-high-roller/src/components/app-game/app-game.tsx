@@ -4,45 +4,24 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import {
+  Action,
+  ActionType,
+  GameState,
+  HighRollerAppState,
+  HighRollerStage,
+  PlayerType
+} from "../../data/game-types";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf } from "../../data/types";
-import { GameState, PlayerType } from "../../enums/enums";
 import { getProp } from "../../utils/utils";
 
-const { AddressZero } = ethers.constants;
+const { AddressZero, HashZero } = ethers.constants;
 const { solidityKeccak256 } = ethers.utils;
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
-
-enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  DONE
-}
-
-type HighRollerAppState = {
-  playerAddrs: string[];
-  stage: HighRollerStage;
-  salt: string;
-  commitHash: string;
-  playerFirstNumber: number;
-  playerSecondNumber: number;
-};
-
-enum ActionType {
-  START_GAME,
-  COMMIT_TO_HASH,
-  COMMIT_TO_NUM
-}
-
-type Action = {
-  actionType: ActionType;
-  number: number;
-  actionHash: string;
-};
 
 /**
  * Bob(Proposing) waits for Alice(Accepting) to roll dice - onUpdateState()?
@@ -54,8 +33,8 @@ function onUpdateState(): Promise<HighRollerAppState> {
     const state: HighRollerAppState = {
       playerAddrs: [AddressZero, AddressZero],
       stage: HighRollerStage.COMMITTING_NUM,
-      salt: nullValueBytes32,
-      commitHash: nullValueBytes32,
+      salt: HashZero,
+      commitHash: HashZero,
       playerFirstNumber: 0,
       playerSecondNumber: 3
     };
@@ -71,8 +50,8 @@ async function takeAction(action: Action): Promise<HighRollerAppState> {
     const state: HighRollerAppState = {
       playerAddrs: [AddressZero, AddressZero],
       stage: HighRollerStage.COMMITTING_HASH,
-      salt: nullValueBytes32,
-      commitHash: nullValueBytes32,
+      salt: HashZero,
+      commitHash: HashZero,
       playerFirstNumber: 0,
       playerSecondNumber: 0
     };
@@ -86,8 +65,8 @@ async function takeAction(action: Action): Promise<HighRollerAppState> {
     const state: HighRollerAppState = {
       playerAddrs: [AddressZero, AddressZero],
       stage: HighRollerStage.COMMITTING_NUM,
-      salt: nullValueBytes32,
-      commitHash: nullValueBytes32,
+      salt: HashZero,
+      commitHash: HashZero,
       playerFirstNumber: 0,
       playerSecondNumber: 0
     };
@@ -100,8 +79,8 @@ async function takeAction(action: Action): Promise<HighRollerAppState> {
   const state: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
     stage: HighRollerStage.DONE,
-    salt: nullValueBytes32,
-    commitHash: nullValueBytes32,
+    salt: HashZero,
+    commitHash: HashZero,
     playerFirstNumber: 0,
     playerSecondNumber: 0
   };
@@ -111,10 +90,6 @@ async function takeAction(action: Action): Promise<HighRollerAppState> {
     }, 3000);
   });
 }
-
-// Default value instead of null Bytes32
-const nullValueBytes32 =
-  "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
 
 /// Returns the commit hash that can be used to commit to chosenNumber
 /// using appSalt
@@ -144,8 +119,8 @@ export class AppGame {
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
     stage: HighRollerStage.PRE_GAME,
-    salt: nullValueBytes32,
-    commitHash: nullValueBytes32,
+    salt: HashZero,
+    commitHash: HashZero,
     playerFirstNumber: 0,
     playerSecondNumber: 0
   };
@@ -208,7 +183,7 @@ export class AppGame {
         const startGameAction: Action = {
           number: 0,
           actionType: ActionType.START_GAME,
-          actionHash: nullValueBytes32
+          actionHash: HashZero
         };
 
         this.highRollerState = await takeAction(startGameAction); // TODO call appInstance.takeAction
