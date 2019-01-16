@@ -10,3 +10,4 @@
 * [Update Protocol](06-update-protocol.md)
 * [Uninstall Protocol](07-uninstall-protocol.md)
 * [Cleanup Protocol](08-cleanup-protocol.md)
+* [Install Virtual App Protocol](09-install-virtual-app-protocol.md)

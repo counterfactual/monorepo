@@ -16,13 +16,15 @@ For the below messages, the digest that is signed is represented as the followin
 
 ```typescript
 keccak256(
-  ["bytes1", "address[]", "uint256", "uint256", "bytes32"],
+  ["bytes1", "bytes32", "bytes32", "uint256",
   [
-    0x19, // Required for every sig digest (ERC 191)
-    [ALICE_ADDRESS, BOB_ADDRESS], // Must be in sorted order
-    app.localNonce, // A number higher than previously signed nonces
-    timeout, // A timeout specific to this latest signed update
-    appStateHash // The hash of the application state being set
+    0x19,
+    keccak256(encode(
+      [address, address[], address, bytes32, uint256 ],
+      [owner, signingKeys, appDefinitionAddress, termsHash, defaultTimeout]
+    )),
+    0,
+    TIMEOUT
   ]
 );
 ```
@@ -45,7 +47,7 @@ keccak256(
 | `seq`         | `1`                              |
 | `signature`   | Alice's signed commitment digest |
 
-> TODO: Add a field for the ABIEncoderV2 encoded action
+> TODO: Add a field for the encoded action
 
 ### The **`SetStateAck`** Message
 

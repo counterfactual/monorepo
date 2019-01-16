@@ -9,8 +9,6 @@ In this example, the application is Tic-Tac-Toe. You can see with the visual rep
 
 ## Messages
 
-When the application has been decided between both parties and a connection is established, the protocol for installing the application into the state channel is a single round-trip exchange of `Install` and `InstallAck` messages which include all information pertaining to the chosen deposit amounts of both parties, a pointer to the application being requested to be installed, and metadata such as the timeout and terms being agreed to.
-
 ![](./build/install-protocol-exchange.png)
 
 ### Types

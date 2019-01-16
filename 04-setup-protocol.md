@@ -6,13 +6,13 @@
 
 ## Messages
 
-After authentication and initializing a connection, channel establishment may begin. All state channels must run the Setup Protocol before any other protocol to "initialize" the channel. As the name suggests, its purpose is to setup the counterfactual state such that later protocols can be executed correctly.
+After authentication and initializing a connection, channel establishment may begin. All state channels must run the Setup Protocol before any other protocol. As the name suggests, its purpose is to setup the counterfactual state such that later protocols can be executed correctly.
 
-Specifically, the Setup Protocol exchanges a commitment allowing a particular off-chain application to withdraw funds from the multisignature wallet. We call this application the Free Balance application, representating the available funds for any new application to be installed into the state channel.
+Specifically, the Setup Protocol exchanges a commitment allowing a particular off-chain application to withdraw funds from the multisignature wallet. We call this application instance the Free Balance application, representating the available funds for any new application to be installed into the state channel. The app definition is called ETHBucket.
 
 ![](./build/setup-protocol-exchange.png)
 
-Unlike other protocols, there is no extra message data for the Setup Protocol because the commitment digests are deterministic on the addresses of the participants of the state channel. In every case, the protocol effectively installs the Free Balance application with starting balances of 0 for each participant. Thus, no extra data is required to be passed in from outside the context of the protocol execution.
+Unlike other protocols, there is no extra message data for the Setup Protocol because the commitment digests are fully determined by the addresses of the participants.
 
 ### The **`SetRootNonce`** Message
 
@@ -92,4 +92,4 @@ The commitment can be visually represented like:
 
 ![](./build/setup-commitment.png)
 
-> NOTE: The usage of `MultiSend` in this commitment is redundant and should be removed.
+> NOTE: The usage of `MultiSend` in this commitment is unnecessary and should be removed.
