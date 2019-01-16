@@ -1,11 +1,13 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
+import { ProtocolExecutionFlow } from "..";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Opcode } from "../opcodes";
 import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
 import { Context } from "../types";
 
+import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
   addSignedCommitmentInResponseWithSeq2,
   addSignedCommitmentToOutboxForSeq1
@@ -18,7 +20,7 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/05-install-protocol#messages
  *
  */
-export const INSTALL_PROTOCOL = {
+export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     // Compute the next state of the channel
     proposeStateTransition,
@@ -35,8 +37,17 @@ export const INSTALL_PROTOCOL = {
     // Wait for them to countersign the message
     Opcode.IO_WAIT,
 
+    // Verify a message was received
+    (_: ProtocolMessage, context: Context) =>
+      verifyInboxLengthEqualTo1(context.inbox),
+
     // Verify they did indeed countersign the right thing
-    validateSignature,
+    (message: ProtocolMessage, context: Context) =>
+      validateSignature(
+        message.toAddress,
+        context.commitment,
+        context.inbox[0].signature
+      ),
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -46,8 +57,13 @@ export const INSTALL_PROTOCOL = {
     // Compute the _proposed_ next state of the channel
     proposeStateTransition,
 
-    // Validate your counterparties signature is for the above proposal
-    validateSignature,
+    // Validate your counterparty's signature is for the above proposal
+    (message: ProtocolMessage, context: Context) =>
+      validateSignature(
+        message.fromAddress,
+        context.commitment,
+        message.signature
+      ),
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,

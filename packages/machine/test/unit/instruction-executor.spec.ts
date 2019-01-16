@@ -1,11 +1,11 @@
 import { AssetType } from "@counterfactual/types";
-import { getAddress, hexlify, randomBytes } from "ethers/utils";
+import { getAddress, hexlify, randomBytes, SigningKey } from "ethers/utils";
 
 import { SetupCommitment } from "../../src/ethereum";
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
 import { Opcode } from "../../src/opcodes";
-import { Context } from "../../src/types";
+import { ProtocolMessage } from "../../src/types";
 import { generateRandomNetworkContext } from "../mocks";
 
 describe("InstructionExecutor", () => {
@@ -29,44 +29,46 @@ describe("InstructionExecutor", () => {
   let instructionExecutor: InstructionExecutor;
 
   beforeAll(() => {
-    // extract the commitment passed to the OP_SIGN middleware for testing
-    // purposes
     instructionExecutor = new InstructionExecutor(networkContext);
 
     // We must register _some_ middleware for each opcode or the machine
     // will fail with an error like "While executing op number <x> at seq
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
-    const { middlewares } = instructionExecutor;
-    middlewares.add(Opcode.OP_SIGN_VALIDATE, () => {});
-    middlewares.add(Opcode.IO_SEND, () => {});
-    middlewares.add(Opcode.IO_WAIT, () => {});
-    middlewares.add(Opcode.STATE_TRANSITION_COMMIT, () => {});
+    instructionExecutor.register(Opcode.OP_SIGN_VALIDATE, () => {});
+    instructionExecutor.register(Opcode.IO_SEND, () => {});
+    instructionExecutor.register(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
   describe("the result of proposeStateTransition for the Setup Protocol", () => {
+    let responder: SigningKey;
     let commitment: SetupCommitment;
     let stateChannelAfterSetup: StateChannel;
     let fb: AppInstance;
 
-    beforeAll(() => {
-      // extract the commitment passed to the OP_SIGN middleware for testing
-      // purposes
-      instructionExecutor.middlewares.add(
-        Opcode.OP_SIGN,
-        (_, __, context: Context) => {
-          commitment = context.commitment as SetupCommitment;
-          stateChannelAfterSetup = context.stateChannelsMap.get("0x00")!;
-        }
-      );
+    beforeAll(async () => {
+      responder = new SigningKey(hexlify(randomBytes(32)));
+
+      // Extract the commitment passed to the OP_SIGN middleware for testing
+      instructionExecutor.register(Opcode.OP_SIGN, (_, __, context) => {
+        commitment = context.commitment as SetupCommitment;
+        stateChannelAfterSetup = context.stateChannelsMap.get("0x00")!;
+      });
+
+      // Ensure validateSignature in Setup Protocol does not throw
+      instructionExecutor.register(Opcode.IO_WAIT, (_, __, context) => {
+        context.inbox.push({
+          signature: responder.signDigest(context.commitment!.hashToSign())
+        } as ProtocolMessage);
+      });
 
       const scm = new Map<string, StateChannel>([
         ["0x00", stateChannelBeforeSetup]
       ]);
 
-      instructionExecutor.runSetupProtocol(scm, {
+      await instructionExecutor.runSetupProtocol(scm, {
         initiatingAddress: "0x00",
-        respondingAddress: "0x00",
+        respondingAddress: responder.address,
         multisigAddress: "0x00"
       });
 
