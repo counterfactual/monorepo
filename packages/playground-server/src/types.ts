@@ -75,6 +75,7 @@ export type APIDataContainer<T = APIResourceAttributes> = {
 export type APIResponse = APIDataContainer & {
   errors?: APIError[];
   meta?: APIMetadata;
+  included?: APIResourceCollection;
 };
 
 export type APIRequest<T = APIResourceAttributes> = {
@@ -114,6 +115,7 @@ export type SessionAttributes = {
 };
 
 export type MatchedUserAttributes = {
+  id: string;
   username: string;
   ethAddress: string;
 };
