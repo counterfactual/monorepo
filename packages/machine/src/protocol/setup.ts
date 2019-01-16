@@ -1,12 +1,17 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
+import { ProtocolExecutionFlow } from "..";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Opcode } from "../opcodes";
 import { ProtocolMessage, SetupParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
-import { prepareToSendSignature } from "./utils/signature-forwarder";
+import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
+import {
+  addSignedCommitmentInResponseWithSeq2,
+  addSignedCommitmentToOutboxForSeq1
+} from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -15,7 +20,7 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/04-setup-protocol#messages
  *
  */
-export const SETUP_PROTOCOL = {
+export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     // Compute the next state of the channel
     proposeStateTransition,
@@ -24,7 +29,7 @@ export const SETUP_PROTOCOL = {
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    prepareToSendSignature,
+    addSignedCommitmentToOutboxForSeq1,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
@@ -32,8 +37,17 @@ export const SETUP_PROTOCOL = {
     // Wait for them to countersign the message
     Opcode.IO_WAIT,
 
+    // Verify a message was received
+    (_: ProtocolMessage, context: Context) =>
+      verifyInboxLengthEqualTo1(context.inbox),
+
     // Verify they did indeed countersign the right thing
-    validateSignature,
+    (message: ProtocolMessage, context: Context) =>
+      validateSignature(
+        message.toAddress,
+        context.commitment,
+        context.inbox[0].signature
+      ),
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -43,14 +57,19 @@ export const SETUP_PROTOCOL = {
     // Compute the _proposed_ next state of the channel
     proposeStateTransition,
 
-    // Validate your counterparties signature is for the above proposal
-    validateSignature,
+    // Validate your counterparty's signature is for the above proposal
+    (message: ProtocolMessage, context: Context) =>
+      validateSignature(
+        message.fromAddress,
+        context.commitment,
+        message.signature
+      ),
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    prepareToSendSignature,
+    addSignedCommitmentInResponseWithSeq2,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
