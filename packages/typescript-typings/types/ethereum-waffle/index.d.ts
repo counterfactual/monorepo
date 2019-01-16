@@ -5,8 +5,21 @@ declare module "ethereum-waffle" {
 
   type ContractJSON = {
     abi: any;
-    evm: any
+    evm?: any;
+    bytecode?: string;
   };
+
+  interface WaffleLegacyOutput {
+    contractName?: string;
+    networks?: {
+      [x: string]: {
+        address: string,
+        events: {},
+        links: { [x: string]: string },
+        transactionHash: string
+      }
+    }
+  }
 
   export function solidity(chai, utils): void;
 

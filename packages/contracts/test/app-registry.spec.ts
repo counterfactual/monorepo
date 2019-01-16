@@ -224,41 +224,6 @@ describe("AppRegistry", () => {
     // Setup AppInstance
     const appInstance = new AppInstance(
       wallet.address,
-      [ALICE.address, BOB.address],
-      AddressZero,
-      terms,
-      10
-    );
-
-    // Tell the AppRegistry to start timer
-    await appRegistry.functions.setState(appInstance.appIdentity, {
-      stateHash: hexlify(randomBytes(32)),
-      nonce: 1,
-      timeout: 10,
-      signatures: HashZero
-    });
-
-    // Verify the correct data was put on-chain
-    // const {
-    //   status,
-    //   latestSubmitter,
-    //   appStateHash,
-    //   disputeCounter,
-    //   disputeNonce,
-    //   finalizesAt,
-    //   nonce
-    // } = await appRegistry.functions.appStates(appInstance.id);
-
-    // expect(status).to.be.eq(1);
-  });
-
-  it("is possible to call setState to put state on-chain", async () => {
-    // Test Terms
-    const terms = new Terms(AssetType.ETH, 0, AddressZero);
-
-    // Setup AppInstance
-    const appInstance = new AppInstance(
-      wallet.address,
       [AddressZero, AddressZero],
       AddressZero,
       terms,

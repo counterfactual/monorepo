@@ -5,11 +5,11 @@ import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
+import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256 } from "ethers/utils";
-import { BuildArtifact } from "truffle";
 
 import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
@@ -44,7 +44,7 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
-  const relevantArtifacts: BuildArtifact[] = [
+  const relevantArtifacts = [
     { contractName: "AppRegistry", ...AppRegistry },
     { contractName: "ETHBucket", ...ETHBucket },
     { contractName: "NonceRegistry", ...NonceRegistry },
@@ -56,16 +56,16 @@ beforeAll(async () => {
     // for this test and sets the ones we don't care about to 0x0
     ETHBalanceRefund: AddressZero,
     ...relevantArtifacts.reduce(
-      (accumulator: { [x: string]: string }, artifact: BuildArtifact) => ({
+      (accumulator: { [x: string]: string }, artifact: WaffleLegacyOutput) => ({
         ...accumulator,
-        [artifact.contractName!]: artifact.networks![networkId].address
+        [artifact.contractName as string]: artifact.networks![networkId].address
       }),
       {}
     )
   } as NetworkContext;
 
   appRegistry = new Contract(
-    (AppRegistry as BuildArtifact).networks![networkId].address,
+    (AppRegistry as WaffleLegacyOutput).networks![networkId].address,
     AppRegistry.abi,
     wallet
   );
@@ -83,7 +83,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     const users = signingKeys.map(x => x.address);
 
     const proxyFactory = new Contract(
-      (ProxyFactory as BuildArtifact).networks![networkId].address,
+      (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
       ProxyFactory.abi,
       wallet
     );
@@ -158,7 +158,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     });
 
     await proxyFactory.functions.createProxy(
-      (MinimumViableMultisig as BuildArtifact).networks![networkId].address,
+      (MinimumViableMultisig as WaffleLegacyOutput).networks![networkId]
+        .address,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
