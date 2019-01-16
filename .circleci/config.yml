@@ -15,20 +15,11 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
-      - save_cache:
-          key: build-cache-{{ .Revision }}
+      - persist_to_workspace:
+          root: /tmp/workspace
           paths:
-            - packages/types/dist
-            - packages/cf.js/dist
-            - packages/machine/dist
-            - packages/contracts/build
-            - packages/apps/build
-            - packages/node/dist
-            - packages/node-provider/dist
-            - packages/playground/dist
-            - packages/playground-server/dist
-            - packages/dapp-high-roller/dist
-            - packages/dapp-tic-tac-toe/dist
+            - packages/*/dist
+            - packages/*/build
 
   run-tests:
     docker:
@@ -38,8 +29,8 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-      - restore_cache:
-          key: build-cache-{{ .Revision }}
+      - attach_workspace:
+          at: /tmp/workspace
       - run: yarn # symlink packages' node_modules
       - run: yarn test:ci-non-playground
 
@@ -51,8 +42,8 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-      - restore_cache:
-          key: build-cache-{{ .Revision }}
+      - attach_workspace:
+          at: /tmp/workspace
       - run: yarn # symlink packages' node_modules
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
@@ -65,8 +56,8 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-      - restore_cache:
-          key: build-cache-{{ .Revision }}
+      - attach_workspace:
+          at: /tmp/workspace
       - run: yarn lint
 
 workflows:
