@@ -9,13 +9,13 @@ declare module "ethereum-waffle" {
     bytecode?: string;
   };
 
-  interface WaffleLegacyOutput {
+  type WaffleLegacyOutput = {
     contractName?: string;
     networks?: {
       [x: string]: {
         address: string,
         events: {},
-        links: { [x: string]: string },
+        links: { [x: string?]: string | undefined },
         transactionHash: string
       }
     }
