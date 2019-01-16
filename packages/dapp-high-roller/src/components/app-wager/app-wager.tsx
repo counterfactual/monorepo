@@ -14,7 +14,6 @@ import { Address, AppInstanceID, cf } from "../../data/types";
  * 0.1 ETH is staked hard coded
  * The username is retrieved from the Playground?
  */
-
 @Component({
   tag: "app-wager",
   styleUrl: "app-wager.scss",
@@ -36,10 +35,12 @@ export class AppWager {
   @State() isWaiting: boolean = false;
   @State() error: any;
   @Prop() account: any;
+  @Prop() standalone: boolean = false;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
+  @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.account.user.username;
@@ -74,20 +75,8 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    const { token } = this.account.user;
-
     try {
-      const response = await fetch(
-        // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmaking",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      const result = await response.json();
+      const result = await this.fetchMatchmake();
 
       this.opponent = result.included.find(
         resource =>
@@ -96,6 +85,8 @@ export class AppWager {
       this.intermediary = result.data.attributes.intermediary;
       this.isError = false;
       this.error = null;
+
+      this.updateOpponent(this.opponent);
     } catch (error) {
       this.isError = true;
       this.error = error;
@@ -104,6 +95,66 @@ export class AppWager {
 
   handleChange(e: Event, prop: string): void {
     this[prop] = (e.target as HTMLInputElement).value;
+  }
+
+  private async fetchMatchmake() {
+    if (this.standalone) {
+      return {
+        data: {
+          type: "matchmaking",
+          id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
+          attributes: {
+            intermediary: this.account.multisigAddress
+          },
+          relationships: {
+            users: {
+              data: {
+                type: "users",
+                id: this.account.user.id
+              }
+            },
+            matchedUsers: {
+              data: {
+                type: "matchedUsers",
+                id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
+              }
+            }
+          }
+        },
+        included: [
+          {
+            type: "users",
+            id: this.account.user.id,
+            attributes: {
+              username: this.account.user.username,
+              ethAddress: this.account.user.ethAddress
+            }
+          },
+          {
+            type: "matchedUsers",
+            id: "3d54b508-b355-4323-8738-4cdf7290a2fd",
+            attributes: {
+              username: "MyOpponent",
+              ethAddress: "0x12345"
+            }
+          }
+        ]
+      };
+    }
+
+    const { token } = this.account.user;
+    const response = await fetch(
+      // TODO: This URL must come from an environment variable.
+      "https://server.playground-staging.counterfactual.com/api/matchmaking",
+      // "http://localhost:9000/api/matchmake",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return await response.json();
   }
 
   render() {
@@ -134,6 +185,7 @@ export class AppWager {
           myName={this.myName}
           betAmount={this.betAmount}
           opponentName={this.opponent.attributes.username}
+          isProposing={true}
         />
       );
     }
@@ -159,6 +211,7 @@ export class AppWager {
               placeholder="Your name"
               value={this.myName}
               onInput={e => this.handleChange(e, "myName")}
+              readOnly={true}
             />
             <label htmlFor="betAmount">Bet Amount ( ETH )</label>
             <input
@@ -184,5 +237,7 @@ export class AppWager {
 CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
-  "account"
+  "account",
+  "opponent",
+  "standalone"
 ]);

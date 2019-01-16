@@ -13,6 +13,7 @@ declare var cf;
 })
 export class AppProvider {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
   @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
@@ -31,7 +32,7 @@ export class AppProvider {
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
       : new NodeProvider();
-    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this)); // TODO have this block rendering
+    return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
   }
 
   setupCfProvider() {
@@ -58,13 +59,10 @@ export class AppProvider {
   onInstall(data) {
     this.updateAppInstance(data.data.appInstance);
 
-    // TODO get history.push working
     this.history.push({
       pathname: "/game",
       state: {
-        opponentName: "Bob",
         betAmount: "0.1",
-        myName: "Alice",
         isProposing: true
       },
       query: {},

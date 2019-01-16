@@ -46,7 +46,8 @@ export enum ErrorCode {
   UnhandledError = "unhandled_error",
   UserNotFound = "user_not_found",
   TokenRequired = "token_required",
-  InvalidToken = "invalid_token"
+  InvalidToken = "invalid_token",
+  UsernameAlreadyExists = "username_already_exists"
 }
 
 // Generic types for JSONAPI document structure.

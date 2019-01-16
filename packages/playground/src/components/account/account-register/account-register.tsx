@@ -109,6 +109,11 @@ export class AccountRegister {
       case "username_required":
         update = { username: "This field is required" };
         break;
+      case "username_already_exists":
+        update = {
+          username: "This username is not available, try another one."
+        };
+        break;
       case "email_required":
         update = { email: "This field is required" };
         break;
