@@ -52,7 +52,7 @@ export async function matchmakeUser(
   const db = getDatabase();
 
   const query = db("users")
-    .columns({ username: "username", ethAddress: "eth_address" })
+    .columns({ id: "id", username: "username", ethAddress: "eth_address" })
     .select()
     .where("eth_address", "!=", userAddress);
 
@@ -135,7 +135,7 @@ export async function getUser(
       multisigAddress: user.multisigAddress,
       nodeAddress: user.nodeAddress
     }
-  };
+  } as APIResource<UserAttributes>;
 }
 
 export async function userExists(user: UserAttributes): Promise<boolean> {
