@@ -6,8 +6,26 @@ import { RouterHistory } from "@stencil/router";
 import CounterfactualTunnel from "../../data/counterfactual";
 import { Address, AppInstanceID, cf } from "../../data/types";
 
+const { HashZero } = ethers.constants;
+
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
+
+enum HighRollerStage {
+  PRE_GAME,
+  COMMITTING_HASH,
+  COMMITTING_NUM,
+  DONE
+}
+
+type HighRollerAppState = {
+  playerAddrs: string[];
+  stage: HighRollerStage;
+  salt: string;
+  commitHash: string;
+  playerFirstNumber: number;
+  playerSecondNumber: number;
+};
 
 /**
  * User Story
@@ -59,7 +77,17 @@ export class AppWager {
     this.isWaiting = true;
 
     try {
+      const initialState: HighRollerAppState = {
+        playerAddrs: [this.user.address, this.opponent.address],
+        stage: HighRollerStage.PRE_GAME,
+        salt: HashZero,
+        commitHash: HashZero,
+        playerFirstNumber: 0,
+        playerSecondNumber: 0
+      };
+
       await this.appFactory.proposeInstallVirtual({
+        initialState,
         respondingAddress: this.opponent.address as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
@@ -67,8 +95,7 @@ export class AppWager {
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 10000,
-        intermediaries: [this.intermediary],
-        initialState: null
+        intermediaries: [this.intermediary]
       });
     } catch (e) {
       debugger;
