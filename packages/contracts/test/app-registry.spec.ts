@@ -1,9 +1,11 @@
-import { Contract, ContractFactory } from "ethers";
+import * as waffle from "ethereum-waffle";
+import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { Web3Provider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 
-import { ALICE, BOB } from "./constants";
+import AppRegistry from "../build/AppRegistry.json";
+
 import {
   AppInstance,
   AssetType,
@@ -12,12 +14,25 @@ import {
   Terms
 } from "./utils";
 
+export const ALICE =
+  // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
+  new Wallet(
+    "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
+  );
+
+export const BOB =
+  // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
+  new Wallet(
+    "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
+  );
+
 // HELPER DATA
 const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
-contract("AppRegistry", (accounts: string[]) => {
+describe("AppRegistry", () => {
   let provider: Web3Provider;
-  let wallet: JsonRpcSigner;
+  let wallet: Wallet;
+
   let appRegistry: Contract;
 
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
@@ -32,26 +47,15 @@ contract("AppRegistry", (accounts: string[]) => {
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
-    provider = new Web3Provider((global as any).web3.currentProvider);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
 
-    wallet = await provider.getSigner(accounts[0]);
-
-    const artifact = artifacts.require("AppRegistry");
-    artifact.link(artifacts.require("LibStaticCall"));
-    artifact.link(artifacts.require("Transfer"));
-
-    appRegistry = await new ContractFactory(
-      artifact.abi,
-      artifact.binary,
-      wallet
-    ).deploy({ gasLimit: 6e9 });
-
-    await appRegistry.deployed();
+    appRegistry = await waffle.deployContract(wallet, AppRegistry);
   });
 
   beforeEach(async () => {
     const appInstance = new AppInstance(
-      accounts[0],
+      wallet.address,
       [ALICE.address, BOB.address],
       hexlify(randomBytes(20)),
       new Terms(AssetType.ETH, 0, AddressZero),
@@ -63,7 +67,8 @@ contract("AppRegistry", (accounts: string[]) => {
         .appStateHash;
 
     latestNonce = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.identityHash)).nonce;
+      (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
+        .nonce;
 
     isStateFinalized = async () =>
       await appRegistry.functions.isStateFinalized(appInstance.identityHash);
@@ -210,5 +215,47 @@ contract("AppRegistry", (accounts: string[]) => {
 
       await expect(setStateWithSignatures(0)).to.be.reverted;
     });
+  });
+
+  it("is possible to call setState to put state on-chain", async () => {
+    // Test Terms
+    const terms = new Terms(AssetType.ETH, 0, AddressZero);
+
+    // Setup AppInstance
+    const appInstance = new AppInstance(
+      wallet.address,
+      [AddressZero, AddressZero],
+      AddressZero,
+      terms,
+      10
+    );
+
+    // Tell the AppRegistry to start timer
+    const stateHash = hexlify(randomBytes(32));
+    await appRegistry.functions.setState(appInstance.appIdentity, {
+      stateHash,
+      nonce: 1,
+      timeout: 10,
+      signatures: HashZero
+    });
+
+    // Verify the correct data was put on-chain
+    const {
+      status,
+      latestSubmitter,
+      appStateHash,
+      disputeCounter,
+      disputeNonce,
+      finalizesAt,
+      nonce
+    } = await appRegistry.functions.appStates(appInstance.identityHash);
+
+    expect(status).to.be.eq(1);
+    expect(latestSubmitter).to.be.eq(await wallet.getAddress());
+    expect(appStateHash).to.be.eq(stateHash);
+    expect(disputeCounter).to.be.eq(1);
+    expect(disputeNonce).to.be.eq(0);
+    expect(finalizesAt).to.be.eq((await provider.getBlockNumber()) + 10);
+    expect(nonce).to.be.eq(1);
   });
 });

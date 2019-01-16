@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
+import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import {
   AppIdentity,
   NetworkContext,

@@ -1,4 +1,4 @@
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import {
   AppIdentity,
   ETHBucketAppState,

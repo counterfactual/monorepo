@@ -5,6 +5,7 @@ import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethere
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
+import { ProtocolExecutionFlow } from "..";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
@@ -20,10 +21,12 @@ import { Context } from "../types";
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;
 
+// TODO: Add signature validation
+
 /**
  * @description This exchange is described at the following URL:
  */
-export const INSTALL_VIRTUAL_APP_PROTOCOL = {
+export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     proposeStateTransition1,
 

@@ -1,35 +1,34 @@
-import { Contract, ContractFactory } from "ethers";
-import { HashZero, One, Zero } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { BigNumber, bigNumberify, solidityKeccak256 } from "ethers/utils";
+import * as waffle from "ethereum-waffle";
+import { Contract, ethers } from "ethers";
+
+import NonceRegistry from "../build/NonceRegistry.json";
 
 import { expect } from "./utils";
 
-const provider = new Web3Provider((global as any).web3.currentProvider);
+const { HashZero, Zero, One } = ethers.constants;
+const { solidityKeccak256, bigNumberify } = ethers.utils;
 
-contract("NonceRegistry", accounts => {
-  let unlockedAccount: JsonRpcSigner;
+describe("NonceRegistry", () => {
+  let provider: ethers.providers.Web3Provider;
+  let wallet: ethers.Wallet;
 
   let nonceRegistry: Contract;
 
-  const computeKey = (timeout: BigNumber, salt: string) =>
+  const computeKey = (
+    sender: string,
+    timeout: ethers.utils.BigNumber,
+    salt: string
+  ) =>
     solidityKeccak256(
       ["address", "uint256", "bytes32"],
-      [accounts[0], timeout, salt]
+      [sender, timeout, salt]
     );
 
   before(async () => {
-    unlockedAccount = await provider.getSigner(accounts[0]);
+    provider = waffle.createMockProvider();
+    wallet = (await waffle.getWallets(provider))[0];
 
-    const artifact = artifacts.require("NonceRegistry");
-
-    nonceRegistry = await new ContractFactory(
-      artifact.abi,
-      artifact.bytecode,
-      unlockedAccount
-    ).deploy({ gasLimit: 6e9 });
-
-    await nonceRegistry.deployed();
+    nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
   });
 
   it("can set nonces", async () => {
@@ -39,7 +38,9 @@ contract("NonceRegistry", accounts => {
 
     await nonceRegistry.functions.setNonce(timeout, salt, value);
 
-    const ret = await nonceRegistry.functions.table(computeKey(timeout, salt));
+    const ret = await nonceRegistry.functions.table(
+      computeKey(wallet.address, timeout, salt)
+    );
     const blockNumber = bigNumberify(await provider.getBlockNumber());
 
     expect(ret.nonceValue).to.eq(One);
@@ -61,7 +62,7 @@ contract("NonceRegistry", accounts => {
     const timeout = Zero;
     const salt = HashZero;
     const value = One;
-    const key = computeKey(timeout, salt);
+    const key = computeKey(wallet.address, timeout, salt);
 
     await nonceRegistry.functions.setNonce(timeout, salt, value);
 

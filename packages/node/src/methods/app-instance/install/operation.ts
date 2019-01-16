@@ -38,29 +38,14 @@ export async function install(
   );
   delete appInstanceInfo.initialState;
 
-  const updatedStateChannelMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initiatingAddress,
-      respondingAddress,
-      multisigAddress: stateChannel.multisigAddress,
-
-      // TODO: Figure out who is alice and who is bob
-      aliceBalanceDecrement: appInstanceInfo.myDeposit,
-      bobBalanceDecrement: appInstanceInfo.peerDeposit,
-
-      signingKeys: appInstance.signingKeys,
-      terms: appInstance.terms,
-      appInterface: appInstance.appInterface,
-      initialState: appInstance.state,
-      defaultTimeout: appInstance.defaultTimeout
-    }
-  );
+  // TODO: Use the instructionExecutor variable to `runInstallProtocol`
 
   await store.updateChannelWithAppInstanceInstallation(
-    updatedStateChannelMap.get(stateChannel.multisigAddress)!,
+    stateChannel.installApp(
+      appInstance,
+      appInstanceInfo.myDeposit,
+      appInstanceInfo.peerDeposit
+    ),
     appInstance,
     appInstanceInfo
   );

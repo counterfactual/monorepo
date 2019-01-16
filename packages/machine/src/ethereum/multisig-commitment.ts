@@ -1,4 +1,4 @@
-import MinimumViableMultisig from "@counterfactual/contracts/build/contracts/MinimumViableMultisig.json";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
