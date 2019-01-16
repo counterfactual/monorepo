@@ -19,6 +19,16 @@ jobs:
           key: build-cache-{{ .Revision }}
           paths:
             - packages/types/dist
+            - packages/cf.js/dist
+            - packages/machine/dist
+            - packages/contracts/build
+            - packages/apps/build
+            - packages/node/dist
+            - packages/node-provider/dist
+            - packages/playground/dist
+            - packages/playground-server/dist
+            - packages/dapp-high-roller/dist
+            - packages/dapp-tic-tac-toe/dist
 
   run-tests:
     docker:
