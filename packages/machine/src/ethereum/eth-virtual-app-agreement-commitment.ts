@@ -1,4 +1,4 @@
-import ETHVirtualAppAgreement from "@counterfactual/contracts/build/contracts/ETHVirtualAppAgreement.json";
+import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import { BigNumber, Interface, keccak256, solidityPack } from "ethers/utils";
 

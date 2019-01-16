@@ -24,4 +24,4 @@ ganache-cli \
 
 PID_FOR_GANACHE_CLI=$!
 
-yarn run truffle test --network ganache $1
+yarn run ts-mocha ${1:-test/*.spec.ts}

@@ -1,4 +1,4 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/contracts/StateChannelTransaction.json";
+import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
 

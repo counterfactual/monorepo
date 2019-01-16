@@ -1,6 +1,6 @@
-import AppRegistry from "@counterfactual/contracts/build/contracts/AppRegistry.json";
-import MultiSend from "@counterfactual/contracts/build/contracts/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/contracts/NonceRegistry.json";
+import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
+import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
 import {
