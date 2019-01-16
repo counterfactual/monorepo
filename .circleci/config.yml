@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
-      - run: cat mkdir -p /tmp/workspace
+      - run: mkdir -p /tmp/workspace
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
