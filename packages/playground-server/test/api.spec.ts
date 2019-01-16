@@ -39,6 +39,7 @@ describe("playground-server", () => {
       table.string("email");
       table.string("eth_address");
       table.string("multisig_address");
+      table.string("node_address");
       table.unique(["username"], "uk_users__username");
     });
 
@@ -207,81 +208,91 @@ describe("playground-server", () => {
               }
             ]
           } as APIResponse);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
     });
 
     it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", done => {
       client
-        .post("/create-account", {
-          username: "joe",
-          email: "joe@joe.com",
-          address: "0x5faddca4889ddc5791cf65446371151f29653285",
-          signature:
-            "0x586b68a3362c026cdf39c63569fffb8f9106e624ef316e0f0441ea4caef4b73b0d4626f717ec23166bf061ce6728d58bcba01cd63ef8014f696dffb07d0bd3871b"
+        .post("/users", {
+          data: {
+            type: "users",
+            attributes: {
+              username: "joe",
+              email: "joe@joe.com",
+              ethAddress: "0x5faddca4889ddc5791cf65446371151f29653285"
+            }
+          },
+          meta: {
+            signature: {
+              signedMessage:
+                "0x586b68a3362c026cdf39c63569fffb8f9106e624ef316e0f0441ea4caef4b73b0d4626f717ec23166bf061ce6728d58bcba01cd63ef8014f696dffb07d0bd3871b"
+            }
+          }
         })
         .catch(({ response }) => {
-          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
-            ok: false,
-            error: {
-              status: HttpStatusCode.BadRequest,
-              errorCode: ErrorCode.UsernameAlreadyExists
-            }
-          });
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.UsernameAlreadyExists
+              }
+            ]
+          } as APIResponse);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
     });
   });
 
-  describe.skip("/api/create-account", () => {});
-
-  describe.skip("/api/login", () => {
+  describe("/api/session", () => {
     it("fails if no signature is provided", done => {
-      client.post("/login").catch(({ response }) => {
+      client.post("/session").catch(({ response }) => {
         expect(response.status).toEqual(HttpStatusCode.BadRequest);
         expect(response.data).toEqual({
-          ok: false,
-          error: {
-            status: HttpStatusCode.BadRequest,
-            errorCode: ErrorCode.SignatureRequired
-          }
-        });
-        done();
-      });
-    });
-
-    it("fails if there is user account associated to the address", done => {
-      client.post("/login").catch(({ response }) => {
-        expect(response.status).toEqual(HttpStatusCode.BadRequest);
-        expect(response.data).toEqual({
-          ok: false,
-          error: {
-            status: HttpStatusCode.BadRequest,
-            errorCode: ErrorCode.SignatureRequired
-          }
-        });
+          errors: [
+            {
+              status: HttpStatusCode.BadRequest,
+              code: ErrorCode.SignatureRequired
+            }
+          ]
+        } as APIResponse);
         done();
       });
     });
 
     it("returns user data + session token", done => {
       client
-        .post("/login", {
-          address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-          signature:
-            "0x0d89ad46772a1ae1e3ae7202da31a32de00d8c8993fa448cc2e6265608c8bd1e493a75ab3e3bc67aa28cce29691a0b013c9c96c06fdf35834b82ad27e46e9d2b1c"
+        .post("/session", {
+          data: {
+            type: "session",
+            attributes: {
+              ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+            }
+          },
+          meta: {
+            signature: {
+              signedMessage:
+                "0x0d89ad46772a1ae1e3ae7202da31a32de00d8c8993fa448cc2e6265608c8bd1e493a75ab3e3bc67aa28cce29691a0b013c9c96c06fdf35834b82ad27e46e9d2b1c"
+            }
+          }
         })
         .then(response => {
-          expect(response.status).toEqual(HttpStatusCode.OK);
-          expect(response.data.data.user).toEqual({
-            id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
-            username: "joe",
-            email: "joe@joe.com",
-            address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-            multisigAddress: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
-          });
-          expect(response.data.data.token).toBeDefined();
+          const data = response.data.data as APIResource<UserAttributes>;
+
+          expect(data.id).toEqual("2b83cb14-c7aa-4208-8da8-269aeb1a3f24");
+          expect(data.attributes.username).toEqual("joe");
+          expect(data.attributes.email).toEqual("joe@joe.com");
+          expect(data.attributes.ethAddress).toEqual(
+            "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+          );
+          expect(data.attributes.multisigAddress).toEqual(
+            "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+          );
+          expect(data.attributes.token).toBeDefined();
+
+          expect(response.status).toEqual(HttpStatusCode.Created);
           done();
         });
     });
@@ -431,18 +442,15 @@ describe("playground-server", () => {
           expect(response.data.ok).toBe(true);
 
           const { username, address } = response.data.data.opponent;
-          const bobAddress = "0x93678a4828d07708ad34272d61404dd06twoae2ca64";
           const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
           const delilahAddress = "0xdab500c650725c2f1af0b09df327d2d3ef3cefca";
 
-          if (username === "bob") {
-            expect(address).toEqual(bobAddress);
-          } else if (username === "charlie") {
+          if (username === "charlie") {
             expect(address).toEqual(charlieAddress);
           } else if (username === "delilah") {
             expect(address).toEqual(delilahAddress);
           } else {
-            fail("It should have matched either Bob or Charlie");
+            fail("It should have matched either Charlie or Delilah");
           }
 
           done();
