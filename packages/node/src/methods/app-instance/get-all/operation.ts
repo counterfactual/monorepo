@@ -8,7 +8,7 @@ export async function getAppInstanceInfoFromAppInstance(
   appInstances: AppInstance[]
 ): Promise<AppInstanceInfo[]> {
   return await Promise.all(
-    appInstances.map(store.getAppInstanceInfoFromAppInstance.bind(store))
+    appInstances.map(x => store.getAppInstanceInfoFromAppInstance(x))
   );
 }
 
