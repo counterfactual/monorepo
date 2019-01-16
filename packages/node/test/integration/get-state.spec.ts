@@ -35,9 +35,8 @@ describe("Node method follows spec - getAppInstances", () => {
     };
   });
 
-  beforeEach(() => {
-    node = new Node(
-      process.env.A_PRIVATE_KEY!,
+  beforeEach(async () => {
+    node = await Node.create(
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,

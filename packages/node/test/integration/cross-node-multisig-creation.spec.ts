@@ -1,4 +1,5 @@
 import FirebaseServer from "firebase-server";
+import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 
@@ -6,22 +7,21 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
+  let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
-  let storeService: IStoreService;
   let messagingService: IMessagingService;
-  let nodeA: Node;
-  let nodeB: Node;
+  let nodeA;
+  let storeServiceA: IStoreService;
+  let nodeB;
+  let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
 
   beforeAll(() => {
-    const firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
     firebaseServer = firebaseServiceFactory.createServer();
-    storeService = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY!
-    );
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -30,18 +30,25 @@ describe("Node can create multisig, other owners get notified", () => {
     };
   });
 
-  beforeEach(() => {
-    nodeA = new Node(
-      process.env.A_PRIVATE_KEY!,
+  beforeEach(async () => {
+    // Setting up a different store service to simulate different store services
+    // being used for each Node
+    storeServiceA = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeA = await Node.create(
       messagingService,
-      storeService,
+      storeServiceA,
       EMPTY_NETWORK,
       nodeConfig
     );
-    nodeB = new Node(
-      process.env.B_PRIVATE_KEY!,
+
+    storeServiceB = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeB = await Node.create(
       messagingService,
-      storeService,
+      storeServiceB,
       EMPTY_NETWORK,
       nodeConfig
     );

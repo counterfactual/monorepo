@@ -1,27 +1,26 @@
 import { IMessagingService, IStoreService } from "@counterfactual/node";
-import {
-  Address,
-  NetworkContext,
-  Node as NodeTypes
-} from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
 // Stencil from blowing up due to "member not exported" errors.
 // It's derived from `node.d.ts`.
-declare class Node {
-  constructor(
-    privateKey: string,
+export declare class Node {
+  static create(
     messagingService: IMessagingService,
     storeService: IStoreService,
     networkContext: NetworkContext,
-    nodeConfig: { STORE_KEY_PREFIX: string }
-  );
+    nodeConfig: NodeConfig
+  ): Promise<Node>;
+  readonly address: string;
   on(event: string, callback: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
-  readonly address: string;
-  send(respondingAddress: Address, msg: object): Promise<void>;
-  get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<any>;
+  call(
+    method: NodeTypes.MethodName,
+    req: NodeTypes.MethodRequest
+  ): Promise<NodeTypes.MethodResponse>;
+}
+export interface NodeConfig {
+  STORE_KEY_PREFIX: string;
 }
 
 export default class CounterfactualNode {
@@ -31,15 +30,13 @@ export default class CounterfactualNode {
     return CounterfactualNode.node;
   }
 
-  static create(settings: {
-    privateKey: string;
+  static async create(settings: {
     messagingService: IMessagingService;
     storeService: IStoreService;
     networkContext: NetworkContext;
     nodeConfig: { STORE_KEY_PREFIX: string };
-  }): Node {
-    CounterfactualNode.node = new Node(
-      settings.privateKey,
+  }): Promise<Node> {
+    CounterfactualNode.node = await Node.create(
       settings.messagingService,
       settings.storeService,
       settings.networkContext,
