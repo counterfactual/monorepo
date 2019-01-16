@@ -79,8 +79,7 @@ export class AppWager {
     try {
       const response = await fetch(
         // TODO: This URL must come from an environment variable.
-        // "https://server.playground-staging.counterfactual.com/api/matchmake",
-        "http://localhost:9000/api/matchmaking",
+        "https://server.playground-staging.counterfactual.com/api/matchmaking",
         {
           method: "POST",
           headers: {
