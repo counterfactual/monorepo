@@ -31,7 +31,7 @@
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
     "cuid": "^2.1.4",
-    "ethers": "4.0.20",
+    "ethers": "4.0.21",
     "eventemitter3": "^3.1.0"
   },
   "jest": {
