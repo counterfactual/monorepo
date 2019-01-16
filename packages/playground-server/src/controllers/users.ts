@@ -55,6 +55,9 @@ export default class UsersController extends Controller<UserAttributes> {
       expiresIn: "1Y"
     });
 
+    // Update user with multisig.
+    user.attributes.multisigAddress = multisig.multisigAddress;
+
     Log.info("User token has been generated", {
       tags: { endpoint: "createAccount" }
     });
