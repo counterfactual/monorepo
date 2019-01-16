@@ -302,7 +302,7 @@ export default abstract class Controller<
     const resource = json.data as APIResource<TAttributes>;
     const metadata = json.meta as APIMetadata;
 
-    if (!metadata.signature) {
+    if (!metadata || !metadata.signature) {
       throw ErrorCode.SignatureRequired;
     }
 
