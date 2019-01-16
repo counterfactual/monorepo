@@ -19,7 +19,7 @@ export type AppInstanceInfo = {
 
 export type AppABIEncodings = {
   stateEncoding: ABIEncoding;
-  actionEncoding?: ABIEncoding;
+  actionEncoding: ABIEncoding | undefined;
 };
 
 export type BlockchainAsset = {
