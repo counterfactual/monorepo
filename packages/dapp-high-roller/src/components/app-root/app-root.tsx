@@ -37,8 +37,8 @@ export class AppRoot {
         event.data.startsWith("playground:response:user")
       ) {
         const [, data] = event.data.split("|");
-        const user = JSON.parse(data);
-        this.updateUser(user);
+        const account = JSON.parse(data);
+        this.updateUser(account);
         console.log(this.state);
       }
     });
@@ -46,8 +46,8 @@ export class AppRoot {
     window.parent.postMessage("playground:request:user", "*");
   }
 
-  updateUser(user: any) {
-    this.state = { ...this.state, user };
+  updateUser(account: any) {
+    this.state = { ...this.state, account };
   }
 
   updateAppInstance(appInstance: AppInstance) {

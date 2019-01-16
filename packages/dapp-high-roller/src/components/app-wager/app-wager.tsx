@@ -28,19 +28,21 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
-  @State() opponent: { username?: string; address?: Address } = {};
+  @State() opponent: {
+    attributes: { username?: string; ethAddress?: Address };
+  } = { attributes: {} };
   @State() intermediary: string = "";
   @State() isError: boolean = false;
   @State() isWaiting: boolean = false;
   @State() error: any;
-  @Prop() user: any;
+  @Prop() account: any;
 
   @Prop() updateAppInstance: (
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
 
   async componentWillLoad() {
-    this.myName = this.user.username;
+    this.myName = this.account.user.username;
 
     return await this.matchmake();
   }
@@ -56,7 +58,7 @@ export class AppWager {
 
     try {
       await this.appFactory.proposeInstallVirtual({
-        respondingAddress: this.opponent.address as string,
+        respondingAddress: this.opponent.attributes.ethAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
@@ -72,12 +74,13 @@ export class AppWager {
   }
 
   async matchmake(/* timeout: number */): Promise<any> {
-    const { token } = this.user;
+    const { token } = this.account.user;
 
     try {
       const response = await fetch(
         // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
+        // "https://server.playground-staging.counterfactual.com/api/matchmake",
+        "http://localhost:9000/api/matchmaking",
         {
           method: "POST",
           headers: {
@@ -87,8 +90,11 @@ export class AppWager {
       );
       const result = await response.json();
 
-      this.opponent = result.data.opponent;
-      this.intermediary = result.data.intermediary;
+      this.opponent = result.included.find(
+        resource =>
+          resource.id === result.data.relationships.matchedUser.data.id
+      );
+      this.intermediary = result.data.attributes.intermediary;
       this.isError = false;
       this.error = null;
     } catch (error) {
@@ -128,7 +134,7 @@ export class AppWager {
         <app-waiting
           myName={this.myName}
           betAmount={this.betAmount}
-          opponentName={this.opponent.username}
+          opponentName={this.opponent.attributes.username}
         />
       );
     }
@@ -179,5 +185,5 @@ export class AppWager {
 CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
-  "user"
+  "account"
 ]);
