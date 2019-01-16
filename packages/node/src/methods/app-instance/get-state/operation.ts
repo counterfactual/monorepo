@@ -13,10 +13,14 @@ export async function getAppInstanceState(
   store: Store
 ): Promise<AppState> {
   const channel = await store.getChannelFromAppInstanceID(appInstanceId);
+
   if (!channel) {
     return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
   }
-  return channel.getAppInstance(
-    await store.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId)
-  ).state;
+
+  const identityHash = await store.getAppInstanceIdentityHashFromAppInstanceId(
+    appInstanceId
+  );
+
+  return channel.getAppInstance(identityHash).state;
 }

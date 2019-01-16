@@ -18,6 +18,7 @@ export default async function createMultisigController(
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
   const multisigAddress = generateNewMultisigAddress(params.owners);
+
   await openStateChannel(
     multisigAddress,
     params.owners,
@@ -39,10 +40,12 @@ export default async function createMultisigController(
       }
     }
   };
+
   await requestHandler.messagingService.send(
     respondingAddress,
     multisigCreatedMsg
   );
+
   return {
     multisigAddress
   };

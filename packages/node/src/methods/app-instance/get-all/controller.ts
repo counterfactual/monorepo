@@ -16,18 +16,28 @@ export default async function getInstalledAppInstancesController(
   params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
   const appInstances: AppInstanceInfo[] = [];
+
   const channels = await requestHandler.store.getAllChannels();
+
   for (const channel of Object.values(channels)) {
     if (channel.appInstances) {
       const nonFreeBalanceAppInstances = getNonFreeBalanceAppInstances(channel);
+
       const appInstanceInfos = await getAppInstanceInfoFromAppInstance(
         requestHandler.store,
         nonFreeBalanceAppInstances
       );
+
       appInstances.push(
         // FIXME: shouldn't have to filter for null
         ...Object.values(appInstanceInfos).filter(appInstanceInfo => {
-          return appInstanceInfo !== null;
+          if (appInstanceInfo === null) {
+            console.warn(
+              "Found null value in array of appInstanceInfos returned from DB"
+            );
+            return false;
+          }
+          return true;
         })
       );
     } else {
@@ -38,6 +48,7 @@ export default async function getInstalledAppInstancesController(
       );
     }
   }
+
   return {
     appInstances
   };

@@ -31,11 +31,14 @@ export async function install(
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
+
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
   const appInstance = createAppInstanceFromAppInstanceInfo(
     appInstanceInfo,
     stateChannel
   );
+
   delete appInstanceInfo.initialState;
 
   // TODO: Use the instructionExecutor variable to `runInstallProtocol`
@@ -62,9 +65,8 @@ function createAppInstanceFromAppInstanceInfo(
   channel: StateChannel
 ): AppInstance {
   const appInterface: AppInterface = {
-    addr: proposedAppInstanceInfo.appId,
-    stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
-    actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
+    ...proposedAppInstanceInfo.abiEncodings,
+    addr: proposedAppInstanceInfo.appId
   };
 
   // TODO: throw if asset type is ETH and token is also set
@@ -73,9 +75,7 @@ function createAppInstanceFromAppInstanceInfo(
     limit: proposedAppInstanceInfo.myDeposit.add(
       proposedAppInstanceInfo.peerDeposit
     ),
-    token: proposedAppInstanceInfo.asset.token
-      ? proposedAppInstanceInfo.asset.token
-      : AddressZero
+    token: proposedAppInstanceInfo.asset.token || AddressZero
   };
 
   return new AppInstance(

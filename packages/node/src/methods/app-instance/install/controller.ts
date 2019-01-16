@@ -43,6 +43,7 @@ export default async function installAppInstanceController(
     respondingAddress,
     installApprovalMsg
   );
+
   return {
     appInstance: appInstanceInfo
   };
