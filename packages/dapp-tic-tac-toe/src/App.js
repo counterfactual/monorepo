@@ -50,7 +50,10 @@ export default class App extends Component {
       ) {
         const [, data] = event.data.split("|");
         const user = JSON.parse(data);
-        this.setState({ user, connected: true });
+        this.setState({
+          user: { id: user.id, ...user.attributes },
+          connected: true
+        });
         console.log(this.state);
       }
     });
