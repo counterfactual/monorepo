@@ -15,6 +15,11 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - packages/*/dist
+            - packages/*/build
 
   run-tests:
     docker:
@@ -24,8 +29,9 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - attach_workspace:
+          at: /home/circleci/project
       - run: yarn # symlink packages' node_modules
-      - run: yarn build
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
@@ -36,8 +42,9 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - attach_workspace:
+          at: /home/circleci/project
       - run: yarn # symlink packages' node_modules
-      - run: yarn build
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
 
@@ -49,6 +56,8 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - attach_workspace:
+          at: /home/circleci/project
       - run: yarn lint
 
 workflows:
