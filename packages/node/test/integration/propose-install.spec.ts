@@ -3,6 +3,7 @@ import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { ERRORS } from "../../src/methods/errors";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
@@ -15,7 +16,6 @@ import {
   getProposedAppInstanceInfo,
   makeInstallProposalRequest
 } from "./utils";
-import { ERRORS } from "../../src/methods/errors";
 
 describe("Node method follows spec - proposeInstall", () => {
   let firebaseServer: FirebaseServer;

@@ -2,6 +2,7 @@ import { Node as NodeTypes } from "@counterfactual/types";
 import FirebaseServer from "firebase-server";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { ERRORS } from "../../src/methods/errors";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
@@ -12,7 +13,6 @@ import {
   getProposedAppInstances,
   makeInstallVirtualProposalRequest
 } from "./utils";
-import { ERRORS } from "../../src/methods/errors";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
   let firebaseServer: FirebaseServer;
