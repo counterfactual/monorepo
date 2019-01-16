@@ -50,7 +50,6 @@ export default [
         globals: globals
       }
     ],
-    sourceMap: true,
     external: external,
     plugins: [
       commonjs({
