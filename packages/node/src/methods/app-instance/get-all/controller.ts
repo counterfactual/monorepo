@@ -53,3 +53,5 @@ export async function getInstalledAppInstancesController(
     appInstances
   };
 }
+
+export default getInstalledAppInstancesController;

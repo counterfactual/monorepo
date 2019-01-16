@@ -26,3 +26,5 @@ export async function addMultisigController(
       })
   );
 }
+
+export default addMultisigController;

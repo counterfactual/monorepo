@@ -7,3 +7,5 @@ export async function getAllChannelAddressesController(
     multisigAddresses: Object.keys(await requestHandler.store.getAllChannels())
   };
 }
+
+export default getAllChannelAddressesController;

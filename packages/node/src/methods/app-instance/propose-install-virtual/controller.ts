@@ -60,3 +60,5 @@ export async function proposeInstallVirtualAppInstanceController(
     appInstanceId
   };
 }
+
+export default proposeInstallVirtualAppInstanceController;

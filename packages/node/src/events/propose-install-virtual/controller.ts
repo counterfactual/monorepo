@@ -53,3 +53,5 @@ export async function proposeInstallVirtualEventController(
     relayedProposalMsg
   );
 }
+
+export default proposeInstallVirtualEventController;

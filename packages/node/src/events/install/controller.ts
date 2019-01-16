@@ -18,3 +18,5 @@ export async function installEventController(
     nodeMsg.data.params
   );
 }
+
+export default installEventController;

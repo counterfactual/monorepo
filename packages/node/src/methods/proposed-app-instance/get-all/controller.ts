@@ -9,3 +9,5 @@ export async function getProposedAppInstancesController(
     appInstances: await requestHandler.store.getProposedAppInstances()
   };
 }
+
+export default getProposedAppInstancesController;

@@ -55,3 +55,5 @@ function generateNewMultisigAddress(owners: Address[]): Address {
   // TODO: implement this using CREATE2
   return Wallet.createRandom().address;
 }
+
+export default createMultisigController;

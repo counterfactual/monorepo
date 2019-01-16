@@ -15,3 +15,5 @@ export async function proposeInstallEventController(
     nodeMsg.from!
   );
 }
+
+export default proposeInstallEventController;

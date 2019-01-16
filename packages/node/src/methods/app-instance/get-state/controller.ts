@@ -22,3 +22,5 @@ export async function getAppInstanceStateController(
     state: await getAppInstanceState(params.appInstanceId, requestHandler.store)
   };
 }
+
+export default getAppInstanceStateController;

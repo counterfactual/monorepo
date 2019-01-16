@@ -48,3 +48,5 @@ export async function proposeInstallAppInstanceController(
     appInstanceId
   };
 }
+
+export default proposeInstallAppInstanceController;

@@ -48,3 +48,5 @@ export async function installAppInstanceController(
     appInstance: appInstanceInfo
   };
 }
+
+export default installAppInstanceController;
