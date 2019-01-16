@@ -32,9 +32,27 @@ export default abstract class Controller<
    * via the Authentication middleware.
    */
   public user?: UserSession;
+
+  /**
+   * Stores the internal handlers for all routes.
+   */
   private routeHandlers: MiddlewareCollection = [];
+
+  /**
+   * Stores which HTTP verbs will expose each controller method.
+   */
   private routeVerbs: ("get" | "post")[] = [];
+
+  /**
+   * Maps error codes to HTTP status codes.
+   */
   private errorStatusCodes: StatusCodeMapping = {} as StatusCodeMapping;
+
+  /**
+   * Stores any additional resources to the response, which were included
+   * using the `include()` funciton.
+   */
+  private includedResources: APIResourceCollection = [];
 
   /**
    * Returns all elements of a resource collection. If implemented
@@ -190,7 +208,8 @@ export default abstract class Controller<
    * and such function creates a signature payload for the controller method
    * being configured, it'll inject the `validateSignature` middleware.
    *
-   * Finally, the built-in route handler is injected.
+   * Finally, the built-in route handler and the sideloaded resources inclusion
+   * middleware are injected.
    */
   private async getMiddlewaresFor(
     method: ControllerMethod
@@ -213,6 +232,7 @@ export default abstract class Controller<
     }
 
     middlewares.push(this.routeHandlers[method]);
+    middlewares.push(this.injectIncludedResources.bind(this));
 
     return middlewares;
   }
@@ -426,6 +446,42 @@ export default abstract class Controller<
       data: await callback(request.data as APIResource)
     };
     ctx.status = 201;
+
+    return next();
+  }
+
+  /**
+   * Allows to sideload additional resources exposed via relationships on
+   * the main payload. Every resource loaded with this function will be
+   * emitted in the response in the `included` top-level key.
+   *
+   * @param resources {ApiResourceCollection} - A list of resources to inject.
+   */
+  protected include(...resources: APIResourceCollection) {
+    this.includedResources.push(...resources);
+  }
+
+  /**
+   * Injects any resources sideloaded with the `include` function
+   * and clears the `includedResources` stack, making it available
+   * for the next request.
+   *
+   * If there are no sideloaded resources, the middleware skips execution.
+   */
+  private async injectIncludedResources(
+    ctx: IRouterContext,
+    next: () => Promise<void>
+  ) {
+    if (!this.includedResources.length) {
+      return next();
+    }
+
+    ctx.body = {
+      ...ctx.body,
+      included: this.includedResources
+    } as APIResponse;
+
+    this.includedResources = [];
 
     return next();
   }
