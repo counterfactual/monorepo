@@ -7,7 +7,6 @@ jobs:
     steps:
       - checkout
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
-      - run: mkdir -p /tmp/workspace
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
@@ -17,7 +16,7 @@ jobs:
           paths:
             - node_modules
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: workspace
           paths:
             - packages/*/dist
             - packages/*/build
@@ -31,7 +30,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run: yarn # symlink packages' node_modules
       - run: yarn test:ci-non-playground
 
@@ -44,7 +43,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run: yarn # symlink packages' node_modules
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
@@ -58,7 +57,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run: yarn lint
 
 workflows:
