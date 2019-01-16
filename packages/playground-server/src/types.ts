@@ -52,11 +52,15 @@ export enum ErrorCode {
 
 // Generic types for JSONAPI document structure.
 
+export type APIResourceRelationships = {
+  [key in APIResourceType]?: APIDataContainer
+};
+
 export type APIResource<T = APIResourceAttributes> = {
   type: APIResourceType;
   id?: string;
   attributes: T;
-  relationships?: { [key in APIResourceType]?: APIDataContainer };
+  relationships?: APIResourceRelationships;
 };
 
 export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];

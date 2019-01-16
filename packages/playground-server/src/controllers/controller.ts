@@ -187,8 +187,6 @@ export default abstract class Controller<
       return;
     }
 
-    console.log("Registered: ", this.routeVerbs[method], this.resourceType);
-
     router[this.routeVerbs[method]](
       `/${this.resourceType}`,
       ...(await this.getMiddlewaresFor(method))
