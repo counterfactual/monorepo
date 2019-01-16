@@ -62,15 +62,14 @@ describe("InstructionExecutor", () => {
         } as ProtocolMessage);
       });
 
-      const scm = new Map<string, StateChannel>([
-        ["0x00", stateChannelBeforeSetup]
-      ]);
-
-      await instructionExecutor.runSetupProtocol(scm, {
-        initiatingAddress: "0x00",
-        respondingAddress: responder.address,
-        multisigAddress: "0x00"
-      });
+      await instructionExecutor.runSetupProtocol(
+        new Map<string, StateChannel>([["0x00", stateChannelBeforeSetup]]),
+        {
+          initiatingAddress: "0x00",
+          respondingAddress: responder.address,
+          multisigAddress: "0x00"
+        }
+      );
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
     });
