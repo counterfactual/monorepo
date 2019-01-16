@@ -10,7 +10,10 @@ import { Opcode } from "../opcodes";
 import { ProtocolMessage, UninstallParams } from "../protocol-types-tbd";
 import { Context } from "../types";
 
-import { prepareToSendSignature } from "./utils/signature-forwarder";
+import {
+  addSignedCommitmentInResponseWithSeq2,
+  addSignedCommitmentToOutboxForSeq1
+} from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -28,7 +31,7 @@ export const UNINSTALL_PROTOCOL = {
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    prepareToSendSignature,
+    addSignedCommitmentToOutboxForSeq1,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
@@ -54,7 +57,7 @@ export const UNINSTALL_PROTOCOL = {
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    prepareToSendSignature,
+    addSignedCommitmentInResponseWithSeq2,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
