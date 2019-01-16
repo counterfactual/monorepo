@@ -24,7 +24,12 @@ export default async function getInstalledAppInstancesController(
         requestHandler.store,
         nonFreeBalanceAppInstances
       );
-      appInstances.push(...Object.values(appInstanceInfos));
+      appInstances.push(
+        // FIXME: shouldn't have to filter for null
+        ...Object.values(appInstanceInfos).filter(appInstanceInfo => {
+          return appInstanceInfo !== null;
+        })
+      );
     } else {
       console.log(
         `No app instances exist for channel with multisig address: ${

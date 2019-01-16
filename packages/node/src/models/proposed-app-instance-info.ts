@@ -70,32 +70,26 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
-    this.initialState = proposeParams.initialState;
     this.initiatingAddress = proposeParams.initiatingAddress;
     this.respondingAddress = proposeParams.respondingAddress;
-    if (proposeParams.intermediaries) {
-      this.intermediaries = proposeParams.intermediaries;
-    }
+    this.initialState = proposeParams.initialState;
+    this.intermediaries = proposeParams.intermediaries;
   }
 
   toJson() {
-    let json;
-    json = {
+    return {
       id: this.id,
       appId: this.appId,
       abiEncodings: this.abiEncodings,
       asset: this.asset,
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
-      timeout: this.timeout,
       initialState: this.initialState,
+      timeout: this.timeout,
       initiatingAddress: this.initiatingAddress,
-      respondingAddress: this.respondingAddress
+      respondingAddress: this.respondingAddress,
+      intermediaries: this.intermediaries
     };
-    if (this.intermediaries) {
-      json.intermediaries = this.intermediaries;
-    }
-    return json;
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {

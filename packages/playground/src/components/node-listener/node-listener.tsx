@@ -53,7 +53,7 @@ export class NodeListener {
     return null;
   }
 
-  componentWillLoad() {
+  async componentWillLoad() {
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
     const serviceProvider = new FirebaseDataProvider({
@@ -65,8 +65,6 @@ export class NodeListener {
       messagingSenderId: "432199632441"
     });
 
-    const privateKey =
-      "0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257a";
     const messagingService = serviceProvider.createMessagingService(
       "messaging"
     );
@@ -83,8 +81,7 @@ export class NodeListener {
       ETHVirtualAppAgreement: addressZero
     };
 
-    CounterfactualNode.create({
-      privateKey,
+    await CounterfactualNode.create({
       messagingService,
       storeService,
       networkContext,

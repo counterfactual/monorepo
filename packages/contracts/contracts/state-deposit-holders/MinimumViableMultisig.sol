@@ -67,11 +67,9 @@ contract MinimumViableMultisig is LibSignature {
   }
 
   /// @notice Compute a unique transaction hash for a particular (to, value, data, op) tuple
-  /// @param to The address the transaction is addressed to
-  /// @param value The amount of ETH being sent in the transaction
-  /// @param data Any calldata being sent along with the transaction
-  /// @param operation An `Operation` referring to the use of `CALL` or `DELEGATECALL`
-  /// @return A unique hash that owners are expected to sign and submit to `multisigExecTransaction`
+  /// @return A unique hash that owners are expected to sign and submit to
+  /// @notice Note that two transactions with identical values of (to, value, data, op)
+  /// are not distinguished.
   function getTransactionHash(
     address to,
     uint256 value,
@@ -98,10 +96,6 @@ contract MinimumViableMultisig is LibSignature {
   }
 
   /// @notice Execute a transaction on behalf of the multisignature wallet
-  /// @param to The address the transaction is addressed to
-  /// @param value The amount of ETH being sent in the transaction
-  /// @param data Any calldata being sent along with the transaction
-  /// @param operation An `Operation` referring to the use of `CALL` or `DELEGATECALL`
   function execute(
     address to,
     uint256 value,
@@ -117,9 +111,6 @@ contract MinimumViableMultisig is LibSignature {
   }
 
   /// @notice Execute a CALL on behalf of the multisignature wallet
-  /// @param to The address the transaction is addressed to
-  /// @param value The amount of ETH being sent in the transaction
-  /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
   function executeCall(address to, uint256 value, bytes memory data)
     internal
@@ -131,8 +122,6 @@ contract MinimumViableMultisig is LibSignature {
   }
 
   /// @notice Execute a DELEGATECALL on behalf of the multisignature wallet
-  /// @param to The address the transaction is addressed to
-  /// @param data Any calldata being sent along with the transaction
   /// @return A boolean indicating if the transaction was successful or not
   function executeDelegateCall(address to, bytes memory data)
     internal
