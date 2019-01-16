@@ -3,12 +3,16 @@ import { readFileSync } from "fs";
 import { Server } from "http";
 import { Log, LogLevel } from "logepi";
 import { resolve } from "path";
+import { v4 as generateUuid } from "uuid";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
+import { getNodeAddress } from "../src/node";
 import {
   APIRequest,
   APIResource,
+  APIResourceCollection,
+  APIResourceRelationships,
   APIResponse,
   AppAttributes,
   ErrorCode,
@@ -29,6 +33,9 @@ const client = axios.create({
 const db = getDatabase();
 
 Log.setOutputLevel(LogLevel.ERROR);
+
+const API_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcnMiLCJpZCI6ImZmYzI0MjQ3LWZjZmItNDY2My05MzJkLTRhMzdmYTBkYTBkNCIsImF0dHJpYnV0ZXMiOnsidXNlcm5hbWUiOiJqb2VsX2FjY291bnQxIiwiZW1haWwiOiJlc3R1ZGlvQGpvZWxhbGVqYW5kcm8uY29tIiwiZXRoQWRkcmVzcyI6IjB4MGY2OTNjYzk1NmRmNTlkZWMyNGJiMWM2MDVhYzk0Y2FkY2U2MDE0ZCIsIm11bHRpc2lnQWRkcmVzcyI6IjB4ZjU5MUUyN0FGOEExNUMyZjU1YzJBMDk1RWEzNDMzQjdkNDdkMzY0OSIsIm5vZGVBZGRyZXNzIjoiMHg2MDAyNDgzZkQ1RDE5NTQ2NjFGQURDNTljZTUzNjY4MTA5NWZDNDM4In0sImlhdCI6MTU0NzY1MDE3MiwiZXhwIjoxNTc5MjA3NzcyfQ.JgBiOA22zfA4Z5ZkAtMKtinzd-vQW8k58ipv7eDg6MM";
 
 describe("playground-server", () => {
   beforeAll(async () => {
@@ -298,58 +305,63 @@ describe("playground-server", () => {
     });
   });
 
-  describe.skip("/api/user", () => {
-    const API_TOKEN =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJiODNjYjE0LWM3YWEtNDIwOC04ZGE4LTI2OWFlYjFhM2YyNCIsInVzZXJuYW1lIjoiam9lIiwiZW1haWwiOiJqb2VAam9lLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDNiMWM1ZEZFMDkxODdhQzNGMDE1MTM5QUQ3OWZmN0U5YTc3ODI4Q2YiLCJpYXQiOjE1NDcwNzE0OTcsImV4cCI6MTU3ODYyOTA5N30.NfNBCMVxliiaVyXixM7vNpCdn7xHd34ZCA3NL-LZEW0";
-
+  describe("/api/users", () => {
     it("fails if no token is provided", done => {
-      client.get("/matchmake").catch(({ response }) => {
-        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
+      client.get("/users").catch(({ response }) => {
         expect(response.data).toEqual({
-          ok: false,
-          error: {
-            status: HttpStatusCode.Unauthorized,
-            errorCode: ErrorCode.TokenRequired
-          }
+          errors: [
+            {
+              status: HttpStatusCode.Unauthorized,
+              code: ErrorCode.TokenRequired
+            }
+          ]
         });
+        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
         done();
       });
     });
+
     it("returns user data from a token", done => {
       client
-        .get("/user", {
+        .get("/users", {
           headers: {
             Authorization: `Bearer ${API_TOKEN}`
           }
         })
         .then(response => {
           expect(response.status).toEqual(HttpStatusCode.OK);
-          expect(response.data.data.user).toEqual({
-            id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
-            username: "joe",
-            email: "joe@joe.com",
-            address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-            multisigAddress: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+          expect(response.data).toEqual({
+            data: [
+              {
+                type: "users",
+                id: "ffc24247-fcfb-4663-932d-4a37fa0da0d4",
+                attributes: {
+                  username: "joel_account1",
+                  email: "estudio@joelalejandro.com",
+                  ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+                  multisigAddress: "0xf591E27AF8A15C2f55c2A095Ea3433B7d47d3649",
+                  nodeAddress: "0x6002483fD5D1954661FADC59ce536681095fC438"
+                }
+              }
+            ]
           });
           done();
         });
     });
   });
 
-  describe.skip("/api/matchmake", () => {
-    const API_TOKEN =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJiODNjYjE0LWM3YWEtNDIwOC04ZGE4LTI2OWFlYjFhM2YyNCIsInVzZXJuYW1lIjoiam9lIiwiZW1haWwiOiJqb2VAam9lLmNvbSIsImFkZHJlc3MiOiIweDBmNjkzY2M5NTZkZjU5ZGVjMjRiYjFjNjA1YWM5NGNhZGNlNjAxNGQiLCJtdWx0aXNpZ0FkZHJlc3MiOiIweDNiMWM1ZEZFMDkxODdhQzNGMDE1MTM5QUQ3OWZmN0U5YTc3ODI4Q2YiLCJpYXQiOjE1NDcwNjk5NDQsImV4cCI6MTU3ODYyNzU0NH0.4mGpRY_96-11l8ydUqkOl6hyb9_MtBzdScwp8riTwe4";
-
+  describe("/api/matchmaking", () => {
     it("fails if no token is provided", done => {
-      client.post("/matchmake").catch(({ response }) => {
-        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
+      client.post("/matchmaking").catch(({ response }) => {
         expect(response.data).toEqual({
-          ok: false,
-          error: {
-            status: HttpStatusCode.Unauthorized,
-            errorCode: ErrorCode.TokenRequired
-          }
+          errors: [
+            {
+              status: HttpStatusCode.Unauthorized,
+              code: ErrorCode.TokenRequired
+            }
+          ]
         });
+        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
         done();
       });
     });
@@ -362,7 +374,7 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmake",
+          "/matchmaking",
           {},
           {
             headers: {
@@ -371,14 +383,15 @@ describe("playground-server", () => {
           }
         )
         .catch(({ response }) => {
-          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           expect(response.data).toEqual({
-            ok: false,
-            error: {
-              status: HttpStatusCode.BadRequest,
-              errorCode: ErrorCode.NoUsersAvailable
-            }
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.NoUsersAvailable
+              }
+            ]
           });
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
     });
@@ -393,7 +406,7 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmake",
+          "/matchmaking",
           {},
           {
             headers: {
@@ -402,19 +415,34 @@ describe("playground-server", () => {
           }
         )
         .then(response => {
-          expect(response.status).toEqual(HttpStatusCode.OK);
-          expect(response.data.ok).toBe(true);
-          expect(response.data.data).toEqual({
-            user: {
-              username: "joe",
-              address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-            },
-            opponent: {
-              username: "delilah",
-              address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
-            },
-            intermediary: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
+          const json = response.data as APIResponse;
+          const data = json.data as APIResource;
+          const rels = data.relationships as APIResourceRelationships;
+          const included = json.included as APIResourceCollection;
+
+          expect(data.type).toEqual("matchmaking");
+          expect(data.id).toBeDefined();
+          expect(data.attributes).toEqual({
+            intermediary: getNodeAddress()
           });
+          expect((rels.users!.data as APIResource).type).toEqual("users");
+          expect((rels.matchedUser!.data as APIResource).type).toEqual(
+            "matchedUser"
+          );
+          expect((rels.users!.data as APIResource).id).toBeDefined();
+          expect((rels.matchedUser!.data as APIResource).id).toBeDefined();
+          expect(included[0].type).toEqual("users");
+          expect(included[0].attributes.username).toEqual("joel_account1");
+          expect(included[0].attributes.ethAddress).toEqual(
+            "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+          );
+          expect(included[1].type).toEqual("matchedUser");
+          expect(included[1].attributes.username).toEqual("delilah");
+          expect(included[1].attributes.ethAddress).toEqual(
+            "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+          );
+
+          expect(response.status).toEqual(HttpStatusCode.Created);
           done();
         });
     });
@@ -422,6 +450,7 @@ describe("playground-server", () => {
     it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert({
+        id: generateUuid(),
         username: "charlie",
         email: "charlie@wonder.land",
         eth_address: "0x5faddca4889ddc5791cf65446371151f29653285"
@@ -429,7 +458,7 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmake",
+          "/matchmaking",
           {},
           {
             headers: {
@@ -438,20 +467,19 @@ describe("playground-server", () => {
           }
         )
         .then(response => {
-          expect(response.status).toEqual(HttpStatusCode.OK);
-          expect(response.data.ok).toBe(true);
-
-          const { username, address } = response.data.data.opponent;
+          const { username, ethAddress } = response.data.included[1].attributes;
           const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
           const delilahAddress = "0xdab500c650725c2f1af0b09df327d2d3ef3cefca";
 
           if (username === "charlie") {
-            expect(address).toEqual(charlieAddress);
+            expect(ethAddress).toEqual(charlieAddress);
           } else if (username === "delilah") {
-            expect(address).toEqual(delilahAddress);
+            expect(ethAddress).toEqual(delilahAddress);
           } else {
             fail("It should have matched either Charlie or Delilah");
           }
+
+          expect(response.status).toEqual(HttpStatusCode.Created);
 
           done();
         });
