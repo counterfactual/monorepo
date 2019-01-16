@@ -15,6 +15,7 @@ import {
   getProposedAppInstanceInfo,
   makeInstallProposalRequest
 } from "./utils";
+import { ERRORS } from "../../src/methods/errors";
 
 describe("Node method follows spec - proposeInstall", () => {
   let firebaseServer: FirebaseServer;
@@ -123,6 +124,21 @@ describe("Node method follows spec - proposeInstall", () => {
         );
         appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
           .appInstanceId;
+      });
+
+      it("sends proposal with null initial state", async () => {
+        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+          nodeA.address,
+          nodeB.address,
+          true
+        );
+
+        expect(
+          nodeA.call(
+            appInstanceInstallationProposalRequest.type,
+            appInstanceInstallationProposalRequest
+          )
+        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

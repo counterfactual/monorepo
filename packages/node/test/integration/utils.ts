@@ -115,11 +115,22 @@ async function getApps(
 
 export function makeInstallProposalRequest(
   initiatingAddress: Address,
-  respondingAddress: Address
+  respondingAddress: Address,
+  nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
+  let initialState = null;
+
+  if (!nullInitialState) {
+    initialState = {
+      foo: AddressZero,
+      bar: 0
+    } as AppState;
+  }
+
   const params: NodeTypes.ProposeInstallParams = {
     initiatingAddress,
     respondingAddress,
+    initialState,
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
@@ -130,10 +141,6 @@ export function makeInstallProposalRequest(
     } as BlockchainAsset,
     myDeposit: Zero,
     peerDeposit: Zero,
-    initialState: {
-      foo: AddressZero,
-      bar: 0
-    } as AppState,
     timeout: One
   };
   return {
@@ -146,11 +153,13 @@ export function makeInstallProposalRequest(
 export function makeInstallVirtualProposalRequest(
   initiatingAddress: Address,
   respondingAddress: Address,
-  intermediaries: Address[]
+  intermediaries: Address[],
+  nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
     initiatingAddress,
-    respondingAddress
+    respondingAddress,
+    nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {

@@ -12,6 +12,7 @@ import {
   getProposedAppInstances,
   makeInstallVirtualProposalRequest
 } from "./utils";
+import { ERRORS } from "../../src/methods/errors";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
   let firebaseServer: FirebaseServer;
@@ -132,6 +133,23 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
           .appInstanceId;
         expect(appInstanceId).toBeDefined();
+      });
+
+      it("sends proposal with null initial state", async () => {
+        const intermediaries = [nodeB.address];
+        const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+          nodeA.address,
+          nodeC.address,
+          intermediaries,
+          true
+        );
+
+        expect(
+          nodeA.call(
+            installVirtualAppInstanceProposalRequest.type,
+            installVirtualAppInstanceProposalRequest
+          )
+        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );
