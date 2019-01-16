@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
+import { ERRORS } from "../../errors";
 
 import {
   createProposedVirtualAppInstance,
@@ -18,6 +19,9 @@ export default async function proposeInstallVirtualAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallVirtualParams
 ): Promise<Node.ProposeInstallVirtualResult> {
+  if (!params.initialState) {
+    return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+  }
   // TODO: check if channel is open with the first intermediary
   // and that there are sufficient funds
 

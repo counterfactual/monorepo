@@ -10,6 +10,7 @@ import EventEmitter from "eventemitter3";
 
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
+import { getSigner } from "./signer";
 import { NODE_EVENTS, NodeMessage } from "./types";
 
 export interface NodeConfig {
@@ -27,34 +28,45 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly signer: SigningKey;
-
   private readonly instructionExecutor: InstructionExecutor;
 
-  protected readonly requestHandler: RequestHandler;
+  // These properties don't have initializers in the constructor and get
+  // initialized in the `init` function
+  private signer!: SigningKey;
+  protected requestHandler!: RequestHandler;
 
-  /**
-   * @param privateKey
-   * @param messagingService
-   */
-  constructor(
-    privateKey: string,
+  static async create(
+    messagingService: IMessagingService,
+    storeService: IStoreService,
+    networkContext: NetworkContext,
+    nodeConfig: NodeConfig
+  ): Promise<Node> {
+    const node = new Node(
+      messagingService,
+      storeService,
+      networkContext,
+      nodeConfig
+    );
+    await node.init();
+    return node;
+  }
+
+  private constructor(
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
-    readonly networkContext: NetworkContext,
-    nodeConfig: NodeConfig
+    private readonly networkContext: NetworkContext,
+    private readonly nodeConfig: NodeConfig
   ) {
-    this.signer = new SigningKey(privateKey);
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.registerMessagingConnection();
-
     this.instructionExecutor = new InstructionExecutor(networkContext);
-
     this.registerOpSignMiddleware();
-
     this.registerIoMiddleware();
+  }
 
+  private async init() {
+    this.signer = await getSigner(this.storeService);
+    this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
@@ -62,8 +74,8 @@ export class Node {
       this.storeService,
       this.messagingService,
       this.instructionExecutor,
-      networkContext,
-      `${nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
+      this.networkContext,
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }
 
