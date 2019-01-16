@@ -2,6 +2,7 @@ import { getAddress, verifyMessage } from "ethers/utils";
 import { decode as decodeToken } from "jsonwebtoken";
 import "koa-body";
 import Router, { IRouterContext } from "koa-router";
+import { Log } from "logepi";
 
 import { userExists } from "../db";
 import {
@@ -109,6 +110,8 @@ export default abstract class Controller<
     private resourceType: APIResourceType,
     public options: TOptions = {} as TOptions
   ) {
+    Log.info("Registering controller", { tags: { resourceType } });
+
     this.configureErrorHandler();
     this.configureRouter(router);
   }
@@ -187,10 +190,18 @@ export default abstract class Controller<
       return;
     }
 
+    Log.info("Route configuration started", {
+      tags: { verb: this.routeVerbs[method], resourceType: this.resourceType }
+    });
+
     router[this.routeVerbs[method]](
       `/${this.resourceType}`,
       ...(await this.getMiddlewaresFor(method))
     );
+
+    Log.info("Route configuration finished", {
+      tags: { verb: this.routeVerbs[method], resourceType: this.resourceType }
+    });
   }
 
   /**
@@ -214,8 +225,23 @@ export default abstract class Controller<
   ): Promise<MiddlewareCollection> {
     const middlewares: MiddlewareCollection = [this.handleError.bind(this)];
 
+    Log.debug("Registered middleware", {
+      tags: {
+        middleware: "handleError",
+        resourceType: this.resourceType,
+        verb: this.routeVerbs[method]
+      }
+    });
+
     if (this.protectedMethods().includes(method)) {
       middlewares.push(this.authenticate.bind(this));
+      Log.debug("Registered middleware", {
+        tags: {
+          middleware: "authenticate",
+          resourceType: this.resourceType,
+          verb: this.routeVerbs[method]
+        }
+      });
     }
 
     if (
@@ -227,10 +253,32 @@ export default abstract class Controller<
       }))
     ) {
       middlewares.push(this.validateSignature.bind(this));
+      Log.debug("Registered middleware", {
+        tags: {
+          middleware: "validateSignature",
+          resourceType: this.resourceType,
+          verb: this.routeVerbs[method]
+        }
+      });
     }
 
     middlewares.push(this.routeHandlers[method]);
+    Log.debug("Registered middleware", {
+      tags: {
+        middleware: "routeHandler",
+        resourceType: this.resourceType,
+        verb: this.routeVerbs[method]
+      }
+    });
+
     middlewares.push(this.injectIncludedResources.bind(this));
+    Log.debug("Registered middleware", {
+      tags: {
+        middleware: "injectIncludedResources",
+        resourceType: this.resourceType,
+        verb: this.routeVerbs[method]
+      }
+    });
 
     return middlewares;
   }
@@ -252,6 +300,9 @@ export default abstract class Controller<
    */
   private authenticate(ctx: IRouterContext, next: () => Promise<void>) {
     if (!this.protectedMethods) {
+      Log.debug("Skipped authentication, this is a public method", {
+        tags: { resourceType: this.resourceType, middleware: "authenticate" }
+      });
       return next();
     }
 
@@ -259,10 +310,16 @@ export default abstract class Controller<
     const authHeader = authRequest.headers.authorization;
 
     if (!authHeader) {
+      Log.info("Cancelling request, token is required", {
+        tags: { resourceType: this.resourceType, middleware: "authenticate" }
+      });
       throw ErrorCode.TokenRequired;
     }
 
     if (!authHeader.startsWith("Bearer ")) {
+      Log.info("Cancelling request, token is invalid", {
+        tags: { resourceType: this.resourceType, middleware: "authenticate" }
+      });
       throw ErrorCode.InvalidToken;
     }
 
@@ -272,6 +329,9 @@ export default abstract class Controller<
     const isValidUser = userExists(user.attributes);
 
     if (!isValidUser) {
+      Log.info("Cancelling request, token is invalid", {
+        tags: { resourceType: this.resourceType, middleware: "authenticate" }
+      });
       throw ErrorCode.InvalidToken;
     }
 
@@ -293,6 +353,12 @@ export default abstract class Controller<
     next: () => Promise<void>
   ) {
     if (!this.expectedSignatureMessageFor) {
+      Log.debug("Skipped signature validation, this request isn't signed", {
+        tags: {
+          resourceType: this.resourceType,
+          middleware: "validateSignature"
+        }
+      });
       return next();
     }
 
@@ -301,6 +367,12 @@ export default abstract class Controller<
     const metadata = json.meta as APIMetadata;
 
     if (!metadata || !metadata.signature) {
+      Log.info("Cancelling request, signature is required", {
+        tags: {
+          resourceType: this.resourceType,
+          middleware: "validateSignature"
+        }
+      });
       throw ErrorCode.SignatureRequired;
     }
 
@@ -322,6 +394,12 @@ export default abstract class Controller<
     );
 
     if (expectedAddress !== ethAddress) {
+      Log.info("Cancelling request, signature is not valid", {
+        tags: {
+          resourceType: this.resourceType,
+          middleware: "validateSignature"
+        }
+      });
       throw ErrorCode.InvalidSignature;
     }
 
@@ -337,6 +415,12 @@ export default abstract class Controller<
     try {
       await next();
     } catch (error) {
+      Log.info("Handled error detected, delegating to responder", {
+        tags: {
+          resourceType: this.resourceType,
+          middleware: "handleError"
+        }
+      });
       this.respondWithError(error, ctx);
     }
   }
@@ -411,6 +495,13 @@ export default abstract class Controller<
   private async routeGetAll(ctx: IRouterContext, next: () => Promise<void>) {
     const callback = (this.getAll as Function).bind(this);
 
+    Log.debug("Routing request to route handler", {
+      tags: {
+        resourceType: this.resourceType,
+        middleware: "routeGetAll"
+      }
+    });
+
     ctx.body = {
       data: await callback()
     } as APIResponse;
@@ -423,6 +514,13 @@ export default abstract class Controller<
    */
   private async routeGetById(ctx: IRouterContext, next: () => Promise<void>) {
     const callback = (this.getById as Function).bind(this);
+
+    Log.debug("Routing request to route handler", {
+      tags: {
+        resourceType: this.resourceType,
+        middleware: "routeGetById"
+      }
+    });
 
     ctx.body = {
       data: await callback(ctx.params.id)
@@ -439,6 +537,13 @@ export default abstract class Controller<
   private async routePost(ctx: IRouterContext, next: () => Promise<void>) {
     const request = ctx.request.body as APIRequest;
     const callback = (this.post as Function).bind(this);
+
+    Log.debug("Routing request to route handler", {
+      tags: {
+        resourceType: this.resourceType,
+        middleware: "routePost"
+      }
+    });
 
     ctx.body = {
       data: await callback(request.data as APIResource)
@@ -471,6 +576,12 @@ export default abstract class Controller<
     next: () => Promise<void>
   ) {
     if (!this.includedResources.length) {
+      Log.debug("Skipped resource injection, no included resources loaded", {
+        tags: {
+          resourceType: this.resourceType,
+          middleware: "injectIncludedResources"
+        }
+      });
       return next();
     }
 
@@ -478,6 +589,14 @@ export default abstract class Controller<
       ...ctx.body,
       included: this.includedResources
     } as APIResponse;
+
+    Log.debug("Injected included resources", {
+      tags: {
+        count: this.includedResources.length,
+        resourceType: this.resourceType,
+        middleware: "injectIncludedResources"
+      }
+    });
 
     this.includedResources = [];
 
