@@ -13,7 +13,7 @@ import { openStateChannel } from "./instance";
  * having been opened via the creation of the multisig.
  * @param params
  */
-export async function createMultisigController(
+export default async function createMultisigController(
   requestHandler: RequestHandler,
   params: Node.CreateMultisigParams
 ): Promise<Node.CreateMultisigResult> {
@@ -55,5 +55,3 @@ function generateNewMultisigAddress(owners: Address[]): Address {
   // TODO: implement this using CREATE2
   return Wallet.createRandom().address;
 }
-
-export default createMultisigController;

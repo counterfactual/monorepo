@@ -10,7 +10,7 @@ import { getAppInstanceState } from "./operation";
  * @param this
  * @param params
  */
-export async function getAppInstanceStateController(
+export default async function getAppInstanceStateController(
   requestHandler: RequestHandler,
   params: Node.GetStateParams
 ): Promise<Node.GetStateResult> {
@@ -22,5 +22,3 @@ export async function getAppInstanceStateController(
     state: await getAppInstanceState(params.appInstanceId, requestHandler.store)
   };
 }
-
-export default getAppInstanceStateController;

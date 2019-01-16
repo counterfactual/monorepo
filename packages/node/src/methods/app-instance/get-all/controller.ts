@@ -11,7 +11,7 @@ import {
  * Gets all installed appInstances across all of the channels open on
  * this Node.
  */
-export async function getInstalledAppInstancesController(
+export default async function getInstalledAppInstancesController(
   requestHandler: RequestHandler,
   params: Node.GetAppInstancesParams
 ): Promise<Node.GetAppInstancesResult> {
@@ -53,5 +53,3 @@ export async function getInstalledAppInstancesController(
     appInstances
   };
 }
-
-export default getInstalledAppInstancesController;

@@ -15,7 +15,7 @@ import {
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export async function proposeInstallVirtualAppInstanceController(
+export default async function proposeInstallVirtualAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.ProposeInstallVirtualParams
 ): Promise<Node.ProposeInstallVirtualResult> {
@@ -60,5 +60,3 @@ export async function proposeInstallVirtualAppInstanceController(
     appInstanceId
   };
 }
-
-export default proposeInstallVirtualAppInstanceController;

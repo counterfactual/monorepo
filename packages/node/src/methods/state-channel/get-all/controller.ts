@@ -1,11 +1,9 @@
 import { RequestHandler } from "../../../request-handler";
 
-export async function getAllChannelAddressesController(
+export default async function getAllChannelAddressesController(
   requestHandler: RequestHandler
 ) {
   return {
     multisigAddresses: Object.keys(await requestHandler.store.getAllChannels())
   };
 }
-
-export default getAllChannelAddressesController;
