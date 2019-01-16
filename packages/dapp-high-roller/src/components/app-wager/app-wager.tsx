@@ -4,6 +4,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
 import { Address, AppInstanceID, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;
@@ -11,26 +12,10 @@ const { HashZero } = ethers.constants;
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
 
-enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  DONE
-}
-
-type HighRollerAppState = {
-  playerAddrs: string[];
-  stage: HighRollerStage;
-  salt: string;
-  commitHash: string;
-  playerFirstNumber: number;
-  playerSecondNumber: number;
-};
-
 /**
  * User Story
  * 0.1 ETH is staked hard coded
- * The username is retrieved from the Playground?
+ * The username is retrieved from the Playground
  */
 @Component({
   tag: "app-wager",
@@ -102,7 +87,7 @@ export class AppWager {
     }
   }
 
-  async matchmake(/* timeout: number */): Promise<any> {
+  async matchmake(): Promise<any> {
     try {
       const result = await this.fetchMatchmake();
 

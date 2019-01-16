@@ -4,9 +4,16 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import {
+  Action,
+  ActionType,
+  GameState,
+  HighRollerAppState,
+  HighRollerStage,
+  PlayerType
+} from "../../data/game-types";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf } from "../../data/types";
-import { GameState, PlayerType } from "../../enums/enums";
 import { getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
@@ -15,34 +22,6 @@ const { solidityKeccak256 } = ethers.utils;
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
-
-enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  DONE
-}
-
-type HighRollerAppState = {
-  playerAddrs: string[];
-  stage: HighRollerStage;
-  salt: string;
-  commitHash: string;
-  playerFirstNumber: number;
-  playerSecondNumber: number;
-};
-
-enum ActionType {
-  START_GAME,
-  COMMIT_TO_HASH,
-  COMMIT_TO_NUM
-}
-
-type Action = {
-  actionType: ActionType;
-  number: number;
-  actionHash: string;
-};
 
 /**
  * Bob(Proposing) waits for Alice(Accepting) to roll dice - onUpdateState()?
