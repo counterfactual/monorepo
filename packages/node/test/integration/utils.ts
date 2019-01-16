@@ -54,10 +54,36 @@ export async function getInstalledAppInstances(
   return getApps(node, APP_INSTANCE_STATUS.INSTALLED);
 }
 
+export async function getInstalledAppInstanceInfo(
+  node: Node,
+  appInstanceId: string
+): Promise<AppInstanceInfo> {
+  const allAppInstanceInfos = await getApps(
+    node,
+    APP_INSTANCE_STATUS.INSTALLED
+  );
+  return allAppInstanceInfos.filter(appInstanceInfo => {
+    appInstanceInfo.id === appInstanceId;
+  })[0];
+}
+
 export async function getProposedAppInstances(
   node: Node
 ): Promise<AppInstanceInfo[]> {
   return getApps(node, APP_INSTANCE_STATUS.PROPOSED);
+}
+
+export async function getProposedAppInstanceInfo(
+  node: Node,
+  appInstanceId: string
+): Promise<AppInstanceInfo> {
+  const allProposedAppInstanceInfos = await getApps(
+    node,
+    APP_INSTANCE_STATUS.PROPOSED
+  );
+  return allProposedAppInstanceInfos.filter(appInstanceInfo => {
+    return appInstanceInfo.id === appInstanceId;
+  })[0];
 }
 
 async function getApps(
@@ -89,11 +115,22 @@ async function getApps(
 
 export function makeInstallProposalRequest(
   initiatingAddress: Address,
-  respondingAddress: Address
+  respondingAddress: Address,
+  nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
+  let initialState = null;
+
+  if (!nullInitialState) {
+    initialState = {
+      foo: AddressZero,
+      bar: 0
+    } as AppState;
+  }
+
   const params: NodeTypes.ProposeInstallParams = {
     initiatingAddress,
     respondingAddress,
+    initialState,
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
@@ -104,11 +141,7 @@ export function makeInstallProposalRequest(
     } as BlockchainAsset,
     myDeposit: Zero,
     peerDeposit: Zero,
-    timeout: One,
-    initialState: {
-      foo: AddressZero,
-      bar: 0
-    } as AppState
+    timeout: One
   };
   return {
     params,
@@ -120,11 +153,13 @@ export function makeInstallProposalRequest(
 export function makeInstallVirtualProposalRequest(
   initiatingAddress: Address,
   respondingAddress: Address,
-  intermediaries: Address[]
+  intermediaries: Address[],
+  nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
     initiatingAddress,
-    respondingAddress
+    respondingAddress,
+    nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
