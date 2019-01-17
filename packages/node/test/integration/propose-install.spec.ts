@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { JsonRpcProvider, Provider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
@@ -27,6 +28,7 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
+  let provider: Provider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -40,6 +42,8 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    // fake provider as nothing is listening on this URL
+    provider = new JsonRpcProvider("localhost:8545");
   });
 
   beforeEach(async () => {
@@ -50,7 +54,8 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeServiceA,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -60,7 +65,8 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeServiceB,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -86,7 +92,6 @@ describe("Node method follows spec - proposeInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeA.address,
           nodeB.address
         );
 
@@ -126,7 +131,6 @@ describe("Node method follows spec - proposeInstall", () => {
 
       it("sends proposal with null initial state", async () => {
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeA.address,
           nodeB.address,
           true
         );

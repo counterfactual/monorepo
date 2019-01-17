@@ -182,7 +182,7 @@ export class AppInstance {
   }
 
   public get state() {
-    return this.decodeState(this.json.latestState);
+    return this.json.latestState;
   }
 
   public get nonce() {

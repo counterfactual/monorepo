@@ -3,6 +3,8 @@ import { Node } from "@counterfactual/types";
 import { RequestHandler } from "../../../request-handler";
 import { ERRORS } from "../../errors";
 
+import { getAppInstanceState } from "./operation";
+
 /**
  * Handles the retrieval of an AppInstance's state.
  * @param this
@@ -16,11 +18,7 @@ export default async function getAppInstanceStateController(
     Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
   }
 
-  const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
-    params.appInstanceId
-  );
-
   return {
-    state: appInstance.decodeState(appInstance.encodedLatestState)
+    state: await getAppInstanceState(params.appInstanceId, requestHandler.store)
   };
 }

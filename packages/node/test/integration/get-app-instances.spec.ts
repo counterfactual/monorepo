@@ -1,4 +1,5 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
+import { JsonRpcProvider, Provider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
@@ -19,6 +20,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
+  let provider: Provider;
 
   beforeAll(() => {
     const firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -32,6 +34,8 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    // fake provider as nothing is listening on this URL
+    provider = new JsonRpcProvider("localhost:8545");
   });
 
   beforeEach(async () => {
@@ -39,7 +43,8 @@ describe("Node method follows spec - getAppInstances", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -67,7 +72,6 @@ describe("Node method follows spec - getAppInstances", () => {
 
     // second, an app instance must be proposed to be installed into that channel
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      node.address,
       respondingAddress
     );
 

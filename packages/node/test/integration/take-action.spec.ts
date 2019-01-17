@@ -29,10 +29,10 @@ import { ERRORS } from "../../src/methods/errors";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   EMPTY_NETWORK,
+  generateGetStateRequest,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest,
-  generateGetStateRequest
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {

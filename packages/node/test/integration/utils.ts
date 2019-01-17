@@ -14,6 +14,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { bigNumberify } from "ethers/utils";
 
 export async function getNewMultisig(
   node: Node,
@@ -134,7 +135,7 @@ export function makeInstallProposalRequest(
   if (!nullInitialState) {
     initialState = {
       foo: AddressZero,
-      bar: 0
+      bar: bigNumberify(0)
     } as AppState;
   }
 

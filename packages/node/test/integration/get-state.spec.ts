@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { JsonRpcProvider, Provider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
@@ -20,6 +21,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
+  let provider: Provider;
 
   beforeAll(() => {
     const firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -33,6 +35,8 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    // fake provider as nothing is listening on this URL
+    provider = new JsonRpcProvider("localhost:8545");
   });
 
   beforeEach(async () => {
@@ -40,7 +44,8 @@ describe("Node method follows spec - getAppInstances", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -66,7 +71,6 @@ describe("Node method follows spec - getAppInstances", () => {
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      node.address,
       respondingAddress
     );
 
@@ -91,9 +95,13 @@ describe("Node method follows spec - getAppInstances", () => {
 
     const getStateResult = await node.call(getStateReq.type, getStateReq);
     const state = (getStateResult.result as NodeTypes.GetStateResult).state;
-    expect(state).toEqual(
+    expect(state.foo).toEqual(
       // @ts-ignore
-      appInstanceInstallationProposalRequest.params.initialState
+      appInstanceInstallationProposalRequest.params.initialState.foo
+    );
+    expect(state.bar).toEqual(
+      // @ts-ignore
+      appInstanceInstallationProposalRequest.params.initialState.bar
     );
   });
 });
