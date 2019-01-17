@@ -31,7 +31,11 @@ export class AppWager {
   @State() myName: string = "";
 
   @State() opponent: {
-    attributes: { username?: string; ethAddress?: Address };
+    attributes: {
+      username?: string;
+      ethAddress?: Address;
+      nodeAddress?: string;
+    };
   } = { attributes: {} };
   @State() intermediary: string = "";
   @State() isError: boolean = false;
@@ -75,7 +79,7 @@ export class AppWager {
 
       await this.appFactory.proposeInstallVirtual({
         initialState,
-        respondingAddress: this.opponent.attributes.ethAddress as string,
+        respondingAddress: this.opponent.attributes.nodeAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
@@ -161,7 +165,6 @@ export class AppWager {
     const response = await fetch(
       // TODO: This URL must come from an environment variable.
       "https://server.playground-staging.counterfactual.com/api/matchmaking",
-      // "http://localhost:9000/api/matchmake",
       {
         method: "POST",
         headers: {

@@ -52,7 +52,12 @@ export async function matchmakeUser(
   const db = getDatabase();
 
   const query = db("users")
-    .columns({ id: "id", username: "username", ethAddress: "eth_address" })
+    .columns({
+      id: "id",
+      username: "username",
+      ethAddress: "eth_address",
+      nodeAddress: "node_address"
+    })
     .select()
     .where("eth_address", "!=", userAddress);
 
@@ -179,7 +184,8 @@ export async function createUser(
     username: data.username,
     email: data.email,
     eth_address: data.ethAddress,
-    multisig_address: data.multisigAddress
+    multisig_address: data.multisigAddress,
+    node_address: data.nodeAddress
   });
 
   try {

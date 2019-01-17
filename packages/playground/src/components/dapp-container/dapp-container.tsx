@@ -115,7 +115,6 @@ export class DappContainer {
    * @param message {any}
    */
   public postOrQueueMessage(message: any): void {
-    console.log("sending", message);
     if (this.port) {
       this.port.postMessage(message);
     } else {
@@ -167,9 +166,7 @@ export class DappContainer {
    * @param event {MessageEvent}
    */
   private relayMessage(event: MessageEvent): void {
-    console.log("relaying", event);
     this.node.emit(event.data.type, event.data);
-    // this.eventEmitter.emit("message", event.data);
   }
 
   /**

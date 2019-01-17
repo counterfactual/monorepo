@@ -48,7 +48,8 @@ export default class MatchmakingController extends Controller<
           id: user.id,
           attributes: {
             username: user.username,
-            ethAddress: user.ethAddress
+            ethAddress: user.ethAddress,
+            nodeAddress: user.nodeAddress
           }
         },
         {
@@ -56,7 +57,8 @@ export default class MatchmakingController extends Controller<
           id: matchedUser.id,
           attributes: {
             username: matchedUser.username,
-            ethAddress: matchedUser.ethAddress
+            ethAddress: matchedUser.ethAddress,
+            nodeAddress: matchedUser.nodeAddress
           }
         }
       ]

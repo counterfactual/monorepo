@@ -41,14 +41,15 @@ export default class UsersController extends Controller<UserAttributes> {
         "PLAYGROUND ACCOUNT REGISTRATION",
         `Username: ${resource.attributes.username}`,
         `E-mail: ${resource.attributes.email}`,
-        `Ethereum address: ${resource.attributes.ethAddress}`
+        `Ethereum address: ${resource.attributes.ethAddress}`,
+        `Node address: ${resource.attributes.nodeAddress}`
       ].join("\n")
   })
   async post(data?: APIResource<UserAttributes>) {
     const userData = (data as APIResource<UserAttributes>).attributes;
 
     // Create the multisig and return its address.
-    const multisig = await createMultisigFor(userData.ethAddress);
+    const multisig = await createMultisigFor(userData.nodeAddress);
 
     Log.info("Multisig has been created", {
       tags: {
@@ -56,6 +57,8 @@ export default class UsersController extends Controller<UserAttributes> {
         endpoint: "createAccount"
       }
     });
+
+    userData.multisigAddress = multisig.multisigAddress;
 
     // Create the Playground User.
     const user = await createUser(userData);
@@ -68,9 +71,6 @@ export default class UsersController extends Controller<UserAttributes> {
     user.attributes.token = sign(user, process.env.NODE_PRIVATE_KEY as string, {
       expiresIn: "1Y"
     });
-
-    // Update user with multisig.
-    user.attributes.multisigAddress = multisig.multisigAddress;
 
     Log.info("User token has been generated", {
       tags: { endpoint: "createAccount" }

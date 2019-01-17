@@ -19,7 +19,8 @@ export class AccountEdit {
   changeset: UserChangeset = {
     username: "",
     email: "",
-    ethAddress: ""
+    ethAddress: "",
+    nodeAddress: ""
   };
 
   // required to initialize the changeset
@@ -29,6 +30,7 @@ export class AccountEdit {
     this.changeset.ethAddress = this.user.ethAddress;
     this.changeset.email = this.user.email;
     this.changeset.username = this.user.username;
+    this.changeset.nodeAddress = this.user.nodeAddress;
   }
 
   change(key, event) {
@@ -36,7 +38,6 @@ export class AccountEdit {
   }
 
   formSubmitionHandler() {
-    console.log(this.changeset);
     this.updateAccount(this.changeset);
     this.history.push("/");
   }

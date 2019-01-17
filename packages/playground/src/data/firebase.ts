@@ -1,11 +1,59 @@
 // This is a copy of what was implemented on the Node's integration tests
 // to provider support for a Firebase layer.
-
-import { IMessagingService, IStoreService } from "@counterfactual/node";
+// TODO: IMPORT THIS FROM THE NODE!
 import { Address } from "@counterfactual/types";
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/database";
+
+export interface IMessagingService {
+  send(respondingAddress: Address, msg: any);
+  receive(address: Address, callback: (msg: any) => void);
+}
+
+export interface IStoreService {
+  get(key: string): Promise<any>;
+  // Multiple pairs could be written simultaneously if an atomic write
+  // among multiple records is required
+  set(pairs: { key: string; value: any }[]): Promise<boolean>;
+}
+
+export interface FirebaseAppConfiguration {
+  databaseURL: string;
+  projectId: string;
+  apiKey: string;
+  authDomain: string;
+  storageBucket: string;
+  messagingSenderId: string;
+}
+
+/**
+ * This factory exposes default implementations of the service interfaces
+ * described above, using Firebase as the implementation backend.
+ */
+export default class FirebaseServiceFactory {
+  private app: firebase.app.App;
+
+  constructor(configuration: FirebaseAppConfiguration) {
+    this.app = firebase.initializeApp(configuration);
+  }
+
+  createMessagingService(messagingServiceKey: string): IMessagingService {
+    return new FirebaseMessagingService(
+      this.app.database(),
+      messagingServiceKey
+    );
+  }
+
+  createStoreService(storeServiceKey: string): IStoreService {
+    return new FirebaseStoreService(this.app.database(), storeServiceKey);
+  }
+}
 
 class FirebaseMessagingService implements IMessagingService {
+  // naive caching - firebase fires observers twice upon initial callback
+  // registration and invocation
+  private servedMessages = new Map();
+
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -14,7 +62,7 @@ class FirebaseMessagingService implements IMessagingService {
   async send(respondingAddress: Address, msg: object) {
     await this.firebase
       .ref(`${this.messagingServerKey}/${respondingAddress}`)
-      .set(msg);
+      .set(JSON.parse(JSON.stringify(msg)));
   }
 
   receive(address: Address, callback: (msg: object) => void) {
@@ -34,11 +82,17 @@ class FirebaseMessagingService implements IMessagingService {
           );
           return;
         }
-
-        const value = snapshot.val();
-        if (value) {
-          callback(value);
+        const msg = snapshot.val();
+        const msgKey = JSON.stringify(msg);
+        if (msg === null) {
+          return;
         }
+        if (msgKey in this.servedMessages) {
+          delete this.servedMessages[msgKey];
+          return;
+        }
+        this.servedMessages[msgKey] = true;
+        callback(msg);
       });
   }
 }
@@ -52,7 +106,8 @@ class FirebaseStoreService implements IStoreService {
   async get(key: string): Promise<any> {
     let result: any;
     await this.firebase
-      .ref(`${this.storeServiceKey}/${key}`)
+      .ref(this.storeServiceKey)
+      .child(key)
       .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
@@ -65,35 +120,11 @@ class FirebaseStoreService implements IStoreService {
     return result;
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<boolean> {
-    try {
-      await Promise.all(
-        pairs.map(({ key, value }) => {
-          return this.firebase.ref(`${this.storeServiceKey}/${key}`).set(value);
-        })
-      );
-      return true;
-    } catch (e) {
-      return false;
+  async set(pairs: { key: string; value: any }[]): Promise<any> {
+    const updates = {};
+    for (const pair of pairs) {
+      updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
     }
-  }
-}
-
-export default class FirebaseServiceFactory {
-  private app: firebase.app.App;
-
-  constructor(firebaseSettings: Object) {
-    this.app = firebase.initializeApp(firebaseSettings);
-  }
-
-  createMessagingService(messagingServiceKey: string): IMessagingService {
-    return new FirebaseMessagingService(
-      this.app.database(),
-      messagingServiceKey
-    );
-  }
-
-  createStoreService(storeServiceKey: string): IStoreService {
-    return new FirebaseStoreService(this.app.database(), storeServiceKey);
+    return await this.firebase.ref(this.storeServiceKey).update(updates);
   }
 }

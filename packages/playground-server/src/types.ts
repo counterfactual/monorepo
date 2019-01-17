@@ -111,7 +111,6 @@ export type APIResourceAttributes = {
 export type UserAttributes = MatchedUserAttributes & {
   email: string;
   multisigAddress: string;
-  nodeAddress: string;
   token?: string;
 };
 
@@ -123,6 +122,7 @@ export type MatchedUserAttributes = {
   id: string;
   username: string;
   ethAddress: string;
+  nodeAddress: string;
 };
 
 export type MatchmakingAttributes = {
