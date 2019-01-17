@@ -8,14 +8,7 @@ export async function getAppInstanceInfoFromAppInstance(
   appInstances: AppInstance[]
 ): Promise<AppInstanceInfo[]> {
   return await Promise.all(
-    appInstances.map<Promise<AppInstanceInfo>>(
-      async (appInstance: AppInstance): Promise<AppInstanceInfo> => {
-        const appInstanceId = await store.getAppInstanceIDFromAppInstanceIdentityHash(
-          appInstance.identityHash
-        );
-        return await store.getAppInstanceInfo(appInstanceId);
-      }
-    )
+    appInstances.map(x => store.getAppInstanceInfoFromAppInstance(x))
   );
 }
 

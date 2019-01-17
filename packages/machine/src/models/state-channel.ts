@@ -154,7 +154,16 @@ export class StateChannel {
       aliceBalance: bigNumberify(appInstanceJson.latestState.aliceBalance),
       bobBalance: bigNumberify(appInstanceJson.latestState.bobBalance)
     };
+
     return AppInstance.fromJson(appInstanceJson);
+  }
+
+  public setFreeBalanceFor(
+    assetType: AssetType,
+    state: AppState
+  ): StateChannel {
+    const freeBalance = this.getFreeBalanceFor(assetType);
+    return this.setState(freeBalance.identityHash, state);
   }
 
   public setupChannel(network: NetworkContext) {

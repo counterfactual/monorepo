@@ -31,36 +31,24 @@ export async function install(
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
+
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
   const appInstance = createAppInstanceFromAppInstanceInfo(
     appInstanceInfo,
     stateChannel
   );
+
   delete appInstanceInfo.initialState;
 
-  const updatedStateChannelMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initiatingAddress,
-      respondingAddress,
-      multisigAddress: stateChannel.multisigAddress,
-
-      // TODO: Figure out who is alice and who is bob
-      aliceBalanceDecrement: appInstanceInfo.myDeposit,
-      bobBalanceDecrement: appInstanceInfo.peerDeposit,
-
-      signingKeys: appInstance.signingKeys,
-      terms: appInstance.terms,
-      appInterface: appInstance.appInterface,
-      initialState: appInstance.state,
-      defaultTimeout: appInstance.defaultTimeout
-    }
-  );
+  // TODO: Use the instructionExecutor variable to `runInstallProtocol`
 
   await store.updateChannelWithAppInstanceInstallation(
-    updatedStateChannelMap.get(stateChannel.multisigAddress)!,
+    stateChannel.installApp(
+      appInstance,
+      appInstanceInfo.myDeposit,
+      appInstanceInfo.peerDeposit
+    ),
     appInstance,
     appInstanceInfo
   );
@@ -77,9 +65,8 @@ function createAppInstanceFromAppInstanceInfo(
   channel: StateChannel
 ): AppInstance {
   const appInterface: AppInterface = {
-    addr: proposedAppInstanceInfo.appId,
-    stateEncoding: proposedAppInstanceInfo.abiEncodings.stateEncoding,
-    actionEncoding: proposedAppInstanceInfo.abiEncodings.actionEncoding
+    ...proposedAppInstanceInfo.abiEncodings,
+    addr: proposedAppInstanceInfo.appId
   };
 
   // TODO: throw if asset type is ETH and token is also set
@@ -88,9 +75,7 @@ function createAppInstanceFromAppInstanceInfo(
     limit: proposedAppInstanceInfo.myDeposit.add(
       proposedAppInstanceInfo.peerDeposit
     ),
-    token: proposedAppInstanceInfo.asset.token
-      ? proposedAppInstanceInfo.asset.token
-      : AddressZero
+    token: proposedAppInstanceInfo.asset.token || AddressZero
   };
 
   return new AppInstance(

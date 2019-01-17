@@ -1,5 +1,5 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
-import { Wallet } from "ethers";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
@@ -34,9 +34,8 @@ describe("Node method follows spec - getAppInstances", () => {
     };
   });
 
-  beforeEach(() => {
-    node = new Node(
-      process.env.A_PRIVATE_KEY!,
+  beforeEach(async () => {
+    node = await Node.create(
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
@@ -57,7 +56,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // the peer with whom an installation proposal is being made
-    const respondingAddress = new Wallet(process.env.B_PRIVATE_KEY!).address;
+    const respondingAddress = getAddress(hexlify(randomBytes(20)));
 
     // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(node, [

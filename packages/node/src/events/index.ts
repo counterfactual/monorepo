@@ -1,10 +1,11 @@
-export { default as installEventController } from "./install/controller";
+import installEventController from "./install/controller";
+import addMultisigController from "./multisig-created/controller";
+import proposeInstallVirtualEventController from "./propose-install-virtual/controller";
+import proposeInstallEventController from "./propose-install/controller";
+
 export {
-  default as addMultisigController
-} from "./multisig-created/controller";
-export {
-  default as proposeInstallEventController
-} from "./propose-install/controller";
-export {
-  default as proposeInstallVirtualEventController
-} from "./propose-install-virtual/controller";
+  addMultisigController,
+  installEventController,
+  proposeInstallEventController,
+  proposeInstallVirtualEventController
+};

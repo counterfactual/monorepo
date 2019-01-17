@@ -4,7 +4,10 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
 import { Address, AppInstanceID, cf } from "../../data/types";
+
+const { HashZero } = ethers.constants;
 
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
@@ -12,7 +15,7 @@ import { Address, AppInstanceID, cf } from "../../data/types";
 /**
  * User Story
  * 0.1 ETH is staked hard coded
- * The username is retrieved from the Playground?
+ * The username is retrieved from the Playground
  */
 @Component({
   tag: "app-wager",
@@ -58,7 +61,17 @@ export class AppWager {
     this.isWaiting = true;
 
     try {
+      const initialState: HighRollerAppState = {
+        playerAddrs: [this.user.address, this.opponent.address],
+        stage: HighRollerStage.PRE_GAME,
+        salt: HashZero,
+        commitHash: HashZero,
+        playerFirstNumber: 0,
+        playerSecondNumber: 0
+      };
+
       await this.appFactory.proposeInstallVirtual({
+        initialState,
         respondingAddress: this.opponent.attributes.ethAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
@@ -66,15 +79,14 @@ export class AppWager {
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 10000,
-        intermediaries: [this.intermediary],
-        initialState: null
+        intermediaries: [this.intermediary]
       });
     } catch (e) {
       debugger;
     }
   }
 
-  async matchmake(/* timeout: number */): Promise<any> {
+  async matchmake(): Promise<any> {
     try {
       const result = await this.fetchMatchmake();
 

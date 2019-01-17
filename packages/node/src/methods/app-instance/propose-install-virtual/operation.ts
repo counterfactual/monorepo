@@ -18,6 +18,7 @@ export async function createProposedVirtualAppInstance(
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {
   const appInstanceId = generateUUID();
+
   const nextIntermediaryAddress = getNextNodeAddress(
     selfAddress,
     params.intermediaries,
@@ -36,6 +37,7 @@ export async function createProposedVirtualAppInstance(
   );
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
+
   return appInstanceId;
 }
 
@@ -58,9 +60,11 @@ export function getNextNodeAddress(
   if (intermediaryIndex === -1) {
     return intermediaries[0];
   }
+
   if (intermediaryIndex + 1 === intermediaries.length) {
     return respondingAddress;
   }
+
   return intermediaries[intermediaryIndex + 1];
 }
 

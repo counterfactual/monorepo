@@ -120,7 +120,7 @@ describe("HighRollerApp", () => {
 
       const state = decodeAppState(ret);
       expect(state.stage).to.eq(2);
-      expect(state.commitHash).to.be.eql(hash);
+      expect(state.commitHash).to.eq(hash);
     });
 
     it("can commit to num", async () => {
@@ -175,11 +175,12 @@ describe("HighRollerApp", () => {
         terms
       );
 
-      expect(transaction.assetType).to.be.eql(AssetType.ETH);
-      expect(transaction.token).to.be.eql(AddressZero);
-      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
-      expect(transaction.value).to.be.eql([Zero, parseEther("2")]);
-      expect(transaction.data).to.be.eql(["0x", "0x"]);
+      expect(transaction.assetType).to.eq(AssetType.ETH);
+      expect(transaction.token).to.eq(AddressZero);
+      expect(transaction.to).to.deep.eq([AddressZero, AddressZero]);
+      expect(transaction.value[0]).to.eq(Zero);
+      expect(transaction.value[1]).to.eq(parseEther("2"));
+      expect(transaction.data).to.deep.eq(["0x", "0x"]);
     });
 
     /**
@@ -212,11 +213,12 @@ describe("HighRollerApp", () => {
         terms
       );
 
-      expect(transaction.assetType).to.be.eql(AssetType.ETH);
-      expect(transaction.token).to.be.eql(AddressZero);
-      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
-      expect(transaction.value).to.be.eql([parseEther("1"), parseEther("1")]);
-      expect(transaction.data).to.be.eql(["0x", "0x"]);
+      expect(transaction.assetType).to.eq(AssetType.ETH);
+      expect(transaction.token).to.eq(AddressZero);
+      expect(transaction.to).to.deep.eq([AddressZero, AddressZero]);
+      expect(transaction.value[0]).to.eq(parseEther("1"));
+      expect(transaction.value[1]).to.eq(parseEther("1"));
+      expect(transaction.data).to.deep.eq(["0x", "0x"]);
     });
 
     it("can end game - playerFirst wins", async () => {
@@ -244,11 +246,12 @@ describe("HighRollerApp", () => {
         terms
       );
 
-      expect(transaction.assetType).to.be.eql(AssetType.ETH);
-      expect(transaction.token).to.be.eql(AddressZero);
-      expect(transaction.to).to.be.eql([AddressZero, AddressZero]);
-      expect(transaction.value).to.be.eql([parseEther("2"), Zero]);
-      expect(transaction.data).to.be.eql(["0x", "0x"]);
+      expect(transaction.assetType).to.eq(AssetType.ETH);
+      expect(transaction.token).to.eq(AddressZero);
+      expect(transaction.to).to.deep.equal([AddressZero, AddressZero]);
+      expect(transaction.value[0]).to.eq(parseEther("2"));
+      expect(transaction.value[1]).to.eq(Zero);
+      expect(transaction.data).to.deep.equal(["0x", "0x"]);
     });
   });
 });

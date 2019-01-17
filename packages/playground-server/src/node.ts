@@ -18,31 +18,38 @@ const serviceFactory = new FirebaseServiceFactory({
   messagingSenderId: "432199632441"
 });
 
-const node = new Node(
-  process.env.NODE_PRIVATE_KEY as string,
-  serviceFactory.createMessagingService("messaging"),
-  serviceFactory.createStoreService("storage"),
-  {
-    AppRegistry: AddressZero,
-    ETHBalanceRefund: AddressZero,
-    ETHBucket: AddressZero,
-    MultiSend: AddressZero,
-    NonceRegistry: AddressZero,
-    StateChannelTransaction: AddressZero,
-    ETHVirtualAppAgreement: AddressZero
-  },
-  {
-    STORE_KEY_PREFIX: "store"
+let node: Node;
+export async function createNodeSingleton(): Promise<Node> {
+  if (node) {
+    return node;
   }
-);
+  node = await Node.create(
+    serviceFactory.createMessagingService("messaging"),
+    serviceFactory.createStoreService("storage"),
+    {
+      AppRegistry: AddressZero,
+      ETHBalanceRefund: AddressZero,
+      ETHBucket: AddressZero,
+      MultiSend: AddressZero,
+      NonceRegistry: AddressZero,
+      StateChannelTransaction: AddressZero,
+      ETHVirtualAppAgreement: AddressZero
+    },
+    {
+      STORE_KEY_PREFIX: "store"
+    }
+  );
 
-node.on(INSTALL, async (msg: NodeMessage) => {
-  console.log("INSTALL event:", msg);
-});
+  node.on(INSTALL, async (msg: NodeMessage) => {
+    console.log("INSTALL event:", msg);
+  });
 
-node.on(REJECT_INSTALL, async (msg: NodeMessage) => {
-  console.log("REJECT_INSTALL event:", msg);
-});
+  node.on(REJECT_INSTALL, async (msg: NodeMessage) => {
+    console.log("REJECT_INSTALL event:", msg);
+  });
+
+  return node;
+}
 
 export function getNodeAddress(): string {
   return node.address;
@@ -51,6 +58,9 @@ export function getNodeAddress(): string {
 export async function createMultisigFor(
   userAddress: string
 ): Promise<NodeTypes.CreateMultisigResult> {
+  if (!node) {
+    node = await createNodeSingleton();
+  }
   const multisigResponse = await node.call(
     NodeTypes.MethodName.CREATE_MULTISIG,
     {

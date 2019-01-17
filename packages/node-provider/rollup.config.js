@@ -18,7 +18,6 @@ export default [
     ],
     plugins: [
       typescript()
-    ],
-    exclude: ["test"]
+    ]
   }
 ];

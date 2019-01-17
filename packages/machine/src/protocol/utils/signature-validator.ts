@@ -1,26 +1,21 @@
-import { recoverAddress } from "ethers/utils";
+import { recoverAddress, Signature } from "ethers/utils";
 
-import { StateChannel } from "../../models";
-import { ProtocolMessage } from "../../protocol-types-tbd";
-import { Context } from "../../types";
+import { EthereumCommitment } from "../../ethereum/types";
 
 export function validateSignature(
-  message: ProtocolMessage,
-  context: Context,
-  state: StateChannel
+  expectedSigner: string,
+  commitment?: EthereumCommitment,
+  signature?: Signature
 ) {
-  if (context.commitment === undefined) {
-    throw Error("OP_SIGN_VALIDATE received an undefined commitment");
+  if (commitment === undefined) {
+    throw Error("validateSignature received an undefined commitment");
   }
 
-  if (context.signature === undefined) {
-    throw Error("OP_SIGN_VALIDATE received an undefined signature");
+  if (signature === undefined) {
+    throw Error("validateSignature received an undefined signature");
   }
 
-  if (
-    message.fromAddress !==
-    recoverAddress(context.commitment.hashToSign(), context.signature)
-  ) {
-    throw Error("Received invalid signature on OP_SIGN_VALIDATE");
+  if (expectedSigner !== recoverAddress(commitment.hashToSign(), signature)) {
+    throw Error("Received invalid signature on validateSignature");
   }
 }
