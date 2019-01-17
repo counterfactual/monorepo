@@ -1,31 +1,23 @@
-import { getAddress, verifyMessage } from "ethers/utils";
-import { decode as decodeToken } from "jsonwebtoken";
 import "koa-body";
 import Router, { IRouterContext } from "koa-router";
 import { Log } from "logepi";
 
-import { userExists } from "../db";
 import {
-  APIMetadata,
   APIRequest,
   APIResource,
-  APIResourceAttributes,
   APIResourceCollection,
   APIResourceType,
   APIResponse,
-  AuthenticatedRequest,
   ControllerMethod,
   ErrorCode,
   HttpStatusCode,
   MiddlewareCollection,
-  SessionAttributes,
   StatusCodeMapping,
-  UserAttributes,
   UserSession
 } from "../types";
 
 export default abstract class Controller<
-  TAttributes = APIResourceAttributes,
+  TAttributes,
   TOptions = { [key: string]: any }
 > {
   /**
@@ -66,7 +58,7 @@ export default abstract class Controller<
    * it up by its unique identified. If implemented in a derived
    * class, this handler controls the GET /:type/:id route.
    */
-  async getById?(id: string): Promise<APIResource<TAttributes>>;
+  async getById?(id: string): Promise<APIResource<TAttributes> | undefined>;
 
   /**
    * Requests a new, non-persistent resource. If implemented in a derived
@@ -85,29 +77,9 @@ export default abstract class Controller<
     data: APIResource<TAttributes>
   ): Promise<APIResource<TAttributes>>;
 
-  /**
-   * If implemented, this functions returns the message upon which
-   * a signed payload can be created from. It's used for operations
-   * that involve requesting authorization from the wallet.
-   * It's only injected for POST requests.
-   */
-  // TODO: This supports only ONE type of signed message for a controller.
-  async expectedSignatureMessageFor?(
-    method: ControllerMethod,
-    resource: APIResource<TAttributes | SessionAttributes>
-  ): Promise<string | undefined>;
-
-  /**
-   * Returns a list of API methods that require authentication
-   * for this controller. By default, all methods are public.
-   */
-  protectedMethods(): ControllerMethod[] {
-    return [];
-  }
-
   constructor(
     router: Router,
-    private resourceType: APIResourceType,
+    public resourceType: APIResourceType,
     public options: TOptions = {} as TOptions
   ) {
     Log.info("Registering controller", { tags: { resourceType } });
@@ -148,7 +120,8 @@ export default abstract class Controller<
     await this.configureRouteFor(
       ControllerMethod.GetById,
       router,
-      this.getById
+      this.getById,
+      true
     );
   }
 
@@ -184,226 +157,31 @@ export default abstract class Controller<
   private async configureRouteFor(
     method: ControllerMethod,
     router: Router,
-    handler?: Function
+    handler?: Function,
+    usesId: boolean = false
   ) {
     if (!handler) {
       return;
     }
 
+    const httpVerb = this.routeVerbs[method];
+
     Log.info("Route configuration started", {
-      tags: { verb: this.routeVerbs[method], resourceType: this.resourceType }
+      tags: { verb: httpVerb, resourceType: this.resourceType }
     });
 
-    router[this.routeVerbs[method]](
-      `/${this.resourceType}`,
-      ...(await this.getMiddlewaresFor(method))
+    const endpoint = `/${this.resourceType}${usesId ? "/:id" : ""}`;
+
+    router[httpVerb](
+      endpoint,
+      this.handleError.bind(this),
+      this.routeHandlers[method].bind(this),
+      this.injectIncludedResources.bind(this)
     );
 
     Log.info("Route configuration finished", {
-      tags: { verb: this.routeVerbs[method], resourceType: this.resourceType }
+      tags: { verb: httpVerb, resourceType: this.resourceType }
     });
-  }
-
-  /**
-   * Returns a list of middlewares to inject to a certain route.
-   *
-   * Every route gets the `handleError` middleware by default.
-   *
-   * If the controller implements the `protectedMethods()` function
-   * and such function returns the controller method being configured,
-   * it'll inject the `authenticate` middleware.
-   *
-   * If the controller implements the `expectedSignatureMessageFor()` function
-   * and such function creates a signature payload for the controller method
-   * being configured, it'll inject the `validateSignature` middleware.
-   *
-   * Finally, the built-in route handler and the sideloaded resources inclusion
-   * middleware are injected.
-   */
-  private async getMiddlewaresFor(
-    method: ControllerMethod
-  ): Promise<MiddlewareCollection> {
-    const middlewares: MiddlewareCollection = [this.handleError.bind(this)];
-
-    Log.debug("Registered middleware", {
-      tags: {
-        middleware: "handleError",
-        resourceType: this.resourceType,
-        verb: this.routeVerbs[method]
-      }
-    });
-
-    if (this.protectedMethods().includes(method)) {
-      middlewares.push(this.authenticate.bind(this));
-      Log.debug("Registered middleware", {
-        tags: {
-          middleware: "authenticate",
-          resourceType: this.resourceType,
-          verb: this.routeVerbs[method]
-        }
-      });
-    }
-
-    if (
-      this.expectedSignatureMessageFor &&
-      (await this.expectedSignatureMessageFor(method, {
-        type: "session",
-        id: "",
-        attributes: { ethAddress: "" }
-      }))
-    ) {
-      middlewares.push(this.validateSignature.bind(this));
-      Log.debug("Registered middleware", {
-        tags: {
-          middleware: "validateSignature",
-          resourceType: this.resourceType,
-          verb: this.routeVerbs[method]
-        }
-      });
-    }
-
-    middlewares.push(this.routeHandlers[method]);
-    Log.debug("Registered middleware", {
-      tags: {
-        middleware: "routeHandler",
-        resourceType: this.resourceType,
-        verb: this.routeVerbs[method]
-      }
-    });
-
-    middlewares.push(this.injectIncludedResources.bind(this));
-    Log.debug("Registered middleware", {
-      tags: {
-        middleware: "injectIncludedResources",
-        resourceType: this.resourceType,
-        verb: this.routeVerbs[method]
-      }
-    });
-
-    return middlewares;
-  }
-
-  /**
-   * This middleware is responsible of injecting the session to the controller.
-   * If it's a public route, no user is involved, so the middleware will delegate
-   * control to the next on the list.
-   *
-   * The middleware will check for the "Authorization" header, which must be
-   * set and start with `Bearer `. If there's no token or header, it'll throw the
-   * `token_required` error. If the header is malformed, it'll throw the
-   * `invalid_token` error.
-   *
-   * The token is decoded and converted to an `APIResource<UserAttributes>` object.
-   * If the user exists in the database, the token is valid and the protected
-   * request can continue execution. Otherwise, it'll throw the error code
-   * `invalid_token`.
-   */
-  private authenticate(ctx: IRouterContext, next: () => Promise<void>) {
-    if (!this.protectedMethods) {
-      Log.debug("Skipped authentication, this is a public method", {
-        tags: { resourceType: this.resourceType, middleware: "authenticate" }
-      });
-      return next();
-    }
-
-    const authRequest = ctx.request as AuthenticatedRequest;
-    const authHeader = authRequest.headers.authorization;
-
-    if (!authHeader) {
-      Log.info("Cancelling request, token is required", {
-        tags: { resourceType: this.resourceType, middleware: "authenticate" }
-      });
-      throw ErrorCode.TokenRequired;
-    }
-
-    if (!authHeader.startsWith("Bearer ")) {
-      Log.info("Cancelling request, token is invalid", {
-        tags: { resourceType: this.resourceType, middleware: "authenticate" }
-      });
-      throw ErrorCode.InvalidToken;
-    }
-
-    const [, token] = authHeader.split(" ");
-    const user = decodeToken(token) as APIResource<UserAttributes>;
-
-    const isValidUser = userExists(user.attributes);
-
-    if (!isValidUser) {
-      Log.info("Cancelling request, token is invalid", {
-        tags: { resourceType: this.resourceType, middleware: "authenticate" }
-      });
-      throw ErrorCode.InvalidToken;
-    }
-
-    this.user = { id: user.id, ...user.attributes } as UserSession;
-
-    return next();
-  }
-
-  /**
-   * If a controller implements expectedSignatureMessage(), this middleware
-   * will validate if a signature matches the message and the sender's
-   * address. If it succeeds, it'll will continue executing the route.
-   * If not, it'll throw an `invalid_signature` error. Also, if a controller
-   * implements the method and the request has no signature, it'll throw a
-   * `signature_required` error.
-   */
-  private async validateSignature(
-    ctx: IRouterContext,
-    next: () => Promise<void>
-  ) {
-    if (!this.expectedSignatureMessageFor) {
-      Log.debug("Skipped signature validation, this request isn't signed", {
-        tags: {
-          resourceType: this.resourceType,
-          middleware: "validateSignature"
-        }
-      });
-      return next();
-    }
-
-    const json = ctx.request.body as APIRequest<TAttributes>;
-    const resource = json.data as APIResource<TAttributes>;
-    const metadata = json.meta as APIMetadata;
-
-    if (!metadata || !metadata.signature) {
-      Log.info("Cancelling request, signature is required", {
-        tags: {
-          resourceType: this.resourceType,
-          middleware: "validateSignature"
-        }
-      });
-      throw ErrorCode.SignatureRequired;
-    }
-
-    const controllerMethod = this.getControllerMethodFor(ctx);
-    const expectedMessage = await this.expectedSignatureMessageFor(
-      controllerMethod,
-      resource
-    );
-    const ethAddress = getAddress(
-      (((json as unknown) as APIRequest<SessionAttributes>).data as APIResource<
-        SessionAttributes
-      >).attributes.ethAddress
-    );
-    const { signedMessage } = metadata.signature;
-
-    const expectedAddress = verifyMessage(
-      expectedMessage as string,
-      signedMessage
-    );
-
-    if (expectedAddress !== ethAddress) {
-      Log.info("Cancelling request, signature is not valid", {
-        tags: {
-          resourceType: this.resourceType,
-          middleware: "validateSignature"
-        }
-      });
-      throw ErrorCode.InvalidSignature;
-    }
-
-    return next();
   }
 
   /**
@@ -471,25 +249,6 @@ export default abstract class Controller<
   }
 
   /**
-   * Maps some predefined requests conditions to a controller method.
-   *
-   * If it's a GET /:type request, the method is `GetAll`.
-   * If it's a GET /:type/:id request, the method is `GetById`.
-   * If it's a POST /:type request, the method is `Post`.
-   */
-  private getControllerMethodFor(ctx: IRouterContext): ControllerMethod {
-    if (ctx.request.method === "GET") {
-      if (ctx.params.id) {
-        return ControllerMethod.GetById;
-      }
-
-      return ControllerMethod.GetAll;
-    }
-
-    return ControllerMethod.Post;
-  }
-
-  /**
    * Returns a collection of resources.
    */
   private async routeGetAll(ctx: IRouterContext, next: () => Promise<void>) {
@@ -503,7 +262,7 @@ export default abstract class Controller<
     });
 
     ctx.body = {
-      data: await callback()
+      data: await callback(ctx)
     } as APIResponse;
 
     return next();
@@ -523,7 +282,7 @@ export default abstract class Controller<
     });
 
     ctx.body = {
-      data: await callback(ctx.params.id)
+      data: await callback(ctx.params.id, ctx)
     } as APIResponse;
 
     return next();
@@ -546,7 +305,7 @@ export default abstract class Controller<
     });
 
     ctx.body = {
-      data: await callback(request.data as APIResource)
+      data: await callback(request.data as APIResource, ctx)
     };
     ctx.status = 201;
 
