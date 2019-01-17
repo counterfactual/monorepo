@@ -12,6 +12,7 @@ import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getSigner } from "./signer";
 import { NODE_EVENTS, NodeMessage } from "./types";
+import { Provider } from "ethers/providers";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -39,13 +40,15 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     networkContext: NetworkContext,
-    nodeConfig: NodeConfig
+    nodeConfig: NodeConfig,
+    provider: Provider
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       networkContext,
-      nodeConfig
+      nodeConfig,
+      provider
     );
     await node.init();
     return node;
@@ -55,7 +58,8 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly networkContext: NetworkContext,
-    private readonly nodeConfig: NodeConfig
+    private readonly nodeConfig: NodeConfig,
+    private readonly provider: Provider
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
@@ -75,6 +79,7 @@ export class Node {
       this.messagingService,
       this.instructionExecutor,
       this.networkContext,
+      this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }

@@ -8,5 +8,7 @@ export const ERRORS = {
     "No proposed AppInstance exists for the given appInstanceId",
   NULL_INITIAL_STATE_FOR_PROPOSAL:
     "A proposed AppInstance cannot have an empty initial state",
-  NO_APP_INSTANCE_FOR_TAKE_ACTION: "No AppInstanceId specified to takeAction on"
+  NO_APP_INSTANCE_FOR_TAKE_ACTION:
+    "No AppInstanceId specified to takeAction on",
+  NO_APP_CONTRACT_ADDR: "The App Contract address is empty"
 };

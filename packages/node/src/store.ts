@@ -379,4 +379,14 @@ export class Store {
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
     );
   }
+
+  public async getAppInstanceFromAppInstanceID(
+    appInstanceId: string
+  ): Promise<AppInstance> {
+    return (await this.getChannelFromAppInstanceID(
+      appInstanceId
+    )).getAppInstance(
+      await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId)
+    );
+  }
 }

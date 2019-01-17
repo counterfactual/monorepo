@@ -245,4 +245,13 @@ export class AppInstance {
       latestTimeout: timeout
     });
   }
+
+  public decodeState(encodedAppState: string): AppState {
+    const decodedData = defaultAbiCoder.decode(
+      [this.appInterface.stateEncoding],
+      encodedAppState
+    );
+    console.log(decodedData);
+    return decodedData;
+  }
 }
