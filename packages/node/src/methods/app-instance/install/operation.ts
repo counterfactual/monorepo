@@ -39,16 +39,31 @@ export async function install(
     stateChannel
   );
 
+  const stateChannelsMap = await instructionExecutor.runInstallProtocol(
+    new Map<string, StateChannel>([
+      // TODO: (architectural decision) Should this use `getAllChannels` or
+      //       is this good enough? InstallProtocol only operates on a single
+      //       channel, anyway. PR #532 might make this question obsolete.
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
+    {
+      initiatingAddress,
+      respondingAddress,
+      multisigAddress: stateChannel.multisigAddress,
+      aliceBalanceDecrement: appInstanceInfo.myDeposit,
+      bobBalanceDecrement: appInstanceInfo.peerDeposit,
+      signingKeys: appInstance.signingKeys,
+      initialState: appInstanceInfo.initialState,
+      terms: appInstance.terms,
+      appInterface: appInstance.appInterface,
+      defaultTimeout: appInstance.defaultTimeout
+    }
+  );
+
   delete appInstanceInfo.initialState;
 
-  // TODO: Use the instructionExecutor variable to `runInstallProtocol`
-
   await store.updateChannelWithAppInstanceInstallation(
-    stateChannel.installApp(
-      appInstance,
-      appInstanceInfo.myDeposit,
-      appInstanceInfo.peerDeposit
-    ),
+    stateChannelsMap.get(stateChannel.multisigAddress)!,
     appInstance,
     appInstanceInfo
   );
