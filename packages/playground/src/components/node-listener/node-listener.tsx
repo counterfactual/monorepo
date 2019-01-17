@@ -13,7 +13,6 @@ type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
   shadow: true
 })
 export class NodeListener {
-  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @State() private currentMessage: any;
 
   @State() private modals: {
@@ -138,12 +137,10 @@ export class NodeListener {
     this.modalData = this.modals[this.currentMessage.event](
       this.currentMessage
     );
-    this.el.classList.add("dialog--open");
   }
 
   hideModal() {
     this.modalVisible = false;
-    this.el.classList.remove("dialog--open");
   }
 
   render() {
