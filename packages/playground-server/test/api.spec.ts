@@ -7,7 +7,7 @@ import { v4 as generateUuid } from "uuid";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
-import { getNodeAddress } from "../src/node";
+import { createNodeSingleton, getNodeAddress } from "../src/node";
 import {
   APIRequest,
   APIResource,
@@ -32,13 +32,15 @@ const client = axios.create({
 
 const db = getDatabase();
 
-Log.setOutputLevel(LogLevel.ERROR);
+Log.setOutputLevel(LogLevel.DEBUG);
 
 const API_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcnMiLCJpZCI6ImZmYzI0MjQ3LWZjZmItNDY2My05MzJkLTRhMzdmYTBkYTBkNCIsImF0dHJpYnV0ZXMiOnsidXNlcm5hbWUiOiJqb2VsX2FjY291bnQxIiwiZW1haWwiOiJlc3R1ZGlvQGpvZWxhbGVqYW5kcm8uY29tIiwiZXRoQWRkcmVzcyI6IjB4MGY2OTNjYzk1NmRmNTlkZWMyNGJiMWM2MDVhYzk0Y2FkY2U2MDE0ZCIsIm11bHRpc2lnQWRkcmVzcyI6IjB4ZjU5MUUyN0FGOEExNUMyZjU1YzJBMDk1RWEzNDMzQjdkNDdkMzY0OSIsIm5vZGVBZGRyZXNzIjoiMHg2MDAyNDgzZkQ1RDE5NTQ2NjFGQURDNTljZTUzNjY4MTA5NWZDNDM4In0sImlhdCI6MTU0NzY1MDE3MiwiZXhwIjoxNTc5MjA3NzcyfQ.JgBiOA22zfA4Z5ZkAtMKtinzd-vQW8k58ipv7eDg6MM";
 
 describe("playground-server", () => {
   beforeAll(async () => {
+    await createNodeSingleton();
+
     await db.schema.dropTableIfExists("users");
     await db.schema.createTable("users", table => {
       table.uuid("id");
@@ -256,7 +258,6 @@ describe("playground-server", () => {
   describe("/api/session", () => {
     it("fails if no signature is provided", done => {
       client.post("/session").catch(({ response }) => {
-        expect(response.status).toEqual(HttpStatusCode.BadRequest);
         expect(response.data).toEqual({
           errors: [
             {
@@ -265,6 +266,7 @@ describe("playground-server", () => {
             }
           ]
         } as APIResponse);
+        expect(response.status).toEqual(HttpStatusCode.BadRequest);
         done();
       });
     });
@@ -429,8 +431,10 @@ describe("playground-server", () => {
           expect((rels.matchedUser!.data as APIResource).type).toEqual(
             "matchedUser"
           );
+          expect(rels).toBeDefined();
           expect((rels.users!.data as APIResource).id).toBeDefined();
           expect((rels.matchedUser!.data as APIResource).id).toBeDefined();
+          expect(included).toBeDefined();
           expect(included[0].type).toEqual("users");
           expect(included[0].attributes.username).toEqual("joel_account1");
           expect(included[0].attributes.ethAddress).toEqual(
@@ -443,6 +447,11 @@ describe("playground-server", () => {
           );
 
           expect(response.status).toEqual(HttpStatusCode.Created);
+          done();
+        })
+        .catch(error => {
+          console.error(error);
+          fail("Something went wrong");
           done();
         });
     });
@@ -481,6 +490,11 @@ describe("playground-server", () => {
 
           expect(response.status).toEqual(HttpStatusCode.Created);
 
+          done();
+        })
+        .catch(error => {
+          console.error(error);
+          fail("Something went wrong");
           done();
         });
     });
