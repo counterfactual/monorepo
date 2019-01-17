@@ -3,6 +3,7 @@ import { AppState } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Provider } from "ethers/providers";
 
+import { isNotDefinedOrEmpty } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 export async function generateNewAppInstanceState(
@@ -10,21 +11,13 @@ export async function generateNewAppInstanceState(
   action: any,
   provider: Provider
 ): Promise<AppState> {
-  if (
-    !appInstance.appInterface.addr ||
-    appInstance.appInterface.addr.trim() === ""
-  ) {
+  if (isNotDefinedOrEmpty(appInstance.appInterface.addr)) {
     return Promise.reject(ERRORS.NO_APP_CONTRACT_ADDR);
   }
 
-  const abi = [
-    `function applyAction(${appInstance.appInterface.stateEncoding}, ${
-      appInstance.appInterface.actionEncoding
-    }) pure returns (bytes)`
-  ];
   const appContract = new Contract(
     appInstance.appInterface.addr,
-    abi,
+    createABI(appInstance),
     provider
   );
 
@@ -38,4 +31,15 @@ export async function generateNewAppInstanceState(
       .replace("s: VM Exception while processing transaction: revert");
     return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
   }
+}
+
+function createABI(appInstance: AppInstance): string[] {
+  return [
+    `function applyAction(
+      ${appInstance.appInterface.stateEncoding},
+      ${appInstance.appInterface.actionEncoding}
+    )
+    pure
+    returns (bytes)`
+  ];
 }

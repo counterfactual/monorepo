@@ -11,6 +11,7 @@ export default async function takeActionController(
   params: Node.TakeActionParams
 ): Promise<Node.TakeActionResult> {
   const { appInstanceId, action } = params;
+
   if (!appInstanceId) {
     return Promise.reject(ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION);
   }
@@ -38,7 +39,7 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  requestHandler.messagingService.send(
+  await requestHandler.messagingService.send(
     appInstanceInfo.respondingAddress,
     takeActionMsg
   );

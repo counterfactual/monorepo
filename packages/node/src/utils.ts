@@ -43,3 +43,7 @@ export async function getPeersAddressFromAppInstanceID(
   const owners = stateChannel.multisigOwners;
   return owners.filter(owner => owner !== selfAddress);
 }
+
+export function isNotDefinedOrEmpty(str: string) {
+  return !str || str.trim() === "";
+}
