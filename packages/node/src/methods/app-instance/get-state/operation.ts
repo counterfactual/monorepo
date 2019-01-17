@@ -10,5 +10,5 @@ export async function getAppInstanceState(
     appInstanceId
   );
 
-  return appInstance.decodeState(appInstance.encodedLatestState);
+  return appInstance.decodeAppState(appInstance.encodedLatestState);
 }

@@ -246,7 +246,7 @@ export class AppInstance {
     });
   }
 
-  public decodeState(encodedAppState: string): any {
+  public decodeAppState(encodedAppState: string): any {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
       encodedAppState

@@ -29,7 +29,7 @@ export async function generateNewAppInstanceState(
   );
 
   try {
-    return appInstance.decodeState(
+    return appInstance.decodeAppState(
       await appContract.functions.applyAction(appInstance.state, action)
     );
   } catch (e) {
