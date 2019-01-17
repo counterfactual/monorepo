@@ -1,10 +1,9 @@
+import { StateChannel } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
 import { RequestHandler } from "../../../request-handler";
 import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
-
-import { openStateChannel } from "./instance";
 
 /**
  * This creates a multisig while sending details about this multisig
@@ -19,15 +18,23 @@ export default async function createMultisigController(
 ): Promise<Node.CreateMultisigResult> {
   const multisigAddress = generateNewMultisigAddress(params.owners);
 
-  await openStateChannel(
-    multisigAddress,
-    params.owners,
-    requestHandler.store,
-    requestHandler.networkContext
-  );
-
   const [respondingAddress] = params.owners.filter(
     owner => owner !== requestHandler.address
+  );
+
+  const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
+    new Map<string, StateChannel>([
+      [multisigAddress, new StateChannel(multisigAddress, params.owners)]
+    ]),
+    {
+      multisigAddress,
+      respondingAddress,
+      initiatingAddress: requestHandler.address
+    }
+  );
+
+  await requestHandler.store.saveStateChannel(
+    stateChannelsMap.get(multisigAddress)!
   );
 
   const multisigCreatedMsg: CreateMultisigMessage = {
@@ -52,6 +59,7 @@ export default async function createMultisigController(
 }
 
 function generateNewMultisigAddress(owners: Address[]): Address {
+  // FIXME: Even before CREATE2 this is incorrect
   // TODO: implement this using CREATE2
   return Wallet.createRandom().address;
 }

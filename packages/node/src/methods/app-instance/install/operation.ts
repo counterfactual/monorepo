@@ -34,22 +34,40 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  const appInstance = createAppInstanceFromAppInstanceInfo(
-    appInstanceInfo,
-    stateChannel
+  const stateChannelsMap = await instructionExecutor.runInstallProtocol(
+    new Map<string, StateChannel>([
+      // TODO: (architectural decision) Should this use `getAllChannels` or
+      //       is this good enough? InstallProtocol only operates on a single
+      //       channel, anyway. PR #532 might make this question obsolete.
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
+    {
+      initiatingAddress,
+      respondingAddress,
+      multisigAddress: stateChannel.multisigAddress,
+      aliceBalanceDecrement: appInstanceInfo.myDeposit,
+      bobBalanceDecrement: appInstanceInfo.peerDeposit,
+      signingKeys: stateChannel.multisigOwners,
+      initialState: appInstanceInfo.initialState,
+      terms: {
+        assetType: appInstanceInfo.asset.assetType,
+        limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit),
+        token: appInstanceInfo.asset.token || AddressZero
+      },
+      appInterface: {
+        ...appInstanceInfo.abiEncodings,
+        addr: appInstanceInfo.appId
+      },
+      defaultTimeout: appInstanceInfo.timeout.toNumber()
+    }
   );
 
   delete appInstanceInfo.initialState;
 
-  // TODO: Use the instructionExecutor variable to `runInstallProtocol`
-
   await store.updateChannelWithAppInstanceInstallation(
-    stateChannel.installApp(
-      appInstance,
-      appInstanceInfo.myDeposit,
-      appInstanceInfo.peerDeposit
-    ),
-    appInstance,
+    stateChannelsMap.get(stateChannel.multisigAddress)!,
+    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
+      .identityHash,
     appInstanceInfo
   );
 
