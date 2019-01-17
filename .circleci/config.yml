@@ -11,13 +11,12 @@ jobs:
       - run:
           name: "Downloading solc binary"
           command: |
-            test ! -e /usr/local/bin/solc && \
-            sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux -O /usr/local/bin/solc && \
-            sudo chmod +x /usr/local/bin/solc
+            test ! -e solc-static-linux && sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux
+            sudo mv solc-static-linux /usr/local/bin/solc && chmod +x /usr/local/bin/solc
       - save_cache:
           key: solc-0.5.2
           paths:
-            - /usr/local/bin/solc
+            - solc-static-linux
       - run:
           name: "Generating dependencies checksum"
           command: cat packages/*/package.json | shasum > .dependencies_checksum
