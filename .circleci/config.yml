@@ -6,7 +6,9 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
-      - setup_remote_docker
+      - run: |
+          sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux -O /usr/local/bin/solc
+          sudo chmod +x /usr/local/bin/solc
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
