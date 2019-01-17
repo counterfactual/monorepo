@@ -4,7 +4,7 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, TakeActionMessage } from "../../../types";
 import { ERRORS } from "../../errors";
 
-import { updateAppInstanceState } from "./operation";
+import { generateNewAppInstanceState } from "./operation";
 
 export default async function takeActionController(
   requestHandler: RequestHandler,
@@ -15,7 +15,7 @@ export default async function takeActionController(
     return Promise.reject(ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION);
   }
 
-  const newState = await updateAppInstanceState(
+  const newState = await generateNewAppInstanceState(
     await requestHandler.store.getAppInstanceFromAppInstanceID(appInstanceId),
     action,
     requestHandler.provider

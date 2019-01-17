@@ -5,7 +5,7 @@ import { Provider } from "ethers/providers";
 
 import { ERRORS } from "../../errors";
 
-export async function updateAppInstanceState(
+export async function generateNewAppInstanceState(
   appInstance: AppInstance,
   action: any,
   provider: Provider
