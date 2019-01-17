@@ -4,6 +4,7 @@ import {
   NodeMessage
 } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
+import { ethers } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { v4 as generateUUID } from "uuid";
 
@@ -37,7 +38,8 @@ export async function createNodeSingleton(): Promise<Node> {
     },
     {
       STORE_KEY_PREFIX: "store"
-    }
+    },
+    ethers.getDefaultProvider(process.env.ETHEREUM_NETWORK || "ropsten")
   );
 
   node.on(INSTALL, async (msg: NodeMessage) => {

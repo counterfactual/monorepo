@@ -9,7 +9,9 @@ export declare class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     networkContext: NetworkContext,
-    nodeConfig: NodeConfig
+    nodeConfig: NodeConfig,
+    // @ts-ignore
+    provider: ethers.providers.Provider
   ): Promise<Node>;
   readonly address: string;
   on(event: string, callback: (res: any) => void): void;
@@ -40,7 +42,9 @@ export default class CounterfactualNode {
       settings.messagingService,
       settings.storeService,
       settings.networkContext,
-      settings.nodeConfig
+      settings.nodeConfig,
+      // @ts-ignore
+      new ethers.providers.Web3Provider(web3.currentProvider)
     );
 
     return CounterfactualNode.getInstance();
