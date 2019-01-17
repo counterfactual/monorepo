@@ -148,7 +148,9 @@ export class Node {
       if (Object.values(NODE_EVENTS).includes(msg.event)) {
         await this.requestHandler.callEvent(msg.event, msg);
       } else {
-        console.log("Event not recognized, no-op");
+        console.error(
+          `Received message with unknown event type: "${msg.event}"`
+        );
       }
       this.outgoing.emit(msg.event, msg);
     });
