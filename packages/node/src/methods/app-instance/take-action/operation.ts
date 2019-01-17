@@ -21,16 +21,7 @@ export async function generateNewAppInstanceState(
     provider
   );
 
-  try {
-    return appInstance.decodeAppState(
-      await appContract.functions.applyAction(appInstance.state, action)
-    );
-  } catch (e) {
-    const sanitizedError = e
-      .toString()
-      .replace("s: VM Exception while processing transaction: revert");
-    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
-  }
+  return await makeApplyActionCall(appContract, appInstance, action);
 }
 
 function createABI(appInstance: AppInstance): string[] {
@@ -42,4 +33,21 @@ function createABI(appInstance: AppInstance): string[] {
     pure
     returns (bytes)`
   ];
+}
+
+async function makeApplyActionCall(
+  contract: Contract,
+  appInstance: AppInstance,
+  action: any
+): Promise<AppState> {
+  try {
+    return appInstance.decodeAppState(
+      await contract.functions.applyAction(appInstance.state, action)
+    );
+  } catch (e) {
+    const sanitizedError = e
+      .toString()
+      .replace("s: VM Exception while processing transaction: revert");
+    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+  }
 }
