@@ -224,3 +224,17 @@ export function generateGetStateRequest(
     type: NodeTypes.MethodName.GET_STATE
   };
 }
+
+export function generateTakeActionRequest(
+  appInstanceId: AppInstanceID,
+  action: any
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      action
+    } as NodeTypes.TakeActionParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.TAKE_ACTION
+  };
+}
