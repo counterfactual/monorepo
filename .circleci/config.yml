@@ -7,14 +7,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: solc-0.5.2
+          key: solc-static-linux-0.5.2
       - run:
           name: "Downloading solc binary"
           command: |
             test ! -e solc-static-linux && sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux
             sudo mv solc-static-linux /usr/local/bin/solc && chmod +x /usr/local/bin/solc
       - save_cache:
-          key: solc-0.5.2
+          key: solc-static-linux-0.5.2
           paths:
             - solc-static-linux
       - run:
