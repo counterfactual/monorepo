@@ -10,11 +10,11 @@ import {
   Node as NodeTypes
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { bigNumberify } from "ethers/utils";
 
 export async function getNewMultisig(
   node: Node,

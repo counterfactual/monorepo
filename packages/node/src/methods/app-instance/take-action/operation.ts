@@ -32,5 +32,10 @@ export async function updateAppInstanceState(
     return appInstance.decodeState(
       await appContract.functions.applyAction(appInstance.state, action)
     );
-  } catch (e) {}
+  } catch (e) {
+    const sanitizedError = e
+      .toString()
+      .replace("s: VM Exception while processing transaction: revert");
+    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+  }
 }

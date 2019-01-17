@@ -5,6 +5,7 @@ import {
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -12,7 +13,6 @@ import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getSigner } from "./signer";
 import { NODE_EVENTS, NodeMessage } from "./types";
-import { Provider } from "ethers/providers";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
