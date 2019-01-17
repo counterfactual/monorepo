@@ -3,13 +3,11 @@ import { readFileSync } from "fs";
 import { Server } from "http";
 import { Log, LogLevel } from "logepi";
 import { resolve } from "path";
-import { v4 as generateUuid } from "uuid";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import { createNodeSingleton, getNodeAddress } from "../src/node";
 import {
-  APIRequest,
   APIResource,
   APIResourceCollection,
   APIResourceRelationships,
@@ -19,6 +17,19 @@ import {
   HttpStatusCode,
   UserAttributes
 } from "../src/types";
+
+import {
+  POST_SESSION_ALICE,
+  POST_SESSION_CHARLIE,
+  POST_USERS_ALICE,
+  POST_USERS_ALICE_DUPLICATE_USERNAME,
+  POST_USERS_ALICE_INVALID_SIGNATURE,
+  POST_USERS_ALICE_NO_SIGNATURE,
+  TOKEN_BOB,
+  USR_ALICE,
+  USR_BOB,
+  USR_CHARLIE
+} from "./mock-data";
 
 const api = mountApi();
 let server: Server;
@@ -32,10 +43,7 @@ const client = axios.create({
 
 const db = getDatabase();
 
-Log.setOutputLevel(LogLevel.DEBUG);
-
-const API_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlcnMiLCJpZCI6ImZmYzI0MjQ3LWZjZmItNDY2My05MzJkLTRhMzdmYTBkYTBkNCIsImF0dHJpYnV0ZXMiOnsidXNlcm5hbWUiOiJqb2VsX2FjY291bnQxIiwiZW1haWwiOiJlc3R1ZGlvQGpvZWxhbGVqYW5kcm8uY29tIiwiZXRoQWRkcmVzcyI6IjB4MGY2OTNjYzk1NmRmNTlkZWMyNGJiMWM2MDVhYzk0Y2FkY2U2MDE0ZCIsIm11bHRpc2lnQWRkcmVzcyI6IjB4ZjU5MUUyN0FGOEExNUMyZjU1YzJBMDk1RWEzNDMzQjdkNDdkMzY0OSIsIm5vZGVBZGRyZXNzIjoiMHg2MDAyNDgzZkQ1RDE5NTQ2NjFGQURDNTljZTUzNjY4MTA5NWZDNDM4In0sImlhdCI6MTU0NzY1MDE3MiwiZXhwIjoxNTc5MjA3NzcyfQ.JgBiOA22zfA4Z5ZkAtMKtinzd-vQW8k58ipv7eDg6MM";
+Log.setOutputLevel(LogLevel.ERROR);
 
 describe("playground-server", () => {
   beforeAll(async () => {
@@ -50,14 +58,6 @@ describe("playground-server", () => {
       table.string("multisig_address");
       table.string("node_address");
       table.unique(["username"], "uk_users__username");
-    });
-
-    await db("users").insert({
-      id: "2b83cb14-c7aa-4208-8da8-269aeb1a3f24",
-      username: "joe",
-      email: "joe@joe.com",
-      eth_address: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-      multisig_address: "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
     });
   });
 
@@ -100,16 +100,7 @@ describe("playground-server", () => {
   describe("/api/users", () => {
     it("fails when signature is not passed to the request", done => {
       client
-        .post("/users", {
-          data: {
-            type: "users",
-            attributes: {
-              username: "alice",
-              email: "alice@wonder.land",
-              ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-            }
-          }
-        } as APIRequest)
+        .post("/users", POST_USERS_ALICE_NO_SIGNATURE)
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -126,22 +117,7 @@ describe("playground-server", () => {
 
     it("fails when an invalid signature is passed to the request", done => {
       client
-        .post("/users", {
-          data: {
-            type: "users",
-            attributes: {
-              username: "alice",
-              email: "alice@wonder.land",
-              ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-            }
-          },
-          meta: {
-            signature: {
-              signedMessage:
-                "0xc157208c17b60bf325500914d0b4ddf57ee4c9c2ff1509e318c3d138a4ccb08b3258f9ac4e72d824fef67a40c3959e2f6480cdf6fbbf2590ea4a8bb17e7d5c980d"
-            }
-          }
-        } as APIRequest)
+        .post("/users", POST_USERS_ALICE_INVALID_SIGNATURE)
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -157,89 +133,39 @@ describe("playground-server", () => {
     });
 
     it("creates an account for the first time and returns 201 + the multisig address", done => {
-      client
-        .post("/users", {
-          data: {
-            type: "users",
-            attributes: {
-              username: "delilah",
-              email: "delilah@wonder.land",
-              ethAddress: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
-            }
-          },
-          meta: {
-            signature: {
-              signedMessage:
-                "0x7e39d3d9a111c685fb8bc265ddc793c2a60070c84030bba63d53e206e9ac6de82b4511aa5ac907e97004342b4e803dc05db538aca89edfecad034a09a4cbf3251c"
-            }
-          }
-        })
-        .then(response => {
-          const data = response.data.data as APIResource<UserAttributes>;
+      client.post("/users", POST_USERS_ALICE).then(response => {
+        const data = response.data.data as APIResource<UserAttributes>;
 
-          expect(data.id).toBeDefined();
-          expect(data.attributes.username).toEqual("delilah");
-          expect(data.attributes.email).toEqual("delilah@wonder.land");
-          expect(data.attributes.ethAddress).toEqual(
-            "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
-          );
-          expect(data.attributes.multisigAddress).toBeDefined();
-          expect(data.attributes.token).toBeDefined();
-          expect(response.status).toEqual(HttpStatusCode.Created);
-          done();
-        });
+        expect(data.id).toBeDefined();
+        expect(data.attributes.username).toEqual(USR_ALICE.username);
+        expect(data.attributes.email).toEqual(USR_ALICE.email);
+        expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
+        expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+        expect(data.attributes.multisigAddress).toBeDefined();
+        expect(data.attributes.token).toBeDefined();
+        expect(response.status).toEqual(HttpStatusCode.Created);
+        done();
+      });
     });
 
     it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", done => {
-      client
-        .post("/users", {
-          data: {
-            type: "users",
-            attributes: {
-              username: "delilah",
-              email: "delilah@wonder.land",
-              ethAddress: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+      client.post("/users", POST_USERS_ALICE).catch(({ response }) => {
+        expect(response.data).toEqual({
+          errors: [
+            {
+              status: HttpStatusCode.BadRequest,
+              code: ErrorCode.AddressAlreadyRegistered
             }
-          },
-          meta: {
-            signature: {
-              signedMessage:
-                "0x7e39d3d9a111c685fb8bc265ddc793c2a60070c84030bba63d53e206e9ac6de82b4511aa5ac907e97004342b4e803dc05db538aca89edfecad034a09a4cbf3251c"
-            }
-          }
-        })
-        .catch(({ response }) => {
-          expect(response.data).toEqual({
-            errors: [
-              {
-                status: HttpStatusCode.BadRequest,
-                code: ErrorCode.AddressAlreadyRegistered
-              }
-            ]
-          } as APIResponse);
-          expect(response.status).toEqual(HttpStatusCode.BadRequest);
-          done();
-        });
+          ]
+        } as APIResponse);
+        expect(response.status).toEqual(HttpStatusCode.BadRequest);
+        done();
+      });
     });
 
     it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", done => {
       client
-        .post("/users", {
-          data: {
-            type: "users",
-            attributes: {
-              username: "joe",
-              email: "joe@joe.com",
-              ethAddress: "0x5faddca4889ddc5791cf65446371151f29653285"
-            }
-          },
-          meta: {
-            signature: {
-              signedMessage:
-                "0x586b68a3362c026cdf39c63569fffb8f9106e624ef316e0f0441ea4caef4b73b0d4626f717ec23166bf061ce6728d58bcba01cd63ef8014f696dffb07d0bd3871b"
-            }
-          }
-        })
+        .post("/users", POST_USERS_ALICE_DUPLICATE_USERNAME)
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -271,39 +197,35 @@ describe("playground-server", () => {
       });
     });
 
-    it("returns user data + session token", done => {
-      client
-        .post("/session", {
-          data: {
-            type: "session",
-            attributes: {
-              ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+    it("fails for a non-registered address", done => {
+      client.post("/session", POST_SESSION_CHARLIE).catch(({ response }) => {
+        expect(response.data).toEqual({
+          errors: [
+            {
+              status: HttpStatusCode.BadRequest,
+              code: ErrorCode.UserNotFound
             }
-          },
-          meta: {
-            signature: {
-              signedMessage:
-                "0x0d89ad46772a1ae1e3ae7202da31a32de00d8c8993fa448cc2e6265608c8bd1e493a75ab3e3bc67aa28cce29691a0b013c9c96c06fdf35834b82ad27e46e9d2b1c"
-            }
-          }
-        })
-        .then(response => {
-          const data = response.data.data as APIResource<UserAttributes>;
-
-          expect(data.id).toEqual("2b83cb14-c7aa-4208-8da8-269aeb1a3f24");
-          expect(data.attributes.username).toEqual("joe");
-          expect(data.attributes.email).toEqual("joe@joe.com");
-          expect(data.attributes.ethAddress).toEqual(
-            "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
-          );
-          expect(data.attributes.multisigAddress).toEqual(
-            "0x3b1c5dFE09187aC3F015139AD79ff7E9a77828Cf"
-          );
-          expect(data.attributes.token).toBeDefined();
-
-          expect(response.status).toEqual(HttpStatusCode.Created);
-          done();
+          ]
         });
+        expect(response.status).toEqual(HttpStatusCode.BadRequest);
+        done();
+      });
+    });
+
+    it("returns user data with a token", async done => {
+      client.post("/session", POST_SESSION_ALICE).then(response => {
+        const data = response.data.data;
+
+        expect(data.attributes.email).toEqual(USR_ALICE.email);
+        expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
+        expect(data.attributes.multisigAddress).toBeDefined();
+        expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+        expect(data.attributes.username).toEqual(USR_ALICE.username);
+        expect(data.attributes.token).toBeDefined();
+
+        expect(response.status).toEqual(HttpStatusCode.Created);
+        done();
+      });
     });
   });
 
@@ -327,7 +249,7 @@ describe("playground-server", () => {
       client
         .get("/users", {
           headers: {
-            Authorization: `Bearer ${API_TOKEN}`
+            Authorization: `Bearer ${TOKEN_BOB}`
           }
         })
         .then(response => {
@@ -335,15 +257,15 @@ describe("playground-server", () => {
           expect(response.data).toEqual({
             data: [
               {
-                type: "users",
-                id: "ffc24247-fcfb-4663-932d-4a37fa0da0d4",
                 attributes: {
-                  username: "joel_account1",
-                  email: "estudio@joelalejandro.com",
+                  email: "bob@wonderland.com",
                   ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
-                  multisigAddress: "0xf591E27AF8A15C2f55c2A095Ea3433B7d47d3649",
-                  nodeAddress: "0x6002483fD5D1954661FADC59ce536681095fC438"
-                }
+                  multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
+                  nodeAddress: "0xFE0460D00c589F55Fa60be61050419B008d56e15",
+                  username: "bob_account1"
+                },
+                id: "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2",
+                type: "users"
               }
             ]
           });
@@ -369,10 +291,9 @@ describe("playground-server", () => {
     });
 
     it("fails when there are no users to match with", async done => {
-      // Remove Delilah.
       await db("users")
         .delete()
-        .where({ username: "delilah" });
+        .where({ username: USR_ALICE.username });
 
       client
         .post(
@@ -380,7 +301,7 @@ describe("playground-server", () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${API_TOKEN}`
+              Authorization: `Bearer ${TOKEN_BOB}`
             }
           }
         )
@@ -399,11 +320,11 @@ describe("playground-server", () => {
     });
 
     it("returns the only possible user as a match", async done => {
-      // Bring Delilah back!
       await db("users").insert({
-        username: "delilah",
-        email: "delilah@wonder.land",
-        eth_address: "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+        username: USR_ALICE.username,
+        email: USR_ALICE.email,
+        eth_address: USR_ALICE.ethAddress,
+        node_address: USR_ALICE.nodeAddress
       });
 
       client
@@ -412,7 +333,7 @@ describe("playground-server", () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${API_TOKEN}`
+              Authorization: `Bearer ${TOKEN_BOB}`
             }
           }
         )
@@ -436,14 +357,18 @@ describe("playground-server", () => {
           expect((rels.matchedUser!.data as APIResource).id).toBeDefined();
           expect(included).toBeDefined();
           expect(included[0].type).toEqual("users");
-          expect(included[0].attributes.username).toEqual("joel_account1");
-          expect(included[0].attributes.ethAddress).toEqual(
-            "0x0f693cc956df59dec24bb1c605ac94cadce6014d"
+          expect(included[0].attributes.username).toEqual(USR_BOB.username);
+          expect(included[0].attributes.ethAddress).toEqual(USR_BOB.ethAddress);
+          expect(included[0].attributes.nodeAddress).toEqual(
+            USR_BOB.nodeAddress
           );
           expect(included[1].type).toEqual("matchedUser");
-          expect(included[1].attributes.username).toEqual("delilah");
+          expect(included[1].attributes.username).toEqual(USR_ALICE.username);
           expect(included[1].attributes.ethAddress).toEqual(
-            "0xdab500c650725c2f1af0b09df327d2d3ef3cefca"
+            USR_ALICE.ethAddress
+          );
+          expect(included[1].attributes.nodeAddress).toEqual(
+            USR_ALICE.nodeAddress
           );
 
           expect(response.status).toEqual(HttpStatusCode.Created);
@@ -459,10 +384,9 @@ describe("playground-server", () => {
     it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert({
-        id: generateUuid(),
-        username: "charlie",
-        email: "charlie@wonder.land",
-        eth_address: "0x5faddca4889ddc5791cf65446371151f29653285"
+        username: USR_CHARLIE.username,
+        email: USR_CHARLIE.email,
+        eth_address: USR_CHARLIE.ethAddress
       });
 
       client
@@ -471,21 +395,19 @@ describe("playground-server", () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${API_TOKEN}`
+              Authorization: `Bearer ${TOKEN_BOB}`
             }
           }
         )
         .then(response => {
           const { username, ethAddress } = response.data.included[1].attributes;
-          const charlieAddress = "0x5faddca4889ddc5791cf65446371151f29653285";
-          const delilahAddress = "0xdab500c650725c2f1af0b09df327d2d3ef3cefca";
 
-          if (username === "charlie") {
-            expect(ethAddress).toEqual(charlieAddress);
-          } else if (username === "delilah") {
-            expect(ethAddress).toEqual(delilahAddress);
+          if (username === USR_CHARLIE.username) {
+            expect(ethAddress).toEqual(USR_CHARLIE.ethAddress);
+          } else if (username === USR_ALICE.username) {
+            expect(ethAddress).toEqual(USR_ALICE.ethAddress);
           } else {
-            fail("It should have matched either Charlie or Delilah");
+            fail("It should have matched either Alice or Charlie");
           }
 
           expect(response.status).toEqual(HttpStatusCode.Created);
