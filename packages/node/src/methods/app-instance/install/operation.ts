@@ -34,11 +34,6 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  const appInstance = createAppInstanceFromAppInstanceInfo(
-    appInstanceInfo,
-    stateChannel
-  );
-
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -52,11 +47,18 @@ export async function install(
       multisigAddress: stateChannel.multisigAddress,
       aliceBalanceDecrement: appInstanceInfo.myDeposit,
       bobBalanceDecrement: appInstanceInfo.peerDeposit,
-      signingKeys: appInstance.signingKeys,
+      signingKeys: stateChannel.multisigOwners,
       initialState: appInstanceInfo.initialState,
-      terms: appInstance.terms,
-      appInterface: appInstance.appInterface,
-      defaultTimeout: appInstance.defaultTimeout
+      terms: {
+        assetType: appInstanceInfo.asset.assetType,
+        limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit),
+        token: appInstanceInfo.asset.token || AddressZero
+      },
+      appInterface: {
+        ...appInstanceInfo.abiEncodings,
+        addr: appInstanceInfo.appId
+      },
+      defaultTimeout: appInstanceInfo.timeout.toNumber()
     }
   );
 
@@ -64,7 +66,8 @@ export async function install(
 
   await store.updateChannelWithAppInstanceInstallation(
     stateChannelsMap.get(stateChannel.multisigAddress)!,
-    appInstance,
+    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
+      .identityHash,
     appInstanceInfo
   );
 
