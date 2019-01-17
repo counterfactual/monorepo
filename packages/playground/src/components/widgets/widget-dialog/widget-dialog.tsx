@@ -2,6 +2,7 @@ import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 @Component({
   tag: "widget-dialog",
+  styleUrl: "widget-dialog.scss",
   shadow: true
 })
 export class WidgetDialog {
@@ -29,7 +30,7 @@ export class WidgetDialog {
       <dialog open={this.visible}>
         <header>
           {this.dialogTitle ? (
-            <h2>${this.dialogTitle}</h2>
+            <h2>{this.dialogTitle}</h2>
           ) : (
             <img src={this.icon} />
           )}
@@ -41,7 +42,7 @@ export class WidgetDialog {
           </button>
           {this.secondaryButtonText ? (
             <button onClick={() => this.secondaryButtonClickedHandler()}>
-              ${this.secondaryButtonText}
+              {this.secondaryButtonText}
             </button>
           ) : (
             {}

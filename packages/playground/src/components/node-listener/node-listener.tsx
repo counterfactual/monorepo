@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { Component } from "@stencil/core";
+import { Component, Element, State } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
@@ -13,44 +13,45 @@ type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
   shadow: true
 })
 export class NodeListener {
-  private currentMessage: string = "";
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
+  @State() private currentMessage: any;
 
-  private modals: { [key: string]: (data: any) => WidgetDialogSettings } = {
-    proposeInstall: data => ({
+  @State() private modals: {
+    [key: string]: (message: any) => WidgetDialogSettings;
+  } = {
+    proposeInstallVirtualEvent: message => ({
+      title: "Game invitation received",
       content: (
-        <label>
-          You're about to deposit <strong>${data.eth}</strong>
-          to play <strong>${data.appName}</strong>
-          with <strong>${data.peerName}</strong>
-        </label>
+        <main>
+          <h3>{message.from} is inviting you to play!</h3>
+          <label>
+            You'll need to deposit{" "}
+            <strong>
+              {ethers.utils.formatEther(message.data.params.myDeposit)} ETH{" "}
+            </strong>
+            to play <strong>{message.data.params.appId}</strong> with{" "}
+            <strong>{message.from}</strong>.
+          </label>
+          <p>Do you wish to proceed?</p>
+        </main>
       ),
       primaryButtonText: "Accept",
       secondaryButtonText: "Reject",
-      onPrimaryButtonClicked: this.acceptProposeInstall.bind(this, data),
-      onSecondaryButtonClicked: this.rejectProposeInstall.bind(this, data)
+      onPrimaryButtonClicked: this.acceptProposeInstall.bind(this),
+      onSecondaryButtonClicked: this.rejectProposeInstall.bind(this)
     })
   };
 
   private nodeMessageResolver: NodeMessageResolver = {
-    proposeInstall: this.handleProposeInstall.bind(this),
-    rejectInstall: this.handleRejectInstall.bind(this)
+    proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
+    rejectInstallEvent: this.onRejectInstall.bind(this)
   };
 
-  private modalVisible: boolean = false;
-  private modalData: WidgetDialogSettings = {} as WidgetDialogSettings;
+  @State() private modalVisible: boolean = false;
+  @State() private modalData: WidgetDialogSettings = {} as WidgetDialogSettings;
 
   get node() {
     return CounterfactualNode.getInstance();
-  }
-
-  private get currentModalConfiguration():
-    | ((data: any) => WidgetDialogSettings)
-    | null {
-    if (this.currentMessage) {
-      return this.modals[this.currentMessage];
-    }
-
-    return null;
   }
 
   async componentWillLoad() {
@@ -68,7 +69,22 @@ export class NodeListener {
     const messagingService = serviceProvider.createMessagingService(
       "messaging"
     );
-    const storeService = serviceProvider.createStoreService("storage");
+    const storeService = {
+      async get(key: string): Promise<any> {
+        return JSON.parse(window.localStorage.getItem(key) as string);
+      },
+      async set(
+        pairs: {
+          key: string;
+          value: any;
+        }[]
+      ): Promise<boolean> {
+        pairs.forEach(({ key, value }) => {
+          window.localStorage.setItem(key, JSON.stringify(value) as string);
+        });
+        return true;
+      }
+    };
 
     const addressZero = "0x0000000000000000000000000000000000000000";
     const networkContext: NetworkContext = {
@@ -101,28 +117,33 @@ export class NodeListener {
     });
   }
 
-  handleProposeInstall(data) {
-    this.showModal(data);
+  onProposeInstallVirtual(data) {
+    this.currentMessage = data;
+    console.log(this.currentMessage);
+    this.showModal();
   }
 
-  acceptProposeInstall(data) {}
+  acceptProposeInstall() {
+    this.hideModal();
+  }
 
-  rejectProposeInstall(data) {}
+  rejectProposeInstall() {
+    this.hideModal();
+  }
 
-  handleRejectInstall(data) {}
+  onRejectInstall(data) {}
 
-  showModal(data) {
-    if (!this.modals[this.currentMessage]) {
-      return;
-    }
-
-    this.currentMessage = data.type;
+  showModal() {
     this.modalVisible = true;
-    this.modalData = this.currentModalConfiguration!(data);
+    this.modalData = this.modals[this.currentMessage.event](
+      this.currentMessage
+    );
+    this.el.classList.add("dialog--open");
   }
 
   hideModal() {
     this.modalVisible = false;
+    this.el.classList.remove("dialog--open");
   }
 
   render() {
@@ -130,7 +151,7 @@ export class NodeListener {
       <widget-dialog
         visible={this.modalVisible}
         icon={this.modalData.icon}
-        title={this.modalData.title}
+        dialogTitle={this.modalData.title}
         content={this.modalData.content}
         primaryButtonText={this.modalData.primaryButtonText}
         secondaryButtonText={this.modalData.secondaryButtonText}

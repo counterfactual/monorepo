@@ -6,13 +6,15 @@ import AccountTunnel from "../../../data/account";
 import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
 import { UserChangeset } from "../../../types";
+import CounterfactualNode from "../../../data/counterfactual";
 
 function buildSignaturePayload(data: UserChangeset) {
   return [
     "PLAYGROUND ACCOUNT REGISTRATION",
     `Username: ${data.username}`,
     `E-mail: ${data.email}`,
-    `Ethereum address: ${data.ethAddress}`
+    `Ethereum address: ${data.ethAddress}`,
+    `Node address: ${data.nodeAddress}`
   ].join("\n");
 }
 
@@ -32,13 +34,15 @@ export class AccountRegister {
   changeset: UserChangeset = {
     username: "",
     email: "",
-    ethAddress: this.user.ethAddress
+    ethAddress: this.user.ethAddress,
+    nodeAddress: CounterfactualNode.getInstance().address
   };
 
   @State() errors: UserChangeset = {
     username: "",
     email: "",
-    ethAddress: ""
+    ethAddress: "",
+    nodeAddress: ""
   };
 
   login() {
@@ -103,7 +107,7 @@ export class AccountRegister {
 
   setErrorMessage(errorCode: string) {
     let update = {};
-    this.errors = { username: "", email: "", ethAddress: "" };
+    this.errors = { username: "", email: "", ethAddress: "", nodeAddress: "" };
 
     switch (errorCode) {
       case "username_required":
