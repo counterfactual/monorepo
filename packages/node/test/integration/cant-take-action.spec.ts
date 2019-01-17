@@ -8,7 +8,7 @@ import {
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BaseProvider, Web3Provider } from "ethers/providers";
-import { bigNumberify, hexlify, randomBytes, SigningKey } from "ethers/utils";
+import { hexlify, randomBytes, SigningKey } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
@@ -21,15 +21,13 @@ import {
   Node,
   NODE_EVENTS,
   NodeConfig,
-  ProposeMessage,
-  TakeActionMessage
+  ProposeMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   EMPTY_NETWORK,
-  generateGetStateRequest,
   generateTakeActionRequest,
   getNewMultisig,
   makeInstallRequest
@@ -109,95 +107,67 @@ describe("Node method follows spec - takeAction", () => {
     firebaseServer.close();
   });
 
-  describe(
-    "Node A and B install an AppInstance, Node A takes action, " +
-      "Node B confirms receipt of state update",
-    () => {
-      const stateEncoding =
-        "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
-      const actionEncoding =
-        "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
+  describe("Node A and B install an AppInstance, Node A takes invalid action", () => {
+    const stateEncoding =
+      "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
+    const actionEncoding =
+      "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
 
-      const initialState = {
-        players: [AddressZero, AddressZero],
-        turnNum: 0,
-        winner: 0,
-        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    const initialState = {
+      players: [AddressZero, AddressZero],
+      turnNum: 0,
+      winner: 0,
+      board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    };
+
+    it("can't take invalid action", async () => {
+      const validAction = {
+        actionType: 1,
+        playX: 0,
+        playY: 0,
+        winClaim: {
+          winClaimType: 0,
+          idx: 0
+        }
       };
 
-      it("sends takeAction with invalid appInstanceId", async () => {
-        const takeActionReq = generateTakeActionRequest("", {
-          foo: "bar"
-        });
+      const multisigAddress = await getNewMultisig(nodeA, [
+        nodeA.address,
+        nodeB.address
+      ]);
+      expect(multisigAddress).toBeDefined();
 
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
-          ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION
-        );
-      });
+      const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
+        nodeB.address,
+        tttContract.address,
+        initialState,
+        {
+          stateEncoding,
+          actionEncoding
+        }
+      );
 
-      it("can take action", async done => {
-        const validAction = {
-          actionType: 0,
-          playX: 0,
-          playY: 0,
-          winClaim: {
-            winClaimType: 0,
-            idx: 0
-          }
-        };
-
-        const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
-        ]);
-        expect(multisigAddress).toBeDefined();
-
-        const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
-          nodeB.address,
-          tttContract.address,
-          initialState,
-          {
-            stateEncoding,
-            actionEncoding
-          }
+      nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        const takeActionReq = generateTakeActionRequest(
+          msg.data.params.appInstanceId,
+          validAction
         );
 
-        let newState;
-        nodeB.on(NODE_EVENTS.TAKE_ACTION, async (msg: TakeActionMessage) => {
-          setTimeout(() => {
-            expect(msg.data.params.newState).toEqual(newState);
-          }, 2000);
-
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeB.call(getStateReq.type, getStateReq);
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
-          done();
-        });
-
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const takeActionReq = generateTakeActionRequest(
-            msg.data.params.appInstanceId,
-            validAction
-          );
-
-          const response = await nodeA.call(takeActionReq.type, takeActionReq);
-          newState = (response.result as NodeTypes.TakeActionResult).newState;
-
-          expect(newState.board[0][0]).toEqual(bigNumberify(1));
-          expect(newState.turnNum).toEqual(bigNumberify(1));
-        });
-
-        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-          const installReq = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installReq.type, installReq);
-        });
-
-        nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
+        try {
+          await nodeA.call(takeActionReq.type, takeActionReq);
+        } catch (e) {
+          expect(e.toString().includes(ERRORS.INVALID_ACTION)).toBeTruthy();
+        }
       });
-    }
-  );
+
+      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+        const installReq = makeInstallRequest(msg.data.appInstanceId);
+        nodeB.emit(installReq.type, installReq);
+      });
+
+      nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
+    });
+  });
 });
 
 function makeTTTAppInstanceProposalReq(
