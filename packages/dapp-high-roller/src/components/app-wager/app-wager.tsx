@@ -62,7 +62,10 @@ export class AppWager {
 
     try {
       const initialState: HighRollerAppState = {
-        playerAddrs: [this.user.address, this.opponent.address],
+        playerAddrs: [
+          this.account.user.ethAddress,
+          this.opponent.attributes.ethAddress
+        ],
         stage: HighRollerStage.PRE_GAME,
         salt: HashZero,
         commitHash: HashZero,
