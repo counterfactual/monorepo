@@ -2,9 +2,11 @@ import {
   Context,
   InstructionExecutor,
   Opcode,
+  Protocol,
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -108,7 +110,28 @@ export class Node {
   private registerIoMiddleware() {
     // TODO:
     this.instructionExecutor.register(Opcode.IO_SEND, () => {});
-    this.instructionExecutor.register(Opcode.IO_WAIT, () => {});
+    this.instructionExecutor.register(
+      Opcode.IO_WAIT,
+      (message: ProtocolMessage, next: Function, context: Context) => {
+        // FIXME: This is a temporary hack to get IO_WAIT to progress
+        context.inbox.push({
+          protocol: Protocol.Setup,
+          fromAddress: AddressZero,
+          toAddress: AddressZero,
+          seq: 2,
+          params: {
+            initiatingAddress: AddressZero,
+            respondingAddress: AddressZero,
+            multisigAddress: AddressZero
+          },
+          signature: {
+            v: -1,
+            r: "",
+            s: ""
+          }
+        });
+      }
+    );
   }
 
   /**
@@ -150,21 +173,14 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.receive(this.address, async (msg: NodeMessage) => {
-      await this.preprocessMessage(msg);
+      if (Object.values(NODE_EVENTS).includes(msg.event)) {
+        await this.requestHandler.callEvent(msg.event, msg);
+      } else {
+        console.error(
+          `Received message with unknown event type: "${msg.event}"`
+        );
+      }
       this.outgoing.emit(msg.event, msg);
     });
-  }
-
-  /**
-   * Each internal event handler is responsible for deciding how to process
-   * the incoming message.
-   * @param msg
-   */
-  private async preprocessMessage(msg: NodeMessage) {
-    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
-      console.log("Event not recognized, no-op");
-      return;
-    }
-    await this.requestHandler.callEvent(msg.event, msg);
   }
 }

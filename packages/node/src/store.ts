@@ -159,7 +159,7 @@ export class Store {
    */
   public async updateChannelWithAppInstanceInstallation(
     stateChannel: StateChannel,
-    appInstance: AppInstance,
+    appInstanceIdentityHash: string,
     appInstanceInfo: AppInstanceInfo
   ) {
     await this.storeService.set([
@@ -175,14 +175,12 @@ export class Store {
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${
           appInstanceInfo.id
         }`,
-        value: appInstance.identityHash
+        value: appInstanceIdentityHash
       },
       {
         key: `${
           this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${
-          appInstance.identityHash
-        }`,
+        }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${appInstanceIdentityHash}`,
         value: appInstanceInfo.id
       },
       {

@@ -1,14 +1,15 @@
+import { UserSession } from "@counterfactual/playground-server";
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-export interface AccountState {
+export type AccountState = {
+  user: UserSession;
   balance?: number;
-  username?: string;
-  email?: string;
-  address?: string;
-  multisigAddress?: string;
   updateAccount?(data: AccountState): Promise<void>;
-}
+};
 
-export default createProviderConsumer<AccountState>({}, (subscribe, child) => (
-  <context-consumer subscribe={subscribe} renderer={child} />
-));
+export default createProviderConsumer<AccountState>(
+  {} as AccountState,
+  (subscribe, child) => (
+    <context-consumer subscribe={subscribe} renderer={child} />
+  )
+);

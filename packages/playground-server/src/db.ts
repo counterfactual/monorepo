@@ -4,10 +4,10 @@ import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
 import {
+  APIResource,
   ErrorCode,
-  MatchmakeUserData,
-  PlaygroundUser,
-  PlaygroundUserData
+  MatchedUserAttributes,
+  UserAttributes
 } from "./types";
 
 const DATABASE_CONFIGURATION: knex.Config = {
@@ -48,18 +48,15 @@ export async function ethAddressAlreadyRegistered(
 
 export async function matchmakeUser(
   userAddress: Address
-): Promise<MatchmakeUserData> {
+): Promise<MatchedUserAttributes> {
   const db = getDatabase();
 
   const query = db("users")
-    .columns({ username: "username", address: "eth_address" })
+    .columns({ id: "id", username: "username", ethAddress: "eth_address" })
     .select()
     .where("eth_address", "!=", userAddress);
 
-  const matchmakeResults: {
-    username: string;
-    address: string;
-  }[] = await query;
+  const matchmakeResults: MatchedUserAttributes[] = await query;
 
   Log.debug("Executed matchmakeUser query", {
     tags: { query: query.toSQL().sql }
@@ -94,7 +91,9 @@ export async function matchmakeUser(
   return matchmakeResults[randomIndex];
 }
 
-export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
+export async function getUser(
+  userAddress: Address
+): Promise<APIResource<UserAttributes>> {
   const db = getDatabase();
 
   const query = db("users")
@@ -102,13 +101,14 @@ export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
       id: "id",
       username: "username",
       email: "email",
-      address: "eth_address",
-      multisigAddress: "multisig_address"
+      ethAddress: "eth_address",
+      multisigAddress: "multisig_address",
+      nodeAddress: "node_address"
     })
     .select()
     .where("eth_address", "=", userAddress);
 
-  const users: PlaygroundUser[] = await query;
+  const users: (UserAttributes & { id: string })[] = await query;
 
   Log.debug("Executed getUser query", {
     tags: { query: query.toSQL().sql }
@@ -123,24 +123,36 @@ export async function getUser(userAddress: Address): Promise<PlaygroundUser> {
     throw ErrorCode.UserNotFound;
   }
 
-  return users[0];
+  const [user] = users;
+
+  return {
+    type: "users",
+    id: user.id,
+    attributes: {
+      username: user.username,
+      email: user.email,
+      ethAddress: user.ethAddress,
+      multisigAddress: user.multisigAddress,
+      nodeAddress: user.nodeAddress
+    }
+  } as APIResource<UserAttributes>;
 }
 
-export async function userExists(user: PlaygroundUser): Promise<boolean> {
+export async function userExists(user: UserAttributes): Promise<boolean> {
   const db = getDatabase();
 
   const query = db("users")
     .select()
     .where({
-      id: user.id,
       username: user.username,
       email: user.email,
-      eth_address: user.address,
-      multisig_address: user.multisigAddress
+      eth_address: user.ethAddress,
+      multisig_address: user.multisigAddress,
+      node_address: user.nodeAddress
     })
     .limit(1);
 
-  const users: PlaygroundUser[] = await query;
+  const users = await query;
 
   Log.debug("Executed userExists query", {
     tags: { query: query.toSQL().sql }
@@ -152,9 +164,9 @@ export async function userExists(user: PlaygroundUser): Promise<boolean> {
 }
 
 export async function createUser(
-  data: PlaygroundUserData & { multisigAddress: Address }
-): Promise<PlaygroundUser> {
-  if (await ethAddressAlreadyRegistered(data.address)) {
+  data: UserAttributes
+): Promise<APIResource<UserAttributes>> {
+  if (await ethAddressAlreadyRegistered(data.ethAddress)) {
     throw ErrorCode.AddressAlreadyRegistered;
   }
 
@@ -166,7 +178,7 @@ export async function createUser(
     id,
     username: data.username,
     email: data.email,
-    eth_address: data.address,
+    eth_address: data.ethAddress,
     multisig_address: data.multisigAddress
   });
 
@@ -181,7 +193,8 @@ export async function createUser(
 
     return {
       id,
-      ...data
+      type: "users",
+      attributes: data
     };
   } catch (e) {
     const error = e as Error;

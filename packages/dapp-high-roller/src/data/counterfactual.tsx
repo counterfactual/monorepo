@@ -8,7 +8,8 @@ export default createProviderConsumer<any>(
     appFactory: {} as cf.AppFactory,
     cfProvider: {} as cf.Provider,
     appInstance: {} as AppInstance,
-    updateAppInstance: () => {}
+    updateAppInstance: () => {},
+    account: {}
     // appInstanceId: ""
     // proposeInstall: () => {},
     // install: () => {}

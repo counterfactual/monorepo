@@ -7,6 +7,7 @@ import {
   proposeInstallVirtualEventController,
   takeActionEventController
 } from "./events";
+import protocolMessageEventController from "./events/protocol-message/controller";
 import {
   createMultisigController,
   getAllChannelAddressesController,
@@ -40,6 +41,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
   [NODE_EVENTS.TAKE_ACTION]: takeActionEventController,
+  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_INSTALL]: () => {},
