@@ -46,7 +46,7 @@ export default function decorateWith(
           {
             ...controllerMethod.descriptor,
             value: middleware(
-              target as Controller<any>,
+              controller.prototype as Controller<any>,
               originalFunction,
               ...middlewareArguments
             )
