@@ -8,7 +8,7 @@ import { NetworkState } from "../../data/network";
   shadow: true
 })
 export class Web3Connector {
-  @Prop() accountState: AccountState = {};
+  @Prop() accountState: AccountState = {} as AccountState;
   @Prop() networkState: NetworkState = {};
 
   async componentDidLoad() {
@@ -18,7 +18,14 @@ export class Web3Connector {
 
     if (web3.currentProvider) {
       this.accountState.updateAccount!({
-        address: web3.currentProvider.selectedAddress
+        user: {
+          username: "",
+          multisigAddress: "",
+          id: "",
+          email: "",
+          nodeAddress: "",
+          ethAddress: web3.currentProvider.selectedAddress
+        }
       });
       this.networkState.updateNetwork!({
         network: web3.version.network,

@@ -13,7 +13,7 @@ import NetworkTunnel, { NetworkState } from "../../data/network";
   shadow: true
 })
 export class AppRoot {
-  @State() accountState: AccountState = {};
+  @State() accountState: AccountState = {} as AccountState;
   @State() networkState: NetworkState = {
     network: "Lorem"
   };

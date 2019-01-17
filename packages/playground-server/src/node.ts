@@ -51,6 +51,10 @@ export async function createNodeSingleton(): Promise<Node> {
   return node;
 }
 
+export function getNodeAddress(): string {
+  return node.address;
+}
+
 export async function createMultisigFor(
   userAddress: string
 ): Promise<NodeTypes.CreateMultisigResult> {

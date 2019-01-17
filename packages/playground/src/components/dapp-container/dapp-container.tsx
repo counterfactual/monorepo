@@ -1,3 +1,4 @@
+import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults } from "@stencil/router";
 import EventEmitter from "eventemitter3";
@@ -21,11 +22,8 @@ export class DappContainer {
 
   @Prop() apps: AppDefinition[] = [];
 
-  @Prop() balance: number = 0;
-  @Prop() address: string = "";
-  @Prop() multisigAddress: string = "";
-  @Prop() username: string = "";
-  @Prop() email: string = "";
+  @Prop() user: UserSession = {} as UserSession;
+  @Prop() balance: string = "";
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -96,12 +94,13 @@ export class DappContainer {
     if (event.data === "playground:request:user" && this.frameWindow) {
       this.frameWindow.postMessage(
         `playground:response:user|${JSON.stringify({
-          username: this.username,
-          email: this.email,
-          address: this.address,
-          multisigAddress: this.multisigAddress,
-          balance: this.balance,
-          token: window.localStorage.getItem("playground:user:token") as string
+          user: {
+            ...this.user,
+            token: window.localStorage.getItem(
+              "playground:user:token"
+            ) as string
+          },
+          balance: this.balance
         })}`,
         "*"
       );
@@ -200,10 +199,4 @@ export class DappContainer {
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
-AccountTunnel.injectProps(DappContainer, [
-  "balance",
-  "username",
-  "email",
-  "address",
-  "multisigAddress"
-]);
+AccountTunnel.injectProps(DappContainer, ["balance", "user"]);

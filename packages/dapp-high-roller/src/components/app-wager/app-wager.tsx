@@ -30,15 +30,14 @@ export class AppWager {
   @State() betAmount: string = "0.01";
   @State() myName: string = "";
 
-  @Prop({ mutable: true }) opponent: {
-    username?: string;
-    address?: Address;
-  } = {};
+  @State() opponent: {
+    attributes: { username?: string; ethAddress?: Address };
+  } = { attributes: {} };
   @State() intermediary: string = "";
   @State() isError: boolean = false;
   @State() isWaiting: boolean = false;
   @State() error: any;
-  @Prop() user: any;
+  @Prop() account: any;
   @Prop() standalone: boolean = false;
 
   @Prop() updateAppInstance: (
@@ -47,7 +46,7 @@ export class AppWager {
   @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {
-    this.myName = this.user.username;
+    this.myName = this.account.user.username;
 
     return await this.matchmake();
   }
@@ -63,7 +62,10 @@ export class AppWager {
 
     try {
       const initialState: HighRollerAppState = {
-        playerAddrs: [this.user.address, this.opponent.address],
+        playerAddrs: [
+          this.account.user.ethAddress,
+          this.opponent.attributes.ethAddress
+        ],
         stage: HighRollerStage.PRE_GAME,
         salt: HashZero,
         commitHash: HashZero,
@@ -73,7 +75,7 @@ export class AppWager {
 
       await this.appFactory.proposeInstallVirtual({
         initialState,
-        respondingAddress: this.opponent.address as string,
+        respondingAddress: this.opponent.attributes.ethAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
@@ -91,8 +93,11 @@ export class AppWager {
     try {
       const result = await this.fetchMatchmake();
 
-      this.opponent = result.data.opponent;
-      this.intermediary = result.data.intermediary;
+      this.opponent = result.included.find(
+        resource =>
+          resource.id === result.data.relationships.matchedUser.data.id
+      );
+      this.intermediary = result.data.attributes.intermediary;
       this.isError = false;
       this.error = null;
 
@@ -110,24 +115,52 @@ export class AppWager {
   private async fetchMatchmake() {
     if (this.standalone) {
       return {
-        ok: true,
         data: {
-          user: {
-            username: this.user.username,
-            address: this.user.address
+          type: "matchmaking",
+          id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
+          attributes: {
+            intermediary: this.account.multisigAddress
           },
-          opponent: {
-            username: "MyOpponent",
-            address: "0x12345"
+          relationships: {
+            users: {
+              data: {
+                type: "users",
+                id: this.account.user.id
+              }
+            },
+            matchedUsers: {
+              data: {
+                type: "matchedUsers",
+                id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
+              }
+            }
+          }
+        },
+        included: [
+          {
+            type: "users",
+            id: this.account.user.id,
+            attributes: {
+              username: this.account.user.username,
+              ethAddress: this.account.user.ethAddress
+            }
           },
-          intermediary: this.user.multisigAddress
-        }
+          {
+            type: "matchedUsers",
+            id: "3d54b508-b355-4323-8738-4cdf7290a2fd",
+            attributes: {
+              username: "MyOpponent",
+              ethAddress: "0x12345"
+            }
+          }
+        ]
       };
     }
-    const { token } = this.user;
+
+    const { token } = this.account.user;
     const response = await fetch(
       // TODO: This URL must come from an environment variable.
-      "https://server.playground-staging.counterfactual.com/api/matchmake",
+      "https://server.playground-staging.counterfactual.com/api/matchmaking",
       // "http://localhost:9000/api/matchmake",
       {
         method: "POST",
@@ -166,7 +199,7 @@ export class AppWager {
         <app-waiting
           myName={this.myName}
           betAmount={this.betAmount}
-          opponentName={this.opponent.username}
+          opponentName={this.opponent.attributes.username}
           isProposing={true}
         />
       );
@@ -219,7 +252,7 @@ export class AppWager {
 CounterfactualTunnel.injectProps(AppWager, [
   "appFactory",
   "updateAppInstance",
-  "user",
+  "account",
   "opponent",
   "standalone"
 ]);

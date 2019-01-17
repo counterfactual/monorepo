@@ -1,5 +1,4 @@
-import { Address } from "@counterfactual/types";
-import { Context, Request } from "koa";
+import { IRouterContext } from "koa-router";
 
 export enum HttpStatusCode {
   OK = 200,
@@ -10,30 +9,29 @@ export enum HttpStatusCode {
   InternalServerError = 500
 }
 
-export type AuthenticatedContext = Context & { user?: PlaygroundUser };
+export enum ControllerMethod {
+  GetById,
+  GetAll,
+  Post
+}
 
-// `any` is needed since `ctx.request.body` is typed like that.
-export type TypedRequest<T = any> = Request & { body: T };
+export type UserSession = UserAttributes & { id: string };
 
-export type SignedRequest = {
-  address: string;
-  signature: string;
+export type AuthenticatedRequest = {
+  headers: {
+    authorization: string;
+  };
 };
 
-export type CreateAccountRequest = PlaygroundUserData & SignedRequest;
+export type Middleware = (
+  ctx: IRouterContext,
+  next: () => Promise<void>
+) => Promise<void>;
 
-export type LoginRequest = SignedRequest;
+export type MiddlewareCollection = Middleware[];
 
-export type MatchmakeResponseData = {
-  user: MatchmakeUserData;
-  opponent: MatchmakeUserData;
-  intermediary: Address;
-};
-
-export type ErrorResponse = {
-  status: number;
-  errorCode: ErrorCode;
-  context?: Error;
+export type APIRequestBodyContainer<T = APIResourceAttributes> = {
+  body: APIRequest<T>;
 };
 
 export type StatusCodeMapping = Map<ErrorCode | "default", HttpStatusCode>;
@@ -52,48 +50,96 @@ export enum ErrorCode {
   UsernameAlreadyExists = "username_already_exists"
 }
 
-export type ApiResponse = {
-  error?: ErrorResponse;
-  ok: boolean;
-  data?:
-    | GetAppsResponseData
-    | MatchmakeResponseData
-    | LoginResponseData
-    | UserResponseData;
+// Generic types for JSONAPI document structure.
+
+export type APIResourceRelationships = {
+  [key in APIResourceType]?: APIDataContainer
 };
 
-export type LoginResponseData = {
-  user: PlaygroundUser;
-  token: string;
+export type APIResource<T = APIResourceAttributes> = {
+  type: APIResourceType;
+  id?: string;
+  attributes: T;
+  relationships?: APIResourceRelationships;
 };
 
-export type UserResponseData = {
-  user: PlaygroundUser;
+export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];
+
+export type APIMetadata = {
+  signature: APIMessageSignature;
 };
 
-export type PlaygroundAppDefinition = {
+export type APIMessageSignature = {
+  signedMessage: string;
+};
+
+export type APIDataContainer<T = APIResourceAttributes> = {
+  data: APIResource<T> | APIResourceCollection<T>;
+};
+
+export type APIResponse<T = APIResourceAttributes> = APIDataContainer<T> & {
+  errors?: APIError[];
+  meta?: APIMetadata;
+  included?: APIResourceCollection;
+};
+
+export type APIRequest<T = APIResourceAttributes> = {
+  data?: APIResource<T> | APIResourceCollection<T>;
+  meta?: APIMetadata;
+};
+
+export type APIError = {
+  status: HttpStatusCode;
+  code: ErrorCode;
+  title: string;
+  detail: string;
+};
+
+// Exposed models.
+export type APIResourceType =
+  | "users"
+  | "matchmaking"
+  | "matchedUser"
+  | "session"
+  | "apps";
+
+export type APIResourceAttributes = {
+  [key: string]: string | number | boolean | undefined;
+};
+
+// Model definitions.
+export type UserAttributes = MatchedUserAttributes & {
+  email: string;
+  multisigAddress: string;
+  nodeAddress: string;
+  token?: string;
+};
+
+export type SessionAttributes = {
+  ethAddress: string;
+};
+
+export type MatchedUserAttributes = {
+  id: string;
+  username: string;
+  ethAddress: string;
+};
+
+export type MatchmakingAttributes = {
+  intermediary: string;
+};
+
+export type AppsControllerOptions = {
+  registryPath: string;
+};
+
+export type AppRegistryItem = AppAttributes & {
+  id: string;
+};
+
+export type AppAttributes = {
   name: string;
   slug: string;
-  url: string;
   icon: string;
-};
-
-export type GetAppsResponseData = {
-  apps: PlaygroundAppDefinition[];
-};
-
-export type PlaygroundUserData = {
-  email: string;
-  username: string;
-  address: Address;
-};
-
-export type MatchmakeUserData = {
-  username: string;
-  address: Address;
-};
-
-export type PlaygroundUser = PlaygroundUserData & {
-  id: string;
-  multisigAddress: Address;
+  url: string;
 };

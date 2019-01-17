@@ -1,4 +1,5 @@
 export type AppDefinition = {
+  id: string;
   name: string;
   notifications?: number;
   slug: string;
@@ -9,7 +10,7 @@ export type AppDefinition = {
 export interface UserChangeset {
   username: string;
   email: string;
-  address: string;
+  ethAddress: string;
 }
 
 export type ComponentEventHandler = (event: CustomEvent<any>) => void;

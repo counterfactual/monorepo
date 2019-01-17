@@ -1,3 +1,4 @@
+import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -11,8 +12,7 @@ import AccountTunnel from "../../../data/account";
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
   @State() balance: number = 0;
-  @Prop() address: string = "";
-  @Prop() multisigAddress: string = "";
+  @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
 
@@ -21,7 +21,7 @@ export class AccountDeposit {
 
   componentWillLoad() {
     web3.eth.getBalance(
-      this.address,
+      this.user.ethAddress,
       web3.eth.defaultBlock,
       this.showBalance.bind(this)
     );
@@ -41,8 +41,8 @@ export class AccountDeposit {
 
     web3.eth.sendTransaction(
       {
-        from: this.address,
-        to: this.multisigAddress,
+        from: this.user.ethAddress,
+        to: this.user.multisigAddress,
         value: this.amountDeposited
       },
       this.depositCompleted.bind(this)
@@ -84,9 +84,4 @@ export class AccountDeposit {
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, [
-  "balance",
-  "updateAccount",
-  "address",
-  "multisigAddress"
-]);
+AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount", "user"]);

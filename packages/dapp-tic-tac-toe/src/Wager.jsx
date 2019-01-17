@@ -22,7 +22,7 @@ class Wager extends Component {
     try {
       const response = await fetch(
         // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmake",
+        "https://server.playground-staging.counterfactual.com/api/matchmaking",
         {
           method: "POST",
           headers: {
@@ -32,10 +32,15 @@ class Wager extends Component {
       );
       const result = await response.json();
 
+      const opponent = result.included.find(
+        resource =>
+          resource.id === result.data.relationships.matchedUser.data.id
+      );
+
       this.setState({
         isLoaded: true,
-        opponent: result.data.opponent,
-        intermediary: result.data.intermediary,
+        opponent: { id: opponent.id, ...opponent.attributes },
+        intermediary: result.data.attributes.intermediary,
         error: result.error
       });
     } catch (error) {
@@ -65,11 +70,11 @@ class Wager extends Component {
    * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   async proposeInstall(user, opponent, intermediary) {
-    const myAddress = user.address;
+    const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
     appFactory.proposeInstallVirtual({
-      peerAddress: opponent.address,
+      peerAddress: opponent.ethAddress,
       asset: {
         assetType: 0 /* AssetType.ETH */
       },
@@ -79,7 +84,7 @@ class Wager extends Component {
       myDeposit: window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
       timeout: 100,
       initialState: {
-        address: [myAddress, opponent.address],
+        address: [myAddress, opponent.ethAddress],
         turnNum: 0,
         winner: 0,
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
