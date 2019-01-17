@@ -2,15 +2,12 @@ import { v4 as generateUUID } from "uuid";
 
 import { matchmakeUser } from "../db";
 import { getNodeAddress } from "../node";
-import {
-  APIResource,
-  ControllerMethod,
-  MatchmakingAttributes,
-  UserSession
-} from "../types";
+import { APIResource, MatchmakingAttributes, UserSession } from "../types";
 
 import Controller from "./controller";
+import Authorize from "./decorators/authorize";
 
+@Authorize()
 export default class MatchmakingController extends Controller<
   MatchmakingAttributes
 > {
@@ -58,9 +55,5 @@ export default class MatchmakingController extends Controller<
         }
       }
     } as APIResource<MatchmakingAttributes>;
-  }
-
-  protectedMethods() {
-    return [ControllerMethod.Post];
   }
 }

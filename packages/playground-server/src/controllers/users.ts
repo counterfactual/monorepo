@@ -11,8 +11,11 @@ import {
 } from "../types";
 
 import Controller from "./controller";
+import Authorize from "./decorators/authorize";
+import ValidateSignature from "./decorators/validate-signature";
 
 export default class UsersController extends Controller<UserAttributes> {
+  @Authorize()
   async getAll() {
     const user = this.user as UserSession;
     return [
@@ -30,6 +33,15 @@ export default class UsersController extends Controller<UserAttributes> {
     ];
   }
 
+  @ValidateSignature({
+    expectedMessage: async (resource: APIResource<UserAttributes>) =>
+      [
+        "PLAYGROUND ACCOUNT REGISTRATION",
+        `Username: ${resource.attributes.username}`,
+        `E-mail: ${resource.attributes.email}`,
+        `Ethereum address: ${resource.attributes.ethAddress}`
+      ].join("\n")
+  })
   async post(data?: APIResource<UserAttributes>) {
     const userData = (data as APIResource<UserAttributes>).attributes;
 
@@ -70,12 +82,7 @@ export default class UsersController extends Controller<UserAttributes> {
     resource: APIResource<UserAttributes>
   ): Promise<string | undefined> {
     if (method === ControllerMethod.Post) {
-      return [
-        "PLAYGROUND ACCOUNT REGISTRATION",
-        `Username: ${resource.attributes.username}`,
-        `E-mail: ${resource.attributes.email}`,
-        `Ethereum address: ${resource.attributes.ethAddress}`
-      ].join("\n");
+      return;
     }
 
     return;

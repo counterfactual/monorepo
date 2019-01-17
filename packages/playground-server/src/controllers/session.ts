@@ -1,11 +1,19 @@
 import { sign } from "jsonwebtoken";
 
 import { getUser } from "../db";
-import { APIResource, ControllerMethod, SessionAttributes } from "../types";
+import { APIResource, SessionAttributes } from "../types";
 
 import Controller from "./controller";
+import ValidateSignature from "./decorators/validate-signature";
 
 export default class SessionController extends Controller<SessionAttributes> {
+  @ValidateSignature({
+    expectedMessage: async (resource: APIResource<SessionAttributes>) =>
+      [
+        "PLAYGROUND ACCOUNT LOGIN",
+        `Ethereum address: ${resource.attributes.ethAddress}`
+      ].join("\n")
+  })
   async post(data?: APIResource<SessionAttributes>) {
     const attributes = (data as APIResource<SessionAttributes>).attributes;
     const user = await getUser(attributes.ethAddress);
@@ -15,19 +23,5 @@ export default class SessionController extends Controller<SessionAttributes> {
     });
 
     return user;
-  }
-
-  async expectedSignatureMessageFor(
-    method: ControllerMethod,
-    resource: APIResource<SessionAttributes>
-  ): Promise<string | undefined> {
-    if (method === ControllerMethod.Post) {
-      return [
-        "PLAYGROUND ACCOUNT LOGIN",
-        `Ethereum address: ${resource.attributes.ethAddress}`
-      ].join("\n");
-    }
-
-    return;
   }
 }
