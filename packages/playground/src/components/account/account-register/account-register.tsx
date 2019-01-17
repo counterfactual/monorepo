@@ -3,10 +3,10 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import CounterfactualNode from "../../../data/counterfactual";
 import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
 import { UserChangeset } from "../../../types";
-import CounterfactualNode from "../../../data/counterfactual";
 
 function buildSignaturePayload(data: UserChangeset) {
   return [
@@ -45,9 +45,7 @@ export class AccountRegister {
     nodeAddress: ""
   };
 
-  login() {
-    console.log("login");
-  }
+  login() {}
 
   change(key: keyof UserChangeset, event: Event) {
     this.changeset[key] = (event.target as HTMLInputElement).value;
@@ -81,7 +79,6 @@ export class AccountRegister {
     // Call the API and store the multisig.
 
     try {
-      debugger;
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
         {

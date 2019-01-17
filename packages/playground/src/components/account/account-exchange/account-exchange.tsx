@@ -16,7 +16,6 @@ export class AccountExchange {
   @State() withdrawValue: number | string = "";
 
   deposit(e) {
-    console.log(e.target.value);
     this.updateAccount({
       balance: this.balance + parseFloat(e.target.value)
     });
@@ -24,7 +23,6 @@ export class AccountExchange {
   }
 
   withdraw(e) {
-    console.log(e.target.value);
     this.updateAccount({
       balance: this.balance - parseFloat(e.target.value)
     });

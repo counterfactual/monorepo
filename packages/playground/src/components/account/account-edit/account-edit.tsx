@@ -38,7 +38,6 @@ export class AccountEdit {
   }
 
   formSubmitionHandler() {
-    console.log(this.changeset);
     this.updateAccount(this.changeset);
     this.history.push("/");
   }
