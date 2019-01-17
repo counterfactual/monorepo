@@ -78,7 +78,7 @@ export namespace Node {
     timeout: BigNumber;
     initialState: AppState;
     respondingAddress: Address;
-    initiatingAddress: Address;
+    initiatingAddress?: Address;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;

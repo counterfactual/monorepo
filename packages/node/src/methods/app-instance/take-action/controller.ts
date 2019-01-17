@@ -21,10 +21,7 @@ export default async function takeActionController(
     requestHandler.provider
   );
 
-  console.log("updated state");
-  console.log(updatedAppInstance);
-
   return {
-    newState: ""
+    newState: updatedAppInstance.state
   };
 }

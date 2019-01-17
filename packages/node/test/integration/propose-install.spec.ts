@@ -14,7 +14,8 @@ import {
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstanceInfo,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -98,14 +99,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
           // some approval logic happens in this callback, we proceed
           // to approve the proposal, and install the app instance
-          const installRequest: NodeTypes.MethodRequest = {
-            requestId: generateUUID(),
-            type: NodeTypes.MethodName.INSTALL,
-            params: {
-              appInstanceId: msg.data.appInstanceId
-            } as NodeTypes.InstallParams
-          };
-
+          const installRequest = makeInstallRequest(msg.data.appInstanceId);
           nodeB.emit(installRequest.type, installRequest);
         });
 

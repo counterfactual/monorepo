@@ -17,6 +17,7 @@
     "@types/node": "^10.9.3",
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
+    "ganache-core": "2.3.3",
     "jest": "^23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",

@@ -247,11 +247,9 @@ export class AppInstance {
   }
 
   public decodeState(encodedAppState: string): AppState {
-    const decodedData = defaultAbiCoder.decode(
+    return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
       encodedAppState
-    );
-    console.log(decodedData);
-    return decodedData;
+    )[0];
   }
 }

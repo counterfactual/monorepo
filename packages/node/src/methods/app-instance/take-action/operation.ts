@@ -16,19 +16,20 @@ export async function updateAppInstance(
     return Promise.reject(ERRORS.NO_APP_CONTRACT_ADDR);
   }
 
-  const abi = ["function applyAction(bytes, bytes) pure returns (bytes)"];
+  const abi = [
+    `function applyAction(${appInstance.appInterface.stateEncoding}, ${
+      appInstance.appInterface.actionEncoding
+    }) pure returns (bytes)`
+  ];
   const appContract = new Contract(
     appInstance.appInterface.addr,
     abi,
     provider
   );
 
-  console.log("getting new state");
   const newState = appInstance.decodeState(
     await appContract.functions.applyAction(appInstance.state, action)
   );
-
-  console.log("got new state");
 
   return appInstance.setState(newState);
 }

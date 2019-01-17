@@ -113,8 +113,19 @@ async function getApps(
   return result.appInstances;
 }
 
+export function makeInstallRequest(
+  appInstanceId: string
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.INSTALL,
+    params: {
+      appInstanceId
+    } as NodeTypes.InstallParams
+  };
+}
+
 export function makeInstallProposalRequest(
-  initiatingAddress: Address,
   respondingAddress: Address,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
@@ -128,7 +139,6 @@ export function makeInstallProposalRequest(
   }
 
   const params: NodeTypes.ProposeInstallParams = {
-    initiatingAddress,
     respondingAddress,
     initialState,
     appId: AddressZero,
@@ -151,13 +161,11 @@ export function makeInstallProposalRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
-  initiatingAddress: Address,
   respondingAddress: Address,
   intermediaries: Address[],
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
-    initiatingAddress,
     respondingAddress,
     nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
