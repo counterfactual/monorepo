@@ -6,6 +6,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
+      - setup_remote_docker
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
