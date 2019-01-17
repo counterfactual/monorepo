@@ -45,7 +45,6 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn install --frozen-lockfile
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
