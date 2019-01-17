@@ -57,7 +57,7 @@ function authorizeMiddleware<
     }
     controller.user = { id: user.id, ...user.attributes } as UserSession;
 
-    return originalFunction(...args);
+    return originalFunction.call(controller, ...args);
   };
 }
 

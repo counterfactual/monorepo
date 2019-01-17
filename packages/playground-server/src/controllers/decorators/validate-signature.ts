@@ -19,7 +19,7 @@ function validateSignatureMiddleware(
   expectedSignatureMessage: (resource: APIResource<any>) => Promise<string>
 ) {
   return async (...args) => {
-    const ctx = args.find(arg => arg.request !== undefined) as IRouterContext;
+    const ctx = args.find(arg => "request" in arg) as IRouterContext;
 
     const json = ctx.request.body as APIRequest;
     const resource = json.data as APIResource;
@@ -58,7 +58,7 @@ function validateSignatureMiddleware(
       throw ErrorCode.InvalidSignature;
     }
 
-    return originalFunction(...args);
+    return originalFunction.call(controller, ...args);
   };
 }
 
