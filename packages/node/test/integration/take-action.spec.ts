@@ -21,7 +21,8 @@ import {
   Node,
   NODE_EVENTS,
   NodeConfig,
-  ProposeMessage
+  ProposeMessage,
+  TakeActionMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 
@@ -30,7 +31,8 @@ import {
   EMPTY_NETWORK,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest
+  makeInstallRequest,
+  generateGetStateRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -123,16 +125,6 @@ describe("Node method follows spec - takeAction", () => {
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
 
-      const action = {
-        actionType: 0,
-        playX: 0,
-        playY: 0,
-        winClaim: {
-          winClaimType: 0,
-          idx: 0
-        }
-      };
-
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", {
           foo: "bar"
@@ -144,6 +136,16 @@ describe("Node method follows spec - takeAction", () => {
       });
 
       it("can take action after proposing install", async done => {
+        const validAction = {
+          actionType: 0,
+          playX: 0,
+          playY: 0,
+          winClaim: {
+            winClaimType: 0,
+            idx: 0
+          }
+        };
+
         const multisigAddress = await getNewMultisig(nodeA, [
           nodeA.address,
           nodeB.address
@@ -160,19 +162,31 @@ describe("Node method follows spec - takeAction", () => {
           }
         );
 
+        let newState;
+        nodeB.on(NODE_EVENTS.TAKE_ACTION, async (msg: TakeActionMessage) => {
+          setTimeout(() => {
+            expect(msg.data.params.newState).toEqual(newState);
+          }, 2000);
+
+          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
+          const response = await nodeB.call(getStateReq.type, getStateReq);
+          const updatedState = (response.result as NodeTypes.GetStateResult)
+            .state;
+          expect(updatedState).toEqual(newState);
+          done();
+        });
+
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
           const takeActionReq = generateTakeActionRequest(
             msg.data.params.appInstanceId,
-            action
+            validAction
           );
 
           const response = await nodeA.call(takeActionReq.type, takeActionReq);
-          const newState = (response.result as NodeTypes.TakeActionResult)
-            .newState;
+          newState = (response.result as NodeTypes.TakeActionResult).newState;
 
           expect(newState.board[0][0]).toEqual(bigNumberify(1));
           expect(newState.turnNum).toEqual(bigNumberify(1));
-          done();
         });
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {

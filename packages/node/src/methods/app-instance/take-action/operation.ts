@@ -1,14 +1,15 @@
 import { AppInstance } from "@counterfactual/machine";
+import { AppState } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Provider } from "ethers/providers";
 
 import { ERRORS } from "../../errors";
 
-export async function updateAppInstance(
+export async function updateAppInstanceState(
   appInstance: AppInstance,
   action: any,
   provider: Provider
-): Promise<AppInstance> {
+): Promise<AppState> {
   if (
     !appInstance.appInterface.addr ||
     appInstance.appInterface.addr.trim() === ""
@@ -27,9 +28,9 @@ export async function updateAppInstance(
     provider
   );
 
-  const newState = appInstance.decodeState(
-    await appContract.functions.applyAction(appInstance.state, action)
-  );
-
-  return appInstance.setState(newState);
+  try {
+    return appInstance.decodeState(
+      await appContract.functions.applyAction(appInstance.state, action)
+    );
+  } catch (e) {}
 }

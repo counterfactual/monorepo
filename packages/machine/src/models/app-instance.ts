@@ -182,7 +182,7 @@ export class AppInstance {
   }
 
   public get state() {
-    return this.json.latestState;
+    return this.decodeState(this.json.latestState);
   }
 
   public get nonce() {
@@ -246,7 +246,7 @@ export class AppInstance {
     });
   }
 
-  public decodeState(encodedAppState: string): AppState {
+  public decodeState(encodedAppState: string): any {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
       encodedAppState

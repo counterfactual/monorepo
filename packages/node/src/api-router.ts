@@ -4,7 +4,8 @@ import {
   addMultisigController,
   installEventController,
   proposeInstallEventController,
-  proposeInstallVirtualEventController
+  proposeInstallVirtualEventController,
+  takeActionEventController
 } from "./events";
 import {
   createMultisigController,
@@ -38,6 +39,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
+  [NODE_EVENTS.TAKE_ACTION]: takeActionEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_INSTALL]: () => {},

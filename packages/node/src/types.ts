@@ -10,7 +10,8 @@ export interface NodeMessage {
 
 enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
-  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent"
+  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+  TAKE_ACTION = "takeActionEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
@@ -33,6 +34,7 @@ export interface ProposeVirtualMessage extends NodeMessage {
   data: {
     params: Node.ProposeInstallVirtualParams;
     appInstanceId: string;
+    initiatingAddress: Address;
   };
 }
 
@@ -46,5 +48,12 @@ export interface CreateMultisigMessage extends NodeMessage {
   data: {
     multisigAddress: Address;
     params: Node.CreateMultisigParams;
+  };
+}
+
+export interface TakeActionMessage extends NodeMessage {
+  data: {
+    params: Node.TakeActionResult;
+    appInstanceId: string;
   };
 }
