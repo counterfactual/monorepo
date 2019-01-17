@@ -2,6 +2,7 @@ import { decode as decodeToken } from "jsonwebtoken";
 import { IRouterContext } from "koa-router";
 import { Log } from "logepi";
 
+import { userExists } from "../../db";
 import {
   APIResource,
   APIResourceAttributes,
@@ -9,8 +10,7 @@ import {
   ErrorCode,
   UserAttributes,
   UserSession
-} from "../..";
-import { userExists } from "../../db";
+} from "../../types";
 import Controller from "../controller";
 
 import decorateWith from "./decorator";
