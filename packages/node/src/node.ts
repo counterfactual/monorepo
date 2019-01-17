@@ -145,21 +145,12 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.receive(this.address, async (msg: NodeMessage) => {
-      await this.preprocessMessage(msg);
+      if (Object.values(NODE_EVENTS).includes(msg.event)) {
+        await this.requestHandler.callEvent(msg.event, msg);
+      } else {
+        console.log("Event not recognized, no-op");
+      }
       this.outgoing.emit(msg.event, msg);
     });
-  }
-
-  /**
-   * Each internal event handler is responsible for deciding how to process
-   * the incoming message.
-   * @param msg
-   */
-  private async preprocessMessage(msg: NodeMessage) {
-    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
-      console.log("Event not recognized, no-op");
-      return;
-    }
-    await this.requestHandler.callEvent(msg.event, msg);
   }
 }
