@@ -2,9 +2,11 @@ import {
   Context,
   InstructionExecutor,
   Opcode,
+  Protocol,
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -103,7 +105,28 @@ export class Node {
   private registerIoMiddleware() {
     // TODO:
     this.instructionExecutor.register(Opcode.IO_SEND, () => {});
-    this.instructionExecutor.register(Opcode.IO_WAIT, () => {});
+    this.instructionExecutor.register(
+      Opcode.IO_WAIT,
+      (message: ProtocolMessage, next: Function, context: Context) => {
+        // FIXME: This is a temporary hack to get IO_WAIT to progress
+        context.inbox.push({
+          protocol: Protocol.Setup,
+          fromAddress: AddressZero,
+          toAddress: AddressZero,
+          seq: 2,
+          params: {
+            initiatingAddress: AddressZero,
+            respondingAddress: AddressZero,
+            multisigAddress: AddressZero
+          },
+          signature: {
+            v: -1,
+            r: "",
+            s: ""
+          }
+        });
+      }
+    );
   }
 
   /**

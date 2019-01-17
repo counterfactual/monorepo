@@ -1,12 +1,12 @@
-import { InstructionExecutor } from "@counterfactual/machine";
+import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
+import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { anything, instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
-import { openStateChannel } from "../../src/methods/state-channel/create/instance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
@@ -83,12 +83,17 @@ describe("Can handle correct & incorrect installs", () => {
     const appInstanceId = generateUUID();
     const multisigAddress = Wallet.createRandom().address;
     const owners = [Wallet.createRandom().address, AddressZero];
-    const stateChannel = await openStateChannel(
-      multisigAddress,
-      owners,
-      store,
-      EMPTY_NETWORK
-    );
+
+    const stateChannel = new StateChannel(multisigAddress, owners)
+      .setupChannel(EMPTY_NETWORK)
+      .setFreeBalanceFor(AssetType.ETH, {
+        alice: owners[0],
+        bob: owners[1],
+        aliceBalance: Zero,
+        bobBalance: Zero
+      });
+
+    await store.saveStateChannel(stateChannel);
 
     const proposedAppInstanceInfo = createProposedAppInstanceInfo(
       appInstanceId
