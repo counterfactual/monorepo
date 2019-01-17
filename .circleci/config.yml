@@ -6,10 +6,14 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
-      - run: |
-          sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux -O /usr/local/bin/solc
-          sudo chmod +x /usr/local/bin/solc
-      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run:
+          name: "Downloading solc binary"
+          command: |
+            sudo wget https://github.com/ethereum/solidity/releases/download/v0.5.2/solc-static-linux -O /usr/local/bin/solc
+            sudo chmod +x /usr/local/bin/solc
+      - run:
+          name: "Generating dependencies checksum"
+          command: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
@@ -34,7 +38,6 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn # symlink packages' node_modules
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
@@ -47,7 +50,6 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn # symlink packages' node_modules
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
 
