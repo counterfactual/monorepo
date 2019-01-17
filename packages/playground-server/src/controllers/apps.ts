@@ -25,19 +25,21 @@ export default class AppsController extends Controller<
         tags: { totalApps: registry.length, endpoint: "apps" }
       });
 
-      return registry.map(
-        (app: AppRegistryItem) =>
-          ({
-            type: "apps",
-            id: app.id,
-            attributes: {
-              name: app.name,
-              url: app.url,
-              icon: app.icon,
-              slug: app.slug
-            }
-          } as APIResource<AppAttributes>)
-      );
+      return {
+        data: registry.map(
+          (app: AppRegistryItem) =>
+            ({
+              type: "apps",
+              id: app.id,
+              attributes: {
+                name: app.name,
+                url: app.url,
+                icon: app.icon,
+                slug: app.slug
+              }
+            } as APIResource<AppAttributes>)
+        )
+      };
     } catch {
       throw ErrorCode.AppRegistryNotAvailable;
     }

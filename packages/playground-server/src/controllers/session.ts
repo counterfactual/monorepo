@@ -22,6 +22,6 @@ export default class SessionController extends Controller<SessionAttributes> {
       expiresIn: "1Y"
     });
 
-    return user;
+    return { data: user };
   }
 }

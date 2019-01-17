@@ -77,7 +77,7 @@ export type APIDataContainer<T = APIResourceAttributes> = {
   data: APIResource<T> | APIResourceCollection<T>;
 };
 
-export type APIResponse = APIDataContainer & {
+export type APIResponse<T = APIResourceAttributes> = APIDataContainer<T> & {
   errors?: APIError[];
   meta?: APIMetadata;
   included?: APIResourceCollection;

@@ -5,7 +5,7 @@ import { createUser } from "../db";
 import { createMultisigFor } from "../node";
 import {
   APIResource,
-  ControllerMethod,
+  APIResponse,
   UserAttributes,
   UserSession
 } from "../types";
@@ -18,19 +18,21 @@ export default class UsersController extends Controller<UserAttributes> {
   @Authorize()
   async getAll() {
     const user = this.user as UserSession;
-    return [
-      {
-        type: "users",
-        id: user.id,
-        attributes: {
-          username: user.username,
-          email: user.email,
-          ethAddress: user.ethAddress,
-          nodeAddress: user.nodeAddress,
-          multisigAddress: user.multisigAddress
-        }
-      } as APIResource<UserAttributes>
-    ];
+    return {
+      data: [
+        {
+          type: "users",
+          id: user.id,
+          attributes: {
+            username: user.username,
+            email: user.email,
+            ethAddress: user.ethAddress,
+            nodeAddress: user.nodeAddress,
+            multisigAddress: user.multisigAddress
+          }
+        } as APIResource<UserAttributes>
+      ]
+    };
   }
 
   @ValidateSignature({
@@ -74,21 +76,8 @@ export default class UsersController extends Controller<UserAttributes> {
       tags: { endpoint: "createAccount" }
     });
 
-    return user;
-  }
-
-  async expectedSignatureMessageFor(
-    method: ControllerMethod,
-    resource: APIResource<UserAttributes>
-  ): Promise<string | undefined> {
-    if (method === ControllerMethod.Post) {
-      return;
-    }
-
-    return;
-  }
-
-  protectedMethods() {
-    return [ControllerMethod.GetAll];
+    return {
+      data: user
+    } as APIResponse<UserAttributes>;
   }
 }

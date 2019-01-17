@@ -5,7 +5,6 @@ import { Log } from "logepi";
 import {
   APIRequest,
   APIResource,
-  APIResourceCollection,
   APIResourceType,
   APIResponse,
   ControllerMethod,
@@ -42,30 +41,24 @@ export default abstract class Controller<
   private errorStatusCodes: StatusCodeMapping = {} as StatusCodeMapping;
 
   /**
-   * Stores any additional resources to the response, which were included
-   * using the `include()` funciton.
-   */
-  private includedResources: APIResourceCollection = [];
-
-  /**
    * Returns all elements of a resource collection. If implemented
    * in a derived class, this handler takes care of the GET /:type route.
    */
-  async getAll?(): Promise<APIResourceCollection<TAttributes>>;
+  async getAll?(): Promise<APIResponse<TAttributes>>;
 
   /**
    * Returns a single instance of a resource collection, looking
    * it up by its unique identified. If implemented in a derived
    * class, this handler controls the GET /:type/:id route.
    */
-  async getById?(id: string): Promise<APIResource<TAttributes> | undefined>;
+  async getById?(id: string): Promise<APIResponse<TAttributes> | undefined>;
 
   /**
    * Requests a new, non-persistent resource. If implemented in a derived
    * class, this handler controls the POST /type route, with no body
    * content on incoming requests.
    */
-  async post?(): Promise<APIResource<TAttributes>>;
+  async post?(): Promise<APIResponse<TAttributes>>;
 
   /**
    * Stores a resource in a collection, returning it with a new
@@ -75,7 +68,7 @@ export default abstract class Controller<
    */
   async post?(
     data: APIResource<TAttributes>
-  ): Promise<APIResource<TAttributes>>;
+  ): Promise<APIResponse<TAttributes>>;
 
   constructor(
     router: Router,
@@ -175,8 +168,7 @@ export default abstract class Controller<
     router[httpVerb](
       endpoint,
       this.handleError.bind(this),
-      this.routeHandlers[method].bind(this),
-      this.injectIncludedResources.bind(this)
+      this.routeHandlers[method].bind(this)
     );
 
     Log.info("Route configuration finished", {
@@ -261,9 +253,7 @@ export default abstract class Controller<
       }
     });
 
-    ctx.body = {
-      data: await callback(ctx)
-    } as APIResponse;
+    ctx.body = await callback(ctx);
 
     return next();
   }
@@ -281,9 +271,7 @@ export default abstract class Controller<
       }
     });
 
-    ctx.body = {
-      data: await callback(ctx.params.id, ctx)
-    } as APIResponse;
+    ctx.body = callback(ctx.params.id, ctx);
 
     return next();
   }
@@ -304,60 +292,11 @@ export default abstract class Controller<
       }
     });
 
-    ctx.body = {
-      data: await callback(request.data as APIResource, ctx)
-    };
+    ctx.body = request.data
+      ? await callback(request.data as APIResource, ctx)
+      : await callback(ctx);
+
     ctx.status = 201;
-
-    return next();
-  }
-
-  /**
-   * Allows to sideload additional resources exposed via relationships on
-   * the main payload. Every resource loaded with this function will be
-   * emitted in the response in the `included` top-level key.
-   *
-   * @param resources {ApiResourceCollection} - A list of resources to inject.
-   */
-  protected include(...resources: APIResourceCollection) {
-    this.includedResources.push(...resources);
-  }
-
-  /**
-   * Injects any resources sideloaded with the `include` function
-   * and clears the `includedResources` stack, making it available
-   * for the next request.
-   *
-   * If there are no sideloaded resources, the middleware skips execution.
-   */
-  private async injectIncludedResources(
-    ctx: IRouterContext,
-    next: () => Promise<void>
-  ) {
-    if (!this.includedResources.length) {
-      Log.debug("Skipped resource injection, no included resources loaded", {
-        tags: {
-          resourceType: this.resourceType,
-          middleware: "injectIncludedResources"
-        }
-      });
-      return next();
-    }
-
-    ctx.body = {
-      ...ctx.body,
-      included: this.includedResources
-    } as APIResponse;
-
-    Log.debug("Injected included resources", {
-      tags: {
-        count: this.includedResources.length,
-        resourceType: this.resourceType,
-        middleware: "injectIncludedResources"
-      }
-    });
-
-    this.includedResources = [];
 
     return next();
   }
