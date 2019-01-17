@@ -45,6 +45,7 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
           at: /home/circleci/project
+      - run: yarn install --frozen-lockfile
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
@@ -57,6 +58,7 @@ jobs:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:
           at: /home/circleci/project
+      - run: yarn install --frozen-lockfile
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
 
