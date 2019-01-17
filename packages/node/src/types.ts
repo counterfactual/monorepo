@@ -1,3 +1,4 @@
+import { ProtocolMessage } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 
 /**
@@ -10,7 +11,8 @@ export interface NodeMessage {
 
 enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
-  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent"
+  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
@@ -20,7 +22,14 @@ enum Events {
 // for eg: Node consumers are the only relevant party listening on
 // `PROPOSE_INSTALL` in order to _create_ a cf.js client (i.e. dApp)
 export type NodeEvents = Node.EventName | Events;
-export const NODE_EVENTS = { ...Node.EventName, ...Events };
+export const NODE_EVENTS = {
+  ...Node.EventName,
+  ...Events
+};
+
+export interface NodeMessageWrappedProtocolMessage extends NodeMessage {
+  data: ProtocolMessage;
+}
 
 export interface ProposeMessage extends NodeMessage {
   data: {
