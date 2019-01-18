@@ -283,6 +283,9 @@ export class Store {
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+    if (!proposedAppInstancesJson) {
+      return [];
+    }
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);

@@ -125,6 +125,18 @@ export function makeInstallRequest(
   };
 }
 
+export function makeRejectInstallRequest(
+  appInstanceId: string
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.REJECT_INSTALL,
+    params: {
+      appInstanceId
+    } as NodeTypes.RejectInstallParams
+  };
+}
+
 export function makeInstallProposalRequest(
   respondingAddress: Address,
   nullInitialState: boolean = false
