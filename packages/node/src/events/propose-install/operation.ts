@@ -9,10 +9,10 @@ export async function setAppInstanceIDForProposeInstall(
   store: Store,
   params: Node.ProposeInstallParams,
   appInstanceId: string,
-  respondingAddress: Address
+  initiatingAddress: Address
 ) {
   await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(selfAddress, respondingAddress, store),
-    new ProposedAppInstanceInfo(appInstanceId, params)
+    await getChannelFromPeerAddress(selfAddress, initiatingAddress, store),
+    new ProposedAppInstanceInfo(appInstanceId, { ...params, initiatingAddress })
   );
 }

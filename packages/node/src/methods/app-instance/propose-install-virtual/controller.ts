@@ -25,10 +25,6 @@ export default async function proposeInstallVirtualAppInstanceController(
   // TODO: check if channel is open with the first intermediary
   // and that there are sufficient funds
 
-  // The client can ignore setting the Node's address, but the peers need to know
-  // who the initiating address is
-  params.initiatingAddress = requestHandler.address;
-
   if (params.abiEncodings.actionEncoding === undefined) {
     delete params.abiEncodings.actionEncoding;
   }
@@ -44,7 +40,8 @@ export default async function proposeInstallVirtualAppInstanceController(
     event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: {
       params,
-      appInstanceId
+      appInstanceId,
+      initiatingAddress: requestHandler.address
     }
   };
 

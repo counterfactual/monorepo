@@ -21,6 +21,7 @@ export default async function proposeInstallVirtualEventController(
     requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,
+    nodeMsg.data.initiatingAddress,
     nodeMsg.from!
   );
 
@@ -36,10 +37,7 @@ export default async function proposeInstallVirtualEventController(
   const relayedProposalMsg: ProposeVirtualMessage = {
     from: requestHandler.address,
     event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-    data: {
-      params: nodeMsg.data.params,
-      appInstanceId: nodeMsg.data.appInstanceId
-    }
+    data: nodeMsg.data
   };
 
   const nextNodeAddress = getNextNodeAddress(

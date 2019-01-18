@@ -1,5 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { Provider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -14,7 +16,8 @@ import {
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstanceInfo,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -26,6 +29,8 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -39,6 +44,8 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
   });
 
   beforeEach(async () => {
@@ -49,7 +56,8 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeServiceA,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -59,7 +67,8 @@ describe("Node method follows spec - proposeInstall", () => {
       messagingService,
       storeServiceB,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -85,7 +94,6 @@ describe("Node method follows spec - proposeInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeA.address,
           nodeB.address
         );
 
@@ -98,14 +106,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
           // some approval logic happens in this callback, we proceed
           // to approve the proposal, and install the app instance
-          const installRequest: NodeTypes.MethodRequest = {
-            requestId: generateUUID(),
-            type: NodeTypes.MethodName.INSTALL,
-            params: {
-              appInstanceId: msg.data.appInstanceId
-            } as NodeTypes.InstallParams
-          };
-
+          const installRequest = makeInstallRequest(msg.data.appInstanceId);
           nodeB.emit(installRequest.type, installRequest);
         });
 
@@ -132,7 +133,6 @@ describe("Node method follows spec - proposeInstall", () => {
 
       it("sends proposal with null initial state", async () => {
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeA.address,
           nodeB.address,
           true
         );

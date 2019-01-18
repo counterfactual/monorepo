@@ -29,9 +29,9 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - run: yarn # symlink packages' node_modules
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn # symlink packages' node_modules
       - run: yarn test:ci-non-playground
 
   run-playground-tests:
@@ -42,9 +42,9 @@ jobs:
       - run: cat packages/*/package.json | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - run: yarn # symlink packages' node_modules
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn # symlink packages' node_modules
       - run: cd packages/playground && yarn test
       - run: cd packages/dapp-high-roller && yarn test
 

@@ -1,3 +1,5 @@
+import { JsonRpcProvider } from "ethers/providers";
+
 import { Node } from "../../src/node";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
@@ -16,7 +18,9 @@ describe("Primitive Node operations", () => {
       mockMessagingService,
       memoryStoreService,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      // fake provider as nothing is listening on this URL
+      new JsonRpcProvider("localhost:8545")
     );
     expect(node).toBeDefined();
   });

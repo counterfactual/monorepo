@@ -1,5 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { Provider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -26,6 +28,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -39,6 +43,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
   });
 
   beforeEach(async () => {
@@ -51,7 +57,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       messagingService,
       storeServiceA,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -61,7 +68,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       messagingService,
       storeServiceB,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
 
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -71,7 +79,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       messagingService,
       storeServiceC,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -97,7 +106,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
 
         const intermediaries = [nodeB.address];
         const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeA.address,
           nodeC.address,
           intermediaries
         );
@@ -149,7 +157,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       it("sends proposal with null initial state", async () => {
         const intermediaries = [nodeB.address];
         const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeA.address,
           nodeC.address,
           intermediaries,
           true
