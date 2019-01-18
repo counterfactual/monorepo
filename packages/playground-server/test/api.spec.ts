@@ -20,15 +20,20 @@ import {
 
 import {
   POST_SESSION_ALICE,
+  POST_SESSION_ALICE_SIGNATURE_HEADER,
   POST_SESSION_CHARLIE,
   POST_USERS_ALICE,
   POST_USERS_ALICE_DUPLICATE_USERNAME,
+  POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER,
   POST_USERS_ALICE_INVALID_SIGNATURE,
+  POST_USERS_ALICE_INVALID_SIGNATURE_HEADER,
   POST_USERS_ALICE_NO_SIGNATURE,
+  POST_USERS_ALICE_SIGNATURE_HEADER,
   TOKEN_BOB,
   USR_ALICE,
   USR_BOB,
-  USR_CHARLIE
+  USR_CHARLIE,
+  POST_SESSION_CHARLIE_SIGNATURE_HEADER
 } from "./mock-data";
 
 const api = mountApi();
@@ -117,7 +122,9 @@ describe("playground-server", () => {
 
     it("fails when an invalid signature is passed to the request", done => {
       client
-        .post("/users", POST_USERS_ALICE_INVALID_SIGNATURE)
+        .post("/users", POST_USERS_ALICE_INVALID_SIGNATURE, {
+          headers: POST_USERS_ALICE_INVALID_SIGNATURE_HEADER
+        })
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -133,39 +140,49 @@ describe("playground-server", () => {
     });
 
     it("creates an account for the first time and returns 201 + the multisig address", done => {
-      client.post("/users", POST_USERS_ALICE).then(response => {
-        const data = response.data.data as APIResource<UserAttributes>;
+      client
+        .post("/users", POST_USERS_ALICE, {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER
+        })
+        .then(response => {
+          const data = response.data.data as APIResource<UserAttributes>;
 
-        expect(data.id).toBeDefined();
-        expect(data.attributes.username).toEqual(USR_ALICE.username);
-        expect(data.attributes.email).toEqual(USR_ALICE.email);
-        expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
-        expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
-        expect(data.attributes.multisigAddress).toBeDefined();
-        expect(data.attributes.token).toBeDefined();
-        expect(response.status).toEqual(HttpStatusCode.Created);
-        done();
-      });
+          expect(data.id).toBeDefined();
+          expect(data.attributes.username).toEqual(USR_ALICE.username);
+          expect(data.attributes.email).toEqual(USR_ALICE.email);
+          expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
+          expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+          expect(data.attributes.multisigAddress).toBeDefined();
+          expect(data.attributes.token).toBeDefined();
+          expect(response.status).toEqual(HttpStatusCode.Created);
+          done();
+        });
     });
 
     it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", done => {
-      client.post("/users", POST_USERS_ALICE).catch(({ response }) => {
-        expect(response.data).toEqual({
-          errors: [
-            {
-              status: HttpStatusCode.BadRequest,
-              code: ErrorCode.AddressAlreadyRegistered
-            }
-          ]
-        } as APIResponse);
-        expect(response.status).toEqual(HttpStatusCode.BadRequest);
-        done();
-      });
+      client
+        .post("/users", POST_USERS_ALICE, {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER
+        })
+        .catch(({ response }) => {
+          expect(response.data).toEqual({
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.AddressAlreadyRegistered
+              }
+            ]
+          } as APIResponse);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
+          done();
+        });
     });
 
     it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", done => {
       client
-        .post("/users", POST_USERS_ALICE_DUPLICATE_USERNAME)
+        .post("/users", POST_USERS_ALICE_DUPLICATE_USERNAME, {
+          headers: POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER
+        })
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -198,34 +215,42 @@ describe("playground-server", () => {
     });
 
     it("fails for a non-registered address", done => {
-      client.post("/session", POST_SESSION_CHARLIE).catch(({ response }) => {
-        expect(response.data).toEqual({
-          errors: [
-            {
-              status: HttpStatusCode.BadRequest,
-              code: ErrorCode.UserNotFound
-            }
-          ]
+      client
+        .post("/session", POST_SESSION_CHARLIE, {
+          headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER
+        })
+        .catch(({ response }) => {
+          expect(response.data).toEqual({
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.UserNotFound
+              }
+            ]
+          });
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
+          done();
         });
-        expect(response.status).toEqual(HttpStatusCode.BadRequest);
-        done();
-      });
     });
 
     it("returns user data with a token", async done => {
-      client.post("/session", POST_SESSION_ALICE).then(response => {
-        const data = response.data.data;
+      client
+        .post("/session", POST_SESSION_ALICE, {
+          headers: POST_SESSION_ALICE_SIGNATURE_HEADER
+        })
+        .then(response => {
+          const data = response.data.data;
 
-        expect(data.attributes.email).toEqual(USR_ALICE.email);
-        expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
-        expect(data.attributes.multisigAddress).toBeDefined();
-        expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
-        expect(data.attributes.username).toEqual(USR_ALICE.username);
-        expect(data.attributes.token).toBeDefined();
+          expect(data.attributes.email).toEqual(USR_ALICE.email);
+          expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
+          expect(data.attributes.multisigAddress).toBeDefined();
+          expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+          expect(data.attributes.username).toEqual(USR_ALICE.username);
+          expect(data.attributes.token).toBeDefined();
 
-        expect(response.status).toEqual(HttpStatusCode.Created);
-        done();
-      });
+          expect(response.status).toEqual(HttpStatusCode.Created);
+          done();
+        });
     });
   });
 
