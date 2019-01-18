@@ -4,7 +4,7 @@ import "firebase/database";
 
 export interface IMessagingService {
   send(respondingAddress: Address, msg: any);
-  receive(address: Address, callback: (msg: any) => void);
+  onReceive(address: Address, callback: (msg: any) => void);
 }
 
 export interface IStoreService {
@@ -62,7 +62,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  receive(address: Address, callback: (msg: object) => void) {
+  onReceive(address: Address, callback: (msg: object) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"

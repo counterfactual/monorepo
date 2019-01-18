@@ -193,7 +193,7 @@ export class Node {
    * usually external subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    this.messagingService.receive(this.address, async (msg: NodeMessage) => {
+    this.messagingService.onReceive(this.address, async (msg: NodeMessage) => {
       if (Object.values(NODE_EVENTS).includes(msg.event)) {
         await this.requestHandler.callEvent(msg.event, msg);
       } else {
