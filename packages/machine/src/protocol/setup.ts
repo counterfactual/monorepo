@@ -80,13 +80,28 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(message: ProtocolMessage, context: Context) {
-  const { multisigAddress } = message.params as SetupParams;
-  const sc = context.stateChannelsMap.get(multisigAddress)!;
-  if (sc === undefined) {
-    console.log("sc keys=", context.stateChannelsMap.keys());
-    throw Error(`no such channel at multisig address ${multisigAddress}`);
+  const {
+    multisigAddress,
+    initiatingAddress,
+    respondingAddress
+  } = message.params as SetupParams;
+
+  if (!context.stateChannelsMap.has(multisigAddress)) {
+    context.stateChannelsMap.set(
+      multisigAddress,
+      new StateChannel(
+        multisigAddress,
+        [initiatingAddress, respondingAddress].sort((a, b) =>
+          parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+        )
+      )
+    );
   }
+
+  const sc = context.stateChannelsMap.get(multisigAddress)!;
+
   const newStateChannel = sc.setupChannel(context.network);
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitment = constructSetupOp(context.network, newStateChannel);
 }

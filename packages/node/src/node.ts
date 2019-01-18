@@ -6,7 +6,7 @@ import {
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero } from "ethers/constants";
 import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -95,21 +95,41 @@ export class Node {
       Opcode.OP_SIGN,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         if (!context.commitment) {
+          // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
           );
         }
-        context.signature = this.signer.signDigest(
-          context.commitment.hashToSign()
-        );
+        context.signature = {
+          v: -1,
+          r: HashZero,
+          s: HashZero
+        };
+        // TODO: Replace the above hack with the below
+        // context.signature = this.signer.signDigest(
+        //   context.commitment.hashToSign()
+        // );
         next();
       }
     );
   }
 
   private registerIoMiddleware() {
-    // TODO:
-    this.instructionExecutor.register(Opcode.IO_SEND, () => {});
+    this.instructionExecutor.register(
+      Opcode.IO_SEND,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        await this.messagingService.send(context.outbox[0].toAddress, {
+          from: this.address,
+          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+          data: context.outbox[0]
+        });
+        next();
+      }
+    );
+
+    // TODO: Currently this mocks the response for all protocols as the below
+    //       mocked ProtocolMessage object. Next task is to listen for a real
+    //       message from a counterparty.
     this.instructionExecutor.register(
       Opcode.IO_WAIT,
       (message: ProtocolMessage, next: Function, context: Context) => {
@@ -126,8 +146,8 @@ export class Node {
           },
           signature: {
             v: -1,
-            r: "",
-            s: ""
+            r: HashZero,
+            s: HashZero
           }
         });
       }
