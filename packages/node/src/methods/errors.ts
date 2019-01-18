@@ -14,6 +14,6 @@ export const ERRORS = {
   INVALID_ACTION: "Invalid action taken",
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
-  ACTION_OBJECT_NOT_DECODABLE:
+  ACTION_OBJECT_NOT_ENCODABLE:
     "The Action object is not encodable by the AppInstance's Action encoding"
 };

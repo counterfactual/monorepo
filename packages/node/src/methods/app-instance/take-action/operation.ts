@@ -62,6 +62,6 @@ export async function actionIsEncondable(
   try {
     appInstance.encodeAction(action);
   } catch (e) {
-    return Promise.reject(ERRORS.ACTION_OBJECT_NOT_DECODABLE);
+    return Promise.reject(ERRORS.ACTION_OBJECT_NOT_ENCODABLE);
   }
 }
