@@ -1,6 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { JsonRpcProvider, Provider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -27,7 +28,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: Provider;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -41,8 +43,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    // fake provider as nothing is listening on this URL
-    provider = new JsonRpcProvider("localhost:8545");
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
   });
 
   beforeEach(async () => {

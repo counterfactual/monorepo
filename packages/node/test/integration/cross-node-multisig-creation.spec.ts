@@ -1,5 +1,6 @@
-import { JsonRpcProvider, Provider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -16,7 +17,8 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeB;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: Provider;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(() => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -30,8 +32,9 @@ describe("Node can create multisig, other owners get notified", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
-    // fake provider as nothing is listening on this URL
-    provider = new JsonRpcProvider("localhost:8545");
+
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
   });
 
   beforeEach(async () => {

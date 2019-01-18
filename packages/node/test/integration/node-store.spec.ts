@@ -1,7 +1,8 @@
 import { AddressZero } from "ethers/constants";
-import { JsonRpcProvider, Provider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
 import mockMessagingService from "../services/mock-messaging-service";
@@ -14,7 +15,8 @@ describe("Node can use storage service", () => {
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
-  let provider: Provider;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(async () => {
     const firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -28,8 +30,8 @@ describe("Node can use storage service", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
-    // fake provider as nothing is listening on this URL
-    provider = new JsonRpcProvider("localhost:8545");
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
 
     node = await Node.create(
       mockMessagingService,
