@@ -98,12 +98,12 @@ describe("Node method follows spec - getAppInstances", () => {
     const getStateResult = await node.call(getStateReq.type, getStateReq);
     const state = (getStateResult.result as NodeTypes.GetStateResult).state;
     expect(state.foo).toEqual(
-      // @ts-ignore
-      appInstanceInstallationProposalRequest.params.initialState.foo
+      (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams)
+        .initialState.foo
     );
     expect(state.bar).toEqual(
-      // @ts-ignore
-      appInstanceInstallationProposalRequest.params.initialState.bar
+      (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams)
+        .initialState.bar
     );
   });
 });
