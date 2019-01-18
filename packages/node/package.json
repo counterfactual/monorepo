@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
@@ -17,6 +17,7 @@
     "@types/node": "^10.9.3",
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
+    "ganache-core": "2.3.3",
     "jest": "^23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -33,7 +34,7 @@
     "@counterfactual/types": "0.0.1",
     "ethers": "4.0.21",
     "eventemitter3": "^3.1.0",
-    "firebase": "5.7.1",
+    "firebase": "5.8.0",
     "uuid": "^3.3.2"
   },
   "jest": {

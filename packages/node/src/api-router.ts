@@ -4,7 +4,8 @@ import {
   addMultisigController,
   installEventController,
   proposeInstallEventController,
-  proposeInstallVirtualEventController
+  proposeInstallVirtualEventController,
+  takeActionEventController
 } from "./events";
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
@@ -15,7 +16,8 @@ import {
   getProposedAppInstancesController,
   installAppInstanceController,
   proposeInstallAppInstanceController,
-  proposeInstallVirtualAppInstanceController
+  proposeInstallVirtualAppInstanceController,
+  takeActionController
 } from "./methods";
 import { NODE_EVENTS } from "./types";
 
@@ -29,7 +31,8 @@ export const methodNameToImplementation = {
   [Node.MethodName.INSTALL]: installAppInstanceController,
   [Node.MethodName
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
-  [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController
+  [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
+  [Node.MethodName.TAKE_ACTION]: takeActionController
 };
 
 export const eventNameToImplementation = {
@@ -37,6 +40,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
+  [NODE_EVENTS.TAKE_ACTION]: takeActionEventController,
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},

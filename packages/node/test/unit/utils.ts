@@ -55,7 +55,7 @@ export function createAppInstance() {
     // TODO: this should be thread-safe
     1,
     0,
-    { foo: AddressZero, bar: 0 },
+    { foo: AddressZero, bar: bigNumberify(0) },
     0,
     0
   );

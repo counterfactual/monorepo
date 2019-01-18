@@ -31,10 +31,10 @@ export async function createProposedVirtualAppInstance(
     store
   );
 
-  const proposedAppInstance = new ProposedAppInstanceInfo(
-    appInstanceId,
-    params
-  );
+  const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
+    ...params,
+    initiatingAddress: selfAddress
+  });
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
 

@@ -1,6 +1,8 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { Provider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
+import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -20,6 +22,8 @@ describe("Node method follows spec - getAppInstances", () => {
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
+  let mockProvider: Provider;
+  let provider;
 
   beforeAll(() => {
     const firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -33,6 +37,8 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
+    mockProvider = mock(Provider);
+    provider = instance(mockProvider);
   });
 
   beforeEach(async () => {
@@ -40,7 +46,8 @@ describe("Node method follows spec - getAppInstances", () => {
       mockMessagingService,
       storeService,
       EMPTY_NETWORK,
-      nodeConfig
+      nodeConfig,
+      provider
     );
   });
 
@@ -66,7 +73,6 @@ describe("Node method follows spec - getAppInstances", () => {
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      node.address,
       respondingAddress
     );
 
@@ -91,9 +97,13 @@ describe("Node method follows spec - getAppInstances", () => {
 
     const getStateResult = await node.call(getStateReq.type, getStateReq);
     const state = (getStateResult.result as NodeTypes.GetStateResult).state;
-    expect(state).toEqual(
-      // @ts-ignore
-      appInstanceInstallationProposalRequest.params.initialState
+    expect(state.foo).toEqual(
+      (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams)
+        .initialState.foo
+    );
+    expect(state.bar).toEqual(
+      (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams)
+        .initialState.bar
     );
   });
 });

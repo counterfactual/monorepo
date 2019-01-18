@@ -1,6 +1,5 @@
 import {
   APIError,
-  APIMessageSignature,
   APIRequest,
   APIResource,
   APIResourceCollection,
@@ -18,19 +17,15 @@ const BASE_URL = `ENV:API_HOST`;
 async function post(
   endpoint: string,
   data: APIResource,
-  signature?: APIMessageSignature
+  signature?: string
 ): Promise<APIResponse> {
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     body: JSON.stringify({
-      data,
-      meta: signature
-        ? {
-            signature
-          }
-        : {}
+      data
     } as APIRequest),
     headers: {
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json; charset=utf-8",
+      ...(signature ? { Authorization: `Signature ${signature}` } : {})
     },
     method: "POST"
   });
@@ -94,7 +89,7 @@ function toAPIResource<TModel, TResource>(
 export default class PlaygroundAPIClient {
   public static async createAccount(
     user: UserChangeset,
-    signature: APIMessageSignature
+    signature: string
   ): Promise<UserSession> {
     try {
       const data = toAPIResource<UserChangeset, UserAttributes>(user);
@@ -109,7 +104,7 @@ export default class PlaygroundAPIClient {
 
   public static async login(
     user: SessionAttributes,
-    signature: APIMessageSignature
+    signature: string
   ): Promise<UserSession> {
     try {
       const json = (await post(
