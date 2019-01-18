@@ -66,11 +66,7 @@ export type APIResource<T = APIResourceAttributes> = {
 export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];
 
 export type APIMetadata = {
-  signature: APIMessageSignature;
-};
-
-export type APIMessageSignature = {
-  signedMessage: string;
+  [key: string]: string | number | boolean | APIMetadata;
 };
 
 export type APIDataContainer<T = APIResourceAttributes> = {
