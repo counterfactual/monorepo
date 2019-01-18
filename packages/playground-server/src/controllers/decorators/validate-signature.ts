@@ -3,9 +3,9 @@ import { IRouterContext } from "koa-router";
 import { Log } from "logepi";
 
 import {
-  APIMetadata,
   APIRequest,
   APIResource,
+  AuthenticatedRequest,
   ErrorCode,
   SessionAttributes
 } from "../../types";
@@ -20,12 +20,12 @@ function validateSignatureMiddleware(
 ) {
   return async (...args) => {
     const ctx = args.find(arg => "request" in arg) as IRouterContext;
-
+    const signedRequest = ctx.request as AuthenticatedRequest;
+    const signedHeader = signedRequest.headers.authorization;
     const json = ctx.request.body as APIRequest;
     const resource = json.data as APIResource;
-    const metadata = json.meta as APIMetadata;
 
-    if (!metadata || !metadata.signature) {
+    if (!signedHeader) {
       Log.info("Cancelling request, signature is required", {
         tags: {
           resourceType: controller.resourceType,
@@ -35,13 +35,23 @@ function validateSignatureMiddleware(
       throw ErrorCode.SignatureRequired;
     }
 
+    if (!signedHeader.startsWith("Signature ")) {
+      Log.info("Cancelling request, signature is invalid", {
+        tags: {
+          resourceType: controller.resourceType,
+          middleware: "validateSignature"
+        }
+      });
+      throw ErrorCode.InvalidSignature;
+    }
+
     const expectedMessage = await expectedSignatureMessage(resource);
     const ethAddress = getAddress(
       (((json as unknown) as APIRequest<SessionAttributes>).data as APIResource<
         SessionAttributes
       >).attributes.ethAddress
     );
-    const { signedMessage } = metadata.signature;
+    const [, signedMessage] = signedHeader.split(" ");
 
     const expectedAddress = verifyMessage(
       expectedMessage as string,
