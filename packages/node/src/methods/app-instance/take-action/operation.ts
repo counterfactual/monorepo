@@ -51,3 +51,17 @@ async function makeApplyActionCall(
     return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
   }
 }
+
+export async function actionIsEncondable(
+  appInstance: AppInstance,
+  action: AppState
+): Promise<void> {
+  if (isNotDefinedOrEmpty(appInstance.appInterface.actionEncoding)) {
+    return Promise.reject(ERRORS.NO_ACTION_ENCODING_FOR_APP_INSTANCE);
+  }
+  try {
+    appInstance.encodeAction(action);
+  } catch (e) {
+    return Promise.reject(ERRORS.ACTION_OBJECT_NOT_DECODABLE);
+  }
+}

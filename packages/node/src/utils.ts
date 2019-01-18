@@ -44,6 +44,6 @@ export async function getPeersAddressFromAppInstanceID(
   return owners.filter(owner => owner !== selfAddress);
 }
 
-export function isNotDefinedOrEmpty(str: string) {
+export function isNotDefinedOrEmpty(str?: string) {
   return !str || str.trim() === "";
 }

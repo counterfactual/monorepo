@@ -246,6 +246,13 @@ export class AppInstance {
     });
   }
 
+  public encodeAction(action: any) {
+    return defaultAbiCoder.encode(
+      [this.json.appInterface.actionEncoding!],
+      [action]
+    );
+  }
+
   public decodeAppState(encodedAppState: string): any {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
