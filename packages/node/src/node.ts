@@ -53,7 +53,7 @@ export class Node {
       provider
     );
 
-    return await node.asyncronouslyConnectRemoteServices();
+    return await node.asyncronouslySetupUsingRemoteServices();
   }
 
   private constructor(
@@ -70,7 +70,7 @@ export class Node {
     this.registerIoMiddleware();
   }
 
-  private async asyncronouslyConnectRemoteServices(): Promise<Node> {
+  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
