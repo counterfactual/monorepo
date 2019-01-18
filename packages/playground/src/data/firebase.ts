@@ -6,7 +6,7 @@ import firebase from "firebase/app";
 import "firebase/database";
 
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: any);
+  send(respondingAddress: Address, msg: any): Promise<void>;
   onReceive(address: Address, callback: (msg: any) => void);
 }
 

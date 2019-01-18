@@ -2,9 +2,11 @@ import { Address } from "@counterfactual/types";
 import * as firebase from "firebase/app";
 import "firebase/database";
 
+import { NodeMessage } from "./types";
+
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: any);
-  onReceive(address: Address, callback: (msg: any) => void);
+  send(respondingAddress: Address, msg: NodeMessage): Promise<void>;
+  onReceive(address: Address, callback: (msg: NodeMessage) => void);
 }
 
 export interface IStoreService {
@@ -62,7 +64,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  onReceive(address: Address, callback: (msg: object) => void) {
+  onReceive(address: Address, callback: (msg: NodeMessage) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"

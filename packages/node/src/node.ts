@@ -14,7 +14,11 @@ import EventEmitter from "eventemitter3";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getSigner } from "./signer";
-import { NODE_EVENTS, NodeMessage } from "./types";
+import {
+  NODE_EVENTS,
+  NodeMessage,
+  NodeMessageWrappedProtocolMessage
+} from "./types";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -119,11 +123,15 @@ export class Node {
     this.instructionExecutor.register(
       Opcode.IO_SEND,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        await this.messagingService.send(context.outbox[0].toAddress, {
+        const protocolMsg: NodeMessageWrappedProtocolMessage = {
           from: this.address,
           event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
           data: context.outbox[0]
-        });
+        };
+        await this.messagingService.send(
+          context.outbox[0].toAddress,
+          protocolMsg
+        );
         next();
       }
     );
