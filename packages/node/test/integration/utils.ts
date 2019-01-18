@@ -10,7 +10,6 @@ import {
   Node as NodeTypes
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
-import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
@@ -135,7 +134,7 @@ export function makeInstallProposalRequest(
   if (!nullInitialState) {
     initialState = {
       foo: AddressZero,
-      bar: bigNumberify(0)
+      bar: Zero
     } as AppState;
   }
 
