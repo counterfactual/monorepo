@@ -232,6 +232,23 @@ export class Store {
     ]);
   }
 
+  public async removeAppInstanceProposal(appInstanceId: string) {
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+        value: null
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+        value: null
+      }
+    ]);
+  }
+
   public async getAppInstanceInfo(
     appInstanceId: string
   ): Promise<AppInstanceInfo> {

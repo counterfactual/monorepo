@@ -17,6 +17,7 @@ import {
   installAppInstanceController,
   proposeInstallAppInstanceController,
   proposeInstallVirtualAppInstanceController,
+  rejectInstallController,
   takeActionController
 } from "./methods";
 import { NODE_EVENTS } from "./types";
@@ -32,7 +33,8 @@ export const methodNameToImplementation = {
   [Node.MethodName
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
-  [Node.MethodName.TAKE_ACTION]: takeActionController
+  [Node.MethodName.TAKE_ACTION]: takeActionController,
+  [Node.MethodName.REJECT_INSTALL]: rejectInstallController
 };
 
 export const eventNameToImplementation = {

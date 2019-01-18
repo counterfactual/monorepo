@@ -66,3 +66,9 @@ export interface TakeActionMessage extends NodeMessage {
     appInstanceId: string;
   };
 }
+
+export interface RejectProposalMessage extends NodeMessage {
+  data: {
+    appInstanceId: string;
+  };
+}
