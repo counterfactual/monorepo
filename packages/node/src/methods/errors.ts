@@ -7,5 +7,13 @@ export const ERRORS = {
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID:
     "No proposed AppInstance exists for the given appInstanceId",
   NULL_INITIAL_STATE_FOR_PROPOSAL:
-    "A proposed AppInstance cannot have an empty initial state"
+    "A proposed AppInstance cannot have an empty initial state",
+  NO_APP_INSTANCE_FOR_TAKE_ACTION:
+    "No AppInstanceId specified to takeAction on",
+  NO_APP_CONTRACT_ADDR: "The App Contract address is empty",
+  INVALID_ACTION: "Invalid action taken",
+  NO_ACTION_ENCODING_FOR_APP_INSTANCE:
+    "The AppInstance does not have an Action encoding defined",
+  ACTION_OBJECT_NOT_ENCODABLE:
+    "The Action object is not encodable by the AppInstance's Action encoding"
 };

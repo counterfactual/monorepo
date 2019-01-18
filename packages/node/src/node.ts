@@ -7,6 +7,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
+import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -41,13 +42,15 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     networkContext: NetworkContext,
-    nodeConfig: NodeConfig
+    nodeConfig: NodeConfig,
+    provider: Provider
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       networkContext,
-      nodeConfig
+      nodeConfig,
+      provider
     );
     await node.init();
     return node;
@@ -57,7 +60,8 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly networkContext: NetworkContext,
-    private readonly nodeConfig: NodeConfig
+    private readonly nodeConfig: NodeConfig,
+    private readonly provider: Provider
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
@@ -77,6 +81,7 @@ export class Node {
       this.messagingService,
       this.instructionExecutor,
       this.networkContext,
+      this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
   }

@@ -7,6 +7,7 @@ import {
 } from "@counterfactual/machine";
 import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
+import { Provider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 
 import {
@@ -33,6 +34,7 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
+    readonly provider: Provider,
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
