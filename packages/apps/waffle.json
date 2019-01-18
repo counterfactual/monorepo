@@ -1,3 +1,4 @@
 {
-  "npmPath": "../../node_modules"
+  "npmPath": "../../node_modules",
+  "compiler":  "native",
 }
