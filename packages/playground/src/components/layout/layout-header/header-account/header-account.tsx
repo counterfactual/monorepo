@@ -82,9 +82,7 @@ export class HeaderAccount {
         {
           ethAddress: this.user.ethAddress
         },
-        {
-          signedMessage: signedData
-        }
+        signedData
       );
 
       web3.eth.getBalance(

@@ -81,9 +81,7 @@ export class AccountRegister {
     try {
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
-        {
-          signedMessage
-        }
+        signedMessage
       );
 
       this.updateAccount({
