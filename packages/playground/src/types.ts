@@ -11,6 +11,7 @@ export interface UserChangeset {
   username: string;
   email: string;
   ethAddress: string;
+  nodeAddress: string;
 }
 
 export type ComponentEventHandler = (event: CustomEvent<any>) => void;

@@ -3,6 +3,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import CounterfactualNode from "../../../data/counterfactual";
 import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
 import { UserChangeset } from "../../../types";
@@ -12,7 +13,8 @@ function buildSignaturePayload(data: UserChangeset) {
     "PLAYGROUND ACCOUNT REGISTRATION",
     `Username: ${data.username}`,
     `E-mail: ${data.email}`,
-    `Ethereum address: ${data.ethAddress}`
+    `Ethereum address: ${data.ethAddress}`,
+    `Node address: ${data.nodeAddress}`
   ].join("\n");
 }
 
@@ -32,18 +34,18 @@ export class AccountRegister {
   changeset: UserChangeset = {
     username: "",
     email: "",
-    ethAddress: this.user.ethAddress
+    ethAddress: this.user.ethAddress,
+    nodeAddress: CounterfactualNode.getInstance().address
   };
 
   @State() errors: UserChangeset = {
     username: "",
     email: "",
-    ethAddress: ""
+    ethAddress: "",
+    nodeAddress: ""
   };
 
-  login() {
-    console.log("login");
-  }
+  login() {}
 
   change(key: keyof UserChangeset, event: Event) {
     this.changeset[key] = (event.target as HTMLInputElement).value;
@@ -77,7 +79,6 @@ export class AccountRegister {
     // Call the API and store the multisig.
 
     try {
-      debugger;
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
         {
@@ -103,7 +104,7 @@ export class AccountRegister {
 
   setErrorMessage(errorCode: string) {
     let update = {};
-    this.errors = { username: "", email: "", ethAddress: "" };
+    this.errors = { username: "", email: "", ethAddress: "", nodeAddress: "" };
 
     switch (errorCode) {
       case "username_required":
