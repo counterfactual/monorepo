@@ -1,4 +1,6 @@
-import { NetworkContext } from "@counterfactual/types";
+declare var cuid: () => string;
+
+import { NetworkContext, Node } from "@counterfactual/types";
 import { Component, Element, State } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
@@ -122,15 +124,30 @@ export class NodeListener {
     this.showModal();
   }
 
+  onRejectInstall(data) {}
+
   acceptProposeInstall() {
+    this.node.call(Node.MethodName.INSTALL_VIRTUAL, {
+      type: Node.MethodName.INSTALL_VIRTUAL,
+      params: {
+        appInstanceId: this.currentMessage.data.params.appInstanceId,
+        intermediaries: this.currentMessage.data.params.intermediaries
+      } as Node.InstallVirtualParams,
+      requestId: cuid()
+    });
     this.hideModal();
   }
 
   rejectProposeInstall() {
+    this.node.call(Node.MethodName.REJECT_INSTALL, {
+      type: Node.MethodName.REJECT_INSTALL,
+      params: {
+        appInstanceId: this.currentMessage.data.params.appInstanceId
+      } as Node.RejectInstallParams,
+      requestId: cuid()
+    });
     this.hideModal();
   }
-
-  onRejectInstall(data) {}
 
   showModal() {
     this.modalVisible = true;
