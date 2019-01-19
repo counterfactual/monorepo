@@ -1,34 +1,32 @@
+import {
+  decorateWith,
+  JsonApiRequest,
+  OperationProcessor,
+  Resource
+} from "@ebryn/jsonapi-ts";
 import { getAddress, verifyMessage } from "ethers/utils";
 import { IRouterContext } from "koa-router";
 import { Log } from "logepi";
 
-import {
-  APIRequest,
-  APIResource,
-  AuthenticatedRequest,
-  ErrorCode,
-  SessionAttributes
-} from "../../types";
-import Controller from "../controller";
-
-import decorateWith from "./decorator";
+import { User } from "../resources";
+import { AuthenticatedRequest, ErrorCode } from "../types";
 
 function validateSignatureMiddleware(
-  controller: Controller<any>,
-  originalFunction: Function,
-  expectedSignatureMessage: (resource: APIResource<any>) => Promise<string>
+  operationProcessor: OperationProcessor,
+  operation: Function,
+  expectedSignatureMessage: (resource: Resource) => Promise<string>
 ) {
   return async (...args) => {
     const ctx = args.find(arg => "request" in arg) as IRouterContext;
     const signedRequest = ctx.request as AuthenticatedRequest;
     const signedHeader = signedRequest.headers.authorization;
-    const json = ctx.request.body as APIRequest;
-    const resource = json.data as APIResource;
+    const json = ctx.request.body as JsonApiRequest;
+    const user = json.data as User;
 
     if (!signedHeader) {
       Log.info("Cancelling request, signature is required", {
         tags: {
-          resourceType: controller.resourceType,
+          resourceType: operationProcessor.resourceName,
           middleware: "validateSignature"
         }
       });
@@ -38,19 +36,15 @@ function validateSignatureMiddleware(
     if (!signedHeader.startsWith("Signature ")) {
       Log.info("Cancelling request, signature is invalid", {
         tags: {
-          resourceType: controller.resourceType,
+          resourceType: operationProcessor.resourceName,
           middleware: "validateSignature"
         }
       });
       throw ErrorCode.InvalidSignature;
     }
 
-    const expectedMessage = await expectedSignatureMessage(resource);
-    const ethAddress = getAddress(
-      (((json as unknown) as APIRequest<SessionAttributes>).data as APIResource<
-        SessionAttributes
-      >).attributes.ethAddress
-    );
+    const expectedMessage = await expectedSignatureMessage(user);
+    const ethAddress = getAddress(user.attributes.ethAddress);
     const [, signedMessage] = signedHeader.split(" ");
 
     const expectedAddress = verifyMessage(
@@ -61,14 +55,14 @@ function validateSignatureMiddleware(
     if (expectedAddress !== ethAddress) {
       Log.info("Cancelling request, signature is not valid", {
         tags: {
-          resourceType: controller.resourceType,
+          resourceType: operationProcessor.resourceName,
           middleware: "validateSignature"
         }
       });
       throw ErrorCode.InvalidSignature;
     }
 
-    return originalFunction.call(controller, ...args);
+    return operation.call(operationProcessor, ...args);
   };
 }
 
@@ -82,10 +76,10 @@ function validateSignatureMiddleware(
  * decorates a method and the request has no signature, it'll throw a
  * `signature_required` error.
  */
-export default function validateSignature({
+export default function validateSignature<T extends Resource = {} & Resource>({
   expectedMessage
 }: {
-  expectedMessage: (resource: APIResource<any>) => Promise<string>;
+  expectedMessage: (resource: T) => Promise<string>;
 }) {
   return decorateWith(validateSignatureMiddleware, expectedMessage);
 }

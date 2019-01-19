@@ -31,6 +31,7 @@ export const USR_CHARLIE = {
 
 export const POST_USERS_ALICE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
@@ -42,6 +43,7 @@ export const POST_USERS_ALICE_SIGNATURE_HEADER = {
 
 export const POST_USERS_ALICE_NO_SIGNATURE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
@@ -57,6 +59,7 @@ export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE_DUPLICATE_USERNAME }
   }
 };
@@ -68,6 +71,7 @@ export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = {
 
 export const POST_USERS_CHARLIE = {
   data: {
+    type: "user",
     attributes: { ...USR_CHARLIE }
   }
 };
@@ -79,8 +83,7 @@ export const POST_USERS_CHARLIE_SIGNATURE_HEADER = {
 
 export const POST_SESSION_CHARLIE = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: "0x93678a4828d07708ad34272d61404dd06ae2ca64" }
   }
 };
@@ -92,8 +95,7 @@ export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = {
 
 export const POST_SESSION_BOB = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d" }
   }
 };
@@ -105,8 +107,7 @@ export const POST_SESSION_BOB_SIGNATURE_HEADER = {
 
 export const POST_SESSION_ALICE = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: "0x5faddca4889ddc5791cf65446371151f29653285" }
   }
 };

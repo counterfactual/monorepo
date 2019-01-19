@@ -1,3 +1,10 @@
+import {
+  HttpStatusCode,
+  JsonApiDocument,
+  JsonApiErrorDocument,
+  ResourceRelationship,
+  ResourceTypeRelationships
+} from "@ebryn/jsonapi-ts";
 import axios from "axios";
 import { readFileSync } from "fs";
 import { Server } from "http";
@@ -7,16 +14,8 @@ import { resolve } from "path";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import { createNodeSingleton, getNodeAddress } from "../src/node";
-import {
-  APIResource,
-  APIResourceCollection,
-  APIResourceRelationships,
-  APIResponse,
-  AppAttributes,
-  ErrorCode,
-  HttpStatusCode,
-  UserAttributes
-} from "../src/types";
+import { MatchedUser, MatchmakingRequest, User } from "../src/resources";
+import { ErrorCode } from "../src/types";
 
 import {
   POST_SESSION_ALICE,
@@ -37,6 +36,7 @@ import {
 } from "./mock-data";
 
 const api = mountApi();
+
 let server: Server;
 
 const client = axios.create({
@@ -85,18 +85,7 @@ describe("playground-server", () => {
           readFileSync(resolve(__dirname, "../registry.json")).toString()
         );
         expect(response.status).toEqual(HttpStatusCode.OK);
-        expect(response.data).toEqual({
-          data: registry.apps.map((app: AppAttributes & { id: string }) => ({
-            type: "apps",
-            id: app.id,
-            attributes: {
-              name: app.name,
-              url: app.url,
-              slug: app.slug,
-              icon: app.icon
-            }
-          }))
-        });
+        expect(response.data).toEqual(registry);
         done();
       });
     });
@@ -114,7 +103,7 @@ describe("playground-server", () => {
                 code: ErrorCode.SignatureRequired
               }
             ]
-          } as APIResponse);
+          } as JsonApiErrorDocument<ErrorCode>);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -129,12 +118,12 @@ describe("playground-server", () => {
           expect(response.data).toEqual({
             errors: [
               {
-                status: HttpStatusCode.Forbidden,
+                status: HttpStatusCode.BadRequest,
                 code: ErrorCode.InvalidSignature
               }
             ]
-          } as APIResponse);
-          expect(response.status).toEqual(HttpStatusCode.Forbidden);
+          } as JsonApiErrorDocument<ErrorCode>);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
     });
@@ -145,7 +134,7 @@ describe("playground-server", () => {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER
         })
         .then(response => {
-          const data = response.data.data as APIResource<UserAttributes>;
+          const data = response.data.data as User;
 
           expect(data.id).toBeDefined();
           expect(data.attributes.username).toEqual(USR_ALICE.username);
@@ -172,7 +161,7 @@ describe("playground-server", () => {
                 code: ErrorCode.AddressAlreadyRegistered
               }
             ]
-          } as APIResponse);
+          } as JsonApiErrorDocument<ErrorCode>);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -191,32 +180,38 @@ describe("playground-server", () => {
                 code: ErrorCode.UsernameAlreadyExists
               }
             ]
-          } as APIResponse);
+          } as JsonApiErrorDocument<ErrorCode>);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
     });
   });
 
-  describe("/api/session", () => {
+  describe("/api/session-requests", () => {
     it("fails if no signature is provided", done => {
-      client.post("/session").catch(({ response }) => {
-        expect(response.data).toEqual({
-          errors: [
-            {
-              status: HttpStatusCode.BadRequest,
-              code: ErrorCode.SignatureRequired
-            }
-          ]
-        } as APIResponse);
-        expect(response.status).toEqual(HttpStatusCode.BadRequest);
-        done();
-      });
+      client
+        .post("/session-requests", {
+          data: {
+            type: "sessionRequest"
+          }
+        })
+        .catch(({ response }) => {
+          expect(response.data).toEqual({
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.SignatureRequired
+              }
+            ]
+          } as JsonApiErrorDocument<ErrorCode>);
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
+          done();
+        });
     });
 
     it("fails for a non-registered address", done => {
       client
-        .post("/session", POST_SESSION_CHARLIE, {
+        .post("/session-requests", POST_SESSION_CHARLIE, {
           headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER
         })
         .catch(({ response }) => {
@@ -235,7 +230,7 @@ describe("playground-server", () => {
 
     it("returns user data with a token", async done => {
       client
-        .post("/session", POST_SESSION_ALICE, {
+        .post("/session-requests", POST_SESSION_ALICE, {
           headers: POST_SESSION_ALICE_SIGNATURE_HEADER
         })
         .then(response => {
@@ -261,7 +256,7 @@ describe("playground-server", () => {
           errors: [
             {
               status: HttpStatusCode.Unauthorized,
-              code: ErrorCode.TokenRequired
+              code: "access_denied"
             }
           ]
         });
@@ -299,20 +294,26 @@ describe("playground-server", () => {
     });
   });
 
-  describe("/api/matchmaking", () => {
+  describe("/api/matchmaking-requests", () => {
     it("fails if no token is provided", done => {
-      client.post("/matchmaking").catch(({ response }) => {
-        expect(response.data).toEqual({
-          errors: [
-            {
-              status: HttpStatusCode.Unauthorized,
-              code: ErrorCode.TokenRequired
-            }
-          ]
+      client
+        .post("/matchmaking-requests", {
+          data: {
+            type: "matchmakingRequest"
+          }
+        })
+        .catch(({ response }) => {
+          expect(response.data).toEqual({
+            errors: [
+              {
+                status: HttpStatusCode.BadRequest,
+                code: ErrorCode.UserAddressRequired
+              }
+            ]
+          });
+          expect(response.status).toEqual(HttpStatusCode.BadRequest);
+          done();
         });
-        expect(response.status).toEqual(HttpStatusCode.Unauthorized);
-        done();
-      });
     });
 
     it("fails when there are no users to match with", async done => {
@@ -322,8 +323,12 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmaking",
-          {},
+          "/matchmaking-requests",
+          {
+            data: {
+              type: "matchmakingRequest"
+            }
+          },
           {
             headers: {
               Authorization: `Bearer ${TOKEN_BOB}`
@@ -354,8 +359,12 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmaking",
-          {},
+          "/matchmaking-requests",
+          {
+            data: {
+              type: "matchmakingRequest"
+            }
+          },
           {
             headers: {
               Authorization: `Bearer ${TOKEN_BOB}`
@@ -363,25 +372,27 @@ describe("playground-server", () => {
           }
         )
         .then(response => {
-          const json = response.data as APIResponse;
-          const data = json.data as APIResource;
-          const rels = data.relationships as APIResourceRelationships;
-          const included = json.included as APIResourceCollection;
+          const json = response.data as JsonApiDocument<MatchmakingRequest>;
+          const data = json.data as MatchmakingRequest;
+          const rels = data.relationships as ResourceTypeRelationships;
+          const included = json.included as MatchedUser[];
 
-          expect(data.type).toEqual("matchmaking");
+          expect(data.type).toEqual("matchmakingRequest");
           expect(data.id).toBeDefined();
           expect(data.attributes).toEqual({
             intermediary: getNodeAddress()
           });
-          expect((rels.users!.data as APIResource).type).toEqual("users");
-          expect((rels.matchedUser!.data as APIResource).type).toEqual(
+          expect((rels.user.data as ResourceRelationship).type).toEqual("user");
+          expect((rels.matchedUser.data as ResourceRelationship).type).toEqual(
             "matchedUser"
           );
           expect(rels).toBeDefined();
-          expect((rels.users!.data as APIResource).id).toBeDefined();
-          expect((rels.matchedUser!.data as APIResource).id).toBeDefined();
+          expect((rels.user.data as ResourceRelationship).id).toBeDefined();
+          expect(
+            (rels.matchedUser.data as ResourceRelationship).id
+          ).toBeDefined();
           expect(included).toBeDefined();
-          expect(included[0].type).toEqual("users");
+          expect(included[0].type).toEqual("user");
           expect(included[0].attributes.username).toEqual(USR_BOB.username);
           expect(included[0].attributes.ethAddress).toEqual(USR_BOB.ethAddress);
           expect(included[0].attributes.nodeAddress).toEqual(
@@ -416,8 +427,12 @@ describe("playground-server", () => {
 
       client
         .post(
-          "/matchmaking",
-          {},
+          "/matchmaking-requests",
+          {
+            data: {
+              type: "matchmakingRequest"
+            }
+          },
           {
             headers: {
               Authorization: `Bearer ${TOKEN_BOB}`

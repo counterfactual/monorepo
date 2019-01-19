@@ -1,34 +1,34 @@
+import { ResourceRegistry } from "@ebryn/jsonapi-ts";
 import cors from "@koa/cors";
 import Koa from "koa";
 import bodyParser from "koa-body";
+import Router from "koa-router";
 import { KoaLoggingMiddleware as logs } from "logepi";
-import path from "path";
 
 // API Controllers
-import AppsController from "./controllers/apps";
-import MatchmakingController from "./controllers/matchmaking";
-import SessionController from "./controllers/session";
-import UsersController from "./controllers/users";
-import Router from "./router";
-import { AppsControllerOptions } from "./types";
+import authenticate from "./middlewares/authenticate";
+import AppProcessor from "./resources/app/processor";
+import MatchmakingRequestProcessor from "./resources/matchmaking-request/processor";
+import SessionRequestProcessor from "./resources/session-request/processor";
+import UserProcessor from "./resources/user/processor";
 
 export default function mountApi() {
   const api = new Koa();
 
   const router = new Router({ prefix: "/api" });
+  const processors = new ResourceRegistry(router);
 
   api
     .use(bodyParser({ json: true }))
     .use(cors({ keepHeadersOnError: false }))
+    .use(authenticate())
     .use(
-      router
-        .inject<AppsControllerOptions>(AppsController, "apps", {
-          registryPath: path.resolve(__dirname, "../registry.json")
-        })
-        .inject(UsersController, "users")
-        .inject(SessionController, "session")
-        .inject(MatchmakingController, "matchmaking")
-        .routes()
+      processors
+        .register("app", AppProcessor)
+        .register("matchmakingRequest", MatchmakingRequestProcessor)
+        .register("sessionRequest", SessionRequestProcessor)
+        .register("user", UserProcessor)
+        .getEndpoints()
     )
     .use(logs());
 

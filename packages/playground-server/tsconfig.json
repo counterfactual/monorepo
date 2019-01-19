@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2016",
+    "target": "es2017",
     "experimentalDecorators": true
   }
 }
