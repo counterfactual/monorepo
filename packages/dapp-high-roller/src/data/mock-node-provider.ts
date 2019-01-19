@@ -52,7 +52,7 @@ export default class NodeProvider implements INodeProvider {
             type: Node.EventName.INSTALL,
             data: { appInstanceId }
           },
-          200
+          5000
         );
         break;
       case Node.MethodName.GET_APP_INSTANCE_DETAILS:
