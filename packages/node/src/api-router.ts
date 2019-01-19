@@ -3,6 +3,7 @@ import { Node } from "@counterfactual/types";
 import {
   addMultisigController,
   installEventController,
+  installVirtualEventController,
   proposeInstallEventController,
   proposeInstallVirtualEventController,
   takeActionEventController
@@ -15,6 +16,7 @@ import {
   getInstalledAppInstancesController,
   getProposedAppInstancesController,
   installAppInstanceController,
+  installVirtualAppInstanceController,
   proposeInstallAppInstanceController,
   proposeInstallVirtualAppInstanceController,
   takeActionController
@@ -29,6 +31,7 @@ export const methodNameToImplementation = {
     .GET_PROPOSED_APP_INSTANCES]: getProposedAppInstancesController,
   [Node.MethodName.GET_STATE]: getAppInstanceStateController,
   [Node.MethodName.INSTALL]: installAppInstanceController,
+  [Node.MethodName.INSTALL_VIRTUAL]: installVirtualAppInstanceController,
   [Node.MethodName
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
@@ -38,6 +41,7 @@ export const methodNameToImplementation = {
 export const eventNameToImplementation = {
   [NODE_EVENTS.CREATE_MULTISIG]: addMultisigController,
   [NODE_EVENTS.INSTALL]: installEventController,
+  [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
   [NODE_EVENTS.TAKE_ACTION]: takeActionEventController,

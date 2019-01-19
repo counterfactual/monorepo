@@ -78,7 +78,7 @@ export async function install(
  * @param appInstanceInfo The AppInstanceInfo to convert
  * @param channel The channel the AppInstanceInfo belongs to
  */
-function createAppInstanceFromAppInstanceInfo(
+export function createAppInstanceFromAppInstanceInfo(
   proposedAppInstanceInfo: ProposedAppInstanceInfo,
   channel: StateChannel
 ): AppInstance {

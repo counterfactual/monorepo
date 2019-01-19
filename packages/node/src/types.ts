@@ -13,7 +13,8 @@ enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   TAKE_ACTION = "takeActionEvent",
-  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent"
+  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+  INSTALL_VIRTUAL = "installVirtualEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
@@ -48,6 +49,13 @@ export interface ProposeVirtualMessage extends NodeMessage {
 }
 
 export interface InstallMessage extends NodeMessage {
+  data: {
+    params: Node.InstallParams;
+  };
+}
+
+export interface InstallVirtualMessage extends NodeMessage {
+  // TODO: update this to include the intermediares
   data: {
     params: Node.InstallParams;
   };
