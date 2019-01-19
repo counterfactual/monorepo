@@ -52,8 +52,8 @@ export class Node {
       nodeConfig,
       provider
     );
-    await node.init();
-    return node;
+
+    return await node.asyncronouslySetupUsingRemoteServices();
   }
 
   private constructor(
@@ -70,7 +70,7 @@ export class Node {
     this.registerIoMiddleware();
   }
 
-  private async init() {
+  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
@@ -84,6 +84,7 @@ export class Node {
       this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    return this;
   }
 
   get address() {
