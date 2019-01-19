@@ -86,7 +86,7 @@ export async function getProposedAppInstanceInfo(
   })[0];
 }
 
-async function getApps(
+export async function getApps(
   node: Node,
   appInstanceStatus: APP_INSTANCE_STATUS
 ): Promise<AppInstanceInfo[]> {
@@ -125,6 +125,18 @@ export function makeInstallRequest(
   };
 }
 
+export function makeRejectInstallRequest(
+  appInstanceId: string
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.REJECT_INSTALL,
+    params: {
+      appInstanceId
+    } as NodeTypes.RejectInstallParams
+  };
+}
+
 export function makeInstallProposalRequest(
   respondingAddress: Address,
   nullInitialState: boolean = false
@@ -158,6 +170,20 @@ export function makeInstallProposalRequest(
     requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
+}
+
+export function makeInstallVirtualRequest(
+  appInstanceId: string,
+  intermediaries: Address[]
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      intermediaries
+    } as NodeTypes.InstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.INSTALL_VIRTUAL
+  };
 }
 
 export function makeInstallVirtualProposalRequest(
