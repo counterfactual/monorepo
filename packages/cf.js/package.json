@@ -10,7 +10,6 @@
   ],
   "repository": "https://github.com/counterfactual/cf.js",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
