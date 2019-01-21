@@ -9,9 +9,9 @@ import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
-  freeBalanceTerms,
-  getFreeBalanceAppInterface
-} from "../ethereum/utils/free-balance";
+  getETHBucketAppInterface,
+  unlimitedETH
+} from "../ethereum/utils/eth-bucket";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -67,8 +67,8 @@ function createETHFreeBalance(
     multisigAddress,
     multisigOwners,
     HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
-    getFreeBalanceAppInterface(ethBucketAddress),
-    freeBalanceTerms,
+    getETHBucketAppInterface(ethBucketAddress),
+    unlimitedETH,
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
@@ -166,34 +166,30 @@ export class StateChannel {
     return this.setState(freeBalance.identityHash, state);
   }
 
-  public setupChannel(network: NetworkContext) {
-    const size = this.appInstances.size;
-
-    if (size > 0) throw Error(`${ERRORS.APPS_NOT_EMPTY(size)})`);
-
+  public static setupChannel(
+    network: NetworkContext,
+    multisigAddress: string,
+    multisigOwners: string[]
+  ) {
     const fb = createETHFreeBalance(
-      this.multisigAddress,
-      this.multisigOwners,
+      multisigAddress,
+      multisigOwners,
       network.ETHBucket
     );
 
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
+    const appInstances = new Map<string, AppInstance>();
     appInstances.set(fb.identityHash, fb);
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>(
-      this.freeBalanceAppIndexes.entries()
-    );
+    const freeBalanceAppIndexes = new Map<AssetType, string>();
     freeBalanceAppIndexes.set(AssetType.ETH, fb.identityHash);
 
     return new StateChannel(
-      this.multisigAddress,
-      this.multisigOwners,
+      multisigAddress,
+      multisigOwners,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps + 1
+      1
     );
   }
 
@@ -250,7 +246,7 @@ export class StateChannel {
       this.ethVirtualAppAgreementInstances.entries()
     );
 
-    // todo(ldct: what key?)
+    // todo(xuanji: what key?)
     evaaInstances.set("", evaaInstance);
 
     return new StateChannel(

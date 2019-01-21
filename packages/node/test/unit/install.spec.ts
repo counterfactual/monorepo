@@ -84,8 +84,8 @@ describe("Can handle correct & incorrect installs", () => {
     const multisigAddress = Wallet.createRandom().address;
     const owners = [Wallet.createRandom().address, AddressZero];
 
-    const stateChannel = new StateChannel(multisigAddress, owners)
-      .setupChannel(EMPTY_NETWORK)
+    const stateChannel = StateChannel
+      .setupChannel(EMPTY_NETWORK, multisigAddress, owners)
       .setFreeBalanceFor(AssetType.ETH, {
         alice: owners[0],
         bob: owners[1],

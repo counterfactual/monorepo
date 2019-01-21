@@ -37,12 +37,13 @@ describe("SetupCommitment", () => {
   };
 
   // State channel testing values
-  const stateChannel = new StateChannel(
+  const stateChannel = StateChannel.setupChannel(
+    networkContext,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver].sort((a, b) =>
       parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
     )
-  ).setupChannel(networkContext);
+  );
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
