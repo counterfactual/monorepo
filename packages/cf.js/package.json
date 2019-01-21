@@ -29,7 +29,7 @@
   "dependencies": {
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
-    "cuid": "^2.1.4",
+    "uuid": "3.3.2",
     "ethers": "4.0.21",
     "eventemitter3": "^3.1.0"
   },
