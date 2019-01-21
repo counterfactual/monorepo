@@ -5,7 +5,7 @@ import {
   StateChannelJSON,
   Transaction
 } from "@counterfactual/machine";
-import { Address, AppInstanceInfo } from "@counterfactual/types";
+import { Address, AppInstanceInfo, AppState } from "@counterfactual/types";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
@@ -137,6 +137,19 @@ export class Store {
   }
 
   /**
+   * This persists the state of the given AppInstance.
+   * @param appInstance
+   */
+  public async saveAppInstanceState(appInstanceId: string, newState: AppState) {
+    const channel = await this.getChannelFromAppInstanceID(appInstanceId);
+    const updatedChannel = await channel.setState(
+      await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId),
+      newState
+    );
+    await this.saveStateChannel(updatedChannel);
+  }
+
+  /**
    * The app's installation is confirmed iff the store write operation
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from being proposed to installed.
@@ -219,6 +232,23 @@ export class Store {
     ]);
   }
 
+  public async removeAppInstanceProposal(appInstanceId: string) {
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+        value: null
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+        value: null
+      }
+    ]);
+  }
+
   public async getAppInstanceInfo(
     appInstanceId: string
   ): Promise<AppInstanceInfo> {
@@ -253,6 +283,9 @@ export class Store {
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+    if (!proposedAppInstancesJson) {
+      return [];
+    }
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
@@ -375,6 +408,16 @@ export class Store {
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
+    );
+  }
+
+  public async getAppInstanceFromAppInstanceID(
+    appInstanceId: string
+  ): Promise<AppInstance> {
+    return (await this.getChannelFromAppInstanceID(
+      appInstanceId
+    )).getAppInstance(
+      await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId)
     );
   }
 }

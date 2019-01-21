@@ -6,7 +6,8 @@ import {
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero } from "ethers/constants";
+import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -41,23 +42,26 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     networkContext: NetworkContext,
-    nodeConfig: NodeConfig
+    nodeConfig: NodeConfig,
+    provider: Provider
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       networkContext,
-      nodeConfig
+      nodeConfig,
+      provider
     );
-    await node.init();
-    return node;
+
+    return await node.asyncronouslySetupUsingRemoteServices();
   }
 
   private constructor(
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly networkContext: NetworkContext,
-    private readonly nodeConfig: NodeConfig
+    private readonly nodeConfig: NodeConfig,
+    private readonly provider: Provider
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
@@ -66,7 +70,7 @@ export class Node {
     this.registerIoMiddleware();
   }
 
-  private async init() {
+  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
@@ -77,8 +81,10 @@ export class Node {
       this.messagingService,
       this.instructionExecutor,
       this.networkContext,
+      this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    return this;
   }
 
   get address() {
@@ -90,21 +96,41 @@ export class Node {
       Opcode.OP_SIGN,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         if (!context.commitment) {
+          // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
           );
         }
-        context.signature = this.signer.signDigest(
-          context.commitment.hashToSign()
-        );
+        context.signature = {
+          v: -1,
+          r: HashZero,
+          s: HashZero
+        };
+        // TODO: Replace the above hack with the below
+        // context.signature = this.signer.signDigest(
+        //   context.commitment.hashToSign()
+        // );
         next();
       }
     );
   }
 
   private registerIoMiddleware() {
-    // TODO:
-    this.instructionExecutor.register(Opcode.IO_SEND, () => {});
+    this.instructionExecutor.register(
+      Opcode.IO_SEND,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        await this.messagingService.send(context.outbox[0].toAddress, {
+          from: this.address,
+          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+          data: context.outbox[0]
+        });
+        next();
+      }
+    );
+
+    // TODO: Currently this mocks the response for all protocols as the below
+    //       mocked ProtocolMessage object. Next task is to listen for a real
+    //       message from a counterparty.
     this.instructionExecutor.register(
       Opcode.IO_WAIT,
       (message: ProtocolMessage, next: Function, context: Context) => {
@@ -121,8 +147,8 @@ export class Node {
           },
           signature: {
             v: -1,
-            r: "",
-            s: ""
+            r: HashZero,
+            s: HashZero
           }
         });
       }

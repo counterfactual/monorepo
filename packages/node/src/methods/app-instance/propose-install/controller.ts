@@ -20,10 +20,6 @@ export default async function proposeInstallAppInstanceController(
     return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
   }
 
-  // The client can ignore setting the Node's address, but the peers need to know
-  // who the initiating address is
-  params.initiatingAddress = requestHandler.address;
-
   const appInstanceId = await createProposedAppInstance(
     requestHandler.address,
     requestHandler.store,

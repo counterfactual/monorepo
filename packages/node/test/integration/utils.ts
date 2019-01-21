@@ -86,7 +86,7 @@ export async function getProposedAppInstanceInfo(
   })[0];
 }
 
-async function getApps(
+export async function getApps(
   node: Node,
   appInstanceStatus: APP_INSTANCE_STATUS
 ): Promise<AppInstanceInfo[]> {
@@ -113,8 +113,31 @@ async function getApps(
   return result.appInstances;
 }
 
+export function makeInstallRequest(
+  appInstanceId: string
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.INSTALL,
+    params: {
+      appInstanceId
+    } as NodeTypes.InstallParams
+  };
+}
+
+export function makeRejectInstallRequest(
+  appInstanceId: string
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.REJECT_INSTALL,
+    params: {
+      appInstanceId
+    } as NodeTypes.RejectInstallParams
+  };
+}
+
 export function makeInstallProposalRequest(
-  initiatingAddress: Address,
   respondingAddress: Address,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
@@ -123,12 +146,11 @@ export function makeInstallProposalRequest(
   if (!nullInitialState) {
     initialState = {
       foo: AddressZero,
-      bar: 0
+      bar: Zero
     } as AppState;
   }
 
   const params: NodeTypes.ProposeInstallParams = {
-    initiatingAddress,
     respondingAddress,
     initialState,
     appId: AddressZero,
@@ -150,14 +172,26 @@ export function makeInstallProposalRequest(
   } as NodeTypes.MethodRequest;
 }
 
+export function makeInstallVirtualRequest(
+  appInstanceId: string,
+  intermediaries: Address[]
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      intermediaries
+    } as NodeTypes.InstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.INSTALL_VIRTUAL
+  };
+}
+
 export function makeInstallVirtualProposalRequest(
-  initiatingAddress: Address,
   respondingAddress: Address,
   intermediaries: Address[],
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
-    initiatingAddress,
     respondingAddress,
     nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
@@ -222,5 +256,19 @@ export function generateGetStateRequest(
     },
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_STATE
+  };
+}
+
+export function generateTakeActionRequest(
+  appInstanceId: AppInstanceID,
+  action: any
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      action
+    } as NodeTypes.TakeActionParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.TAKE_ACTION
   };
 }

@@ -5,16 +5,22 @@ import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
-import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
+import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import {
+  InstallVirtualMessage,
+  NODE_EVENTS,
+  ProposeVirtualMessage
+} from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   EMPTY_NETWORK,
+  getApps,
   getNewMultisig,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest
+  makeInstallVirtualProposalRequest,
+  makeInstallVirtualRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -110,14 +116,28 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
           intermediaries
         );
 
+        nodeA.on(
+          NODE_EVENTS.INSTALL_VIRTUAL,
+          async (msg: InstallVirtualMessage) => {
+            const virtualAppInstanceNodeA = (await getApps(
+              nodeA,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
+            const virtualAppInstanceNodeC = (await getApps(
+              nodeC,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
+
+            expect(virtualAppInstanceNodeA).toEqual(virtualAppInstanceNodeC);
+            done();
+          }
+        );
+
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           async (msg: ProposeVirtualMessage) => {
             const proposedAppInstanceA = (await getProposedAppInstances(
               nodeA
-            ))[0];
-            const proposedAppInstanceB = (await getProposedAppInstances(
-              nodeB
             ))[0];
             const proposedAppInstanceC = (await getProposedAppInstances(
               nodeC
@@ -129,19 +149,19 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
             );
             confirmProposedVirtualAppInstanceOnNode(
               installVirtualAppInstanceProposalRequest.params,
-              proposedAppInstanceB
-            );
-            confirmProposedVirtualAppInstanceOnNode(
-              installVirtualAppInstanceProposalRequest.params,
               proposedAppInstanceC
             );
 
             expect(proposedAppInstanceC.initiatingAddress).toEqual(
               nodeA.address
             );
-            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceB.id);
-            expect(proposedAppInstanceB.id).toEqual(proposedAppInstanceC.id);
-            done();
+            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
+
+            const installVirtualReq = makeInstallVirtualRequest(
+              msg.data.appInstanceId,
+              msg.data.params.intermediaries
+            );
+            nodeC.emit(installVirtualReq.type, installVirtualReq);
           }
         );
 
@@ -152,22 +172,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
           .appInstanceId;
         expect(appInstanceId).toBeDefined();
-      });
-
-      it("sends proposal with null initial state", async () => {
-        const intermediaries = [nodeB.address];
-        const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeC.address,
-          intermediaries,
-          true
-        );
-
-        expect(
-          nodeA.call(
-            installVirtualAppInstanceProposalRequest.type,
-            installVirtualAppInstanceProposalRequest
-          )
-        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

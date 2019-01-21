@@ -106,6 +106,7 @@ export class AppWaiting {
                 <p class="countdown">{this.seconds}</p>
                 <p>
                   Player: {this.myName} <br />
+                  Opponent: {this.opponentName} <br />
                   Bet Amount: {this.betAmount} ETH
                 </p>
               </div>

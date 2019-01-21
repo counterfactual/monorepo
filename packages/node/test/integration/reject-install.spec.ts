@@ -5,19 +5,22 @@ import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
-import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import {
+  NODE_EVENTS,
+  ProposeMessage,
+  RejectProposalMessage
+} from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   EMPTY_NETWORK,
-  getInstalledAppInstanceInfo,
   getInstalledAppInstances,
   getNewMultisig,
   getProposedAppInstanceInfo,
+  getProposedAppInstances,
   makeInstallProposalRequest,
-  makeInstallRequest
+  makeRejectInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -97,30 +100,29 @@ describe("Node method follows spec - proposeInstall", () => {
           nodeB.address
         );
 
-        // node B then decides to approve the proposal
+        nodeA.on(
+          NODE_EVENTS.REJECT_INSTALL,
+          async (msg: RejectProposalMessage) => {
+            expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
+            done();
+          }
+        );
+
+        // node B then decides to reject the proposal
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           confirmProposedAppInstanceOnNode(
             appInstanceInstallationProposalRequest.params,
             await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );
 
-          // some approval logic happens in this callback, we proceed
-          // to approve the proposal, and install the app instance
-          const installRequest = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installRequest.type, installRequest);
-        });
+          const rejectReq = makeRejectInstallRequest(msg.data.appInstanceId);
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const appInstanceNodeA = await getInstalledAppInstanceInfo(
-            nodeA,
-            appInstanceId
-          );
-          const appInstanceNodeB = await getInstalledAppInstanceInfo(
-            nodeB,
-            appInstanceId
-          );
-          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-          done();
+          // Node A should have a proposal in place before Node B rejects it
+          expect((await getProposedAppInstances(nodeA)).length).toEqual(1);
+
+          await nodeB.call(rejectReq.type, rejectReq);
+
+          expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
         const response = await nodeA.call(
@@ -129,20 +131,6 @@ describe("Node method follows spec - proposeInstall", () => {
         );
         appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
           .appInstanceId;
-      });
-
-      it("sends proposal with null initial state", async () => {
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address,
-          true
-        );
-
-        expect(
-          nodeA.call(
-            appInstanceInstallationProposalRequest.type,
-            appInstanceInstallationProposalRequest
-          )
-        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );
