@@ -120,7 +120,7 @@ describe("Node method follows spec - takeAction", () => {
       board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
     };
 
-    it("can't take invalid action", async () => {
+    it("can't take invalid action", async done => {
       const validAction = {
         actionType: 1,
         playX: 0,
@@ -157,6 +157,7 @@ describe("Node method follows spec - takeAction", () => {
           await nodeA.call(takeActionReq.type, takeActionReq);
         } catch (e) {
           expect(e.toString().includes(ERRORS.INVALID_ACTION)).toBeTruthy();
+          done();
         }
       });
 
