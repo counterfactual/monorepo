@@ -5,8 +5,8 @@ import {
   INodeProvider,
   Node
 } from "@counterfactual/types";
-import cuid from "cuid";
 import EventEmitter from "eventemitter3";
+import { v4 as generateUUID } from "uuid";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -166,7 +166,7 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = cuid();
+    const requestId = generateUUID();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       const request: Node.MethodRequest = {
         requestId,
