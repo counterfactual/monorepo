@@ -86,8 +86,19 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     respondingAddress
   } = message.params as SetupParams;
 
-  if (context.stateChannelsMap.has(multisigAddress)) {
-    throw Error(`Found an already-setup channel at ${multisigAddress}`);
+  if (!context.stateChannelsMap.has(multisigAddress)) {
+    context.stateChannelsMap.set(
+      multisigAddress,
+      new StateChannel(
+        multisigAddress,
+        [initiatingAddress, respondingAddress].sort((a, b) =>
+          parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+        )
+      )
+    );
+  } else {
+    // TODO: Probably should happen inside InstructionExecutor class
+    throw Error("Cannot run SetupProtocol twice on the same StateChannel");
   }
 
   const newStateChannel = StateChannel.setupChannel(
