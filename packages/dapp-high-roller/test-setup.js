@@ -2,7 +2,7 @@ global.XMLHttpRequest = {
   open: () => {},
   send: () => {}
 };
-global.cuid = require("../../node_modules/cuid/index");
+global.uuid = require("../../node_modules/uuid/v4");
 global.types = require("../types/dist/index-iife");
 global.ethers = require("../../node_modules/ethers/dist/ethers");
 global.EventEmitter3 = require("../node-provider/node_modules/eventemitter3/umd/eventemitter3");
