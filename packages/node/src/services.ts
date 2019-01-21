@@ -65,34 +65,34 @@ class FirebaseMessagingService implements IMessagingService {
   }
 
   onReceive(address: Address, callback: (msg: NodeMessage) => void) {
-    if (!this.firebase.app) {
+    if (this.firebase.app) {
+      this.firebase
+        .ref(`${this.messagingServerKey}/${address}`)
+        .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+          if (snapshot === null) {
+            console.error(
+              `Node with address ${address} received a "null" snapshot`
+            );
+          } else {
+            const msg = snapshot.val();
+            // TODO: Figure out why sometimes the message is null?
+            // Answer: https://stackoverflow.com/a/37310606/2680092
+            if (msg !== null) {
+              const stringifiedMsg = JSON.stringify(msg);
+              if (stringifiedMsg in this.servedMessages) {
+                delete this.servedMessages[stringifiedMsg];
+              } else {
+                this.servedMessages[stringifiedMsg] = true;
+                callback(msg);
+              }
+            }
+          }
+        });
+    } else {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
-      return;
     }
-
-    this.firebase
-      .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        if (snapshot === null) {
-          console.debug(
-            `Node with address ${address} received a "null" snapshot`
-          );
-          return;
-        }
-        const msg = snapshot.val();
-        const msgKey = JSON.stringify(msg);
-        if (msg === null) {
-          return;
-        }
-        if (msgKey in this.servedMessages) {
-          delete this.servedMessages[msgKey];
-          return;
-        }
-        this.servedMessages[msgKey] = true;
-        callback(msg);
-      });
   }
 }
 

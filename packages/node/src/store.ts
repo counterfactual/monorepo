@@ -45,13 +45,10 @@ export class Store {
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
     )) as { [multisigAddress: string]: StateChannelJSON };
 
-    if (!channelsJSON) {
-      console.log("No channels exist yet");
-    } else {
-      for (const entry of Object.entries(channelsJSON)) {
-        channels[entry[0]] = StateChannel.fromJson(entry[1]);
-      }
+    for (const entry of Object.entries(channelsJSON || {})) {
+      channels[entry[0]] = StateChannel.fromJson(entry[1]);
     }
+
     return channels;
   }
 

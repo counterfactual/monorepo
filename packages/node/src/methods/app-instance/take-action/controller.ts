@@ -19,6 +19,7 @@ export default async function takeActionController(
   const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
     appInstanceId
   );
+
   try {
     await actionIsEncondable(appInstance, action);
   } catch (e) {
