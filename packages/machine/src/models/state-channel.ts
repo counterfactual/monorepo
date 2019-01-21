@@ -38,7 +38,9 @@ const ERRORS = {
   FREE_BALANCE_IDX_CORRUPT: (idx: string) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
-    "Attempted to install an appInstance without sufficient funds"
+    "Attempted to install an appInstance without sufficient funds",
+  MULTISIG_OWNERS_NOT_SORTED:
+    "multisigOwners parameter of StateChannel must be sorted"
 };
 
 export type StateChannelJSON = {
@@ -101,7 +103,16 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {}
+  ) {
+    const sortedMultisigOwners = multisigOwners.sort((a, b) =>
+      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
+    );
+    multisigOwners.forEach((owner, idx) => {
+      if (owner !== sortedMultisigOwners[idx]) {
+        throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
+      }
+    });
+  }
 
   public get numInstalledApps() {
     return this.monotonicNumInstalledApps;
@@ -113,7 +124,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw Error(`${ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash)}`);
+      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -145,7 +156,7 @@ export class StateChannel {
     const idx = this.freeBalanceAppIndexes.get(assetType);
 
     if (!this.appInstances.has(idx!)) {
-      throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!)}`);
+      throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
     }
 
     const appInstanceJson = this.appInstances.get(idx!)!.toJson();
