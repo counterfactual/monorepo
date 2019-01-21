@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, RejectProposalMessage } from "../../../types";
+import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default async function rejectInstallController(
   requestHandler: RequestHandler,
@@ -11,6 +12,10 @@ export default async function rejectInstallController(
   const appInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
     appInstanceId
   );
+
+  if (appInstanceInfo.intermediaries) {
+    return rejectInstallVirtualController(requestHandler, params);
+  }
 
   await requestHandler.store.removeAppInstanceProposal(appInstanceId);
 

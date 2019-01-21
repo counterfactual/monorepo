@@ -4,7 +4,6 @@ import installVirtualAppInstanceController from "./app-instance/install-virtual/
 import installAppInstanceController from "./app-instance/install/controller";
 import proposeInstallVirtualAppInstanceController from "./app-instance/propose-install-virtual/controller";
 import proposeInstallAppInstanceController from "./app-instance/propose-install/controller";
-import rejectInstallVirtualController from "./app-instance/reject-install-virtual/controller";
 import rejectInstallController from "./app-instance/reject-install/controller";
 import takeActionController from "./app-instance/take-action/controller";
 import getProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
@@ -22,6 +21,5 @@ export {
   proposeInstallAppInstanceController,
   proposeInstallVirtualAppInstanceController,
   takeActionController,
-  rejectInstallController,
-  rejectInstallVirtualController
+  rejectInstallController
 };
