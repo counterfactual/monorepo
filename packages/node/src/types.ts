@@ -14,7 +14,8 @@ enum Events {
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   TAKE_ACTION = "takeActionEvent",
   PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
-  INSTALL_VIRTUAL = "installVirtualEvent"
+  INSTALL_VIRTUAL = "installVirtualEvent",
+  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
@@ -80,3 +81,5 @@ export interface RejectProposalMessage extends NodeMessage {
     appInstanceId: string;
   };
 }
+
+export interface RejectInstallVirtualMessage extends RejectProposalMessage {}
