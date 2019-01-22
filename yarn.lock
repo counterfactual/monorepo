@@ -866,6 +866,17 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@counterfactual/cf.js@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.1.tgz#9c30e2433366852430f1dd4b6b92ce5a27511ae4"
+  integrity sha512-Rnxy5sZm/cDaa36zUkOjyH5RAxFPGGUTZGBJ2oHb2yC5DqWbvpcLlnspiS4JgUNxW5+IN9jIiWSXHomgEhI6JQ==
+  dependencies:
+    "@counterfactual/contracts" "0.0.3"
+    "@counterfactual/types" "0.0.1"
+    cuid "^2.1.4"
+    ethers "4.0.21"
+    eventemitter3 "^3.1.0"
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -5255,6 +5266,11 @@ cssstyle@^1.0.0, cssstyle@^1.1.1:
   integrity sha512-364AI1l/M5TYcFH83JnOH/pSqgaNnKmYgKrm0didZMGKWjQB60dymwWy1rKUgL3J1ffdq9xVi2yGLHdSjjSNog==
   dependencies:
     cssom "0.3.x"
+
+cuid@^2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/cuid/-/cuid-2.1.4.tgz#e1178eb92a05ef9364b29a9942feed36d3604cdd"
+  integrity sha512-l1vrCiWOwBpu85bfm939Hg3MQh2alxAMoGZnjcJOYkgN7wzy9yi3vQhRzwcTr9mdIlfTp8DP9G5ZgIIPyaQEvg==
 
 currently-unhandled@^0.4.1:
   version "0.4.1"

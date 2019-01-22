@@ -1,7 +1,6 @@
 import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
-import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero } from "ethers/constants";
 import { anything, instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -84,14 +83,11 @@ describe("Can handle correct & incorrect installs", () => {
     const multisigAddress = Wallet.createRandom().address;
     const owners = [Wallet.createRandom().address, AddressZero];
 
-    const stateChannel = StateChannel
-      .setupChannel(EMPTY_NETWORK, multisigAddress, owners)
-      .setFreeBalanceFor(AssetType.ETH, {
-        alice: owners[0],
-        bob: owners[1],
-        aliceBalance: Zero,
-        bobBalance: Zero
-      });
+    const stateChannel = StateChannel.setupChannel(
+      EMPTY_NETWORK,
+      multisigAddress,
+      owners
+    );
 
     await store.saveStateChannel(stateChannel);
 
