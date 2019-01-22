@@ -43,6 +43,9 @@ const ERRORS = {
     "multisigOwners parameter of StateChannel must be sorted"
 };
 
+const sortAddresses = (addrs: string[]) =>
+  addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly multisigOwners: string[];
@@ -104,9 +107,7 @@ export class StateChannel {
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
   ) {
-    const sortedMultisigOwners = multisigOwners.sort((a, b) =>
-      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    );
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
     multisigOwners.forEach((owner, idx) => {
       if (owner !== sortedMultisigOwners[idx]) {
         throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
@@ -182,9 +183,11 @@ export class StateChannel {
     multisigAddress: string,
     multisigOwners: string[]
   ) {
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
+
     const fb = createETHFreeBalance(
       multisigAddress,
-      multisigOwners,
+      sortedMultisigOwners,
       network.ETHBucket
     );
 
@@ -196,7 +199,7 @@ export class StateChannel {
 
     return new StateChannel(
       multisigAddress,
-      multisigOwners,
+      sortedMultisigOwners,
       appInstances,
       new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
