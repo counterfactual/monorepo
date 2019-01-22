@@ -11,15 +11,27 @@ export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() availableDeposit: number = 0;
   @Prop() balance: number = 0;
+  @Prop() user: any;
   @Prop() updateAccount: (e) => void = e => {};
   @State() depositValue: number | string = "";
   @State() withdrawValue: number | string = "";
 
   deposit(e) {
-    this.updateAccount({
-      balance: this.balance + parseFloat(e.target.value)
-    });
-    this.depositValue = "";
+    const amountDeposited = ethers.utils.parseEther(e.target.value).toString();
+
+    web3.eth.sendTransaction(
+      {
+        from: this.user.ethAddress,
+        to: this.user.multisigAddress,
+        value: amountDeposited
+      },
+      () => {
+        this.updateAccount({
+          balance: this.balance + parseFloat(e.target.value)
+        });
+        this.depositValue = "";
+      }
+    );
   }
 
   withdraw(e) {
@@ -57,4 +69,8 @@ export class AccountExchange {
   }
 }
 
-AccountTunnel.injectProps(AccountExchange, ["balance", "updateAccount"]);
+AccountTunnel.injectProps(AccountExchange, [
+  "user",
+  "balance",
+  "updateAccount"
+]);
