@@ -21,7 +21,7 @@ export class NodeListener {
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
-    rejectInstallEvent: this.onRejectInstall.bind(this)
+    rejectInstallVirtualEvent: this.onRejectInstallVirtual.bind(this)
   };
 
   @State() private modalVisible: boolean = false;
@@ -99,7 +99,7 @@ export class NodeListener {
     this.showModal();
   }
 
-  onRejectInstall(data) {
+  onRejectInstallVirtual(data) {
     this.currentMessage = data;
     this.showModal();
   }
@@ -159,6 +159,15 @@ export class NodeListener {
           message={this.currentMessage}
           onAccept={this.acceptProposeInstall.bind(this)}
           onReject={this.rejectProposeInstall.bind(this)}
+        />
+      );
+    }
+
+    if (this.currentModalType === "rejectInstallVirtualEvent") {
+      return (
+        <dialog-reject-install
+          message={this.currentMessage}
+          onOKClicked={this.hideModal.bind(this)}
         />
       );
     }

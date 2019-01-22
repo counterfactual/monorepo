@@ -77,7 +77,7 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
-    appFactory.proposeInstallVirtual({
+    await appFactory.proposeInstallVirtual({
       respondingAddress: opponent.nodeAddress,
       asset: {
         assetType: 0 /* AssetType.ETH */
