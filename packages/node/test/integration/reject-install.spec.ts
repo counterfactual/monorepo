@@ -23,7 +23,7 @@ import {
   makeRejectInstallRequest
 } from "./utils";
 
-describe("Node method follows spec - proposeInstall", () => {
+describe("Node method follows spec - rejectInstall", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
