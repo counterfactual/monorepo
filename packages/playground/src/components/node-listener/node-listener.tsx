@@ -1,7 +1,7 @@
 declare var cuid: () => string;
 
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Component, Element, State, Prop } from "@stencil/core";
+import { Component, State } from "@stencil/core";
 
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
