@@ -42,13 +42,19 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
   }
 
   private conditionalTransactionInput(): MultisigTransaction {
+    if (this.networkContext.ETHVirtualAppAgreement === undefined) {
+      throw Error("undefined ETHVirtualAppAgreement");
+    }
+    if (this.terms === undefined) {
+      throw Error("undefined terms");
+    }
     return {
       to: this.networkContext.ETHVirtualAppAgreement,
       value: 0,
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.AppRegistry,
-          // terms,
+          terms: this.terms!,
           expiry: this.expiry,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
