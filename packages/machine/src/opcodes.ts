@@ -10,7 +10,7 @@ export enum Opcode {
   OP_SIGN,
 
   /**
-   * todo(ldct): replace all occurrences of this by javascript code that does
+   * todo(xuanji): replace all occurrences of this by javascript code that does
    * some actual ecrecover and validation work
    */
   OP_SIGN_VALIDATE,

@@ -76,9 +76,8 @@ export type InstallVirtualAppParams = {
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: AppState;
-  aliceBalanceDecrement: BigNumber;
-  bobBalanceDecrement: BigNumber;
-  terms: Terms;
+  initiatingBalanceDecrement: BigNumber;
+  respondingBalanceDecrement: BigNumber;
 };
 
 type ProtocolParameters =

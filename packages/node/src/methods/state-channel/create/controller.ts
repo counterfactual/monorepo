@@ -1,4 +1,3 @@
-import { StateChannel } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
@@ -23,9 +22,6 @@ export default async function createMultisigController(
   );
 
   const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
-    new Map<string, StateChannel>([
-      [multisigAddress, new StateChannel(multisigAddress, params.owners)]
-    ]),
     {
       multisigAddress,
       respondingAddress,
