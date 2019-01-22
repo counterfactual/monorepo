@@ -44,6 +44,6 @@ describe("Signature Validator Helper", () => {
         commitment,
         signer.signDigest(HashZero.replace("00", "11")) // 0x111111...
       )
-    ).toThrow("Received invalid signature on validateSignature");
+    ).toThrow();
   });
 });
