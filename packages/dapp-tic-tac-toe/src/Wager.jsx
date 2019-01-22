@@ -15,14 +15,18 @@ class Wager extends Component {
   }
 
   async componentDidMount() {
-    this.props.cfProvider.once("install", this.onInstall.bind(this));
+    this.props.cfProvider.once(
+      "installVirtualEvent",
+      this.onInstall.bind(this)
+    );
 
+    console.log("user data", this.props.user);
     const { token } = this.props.user;
 
     try {
       const response = await fetch(
         // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmaking",
+        "http://localhost:9000/api/matchmaking",
         {
           method: "POST",
           headers: {
@@ -74,14 +78,14 @@ class Wager extends Component {
     const appFactory = this.createAppFactory();
 
     appFactory.proposeInstallVirtual({
-      peerAddress: opponent.ethAddress,
+      respondingAddress: opponent.nodeAddress,
       asset: {
         assetType: 0 /* AssetType.ETH */
       },
-      peerDeposit: window.ethers.utils.parseEther(
+      peerDeposit: 0 /* window.ethers.utils.parseEther(
         this.props.gameInfo.betAmount
-      ),
-      myDeposit: window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
+      ), */,
+      myDeposit: 0, // window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
       timeout: 100,
       initialState: {
         address: [myAddress, opponent.ethAddress],

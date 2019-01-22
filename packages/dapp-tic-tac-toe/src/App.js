@@ -49,12 +49,11 @@ export default class App extends Component {
         event.data.startsWith("playground:response:user")
       ) {
         const [, data] = event.data.split("|");
-        const user = JSON.parse(data);
+        const playgroundState = JSON.parse(data);
         this.setState({
-          user: { id: user.id, ...user.attributes },
+          user: playgroundState.user,
           connected: true
         });
-        console.log(this.state);
       }
     });
 

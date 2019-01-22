@@ -1,4 +1,4 @@
-declare var cuid: () => string;
+declare var uuid: () => string;
 
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
@@ -106,14 +106,20 @@ export class NodeListener {
 
   async acceptProposeInstall() {
     try {
-      await this.node.call(Node.MethodName.INSTALL_VIRTUAL, {
+      const request = {
         type: Node.MethodName.INSTALL_VIRTUAL,
         params: {
           appInstanceId: this.currentMessage.data.appInstanceId,
           intermediaries: this.currentMessage.data.params.intermediaries
         } as Node.InstallVirtualParams,
-        requestId: cuid()
-      });
+        requestId: uuid()
+      };
+      const installedApp = await this.node.call(
+        Node.MethodName.INSTALL_VIRTUAL,
+        request
+      );
+      console.log(request);
+      this.node.emit(installedApp.type, request as Node.MethodRequest);
       this.hideModal();
     } catch (error) {
       this.currentModalType = "error";
@@ -128,7 +134,7 @@ export class NodeListener {
       params: {
         appInstanceId: this.currentMessage.data.appInstanceId
       } as Node.RejectInstallParams,
-      requestId: cuid()
+      requestId: uuid()
     });
     this.hideModal();
   }
