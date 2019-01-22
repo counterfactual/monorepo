@@ -20,13 +20,20 @@ const serviceFactory = new FirebaseServiceFactory({
 });
 
 let node: Node;
-export async function createNodeSingleton(): Promise<Node> {
-  if (node) {
-    return node;
+export async function createNodeSingleton(privateKey?: string): Promise<Node> {
+  return node || (await createNode(privateKey));
+}
+
+export async function createNode(privateKey?: string): Promise<Node> {
+  const store = serviceFactory.createStoreService(generateUUID());
+
+  if (privateKey) {
+    await store.set([{ key: "PRIVATE_KEY", value: privateKey }]);
   }
+
   node = await Node.create(
     serviceFactory.createMessagingService("messaging"),
-    serviceFactory.createStoreService("storage"),
+    store,
     {
       AppRegistry: AddressZero,
       ETHBalanceRefund: AddressZero,
@@ -60,9 +67,8 @@ export function getNodeAddress(): string {
 export async function createMultisigFor(
   userAddress: string
 ): Promise<NodeTypes.CreateMultisigResult> {
-  if (!node) {
-    node = await createNodeSingleton();
-  }
+  if (!node) node = await createNodeSingleton();
+
   const multisigResponse = await node.call(
     NodeTypes.MethodName.CREATE_MULTISIG,
     {

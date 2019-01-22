@@ -6,7 +6,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import { SigningKey } from "ethers/utils";
+import { getAddress, SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
@@ -123,8 +123,8 @@ export class Node {
     instructionExecutor.register(
       Opcode.IO_SEND,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        const from = this.address;
-        const to = context.outbox[0].toAddress;
+        const from = getAddress(this.address);
+        const to = getAddress(context.outbox[0].toAddress);
         const data = context.outbox[0];
 
         if (context.outbox[0].seq === 1) {
@@ -148,7 +148,8 @@ export class Node {
       async (message: ProtocolMessage, next: Function, context: Context) => {
         await new Promise(async (resolve, reject) => {
           try {
-            const msg = await this.ioSendDeferrals[message.toAddress].promise;
+            const checksumAddress = getAddress(message.toAddress);
+            const msg = await this.ioSendDeferrals[checksumAddress].promise;
             context.inbox.push(msg.data);
             resolve();
             next();
@@ -200,10 +201,13 @@ export class Node {
    * subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    this.messagingService.onReceive(this.address, async (msg: NodeMessage) => {
-      await this.handleReceivedMessage(msg);
-      this.outgoing.emit(msg.event, msg);
-    });
+    this.messagingService.onReceive(
+      getAddress(this.address),
+      async (msg: NodeMessage) => {
+        await this.handleReceivedMessage(msg);
+        this.outgoing.emit(msg.event, msg);
+      }
+    );
   }
 
   /**
