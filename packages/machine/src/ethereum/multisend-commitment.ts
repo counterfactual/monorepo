@@ -23,9 +23,7 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
     readonly freeBalanceTerms: Terms,
     readonly freeBalanceStateHash: string,
     readonly freeBalanceNonce: number,
-    readonly freeBalanceTimeout: number,
-    readonly dependencyNonceSalt: string,
-    readonly dependencyNonceValue: number
+    readonly freeBalanceTimeout: number
   ) {
     super(multisig, multisigOwners);
   }
