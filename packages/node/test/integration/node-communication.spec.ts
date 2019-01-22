@@ -32,11 +32,13 @@ describe("Two nodes can communicate with each other", () => {
         some: "data"
       }
     };
-    messagingService.onReceive(address, msg => {
+
+    messagingService.onReceive(address, (msg: any) => {
       expect(msg.event).toEqual(testMsg.event);
       expect(msg.data).toEqual(testMsg.data);
       done();
     });
+
     messagingService.send(address, testMsg as any);
   });
 });
