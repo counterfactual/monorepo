@@ -8,7 +8,7 @@
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/counterfactual/cf.js",
+  "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b && rollup -c",

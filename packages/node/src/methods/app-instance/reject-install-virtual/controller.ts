@@ -1,10 +1,9 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, RejectProposalMessage } from "../../../types";
-import rejectInstallVirtualController from "../reject-install-virtual/controller";
+import { NODE_EVENTS, RejectInstallVirtualMessage } from "../../../types";
 
-export default async function rejectInstallController(
+export default async function rejectInstallVirtualController(
   requestHandler: RequestHandler,
   params: Node.RejectInstallParams
 ): Promise<Node.RejectInstallResult> {
@@ -13,15 +12,11 @@ export default async function rejectInstallController(
     appInstanceId
   );
 
-  if (appInstanceInfo.intermediaries) {
-    return rejectInstallVirtualController(requestHandler, params);
-  }
-
   await requestHandler.store.removeAppInstanceProposal(appInstanceId);
 
-  const rejectProposalMsg: RejectProposalMessage = {
+  const rejectInstallVirtualMsg: RejectInstallVirtualMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.REJECT_INSTALL,
+    event: NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
     data: {
       appInstanceId
     }
@@ -29,7 +24,7 @@ export default async function rejectInstallController(
 
   await requestHandler.messagingService.send(
     appInstanceInfo.initiatingAddress,
-    rejectProposalMsg
+    rejectInstallVirtualMsg
   );
 
   return {};
