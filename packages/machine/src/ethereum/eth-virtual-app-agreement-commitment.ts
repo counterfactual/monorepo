@@ -1,8 +1,6 @@
 import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
-import { BigNumber, Interface, keccak256, solidityPack } from "ethers/utils";
-
-import { DependencyValue } from "../models/app-instance";
+import { BigNumber, Interface } from "ethers/utils";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -35,9 +33,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       freeBalanceTerms,
       freeBalanceStateHash,
       freeBalanceNonce,
-      freeBalanceTimeout,
-      keccak256(solidityPack(["uint256"], [dependencyNonce])),
-      DependencyValue.NOT_UNINSTALLED
+      freeBalanceTimeout
     );
   }
 

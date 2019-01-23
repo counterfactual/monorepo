@@ -147,7 +147,7 @@ function constructInstallOp(
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
-    freeBalance.appSeqNo,
+    app.appSeqNo,
     freeBalance.rootNonceValue
   );
 }
