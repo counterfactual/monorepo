@@ -1,9 +1,9 @@
 import { AppInstance } from "@counterfactual/machine";
 import {
   AppABIEncodings,
-  AppState,
   AssetType,
-  BlockchainAsset
+  BlockchainAsset,
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
@@ -28,7 +28,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
     initialState: {
       foo: AddressZero,
       bar: 0
-    } as AppState
+    } as SolidityABIEncoderV2Struct
   });
 }
 

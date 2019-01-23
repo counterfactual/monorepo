@@ -1,4 +1,4 @@
-import { AppState } from "@counterfactual/types";
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -11,13 +11,15 @@ chai.use(waffle.solidity);
 
 const { expect } = chai;
 
-type NimAppState = {
+type NimSolidityABIEncoderV2Struct = {
   players: string[];
   turnNum: BigNumber;
   pileHeights: BigNumber[];
 };
 
-function decodeAppState(encodedAppState: string): NimAppState {
+function decodeBytesToAppState(
+  encodedAppState: string
+): NimSolidityABIEncoderV2Struct {
   return defaultAbiCoder.decode(
     ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
@@ -27,7 +29,7 @@ function decodeAppState(encodedAppState: string): NimAppState {
 describe("Nim", () => {
   let nim: Contract;
 
-  function encodeState(state: AppState) {
+  function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -42,7 +44,7 @@ describe("Nim", () => {
     );
   }
 
-  function encodeAction(state: AppState) {
+  function encodeAction(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -56,14 +58,17 @@ describe("Nim", () => {
     );
   }
 
-  async function applyAction(state: AppState, action: AppState) {
+  async function applyAction(
+    state: SolidityABIEncoderV2Struct,
+    action: SolidityABIEncoderV2Struct
+  ) {
     return await nim.functions.applyAction(
       encodeState(state),
       encodeAction(action)
     );
   }
 
-  async function isStateTerminal(state: AppState) {
+  async function isStateTerminal(state: SolidityABIEncoderV2Struct) {
     return await nim.functions.isStateTerminal(encodeState(state));
   }
 
@@ -88,7 +93,7 @@ describe("Nim", () => {
 
       const ret = await applyAction(preState, action);
 
-      const postState = decodeAppState(ret);
+      const postState = decodeBytesToAppState(ret);
 
       expect(postState.pileHeights[0]).to.eq(1);
       expect(postState.pileHeights[1]).to.eq(5);
@@ -110,7 +115,7 @@ describe("Nim", () => {
 
       const ret = await applyAction(preState, action);
 
-      const postState = decodeAppState(ret);
+      const postState = decodeBytesToAppState(ret);
 
       expect(postState.pileHeights[0]).to.eq(0);
       expect(postState.pileHeights[1]).to.eq(5);

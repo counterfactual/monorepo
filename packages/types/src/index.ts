@@ -18,7 +18,7 @@ import {
   Address,
   AppAction,
   AppInstanceID,
-  AppState,
+  SolidityABIEncoderV2Struct,
   Bytes32
 } from "./simple-types";
 
@@ -41,7 +41,7 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
-  AppState,
+  SolidityABIEncoderV2Struct,
   AssetType,
   BlockchainAsset,
   Bytes32,

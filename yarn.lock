@@ -16400,6 +16400,16 @@ truffle-contract@^4.0.1:
     web3-eth-abi "^1.0.0-beta.37"
     web3-utils "1.0.0-beta.37"
 
+truffle-deploy-registry@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.npmjs.org/truffle-deploy-registry/-/truffle-deploy-registry-0.5.1.tgz#1d9ea967c3b16cdacaf5c310b124e24e4c641d8a"
+  integrity sha512-ZvyRpn67J67cWTfN5Z+sIryOirzxOuvpS7WO1WJYx3V1GcJR0gWWEM38KTBoPQ5L98/n7XxWC8+TtkOypKEp6A==
+  dependencies:
+    chalk "^2.4.2"
+    commander "^2.19.0"
+    mkdirp "^0.5.1"
+    rimraf "^2.6.3"
+
 truffle-deploy-registry@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/truffle-deploy-registry/-/truffle-deploy-registry-0.5.0.tgz#d9a01561bc5c1dced8da8d7dae5d9b908e68efea"

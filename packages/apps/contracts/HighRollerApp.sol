@@ -63,8 +63,8 @@ contract HighRollerApp {
     AppState memory state = abi.decode(encodedState, (AppState));
 
     return state.stage == Stage.COMMITTING_NUM ?
-      signingKeys[uint8(Player.FIRST)] :
-      signingKeys[uint8(Player.SECOND)];
+      signingKeys[uint8(Player.SECOND)] :
+      signingKeys[uint8(Player.FIRST)];
   }
 
   function applyAction(bytes memory encodedState, bytes memory encodedAction)

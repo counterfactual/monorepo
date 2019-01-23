@@ -3,8 +3,8 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  AppState,
-  BlockchainAsset
+  BlockchainAsset,
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -16,7 +16,7 @@ export interface IProposedAppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: AppState;
+  initialState: SolidityABIEncoderV2Struct;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
@@ -30,7 +30,7 @@ export interface ProposedAppInstanceInfoJSON {
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
-  initialState: AppState;
+  initialState: SolidityABIEncoderV2Struct;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];
@@ -54,7 +54,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: AppState;
+  initialState: SolidityABIEncoderV2Struct;
   initiatingAddress: Address;
   respondingAddress: Address;
   intermediaries?: Address[];

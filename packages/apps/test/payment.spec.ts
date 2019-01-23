@@ -1,4 +1,4 @@
-import { AppState, Terms } from "@counterfactual/types";
+import { SolidityABIEncoderV2Struct, Terms } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -19,7 +19,7 @@ const [A, B] = [
 describe("PaymentApp", () => {
   let pc: Contract;
 
-  function encodeState(state: AppState) {
+  function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -35,7 +35,7 @@ describe("PaymentApp", () => {
     );
   }
 
-  async function resolve(state: AppState, terms: Terms) {
+  async function resolve(state: SolidityABIEncoderV2Struct, terms: Terms) {
     return await pc.functions.resolve(encodeState(state), terms);
   }
 
