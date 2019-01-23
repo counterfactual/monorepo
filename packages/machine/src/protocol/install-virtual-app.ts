@@ -5,17 +5,13 @@ import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
   StateChannel
 } from "../models";
-import { Opcode } from "../opcodes";
-import {
-  InstallVirtualAppParams,
-  ProtocolMessage
-} from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, InstallVirtualAppParams, ProtocolMessage } from "../types";
 
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;

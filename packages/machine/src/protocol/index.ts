@@ -1,4 +1,5 @@
-import { Protocol, ProtocolExecutionFlow } from "../types";
+import { Protocol } from "../enums";
+import { ProtocolExecutionFlow } from "../types";
 
 import { INSTALL_PROTOCOL } from "./install";
 import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";

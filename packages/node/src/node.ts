@@ -2,7 +2,9 @@ import {
   Context,
   InstructionExecutor,
   Opcode,
-  ProtocolMessage
+  Protocol,
+  ProtocolMessage,
+  SetupParams
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
@@ -35,6 +37,7 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly instructionExecutor: InstructionExecutor;
+
   private ioSendDeferrals: {
     [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
   } = {};
@@ -158,6 +161,40 @@ export class Node {
 
         context.inbox.push(msg.data);
 
+        next();
+      }
+    );
+
+    instructionExecutor.register(
+      Opcode.STATE_TRANSITION_COMMIT,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        if (!context.commitment) {
+          throw new Error(
+            `State transition without commitment: ${JSON.stringify(message)}`
+          );
+        }
+        const transaction = context.commitment!.transaction([
+          context.signature! // TODO: add counterparty signature
+        ]);
+        const { protocol } = message;
+        if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
+          await this.requestHandler.store.setSetupCommitmentForMultisig(
+            params.multisigAddress,
+            transaction
+          );
+        } else {
+          if (!context.appIdentityHash) {
+            throw new Error(
+              `appIdentityHash required to store commitment. protocol=${protocol}`
+            );
+          }
+          await this.requestHandler.store.setCommitmentForAppIdentityHash(
+            context.appIdentityHash!,
+            protocol,
+            transaction
+          );
+        }
         next();
       }
     );

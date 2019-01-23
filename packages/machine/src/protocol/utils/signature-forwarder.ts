@@ -1,5 +1,4 @@
-import { ProtocolMessage } from "../../protocol-types-tbd";
-import { Context } from "../../types";
+import { Context, ProtocolMessage } from "../../types";
 
 /**
  * @summary Appends a `ProtocolMessage` to the outbox of a `Context

@@ -1,11 +1,10 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Opcode } from "../opcodes";
-import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, InstallParams, ProtocolMessage } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
