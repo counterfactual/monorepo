@@ -14,9 +14,7 @@ import NetworkTunnel, { NetworkState } from "../../data/network";
 })
 export class AppRoot {
   @State() accountState: AccountState = {} as AccountState;
-  @State() networkState: NetworkState = {
-    network: "Lorem"
-  };
+  @State() networkState: NetworkState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
 
   async updateAccount(newProps: AccountState) {
