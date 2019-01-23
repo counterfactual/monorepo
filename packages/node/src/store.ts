@@ -41,12 +41,12 @@ export class Store {
     [multisigAddress: string]: StateChannel;
   }> {
     const channels = {};
-    const channelsJSON = (await this.storeService.get(
+    const channelsJSON = ((await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
-    )) as { [multisigAddress: string]: StateChannelJSON };
+    )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    for (const entry of Object.entries(channelsJSON || {})) {
-      channels[entry[0]] = StateChannel.fromJson(entry[1]);
+    for (const [key, value] of Object.entries(channelsJSON)) {
+      channels[key] = StateChannel.fromJson(value);
     }
 
     return channels;
