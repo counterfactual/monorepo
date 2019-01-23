@@ -13,11 +13,14 @@ import { resolve } from "path";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
-import { createNodeSingleton, getNodeAddress } from "../src/node";
+import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
 import { MatchedUser, MatchmakingRequest, User } from "../src/resources";
 import { ErrorCode } from "../src/types";
 
 import {
+  PK_ALICE,
+  PK_BOB,
+  PK_CHARLIE,
   POST_SESSION_ALICE,
   POST_SESSION_ALICE_SIGNATURE_HEADER,
   POST_SESSION_CHARLIE,
@@ -53,6 +56,10 @@ Log.setOutputLevel(LogLevel.ERROR);
 describe("playground-server", () => {
   beforeAll(async () => {
     await createNodeSingleton();
+
+    await createNode(PK_ALICE);
+    await createNode(PK_BOB);
+    await createNode(PK_CHARLIE);
 
     await db.schema.dropTableIfExists("users");
     await db.schema.createTable("users", table => {
@@ -279,9 +286,9 @@ describe("playground-server", () => {
               {
                 attributes: {
                   email: "bob@wonderland.com",
-                  ethAddress: "0x0f693cc956df59dec24bb1c605ac94cadce6014d",
+                  ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
                   multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-                  nodeAddress: "0xFE0460D00c589F55Fa60be61050419B008d56e15",
+                  nodeAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
                   username: "bob_account1"
                 },
                 id: "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2",

@@ -11,7 +11,7 @@ import { DependencyValue } from "../models/app-instance";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
-import { encodeFreeBalanceState } from "./utils/free-balance";
+import { encodeETHBucketAppState } from "./utils/eth-bucket";
 
 const nonceRegistryIface = new Interface(NonceRegistry.abi);
 
@@ -33,13 +33,9 @@ export class UninstallCommitment extends MultiSendCommitment {
       multisigOwners,
       freeBalanceAppIdentity,
       freeBalanceTerms,
-      keccak256(encodeFreeBalanceState(freeBalanceState)),
+      keccak256(encodeETHBucketAppState(freeBalanceState)),
       freeBalanceNonce,
-      freeBalanceTimeout,
-      keccak256(defaultAbiCoder.encode(["uint256"], [dependencyNonce])),
-      // Hard coded the update to 1 because that is the value
-      // that represents an app as being "uninstalled"
-      DependencyValue.UNINSTALLED
+      freeBalanceTimeout
     );
   }
 
@@ -49,8 +45,10 @@ export class UninstallCommitment extends MultiSendCommitment {
       value: 0,
       data: nonceRegistryIface.functions.setNonce.encode([
         0, // Timeout is 0 for dependencyNonce!
-        this.dependencyNonceSalt,
-        this.dependencyNonceValue
+        keccak256(defaultAbiCoder.encode(["uint256"], [this.dependencyNonce])),
+        // Hard coded the update to 1 because that is the value
+        // that represents an app as being "uninstalled"
+        DependencyValue.UNINSTALLED
       ]),
       operation: MultisigOperation.Call
     };

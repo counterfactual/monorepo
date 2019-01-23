@@ -2,19 +2,22 @@ import {
   Context,
   InstructionExecutor,
   Opcode,
-  Protocol,
   ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { Provider } from "ethers/providers";
-import { SigningKey } from "ethers/utils";
+import { getAddress, SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
+import { Deferred } from "./deferred";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getSigner } from "./signer";
-import { NODE_EVENTS, NodeMessage } from "./types";
+import {
+  NODE_EVENTS,
+  NodeMessage,
+  NodeMessageWrappedProtocolMessage
+} from "./types";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -32,6 +35,9 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly instructionExecutor: InstructionExecutor;
+  private ioSendDeferrals: {
+    [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
+  } = {};
 
   // These properties don't have initializers in the constructor and get
   // initialized in the `init` function
@@ -52,8 +58,8 @@ export class Node {
       nodeConfig,
       provider
     );
-    await node.init();
-    return node;
+
+    return await node.asyncronouslySetupUsingRemoteServices();
   }
 
   private constructor(
@@ -65,12 +71,10 @@ export class Node {
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.instructionExecutor = new InstructionExecutor(networkContext);
-    this.registerOpSignMiddleware();
-    this.registerIoMiddleware();
+    this.instructionExecutor = this.buildInstructionExecutor();
   }
 
-  private async init() {
+  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
     this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
@@ -84,54 +88,81 @@ export class Node {
       this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    return this;
   }
 
   get address() {
     return this.signer.address;
   }
 
-  private registerOpSignMiddleware() {
-    this.instructionExecutor.register(
+  /**
+   * Instantiates a new _InstructionExecutor_ object and attaches middleware
+   * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
+   */
+  private buildInstructionExecutor(): InstructionExecutor {
+    const instructionExecutor = new InstructionExecutor(this.networkContext);
+
+    instructionExecutor.register(
       Opcode.OP_SIGN,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         if (!context.commitment) {
+          // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
           );
         }
+
         context.signature = this.signer.signDigest(
           context.commitment.hashToSign()
         );
+
         next();
       }
     );
-  }
 
-  private registerIoMiddleware() {
-    // TODO:
-    this.instructionExecutor.register(Opcode.IO_SEND, () => {});
-    this.instructionExecutor.register(
-      Opcode.IO_WAIT,
-      (message: ProtocolMessage, next: Function, context: Context) => {
-        // FIXME: This is a temporary hack to get IO_WAIT to progress
-        context.inbox.push({
-          protocol: Protocol.Setup,
-          fromAddress: AddressZero,
-          toAddress: AddressZero,
-          seq: 2,
-          params: {
-            initiatingAddress: AddressZero,
-            respondingAddress: AddressZero,
-            multisigAddress: AddressZero
-          },
-          signature: {
-            v: -1,
-            r: "",
-            s: ""
-          }
-        });
+    instructionExecutor.register(
+      Opcode.IO_SEND,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        const [data] = context.outbox;
+        const from = getAddress(this.address);
+        const to = getAddress(data.toAddress);
+
+        await this.messagingService.send(to, {
+          from,
+          data,
+          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+
+        next();
       }
     );
+
+    instructionExecutor.register(
+      Opcode.IO_SEND_AND_WAIT,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        const [data] = context.outbox;
+        const from = getAddress(this.address);
+        const to = getAddress(data.toAddress);
+
+        this.ioSendDeferrals[to] = new Deferred<
+          NodeMessageWrappedProtocolMessage
+        >();
+
+        await this.messagingService.send(to, {
+          from,
+          data,
+          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+
+        const msg = await this.ioSendDeferrals[to].promise;
+
+        context.inbox.push(msg.data);
+
+        next();
+      }
+    );
+
+    return instructionExecutor;
   }
 
   /**
@@ -167,20 +198,62 @@ export class Node {
 
   /**
    * When a Node is first instantiated, it establishes a connection
-   * with the messaging service.
-   * When it receives a message, it emits the message to its registered subscribers,
-   * usually external subscribed (i.e. consumers of the Node).
+   * with the messaging service. When it receives a message, it emits
+   * the message to its registered subscribers, usually external
+   * subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    this.messagingService.receive(this.address, async (msg: NodeMessage) => {
-      if (Object.values(NODE_EVENTS).includes(msg.event)) {
-        await this.requestHandler.callEvent(msg.event, msg);
-      } else {
-        console.error(
-          `Received message with unknown event type: "${msg.event}"`
-        );
+    this.messagingService.onReceive(
+      getAddress(this.address),
+      async (msg: NodeMessage) => {
+        await this.handleReceivedMessage(msg);
+        this.outgoing.emit(msg.event, msg);
       }
-      this.outgoing.emit(msg.event, msg);
-    });
+    );
+  }
+
+  /**
+   * Messages received by the Node fit into one of three categories:
+   *
+   * (a) A NodeMessage which is _not_ a NodeMessageWrappedProtocolMessage;
+   *     this is a standard received message which is handled by a named
+   *     controller in the _events_ folder.
+   *
+   * (b) A NodeMessage which is a NodeMessageWrappedProtocolMessage _and_
+   *     has no registered _ioSendDeferral_ callback. In this case, it means
+   *     it will be sent to the protocol message event controller to dispatch
+   *     the received message to the instruction executor.
+   *
+   * (c) A NodeMessage which is a NodeMessageWrappedProtocolMessage _and_
+   *     _does have_ an _ioSendDeferral_, in which case the message is dispatched
+   *     solely to the deffered promise's resolve callback.
+   */
+  private async handleReceivedMessage(msg: NodeMessage) {
+    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
+      console.error(`Received message with unknown event type: ${msg.event}`);
+    }
+
+    const isIoSendDeferral = (msg: NodeMessage) =>
+      msg.event === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
+      this.ioSendDeferrals[msg.from] !== undefined;
+
+    if (isIoSendDeferral(msg)) {
+      this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
+    } else {
+      await this.requestHandler.callEvent(msg.event, msg);
+    }
+  }
+
+  private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
+    try {
+      this.ioSendDeferrals[msg.from].resolve(msg);
+    } catch (error) {
+      console.error(
+        `Error while executing callback registered by IO_SEND_AND_WAIT middleware hook`,
+        { error, msg }
+      );
+    }
+
+    delete this.ioSendDeferrals[msg.from];
   }
 }

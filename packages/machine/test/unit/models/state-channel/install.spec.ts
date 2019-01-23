@@ -20,8 +20,10 @@ describe("StateChannel::uninstallApp", () => {
       getAddress(hexlify(randomBytes(20)))
     ];
 
-    sc1 = new StateChannel(multisigAddress, multisigOwners).setupChannel(
-      networkContext
+    sc1 = StateChannel.setupChannel(
+      networkContext.ETHBucket,
+      multisigAddress,
+      multisigOwners
     );
 
     const appInstance = new AppInstance(

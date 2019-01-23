@@ -13,7 +13,9 @@ enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   TAKE_ACTION = "takeActionEvent",
-  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent"
+  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+  INSTALL_VIRTUAL = "installVirtualEvent",
+  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
 }
 
 // Because `extend`ing isn't a native enum feature
@@ -53,6 +55,13 @@ export interface InstallMessage extends NodeMessage {
   };
 }
 
+export interface InstallVirtualMessage extends NodeMessage {
+  // TODO: update this to include the intermediares
+  data: {
+    params: Node.InstallParams;
+  };
+}
+
 export interface CreateMultisigMessage extends NodeMessage {
   data: {
     multisigAddress: Address;
@@ -66,3 +75,11 @@ export interface TakeActionMessage extends NodeMessage {
     appInstanceId: string;
   };
 }
+
+export interface RejectProposalMessage extends NodeMessage {
+  data: {
+    appInstanceId: string;
+  };
+}
+
+export interface RejectInstallVirtualMessage extends RejectProposalMessage {}

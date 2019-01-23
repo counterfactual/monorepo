@@ -22,7 +22,7 @@ contract ETHVirtualAppAgreement {
   using Transfer for Transfer.Transaction;
   using Transfer for Transfer.Terms;
 
-  // todo(ldct): is it possible to make address(registry) a constant specified
+  // todo(xuanji): is it possible to make address(registry) a constant specified
   // at link time?
   struct Agreement {
     AppRegistry registry;

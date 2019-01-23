@@ -1,8 +1,7 @@
-// import { NetworkContext } from "@counterfactual/types";
-
 import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow } from "..";
@@ -44,10 +43,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         toAddress: params2.intermediaryAddress
       });
     },
-    Opcode.IO_SEND,
 
     // wait for M5
-    Opcode.IO_WAIT
+    Opcode.IO_SEND_AND_WAIT
   ],
 
   1: [
@@ -66,10 +64,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].signature = message.signature2; // s5
       context.outbox[0].signature2 = context.signature; // s3
     },
-    Opcode.IO_SEND,
 
     // wait for M3
-    Opcode.IO_WAIT,
+    Opcode.IO_SEND_AND_WAIT,
 
     // M4
     (message: ProtocolMessage, context: Context) => {
@@ -93,6 +90,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].signature2 = context.signature2; // s2
       context.outbox[0].signature3 = context.inbox[0].signature2; // s7
     },
+
     Opcode.IO_SEND
   ],
 
@@ -113,10 +111,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].signature2 = context.signature2; // s7
     },
 
-    Opcode.IO_SEND,
-
     // wait for M4
-    Opcode.IO_WAIT
+    Opcode.IO_SEND_AND_WAIT
   ]
 };
 
@@ -126,9 +122,8 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
-    aliceBalanceDecrement,
-    bobBalanceDecrement,
-    terms,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     multisig2Address
   } = message.params as InstallVirtualAppParams;
   const targetAppInstance = new AppInstance(
@@ -158,19 +153,23 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
-    terms,
+    {
+      assetType: 0,
+      limit: respondingBalanceDecrement,
+      token: AddressZero
+    },
     context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
     100,
-    aliceBalanceDecrement.add(bobBalanceDecrement).toNumber()
+    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
   const newStateChannel = context.stateChannelsMap
     .get(multisig2Address)!
     .installETHVirtualAppAgreementInstance(
       rightEthVirtualAppAgreementInstance,
-      aliceBalanceDecrement,
-      bobBalanceDecrement
+      initiatingBalanceDecrement,
+      respondingBalanceDecrement
     );
   context.stateChannelsMap.set(multisig2Address, newStateChannel);
 
@@ -199,9 +198,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
-    aliceBalanceDecrement,
-    bobBalanceDecrement,
-    terms,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     multisig1Address
   } = message.params as InstallVirtualAppParams;
 
@@ -232,19 +230,23 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
-    terms,
+    {
+      assetType: 0,
+      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      token: ""
+    },
     context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
     100,
-    aliceBalanceDecrement.add(bobBalanceDecrement).toNumber()
+    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
   const newStateChannel = context.stateChannelsMap
     .get(multisig1Address)!
     .installETHVirtualAppAgreementInstance(
       leftETHVirtualAppAgreementInstance,
-      aliceBalanceDecrement,
-      bobBalanceDecrement
+      initiatingBalanceDecrement,
+      respondingBalanceDecrement
     );
   context.stateChannelsMap.set(multisig1Address, newStateChannel);
 
@@ -299,9 +301,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
-    aliceBalanceDecrement,
-    bobBalanceDecrement,
-    terms
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = new AppInstance(
@@ -330,20 +331,28 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
-    terms,
+    {
+      assetType: 0,
+      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      token: ""
+    },
     context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
     100,
-    aliceBalanceDecrement.add(bobBalanceDecrement).toNumber()
+    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
-    terms,
+    {
+      assetType: 0,
+      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      token: ""
+    },
     context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
     100,
-    aliceBalanceDecrement.add(bobBalanceDecrement).toNumber()
+    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
   // S2
@@ -367,8 +376,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     .get(multisig1Address)!
     .installETHVirtualAppAgreementInstance(
       leftEthVirtualAppAgreementInstance,
-      aliceBalanceDecrement,
-      bobBalanceDecrement
+      initiatingBalanceDecrement,
+      respondingBalanceDecrement
     );
   context.stateChannelsMap.set(multisig1Address, newStateChannel1);
 
@@ -376,8 +385,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     .get(multisig2Address)!
     .installETHVirtualAppAgreementInstance(
       leftEthVirtualAppAgreementInstance,
-      aliceBalanceDecrement,
-      bobBalanceDecrement
+      initiatingBalanceDecrement,
+      respondingBalanceDecrement
     );
   context.stateChannelsMap.set(multisig2Address, newStateChannel2);
 

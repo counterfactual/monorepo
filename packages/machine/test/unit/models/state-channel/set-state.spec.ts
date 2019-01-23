@@ -44,9 +44,11 @@ describe("StateChannel::setState", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    sc1 = new StateChannel(multisigAddress, multisigOwners)
-      .setupChannel(networkContext)
-      .installApp(testApp, Zero, Zero);
+    sc1 = StateChannel.setupChannel(
+      networkContext.ETHBucket,
+      multisigAddress,
+      multisigOwners
+    ).installApp(testApp, Zero, Zero);
 
     sc2 = sc1.setState(testApp.identityHash, { foo: AddressZero, bar: 1337 });
   });

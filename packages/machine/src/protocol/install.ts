@@ -31,11 +31,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
 
-    // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    // Wait for them to countersign the message
-    Opcode.IO_WAIT,
+    // Send the message to your counterparty and wait for a reply
+    Opcode.IO_SEND_AND_WAIT,
 
     // Verify a message was received
     (_: ProtocolMessage, context: Context) =>
@@ -114,13 +111,14 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
   context.commitment = constructInstallOp(
     context.network,
-    context.stateChannelsMap.get(multisigAddress)!,
+    newStateChannel,
     appIdentityHash
   );
 
@@ -147,7 +145,7 @@ function constructInstallOp(
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
-    freeBalance.appSeqNo,
+    app.appSeqNo,
     freeBalance.rootNonceValue
   );
 }

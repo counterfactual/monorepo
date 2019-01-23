@@ -113,8 +113,8 @@ export class AppGame {
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
 
-  @Prop() user: any = { username: "Facundo" };
-  @Prop() opponent: any = { username: "John" };
+  @Prop() account: any = { user: { username: "Facundo" } };
+  @Prop() opponent: any = { attributes: { username: "John" } };
 
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
@@ -243,7 +243,7 @@ export class AppGame {
       <div class="wrapper">
         <div class="game">
           <app-game-player
-            playerName={this.opponent.username}
+            playerName={this.opponent.attributes.username}
             playerScore={this.opponentScore}
             playerType={PlayerType.Black}
             playerRoll={this.opponentRoll}
@@ -253,7 +253,7 @@ export class AppGame {
             betAmount={this.betAmount}
           />
           <app-game-player
-            playerName={this.user.username}
+            playerName={this.account.user.username}
             playerScore={this.myScore}
             playerType={PlayerType.White}
             playerRoll={this.myRoll}
@@ -293,4 +293,4 @@ export class AppGame {
   }
 }
 
-CounterfactualTunnel.injectProps(AppGame, ["user", "opponent"]);
+CounterfactualTunnel.injectProps(AppGame, ["account", "opponent"]);

@@ -31,11 +31,8 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
 
-    // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    // Wait for them to countersign the message
-    Opcode.IO_WAIT,
+    // Send the message to your counterparty and wait for a reply
+    Opcode.IO_SEND_AND_WAIT,
 
     // Verify a message was received
     (_: ProtocolMessage, context: Context) =>
@@ -80,13 +77,22 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(message: ProtocolMessage, context: Context) {
-  const { multisigAddress } = message.params as SetupParams;
-  const sc = context.stateChannelsMap.get(multisigAddress)!;
-  if (sc === undefined) {
-    console.log("sc keys=", context.stateChannelsMap.keys());
-    throw Error(`no such channel at multisig address ${multisigAddress}`);
+  const {
+    multisigAddress,
+    initiatingAddress,
+    respondingAddress
+  } = message.params as SetupParams;
+
+  if (context.stateChannelsMap.has(multisigAddress)) {
+    throw Error(`Found an already-setup channel at ${multisigAddress}`);
   }
-  const newStateChannel = sc.setupChannel(context.network);
+
+  const newStateChannel = StateChannel.setupChannel(
+    context.network.ETHBucket,
+    multisigAddress,
+    [initiatingAddress, respondingAddress]
+  );
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitment = constructSetupOp(context.network, newStateChannel);
 }

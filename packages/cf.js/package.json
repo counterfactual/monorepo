@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf.js",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
@@ -8,9 +8,8 @@
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/counterfactual/cf.js",
+  "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "build": "tsc -b && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
@@ -22,17 +21,18 @@
   "devDependencies": {
     "jest": "23.6.0",
     "rollup": "^1.0.1",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.19.0",
     "tslint": "^5.11.0",
     "typedoc": "^0.14.0",
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
-    "cuid": "^2.1.4",
     "ethers": "4.0.21",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.0",
+    "uuid": "3.3.2"
   },
   "jest": {
     "verbose": false,

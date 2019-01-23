@@ -23,14 +23,14 @@ export class AppRoot {
   constructor() {
     const params = new URLSearchParams(window.location.search);
     this.state = {
-      user: {},
+      account: {},
       opponent: {},
       standalone: params.get("standalone") === "true" || false,
       appInstance: null,
       appFactory: null,
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this),
-      updateUser: this.updateUser.bind(this),
+      updateUser: this.updateAccount.bind(this),
       updateOpponent: this.updateOpponent.bind(this)
     };
   }
@@ -43,25 +43,27 @@ export class AppRoot {
       ) {
         const [, data] = event.data.split("|");
         const account = JSON.parse(data);
-        this.updateUser(account);
+        this.updateAccount(account);
         console.log(this.state);
       }
     });
 
     window.parent.postMessage("playground:request:user", "*");
     if (this.state.standalone) {
-      const mockUser = {
-        address: "0xc60b9023bb8dc153b4046977328ce79af12a77e0",
-        email: "alon2@example.com",
-        id: "687297bc-8014-4c82-8cee-3b7ca7db09d4",
-        multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED",
-        username: "MyName"
+      const mockAccount = {
+        user: {
+          address: "0xc60b9023bb8dc153b4046977328ce79af12a77e0",
+          email: "alon2@example.com",
+          id: "687297bc-8014-4c82-8cee-3b7ca7db09d4",
+          username: "MyName"
+        },
+        multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED"
       };
-      this.updateUser(mockUser);
+      this.updateAccount(mockAccount);
     }
   }
 
-  updateUser(account: any) {
+  updateAccount(account: any) {
     this.state = { ...this.state, account };
   }
 

@@ -1,17 +1,12 @@
-import {
-  AppState,
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AppState, AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
-  freeBalanceTerms,
-  getFreeBalanceAppInterface
-} from "../ethereum/utils/free-balance";
+  getETHBucketAppInterface,
+  unlimitedETH
+} from "../ethereum/utils/eth-bucket";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -38,8 +33,14 @@ const ERRORS = {
   FREE_BALANCE_IDX_CORRUPT: (idx: string) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
-    "Attempted to install an appInstance without sufficient funds"
+    "Attempted to install an appInstance without sufficient funds",
+  MULTISIG_OWNERS_NOT_SORTED:
+    "multisigOwners parameter of StateChannel must be sorted"
 };
+
+function sortAddresses(addrs: string[]) {
+  return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+}
 
 export type StateChannelJSON = {
   readonly multisigAddress: string;
@@ -67,8 +68,8 @@ function createETHFreeBalance(
     multisigAddress,
     multisigOwners,
     HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
-    getFreeBalanceAppInterface(ethBucketAddress),
-    freeBalanceTerms,
+    getETHBucketAppInterface(ethBucketAddress),
+    unlimitedETH,
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
@@ -101,7 +102,14 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {}
+  ) {
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
+    multisigOwners.forEach((owner, idx) => {
+      if (owner !== sortedMultisigOwners[idx]) {
+        throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
+      }
+    });
+  }
 
   public get numInstalledApps() {
     return this.monotonicNumInstalledApps;
@@ -113,7 +121,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw Error(`${ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash)}`);
+      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -145,7 +153,7 @@ export class StateChannel {
     const idx = this.freeBalanceAppIndexes.get(assetType);
 
     if (!this.appInstances.has(idx!)) {
-      throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!)}`);
+      throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
     }
 
     const appInstanceJson = this.appInstances.get(idx!)!.toJson();
@@ -166,34 +174,32 @@ export class StateChannel {
     return this.setState(freeBalance.identityHash, state);
   }
 
-  public setupChannel(network: NetworkContext) {
-    const size = this.appInstances.size;
-
-    if (size > 0) throw Error(`${ERRORS.APPS_NOT_EMPTY(size)})`);
+  public static setupChannel(
+    ethBucketAddress: string,
+    multisigAddress: string,
+    multisigOwners: string[]
+  ) {
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
 
     const fb = createETHFreeBalance(
-      this.multisigAddress,
-      this.multisigOwners,
-      network.ETHBucket
+      multisigAddress,
+      sortedMultisigOwners,
+      ethBucketAddress
     );
 
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
+    const appInstances = new Map<string, AppInstance>();
     appInstances.set(fb.identityHash, fb);
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>(
-      this.freeBalanceAppIndexes.entries()
-    );
+    const freeBalanceAppIndexes = new Map<AssetType, string>();
     freeBalanceAppIndexes.set(AssetType.ETH, fb.identityHash);
 
     return new StateChannel(
-      this.multisigAddress,
-      this.multisigOwners,
+      multisigAddress,
+      sortedMultisigOwners,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps + 1
+      1
     );
   }
 
@@ -250,7 +256,7 @@ export class StateChannel {
       this.ethVirtualAppAgreementInstances.entries()
     );
 
-    // todo(ldct: what key?)
+    // todo(xuanji: what key?)
     evaaInstances.set("", evaaInstance);
 
     return new StateChannel(

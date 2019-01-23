@@ -41,17 +41,14 @@ export class Store {
     [multisigAddress: string]: StateChannel;
   }> {
     const channels = {};
-    const channelsJSON = (await this.storeService.get(
+    const channelsJSON = ((await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
-    )) as { [multisigAddress: string]: StateChannelJSON };
+    )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    if (!channelsJSON) {
-      console.log("No channels exist yet");
-    } else {
-      for (const entry of Object.entries(channelsJSON)) {
-        channels[entry[0]] = StateChannel.fromJson(entry[1]);
-      }
+    for (const [key, value] of Object.entries(channelsJSON)) {
+      channels[key] = StateChannel.fromJson(value);
     }
+
     return channels;
   }
 
@@ -232,6 +229,23 @@ export class Store {
     ]);
   }
 
+  public async removeAppInstanceProposal(appInstanceId: string) {
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+        value: null
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+        value: null
+      }
+    ]);
+  }
+
   public async getAppInstanceInfo(
     appInstanceId: string
   ): Promise<AppInstanceInfo> {
@@ -266,6 +280,9 @@ export class Store {
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+    if (!proposedAppInstancesJson) {
+      return [];
+    }
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);

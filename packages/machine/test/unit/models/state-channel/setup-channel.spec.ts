@@ -6,46 +6,46 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { AppInstance, StateChannel } from "../../../../src/models";
 
 describe("StateChannel::setupChannel", () => {
-  let sc1: StateChannel;
-  let sc2: StateChannel;
+  const multisigAddress = getAddress(hexlify(randomBytes(20)));
+  const multisigOwners = [
+    getAddress(hexlify(randomBytes(20))),
+    getAddress(hexlify(randomBytes(20)))
+  ];
+
+  let sc: StateChannel;
 
   const networkContext = generateRandomNetworkContext();
 
   beforeAll(() => {
-    const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const multisigOwners = [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ];
-
-    sc1 = new StateChannel(multisigAddress, multisigOwners);
-
-    sc2 = sc1.setupChannel(networkContext);
+    sc = StateChannel.setupChannel(
+      networkContext.ETHBucket,
+      multisigAddress,
+      multisigOwners
+    );
   });
 
   it("should not alter any of the base properties", () => {
-    expect(sc2.multisigAddress).toBe(sc1.multisigAddress);
-    expect(sc2.multisigOwners).toBe(sc1.multisigOwners);
-  });
-
-  it("should have added an ETH Free Balance", () => {
-    const fb = sc2.getFreeBalanceFor(AssetType.ETH);
-    expect(fb).not.toBe(undefined);
+    expect(sc.multisigAddress).toBe(multisigAddress);
+    expect(sc.multisigOwners).toBe(multisigOwners);
   });
 
   it("should have bumped the sequence number", () => {
-    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps + 1);
+    expect(sc.numInstalledApps).toBe(1);
   });
 
   describe("the installed ETH Free Balance", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc2.getFreeBalanceFor(AssetType.ETH);
+      fb = sc.getFreeBalanceFor(AssetType.ETH);
+    });
+
+    it("should exist", () => {
+      expect(fb).not.toBe(undefined);
     });
 
     it("should be owned by the multisig", () => {
-      expect(fb.multisigAddress).toBe(sc2.multisigAddress);
+      expect(fb.multisigAddress).toBe(multisigAddress);
     });
 
     it("should not be a virtual app", () => {
@@ -66,7 +66,7 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should use the multisig owners as the signing keys", () => {
-      expect(fb.signingKeys).toEqual(sc2.multisigOwners);
+      expect(fb.signingKeys).toEqual(sc.multisigOwners);
     });
 
     it("should use the ETHBucketApp as the app target", () => {
@@ -80,8 +80,8 @@ describe("StateChannel::setupChannel", () => {
 
     it("should set the signingKeys as the multisigOwners", () => {
       const { alice, bob } = fb.state as ETHBucketAppState;
-      expect(alice).toBe(sc1.multisigOwners[0]);
-      expect(bob).toBe(sc1.multisigOwners[1]);
+      expect(alice).toBe(sc.multisigOwners[0]);
+      expect(bob).toBe(sc.multisigOwners[1]);
     });
 
     it("should have 0 balances for Alice and Bob", () => {

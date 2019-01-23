@@ -44,9 +44,11 @@ describe("StateChannel::uninstallApp", () => {
       Math.ceil(1000 * Math.random())
     );
 
-    sc1 = new StateChannel(multisigAddress, multisigOwners)
-      .setupChannel(networkContext)
-      .installApp(testApp, Zero, Zero);
+    sc1 = StateChannel.setupChannel(
+      networkContext.ETHBucket,
+      multisigAddress,
+      multisigOwners
+    ).installApp(testApp, Zero, Zero);
 
     sc2 = sc1.uninstallApp(testApp.identityHash, Zero, Zero);
   });
@@ -56,8 +58,12 @@ describe("StateChannel::uninstallApp", () => {
     expect(sc2.multisigOwners).toBe(sc1.multisigOwners);
   });
 
-  it("should not have bumped the sequence number", () => {
+  it("should not have changed the sequence number", () => {
     expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps);
+  });
+
+  it("should have decreased the active apps number", () => {
+    expect(sc2.numActiveApps).toBe(sc1.numActiveApps - 1);
   });
 
   it("should have deleted the app being uninstalled", () => {

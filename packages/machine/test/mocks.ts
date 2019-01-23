@@ -1,7 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
-/// todo(ldct): make this random but deterministically generated from some seed
+/// todo(xuanji): make this random but deterministically generated from some seed
 export function generateRandomNetworkContext(): NetworkContext {
   return {
     ETHBucket: getAddress(hexlify(randomBytes(20))),

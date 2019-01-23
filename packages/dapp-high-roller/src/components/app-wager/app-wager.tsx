@@ -132,7 +132,7 @@ export class AppWager {
                 id: this.account.user.id
               }
             },
-            matchedUsers: {
+            matchedUser: {
               data: {
                 type: "matchedUsers",
                 id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
