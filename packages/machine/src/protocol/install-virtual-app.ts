@@ -44,6 +44,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       });
     },
 
+    // wait for M5
     Opcode.IO_SEND_AND_WAIT
   ],
 
