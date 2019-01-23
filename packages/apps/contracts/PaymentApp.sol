@@ -2,6 +2,7 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
 contract PaymentApp {
@@ -13,11 +14,13 @@ contract PaymentApp {
     uint256 bobBalance;
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](2);
     amounts[0] = state.aliceBalance;
     amounts[1] = state.bobBalance;
