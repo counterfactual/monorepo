@@ -18,6 +18,7 @@ export class WidgetConnection {
   @Prop() network: string = "";
 
   render() {
+    console.log("network", this.network)
     return (
       <div class="connection">
         <span class={this.network ? "dot connected" : "dot"} />
