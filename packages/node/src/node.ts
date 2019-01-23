@@ -153,15 +153,11 @@ export class Node {
       Opcode.IO_WAIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         await new Promise(async (resolve, reject) => {
-          try {
-            const checksumAddress = getAddress(message.toAddress);
-            const msg = await this.ioSendDeferrals[checksumAddress].promise;
-            context.inbox.push(msg.data);
-            resolve();
-            next();
-          } catch (e) {
-            reject(e);
-          }
+          const checksumAddress = getAddress(message.toAddress);
+          const msg = await this.ioSendDeferrals[checksumAddress].promise;
+          context.inbox.push(msg.data);
+          resolve();
+          next();
         });
       }
     );
