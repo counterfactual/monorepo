@@ -29,6 +29,10 @@ export function addSignedCommitmentToOutboxForSeq1(
  * seq 2 for these kinds of protocols, so this is an alias for "use this
  * protocol message to finish up your callback on the IO_WAIT opcode"
  *
+ * Additionally, it swaps the `from` and `to` addresses since in the case
+ * where this helper is used, the `message` is one received initially from
+ * the initiator of the protocol (so `from` is the other guy to start)
+ *
  * @param message the message B initiated his machine protocol execution
  * @param context B's context at this point in the protocol execution
  */
@@ -38,6 +42,8 @@ export function addSignedCommitmentInResponseWithSeq2(
 ) {
   context.outbox.push({
     ...message,
+    fromAddress: message.toAddress,
+    toAddress: message.fromAddress,
     signature: context.signature,
     seq: 2
   });

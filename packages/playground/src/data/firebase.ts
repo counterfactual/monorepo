@@ -6,8 +6,8 @@ import firebase from "firebase/app";
 import "firebase/database";
 
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: any);
-  receive(address: Address, callback: (msg: any) => void);
+  send(respondingAddress: Address, msg: any): Promise<void>;
+  onReceive(address: Address, callback: (msg: any) => void);
 }
 
 export interface IStoreService {
@@ -52,7 +52,7 @@ export default class FirebaseServiceFactory {
 class FirebaseMessagingService implements IMessagingService {
   // naive caching - firebase fires observers twice upon initial callback
   // registration and invocation
-  private servedMessages = new Map();
+  private servedMessages = new Set();
 
   constructor(
     private readonly firebase: firebase.database.Database,
@@ -65,7 +65,7 @@ class FirebaseMessagingService implements IMessagingService {
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  receive(address: Address, callback: (msg: object) => void) {
+  onReceive(address: Address, callback: (msg: object) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -76,23 +76,29 @@ class FirebaseMessagingService implements IMessagingService {
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
       .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-        if (snapshot === null) {
-          console.debug(
+        if (!snapshot) {
+          console.error(
             `Node with address ${address} received a "null" snapshot`
           );
           return;
         }
+
         const msg = snapshot.val();
-        const msgKey = JSON.stringify(msg);
+
         if (msg === null) {
+          // We check for `msg` being not null because when the Firebase listener
+          // connects, the snapshot starts with a `null` value, and on the second
+          // the call it receives a value.
+          // See: https://stackoverflow.com/a/37310606/2680092
           return;
         }
-        if (msgKey in this.servedMessages) {
-          delete this.servedMessages[msgKey];
-          return;
+
+        if (this.servedMessages.has(msg)) {
+          this.servedMessages.delete(msg);
+        } else {
+          this.servedMessages.add(msg);
+          callback(msg);
         }
-        this.servedMessages[msgKey] = true;
-        callback(msg);
       });
   }
 }
