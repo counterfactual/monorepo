@@ -1,9 +1,4 @@
-import {
-  AppState,
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AppState, AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";

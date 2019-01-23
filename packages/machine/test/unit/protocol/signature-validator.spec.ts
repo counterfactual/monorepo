@@ -1,5 +1,11 @@
 import { HashZero } from "ethers/constants";
-import { hexlify, randomBytes, Signature, SigningKey } from "ethers/utils";
+import {
+  hexlify,
+  randomBytes,
+  recoverAddress,
+  Signature,
+  SigningKey
+} from "ethers/utils";
 
 import { EthereumCommitment } from "../../../src/ethereum/types";
 import { validateSignature } from "../../../src/protocol/utils/signature-validator";
@@ -38,12 +44,16 @@ describe("Signature Validator Helper", () => {
   });
 
   it("throws if the signature is wrong", () => {
+    const rightHash = commitment.hashToSign();
+    const wrongHash = HashZero.replace("00", "11"); // 0x11000...
+    const signature = signer.signDigest(wrongHash);
+    const wrongSigner = recoverAddress(rightHash, signature);
     expect(() =>
-      validateSignature(
-        signer.address,
-        commitment,
-        signer.signDigest(HashZero.replace("00", "11")) // 0x111111...
-      )
-    ).toThrow();
+      validateSignature(signer.address, commitment, signature)
+    ).toThrow(
+      `Validating a signature with expected signer ${
+        signer.address
+      } but recovered ${wrongSigner} for commitment hash ${rightHash}`
+    );
   });
 });
