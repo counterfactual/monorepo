@@ -97,7 +97,7 @@ export class Node {
 
   /**
    * Instantiates a new _InstructionExecutor_ object and attaches middleware
-   * for the OP_SIGN, IO_SEND, and IO_WAIT opcodes.
+   * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
    */
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
@@ -127,18 +127,6 @@ export class Node {
         const from = getAddress(this.address);
         const to = getAddress(data.toAddress);
 
-        // FIXME: When seq === 1 it means that, for a round trip protocol like
-        //        Update, Setup, Install, etc this is the first message A sends
-        //        to B, indicating B should start at step 1 of the flow. Thus,
-        //        we create a deferral for future resolution by the message
-        //        handler on the receiving side which is expecting B to reply
-        //        later with seq === 2.
-        if (context.outbox[0].seq === 1) {
-          this.ioSendDeferrals[to] = new Deferred<
-            NodeMessageWrappedProtocolMessage
-          >();
-        }
-
         await this.messagingService.send(to, {
           from,
           data,
@@ -150,11 +138,26 @@ export class Node {
     );
 
     instructionExecutor.register(
-      Opcode.IO_WAIT,
+      Opcode.IO_SEND_AND_WAIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        const checksumAddress = getAddress(message.toAddress);
-        const msg = await this.ioSendDeferrals[checksumAddress].promise;
+        const [data] = context.outbox;
+        const from = getAddress(this.address);
+        const to = getAddress(data.toAddress);
+
+        this.ioSendDeferrals[to] = new Deferred<
+          NodeMessageWrappedProtocolMessage
+        >();
+
+        await this.messagingService.send(to, {
+          from,
+          data,
+          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+
+        const msg = await this.ioSendDeferrals[to].promise;
+
         context.inbox.push(msg.data);
+
         next();
       }
     );
@@ -226,8 +229,8 @@ export class Node {
    *     solely to the deffered promise's resolve callback.
    */
   private async handleReceivedMessage(msg: NodeMessage) {
-    if (!NODE_EVENTS[msg.event]) {
-      console.error(`Received message with unknown event type`);
+    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
+      console.error(`Received message with unknown event type: ${msg.event}`);
     }
 
     const isIoSendDeferral = (msg: NodeMessage) =>
@@ -246,7 +249,7 @@ export class Node {
       this.ioSendDeferrals[msg.from].resolve(msg);
     } catch (error) {
       console.error(
-        `Error while executing callback registered by IO_WAIT middleware hook`,
+        `Error while executing callback registered by IO_SEND_AND_WAIT middleware hook`,
         { error, msg }
       );
     }

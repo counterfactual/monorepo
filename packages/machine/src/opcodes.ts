@@ -21,7 +21,7 @@ export enum Opcode {
   IO_SEND,
 
   /**
-   * Middleware hook to receive a ProtocolMessage from a peer.
+   * Middleware hook to both send and wait for a response from a ProtocolMessage
    */
-  IO_WAIT
+  IO_SEND_AND_WAIT
 }
