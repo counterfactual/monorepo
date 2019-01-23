@@ -52,7 +52,7 @@ export default class FirebaseServiceFactory {
 class FirebaseMessagingService implements IMessagingService {
   // naive caching - firebase fires observers twice upon initial callback
   // registration and invocation
-  private servedMessages = new Map();
+  private servedMessages = new Set();
 
   constructor(
     private readonly firebase: firebase.database.Database,
@@ -93,11 +93,10 @@ class FirebaseMessagingService implements IMessagingService {
           return;
         }
 
-        const stringifiedMsg = JSON.stringify(msg);
-        if (stringifiedMsg in this.servedMessages) {
-          delete this.servedMessages[stringifiedMsg];
+        if (this.servedMessages.has(msg)) {
+          this.servedMessages.delete(msg);
         } else {
-          this.servedMessages[stringifiedMsg] = true;
+          this.servedMessages.add(msg);
           callback(msg);
         }
       });
