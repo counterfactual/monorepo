@@ -1,0 +1,47 @@
+[
+  {
+    "contractName": "CommitRevealApp",
+    "address": "0x05e844bCb31148ea82BdEF843A40b71a045a2c3D",
+    "transactionHash": "0x9cc99b116e8b3b56c8a17a7a2e0ace01cb2965dc93de26693cb333321aa55bad"
+  },
+  {
+    "contractName": "CountingApp",
+    "address": "0x550987D3223dbb2508484d8C153AbA104077bC9b",
+    "transactionHash": "0xfe285cde379beb6564a5fef2d92c4a2542dd4fbf712226b2debbf881e9cfecc0"
+  },
+  {
+    "contractName": "HighRollerApp",
+    "address": "0x91907355C59BA005843E791c88aAB80b779446c9",
+    "transactionHash": "0x624de92ed41d6ac17609409245cbe890319fd2519518abcbe359c02593cc093f"
+  },
+  {
+    "contractName": "CommitRevealApp",
+    "address": "0x839970482631D45758466bB3155326ef2D4f4b91",
+    "transactionHash": "0xfd53805364e47eaae13eb291e8abebd60ef0c40229df755146081fade7ae65c8"
+  },
+  {
+    "contractName": "CountingApp",
+    "address": "0x77124334d5F84838572729e47fA09d2329eaA05b",
+    "transactionHash": "0x4d9ffa432c2ab680d1a3cfd109feee4852e0fcc03f83065e4313d60b4e30a773"
+  },
+  {
+    "contractName": "HighRollerApp",
+    "address": "0x5258EB61D2760C2D33Ba0DEb08a32212637Db6bA",
+    "transactionHash": "0x122474647a6f194d3a9c698fcfe35eaeb302215c23b73385552f4a0b21da4abd"
+  },
+  {
+    "contractName": "NimApp",
+    "address": "0x79F061cE5f52Db9740C30cEfE1f493d5351b6e5A",
+    "transactionHash": "0x2f14f87f9250e6ac2dcfc7b8b0bf0e097ef97a455716887708b331bcd0fcd515"
+  },
+  {
+    "contractName": "PaymentApp",
+    "address": "0x3c49f951e046934d76284Fe6Cbb5892A87926859",
+    "transactionHash": "0x38413c3aa82010fc5b34deab3222cb41117061aef58e9f9af88be74872c905e8"
+  },
+  {
+    "contractName": "TicTacToeApp",
+    "address": "0x12a50CaA6dfB0a033F2eA2Ec3C93eb8c18cA4caf",
+    "transactionHash": "0xba91c71261bb1987f55a7bea96ad0c7321a67b27e26ce5ec01c1705dfae76c55"
+  }
+]
