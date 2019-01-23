@@ -75,8 +75,10 @@ class FirebaseMessagingService implements IMessagingService {
             );
           } else {
             const msg = snapshot.val();
-            // TODO: Figure out why sometimes the message is null?
-            // Answer: https://stackoverflow.com/a/37310606/2680092
+            // We check for `msg` being not null because when the Firebase listener
+            // connects, the snapshot starts with a `null` value, and on the second
+            // the call it receives a value.
+            // See: https://stackoverflow.com/a/37310606/2680092
             if (msg !== null) {
               const stringifiedMsg = JSON.stringify(msg);
               if (stringifiedMsg in this.servedMessages) {
