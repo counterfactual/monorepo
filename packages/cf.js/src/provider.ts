@@ -6,7 +6,6 @@ import {
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
-import { v4 as generateUUID } from "uuid";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -16,6 +15,8 @@ import {
   UninstallEventData,
   UpdateStateEventData
 } from "./types";
+// import { v4 as generateUUID } from "uuid";
+import generateUUID from "./utils/uuid";
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
