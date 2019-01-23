@@ -16,12 +16,12 @@ import { v4 as generateUUID } from "uuid";
 
 import {
   IMessagingService,
-  InstallMessage,
+  InstallVirtualMessage,
   IStoreService,
   Node,
   NODE_EVENTS,
   NodeConfig,
-  ProposeMessage,
+  ProposeVirtualMessage,
   TakeActionMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
@@ -32,7 +32,7 @@ import {
   generateGetStateRequest,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest
+  makeInstallVirtualRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -43,6 +43,8 @@ describe("Node method follows spec - takeAction", () => {
   let storeServiceA: IStoreService;
   let nodeB: Node;
   let storeServiceB: IStoreService;
+  let nodeC: Node;
+  let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
   let tttContract: Contract;
@@ -103,6 +105,17 @@ describe("Node method follows spec - takeAction", () => {
       nodeConfig,
       provider
     );
+
+    storeServiceC = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeC = await Node.create(
+      messagingService,
+      storeServiceC,
+      EMPTY_NETWORK,
+      nodeConfig,
+      provider
+    );
   });
 
   afterAll(() => {
@@ -110,8 +123,8 @@ describe("Node method follows spec - takeAction", () => {
   });
 
   describe(
-    "Node A and B install an AppInstance, Node A takes action, " +
-      "Node B confirms receipt of state update",
+    "Node A and C install an AppInstance through Node B, Node A takes action, " +
+      "Node C confirms receipt of state update",
     () => {
       const stateEncoding =
         "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
@@ -146,53 +159,73 @@ describe("Node method follows spec - takeAction", () => {
           }
         };
 
-        const multisigAddress = await getNewMultisig(nodeA, [
+        const multisigAddressAB = await getNewMultisig(nodeA, [
           nodeA.address,
           nodeB.address
         ]);
-        expect(multisigAddress).toBeDefined();
+        expect(multisigAddressAB).toBeDefined();
 
-        const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
+        const multisigAddressBC = await getNewMultisig(nodeB, [
           nodeB.address,
+          nodeC.address
+        ]);
+        expect(multisigAddressBC).toBeDefined();
+
+        const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
+          nodeC.address,
           tttContract.address,
           initialState,
           {
             stateEncoding,
             actionEncoding
-          }
+          },
+          [nodeB.address]
         );
 
         let newState;
-        nodeB.on(NODE_EVENTS.TAKE_ACTION, async (msg: TakeActionMessage) => {
+
+        nodeC.on(NODE_EVENTS.TAKE_ACTION, async (msg: TakeActionMessage) => {
           setTimeout(() => {
             expect(msg.data.params.newState).toEqual(newState);
           }, 2000);
 
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeB.call(getStateReq.type, getStateReq);
+          const response = await nodeC.call(getStateReq.type, getStateReq);
           const updatedState = (response.result as NodeTypes.GetStateResult)
             .state;
           expect(updatedState).toEqual(newState);
           done();
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const takeActionReq = generateTakeActionRequest(
-            msg.data.params.appInstanceId,
-            validAction
-          );
+        nodeA.on(
+          NODE_EVENTS.INSTALL_VIRTUAL,
+          async (msg: InstallVirtualMessage) => {
+            const takeActionReq = generateTakeActionRequest(
+              msg.data.params.appInstanceId,
+              validAction
+            );
 
-          const response = await nodeA.call(takeActionReq.type, takeActionReq);
-          newState = (response.result as NodeTypes.TakeActionResult).newState;
+            const response = await nodeA.call(
+              takeActionReq.type,
+              takeActionReq
+            );
+            newState = (response.result as NodeTypes.TakeActionResult).newState;
 
-          expect(newState.board[0][0]).toEqual(bigNumberify(1));
-          expect(newState.turnNum).toEqual(bigNumberify(1));
-        });
+            expect(newState.board[0][0]).toEqual(bigNumberify(1));
+            expect(newState.turnNum).toEqual(bigNumberify(1));
+          }
+        );
 
-        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-          const installReq = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installReq.type, installReq);
-        });
+        nodeC.on(
+          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          (msg: ProposeVirtualMessage) => {
+            const installReq = makeInstallVirtualRequest(
+              msg.data.appInstanceId,
+              msg.data.params.intermediaries
+            );
+            nodeC.emit(installReq.type, installReq);
+          }
+        );
 
         nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
       });
@@ -200,14 +233,16 @@ describe("Node method follows spec - takeAction", () => {
   );
 });
 
-function makeTTTAppInstanceProposalReq(
+function makeTTTVirtualAppInstanceProposalReq(
   respondingAddress: Address,
   appId: Address,
   initialState: AppState,
-  abiEncodings: AppABIEncodings
+  abiEncodings: AppABIEncodings,
+  intermediaries: Address[]
 ): NodeTypes.MethodRequest {
   return {
     params: {
+      intermediaries,
       respondingAddress,
       appId,
       initialState,
@@ -218,8 +253,8 @@ function makeTTTAppInstanceProposalReq(
       myDeposit: Zero,
       peerDeposit: Zero,
       timeout: One
-    } as NodeTypes.ProposeInstallParams,
+    } as NodeTypes.ProposeInstallVirtualParams,
     requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL
+    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
   } as NodeTypes.MethodRequest;
 }
