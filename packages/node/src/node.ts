@@ -123,9 +123,9 @@ export class Node {
     instructionExecutor.register(
       Opcode.IO_SEND,
       async (message: ProtocolMessage, next: Function, context: Context) => {
+        const [data] = context.outbox;
         const from = getAddress(this.address);
-        const to = getAddress(context.outbox[0].toAddress);
-        const data = context.outbox[0];
+        const to = getAddress(data.toAddress);
 
         // FIXME: When seq === 1 it means that, for a round trip protocol like
         //        Update, Setup, Install, etc this is the first message A sends
