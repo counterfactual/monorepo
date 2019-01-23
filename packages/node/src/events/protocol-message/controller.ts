@@ -21,12 +21,19 @@ export default async function protocolMessageEventController(
   //        listeniner inside the instructionExecutor that emits noise
   //        when dispatchReceivedMessage receives a message for an in-progress
   //        protocol execution.
+  //
+  //        Does NOT work for InstallVirtualApp
   if (nodeMsg.data.seq === 2) return;
 
-  await requestHandler.instructionExecutor.dispatchReceivedMessage(
+  const stateChannelsMap = await requestHandler.instructionExecutor.dispatchReceivedMessage(
     nodeMsg.data,
     new Map<string, StateChannel>(
       Object.entries(await requestHandler.store.getAllChannels())
     )
+  );
+
+  stateChannelsMap.forEach(
+    async stateChannel =>
+      await requestHandler.store.saveStateChannel(stateChannel)
   );
 }

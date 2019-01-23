@@ -1,13 +1,11 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
-import { IStoreService, Node, NodeConfig } from "../../src";
+import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
-import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -18,22 +16,26 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
+  let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
-  let storeService: IStoreService;
-  let node: Node;
+  let messagingService: IMessagingService;
+  let nodeA: Node;
+  let storeServiceA: IStoreService;
+  let nodeB: Node;
+  let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let mockProvider: Provider;
   let provider;
 
   beforeAll(() => {
-    const firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
-    storeService = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY!
+    messagingService = firebaseServiceFactory.createMessagingService(
+      process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
+    firebaseServer = firebaseServiceFactory.createServer();
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
@@ -42,9 +44,23 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   beforeEach(async () => {
-    node = await Node.create(
-      mockMessagingService,
-      storeService,
+    storeServiceA = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeA = await Node.create(
+      messagingService,
+      storeServiceA,
+      EMPTY_NETWORK,
+      nodeConfig,
+      provider
+    );
+
+    storeServiceB = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeB = await Node.create(
+      messagingService,
+      storeServiceB,
       EMPTY_NETWORK,
       nodeConfig,
       provider
@@ -58,25 +74,22 @@ describe("Node method follows spec - getAppInstances", () => {
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {
     const getStateReq = generateGetStateRequest(generateUUID());
     expect(
-      node.call(NodeTypes.MethodName.GET_STATE, getStateReq)
+      nodeA.call(NodeTypes.MethodName.GET_STATE, getStateReq)
     ).rejects.toEqual(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("returns the right state for an installed AppInstance", async () => {
-    // the peer with whom an installation proposal is being made
-    const respondingAddress = getAddress(hexlify(randomBytes(20)));
-
-    const multisigAddress = await getNewMultisig(node, [
-      node.address,
-      respondingAddress
+    const multisigAddress = await getNewMultisig(nodeA, [
+      nodeA.address,
+      nodeB.address
     ]);
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      respondingAddress
+      nodeB.address
     );
 
-    const proposalResult = await node.call(
+    const proposalResult = await nodeA.call(
       appInstanceInstallationProposalRequest.type,
       appInstanceInstallationProposalRequest
     );
@@ -91,11 +104,11 @@ describe("Node method follows spec - getAppInstances", () => {
       } as NodeTypes.InstallParams
     };
 
-    await node.call(installAppInstanceRequest.type, installAppInstanceRequest);
+    await nodeA.call(installAppInstanceRequest.type, installAppInstanceRequest);
 
     const getStateReq = generateGetStateRequest(appInstanceId);
 
-    const getStateResult = await node.call(getStateReq.type, getStateReq);
+    const getStateResult = await nodeA.call(getStateReq.type, getStateReq);
     const state = (getStateResult.result as NodeTypes.GetStateResult).state;
     expect(state.foo).toEqual(
       (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams)

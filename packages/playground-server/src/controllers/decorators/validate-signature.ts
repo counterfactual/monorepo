@@ -46,11 +46,13 @@ function validateSignatureMiddleware(
     }
 
     const expectedMessage = await expectedSignatureMessage(resource);
+
     const ethAddress = getAddress(
       (((json as unknown) as APIRequest<SessionAttributes>).data as APIResource<
         SessionAttributes
       >).attributes.ethAddress
     );
+
     const [, signedMessage] = signedHeader.split(" ");
 
     const expectedAddress = verifyMessage(

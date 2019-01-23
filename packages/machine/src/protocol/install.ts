@@ -114,13 +114,14 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
   context.commitment = constructInstallOp(
     context.network,
-    context.stateChannelsMap.get(multisigAddress)!,
+    newStateChannel,
     appIdentityHash
   );
 
