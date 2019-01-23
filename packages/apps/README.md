@@ -13,7 +13,7 @@ The mapping of some of the major Ethereum network IDs to network names is:
 Not all of the networks will be used for the Counterfactual contracts, but you can find a more comprehensive list [here](https://ethereum.stackexchange.com/a/17101).
 To run a migration against a target network:
 
-- make sure the target network configuration exists in `truffle.js`
+- make sure the target network configuration exists in `truffle.js` (or `truffle-config.json` for Windows)
 - the right env vars are set in `.env`
 - the network account you're using to send transactions from is funded (eg. for Rinkeby: https://faucet.rinkeby.io/)
 - run: `yarn migrate --network <network name>`
