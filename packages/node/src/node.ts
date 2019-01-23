@@ -127,6 +127,12 @@ export class Node {
         const to = getAddress(context.outbox[0].toAddress);
         const data = context.outbox[0];
 
+        // FIXME: When seq === 1 it means that, for a round trip protocol like
+        //        Update, Setup, Install, etc this is the first message A sends
+        //        to B, indicating B should start at step 1 of the flow. Thus,
+        //        we create a deferral for future resolution by the message
+        //        handler on the receiving side which is expecting B to reply
+        //        later with seq === 2.
         if (context.outbox[0].seq === 1) {
           this.ioSendDeferrals[to] = new Deferred<
             NodeMessageWrappedProtocolMessage
