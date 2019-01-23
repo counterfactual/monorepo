@@ -152,13 +152,10 @@ export class Node {
     instructionExecutor.register(
       Opcode.IO_WAIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        await new Promise(async (resolve, reject) => {
-          const checksumAddress = getAddress(message.toAddress);
-          const msg = await this.ioSendDeferrals[checksumAddress].promise;
-          context.inbox.push(msg.data);
-          resolve();
-          next();
-        });
+        const checksumAddress = getAddress(message.toAddress);
+        const msg = await this.ioSendDeferrals[checksumAddress].promise;
+        context.inbox.push(msg.data);
+        next();
       }
     );
 
