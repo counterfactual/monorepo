@@ -10,14 +10,25 @@ import { Protocol } from "./types";
 // around in protocol messages and include this in transaction data in disputes,
 // we impose some restrictions on the type; they must be serializable both as
 // JSON and as solidity structs.
-export type AppState = {
-  [x: string]: string | BigNumberish | boolean | AppState | AppStateArray;
+export type SolidityABIEncoderV2Struct = {
+  [x: string]:
+    | string
+    | BigNumberish
+    | boolean
+    | SolidityABIEncoderV2Struct
+    | SolidityABIEncoderV2StructArray;
 };
 
 // Ideally this should be a `type` not an `interface` but self-referencial
 // types is not supported: github.com/Microsoft/TypeScript/issues/6230
-export interface AppStateArray
-  extends Array<string | number | boolean | AppState | AppStateArray> {}
+export interface SolidityABIEncoderV2StructArray
+  extends Array<
+    | string
+    | number
+    | boolean
+    | SolidityABIEncoderV2Struct
+    | SolidityABIEncoderV2StructArray
+  > {}
 
 export type ProtocolMessage = {
   protocol: Protocol;
@@ -41,7 +52,7 @@ export type UpdateParams = {
   respondingAddress: string;
   multisigAddress: string;
   appIdentityHash: string;
-  newState: AppState;
+  newState: SolidityABIEncoderV2Struct;
 };
 
 export type InstallParams = {
@@ -51,7 +62,7 @@ export type InstallParams = {
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
   signingKeys: string[];
-  initialState: AppState;
+  initialState: SolidityABIEncoderV2Struct;
   terms: Terms;
   appInterface: AppInterface;
   defaultTimeout: number;
@@ -75,7 +86,7 @@ export type InstallVirtualAppParams = {
   signingKeys: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
-  initialState: AppState;
+  initialState: SolidityABIEncoderV2Struct;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
 };

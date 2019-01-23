@@ -5,7 +5,7 @@ import {
   AppInstanceInfo,
   BlockchainAsset
 } from "./data-types";
-import { Address, AppAction, AppInstanceID, AppState } from "./simple-types";
+import { Address, AppAction, AppInstanceID, SolidityABIEncoderV2Struct } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -76,7 +76,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: AppState;
+    initialState: SolidityABIEncoderV2Struct;
   };
 
   export type ProposeInstallResult = {
@@ -102,7 +102,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: AppState;
+    state: SolidityABIEncoderV2Struct;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -119,7 +119,7 @@ export namespace Node {
   };
 
   export type TakeActionResult = {
-    newState: AppState;
+    newState: SolidityABIEncoderV2Struct;
   };
 
   export type UninstallParams = {
@@ -177,8 +177,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: AppState;
-    oldState: AppState;
+    newState: SolidityABIEncoderV2Struct;
+    oldState: SolidityABIEncoderV2Struct;
     action?: AppAction;
   };
 

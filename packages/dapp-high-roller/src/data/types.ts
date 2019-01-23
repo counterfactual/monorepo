@@ -8,7 +8,7 @@ export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
 
-export type AppState = any;
+export type SolidityABIEncoderV2Struct = any;
 export type AppAction = any;
 
 export enum AssetType {
@@ -145,7 +145,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: AppState;
+    initialState: SolidityABIEncoderV2Struct;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
@@ -177,7 +177,7 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
   export type GetStateResult = {
-    state: AppState;
+    state: SolidityABIEncoderV2Struct;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -192,7 +192,7 @@ export namespace Node {
     action: AppAction;
   };
   export type TakeActionResult = {
-    newState: AppState;
+    newState: SolidityABIEncoderV2Struct;
   };
 
   export type UninstallParams = {
@@ -249,8 +249,8 @@ export namespace Node {
   };
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: AppState;
-    oldState: AppState;
+    newState: SolidityABIEncoderV2Struct;
+    oldState: SolidityABIEncoderV2Struct;
     action?: AppAction;
   };
   export type UninstallEventData = {
@@ -312,14 +312,14 @@ export namespace cf {
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: AppState;
+      initialState: SolidityABIEncoderV2Struct;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
       respondingAddress: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: AppState;
+      initialState: SolidityABIEncoderV2Struct;
       intermediaries: Address[];
       timeout: number;
     }): Promise<AppInstanceID>;
