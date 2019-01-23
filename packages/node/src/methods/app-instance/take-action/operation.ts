@@ -1,5 +1,5 @@
 import { AppInstance } from "@counterfactual/machine";
-import { AppState } from "@counterfactual/types";
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Provider } from "ethers/providers";
 
@@ -10,7 +10,7 @@ export async function generateNewAppInstanceState(
   appInstance: AppInstance,
   action: any,
   provider: Provider
-): Promise<AppState> {
+): Promise<SolidityABIEncoderV2Struct> {
   if (isNotDefinedOrEmpty(appInstance.appInterface.addr)) {
     return Promise.reject(ERRORS.NO_APP_CONTRACT_ADDR);
   }
@@ -30,7 +30,7 @@ async function makeApplyActionCall(
   contract: Contract,
   appInstance: AppInstance,
   action: any
-): Promise<AppState> {
+): Promise<SolidityABIEncoderV2Struct> {
   try {
     return appInstance.decodeAppState(
       await contract.functions.applyAction(
@@ -48,7 +48,7 @@ async function makeApplyActionCall(
 
 export async function actionIsEncondable(
   appInstance: AppInstance,
-  action: AppState
+  action: SolidityABIEncoderV2Struct
 ): Promise<void> {
   if (isNotDefinedOrEmpty(appInstance.appInterface.actionEncoding)) {
     return Promise.reject(ERRORS.NO_ACTION_ENCODING_FOR_APP_INSTANCE);
