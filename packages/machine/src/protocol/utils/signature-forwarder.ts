@@ -27,7 +27,7 @@ export function addSignedCommitmentToOutboxForSeq1(
  * Setup, Install, Update, and Uninstall which are single-round-trip
  * based. In this case, B uses this to respond back to A. There is no
  * seq 2 for these kinds of protocols, so this is an alias for "use this
- * protocol message to finish up your callback on the IO_WAIT opcode"
+ * protocol message to finish up your callback on the IO_SEND_AND_WAIT opcode"
  *
  * Additionally, it swaps the `from` and `to` addresses since in the case
  * where this helper is used, the `message` is one received initially from
