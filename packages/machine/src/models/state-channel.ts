@@ -43,8 +43,9 @@ const ERRORS = {
     "multisigOwners parameter of StateChannel must be sorted"
 };
 
-const sortAddresses = (addrs: string[]) =>
-  addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+function sortAddresses(addrs: string[]) {
+  return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+}
 
 export type StateChannelJSON = {
   readonly multisigAddress: string;
