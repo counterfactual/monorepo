@@ -17,22 +17,13 @@ export async function generateNewAppInstanceState(
 
   const appContract = new Contract(
     appInstance.appInterface.addr,
-    createABI(appInstance),
+    // TODO: Import CounterfactualApp.json directly and place it here.
+    //       Keep in mind that requires bundling the json in the rollup dist.
+    ["function applyAction(bytes, bytes) pure returns (bytes)"],
     provider
   );
 
   return await makeApplyActionCall(appContract, appInstance, action);
-}
-
-function createABI(appInstance: AppInstance): string[] {
-  return [
-    `function applyAction(
-      ${appInstance.appInterface.stateEncoding},
-      ${appInstance.appInterface.actionEncoding}
-    )
-    pure
-    returns (bytes)`
-  ];
 }
 
 async function makeApplyActionCall(
@@ -42,13 +33,16 @@ async function makeApplyActionCall(
 ): Promise<AppState> {
   try {
     return appInstance.decodeAppState(
-      await contract.functions.applyAction(appInstance.state, action)
+      await contract.functions.applyAction(
+        appInstance.encodedLatestState,
+        appInstance.encodeAction(action)
+      )
     );
   } catch (e) {
     const sanitizedError = e
       .toString()
       .replace("s: VM Exception while processing transaction: revert");
-    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+    throw new Error(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
   }
 }
 
