@@ -1,11 +1,4 @@
-import {
-  Context,
-  InstructionExecutor,
-  Opcode,
-  Protocol,
-  ProtocolMessage
-} from "@counterfactual/machine";
-import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd";
+import { InstructionExecutor } from "@counterfactual/machine";
 import { Address, NetworkContext, Node } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
@@ -40,7 +33,6 @@ export class RequestHandler {
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
-    this.startStoringCommitments();
   }
 
   /**
@@ -99,41 +91,5 @@ export class RequestHandler {
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
     await this.events.get(event)(this, msg);
-  }
-
-  private startStoringCommitments() {
-    this.instructionExecutor.register(
-      Opcode.STATE_TRANSITION_COMMIT,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        if (!context.commitment) {
-          throw new Error(
-            `State transition without commitment: ${JSON.stringify(message)}`
-          );
-        }
-        const transaction = context.commitment!.transaction([
-          context.signature! // TODO: add counterparty signature
-        ]);
-        const { protocol } = message;
-        if (protocol === Protocol.Setup) {
-          const params = message.params as SetupParams;
-          await this.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            transaction
-          );
-        } else {
-          if (!context.appIdentityHash) {
-            throw new Error(
-              `appIdentityHash required to store commitment. protocol=${protocol}`
-            );
-          }
-          await this.store.setCommitmentForAppIdentityHash(
-            context.appIdentityHash!,
-            protocol,
-            transaction
-          );
-        }
-        next();
-      }
-    );
   }
 }
