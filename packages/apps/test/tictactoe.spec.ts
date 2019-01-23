@@ -1,3 +1,4 @@
+import { AppState } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -29,6 +30,48 @@ function decodeAppState(encodedAppState: string): TicTacToeAppState {
 describe("TicTacToeApp", () => {
   let tictactoe: Contract;
 
+  function encodeState(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          address[2] players,
+          uint256 turnNum,
+          uint256 winner,
+          uint256[3][3] board
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  function encodeAction(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          uint8 actionType,
+          uint256 playX,
+          uint256 playY,
+          tuple(
+            uint8 winClaimType,
+            uint256 idx
+          ) winClaim
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  async function applyAction(state: AppState, action: AppState) {
+    return await tictactoe.functions.applyAction(
+      encodeState(state),
+      encodeAction(action)
+    );
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -54,7 +97,7 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
 
@@ -80,7 +123,7 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
 
@@ -106,9 +149,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("playMove: square is not empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "playMove: square is not empty"
+      );
     });
 
     it("can draw from a full board", async () => {
@@ -129,7 +172,7 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
 
@@ -154,9 +197,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("assertBoardIsFull: square is empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "assertBoardIsFull: square is empty"
+      );
     });
 
     it("can play_and_draw from an almost full board", async () => {
@@ -177,7 +220,7 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
 
@@ -202,9 +245,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("assertBoardIsFull: square is empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "assertBoardIsFull: square is empty"
+      );
     });
 
     it("can play_and_win from a winning position", async () => {
@@ -225,7 +268,7 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
 
@@ -250,9 +293,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("Win Claim not valid");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "Win Claim not valid"
+      );
     });
   });
 });
