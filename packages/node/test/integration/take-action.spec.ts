@@ -1,3 +1,4 @@
+import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import {
   Address,
   AppABIEncodings,
@@ -13,7 +14,6 @@ import FirebaseServer from "firebase-server";
 import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
-import TicTacToeApp from "../../../apps/build/TicTacToeApp.json";
 import {
   IMessagingService,
   InstallMessage,

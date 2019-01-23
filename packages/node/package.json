@@ -13,6 +13,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
+    "@counterfactual/apps": "0.0.1",
     "@firebase/app-types": "^0.3.2",
     "@types/node": "^10.9.3",
     "dotenv-extended": "^2.3.0",
@@ -29,7 +30,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.0.2",
+    "@counterfactual/cf.js": "0.0.3",
     "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
     "ethers": "4.0.21",
