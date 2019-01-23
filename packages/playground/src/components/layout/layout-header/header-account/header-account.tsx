@@ -5,13 +5,13 @@ import {
   Event,
   EventEmitter,
   Prop,
-  Watch,
-  State
+  State,
+  Watch
 } from "@stencil/core";
-import { ErrorMessage } from "../../../../types";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
+import { ErrorMessage } from "../../../../types";
 
 function buildSignaturePayload(address: string) {
   return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
@@ -135,7 +135,7 @@ export class HeaderAccount {
     return (
       <div class="account-container">
         <widget-error-message error={this.error} />
-        {this.user.username ?
+        {this.user.username ? (
           <div class="info-container">
             <stencil-route-link url="/exchange">
               <header-account-info
@@ -152,7 +152,7 @@ export class HeaderAccount {
               />
             </stencil-route-link>
           </div>
-        :
+        ) : (
           <div class="btn-container">
             <button onClick={this.onLoginClicked.bind(this)} class="btn">
               Login
@@ -161,7 +161,7 @@ export class HeaderAccount {
               <button class="btn btn-outline">Register</button>
             </stencil-route-link>
           </div>
-        }
+        )}
       </div>
     );
   }

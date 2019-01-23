@@ -12,11 +12,11 @@ export class WidgetTooltip {
     return (
       <div class="widget-tooltip">
         <slot />
-        {this.message ?
-          <div class="widget-tooltip-message">
-            {this.message}
-          </div>
-        : undefined}
+        {this.message ? (
+          <div class="widget-tooltip-message">{this.message}</div>
+        ) : (
+          undefined
+        )}
       </div>
     );
   }

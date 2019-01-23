@@ -1,4 +1,5 @@
 import { Component, Prop } from "@stencil/core";
+
 import { ErrorMessage } from "../../../types";
 
 @Component({
@@ -12,10 +13,10 @@ export class WidgetErrorMessage {
   render() {
     return this.error.primary ? (
       <widget-tooltip message={this.error.secondary}>
-        <div class="widget-error-message">
-          {this.error.primary}
-        </div>
+        <div class="widget-error-message">{this.error.primary}</div>
       </widget-tooltip>
-    ) : undefined;
+    ) : (
+      undefined
+    );
   }
 }
