@@ -3,9 +3,9 @@ import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
+import { defaultAbiCoder } from "ethers/utils";
 
 import PaymentApp from "../build/PaymentApp.json";
-import { defaultAbiCoder } from "ethers/utils";
 
 chai.use(waffle.solidity);
 

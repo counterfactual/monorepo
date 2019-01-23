@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
+
 /// @title High Roller App
 /// @notice This contract allows the playing of a dice rolling game.
 ///         Two players take turns rolling two dice each.
