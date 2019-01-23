@@ -25,3 +25,8 @@ export interface WidgetDialogSettings {
   onPrimaryButtonClicked: ComponentEventHandler;
   onSecondaryButtonClicked?: ComponentEventHandler;
 }
+
+export interface ErrorMessage {
+  primary: string | undefined;
+  secondary: string | undefined;
+}

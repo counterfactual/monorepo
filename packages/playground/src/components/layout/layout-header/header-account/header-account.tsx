@@ -5,8 +5,10 @@ import {
   Event,
   EventEmitter,
   Prop,
-  Watch
+  Watch,
+  State
 } from "@stencil/core";
+import { ErrorMessage } from "../../../../types";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
@@ -29,6 +31,7 @@ export class HeaderAccount {
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
+  @State() error: ErrorMessage = {} as ErrorMessage;
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
   @Watch("authenticated")
@@ -74,7 +77,7 @@ export class HeaderAccount {
   async login(error: Error, signedData: string) {
     // TODO: Handle errors.
     if (error) {
-      throw error;
+      return this.displayLoginError();
     }
 
     try {
@@ -107,9 +110,21 @@ export class HeaderAccount {
           );
         }
       );
+      this.removeError();
     } catch (error) {
-      throw error;
+      this.displayLoginError();
     }
+  }
+
+  displayLoginError() {
+    this.error = {
+      primary: "Login Failed",
+      secondary: "You may not have a Playground account yet. Try registering."
+    };
+  }
+
+  removeError() {
+    this.error = {} as ErrorMessage;
   }
 
   get ethBalance() {
@@ -117,31 +132,36 @@ export class HeaderAccount {
   }
 
   render() {
-    return this.user.username ? (
-      <div class="info-container">
-        <stencil-route-link url="/exchange">
-          <header-account-info
-            src="/assets/icon/cf.png"
-            header="Balance"
-            content={this.ethBalance}
-          />
-        </stencil-route-link>
-        <stencil-route-link url="/account">
-          <header-account-info
-            src="/assets/icon/account.png"
-            header="Account"
-            content={this.user.username}
-          />
-        </stencil-route-link>
-      </div>
-    ) : (
-      <div class="btn-container">
-        <button onClick={this.onLoginClicked.bind(this)} class="btn">
-          Login
-        </button>
-        <stencil-route-link url="/register">
-          <button class="btn btn-outline">Register</button>
-        </stencil-route-link>
+    return (
+      <div class="account-container">
+        <widget-error-message error={this.error} />
+        {this.user.username ?
+          <div class="info-container">
+            <stencil-route-link url="/exchange">
+              <header-account-info
+                src="/assets/icon/cf.png"
+                header="Balance"
+                content={this.ethBalance}
+              />
+            </stencil-route-link>
+            <stencil-route-link url="/account">
+              <header-account-info
+                src="/assets/icon/account.png"
+                header="Account"
+                content={this.user.username}
+              />
+            </stencil-route-link>
+          </div>
+        :
+          <div class="btn-container">
+            <button onClick={this.onLoginClicked.bind(this)} class="btn">
+              Login
+            </button>
+            <stencil-route-link url="/register">
+              <button class="btn btn-outline">Register</button>
+            </stencil-route-link>
+          </div>
+        }
       </div>
     );
   }
