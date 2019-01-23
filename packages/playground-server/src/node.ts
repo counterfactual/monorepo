@@ -67,7 +67,9 @@ export function getNodeAddress(): string {
 export async function createMultisigFor(
   userAddress: string
 ): Promise<NodeTypes.CreateMultisigResult> {
-  if (!node) node = await createNodeSingleton();
+  if (!node) {
+    node = await createNodeSingleton();
+  }
 
   const multisigResponse = await node.call(
     NodeTypes.MethodName.CREATE_MULTISIG,
