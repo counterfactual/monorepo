@@ -15,7 +15,7 @@ export default async function addMultisigController(
   const multisigOwners = nodeMsg.data.params.owners;
   await requestHandler.store.saveStateChannel(
     StateChannel.setupChannel(
-      requestHandler.networkContext,
+      requestHandler.networkContext.ETHBucket,
       multisigAddress,
       multisigOwners
     )

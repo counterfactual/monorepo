@@ -1,10 +1,11 @@
 import { Address } from "@counterfactual/types";
 
 import { IMessagingService } from "../../src/services";
+import { NodeMessage } from "../../src/types";
 
 class MockMessagingService implements IMessagingService {
-  send(respondingAddress: Address, msg: object) {}
-  receive(address: Address, callback: (msg: object) => void) {}
+  async send(respondingAddress: Address, msg: NodeMessage) {}
+  onReceive(address: Address, callback: (msg: NodeMessage) => void) {}
 }
 
 const mockMessagingService = new MockMessagingService();

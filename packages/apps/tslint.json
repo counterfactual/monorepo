@@ -1,6 +1,6 @@
 {
   "extends": ["../../tslint.json"],
   "linterOptions": {
-    "exclude": ["build/*.json"]
+    "exclude": ["**/*.json"]
   }
 }
