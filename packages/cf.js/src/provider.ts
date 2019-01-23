@@ -15,8 +15,6 @@ import {
   UninstallEventData,
   UpdateStateEventData
 } from "./types";
-// import { v4 as generateUUID } from "uuid";
-import generateUUID from "./utils/uuid";
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -167,7 +165,7 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = generateUUID();
+    const requestId = new Date().valueOf().toString();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       const request: Node.MethodRequest = {
         requestId,
