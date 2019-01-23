@@ -30,7 +30,7 @@ export default async function installEventController(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
