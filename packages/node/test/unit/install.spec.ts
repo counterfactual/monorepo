@@ -85,13 +85,14 @@ describe("Can handle correct & incorrect installs", () => {
     const owners = [Wallet.createRandom().address, AddressZero];
 
     const stateChannel = StateChannel
-      .setupChannel(EMPTY_NETWORK, multisigAddress, owners)
-      .setFreeBalanceFor(AssetType.ETH, {
-        alice: owners[0],
-        bob: owners[1],
-        aliceBalance: Zero,
-        bobBalance: Zero
-      });
+      .setupChannel(EMPTY_NETWORK, multisigAddress, owners);
+
+    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;
+
+    expect(fbState.alice === owners[1]);
+    expect(fbState.bob === owners[0]);
+    expect(fbState.aliceBalance).toEqual(Zero);
+    expect(fbState.bobBalance).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

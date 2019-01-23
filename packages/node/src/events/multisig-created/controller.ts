@@ -1,6 +1,4 @@
 import { StateChannel } from "@counterfactual/machine";
-import { AssetType } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../request-handler";
 import { CreateMultisigMessage } from "../../types";
@@ -20,11 +18,6 @@ export default async function addMultisigController(
       requestHandler.networkContext,
       multisigAddress,
       multisigOwners
-    ).setFreeBalanceFor(AssetType.ETH, {
-      alice: multisigOwners[0],
-      bob: multisigOwners[1],
-      aliceBalance: bigNumberify(0),
-      bobBalance: bigNumberify(0)
-    })
+    )
   );
 }
