@@ -226,18 +226,18 @@ export class Node {
    *     solely to the deffered promise's resolve callback.
    */
   private async handleReceivedMessage(msg: NodeMessage) {
+    if (!NODE_EVENTS[msg.event]) {
+      console.error(`Received message with unknown event type`);
+    }
+
     const isIoSendDeferral = (msg: NodeMessage) =>
       msg.event === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
       this.ioSendDeferrals[msg.from] !== undefined;
 
-    if (Object.values(NODE_EVENTS).includes(msg.event)) {
-      if (isIoSendDeferral(msg)) {
-        this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-      } else {
-        await this.requestHandler.callEvent(msg.event, msg);
-      }
+    if (isIoSendDeferral(msg)) {
+      this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      console.error(`Received message with unknown event type: "${msg.event}"`);
+      await this.requestHandler.callEvent(msg.event, msg);
     }
   }
 
