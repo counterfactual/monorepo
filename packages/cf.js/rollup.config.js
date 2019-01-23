@@ -1,7 +1,11 @@
 import typescript from "rollup-plugin-typescript2";
-import json from "rollup-plugin-json";
+import nodeResolve from "rollup-plugin-node-resolve";
 
 import pkg from "./package.json";
+
+const bundledDependencies = new Set([
+  "@counterfactual/types",
+]);
 
 export default {
   input: "src/index.ts",
@@ -23,6 +27,9 @@ export default {
     }
   ],
   plugins: [
+    nodeResolve({
+      only: [...bundledDependencies]
+    }),
     typescript(),
   ]
 };
