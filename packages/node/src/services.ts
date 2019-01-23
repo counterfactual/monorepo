@@ -65,36 +65,41 @@ class FirebaseMessagingService implements IMessagingService {
   }
 
   onReceive(address: Address, callback: (msg: NodeMessage) => void) {
-    if (this.firebase.app) {
-      this.firebase
-        .ref(`${this.messagingServerKey}/${address}`)
-        .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
-          if (snapshot === null) {
-            console.error(
-              `Node with address ${address} received a "null" snapshot`
-            );
-          } else {
-            const msg = snapshot.val();
-            // We check for `msg` being not null because when the Firebase listener
-            // connects, the snapshot starts with a `null` value, and on the second
-            // the call it receives a value.
-            // See: https://stackoverflow.com/a/37310606/2680092
-            if (msg !== null) {
-              const stringifiedMsg = JSON.stringify(msg);
-              if (stringifiedMsg in this.servedMessages) {
-                delete this.servedMessages[stringifiedMsg];
-              } else {
-                this.servedMessages[stringifiedMsg] = true;
-                callback(msg);
-              }
-            }
-          }
-        });
-    } else {
+    if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
       );
+      return;
     }
+
+    this.firebase
+      .ref(`${this.messagingServerKey}/${address}`)
+      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+        if (!snapshot) {
+          console.error(
+            `Node with address ${address} received a "null" snapshot`
+          );
+          return;
+        }
+
+        const msg = snapshot.val();
+
+        if (msg === null) {
+          // We check for `msg` being not null because when the Firebase listener
+          // connects, the snapshot starts with a `null` value, and on the second
+          // the call it receives a value.
+          // See: https://stackoverflow.com/a/37310606/2680092
+          return;
+        }
+
+        const stringifiedMsg = JSON.stringify(msg);
+        if (stringifiedMsg in this.servedMessages) {
+          delete this.servedMessages[stringifiedMsg];
+        } else {
+          this.servedMessages[stringifiedMsg] = true;
+          callback(msg);
+        }
+      });
   }
 }
 
