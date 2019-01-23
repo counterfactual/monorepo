@@ -2,9 +2,10 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
-contract CommitRevealApp {
+contract CommitRevealApp is CounterfactualApp {
 
   enum ActionType {
     SET_MAX,
@@ -37,30 +38,37 @@ contract CommitRevealApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(AppState memory state)
+  function isStateTerminal(bytes memory encodedState)
     public
     pure
     returns (bool)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState memory state)
+  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
     public
     pure
-    returns (Player)
+    returns (address)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     if (state.stage == Stage.GUESSING) {
-      return Player.GUESSING;
+      return signingKeys[uint8(Player.GUESSING)];
     }
-    return Player.CHOOSING;
+
+    return signingKeys[uint8(Player.CHOOSING)];
   }
 
-  function applyAction(AppState memory state, Action memory action)
+  function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
     returns (bytes memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    Action memory action = abi.decode(encodedAction, (Action));
+
     AppState memory nextState = state;
     if (action.actionType == ActionType.SET_MAX) {
       require(state.stage == Stage.SETTING_MAX, "Cannot apply SET_MAX on SETTING_MAX");
@@ -95,11 +103,13 @@ contract CommitRevealApp {
     return abi.encode(nextState);
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = terms.limit;
 
@@ -109,7 +119,9 @@ contract CommitRevealApp {
       player = uint256(state.winner);
     } else {
       // The player who is not the turn taker
-      player = 1 - uint256(getTurnTaker(state));
+      player = 1 - uint256(
+        state.stage == Stage.GUESSING ? Player.GUESSING : Player.CHOOSING
+      );
     }
     to[0] = state.playerAddrs[player];
 

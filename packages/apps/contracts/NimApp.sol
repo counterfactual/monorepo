@@ -2,6 +2,7 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
 /*
@@ -21,27 +22,32 @@ contract NimApp {
     uint256[3] pileHeights;
   }
 
-  function isStateTerminal(AppState memory state)
+  function isStateTerminal(bytes memory encodedState)
     public
     pure
     returns (bool)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
     return isWin(state);
   }
 
-  function getTurnTaker(AppState memory state)
+  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
     public
     pure
-    returns (uint256)
+    returns (address)
   {
-    return state.turnNum % 2;
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return signingKeys[state.turnNum % 2];
   }
 
-  function applyAction(AppState memory state, Action memory action)
+  function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
     returns (bytes memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    Action memory action = abi.decode(encodedAction, (Action));
+
     require(action.pileIdx < 3, "pileIdx must be 0, 1 or 2");
     require(
       state.pileHeights[action.pileIdx] >= action.takeAmnt, "invalid pileIdx"
@@ -55,11 +61,13 @@ contract NimApp {
     return abi.encode(ret);
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     require(isWin(state), "Resolution state was not in a winning position");
     address loser = state.players[state.turnNum % 2];
     address winner = state.players[1 - (state.turnNum % 2)];

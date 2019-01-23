@@ -1,4 +1,4 @@
-import { AssetType, Terms, Transaction } from "@counterfactual/types";
+import { AppState, AssetType, Terms, Transaction } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -68,6 +68,50 @@ const nullValueBytes32 =
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
+  function encodeState(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          address[2] playerAddrs,
+          uint8 stage,
+          bytes32 salt,
+          bytes32 commitHash,
+          uint256 playerFirstNumber,
+          uint256 playerSecondNumber
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  function encodeAction(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          uint8 actionType,
+          uint256 number,
+          bytes32 actionHash,
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  async function applyAction(state: AppState, action: AppState) {
+    return await highRollerApp.functions.applyAction(
+      encodeState(state),
+      encodeAction(action)
+    );
+  }
+
+  async function resolve(state: AppState, terms: Terms) {
+    return await highRollerApp.functions.resolve(encodeState(state), terms);
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -90,7 +134,7 @@ describe("HighRollerApp", () => {
         number: 0,
         actionHash: nullValueBytes32
       };
-      const ret = await highRollerApp.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
       expect(state.stage).to.eq(1);
@@ -116,7 +160,7 @@ describe("HighRollerApp", () => {
         number: 0,
         actionHash: hash
       };
-      const ret = await highRollerApp.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
       expect(state.stage).to.eq(2);
@@ -143,7 +187,7 @@ describe("HighRollerApp", () => {
         number: 2,
         actionHash: nullValueBytes32
       };
-      const ret = await highRollerApp.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const state = decodeAppState(ret);
       expect(state.stage).to.eq(3);
@@ -170,10 +214,7 @@ describe("HighRollerApp", () => {
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: Transaction = await highRollerApp.functions.resolve(
-        preState,
-        terms
-      );
+      const transaction: Transaction = await resolve(preState, terms);
 
       expect(transaction.assetType).to.eq(AssetType.ETH);
       expect(transaction.token).to.eq(AddressZero);
@@ -208,10 +249,7 @@ describe("HighRollerApp", () => {
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: Transaction = await highRollerApp.functions.resolve(
-        preState,
-        terms
-      );
+      const transaction: Transaction = await resolve(preState, terms);
 
       expect(transaction.assetType).to.eq(AssetType.ETH);
       expect(transaction.token).to.eq(AddressZero);
@@ -241,10 +279,7 @@ describe("HighRollerApp", () => {
         limit: parseEther("2"),
         token: AddressZero
       };
-      const transaction: Transaction = await highRollerApp.functions.resolve(
-        preState,
-        terms
-      );
+      const transaction: Transaction = await resolve(preState, terms);
 
       expect(transaction.assetType).to.eq(AssetType.ETH);
       expect(transaction.token).to.eq(AddressZero);

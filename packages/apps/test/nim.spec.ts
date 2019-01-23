@@ -1,3 +1,4 @@
+import { AppState } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -26,6 +27,46 @@ function decodeAppState(encodedAppState: string): NimAppState {
 describe("Nim", () => {
   let nim: Contract;
 
+  function encodeState(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          address[2] players,
+          uint256 turnNum,
+          uint256[3] pileHeights
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  function encodeAction(state: AppState) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          uint256 pileIdx,
+          uint256 takeAmnt
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  async function applyAction(state: AppState, action: AppState) {
+    return await nim.functions.applyAction(
+      encodeState(state),
+      encodeAction(action)
+    );
+  }
+
+  async function isStateTerminal(state: AppState) {
+    return await nim.functions.isStateTerminal(encodeState(state));
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -45,7 +86,7 @@ describe("Nim", () => {
         takeAmnt: 5
       };
 
-      const ret = await nim.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const postState = decodeAppState(ret);
 
@@ -67,7 +108,7 @@ describe("Nim", () => {
         takeAmnt: 6
       };
 
-      const ret = await nim.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
       const postState = decodeAppState(ret);
 
@@ -89,9 +130,9 @@ describe("Nim", () => {
         takeAmnt: 7
       };
 
-      await expect(
-        nim.functions.applyAction(preState, action)
-      ).to.be.revertedWith("invalid pileIdx");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "invalid pileIdx"
+      );
     });
   });
 
@@ -102,7 +143,7 @@ describe("Nim", () => {
         turnNum: 49,
         pileHeights: [0, 0, 0]
       };
-      expect(await nim.functions.isStateTerminal(preState)).to.eq(true);
+      expect(await isStateTerminal(preState)).to.eq(true);
     });
 
     it("nonempty state is not final", async () => {
@@ -111,7 +152,7 @@ describe("Nim", () => {
         turnNum: 49,
         pileHeights: [0, 1, 0]
       };
-      expect(await nim.functions.isStateTerminal(preState)).to.eq(false);
+      expect(await isStateTerminal(preState)).to.eq(false);
     });
   });
 });
