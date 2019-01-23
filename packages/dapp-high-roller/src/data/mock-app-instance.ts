@@ -6,10 +6,10 @@ import {
   AppAction,
   AppInstanceID,
   AppInstanceInfo,
-  AppState,
   BlockchainAsset,
   cf,
-  Node
+  Node,
+  SolidityABIEncoderV2Struct
 } from "./types";
 
 export enum AppInstanceEventType {
@@ -60,7 +60,7 @@ export class AppInstance {
    * @async
    * @return JSON representation of latest state
    */
-  async getState(): Promise<AppState> {
+  async getState(): Promise<SolidityABIEncoderV2Struct> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
@@ -80,7 +80,7 @@ export class AppInstance {
    * @param action Action to take
    * @return JSON representation of latest state after applying the action
    */
-  async takeAction(action: AppAction): Promise<AppState> {
+  async takeAction(action: AppAction): Promise<SolidityABIEncoderV2Struct> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
       {

@@ -3,11 +3,11 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  AppState,
   AssetType,
   BlockchainAsset,
   NetworkContext,
-  Node as NodeTypes
+  Node as NodeTypes,
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { v4 as generateUUID } from "uuid";
@@ -147,7 +147,7 @@ export function makeInstallProposalRequest(
     initialState = {
       foo: AddressZero,
       bar: Zero
-    } as AppState;
+    } as SolidityABIEncoderV2Struct;
   }
 
   const params: NodeTypes.ProposeInstallParams = {

@@ -1,4 +1,4 @@
-import { AppState } from "@counterfactual/types";
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -18,7 +18,7 @@ type TicTacToeAppState = {
   board: number[][];
 };
 
-function decodeAppState(encodedAppState: string): TicTacToeAppState {
+function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
   return defaultAbiCoder.decode(
     [
       "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
@@ -30,7 +30,7 @@ function decodeAppState(encodedAppState: string): TicTacToeAppState {
 describe("TicTacToeApp", () => {
   let tictactoe: Contract;
 
-  function encodeState(state: AppState) {
+  function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -46,7 +46,7 @@ describe("TicTacToeApp", () => {
     );
   }
 
-  function encodeAction(state: AppState) {
+  function encodeAction(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -65,7 +65,10 @@ describe("TicTacToeApp", () => {
     );
   }
 
-  async function applyAction(state: AppState, action: AppState) {
+  async function applyAction(
+    state: SolidityABIEncoderV2Struct,
+    action: SolidityABIEncoderV2Struct
+  ) {
     return await tictactoe.functions.applyAction(
       encodeState(state),
       encodeAction(action)
@@ -99,7 +102,7 @@ describe("TicTacToeApp", () => {
 
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.board[0][0]).to.eq(1);
       expect(state.turnNum).to.eq(1);
@@ -125,7 +128,7 @@ describe("TicTacToeApp", () => {
 
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.board[1][1]).to.eq(2);
       expect(state.turnNum).to.eq(2);
@@ -174,7 +177,7 @@ describe("TicTacToeApp", () => {
 
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(3); // DRAWN
     });
@@ -222,7 +225,7 @@ describe("TicTacToeApp", () => {
 
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(3); // DRAWN
     });
@@ -270,7 +273,7 @@ describe("TicTacToeApp", () => {
 
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(1); // WON
     });

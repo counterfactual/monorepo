@@ -1,4 +1,9 @@
-import { AppState, AssetType, Terms, Transaction } from "@counterfactual/types";
+import {
+  AssetType,
+  SolidityABIEncoderV2Struct,
+  Terms,
+  Transaction
+} from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -45,7 +50,7 @@ type Action = {
   actionHash: string;
 };
 
-function decodeAppState(encodedAppState: string): HighRollerAppState {
+function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
   return defaultAbiCoder.decode(
     [
       `tuple(
@@ -68,7 +73,7 @@ const nullValueBytes32 =
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
-  function encodeState(state: AppState) {
+  function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -86,7 +91,7 @@ describe("HighRollerApp", () => {
     );
   }
 
-  function encodeAction(state: AppState) {
+  function encodeAction(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [
         `
@@ -101,14 +106,17 @@ describe("HighRollerApp", () => {
     );
   }
 
-  async function applyAction(state: AppState, action: AppState) {
+  async function applyAction(
+    state: SolidityABIEncoderV2Struct,
+    action: SolidityABIEncoderV2Struct
+  ) {
     return await highRollerApp.functions.applyAction(
       encodeState(state),
       encodeAction(action)
     );
   }
 
-  async function resolve(state: AppState, terms: Terms) {
+  async function resolve(state: SolidityABIEncoderV2Struct, terms: Terms) {
     return await highRollerApp.functions.resolve(encodeState(state), terms);
   }
 
@@ -136,7 +144,7 @@ describe("HighRollerApp", () => {
       };
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
       expect(state.stage).to.eq(1);
     });
 
@@ -162,7 +170,7 @@ describe("HighRollerApp", () => {
       };
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
       expect(state.stage).to.eq(2);
       expect(state.commitHash).to.eq(hash);
     });
@@ -189,7 +197,7 @@ describe("HighRollerApp", () => {
       };
       const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
       expect(state.stage).to.eq(3);
       expect(state.playerSecondNumber).to.eq(2);
     });
