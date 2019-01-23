@@ -49,10 +49,13 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  await requestHandler.messagingService.send(
-    appInstanceInfo.respondingAddress,
-    takeActionMsg
-  );
+  // send to the counter party
+  const to =
+    requestHandler.address === appInstanceInfo.initiatingAddress
+      ? appInstanceInfo.respondingAddress
+      : requestHandler.address;
+
+  await requestHandler.messagingService.send(to, takeActionMsg);
 
   return {
     newState
