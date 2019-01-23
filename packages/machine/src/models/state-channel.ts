@@ -180,7 +180,7 @@ export class StateChannel {
   }
 
   public static setupChannel(
-    network: NetworkContext,
+    ethBucketAddress: string,
     multisigAddress: string,
     multisigOwners: string[]
   ) {
@@ -189,7 +189,7 @@ export class StateChannel {
     const fb = createETHFreeBalance(
       multisigAddress,
       sortedMultisigOwners,
-      network.ETHBucket
+      ethBucketAddress
     );
 
     const appInstances = new Map<string, AppInstance>();

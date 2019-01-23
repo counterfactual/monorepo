@@ -18,7 +18,7 @@ describe("StateChannel::setupChannel", () => {
 
   beforeAll(() => {
     sc = StateChannel.setupChannel(
-      networkContext,
+      networkContext.ETHBucket,
       multisigAddress,
       multisigOwners
     );

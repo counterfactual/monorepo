@@ -91,7 +91,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network,
+    context.network.ETHBucket,
     multisigAddress,
     [initiatingAddress, respondingAddress]
   );

@@ -84,7 +84,7 @@ describe("Can handle correct & incorrect installs", () => {
     const owners = [Wallet.createRandom().address, AddressZero];
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK,
+      EMPTY_NETWORK.ETHBucket,
       multisigAddress,
       owners
     );
