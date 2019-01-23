@@ -42,7 +42,7 @@ async function makeApplyActionCall(
     const sanitizedError = e
       .toString()
       .replace("s: VM Exception while processing transaction: revert");
-    throw new Error(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
   }
 }
 
