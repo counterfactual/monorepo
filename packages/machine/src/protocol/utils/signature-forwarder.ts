@@ -1,4 +1,4 @@
-import { ProtocolMessage } from "../../protocol-types-tbd";
+import { ProtocolMessage } from "../../types";
 import { Context } from "../../types";
 
 /**

@@ -3,9 +3,9 @@ import {
   InstructionExecutor,
   Opcode,
   Protocol,
-  ProtocolMessage
+  ProtocolMessage,
+  SetupParams
 } from "@counterfactual/machine";
-import { SetupParams } from "@counterfactual/machine/dist/src/protocol-types-tbd";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
 import { getAddress, SigningKey } from "ethers/utils";

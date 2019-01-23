@@ -1,4 +1,4 @@
-export enum Opcode {
+enum Opcode {
   /**
    * Currently unused.
    */
@@ -25,3 +25,13 @@ export enum Opcode {
    */
   IO_SEND_AND_WAIT
 }
+
+enum Protocol {
+  Setup = "setup",
+  Install = "install",
+  Update = "update",
+  Uninstall = "uninstall",
+  InstallVirtualApp = "install-virtual-app"
+}
+
+export { Opcode, Protocol };
