@@ -256,11 +256,17 @@ export class Store {
   public async getAppInstanceInfo(
     appInstanceId: string
   ): Promise<AppInstanceInfo> {
-    return (await this.storeService.get(
+    const appInstanceInfo = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`
     )) as AppInstanceInfo;
+    if (!appInstanceInfo) {
+      return Promise.reject(
+        `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
+      );
+    }
+    return appInstanceInfo;
   }
 
   /**
