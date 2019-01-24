@@ -70,7 +70,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   });
 
   it("can accept a valid call to get the desired AppInstance details", async done => {
-    // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(nodeA, [
       nodeA.address,
       nodeB.address
@@ -78,25 +77,18 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
     expect(multisigAddress).toBeDefined();
 
-    // second, an app instance must be proposed to be installed into that channel
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
       nodeB.address
     );
 
-    // third, the pending app instance needs to be installed
-    // its installation request will be the callback to the proposal response
     const installAppInstanceRequestId = generateUUID();
     let installedAppInstance: AppInstanceInfo;
-
-    // fourth, a call to get app instances can be made
-    // The listeners are setup in reverse order to highlight the callbacks
-    // being called in this order as the calls unwind
-    // install proposal -> install -> get app instances
 
     nodeA.on(NodeTypes.MethodName.INSTALL, async res => {
       const installResult: NodeTypes.InstallResult = res.result;
       installedAppInstance = installResult.appInstance;
 
+      // now we check to validate for correct AppInstance retrieval
       const getAppInstancesRequest: NodeTypes.MethodRequest = {
         requestId: generateUUID(),
         type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
@@ -130,7 +122,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       nodeA.emit(installAppInstanceRequest.type, installAppInstanceRequest);
     });
 
-    // Make the call to get all apps
     nodeA.emit(
       appInstanceInstallationProposalRequest.type,
       appInstanceInstallationProposalRequest
