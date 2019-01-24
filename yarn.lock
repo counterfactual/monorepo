@@ -866,6 +866,17 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@counterfactual/cf.js@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.2.tgz#fcddda4c1f224df95ee9e2caa39442907514017d"
+  integrity sha512-dMBHRyZAB5/mNQkGyB4JNBOm58mNWM6ZURQJixEkdXBIBbdJpZath8w//k/EfxIsQC6sgnvYOqy4PkcpKcNLlQ==
+  dependencies:
+    "@counterfactual/contracts" "0.0.3"
+    "@counterfactual/types" "0.0.1"
+    ethers "4.0.21"
+    eventemitter3 "^3.1.0"
+    uuid "3.3.2"
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -1666,13 +1677,6 @@
   dependencies:
     "@stencil/state-tunnel" "0.0.8"
 
-"@stencil/router@~0.2.6":
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.2.8.tgz#c118195062c78735b88bb72674ebfbed02c473ba"
-  integrity sha512-LaJcVYpxR8HYJZL5ZMN8WwzK9+iCY9vJJK9RDlmpqtyLXkcsFvE4vintie/wDuZ6yNzn3QKz/1JF8KkjHVR67w==
-  dependencies:
-    "@stencil/state-tunnel" "0.0.9-1"
-
 "@stencil/sass@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@stencil/sass/-/sass-0.1.1.tgz#5be4b174ecdda0a71895e08d4df0cf4c7c9dfdb3"
@@ -1684,11 +1688,6 @@
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@stencil/state-tunnel/-/state-tunnel-0.0.8.tgz#c7425719e622e8ab5009f89edd6478dc69719c38"
   integrity sha512-fpFU91hgEirWyzMD7hsTWkIK8li4VQgx5G+dZr2Iv/AU2ofF6AiAxqP2N5SGyszleJCn9UcgWKS31/+efaBxFw==
-
-"@stencil/state-tunnel@0.0.9-1":
-  version "0.0.9-1"
-  resolved "https://registry.yarnpkg.com/@stencil/state-tunnel/-/state-tunnel-0.0.9-1.tgz#15bcb569779fc5ca4ffbc489d57e4c076457eefd"
-  integrity sha512-Dn04TXjwM+H+1HB6R5B9WwLOKTq/kT/YIwGtAAxiAwYFCugiSWZuE2vf3I8dkCLlEetib5/QAz9MYJ4H4BRKZg==
 
 "@svgr/core@^2.4.1":
   version "2.4.1"
@@ -16590,10 +16589,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.npmjs.org/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
+  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 
