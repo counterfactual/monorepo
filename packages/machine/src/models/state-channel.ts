@@ -1,8 +1,7 @@
 import {
-  AppState,
   AssetType,
   ETHBucketAppState,
-  NetworkContext
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
@@ -38,8 +37,14 @@ const ERRORS = {
   FREE_BALANCE_IDX_CORRUPT: (idx: string) =>
     `Index ${idx} used to find ETH Free Balance is broken`,
   INSUFFICIENT_FUNDS:
-    "Attempted to install an appInstance without sufficient funds"
+    "Attempted to install an appInstance without sufficient funds",
+  MULTISIG_OWNERS_NOT_SORTED:
+    "multisigOwners parameter of StateChannel must be sorted"
 };
+
+function sortAddresses(addrs: string[]) {
+  return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+}
 
 export type StateChannelJSON = {
   readonly multisigAddress: string;
@@ -101,7 +106,14 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {}
+  ) {
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
+    multisigOwners.forEach((owner, idx) => {
+      if (owner !== sortedMultisigOwners[idx]) {
+        throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
+      }
+    });
+  }
 
   public get numInstalledApps() {
     return this.monotonicNumInstalledApps;
@@ -113,7 +125,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw Error(`${ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash)}`);
+      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -145,7 +157,7 @@ export class StateChannel {
     const idx = this.freeBalanceAppIndexes.get(assetType);
 
     if (!this.appInstances.has(idx!)) {
-      throw Error(`${ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!)}`);
+      throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
     }
 
     const appInstanceJson = this.appInstances.get(idx!)!.toJson();
@@ -160,21 +172,23 @@ export class StateChannel {
 
   public setFreeBalanceFor(
     assetType: AssetType,
-    state: AppState
+    state: SolidityABIEncoderV2Struct
   ): StateChannel {
     const freeBalance = this.getFreeBalanceFor(assetType);
     return this.setState(freeBalance.identityHash, state);
   }
 
   public static setupChannel(
-    network: NetworkContext,
+    ethBucketAddress: string,
     multisigAddress: string,
     multisigOwners: string[]
   ) {
+    const sortedMultisigOwners = sortAddresses(multisigOwners);
+
     const fb = createETHFreeBalance(
       multisigAddress,
-      multisigOwners,
-      network.ETHBucket
+      sortedMultisigOwners,
+      ethBucketAddress
     );
 
     const appInstances = new Map<string, AppInstance>();
@@ -185,7 +199,7 @@ export class StateChannel {
 
     return new StateChannel(
       multisigAddress,
-      multisigOwners,
+      sortedMultisigOwners,
       appInstances,
       new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
@@ -193,7 +207,10 @@ export class StateChannel {
     );
   }
 
-  public setState(appInstanceIdentityHash: string, state: AppState) {
+  public setState(
+    appInstanceIdentityHash: string,
+    state: SolidityABIEncoderV2Struct
+  ) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(

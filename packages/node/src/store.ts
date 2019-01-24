@@ -5,7 +5,11 @@ import {
   StateChannelJSON,
   Transaction
 } from "@counterfactual/machine";
-import { Address, AppInstanceInfo, AppState } from "@counterfactual/types";
+import {
+  Address,
+  AppInstanceInfo,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
@@ -41,17 +45,14 @@ export class Store {
     [multisigAddress: string]: StateChannel;
   }> {
     const channels = {};
-    const channelsJSON = (await this.storeService.get(
+    const channelsJSON = ((await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
-    )) as { [multisigAddress: string]: StateChannelJSON };
+    )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    if (!channelsJSON) {
-      console.log("No channels exist yet");
-    } else {
-      for (const entry of Object.entries(channelsJSON)) {
-        channels[entry[0]] = StateChannel.fromJson(entry[1]);
-      }
+    for (const [key, value] of Object.entries(channelsJSON)) {
+      channels[key] = StateChannel.fromJson(value);
     }
+
     return channels;
   }
 
@@ -140,7 +141,10 @@ export class Store {
    * This persists the state of the given AppInstance.
    * @param appInstance
    */
-  public async saveAppInstanceState(appInstanceId: string, newState: AppState) {
+  public async saveAppInstanceState(
+    appInstanceId: string,
+    newState: SolidityABIEncoderV2Struct
+  ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(
       await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId),

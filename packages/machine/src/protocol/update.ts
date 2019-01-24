@@ -1,11 +1,10 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import { Opcode } from "../opcodes";
-import { ProtocolMessage, UpdateParams } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, ProtocolMessage, UpdateParams } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -31,11 +30,8 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
 
-    // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    // Wait for them to countersign the message
-    Opcode.IO_WAIT,
+    // Send the message to your counterparty and wait for a reply
+    Opcode.IO_SEND_AND_WAIT,
 
     // Verify a message was received
     (_: ProtocolMessage, context: Context) =>

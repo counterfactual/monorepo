@@ -1,11 +1,10 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Opcode } from "../opcodes";
-import { InstallParams, ProtocolMessage } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, InstallParams, ProtocolMessage } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -31,11 +30,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
 
-    // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    // Wait for them to countersign the message
-    Opcode.IO_WAIT,
+    // Send the message to your counterparty and wait for a reply
+    Opcode.IO_SEND_AND_WAIT,
 
     // Verify a message was received
     (_: ProtocolMessage, context: Context) =>
@@ -114,13 +110,14 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
   context.commitment = constructInstallOp(
     context.network,
-    context.stateChannelsMap.get(multisigAddress)!,
+    newStateChannel,
     appIdentityHash
   );
 

@@ -1,3 +1,4 @@
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -17,7 +18,7 @@ type TicTacToeAppState = {
   board: number[][];
 };
 
-function decodeAppState(encodedAppState: string): TicTacToeAppState {
+function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
   return defaultAbiCoder.decode(
     [
       "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
@@ -28,6 +29,51 @@ function decodeAppState(encodedAppState: string): TicTacToeAppState {
 
 describe("TicTacToeApp", () => {
   let tictactoe: Contract;
+
+  function encodeState(state: SolidityABIEncoderV2Struct) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          address[2] players,
+          uint256 turnNum,
+          uint256 winner,
+          uint256[3][3] board
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  function encodeAction(state: SolidityABIEncoderV2Struct) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          uint8 actionType,
+          uint256 playX,
+          uint256 playY,
+          tuple(
+            uint8 winClaimType,
+            uint256 idx
+          ) winClaim
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  async function applyAction(
+    state: SolidityABIEncoderV2Struct,
+    action: SolidityABIEncoderV2Struct
+  ) {
+    return await tictactoe.functions.applyAction(
+      encodeState(state),
+      encodeAction(action)
+    );
+  }
 
   before(async () => {
     const provider = waffle.createMockProvider();
@@ -54,9 +100,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.board[0][0]).to.eq(1);
       expect(state.turnNum).to.eq(1);
@@ -80,9 +126,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.board[1][1]).to.eq(2);
       expect(state.turnNum).to.eq(2);
@@ -106,9 +152,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("playMove: square is not empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "playMove: square is not empty"
+      );
     });
 
     it("can draw from a full board", async () => {
@@ -129,9 +175,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(3); // DRAWN
     });
@@ -154,9 +200,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("assertBoardIsFull: square is empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "assertBoardIsFull: square is empty"
+      );
     });
 
     it("can play_and_draw from an almost full board", async () => {
@@ -177,9 +223,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(3); // DRAWN
     });
@@ -202,9 +248,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("assertBoardIsFull: square is empty");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "assertBoardIsFull: square is empty"
+      );
     });
 
     it("can play_and_win from a winning position", async () => {
@@ -225,9 +271,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      const ret = await tictactoe.functions.applyAction(preState, action);
+      const ret = await applyAction(preState, action);
 
-      const state = decodeAppState(ret);
+      const state = decodeBytesToAppState(ret);
 
       expect(state.winner).to.eq(1); // WON
     });
@@ -250,9 +296,9 @@ describe("TicTacToeApp", () => {
         }
       };
 
-      await expect(
-        tictactoe.functions.applyAction(preState, action)
-      ).to.be.revertedWith("Win Claim not valid");
+      await expect(applyAction(preState, action)).to.be.revertedWith(
+        "Win Claim not valid"
+      );
     });
   });
 });

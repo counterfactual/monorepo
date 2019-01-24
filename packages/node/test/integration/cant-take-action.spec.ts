@@ -1,9 +1,10 @@
+import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import {
   Address,
   AppABIEncodings,
-  AppState,
   AssetType,
-  Node as NodeTypes
+  Node as NodeTypes,
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -13,7 +14,6 @@ import FirebaseServer from "firebase-server";
 import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
-import TicTacToeApp from "../../../apps/build/TicTacToeApp.json";
 import {
   IMessagingService,
   InstallMessage,
@@ -174,7 +174,7 @@ describe("Node method follows spec - takeAction", () => {
 function makeTTTAppInstanceProposalReq(
   respondingAddress: Address,
   appId: Address,
-  initialState: AppState,
+  initialState: SolidityABIEncoderV2Struct,
   abiEncodings: AppABIEncodings
 ): NodeTypes.MethodRequest {
   return {

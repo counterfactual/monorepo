@@ -1,11 +1,10 @@
-import { Opcode } from "./opcodes";
-import { ProtocolMessage } from "./protocol-types-tbd";
-import { Context, Middleware } from "./types";
+import { Opcode } from "./enums";
+import { Context, Middleware, ProtocolMessage } from "./types";
 
 export class MiddlewareContainer {
   public readonly middlewares: { [I in Opcode]: Middleware[] } = {
     [Opcode.IO_SEND]: [],
-    [Opcode.IO_WAIT]: [],
+    [Opcode.IO_SEND_AND_WAIT]: [],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_VALIDATE]: [],
     [Opcode.STATE_TRANSITION_COMMIT]: []

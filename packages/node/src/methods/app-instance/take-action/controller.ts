@@ -19,6 +19,7 @@ export default async function takeActionController(
   const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
     appInstanceId
   );
+
   try {
     await actionIsEncondable(appInstance, action);
   } catch (e) {
@@ -35,7 +36,7 @@ export default async function takeActionController(
 
   const takeActionMsg: TakeActionMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.TAKE_ACTION,
+    type: NODE_EVENTS.TAKE_ACTION,
     data: {
       appInstanceId,
       params: {
@@ -48,10 +49,13 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  await requestHandler.messagingService.send(
-    appInstanceInfo.respondingAddress,
-    takeActionMsg
-  );
+  // send to the counter party
+  const to =
+    requestHandler.address === appInstanceInfo.initiatingAddress
+      ? appInstanceInfo.respondingAddress
+      : requestHandler.address;
+
+  await requestHandler.messagingService.send(to, takeActionMsg);
 
   return {
     newState

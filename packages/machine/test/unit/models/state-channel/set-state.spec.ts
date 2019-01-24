@@ -45,7 +45,7 @@ describe("StateChannel::setState", () => {
     );
 
     sc1 = StateChannel.setupChannel(
-      networkContext,
+      networkContext.ETHBucket,
       multisigAddress,
       multisigOwners
     ).installApp(testApp, Zero, Zero);

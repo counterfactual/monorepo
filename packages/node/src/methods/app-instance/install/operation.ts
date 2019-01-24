@@ -62,12 +62,12 @@ export async function install(
     }
   );
 
-  delete appInstanceInfo.initialState;
-
   await store.updateChannelWithAppInstanceInstallation(
     stateChannelsMap.get(stateChannel.multisigAddress)!,
-    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
-      .identityHash,
+    createAppInstanceFromAppInstanceInfo(
+      appInstanceInfo,
+      stateChannelsMap.get(stateChannel.multisigAddress)!
+    ).identityHash,
     appInstanceInfo
   );
 

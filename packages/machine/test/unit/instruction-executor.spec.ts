@@ -1,10 +1,10 @@
 import { AssetType } from "@counterfactual/types";
 import { getAddress, hexlify, randomBytes, SigningKey } from "ethers/utils";
 
+import { Opcode } from "../../src/enums";
 import { SetupCommitment } from "../../src/ethereum";
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
-import { Opcode } from "../../src/opcodes";
 import { ProtocolMessage } from "../../src/types";
 import { generateRandomNetworkContext } from "../mocks";
 
@@ -36,7 +36,6 @@ describe("InstructionExecutor", () => {
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
     instructionExecutor.register(Opcode.OP_SIGN_VALIDATE, () => {});
-    instructionExecutor.register(Opcode.IO_SEND, () => {});
     instructionExecutor.register(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
@@ -59,11 +58,15 @@ describe("InstructionExecutor", () => {
       });
 
       // Ensure validateSignature in Setup Protocol does not throw
-      instructionExecutor.register(Opcode.IO_WAIT, (_, __, context) => {
-        context.inbox.push({
-          signature: responder.signDigest(context.commitment!.hashToSign())
-        } as ProtocolMessage);
-      });
+      instructionExecutor.register(
+        Opcode.IO_SEND_AND_WAIT,
+        (_, __, context) => {
+          context.inbox.push({
+            signature: responder.signDigest(context.commitment!.hashToSign())
+          } as ProtocolMessage);
+        }
+      );
+
       await instructionExecutor.runSetupProtocol({
         multisigAddress,
         initiatingAddress: interaction.sender,

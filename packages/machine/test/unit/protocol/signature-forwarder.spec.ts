@@ -2,11 +2,11 @@ import { NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero } from "ethers/constants";
 
 import { Context, Protocol, StateChannel } from "../../../src";
-import { ProtocolMessage } from "../../../src/protocol-types-tbd";
 import {
   addSignedCommitmentInResponseWithSeq2,
   addSignedCommitmentToOutboxForSeq1
 } from "../../../src/protocol/utils/signature-forwarder";
+import { ProtocolMessage } from "../../../src/types";
 
 describe("Signature Forwarder Helpers", () => {
   let message: ProtocolMessage;
