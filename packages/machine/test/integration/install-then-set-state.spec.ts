@@ -95,24 +95,20 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       wallet
     );
 
-    proxyFactory.on("ProxyCreation", async proxy => {
+    proxyFactory.on("ProxyCreation", async (proxyAddress: string) => {
       let stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
-        proxy,
+        proxyAddress,
         users
-      );
+      ).setFreeBalance(AssetType.ETH, {
+        [users[0]]: WeiPerEther,
+        [users[1]]: WeiPerEther
+      });
+
       let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+      const state = freeBalanceETH.state;
 
-      const state = {
-        alice: stateChannel.multisigOwners[0],
-        bob: stateChannel.multisigOwners[1],
-        aliceBalance: WeiPerEther,
-        bobBalance: WeiPerEther
-      };
-
-      stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-      freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
+      // todo(xuanji): don't reuse state
       const appInstance = new AppInstance(
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
@@ -184,14 +180,17 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         signingKeys[1].signDigest(installCommitment.hashToSign())
       ]);
 
-      await wallet.sendTransaction({ to: proxy, value: WeiPerEther.mul(2) });
+      await wallet.sendTransaction({
+        to: proxyAddress,
+        value: WeiPerEther.mul(2)
+      });
 
       await wallet.sendTransaction({
         ...installTx,
         gasLimit: INSTALL_COMMITMENT_GAS
       });
 
-      expect(await provider.getBalance(proxy)).toBeEq(Zero);
+      expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);
       expect(await provider.getBalance(users[0])).toBeEq(WeiPerEther);
       expect(await provider.getBalance(users[1])).toBeEq(WeiPerEther);
 
