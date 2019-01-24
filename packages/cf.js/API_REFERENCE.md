@@ -324,7 +324,15 @@ TODO
 
 ### Method: `rejectState`
 
-TODO
+Rejects a proposed state to an AppInstance and notifies the counterparty of
+said rejection.
+
+  Params:
+- `appInstanceId: string`
+    - ID of the app instance whose existing state proposal to reject
+
+  Result:
+- "OK"
 
 ### Method: `createMultisig`
 
@@ -432,7 +440,7 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
