@@ -16,8 +16,6 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf.js": "0.0.2",
-    "@counterfactual/types": "0.0.1",
     "@types/jest": "^23.3.11",
     "@types/node": "^10.9.3",
     "jest": "23.6.0",
@@ -28,6 +26,10 @@
     "ts-jest": "23.10.5",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
+  },
+  "dependencies": {
+    "@counterfactual/types": "0.0.1",
+    "eventemitter3": "^3.1.0"
   },
   "jest": {
     "verbose": false,
@@ -51,8 +53,5 @@
       "json"
     ],
     "testURL": "http://localhost/"
-  },
-  "dependencies": {
-    "eventemitter3": "^3.1.0"
   }
 }
