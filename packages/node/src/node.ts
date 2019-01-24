@@ -79,7 +79,6 @@ export class Node {
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
-    this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
@@ -91,6 +90,7 @@ export class Node {
       this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    this.registerMessagingConnection();
     return this;
   }
 
