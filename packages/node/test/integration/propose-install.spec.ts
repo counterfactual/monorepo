@@ -80,6 +80,27 @@ describe("Node method follows spec - proposeInstall", () => {
     "Node A gets app install proposal, sends to node B, B approves it, installs it," +
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
+      it("sends proposal with invalid initial state", async () => {
+        const multisigAddress = await getNewMultisig(nodeA, [
+          nodeA.address,
+          nodeB.address
+        ]);
+        expect(multisigAddress).toBeDefined();
+        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+          nodeB.address
+        );
+        (appInstanceInstallationProposalRequest.params as NodeTypes.ProposeInstallParams).initialState = {};
+
+        try {
+          await nodeA.call(
+            appInstanceInstallationProposalRequest.type,
+            appInstanceInstallationProposalRequest
+          );
+        } catch (e) {
+          expect(e.toString().includes(ERRORS.INVALID_STATE)).toBeTruthy();
+        }
+      });
+
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
