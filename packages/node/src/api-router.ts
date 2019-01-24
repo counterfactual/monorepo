@@ -14,6 +14,7 @@ import protocolMessageEventController from "./events/protocol-message/controller
 import {
   createMultisigController,
   getAllChannelAddressesController,
+  getAppInstanceController,
   getAppInstanceStateController,
   getInstalledAppInstancesController,
   getProposedAppInstancesController,
@@ -39,7 +40,8 @@ export const methodNameToImplementation = {
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
   [Node.MethodName.TAKE_ACTION]: takeActionController,
-  [Node.MethodName.REJECT_INSTALL]: rejectInstallController
+  [Node.MethodName.REJECT_INSTALL]: rejectInstallController,
+  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: getAppInstanceController
 };
 
 export const eventNameToImplementation = {
