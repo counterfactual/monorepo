@@ -36,7 +36,7 @@ export default async function proposeInstallVirtualEventController(
 
   const relayedProposalMsg: ProposeVirtualMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: nodeMsg.data
   };
 

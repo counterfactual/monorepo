@@ -6,7 +6,7 @@ import { Address, Node } from "@counterfactual/types";
  */
 export interface NodeMessage {
   from: Address;
-  event: NodeEvents;
+  type: NodeEvents;
 }
 
 enum Events {

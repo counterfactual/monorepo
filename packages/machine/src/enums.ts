@@ -1,6 +1,6 @@
 enum Opcode {
   /**
-   * Currently unused.
+   * Called at the end of execution before the return value to store a commitment
    */
   STATE_TRANSITION_COMMIT,
 
