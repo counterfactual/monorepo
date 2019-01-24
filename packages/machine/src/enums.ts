@@ -1,6 +1,6 @@
-export enum Opcode {
+enum Opcode {
   /**
-   * Currently unused.
+   * Called at the end of execution before the return value to store a commitment
    */
   STATE_TRANSITION_COMMIT,
 
@@ -25,3 +25,13 @@ export enum Opcode {
    */
   IO_SEND_AND_WAIT
 }
+
+enum Protocol {
+  Setup = "setup",
+  Install = "install",
+  Update = "update",
+  Uninstall = "uninstall",
+  InstallVirtualApp = "install-virtual-app"
+}
+
+export { Opcode, Protocol };

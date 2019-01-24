@@ -21,7 +21,7 @@ export default async function rejectInstallController(
 
   const rejectProposalMsg: RejectProposalMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.REJECT_INSTALL,
+    type: NODE_EVENTS.REJECT_INSTALL,
     data: {
       appInstanceId
     }

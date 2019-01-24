@@ -2,7 +2,9 @@ import {
   Context,
   InstructionExecutor,
   Opcode,
-  ProtocolMessage
+  Protocol,
+  ProtocolMessage,
+  SetupParams
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
@@ -35,6 +37,7 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly instructionExecutor: InstructionExecutor;
+
   private ioSendDeferrals: {
     [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
   } = {};
@@ -76,7 +79,6 @@ export class Node {
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getSigner(this.storeService);
-    this.registerMessagingConnection();
     this.requestHandler = new RequestHandler(
       this.signer.address,
       this.incoming,
@@ -88,6 +90,7 @@ export class Node {
       this.provider,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
+    this.registerMessagingConnection();
     return this;
   }
 
@@ -130,7 +133,7 @@ export class Node {
         await this.messagingService.send(to, {
           from,
           data,
-          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
         next();
@@ -151,13 +154,47 @@ export class Node {
         await this.messagingService.send(to, {
           from,
           data,
-          event: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
         const msg = await this.ioSendDeferrals[to].promise;
 
         context.inbox.push(msg.data);
 
+        next();
+      }
+    );
+
+    instructionExecutor.register(
+      Opcode.STATE_TRANSITION_COMMIT,
+      async (message: ProtocolMessage, next: Function, context: Context) => {
+        if (!context.commitment) {
+          throw new Error(
+            `State transition without commitment: ${JSON.stringify(message)}`
+          );
+        }
+        const transaction = context.commitment!.transaction([
+          context.signature! // TODO: add counterparty signature
+        ]);
+        const { protocol } = message;
+        if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
+          await this.requestHandler.store.setSetupCommitmentForMultisig(
+            params.multisigAddress,
+            transaction
+          );
+        } else {
+          if (!context.appIdentityHash) {
+            throw new Error(
+              `appIdentityHash required to store commitment. protocol=${protocol}`
+            );
+          }
+          await this.requestHandler.store.setCommitmentForAppIdentityHash(
+            context.appIdentityHash!,
+            protocol,
+            transaction
+          );
+        }
         next();
       }
     );
@@ -207,7 +244,7 @@ export class Node {
       getAddress(this.address),
       async (msg: NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        this.outgoing.emit(msg.event, msg);
+        this.outgoing.emit(msg.type, msg);
       }
     );
   }
@@ -229,18 +266,18 @@ export class Node {
    *     solely to the deffered promise's resolve callback.
    */
   private async handleReceivedMessage(msg: NodeMessage) {
-    if (!Object.values(NODE_EVENTS).includes(msg.event)) {
-      console.error(`Received message with unknown event type: ${msg.event}`);
+    if (!Object.values(NODE_EVENTS).includes(msg.type)) {
+      console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
     const isIoSendDeferral = (msg: NodeMessage) =>
-      msg.event === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
+      msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
       this.ioSendDeferrals[msg.from] !== undefined;
 
     if (isIoSendDeferral(msg)) {
       this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      await this.requestHandler.callEvent(msg.event, msg);
+      await this.requestHandler.callEvent(msg.type, msg);
     }
   }
 

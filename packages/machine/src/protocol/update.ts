@@ -1,11 +1,10 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import { Opcode } from "../opcodes";
-import { ProtocolMessage, UpdateParams } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, ProtocolMessage, UpdateParams } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {

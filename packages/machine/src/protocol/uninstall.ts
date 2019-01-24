@@ -5,11 +5,10 @@ import {
 } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
-import { Opcode } from "../opcodes";
-import { ProtocolMessage, UninstallParams } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, ProtocolMessage, UninstallParams } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
