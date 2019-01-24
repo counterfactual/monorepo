@@ -316,7 +316,16 @@ Errors: (TODO)
 
 ### Method: `proposeState`
 
-TODO
+Propose a state to advance an AppInstance to a new state.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance for which to propose new state
+- `state:`[`AppState`](#data-type-appstate)
+    - The state to propose
+
+Result:
+- "OK"
 
 ### Method: `acceptState`
 
@@ -393,6 +402,10 @@ Data:
 
 TODO
 
+### Event: `acceptedStateEvent`
+
+TODO
+
 ### Event: `rejectStateEvent`
 
 TODO
@@ -432,7 +445,7 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
