@@ -1,16 +1,18 @@
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toBeEq(expected: BigNumber): BigNumber;
+      toBeEq(expected: BigNumberish): BigNumber;
     }
   }
 }
 
-export function toBeEq(received: BigNumber, argument: BigNumber) {
+export function toBeEq(received: BigNumber, argument: BigNumberish) {
+  const pass = received.eq(argument);
   return {
-    pass: received.eq(argument),
-    message: () => `expected ${received} not to be equal to ${argument}`
+    pass,
+    message: () =>
+      `expected ${received} to ${pass ? "not " : ""}be equal to ${argument}`
   };
 }
