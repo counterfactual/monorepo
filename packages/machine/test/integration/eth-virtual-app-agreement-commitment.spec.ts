@@ -146,7 +146,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
-        beneficiaries, // beneficiaries
+        beneficiaries // beneficiaries
       );
 
       const setStateCommitment = new SetStateCommitment(
