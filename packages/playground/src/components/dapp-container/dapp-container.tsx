@@ -1,7 +1,8 @@
+declare var EventEmitter: any;
+
 import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults } from "@stencil/router";
-import EventEmitter from "eventemitter3";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
@@ -27,7 +28,7 @@ export class DappContainer {
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
-  private eventEmitter: EventEmitter = new EventEmitter();
+  private eventEmitter: any = new EventEmitter();
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
   private node = CounterfactualNode.getInstance();
@@ -52,7 +53,11 @@ export class DappContainer {
   componentDidLoad(): void {
     this.url = this.getDappUrl();
 
-    this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this));
+    this.node.on(
+      "proposeInstallVirtualEvent",
+      this.postOrQueueMessage.bind(this)
+    );
+    this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME
@@ -115,6 +120,7 @@ export class DappContainer {
    * @param message {any}
    */
   public postOrQueueMessage(message: any): void {
+    console.log("DAPP-CONTAINER", message);
     if (this.port) {
       this.port.postMessage(message);
     } else {

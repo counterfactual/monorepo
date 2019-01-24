@@ -1,11 +1,13 @@
 declare var uuid: () => string;
 
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Component, State } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
+import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
-import { WidgetDialogSettings } from "../../types";
+import { AppDefinition, WidgetDialogSettings } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
@@ -15,13 +17,18 @@ type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
   shadow: true
 })
 export class NodeListener {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @State() private currentMessage: any;
   @State() private currentModalType: any;
   @State() private currentErrorType: any;
 
+  @Prop() apps: AppDefinition[] = [];
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
-    rejectInstallVirtualEvent: this.onRejectInstallVirtual.bind(this)
+    rejectInstallVirtualEvent: this.onRejectInstallVirtual.bind(this),
+    installVirtualEvent: this.onInstallVirtual.bind(this)
   };
 
   @State() private modalVisible: boolean = false;
@@ -82,9 +89,7 @@ export class NodeListener {
         STORE_KEY_PREFIX: "store"
       }
     });
-  }
 
-  componentDidLoad() {
     this.bindNodeEvents();
   }
 
@@ -104,6 +109,10 @@ export class NodeListener {
     this.showModal();
   }
 
+  onInstallVirtual(data) {
+    console.log(data);
+  }
+
   async acceptProposeInstall() {
     try {
       const request = {
@@ -114,12 +123,22 @@ export class NodeListener {
         } as Node.InstallVirtualParams,
         requestId: uuid()
       };
-      const installedApp = await this.node.call(
+
+      const installedApp = (await this.node.call(
         Node.MethodName.INSTALL_VIRTUAL,
         request
-      );
-      console.log(request);
-      this.node.emit(installedApp.type, request as Node.MethodRequest);
+      )).result as Node.InstallVirtualResult;
+
+      const app = this.apps.find(
+        app => app.id === installedApp.appInstance.appId
+      ) as AppDefinition;
+
+      this.history.push(`/dapp/${app.slug}`, {
+        name: app.name,
+        dappContainerUrl: `/dapp/${app.slug}`,
+        dappUrl: app.url
+      });
+
       this.hideModal();
     } catch (error) {
       this.currentModalType = "error";
@@ -187,3 +206,5 @@ export class NodeListener {
     return <div />;
   }
 }
+
+AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
