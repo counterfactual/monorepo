@@ -24,8 +24,6 @@ export async function installVirtual(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  delete appInstanceInfo.initialState;
-
   // TODO: Replace with `runInstallVirtualAppProtocol`
   await store.saveStateChannel(
     stateChannel.installApp(

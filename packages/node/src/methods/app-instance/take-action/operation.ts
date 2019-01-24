@@ -31,19 +31,25 @@ async function makeApplyActionCall(
   appInstance: AppInstance,
   action: any
 ): Promise<SolidityABIEncoderV2Struct> {
+  let newStateBytes: string;
+
   try {
-    return appInstance.decodeAppState(
-      await contract.functions.applyAction(
-        appInstance.encodedLatestState,
-        appInstance.encodeAction(action)
-      )
+    newStateBytes = await contract.functions.applyAction(
+      appInstance.encodedLatestState,
+      appInstance.encodeAction(action)
     );
   } catch (e) {
-    const sanitizedError = e
-      .toString()
-      .replace("s: VM Exception while processing transaction: revert");
-    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+    if (
+      e.toString().indexOf("s: VM Exception while processing transaction:") !==
+      -1
+    ) {
+      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e.toString()}`);
+    }
+
+    throw e;
   }
+
+  return appInstance.decodeAppState(newStateBytes);
 }
 
 export async function actionIsEncondable(
