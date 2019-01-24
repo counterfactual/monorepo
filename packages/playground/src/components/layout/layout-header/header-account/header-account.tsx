@@ -48,6 +48,7 @@ export class HeaderAccount {
   }
 
   async componentWillLoad() {
+    this.displayLoginError();
     const token = window.localStorage.getItem(
       "playground:user:token"
     ) as string;
