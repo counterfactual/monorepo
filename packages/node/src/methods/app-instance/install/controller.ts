@@ -31,7 +31,7 @@ export default async function installAppInstanceController(
 
   const installApprovalMsg: InstallMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.INSTALL,
+    type: NODE_EVENTS.INSTALL,
     data: {
       params: {
         appInstanceId: appInstanceInfo.id
