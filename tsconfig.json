@@ -4,7 +4,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noImplicitAny": false,
-    "noUnusedLocals": true,
+    // Turned on as no-unused-variable in tslint.json instead
+    "noUnusedLocals": false,
     "noImplicitReturns": true,
     "noLib": false,
     "removeComments": true,
