@@ -1,4 +1,5 @@
 import { Address, Node } from "@counterfactual/types";
+import { ethers } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
@@ -36,7 +37,10 @@ export async function createProposedAppInstance(
     createAppInstanceFromAppInstanceInfo(proposedAppInstance, channel)
       .encodedLatestState;
   } catch (e) {
-    return Promise.reject(`${ERRORS.INVALID_STATE}: ${e}`);
+    if (e.code === ethers.errors.INVALID_ARGUMENT) {
+      return Promise.reject(`${ERRORS.INVALID_STATE}: ${e}`);
+    }
+    return Promise.reject(e);
   }
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
