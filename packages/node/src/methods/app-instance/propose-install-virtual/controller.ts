@@ -37,7 +37,7 @@ export default async function proposeInstallVirtualAppInstanceController(
 
   const proposalMsg: ProposeVirtualMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: {
       params,
       appInstanceId,

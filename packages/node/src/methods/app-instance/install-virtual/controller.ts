@@ -26,7 +26,7 @@ export default async function installVirtualAppInstanceController(
 
   const installVirtualApprovalMsg: InstallVirtualMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.INSTALL_VIRTUAL,
+    type: NODE_EVENTS.INSTALL_VIRTUAL,
     data: {
       params: {
         appInstanceId

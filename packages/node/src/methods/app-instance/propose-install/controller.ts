@@ -28,7 +28,7 @@ export default async function proposeInstallAppInstanceController(
 
   const proposalMsg: ProposeMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.PROPOSE_INSTALL,
+    type: NODE_EVENTS.PROPOSE_INSTALL,
     data: {
       params,
       appInstanceId
