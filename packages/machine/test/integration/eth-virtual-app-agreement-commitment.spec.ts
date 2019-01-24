@@ -78,15 +78,11 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
     const signingKeys = getSortedRandomSigningKeys(2);
     const signingAddresses = signingKeys.map(x => x.address);
 
-    const f = new ContractFactory(
+    const resolveToPay5WeiAppDefinition = await new ContractFactory(
       ResolveToPay5WeiApp.abi,
       ResolveToPay5WeiApp.bytecode,
       wallet
-    );
-
-    const c = await f.deploy();
-
-    console.log("deployed", c.address);
+    ).deploy();
 
     const proxyFactory = new Contract(
       (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
@@ -113,7 +109,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: c.address,
+          addr: resolveToPay5WeiAppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
         },
