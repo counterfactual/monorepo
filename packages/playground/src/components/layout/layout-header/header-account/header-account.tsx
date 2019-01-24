@@ -5,13 +5,12 @@ import {
   Event,
   EventEmitter,
   Prop,
-  State,
   Watch
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
-import { ErrorMessage } from "../../../../types";
+import { resolve } from "bluebird";
 
 function buildSignaturePayload(address: string) {
   return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
@@ -31,7 +30,6 @@ export class HeaderAccount {
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
-  @State() error: ErrorMessage = {} as ErrorMessage;
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
   @Watch("authenticated")
@@ -48,7 +46,6 @@ export class HeaderAccount {
   }
 
   async componentWillLoad() {
-    this.displayLoginError();
     const token = window.localStorage.getItem(
       "playground:user:token"
     ) as string;
@@ -59,20 +56,7 @@ export class HeaderAccount {
 
     const user = await PlaygroundAPIClient.getUser(token);
 
-    web3.eth.getBalance(
-      user.multisigAddress,
-      web3.eth.defaultBlock,
-      (err, result) => {
-        const balance = parseFloat(ethers.utils.formatEther(result.toString()));
-
-        this.updateAccount({
-          user,
-          balance
-        });
-
-        this.authenticated = true;
-      }
-    );
+    this.getBalances(user);
   }
 
   async login(error: Error, signedData: string) {
@@ -89,43 +73,68 @@ export class HeaderAccount {
         signedData
       );
 
-      web3.eth.getBalance(
-        user.multisigAddress,
-        web3.eth.defaultBlock,
-        (err, result) => {
-          const balance = parseFloat(
-            ethers.utils.formatEther(result.toString())
-          );
+      this.getBalances(user).then(() => {
+        // TODO: Define schema for DB in localStorage.
+        window.localStorage.setItem(
+          "playground:user:token",
+          user.token as string
+        );
+      });
 
-          this.updateAccount({
-            user,
-            balance
-          });
-
-          this.authenticated = true;
-
-          // TODO: Define schema for DB in localStorage.
-          window.localStorage.setItem(
-            "playground:user:token",
-            user.token as string
-          );
-        }
-      );
       this.removeError();
     } catch (error) {
       this.displayLoginError();
     }
   }
 
+  getBalances(user) {
+    return Promise.all([
+      new Promise(resolve => {
+        web3.eth.getBalance(
+          user.multisigAddress,
+          web3.eth.defaultBlock,
+          (err, result) => {
+            const balance = parseFloat(ethers.utils.formatEther(result.toString()));
+    
+            this.updateAccount({
+              user,
+              balance
+            });
+    
+            this.authenticated = true;
+    
+            resolve();
+          }
+        );
+      }), new Promise(resolve => {
+        web3.eth.getBalance(this.user.ethAddress, web3.eth.defaultBlock, (err, result) => {
+          const accountBalance = parseFloat(
+            ethers.utils.formatEther(result.toString())
+          );
+    
+          this.updateAccount({
+            accountBalance
+          });
+
+          resolve();
+        });
+      })
+    ]);
+  }
+
   displayLoginError() {
-    this.error = {
-      primary: "Login Failed",
-      secondary: "You may not have a Playground account yet. Try registering."
-    };
+    this.updateAccount({
+      error: {
+        primary: "Login Failed",
+        secondary: "You may not have a Playground account yet. Try registering."
+      }
+    });
   }
 
   removeError() {
-    this.error = {} as ErrorMessage;
+    this.updateAccount({
+      error: null
+    });
   }
 
   get ethBalance() {
@@ -135,7 +144,7 @@ export class HeaderAccount {
   render() {
     return (
       <div class="account-container">
-        <widget-error-message error={this.error} />
+        <widget-error-message />
         {this.user.username ? (
           <div class="info-container">
             <stencil-route-link url="/exchange">

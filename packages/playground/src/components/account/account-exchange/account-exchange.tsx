@@ -17,8 +17,8 @@ interface TransactionArgs {
 export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() availableDeposit: number = 0;
   @Prop() balance: number = 0;
+  @Prop() accountBalance: number = 0;
   @Prop() updateAccount: (e) => void = e => {};
   @State() depositValue: number | string = "";
   @State() withdrawValue: number | string = "";
@@ -27,10 +27,11 @@ export class AccountExchange {
 
   deposit(e) {
     const value = e.target.value;
+    const wei = ethers.utils.parseEther(value).toString();
     const transactionArgs = {
       from: this.user.ethAddress,
       to: this.user.multisigAddress,
-      value
+      value: wei
     };
     this.initiateTransaction(parseFloat(value), transactionArgs);
 
@@ -39,10 +40,11 @@ export class AccountExchange {
 
   withdraw(e) {
     const value = e.target.value;
+    const wei = ethers.utils.parseEther(value).toString();
     const transactionArgs = {
       from: this.user.multisigAddress,
       to: this.user.ethAddress,
-      value: `-${value}`
+      value: wei
     };
     this.initiateTransaction(-parseFloat(value), transactionArgs);
 
@@ -51,12 +53,15 @@ export class AccountExchange {
 
   initiateTransaction(value: number, transactionArgs: TransactionArgs) {
     this.updateAccount({
-      balance: this.balance + value
+      balance: this.balance + value,
+      accountBalance: this.accountBalance - value
     });
 
     const timeoutId = setTimeout(() => {
+      this.displayTransactionError();
       this.updateAccount({
-        balance: this.balance - value
+        balance: this.balance - value,
+        accountBalance: this.accountBalance + value
       });
     }, 60000);
 
@@ -68,6 +73,35 @@ export class AccountExchange {
 
   transactionCompleted(transactionTimeoutId: NodeJS.Timeout) {
     clearTimeout(transactionTimeoutId);
+    this.removeError();
+  }
+
+  displayTransactionError() {
+    this.updateAccountBalance();
+    this.updateAccount({
+      error: {
+        primary: "Transaction Failed",
+        secondary: "Consult Metamask for more details"
+      }
+    });
+  }
+
+  updateAccountBalance() {
+    web3.eth.getBalance(this.user.ethAddress, web3.eth.defaultBlock, (err, result) => {
+      const accountBalance = parseFloat(
+        ethers.utils.formatEther(result.toString())
+      );
+
+      this.updateAccount({
+        accountBalance
+      });
+    });
+  }
+
+  removeError() {
+    this.updateAccount({
+      error: null
+    });
   }
 
   render() {
@@ -79,7 +113,7 @@ export class AccountExchange {
           <account-eth-form
             onSubmit={e => this.deposit(e)}
             button="Deposit"
-            available={this.availableDeposit}
+            available={this.accountBalance}
             value={this.depositValue}
           />
         </div>
@@ -91,6 +125,7 @@ export class AccountExchange {
             button="Withdraw"
             available={this.balance}
             value={this.withdrawValue}
+            disabled={true}
           />
         </div>
       </div>
@@ -98,4 +133,4 @@ export class AccountExchange {
   }
 }
 
-AccountTunnel.injectProps(AccountExchange, ["balance", "updateAccount", "user"]);
+AccountTunnel.injectProps(AccountExchange, ["accountBalance", "balance", "updateAccount", "user"]);
