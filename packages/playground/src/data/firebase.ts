@@ -103,6 +103,10 @@ class FirebaseMessagingService implements IMessagingService {
           this.servedMessages.delete(msg);
         } else {
           this.servedMessages.add(msg);
+          if (!this.initialHookResponseFired) {
+            this.initialHookResponseFired = true;
+            return;
+          }
           callback(msg);
         }
       });
