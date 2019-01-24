@@ -320,7 +320,15 @@ TODO
 
 ### Method: `acceptState`
 
-TODO
+Accepts a proposed state to advance an AppInstance to a new state and notifies
+the counterparty of said acceptance.
+
+ Params:
+- `appInstanceId: string`
+    - ID of the app instance whose existing state proposal to accept
+
+ Result:
+- "OK"
 
 ### Method: `rejectState`
 
@@ -432,7 +440,7 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
