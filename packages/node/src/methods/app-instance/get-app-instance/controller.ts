@@ -14,7 +14,7 @@ export default async function getAppInstanceController(
 ): Promise<Node.GetAppInstanceDetailsResult> {
   const { appInstanceId } = params;
   if (!appInstanceId) {
-    Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
+    Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_GET_DETAILS);
   }
 
   return {
