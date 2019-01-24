@@ -1,9 +1,9 @@
 import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
-import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
+import { AppIdentity, AssetType, NetworkContext, Terms } from "@counterfactual/types";
 import { BigNumber, Interface } from "ethers/utils";
-
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
+import { AddressZero } from "ethers/constants";
 
 const iface = new Interface(ETHVirtualAppAgreement.abi);
 
@@ -22,8 +22,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly rootNonceValue: number,
     public readonly expiry: BigNumber,
     public readonly capitalProvided: BigNumber,
-    public readonly beneficiaries: string[],
-    public readonly terms?: Terms
+    public readonly beneficiaries: string[]
   ) {
     super(
       networkContext,
@@ -54,7 +53,11 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.AppRegistry,
-          terms: this.terms!,
+          terms: {
+              assetType: AssetType.ETH,
+              limit: new BigNumber(0),
+              token: AddressZero
+          },
           expiry: this.expiry,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
