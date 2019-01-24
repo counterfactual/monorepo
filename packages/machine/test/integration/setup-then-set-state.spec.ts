@@ -89,22 +89,15 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     );
 
     proxyFactory.on("ProxyCreation", async proxy => {
-      let stateChannel = StateChannel.setupChannel(
+      const stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxy,
         users
-      );
-      let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-      const state = {
-        alice: stateChannel.multisigOwners[0],
-        bob: stateChannel.multisigOwners[1],
-        aliceBalance: WeiPerEther,
-        bobBalance: WeiPerEther
-      };
-
-      stateChannel = stateChannel.setState(freeBalanceETH.identityHash, state);
-      freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+      ).setFreeBalance(AssetType.ETH, {
+        [users[0]]: WeiPerEther,
+        [users[1]]: WeiPerEther
+      });
+      const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
       const setStateCommitment = new SetStateCommitment(
         network,

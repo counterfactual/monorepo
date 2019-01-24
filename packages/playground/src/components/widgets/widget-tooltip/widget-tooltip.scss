@@ -1,0 +1,31 @@
+.widget-tooltip-message {
+  display: none;
+  position: absolute;
+  width: 240px;
+  margin-top: 10px;
+  background: $c-black;
+  color: $c-white;
+  padding: 12px;
+
+  &:before {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: $c-black;
+    transform: rotateZ(45deg);
+    top: -5px;
+    left: 20px;
+    content: "";
+  }
+}
+
+.widget-tooltip {
+  position: relative;
+  height: 100%;
+
+  &:hover {
+    .widget-tooltip-message {
+      display: block;
+    }
+  }
+}

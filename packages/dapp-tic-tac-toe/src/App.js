@@ -28,7 +28,7 @@ export default class App extends Component {
       gameInfo
     };
 
-    this.connect(nodeProvider);
+    this.connect();
     this.requestUserData();
   }
 
