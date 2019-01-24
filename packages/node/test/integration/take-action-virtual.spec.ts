@@ -193,7 +193,7 @@ describe("Node method follows spec - takeAction", () => {
           const response = await nodeC.call(getStateReq.type, getStateReq);
           const updatedState = (response.result as NodeTypes.GetStateResult)
             .state;
-          expect(updatedState).toEqual(JSON.parse(JSON.stringify(newState)));
+          expect(updatedState).toEqual(newState);
           done();
         });
 

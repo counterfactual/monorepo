@@ -1,6 +1,6 @@
 import { AppInstance } from "@counterfactual/machine";
 import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
-import { Contract } from "ethers";
+import { Contract, ethers } from "ethers";
 import { Provider } from "ethers/providers";
 
 import { isNotDefinedOrEmpty } from "../../../utils";
@@ -32,20 +32,26 @@ async function makeApplyActionCall(
   action: any
 ): Promise<SolidityABIEncoderV2Struct> {
   let newStateBytes: string;
+  let encodedAction: string;
+
+  try {
+    encodedAction = appInstance.encodeAction(action);
+  } catch (e) {
+    if (e.code === ethers.errors.INVALID_ARGUMENT) {
+      return Promise.reject(`${ERRORS.INPROPERLY_FORMATTED_ACTION}: ${e}`);
+    }
+    throw e;
+  }
 
   try {
     newStateBytes = await contract.functions.applyAction(
       appInstance.encodedLatestState,
-      appInstance.encodeAction(action)
+      encodedAction
     );
   } catch (e) {
-    if (
-      e.toString().indexOf("s: VM Exception while processing transaction:") !==
-      -1
-    ) {
-      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e.toString()}`);
+    if (e.code === ethers.errors.CALL_EXCEPTION) {
+      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e}`);
     }
-
     throw e;
   }
 
