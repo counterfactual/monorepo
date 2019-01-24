@@ -197,6 +197,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
@@ -281,6 +282,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
