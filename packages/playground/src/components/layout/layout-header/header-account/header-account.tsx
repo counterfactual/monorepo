@@ -7,10 +7,10 @@ import {
   Prop,
   Watch
 } from "@stencil/core";
+import { resolve } from "bluebird";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
-import { resolve } from "bluebird";
 
 function buildSignaturePayload(address: string) {
   return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
@@ -94,30 +94,37 @@ export class HeaderAccount {
           user.multisigAddress,
           web3.eth.defaultBlock,
           (err, result) => {
-            const balance = parseFloat(ethers.utils.formatEther(result.toString()));
-    
+            const balance = parseFloat(
+              ethers.utils.formatEther(result.toString())
+            );
+
             this.updateAccount({
               user,
               balance
             });
-    
+
             this.authenticated = true;
-    
+
             resolve();
           }
         );
-      }), new Promise(resolve => {
-        web3.eth.getBalance(this.user.ethAddress, web3.eth.defaultBlock, (err, result) => {
-          const accountBalance = parseFloat(
-            ethers.utils.formatEther(result.toString())
-          );
-    
-          this.updateAccount({
-            accountBalance
-          });
+      }),
+      new Promise(resolve => {
+        web3.eth.getBalance(
+          this.user.ethAddress,
+          web3.eth.defaultBlock,
+          (err, result) => {
+            const accountBalance = parseFloat(
+              ethers.utils.formatEther(result.toString())
+            );
 
-          resolve();
-        });
+            this.updateAccount({
+              accountBalance
+            });
+
+            resolve();
+          }
+        );
       })
     ]);
   }

@@ -43,7 +43,10 @@ export class AccountEthForm {
               <div>{this.available} ETH</div>
             </div>
           </form-input>
-          <form-button disabled={this.disabled} onButtonPressed={e => this.handleSubmit(e)}>
+          <form-button
+            disabled={this.disabled}
+            onButtonPressed={e => this.handleSubmit(e)}
+          >
             {this.button}
           </form-button>
         </form-container>

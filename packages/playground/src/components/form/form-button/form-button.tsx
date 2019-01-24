@@ -17,7 +17,11 @@ export class FormButton {
 
   render() {
     return (
-      <button disabled={this.disabled} onClick={this.handleClick.bind(this)} class="button">
+      <button
+        disabled={this.disabled}
+        onClick={this.handleClick.bind(this)}
+        class="button"
+      >
         <slot />
       </button>
     );

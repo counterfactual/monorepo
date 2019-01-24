@@ -87,15 +87,19 @@ export class AccountExchange {
   }
 
   updateAccountBalance() {
-    web3.eth.getBalance(this.user.ethAddress, web3.eth.defaultBlock, (err, result) => {
-      const accountBalance = parseFloat(
-        ethers.utils.formatEther(result.toString())
-      );
+    web3.eth.getBalance(
+      this.user.ethAddress,
+      web3.eth.defaultBlock,
+      (err, result) => {
+        const accountBalance = parseFloat(
+          ethers.utils.formatEther(result.toString())
+        );
 
-      this.updateAccount({
-        accountBalance
-      });
-    });
+        this.updateAccount({
+          accountBalance
+        });
+      }
+    );
   }
 
   removeError() {
@@ -133,4 +137,9 @@ export class AccountExchange {
   }
 }
 
-AccountTunnel.injectProps(AccountExchange, ["accountBalance", "balance", "updateAccount", "user"]);
+AccountTunnel.injectProps(AccountExchange, [
+  "accountBalance",
+  "balance",
+  "updateAccount",
+  "user"
+]);
