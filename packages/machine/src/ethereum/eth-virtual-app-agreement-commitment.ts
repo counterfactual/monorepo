@@ -50,9 +50,6 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     if (this.networkContext.ETHVirtualAppAgreement === undefined) {
       throw Error("undefined ETHVirtualAppAgreement");
     }
-    if (this.terms === undefined) {
-      throw Error("undefined terms");
-    }
     return {
       to: this.networkContext.ETHVirtualAppAgreement,
       value: 0,
