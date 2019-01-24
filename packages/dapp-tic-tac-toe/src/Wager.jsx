@@ -15,10 +15,7 @@ class Wager extends Component {
   }
 
   async componentDidMount() {
-    this.props.cfProvider.once(
-      "installVirtualEvent",
-      this.onInstall.bind(this)
-    );
+    this.props.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     console.log("user data", this.props.user);
     const { token } = this.props.user;
@@ -98,6 +95,7 @@ class Wager extends Component {
   }
 
   onInstall({ data: { appInstance } }) {
+    console.log("ON INSTALL REACHED");
     this.props.onChangeAppInstance(appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
   }
