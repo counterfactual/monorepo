@@ -38,7 +38,7 @@ async function makeApplyActionCall(
     encodedAction = appInstance.encodeAction(action);
   } catch (e) {
     if (e.code === ethers.errors.INVALID_ARGUMENT) {
-      return Promise.reject(`${ERRORS.INPROPERLY_FORMATTED_ACTION}: ${e}`);
+      return Promise.reject(`${ERRORS.IMPROPERLY_FORMATTED_ACTION}: ${e}`);
     }
     throw e;
   }
@@ -49,8 +49,9 @@ async function makeApplyActionCall(
       encodedAction
     );
   } catch (e) {
-    if (e.code === ethers.errors.CALL_EXCEPTION) {
-      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e}`);
+    // TODO: ethers.errors.CALL_EXCEPTION _should_ work but it doesn't
+    if (e.message && e.message.indexOf("VM Exception") !== -1) {
+      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e.reason}`);
     }
     throw e;
   }
