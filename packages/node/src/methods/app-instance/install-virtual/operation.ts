@@ -35,6 +35,35 @@ export async function installVirtual(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
+  await instructionExecutor.runInstallVirtualAppProtocol(
+    new Map(Object.entries(await store.getAllChannels())),
+    {
+      initiatingAddress: appInstanceInfo.initiatingAddress,
+      respondingAddress: appInstanceInfo.respondingAddress,
+      multisig1Address: stateChannel.multisigAddress,
+      multisig2Address: stateChannel.multisigAddress, // FIXME: not right
+      intermediaryAddress: appInstanceInfo.intermediaries![0],
+      signingKeys: [
+        appInstanceInfo.initiatingAddress,
+        appInstanceInfo.respondingAddress
+      ],
+      defaultTimeout: appInstanceInfo.timeout.toNumber(),
+      appInterface: {
+        addr: appInstanceInfo.appId,
+        ...appInstanceInfo.abiEncodings
+      },
+      initialState: appInstanceInfo.initialState,
+      initiatingBalanceDecrement: appInstanceInfo.myDeposit,
+      respondingBalanceDecrement: appInstanceInfo.peerDeposit
+    }
+  );
+
+  // const updatedStateChannel = stateChannel.installApp(
+  //   createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
+  //   appInstanceInfo.myDeposit,
+  //   appInstanceInfo.peerDeposit
+  // );
+
   // TODO: Replace with `runInstallVirtualAppProtocol`
   await store.saveStateChannel(
     stateChannel.installApp(

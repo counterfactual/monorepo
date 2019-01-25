@@ -88,7 +88,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[2] // s6
       };
     },
-    Opcode.IO_SEND,
+
+    Opcode.IO_SEND_AND_WAIT,
 
     // M5
     (message: ProtocolMessage, context: Context) => {

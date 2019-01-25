@@ -1,4 +1,3 @@
-import { installVirtual } from "../../methods/app-instance/install-virtual/operation";
 import { RequestHandler } from "../../request-handler";
 import { InstallVirtualMessage } from "../../types";
 
@@ -6,11 +5,5 @@ export default async function installEventController(
   requestHandler: RequestHandler,
   msg: InstallVirtualMessage
 ) {
-  await installVirtual(
-    requestHandler.store,
-    requestHandler.instructionExecutor,
-    requestHandler.publicIdentifier,
-    msg.from,
-    msg.data.params
-  );
+  console.error("no-op");
 }
