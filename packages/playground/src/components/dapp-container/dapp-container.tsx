@@ -61,6 +61,8 @@ export class DappContainer {
     this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this));
     this.node.on("getAppInstanceDetails", this.postOrQueueMessage.bind(this));
     this.node.on("getState", this.postOrQueueMessage.bind(this));
+    this.node.on("takeAction", this.postOrQueueMessage.bind(this));
+    this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME

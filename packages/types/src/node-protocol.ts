@@ -56,6 +56,7 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
     INSTALL = "installEvent",
+    INSTALL_VIRTUAL = "installVirtualEvent",
     REJECT_INSTALL = "rejectInstallEvent",
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",

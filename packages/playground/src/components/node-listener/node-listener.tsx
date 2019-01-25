@@ -144,6 +144,7 @@ export class NodeListener {
     } catch (error) {
       this.currentModalType = "error";
       this.currentErrorType = error.message;
+      console.log(error);
     }
   }
 
