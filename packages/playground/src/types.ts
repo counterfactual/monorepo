@@ -27,6 +27,6 @@ export interface WidgetDialogSettings {
 }
 
 export interface ErrorMessage {
-  primary: string | undefined;
-  secondary: string | undefined;
+  primary: string;
+  secondary: string;
 }
