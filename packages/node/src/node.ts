@@ -105,9 +105,8 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
-    instructionExecutor.register(
-      Opcode.OP_SIGN,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
+    const makeSigner = (asIntermediary: boolean) => {
+      return async (message: ProtocolMessage, next: Function, context: Context) => {
         if (context.commitments.length === 0) {
           // TODO: I think this should be inside the machine for all protocols
           throw Error(
@@ -117,13 +116,24 @@ export class Node {
 
         for (const commitment of context.commitments) {
           context.signatures.push(
-            this.signer.signDigest(commitment.hashToSign())
+            this.signer.signDigest(commitment.hashToSign(asIntermediary))
           );
         }
 
         next();
       }
+    }
+
+    instructionExecutor.register(
+      Opcode.OP_SIGN,
+      makeSigner(false)
     );
+
+    instructionExecutor.register(
+      Opcode.OP_SIGN_AS_INTERMEDIARY,
+      makeSigner(true)
+    );
+
 
     instructionExecutor.register(
       Opcode.IO_SEND,
