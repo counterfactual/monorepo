@@ -202,7 +202,7 @@ contract HighRollerApp {
 
   /// @notice Converts a bytes8 into a uint64 between 1-6
   /// @param q The bytes8 to convert
-  /// @dev Splits this by using modulas 6 to get the uint
+  /// @dev Splits this by using modulo 6 to get the uint
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
