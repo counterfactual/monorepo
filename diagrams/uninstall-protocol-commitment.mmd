@@ -5,18 +5,14 @@ graph LR
         setNonce.->salt
         setNonce.->1
     end
-    subgraph Registry
-        proxyCall
-    end
     subgraph AppRegistry-Free-Balance
         setState
-        proxyCall-->setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
     end
     subgraph MultiSend
         multiSend
-        multiSend-->proxyCall
+        multiSend-->setState
         multiSend-->setNonce
     end
     subgraph Multisig

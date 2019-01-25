@@ -7,18 +7,14 @@ graph LR
         executeAppConditionalTransaction.->appCfAddress
         executeAppConditionalTransaction.->terms
     end
-    subgraph Registry
-        proxyCall
-    end
     subgraph AppRegistry
         setState
-        proxyCall-->setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
     end
     subgraph MultiSend
         multiSend
-        multiSend-->proxyCall
+        multiSend-->setState
         multiSend-->executeAppConditionalTransaction
     end
     subgraph Multisig

@@ -1,10 +1,6 @@
 graph LR
-    subgraph Registry
-        proxyCall
-    end
     subgraph AppRegistry
         setState
-        proxyCall-->setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
     end
