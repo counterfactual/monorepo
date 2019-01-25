@@ -177,6 +177,10 @@ contract HighRollerApp {
     pure
     returns (bytes32)
   {
+    require(
+      num1 != 0 && num2 != 0,
+      "Numbers passed in cannot equal 0"
+      );
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
