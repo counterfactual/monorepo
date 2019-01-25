@@ -56,10 +56,10 @@ class Wager extends Component {
   createAppFactory() {
     return new window.cf.AppFactory(
       // TODO: provide valid appId
-      "0x1515151515151515151515151515151515151515",
+      "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
       {
         actionEncoding:
-          "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
+          "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
         stateEncoding:
           "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
       },
