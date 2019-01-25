@@ -105,22 +105,34 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
-    instructionExecutor.register(
-      Opcode.OP_SIGN,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        if (!context.commitment) {
+    const makeSigner = (asIntermediary: boolean) => {
+      return async (
+        message: ProtocolMessage,
+        next: Function,
+        context: Context
+      ) => {
+        if (context.commitments.length === 0) {
           // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
           );
         }
 
-        context.signature = this.signer.signDigest(
-          context.commitment.hashToSign()
-        );
+        for (const commitment of context.commitments) {
+          context.signatures.push(
+            this.signer.signDigest(commitment.hashToSign(asIntermediary))
+          );
+        }
 
         next();
-      }
+      };
+    };
+
+    instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
+
+    instructionExecutor.register(
+      Opcode.OP_SIGN_AS_INTERMEDIARY,
+      makeSigner(true)
     );
 
     instructionExecutor.register(
@@ -168,13 +180,13 @@ export class Node {
     instructionExecutor.register(
       Opcode.STATE_TRANSITION_COMMIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        if (!context.commitment) {
+        if (!context.commitments[0]) {
           throw new Error(
             `State transition without commitment: ${JSON.stringify(message)}`
           );
         }
-        const transaction = context.commitment!.transaction([
-          context.signature! // TODO: add counterparty signature
+        const transaction = context.commitments[0].transaction([
+          context.signatures[0] // TODO: add counterparty signature
         ]);
         const { protocol } = message;
         if (protocol === Protocol.Setup) {

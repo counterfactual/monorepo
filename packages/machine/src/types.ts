@@ -27,13 +27,9 @@ export interface Context {
   outbox: ProtocolMessage[];
   inbox: ProtocolMessage[];
   stateChannelsMap: Map<string, StateChannel>;
-  commitment?: EthereumCommitment;
-  commitment2?: EthereumCommitment;
-  commitment3?: EthereumCommitment;
-  signature?: Signature;
+  commitments: EthereumCommitment[];
+  signatures: Signature[];
   appIdentityHash?: string;
-  signature2?: Signature;
-  signature3?: Signature;
   targetVirtualAppInstance?: AppInstance;
 }
 
