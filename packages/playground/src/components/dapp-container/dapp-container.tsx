@@ -2,7 +2,7 @@ declare var EventEmitter: any;
 
 import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
-import { MatchResults } from "@stencil/router";
+import { MatchResults, RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
@@ -18,6 +18,7 @@ export class DappContainer {
   @Element() private element: HTMLElement | undefined;
 
   @Prop() match: MatchResults = {} as MatchResults;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) url: string = "";
 
@@ -58,6 +59,8 @@ export class DappContainer {
       this.postOrQueueMessage.bind(this)
     );
     this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("getAppInstanceDetails", this.postOrQueueMessage.bind(this));
+    this.node.on("getState", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME
@@ -76,6 +79,9 @@ export class DappContainer {
 
     // Callback for processing Playground UI messages
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
+
+    // Callback for passing an app instance, if available.
+    iframe.addEventListener("load", this.sendAppInstance.bind(this));
 
     this.iframe = iframe;
   }
@@ -96,7 +102,11 @@ export class DappContainer {
   }
 
   private handlePlaygroundMessage(event: MessageEvent): void {
-    if (event.data === "playground:request:user" && this.frameWindow) {
+    if (!this.frameWindow) {
+      return;
+    }
+
+    if (event.data === "playground:request:user") {
       this.frameWindow.postMessage(
         `playground:response:user|${JSON.stringify({
           user: {
@@ -198,6 +208,21 @@ export class DappContainer {
     while ((message = this.messageQueue.shift())) {
       this.port.postMessage(message);
     }
+  }
+
+  private sendAppInstance(): void {
+    if (!this.frameWindow) {
+      return;
+    }
+
+    const { installedApp } = this.history.location.state;
+
+    this.frameWindow.postMessage(
+      `playground:appInstance|${
+        installedApp ? JSON.stringify(installedApp) : ""
+      }`,
+      "*"
+    );
   }
 }
 

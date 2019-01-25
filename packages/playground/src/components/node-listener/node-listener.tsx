@@ -134,6 +134,7 @@ export class NodeListener {
       ) as AppDefinition;
 
       this.history.push(`/dapp/${app.slug}`, {
+        installedApp,
         name: app.name,
         dappContainerUrl: `/dapp/${app.slug}`,
         dappUrl: app.url
@@ -160,7 +161,7 @@ export class NodeListener {
 
   showModal() {
     this.modalVisible = true;
-    this.currentModalType = this.currentMessage.event;
+    this.currentModalType = this.currentMessage.type;
   }
 
   hideModal() {
