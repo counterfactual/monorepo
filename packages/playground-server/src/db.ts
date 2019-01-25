@@ -83,15 +83,15 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
       }
     });
     const [user] = matchmakeResults;
-    return {
-      type: "matchedUser",
+
+    return new MatchedUser({
       id: user.id,
       attributes: {
         username: user.username,
         ethAddress: user.ethAddress,
         nodeAddress: user.nodeAddress
       }
-    };
+    });
   }
 
   if (matchmakeResults.length === 0) {
@@ -114,15 +114,14 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     }
   });
 
-  return {
-    type: "matchedUser",
+  return new MatchedUser({
     id: matchedUser.id,
     attributes: {
       username: matchedUser.username,
       ethAddress: matchedUser.ethAddress,
       nodeAddress: matchedUser.nodeAddress
     }
-  };
+  });
 }
 
 export async function getUser(userToFind: User): Promise<User> {
@@ -164,8 +163,7 @@ export async function getUser(userToFind: User): Promise<User> {
 
   const [user] = users;
 
-  return {
-    type: "users",
+  return new User({
     id: user.id,
     attributes: {
       username: user.username,
@@ -174,7 +172,7 @@ export async function getUser(userToFind: User): Promise<User> {
       multisigAddress: user.multisigAddress,
       nodeAddress: user.nodeAddress
     }
-  } as User;
+  });
 }
 
 export async function userExists(user: User): Promise<boolean> {
@@ -203,7 +201,7 @@ export async function userExists(user: User): Promise<boolean> {
 }
 
 export async function createUser(user: User): Promise<User> {
-  if (await ethAddressAlreadyRegistered(user.attributes.ethAddress)) {
+  if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
     throw ErrorCode.AddressAlreadyRegistered;
   }
 
@@ -229,11 +227,10 @@ export async function createUser(user: User): Promise<User> {
 
     await db.destroy();
 
-    return {
+    return new User({
       id,
-      type: user.type,
       attributes: user.attributes
-    };
+    });
   } catch (e) {
     const error = e as Error;
 

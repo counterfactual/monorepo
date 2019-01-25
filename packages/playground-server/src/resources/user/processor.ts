@@ -1,9 +1,4 @@
-import {
-  AuthenticatedContext,
-  Authorize,
-  JsonApiDocument,
-  OperationProcessor
-} from "@ebryn/jsonapi-ts";
+import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
@@ -13,14 +8,13 @@ import { createMultisigFor } from "../../node";
 
 import User from "./resource";
 
-export default class UserProcessor extends OperationProcessor<User> {
-  @Authorize()
-  async get(id: string, ctx: AuthenticatedContext) {
-    const user = ctx.user as User;
+export default class UserProcessor extends OperationProcessor {
+  public resourceClass = User;
 
-    return {
-      data: [user]
-    } as JsonApiDocument<User>;
+  @Authorize()
+  protected async get(op: Operation): Promise<User[]> {
+    const user = this.app.user as User;
+    return [user].filter(Boolean);
   }
 
   @ValidateSignature({
@@ -33,9 +27,12 @@ export default class UserProcessor extends OperationProcessor<User> {
         `Node address: ${resource.attributes.nodeAddress}`
       ].join("\n")
   })
-  async add(user: User) {
+  async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
-    const multisig = await createMultisigFor(user.attributes.nodeAddress);
+    const user = op.data;
+    const { nodeAddress } = user.attributes;
+
+    const multisig = await createMultisigFor(String(nodeAddress));
 
     Log.info("Multisig has been created", {
       tags: {
@@ -66,8 +63,6 @@ export default class UserProcessor extends OperationProcessor<User> {
       tags: { endpoint: "createAccount" }
     });
 
-    return {
-      data: newUser
-    } as JsonApiDocument<User>;
+    return newUser;
   }
 }

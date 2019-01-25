@@ -1,7 +1,7 @@
 import {
-  AuthenticatedContext,
-  JsonApiDocument,
-  OperationProcessor
+  Operation,
+  OperationProcessor,
+  ResourceRelationship
 } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
@@ -14,44 +14,46 @@ import MatchmakingRequest from "./resource";
 export default class MatchmakingRequestProcessor extends OperationProcessor<
   MatchmakingRequest
 > {
-  async add(data: MatchmakingRequest, ctx: AuthenticatedContext) {
-    const user = ctx.user as User;
+  public resourceClass = MatchmakingRequest;
+
+  protected async add(op: Operation): Promise<MatchmakingRequest> {
+    const user = this.app.user as User;
     const matchedUser = await matchmakeUser(user);
 
-    return {
-      data: {
-        type: "matchmakingRequest",
-        id: generateUUID(),
-        attributes: {
-          intermediary: getNodeAddress()
-        },
-        relationships: {
-          user: {
-            data: {
-              type: "user",
-              id: user.id
-            }
-          },
-          matchedUser: {
-            data: {
-              type: "matchedUser",
-              id: matchedUser.id
-            }
-          }
-        }
+    return new MatchmakingRequest({
+      id: generateUUID(),
+      attributes: {
+        intermediary: getNodeAddress()
       },
-      included: [
-        {
-          type: "user",
-          id: user.id,
-          attributes: {
-            username: user.attributes.username,
-            ethAddress: user.attributes.ethAddress,
-            nodeAddress: user.attributes.nodeAddress
-          }
+      relationships: {
+        user: {
+          data: {
+            type: "user",
+            id: user.id
+          } as ResourceRelationship
         },
-        matchedUser
-      ]
-    } as JsonApiDocument<MatchmakingRequest>;
+        matchedUser: {
+          data: {
+            type: "matchedUser",
+            id: matchedUser.id
+          } as ResourceRelationship
+        }
+      }
+    });
+
+    // return {
+    //   included: [
+    //     {
+    //       type: "user",
+    //       id: user.id,
+    //       attributes: {
+    //         username: user.attributes.username,
+    //         ethAddress: user.attributes.ethAddress,
+    //         nodeAddress: user.attributes.nodeAddress
+    //       }
+    //     },
+    //     matchedUser
+    //   ]
+    // } as JsonApiDocument<MatchmakingRequest>;
   }
 }

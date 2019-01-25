@@ -5,7 +5,6 @@ import {
   Resource
 } from "@ebryn/jsonapi-ts";
 import { getAddress, verifyMessage } from "ethers/utils";
-import { IRouterContext } from "koa-router";
 import { Log } from "logepi";
 
 import { User } from "../resources";
@@ -17,7 +16,7 @@ function validateSignatureMiddleware(
   expectedSignatureMessage: (resource: Resource) => Promise<string>
 ) {
   return async (...args) => {
-    const ctx = args.find(arg => "request" in arg) as IRouterContext;
+    const ctx = args.find(arg => "request" in arg);
     const signedRequest = ctx.request as AuthenticatedRequest;
     const signedHeader = signedRequest.headers.authorization;
     const json = ctx.request.body as JsonApiRequest;
@@ -26,7 +25,7 @@ function validateSignatureMiddleware(
     if (!signedHeader) {
       Log.info("Cancelling request, signature is required", {
         tags: {
-          resourceType: operationProcessor.resourceName,
+          resourceType: operationProcessor.resourceClass,
           middleware: "validateSignature"
         }
       });
@@ -36,7 +35,7 @@ function validateSignatureMiddleware(
     if (!signedHeader.startsWith("Signature ")) {
       Log.info("Cancelling request, signature is invalid", {
         tags: {
-          resourceType: operationProcessor.resourceName,
+          resourceType: operationProcessor.resourceClass,
           middleware: "validateSignature"
         }
       });
@@ -44,7 +43,7 @@ function validateSignatureMiddleware(
     }
 
     const expectedMessage = await expectedSignatureMessage(user);
-    const ethAddress = getAddress(user.attributes.ethAddress);
+    const ethAddress = getAddress(String(user.attributes.ethAddress));
     const [, signedMessage] = signedHeader.split(" ");
 
     const expectedAddress = verifyMessage(
@@ -55,7 +54,7 @@ function validateSignatureMiddleware(
     if (expectedAddress !== ethAddress) {
       Log.info("Cancelling request, signature is not valid", {
         tags: {
-          resourceType: operationProcessor.resourceName,
+          resourceType: operationProcessor.resourceClass,
           middleware: "validateSignature"
         }
       });

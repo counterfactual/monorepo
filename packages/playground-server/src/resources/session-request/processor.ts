@@ -1,15 +1,17 @@
-import { OperationProcessor } from "@ebryn/jsonapi-ts";
+import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 
-import { User } from "..";
 import { getUser } from "../../db";
 import ValidateSignature from "../../decorators/validate-signature";
+import User from "../user/resource";
 
 import SessionRequest from "./resource";
 
 export default class SessionRequestProcessor extends OperationProcessor<
   SessionRequest
 > {
+  public resourceClass = SessionRequest;
+
   @ValidateSignature({
     expectedMessage: async (resource: SessionRequest) =>
       [
@@ -17,13 +19,13 @@ export default class SessionRequestProcessor extends OperationProcessor<
         `Ethereum address: ${resource.attributes.ethAddress}`
       ].join("\n")
   })
-  async add(data: SessionRequest) {
-    const user = await getUser(data as User);
+  protected async add(op: Operation): Promise<User> {
+    const user = await getUser(op.data);
 
     user.attributes.token = sign(user, process.env.NODE_PRIVATE_KEY as string, {
       expiresIn: "1Y"
     });
 
-    return { data: user };
+    return user;
   }
 }

@@ -1,10 +1,10 @@
 import { Resource } from "@ebryn/jsonapi-ts";
 
-export default interface MatchmakingRequest extends Resource {
-  attributes: {
-    intermediary: string;
-  };
-  relationships: {
-    // users: {};
-  };
+export default class MatchmakingRequest extends Resource {
+  // attributes: {
+  //   intermediary: string;
+  // };
+  // relationships: {
+  //   users: {};
+  // };
 }
