@@ -301,6 +301,9 @@ export class Provider {
       case Node.EventName.INSTALL:
         return this.handleInstallEvent(nodeEvent);
 
+      case Node.EventName.INSTALL_VIRTUAL:
+        return this.handleInstallVirtualEvent(nodeEvent);
+
       default:
         return this.handleUnexpectedEvent(nodeEvent);
     }
@@ -330,6 +333,21 @@ export class Provider {
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.INSTALL,
+      data: {
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  /**
+   * @ignore
+   */
+  private async handleInstallVirtualEvent(nodeEvent: Node.Event) {
+    const { appInstanceId } = nodeEvent.data["params"];
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+    const event = {
+      type: EventType.INSTALL_VIRTUAL,
       data: {
         appInstance
       }
