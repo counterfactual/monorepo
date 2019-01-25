@@ -23,16 +23,17 @@ export async function installVirtual(
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-  const updatedStateChannel = stateChannel.installApp(
-    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
-    appInstanceInfo.myDeposit,
-    appInstanceInfo.peerDeposit
+
+  // TODO: Replace with `runInstallVirtualAppProtocol`
+  await store.saveStateChannel(
+    stateChannel.installApp(
+      createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
+      appInstanceInfo.myDeposit,
+      appInstanceInfo.peerDeposit
+    )
   );
 
-  delete appInstanceInfo.initialState;
-
-  await store.updateChannelWithAppInstanceInstallation(
-    updatedStateChannel,
+  await store.saveRealizedProposedAppInstance(
     createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
       .identityHash,
     appInstanceInfo

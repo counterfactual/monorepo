@@ -163,7 +163,7 @@ describe("Node method follows spec - takeAction", () => {
         );
 
         let newState;
-        nodeB.on(NODE_EVENTS.TAKE_ACTION, async (msg: TakeActionMessage) => {
+        nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: TakeActionMessage) => {
           setTimeout(() => {
             expect(msg.data.params.newState).toEqual(newState);
           }, 2000);

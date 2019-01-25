@@ -6,4 +6,9 @@
   color: $c-white;
   padding: $rhythm;
   margin-bottom: $rhythm;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.68;
+  }
 }

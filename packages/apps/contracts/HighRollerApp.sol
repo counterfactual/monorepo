@@ -177,6 +177,10 @@ contract HighRollerApp {
     pure
     returns (bytes32)
   {
+    require(
+      num1 != 0 && num2 != 0,
+      "Numbers passed in cannot equal 0"
+      );
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
@@ -202,7 +206,7 @@ contract HighRollerApp {
 
   /// @notice Converts a bytes8 into a uint64 between 1-6
   /// @param q The bytes8 to convert
-  /// @dev Splits this by using modulas 6 to get the uint
+  /// @dev Splits this by using modulo 6 to get the uint
   function bytes8toDiceRoll(bytes8 q)
     public
     pure
