@@ -48,7 +48,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition2,
 
     // Sign three commitments; pass `true` to hashToSign if asked
-    Opcode.OP_SIGN,
+    Opcode.OP_SIGN_AS_INTERMEDIARY,
 
     // M2
     (message: ProtocolMessage, context: Context) => {
