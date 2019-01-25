@@ -36,7 +36,7 @@ export default async function takeActionController(
 
   const takeActionMsg: TakeActionMessage = {
     from: requestHandler.address,
-    type: NODE_EVENTS.TAKE_ACTION,
+    type: NODE_EVENTS.UPDATE_STATE,
     data: {
       appInstanceId,
       params: {
