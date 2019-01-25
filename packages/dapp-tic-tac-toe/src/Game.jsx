@@ -11,6 +11,7 @@ class Game extends Component {
 
     this.state = {
       gameState: {
+        players: [],
         board: [
           [0, 0, 0],
           [0, 0, 0],
@@ -69,14 +70,16 @@ class Game extends Component {
     console.log("timeout!")
   }
 
-  // TODO: determine user's number from app state
+  // TODO: verify this works, player numbers should be either 1 or 2
+  // used in the contract to determine tile state and winning state
+  // https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol#L31
+  // https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol#L37
   get myNumber() {
-    return 1;
+    return this.gameState.players.indexOf(this.user.ethAddress) + 1;
   }
 
-  // TODO: determine opponent's number from app state
   get opponentNumber() {
-    return 2;
+    return this.myNumber === 1 ? 2 : 1;
   }
 
   get isMyTurn() {
