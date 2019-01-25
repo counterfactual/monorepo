@@ -866,17 +866,6 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/cf.js@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.2.tgz#fcddda4c1f224df95ee9e2caa39442907514017d"
-  integrity sha512-dMBHRyZAB5/mNQkGyB4JNBOm58mNWM6ZURQJixEkdXBIBbdJpZath8w//k/EfxIsQC6sgnvYOqy4PkcpKcNLlQ==
-  dependencies:
-    "@counterfactual/contracts" "0.0.3"
-    "@counterfactual/types" "0.0.1"
-    ethers "4.0.21"
-    eventemitter3 "^3.1.0"
-    uuid "3.3.2"
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -6773,10 +6762,10 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.21:
-  version "4.0.21"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.21.tgz#b3d88fa5f5832383de515769841fe6ad8545a71a"
-  integrity sha512-wKW0tG15n91qtnt6e1YUXOeRRiHc03U6qenmLQbjiPLX9KVhNnBKe1kFpRtiiuPp0dyHsWWmtML9pz44pmAO1g==
+ethers@4.0.22:
+  version "4.0.22"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.22.tgz#decaa08b3ca6378f28d0bb591b8d89bbbd25cd15"
+  integrity sha512-Mf9gDANLYbpk+8l//SSgyKA63PKWjUaxCnXbiwUNWLzp/4aikRK8fPTzoGpUB3SHz/EA5Ku87FpGmx/ILGMZvg==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -17109,15 +17098,15 @@ uuid@2.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.1.tgz#c2a30dedb3e535d72ccf82e343941a50ba8533ac"
   integrity sha1-wqMN7bPlNdcsz4LjQ5QaULqFM6w=
 
-uuid@3.3.2, uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
-  integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
-
 uuid@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.3.tgz#67e2e863797215530dff318e5bf9dcebfd47b21a"
   integrity sha1-Z+LoY3lyFVMN/zGOW/nc6/1Hsho=
+
+uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
+  integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
 
 v8flags@^3.1.1:
   version "3.1.2"
