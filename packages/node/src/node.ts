@@ -114,18 +114,11 @@ export class Node {
             "Reached OP_SIGN middleware without generated commitment."
           );
         }
-        if (context.signatures.length !== 0) {
-          throw Error(
-            "Reached OP_SIGN middleware with signatures"
-          );
-        }
 
         for (const commitment of context.commitments) {
           context.signatures.push(
-            this.signer.signDigest(
-              commitment.hashToSign()
-            )
-          )
+            this.signer.signDigest(commitment.hashToSign())
+          );
         }
 
         next();

@@ -27,11 +27,13 @@ describe("Signature Forwarder Helpers", () => {
     };
 
     context = {
-      signatures: [{
-        v: 0,
-        r: HashZero,
-        s: HashZero
-      }],
+      signatures: [
+        {
+          v: 0,
+          r: HashZero,
+          s: HashZero
+        }
+      ],
       commitments: [],
       outbox: [],
       inbox: [],
