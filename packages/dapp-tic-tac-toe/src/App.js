@@ -25,11 +25,13 @@ export default class App extends Component {
       connected: false,
       nodeProvider,
       cfProvider,
-      gameInfo
+      gameInfo,
+      redirectTo: null
     };
 
     this.connect();
     this.requestUserData();
+    this.waitForCounterpartyAppInstance(props);
   }
 
   async connect() {
@@ -60,11 +62,37 @@ export default class App extends Component {
     window.parent.postMessage("playground:request:user", "*");
   }
 
+  waitForCounterpartyAppInstance(props) {
+    window.addEventListener("message", event => {
+      if (
+        typeof event.data === "string" &&
+        event.data.startsWith("playground:appInstance")
+      ) {
+        const [, data] = event.data.split("|");
+        console.log("Received counterparty app instance", event.data);
+
+        if (data) {
+          const { appInstance } = JSON.parse(data);
+          this.appInstanceChanged(appInstance);
+          this.setState({
+            redirectTo: `/game?appInstanceId=${appInstance.id}`
+          });
+        }
+      }
+    });
+  }
+
   render() {
     return this.state.connected ? (
       <Router>
         <div className="App">
-          <Route exact path="/" component={Welcome} />
+          <Route
+            exact
+            path="/"
+            render={props => (
+              <Welcome {...props} redirectTo={this.state.redirectTo} />
+            )}
+          />
           <Route
             path="/wager"
             render={props => (
@@ -95,6 +123,7 @@ export default class App extends Component {
                 cfProvider={this.state.cfProvider}
                 appInstance={this.state.appInstance}
                 gameInfo={this.state.gameInfo}
+                user={this.state.user}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}
