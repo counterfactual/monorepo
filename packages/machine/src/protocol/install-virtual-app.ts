@@ -89,7 +89,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       };
     },
 
-    Opcode.IO_SEND_AND_WAIT,
+    Opcode.IO_SEND,
 
     // M5
     (message: ProtocolMessage, context: Context) => {
