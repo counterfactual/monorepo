@@ -1,47 +1,32 @@
 [
   {
     "contractName": "CommitRevealApp",
-    "address": "0x05e844bCb31148ea82BdEF843A40b71a045a2c3D",
-    "transactionHash": "0x9cc99b116e8b3b56c8a17a7a2e0ace01cb2965dc93de26693cb333321aa55bad"
+    "address": "0xE75443A1074054b7AD6f880028C76F63CA32E4EE",
+    "transactionHash": "0xb08dab55918a4f78e9f745866f32d1cbf7e3e57c1d5c9b4d9d9f069ea5da8e65"
   },
   {
     "contractName": "CountingApp",
-    "address": "0x550987D3223dbb2508484d8C153AbA104077bC9b",
-    "transactionHash": "0xfe285cde379beb6564a5fef2d92c4a2542dd4fbf712226b2debbf881e9cfecc0"
+    "address": "0xE8255edE688DCb925839897B125773a4F06DE500",
+    "transactionHash": "0x9c7b6d4991a81730d9f587869346d1e3766647c5efbde5c6f230a6f8f38548a5"
   },
   {
     "contractName": "HighRollerApp",
-    "address": "0x91907355C59BA005843E791c88aAB80b779446c9",
-    "transactionHash": "0x624de92ed41d6ac17609409245cbe890319fd2519518abcbe359c02593cc093f"
-  },
-  {
-    "contractName": "CommitRevealApp",
-    "address": "0x839970482631D45758466bB3155326ef2D4f4b91",
-    "transactionHash": "0xfd53805364e47eaae13eb291e8abebd60ef0c40229df755146081fade7ae65c8"
-  },
-  {
-    "contractName": "CountingApp",
-    "address": "0x77124334d5F84838572729e47fA09d2329eaA05b",
-    "transactionHash": "0x4d9ffa432c2ab680d1a3cfd109feee4852e0fcc03f83065e4313d60b4e30a773"
-  },
-  {
-    "contractName": "HighRollerApp",
-    "address": "0x5258EB61D2760C2D33Ba0DEb08a32212637Db6bA",
-    "transactionHash": "0x122474647a6f194d3a9c698fcfe35eaeb302215c23b73385552f4a0b21da4abd"
+    "address": "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+    "transactionHash": "0x99e53351e3161be34addad301a073380250155b2c60a183d17132677000acd65"
   },
   {
     "contractName": "NimApp",
-    "address": "0x79F061cE5f52Db9740C30cEfE1f493d5351b6e5A",
-    "transactionHash": "0x2f14f87f9250e6ac2dcfc7b8b0bf0e097ef97a455716887708b331bcd0fcd515"
+    "address": "0x62626FeC623C4C869F3DB3A63753D762F36d8AA9",
+    "transactionHash": "0xb267ff382776c0b28e037d8a4b8fc6c489314fc571e00c6ac472bdf15e1de8ba"
   },
   {
     "contractName": "PaymentApp",
-    "address": "0x3c49f951e046934d76284Fe6Cbb5892A87926859",
-    "transactionHash": "0x38413c3aa82010fc5b34deab3222cb41117061aef58e9f9af88be74872c905e8"
+    "address": "0x92220404E666701848432D5A4E8Dd29204572DC9",
+    "transactionHash": "0xcb94c8c9855f715d93e298441fea56951cf7149dd2276a31c3a271b1e56fcec5"
   },
   {
     "contractName": "TicTacToeApp",
-    "address": "0x12a50CaA6dfB0a033F2eA2Ec3C93eb8c18cA4caf",
-    "transactionHash": "0xba91c71261bb1987f55a7bea96ad0c7321a67b27e26ce5ec01c1705dfae76c55"
+    "address": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+    "transactionHash": "0x7253734c4f45802b6eb7af05a53265f5ad730171a8251a82394bd82dd95463f8"
   }
 ]
