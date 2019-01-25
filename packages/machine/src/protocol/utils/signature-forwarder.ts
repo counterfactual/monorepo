@@ -15,7 +15,7 @@ export function addSignedCommitmentToOutboxForSeq1(
 ) {
   context.outbox.push({
     ...message,
-    signature: context.signature,
+    signature: context.signatures[0],
     seq: 1
   });
 }
@@ -43,7 +43,7 @@ export function addSignedCommitmentInResponseWithSeq2(
     ...message,
     fromAddress: message.toAddress,
     toAddress: message.fromAddress,
-    signature: context.signature,
+    signature: context.signatures[0],
     seq: 2
   });
 }

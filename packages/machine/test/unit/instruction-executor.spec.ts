@@ -47,7 +47,7 @@ describe("InstructionExecutor", () => {
     beforeAll(async () => {
       // Extract the commitment passed to the OP_SIGN middleware for testing
       instructionExecutor.register(Opcode.OP_SIGN, (_, __, context) => {
-        commitment = context.commitment as SetupCommitment;
+        commitment = context.commitments[0] as SetupCommitment;
         const maybeStateChannelAfterSetup = context.stateChannelsMap.get(
           multisigAddress
         );
@@ -62,7 +62,7 @@ describe("InstructionExecutor", () => {
         Opcode.IO_SEND_AND_WAIT,
         (_, __, context) => {
           context.inbox.push({
-            signature: responder.signDigest(context.commitment!.hashToSign())
+            signature: responder.signDigest(context.commitments[0].hashToSign())
           } as ProtocolMessage);
         }
       );

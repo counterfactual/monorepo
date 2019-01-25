@@ -41,7 +41,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
         message.toAddress,
-        context.commitment,
+        context.commitments[0],
         context.inbox[0].signature
       ),
 
@@ -57,7 +57,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
         message.fromAddress,
-        context.commitment,
+        context.commitments[0],
         message.signature
       ),
 
@@ -115,7 +115,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
 
   const appIdentityHash = appInstance.identityHash;
 
-  context.commitment = constructInstallOp(
+  context.commitments[0] = constructInstallOp(
     context.network,
     newStateChannel,
     appIdentityHash
