@@ -10,5 +10,15 @@ export async function getAppInstanceState(
     appInstanceId
   );
 
+  // NOTE: this is important in the test cases currently because
+  //       it changes `BigNumber` values to `object` values, which
+  //       you get when fetching from the DB, which most tests
+  //       check against.
+  //
+  //       The more performant way of doing this is:
+  //
+  //       ```
+  //       return appInstance.state
+  //       ```
   return appInstance.decodeAppState(appInstance.encodedLatestState);
 }
