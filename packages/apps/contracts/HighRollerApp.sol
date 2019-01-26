@@ -11,7 +11,7 @@ import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 ///         The winner is the player whose sum of dice outcomes is highest.
 /// @dev This contract is an example of a dApp built to run on
 ///      the CounterFactual framework
-contract HighRollerApp {
+contract HighRollerApp is CounterfactualApp {
 
   enum ActionType {
     START_GAME,
