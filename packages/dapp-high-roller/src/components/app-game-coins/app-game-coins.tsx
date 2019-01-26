@@ -12,8 +12,8 @@ export class AppGameCoins {
   coinsAudio!: HTMLAudioElement;
 
   componentDidLoad() {
-    // this.coinsAudio.loop = true;
-    // this.coinsAudio.play();
+    this.coinsAudio.loop = true;
+    this.coinsAudio.play();
   }
 
   render() {
