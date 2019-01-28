@@ -201,7 +201,7 @@ export class Node {
 
         const msg = await this.ioSendDeferrals[to].promise;
 
-        delete this.ioSendDeferrals[msg.from];
+        delete this.ioSendDeferrals[to];
 
         context.inbox.push(msg.data);
 

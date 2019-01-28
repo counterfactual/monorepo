@@ -101,6 +101,12 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
+        console.log("For everyone's benefit from here on out, know this", {
+          nodeA: nodeA.address,
+          nodeB: nodeB.address,
+          nodeC: nodeC.address
+        });
+
         const multisigAddressAB = await getNewMultisig(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier

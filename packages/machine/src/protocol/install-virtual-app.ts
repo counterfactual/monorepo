@@ -188,8 +188,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
     initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    intermediaryAddress,
+    respondingAddress
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -266,15 +266,15 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
+    intermediaryAddress,
+    initiatingAddress,
+    respondingAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
     initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -417,6 +417,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
@@ -458,6 +459,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
+
   context.stateChannelsMap.set(
     channelWithIntermediary.multisigAddress,
     newStateChannel

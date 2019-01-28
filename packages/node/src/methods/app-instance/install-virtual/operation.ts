@@ -38,8 +38,10 @@ export async function installVirtual(
   await instructionExecutor.runInstallVirtualAppProtocol(
     new Map(Object.entries(await store.getAllChannels())),
     {
-      initiatingAddress: appInstanceInfo.initiatingAddress,
-      respondingAddress: appInstanceInfo.respondingAddress,
+      // TODO: Explain why appInstanceInfo.{initiating...,respomding...} are
+      //       incorrect to use at this point since it is non obvious.
+      initiatingAddress,
+      respondingAddress,
       multisig1Address: stateChannel.multisigAddress,
       multisig2Address: stateChannel.multisigAddress, // FIXME: not right
       intermediaryAddress: appInstanceInfo.intermediaries![0],
