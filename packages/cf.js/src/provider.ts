@@ -355,17 +355,18 @@ export class Provider {
   /**
    * @ignore
    */
-  private handleUpdateStateEvent(nodeEvent: Node.Event) {
+  private async handleUpdateStateEvent(nodeEvent: Node.Event) {
     const {
       appInstanceId,
       action,
       newState,
       oldState
     } = nodeEvent.data as Node.UpdateStateEventData;
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.UPDATE_STATE,
       data: {
-        appInstanceId,
+        appInstance,
         newState,
         oldState,
         action

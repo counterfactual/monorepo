@@ -25,7 +25,7 @@
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-updatestateevent)
-                - Callback Params: `(appInstanceId: string, oldState: AppState, newState: AppState)`
+                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState, action?: AppAction)`
             - `proposeState`
                 - [Node event](#event-proposestateevent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
