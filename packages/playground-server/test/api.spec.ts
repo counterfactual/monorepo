@@ -14,7 +14,8 @@ import { resolve } from "path";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
-import { MatchedUser, MatchmakingRequest, User } from "../src/resources";
+import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
+import User, { MatchedUser } from "../src/resources/user/resource";
 import { ErrorCode } from "../src/types";
 
 import {

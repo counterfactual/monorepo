@@ -3,6 +3,7 @@ import cors from "@koa/cors";
 import Koa from "koa";
 import { KoaLoggingMiddleware as logs } from "logepi";
 
+import validateSignature from "./middlewares/validate-signature";
 import AppProcessor from "./resources/app/processor";
 import AppResource from "./resources/app/resource";
 import MatchmakingRequestProcessor from "./resources/matchmaking-request/processor";
@@ -10,7 +11,9 @@ import MatchmakingRequestResource from "./resources/matchmaking-request/resource
 import SessionRequestProcessor from "./resources/session-request/processor";
 import SessionRequestResource from "./resources/session-request/resource";
 import UserProcessor from "./resources/user/processor";
-import UserResource from "./resources/user/resource";
+import UserResource, {
+  MatchedUser as MatchedUserResource
+} from "./resources/user/resource";
 
 export default function mountApi() {
   const app = new Application({
@@ -19,7 +22,8 @@ export default function mountApi() {
       AppResource,
       MatchmakingRequestResource,
       SessionRequestResource,
-      UserResource
+      UserResource,
+      MatchedUserResource
     ],
     processors: [
       new AppProcessor(),
@@ -33,6 +37,7 @@ export default function mountApi() {
 
   api
     .use(cors({ keepHeadersOnError: false }))
+    .use(validateSignature(app))
     .use(jsonApiKoa(app))
     .use(logs());
 

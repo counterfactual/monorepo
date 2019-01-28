@@ -4,7 +4,7 @@ import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
-import { MatchedUser, User } from "./resources";
+import User, { MatchedUser } from "./resources/user/resource";
 import { ErrorCode } from "./types";
 
 const DATABASE_CONFIGURATION: knex.Config = {
