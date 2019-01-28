@@ -122,8 +122,8 @@ export class InstructionExecutor {
       network: this.network,
       outbox: [],
       inbox: [],
-      commitment: undefined,
-      signature: undefined
+      commitments: [],
+      signatures: []
     };
 
     let instructionPointer = 0;

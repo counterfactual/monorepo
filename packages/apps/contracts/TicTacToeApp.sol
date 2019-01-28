@@ -5,7 +5,7 @@ import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
-contract TicTacToeApp {
+contract TicTacToeApp is CounterfactualApp {
 
   enum ActionType {
     PLAY,
