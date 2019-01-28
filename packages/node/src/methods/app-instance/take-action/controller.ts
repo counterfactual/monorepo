@@ -41,7 +41,8 @@ export default async function takeActionController(
     data: {
       appInstanceId,
       newState,
-      oldState
+      oldState,
+      action: params.action
     }
   };
 
