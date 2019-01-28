@@ -1,9 +1,9 @@
-import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
+import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
-import { createUser } from "../../db";
-import ValidateSignature from "../../decorators/validate-signature";
+import { createUser, getUsers } from "../../db";
+// import ValidateSignature from "../../decorators/validate-signature";
 import { createMultisigFor } from "../../node";
 
 import User from "./resource";
@@ -11,22 +11,24 @@ import User from "./resource";
 export default class UserProcessor extends OperationProcessor {
   public resourceClass = User;
 
-  @Authorize()
   protected async get(op: Operation): Promise<User[]> {
-    const user = this.app.user as User;
-    return [user].filter(Boolean);
+    if (op.ref.id === "me") {
+      op.ref.id = this.app.user.id;
+    }
+
+    return getUsers({ id: op.ref.id });
   }
 
-  @ValidateSignature({
-    expectedMessage: async (resource: User) =>
-      [
-        "PLAYGROUND ACCOUNT REGISTRATION",
-        `Username: ${resource.attributes.username}`,
-        `E-mail: ${resource.attributes.email}`,
-        `Ethereum address: ${resource.attributes.ethAddress}`,
-        `Node address: ${resource.attributes.nodeAddress}`
-      ].join("\n")
-  })
+  // @ValidateSignature({
+  //   expectedMessage: async (resource: User) =>
+  //     [
+  //       "PLAYGROUND ACCOUNT REGISTRATION",
+  //       `Username: ${resource.attributes.username}`,
+  //       `E-mail: ${resource.attributes.email}`,
+  //       `Ethereum address: ${resource.attributes.ethAddress}`,
+  //       `Node address: ${resource.attributes.nodeAddress}`
+  //     ].join("\n")
+  // })
   async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
     const user = op.data;

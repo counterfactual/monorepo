@@ -1,4 +1,5 @@
 import { Address } from "@counterfactual/types";
+import { KnexRecord } from "@ebryn/jsonapi-ts";
 import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
@@ -124,6 +125,38 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   });
 }
 
+export async function getUsers(filters: {}): Promise<User[]> {
+  const db = getDatabase();
+
+  const users: KnexRecord[] = await db("users")
+    .columns({
+      id: "id",
+      username: "username",
+      email: "email",
+      ethAddress: "eth_address",
+      multisigAddress: "multisig_address",
+      nodeAddress: "node_address"
+    })
+    .where(compactObject(filters))
+    .select();
+
+  await db.destroy();
+
+  return users.map(
+    (user: KnexRecord) =>
+      new User({
+        id: user.id,
+        attributes: {
+          username: user.username,
+          email: user.email,
+          ethAddress: user.ethAddress,
+          multisigAddress: user.multisigAddress,
+          nodeAddress: user.nodeAddress
+        }
+      })
+  );
+}
+
 export async function getUser(userToFind: User): Promise<User> {
   const db = getDatabase();
 
@@ -240,4 +273,12 @@ export async function createUser(user: User): Promise<User> {
       throw e;
     }
   }
+}
+
+function compactObject(filters: {}): {} {
+  Object.keys(filters).forEach(
+    key => filters[key] === undefined && delete filters[key]
+  );
+
+  return filters;
 }
