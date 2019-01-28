@@ -9,6 +9,7 @@ export class AccountEthForm {
   @Event() submit: EventEmitter = {} as EventEmitter;
   @Prop() header: string = "";
   @Prop() button: string = "";
+  @Prop() disabled: boolean = false;
   @Prop() available: number = 0;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
@@ -31,6 +32,7 @@ export class AccountEthForm {
             unit="ETH"
             value={this.value}
             error={this.error}
+            disabled={this.disabled}
             min={0}
             max={this.available as number}
             step={0.0001}
@@ -41,7 +43,10 @@ export class AccountEthForm {
               <div>{this.available} ETH</div>
             </div>
           </form-input>
-          <form-button onButtonPressed={e => this.handleSubmit(e)}>
+          <form-button
+            disabled={this.disabled}
+            onButtonPressed={e => this.handleSubmit(e)}
+          >
             {this.button}
           </form-button>
         </form-container>

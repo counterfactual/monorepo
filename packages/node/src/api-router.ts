@@ -50,13 +50,12 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
-  [NODE_EVENTS.TAKE_ACTION]: takeActionEventController,
+  [NODE_EVENTS.UPDATE_STATE]: takeActionEventController,
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {},
-  [NODE_EVENTS.UNINSTALL]: () => {},
-  [NODE_EVENTS.UPDATE_STATE]: () => {}
+  [NODE_EVENTS.UNINSTALL]: () => {}
 };

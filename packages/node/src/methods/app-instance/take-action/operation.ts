@@ -1,6 +1,6 @@
 import { AppInstance } from "@counterfactual/machine";
 import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
-import { Contract } from "ethers";
+import { Contract, ethers } from "ethers";
 import { Provider } from "ethers/providers";
 
 import { isNotDefinedOrEmpty } from "../../../utils";
@@ -31,19 +31,32 @@ async function makeApplyActionCall(
   appInstance: AppInstance,
   action: any
 ): Promise<SolidityABIEncoderV2Struct> {
+  let newStateBytes: string;
+  let encodedAction: string;
+
   try {
-    return appInstance.decodeAppState(
-      await contract.functions.applyAction(
-        appInstance.encodedLatestState,
-        appInstance.encodeAction(action)
-      )
+    encodedAction = appInstance.encodeAction(action);
+  } catch (e) {
+    if (e.code === ethers.errors.INVALID_ARGUMENT) {
+      return Promise.reject(`${ERRORS.IMPROPERLY_FORMATTED_ACTION}: ${e}`);
+    }
+    throw e;
+  }
+
+  try {
+    newStateBytes = await contract.functions.applyAction(
+      appInstance.encodedLatestState,
+      encodedAction
     );
   } catch (e) {
-    const sanitizedError = e
-      .toString()
-      .replace("s: VM Exception while processing transaction: revert");
-    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+    // TODO: ethers.errors.CALL_EXCEPTION _should_ work but it doesn't
+    if (e.message && e.message.indexOf("VM Exception") !== -1) {
+      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e.reason}`);
+    }
+    throw e;
   }
+
+  return appInstance.decodeAppState(newStateBytes);
 }
 
 export async function actionIsEncondable(

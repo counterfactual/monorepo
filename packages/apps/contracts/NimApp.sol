@@ -9,7 +9,7 @@ import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 Normal-form Nim
 https://en.wikipedia.org/wiki/Nim
 */
-contract NimApp {
+contract NimApp is CounterfactualApp {
 
   struct Action {
     uint256 pileIdx;

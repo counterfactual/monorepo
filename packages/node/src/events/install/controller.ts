@@ -37,8 +37,7 @@ export default async function installEventController(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  await store.updateChannelWithAppInstanceInstallation(
-    stateChannel,
+  await store.saveRealizedProposedAppInstance(
     createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
       .identityHash,
     appInstanceInfo

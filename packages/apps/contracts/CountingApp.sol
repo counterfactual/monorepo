@@ -5,7 +5,7 @@ import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
-contract CountingApp {
+contract CountingApp is CounterfactualApp {
 
   enum ActionTypes { INCREMENT, DECREMENT}
 

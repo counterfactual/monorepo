@@ -16,6 +16,7 @@ export const ERRORS = {
   NO_APP_CONTRACT_ADDR: "The App Contract address is empty",
   INVALID_ACTION: "Invalid action taken",
   INVALID_STATE: "Invalid state; Cannot be encoded",
+  IMPROPERLY_FORMATTED_ACTION: "Improperly formatted action",
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
   ACTION_OBJECT_NOT_ENCODABLE:

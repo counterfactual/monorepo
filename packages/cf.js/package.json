@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@counterfactual/types": "0.0.1",
-    "ethers": "4.0.22",
+    "ethers": "4.0.23",
     "eventemitter3": "^3.1.0"
   },
   "jest": {

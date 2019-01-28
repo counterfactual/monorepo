@@ -5,9 +5,15 @@ enum Opcode {
   STATE_TRANSITION_COMMIT,
 
   /**
-   * Requests a signature on the hash of a previously generated ProtocolOperation.
+   * Requests a signature on the hash of previously generated EthereumCommitments.
    */
   OP_SIGN,
+
+  /**
+   * Same as above, but pass isIntermediary=true to EthereumCommitments.hashToSign
+   * todo(xuanji): think of a better design to get rid of this
+   */
+  OP_SIGN_AS_INTERMEDIARY,
 
   /**
    * todo(xuanji): replace all occurrences of this by javascript code that does

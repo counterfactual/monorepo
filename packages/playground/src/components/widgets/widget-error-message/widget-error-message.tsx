@@ -1,5 +1,6 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 
+import AccountTunnel from "../../../data/account";
 import { ErrorMessage } from "../../../types";
 
 @Component({
@@ -8,10 +9,11 @@ import { ErrorMessage } from "../../../types";
   shadow: true
 })
 export class WidgetErrorMessage {
+  @Element() el!: HTMLStencilElement;
   @Prop() error: ErrorMessage = {} as ErrorMessage;
 
   render() {
-    return this.error.primary ? (
+    return this.error ? (
       <widget-tooltip message={this.error.secondary}>
         <div class="widget-error-message">{this.error.primary}</div>
       </widget-tooltip>
@@ -20,3 +22,5 @@ export class WidgetErrorMessage {
     );
   }
 }
+
+AccountTunnel.injectProps(WidgetErrorMessage, ["error"]);

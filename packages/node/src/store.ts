@@ -157,22 +157,15 @@ export class Store {
    * The app's installation is confirmed iff the store write operation
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from being proposed to installed.
-   * @param stateChannel
+   *
    * @param appInstance
    * @param appInstanceInfo
    */
-  public async updateChannelWithAppInstanceInstallation(
-    stateChannel: StateChannel,
+  public async saveRealizedProposedAppInstance(
     appInstanceIdentityHash: string,
     appInstanceInfo: AppInstanceInfo
   ) {
     await this.storeService.set([
-      {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
-          stateChannel.multisigAddress
-        }`,
-        value: stateChannel.toJson()
-      },
       {
         key: `${
           this.storeKeyPrefix
