@@ -336,8 +336,8 @@ export class StateChannel {
 
     const currentState = fb.state as ETHBucketAppState;
 
-    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceIncrement);
-    const bobBalance = currentState.bobBalance.sub(bobBalanceIncrement);
+    const aliceBalance = currentState.aliceBalance.add(aliceBalanceIncrement);
+    const bobBalance = currentState.bobBalance.add(bobBalanceIncrement);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()

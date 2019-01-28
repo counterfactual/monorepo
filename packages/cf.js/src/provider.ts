@@ -384,10 +384,10 @@ export class Provider {
     const event = {
       type: EventType.UPDATE_STATE,
       data: {
-        action,
+        appInstance,
         newState,
         oldState,
-        appInstance
+        action
       }
     };
     return this.eventEmitter.emit(event.type, event);
