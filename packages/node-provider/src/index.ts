@@ -1,3 +1,3 @@
 import NodeProvider from "./node-provider";
 
-export { NodeProvider };
+export default NodeProvider;

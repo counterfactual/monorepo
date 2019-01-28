@@ -5,6 +5,7 @@ import commonjs from "rollup-plugin-commonjs";
 import pkg from "./package.json";
 
 const bundledDependencies = new Set([
+  "@counterfactual/node-provider",
   "@counterfactual/types",
   "eventemitter3",
 ]);
@@ -33,7 +34,10 @@ export default {
       only: [...bundledDependencies]
     }),
     commonjs({
-      include: 'node_modules/eventemitter3/index.js',
+      include: [
+        "node_modules/eventemitter3/index.js",
+        "../node-provider/node_modules/eventemitter3/index.js"
+      ]
     }),
     typescript(),
   ]
