@@ -185,6 +185,24 @@ export class StateChannel {
     return AppInstance.fromJson(appInstanceJson);
   }
 
+  public incrementFreeBalance(
+    assetType: AssetType,
+    increments: { [s: string]: BigNumber }
+  ) {
+    const freeBalance = this.getFreeBalanceFor(assetType);
+    const freeBalanceState = freeBalance.state;
+    for (const beneficiary in increments) {
+      if (beneficiary === freeBalanceState.alice) {
+        freeBalanceState.aliceBalance += increments[beneficiary];
+      } else if (beneficiary === freeBalanceState.bob) {
+        freeBalanceState.bobBalance += increments[beneficiary];
+      } else {
+        throw Error(`No such beneficiary ${beneficiary} found`);
+      }
+    }
+    return this.setState(freeBalance.identityHash, freeBalanceState);
+  }
+
   public setFreeBalance(
     assetType: AssetType,
     newState: { [s: string]: BigNumber }
@@ -282,6 +300,25 @@ export class StateChannel {
     );
   }
 
+  public lockAppInstance(appInstanceIdentityHash: string, nonce: number) {
+    const appInstance = this.getAppInstance(appInstanceIdentityHash);
+
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.set(appInstanceIdentityHash, appInstance.lockState(nonce));
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      appInstances,
+      this.ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    );
+  }
+
   public installETHVirtualAppAgreementInstance(
     evaaInstance: ETHVirtualAppAgreementInstance,
     targetIdentityHash: string,
@@ -327,6 +364,31 @@ export class StateChannel {
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1
     );
+  }
+
+  public uninstallETHVirtualAppAgreementInstance(
+    targetIdentityHash: string,
+    increments: { [address: string]: BigNumber }
+  ) {
+    const ethVirtualAppAgreementInstances = new Map<
+      string,
+      ETHVirtualAppAgreementInstance
+    >(this.ethVirtualAppAgreementInstances.entries());
+
+    if (!ethVirtualAppAgreementInstances.delete(targetIdentityHash)) {
+      throw Error(
+        `cannot find agreement with target hash ${targetIdentityHash}`
+      );
+    }
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      this.appInstances,
+      ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    ).incrementFreeBalance(AssetType.ETH, increments);
   }
 
   public installApp(
@@ -384,7 +446,7 @@ export class StateChannel {
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    aliceBalanceIncrement: BigNumber,
+    aliceBalanceIncrement: BigNumber, // todo(xuanji): delete alice
     bobBalanceIncrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
@@ -399,7 +461,9 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    appInstances.delete(appToBeUninstalled.identityHash);
+    if (!appInstances.delete(appToBeUninstalled.identityHash)) {
+      throw Error("app to be uninstalled not found in list of active apps");
+    }
 
     appInstances.set(
       fb.identityHash,

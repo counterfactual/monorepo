@@ -1,3 +1,5 @@
+import { UNINSTALL_VIRTUAL_APP_PROTOCOL } from "@counterfactual/machine/src/protocol/uninstall-virtual-app";
+
 import { Protocol } from "../enums";
 import { ProtocolExecutionFlow } from "../types";
 
@@ -12,7 +14,8 @@ const protocolsByName = {
   [Protocol.Install]: INSTALL_PROTOCOL,
   [Protocol.Update]: UPDATE_PROTOCOL,
   [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
-  [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL
+  [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL,
+  [Protocol.UninstallVirtualApp]: UNINSTALL_VIRTUAL_APP_PROTOCOL
 };
 
 export function getProtocolFromName(

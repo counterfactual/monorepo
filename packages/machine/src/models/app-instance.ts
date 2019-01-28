@@ -221,6 +221,14 @@ export class AppInstance {
     return this.json.rootNonceValue;
   }
 
+  public lockState(nonce: number) {
+    return AppInstance.fromJson({
+      ...this.json,
+      latestState: this.json.latestState,
+      latestNonce: nonce
+    });
+  }
+
   public setState(
     newState: SolidityABIEncoderV2Struct,
     timeout: number = this.json.defaultTimeout

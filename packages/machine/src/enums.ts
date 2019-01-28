@@ -37,7 +37,8 @@ enum Protocol {
   Install = "install",
   Update = "update",
   Uninstall = "uninstall",
-  InstallVirtualApp = "install-virtual-app"
+  InstallVirtualApp = "install-virtual-app",
+  UninstallVirtualApp = "uninstall-virtual-app"
 }
 
 export { Opcode, Protocol };
