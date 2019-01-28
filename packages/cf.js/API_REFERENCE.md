@@ -25,7 +25,7 @@
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-updatestateevent)
-                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
+                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState, action?: AppAction)`
             - `proposeState`
                 - [Node event](#event-proposestateevent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
@@ -432,7 +432,7 @@ An instance of an installed app.
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual 
+    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
