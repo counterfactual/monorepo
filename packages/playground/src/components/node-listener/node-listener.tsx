@@ -144,7 +144,7 @@ export class NodeListener {
     } catch (error) {
       this.currentModalType = "error";
       this.currentErrorType = error.message;
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -203,6 +203,15 @@ export class NodeListener {
           />
         );
       }
+
+      return (
+        <widget-dialog
+          dialogTitle="Something went wrong"
+          content={`${this.currentErrorType}. See the console for more info.`}
+          primaryButtonText="OK"
+          onPrimaryButtonClicked={() => this.hideModal()}
+        />
+      );
     }
 
     return <div />;

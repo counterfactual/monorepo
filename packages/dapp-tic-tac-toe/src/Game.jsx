@@ -24,10 +24,7 @@ class Game extends Component {
   async initializeBoard() {
     await this.getAppInstance();
 
-    this.props.appInstance.on(
-      "updateStateEvent",
-      this.onUpdateState.bind(this)
-    );
+    this.props.appInstance.on("updateState", this.onUpdateState.bind(this));
     const state = await this.props.appInstance.getState();
     this.updateGame(state);
 
@@ -36,7 +33,8 @@ class Game extends Component {
   }
 
   onUpdateState({ data: { newState } }) {
-    this.updateGame(newState);
+    const [players, turnNum, winner, board] = newState;
+    this.updateGame({ players, turnNum, winner, board });
   }
 
   updateGame(gameState) {
