@@ -1,12 +1,12 @@
 import { RequestHandler } from "../../request-handler";
-import { TakeActionMessage } from "../../types";
+import { UpdateStateMessage } from "../../types";
 
 export default async function takeActionEventController(
   requestHandler: RequestHandler,
-  nodeMsg: TakeActionMessage
+  nodeMsg: UpdateStateMessage
 ) {
   await requestHandler.store.saveAppInstanceState(
     nodeMsg.data.appInstanceId,
-    nodeMsg.data.params.newState
+    nodeMsg.data.newState
   );
 }

@@ -22,7 +22,7 @@ import {
   NODE_EVENTS,
   NodeConfig,
   ProposeMessage,
-  TakeActionMessage
+  UpdateStateMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 
@@ -163,9 +163,9 @@ describe("Node method follows spec - takeAction", () => {
         );
 
         let newState;
-        nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: TakeActionMessage) => {
+        nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
           setTimeout(() => {
-            expect(msg.data.params.newState).toEqual(newState);
+            expect(msg.data.newState).toEqual(newState);
           }, 2000);
 
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
