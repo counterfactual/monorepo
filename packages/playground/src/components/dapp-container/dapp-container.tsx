@@ -54,16 +54,11 @@ export class DappContainer {
   componentDidLoad(): void {
     this.url = this.getDappUrl();
 
-    this.node.on(
-      "proposeInstallVirtualEvent",
-      this.postOrQueueMessage.bind(this)
-    );
+    this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this));
     this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this));
-    this.node.on(
-      "getAppInstanceDetailsEvent",
-      this.postOrQueueMessage.bind(this)
-    );
-    this.node.on("getStateEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("getAppInstanceDetails", this.postOrQueueMessage.bind(this));
+    this.node.on("getState", this.postOrQueueMessage.bind(this));
+    this.node.on("takeAction", this.postOrQueueMessage.bind(this));
     this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
 
     /**
@@ -134,10 +129,6 @@ export class DappContainer {
    * @param message {any}
    */
   public postOrQueueMessage(message: any): void {
-    if (message.from === this.user.ethAddress) {
-      return;
-    }
-
     if (this.port) {
       this.port.postMessage(message);
     } else {
