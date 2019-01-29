@@ -68,11 +68,8 @@ export interface CreateMultisigMessage extends NodeMessage {
   };
 }
 
-export interface TakeActionMessage extends NodeMessage {
-  data: {
-    params: Node.TakeActionResult;
-    appInstanceId: string;
-  };
+export interface UpdateStateMessage extends NodeMessage {
+  data: Node.UpdateStateEventData;
 }
 
 export interface RejectProposalMessage extends NodeMessage {
