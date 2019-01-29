@@ -31,7 +31,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
       /// keep in sync with `digest2` definition
       return keccak256(
         solidityPack(
-          ["bytes1", "bytes32", "uint256", "uint256", "bytes32", "bytes1"],
+          ["bytes1", "bytes32", "uint256", "uint256", "bytes1"],
           [
             "0x19",
             appIdentityToHash(this.appIdentity),
@@ -42,10 +42,10 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
         )
       );
     }
-    /// keep in sync with `digest2` definition
+    /// keep in sync with `digest` definition
     return keccak256(
       solidityPack(
-        ["bytes1", "bytes32", "uint256", "uint256", "bytes32", "bytes1"],
+        ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
         [
           "0x19",
           appIdentityToHash(this.appIdentity),
