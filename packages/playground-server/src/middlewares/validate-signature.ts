@@ -1,7 +1,9 @@
-import { Application } from "@ebryn/jsonapi-ts";
+import { Application, JsonApiErrors } from "@ebryn/jsonapi-ts";
 import escapeStringRegexp from "escape-string-regexp";
 import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
+import koaBodyParser from "koa-bodyparser";
+import compose from "koa-compose";
 import { Log } from "logepi";
 
 import Errors from "../errors";
@@ -17,7 +19,11 @@ import { AuthenticatedRequest, JsonApiResource } from "../types";
  * decorates a method and the request has no signature, it'll throw a
  * `signature_required` error.
  */
-export default function validateSignature(app) {
+export default function(app: Application) {
+  return compose([koaBodyParser(), validateSignature(app)]);
+}
+
+function validateSignature(app: Application) {
   const validatedEndpoints = {
     users: {
       POST: async (data: { [key: string]: any }) =>
@@ -44,10 +50,23 @@ export default function validateSignature(app) {
       validatedEndpoints[resource] && validatedEndpoints[resource][ctx.method];
 
     if (expectedMessage) {
-      await validate(ctx, resource, expectedMessage);
-    }
+      try {
+        await validate(ctx, resource, expectedMessage).then(() => next());
+      } catch (e) {
+        const isJsonApiError = e && e.code;
 
-    await next();
+        if (!isJsonApiError) console.error("ValidateSignature: ", e);
+
+        const jsonApiError = isJsonApiError
+          ? e
+          : JsonApiErrors.UnhandledError();
+
+        ctx.body = { errors: [jsonApiError] };
+        ctx.status = jsonApiError.status;
+      }
+    } else {
+      await next();
+    }
   };
 }
 

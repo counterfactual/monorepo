@@ -1,4 +1,5 @@
 import {
+  Authorize,
   Operation,
   OperationProcessor,
   ResourceRelationship
@@ -16,6 +17,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
 > {
   public resourceClass = MatchmakingRequest;
 
+  @Authorize()
   protected async add(op: Operation): Promise<MatchmakingRequest> {
     const user = this.app.user as User;
     const matchedUser = await matchmakeUser(user);

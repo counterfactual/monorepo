@@ -4463,6 +4463,16 @@ co-body@^5.1.1:
     raw-body "^2.2.0"
     type-is "^1.6.14"
 
+co-body@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/co-body/-/co-body-6.0.0.tgz#965b9337d7f5655480787471f4237664820827e3"
+  integrity sha512-9ZIcixguuuKIptnY8yemEOuhb71L/lLf+Rl5JfJEUiDNJk0e02MBt7BPxR2GEh5mw8dPthQYR4jPI/BnS1MQgw==
+  dependencies:
+    inflation "^2.0.0"
+    qs "^6.5.2"
+    raw-body "^2.3.3"
+    type-is "^1.6.16"
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -4892,6 +4902,11 @@ copy-descriptor@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
+
+copy-to@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/copy-to/-/copy-to-2.0.1.tgz#2680fbb8068a48d08656b6098092bdafc906f4a5"
+  integrity sha1-JoD7uAaKSNCGVrYJgJK9r8kG9KU=
 
 copyfiles@^2.0.0:
   version "2.1.0"
@@ -10283,6 +10298,14 @@ koa-body@^4.0.6:
     co-body "^5.1.1"
     formidable "^1.1.1"
 
+koa-bodyparser@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/koa-bodyparser/-/koa-bodyparser-4.2.1.tgz#4d7dacb5e6db1106649b595d9e5ccb158b6f3b29"
+  integrity sha512-UIjPAlMZfNYDDe+4zBaOAUKYqkwAGcIU6r2ARf1UOXPAlfennQys5IiShaVeNf7KkVBlf88f2LeLvBFvKylttw==
+  dependencies:
+    co-body "^6.0.0"
+    copy-to "^2.0.1"
+
 koa-compose@^3.0.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/koa-compose/-/koa-compose-3.2.1.tgz#a85ccb40b7d986d8e5a345b3a1ace8eabcf54de7"
@@ -13727,7 +13750,7 @@ qs@6.5.2, qs@~6.5.1, qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
-qs@^6.4.0:
+qs@^6.4.0, qs@^6.5.2:
   version "6.6.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
   integrity sha512-KIJqT9jQJDQx5h5uAVPimw6yVg2SekOKu959OCtktD3FjzbpvaPr8i4zzg07DOMz+igA4W/aNM7OV8H37pFYfA==
@@ -13802,7 +13825,7 @@ range-parser@^1.0.3, range-parser@~1.2.0:
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.0.tgz#f49be6b487894ddc40dcc94a322f611092e00d5e"
   integrity sha1-9JvmtIeJTdxA3MlKMi9hEJLgDV4=
 
-raw-body@2.3.3, raw-body@^2.2.0:
+raw-body@2.3.3, raw-body@^2.2.0, raw-body@^2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/raw-body/-/raw-body-2.3.3.tgz#1b324ece6b5706e153855bc1148c65bb7f6ea0c3"
   integrity sha512-9esiElv1BrZoI3rCDuOuKCBRbuApGGaDPQfjSflGxdy4oyzqghxu6klEkkVIvBje+FF0BX9coEv8KqW6X/7njw==
@@ -16613,10 +16636,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
+  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 

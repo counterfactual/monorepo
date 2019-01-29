@@ -8,7 +8,8 @@
         "url": "http://localhost:3333",
         "slug": "high-roller",
         "icon": "assets/images/logo.svg"
-      }
+      },
+      "relationships": {}
     },
     {
       "type": "app",
@@ -18,7 +19,8 @@
         "url": "https://tic-tac-toe-staging.netlify.com",
         "slug": "tic-tac-toe",
         "icon": "images/logo-blue.svg"
-      }
+      },
+      "relationships": {}
     }
   ]
 }

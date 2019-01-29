@@ -37,6 +37,8 @@
     "jsonwebtoken": "^8.4.0",
     "knex": "^0.16.3",
     "koa": "^2.6.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
     "pg": "^7.7.1",
     "uuid": "^3.3.2"
