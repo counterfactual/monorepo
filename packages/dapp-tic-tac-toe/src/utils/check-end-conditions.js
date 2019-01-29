@@ -1,4 +1,4 @@
-const bn = window.ethers.utils.bigNumberify;
+const bn = window.ethers ? window.ethers.utils.bigNumberify : () => {};
 const ZERO = bn(0);
 
 export function checkDraw(board) {
