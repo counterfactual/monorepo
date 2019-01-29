@@ -27,11 +27,9 @@ class Game extends Component {
     this.props.appInstance.on("updateState", this.onUpdateState.bind(this));
     const state = await this.props.appInstance.getState();
     this.updateGame(state);
-
-    console.log(state);
-    console.log(this.props.user);
   }
 
+  // TODO: This remapping should be removed once the Node properly formats the message.
   onUpdateState({ data: { newState } }) {
     const [players, turnNum, winner, board] = newState;
     this.updateGame({ players, turnNum, winner, board });
@@ -82,23 +80,16 @@ class Game extends Component {
     console.log("timeout!");
   }
 
-  // TODO: verify this works, player numbers should be either 1 or 2
-  // used in the contract to determine tile state and winning state
-  // https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol#L31
-  // https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol#L37
   get myNumber() {
-    const result =
+    return (
       this.state.gameState.players.indexOf(
         window.ethers.utils.getAddress(this.props.user.ethAddress)
-      ) + 1;
-    console.log("myNumber", result);
-    return result;
+      ) + 1
+    );
   }
 
   get opponentNumber() {
-    const result = this.myNumber === 1 ? 2 : 1;
-    console.log("opponentNumber", result);
-    return result;
+    return this.myNumber === 1 ? 2 : 1;
   }
 
   get turnNumber() {
@@ -108,9 +99,7 @@ class Game extends Component {
   }
 
   get isMyTurn() {
-    const result = this.turnNumber % 2 === (this.myNumber === 1 ? 0 : 1);
-    console.log("isMyTurn", result);
-    return result;
+    return this.turnNumber % 2 === (this.myNumber === 1 ? 0 : 1);
   }
 
   render() {

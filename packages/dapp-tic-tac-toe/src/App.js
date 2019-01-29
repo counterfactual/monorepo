@@ -29,9 +29,10 @@ export default class App extends Component {
       redirectTo: null
     };
 
-    this.connect();
-    this.requestUserData();
-    this.waitForCounterpartyAppInstance(props);
+    this.connect().then(() => {
+      this.requestUserData();
+      this.waitForCounterpartyAppInstance(props);
+    });
   }
 
   async connect() {
