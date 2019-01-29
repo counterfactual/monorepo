@@ -51,10 +51,12 @@ export default async function takeActionController(
   );
 
   // send to the counter party
-  const to =
-    requestHandler.address === appInstanceInfo.initiatingAddress
-      ? appInstanceInfo.respondingAddress
-      : requestHandler.address;
+  const to = [
+    appInstanceInfo.initiatingAddress,
+    appInstanceInfo.respondingAddress
+  ].filter(address => {
+    return address !== requestHandler.address;
+  })[0];
 
   await requestHandler.messagingService.send(to, updateStateMessage);
 
