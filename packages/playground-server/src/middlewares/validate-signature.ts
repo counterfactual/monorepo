@@ -4,7 +4,8 @@ import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
 import { Log } from "logepi";
 
-import { AuthenticatedRequest, ErrorCode, JsonApiResource } from "../types";
+import Errors from "../errors";
+import { AuthenticatedRequest, JsonApiResource } from "../types";
 
 /**
  * This middleware will inject a validation to check if a wallet signature
@@ -58,7 +59,7 @@ async function validate(
   const signedRequest = ctx.request as AuthenticatedRequest;
   const signedHeader = signedRequest.headers.authorization;
   const json = ctx.request.body;
-  const user: JsonApiResource = json.data || {};
+  const user: JsonApiResource = (json && json.data) || {};
 
   if (!signedHeader) {
     Log.info("Cancelling request, signature is required", {
@@ -67,7 +68,7 @@ async function validate(
         middleware: "validateSignature"
       }
     });
-    throw ErrorCode.SignatureRequired;
+    throw Errors.SignatureRequired();
   }
 
   if (!signedHeader.startsWith("Signature ")) {
@@ -77,7 +78,7 @@ async function validate(
         middleware: "validateSignature"
       }
     });
-    throw ErrorCode.InvalidSignature;
+    throw Errors.InvalidSignature();
   }
 
   const expectedMessage = await expectedSignatureMessage(user);
@@ -96,7 +97,7 @@ async function validate(
         middleware: "validateSignature"
       }
     });
-    throw ErrorCode.InvalidSignature;
+    throw Errors.InvalidSignature();
   }
 }
 

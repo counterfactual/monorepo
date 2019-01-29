@@ -5,9 +5,9 @@ import {
 } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
-import { User } from "..";
 import { matchmakeUser } from "../../db";
 import { getNodeAddress } from "../../node";
+import User from "../user/resource";
 
 import MatchmakingRequest from "./resource";
 

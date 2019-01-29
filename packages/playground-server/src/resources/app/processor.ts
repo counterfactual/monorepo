@@ -3,7 +3,7 @@ import fs from "fs";
 import { Log } from "logepi";
 import path from "path";
 
-import { ErrorCode } from "../../types";
+import Errors from "../../errors";
 
 import App from "./resource";
 
@@ -24,7 +24,7 @@ export default class AppProcessor extends OperationProcessor<App> {
 
       return registry.data.map((record: {}) => new App(record));
     } catch {
-      throw ErrorCode.AppRegistryNotAvailable;
+      throw Errors.AppRegistryNotAvailable();
     }
   }
 }

@@ -1,7 +1,7 @@
 import {
   HttpStatusCode,
   JsonApiDocument,
-  JsonApiErrorDocument,
+  JsonApiErrorsDocument,
   ResourceRelationship,
   ResourceTypeRelationships
 } from "@ebryn/jsonapi-ts";
@@ -13,10 +13,10 @@ import { resolve } from "path";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
+import Errors from "../src/errors";
 import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User, { MatchedUser } from "../src/resources/user/resource";
-import { ErrorCode } from "../src/types";
 
 import {
   PK_ALICE,
@@ -108,10 +108,10 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.SignatureRequired
+                code: Errors.SignatureRequired().code
               }
             ]
-          } as JsonApiErrorDocument<ErrorCode>);
+          } as JsonApiErrorsDocument);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -127,10 +127,10 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.InvalidSignature
+                code: Errors.InvalidSignature().code
               }
             ]
-          } as JsonApiErrorDocument<ErrorCode>);
+          } as JsonApiErrorsDocument);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -166,10 +166,10 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.AddressAlreadyRegistered
+                code: Errors.AddressAlreadyRegistered().code
               }
             ]
-          } as JsonApiErrorDocument<ErrorCode>);
+          } as JsonApiErrorsDocument);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -185,10 +185,10 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.UsernameAlreadyExists
+                code: Errors.UsernameAlreadyExists().code
               }
             ]
-          } as JsonApiErrorDocument<ErrorCode>);
+          } as JsonApiErrorsDocument);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -208,10 +208,10 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.SignatureRequired
+                code: Errors.SignatureRequired().code
               }
             ]
-          } as JsonApiErrorDocument<ErrorCode>);
+          } as JsonApiErrorsDocument);
           expect(response.status).toEqual(HttpStatusCode.BadRequest);
           done();
         });
@@ -227,7 +227,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.UserNotFound
+                code: Errors.UserNotFound().code
               }
             ]
           });
@@ -315,7 +315,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.UserAddressRequired
+                code: Errors.UserAddressRequired().code
               }
             ]
           });
@@ -348,7 +348,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: ErrorCode.NoUsersAvailable
+                code: Errors.NoUsersAvailable().code
               }
             ]
           });

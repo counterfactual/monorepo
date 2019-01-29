@@ -4,8 +4,8 @@ import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
+import Errors from "./errors";
 import User, { MatchedUser } from "./resources/user/resource";
-import { ErrorCode } from "./types";
 
 const DATABASE_CONFIGURATION: knex.Config = {
   client: process.env.DB_ENGINE as string,
@@ -47,7 +47,7 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   const db = getDatabase();
 
   if (!userToMatch) {
-    throw ErrorCode.UserAddressRequired;
+    throw Errors.UserAddressRequired();
   }
 
   const query = db("users")
@@ -100,7 +100,7 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     Log.warn("Cannot matchmake, no users available", {
       tags: { node: userToMatch.attributes.nodeAddress }
     });
-    throw ErrorCode.NoUsersAvailable;
+    throw Errors.NoUsersAvailable();
   }
 
   // We do the random selection of the user outside of the DB
@@ -191,7 +191,7 @@ export async function getUser(userToFind: User): Promise<User> {
     Log.info("No user found with provided address", {
       tags: { user: userToFind.attributes.ethAddress }
     });
-    throw ErrorCode.UserNotFound;
+    throw Errors.UserNotFound();
   }
 
   const [user] = users;
@@ -235,7 +235,7 @@ export async function userExists(user: User): Promise<boolean> {
 
 export async function createUser(user: User): Promise<User> {
   if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
-    throw ErrorCode.AddressAlreadyRegistered;
+    throw Errors.AddressAlreadyRegistered();
   }
 
   const db = getDatabase();
@@ -268,7 +268,7 @@ export async function createUser(user: User): Promise<User> {
     const error = e as Error;
 
     if (error.message.match(/unique constraint/i)) {
-      throw ErrorCode.UsernameAlreadyExists;
+      throw Errors.UsernameAlreadyExists();
     } else {
       throw e;
     }
