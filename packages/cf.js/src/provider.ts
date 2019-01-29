@@ -19,7 +19,7 @@ import {
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
-const NODE_REQUEST_TIMEOUT = 15000;
+const NODE_REQUEST_TIMEOUT = 1500;
 
 /**
  * Provides convenience methods for interacting with a Counterfactual node
