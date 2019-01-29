@@ -60,10 +60,10 @@ beforeAll(async () => {
 /**
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
-describe("Test", () => {
+describe("set state on free balance", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
-  it("test", async done => {
+  it("should have the correct nonce", async done => {
     const signingKeys = getSortedRandomSigningKeys(2);
 
     const users = signingKeys.map(x => x.address);

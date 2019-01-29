@@ -90,7 +90,9 @@ describe("ETHVirtualAppAgreement", () => {
       ETHVirtualAppAgreement
     );
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry);
+    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+      gasLimit: 6000000
+    });
 
     fixedResolutionApp = await waffle.deployContract(
       wallet,

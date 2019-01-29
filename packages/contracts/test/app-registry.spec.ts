@@ -50,7 +50,9 @@ describe("AppRegistry", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry);
+    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+      gasLimit: 6000000
+    });
   });
 
   beforeEach(async () => {
