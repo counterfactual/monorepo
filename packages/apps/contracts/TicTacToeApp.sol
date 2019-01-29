@@ -2,9 +2,10 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
-contract TicTacToeApp {
+contract TicTacToeApp is CounterfactualApp {
 
   enum ActionType {
     PLAY,
@@ -50,19 +51,32 @@ contract TicTacToeApp {
     WinClaim winClaim;
   }
 
-  function turn(AppState memory state)
+  function isStateTerminal(bytes memory encodedState)
     public
     pure
-    returns (uint256)
+    returns (bool)
   {
-    return state.turnNum % 2;
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return state.winner != GAME_IN_PROGRESS;
   }
 
-  function applyAction(AppState memory state, Action memory action)
+  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
+    public
+    pure
+    returns (address)
+  {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return signingKeys[state.turnNum % 2];
+  }
+
+  function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
     returns (bytes memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    Action memory action = abi.decode(encodedAction, (Action));
+
     AppState memory postState;
     if (action.actionType == ActionType.PLAY) {
       postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
@@ -85,11 +99,12 @@ contract TicTacToeApp {
     return abi.encode(postState);
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
     require(state.winner != 0, "Winner was set to 0; invalid");
 
     uint256[] memory amounts = new uint256[](2);
@@ -130,14 +145,6 @@ contract TicTacToeApp {
       );
     }
 
-  }
-
-  function isStateTerminal(AppState memory state)
-    public
-    pure
-    returns (bool)
-  {
-    return state.winner != GAME_IN_PROGRESS;
   }
 
   function playMove(

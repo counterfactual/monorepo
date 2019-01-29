@@ -62,8 +62,11 @@ export async function install(
     }
   );
 
-  await store.updateChannelWithAppInstanceInstallation(
-    stateChannelsMap.get(stateChannel.multisigAddress)!,
+  await store.saveStateChannel(
+    stateChannelsMap.get(stateChannel.multisigAddress)!
+  );
+
+  await store.saveRealizedProposedAppInstance(
     createAppInstanceFromAppInstanceInfo(
       appInstanceInfo,
       stateChannelsMap.get(stateChannel.multisigAddress)!

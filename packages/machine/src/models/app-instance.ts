@@ -4,7 +4,7 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { TERMS } from "../ethereum/utils/encodings";
-import { AppState } from "../protocol-types-tbd";
+import { SolidityABIEncoderV2Struct } from "../types";
 
 /**
  * Representation of the values a dependency nonce can take on.
@@ -222,7 +222,7 @@ export class AppInstance {
   }
 
   public setState(
-    newState: AppState,
+    newState: SolidityABIEncoderV2Struct,
     timeout: number = this.json.defaultTimeout
   ) {
     try {
@@ -253,10 +253,12 @@ export class AppInstance {
     );
   }
 
-  public decodeAppState(encodedAppState: string): any {
+  public decodeAppState(
+    encodedSolidityABIEncoderV2Struct: string
+  ): SolidityABIEncoderV2Struct {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
-      encodedAppState
+      encodedSolidityABIEncoderV2Struct
     )[0];
   }
 }

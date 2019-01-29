@@ -18,14 +18,20 @@ export class WidgetConnection {
   @Prop() network: string = "";
 
   render() {
-    return (
+    console.log("network", this.network);
+    return this.network ? (
       <div class="connection">
-        <span class={this.network ? "dot connected" : "dot"} />
+        <span class="dot connected" />
         <span class="status">
-          {this.network
-            ? `Connected to ${NETWORK_NAMES[this.network]}`
-            : "No Connection"}
+          `Connected to ${NETWORK_NAMES[this.network]}`
         </span>
+      </div>
+    ) : (
+      <div class="connection">
+        <widget-tooltip message="We cannot detect Metamask">
+          <span class="dot" />
+          <span class="status">No Connection</span>
+        </widget-tooltip>
       </div>
     );
   }

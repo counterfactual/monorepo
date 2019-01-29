@@ -1,6 +1,9 @@
 export const ERRORS = {
   NO_APP_INSTANCE_ID_FOR_GET_STATE:
     "No AppInstanceID specified to get state for",
+  NO_APP_INSTANCE_ID_TO_GET_DETAILS:
+    "No AppInstanceID specified to get details for",
+  NO_APP_INSTANCE_FOR_GIVEN_ID: "No AppInstance exists for the given ID",
   NO_APP_INSTANCE_ID_TO_INSTALL: "No AppInstanceId specified to install",
   NO_MULTISIG_FOR_APP_INSTANCE_ID:
     "No multisig address exists for the given appInstanceId",
@@ -12,6 +15,7 @@ export const ERRORS = {
     "No AppInstanceId specified to takeAction on",
   NO_APP_CONTRACT_ADDR: "The App Contract address is empty",
   INVALID_ACTION: "Invalid action taken",
+  IMPROPERLY_FORMATTED_ACTION: "Improperly formatted action",
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
   ACTION_OBJECT_NOT_ENCODABLE:

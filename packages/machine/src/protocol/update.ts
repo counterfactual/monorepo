@@ -1,11 +1,10 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import { Opcode } from "../opcodes";
-import { ProtocolMessage, UpdateParams } from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, ProtocolMessage, UpdateParams } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -42,7 +41,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
         message.toAddress,
-        context.commitment,
+        context.commitments[0],
         context.inbox[0].signature
       ),
 
@@ -58,7 +57,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
         message.fromAddress,
-        context.commitment,
+        context.commitments[0],
         message.signature
       ),
 
@@ -86,7 +85,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     .get(multisigAddress)!
     .setState(appIdentityHash, newState);
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
-  context.commitment = constructUpdateOp(
+  context.commitments[0] = constructUpdateOp(
     context.network,
     newStateChannel,
     appIdentityHash

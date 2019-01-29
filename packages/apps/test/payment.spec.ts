@@ -1,7 +1,9 @@
+import { SolidityABIEncoderV2Struct, Terms } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
+import { defaultAbiCoder } from "ethers/utils";
 
 import PaymentApp from "../build/PaymentApp.json";
 
@@ -17,6 +19,26 @@ const [A, B] = [
 describe("PaymentApp", () => {
   let pc: Contract;
 
+  function encodeState(state: SolidityABIEncoderV2Struct) {
+    return defaultAbiCoder.encode(
+      [
+        `
+        tuple(
+          address alice,
+          address bob,
+          uint256 aliceBalance,
+          uint256 bobBalance
+        )
+      `
+      ],
+      [state]
+    );
+  }
+
+  async function resolve(state: SolidityABIEncoderV2Struct, terms: Terms) {
+    return await pc.functions.resolve(encodeState(state), terms);
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -24,7 +46,7 @@ describe("PaymentApp", () => {
   });
 
   it("should resolve to payments", async () => {
-    const ret = await pc.functions.resolve(
+    const ret = await resolve(
       {
         alice: A,
         bob: B,

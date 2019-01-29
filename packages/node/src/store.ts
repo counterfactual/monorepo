@@ -5,7 +5,11 @@ import {
   StateChannelJSON,
   Transaction
 } from "@counterfactual/machine";
-import { Address, AppInstanceInfo, AppState } from "@counterfactual/types";
+import {
+  Address,
+  AppInstanceInfo,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
@@ -137,7 +141,10 @@ export class Store {
    * This persists the state of the given AppInstance.
    * @param appInstance
    */
-  public async saveAppInstanceState(appInstanceId: string, newState: AppState) {
+  public async saveAppInstanceState(
+    appInstanceId: string,
+    newState: SolidityABIEncoderV2Struct
+  ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(
       await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId),
@@ -150,22 +157,15 @@ export class Store {
    * The app's installation is confirmed iff the store write operation
    * succeeds as the write operation's confirmation provides the desired
    * atomicity of moving an app instance from being proposed to installed.
-   * @param stateChannel
+   *
    * @param appInstance
    * @param appInstanceInfo
    */
-  public async updateChannelWithAppInstanceInstallation(
-    stateChannel: StateChannel,
+  public async saveRealizedProposedAppInstance(
     appInstanceIdentityHash: string,
     appInstanceInfo: AppInstanceInfo
   ) {
     await this.storeService.set([
-      {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
-          stateChannel.multisigAddress
-        }`,
-        value: stateChannel.toJson()
-      },
       {
         key: `${
           this.storeKeyPrefix
@@ -249,11 +249,17 @@ export class Store {
   public async getAppInstanceInfo(
     appInstanceId: string
   ): Promise<AppInstanceInfo> {
-    return (await this.storeService.get(
+    const appInstanceInfo = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`
     )) as AppInstanceInfo;
+    if (!appInstanceInfo) {
+      return Promise.reject(
+        `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
+      );
+    }
+    return appInstanceInfo;
   }
 
   /**

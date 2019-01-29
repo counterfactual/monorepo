@@ -5,17 +5,13 @@ import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow } from "..";
+import { Opcode } from "../enums";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
   StateChannel
 } from "../models";
-import { Opcode } from "../opcodes";
-import {
-  InstallVirtualAppParams,
-  ProtocolMessage
-} from "../protocol-types-tbd";
-import { Context } from "../types";
+import { Context, InstallVirtualAppParams, ProtocolMessage } from "../types";
 
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;
@@ -37,8 +33,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       const params2 = message.params as InstallVirtualAppParams;
       context.outbox.push({
         ...message,
-        signature: context.signature, // s1
-        signature2: context.signature2, // s5
+        signature: context.signatures[0], // s1
+        signature2: context.signatures[1], // s5
         seq: 1,
         toAddress: params2.intermediaryAddress
       });
@@ -52,7 +48,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition2,
 
     // Sign three commitments; pass `true` to hashToSign if asked
-    Opcode.OP_SIGN,
+    Opcode.OP_SIGN_AS_INTERMEDIARY,
 
     // M2
     (message: ProtocolMessage, context: Context) => {
@@ -62,7 +58,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].fromAddress = params2.intermediaryAddress;
       context.outbox[0].toAddress = params2.respondingAddress;
       context.outbox[0].signature = message.signature2; // s5
-      context.outbox[0].signature2 = context.signature; // s3
+      context.outbox[0].signature2 = context.signatures[0]; // s3
     },
 
     // wait for M3
@@ -75,7 +71,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].seq = 4;
       context.outbox[0].fromAddress = params2.intermediaryAddress;
       context.outbox[0].toAddress = params2.respondingAddress;
-      context.outbox[0].signature = context.signature3; // s6
+      context.outbox[0].signature = context.signatures[2]; // s6
     },
     Opcode.IO_SEND,
 
@@ -86,8 +82,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].seq = 5;
       context.outbox[0].fromAddress = params2.intermediaryAddress;
       context.outbox[0].toAddress = params2.initiatingAddress;
-      context.outbox[0].signature = context.signature3; // s6
-      context.outbox[0].signature2 = context.signature2; // s2
+      context.outbox[0].signature = context.signatures[2]; // s6
+      context.outbox[0].signature2 = context.signatures[1]; // s2
       context.outbox[0].signature3 = context.inbox[0].signature2; // s7
     },
 
@@ -107,8 +103,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].seq = 3;
       context.outbox[0].fromAddress = params2.respondingAddress;
       context.outbox[0].toAddress = params2.intermediaryAddress;
-      context.outbox[0].signature = context.signature; // s4
-      context.outbox[0].signature2 = context.signature2; // s7
+      context.outbox[0].signature = context.signatures[0]; // s4
+      context.outbox[0].signature2 = context.signatures[1]; // s7
     },
 
     // wait for M4
@@ -174,7 +170,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   context.stateChannelsMap.set(multisig2Address, newStateChannel);
 
   // s4
-  context.commitment = constructETHVirtualAppAgreementCommitment(
+  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
     context.network,
     newStateChannel,
     targetAppInstance.identityHash,
@@ -182,7 +178,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   );
 
   // s7
-  context.commitment2 = new VirtualAppSetStateCommitment(
+  context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
     NONCE_EXPIRY,
@@ -250,14 +246,14 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     );
   context.stateChannelsMap.set(multisig1Address, newStateChannel);
 
-  context.commitment = constructETHVirtualAppAgreementCommitment(
+  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
     context.network,
     newStateChannel,
     targetAppInstance.identityHash,
     leftETHVirtualAppAgreementInstance
   );
 
-  context.commitment2 = new VirtualAppSetStateCommitment(
+  context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
     NONCE_EXPIRY,
@@ -356,7 +352,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   );
 
   // S2
-  context.commitment = constructETHVirtualAppAgreementCommitment(
+  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
     context.network,
     context.stateChannelsMap.get(multisig1Address)!,
     targetAppInstance.identityHash,
@@ -364,7 +360,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   );
 
   // S3
-  context.commitment2 = constructETHVirtualAppAgreementCommitment(
+  context.commitments[1] = constructETHVirtualAppAgreementCommitment(
     context.network,
     context.stateChannelsMap.get(multisig1Address)!,
     targetAppInstance.identityHash,
@@ -390,7 +386,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     );
   context.stateChannelsMap.set(multisig2Address, newStateChannel2);
 
-  context.commitment3 = new VirtualAppSetStateCommitment(
+  context.commitments[2] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
     NONCE_EXPIRY,

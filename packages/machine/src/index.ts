@@ -1,3 +1,4 @@
+import { Opcode, Protocol } from "./enums";
 import { InstructionExecutor } from "./instruction-executor";
 import {
   AppInstance,
@@ -9,10 +10,9 @@ import {
   Context,
   Instruction,
   Middleware,
-  Opcode,
-  Protocol,
   ProtocolExecutionFlow,
   ProtocolMessage,
+  SetupParams,
   Transaction
 } from "./types";
 
@@ -29,5 +29,6 @@ export {
   Protocol,
   ProtocolExecutionFlow,
   ProtocolMessage,
+  SetupParams,
   Transaction
 };

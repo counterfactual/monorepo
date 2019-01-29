@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, TakeActionMessage } from "../../../types";
+import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
 import { ERRORS } from "../../errors";
 
 import { actionIsEncondable, generateNewAppInstanceState } from "./operation";
@@ -19,6 +19,7 @@ export default async function takeActionController(
   const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
     appInstanceId
   );
+  const oldState = appInstance.state;
 
   try {
     await actionIsEncondable(appInstance, action);
@@ -34,14 +35,14 @@ export default async function takeActionController(
 
   await requestHandler.store.saveAppInstanceState(appInstanceId, newState);
 
-  const takeActionMsg: TakeActionMessage = {
+  const updateStateMessage: UpdateStateMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.TAKE_ACTION,
+    type: NODE_EVENTS.UPDATE_STATE,
     data: {
       appInstanceId,
-      params: {
-        newState
-      }
+      newState,
+      oldState,
+      action: params.action
     }
   };
 
@@ -55,7 +56,7 @@ export default async function takeActionController(
       ? appInstanceInfo.respondingAddress
       : requestHandler.address;
 
-  await requestHandler.messagingService.send(to, takeActionMsg);
+  await requestHandler.messagingService.send(to, updateStateMessage);
 
   return {
     newState

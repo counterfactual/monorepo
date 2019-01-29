@@ -2,6 +2,7 @@ pragma solidity 0.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
+import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
 /// @title High Roller App
@@ -10,7 +11,7 @@ import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 ///         The winner is the player whose sum of dice outcomes is highest.
 /// @dev This contract is an example of a dApp built to run on
 ///      the CounterFactual framework
-contract HighRollerApp {
+contract HighRollerApp is CounterfactualApp {
 
   enum ActionType {
     START_GAME,
@@ -45,28 +46,37 @@ contract HighRollerApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(AppState memory state)
+  function isStateTerminal(bytes memory encodedState)
     public
     pure
     returns (bool)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(AppState memory state)
+  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
     public
     pure
-    returns (Player)
+    returns (address)
   {
-    return state.stage == Stage.COMMITTING_NUM ? Player.SECOND : Player.FIRST;
+    AppState memory state = abi.decode(encodedState, (AppState));
+
+    return state.stage == Stage.COMMITTING_NUM ?
+      signingKeys[uint8(Player.SECOND)] :
+      signingKeys[uint8(Player.FIRST)];
   }
 
-  function applyAction(AppState memory state, Action memory action)
+  function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
     returns (bytes memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    Action memory action = abi.decode(encodedAction, (Action));
+
     AppState memory nextState = state;
+
     if (action.actionType == ActionType.START_GAME) {
       require(
         state.stage == Stage.PRE_GAME,
@@ -92,14 +102,17 @@ contract HighRollerApp {
     } else {
       revert("Invalid action type");
     }
+
     return abi.encode(nextState);
   }
 
-  function resolve(AppState memory state, Transfer.Terms memory terms)
+  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
     public
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
     to[0] = state.playerAddrs[0];
@@ -164,6 +177,10 @@ contract HighRollerApp {
     pure
     returns (bytes32)
   {
+    require(
+      num1 != 0 && num2 != 0,
+      "Numbers passed in cannot equal 0"
+      );
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
@@ -189,7 +206,7 @@ contract HighRollerApp {
 
   /// @notice Converts a bytes8 into a uint64 between 1-6
   /// @param q The bytes8 to convert
-  /// @dev Splits this by using modulas 6 to get the uint
+  /// @dev Splits this by using modulo 6 to get the uint
   function bytes8toDiceRoll(bytes8 q)
     public
     pure

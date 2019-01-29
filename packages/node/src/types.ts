@@ -6,13 +6,12 @@ import { Address, Node } from "@counterfactual/types";
  */
 export interface NodeMessage {
   from: Address;
-  event: NodeEvents;
+  type: NodeEvents;
 }
 
 enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
-  TAKE_ACTION = "takeActionEvent",
   PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
   INSTALL_VIRTUAL = "installVirtualEvent",
   REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
@@ -69,11 +68,8 @@ export interface CreateMultisigMessage extends NodeMessage {
   };
 }
 
-export interface TakeActionMessage extends NodeMessage {
-  data: {
-    params: Node.TakeActionResult;
-    appInstanceId: string;
-  };
+export interface UpdateStateMessage extends NodeMessage {
+  data: Node.UpdateStateEventData;
 }
 
 export interface RejectProposalMessage extends NodeMessage {

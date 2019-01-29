@@ -6,7 +6,6 @@ import {
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
-import { v4 as generateUUID } from "uuid";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -166,7 +165,7 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = generateUUID();
+    const requestId = new Date().valueOf().toString();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       const request: Node.MethodRequest = {
         requestId,
@@ -367,10 +366,10 @@ export class Provider {
     const event = {
       type: EventType.UPDATE_STATE,
       data: {
-        action,
+        appInstance,
         newState,
         oldState,
-        appInstance
+        action
       }
     };
     return this.eventEmitter.emit(event.type, event);

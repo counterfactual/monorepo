@@ -35,7 +35,7 @@ export default async function createMultisigController(
 
   const multisigCreatedMsg: CreateMultisigMessage = {
     from: requestHandler.address,
-    event: NODE_EVENTS.CREATE_MULTISIG,
+    type: NODE_EVENTS.CREATE_MULTISIG,
     data: {
       multisigAddress,
       params: {

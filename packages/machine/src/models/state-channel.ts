@@ -1,4 +1,8 @@
-import { AppState, AssetType, ETHBucketAppState } from "@counterfactual/types";
+import {
+  AssetType,
+  ETHBucketAppState,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";
@@ -61,8 +65,8 @@ function createETHFreeBalance(
 ) {
   // Making these values constants to be extremely explicit about
   // the built-in assumption here.
-  const signingKeyForFreeBalanceForPerson1 = multisigOwners[0];
-  const signingKeyForFreeBalanceForPerson2 = multisigOwners[1];
+  const beneficiaryForPerson1 = multisigOwners[0];
+  const beneficiaryForPerson2 = multisigOwners[1];
 
   return new AppInstance(
     multisigAddress,
@@ -74,8 +78,8 @@ function createETHFreeBalance(
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
     {
-      alice: signingKeyForFreeBalanceForPerson1,
-      bob: signingKeyForFreeBalanceForPerson2,
+      alice: beneficiaryForPerson1,
+      bob: beneficiaryForPerson2,
       aliceBalance: Zero,
       bobBalance: Zero
     },
@@ -166,12 +170,22 @@ export class StateChannel {
     return AppInstance.fromJson(appInstanceJson);
   }
 
-  public setFreeBalanceFor(
+  public setFreeBalance(
     assetType: AssetType,
-    state: AppState
-  ): StateChannel {
+    newState: { [s: string]: BigNumber }
+  ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
-    return this.setState(freeBalance.identityHash, state);
+    const freeBalanceState = freeBalance.state;
+    for (const beneficiary in newState) {
+      if (beneficiary === freeBalanceState.alice) {
+        freeBalanceState.aliceBalance = newState[beneficiary];
+      } else if (beneficiary === freeBalanceState.bob) {
+        freeBalanceState.bobBalance = newState[beneficiary];
+      } else {
+        throw Error(`No such beneficiary ${beneficiary} found`);
+      }
+    }
+    return this.setState(freeBalance.identityHash, freeBalanceState);
   }
 
   public static setupChannel(
@@ -203,7 +217,10 @@ export class StateChannel {
     );
   }
 
-  public setState(appInstanceIdentityHash: string, state: AppState) {
+  public setState(
+    appInstanceIdentityHash: string,
+    state: SolidityABIEncoderV2Struct
+  ) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(
@@ -319,8 +336,8 @@ export class StateChannel {
 
     const currentState = fb.state as ETHBucketAppState;
 
-    const aliceBalance = currentState.aliceBalance.sub(aliceBalanceIncrement);
-    const bobBalance = currentState.bobBalance.sub(bobBalanceIncrement);
+    const aliceBalance = currentState.aliceBalance.add(aliceBalanceIncrement);
+    const bobBalance = currentState.bobBalance.add(bobBalanceIncrement);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()

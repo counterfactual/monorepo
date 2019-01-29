@@ -1,6 +1,6 @@
 import { AppInstance } from "@counterfactual/machine";
-import { AppState } from "@counterfactual/types";
-import { Contract } from "ethers";
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { Contract, ethers } from "ethers";
 import { Provider } from "ethers/providers";
 
 import { isNotDefinedOrEmpty } from "../../../utils";
@@ -10,51 +10,58 @@ export async function generateNewAppInstanceState(
   appInstance: AppInstance,
   action: any,
   provider: Provider
-): Promise<AppState> {
+): Promise<SolidityABIEncoderV2Struct> {
   if (isNotDefinedOrEmpty(appInstance.appInterface.addr)) {
     return Promise.reject(ERRORS.NO_APP_CONTRACT_ADDR);
   }
 
   const appContract = new Contract(
     appInstance.appInterface.addr,
-    createABI(appInstance),
+    // TODO: Import CounterfactualApp.json directly and place it here.
+    //       Keep in mind that requires bundling the json in the rollup dist.
+    ["function applyAction(bytes, bytes) pure returns (bytes)"],
     provider
   );
 
   return await makeApplyActionCall(appContract, appInstance, action);
 }
 
-function createABI(appInstance: AppInstance): string[] {
-  return [
-    `function applyAction(
-      ${appInstance.appInterface.stateEncoding},
-      ${appInstance.appInterface.actionEncoding}
-    )
-    pure
-    returns (bytes)`
-  ];
-}
-
 async function makeApplyActionCall(
   contract: Contract,
   appInstance: AppInstance,
   action: any
-): Promise<AppState> {
+): Promise<SolidityABIEncoderV2Struct> {
+  let newStateBytes: string;
+  let encodedAction: string;
+
   try {
-    return appInstance.decodeAppState(
-      await contract.functions.applyAction(appInstance.state, action)
+    encodedAction = appInstance.encodeAction(action);
+  } catch (e) {
+    if (e.code === ethers.errors.INVALID_ARGUMENT) {
+      return Promise.reject(`${ERRORS.IMPROPERLY_FORMATTED_ACTION}: ${e}`);
+    }
+    throw e;
+  }
+
+  try {
+    newStateBytes = await contract.functions.applyAction(
+      appInstance.encodedLatestState,
+      encodedAction
     );
   } catch (e) {
-    const sanitizedError = e
-      .toString()
-      .replace("s: VM Exception while processing transaction: revert");
-    return Promise.reject(`${ERRORS.INVALID_ACTION}: ${sanitizedError}`);
+    // TODO: ethers.errors.CALL_EXCEPTION _should_ work but it doesn't
+    if (e.message && e.message.indexOf("VM Exception") !== -1) {
+      return Promise.reject(`${ERRORS.INVALID_ACTION}: ${e.reason}`);
+    }
+    throw e;
   }
+
+  return appInstance.decodeAppState(newStateBytes);
 }
 
 export async function actionIsEncondable(
   appInstance: AppInstance,
-  action: AppState
+  action: SolidityABIEncoderV2Struct
 ): Promise<void> {
   if (isNotDefinedOrEmpty(appInstance.appInterface.actionEncoding)) {
     return Promise.reject(ERRORS.NO_ACTION_ENCODING_FOR_APP_INSTANCE);

@@ -1,18 +1,20 @@
 import { NetworkContext } from "@counterfactual/types";
 
+import { Opcode, Protocol } from "./enums";
 import { MiddlewareContainer } from "./middleware";
 import { StateChannel } from "./models";
-import { Opcode } from "./opcodes";
 import { getProtocolFromName } from "./protocol";
 import {
+  Context,
   InstallParams,
   InstallVirtualAppParams,
+  Instruction,
+  Middleware,
   ProtocolMessage,
   SetupParams,
   UninstallParams,
   UpdateParams
-} from "./protocol-types-tbd";
-import { Context, Instruction, Middleware, Protocol } from "./types";
+} from "./types";
 
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
@@ -120,8 +122,8 @@ export class InstructionExecutor {
       network: this.network,
       outbox: [],
       inbox: [],
-      commitment: undefined,
-      signature: undefined
+      commitments: [],
+      signatures: []
     };
 
     let instructionPointer = 0;
