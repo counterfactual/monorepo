@@ -23,7 +23,7 @@ export default function mountApi() {
     .use(
       router
         .inject<AppsControllerOptions>(AppsController, "apps", {
-          registryPath: path.resolve(__dirname, "../registry.local.json")
+          registryPath: path.resolve(__dirname, "../registry.json")
         })
         .inject(UsersController, "users")
         .inject(SessionController, "session")
