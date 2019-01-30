@@ -866,27 +866,6 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/cf.js@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.2.tgz#fcddda4c1f224df95ee9e2caa39442907514017d"
-  integrity sha512-dMBHRyZAB5/mNQkGyB4JNBOm58mNWM6ZURQJixEkdXBIBbdJpZath8w//k/EfxIsQC6sgnvYOqy4PkcpKcNLlQ==
-  dependencies:
-    "@counterfactual/contracts" "0.0.3"
-    "@counterfactual/types" "0.0.1"
-    ethers "4.0.21"
-    eventemitter3 "^3.1.0"
-    uuid "3.3.2"
-
-"@counterfactual/cf.js@0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.3.tgz#806b3903af3150b4881aafadbe3b79715e1634b1"
-  integrity sha512-RwbavZVFBYa+x0x3Y9oqG7L7cd9B1Fk0mF188O5O35d3HAJXO5YCImbzP3WoGaHIDDfiOtIDmwkZtDNstfO5HQ==
-  dependencies:
-    "@counterfactual/types" "0.0.1"
-    ethers "4.0.21"
-    eventemitter3 "^3.1.0"
-    uuid "3.3.2"
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -1687,13 +1666,6 @@
   dependencies:
     "@stencil/state-tunnel" "0.0.8"
 
-"@stencil/router@~0.2.6":
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.2.8.tgz#c118195062c78735b88bb72674ebfbed02c473ba"
-  integrity sha512-LaJcVYpxR8HYJZL5ZMN8WwzK9+iCY9vJJK9RDlmpqtyLXkcsFvE4vintie/wDuZ6yNzn3QKz/1JF8KkjHVR67w==
-  dependencies:
-    "@stencil/state-tunnel" "0.0.9-1"
-
 "@stencil/sass@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@stencil/sass/-/sass-0.1.1.tgz#5be4b174ecdda0a71895e08d4df0cf4c7c9dfdb3"
@@ -1705,11 +1677,6 @@
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@stencil/state-tunnel/-/state-tunnel-0.0.8.tgz#c7425719e622e8ab5009f89edd6478dc69719c38"
   integrity sha512-fpFU91hgEirWyzMD7hsTWkIK8li4VQgx5G+dZr2Iv/AU2ofF6AiAxqP2N5SGyszleJCn9UcgWKS31/+efaBxFw==
-
-"@stencil/state-tunnel@0.0.9-1":
-  version "0.0.9-1"
-  resolved "https://registry.yarnpkg.com/@stencil/state-tunnel/-/state-tunnel-0.0.9-1.tgz#15bcb569779fc5ca4ffbc489d57e4c076457eefd"
-  integrity sha512-Dn04TXjwM+H+1HB6R5B9WwLOKTq/kT/YIwGtAAxiAwYFCugiSWZuE2vf3I8dkCLlEetib5/QAz9MYJ4H4BRKZg==
 
 "@svgr/core@^2.4.1":
   version "2.4.1"
@@ -2481,6 +2448,11 @@ are-we-there-yet@~1.1.2:
   dependencies:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
+
+arg@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/arg/-/arg-4.1.0.tgz#583c518199419e0037abb74062c37f8519e575f0"
+  integrity sha512-ZWc51jO3qegGkVh8Hwpv636EkbesNV5ZNQPCtRa+0qytRYPEs9IYT9qITY9buezqUH5uqyzlWLcufrzU2rffdg==
 
 argparse@^1.0.7:
   version "1.0.10"
@@ -6791,22 +6763,6 @@ ethers@4.0.0-beta.1:
     hash.js "1.1.3"
     js-sha3 "0.5.7"
     scrypt-js "2.0.3"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
-
-ethers@4.0.21:
-  version "4.0.21"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.21.tgz#b3d88fa5f5832383de515769841fe6ad8545a71a"
-  integrity sha512-wKW0tG15n91qtnt6e1YUXOeRRiHc03U6qenmLQbjiPLX9KVhNnBKe1kFpRtiiuPp0dyHsWWmtML9pz44pmAO1g==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.4"
     setimmediate "1.0.4"
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
@@ -16570,7 +16526,7 @@ ts-node@7.0.0:
     source-map-support "^0.5.6"
     yn "^2.0.0"
 
-ts-node@^7.0.0, ts-node@^7.0.1:
+ts-node@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-7.0.1.tgz#9562dc2d1e6d248d24bc55f773e3f614337d9baf"
   integrity sha512-BVwVbPJRspzNh2yfslyT1PSbl5uIk03EZlb493RKHN4qej/D06n1cEhjlOJG69oFsE7OT8XjpTUcYf6pKTLMhw==
@@ -16583,6 +16539,17 @@ ts-node@^7.0.0, ts-node@^7.0.1:
     mkdirp "^0.5.1"
     source-map-support "^0.5.6"
     yn "^2.0.0"
+
+ts-node@^8.0.2:
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.0.2.tgz#9ecdf8d782a0ca4c80d1d641cbb236af4ac1b756"
+  integrity sha512-MosTrinKmaAcWgO8tqMjMJB22h+sp3Rd1i4fdoWY4mhBDekOwIAKI/bzmRi7IcbCmjquccYg2gcF6NBkLgr0Tw==
+  dependencies:
+    arg "^4.1.0"
+    diff "^3.1.0"
+    make-error "^1.1.1"
+    source-map-support "^0.5.6"
+    yn "^3.0.0"
 
 tsconfig-paths@^3.5.0:
   version "3.7.0"
@@ -17147,15 +17114,15 @@ uuid@2.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.1.tgz#c2a30dedb3e535d72ccf82e343941a50ba8533ac"
   integrity sha1-wqMN7bPlNdcsz4LjQ5QaULqFM6w=
 
-uuid@3.3.2, uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
-  integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
-
 uuid@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.3.tgz#67e2e863797215530dff318e5bf9dcebfd47b21a"
   integrity sha1-Z+LoY3lyFVMN/zGOW/nc6/1Hsho=
+
+uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
+  integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
 
 v8flags@^3.1.1:
   version "3.1.2"
@@ -18560,6 +18527,11 @@ yn@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz#e5adabc8acf408f6385fc76495684c88e6af689a"
   integrity sha1-5a2ryKz0CPY4X8dklWhMiOavaJo=
+
+yn@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/yn/-/yn-3.0.0.tgz#0073c6b56e92aed652fbdfd62431f2d6b9a7a091"
+  integrity sha512-+Wo/p5VRfxUgBUGy2j/6KX2mj9AYJWOHuhMjMcbBFc3y54o9/4buK1ksBvuiK01C3kby8DH9lSmJdSxw+4G/2Q==
 
 zos-lib@^2.0.0:
   version "2.0.2"
