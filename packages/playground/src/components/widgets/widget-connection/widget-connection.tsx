@@ -23,7 +23,7 @@ export class WidgetConnection {
       <div class="connection">
         <span class="dot connected" />
         <span class="status">
-          `Connected to ${NETWORK_NAMES[this.network]}`
+          {`Connected to ${NETWORK_NAMES[this.network]}`}
         </span>
       </div>
     ) : (

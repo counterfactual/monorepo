@@ -33,8 +33,17 @@
       THIS MUST NOT BE LIKE THIS! We must solve how Rollup is building
       all of this.
     -->
+    <script src="https://browser.sentry-cdn.com/4.5.3/bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/eventemitter3/3.1.0/index.js"></script>
     <script src="/ethers.js"></script>
+    <script src="/types.js"></script>
+
+    <script>
+      EventEmitter = EventEmitter3.EventEmitter;
+
+      Sentry.init({ dsn: 'https://eeee57bb21f14331a2cde1925d20efa9@sentry.io/1383487' });
+    </script>
+
     <script src="/node-provider.js"></script>
     <script src="/cf.js"></script>
   </head>
