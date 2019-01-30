@@ -28,7 +28,6 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
-    "@counterfactual/playground-server": "^0.0.1",
     "@counterfactual/typescript-typings": "^0.0.1",
     "@types/puppeteer": "1.11.2",
     "puppeteer": "1.11.0",

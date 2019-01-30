@@ -30,8 +30,8 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "^0.0.1",
-    "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts",
+    "@counterfactual/node": "*",
+    "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts#feature-application",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
     "jsonwebtoken": "^8.4.0",
@@ -51,6 +51,7 @@
     "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "env-cmd": "^8.0.2",
+    "jest": "^24.0.0",
     "sqlite3": "^4.0.4",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
