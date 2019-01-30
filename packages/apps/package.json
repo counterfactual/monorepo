@@ -32,7 +32,7 @@
     "ethlint": "^1.2.2",
     "truffle": "5.0.3",
     "truffle-deploy-registry": "0.5.1",
-    "truffle-hdwallet-provider": "1.0.2",
+    "truffle-hdwallet-provider": "1.0.3",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.11.0"
   }
