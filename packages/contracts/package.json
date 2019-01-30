@@ -37,7 +37,7 @@
     "ethers": "4.0.23",
     "ethereum-waffle": "2.0.3",
     "ganache-cli": "6.3.0",
-    "openzeppelin-solidity": "next",
+    "openzeppelin-solidity": "2.1.2",
     "shx": "^0.3.2",
     "solc": "^0.5",
     "solidity-coverage": "0.5.11",
