@@ -10,9 +10,6 @@ export default createProviderConsumer<any>(
     appInstance: {} as AppInstance,
     updateAppInstance: () => {},
     account: {}
-    // appInstanceId: ""
-    // proposeInstall: () => {},
-    // install: () => {}
   },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />

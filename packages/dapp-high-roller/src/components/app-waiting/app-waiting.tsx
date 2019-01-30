@@ -63,7 +63,6 @@ export class AppWaiting {
 
   setupWaiting() {
     if (this.isProposing) {
-      // this.proposeInstall();
       this.setupWaitingProposing();
     } else {
       this.setupWaitingAccepting();
