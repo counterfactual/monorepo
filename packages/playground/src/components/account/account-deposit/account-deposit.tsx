@@ -1,8 +1,8 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import { UserSession } from "../../../types";
 
 @Component({
   tag: "account-deposit",
