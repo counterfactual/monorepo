@@ -7,6 +7,7 @@
       "icon": "assets/images/logo.svg"
     },
     {
+      "id": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
       "name": "Tic Tac Toe",
       "url": "http://localhost:3000",
       "slug": "tic-tac-toe",

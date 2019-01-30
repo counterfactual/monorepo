@@ -8,6 +8,7 @@ import { AppInstance } from "../app-instance";
 
 export enum EventType {
   INSTALL = "install",
+  INSTALL_VIRTUAL = "installVirtual",
   REJECT_INSTALL = "rejectInstall",
   UNINSTALL = "uninstall",
   UPDATE_STATE = "updateState",

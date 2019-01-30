@@ -44,6 +44,11 @@ export class AppRoot {
                   <stencil-route-switch scrollTopOffset={0}>
                     <stencil-route url="/" component="app-home" exact={true} />
                     <stencil-route
+                      url="/"
+                      component="node-listener"
+                      exact={true}
+                    />
+                    <stencil-route
                       url="/dapp/:dappName"
                       component="dapp-container"
                     />
@@ -61,7 +66,6 @@ export class AppRoot {
                 </stencil-router>
               </main>
               <layout-footer />
-              <node-listener />
               <web3-connector
                 accountState={this.accountState}
                 networkState={this.networkState}
