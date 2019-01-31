@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
     "declarationDir": "dist/"
   },
   "include": ["src", "test"]

@@ -34,11 +34,11 @@
     "@koa/cors": "^2.2.3",
     "jsonwebtoken": "^8.4.0",
     "knex": "^0.16.3",
-    "koa": "^2.6.2",
-    "koa-body": "^4.0.6",
+    "koa": "^2.7.0",
+    "koa-body": "^4.0.7",
     "koa-router": "^7.4.0",
     "logepi": "^1.0.5",
-    "pg": "^7.7.1",
+    "pg": "^7.8.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -50,10 +50,10 @@
     "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "env-cmd": "^8.0.2",
-    "sqlite3": "^4.0.4",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "sqlite3": "^4.0.6",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.4"
   },
   "jest": {
     "bail": true,

@@ -12,13 +12,13 @@
   },
   "devDependencies": {
     "copyfiles": "^2.0.0",
-    "ethers": "4.0.23",
     "ethereum-waffle": "2.0.3",
-    "tslint": "5.12.0",
-    "typescript": "^3.1.2"
+    "ethers": "4.0.23",
+    "tslint": "5.12.1",
+    "typescript": "^3.2.4"
   },
   "dependencies": {
-    "@types/node": "^10.9.3",
-    "truffle-contract": "^4.0.1"
+    "@types/node": "^10.12.19",
+    "truffle-contract": "^4.0.4"
   }
 }

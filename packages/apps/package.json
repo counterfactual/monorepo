@@ -26,14 +26,14 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
-    "ethers": "4.0.23",
     "ethereum-waffle": "2.0.3",
-    "mocha": "^5.2.0",
+    "ethers": "4.0.23",
     "ethlint": "^1.2.2",
+    "mocha": "^5.2.0",
     "truffle": "5.0.3",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.3",
     "ts-mocha": "^2.0.0",
-    "tslint": "^5.11.0"
+    "tslint": "^5.12.1"
   }
 }
