@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@counterfactual/apps": "0.0.1",
-    "@firebase/app-types": "^0.3.2",
-    "@types/node": "^10.9.3",
+    "@firebase/app-types": "^0.3.3",
+    "@types/node": "^10.12.19",
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
     "ganache-core": "2.4.0",

@@ -12,7 +12,7 @@
       "name": "Tic Tac Toe",
       "url": "http://localhost:3000",
       "slug": "tic-tac-toe",
-      "icon": "images/logo-blue.svg"
+      "icon": "images/logo.png"
     }
   ]
 }
