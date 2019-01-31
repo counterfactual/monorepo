@@ -1,6 +1,7 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import CounterfactualTunnel from "../../data/counterfactual";
 import { GameState, HighRollerAppState } from "../../data/game-types";
 import HighRollerUITunnel, {
   HighRollerUIMutableState
@@ -49,7 +50,7 @@ export class AppProvider {
   @Prop({ mutable: true }) cfProvider: cf.Provider = {} as cf.Provider;
   @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
-  @State() appInstance: AppInstance = {} as AppInstance;
+  @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
 
   async componentWillLoad() {
     const params = new URLSearchParams(window.location.search);
@@ -68,6 +69,7 @@ export class AppProvider {
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
     this.cfProvider.on("updateState", this.onUpdateState.bind(this));
+    this.cfProvider.on("uninstall", this.onUninstall.bind(this));
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     this.appFactory = new cf.AppFactory(
@@ -93,7 +95,7 @@ export class AppProvider {
     );
   }
 
-  onUpdateState({ data }: { data: Node.EventData }) {
+  async onUpdateState({ data }: { data: Node.EventData }) {
     const newStateArray = (data as Node.UpdateStateEventData).newState;
 
     const state = {
@@ -119,15 +121,16 @@ export class AppProvider {
       return;
     }
 
-    const rolls = this.highRoller(
+    const rolls = await this.highRoller(
       state.playerFirstNumber,
       state.playerSecondNumber
     );
 
     const myRoll = rolls.myRoll;
     const opponentRoll = rolls.opponentRoll;
-    const totalMyRoll = this.myRoll[0] + this.myRoll[1];
-    const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
+    const totalMyRoll = myRoll[0] + myRoll[1];
+    const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
+
     let myScore = this.myScore;
     let opponentScore = this.opponentScore;
     let gameState;
@@ -153,11 +156,19 @@ export class AppProvider {
     };
 
     this.updateUIState(newUIState);
+
+    debugger;
+    await this.appInstance.uninstall();
   }
 
   onInstall(data) {
     this.updateAppInstance(data.data.appInstance);
     this.goToGame(this.history);
+  }
+
+  onUninstall(data: Node.EventData) {
+    const uninstallData = data as Node.UninstallEventData;
+    debugger;
   }
 
   render() {
@@ -174,3 +185,5 @@ HighRollerUITunnel.injectProps(AppProvider, [
   "updateUIState",
   "highRollerState"
 ]);
+
+CounterfactualTunnel.injectProps(AppProvider, ["appInstance"]);

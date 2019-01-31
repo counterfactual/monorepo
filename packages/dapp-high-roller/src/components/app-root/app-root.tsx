@@ -18,6 +18,7 @@ import { cf, Node } from "../../data/types";
 declare var NodeProvider;
 declare var cf;
 declare var ethers;
+declare var web3;
 
 const { solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
@@ -158,11 +159,32 @@ export class AppRoot {
     ];
   }
 
-  highRoller(num1: number, num2: number) {
+  async highRoller(num1: number, num2: number) {
     const randomness = solidityKeccak256(["uint256", "uint256"], [num1, num2]);
+
+    // The Contract interface
+    const abi = [
+      "function highRoller(bytes32 randomness) public pure returns(uint8 playerFirstTotal, uint8 playerSecondTotal)"
+    ];
+
+    debugger;
+
+    // Connect to the network
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+
+    const contractAddress = "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915";
+
+    // We connect to the Contract using a Provider, so we will only
+    // have read-only access to the Contract
+    const contract = new ethers.Contract(contractAddress, abi, provider);
+
+    const result = await contract.highRoller(randomness);
+
+    console.log(result);
+
     return {
-      myRoll: this.generateRandomRoll(),
-      opponentRoll: this.generateRandomRoll()
+      myRoll: result[0],
+      opponentRoll: result[1]
     };
   }
 
