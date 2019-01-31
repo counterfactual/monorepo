@@ -2,10 +2,10 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
+import { getCounterpartyAddress } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 import { actionIsEncondable, generateNewAppInstanceState } from "./operation";
-import { getCounterpartyAddress } from "../../../utils";
 
 export default async function takeActionController(
   requestHandler: RequestHandler,
