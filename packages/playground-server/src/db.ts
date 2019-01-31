@@ -143,6 +143,53 @@ export async function getUser(
   } as APIResource<UserAttributes>;
 }
 
+export async function getUserByName(
+  username: string
+): Promise<APIResource<UserAttributes>> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .columns({
+      id: "id",
+      username: "username",
+      email: "email",
+      ethAddress: "eth_address",
+      multisigAddress: "multisig_address",
+      nodeAddress: "node_address"
+    })
+    .select()
+    .where("username", "=", username);
+
+  const users: (UserAttributes & { id: string })[] = await query;
+
+  Log.debug("Executed getUser query", {
+    tags: { query: query.toSQL().sql }
+  });
+
+  await db.destroy();
+
+  if (users.length === 0) {
+    Log.info("No user found with provided username", {
+      tags: { user: username }
+    });
+    throw ErrorCode.UserNotFound;
+  }
+
+  const [user] = users;
+
+  return {
+    type: "users",
+    id: user.id,
+    attributes: {
+      username: user.username,
+      email: user.email,
+      ethAddress: user.ethAddress,
+      multisigAddress: user.multisigAddress,
+      nodeAddress: user.nodeAddress
+    }
+  } as APIResource<UserAttributes>;
+}
+
 export async function userExists(user: UserAttributes): Promise<boolean> {
   const db = getDatabase();
 
