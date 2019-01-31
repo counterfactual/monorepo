@@ -45,6 +45,7 @@ export class AppLogo {
               <img src="/assets/images/logo.svg" alt="High Roller" />
             </h1>
           </div>
+          <app-game-coins />
         </stencil-route-link>
       </div>
     );
