@@ -9,12 +9,13 @@ import {
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
 import { getAddress, SigningKey } from "ethers/utils";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
-import { getSigner } from "./signer";
+import { getHDNode } from "./signer";
 import {
   NODE_EVENTS,
   NodeMessage,
@@ -44,7 +45,7 @@ export class Node {
 
   // These properties don't have initializers in the constructor and get
   // initialized in the `init` function
-  private signer!: SigningKey;
+  private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
   static async create(
@@ -78,9 +79,9 @@ export class Node {
   }
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
-    this.signer = await getSigner(this.storeService);
+    this.signer = await getHDNode(this.storeService);
     this.requestHandler = new RequestHandler(
-      this.signer.address,
+      this.address,
       this.incoming,
       this.outgoing,
       this.storeService,
@@ -88,13 +89,13 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.address}`
     );
     this.registerMessagingConnection();
     return this;
   }
 
-  get address() {
+  get address(): string {
     return this.signer.address;
   }
 
@@ -118,9 +119,11 @@ export class Node {
           );
         }
 
+        const signingKey = new SigningKey(this.signer.privateKey);
+
         for (const commitment of context.commitments) {
           context.signatures.push(
-            this.signer.signDigest(commitment.hashToSign(asIntermediary))
+            signingKey.signDigest(commitment.hashToSign(asIntermediary))
           );
         }
 
