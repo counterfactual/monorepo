@@ -1,4 +1,5 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 /**
  * User Story
@@ -11,6 +12,19 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppLogo {
+  @Prop() goToGame: (
+    history: RouterHistory,
+    isProposing: boolean
+  ) => void = () => {};
+  @Prop() appInstance: any;
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  componentDidLoad() {
+    if (this.appInstance) {
+      this.goToGame(this.history, false);
+    }
+  }
+
   render() {
     return (
       <div>
@@ -20,7 +34,6 @@ export class AppLogo {
               <img src="/assets/images/logo.svg" alt="High Roller" />
             </h1>
           </div>
-          <app-game-coins />
         </stencil-route-link>
       </div>
     );

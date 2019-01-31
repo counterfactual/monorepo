@@ -1,6 +1,10 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import { GameState, HighRollerAppState } from "../../data/game-types";
+import HighRollerUITunnel, {
+  HighRollerUIMutableState
+} from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, Node } from "../../data/types";
@@ -17,6 +21,24 @@ export class AppProvider {
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
   @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
+  @Prop() updateUIState: (data: HighRollerUIMutableState) => void = () => {};
+  @Prop() goToGame: (history: RouterHistory) => void = () => {};
+  @Prop() highRoller: (
+    num1: number,
+    num2: number
+  ) => { myRoll: number[]; opponentRoll: number[] } = () => ({
+    myRoll: [0, 0],
+    opponentRoll: [0, 0]
+  });
+  @Prop() generateRandomRoll: () => number[] = () => [0, 0];
+  @Prop() highRollerState: HighRollerAppState = {} as HighRollerAppState;
+  @Prop() gameState: GameState = GameState.Play;
+  @Prop() myRoll: number[] = [1, 1];
+  @Prop() myScore: number = 0;
+
+  @Prop() opponentRoll: number[] = [1, 1];
+  @Prop() opponentScore: number = 0;
+
   @Prop({ mutable: true })
   nodeProvider: MockNodeProvider = {} as MockNodeProvider;
 
@@ -36,65 +58,91 @@ export class AppProvider {
     await this.nodeProvider.connect();
 
     this.setupCfProvider();
-    this.waitForCounterpartyAppInstance();
-  }
-
-  waitForCounterpartyAppInstance() {
-    window.addEventListener("message", event => {
-      if (
-        typeof event.data === "string" &&
-        event.data.startsWith("playground:appInstance")
-      ) {
-        const [, data] = event.data.split("|");
-        console.log("Received counterparty app instance", event.data);
-
-        if (data) {
-          const { appInstance } = JSON.parse(data);
-          this.updateAppInstance(appInstance);
-          this.history.push({
-            pathname: "/game"
-          });
-        }
-      }
-    });
   }
 
   setupCfProvider() {
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
     this.cfProvider.on("updateState", this.onUpdateState.bind(this));
-    this.cfProvider.on("install", this.onInstall.bind(this));
+    this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
       "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-      { actionEncoding: "uint256", stateEncoding: "uint256" },
+      {
+        actionEncoding:
+          "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
+        stateEncoding:
+          "tuple(address[2] playerAddrs, uint8 stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
+      },
       this.cfProvider
     );
 
     this.updateAppFactory(this.appFactory);
   }
 
-  onUpdateState(data: Node.EventData) {
-    // TODO implement logic
-    console.log("UPDATE_STATE", data);
+  onUpdateState({ data }: { data: Node.EventData }) {
+    const newStateArray = (data as Node.UpdateStateEventData).newState;
+    const state = {
+      playerAddrs: newStateArray[0],
+      stage: newStateArray[1],
+      salt: newStateArray[2],
+      commitHash: newStateArray[3],
+      playerFirstNumber: newStateArray[4],
+      playerSecondNumber: newStateArray[5]
+    } as HighRollerAppState;
+
+    const rolls = this.highRoller(
+      state.playerFirstNumber,
+      state.playerSecondNumber
+    );
+
+    const myRoll = rolls.myRoll;
+    const opponentRoll = rolls.opponentRoll;
+    const totalMyRoll = this.myRoll[0] + this.myRoll[1];
+    const totalOpponentRoll = this.opponentRoll[0] + this.opponentRoll[1];
+    let myScore = this.myScore;
+    let opponentScore = this.opponentScore;
+    let gameState;
+
+    if (totalMyRoll > totalOpponentRoll) {
+      myScore = this.myScore + 1;
+      gameState = GameState.Won;
+    } else if (totalMyRoll < totalOpponentRoll) {
+      opponentScore += 1;
+      gameState = GameState.Lost;
+    } else {
+      gameState = GameState.Tie;
+    }
+
+    const highRollerState = state;
+    const newUIState = {
+      myRoll,
+      opponentRoll,
+      myScore,
+      opponentScore,
+      gameState,
+      highRollerState
+    };
+
+    this.updateUIState(newUIState);
   }
 
   onInstall(data) {
     this.updateAppInstance(data.data.appInstance);
-
-    this.history.push({
-      pathname: "/game",
-      state: {
-        betAmount: "0.1",
-        isProposing: true
-      },
-      query: {},
-      key: ""
-    });
+    this.goToGame(this.history);
   }
 
   render() {
     return <div />;
   }
 }
+
+HighRollerUITunnel.injectProps(AppProvider, [
+  "myRoll",
+  "myScore",
+  "opponentRoll",
+  "opponentScore",
+  "gameState",
+  "updateUIState"
+]);
