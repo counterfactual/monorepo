@@ -59,6 +59,7 @@ export class DappContainer {
     this.node.on("getState", this.postOrQueueMessage.bind(this));
     this.node.on("takeAction", this.postOrQueueMessage.bind(this));
     this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME
