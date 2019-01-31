@@ -1,14 +1,12 @@
-import { Component, Element, Prop, State } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { GameState, HighRollerAppState } from "../../data/game-types";
-import HighRollerUITunnel, {
-  HighRollerUIMutableState
-} from "../../data/high-roller";
+import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
-import { cf, Node } from "../../data/types";
+import { cf, HighRollerUIMutableState, Node } from "../../data/types";
 
 declare var NodeProvider;
 declare var cf;
@@ -95,7 +93,7 @@ export class AppProvider {
     );
   }
 
-  async onUpdateState({ data }: { data: Node.EventData }) {
+  async onUpdateState({ data }: { data: Node.UpdateStateEventData }) {
     const newStateArray = (data as Node.UpdateStateEventData).newState;
 
     const state = {
