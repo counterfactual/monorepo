@@ -336,6 +336,7 @@ export namespace cf {
     nodeProvider: NodeProvider;
   };
   export type NodeProvider = {
+    new (): NodeProvider;
     isConnected;
     eventEmitter;
     messagePort?;
