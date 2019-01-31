@@ -20,11 +20,7 @@ export class AppGameStatus {
     return (
       <div class="divider">
         {this.gameState === GameState.Play ? (
-          <div class="divider__status divider__status--turn">
-            {this.isProposing
-              ? "Your turn"
-              : `${this.opponent.attributes.username}'s turn`}
-          </div>
+          <div class="divider__status divider__status--turn">Your turn</div>
         ) : this.gameState === GameState.Won ? (
           <div class="divider__status divider__status--won">
             <span class="result">You Won!</span>

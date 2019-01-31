@@ -61,11 +61,11 @@ export class AppWaiting {
     this.countDown();
   }
 
-  setupWaiting() {
+  setupWaiting(cfProvider?, appInstance?) {
     if (this.isProposing) {
       this.setupWaitingProposing();
     } else {
-      this.setupWaitingAccepting();
+      this.setupWaitingAccepting(cfProvider, appInstance);
     }
   }
 
@@ -77,19 +77,17 @@ export class AppWaiting {
     this.startCountdown();
   }
 
-  setupWaitingAccepting() {
-    this.startCountdown();
-
-    setTimeout(() => {
-      this.goToGame(this.opponentName, "123");
-    }, this.seconds * 1000);
+  setupWaitingAccepting(cfProvider, appInstance) {
+    cfProvider.once("updateState", () => {
+      this.goToGame(this.opponentName, appInstance.id);
+    });
   }
 
   render() {
     return (
       <CounterfactualTunnel.Consumer>
-        {() => [
-          <div>{this.setupWaiting()}</div>,
+        {({ cfProvider, appInstance }) => [
+          <div>{this.setupWaiting(cfProvider, appInstance)}</div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">
@@ -100,9 +98,15 @@ export class AppWaiting {
                 />
                 <h1 class="message__title">Waiting Room</h1>
                 <p class="message__body">
-                  Waiting for another player to join the game in
+                  {this.isProposing
+                    ? "Waiting for another player to join the game in"
+                    : `Waiting on ${this.opponentName}'s roll...`}
                 </p>
-                <p class="countdown">{this.seconds}</p>
+                {this.isProposing ? (
+                  <p class="countdown">{this.seconds}</p>
+                ) : (
+                  {}
+                )}
                 <p>
                   Player: {this.myName} <br />
                   Opponent: {this.opponentName} <br />

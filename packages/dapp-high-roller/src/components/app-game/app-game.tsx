@@ -73,10 +73,15 @@ export class AppGame {
   shakeAudio!: HTMLAudioElement;
   rollAudio!: HTMLAudioElement;
 
-  componentWillLoad() {
+  async componentWillLoad() {
     this.betAmount = getProp("betAmount", this);
     this.isProposing = getProp("isProposing", this);
     this.appInstanceId = getProp("appInstanceId", this);
+  }
+
+  @Watch("gameState")
+  onGameStateChanged() {
+    console.log("Game state changed to ", this.gameState);
   }
 
   async animateRoll(roller): Promise<void> {
@@ -96,6 +101,14 @@ export class AppGame {
   }
 
   async handleRoll(): Promise<void> {
+    if (!this.appInstance.takeAction) {
+      this.appInstance = await this.cfProvider.getOrCreateAppInstance(
+        this.appInstanceId,
+        this.appInstance
+      );
+      console.log("Reset appInstance", this.appInstance);
+    }
+
     if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
       await Promise.all([
         this.animateRoll("myRoll"),
@@ -123,12 +136,34 @@ export class AppGame {
       this.highRollerState = await this.appInstance.takeAction(
         commitHashAction
       );
+    } else {
+      await Promise.all([
+        this.animateRoll("myRoll"),
+        this.animateRoll("opponentRoll")
+      ]);
+
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerSecondNumber = Math.floor(Math.random() * Math.floor(1000));
+      const hash = computeCommitHash(numberSalt, playerSecondNumber);
+
+      const commitHashAction: Action = {
+        number: playerSecondNumber,
+        actionType: ActionType.COMMIT_TO_NUM,
+        actionHash: hash
+      };
+
+      this.highRollerState = await this.appInstance.takeAction(
+        commitHashAction
+      );
     }
   }
+
   handleRematch(): void {
     this.gameState = GameState.Play;
     this.highRollerState = this.defaultHighRollerState;
   }
+
   handleExit(): void {
     this.history.push({
       pathname: "/wager",
@@ -210,5 +245,6 @@ HighRollerUITunnel.injectProps(AppGame, [
   "opponentScore",
   "gameState",
   "updateUIState",
-  "generateRandomRoll"
+  "generateRandomRoll",
+  "highRollerState"
 ]);

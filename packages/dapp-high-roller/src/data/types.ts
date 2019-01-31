@@ -334,5 +334,9 @@ export namespace cf {
     ) => Promise<Node.MethodResponse>;
     appInstances: { [appInstanceId: string]: AppInstance };
     nodeProvider: NodeProvider;
+    getOrCreateAppInstance: (
+      id: string,
+      info: AppInstance
+    ) => Promise<AppInstance>;
   };
 }

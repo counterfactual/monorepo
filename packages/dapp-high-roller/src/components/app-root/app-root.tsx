@@ -2,7 +2,11 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { GameState, HighRollerAppState } from "../../data/game-types";
+import {
+  GameState,
+  HighRollerAppState,
+  HighRollerStage
+} from "../../data/game-types";
 import HighRollerUITunnel, {
   HighRollerUIMutableState,
   HighRollerUIState
@@ -16,6 +20,7 @@ declare var cf;
 declare var ethers;
 
 const { solidityKeccak256 } = ethers.utils;
+const { AddressZero, HashZero } = ethers.constants;
 
 @Component({
   tag: "app-root",
@@ -25,10 +30,6 @@ const { solidityKeccak256 } = ethers.utils;
 export class AppRoot {
   @Prop({ mutable: true }) state: any;
   @Prop({ mutable: true }) uiState: HighRollerUIState;
-  nodeProvider: any;
-  cfProvider: cf.Provider = {} as cf.Provider;
-  appFactory: cf.AppFactory = {} as cf.AppFactory;
-  @State() appInstance: AppInstance = {} as AppInstance;
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
@@ -38,10 +39,12 @@ export class AppRoot {
       standalone: params.get("standalone") === "true" || false,
       appInstance: null,
       appFactory: null,
+      cfProvider: null,
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this),
       updateUser: this.updateAccount.bind(this),
-      updateOpponent: this.updateOpponent.bind(this)
+      updateOpponent: this.updateOpponent.bind(this),
+      updateCfProvider: this.updateCfProvider.bind(this)
     };
     this.uiState = {
       myRoll: [0, 0],
@@ -52,12 +55,19 @@ export class AppRoot {
       updateUIState: this.updateUIState.bind(this),
       highRoller: this.highRoller.bind(this),
       generateRandomRoll: this.generateRandomRoll.bind(this),
-      highRollerState: {} as HighRollerAppState
+      highRollerState: {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.PRE_GAME,
+        salt: HashZero,
+        commitHash: HashZero,
+        playerFirstNumber: 0,
+        playerSecondNumber: 0
+      } as HighRollerAppState
     };
   }
 
   setupPlaygroundMessageListeners() {
-    window.addEventListener("message", (event: MessageEvent) => {
+    window.addEventListener("message", async (event: MessageEvent) => {
       if (
         typeof event.data === "string" &&
         event.data.startsWith("playground:response:user")
@@ -123,10 +133,16 @@ export class AppRoot {
 
   updateAppInstance(appInstance: AppInstance) {
     this.state = { ...this.state, appInstance };
+    console.log("appInstance updated", appInstance);
   }
 
   updateAppFactory(appFactory: cf.AppFactory) {
     this.state = { ...this.state, appFactory };
+  }
+
+  updateCfProvider(cfProvider: cf.Provider) {
+    this.state = { ...this.state, cfProvider };
+    console.log("CFProvider instance updated");
   }
 
   updateUIState(state: HighRollerUIMutableState) {
@@ -160,6 +176,10 @@ export class AppRoot {
     });
   }
 
+  goToWaitingRoom(history: RouterHistory) {
+    history.push({ pathname: "/waiting" });
+  }
+
   render() {
     return (
       <div class="height-100">
@@ -173,8 +193,10 @@ export class AppRoot {
                     exact={true}
                     component="app-logo"
                     componentProps={{
+                      cfProvider: this.state.cfProvider,
                       appInstance: this.state.appInstance,
-                      goToGame: this.goToGame
+                      goToWaitingRoom: this.goToWaitingRoom,
+                      updateAppInstance: this.updateAppInstance
                     }}
                   />
                   <stencil-route
@@ -184,6 +206,7 @@ export class AppRoot {
                     componentProps={{
                       updateAppInstance: this.state.updateAppInstance,
                       updateAppFactory: this.state.updateAppFactory,
+                      updateCfProvider: this.state.updateCfProvider,
                       updateUIState: this.uiState.updateUIState,
                       highRoller: this.uiState.highRoller,
                       generateRandomRoll: this.uiState.generateRandomRoll,

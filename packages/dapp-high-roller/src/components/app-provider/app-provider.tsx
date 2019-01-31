@@ -11,6 +11,9 @@ import { cf, Node } from "../../data/types";
 
 declare var NodeProvider;
 declare var cf;
+declare var ethers;
+
+const bn = ethers.utils.bigNumberify;
 
 @Component({
   tag: "app-provider"
@@ -21,6 +24,7 @@ export class AppProvider {
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
   @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
+  @Prop() updateCfProvider: (cfProvider: cf.Provider) => void = () => {};
   @Prop() updateUIState: (data: HighRollerUIMutableState) => void = () => {};
   @Prop() goToGame: (history: RouterHistory) => void = () => {};
   @Prop() highRoller: (
@@ -79,6 +83,14 @@ export class AppProvider {
     );
 
     this.updateAppFactory(this.appFactory);
+    this.updateCfProvider(this.cfProvider);
+  }
+
+  isReadyForHighRoller(state) {
+    return (
+      bn(state.playerFirstNumber).toNumber() &&
+      bn(state.playerSecondNumber).toNumber()
+    );
   }
 
   onUpdateState({ data }: { data: Node.EventData }) {
@@ -91,6 +103,11 @@ export class AppProvider {
       playerFirstNumber: newStateArray[4],
       playerSecondNumber: newStateArray[5]
     } as HighRollerAppState;
+
+    if (!this.isReadyForHighRoller(state)) {
+      this.updateUIState({ highRollerState: state });
+      return;
+    }
 
     const rolls = this.highRoller(
       state.playerFirstNumber,

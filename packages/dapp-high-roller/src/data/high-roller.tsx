@@ -3,12 +3,12 @@ import { createProviderConsumer } from "@stencil/state-tunnel";
 import { GameState, HighRollerAppState } from "./game-types";
 
 export type HighRollerUIMutableState = {
-  myRoll: number[];
-  opponentRoll: number[];
-  myScore: number;
-  opponentScore: number;
-  gameState: GameState;
-  highRollerState: HighRollerAppState;
+  myRoll?: number[];
+  opponentRoll?: number[];
+  myScore?: number;
+  opponentScore?: number;
+  gameState?: GameState;
+  highRollerState?: HighRollerAppState;
 };
 
 export type HighRollerUIState = HighRollerUIMutableState & {
