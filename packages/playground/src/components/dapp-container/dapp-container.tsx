@@ -106,6 +106,10 @@ export class DappContainer {
     }
 
     if (event.data === "playground:request:user") {
+      const matchmakeWith = window.localStorage.getItem(
+        "playground:matchmakeWith"
+      ) as string;
+
       this.frameWindow.postMessage(
         `playground:response:user|${JSON.stringify({
           user: {
@@ -114,7 +118,9 @@ export class DappContainer {
               "playground:user:token"
             ) as string
           },
-          balance: this.balance
+          balance: this.balance,
+          // This devtool flag allows to force a matchmake with a given username.
+          ...(matchmakeWith ? { matchmakeWith } : {})
         })}`,
         "*"
       );

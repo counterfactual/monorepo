@@ -1,10 +1,11 @@
 import { v4 as generateUUID } from "uuid";
 
-import { matchmakeUser } from "../db";
+import { getUserByName, matchmakeUser } from "../db";
 import { getNodeAddress } from "../node";
 import {
   APIResource,
   APIResponse,
+  MatchedUserAttributes,
   MatchmakingAttributes,
   UserSession
 } from "../types";
@@ -16,9 +17,22 @@ import Authorize from "./decorators/authorize";
 export default class MatchmakingController extends Controller<
   MatchmakingAttributes
 > {
-  async post() {
+  async post(data?: APIResource<MatchmakingAttributes>) {
     const user = this.user as UserSession;
-    const matchedUser = await matchmakeUser(user.ethAddress);
+    let matchedUser: MatchedUserAttributes;
+
+    if (data && data.attributes) {
+      const matchedUserResource = await getUserByName(data.attributes
+        .matchmakeWith as string);
+      matchedUser = {
+        id: matchedUserResource.id as string,
+        ethAddress: matchedUserResource.attributes.ethAddress as string,
+        nodeAddress: matchedUserResource.attributes.nodeAddress,
+        username: matchedUserResource.attributes.username
+      };
+    } else {
+      matchedUser = await matchmakeUser(user.ethAddress);
+    }
 
     return {
       data: {
