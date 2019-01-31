@@ -272,3 +272,15 @@ export function generateTakeActionRequest(
     type: NodeTypes.MethodName.TAKE_ACTION
   };
 }
+
+export function generateUninstallRequest(
+  appInstanceId: AppInstanceID
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId
+    } as NodeTypes.UninstallParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.UNINSTALL
+  };
+}

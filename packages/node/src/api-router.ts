@@ -8,7 +8,8 @@ import {
   proposeInstallVirtualEventController,
   rejectInstallEventController,
   rejectInstallVirtualEventController,
-  takeActionEventController
+  takeActionEventController,
+  uninstallEventController
 } from "./events";
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
@@ -23,7 +24,8 @@ import {
   proposeInstallAppInstanceController,
   proposeInstallVirtualAppInstanceController,
   rejectInstallController,
-  takeActionController
+  takeActionController,
+  uninstallController
 } from "./methods";
 import { NODE_EVENTS } from "./types";
 
@@ -41,7 +43,8 @@ export const methodNameToImplementation = {
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
   [Node.MethodName.TAKE_ACTION]: takeActionController,
   [Node.MethodName.REJECT_INSTALL]: rejectInstallController,
-  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: getAppInstanceController
+  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: getAppInstanceController,
+  [Node.MethodName.UNINSTALL]: uninstallController
 };
 
 export const eventNameToImplementation = {
@@ -54,8 +57,8 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
+  [NODE_EVENTS.UNINSTALL]: uninstallEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
-  [NODE_EVENTS.REJECT_STATE]: () => {},
-  [NODE_EVENTS.UNINSTALL]: () => {}
+  [NODE_EVENTS.REJECT_STATE]: () => {}
 };
