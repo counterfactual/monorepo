@@ -28,6 +28,11 @@ export async function getChannelFromPeerAddress(
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
   );
+  if (!multisigAddress) {
+    return Promise.reject(
+      `No channel exists between the current user ${selfAddress} and the peer ${peerAddress}`
+    );
+  }
   return await store.getStateChannel(multisigAddress);
 }
 

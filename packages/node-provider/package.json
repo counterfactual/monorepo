@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@counterfactual/types": "0.0.1",
-    "@types/jest": "^23.3.11",
-    "@types/node": "^10.9.3",
+    "@types/jest": "^23.3.13",
+    "@types/node": "^10.12.19",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",

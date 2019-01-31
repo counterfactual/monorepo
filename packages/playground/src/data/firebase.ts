@@ -54,6 +54,12 @@ class FirebaseMessagingService implements IMessagingService {
   // registration and invocation
   private servedMessages = new Set();
 
+  // The last msg that was sent by a peer is retrieved when the listener
+  // is registered. To prevent invocation of the callback based on this _last_
+  // message, we determine if it's the first time we're registering the
+  // listener or not in order to actually invoke the callback.
+  private initialHookResponseFired = false;
+
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -97,6 +103,10 @@ class FirebaseMessagingService implements IMessagingService {
           this.servedMessages.delete(msg);
         } else {
           this.servedMessages.add(msg);
+          if (!this.initialHookResponseFired) {
+            this.initialHookResponseFired = true;
+            return;
+          }
           callback(msg);
         }
       });
