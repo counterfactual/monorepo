@@ -12,11 +12,9 @@ import {
   HighRollerStage,
   PlayerType
 } from "../../data/game-types";
-import HighRollerUITunnel, {
-  HighRollerUIMutableState
-} from "../../data/high-roller";
+import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
-import { cf } from "../../data/types";
+import { cf, HighRollerUIMutableState } from "../../data/types";
 import { getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;

@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -7,16 +7,14 @@ import {
   HighRollerAppState,
   HighRollerStage
 } from "../../data/game-types";
-import HighRollerUITunnel, {
+import HighRollerUITunnel from "../../data/high-roller";
+import { AppInstance } from "../../data/mock-app-instance";
+import {
+  cf,
   HighRollerUIMutableState,
   HighRollerUIState
-} from "../../data/high-roller";
-import { AppInstance } from "../../data/mock-app-instance";
-import MockNodeProvider from "../../data/mock-node-provider";
-import { cf, Node } from "../../data/types";
+} from "../../data/types";
 
-declare var NodeProvider;
-declare var cf;
 declare var ethers;
 declare var web3;
 
