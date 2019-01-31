@@ -45,7 +45,7 @@ export class AppHome {
             onAppClicked={e => this.appClickedHandler(e)}
             name="Available Apps"
           />
-          <apps-list apps={this.runningApps} name="Running Apps" />
+          {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
         </div>
       </section>
     ];

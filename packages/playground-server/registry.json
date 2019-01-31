@@ -5,14 +5,14 @@
       "name": "High Roller",
       "url": "https://high-roller-staging.counterfactual.com",
       "slug": "high-roller",
-      "icon": "assets/images/logo.svg"
+      "icon": "assets/images/logo.png"
     },
     {
       "id": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
       "name": "Tic Tac Toe",
       "url": "https://tic-tac-toe-staging.netlify.com",
       "slug": "tic-tac-toe",
-      "icon": "images/logo-blue.svg"
+      "icon": "images/logo.png"
     }
   ]
 }

@@ -1,5 +1,11 @@
 .account-container {
   display: flex;
+
+  .btn-container {
+    .btn {
+      font-size: 15px;
+    }
+  }
 }
 
 .info-container {
