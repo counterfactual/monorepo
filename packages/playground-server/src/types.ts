@@ -123,6 +123,7 @@ export type MatchedUserAttributes = {
 
 export type MatchmakingAttributes = {
   intermediary: string;
+  matchmakeWith?: string;
 };
 
 export type AppsControllerOptions = {
