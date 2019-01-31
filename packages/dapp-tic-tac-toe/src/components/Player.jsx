@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 
+const bn = window.ethers ? window.ethers.utils.bigNumberify : () => {};
+
 class Player extends Component {
   get won() {
-    return this.props.gameState.winner === this.props.myNumber;
+    return bn(this.props.winner).toNumber() === this.props.myNumber;
   }
 
   get lost() {
-    return this.props.gameState.winner === this.props.opponentNumber;
+    return bn(this.props.winner).toNumber() === this.props.opponentNumber;
   }
 
   get tied() {
-    return this.props.gameState.winner === 3;
+    return bn(this.props.winner).toNumber() === 3;
   }
 
   get status() {
