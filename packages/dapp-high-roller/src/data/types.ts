@@ -1,5 +1,6 @@
 import { BigNumber, BigNumberish } from "ethers/utils";
 
+import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
 import NodeProvider from "./mock-node-provider";
 
@@ -334,5 +335,27 @@ export namespace cf {
     ) => Promise<Node.MethodResponse>;
     appInstances: { [appInstanceId: string]: AppInstance };
     nodeProvider: NodeProvider;
+    getOrCreateAppInstance: (
+      id: string,
+      info: AppInstance
+    ) => Promise<AppInstance>;
   };
 }
+
+export type HighRollerUIMutableState = {
+  myRoll?: number[];
+  opponentRoll?: number[];
+  myScore?: number;
+  opponentScore?: number;
+  gameState?: GameState;
+  highRollerState?: HighRollerAppState;
+};
+
+export type HighRollerUIState = HighRollerUIMutableState & {
+  updateUIState: (state: HighRollerUIMutableState) => void;
+  highRoller: (
+    num1: number,
+    num2: number
+  ) => Promise<{ myRoll: number[]; opponentRoll: number[] }>;
+  generateRandomRoll: () => number[];
+};

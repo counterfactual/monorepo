@@ -1,5 +1,6 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 
+import CounterfactualTunnel from "../../data/counterfactual";
 import { GameState } from "../../data/game-types";
 
 @Component({
@@ -8,14 +9,18 @@ import { GameState } from "../../data/game-types";
   shadow: true
 })
 export class AppGameStatus {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() gameState: GameState = GameState.Play;
+  @Prop() isProposing: boolean = true;
   @Prop() betAmount: string = "3 ETH";
+  @Prop() account: any = { user: { username: "Facundo" } };
+  @Prop() opponent: any = { attributes: { username: "John" } };
 
   render() {
     return (
       <div class="divider">
         {this.gameState === GameState.Play ? (
-          <div class="divider__status divider__status--turn">Your Turn</div>
+          <div class="divider__status divider__status--turn">Your turn</div>
         ) : this.gameState === GameState.Won ? (
           <div class="divider__status divider__status--won">
             <span class="result">You Won!</span>
@@ -33,3 +38,5 @@ export class AppGameStatus {
     );
   }
 }
+
+CounterfactualTunnel.injectProps(AppGameStatus, ["account", "opponent"]);

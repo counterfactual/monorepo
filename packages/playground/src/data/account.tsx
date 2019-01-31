@@ -1,7 +1,6 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-import { ErrorMessage } from "..//types";
+import { ErrorMessage, UserSession } from "../types";
 
 export type AccountState = {
   user: UserSession;
