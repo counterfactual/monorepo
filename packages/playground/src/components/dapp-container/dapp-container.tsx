@@ -1,13 +1,12 @@
 declare var EventEmitter: any;
 
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults, RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import { AppDefinition } from "../../types";
+import { AppDefinition, UserSession } from "../../types";
 
 @Component({
   tag: "dapp-container",
@@ -60,6 +59,7 @@ export class DappContainer {
     this.node.on("getState", this.postOrQueueMessage.bind(this));
     this.node.on("takeAction", this.postOrQueueMessage.bind(this));
     this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME

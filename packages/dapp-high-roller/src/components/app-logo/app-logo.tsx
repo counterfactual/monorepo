@@ -1,4 +1,9 @@
-import { Component } from "@stencil/core";
+import { Component, Element, Prop, Watch } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
+
+import CounterfactualTunnel from "../../data/counterfactual";
+import { AppInstance } from "../../data/mock-app-instance";
+import { cf } from "../../data/types";
 
 /**
  * User Story
@@ -11,6 +16,26 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppLogo {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
+
+  @Prop() goToWaitingRoom: (history: RouterHistory) => void = () => {};
+  @Prop() appInstance: any;
+  @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
+
+  @Watch("cfProvider")
+  async onCfProviderReady() {
+    if (this.appInstance) {
+      const appInstance = await this.cfProvider.getOrCreateAppInstance(
+        this.appInstance.id,
+        this.appInstance
+      );
+      this.updateAppInstance(appInstance);
+      this.goToWaitingRoom(this.history);
+    }
+  }
+
   render() {
     return (
       <div>
@@ -26,3 +51,5 @@ export class AppLogo {
     );
   }
 }
+
+CounterfactualTunnel.injectProps(AppLogo, ["cfProvider"]);

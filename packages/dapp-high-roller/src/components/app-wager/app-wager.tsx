@@ -74,7 +74,11 @@ export class AppWager {
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        playerNames: [
+          this.account.user.username,
+          this.opponent.attributes.username
+        ]
       };
 
       await this.appFactory.proposeInstallVirtual({
@@ -166,7 +170,7 @@ export class AppWager {
 
     const response = await fetch(
       // TODO: This URL must come from an environment variable.
-      "https://server.playground-staging.counterfactual.com/api/matchmaking",
+      "http://localhost:9000/api/matchmaking",
       {
         method: "POST",
         ...(matchmakeWith

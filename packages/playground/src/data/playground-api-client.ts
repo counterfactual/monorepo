@@ -5,12 +5,12 @@ import {
   APIResourceCollection,
   APIResponse,
   AppAttributes,
+  AppDefinition,
   SessionAttributes,
   UserAttributes,
+  UserChangeset,
   UserSession
-} from "@counterfactual/playground-server";
-
-import { AppDefinition, UserChangeset } from "../types";
+} from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
 
