@@ -100,7 +100,7 @@ describe("CF.js Provider", () => {
         expect(err.data.errorName).toBe("request_timeout");
       }
     },
-    NODE_REQUEST_TIMEOUT // This could be done with fake timers.
+    NODE_REQUEST_TIMEOUT + 1000 // This could be done with fake timers.
   );
 
   it("throws an error for unexpected event types", async () => {
