@@ -890,10 +890,15 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@firebase/app-types@0.3.2", "@firebase/app-types@^0.3.2":
+"@firebase/app-types@0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.2.tgz#a92dc544290e2893bd8c02a81e684dae3d8e7c85"
   integrity sha512-ZD8lTgW07NGgo75bTyBJA8Lt9+NweNzot7lrsBtIvfciwUzaFJLsv2EShqjBeuhF7RpG6YFucJ6m67w5buCtzw==
+
+"@firebase/app-types@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.3.tgz#87659dd4cce8d1e341c717c61bd654998ac7142b"
+  integrity sha512-mMcYitdEdzKOzEevHtECVepiqncSZBxRdI9r/LcJfx5ai4529UufpoLz15CnKLHEqkSB3OQqlZbI78xpZNQPPA==
 
 "@firebase/app@0.3.5":
   version "0.3.5"
@@ -1847,10 +1852,10 @@
   resolved "https://registry.yarnpkg.com/@types/http-assert/-/http-assert-1.4.0.tgz#41d173466e396e99a14d75f7160cc997f2f9ed8b"
   integrity sha512-TZDqvFW4nQwL9DVSNJIJu4lPLttKgzRF58COa7Vs42Ki/MrhIqUbeIw0MWn4kGLiZLXB7oCBibm7nkSjPkzfKQ==
 
-"@types/jest@^23.3.11":
-  version "23.3.12"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.12.tgz#7e0ced251fa94c3bc2d1023d4b84b2992fa06376"
-  integrity sha512-/kQvbVzdEpOq4tEWT79yAHSM4nH4xMlhJv2GrLVQt4Qmo8yYsPdioBM1QpN/2GX1wkfMnyXvdoftvLUr0LBj7Q==
+"@types/jest@^23.3.13":
+  version "23.3.13"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.13.tgz#c81484b6f4ca007bb09887ed15ecb3286d58f928"
+  integrity sha512-ePl4l+7dLLmCucIwgQHAgjiepY++qcI6nb8eAwGNkB6OxmTe3Z9rQU3rSpomqu42PCCnlThZbOoxsf+qylJsLA==
 
 "@types/json5@^0.0.29":
   version "0.0.29"
@@ -1882,10 +1887,10 @@
   resolved "https://registry.yarnpkg.com/@types/koa-compose/-/koa-compose-3.2.2.tgz#dc106e000bbf92a3ac900f756df47344887ee847"
   integrity sha1-3BBuAAu/kqOskA91bfRzRIh+6Ec=
 
-"@types/koa-router@^7.0.37":
-  version "7.0.37"
-  resolved "https://registry.yarnpkg.com/@types/koa-router/-/koa-router-7.0.37.tgz#7bff5fad42d500251b39055cc9ee31e8d2351a42"
-  integrity sha512-9PDtp/3FXHS6kfADWgy29NFYYLVuViY1VRvRnBDpIU9vna6wtdXkItrh3VAL0n0thK7Yze9B8EKwewoC1z8EXw==
+"@types/koa-router@^7.0.39":
+  version "7.0.39"
+  resolved "https://registry.yarnpkg.com/@types/koa-router/-/koa-router-7.0.39.tgz#6167930552e6686f7b5731aa4618cee44fec6a43"
+  integrity sha512-B8b2qyl7ijLFz7ocqkWva4IJ1n4uY5dK7jtGhQ+YHIGTpzcZr4ldDSjZi/xIM+ko3xSu8oqlGbzWxeVXK3WnNg==
   dependencies:
     "@types/koa" "*"
 
@@ -1937,6 +1942,11 @@
   version "10.12.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.18.tgz#1d3ca764718915584fcd9f6344621b7672665c67"
   integrity sha512-fh+pAqt4xRzPfqA6eh3Z2y6fyZavRIumvjhaCL753+TVkGKGhpPeyrJG2JftD0T9q4GF00KjefsQ+PQNDdWQaQ==
+
+"@types/node@^10.12.19":
+  version "10.12.19"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.19.tgz#ca1018c26be01f07e66ac7fefbeb6407e4490c61"
+  integrity sha512-2NVovndCjJQj6fUUn9jCgpP4WSqr+u1SoUZMZyJkhGeBFsm6dE46l31S7lPUYt9uQ28XI+ibrJA1f5XyH5HNtA==
 
 "@types/node@^8.0.0":
   version "8.10.39"
@@ -6520,10 +6530,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/ethereum-waffle/-/ethereum-waffle-2.0.2.tgz#d358dc5be7281d0d82c5e685b4a730163a6791a2"
-  integrity sha512-SrjZeS94QvsPREsMRZcNCqXwBUAF81NTKcMo874BDSCkvLrFMDm3CcBIbJJ3p3gb6dR5wulXjZbD/XCsBf0Npg==
+ethereum-waffle@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.3.tgz#957d95eed9210e143bca4826e1eb16d5917ed6c9"
+  integrity sha512-8IpRUr6gHa9TRrAdYKmMue3dGpGaoqyqfC1+vsFVKax73hJPHQ0Owb0WzmUA3gVFweAhW3Huf6L6nTVP4sDf+w==
   dependencies:
     ethers "^4.0.0"
     ganache-core "2.2.1"
@@ -6590,11 +6600,6 @@ ethereumjs-common@^0.6.0:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/ethereumjs-common/-/ethereumjs-common-0.6.1.tgz#ec98edf315a7f107afb6acc48e937a8266979fae"
   integrity sha512-4jOrfDu9qOBTTGGb3zrfT1tE1Hyc6a8LJpEk0Vk9AYlLkBY7crjVICyJpRvjNI+KLDMpMITMw3eWVZOLMtZdhw==
-
-ethereumjs-common@~0.4.0:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/ethereumjs-common/-/ethereumjs-common-0.4.1.tgz#27690a24a817b058cc3a2aedef9392e8d7d63984"
-  integrity sha512-ywYGsOeGCsMNWso5Y4GhjWI24FJv9FK7+VyVKiQgXg8ZRDPXJ7F/kJ1CnjtkjTvDF4e0yqU+FWswlqR3bmZQ9Q==
 
 ethereumjs-testrpc-sc@6.1.6:
   version "6.1.6"
@@ -6690,23 +6695,6 @@ ethereumjs-vm@2.3.5:
     rustbn.js "~0.1.1"
     safe-buffer "^5.1.1"
 
-ethereumjs-vm@2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-2.4.0.tgz#244f1e35f2755e537a13546111d1a4c159d34b13"
-  integrity sha512-MJ4lCWa5c6LhahhhvoDKW+YGjK00ZQn0RHHLh4L+WaH1k6Qv7/q3uTluew6sJGNCZdlO0yYMDXYW9qyxLHKlgQ==
-  dependencies:
-    async "^2.1.2"
-    async-eventemitter "^0.2.2"
-    ethereumjs-account "^2.0.3"
-    ethereumjs-block "~1.7.0"
-    ethereumjs-common "~0.4.0"
-    ethereumjs-util "^5.2.0"
-    fake-merkle-patricia-tree "^1.0.1"
-    functional-red-black-tree "^1.0.1"
-    merkle-patricia-tree "^2.1.2"
-    rustbn.js "~0.2.0"
-    safe-buffer "^5.1.1"
-
 ethereumjs-vm@^2.0.2, ethereumjs-vm@^2.1.0, ethereumjs-vm@^2.3.4:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-2.5.0.tgz#71dde54a093bd813c9defdc6d45ceb8fcca2f603"
@@ -6721,6 +6709,23 @@ ethereumjs-vm@^2.0.2, ethereumjs-vm@^2.1.0, ethereumjs-vm@^2.3.4:
     fake-merkle-patricia-tree "^1.0.1"
     functional-red-black-tree "^1.0.1"
     merkle-patricia-tree "^2.1.2"
+    rustbn.js "~0.2.0"
+    safe-buffer "^5.1.1"
+
+ethereumjs-vm@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-2.5.1.tgz#d9ea7266ad49ff4756bddbb3924cc31b004c3642"
+  integrity sha512-YLxPfJLHIS6caKJb2WEY+atN8N9DsXzixZfZORCKQBx6nEe1ar6rQBHBNQBBhM7Vbk/bFCOYZpU5gHShvXN1Vw==
+  dependencies:
+    async "^2.1.2"
+    async-eventemitter "^0.2.2"
+    ethereumjs-account "^2.0.3"
+    ethereumjs-block "~2.1.0"
+    ethereumjs-common "^0.6.0"
+    ethereumjs-util "^6.0.0"
+    fake-merkle-patricia-tree "^1.0.1"
+    functional-red-black-tree "^1.0.1"
+    merkle-patricia-tree "^2.3.2"
     rustbn.js "~0.2.0"
     safe-buffer "^5.1.1"
 
@@ -7658,10 +7663,10 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
-ganache-cli@6.2.5:
-  version "6.2.5"
-  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.2.5.tgz#efda5115fa3a0c62d7f5729fdd78da70ca55b1ad"
-  integrity sha512-E4SP8QNeuc2N/ojFoCK+08OYHX8yrtGeFtipZmJPPTQ6U8Hmq3JcbXZDxQfChPQUY5mtbRSwptJa4EtiQyJjAQ==
+ganache-cli@6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.3.0.tgz#574f9d35aaec8da6e01c2be49db8fe73129eb561"
+  integrity sha512-8SyzfX2ipRVBx1fBZLg3j8I3E334U3Vazk5mEpYcWqnIjC2ace6jtOXHG4aTuAvSz3+HzQ8p8pRjOJxdDZ2pnQ==
   dependencies:
     bn.js "4.11.8"
     source-map-support "0.5.9"
@@ -7708,10 +7713,10 @@ ganache-core@2.2.1:
     websocket "^1.0.24"
     yargs "^7.0.2"
 
-ganache-core@2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.3.3.tgz#e35c76d405f0ffba5c48621596fdcc38b0a03136"
-  integrity sha512-MGmcDm27bMPeQvY5cZWK08AyiJj/18P0dgiCOhGyhX1LRCQD4Pj4tvpxd6w3dftn5iCBnzGwm9j3+WT0k+B0XQ==
+ganache-core@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.4.0.tgz#8593fc98db9b5fb14ce96736d843ca98e70b3344"
+  integrity sha512-T1wn3VOy1J4kxYXiOPMU/u8UDM6sWKNwUfYY8EpNPT0n8aS2P9jeHHPsZ/V/DH8pwQhhxC4JEEnXYBnmAec5Kg==
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
@@ -7727,7 +7732,7 @@ ganache-core@2.3.3:
     ethereumjs-block "2.1.0"
     ethereumjs-tx "1.3.7"
     ethereumjs-util "5.2.0"
-    ethereumjs-vm "2.4.0"
+    ethereumjs-vm "^2.5.1"
     heap "0.2.6"
     level-sublevel "6.6.4"
     levelup "3.1.1"
@@ -11211,7 +11216,7 @@ merkle-patricia-tree@2.3.1:
     rlp "^2.0.0"
     semaphore ">=1.0.1"
 
-merkle-patricia-tree@^2.1.2, merkle-patricia-tree@^2.2.0:
+merkle-patricia-tree@^2.1.2, merkle-patricia-tree@^2.2.0, merkle-patricia-tree@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/merkle-patricia-tree/-/merkle-patricia-tree-2.3.2.tgz#982ca1b5a0fde00eed2f6aeed1f9152860b8208a"
   integrity sha512-81PW5m8oz/pz3GvsAwbauj7Y00rqm81Tzad77tHBwU7pIAtN+TJnMSOJhxBKflSVYhptMMb9RskhqHqrSm1V+g==
@@ -12108,10 +12113,10 @@ only@~0.0.2:
   resolved "https://registry.yarnpkg.com/only/-/only-0.0.2.tgz#2afde84d03e50b9a8edc444e30610a70295edfb4"
   integrity sha1-Kv3oTQPlC5qO3EROMGEKcCle37Q=
 
-openzeppelin-solidity@next:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.1.tgz#a929b63f30846ff429354a510a719624d7f4abc2"
-  integrity sha512-kvVI/2n3oYfVYP53rUw+q6QNPlorwYRFaGu/Zs+TWFw2tKlnrz7UXh0UTWYd3Sfbq6eOo4XXnGv4bgcKguOrWg==
+openzeppelin-solidity@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.2.tgz#94e2bb92b60e91abb22c6fe27d983d92850fb324"
+  integrity sha512-1ggh+AZFpMAgGfgnVMQ8dwYawjD2QN4xuWkQS4FUbeUz1fnCKJpguUl2cyadyfDYjBq1XJ6MA6VkzYpTZtJMqw==
 
 openzeppelin-solidity@~1.10.0:
   version "1.10.0"
@@ -16604,10 +16609,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
-  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
+tslint-microsoft-contrib@~5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
+  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 
@@ -18012,19 +18017,45 @@ wordwrap@~0.0.2:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
   integrity sha1-o9XabNXAvAAI03I0u68b7WMFkQc=
 
-workbox-background-sync@^3.6.3:
+workbox-background-sync@^3.4.1, workbox-background-sync@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-background-sync/-/workbox-background-sync-3.6.3.tgz#6609a0fac9eda336a7c52e6aa227ba2ae532ad94"
   integrity sha512-ypLo0B6dces4gSpaslmDg5wuoUWrHHVJfFWwl1udvSylLdXvnrfhFfriCS42SNEe5lsZtcNZF27W/SMzBlva7Q==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-broadcast-cache-update@^3.6.3:
+workbox-broadcast-cache-update@^3.4.1, workbox-broadcast-cache-update@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-broadcast-cache-update/-/workbox-broadcast-cache-update-3.6.3.tgz#3f5dff22ada8c93e397fb38c1dc100606a7b92da"
   integrity sha512-pJl4lbClQcvp0SyTiEw0zLSsVYE1RDlCPtpKnpMjxFtu8lCFTAEuVyzxp9w7GF4/b3P4h5nyQ+q7V9mIR7YzGg==
   dependencies:
     workbox-core "^3.6.3"
+
+workbox-build@3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/workbox-build/-/workbox-build-3.4.1.tgz#65af4c81b05dac6a1819c88b8a2a944ddf5cec04"
+  integrity sha512-Qi04XdHjkXbRN0CV5XO1oqDWbJSIm7VYhxmxjtnVcKK8PrMT6rOUFUi9ziDI+8UQgcXbLK4ZChWf2ptZS1/MbA==
+  dependencies:
+    babel-runtime "^6.26.0"
+    common-tags "^1.4.0"
+    fs-extra "^4.0.2"
+    glob "^7.1.2"
+    joi "^11.1.1"
+    lodash.template "^4.4.0"
+    pretty-bytes "^4.0.2"
+    workbox-background-sync "^3.4.1"
+    workbox-broadcast-cache-update "^3.4.1"
+    workbox-cache-expiration "^3.4.1"
+    workbox-cacheable-response "^3.4.1"
+    workbox-core "^3.4.1"
+    workbox-google-analytics "^3.4.1"
+    workbox-navigation-preload "^3.4.1"
+    workbox-precaching "^3.4.1"
+    workbox-range-requests "^3.4.1"
+    workbox-routing "^3.4.1"
+    workbox-strategies "^3.4.1"
+    workbox-streams "^3.4.1"
+    workbox-sw "^3.4.1"
 
 workbox-build@3.6.3, workbox-build@^3.6.3:
   version "3.6.3"
@@ -18054,26 +18085,26 @@ workbox-build@3.6.3, workbox-build@^3.6.3:
     workbox-streams "^3.6.3"
     workbox-sw "^3.6.3"
 
-workbox-cache-expiration@^3.6.3:
+workbox-cache-expiration@^3.4.1, workbox-cache-expiration@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-cache-expiration/-/workbox-cache-expiration-3.6.3.tgz#4819697254a72098a13f94b594325a28a1e90372"
   integrity sha512-+ECNph/6doYx89oopO/UolYdDmQtGUgo8KCgluwBF/RieyA1ZOFKfrSiNjztxOrGJoyBB7raTIOlEEwZ1LaHoA==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-cacheable-response@^3.6.3:
+workbox-cacheable-response@^3.4.1, workbox-cacheable-response@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-cacheable-response/-/workbox-cacheable-response-3.6.3.tgz#869f1a68fce9063f6869ddbf7fa0a2e0a868b3aa"
   integrity sha512-QpmbGA9SLcA7fklBLm06C4zFg577Dt8u3QgLM0eMnnbaVv3rhm4vbmDpBkyTqvgK/Ly8MBDQzlXDtUCswQwqqg==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-core@^3.6.3:
+workbox-core@^3.4.1, workbox-core@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-core/-/workbox-core-3.6.3.tgz#69abba70a4f3f2a5c059295a6f3b7c62bd00e15c"
   integrity sha512-cx9cx0nscPkIWs8Pt98HGrS9/aORuUcSkWjG25GqNWdvD/pSe7/5Oh3BKs0fC+rUshCiyLbxW54q0hA+GqZeSQ==
 
-workbox-google-analytics@^3.6.3:
+workbox-google-analytics@^3.4.1, workbox-google-analytics@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-google-analytics/-/workbox-google-analytics-3.6.3.tgz#99df2a3d70d6e91961e18a6752bac12e91fbf727"
   integrity sha512-RQBUo/6SXtIaQTRFj4RQZ9e1gAl7D8oS5S+Hi173Kk70/BgJjzPwXpC5A249Jv5YfkCOLMQCeF9A27BiD0b0ig==
@@ -18083,49 +18114,49 @@ workbox-google-analytics@^3.6.3:
     workbox-routing "^3.6.3"
     workbox-strategies "^3.6.3"
 
-workbox-navigation-preload@^3.6.3:
+workbox-navigation-preload@^3.4.1, workbox-navigation-preload@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-navigation-preload/-/workbox-navigation-preload-3.6.3.tgz#a2c34eb7c17e7485b795125091215f757b3c4964"
   integrity sha512-dd26xTX16DUu0i+MhqZK/jQXgfIitu0yATM4jhRXEmpMqQ4MxEeNvl2CgjDMOHBnCVMax+CFZQWwxMx/X/PqCw==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-precaching@^3.6.3:
+workbox-precaching@^3.4.1, workbox-precaching@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-precaching/-/workbox-precaching-3.6.3.tgz#5341515e9d5872c58ede026a31e19bafafa4e1c1"
   integrity sha512-aBqT66BuMFviPTW6IpccZZHzpA8xzvZU2OM1AdhmSlYDXOJyb1+Z6blVD7z2Q8VNtV1UVwQIdImIX+hH3C3PIw==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-range-requests@^3.6.3:
+workbox-range-requests@^3.4.1, workbox-range-requests@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-range-requests/-/workbox-range-requests-3.6.3.tgz#3cc21cba31f2dd8c43c52a196bcc8f6cdbcde803"
   integrity sha512-R+yLWQy7D9aRF9yJ3QzwYnGFnGDhMUij4jVBUVtkl67oaVoP1ymZ81AfCmfZro2kpPRI+vmNMfxxW531cqdx8A==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-routing@^3.6.3:
+workbox-routing@^3.4.1, workbox-routing@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-routing/-/workbox-routing-3.6.3.tgz#659cd8f9274986cfa98fda0d050de6422075acf7"
   integrity sha512-bX20i95OKXXQovXhFOViOK63HYmXvsIwZXKWbSpVeKToxMrp0G/6LZXnhg82ijj/S5yhKNRf9LeGDzaqxzAwMQ==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-strategies@^3.6.3:
+workbox-strategies@^3.4.1, workbox-strategies@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-strategies/-/workbox-strategies-3.6.3.tgz#11a0dc249a7bc23d3465ec1322d28fa6643d64a0"
   integrity sha512-Pg5eulqeKet2y8j73Yw6xTgLdElktcWExGkzDVCGqfV9JCvnGuEpz5eVsCIK70+k4oJcBCin9qEg3g3CwEIH3g==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-streams@^3.6.3:
+workbox-streams@^3.4.1, workbox-streams@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-streams/-/workbox-streams-3.6.3.tgz#beaea5d5b230239836cc327b07d471aa6101955a"
   integrity sha512-rqDuS4duj+3aZUYI1LsrD2t9hHOjwPqnUIfrXSOxSVjVn83W2MisDF2Bj+dFUZv4GalL9xqErcFW++9gH+Z27w==
   dependencies:
     workbox-core "^3.6.3"
 
-workbox-sw@^3.6.3:
+workbox-sw@^3.4.1, workbox-sw@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-sw/-/workbox-sw-3.6.3.tgz#278ea4c1831b92bbe2d420da8399176c4b2789ff"
   integrity sha512-IQOUi+RLhvYCiv80RP23KBW/NTtIvzvjex28B8NW1jOm+iV4VIu3VXKXTA6er5/wjjuhmtB28qEAUqADLAyOSg==
