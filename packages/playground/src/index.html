@@ -24,7 +24,10 @@
   -->
     <script src="https://www.gstatic.com/firebasejs/5.5.3/firebase.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js"></script>
-    <script src="https://browser.sentry-cdn.com/4.5.3/bundle.min.js" crossorigin="anonymous"></script>
+    <script
+      src="https://browser.sentry-cdn.com/4.5.3/bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
     <script src="/assets/eventemitter3.js"></script>
     <script src="/assets/ethers.js"></script>
     <script src="/assets/common-types.js"></script>
@@ -34,8 +37,8 @@
       utils = ethers.utils;
       constants = ethers.constants;
       database = firebase.database;
-      
-      Sentry.init({ dsn: 'https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439' });
+
+      // Sentry.init({ dsn: 'https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439' });
     </script>
 
     <script src="/assets/cf.js"></script>
@@ -52,20 +55,29 @@
     <link rel="icon" type="image/x-icon" href="/assets/icon/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
 
-    <meta property="og:title" content="Counterfactual Playground">
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app.">
-    <meta property="og:url" content="http://playground.counterfactual.com/">
-    <meta property="og:image" content="/assets/icon/logo.svg">
+    <meta property="og:title" content="Counterfactual Playground" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:description"
+      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
+    />
+    <meta property="og:url" content="http://playground.counterfactual.com/" />
+    <meta property="og:image" content="/assets/icon/logo.svg" />
 
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@statechannels">
-    <meta name="twitter:creator" content="@statechannels">
-    <meta name="twitter:title" content="Counterfactual Playground">
-    <meta name="twitter:description" content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app.">
-    <meta name="twitter:image" content="/assets/icon/logo.svg">
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@statechannels" />
+    <meta name="twitter:creator" content="@statechannels" />
+    <meta name="twitter:title" content="Counterfactual Playground" />
+    <meta
+      name="twitter:description"
+      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
+    />
+    <meta name="twitter:image" content="/assets/icon/logo.svg" />
 
-    <meta name="description" content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app.">
+    <meta
+      name="description"
+      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
+    />
   </head>
   <body>
     <app-root></app-root>
