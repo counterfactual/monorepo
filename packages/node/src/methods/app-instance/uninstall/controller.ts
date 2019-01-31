@@ -5,7 +5,9 @@ import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { ERRORS } from "../../errors";
 
-export default async function takeActionController(
+import { uninstallAppInstanceFromChannel } from "./operation";
+
+export default async function uninstallController(
   requestHandler: RequestHandler,
   params: Node.UninstallParams
 ): Promise<Node.UninstallResult> {
@@ -14,22 +16,12 @@ export default async function takeActionController(
     return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
   }
 
-  // TODO: this should actually call resolve on the AppInstance and execute
-  // the appropriate payout to the right parties
-  const channel = await requestHandler.store.getChannelFromAppInstanceID(
-    appInstanceId
-  );
-
   const appInstanceInfo = await requestHandler.store.getAppInstanceInfo(
     appInstanceId
   );
-
-  const updatedChannel = channel.uninstallApp(
-    await requestHandler.store.getAppInstanceIdentityHashFromAppInstanceId(
-      appInstanceId
-    ),
-    appInstanceInfo.myDeposit,
-    appInstanceInfo.peerDeposit
+  const updatedChannel = await uninstallAppInstanceFromChannel(
+    requestHandler.store,
+    appInstanceId
   );
 
   const uninstallMsg: UninstallMessage = {
