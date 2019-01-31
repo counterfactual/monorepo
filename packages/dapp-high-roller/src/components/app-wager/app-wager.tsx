@@ -83,8 +83,8 @@ export class AppWager {
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
-        peerDeposit: 0, //ethers.utils.parseEther(this.betAmount),
-        myDeposit: 0, //ethers.utils.parseEther(this.betAmount),
+        peerDeposit: 0, // ethers.utils.parseEther(this.betAmount),
+        myDeposit: 0, // ethers.utils.parseEther(this.betAmount),
         timeout: 10000,
         intermediaries: [this.intermediary]
       });
