@@ -1,0 +1,62 @@
+[
+  {
+    "contractName": "Migrations",
+    "address": "0x0F1dEFF240d3757550572fcE0bE750c1F8958Be3",
+    "transactionHash": "0xddd704cd0fd3ba131decc2d72e3f24bdd8a3162e3f3ba19497e2128b99e3a8e7"
+  },
+  {
+    "contractName": "Transfer",
+    "address": "0x6a2DF880908eC363Bc386917353e5b2693B97096",
+    "transactionHash": "0x33b689e1583e0066b69ebe82f63c19fc8efaa778b85a2faeeac1fa97a3af3656"
+  },
+  {
+    "contractName": "LibStaticCall",
+    "address": "0x5C505AA5498607224FbE95263c13BD686223aBe9",
+    "transactionHash": "0x549d2b39f90b11ce0d8032ebff0c34cd94a1df66b48e9a369d9c6056bfe1339c"
+  },
+  {
+    "contractName": "AppRegistry",
+    "address": "0x3E7e57fd79F4d43607667538879C513577974bD6",
+    "transactionHash": "0x4622c612c9f8310381fcd6824558d7450bc51ab3bc6e7f178dc8d9db921fffac"
+  },
+  {
+    "contractName": "ContractRegistry",
+    "address": "0x5ecb2be3E5b0e4836C4fDb18fDd381861dF0D537",
+    "transactionHash": "0x690e94feafbbc8b378a98af25ddde34b07cfd3ec5927524517515f76a6335717"
+  },
+  {
+    "contractName": "ETHBucket",
+    "address": "0x263bE56D8d26659e3dfa50bFF14E8F1cbd4fA3fE",
+    "transactionHash": "0xaf9896a2e2e5ce379a184ea5c835e79aecbc11a8350849c705c236c9c511de94"
+  },
+  {
+    "contractName": "MinimumViableMultisig",
+    "address": "0x9F8fc6D23DC4882284C44bcf6fb7F96290705d3D",
+    "transactionHash": "0x453f90c05342c6c3d97c3a63d347255921abdb1ca543683b61b8c5a63faedbe7"
+  },
+  {
+    "contractName": "MultiSend",
+    "address": "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E",
+    "transactionHash": "0x88f26d0b543bd60ba3bb4b2d60efdd024ad0cc193e9bc9fbd1149235ef107c0d"
+  },
+  {
+    "contractName": "NonceRegistry",
+    "address": "0xde13AAC64Bd8Dc73E2775e61E47ff94e9Fc3c091",
+    "transactionHash": "0xf7fbd38c38fe3fec72614b0db0023f38243d362940f1a1b5f636209f0c7bf7aa"
+  },
+  {
+    "contractName": "ProxyFactory",
+    "address": "0x80147a697aC2037c4f841F0DFA8F2155E18848ae",
+    "transactionHash": "0xef598be71583d5557fed2fefd290de220180b352e9edd4bf9c517df7b94822b9"
+  },
+  {
+    "contractName": "StateChannelTransaction",
+    "address": "0x8df951224AE071c2196e7C18eeB37Aa07c5ffF75",
+    "transactionHash": "0x49e0537650cadcb8fd24b1d523664e500e182ffd354b632d1c1f7ec14f043e3f"
+  },
+  {
+    "contractName": "ETHVirtualAppAgreement",
+    "address": "0x69dA249fBf3DFed6e3f444c7B3038ca5f42b08A4",
+    "transactionHash": "0xf5cdbc26f7ef5244a462b86dde463055601dc9e580d0e45f5216fe07253bc52c"
+  }
+]
