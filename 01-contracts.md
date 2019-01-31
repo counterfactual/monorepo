@@ -4,7 +4,7 @@
 
 A multisignature wallet is the only required on-chain component for a state channel to work. Although we provide an example implementation, we believe the following properties should become standards in any multisignature wallet on Ethereum and Counterfactual will work with any wallet contract that implements them.
 
-1. Executes arbtirary message calls (`CALL` or `DELEGATECALL`), including ability to specify destination address, value, and message data.
+1. Executes arbitrary message calls (`CALL` or `DELEGATECALL`), including ability to specify destination address, value, and message data.
 
 2. Implements hash-bashed replay protection as opposed to nonce-based.
 
