@@ -147,6 +147,8 @@ export class AppRoot {
 
   updateUIState(state: HighRollerUIMutableState) {
     this.uiState = { ...this.uiState, ...state };
+    console.log("%cNew UI state detected", "font-size: 14px; color: red");
+    console.log("    ", this.uiState);
   }
 
   generateRandomRoll() {

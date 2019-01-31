@@ -1,6 +1,6 @@
 declare var ethers;
 
-import { Component, Element, Prop, State, Watch } from "@stencil/core";
+import { Component, Element, Prop, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -12,13 +12,15 @@ import {
   HighRollerStage,
   PlayerType
 } from "../../data/game-types";
-import HighRollerUITunnel, { HighRollerUIState } from "../../data/high-roller";
+import HighRollerUITunnel, {
+  HighRollerUIMutableState
+} from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
-import { cf, Node } from "../../data/types";
+import { cf } from "../../data/types";
 import { getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
-const { solidityKeccak256 } = ethers.utils;
+const { solidityKeccak256, bigNumberify } = ethers.utils;
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
@@ -68,7 +70,7 @@ export class AppGame {
 
   @Prop({ mutable: true }) opponentRoll: number[] = [1, 1];
   @Prop({ mutable: true }) opponentScore: number = 0;
-  @Prop() updateUIState: (data: HighRollerUIState) => void = () => {};
+  @Prop() updateUIState: (data: HighRollerUIMutableState) => void = () => {};
 
   shakeAudio!: HTMLAudioElement;
   rollAudio!: HTMLAudioElement;
@@ -128,29 +130,33 @@ export class AppGame {
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const commitHashAction: Action = {
-        number: playerFirstNumber,
+        number: 0,
         actionType: ActionType.COMMIT_TO_HASH,
         actionHash: hash
       };
 
-      this.highRollerState = await this.appInstance.takeAction(
-        commitHashAction
-      );
+      this.highRollerState = {
+        ...(await this.appInstance.takeAction(commitHashAction)),
+        playerFirstNumber: bigNumberify(playerFirstNumber)
+      };
+
+      this.updateUIState({
+        highRollerState: this.highRollerState
+      });
     } else {
       await Promise.all([
         this.animateRoll("myRoll"),
         this.animateRoll("opponentRoll")
       ]);
 
-      const numberSalt =
+      const nullValueBytes32 =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
       const playerSecondNumber = Math.floor(Math.random() * Math.floor(1000));
-      const hash = computeCommitHash(numberSalt, playerSecondNumber);
 
       const commitHashAction: Action = {
         number: playerSecondNumber,
         actionType: ActionType.COMMIT_TO_NUM,
-        actionHash: hash
+        actionHash: nullValueBytes32
       };
 
       this.highRollerState = await this.appInstance.takeAction(
@@ -191,7 +197,7 @@ export class AppGame {
             betAmount={this.betAmount}
           />
           <app-game-player
-            playerName={this.account.user.username}
+            playerName="You"
             playerScore={this.myScore}
             playerType={PlayerType.White}
             playerRoll={this.myRoll}

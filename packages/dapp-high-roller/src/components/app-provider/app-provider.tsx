@@ -95,14 +95,24 @@ export class AppProvider {
 
   onUpdateState({ data }: { data: Node.EventData }) {
     const newStateArray = (data as Node.UpdateStateEventData).newState;
+
     const state = {
       playerAddrs: newStateArray[0],
       stage: newStateArray[1],
       salt: newStateArray[2],
       commitHash: newStateArray[3],
-      playerFirstNumber: newStateArray[4],
+      playerFirstNumber: this.highRollerState.playerFirstNumber || {
+        _hex: "0x00"
+      },
       playerSecondNumber: newStateArray[5]
     } as HighRollerAppState;
+
+    console.log(
+      "playerFirstNumber",
+      state.playerFirstNumber,
+      "playerSecondNumber",
+      state.playerSecondNumber
+    );
 
     if (!this.isReadyForHighRoller(state)) {
       this.updateUIState({ highRollerState: state });
@@ -161,5 +171,6 @@ HighRollerUITunnel.injectProps(AppProvider, [
   "opponentRoll",
   "opponentScore",
   "gameState",
-  "updateUIState"
+  "updateUIState",
+  "highRollerState"
 ]);
