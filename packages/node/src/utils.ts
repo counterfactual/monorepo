@@ -47,3 +47,12 @@ export async function getPeersAddressFromAppInstanceID(
 export function isNotDefinedOrEmpty(str?: string) {
   return !str || str.trim() === "";
 }
+
+export function getCounterpartyAddress(
+  selfAddress: Address,
+  appInstanceAddresses: Address[]
+) {
+  return appInstanceAddresses.filter(address => {
+    return address !== selfAddress;
+  })[0];
+}

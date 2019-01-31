@@ -5,6 +5,7 @@ import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
 import { ERRORS } from "../../errors";
 
 import { actionIsEncondable, generateNewAppInstanceState } from "./operation";
+import { getCounterpartyAddress } from "../../../utils";
 
 export default async function takeActionController(
   requestHandler: RequestHandler,
@@ -50,13 +51,10 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  // send to the counter party
-  const to = [
+  const to = getCounterpartyAddress(requestHandler.address, [
     appInstanceInfo.initiatingAddress,
     appInstanceInfo.respondingAddress
-  ].filter(address => {
-    return address !== requestHandler.address;
-  })[0];
+  ]);
 
   await requestHandler.messagingService.send(to, updateStateMessage);
 

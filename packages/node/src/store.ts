@@ -115,7 +115,7 @@ export class Store {
   }
 
   /**
-   * This persists the initial state of a channel upon channel creation.
+   * This persists the state of a channel.
    * @param channel
    * @param ownersHash
    */
