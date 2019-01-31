@@ -16,7 +16,6 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf.js": "0.0.5",
     "@counterfactual/types": "0.0.1",
     "@types/jest": "^23.3.11",
     "@types/node": "^10.9.3",

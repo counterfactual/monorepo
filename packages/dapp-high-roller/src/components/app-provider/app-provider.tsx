@@ -5,7 +5,6 @@ import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, Node } from "../../data/types";
 
-declare var NodeProvider;
 declare var cf;
 
 @Component({
@@ -31,7 +30,7 @@ export class AppProvider {
     // TODO use async/await
     this.nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
-      : new NodeProvider();
+      : new cf.NodeProvider();
     return this.nodeProvider.connect().then(this.setupCfProvider.bind(this));
   }
 

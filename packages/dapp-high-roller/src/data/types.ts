@@ -335,4 +335,19 @@ export namespace cf {
     appInstances: { [appInstanceId: string]: AppInstance };
     nodeProvider: NodeProvider;
   };
+  export type NodeProvider = {
+    isConnected;
+    eventEmitter;
+    messagePort?;
+    debugMode;
+    debugEmitter;
+    constructor();
+    detectDebugMode;
+    log;
+    onMessage(callback: (message: Node.Message) => void): void;
+    sendMessage(message: Node.Message): void;
+    connect(): Promise<NodeProvider>;
+    startMessagePort;
+    notifyNodeProviderIsConnected;
+  };
 }
