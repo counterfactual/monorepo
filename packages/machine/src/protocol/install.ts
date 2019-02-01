@@ -8,7 +8,7 @@ import { Context, InstallParams, ProtocolMessage } from "../types";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
-  addSignedCommitmentInResponseWithSeq2,
+  addSignedCommitmentInResponse,
   addSignedCommitmentToOutboxForSeq1
 } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
@@ -65,7 +65,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponseWithSeq2,
+    addSignedCommitmentInResponse,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
