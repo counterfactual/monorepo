@@ -2,11 +2,17 @@ import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { GameState, HighRollerAppState } from "../../data/game-types";
+import {
+  ActionType,
+  GameState,
+  HighRollerAppState,
+  HighRollerStage
+} from "../../data/game-types";
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, HighRollerUIMutableState, Node } from "../../data/types";
+import { computeCommitHash } from "../../utils/utils";
 
 declare var NodeProvider;
 declare var cf;
@@ -156,7 +162,18 @@ export class AppProvider {
     this.updateUIState(newUIState);
 
     debugger;
-    await this.appInstance.uninstall();
+
+    if (state.stage === HighRollerStage.REVEALING) {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const hash = computeCommitHash(numberSalt, state.playerFirstNumber);
+
+      await this.appInstance.takeAction({
+        actionType: ActionType.REVEAL,
+        actionHash: hash,
+        number: state.playerFirstNumber.toString()
+      });
+    }
   }
 
   onInstall(data) {
