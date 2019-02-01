@@ -50,7 +50,7 @@ describe("Signature Forwarder Helpers", () => {
     expect(context.outbox[0].toAddress).toBe(message.toAddress);
     expect(context.outbox[0].params).toEqual(message.params);
     expect(context.outbox[0].protocol).toBe(message.protocol);
-    expect(context.outbox[0].seq).toBe(2);
+    expect(context.outbox[0].seq).toBe(-1);
     expect(context.outbox[0].signature).toBe(context.signatures[0]);
   });
 
