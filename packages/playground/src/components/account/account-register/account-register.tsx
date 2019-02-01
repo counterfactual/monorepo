@@ -83,10 +83,7 @@ export class AccountRegister {
         signedMessage
       );
 
-      this.updateAccount({
-        ...this.changeset,
-        multisigAddress: newAccount.multisigAddress
-      });
+      this.updateAccount({ user: newAccount });
 
       window.localStorage.setItem(
         "playground:user:token",
