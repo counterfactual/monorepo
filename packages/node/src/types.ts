@@ -72,6 +72,10 @@ export interface UpdateStateMessage extends NodeMessage {
   data: Node.UpdateStateEventData;
 }
 
+export interface UninstallMessage extends NodeMessage {
+  data: Node.UninstallEventData;
+}
+
 export interface RejectProposalMessage extends NodeMessage {
   data: {
     appInstanceId: string;

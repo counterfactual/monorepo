@@ -1,4 +1,3 @@
-import { UserSession } from "@counterfactual/playground-server";
 import {
   Component,
   Element,
@@ -7,10 +6,10 @@ import {
   Prop,
   Watch
 } from "@stencil/core";
-import { resolve } from "bluebird";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
+import { UserSession } from "../../../../types";
 
 function buildSignaturePayload(address: string) {
   return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(

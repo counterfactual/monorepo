@@ -3,7 +3,7 @@ import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
-import { Provider } from "../src/provider";
+import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
 import {
   CounterfactualEvent,
   ErrorEventData,
@@ -90,14 +90,18 @@ describe("CF.js Provider", () => {
     });
   });
 
-  it("throws an error on timeout", async () => {
-    try {
-      await provider.getAppInstances();
-    } catch (err) {
-      expect(err.type).toBe(EventType.ERROR);
-      expect(err.data.errorName).toBe("request_timeout");
-    }
-  });
+  it(
+    "throws an error on timeout",
+    async () => {
+      try {
+        await provider.getAppInstances();
+      } catch (err) {
+        expect(err.type).toBe(EventType.ERROR);
+        expect(err.data.errorName).toBe("request_timeout");
+      }
+    },
+    NODE_REQUEST_TIMEOUT + 1000 // This could be done with fake timers.
+  );
 
   it("throws an error for unexpected event types", async () => {
     expect.assertions(2);

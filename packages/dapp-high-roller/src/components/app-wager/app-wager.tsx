@@ -74,7 +74,11 @@ export class AppWager {
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        playerNames: [
+          this.account.user.username,
+          this.opponent.attributes.username
+        ]
       };
 
       await this.appFactory.proposeInstallVirtual({
@@ -83,8 +87,8 @@ export class AppWager {
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
-        peerDeposit: ethers.utils.parseEther(this.betAmount),
-        myDeposit: ethers.utils.parseEther(this.betAmount),
+        peerDeposit: 0, // ethers.utils.parseEther(this.betAmount),
+        myDeposit: 0, // ethers.utils.parseEther(this.betAmount),
         timeout: 10000,
         intermediaries: [this.intermediary]
       });
@@ -162,12 +166,20 @@ export class AppWager {
     }
 
     const { token } = this.account.user;
+    const { matchmakeWith } = this.account;
+
     const response = await fetch(
       // TODO: This URL must come from an environment variable.
       "https://server.playground-staging.counterfactual.com/api/matchmaking",
       {
         method: "POST",
+        ...(matchmakeWith
+          ? {
+              body: JSON.stringify({ data: { attributes: { matchmakeWith } } })
+            }
+          : {}),
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         }
       }

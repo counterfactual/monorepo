@@ -34,9 +34,9 @@ function checkVerticalVictory(board, player) {
   const victory = board[0].some((columnStart, index) => {
     idx = index;
     return (
-      columnStart === bn(player).toNumber() &&
-      board[1][index] === bn(player).toNumber() &&
-      board[2][index] === bn(player).toNumber()
+      bn(columnStart).eq(bn(player)) &&
+      bn(board[1][index]).eq(bn(player)) &&
+      bn(board[2][index]).eq(bn(player))
     );
   });
 

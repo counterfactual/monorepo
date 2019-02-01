@@ -1,4 +1,3 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -6,7 +5,7 @@ import AccountTunnel from "../../../data/account";
 import CounterfactualNode from "../../../data/counterfactual";
 import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
-import { UserChangeset } from "../../../types";
+import { UserChangeset, UserSession } from "../../../types";
 
 function buildSignaturePayload(data: UserChangeset) {
   return [
@@ -84,10 +83,7 @@ export class AccountRegister {
         signedMessage
       );
 
-      this.updateAccount({
-        ...this.changeset,
-        multisigAddress: newAccount.multisigAddress
-      });
+      this.updateAccount({ user: newAccount });
 
       window.localStorage.setItem(
         "playground:user:token",

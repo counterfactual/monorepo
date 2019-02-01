@@ -5,7 +5,9 @@ import { checkVictory } from '../utils/check-end-conditions';
 
 class Board extends Component {
   render() {
-    const winClaim = checkVictory(this.props.board, 1) || checkVictory(this.props.board, 2);
+    const youWon = checkVictory(this.props.board, this.props.myNumber);
+    const theyWon = checkVictory(this.props.board, this.props.opponentNumber);
+    const winClaim = youWon || theyWon;
   
     return (
       <div className="board">
@@ -23,7 +25,7 @@ class Board extends Component {
             : undefined
         }
 
-        {/* <div className="winning-game"></div> */}
+        { youWon ? <div className="coins"></div> : undefined }
       </div>
     );
   }

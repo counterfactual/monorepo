@@ -1,11 +1,5 @@
 // API matches version 0.20.3 of Web3
 
-declare class BigNumber {
-  constructor(num: string);
-  toNumber(): number;
-  toString(): string;
-}
-
 declare var web3: {
   BigNumber: (num: string) => void;
   eth: {

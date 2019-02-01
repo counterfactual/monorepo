@@ -55,6 +55,7 @@ export default class App extends Component {
         const playgroundState = JSON.parse(data);
         this.setState({
           user: playgroundState.user,
+          matchmakeWith: playgroundState.matchmakeWith,
           connected: true
         });
       }
@@ -102,6 +103,7 @@ export default class App extends Component {
                 gameInfo={this.state.gameInfo}
                 cfProvider={this.state.cfProvider}
                 user={this.state.user}
+                matchmakeWith={this.state.matchmakeWith}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}

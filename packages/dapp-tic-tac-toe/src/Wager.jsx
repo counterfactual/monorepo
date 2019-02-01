@@ -20,6 +20,7 @@ class Wager extends Component {
 
     console.log("user data", this.props.user);
     const { token } = this.props.user;
+    const { matchmakeWith } = this.props;
 
     try {
       const response = await fetch(
@@ -27,7 +28,15 @@ class Wager extends Component {
         "https://server.playground-staging.counterfactual.com/api/matchmaking",
         {
           method: "POST",
+          ...(matchmakeWith
+            ? {
+                body: JSON.stringify({
+                  data: { attributes: { matchmakeWith } }
+                })
+              }
+            : {}),
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           }
         }
