@@ -1,5 +1,5 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import { Address, NetworkContext, Node } from "@counterfactual/types";
+import { NetworkContext, Node } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 
@@ -20,7 +20,7 @@ export class RequestHandler {
   private events = new Map();
   store: Store;
   constructor(
-    readonly address: Address,
+    readonly address: string,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
     readonly storeService: IStoreService,

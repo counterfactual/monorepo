@@ -47,7 +47,7 @@ export async function install(
       multisigAddress: stateChannel.multisigAddress,
       aliceBalanceDecrement: appInstanceInfo.myDeposit,
       bobBalanceDecrement: appInstanceInfo.peerDeposit,
-      signingKeys: stateChannel.multisigOwners,
+      signingKeys: stateChannel.getNextSigningKeys(),
       initialState: appInstanceInfo.initialState,
       terms: {
         assetType: appInstanceInfo.asset.assetType,

@@ -5,7 +5,8 @@ import {
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, computeAddress } from "ethers/utils";
+import { fromExtendedPublicKey } from "ethers/utils/hdnode";
 
 import {
   getETHBucketAppInterface,
@@ -44,6 +45,12 @@ const ERRORS = {
 
 function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
+}
+
+function xpubKthAddress(xpub: string, k: number) {
+  return computeAddress(
+    fromExtendedPublicKey(xpub).deriveChild(`m/44'/60'/0'/0/${k}`).publicKey
+  );
 }
 
 export type StateChannelJSON = {
@@ -91,7 +98,7 @@ function createETHFreeBalance(
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
-    public readonly multisigOwners: string[],
+    public readonly userExtendedPublicKeys: string[],
     readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
@@ -106,13 +113,10 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {
-    const sortedMultisigOwners = sortAddresses(multisigOwners);
-    multisigOwners.forEach((owner, idx) => {
-      if (owner !== sortedMultisigOwners[idx]) {
-        throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
-      }
-    });
+  ) {}
+
+  public get multisigOwners() {
+    return this.getSigningKeysFor(0);
   }
 
   public get numInstalledApps() {
@@ -147,6 +151,18 @@ export class StateChannel {
 
   public hasFreeBalanceFor(assetType: AssetType): boolean {
     return this.freeBalanceAppIndexes.has(assetType);
+  }
+
+  public getSigningKeysFor(addressIndex: number): string[] {
+    return sortAddresses(
+      this.userExtendedPublicKeys.map(xpub =>
+        xpubKthAddress(xpub, addressIndex)
+      )
+    );
+  }
+
+  public getNextSigningKeys(): string[] {
+    return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
   public getFreeBalanceFor(assetType: AssetType): AppInstance {
