@@ -1,4 +1,4 @@
-import { Address, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
@@ -18,7 +18,7 @@ export async function setAppInstanceIDForProposeInstallVirtual(
   params: Node.ProposeInstallVirtualParams,
   appInstanceId: string,
   proposedByIdentifier: string,
-  incomingIdentifier: Address
+  incomingIdentifier: string
 ) {
   const channel = await getChannelFromPeerAddress(
     myIdentifier,

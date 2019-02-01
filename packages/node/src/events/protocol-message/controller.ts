@@ -1,4 +1,4 @@
-import { Protocol, StateChannel } from "@counterfactual/machine";
+import { StateChannel } from "@counterfactual/machine";
 
 import { RequestHandler } from "../../request-handler";
 import { NodeMessageWrappedProtocolMessage } from "../../types";

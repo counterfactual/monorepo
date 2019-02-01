@@ -149,7 +149,7 @@ export class Store {
    * @param appInstanceInfo
    */
   public async saveRealizedProposedAppInstance(
-    appInstanceInfo: AppInstanceInfo
+    appInstanceInfo: ProposedAppInstanceInfo
   ) {
     await this.storeService.set([
       {
@@ -229,6 +229,7 @@ export class Store {
 
     if (!appInstanceInfo) {
       return Promise.reject(
+        // FIXME: Errors should be functions with parameters
         `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
       );
     }

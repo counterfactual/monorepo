@@ -1,7 +1,8 @@
 import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
-import { AppInstanceInfo, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 
+import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
 
@@ -11,8 +12,9 @@ export async function install(
   initiatingAddress: string,
   respondingAddress: string,
   params: Node.InstallParams
-): Promise<AppInstanceInfo> {
+): Promise<ProposedAppInstanceInfo> {
   const { appInstanceId } = params;
+
   if (
     !appInstanceId ||
     (typeof appInstanceId === "string" && appInstanceId.trim() === "")

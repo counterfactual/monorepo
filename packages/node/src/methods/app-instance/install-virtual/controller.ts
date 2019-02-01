@@ -15,13 +15,6 @@ export default async function installVirtualAppInstanceController(
     appInstanceId
   );
 
-  // Sanity check
-  if (params.intermediaries[0] !== proposedAppInstanceInfo.intermediaries![0]) {
-    console.debug(params);
-    console.debug(proposedAppInstanceInfo.intermediaries);
-    throw Error("Has everybody lost their minds!?");
-  }
-
   const appInstanceInfo = await installVirtual(
     requestHandler.store,
     requestHandler.instructionExecutor,

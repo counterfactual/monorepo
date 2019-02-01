@@ -35,15 +35,16 @@ export async function installVirtual(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  await instructionExecutor.runInstallVirtualAppProtocol(
+  const updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
     new Map(Object.entries(await store.getAllChannels())),
     {
       // TODO: Explain why appInstanceInfo.{initiating...,respomding...} are
       //       incorrect to use at this point since it is non obvious.
       initiatingAddress,
       respondingAddress,
+      // TODO: Perhaps remove the below fields
       multisig1Address: stateChannel.multisigAddress,
-      multisig2Address: stateChannel.multisigAddress, // FIXME: not right
+      multisig2Address: "",
       intermediaryAddress: appInstanceInfo.intermediaries![0],
       signingKeys: [
         appInstanceInfo.initiatingAddress,
@@ -60,19 +61,9 @@ export async function installVirtual(
     }
   );
 
-  // const updatedStateChannel = stateChannel.installApp(
-  //   createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
-  //   appInstanceInfo.myDeposit,
-  //   appInstanceInfo.peerDeposit
-  // );
-
   // TODO: Replace with `runInstallVirtualAppProtocol`
   await store.saveStateChannel(
-    stateChannel.installApp(
-      createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
-      appInstanceInfo.myDeposit,
-      appInstanceInfo.peerDeposit
-    )
+    updatedStateChannelsMap.get(stateChannel.multisigAddress)!
   );
 
   await store.saveRealizedProposedAppInstance(appInstanceInfo);

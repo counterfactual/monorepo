@@ -20,9 +20,8 @@ export default async function installEventController(
   nodeMsg: InstallMessage
 ) {
   const store = requestHandler.store;
-  const params = nodeMsg.data.params;
 
-  const { appInstanceId } = params;
+  const { appInstanceId } = nodeMsg.data.params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
     throw new Error(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);

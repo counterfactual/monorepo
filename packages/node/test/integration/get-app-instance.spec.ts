@@ -88,6 +88,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
     nodeA.on(NodeTypes.MethodName.INSTALL, async res => {
       const installResult: NodeTypes.InstallResult = res.result;
+
       installedAppInstance = installResult.appInstance;
 
       // now we check to validate for correct AppInstance retrieval

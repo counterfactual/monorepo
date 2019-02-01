@@ -132,6 +132,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
               nodeA,
               APP_INSTANCE_STATUS.INSTALLED
             ))[0];
+
             const virtualAppInstanceNodeC = (await getApps(
               nodeC,
               APP_INSTANCE_STATUS.INSTALLED

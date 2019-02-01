@@ -1,8 +1,4 @@
-import {
-  AppInstance,
-  StateChannel,
-  xkeysToSortedKthAddresses
-} from "@counterfactual/machine";
+import { AppInstance, StateChannel } from "@counterfactual/machine";
 import {
   Address,
   AppABIEncodings,
@@ -99,13 +95,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
     const isVirtualApp = (this.intermediaries || []).length > 0;
 
-    const signingKeys = isVirtualApp
-      ? // FIXME: We need a standard for the keys used in a virtual app
-        xkeysToSortedKthAddresses(
-          [this.proposedByIdentifier, this.proposedToIdentifier],
-          0
-        )
-      : stateChannel.getSigningKeysFor(stateChannel.numInstalledApps);
+    const signingKeys = stateChannel.getSigningKeysFor(
+      isVirtualApp ? 1337 : stateChannel.numInstalledApps
+    );
 
     const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
 
@@ -116,16 +108,12 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedAppInterface,
       proposedTerms,
       isVirtualApp,
-      // FIXME: Incorrect for virtual atm. This AppInstance is being installed
-      // into the incorrect state channel. Correct channel is in PR #607
-      stateChannel.numInstalledApps,
+      isVirtualApp ? 1337 : stateChannel.numInstalledApps,
       stateChannel.rootNonceValue,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber()
     );
-
-    console.log(JSON.stringify(proposedAppInstance.toJson(), null, 2));
 
     return proposedAppInstance.identityHash;
   }

@@ -29,6 +29,8 @@ export default async function proposeInstallVirtualAppInstanceController(
     delete params.abiEncodings.actionEncoding;
   }
 
+  // TODO: Also create the proposed eth virtual app agreement
+
   const appInstanceId = await createProposedVirtualAppInstance(
     requestHandler.publicIdentifier,
     requestHandler.store,
