@@ -1,10 +1,19 @@
-import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import {
+  AppInstanceInfo,
+  NetworkContext,
+  Node as NodeTypes
+} from "@counterfactual/types";
+import { Contract, ContractFactory, Wallet } from "ethers";
+import { BaseProvider, Web3Provider } from "ethers/providers";
+import { hexlify, randomBytes, SigningKey } from "ethers/utils";
 import FirebaseServer from "firebase-server";
-import { instance, mock } from "ts-mockito";
+import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { PRIVATE_KEY_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -15,6 +24,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
+  jest.setTimeout(10000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -23,10 +33,13 @@ describe("Node method follows spec - getAppInstances", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
+  let mvmContract: Contract;
+  let proxyFactoryContract: Contract;
+  let networkContext: NetworkContext;
+  let privateKey: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
@@ -38,18 +51,43 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
+    privateKey = new SigningKey(hexlify(randomBytes(32))).privateKey;
+    provider = new Web3Provider(
+      ganache.provider({
+        accounts: [
+          {
+            balance: "120000000000000000",
+            secretKey: privateKey
+          }
+        ]
+      })
+    );
+
+    const wallet = new Wallet(privateKey, provider);
+    mvmContract = await new ContractFactory(
+      MinimumViableMultisig.abi,
+      MinimumViableMultisig.bytecode,
+      wallet
+    ).deploy();
+    proxyFactoryContract = await new ContractFactory(
+      ProxyFactory.abi,
+      ProxyFactory.bytecode,
+      wallet
+    ).deploy();
+
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig = mvmContract.address;
+    networkContext.ProxyFactory = proxyFactoryContract.address;
+
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: PRIVATE_KEY_PATH, value: privateKey }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -60,7 +98,7 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
