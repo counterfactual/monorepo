@@ -53,8 +53,8 @@ export class AppProvider {
     const params = new URLSearchParams(window.location.search);
 
     this.nodeProvider = !params.get("standalone")
-      ? new NodeProvider()
-      : new cf.NodeProvider();
+      ? new cf.NodeProvider()
+      : new MockNodeProvider();
 
     await this.nodeProvider.connect();
 
