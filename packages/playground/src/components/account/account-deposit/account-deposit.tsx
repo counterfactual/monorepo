@@ -17,49 +17,40 @@ export class AccountDeposit {
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   @State() error: string = "";
-  @State() amountDeposited: string = "";
+  @State() amountDeposited;
 
-  componentWillLoad() {
-    web3.eth.getBalance(
-      this.user.ethAddress,
-      web3.eth.defaultBlock,
-      this.showBalance.bind(this)
-    );
-  }
+  async componentWillLoad() {
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    const signer = provider.getSigner();
 
-  showBalance(error: Error, balance: BigNumber) {
-    if (error) {
-      // TODO: What happens if we can't get the account balance?
-      return;
+    try {
+      const balance = await signer.getBalance();
+      this.balance = parseFloat(ethers.utils.formatEther(balance.toString()));
+    } catch {
+      console.warn("Unable to get account balance");
     }
-
-    this.balance = parseFloat(ethers.utils.formatEther(balance.toString()));
   }
 
-  formSubmitionHandler(e) {
-    this.amountDeposited = ethers.utils.parseEther(e.target.value).toString();
+  async formSubmitionHandler(e) {
+    this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
-    web3.eth.sendTransaction(
-      {
-        from: this.user.ethAddress,
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    const signer = provider.getSigner();
+
+    try {
+      await signer.sendTransaction({
         to: this.user.multisigAddress,
         value: this.amountDeposited
-      },
-      this.depositCompleted.bind(this)
-    );
-  }
+      });
 
-  depositCompleted(error: Error, result: any) {
-    if (error) {
+      this.updateAccount({
+        balance: ethers.utils.formatEther(this.amountDeposited)
+      });
+
+      this.history.push("/");
+    } catch (error) {
       this.error = error.message;
-      return;
     }
-
-    this.updateAccount({
-      balance: ethers.utils.formatEther(this.amountDeposited)
-    });
-
-    this.history.push("/");
   }
 
   render() {
@@ -68,9 +59,8 @@ export class AccountDeposit {
         <div slot="header">Fund your account</div>
 
         <p class="details">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-          eu risus sit amet nisi consectetur cursus id egestas arcu. Curabitur
-          ornare nunc.
+          In order to use the Playground dApps, you need to deposit funds into
+          your account. Please enter how much ETH you want to transfer to it:
         </p>
 
         <account-eth-form
