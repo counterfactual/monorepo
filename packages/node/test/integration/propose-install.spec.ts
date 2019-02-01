@@ -81,9 +81,7 @@ describe("Node method follows spec - proposeInstall", () => {
     networkContext = EMPTY_NETWORK;
     networkContext.MinimumViableMultisig = mvmContract.address;
     networkContext.ProxyFactory = proxyFactoryContract.address;
-  });
 
-  beforeEach(async () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -116,13 +114,12 @@ describe("Node method follows spec - proposeInstall", () => {
     "Node A gets app install proposal, sends to node B, B approves it, installs it," +
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
-      it.skip("sends proposal with null initial state", async () => {
+      it("sends proposal with null initial state", async () => {
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
           nodeB.address,
           true
         );
 
-        console.log("calling from first test");
         expect(
           nodeA.call(
             appInstanceInstallationProposalRequest.type,
@@ -174,7 +171,6 @@ describe("Node method follows spec - proposeInstall", () => {
           done();
         });
 
-        console.log("calling from second test");
         const response = await nodeA.call(
           appInstanceInstallationProposalRequest.type,
           appInstanceInstallationProposalRequest
