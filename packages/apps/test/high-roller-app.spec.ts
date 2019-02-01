@@ -200,6 +200,35 @@ describe("HighRollerApp", () => {
       expect(state.playerSecondNumber).to.eq(2);
     });
 
+    it("can reveal", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerFirstNumber = 1;
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.REVEALING,
+        salt: HashZero,
+        commitHash: hash,
+        playerFirstNumber: 0,
+        playerSecondNumber: 2
+      };
+
+      const action: Action = {
+        actionType: ActionType.REVEAL,
+        number: playerFirstNumber,
+        actionHash: numberSalt
+      };
+      const ret = await applyAction(preState, action);
+
+      const state = decodeBytesToAppState(ret);
+      expect(state.stage).to.eq(4);
+      expect(state.playerFirstNumber).to.eq(1);
+      expect(state.playerSecondNumber).to.eq(2);
+      expect(state.salt).to.eq(numberSalt);
+    });
+
     it("can end game - playerSecond wins", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
