@@ -26,6 +26,7 @@ enum HighRollerStage {
   PRE_GAME,
   COMMITTING_HASH,
   COMMITTING_NUM,
+  REVEALING,
   DONE
 }
 
@@ -41,7 +42,8 @@ type HighRollerAppState = {
 enum ActionType {
   START_GAME,
   COMMIT_TO_HASH,
-  COMMIT_TO_NUM
+  COMMIT_TO_NUM,
+  REVEAL
 }
 
 type Action = {
