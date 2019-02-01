@@ -5,6 +5,7 @@ import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, UpdateParams } from "../types";
+import { xpubKthAddress } from "../xpub";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -38,12 +39,22 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       verifyInboxLengthEqualTo1(context.inbox),
 
     // Verify they did indeed countersign the right thing
-    (message: ProtocolMessage, context: Context) =>
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        appIdentityHash,
+        multisigAddress
+      } = message.params as UpdateParams;
+
+      const appSeqNo = context.stateChannelsMap
+        .get(multisigAddress)!
+        .getAppInstance(appIdentityHash).appSeqNo;
+
       validateSignature(
-        message.toAddress,
+        xpubKthAddress(message.toAddress, appSeqNo),
         context.commitments[0],
         context.inbox[0].signature
-      ),
+      );
+    },
 
     // Consider the state transition finished and commit it
     Opcode.STATE_TRANSITION_COMMIT
@@ -54,12 +65,22 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition,
 
     // Validate your counterparty's signature is for the above proposal
-    (message: ProtocolMessage, context: Context) =>
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        appIdentityHash,
+        multisigAddress
+      } = message.params as UpdateParams;
+
+      const appSeqNo = context.stateChannelsMap
+        .get(multisigAddress)!
+        .getAppInstance(appIdentityHash).appSeqNo;
+
       validateSignature(
-        message.fromAddress,
+        xpubKthAddress(message.fromAddress, appSeqNo),
         context.commitments[0],
         message.signature
-      ),
+      );
+    },
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,

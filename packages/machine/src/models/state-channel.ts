@@ -5,13 +5,13 @@ import {
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber, bigNumberify, computeAddress } from "ethers/utils";
-import { fromExtendedPublicKey } from "ethers/utils/hdnode";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
   getETHBucketAppInterface,
   unlimitedETH
 } from "../ethereum/utils/eth-bucket";
+import { xpubKthAddress } from "../xpub";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -45,12 +45,6 @@ const ERRORS = {
 
 function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
-}
-
-function xpubKthAddress(xpub: string, k: number) {
-  return computeAddress(
-    fromExtendedPublicKey(xpub).deriveChild(`m/44'/60'/0'/0/${k}`).publicKey
-  );
 }
 
 export type StateChannelJSON = {
