@@ -1,11 +1,16 @@
-import { Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { Contract, ContractFactory, Wallet } from "ethers";
+import { BaseProvider, Web3Provider } from "ethers/providers";
+import { hexlify, randomBytes, SigningKey } from "ethers/utils";
 import FirebaseServer from "firebase-server";
-import { instance, mock } from "ts-mockito";
+import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { PRIVATE_KEY_PATH } from "../../src/signer";
 import {
   InstallVirtualMessage,
   NODE_EVENTS,
@@ -26,6 +31,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
+  jest.setTimeout(10000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -36,8 +42,12 @@ describe("Node method follows spec - uninstall", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
+  let mvmContract: Contract;
+  let proxyFactoryContract: Contract;
+  let networkContext: NetworkContext;
+  let privateKeyA: string;
+  let privateKeyB: string;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -51,20 +61,50 @@ describe("Node method follows spec - uninstall", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
+    privateKeyA = new SigningKey(hexlify(randomBytes(32))).privateKey;
+    privateKeyB = new SigningKey(hexlify(randomBytes(32))).privateKey;
+    provider = new Web3Provider(
+      ganache.provider({
+        accounts: [
+          {
+            balance: "120000000000000000",
+            secretKey: privateKeyA
+          },
+          {
+            balance: "120000000000000000",
+            secretKey: privateKeyB
+          }
+        ]
+      })
+    );
+
+    const wallet = new Wallet(privateKeyA, provider);
+    mvmContract = await new ContractFactory(
+      MinimumViableMultisig.abi,
+      MinimumViableMultisig.bytecode,
+      wallet
+    ).deploy();
+    proxyFactoryContract = await new ContractFactory(
+      ProxyFactory.abi,
+      ProxyFactory.bytecode,
+      wallet
+    ).deploy();
+
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig = mvmContract.address;
+    networkContext.ProxyFactory = proxyFactoryContract.address;
+
     // Setting up a different store service to simulate different store services
     // being used for each Node
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: PRIVATE_KEY_PATH, value: privateKeyA }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -72,10 +112,11 @@ describe("Node method follows spec - uninstall", () => {
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceB.set([{ key: PRIVATE_KEY_PATH, value: privateKeyB }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -86,7 +127,7 @@ describe("Node method follows spec - uninstall", () => {
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -95,6 +136,7 @@ describe("Node method follows spec - uninstall", () => {
   afterAll(() => {
     firebaseServer.close();
   });
+
   describe(
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +
       "then Node A uninstalls the installed AppInstance",
