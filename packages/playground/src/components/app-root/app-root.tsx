@@ -31,6 +31,8 @@ export class AppRoot {
   }
 
   async updateMultisigBalance(ethBalance: any) {
+    // TODO: This comparison might need changes if the user's doing
+    // deposits beyond the registration flow.
     if (ethBalance._hex === "0x0" && this.accountState.unconfirmedBalance) {
       return;
     }
