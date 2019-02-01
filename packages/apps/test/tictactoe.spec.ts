@@ -28,7 +28,7 @@ function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
 }
 
 describe("TicTacToeApp", () => {
-  let tictactoe: Contract;
+  let ticTacToe: Contract;
 
   function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
@@ -69,7 +69,7 @@ describe("TicTacToeApp", () => {
     state: SolidityABIEncoderV2Struct,
     action: SolidityABIEncoderV2Struct
   ) {
-    return await tictactoe.functions.applyAction(
+    return await ticTacToe.functions.applyAction(
       encodeState(state),
       encodeAction(action)
     );
@@ -78,7 +78,7 @@ describe("TicTacToeApp", () => {
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    tictactoe = await waffle.deployContract(wallet, TicTacToeApp);
+    ticTacToe = await waffle.deployContract(wallet, TicTacToeApp);
   });
 
   describe("applyAction", () => {
@@ -230,7 +230,7 @@ describe("TicTacToeApp", () => {
       expect(state.winner).to.eq(3); // DRAWN
     });
 
-    it("can notplay_and_draw from a sparse board", async () => {
+    it("cannot play_and_draw from a sparse board", async () => {
       const preState = {
         players: [AddressZero, AddressZero],
         turnNum: 0,

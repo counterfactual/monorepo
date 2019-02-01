@@ -13,12 +13,27 @@ import {
 } from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
+const API_TIMEOUT = 5000;
+
+function timeout(delay: number = API_TIMEOUT) {
+  const handler = setTimeout(() => {
+    throw new Error("Request timed out");
+  }, delay);
+
+  return {
+    cancel() {
+      clearTimeout(handler);
+    }
+  };
+}
 
 async function post(
   endpoint: string,
   data: APIResource,
   signature?: string
 ): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     body: JSON.stringify({
       data
@@ -29,6 +44,8 @@ async function post(
     },
     method: "POST"
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 
@@ -41,6 +58,8 @@ async function post(
 }
 
 async function get(endpoint: string, token?: string): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     method: "GET",
     headers: token
@@ -49,6 +68,8 @@ async function get(endpoint: string, token?: string): Promise<APIResponse> {
         }
       : {}
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 

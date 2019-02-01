@@ -7,7 +7,7 @@ import {
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { defaultAbiCoder, parseEther, solidityKeccak256 } from "ethers/utils";
 
 import HighRollerApp from "../build/HighRollerApp.json";
@@ -26,6 +26,7 @@ enum HighRollerStage {
   PRE_GAME,
   COMMITTING_HASH,
   COMMITTING_NUM,
+  REVEALING,
   DONE
 }
 
@@ -41,7 +42,8 @@ type HighRollerAppState = {
 enum ActionType {
   START_GAME,
   COMMIT_TO_HASH,
-  COMMIT_TO_NUM
+  COMMIT_TO_NUM,
+  REVEAL
 }
 
 type Action = {
@@ -65,10 +67,6 @@ function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
     encodedAppState
   )[0];
 }
-
-// Default value instead of null Bytes32
-const nullValueBytes32 =
-  "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc94";
 
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
@@ -131,8 +129,8 @@ describe("HighRollerApp", () => {
       const preState: HighRollerAppState = {
         playerAddrs: [AddressZero, AddressZero],
         stage: HighRollerStage.PRE_GAME,
-        salt: nullValueBytes32,
-        commitHash: nullValueBytes32,
+        salt: HashZero,
+        commitHash: HashZero,
         playerFirstNumber: 0,
         playerSecondNumber: 0
       };
@@ -140,7 +138,7 @@ describe("HighRollerApp", () => {
       const action: Action = {
         actionType: ActionType.START_GAME,
         number: 0,
-        actionHash: nullValueBytes32
+        actionHash: HashZero
       };
       const ret = await applyAction(preState, action);
 
@@ -152,8 +150,8 @@ describe("HighRollerApp", () => {
       const preState: HighRollerAppState = {
         playerAddrs: [AddressZero, AddressZero],
         stage: HighRollerStage.COMMITTING_HASH,
-        salt: nullValueBytes32,
-        commitHash: nullValueBytes32,
+        salt: HashZero,
+        commitHash: HashZero,
         playerFirstNumber: 0,
         playerSecondNumber: 0
       };
@@ -184,7 +182,7 @@ describe("HighRollerApp", () => {
       const preState: HighRollerAppState = {
         playerAddrs: [AddressZero, AddressZero],
         stage: HighRollerStage.COMMITTING_NUM,
-        salt: nullValueBytes32,
+        salt: HashZero,
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 0
@@ -193,13 +191,42 @@ describe("HighRollerApp", () => {
       const action: Action = {
         actionType: ActionType.COMMIT_TO_NUM,
         number: 2,
-        actionHash: nullValueBytes32
+        actionHash: HashZero
       };
       const ret = await applyAction(preState, action);
 
       const state = decodeBytesToAppState(ret);
       expect(state.stage).to.eq(3);
       expect(state.playerSecondNumber).to.eq(2);
+    });
+
+    it("can reveal", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const playerFirstNumber = 1;
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        playerAddrs: [AddressZero, AddressZero],
+        stage: HighRollerStage.REVEALING,
+        salt: HashZero,
+        commitHash: hash,
+        playerFirstNumber: 0,
+        playerSecondNumber: 2
+      };
+
+      const action: Action = {
+        actionType: ActionType.REVEAL,
+        number: playerFirstNumber,
+        actionHash: numberSalt
+      };
+      const ret = await applyAction(preState, action);
+
+      const state = decodeBytesToAppState(ret);
+      expect(state.stage).to.eq(4);
+      expect(state.playerFirstNumber).to.eq(1);
+      expect(state.playerSecondNumber).to.eq(2);
+      expect(state.salt).to.eq(numberSalt);
     });
 
     it("can end game - playerSecond wins", async () => {
@@ -234,7 +261,7 @@ describe("HighRollerApp", () => {
 
     /**
      * IMPORTANT: The numbers 75 and 45 were calculated by brute-force
-     * computing getWinningAmounts with some numbersless than 100
+     * computing getWinningAmounts with some numbers less than 100
      * until getting back a result where both players tie.
      */
     it("can end game - draw", async () => {
