@@ -278,19 +278,19 @@ Waiting Room
 Game Screen - Winning Screen
 **********************/
 /* If game is won */
-/* .game::after {
+.coins {
   position: absolute;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
+  width: 130px;
   height: calc(100% - 2rem);
   background-image: url('./assets/images/coins.svg');
   background-repeat: no-repeat;
   background-size: contain;
   content: '';
   z-index: 0;
-} */
+}
 
 
 

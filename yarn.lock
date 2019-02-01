@@ -16431,10 +16431,10 @@ truffle-flattener@^1.2.8:
     truffle-resolver "^4.0.4"
     tsort "0.0.1"
 
-truffle-hdwallet-provider@1.0.2, truffle-hdwallet-provider@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.2.tgz#eb9ce2955e3a1fb8677ed3ad4949dfd9df913d73"
-  integrity sha512-skxwZDG541Qf077aA7VDWn9qhgr9/DjmbFJWLVR/oRrlmOYcIiNXviuBIZ5tZkE7JuFxMzHagkLPOreeko9G+g==
+truffle-hdwallet-provider@1.0.3, truffle-hdwallet-provider@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.3.tgz#4ae845f9b2de23f47c4f0fbc6ef2d4b13b494604"
+  integrity sha512-Lm4MrXHnWg8wHNUoumUBc8AhlCBg05x7wZA81JOFfO0j3QU53A/hhSfV7v8gANbRsvpF5Su0s3SNQGJjewtnYw==
   dependencies:
     any-promise "^1.3.0"
     bindings "^1.3.1"
@@ -16471,10 +16471,10 @@ truffle-resolver@^4.0.4:
     truffle-expect "^0.0.4"
     truffle-provisioner "^0.1.1"
 
-truffle@5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.2.tgz#7fc99c8309314e885ddaadacc081675adebddd81"
-  integrity sha512-xBLTUqjYcJIQgEqXJ+j6AU6s+NaQZC+cTuEUhYbEIKhgQBKOczHMYSqf1UBtybq7Jqb2QChXQu82DqAfKC/z9A==
+truffle@5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.3.tgz#ff54abdd3dba7ff0850356c0aae7c390d013e40b"
+  integrity sha512-XTR1SwWoxNGCBa8zWrv/4J8RNfclL6qhyAp+bfnv4AD3L7GEWziDQvcq5ufSKIPKnoK0a4y1O+EZOW5izyEaKg==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
@@ -16609,10 +16609,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
+  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 
