@@ -244,7 +244,9 @@ export const EMPTY_NETWORK: NetworkContext = {
   MultiSend: AddressZero,
   NonceRegistry: AddressZero,
   StateChannelTransaction: AddressZero,
-  ETHVirtualAppAgreement: AddressZero
+  ETHVirtualAppAgreement: AddressZero,
+  MinimumViableMultisig: AddressZero,
+  ProxyFactory: AddressZero
 };
 
 export function generateGetStateRequest(

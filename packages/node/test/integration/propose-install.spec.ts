@@ -1,11 +1,16 @@
-import { Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { Contract, ContractFactory, Wallet } from "ethers";
+import { BaseProvider, Web3Provider } from "ethers/providers";
+import { hexlify, randomBytes, SigningKey } from "ethers/utils";
 import FirebaseServer from "firebase-server";
-import { instance, mock } from "ts-mockito";
+import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { PRIVATE_KEY_PATH } from "../../src/signer";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
@@ -21,6 +26,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
+  jest.setTimeout(10000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -29,8 +35,11 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
+  let mvmContract: Contract;
+  let proxyFactoryContract: Contract;
+  let networkContext: NetworkContext;
+  let privateKey: string;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -44,18 +53,45 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+
+    privateKey = new SigningKey(hexlify(randomBytes(32))).privateKey;
+    provider = new Web3Provider(
+      ganache.provider({
+        accounts: [
+          {
+            balance: "120000000000000000",
+            secretKey: privateKey
+          }
+        ]
+      })
+    );
+
+    const wallet = new Wallet(privateKey, provider);
+    mvmContract = await new ContractFactory(
+      MinimumViableMultisig.abi,
+      MinimumViableMultisig.bytecode,
+      wallet
+    ).deploy();
+    proxyFactoryContract = await new ContractFactory(
+      ProxyFactory.abi,
+      ProxyFactory.bytecode,
+      wallet
+    ).deploy();
+
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig = mvmContract.address;
+    networkContext.ProxyFactory = proxyFactoryContract.address;
   });
 
   beforeEach(async () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: PRIVATE_KEY_PATH, value: privateKey }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -66,7 +102,7 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -80,6 +116,21 @@ describe("Node method follows spec - proposeInstall", () => {
     "Node A gets app install proposal, sends to node B, B approves it, installs it," +
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
+      it.skip("sends proposal with null initial state", async () => {
+        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+          nodeB.address,
+          true
+        );
+
+        console.log("calling from first test");
+        expect(
+          nodeA.call(
+            appInstanceInstallationProposalRequest.type,
+            appInstanceInstallationProposalRequest
+          )
+        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+      });
+
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
@@ -123,26 +174,13 @@ describe("Node method follows spec - proposeInstall", () => {
           done();
         });
 
+        console.log("calling from second test");
         const response = await nodeA.call(
           appInstanceInstallationProposalRequest.type,
           appInstanceInstallationProposalRequest
         );
         appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
           .appInstanceId;
-      });
-
-      it("sends proposal with null initial state", async () => {
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address,
-          true
-        );
-
-        expect(
-          nodeA.call(
-            appInstanceInstallationProposalRequest.type,
-            appInstanceInstallationProposalRequest
-          )
-        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

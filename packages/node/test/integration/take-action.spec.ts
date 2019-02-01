@@ -1,8 +1,11 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
   Address,
   AppABIEncodings,
   AssetType,
+  NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
@@ -25,6 +28,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { PRIVATE_KEY_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -36,6 +40,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
+  jest.setTimeout(10000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -46,6 +51,9 @@ describe("Node method follows spec - takeAction", () => {
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
   let tttContract: Contract;
+  let mvmContract: Contract;
+  let proxyFactoryContract: Contract;
+  let networkContext: NetworkContext;
   let privateKey: string;
 
   beforeAll(async () => {
@@ -66,7 +74,7 @@ describe("Node method follows spec - takeAction", () => {
       ganache.provider({
         accounts: [
           {
-            balance: "7fffffffffffffff",
+            balance: "120000000000000000",
             secretKey: privateKey
           }
         ]
@@ -79,16 +87,29 @@ describe("Node method follows spec - takeAction", () => {
       TicTacToeApp.bytecode,
       wallet
     ).deploy();
-  });
+    mvmContract = await new ContractFactory(
+      MinimumViableMultisig.abi,
+      MinimumViableMultisig.bytecode,
+      wallet
+    ).deploy();
+    proxyFactoryContract = await new ContractFactory(
+      ProxyFactory.abi,
+      ProxyFactory.bytecode,
+      wallet
+    ).deploy();
 
-  beforeEach(async () => {
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig = mvmContract.address;
+    networkContext.ProxyFactory = proxyFactoryContract.address;
+
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: PRIVATE_KEY_PATH, value: privateKey }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -99,7 +120,7 @@ describe("Node method follows spec - takeAction", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
+      networkContext,
       nodeConfig,
       provider
     );
@@ -124,16 +145,6 @@ describe("Node method follows spec - takeAction", () => {
         winner: 0,
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
-
-      it("sends takeAction with invalid appInstanceId", async () => {
-        const takeActionReq = generateTakeActionRequest("", {
-          foo: "bar"
-        });
-
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
-          ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION
-        );
-      });
 
       it("can take action", async done => {
         const validAction = {
@@ -198,6 +209,18 @@ describe("Node method follows spec - takeAction", () => {
       });
     }
   );
+
+  describe("Node A can't make takeAction call with invalid appInstanceId", () => {
+    it("errors out", () => {
+      const takeActionReq = generateTakeActionRequest("", {
+        foo: "bar"
+      });
+
+      expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
+        ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION
+      );
+    });
+  });
 });
 
 function makeTTTAppInstanceProposalReq(

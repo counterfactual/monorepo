@@ -308,6 +308,7 @@ export class Store {
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
     if (!proposedAppInstance) {
+      console.trace();
       return Promise.reject(
         ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
       );

@@ -20,5 +20,7 @@ export const ERRORS = {
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
   ACTION_OBJECT_NOT_ENCODABLE:
-    "The Action object is not encodable by the AppInstance's Action encoding"
+    "The Action object is not encodable by the AppInstance's Action encoding",
+  CHANNEL_CREATION_FAILED:
+    "Failed to create channel. Multisignature wallet cannot be deployed properly"
 };

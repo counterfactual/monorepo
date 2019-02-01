@@ -7,6 +7,7 @@ import {
   SetupParams
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { Wallet } from "ethers";
 import { Provider } from "ethers/providers";
 import { getAddress, SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -88,6 +89,7 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
+      new Wallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
     );
     this.registerMessagingConnection();

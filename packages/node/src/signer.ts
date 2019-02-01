@@ -3,7 +3,7 @@ import { SigningKey } from "ethers/utils";
 
 import { IStoreService } from "./services";
 
-const PRIVATE_KEY_PATH = "PRIVATE_KEY";
+export const PRIVATE_KEY_PATH = "PRIVATE_KEY";
 
 export async function getSigner(
   storeService: IStoreService
