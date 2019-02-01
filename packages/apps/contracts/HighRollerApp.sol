@@ -16,13 +16,15 @@ contract HighRollerApp is CounterfactualApp {
   enum ActionType {
     START_GAME,
     COMMIT_TO_HASH,
-    COMMIT_TO_NUM
+    COMMIT_TO_NUM,
+    REVEAL
   }
 
   enum Stage {
     PRE_GAME,
     COMMITTING_HASH,
     COMMITTING_NUM,
+    REVEALING,
     DONE
   }
 
@@ -94,11 +96,20 @@ contract HighRollerApp is CounterfactualApp {
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(
         state.stage == Stage.COMMITTING_NUM,
-        "Cannot apply COMMITTING_NUM on COMMITTING_NUM"
+        "Cannot apply COMMIT_TO_NUM on COMMITTING_NUM"
+      );
+      nextState.stage = Stage.REVEALING;
+
+      nextState.playerSecondNumber = action.number;
+    } else if (action.actionType == ActionType.REVEAL) {
+      require(
+        state.stage == Stage.REVEALING,
+        "Cannot apply REVEAL on REVEALING"
       );
       nextState.stage = Stage.DONE;
 
-      nextState.playerSecondNumber = action.number;
+      nextState.playerFirstNumber = action.number;
+      nextState.salt = action.actionHash;
     } else {
       revert("Invalid action type");
     }
