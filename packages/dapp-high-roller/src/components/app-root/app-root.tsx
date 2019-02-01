@@ -165,8 +165,6 @@ export class AppRoot {
       "function highRoller(bytes32 randomness) public pure returns(uint8 playerFirstTotal, uint8 playerSecondTotal)"
     ];
 
-    debugger;
-
     // Connect to the network
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
@@ -177,8 +175,6 @@ export class AppRoot {
     const contract = new ethers.Contract(contractAddress, abi, provider);
 
     const result = await contract.highRoller(randomness);
-
-    console.log(result);
 
     return {
       myRoll: result[0],
