@@ -12,7 +12,8 @@ class Game extends Component {
     this.state = {
       gameState: {
         players: [],
-        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        winner: 0
       }
     };
   }
@@ -103,10 +104,11 @@ class Game extends Component {
   }
 
   render() {
+    console.log(this.state.gameState.winner, this.state.gameState.board)
     return (
       <div className="game">
         <Player
-          gameState={this.state.gameState}
+          winner={this.state.gameState.winner}
           gameInfo={this.props.gameInfo}
           isMyTurn={this.isMyTurn}
           myNumber={this.myNumber}
@@ -121,6 +123,8 @@ class Game extends Component {
         <Board
           board={this.state.gameState.board}
           isMyTurn={this.isMyTurn}
+          myNumber={this.myNumber}
+          opponentNumber={this.opponentNumber}
           onTakeAction={this.takeAction.bind(this)}
         />
 
