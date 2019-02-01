@@ -78,7 +78,11 @@ export class NodeListener {
       MultiSend: addressZero,
       NonceRegistry: addressZero,
       StateChannelTransaction: addressZero,
-      ETHVirtualAppAgreement: addressZero
+      ETHVirtualAppAgreement: addressZero,
+      // TODO: need to dynamically set these addresses based on current network
+      // these addresses are Ropsten contracts
+      MinimumViableMultisig: "0x9F8fc6D23DC4882284C44bcf6fb7F96290705d3D",
+      ProxyFactory: "0x80147a697aC2037c4f841F0DFA8F2155E18848ae"
     };
 
     await CounterfactualNode.create({
