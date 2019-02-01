@@ -7,7 +7,10 @@ export type AccountState = {
   error?: ErrorMessage;
   accountBalance?: number;
   balance?: number;
+  unconfirmedBalance?: number;
   updateAccount?(data: AccountState): Promise<void>;
+  provider: Web3Provider;
+  signer: Signer;
 };
 
 export default createProviderConsumer<AccountState>(
