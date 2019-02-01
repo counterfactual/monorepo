@@ -15,20 +15,14 @@ import {
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf, HighRollerUIMutableState } from "../../data/types";
-import { getProp } from "../../utils/utils";
+import { computeCommitHash, getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
-const { solidityKeccak256, bigNumberify } = ethers.utils;
+const { bigNumberify } = ethers.utils;
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
-
-/// Returns the commit hash that can be used to commit to chosenNumber
-/// using appSalt
-function computeCommitHash(appSalt: string, chosenNumber: number) {
-  return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
-}
 
 @Component({
   tag: "app-game",
