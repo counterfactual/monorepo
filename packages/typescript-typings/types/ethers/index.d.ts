@@ -10,6 +10,9 @@ type Signer = {
 declare class Web3Provider {
   constructor(provider);
   getSigner(): Signer;
+  getBalance(address: string): Promise<BigNumber>;
+  on(event: string, callback: (...args) => void): void;
+  removeAllListeners(event: string): void;
 }
 
 declare var ethers = {

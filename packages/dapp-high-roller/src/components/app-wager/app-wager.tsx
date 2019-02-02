@@ -120,7 +120,7 @@ export class AppWager {
     this[prop] = (e.target as HTMLInputElement).value;
   }
 
-  private async fetchMatchmake() {
+  private async fetchMatchmake(): Promise<{ [key: string]: any }> {
     if (this.standalone) {
       return {
         data: {
@@ -165,26 +165,24 @@ export class AppWager {
       };
     }
 
-    const { token } = this.account.user;
-    const { matchmakeWith } = this.account;
-
-    const response = await fetch(
-      // TODO: This URL must come from an environment variable.
-      "https://server.playground-staging.counterfactual.com/api/matchmaking",
-      {
-        method: "POST",
-        ...(matchmakeWith
-          ? {
-              body: JSON.stringify({ data: { attributes: { matchmakeWith } } })
-            }
-          : {}),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+    return new Promise(resolve => {
+      const onMatchmakeResponse = (event: MessageEvent) => {
+        if (
+          !event.data.toString().startsWith("playground:response:matchmake")
+        ) {
+          return;
         }
-      }
-    );
-    return await response.json();
+
+        window.removeEventListener("message", onMatchmakeResponse);
+
+        const [, data] = event.data.split("|");
+        resolve(JSON.parse(data));
+      };
+
+      window.addEventListener("message", onMatchmakeResponse);
+
+      window.parent.postMessage("playground:request:matchmake", "*");
+    });
   }
 
   render() {
