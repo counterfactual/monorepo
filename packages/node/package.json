@@ -30,7 +30,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.0.4",
+    "@counterfactual/cf.js": "0.0.5",
     "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
     "ethers": "4.0.23",

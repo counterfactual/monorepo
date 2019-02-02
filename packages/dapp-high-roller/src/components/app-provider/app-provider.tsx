@@ -8,7 +8,6 @@ import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, HighRollerUIMutableState, Node } from "../../data/types";
 
-declare var NodeProvider;
 declare var cf;
 declare var ethers;
 
@@ -53,9 +52,8 @@ export class AppProvider {
   async componentWillLoad() {
     const params = new URLSearchParams(window.location.search);
 
-    // TODO use async/await
     this.nodeProvider = !params.get("standalone")
-      ? new NodeProvider()
+      ? new cf.NodeProvider()
       : new MockNodeProvider();
 
     await this.nodeProvider.connect();

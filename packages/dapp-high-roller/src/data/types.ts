@@ -340,6 +340,22 @@ export namespace cf {
       info: AppInstance
     ) => Promise<AppInstance>;
   };
+  export type NodeProvider = {
+    new (): NodeProvider;
+    isConnected;
+    eventEmitter;
+    messagePort?;
+    debugMode;
+    debugEmitter;
+    constructor();
+    detectDebugMode;
+    log;
+    onMessage(callback: (message: Node.Message) => void): void;
+    sendMessage(message: Node.Message): void;
+    connect(): Promise<NodeProvider>;
+    startMessagePort;
+    notifyNodeProviderIsConnected;
+  };
 }
 
 export type HighRollerUIMutableState = {
