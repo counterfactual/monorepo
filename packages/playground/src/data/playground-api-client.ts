@@ -2,6 +2,7 @@ import {
   APIError,
   APIRequest,
   APIResource,
+  APIResourceAttributes,
   APIResourceCollection,
   APIResponse,
   AppAttributes,
@@ -30,7 +31,8 @@ function timeout(delay: number = API_TIMEOUT) {
 async function post(
   endpoint: string,
   data: APIResource,
-  signature?: string
+  token?: string,
+  authType: "Bearer" | "Signature" = "Signature"
 ): Promise<APIResponse> {
   const requestTimeout = timeout();
 
@@ -40,7 +42,7 @@ async function post(
     } as APIRequest),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...(signature ? { Authorization: `Signature ${signature}` } : {})
+      ...(token ? { Authorization: `${authType} ${token}` } : {})
     },
     method: "POST"
   });
@@ -165,6 +167,21 @@ export default class PlaygroundAPIClient {
 
       return resources.map(resource =>
         fromAPIResource<AppDefinition, AppAttributes>(resource)
+      );
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async matchmake(token: string, matchmakeWith: string | null) {
+    try {
+      return await post(
+        "matchmaking",
+        matchmakeWith
+          ? { type: "matchmaking", attributes: { matchmakeWith } }
+          : ({} as APIResource<APIResourceAttributes>),
+        token,
+        "Bearer"
       );
     } catch (e) {
       return Promise.reject(e);
