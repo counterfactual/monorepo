@@ -122,19 +122,22 @@ export class AppProvider {
       return;
     }
 
+    let myScore = this.myScore;
+    let opponentScore = this.opponentScore;
+    let gameState;
+
     const rolls = await this.highRoller(
       state.playerFirstNumber,
       state.playerSecondNumber
     );
 
-    const myRoll = rolls.myRoll;
-    const opponentRoll = rolls.opponentRoll;
+    const myRoll =
+      state.stage < HighRollerStage.DONE ? rolls.myRoll : rolls.opponentRoll;
+    const opponentRoll =
+      state.stage < HighRollerStage.DONE ? rolls.opponentRoll : rolls.myRoll;
+
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
-
-    let myScore = this.myScore;
-    let opponentScore = this.opponentScore;
-    let gameState;
 
     if (totalMyRoll > totalOpponentRoll) {
       myScore = this.myScore + 1;
