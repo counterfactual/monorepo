@@ -3,7 +3,7 @@ import {
   ETHBucketAppState,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { Zero, AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -246,8 +246,7 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    appInstances
-      .set(appInstance.identityHash, appInstance)
+    appInstances.set(appInstance.identityHash, appInstance);
 
     return new StateChannel(
       this.multisigAddress,
@@ -329,7 +328,7 @@ export class StateChannel {
 
   public installApp(
     appInstance: AppInstance,
-    aliceBalanceDecrement: BigNumber, // todo(xuanji)
+    aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
   ) {
     /// Decrement from FB
