@@ -3,9 +3,9 @@ import {
   Node,
   NodeMessage
 } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
@@ -20,33 +20,43 @@ const serviceFactory = new FirebaseServiceFactory({
 });
 
 let node: Node;
-export async function createNodeSingleton(privateKey?: string): Promise<Node> {
-  return node || (await createNode(privateKey));
+export async function createNodeSingleton(
+  privateKey?: string,
+  networkContext?: NetworkContext
+): Promise<Node> {
+  return node || (await createNode(privateKey, networkContext));
 }
 
-export async function createNode(privateKey?: string): Promise<Node> {
+export async function createNode(
+  privateKey?: string,
+  networkContext?: NetworkContext
+): Promise<Node> {
   const store = serviceFactory.createStoreService(generateUUID());
 
   if (privateKey) {
     await store.set([{ key: "PRIVATE_KEY", value: privateKey }]);
   }
 
+  let provider: BaseProvider;
+  if (!process.env.ETHEREUM_NETWORK) {
+    throw Error("No Ethereum network specified.");
+  }
+
+  if (process.env.ETHEREUM_NETWORK === "ganache") {
+    provider = new JsonRpcProvider("http://localhost:8545");
+  } else {
+    provider = ethers.getDefaultProvider(process.env.ETHEREUM_NETWORK);
+  }
+
   node = await Node.create(
     serviceFactory.createMessagingService("messaging"),
     store,
     {
-      AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero
-    },
-    {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider(process.env.ETHEREUM_NETWORK || "ropsten")
+    provider,
+    process.env.ETHEREUM_NETWORK,
+    networkContext
   );
 
   node.on(INSTALL, async (msg: NodeMessage) => {
