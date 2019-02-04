@@ -70,28 +70,14 @@ export class NodeListener {
       }
     };
 
-    const addressZero = "0x0000000000000000000000000000000000000000";
-    const networkContext: NetworkContext = {
-      AppRegistry: addressZero,
-      ETHBalanceRefund: addressZero,
-      ETHBucket: addressZero,
-      MultiSend: addressZero,
-      NonceRegistry: addressZero,
-      StateChannelTransaction: addressZero,
-      ETHVirtualAppAgreement: addressZero,
-      // TODO: need to dynamically set these addresses based on current network
-      // these addresses are Ropsten contracts
-      MinimumViableMultisig: "0x9F8fc6D23DC4882284C44bcf6fb7F96290705d3D",
-      ProxyFactory: "0x80147a697aC2037c4f841F0DFA8F2155E18848ae"
-    };
-
     await CounterfactualNode.create({
       messagingService,
       storeService,
-      networkContext,
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
-      }
+      },
+      // TODO: fetch this from the provider's network
+      network: "ropsten"
     });
 
     this.bindNodeEvents();
