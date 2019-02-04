@@ -76,7 +76,7 @@ export class AppProvider {
 
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+      "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
@@ -105,9 +105,8 @@ export class AppProvider {
       stage: newStateArray[1],
       salt: newStateArray[2],
       commitHash: newStateArray[3],
-      playerFirstNumber: this.highRollerState.playerFirstNumber || {
-        _hex: "0x00"
-      },
+      playerFirstNumber:
+        this.highRollerState.playerFirstNumber || newStateArray[4],
       playerSecondNumber: newStateArray[5]
     } as HighRollerAppState;
 
@@ -159,8 +158,6 @@ export class AppProvider {
 
     this.updateUIState(newUIState);
 
-    debugger;
-
     if (state.stage === HighRollerStage.REVEALING) {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
@@ -179,10 +176,7 @@ export class AppProvider {
     this.goToGame(this.history);
   }
 
-  onUninstall(data: Node.EventData) {
-    const uninstallData = data as Node.UninstallEventData;
-    debugger;
-  }
+  onUninstall(data: Node.EventData) {}
 
   render() {
     return <div />;
