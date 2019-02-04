@@ -118,6 +118,16 @@ describe("CF.js Provider", () => {
     } as unknown) as Node.Event);
   });
 
+  it("throws an error when subscribing to an unknown event", async () => {
+    expect.assertions(3);
+
+    ["on", "once", "off"].forEach(methodName => {
+      expect(() => provider[methodName]("fakeEvent", () => {})).toThrowError(
+        '"fakeEvent" is not a valid event'
+      );
+    });
+  });
+
   describe("Node methods", () => {
     it("can query app instances and return them", async () => {
       expect.assertions(3);

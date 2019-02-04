@@ -12,10 +12,10 @@ then
     types \
     apps \
     contracts \
+    node-provider \
     cf.js \
     machine \
     node \
-    node-provider \
     playground-server \
   "
 else
@@ -23,10 +23,10 @@ else
     types \
     apps \
     contracts \
+    node-provider \
     cf.js \
     machine \
     node \
-    node-provider \
     playground-server \
     playground \
     dapp-high-roller \
