@@ -66,6 +66,14 @@ export class AppGame {
 
   shakeAudio!: HTMLAudioElement;
   rollAudio!: HTMLAudioElement;
+  rollingAnimationInterval: {
+    myRoll?: NodeJS.Timeout;
+    opponentRoll?: NodeJS.Timeout;
+  } = {};
+  rolling: { myRoll: boolean; opponentRoll: boolean } = {
+    myRoll: false,
+    opponentRoll: false
+  };
 
   async componentWillLoad() {
     this.betAmount = getProp("betAmount", this);
@@ -73,25 +81,69 @@ export class AppGame {
     this.appInstanceId = getProp("appInstanceId", this);
   }
 
-  @Watch("gameState")
-  onGameStateChanged() {
-    console.log("Game state changed to ", this.gameState);
+  @Watch("highRollerState")
+  async onHighRollerStateChanged() {
+    if (
+      this.highRollerState.stage > HighRollerStage.PRE_GAME &&
+      !this.rolling.opponentRoll
+    ) {
+      await this.beginRolling("opponentRoll");
+    }
   }
 
-  async animateRoll(roller): Promise<void> {
-    this.shakeAudio.loop = true;
-    this.shakeAudio.play();
-
-    for (let i = 0; i < 10; i += 1) {
-      this[roller] = this.generateRandomRoll();
-
-      await new Promise(resolve =>
-        setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
-      );
+  @Watch("gameState")
+  async onGameStateChanged() {
+    if (this.gameState !== GameState.Play) {
+      await this.stopRolling("myRoll");
+      await this.stopRolling("opponentRoll");
     }
+  }
 
+  // async animateRoll(roller): Promise<void> {
+  //   this.shakeAudio.loop = true;
+  //   this.shakeAudio.play();
+
+  //   this.rollingAnimationInterval = setTimeout(async () => {
+  //     this[roller] = this.generateRandomRoll();
+
+  //     if (this.rolling) {
+  //       await new Promise(resolve =>
+  //         setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
+  //     );
+  //   }, 100);
+
+  //   this.shakeAudio.pause();
+  //   this.rollAudio.play();
+  // }
+
+  async beginRolling(roller: "myRoll" | "opponentRoll") {
+    this.shakeAudio.loop = true;
+    await this.shakeAudio.play();
+
+    this.rolling[roller] = true;
+    this.scheduleRoll(roller);
+  }
+
+  scheduleRoll(roller: "myRoll" | "opponentRoll") {
+    this.rollingAnimationInterval[roller] = setTimeout(
+      async () => await this.roll(roller),
+      100 + Math.floor(Math.random() * Math.floor(150))
+    );
+  }
+
+  async roll(roller: "myRoll" | "opponentRoll") {
+    this[roller] = this.generateRandomRoll();
+
+    if (this.rolling[roller]) {
+      this.scheduleRoll(roller);
+    }
+  }
+
+  async stopRolling(roller: "myRoll" | "opponentRoll") {
+    this.rolling[roller] = false;
+    clearTimeout(this.rollingAnimationInterval[roller] as NodeJS.Timeout);
     this.shakeAudio.pause();
-    this.rollAudio.play();
+    await this.rollAudio.play();
   }
 
   async handleRoll(): Promise<void> {
@@ -104,10 +156,8 @@ export class AppGame {
     }
 
     if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
-      await Promise.all([
-        this.animateRoll("myRoll"),
-        this.animateRoll("opponentRoll")
-      ]);
+      await this.beginRolling("myRoll");
+
       const startGameAction: Action = {
         number: 0,
         actionType: ActionType.START_GAME,
@@ -136,10 +186,7 @@ export class AppGame {
         highRollerState: this.highRollerState
       });
     } else {
-      await Promise.all([
-        this.animateRoll("myRoll"),
-        this.animateRoll("opponentRoll")
-      ]);
+      await this.beginRolling("myRoll");
 
       const nullValueBytes32 =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
