@@ -11,7 +11,7 @@ import {
   getETHBucketAppInterface,
   unlimitedETH
 } from "../ethereum/utils/eth-bucket";
-import { xpubKthAddress } from "../xpub";
+import { xpubKthAddress, xpubsToSortedKthAddresses } from "../xpub";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -49,7 +49,7 @@ function sortAddresses(addrs: string[]) {
 
 export type StateChannelJSON = {
   readonly multisigAddress: string;
-  readonly multisigOwners: string[];
+  readonly userExtendedPublicKeys: string[];
   readonly appInstances: [string, AppInstanceJson][];
   readonly ETHVirtualAppAgreementInstances: [
     string,
@@ -61,17 +61,22 @@ export type StateChannelJSON = {
 
 function createETHFreeBalance(
   multisigAddress: string,
-  multisigOwners: string[],
+  userExtendedPublicKeys: string[],
   ethBucketAddress: string
 ) {
+  const sortedTopLevelKeys = xpubsToSortedKthAddresses(
+    userExtendedPublicKeys,
+    0
+  );
+
   // Making these values constants to be extremely explicit about
   // the built-in assumption here.
-  const beneficiaryForPerson1 = multisigOwners[0];
-  const beneficiaryForPerson2 = multisigOwners[1];
+  const beneficiaryForPerson1 = sortedTopLevelKeys[0];
+  const beneficiaryForPerson2 = sortedTopLevelKeys[1];
 
   return new AppInstance(
     multisigAddress,
-    multisigOwners,
+    sortedTopLevelKeys,
     HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
     getETHBucketAppInterface(ethBucketAddress),
     unlimitedETH,
@@ -201,13 +206,11 @@ export class StateChannel {
   public static setupChannel(
     ethBucketAddress: string,
     multisigAddress: string,
-    multisigOwners: string[]
+    userExtendedPublicKeys: string[]
   ) {
-    const sortedMultisigOwners = sortAddresses(multisigOwners);
-
     const fb = createETHFreeBalance(
       multisigAddress,
-      sortedMultisigOwners,
+      userExtendedPublicKeys,
       ethBucketAddress
     );
 
@@ -219,7 +222,7 @@ export class StateChannel {
 
     return new StateChannel(
       multisigAddress,
-      sortedMultisigOwners,
+      userExtendedPublicKeys,
       appInstances,
       new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
@@ -241,7 +244,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userExtendedPublicKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -288,7 +291,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userExtendedPublicKeys,
       this.appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
@@ -313,6 +316,19 @@ export class StateChannel {
       throw Error(INSUFFICIENT_FUNDS);
     }
 
+    // Verify appInstance has expected signingkeys
+
+    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
+      throw Error("AppInstance passed to installApp has incorrect appSeqNo");
+    } else {
+      const signingKeys = this.getSigningKeysFor(appInstance.appSeqNo);
+      if (!signingKeys.every((v, idx) => v === appInstance.signingKeys[idx])) {
+        throw Error(
+          "AppInstance passed to installApp has incorrect signingKeys"
+        );
+      }
+    }
+
     /// Add modified FB and new AppInstance to appInstances
 
     const appInstances = new Map<string, AppInstance>(
@@ -328,7 +344,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userExtendedPublicKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -362,7 +378,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userExtendedPublicKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -373,7 +389,7 @@ export class StateChannel {
   toJson(): StateChannelJSON {
     return {
       multisigAddress: this.multisigAddress,
-      multisigOwners: this.multisigOwners,
+      userExtendedPublicKeys: this.userExtendedPublicKeys,
       appInstances: [...this.appInstances.entries()].map(
         (appInstanceEntry): [string, AppInstanceJson] => {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
@@ -394,7 +410,7 @@ export class StateChannel {
   static fromJson(json: StateChannelJSON): StateChannel {
     return new StateChannel(
       json.multisigAddress,
-      json.multisigOwners,
+      json.userExtendedPublicKeys,
       new Map(
         [...Object.values(json.appInstances || [])].map(
           (appInstanceEntry): [string, AppInstance] => {

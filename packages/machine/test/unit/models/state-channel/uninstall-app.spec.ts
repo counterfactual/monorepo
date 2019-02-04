@@ -2,8 +2,10 @@ import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
+import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
+import { xpubKthAddress } from "../../../../src/xpub";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();
@@ -14,17 +16,23 @@ describe("StateChannel::uninstallApp", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const multisigOwners = [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
+    const userExtendedPublicKeys = [
+      fromSeed(hexlify(randomBytes(32))).extendedKey,
+      fromSeed(hexlify(randomBytes(32))).extendedKey
     ];
+
+    sc1 = StateChannel.setupChannel(
+      networkContext.ETHBucket,
+      multisigAddress,
+      userExtendedPublicKeys
+    );
 
     testApp = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
       [
-        getAddress(hexlify(randomBytes(20))),
-        getAddress(hexlify(randomBytes(20)))
-      ],
+        xpubKthAddress(userExtendedPublicKeys[0], sc1.numInstalledApps),
+        xpubKthAddress(userExtendedPublicKeys[1], sc1.numInstalledApps)
+      ].sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)),
       Math.ceil(Math.random() * 2e10),
       {
         addr: getAddress(hexlify(randomBytes(20))),
@@ -37,25 +45,21 @@ describe("StateChannel::uninstallApp", () => {
         token: AddressZero
       },
       false,
-      Math.ceil(Math.random() * 2e10),
+      sc1.numInstalledApps,
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
       Math.ceil(1000 * Math.random())
     );
 
-    sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
-      multisigAddress,
-      multisigOwners
-    ).installApp(testApp, Zero, Zero);
+    sc1 = sc1.installApp(testApp, Zero, Zero);
 
     sc2 = sc1.uninstallApp(testApp.identityHash, Zero, Zero);
   });
 
   it("should not alter any of the base properties", () => {
     expect(sc2.multisigAddress).toBe(sc1.multisigAddress);
-    expect(sc2.multisigOwners).toBe(sc1.multisigOwners);
+    expect(sc2.userExtendedPublicKeys).toBe(sc1.userExtendedPublicKeys);
   });
 
   it("should not have changed the sequence number", () => {

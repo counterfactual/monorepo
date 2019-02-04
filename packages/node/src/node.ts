@@ -96,7 +96,7 @@ export class Node {
   }
 
   get address(): string {
-    return this.signer.extendedKey;
+    return this.signer.neuter().extendedKey;
   }
 
   /**

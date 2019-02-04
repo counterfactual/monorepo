@@ -9,14 +9,14 @@ import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, keccak256 } from "ethers/utils";
+import { Interface, keccak256, SigningKey } from "ethers/utils";
 
 import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getSortedRandomSigningKeys } from "./random-signing-keys";
+import { getRandomHDNodes } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -78,9 +78,13 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("should distribute funds in ETH free balance when put on chain", async done => {
-    const signingKeys = getSortedRandomSigningKeys(2);
+    const xkeys = getRandomHDNodes(2);
 
-    const users = signingKeys.map(x => x.address);
+    const multisigOwnerKeys = xkeys
+      .map(x => new SigningKey(x.derivePath(`m/44'/60'/0'/0/${0}`).privateKey))
+      .sort((a, b) =>
+        parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
+      );
 
     const proxyFactory = new Contract(
       (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
@@ -92,10 +96,10 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       const stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxy,
-        users
+        xkeys.map(x => x.extendedKey)
       ).setFreeBalance(AssetType.ETH, {
-        [users[0]]: WeiPerEther,
-        [users[1]]: WeiPerEther
+        [multisigOwnerKeys[0].address]: WeiPerEther,
+        [multisigOwnerKeys[1].address]: WeiPerEther
       });
       const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -108,8 +112,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       );
 
       const setStateTx = setStateCommitment.transaction([
-        signingKeys[0].signDigest(setStateCommitment.hashToSign()),
-        signingKeys[1].signDigest(setStateCommitment.hashToSign())
+        multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
       ]);
 
       await wallet.sendTransaction({
@@ -136,8 +140,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       );
 
       const setupTx = setupCommitment.transaction([
-        signingKeys[0].signDigest(setupCommitment.hashToSign()),
-        signingKeys[1].signDigest(setupCommitment.hashToSign())
+        multisigOwnerKeys[0].signDigest(setupCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(setupCommitment.hashToSign())
       ]);
 
       await wallet.sendTransaction({ to: proxy, value: WeiPerEther.mul(2) });
@@ -148,8 +152,12 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       });
 
       expect(await provider.getBalance(proxy)).toBeEq(Zero);
-      expect(await provider.getBalance(users[0])).toBeEq(WeiPerEther);
-      expect(await provider.getBalance(users[1])).toBeEq(WeiPerEther);
+      expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
+        WeiPerEther
+      );
+      expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
+        WeiPerEther
+      );
 
       done();
     });
@@ -157,7 +165,9 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     await proxyFactory.functions.createProxy(
       (MinimumViableMultisig as WaffleLegacyOutput).networks![networkId]
         .address,
-      new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
+      new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+        multisigOwnerKeys.map(x => x.address)
+      ]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

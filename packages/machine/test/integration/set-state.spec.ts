@@ -5,13 +5,14 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
+import { SigningKey } from "ethers/utils";
 
 import { SetStateCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getSortedRandomSigningKeys } from "./random-signing-keys";
+import { getRandomHDNodes } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -64,17 +65,21 @@ describe("Test", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("test", async done => {
-    const signingKeys = getSortedRandomSigningKeys(2);
+    const xkeys = getRandomHDNodes(2);
 
-    const users = signingKeys.map(x => x.address);
+    const multisigOwnerKeys = xkeys
+      .map(x => new SigningKey(x.derivePath(`m/44'/60'/0'/0/${0}`).privateKey))
+      .sort((a, b) =>
+        parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
+      );
 
     const stateChannel = StateChannel.setupChannel(
       network.ETHBucket,
       AddressZero,
-      users
+      xkeys.map(x => x.extendedKey)
     ).setFreeBalance(AssetType.ETH, {
-      [users[0]]: WeiPerEther,
-      [users[1]]: WeiPerEther
+      [multisigOwnerKeys[0].address]: WeiPerEther,
+      [multisigOwnerKeys[1].address]: WeiPerEther
     });
 
     const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
@@ -88,8 +93,8 @@ describe("Test", () => {
     );
 
     const setStateTx = setStateCommitment.transaction([
-      signingKeys[0].signDigest(setStateCommitment.hashToSign()),
-      signingKeys[1].signDigest(setStateCommitment.hashToSign())
+      multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
+      multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
     ]);
 
     await wallet.sendTransaction({

@@ -1,29 +1,33 @@
 import { AssetType } from "@counterfactual/types";
+import { Wallet } from "ethers";
 import { getAddress, hexlify, randomBytes, SigningKey } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 
 import { Opcode } from "../../src/enums";
 import { SetupCommitment } from "../../src/ethereum";
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
 import { ProtocolMessage } from "../../src/types";
+import { xpubKthHDNode, xpubsToSortedKthAddresses } from "../../src/xpub";
 import { generateRandomNetworkContext } from "../mocks";
 
 describe("InstructionExecutor", () => {
   // Dummy network context
   const networkContext = generateRandomNetworkContext();
 
-  const responder = new SigningKey(hexlify(randomBytes(32)));
+  const responder = fromMnemonic(Wallet.createRandom().mnemonic);
 
   // General interaction testing values
   const interaction = {
-    sender: getAddress(hexlify(randomBytes(20))),
-    receiver: responder.address
+    sender: fromMnemonic(Wallet.createRandom().mnemonic).extendedKey,
+    receiver: responder.extendedKey
   };
 
   // State channel testing values
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
-  const multisigOwners = [interaction.sender, interaction.receiver].sort(
-    (a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)
+  const multisigOwners = xpubsToSortedKthAddresses(
+    [interaction.sender, interaction.receiver],
+    0
   );
 
   let instructionExecutor: InstructionExecutor;
@@ -35,7 +39,6 @@ describe("InstructionExecutor", () => {
     // will fail with an error like "While executing op number <x> at seq
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
-    instructionExecutor.register(Opcode.OP_SIGN_VALIDATE, () => {});
     instructionExecutor.register(Opcode.STATE_TRANSITION_COMMIT, () => {});
   });
 
@@ -58,11 +61,15 @@ describe("InstructionExecutor", () => {
       });
 
       // Ensure validateSignature in Setup Protocol does not throw
+      // NOTE: Subtle but important detail...
+      // responder.privateKey is NOT the same as the 0th child private key
       instructionExecutor.register(
         Opcode.IO_SEND_AND_WAIT,
         (_, __, context) => {
           context.inbox.push({
-            signature: responder.signDigest(context.commitments[0].hashToSign())
+            signature: new SigningKey(
+              xpubKthHDNode(responder.extendedKey, 0).privateKey
+            ).signDigest(context.commitments[0].hashToSign())
           } as ProtocolMessage);
         }
       );
@@ -70,7 +77,7 @@ describe("InstructionExecutor", () => {
       await instructionExecutor.runSetupProtocol({
         multisigAddress,
         initiatingAddress: interaction.sender,
-        respondingAddress: responder.address
+        respondingAddress: interaction.receiver
       });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
@@ -79,12 +86,7 @@ describe("InstructionExecutor", () => {
     describe("the proposed state transition of the channel", () => {
       it("should have the right metadatas", () => {
         expect(stateChannelAfterSetup.multisigAddress).toBe(multisigAddress);
-        expect(stateChannelAfterSetup.multisigOwners).toContain(
-          interaction.sender
-        );
-        expect(stateChannelAfterSetup.multisigOwners).toContain(
-          interaction.receiver
-        );
+        expect(stateChannelAfterSetup.multisigOwners).toEqual(multisigOwners);
       });
     });
 
