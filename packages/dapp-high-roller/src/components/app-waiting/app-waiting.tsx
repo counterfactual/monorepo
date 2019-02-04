@@ -2,6 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { getProp } from "../../utils/utils";
 
 /**
  * User Story
@@ -23,6 +24,11 @@ export class AppWaiting {
   @Prop({ mutable: true }) isProposing: boolean = false;
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
+
+  componentWillLoad() {
+    this.betAmount = getProp("betAmount", this);
+    this.isProposing = getProp("isProposing", this);
+  }
 
   countDown() {
     if (this.seconds === 1) {
@@ -61,11 +67,11 @@ export class AppWaiting {
     this.countDown();
   }
 
-  setupWaiting(cfProvider?, appInstance?) {
+  setupWaiting(cfProvider?, appInstance?, account?, opponent?) {
     if (this.isProposing) {
       this.setupWaitingProposing();
     } else {
-      this.setupWaitingAccepting(cfProvider, appInstance);
+      this.setupWaitingAccepting(cfProvider, appInstance, account, opponent);
     }
   }
 
@@ -77,17 +83,21 @@ export class AppWaiting {
     this.startCountdown();
   }
 
-  setupWaitingAccepting(cfProvider, appInstance) {
+  setupWaitingAccepting(cfProvider, appInstance, account, opponent) {
     cfProvider.once("updateState", () => {
       this.goToGame(this.opponentName, appInstance.id);
     });
+    this.myName = account.user.username;
+    this.opponentName = opponent.attributes.username;
   }
 
   render() {
     return (
       <CounterfactualTunnel.Consumer>
-        {({ cfProvider, appInstance }) => [
-          <div>{this.setupWaiting(cfProvider, appInstance)}</div>,
+        {({ cfProvider, appInstance, account, opponent }) => [
+          <div>
+            {this.setupWaiting(cfProvider, appInstance, account, opponent)}
+          </div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">

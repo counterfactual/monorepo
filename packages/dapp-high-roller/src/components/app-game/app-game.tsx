@@ -1,6 +1,6 @@
 declare var ethers;
 
-import { Component, Element, Prop, Watch } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -45,6 +45,8 @@ export class AppGame {
 
   @Prop() generateRandomRoll: () => number[] = () => [];
 
+  @State() gameStatusLabel: string = "";
+
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
     stage: HighRollerStage.PRE_GAME,
@@ -84,7 +86,7 @@ export class AppGame {
   @Watch("highRollerState")
   async onHighRollerStateChanged() {
     if (
-      this.highRollerState.stage > HighRollerStage.PRE_GAME &&
+      this.highRollerState.stage === HighRollerStage.COMMITTING_NUM &&
       !this.rolling.opponentRoll
     ) {
       await this.beginRolling("opponentRoll");
@@ -184,6 +186,8 @@ export class AppGame {
       this.highRollerState = await this.appInstance.takeAction(
         commitHashAction
       );
+
+      this.gameStatusLabel = "Who will win?";
     }
   }
 
@@ -217,6 +221,8 @@ export class AppGame {
             gameState={this.gameState}
             isProposing={this.isProposing}
             betAmount={this.betAmount}
+            highRollerStage={this.highRollerState.stage}
+            label={this.gameStatusLabel}
           />
           <app-game-player
             playerName="You"
