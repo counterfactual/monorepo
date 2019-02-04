@@ -15,36 +15,30 @@ export class AccountDeposit {
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() signer: Signer = {} as Signer;
 
   @State() error: string = "";
   @State() amountDeposited;
 
   async componentWillLoad() {
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    const signer = provider.getSigner();
-
-    try {
-      const balance = await signer.getBalance();
-      this.balance = parseFloat(ethers.utils.formatEther(balance.toString()));
-    } catch {
-      console.warn("Unable to get account balance");
-    }
+    this.balance = parseFloat(
+      ethers.utils.formatEther((await this.signer.getBalance()).toString())
+    );
   }
 
   async formSubmitionHandler(e) {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    const signer = provider.getSigner();
-
     try {
-      await signer.sendTransaction({
+      await this.signer.sendTransaction({
         to: this.user.multisigAddress,
         value: this.amountDeposited
       });
 
       this.updateAccount({
-        balance: ethers.utils.formatEther(this.amountDeposited)
+        unconfirmedBalance: parseFloat(
+          ethers.utils.formatEther(this.amountDeposited)
+        )
       });
 
       this.history.push("/");
@@ -74,4 +68,9 @@ export class AccountDeposit {
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount", "user"]);
+AccountTunnel.injectProps(AccountDeposit, [
+  "balance",
+  "updateAccount",
+  "user",
+  "signer"
+]);

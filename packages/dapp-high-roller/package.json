@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "netlify": "sh netlify.sh",
-    "build": "stencil build --prerender",
+    "build": "stencil build",
     "start": "stencil build --dev --watch --serve",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
@@ -26,7 +26,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@stencil/sass": "^0.1.1",
-    "@types/puppeteer": "1.11.2",
+    "@types/puppeteer": "1.11.3",
     "puppeteer": "1.11.0",
     "typescript": "^3.1.3",
     "workbox-build": "3.6.3"
