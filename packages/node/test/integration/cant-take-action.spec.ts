@@ -109,9 +109,10 @@ describe("Node method follows spec - takeAction", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      "ganache",
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -120,9 +121,10 @@ describe("Node method follows spec - takeAction", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      "ganache",
+      networkContext
     );
   });
 

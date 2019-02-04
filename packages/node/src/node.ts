@@ -13,6 +13,7 @@ import { getAddress, SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
+import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getSigner } from "./signer";
@@ -38,29 +39,32 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly instructionExecutor: InstructionExecutor;
+  private readonly networkContext: NetworkContext;
 
   private ioSendDeferrals: {
     [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
   } = {};
 
   // These properties don't have initializers in the constructor and get
-  // initialized in the `init` function
+  // initialized in the `asyncronouslySetupUsingRemoteServices` function
   private signer!: SigningKey;
   protected requestHandler!: RequestHandler;
 
   static async create(
     messagingService: IMessagingService,
     storeService: IStoreService,
-    networkContext: NetworkContext,
     nodeConfig: NodeConfig,
-    provider: Provider
+    provider: Provider,
+    network: string,
+    networkContext?: NetworkContext
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      network,
+      networkContext
     );
 
     return await node.asyncronouslySetupUsingRemoteServices();
@@ -69,12 +73,14 @@ export class Node {
   private constructor(
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
-    private readonly networkContext: NetworkContext,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: Provider
+    private readonly provider: Provider,
+    network: string,
+    networkContext?: NetworkContext
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
+    this.networkContext = configureNetworkContext(network, networkContext);
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
