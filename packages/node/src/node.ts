@@ -75,7 +75,7 @@ export class Node {
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: Provider,
-    network: string,
+    public readonly network: string,
     networkContext?: NetworkContext
   ) {
     this.incoming = new EventEmitter();

@@ -17,7 +17,8 @@ import {
   EMPTY_NETWORK,
   generateGetStateRequest,
   getNewMultisig,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
@@ -84,9 +85,10 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -95,9 +97,10 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 

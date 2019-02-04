@@ -22,7 +22,8 @@ import {
   getNewMultisig,
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
-  makeInstallRequest
+  makeInstallRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -89,9 +90,10 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -100,9 +102,10 @@ describe("Node method follows spec - proposeInstall", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 

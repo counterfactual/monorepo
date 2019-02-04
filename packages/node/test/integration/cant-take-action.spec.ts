@@ -34,7 +34,8 @@ import {
   EMPTY_NETWORK,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest
+  makeInstallRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -111,7 +112,7 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      "ganache",
+      TEST_NETWORK,
       networkContext
     );
 
@@ -123,7 +124,7 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      "ganache",
+      TEST_NETWORK,
       networkContext
     );
   });

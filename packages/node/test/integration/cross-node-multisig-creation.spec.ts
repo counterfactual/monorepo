@@ -12,7 +12,12 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { PRIVATE_KEY_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
+import {
+  EMPTY_NETWORK,
+  getChannelAddresses,
+  getNewMultisig,
+  TEST_NETWORK
+} from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
@@ -81,9 +86,10 @@ describe("Node can create multisig, other owners get notified", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -92,9 +98,10 @@ describe("Node can create multisig, other owners get notified", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 

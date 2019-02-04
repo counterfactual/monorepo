@@ -25,7 +25,8 @@ import {
   getProposedAppInstanceInfo,
   getProposedAppInstances,
   makeInstallProposalRequest,
-  makeRejectInstallRequest
+  makeRejectInstallRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
@@ -92,9 +93,10 @@ describe("Node method follows spec - rejectInstall", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -103,9 +105,10 @@ describe("Node method follows spec - rejectInstall", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 

@@ -8,7 +8,7 @@ import { IStoreService, Node, NodeConfig } from "../../src";
 import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { EMPTY_NETWORK } from "./utils";
+import { EMPTY_NETWORK, TEST_NETWORK } from "./utils";
 
 describe("Node can use storage service", () => {
   let firebaseServer: FirebaseServer;
@@ -36,9 +36,10 @@ describe("Node can use storage service", () => {
     node = await Node.create(
       mockMessagingService,
       storeService,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      EMPTY_NETWORK
     );
   });
 
