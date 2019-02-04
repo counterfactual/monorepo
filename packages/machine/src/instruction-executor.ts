@@ -27,7 +27,10 @@ export class InstructionExecutor {
     this.middlewares.add(scope, method);
   }
 
-  public async dispatchReceivedMessage(
+  /// Starts executing a protocol in response to a message received. This
+  /// function should not be called with messages that are waited for by
+  /// `IO_SEND_AND_WAIT`
+  public async runProtocolWithMessage(
     msg: ProtocolMessage,
     sc: Map<string, StateChannel>
   ) {
