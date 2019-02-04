@@ -6,7 +6,7 @@ import { NodeMessageWrappedProtocolMessage } from "../../types";
 /**
  * Forwards all received NodeMessages that are for the machine's internal
  * protocol execution directly to the instructionExecutor's message handler:
- * `dispatchReceivedMessage`
+ * `runProtocolWithMessage`
  */
 export default async function protocolMessageEventController(
   requestHandler: RequestHandler,
@@ -19,13 +19,13 @@ export default async function protocolMessageEventController(
   //
   //        An alternative might be that IO_SEND_AND_WAIT is hooked onto toms event
   //        listeniner inside the instructionExecutor that emits noise
-  //        when dispatchReceivedMessage receives a message for an in-progress
+  //        when runProtocolWithMessage receives a message for an in-progress
   //        protocol execution.
   //
   //        Does NOT work for InstallVirtualApp
   if (nodeMsg.data.seq === 2) return;
 
-  const stateChannelsMap = await requestHandler.instructionExecutor.dispatchReceivedMessage(
+  const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
     nodeMsg.data,
     new Map<string, StateChannel>(
       Object.entries(await requestHandler.store.getAllChannels())

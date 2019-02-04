@@ -15,7 +15,7 @@ import { InstallMessage } from "../../types";
  *       methods/intall/operations.ts::install method with the exception
  *       of the lack of a runInstallProtocol call. This is because this is
  *       the counterparty end of the install protocol which runs _after_
- *       the _dispatchReceivedMessage_ call finishes and saves the result.
+ *       the _runProtocolWithMessage_ call finishes and saves the result.
  *
  *       Future iterations of this code will simply be a middleware hook on
  *       the _STATE TRANSITION COMMIT_ opcode.
