@@ -201,5 +201,15 @@ describe("CF.js AppInstance", () => {
       });
       setTimeout(done, 50);
     });
+
+    it("throws an error when subscribing to an unknown event", async () => {
+      expect.assertions(3);
+
+      ["on", "once", "off"].forEach(methodName => {
+        expect(() =>
+          appInstance[methodName]("fakeEvent", () => {})
+        ).toThrowError('"fakeEvent" is not a valid event');
+      });
+    });
   });
 });

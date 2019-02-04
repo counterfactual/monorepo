@@ -1,3 +1,5 @@
+import NodeProvider from "@counterfactual/node-provider";
+
 import { AppFactory } from "./app-factory";
 import { Provider } from "./provider";
 import * as types from "./types";
@@ -12,4 +14,5 @@ const cf = {
 
 export { AppFactory, Provider, types, utils };
 
+export { NodeProvider };
 export default cf;

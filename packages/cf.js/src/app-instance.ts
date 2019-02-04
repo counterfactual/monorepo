@@ -37,6 +37,9 @@ export class AppInstance {
   readonly timeout: BigNumber;
   readonly intermediaries?: Address[];
   private readonly eventEmitter: EventEmitter = new EventEmitter();
+  private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
+    key => AppInstanceEventType[key]
+  );
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
     this.id = info.id;
@@ -116,6 +119,7 @@ export class AppInstance {
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
   ) {
+    this.validateEventType(eventType);
     this.eventEmitter.on(eventType, callback);
   }
 
@@ -129,6 +133,7 @@ export class AppInstance {
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
   ) {
+    this.validateEventType(eventType);
     this.eventEmitter.once(eventType, callback);
   }
 
@@ -142,7 +147,17 @@ export class AppInstance {
     eventType: AppInstanceEventType,
     callback: (event: CounterfactualEvent) => void
   ) {
+    this.validateEventType(eventType);
     this.eventEmitter.off(eventType, callback);
+  }
+
+  /**
+   * @ignore
+   */
+  private validateEventType(eventType: AppInstanceEventType) {
+    if (!this.validEventTypes.includes(eventType)) {
+      throw new Error(`"${eventType}" is not a valid event`);
+    }
   }
 
   /**
