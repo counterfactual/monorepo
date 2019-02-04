@@ -1,6 +1,6 @@
 declare var ethers;
 
-import { Component, Element, Prop, Watch } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -15,20 +15,14 @@ import {
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf, HighRollerUIMutableState } from "../../data/types";
-import { getProp } from "../../utils/utils";
+import { computeCommitHash, getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
-const { solidityKeccak256, bigNumberify } = ethers.utils;
+const { bigNumberify } = ethers.utils;
 
 // dice sound effect attributions:
 // http://soundbible.com/182-Shake-And-Roll-Dice.html
 // http://soundbible.com/181-Roll-Dice-2.html
-
-/// Returns the commit hash that can be used to commit to chosenNumber
-/// using appSalt
-function computeCommitHash(appSalt: string, chosenNumber: number) {
-  return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
-}
 
 @Component({
   tag: "app-game",
@@ -51,6 +45,8 @@ export class AppGame {
 
   @Prop() generateRandomRoll: () => number[] = () => [];
 
+  @State() gameStatusLabel: string = "";
+
   defaultHighRollerState: HighRollerAppState = {
     playerAddrs: [AddressZero, AddressZero],
     stage: HighRollerStage.PRE_GAME,
@@ -72,6 +68,14 @@ export class AppGame {
 
   shakeAudio!: HTMLAudioElement;
   rollAudio!: HTMLAudioElement;
+  rollingAnimationInterval: {
+    myRoll?: NodeJS.Timeout;
+    opponentRoll?: NodeJS.Timeout;
+  } = {};
+  rolling: { myRoll: boolean; opponentRoll: boolean } = {
+    myRoll: false,
+    opponentRoll: false
+  };
 
   async componentWillLoad() {
     this.betAmount = getProp("betAmount", this);
@@ -79,25 +83,52 @@ export class AppGame {
     this.appInstanceId = getProp("appInstanceId", this);
   }
 
-  @Watch("gameState")
-  onGameStateChanged() {
-    console.log("Game state changed to ", this.gameState);
+  @Watch("highRollerState")
+  async onHighRollerStateChanged() {
+    if (
+      this.highRollerState.stage === HighRollerStage.COMMITTING_NUM &&
+      !this.rolling.opponentRoll
+    ) {
+      await this.beginRolling("opponentRoll");
+    }
   }
 
-  async animateRoll(roller): Promise<void> {
-    this.shakeAudio.loop = true;
-    this.shakeAudio.play();
-
-    for (let i = 0; i < 10; i += 1) {
-      this[roller] = this.generateRandomRoll();
-
-      await new Promise(resolve =>
-        setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
-      );
+  @Watch("gameState")
+  async onGameStateChanged() {
+    if (this.gameState !== GameState.Play) {
+      await this.stopRolling("myRoll");
+      await this.stopRolling("opponentRoll");
     }
+  }
 
+  async beginRolling(roller: "myRoll" | "opponentRoll") {
+    this.shakeAudio.loop = true;
+    await this.shakeAudio.play();
+
+    this.rolling[roller] = true;
+    this.scheduleRoll(roller);
+  }
+
+  scheduleRoll(roller: "myRoll" | "opponentRoll") {
+    this.rollingAnimationInterval[roller] = setTimeout(
+      async () => await this.roll(roller),
+      100 + Math.floor(Math.random() * Math.floor(150))
+    );
+  }
+
+  async roll(roller: "myRoll" | "opponentRoll") {
+    this[roller] = this.generateRandomRoll();
+
+    if (this.rolling[roller]) {
+      this.scheduleRoll(roller);
+    }
+  }
+
+  async stopRolling(roller: "myRoll" | "opponentRoll") {
+    this.rolling[roller] = false;
+    clearTimeout(this.rollingAnimationInterval[roller] as NodeJS.Timeout);
     this.shakeAudio.pause();
-    this.rollAudio.play();
+    await this.rollAudio.play();
   }
 
   async handleRoll(): Promise<void> {
@@ -110,10 +141,8 @@ export class AppGame {
     }
 
     if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
-      await Promise.all([
-        this.animateRoll("myRoll"),
-        this.animateRoll("opponentRoll")
-      ]);
+      await this.beginRolling("myRoll");
+
       const startGameAction: Action = {
         number: 0,
         actionType: ActionType.START_GAME,
@@ -142,10 +171,7 @@ export class AppGame {
         highRollerState: this.highRollerState
       });
     } else {
-      await Promise.all([
-        this.animateRoll("myRoll"),
-        this.animateRoll("opponentRoll")
-      ]);
+      await this.beginRolling("myRoll");
 
       const nullValueBytes32 =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
@@ -160,6 +186,8 @@ export class AppGame {
       this.highRollerState = await this.appInstance.takeAction(
         commitHashAction
       );
+
+      this.gameStatusLabel = "Who will win?";
     }
   }
 
@@ -193,6 +221,8 @@ export class AppGame {
             gameState={this.gameState}
             isProposing={this.isProposing}
             betAmount={this.betAmount}
+            highRollerStage={this.highRollerState.stage}
+            label={this.gameStatusLabel}
           />
           <app-game-player
             playerName="You"

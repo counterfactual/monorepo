@@ -19,7 +19,8 @@ declare var ethers = {
   utils: {
     formatEther: (value: string) => string,
     parseEther: (value: string) => BigNumber,
-    bigNumberify: (value: any) => BigNumber
+    bigNumberify: (value: any) => BigNumber,
+    solidityKeccak256: (type: string[], data: any[]) => string
   },
   providers: {
     Web3Provider: Web3Provider
