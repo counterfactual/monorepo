@@ -15,6 +15,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -80,15 +82,15 @@ describe("Node method follows spec - getAppInstances", () => {
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // first, a channel must be opened for it to have an app instance
     const multisigAddress = await getNewMultisig(nodeA, [
-      nodeA.address,
-      nodeB.address
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
     ]);
 
     expect(multisigAddress).toBeDefined();
 
     // second, an app instance must be proposed to be installed into that channel
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      nodeB.address
+      nodeB.publicIdentifier
     );
 
     // third, the pending app instance needs to be installed

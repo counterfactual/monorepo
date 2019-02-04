@@ -86,8 +86,8 @@ describe("Node method follows spec - rejectInstall", () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddress).toBeDefined();
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
@@ -97,7 +97,7 @@ describe("Node method follows spec - rejectInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address
+          nodeB.publicIdentifier
         );
 
         nodeA.on(

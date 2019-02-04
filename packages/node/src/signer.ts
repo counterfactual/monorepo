@@ -13,5 +13,6 @@ export async function getHDNode(storeService: IStoreService): Promise<HDNode> {
     await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
   }
 
-  return fromMnemonic(mnemonic);
+  // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
+  return fromMnemonic(mnemonic).derivePath("m/44'/60'/0'/25446");
 }

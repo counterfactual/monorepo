@@ -160,26 +160,26 @@ describe("Node method follows spec - takeAction", () => {
         };
 
         const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddressAB).toBeDefined();
 
         const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.address,
-          nodeC.address
+          nodeB.publicIdentifier,
+          nodeC.publicIdentifier
         ]);
         expect(multisigAddressBC).toBeDefined();
 
         const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
-          nodeC.address,
+          nodeC.publicIdentifier,
           tttContract.address,
           initialState,
           {
             stateEncoding,
             actionEncoding
           },
-          [nodeB.address]
+          [nodeB.publicIdentifier]
         );
 
         let newState;

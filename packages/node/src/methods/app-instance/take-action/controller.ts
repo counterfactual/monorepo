@@ -37,7 +37,7 @@ export default async function takeActionController(
   await requestHandler.store.saveAppInstanceState(appInstanceId, newState);
 
   const updateStateMessage: UpdateStateMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.UPDATE_STATE,
     data: {
       appInstanceId,
@@ -51,7 +51,7 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  const to = getCounterpartyAddress(requestHandler.address, [
+  const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
     appInstanceInfo.initiatingAddress,
     appInstanceInfo.respondingAddress
   ]);

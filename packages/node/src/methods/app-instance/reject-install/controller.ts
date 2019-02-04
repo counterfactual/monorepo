@@ -20,7 +20,7 @@ export default async function rejectInstallController(
   await requestHandler.store.removeAppInstanceProposal(appInstanceId);
 
   const rejectProposalMsg: RejectProposalMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.REJECT_INSTALL,
     data: {
       appInstanceId

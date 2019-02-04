@@ -13,7 +13,7 @@ import { getChannelFromPeerAddress } from "../../../utils";
  * @param params
  */
 export async function createProposedVirtualAppInstance(
-  selfAddress: Address,
+  selfAddress: string,
   store: Store,
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {

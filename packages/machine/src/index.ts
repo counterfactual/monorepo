@@ -15,6 +15,12 @@ import {
   SetupParams,
   Transaction
 } from "./types";
+import {
+  xpubKthAddress,
+  xpubKthHDNode,
+  xpubsToSortedKthAddresses,
+  xpubsToSortedKthSigningKeys
+} from "./xpub";
 
 export {
   AppInstance,
@@ -30,5 +36,9 @@ export {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
-  Transaction
+  Transaction,
+  xpubKthAddress,
+  xpubKthHDNode,
+  xpubsToSortedKthAddresses,
+  xpubsToSortedKthSigningKeys
 };

@@ -18,14 +18,14 @@ export default async function createMultisigController(
   const multisigAddress = generateNewMultisigAddress(params.owners);
 
   const [respondingAddress] = params.owners.filter(
-    owner => owner !== requestHandler.address
+    owner => owner !== requestHandler.publicIdentifier
   );
 
   const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
     {
       multisigAddress,
       respondingAddress,
-      initiatingAddress: requestHandler.address
+      initiatingAddress: requestHandler.publicIdentifier
     }
   );
 
@@ -34,7 +34,7 @@ export default async function createMultisigController(
   );
 
   const multisigCreatedMsg: CreateMultisigMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.CREATE_MULTISIG,
     data: {
       multisigAddress,

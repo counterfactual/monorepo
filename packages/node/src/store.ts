@@ -25,7 +25,7 @@ import {
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { IStoreService } from "./services";
-import { orderedAddressesHash } from "./utils";
+import { hashOfOrderedPublicIdentifiers } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -120,7 +120,9 @@ export class Store {
    * @param ownersHash
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    const ownersHash = orderedAddressesHash(stateChannel.multisigOwners);
+    const ownersHash = hashOfOrderedPublicIdentifiers(
+      stateChannel.userExtendedPublicKeys
+    );
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
@@ -254,11 +256,13 @@ export class Store {
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`
     )) as AppInstanceInfo;
+
     if (!appInstanceInfo) {
       return Promise.reject(
         `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
       );
     }
+
     return appInstanceInfo;
   }
 

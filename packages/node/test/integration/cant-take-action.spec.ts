@@ -34,6 +34,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -132,13 +134,13 @@ describe("Node method follows spec - takeAction", () => {
       };
 
       const multisigAddress = await getNewMultisig(nodeA, [
-        nodeA.address,
-        nodeB.address
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier
       ]);
       expect(multisigAddress).toBeDefined();
 
       const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
-        nodeB.address,
+        nodeB.publicIdentifier,
         tttContract.address,
         initialState,
         {

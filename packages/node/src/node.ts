@@ -8,7 +8,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import { getAddress, SigningKey } from "ethers/utils";
+import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
@@ -81,7 +81,7 @@ export class Node {
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
     this.requestHandler = new RequestHandler(
-      this.address,
+      this.publicIdentifier,
       this.incoming,
       this.outgoing,
       this.storeService,
@@ -89,13 +89,13 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.address}`
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
     return this;
   }
 
-  get address(): string {
+  get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
   }
 
@@ -119,7 +119,9 @@ export class Node {
           );
         }
 
-        const signingKey = new SigningKey(this.signer.privateKey);
+        const signingKey = new SigningKey(
+          this.signer.derivePath("0").privateKey
+        );
 
         for (const commitment of context.commitments) {
           context.signatures.push(
@@ -142,8 +144,14 @@ export class Node {
       Opcode.IO_SEND,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
-        const from = getAddress(this.address);
-        const to = getAddress(data.toAddress);
+        const from = this.publicIdentifier;
+        const to = data.toAddress;
+
+        // sanity check
+        if (from.slice(0, 4) !== "xpub" || to.slice(0, 4) !== "xpub") {
+          console.error({ from, to });
+          throw Error("fuck");
+        }
 
         await this.messagingService.send(to, {
           from,
@@ -159,8 +167,8 @@ export class Node {
       Opcode.IO_SEND_AND_WAIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
-        const from = getAddress(this.address);
-        const to = getAddress(data.toAddress);
+        const from = this.publicIdentifier;
+        const to = data.toAddress;
 
         this.ioSendDeferrals[to] = new Deferred<
           NodeMessageWrappedProtocolMessage
@@ -256,7 +264,7 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.onReceive(
-      getAddress(this.address),
+      this.publicIdentifier,
       async (msg: NodeMessage) => {
         await this.handleReceivedMessage(msg);
         this.outgoing.emit(msg.type, msg);

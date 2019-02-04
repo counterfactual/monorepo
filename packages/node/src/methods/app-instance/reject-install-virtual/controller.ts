@@ -15,7 +15,7 @@ export default async function rejectInstallVirtualController(
   await requestHandler.store.removeAppInstanceProposal(appInstanceId);
 
   const rejectInstallVirtualMsg: RejectInstallVirtualMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
     data: {
       appInstanceId

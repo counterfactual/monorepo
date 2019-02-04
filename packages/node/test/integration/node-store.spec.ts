@@ -47,7 +47,7 @@ describe("Node can use storage service", () => {
   });
 
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {
-    const channelA = { owners: [node.address, AddressZero] };
+    const channelA = { owners: [node.publicIdentifier, AddressZero] };
     const channelB = {
       owners: [getAddress(hexlify(randomBytes(20))), AddressZero]
     };
@@ -64,7 +64,7 @@ describe("Node can use storage service", () => {
   });
 
   it("can save multiple channels under respective multisig indeces in one call and query for all channels", async () => {
-    const channelA = { owners: [node.address, AddressZero] };
+    const channelA = { owners: [node.publicIdentifier, AddressZero] };
     const channelB = {
       owners: [getAddress(hexlify(randomBytes(20))), AddressZero]
     };

@@ -1,14 +1,11 @@
 import { StateChannel } from "@counterfactual/machine";
 import { Address } from "@counterfactual/types";
-import { BigNumber, hashMessage } from "ethers/utils";
+import { hashMessage } from "ethers/utils";
 
 import { Store } from "./store";
 
-export function orderedAddressesHash(addresses: Address[]): string {
-  addresses.sort((addrA: Address, addrB: Address) => {
-    return new BigNumber(addrA).lt(addrB) ? -1 : 1;
-  });
-  return hashMessage(addresses.join(""));
+export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
+  return hashMessage(addresses.sort().join(""));
 }
 
 /**
@@ -20,19 +17,22 @@ export function orderedAddressesHash(addresses: Address[]): string {
  * @param store
  */
 export async function getChannelFromPeerAddress(
-  selfAddress: Address,
-  peerAddress: Address,
+  selfAddress: string,
+  peerAddress: string,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = orderedAddressesHash([selfAddress, peerAddress]);
+  const ownersHash = hashOfOrderedPublicIdentifiers([selfAddress, peerAddress]);
+
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
   );
+
   if (!multisigAddress) {
     return Promise.reject(
       `No channel exists between the current user ${selfAddress} and the peer ${peerAddress}`
     );
   }
+
   return await store.getStateChannel(multisigAddress);
 }
 
@@ -45,7 +45,7 @@ export async function getPeersAddressFromAppInstanceID(
     appInstanceId
   );
   const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.multisigOwners;
+  const owners = stateChannel.userExtendedPublicKeys;
   return owners.filter(owner => owner !== selfAddress);
 }
 

@@ -21,6 +21,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -83,8 +85,8 @@ describe("Node method follows spec - proposeInstall", () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddress).toBeDefined();
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
@@ -94,7 +96,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address
+          nodeB.publicIdentifier
         );
 
         // node B then decides to approve the proposal
@@ -133,7 +135,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
       it("sends proposal with null initial state", async () => {
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address,
+          nodeB.publicIdentifier,
           true
         );
 

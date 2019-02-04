@@ -8,7 +8,7 @@ export default async function proposeInstallEventController(
   nodeMsg: ProposeMessage
 ) {
   await setAppInstanceIDForProposeInstall(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,

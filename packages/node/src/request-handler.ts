@@ -20,7 +20,7 @@ export class RequestHandler {
   private events = new Map();
   store: Store;
   constructor(
-    readonly address: string,
+    readonly publicIdentifier: string,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
     readonly storeService: IStoreService,

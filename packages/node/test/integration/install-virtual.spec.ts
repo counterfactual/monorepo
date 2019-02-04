@@ -24,6 +24,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
+  jest.setTimeout(15000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -99,20 +101,20 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     () => {
       it("sends proposal with non-null initial state", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddressAB).toBeDefined();
 
         const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.address,
-          nodeC.address
+          nodeB.publicIdentifier,
+          nodeC.publicIdentifier
         ]);
         expect(multisigAddressBC).toBeDefined();
 
-        const intermediaries = [nodeB.address];
+        const intermediaries = [nodeB.publicIdentifier];
         const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeC.address,
+          nodeC.publicIdentifier,
           intermediaries
         );
 
@@ -153,7 +155,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
             );
 
             expect(proposedAppInstanceC.initiatingAddress).toEqual(
-              nodeA.address
+              nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
 

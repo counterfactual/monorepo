@@ -1,6 +1,15 @@
 import { computeAddress, SigningKey } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
+/**
+ * Helpful info:
+ *
+ * BIP-32 specified HD Wallets
+ * BIP-39 specifies how to convert mnemonic to/from entropy and mnemonic to seed
+ * BIP-43 specifies that the first field should be purpose (i.e. "m / purpose'")
+ * BIP-44 specifies that if the purpose is 44, then the format is "m / purpose' / cointype' / account' / change / index"
+ */
+
 function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
@@ -16,7 +25,7 @@ export function xpubKthAddress(xpub: string, k: number) {
 }
 
 export function xpubKthHDNode(xpub: string, k: number) {
-  return fromExtendedKey(xpub).derivePath(`m/44'/60'/0'/0/${k}`);
+  return fromExtendedKey(xpub).derivePath(`${k}`);
 }
 
 export function xpubsToSortedKthAddresses(xpubs: string[], k: number) {

@@ -26,6 +26,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -101,20 +103,20 @@ describe("Node method follows spec - uninstall", () => {
     () => {
       it("sends uninstall ", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddressAB).toBeDefined();
 
         const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.address,
-          nodeC.address
+          nodeB.publicIdentifier,
+          nodeC.publicIdentifier
         ]);
         expect(multisigAddressBC).toBeDefined();
 
-        const intermediaries = [nodeB.address];
+        const intermediaries = [nodeB.publicIdentifier];
         const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeC.address,
+          nodeC.publicIdentifier,
           intermediaries
         );
 
@@ -169,7 +171,7 @@ describe("Node method follows spec - uninstall", () => {
             );
 
             expect(proposedAppInstanceC.initiatingAddress).toEqual(
-              nodeA.address
+              nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
 

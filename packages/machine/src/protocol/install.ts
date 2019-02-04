@@ -97,10 +97,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     // KEY: Sets it to NOT be a virtual app
     false,
     // KEY: The app sequence number
-    // TODO: Should validate that the proposed app sequence number is also
-    //       the computed value here and is ALSO still the number compute
-    //       inside the installApp function below
-    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps + 1,
+    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps,
     context.stateChannelsMap.get(multisigAddress)!.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0

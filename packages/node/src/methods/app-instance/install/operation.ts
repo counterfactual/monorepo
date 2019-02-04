@@ -102,14 +102,14 @@ export function createAppInstanceFromAppInstanceInfo(
   return new AppInstance(
     channel.multisigAddress,
     // TODO: generate ephemeral app-specific keys
-    channel.multisigOwners,
+    channel.getSigningKeysFor(channel.numInstalledApps - 1),
     proposedAppInstanceInfo.timeout.toNumber(),
     appInterface,
     terms,
     // TODO: pass correct value when virtual app support gets added
     false,
     // TODO: this should be thread-safe
-    channel.numInstalledApps,
+    channel.numInstalledApps - 1,
     channel.rootNonceValue,
     proposedAppInstanceInfo.initialState,
     0,
