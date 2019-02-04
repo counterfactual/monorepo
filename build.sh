@@ -40,5 +40,9 @@ for package in $packages; do
   echo "⚙️  Building package: ${package}"
   cd packages/${package}
   yarn build
+  if [ "$?" != "0" ]
+  then
+    exit $?;
+  fi
   cd -
 done
