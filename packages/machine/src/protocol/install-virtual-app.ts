@@ -16,7 +16,8 @@ import {
   ETHVirtualAppAgreementInstance,
   StateChannel
 } from "../models";
-import { Context, InstallVirtualAppParams, ProtocolMessage } from "../types";
+import { Context, InstallVirtualAppParams, ProtocolMessage, SolidityABIEncoderV2Struct } from "../types";
+import { virtualAppKey } from "@counterfactual/machine/src/virtual-app-key";
 
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;
@@ -150,16 +151,21 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    multisig1Address
+    multisig1Address,
+    initiatingAddress,
+    respondingAddress,
+    intermediaryAddress
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
-    defaultTimeout,
-    appInterface,
-    initialState
-  );
-  context.targetVirtualAppInstance = targetAppInstance;
+  const targetAppInstance = createTarget(signingKeys, defaultTimeout, appInterface, initialState);
+
+  const key = virtualAppKey([initiatingAddress, respondingAddress], intermediaryAddress);
+  let sc = context.stateChannelsMap.get(key);
+  if (sc === undefined) {
+    sc = StateChannel.createEmptyChannel();
+  }
+  sc = sc.addVirtualAppInstance(targetAppInstance);
+  context.stateChannelsMap.set(key, sc);
 
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
@@ -209,22 +215,28 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState,
     initiatingBalanceDecrement,
-    respondingBalanceDecrement
+    respondingBalanceDecrement,
+    initiatingAddress,
+    respondingAddress,
+    intermediaryAddress
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
-    defaultTimeout,
-    appInterface,
-    initialState
-  );
+  const targetAppInstance = createTarget(signingKeys, defaultTimeout, appInterface, initialState);
+
+  const key = virtualAppKey([initiatingAddress, respondingAddress], intermediaryAddress);
+  let sc = context.stateChannelsMap.get(key);
+  if (sc === undefined) {
+    sc = StateChannel.createEmptyChannel();
+  }
+  sc = sc.addVirtualAppInstance(targetAppInstance);
+  context.stateChannelsMap.set(key, sc);
 
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
     {
       assetType: 0,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
-      token: ""
+      token: AddressZero
     },
     context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
@@ -237,7 +249,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     {
       assetType: 0,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
-      token: ""
+      token: AddressZero
     },
     context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
     context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,

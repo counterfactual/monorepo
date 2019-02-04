@@ -30,7 +30,6 @@ export interface Context {
   commitments: EthereumCommitment[];
   signatures: Signature[];
   appIdentityHash?: string;
-  targetVirtualAppInstance?: AppInstance;
 }
 
 // The application-specific state of an app instance, to be interpreted by the
