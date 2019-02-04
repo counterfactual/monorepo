@@ -177,9 +177,25 @@ export class AppRoot {
     const result = await contract.highRoller(randomness);
 
     return {
-      myRoll: result[0],
-      opponentRoll: result[1]
+      myRoll: this.getDieNumbers(result[0]),
+      opponentRoll: this.getDieNumbers(result[1])
     };
+  }
+
+  getDieNumber() {
+    return 1 + Math.floor(Math.random() * 6);
+  }
+
+  getDieNumbers(totalSum: number): [number, number] {
+    // Choose result for each die.
+    let firstDie = 0;
+    let secondDie = 0;
+
+    while (firstDie + secondDie !== totalSum) {
+      [firstDie, secondDie] = [this.getDieNumber(), this.getDieNumber()];
+    }
+
+    return [firstDie, secondDie];
   }
 
   goToGame(history: RouterHistory, isProposing: boolean = true) {
