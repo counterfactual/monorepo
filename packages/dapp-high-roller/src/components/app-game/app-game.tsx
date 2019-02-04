@@ -99,23 +99,6 @@ export class AppGame {
     }
   }
 
-  // async animateRoll(roller): Promise<void> {
-  //   this.shakeAudio.loop = true;
-  //   this.shakeAudio.play();
-
-  //   this.rollingAnimationInterval = setTimeout(async () => {
-  //     this[roller] = this.generateRandomRoll();
-
-  //     if (this.rolling) {
-  //       await new Promise(resolve =>
-  //         setTimeout(resolve, 100 + Math.floor(Math.random() * Math.floor(150)))
-  //     );
-  //   }, 100);
-
-  //   this.shakeAudio.pause();
-  //   this.rollAudio.play();
-  // }
-
   async beginRolling(roller: "myRoll" | "opponentRoll") {
     this.shakeAudio.loop = true;
     await this.shakeAudio.play();
