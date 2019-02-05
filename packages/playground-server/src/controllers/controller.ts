@@ -185,6 +185,8 @@ export default abstract class Controller<
     try {
       await next();
     } catch (error) {
+      console.error("catching an error");
+      console.error(error);
       Log.info("Handled error detected, delegating to responder", {
         tags: {
           resourceType: this.resourceType,

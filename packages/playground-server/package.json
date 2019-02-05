@@ -24,7 +24,7 @@
     "build": "echo 'No build necessary'",
     "lint": "tslint -c tslint.json -p .",
     "start": "env-cmd development ts-node src/",
-    "test": "env-cmd test jest --forceExit"
+    "test": "env-cmd test jest --forceExit --detectOpenHandles --runInBand"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"

@@ -30,7 +30,7 @@ export default function mountApi() {
         .inject(MatchmakingController, "matchmaking")
         .routes()
     )
-    .use(logs());
+    // .use(logs())
 
   return api;
 }
