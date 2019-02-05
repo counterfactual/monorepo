@@ -66,7 +66,6 @@ function createAppInstanceFromAppInstanceInfo(
 
   return new AppInstance(
     channel.multisigAddress,
-    // TODO: generate ephemeral app-specific keys
     channel.getSigningKeysFor(channel.numInstalledApps - 1),
     proposedAppInstanceInfo.timeout.toNumber(),
     appInterface,
