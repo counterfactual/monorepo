@@ -1,3 +1,5 @@
+declare var ga: any;
+
 import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -124,6 +126,8 @@ export class AppRoot {
 
   updateAccount(account: any) {
     this.state = { ...this.state, account };
+
+    ga('set', 'userId', account.user.id);
   }
 
   updateOpponent(opponent: any) {
