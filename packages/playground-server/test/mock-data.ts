@@ -6,6 +6,12 @@ function syncSignMessage(key: SigningKey, message: string) {
   return joinSignature(key.signDigest(hashMessage(message)));
 }
 
+function getNodeAddress(mnemonic: string) {
+  return fromMnemonic(mnemonic)
+    .derivePath("m/44'/60'/0'/25446")
+    .neuter().extendedKey;
+}
+
 export const PK_ALICE =
   "0xe74ad40ac33d783e5775666ebbd28d0b395dbb4287bee0e88e1803df6eaa7ab4";
 
@@ -33,14 +39,14 @@ export const USR_ALICE = {
   username: "alice_account3",
   email: "alice@wonderland.com",
   ethAddress: new SigningKey(PK_ALICE).address,
-  nodeAddress: fromMnemonic(MNEMONIC_ALICE).neuter().extendedKey
+  nodeAddress: getNodeAddress(MNEMONIC_ALICE)
 };
 
 export const USR_ALICE_DUPLICATE_USERNAME = {
   username: USR_ALICE.username,
   email: USR_ALICE.email,
   ethAddress: new SigningKey(PK_BOB).address,
-  nodeAddress: fromMnemonic(MNEMONIC_BOB).neuter().extendedKey
+  nodeAddress: getNodeAddress(MNEMONIC_BOB)
 };
 
 export const USR_BOB = {
@@ -48,7 +54,7 @@ export const USR_BOB = {
   email: "bob@wonderland.com",
   ethAddress: new SigningKey(PK_BOB).address,
   multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-  nodeAddress: fromMnemonic(MNEMONIC_BOB).neuter().extendedKey
+  nodeAddress: getNodeAddress(MNEMONIC_BOB)
 };
 
 export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
@@ -57,7 +63,7 @@ export const USR_CHARLIE = {
   username: "charlie_account2",
   email: "charlie@wonderland.com",
   ethAddress: new SigningKey(PK_CHARLIE).address,
-  nodeAddress: fromMnemonic(MNEMONIC_CHARLIE).neuter().extendedKey
+  nodeAddress: getNodeAddress(MNEMONIC_CHARLIE)
 };
 
 export const POST_USERS_ALICE = {
