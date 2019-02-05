@@ -10,7 +10,7 @@ import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, keccak256, parseEther, SigningKey } from "ethers/utils";
+import { Interface, keccak256, parseEther } from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
@@ -88,11 +88,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xkeys
-      .map(x => new SigningKey(x.derivePath(`m/44'/60'/0'/0/${0}`).privateKey))
-      .sort((a, b) =>
-        parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
-      );
+    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
 
     const proxyFactory = new Contract(
       (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
@@ -104,7 +103,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       let stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxyAddress,
-        xkeys.map(x => x.extendedKey)
+        xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(AssetType.ETH, {
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther

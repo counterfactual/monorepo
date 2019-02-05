@@ -5,8 +5,8 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
-import { SigningKey } from "ethers/utils";
 
+import { xpubsToSortedKthSigningKeys } from "../../src";
 import { SetStateCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
 
@@ -67,16 +67,15 @@ describe("Test", () => {
   it("test", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xkeys
-      .map(x => new SigningKey(x.derivePath(`m/44'/60'/0'/0/${0}`).privateKey))
-      .sort((a, b) =>
-        parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
-      );
+    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
 
     const stateChannel = StateChannel.setupChannel(
       network.ETHBucket,
       AddressZero,
-      xkeys.map(x => x.extendedKey)
+      xkeys.map(x => x.neuter().extendedKey)
     ).setFreeBalance(AssetType.ETH, {
       [multisigOwnerKeys[0].address]: WeiPerEther,
       [multisigOwnerKeys[1].address]: WeiPerEther
