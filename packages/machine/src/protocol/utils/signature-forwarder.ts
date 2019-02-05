@@ -1,6 +1,14 @@
 import { Context, ProtocolMessage } from "../../types";
 
 /**
+ * @summary This is a `seq` value that messages can take on which
+ * _should not_ be submitted into the protocol execution. A message
+ * with seq === -1 should be considered a response to another message
+ * and this should continue after an IO_SEND_AND_WAIT opcode.
+ */
+export const UNASSIGNED_SEQ_NO = -1;
+
+/**
  * @summary Appends a `ProtocolMessage` to the outbox of a `Context
  * with `seq` hard-coded to 1. This is useful for protocols like
  * Setup, Install, Update, and Uninstall which are single-round-trip
@@ -35,7 +43,7 @@ export function addSignedCommitmentToOutboxForSeq1(
  * @param message the message B initiated his machine protocol execution
  * @param context B's context at this point in the protocol execution
  */
-export function addSignedCommitmentInResponseWithSeq2(
+export function addSignedCommitmentInResponse(
   message: ProtocolMessage,
   context: Context
 ) {
@@ -44,6 +52,6 @@ export function addSignedCommitmentInResponseWithSeq2(
     fromAddress: message.toAddress,
     toAddress: message.fromAddress,
     signature: context.signatures[0],
-    seq: 2
+    seq: UNASSIGNED_SEQ_NO
   });
 }
