@@ -1,33 +1,41 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
+
+import AppRegistryTunnel from "../../../data/app-registry";
+import { AppDefinition } from "../../../types";
 
 @Component({
   tag: "dialog-propose-install",
   shadow: true
 })
 export class DialogProposeInstall {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() message: any;
   @Prop() onAccept: () => void = () => {};
   @Prop() onReject: () => void = () => {};
+  @Prop() apps: AppDefinition[] = [];
 
   render() {
     return (
       <widget-dialog
         visible={true}
-        dialogTitle="Game invitation received"
+        dialogTitle="You've been invited to play!"
         content={
-          <main>
-            <h3>{this.message.from} is inviting you to play!</h3>
-            <label>
-              You'll need to deposit{" "}
-              <strong>
-                {ethers.utils.formatEther(this.message.data.params.myDeposit)}{" "}
-                ETH{" "}
-              </strong>
-              to play <strong>{this.message.data.params.appId}</strong> with{" "}
-              <strong>{this.message.from}</strong>.
-            </label>
-            <p>Do you wish to proceed?</p>
-          </main>
+          <label>
+            You'll need to deposit
+            <br />
+            <strong>
+              {ethers.utils.formatEther(this.message.data.params.myDeposit)} ETH
+            </strong>{" "}
+            to play{" "}
+            <strong>
+              {
+                this.apps.find(
+                  app => app.id === this.message.data.params.appId
+                )!.name
+              }
+            </strong>{" "}
+            with <strong>{this.message.from.substr(0, 6)}</strong>.
+          </label>
         }
         primaryButtonText="Accept"
         onPrimaryButtonClicked={() => this.onAccept()}
@@ -37,3 +45,5 @@ export class DialogProposeInstall {
     );
   }
 }
+
+AppRegistryTunnel.injectProps(DialogProposeInstall, ["apps"]);

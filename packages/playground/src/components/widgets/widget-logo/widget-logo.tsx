@@ -1,4 +1,4 @@
-import { Component } from "@stencil/core";
+import { Component, Prop } from "@stencil/core";
 
 @Component({
   tag: "widget-logo",
@@ -6,11 +6,14 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class WidgetLogo {
+  @Prop() caption: string = "";
+
   render() {
     return (
       <h1 class="logo">
         <stencil-route-link url="/">
           <img src="/assets/icon/logo.svg" alt="Counterfactual" />
+          {this.caption}
         </stencil-route-link>
       </h1>
     );
