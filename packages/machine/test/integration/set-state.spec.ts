@@ -6,7 +6,7 @@ import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 
-import { xpubsToSortedKthSigningKeys } from "../../src";
+import { xkeysToSortedKthSigningKeys } from "../../src";
 import { SetStateCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
 
@@ -67,7 +67,7 @@ describe("Test", () => {
   it("test", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
       xkeys.map(x => x.extendedKey),
       0
     );

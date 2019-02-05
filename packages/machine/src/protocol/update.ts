@@ -5,7 +5,7 @@ import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, UpdateParams } from "../types";
-import { xpubKthAddress } from "../xpub";
+import { xkeyKthAddress } from "../xpub";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -50,7 +50,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xpubKthAddress(message.toAddress, appSeqNo),
+        xkeyKthAddress(message.toAddress, appSeqNo),
         context.commitments[0],
         context.inbox[0].signature
       );
@@ -76,7 +76,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xpubKthAddress(message.fromAddress, appSeqNo),
+        xkeyKthAddress(message.fromAddress, appSeqNo),
         context.commitments[0],
         message.signature
       );

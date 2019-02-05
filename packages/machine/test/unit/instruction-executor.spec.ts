@@ -8,7 +8,7 @@ import { SetupCommitment } from "../../src/ethereum";
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
 import { ProtocolMessage } from "../../src/types";
-import { xpubKthHDNode, xpubsToSortedKthAddresses } from "../../src/xpub";
+import { xkeyKthHDNode, xkeysToSortedKthAddresses } from "../../src/xpub";
 import { generateRandomNetworkContext } from "../mocks";
 
 describe("InstructionExecutor", () => {
@@ -25,7 +25,7 @@ describe("InstructionExecutor", () => {
 
   // State channel testing values
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
-  const multisigOwners = xpubsToSortedKthAddresses(
+  const multisigOwners = xkeysToSortedKthAddresses(
     [interaction.sender, interaction.receiver],
     0
   );
@@ -68,7 +68,7 @@ describe("InstructionExecutor", () => {
         (_, __, context) => {
           context.inbox.push({
             signature: new SigningKey(
-              xpubKthHDNode(responder.extendedKey, 0).privateKey
+              xkeyKthHDNode(responder.extendedKey, 0).privateKey
             ).signDigest(context.commitments[0].hashToSign())
           } as ProtocolMessage);
         }

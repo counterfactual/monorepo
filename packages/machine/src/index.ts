@@ -16,10 +16,10 @@ import {
   Transaction
 } from "./types";
 import {
-  xpubKthAddress,
-  xpubKthHDNode,
-  xpubsToSortedKthAddresses,
-  xpubsToSortedKthSigningKeys
+  xkeyKthAddress,
+  xkeyKthHDNode,
+  xkeysToSortedKthAddresses,
+  xkeysToSortedKthSigningKeys
 } from "./xpub";
 
 export {
@@ -37,8 +37,8 @@ export {
   ProtocolMessage,
   SetupParams,
   Transaction,
-  xpubKthAddress,
-  xpubKthHDNode,
-  xpubsToSortedKthAddresses,
-  xpubsToSortedKthSigningKeys
+  xkeyKthAddress,
+  xkeyKthHDNode,
+  xkeysToSortedKthAddresses,
+  xkeysToSortedKthSigningKeys
 };

@@ -20,20 +20,20 @@ function sortSigningkeys(addrs: SigningKey[]) {
   );
 }
 
-export function xpubKthAddress(xpub: string, k: number) {
-  return computeAddress(xpubKthHDNode(xpub, k).publicKey);
+export function xkeyKthAddress(xpub: string, k: number) {
+  return computeAddress(xkeyKthHDNode(xpub, k).publicKey);
 }
 
-export function xpubKthHDNode(xpub: string, k: number) {
+export function xkeyKthHDNode(xpub: string, k: number) {
   return fromExtendedKey(xpub).derivePath(`${k}`);
 }
 
-export function xpubsToSortedKthAddresses(xpubs: string[], k: number) {
-  return sortAddresses(xpubs.map(xpub => xpubKthAddress(xpub, k)));
+export function xkeysToSortedKthAddresses(xpubs: string[], k: number) {
+  return sortAddresses(xpubs.map(xpub => xkeyKthAddress(xpub, k)));
 }
 
-export function xpubsToSortedKthSigningKeys(xpubs: string[], k: number) {
+export function xkeysToSortedKthSigningKeys(xpubs: string[], k: number) {
   return sortSigningkeys(
-    xpubs.map(xpub => new SigningKey(xpubKthHDNode(xpub, k).privateKey))
+    xpubs.map(xpub => new SigningKey(xkeyKthHDNode(xpub, k).privateKey))
   );
 }

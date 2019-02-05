@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../src/models";
-import { xpubsToSortedKthSigningKeys } from "../../src/xpub";
+import { xkeysToSortedKthSigningKeys } from "../../src/xpub";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -78,7 +78,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
       xkeys.map(x => x.extendedKey),
       0
     );

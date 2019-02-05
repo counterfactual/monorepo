@@ -1,7 +1,7 @@
 import {
   InstructionExecutor,
   StateChannel,
-  xpubsToSortedKthAddresses
+  xkeysToSortedKthAddresses
 } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -92,7 +92,7 @@ describe("Can handle correct & incorrect installs", () => {
       fromMnemonic(Wallet.createRandom().mnemonic)
     ];
 
-    const signingKeys = xpubsToSortedKthAddresses(
+    const signingKeys = xkeysToSortedKthAddresses(
       hdnodes.map(x => x.extendedKey),
       0
     );

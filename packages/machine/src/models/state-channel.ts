@@ -11,7 +11,7 @@ import {
   getETHBucketAppInterface,
   unlimitedETH
 } from "../ethereum/utils/eth-bucket";
-import { xpubKthAddress, xpubsToSortedKthAddresses } from "../xpub";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xpub";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -64,7 +64,7 @@ function createETHFreeBalance(
   userExtendedPublicKeys: string[],
   ethBucketAddress: string
 ) {
-  const sortedTopLevelKeys = xpubsToSortedKthAddresses(
+  const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userExtendedPublicKeys,
     0
   );
@@ -155,7 +155,7 @@ export class StateChannel {
   public getSigningKeysFor(addressIndex: number): string[] {
     return sortAddresses(
       this.userExtendedPublicKeys.map(xpub =>
-        xpubKthAddress(xpub, addressIndex)
+        xkeyKthAddress(xpub, addressIndex)
       )
     );
   }

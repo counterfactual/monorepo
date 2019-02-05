@@ -11,7 +11,7 @@ import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256 } from "ethers/utils";
 
-import { xpubsToSortedKthSigningKeys } from "../../src";
+import { xkeysToSortedKthSigningKeys } from "../../src";
 import { SetStateCommitment, SetupCommitment } from "../../src/ethereum";
 import { StateChannel } from "../../src/models";
 
@@ -81,7 +81,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
   it("should distribute funds in ETH free balance when put on chain", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
       xkeys.map(x => x.extendedKey),
       0
     );

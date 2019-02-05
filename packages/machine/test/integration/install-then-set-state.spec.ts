@@ -14,7 +14,7 @@ import { Interface, keccak256, parseEther } from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
-import { xpubsToSortedKthSigningKeys } from "../../src/xpub";
+import { xkeysToSortedKthSigningKeys } from "../../src/xpub";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -88,7 +88,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
-    const multisigOwnerKeys = xpubsToSortedKthSigningKeys(
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
       xkeys.map(x => x.extendedKey),
       0
     );
@@ -109,7 +109,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
 
-      const uniqueAppSigningKeys = xpubsToSortedKthSigningKeys(
+      const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
         xkeys.map(x => x.extendedKey),
         stateChannel.numInstalledApps
       );

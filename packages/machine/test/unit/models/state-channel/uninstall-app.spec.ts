@@ -5,7 +5,7 @@ import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
-import { xpubKthAddress } from "../../../../src/xpub";
+import { xkeyKthAddress } from "../../../../src/xpub";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();
@@ -30,8 +30,8 @@ describe("StateChannel::uninstallApp", () => {
     testApp = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
       [
-        xpubKthAddress(userExtendedPublicKeys[0], sc1.numInstalledApps),
-        xpubKthAddress(userExtendedPublicKeys[1], sc1.numInstalledApps)
+        xkeyKthAddress(userExtendedPublicKeys[0], sc1.numInstalledApps),
+        xkeyKthAddress(userExtendedPublicKeys[1], sc1.numInstalledApps)
       ].sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)),
       Math.ceil(Math.random() * 2e10),
       {

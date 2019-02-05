@@ -5,7 +5,7 @@ import { Opcode } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, InstallParams, ProtocolMessage } from "../types";
-import { xpubKthAddress } from "../xpub";
+import { xkeyKthAddress } from "../xpub";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -41,7 +41,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Verify they did indeed countersign the right thing
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xpubKthAddress(message.toAddress, 0),
+        xkeyKthAddress(message.toAddress, 0),
         context.commitments[0],
         context.inbox[0].signature
       ),
@@ -57,7 +57,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Validate your counterparty's signature is for the above proposal
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xpubKthAddress(message.fromAddress, 0),
+        xkeyKthAddress(message.fromAddress, 0),
         context.commitments[0],
         message.signature
       ),
