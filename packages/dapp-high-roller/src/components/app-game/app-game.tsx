@@ -173,14 +173,12 @@ export class AppGame {
     } else {
       await this.beginRolling("myRoll");
 
-      const nullValueBytes32 =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
       const playerSecondNumber = Math.floor(Math.random() * Math.floor(1000));
 
       const commitHashAction: Action = {
         number: playerSecondNumber,
         actionType: ActionType.COMMIT_TO_NUM,
-        actionHash: nullValueBytes32
+        actionHash: HashZero
       };
 
       this.highRollerState = await this.appInstance.takeAction(
