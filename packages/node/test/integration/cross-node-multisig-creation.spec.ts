@@ -12,9 +12,9 @@ describe("Node can create multisig, other owners get notified", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
-  let nodeA;
+  let nodeA: Node;
   let storeServiceA: IStoreService;
-  let nodeB;
+  let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let mockProvider: Provider;
@@ -69,8 +69,8 @@ describe("Node can create multisig, other owners get notified", () => {
 
   it("Node A can create multisig and sync with Node B on new multisig creation", async () => {
     const multisigAddress = await getNewMultisig(nodeA, [
-      nodeA.address,
-      nodeB.address
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
     ]);
     const openChannelsNodeA = await getChannelAddresses(nodeA);
     const openChannelsNodeB = await getChannelAddresses(nodeB);

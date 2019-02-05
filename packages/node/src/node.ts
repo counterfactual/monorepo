@@ -147,12 +147,6 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toAddress;
 
-        // sanity check
-        if (from.slice(0, 4) !== "xpub" || to.slice(0, 4) !== "xpub") {
-          console.error({ from, to });
-          throw Error("fuck");
-        }
-
         await this.messagingService.send(to, {
           from,
           data,

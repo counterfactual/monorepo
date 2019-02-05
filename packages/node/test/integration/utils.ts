@@ -19,12 +19,6 @@ export async function getNewMultisig(
   node: Node,
   xpubs: string[]
 ): Promise<Address> {
-  // sanity check
-  if (xpubs[0].slice(0, 4) !== "xpub") {
-    console.error({ xpubs });
-    throw Error("fuck");
-  }
-
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.CREATE_MULTISIG,
