@@ -1,5 +1,5 @@
 import { computeAddress, SigningKey } from "ethers/utils";
-import { fromExtendedKey } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 
 /**
  * Helpful info:
@@ -10,29 +10,35 @@ import { fromExtendedKey } from "ethers/utils/hdnode";
  * BIP-44 specifies that if the purpose is 44, then the format is "m / purpose' / cointype' / account' / change / index"
  */
 
-function sortAddresses(addrs: string[]) {
+function sortAddresses(addrs: string[]): string[] {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
 
-function sortSigningkeys(addrs: SigningKey[]) {
+function sortSigningkeys(addrs: SigningKey[]): SigningKey[] {
   return addrs.sort((a, b) =>
     parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
   );
 }
 
-export function xkeyKthAddress(xkey: string, k: number) {
+export function xkeyKthAddress(xkey: string, k: number): string {
   return computeAddress(xkeyKthHDNode(xkey, k).publicKey);
 }
 
-export function xkeyKthHDNode(xkey: string, k: number) {
+export function xkeyKthHDNode(xkey: string, k: number): HDNode {
   return fromExtendedKey(xkey).derivePath(`${k}`);
 }
 
-export function xkeysToSortedKthAddresses(xkeys: string[], k: number) {
+export function xkeysToSortedKthAddresses(
+  xkeys: string[],
+  k: number
+): string[] {
   return sortAddresses(xkeys.map(xkey => xkeyKthAddress(xkey, k)));
 }
 
-export function xkeysToSortedKthSigningKeys(xkeys: string[], k: number) {
+export function xkeysToSortedKthSigningKeys(
+  xkeys: string[],
+  k: number
+): SigningKey[] {
   return sortSigningkeys(
     xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey))
   );
