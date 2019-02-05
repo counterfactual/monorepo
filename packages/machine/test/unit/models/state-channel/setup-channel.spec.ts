@@ -8,7 +8,7 @@ import { AppInstance, StateChannel } from "../../../../src/models";
 
 describe("StateChannel::setupChannel", () => {
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
-  const userExtendedPublicKeys = [
+  const userNeuteredExtendedKeys = [
     fromSeed(hexlify(randomBytes(32))).extendedKey,
     fromSeed(hexlify(randomBytes(32))).extendedKey
   ];
@@ -21,13 +21,13 @@ describe("StateChannel::setupChannel", () => {
     sc = StateChannel.setupChannel(
       networkContext.ETHBucket,
       multisigAddress,
-      userExtendedPublicKeys
+      userNeuteredExtendedKeys
     );
   });
 
   it("should not alter any of the base properties", () => {
     expect(sc.multisigAddress).toBe(multisigAddress);
-    expect(sc.userExtendedPublicKeys).toBe(userExtendedPublicKeys);
+    expect(sc.userNeuteredExtendedKeys).toBe(userNeuteredExtendedKeys);
   });
 
   it("should have bumped the sequence number", () => {
@@ -79,7 +79,7 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.appSeqNo).toBe(0);
     });
 
-    it("should set the signingKeys as the userExtendedPublicKeys", () => {
+    it("should set the signingKeys as the userNeuteredExtendedKeys", () => {
       const { alice, bob } = fb.state as ETHBucketAppState;
       expect(alice).toBe(sc.multisigOwners[0]);
       expect(bob).toBe(sc.multisigOwners[1]);

@@ -45,7 +45,7 @@ export async function getPeersAddressFromAppInstanceID(
     appInstanceId
   );
   const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userExtendedPublicKeys;
+  const owners = stateChannel.userNeuteredExtendedKeys;
   return owners.filter(owner => owner !== selfAddress);
 }
 

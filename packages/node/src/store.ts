@@ -121,7 +121,7 @@ export class Store {
    */
   public async saveStateChannel(stateChannel: StateChannel) {
     const ownersHash = hashOfOrderedPublicIdentifiers(
-      stateChannel.userExtendedPublicKeys
+      stateChannel.userNeuteredExtendedKeys
     );
     await this.storeService.set([
       {

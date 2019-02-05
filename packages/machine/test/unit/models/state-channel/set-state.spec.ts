@@ -16,7 +16,7 @@ describe("StateChannel::setState", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const userExtendedPublicKeys = [
+    const userNeuteredExtendedKeys = [
       fromSeed(hexlify(randomBytes(32))).extendedKey,
       fromSeed(hexlify(randomBytes(32))).extendedKey
     ];
@@ -24,14 +24,14 @@ describe("StateChannel::setState", () => {
     sc1 = StateChannel.setupChannel(
       networkContext.ETHBucket,
       multisigAddress,
-      userExtendedPublicKeys
+      userNeuteredExtendedKeys
     );
 
     testApp = new AppInstance(
       getAddress(hexlify(randomBytes(20))),
       [
-        xkeyKthAddress(userExtendedPublicKeys[0], sc1.numInstalledApps),
-        xkeyKthAddress(userExtendedPublicKeys[1], sc1.numInstalledApps)
+        xkeyKthAddress(userNeuteredExtendedKeys[0], sc1.numInstalledApps),
+        xkeyKthAddress(userNeuteredExtendedKeys[1], sc1.numInstalledApps)
       ].sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)),
       Math.ceil(Math.random() * 2e10),
       {
@@ -59,7 +59,7 @@ describe("StateChannel::setState", () => {
 
   it("should not alter any of the base properties", () => {
     expect(sc2.multisigAddress).toBe(sc1.multisigAddress);
-    expect(sc2.userExtendedPublicKeys).toBe(sc1.userExtendedPublicKeys);
+    expect(sc2.userNeuteredExtendedKeys).toBe(sc1.userNeuteredExtendedKeys);
   });
 
   it("should not have bumped the sequence number", () => {
