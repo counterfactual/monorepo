@@ -6,6 +6,7 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
+import { UpdateParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
@@ -119,8 +120,24 @@ export class Node {
           );
         }
 
+        let keyIndex = 0;
+
+        if (message.protocol === Protocol.Update) {
+          const {
+            appIdentityHash,
+            multisigAddress
+          } = message.params as UpdateParams;
+          keyIndex = context.stateChannelsMap
+            .get(multisigAddress)!
+            .getAppInstance(appIdentityHash).appSeqNo;
+        } else if (message.protocol === Protocol.InstallVirtualApp) {
+          if (context.commitments.length === 2) {
+            keyIndex = 0;
+          }
+        }
+
         const signingKey = new SigningKey(
-          this.signer.derivePath("0").privateKey
+          this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
         for (const commitment of context.commitments) {
