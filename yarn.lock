@@ -1852,10 +1852,10 @@
   resolved "https://registry.yarnpkg.com/@types/http-assert/-/http-assert-1.4.0.tgz#41d173466e396e99a14d75f7160cc997f2f9ed8b"
   integrity sha512-TZDqvFW4nQwL9DVSNJIJu4lPLttKgzRF58COa7Vs42Ki/MrhIqUbeIw0MWn4kGLiZLXB7oCBibm7nkSjPkzfKQ==
 
-"@types/jest@^23.3.13":
-  version "23.3.13"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.13.tgz#c81484b6f4ca007bb09887ed15ecb3286d58f928"
-  integrity sha512-ePl4l+7dLLmCucIwgQHAgjiepY++qcI6nb8eAwGNkB6OxmTe3Z9rQU3rSpomqu42PCCnlThZbOoxsf+qylJsLA==
+"@types/jest@^24.0.0":
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.0.tgz#848492026c327b3548d92be0352a545c36a21e8a"
+  integrity sha512-kOafJnUTnMd7/OfEO/x3I47EHswNjn+dbz9qk3mtonr1RvKT+1FGVxnxAx08I9K8Tl7j9hpoJRE7OCf+t10fng==
 
 "@types/json5@^0.0.29":
   version "0.0.29"
@@ -1958,10 +1958,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.41.tgz#e57c3152eb2e7ec748c733cebd0c095b437c5d37"
   integrity sha512-sPZWEbFMz6qAy9SLY7jh5cgepmsiwqUUHjvEm8lpU6kug2hmmcyuTnwhoGw/GWpI5Npue4EqvsiQQI0eWjW/ZA==
 
-"@types/puppeteer@1.11.2":
-  version "1.11.2"
-  resolved "https://registry.npmjs.org/@types/puppeteer/-/puppeteer-1.11.2.tgz#2d68f2d187b3f0d9a47f89f7b0abc7d77777928f"
-  integrity sha512-eHBXpiZz0+PrnvHID68OjwcBjTbK1V49sa4lxjq+jiEe2eaLbRl2F77icNg0ewiB2fgdHJUHBD/9ubjfKrvTEw==
+"@types/puppeteer@1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@types/puppeteer/-/puppeteer-1.12.0.tgz#0bd11f1aae4130b164d1759e69b8376a75d034fa"
+  integrity sha512-chymwff4/kbiHWkG/ZqkyLboFWMmbO5gz9AozDKqdv6T9ca1ScI1jsK5A7vM5hp2qoxfADN/UEOpMDXaA/L0VA==
   dependencies:
     "@types/node" "*"
 
