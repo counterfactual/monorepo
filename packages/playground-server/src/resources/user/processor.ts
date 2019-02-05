@@ -12,7 +12,11 @@ export default class UserProcessor extends OperationProcessor {
 
   protected async get(op: Operation): Promise<User[]> {
     if (op.ref.id === "me") {
-      op.ref.id = this.app.user.id;
+      if (this.app.user) {
+        op.ref.id = this.app.user.id;
+      } else {
+        return [];
+      }
     }
 
     return getUsers({ id: op.ref.id });
@@ -43,7 +47,7 @@ export default class UserProcessor extends OperationProcessor {
 
     // Update user with token.
     newUser.attributes.token = sign(
-      newUser,
+      { id: newUser.id },
       process.env.NODE_PRIVATE_KEY as string,
       {
         expiresIn: "1Y"
