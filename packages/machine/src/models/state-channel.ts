@@ -66,7 +66,7 @@ function createETHFreeBalance(
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userExtendedPublicKeys,
-    0
+    0 // NOTE: We re-use 0 which is also used as the keys for `multisigOwners`
   );
 
   // Making these values constants to be extremely explicit about
