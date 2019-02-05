@@ -36,6 +36,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
+  jest.setTimeout(15000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
