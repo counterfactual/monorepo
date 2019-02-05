@@ -131,7 +131,7 @@ export default class PlaygroundAPIClient {
   ): Promise<UserSession> {
     try {
       const json = (await post(
-        "session",
+        "session-requests",
         {
           type: "session",
           id: "",

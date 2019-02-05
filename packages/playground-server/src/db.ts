@@ -1,14 +1,11 @@
 import { Address } from "@counterfactual/types";
+import { KnexRecord } from "@ebryn/jsonapi-ts";
 import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
-import {
-  APIResource,
-  ErrorCode,
-  MatchedUserAttributes,
-  UserAttributes
-} from "./types";
+import Errors from "./errors";
+import User, { MatchedUser } from "./resources/user/resource";
 
 const DATABASE_CONFIGURATION: knex.Config = {
   client: process.env.DB_ENGINE as string,
@@ -46,10 +43,12 @@ export async function ethAddressAlreadyRegistered(
   return userId.length > 0;
 }
 
-export async function matchmakeUser(
-  userAddress: Address
-): Promise<MatchedUserAttributes> {
+export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   const db = getDatabase();
+
+  if (!userToMatch) {
+    throw Errors.UserAddressRequired();
+  }
 
   const query = db("users")
     .columns({
@@ -59,9 +58,14 @@ export async function matchmakeUser(
       nodeAddress: "node_address"
     })
     .select()
-    .where("eth_address", "!=", userAddress);
+    .where("eth_address", "!=", userToMatch.attributes.ethAddress);
 
-  const matchmakeResults: MatchedUserAttributes[] = await query;
+  const matchmakeResults: {
+    id: string;
+    username: string;
+    ethAddress: string;
+    nodeAddress: string;
+  }[] = await query;
 
   Log.debug("Executed matchmakeUser query", {
     tags: { query: query.toSQL().sql }
@@ -72,33 +76,88 @@ export async function matchmakeUser(
   if (matchmakeResults.length === 1) {
     // If there is only one user, just select that one.
     Log.info("Matchmade completed with only user available", {
-      tags: { users: [userAddress, matchmakeResults[0]] }
+      tags: {
+        nodes: [
+          userToMatch.attributes.nodeAddress,
+          matchmakeResults[0].nodeAddress
+        ]
+      }
     });
-    return matchmakeResults[0];
+    const [user] = matchmakeResults;
+
+    return new MatchedUser({
+      id: user.id,
+      attributes: {
+        username: user.username,
+        ethAddress: user.ethAddress,
+        nodeAddress: user.nodeAddress
+      }
+    });
   }
 
   if (matchmakeResults.length === 0) {
     // If there are no users, throw an error.
     Log.warn("Cannot matchmake, no users available", {
-      tags: { user: userAddress }
+      tags: { node: userToMatch.attributes.nodeAddress }
     });
-    throw ErrorCode.NoUsersAvailable;
+    throw Errors.NoUsersAvailable();
   }
 
   // We do the random selection of the user outside of the DB
   // to avoid engine coupling; could've been solved using `.orderBy("RANDOM()")`.
   const randomIndex = Math.floor(Math.random() * matchmakeResults.length);
 
+  const matchedUser = matchmakeResults[randomIndex];
+
   Log.info("Matchmade completed via random index selection", {
-    tags: { users: [userAddress, matchmakeResults[randomIndex]] }
+    tags: {
+      users: [userToMatch.attributes.nodeAddress, matchedUser.nodeAddress]
+    }
   });
 
-  return matchmakeResults[randomIndex];
+  return new MatchedUser({
+    id: matchedUser.id,
+    attributes: {
+      username: matchedUser.username,
+      ethAddress: matchedUser.ethAddress,
+      nodeAddress: matchedUser.nodeAddress
+    }
+  });
 }
 
-export async function getUser(
-  userAddress: Address
-): Promise<APIResource<UserAttributes>> {
+export async function getUsers(filters: {}): Promise<User[]> {
+  const db = getDatabase();
+
+  const users: KnexRecord[] = await db("users")
+    .columns({
+      id: "id",
+      username: "username",
+      email: "email",
+      ethAddress: "eth_address",
+      multisigAddress: "multisig_address",
+      nodeAddress: "node_address"
+    })
+    .where(compactObject(filters))
+    .select();
+
+  await db.destroy();
+
+  return users.map(
+    (user: KnexRecord) =>
+      new User({
+        id: user.id,
+        attributes: {
+          username: user.username,
+          email: user.email,
+          ethAddress: user.ethAddress,
+          multisigAddress: user.multisigAddress,
+          nodeAddress: user.nodeAddress
+        }
+      })
+  );
+}
+
+export async function getUser(userToFind: User): Promise<User> {
   const db = getDatabase();
 
   const query = db("users")
@@ -111,9 +170,16 @@ export async function getUser(
       nodeAddress: "node_address"
     })
     .select()
-    .where("eth_address", "=", userAddress);
+    .where("eth_address", "=", userToFind.attributes.ethAddress);
 
-  const users: (UserAttributes & { id: string })[] = await query;
+  const users: ({
+    id: string;
+    username: string;
+    email: string;
+    ethAddress: string;
+    multisigAddress: string;
+    nodeAddress: string;
+  })[] = await query;
 
   Log.debug("Executed getUser query", {
     tags: { query: query.toSQL().sql }
@@ -123,15 +189,14 @@ export async function getUser(
 
   if (users.length === 0) {
     Log.info("No user found with provided address", {
-      tags: { user: userAddress }
+      tags: { user: userToFind.attributes.ethAddress }
     });
-    throw ErrorCode.UserNotFound;
+    throw Errors.UserNotFound();
   }
 
   const [user] = users;
 
-  return {
-    type: "users",
+  return new User({
     id: user.id,
     attributes: {
       username: user.username,
@@ -140,67 +205,20 @@ export async function getUser(
       multisigAddress: user.multisigAddress,
       nodeAddress: user.nodeAddress
     }
-  } as APIResource<UserAttributes>;
-}
-
-export async function getUserByName(
-  username: string
-): Promise<APIResource<UserAttributes>> {
-  const db = getDatabase();
-
-  const query = db("users")
-    .columns({
-      id: "id",
-      username: "username",
-      email: "email",
-      ethAddress: "eth_address",
-      multisigAddress: "multisig_address",
-      nodeAddress: "node_address"
-    })
-    .select()
-    .where("username", "=", username);
-
-  const users: (UserAttributes & { id: string })[] = await query;
-
-  Log.debug("Executed getUser query", {
-    tags: { query: query.toSQL().sql }
   });
-
-  await db.destroy();
-
-  if (users.length === 0) {
-    Log.info("No user found with provided username", {
-      tags: { user: username }
-    });
-    throw ErrorCode.UserNotFound;
-  }
-
-  const [user] = users;
-
-  return {
-    type: "users",
-    id: user.id,
-    attributes: {
-      username: user.username,
-      email: user.email,
-      ethAddress: user.ethAddress,
-      multisigAddress: user.multisigAddress,
-      nodeAddress: user.nodeAddress
-    }
-  } as APIResource<UserAttributes>;
 }
 
-export async function userExists(user: UserAttributes): Promise<boolean> {
+export async function userExists(user: User): Promise<boolean> {
   const db = getDatabase();
 
   const query = db("users")
     .select()
     .where({
-      username: user.username,
-      email: user.email,
-      eth_address: user.ethAddress,
-      multisig_address: user.multisigAddress,
-      node_address: user.nodeAddress
+      username: user.attributes.username,
+      email: user.attributes.email,
+      eth_address: user.attributes.ethAddress,
+      multisig_address: user.attributes.multisigAddress,
+      node_address: user.attributes.nodeAddress
     })
     .limit(1);
 
@@ -215,11 +233,9 @@ export async function userExists(user: UserAttributes): Promise<boolean> {
   return users.length === 1;
 }
 
-export async function createUser(
-  data: UserAttributes
-): Promise<APIResource<UserAttributes>> {
-  if (await ethAddressAlreadyRegistered(data.ethAddress)) {
-    throw ErrorCode.AddressAlreadyRegistered;
+export async function createUser(user: User): Promise<User> {
+  if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
+    throw Errors.AddressAlreadyRegistered();
   }
 
   const db = getDatabase();
@@ -228,11 +244,11 @@ export async function createUser(
 
   const query = db("users").insert({
     id,
-    username: data.username,
-    email: data.email,
-    eth_address: data.ethAddress,
-    multisig_address: data.multisigAddress,
-    node_address: data.nodeAddress
+    username: user.attributes.username,
+    email: user.attributes.email,
+    eth_address: user.attributes.ethAddress,
+    multisig_address: user.attributes.multisigAddress,
+    node_address: user.attributes.nodeAddress
   });
 
   try {
@@ -244,18 +260,25 @@ export async function createUser(
 
     await db.destroy();
 
-    return {
+    return new User({
       id,
-      type: "users",
-      attributes: data
-    };
+      attributes: user.attributes
+    });
   } catch (e) {
     const error = e as Error;
 
     if (error.message.match(/unique constraint/i)) {
-      throw ErrorCode.UsernameAlreadyExists;
+      throw Errors.UsernameAlreadyExists();
     } else {
       throw e;
     }
   }
+}
+
+function compactObject(filters: {}): {} {
+  Object.keys(filters).forEach(
+    key => filters[key] === undefined && delete filters[key]
+  );
+
+  return filters;
 }
