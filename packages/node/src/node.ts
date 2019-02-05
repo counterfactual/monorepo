@@ -176,6 +176,8 @@ export class Node {
 
         const msg = await this.ioSendDeferrals[to].promise;
 
+        delete this.ioSendDeferrals[msg.from];
+
         context.inbox.push(msg.data);
 
         next();
@@ -307,7 +309,5 @@ export class Node {
         { error, msg }
       );
     }
-
-    delete this.ioSendDeferrals[msg.from];
   }
 }
