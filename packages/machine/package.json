@@ -28,8 +28,8 @@
     "jest": "23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-json": "^3.1.0",
-    "truffle": "5.0.3",
     "rollup-plugin-typescript2": "^0.19.0",
+    "truffle": "5.0.3",
     "truffle-hdwallet-provider": "^1.0.3",
     "ts-jest": "23.10.5",
     "tslint": "^5.11.0",
@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
-    "ethers": "4.0.23",
+    "ethers": "https://github.com/ethers-io/ethers.js.git",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
 }

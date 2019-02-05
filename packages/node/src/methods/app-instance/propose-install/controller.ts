@@ -21,13 +21,13 @@ export default async function proposeInstallAppInstanceController(
   }
 
   const appInstanceId = await createProposedAppInstance(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     requestHandler.store,
     params
   );
 
   const proposalMsg: ProposeMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.PROPOSE_INSTALL,
     data: {
       params,

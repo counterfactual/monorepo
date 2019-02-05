@@ -5,7 +5,12 @@ import {
   AppInstanceInfo,
   BlockchainAsset
 } from "./data-types";
-import { Address, AppAction, AppInstanceID, SolidityABIEncoderV2Struct } from "./simple-types";
+import {
+  Address,
+  AppAction,
+  AppInstanceID,
+  SolidityABIEncoderV2Struct
+} from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);

@@ -30,23 +30,23 @@ export default async function proposeInstallVirtualAppInstanceController(
   }
 
   const appInstanceId = await createProposedVirtualAppInstance(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     requestHandler.store,
     params
   );
 
   const proposalMsg: ProposeVirtualMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: {
       params,
       appInstanceId,
-      initiatingAddress: requestHandler.address
+      initiatingAddress: requestHandler.publicIdentifier
     }
   };
 
   const nextNodeAddress = getNextNodeAddress(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     params.intermediaries,
     params.respondingAddress
   );

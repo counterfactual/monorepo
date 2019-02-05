@@ -9,6 +9,7 @@ import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallParams } from "../types";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
@@ -44,7 +45,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Verify they did indeed countersign the right thing
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        message.toAddress,
+        xkeyKthAddress(message.toAddress, 0),
         context.commitments[0],
         context.inbox[0].signature
       ),
@@ -60,7 +61,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Validate your counterparty's signature is for the above proposal
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        message.fromAddress,
+        xkeyKthAddress(message.fromAddress, 0),
         context.commitments[0],
         message.signature
       ),

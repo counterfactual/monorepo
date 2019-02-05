@@ -1,4 +1,4 @@
-import { Address, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
@@ -13,7 +13,7 @@ import { getChannelFromPeerAddress } from "../../../utils";
  * @param params
  */
 export async function createProposedAppInstance(
-  selfAddress: Address,
+  selfAddress: string,
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {

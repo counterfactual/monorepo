@@ -35,7 +35,6 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
 export function createAppInstance() {
   return new AppInstance(
     getAddress(hexlify(randomBytes(20))),
-    // TODO: generate ephemeral app-specific keys
     [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))

@@ -1,7 +1,12 @@
-import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
+import {
+  InstructionExecutor,
+  StateChannel,
+  xkeysToSortedKthAddresses
+} from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -82,18 +87,26 @@ describe("Can handle correct & incorrect installs", () => {
 
     const appInstanceId = generateUUID();
     const multisigAddress = Wallet.createRandom().address;
-    const owners = [Wallet.createRandom().address, AddressZero];
+    const hdnodes = [
+      fromMnemonic(Wallet.createRandom().mnemonic),
+      fromMnemonic(Wallet.createRandom().mnemonic)
+    ];
+
+    const signingKeys = xkeysToSortedKthAddresses(
+      hdnodes.map(x => x.extendedKey),
+      0
+    );
 
     const stateChannel = StateChannel.setupChannel(
       EMPTY_NETWORK.ETHBucket,
       multisigAddress,
-      owners
+      hdnodes.map(x => x.extendedKey)
     );
 
     const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;
 
-    expect(fbState.alice === owners[1]);
-    expect(fbState.bob === owners[0]);
+    expect(fbState.alice === signingKeys[0]);
+    expect(fbState.bob === signingKeys[1]);
     expect(fbState.aliceBalance).toEqual(Zero);
     expect(fbState.bobBalance).toEqual(Zero);
 

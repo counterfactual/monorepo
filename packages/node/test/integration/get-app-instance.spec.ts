@@ -14,6 +14,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
@@ -71,14 +73,14 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
   it("can accept a valid call to get the desired AppInstance details", async done => {
     const multisigAddress = await getNewMultisig(nodeA, [
-      nodeA.address,
-      nodeB.address
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
     ]);
 
     expect(multisigAddress).toBeDefined();
 
     const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-      nodeB.address
+      nodeB.publicIdentifier
     );
 
     const installAppInstanceRequestId = generateUUID();

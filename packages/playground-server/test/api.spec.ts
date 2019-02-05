@@ -18,25 +18,29 @@ import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
 import {
-  // PK_ALICE,
-  // PK_BOB,
-  // PK_CHARLIE,
-  POST_SESSION_CHARLIE,
+  MNEMONIC_ALICE,
+  MNEMONIC_BOB,
+  MNEMONIC_CHARLIE,
+  POST_SESSION_ALICE_SIGNATURE_HEADER,
+  POST_SESSION_ALICE,
   POST_SESSION_CHARLIE_SIGNATURE_HEADER,
-  POST_USERS_ALICE,
-  POST_USERS_ALICE_DUPLICATE_USERNAME,
+  POST_SESSION_CHARLIE,
   POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER,
-  POST_USERS_ALICE_INVALID_SIGNATURE,
+  POST_USERS_ALICE_DUPLICATE_USERNAME,
   POST_USERS_ALICE_INVALID_SIGNATURE_HEADER,
+  POST_USERS_ALICE_INVALID_SIGNATURE,
   POST_USERS_ALICE_NO_SIGNATURE,
   POST_USERS_ALICE_SIGNATURE_HEADER,
+  POST_USERS_ALICE,
   TOKEN_BOB,
-  USR_ALICE,
   USR_ALICE_KNEX,
-  // USR_BOB,
+  USR_ALICE,
+  USR_BOB_ID,
   USR_BOB_KNEX,
+  USR_BOB,
   USR_CHARLIE,
-  USR_CHARLIE_KNEX
+  USR_CHARLIE_KNEX,
+  USR_CHARLIE
 } from "./mock-data";
 
 jest.setTimeout(10000);
@@ -60,9 +64,9 @@ describe("playground-server", () => {
   beforeAll(async () => {
     await createNodeSingleton();
 
-    // await createNode(PK_ALICE);
-    // await createNode(PK_BOB);
-    // await createNode(PK_CHARLIE);
+    await createNode(MNEMONIC_ALICE);
+    await createNode(MNEMONIC_BOB);
+    await createNode(MNEMONIC_CHARLIE);
 
     await db.schema.dropTableIfExists("users");
     await db.schema.createTable("users", table => {
@@ -309,16 +313,10 @@ describe("playground-server", () => {
       expect(response.status).toEqual(HttpStatusCode.OK);
       expect(response.data).toEqual({
         data: [
-          {
-            attributes: {
-              email: "bob@wonderland.com",
-              ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-              multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-              nodeAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-              username: "bob_account1"
-            },
+          { 
+            attributes: USR_BOB,
+            id: USR_BOB_ID,
             relationships: {},
-            id: "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2",
             type: "user"
           }
         ]

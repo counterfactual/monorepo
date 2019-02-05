@@ -6474,10 +6474,10 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.23:
-  version "4.0.23"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.23.tgz#930c7b1585241f61b29c262ffd8f21e82721ba30"
-  integrity sha512-9IwYV3LuESPF2cgwF42SL2vqrwWEsA2+15WVtO2dZb1F/twARaCWb7PrgoODldj+bmwKmUv3rG9PFfBkbumPwA==
+ethers@^4.0.0:
+  version "4.0.20"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.20.tgz#2b072b283bb19f4870daf42cf5593e5375697504"
+  integrity sha512-1XEejqGYWlcXoVCPFPRfJmf1QQGHW7TNfprtdT1Up66nSuqWE/lYSLgvTNvH/nbSTMRFZqM6ANAbv/1+eUDb7g==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -6490,10 +6490,9 @@ ethers@4.0.23:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^4.0.0:
-  version "4.0.20"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.20.tgz#2b072b283bb19f4870daf42cf5593e5375697504"
-  integrity sha512-1XEejqGYWlcXoVCPFPRfJmf1QQGHW7TNfprtdT1Up66nSuqWE/lYSLgvTNvH/nbSTMRFZqM6ANAbv/1+eUDb7g==
+"ethers@https://github.com/ethers-io/ethers.js.git":
+  version "4.0.24"
+  resolved "https://github.com/ethers-io/ethers.js.git#429af2c40db40dc2ff1fd33409f198c2ab3c9b16"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
