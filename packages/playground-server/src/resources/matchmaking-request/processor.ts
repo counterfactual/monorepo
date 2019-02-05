@@ -1,14 +1,9 @@
-import {
-  Authorize,
-  Operation,
-  OperationProcessor,
-  ResourceRelationship
-} from "@ebryn/jsonapi-ts";
+import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
-import { matchmakeUser } from "../../db";
+import { getUsers, matchmakeUser } from "../../db";
 import { getNodeAddress } from "../../node";
-import User from "../user/resource";
+import User, { MatchedUser } from "../user/resource";
 
 import MatchmakingRequest from "./resource";
 
@@ -20,26 +15,33 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
   @Authorize()
   protected async add(op: Operation): Promise<MatchmakingRequest> {
     const user = this.app.user as User;
-    const matchedUser = await matchmakeUser(user);
+    let matchedUser: MatchedUser;
+
+    if (op.data.attributes) {
+      const [matchedUserResource] = await getUsers({
+        username: op.data.attributes.matchmakeWith
+      });
+      matchedUser = {
+        type: "user",
+        id: matchedUserResource.id as string,
+        attributes: {
+          ethAddress: matchedUserResource.attributes.ethAddress as string,
+          nodeAddress: matchedUserResource.attributes.nodeAddress,
+          username: matchedUserResource.attributes.username
+        },
+        relationships: {}
+      };
+    } else {
+      matchedUser = await matchmakeUser(user);
+    }
 
     return new MatchmakingRequest({
       id: generateUUID(),
       attributes: {
-        intermediary: getNodeAddress()
-      },
-      relationships: {
-        user: {
-          data: {
-            type: "user",
-            id: user.id
-          } as ResourceRelationship
-        },
-        matchedUser: {
-          data: {
-            type: "matchedUser",
-            id: matchedUser.id
-          } as ResourceRelationship
-        }
+        intermediary: getNodeAddress(),
+        username: matchedUser.attributes.username,
+        ethAddress: matchedUser.attributes.ethAddress,
+        nodeAddress: matchedUser.attributes.nodeAddress
       }
     });
 
