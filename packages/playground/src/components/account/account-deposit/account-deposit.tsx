@@ -1,8 +1,8 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import { UserSession } from "../../../types";
 
 @Component({
   tag: "account-deposit",
@@ -15,51 +15,36 @@ export class AccountDeposit {
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() signer: Signer = {} as Signer;
 
   @State() error: string = "";
-  @State() amountDeposited: string = "";
+  @State() amountDeposited;
 
-  componentWillLoad() {
-    web3.eth.getBalance(
-      this.user.ethAddress,
-      web3.eth.defaultBlock,
-      this.showBalance.bind(this)
+  async componentWillLoad() {
+    this.balance = parseFloat(
+      ethers.utils.formatEther((await this.signer.getBalance()).toString())
     );
   }
 
-  showBalance(error: Error, balance: BigNumber) {
-    if (error) {
-      // TODO: What happens if we can't get the account balance?
-      return;
-    }
+  async formSubmitionHandler(e) {
+    this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
-    this.balance = parseFloat(ethers.utils.formatEther(balance.toString()));
-  }
-
-  formSubmitionHandler(e) {
-    this.amountDeposited = ethers.utils.parseEther(e.target.value).toString();
-
-    web3.eth.sendTransaction(
-      {
-        from: this.user.ethAddress,
+    try {
+      await this.signer.sendTransaction({
         to: this.user.multisigAddress,
         value: this.amountDeposited
-      },
-      this.depositCompleted.bind(this)
-    );
-  }
+      });
 
-  depositCompleted(error: Error, result: any) {
-    if (error) {
+      this.updateAccount({
+        unconfirmedBalance: parseFloat(
+          ethers.utils.formatEther(this.amountDeposited)
+        )
+      });
+
+      this.history.push("/");
+    } catch (error) {
       this.error = error.message;
-      return;
     }
-
-    this.updateAccount({
-      balance: ethers.utils.formatEther(this.amountDeposited)
-    });
-
-    this.history.push("/");
   }
 
   render() {
@@ -68,9 +53,8 @@ export class AccountDeposit {
         <div slot="header">Fund your account</div>
 
         <p class="details">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-          eu risus sit amet nisi consectetur cursus id egestas arcu. Curabitur
-          ornare nunc.
+          In order to use the Playground dApps, you need to deposit funds into
+          your account. Please enter how much ETH you want to transfer to it:
         </p>
 
         <account-eth-form
@@ -84,4 +68,9 @@ export class AccountDeposit {
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount", "user"]);
+AccountTunnel.injectProps(AccountDeposit, [
+  "balance",
+  "updateAccount",
+  "user",
+  "signer"
+]);

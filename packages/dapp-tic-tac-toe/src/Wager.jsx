@@ -10,27 +10,18 @@ class Wager extends Component {
       isLoaded: false,
       isWaiting: false,
       opponent: {},
-      intermediary: null
+      intermediary: null,
+      appInstance: null
     };
   }
 
   async componentDidMount() {
-    this.props.cfProvider.once("install", this.onInstall.bind(this));
+    this.props.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
-    const { token } = this.props.user;
+    console.log("user data", this.props.user);
 
     try {
-      const response = await fetch(
-        // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmaking",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      const result = await response.json();
+      const result = await this.matchmake();
 
       const opponent = result.included.find(
         resource =>
@@ -51,13 +42,34 @@ class Wager extends Component {
     }
   }
 
+  async matchmake() {
+    return new Promise(resolve => {
+      const onMatchmakeResponse = event => {
+        if (
+          !event.data.toString().startsWith("playground:response:matchmake")
+        ) {
+          return;
+        }
+
+        window.removeEventListener("message", onMatchmakeResponse);
+
+        const [, data] = event.data.split("|");
+        resolve(JSON.parse(data));
+      };
+
+      window.addEventListener("message", onMatchmakeResponse);
+
+      window.parent.postMessage("playground:request:matchmake", "*");
+    });
+  }
+
   createAppFactory() {
     return new window.cf.AppFactory(
       // TODO: provide valid appId
-      "0x1515151515151515151515151515151515151515",
+      "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
       {
         actionEncoding:
-          "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
+          "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
         stateEncoding:
           "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
       },
@@ -73,28 +85,30 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
-    appFactory.proposeInstallVirtual({
-      peerAddress: opponent.ethAddress,
-      asset: {
-        assetType: 0 /* AssetType.ETH */
-      },
-      peerDeposit: window.ethers.utils.parseEther(
-        this.props.gameInfo.betAmount
-      ),
-      myDeposit: window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
-      timeout: 100,
-      initialState: {
-        address: [myAddress, opponent.ethAddress],
-        turnNum: 0,
-        winner: 0,
-        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-      },
-      intermediaries: [intermediary]
+    this.setState({
+      appInstance: await appFactory.proposeInstallVirtual({
+        respondingAddress: opponent.nodeAddress,
+        asset: {
+          assetType: 0 /* AssetType.ETH */
+        },
+        peerDeposit: 0 /* window.ethers.utils.parseEther(
+          this.props.gameInfo.betAmount
+        ), */,
+        myDeposit: 0, // window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
+        timeout: 100,
+        initialState: {
+          players: [myAddress, opponent.ethAddress],
+          turnNum: 0,
+          winner: 0,
+          board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        },
+        intermediaries: [intermediary]
+      })
     });
   }
 
   onInstall({ data: { appInstance } }) {
-    this.props.onChangeAppInstance(appInstance);
+    this.props.onChangeAppInstance(this.state.appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
   }
 

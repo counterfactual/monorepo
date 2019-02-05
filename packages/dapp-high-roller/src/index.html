@@ -22,15 +22,17 @@
       all of this.
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.js"></script>
+    <script src="https://browser.sentry-cdn.com/4.5.3/bundle.min.js" crossorigin="anonymous"></script>
     <script src="/assets/eventemitter3.js"></script>
     <script src="/assets/ethers.js"></script>
     <script src="/assets/types.js"></script>
 
     <script>
       EventEmitter = EventEmitter3.EventEmitter;
+      
+      Sentry.init({ dsn: 'https://ebda34bbd0ea4304a701909736be3682@sentry.io/1383486' });
     </script>
 
-    <script src="/assets/node-provider.js"></script>
     <script src="/assets/cf.js"></script>
     <script src="/build/app.js"></script>
 

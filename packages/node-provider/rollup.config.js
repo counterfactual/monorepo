@@ -10,11 +10,12 @@ export default [
         format: "cjs"
       },
       {
-        file: pkg.iife,
-        format: "iife",
-        name: "window",
-        extend: true
+        file: pkg.module,
+        format: "es",
       }
+    ],
+    external: [
+      ...Object.keys(pkg.peerDependencies || {}),
     ],
     plugins: [
       typescript()

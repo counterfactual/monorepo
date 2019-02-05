@@ -11,9 +11,9 @@ import { Component } from "@stencil/core";
 export class AppGameCoins {
   coinsAudio!: HTMLAudioElement;
 
-  componentDidLoad() {
+  async componentDidLoad() {
     this.coinsAudio.loop = true;
-    this.coinsAudio.play();
+    await this.coinsAudio.play();
   }
 
   render() {

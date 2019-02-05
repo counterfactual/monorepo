@@ -1,6 +1,11 @@
 import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import {
+  AppInterface,
+  AssetType,
+  NetworkContext,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
@@ -112,79 +117,28 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ]
 };
 
-function proposeStateTransition3(message: ProtocolMessage, context: Context) {
-  const {
-    signingKeys,
-    defaultTimeout,
-    appInterface,
-    initialState,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    multisig2Address
-  } = message.params as InstallVirtualAppParams;
-  const targetAppInstance = new AppInstance(
-    "0x00",
+function createTarget(
+  signingKeys: string[],
+  defaultTimeout: number,
+  appInterface: AppInterface,
+  initialState: SolidityABIEncoderV2Struct
+) {
+  return new AppInstance(
+    AddressZero,
     signingKeys,
     defaultTimeout,
     appInterface,
     {
       assetType: 0,
       limit: new BigNumber(0),
-      token: ""
-    },
-    // KEY: Sets it to be a virtual app
-    true,
-    // KEY: The app sequence number
-    // TODO: Should validate that the proposed app sequence number is also
-    //       the computed value here and is ALSO still the number compute
-    //       inside the installApp function below
-    0, // virtual app instances do not have appSeqNo
-    0, // or rootNonceValue
-    initialState,
-    // KEY: Set the app nonce to be 0
-    0,
-    defaultTimeout
-  );
-  context.targetVirtualAppInstance = targetAppInstance;
-
-  const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
-    context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
-    {
-      assetType: 0,
-      limit: respondingBalanceDecrement,
       token: AddressZero
     },
-    context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
-    context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
-    100,
-    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
-  );
-
-  const newStateChannel = context.stateChannelsMap
-    .get(multisig2Address)!
-    .installETHVirtualAppAgreementInstance(
-      rightEthVirtualAppAgreementInstance,
-      initiatingBalanceDecrement,
-      respondingBalanceDecrement
-    );
-  context.stateChannelsMap.set(multisig2Address, newStateChannel);
-
-  // s4
-  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
-    context.network,
-    newStateChannel,
-    targetAppInstance.identityHash,
-    rightEthVirtualAppAgreementInstance
-  );
-
-  // s7
-  context.commitments[1] = new VirtualAppSetStateCommitment(
-    context.network,
-    targetAppInstance.identity,
-    NONCE_EXPIRY,
-    targetAppInstance.defaultTimeout,
-    targetAppInstance.hashOfLatestState,
-    0
+    true, // sets it to be a virtual app
+    0, // app seq no: virtual app instances do not have appSeqNo
+    0, // root nonce value: virtual app instances do not have rootNonceValue
+    initialState,
+    0, // app nonce
+    defaultTimeout
   );
 }
 
@@ -199,28 +153,11 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     multisig1Address
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = new AppInstance(
-    "0x00",
+  const targetAppInstance = createTarget(
     signingKeys,
     defaultTimeout,
     appInterface,
-    {
-      assetType: 0,
-      limit: new BigNumber(0),
-      token: ""
-    },
-    // KEY: Sets it to be a virtual app
-    true,
-    // KEY: The app sequence number
-    // TODO: Should validate that the proposed app sequence number is also
-    //       the computed value here and is ALSO still the number compute
-    //       inside the installApp function below
-    0, // virtual app instances do not have appSeqNo
-    0, // or rootNonceValue
-    initialState,
-    // KEY: Set the app nonce to be 0
-    0,
-    defaultTimeout
+    initialState
   );
   context.targetVirtualAppInstance = targetAppInstance;
 
@@ -263,32 +200,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   );
 }
 
-function constructETHVirtualAppAgreementCommitment(
-  network: NetworkContext,
-  stateChannel: StateChannel,
-  targetHash: string,
-  ethVirtualAppAgreementInstance: ETHVirtualAppAgreementInstance
-) {
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-  return new ETHVirtualAppAgreementCommitment(
-    network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    targetHash,
-    freeBalance.identity,
-    freeBalance.terms,
-    freeBalance.hashOfLatestState,
-    freeBalance.nonce,
-    freeBalance.timeout,
-    freeBalance.appSeqNo,
-    freeBalance.rootNonceValue,
-    new BigNumber(ethVirtualAppAgreementInstance.expiry),
-    new BigNumber(ethVirtualAppAgreementInstance.capitalProvided),
-    []
-  );
-}
-
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
     multisig1Address,
@@ -301,28 +212,11 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = new AppInstance(
-    "0x00",
+  const targetAppInstance = createTarget(
     signingKeys,
     defaultTimeout,
     appInterface,
-    {
-      assetType: 0,
-      limit: new BigNumber(0),
-      token: ""
-    },
-    // KEY: Sets it to be a virtual app
-    true,
-    // KEY: The app sequence number
-    // TODO: Should validate that the proposed app sequence number is also
-    //       the computed value here and is ALSO still the number compute
-    //       inside the installApp function below
-    0, // virtual app instances do not have appSeqNo
-    0, // or rootNonceValue
-    initialState,
-    // KEY: Set the app nonce to be 0
-    0,
-    defaultTimeout
+    initialState
   );
 
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
@@ -393,5 +287,89 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     targetAppInstance.defaultTimeout,
     "",
     0
+  );
+}
+
+function proposeStateTransition3(message: ProtocolMessage, context: Context) {
+  const {
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
+    multisig2Address
+  } = message.params as InstallVirtualAppParams;
+  const targetAppInstance = createTarget(
+    signingKeys,
+    defaultTimeout,
+    appInterface,
+    initialState
+  );
+
+  const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
+    context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
+    {
+      assetType: 0,
+      limit: respondingBalanceDecrement,
+      token: AddressZero
+    },
+    context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
+    context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
+    100,
+    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
+  );
+
+  const newStateChannel = context.stateChannelsMap
+    .get(multisig2Address)!
+    .installETHVirtualAppAgreementInstance(
+      rightEthVirtualAppAgreementInstance,
+      initiatingBalanceDecrement,
+      respondingBalanceDecrement
+    );
+  context.stateChannelsMap.set(multisig2Address, newStateChannel);
+
+  // s4
+  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
+    context.network,
+    newStateChannel,
+    targetAppInstance.identityHash,
+    rightEthVirtualAppAgreementInstance
+  );
+
+  // s7
+  context.commitments[1] = new VirtualAppSetStateCommitment(
+    context.network,
+    targetAppInstance.identity,
+    NONCE_EXPIRY,
+    targetAppInstance.defaultTimeout,
+    targetAppInstance.hashOfLatestState,
+    0
+  );
+}
+
+function constructETHVirtualAppAgreementCommitment(
+  network: NetworkContext,
+  stateChannel: StateChannel,
+  targetHash: string,
+  ethVirtualAppAgreementInstance: ETHVirtualAppAgreementInstance
+) {
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+  return new ETHVirtualAppAgreementCommitment(
+    network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    targetHash,
+    freeBalance.identity,
+    freeBalance.terms,
+    freeBalance.hashOfLatestState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo,
+    freeBalance.rootNonceValue,
+    new BigNumber(ethVirtualAppAgreementInstance.expiry),
+    new BigNumber(ethVirtualAppAgreementInstance.capitalProvided),
+    []
   );
 }

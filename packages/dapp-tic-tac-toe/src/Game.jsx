@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 // import Timer from './components/Timer';
-import Board from './components/Board';
-import Player from './components/Player';
+import Board from "./components/Board";
+import Player from "./components/Player";
 import { Link } from "react-router-dom";
-import { checkDraw, checkVictory } from './utils/check-end-conditions';
+import { checkDraw, checkVictory } from "./utils/check-end-conditions";
 
 class Game extends Component {
   constructor(props) {
@@ -11,15 +11,13 @@ class Game extends Component {
 
     this.state = {
       gameState: {
-        board: [
-          [0, 0, 0],
-          [0, 0, 0],
-          [0, 0, 0]
-        ]
+        players: [],
+        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        winner: 0
       }
     };
   }
-  
+
   componentDidMount() {
     this.initializeBoard();
   }
@@ -32,8 +30,10 @@ class Game extends Component {
     this.updateGame(state);
   }
 
-  onUpdateState({ data: { newState }}) {
-    this.updateGame(newState);
+  // TODO: This remapping should be removed once the Node properly formats the message.
+  onUpdateState({ data: { newState } }) {
+    const [players, turnNum, winner, board] = newState;
+    this.updateGame({ players, turnNum, winner, board });
   }
 
   updateGame(gameState) {
@@ -45,49 +45,70 @@ class Game extends Component {
   async getAppInstance() {
     const params = new URLSearchParams(window.location.search);
     const appInstanceId = params.get("appInstanceId");
-    const appInstance = await this.props.cfProvider.getOrCreateAppInstance(appInstanceId);
+    const appInstance = await this.props.cfProvider.getOrCreateAppInstance(
+      appInstanceId
+    );
     this.props.onChangeAppInstance(appInstance);
   }
 
-  takeAction(playX, playY) {
+  async takeAction(playX, playY) {
     const boardCopy = JSON.parse(JSON.stringify(this.state.gameState.board));
-    boardCopy[playX][playY] = this.myNumber;
+    boardCopy[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
 
     const winClaim = checkVictory(boardCopy, this.myNumber);
     const draw = checkDraw(boardCopy);
 
-    this.props.appInstance.takeAction({
-      actionType: winClaim ? 1 : draw ? 2 : 0,
-      winClaim: winClaim || {},
+    let actionType = 0;
+
+    if (winClaim) {
+      actionType = 1;
+    } else if (draw) {
+      actionType = 2;
+    }
+
+    const response = await this.props.appInstance.takeAction({
+      actionType: actionType,
+      winClaim: winClaim || { winClaimType: 0, idx: 0 },
       playX,
       playY
     });
+
+    this.setState({ gameState: response });
   }
 
   // TODO: handle timeout
   timeout() {
-    console.log("timeout!")
+    console.log("timeout!");
   }
 
-  // TODO: determine user's number from app state
   get myNumber() {
-    return 1;
+    return (
+      this.state.gameState.players.indexOf(
+        window.ethers.utils.getAddress(this.props.user.ethAddress)
+      ) + 1
+    );
   }
 
-  // TODO: determine opponent's number from app state
   get opponentNumber() {
-    return 2;
+    return this.myNumber === 1 ? 2 : 1;
+  }
+
+  get turnNumber() {
+    return window.ethers.utils
+      .bigNumberify(this.state.gameState.turnNum || { _hex: "0x00" })
+      .toNumber();
   }
 
   get isMyTurn() {
-    return this.state.gameState.turnNum % 2 === (this.myNumber === 1 ? 0 : 1);
+    return this.turnNumber % 2 === (this.myNumber === 1 ? 0 : 1);
   }
 
   render() {
+    console.log(this.state.gameState.winner, this.state.gameState.board)
     return (
       <div className="game">
         <Player
-          gameState={this.state.gameState}
+          winner={this.state.gameState.winner}
           gameInfo={this.props.gameInfo}
           isMyTurn={this.isMyTurn}
           myNumber={this.myNumber}
@@ -98,17 +119,22 @@ class Game extends Component {
           isMyTurn={this.isMyTurn}
           onTimeout={this.timeout.bind(this)}
         /> */}
-        
+
         <Board
           board={this.state.gameState.board}
           isMyTurn={this.isMyTurn}
+          myNumber={this.myNumber}
+          opponentNumber={this.opponentNumber}
           onTakeAction={this.takeAction.bind(this)}
         />
 
-        { this.state.gameState.winner ?
-          <Link to="/wager" className="btn">PLAY AGAIN!</Link> :
+        {this.state.gameState.winner ? (
+          <Link to="/wager" className="btn">
+            PLAY AGAIN!
+          </Link>
+        ) : (
           undefined
-        }
+        )}
       </div>
     );
   }

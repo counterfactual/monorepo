@@ -5,6 +5,7 @@ export const ERRORS = {
     "No AppInstanceID specified to get details for",
   NO_APP_INSTANCE_FOR_GIVEN_ID: "No AppInstance exists for the given ID",
   NO_APP_INSTANCE_ID_TO_INSTALL: "No AppInstanceId specified to install",
+  NO_APP_INSTANCE_ID_TO_UNINSTALL: "No AppInstanceId specified to uninstall",
   NO_MULTISIG_FOR_APP_INSTANCE_ID:
     "No multisig address exists for the given appInstanceId",
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID:

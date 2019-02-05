@@ -2,8 +2,8 @@
   "name": "@counterfactual/node-provider",
   "version": "0.0.1",
   "main": "dist/index.js",
-  "iife": "dist/index-iife.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
+  "module": "dist/index.es.js",
   "files": [
     "dist"
   ],
@@ -16,10 +16,9 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf.js": "0.0.2",
     "@counterfactual/types": "0.0.1",
-    "@types/jest": "^23.3.11",
-    "@types/node": "^10.9.3",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^10.12.19",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -28,6 +27,12 @@
     "ts-jest": "23.10.5",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
+  },
+  "peerDependencies": {
+    "eventemitter3": "^3.1.0"
+  },
+  "dependencies": {
+    "eventemitter3": "^3.1.0"
   },
   "jest": {
     "verbose": false,
@@ -51,8 +56,5 @@
       "json"
     ],
     "testURL": "http://localhost/"
-  },
-  "dependencies": {
-    "eventemitter3": "^3.1.0"
   }
 }

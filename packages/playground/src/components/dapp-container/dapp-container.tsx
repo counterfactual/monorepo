@@ -1,12 +1,13 @@
-import { UserSession } from "@counterfactual/playground-server";
+declare var EventEmitter: any;
+
 import { Component, Element, Prop } from "@stencil/core";
-import { MatchResults } from "@stencil/router";
-import EventEmitter from "eventemitter3";
+import { MatchResults, RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import { AppDefinition } from "../../types";
+import PlaygroundAPIClient from "../../data/playground-api-client";
+import { AppDefinition, UserSession } from "../../types";
 
 @Component({
   tag: "dapp-container",
@@ -17,6 +18,7 @@ export class DappContainer {
   @Element() private element: HTMLElement | undefined;
 
   @Prop() match: MatchResults = {} as MatchResults;
+  @Prop() history: RouterHistory = {} as RouterHistory;
 
   @Prop({ mutable: true }) url: string = "";
 
@@ -27,7 +29,7 @@ export class DappContainer {
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
-  private eventEmitter: EventEmitter = new EventEmitter();
+  private eventEmitter: any = new EventEmitter();
   private messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
   private node = CounterfactualNode.getInstance();
@@ -53,6 +55,12 @@ export class DappContainer {
     this.url = this.getDappUrl();
 
     this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this));
+    this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("getAppInstanceDetails", this.postOrQueueMessage.bind(this));
+    this.node.on("getState", this.postOrQueueMessage.bind(this));
+    this.node.on("takeAction", this.postOrQueueMessage.bind(this));
+    this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
+    this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this));
 
     /**
      * Once the component has loaded, we store a reference of the IFRAME
@@ -72,6 +80,9 @@ export class DappContainer {
     // Callback for processing Playground UI messages
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
 
+    // Callback for passing an app instance, if available.
+    iframe.addEventListener("load", this.sendAppInstance.bind(this));
+
     this.iframe = iframe;
   }
 
@@ -90,21 +101,51 @@ export class DappContainer {
     this.iframe.remove();
   }
 
-  private handlePlaygroundMessage(event: MessageEvent): void {
-    if (event.data === "playground:request:user" && this.frameWindow) {
-      this.frameWindow.postMessage(
-        `playground:response:user|${JSON.stringify({
-          user: {
-            ...this.user,
-            token: window.localStorage.getItem(
-              "playground:user:token"
-            ) as string
-          },
-          balance: this.balance
-        })}`,
-        "*"
-      );
+  private async handlePlaygroundMessage(event: MessageEvent): Promise<void> {
+    if (!this.frameWindow) {
+      return;
     }
+
+    if (event.data === "playground:request:user") {
+      await this.sendResponseForRequestUser(this.frameWindow);
+    }
+
+    if (event.data === "playground:request:matchmake") {
+      await this.sendResponseForMatchmakeRequest(this.frameWindow);
+    }
+  }
+
+  private get token(): string {
+    return window.localStorage.getItem("playground:user:token") as string;
+  }
+
+  private get matchmakeWith(): string | null {
+    return window.localStorage.getItem("playground:matchmakeWith");
+  }
+
+  private async sendResponseForRequestUser(frameWindow: Window) {
+    frameWindow.postMessage(
+      `playground:response:user|${JSON.stringify({
+        user: {
+          ...this.user,
+          token: this.token
+        },
+        balance: this.balance
+      })}`,
+      "*"
+    );
+  }
+
+  private async sendResponseForMatchmakeRequest(frameWindow: Window) {
+    const json = await PlaygroundAPIClient.matchmake(
+      this.token,
+      this.matchmakeWith
+    );
+
+    frameWindow.postMessage(
+      `playground:response:matchmake|${JSON.stringify(json)}`,
+      "*"
+    );
   }
 
   /**
@@ -192,6 +233,21 @@ export class DappContainer {
     while ((message = this.messageQueue.shift())) {
       this.port.postMessage(message);
     }
+  }
+
+  private sendAppInstance(): void {
+    if (!this.frameWindow) {
+      return;
+    }
+
+    const { installedApp } = this.history.location.state;
+
+    this.frameWindow.postMessage(
+      `playground:appInstance|${
+        installedApp ? JSON.stringify(installedApp) : ""
+      }`,
+      "*"
+    );
   }
 }
 

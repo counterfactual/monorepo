@@ -17,16 +17,25 @@ export class Web3Connector {
     } catch {}
 
     if (web3.currentProvider) {
+      const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+      const signer = provider.getSigner();
+      const ethAddress = web3.currentProvider.selectedAddress;
+
       this.accountState.updateAccount!({
+        provider,
+        signer,
         user: {
+          ethAddress,
           username: "",
           multisigAddress: "",
           id: "",
           email: "",
-          nodeAddress: "",
-          ethAddress: web3.currentProvider.selectedAddress
-        }
+          nodeAddress: ""
+        },
+        balance: 0,
+        accountBalance: 0
       });
+
       this.networkState.updateNetwork!({
         network: web3.version.network,
         connected: true

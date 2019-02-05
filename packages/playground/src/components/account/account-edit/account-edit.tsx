@@ -1,9 +1,8 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
-import { UserChangeset } from "../../../types";
+import { UserChangeset, UserSession } from "../../../types";
 
 @Component({
   tag: "account-edit",

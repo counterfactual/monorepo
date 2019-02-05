@@ -2,6 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
+import { getProp } from "../../utils/utils";
 
 /**
  * User Story
@@ -23,6 +24,11 @@ export class AppWaiting {
   @Prop({ mutable: true }) isProposing: boolean = false;
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
+
+  componentWillLoad() {
+    this.betAmount = getProp("betAmount", this);
+    this.isProposing = getProp("isProposing", this);
+  }
 
   countDown() {
     if (this.seconds === 1) {
@@ -61,12 +67,11 @@ export class AppWaiting {
     this.countDown();
   }
 
-  setupWaiting() {
+  setupWaiting(cfProvider?, appInstance?, account?, opponent?) {
     if (this.isProposing) {
-      // this.proposeInstall();
       this.setupWaitingProposing();
     } else {
-      this.setupWaitingAccepting();
+      this.setupWaitingAccepting(cfProvider, appInstance, account, opponent);
     }
   }
 
@@ -78,19 +83,21 @@ export class AppWaiting {
     this.startCountdown();
   }
 
-  setupWaitingAccepting() {
-    this.startCountdown();
-
-    setTimeout(() => {
-      this.goToGame(this.opponentName, "123");
-    }, this.seconds * 1000);
+  setupWaitingAccepting(cfProvider, appInstance, account, opponent) {
+    cfProvider.once("updateState", () => {
+      this.goToGame(this.opponentName, appInstance.id);
+    });
+    this.myName = account.user.username;
+    this.opponentName = opponent.attributes.username;
   }
 
   render() {
     return (
       <CounterfactualTunnel.Consumer>
-        {() => [
-          <div>{this.setupWaiting()}</div>,
+        {({ cfProvider, appInstance, account, opponent }) => [
+          <div>
+            {this.setupWaiting(cfProvider, appInstance, account, opponent)}
+          </div>,
           <div class="wrapper">
             <div class="waiting">
               <div class="message">
@@ -101,9 +108,15 @@ export class AppWaiting {
                 />
                 <h1 class="message__title">Waiting Room</h1>
                 <p class="message__body">
-                  Waiting for another player to join the game in
+                  {this.isProposing
+                    ? "Waiting for another player to join the game in"
+                    : `Waiting on ${this.opponentName}'s roll...`}
                 </p>
-                <p class="countdown">{this.seconds}</p>
+                {this.isProposing ? (
+                  <p class="countdown">{this.seconds}</p>
+                ) : (
+                  {}
+                )}
                 <p>
                   Player: {this.myName} <br />
                   Opponent: {this.opponentName} <br />

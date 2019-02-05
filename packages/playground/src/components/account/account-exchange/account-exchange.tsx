@@ -1,7 +1,7 @@
-import { UserSession } from "@counterfactual/playground-server";
 import { Component, Element, Prop, State } from "@stencil/core";
 
 import AccountTunnel from "../../../data/account";
+import { UserSession } from "../../../types";
 
 interface TransactionArgs {
   from: string;

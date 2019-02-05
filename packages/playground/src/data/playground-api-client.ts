@@ -2,33 +2,52 @@ import {
   APIError,
   APIRequest,
   APIResource,
+  APIResourceAttributes,
   APIResourceCollection,
   APIResponse,
   AppAttributes,
+  AppDefinition,
   SessionAttributes,
   UserAttributes,
+  UserChangeset,
   UserSession
-} from "@counterfactual/playground-server";
-
-import { AppDefinition, UserChangeset } from "../types";
+} from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
+const API_TIMEOUT = 5000;
+
+function timeout(delay: number = API_TIMEOUT) {
+  const handler = setTimeout(() => {
+    throw new Error("Request timed out");
+  }, delay);
+
+  return {
+    cancel() {
+      clearTimeout(handler);
+    }
+  };
+}
 
 async function post(
   endpoint: string,
   data: APIResource,
-  signature?: string
+  token?: string,
+  authType: "Bearer" | "Signature" = "Signature"
 ): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     body: JSON.stringify({
       data
     } as APIRequest),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...(signature ? { Authorization: `Signature ${signature}` } : {})
+      ...(token ? { Authorization: `${authType} ${token}` } : {})
     },
     method: "POST"
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 
@@ -41,6 +60,8 @@ async function post(
 }
 
 async function get(endpoint: string, token?: string): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     method: "GET",
     headers: token
@@ -49,6 +70,8 @@ async function get(endpoint: string, token?: string): Promise<APIResponse> {
         }
       : {}
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 
@@ -144,6 +167,21 @@ export default class PlaygroundAPIClient {
 
       return resources.map(resource =>
         fromAPIResource<AppDefinition, AppAttributes>(resource)
+      );
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async matchmake(token: string, matchmakeWith: string | null) {
+    try {
+      return await post(
+        "matchmaking",
+        matchmakeWith
+          ? { type: "matchmaking", attributes: { matchmakeWith } }
+          : ({} as APIResource<APIResourceAttributes>),
+        token,
+        "Bearer"
       );
     } catch (e) {
       return Promise.reject(e);

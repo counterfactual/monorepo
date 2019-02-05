@@ -2,6 +2,7 @@ export enum HighRollerStage {
   PRE_GAME,
   COMMITTING_HASH,
   COMMITTING_NUM,
+  REVEALING,
   DONE
 }
 
@@ -12,12 +13,14 @@ export type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
+  playerNames?: string[];
 };
 
 export enum ActionType {
   START_GAME,
   COMMIT_TO_HASH,
-  COMMIT_TO_NUM
+  COMMIT_TO_NUM,
+  REVEAL
 }
 
 export type Action = {

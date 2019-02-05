@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
+import { getCounterpartyAddress } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 import { actionIsEncondable, generateNewAppInstanceState } from "./operation";
@@ -50,11 +51,10 @@ export default async function takeActionController(
     appInstanceId
   );
 
-  // send to the counter party
-  const to =
-    requestHandler.address === appInstanceInfo.initiatingAddress
-      ? appInstanceInfo.respondingAddress
-      : requestHandler.address;
+  const to = getCounterpartyAddress(requestHandler.address, [
+    appInstanceInfo.initiatingAddress,
+    appInstanceInfo.respondingAddress
+  ]);
 
   await requestHandler.messagingService.send(to, updateStateMessage);
 

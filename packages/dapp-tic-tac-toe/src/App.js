@@ -12,7 +12,7 @@ export default class App extends Component {
     const params = new URLSearchParams(window.location.search);
     const nodeProvider = params.get("standalone")
       ? new MockNodeProvider()
-      : new window.NodeProvider();
+      : new window.cf.NodeProvider();
     const cfProvider = new window.cf.Provider(nodeProvider);
     const gameInfo = {
       myName: params.get("myName") || "Bob",
@@ -25,11 +25,14 @@ export default class App extends Component {
       connected: false,
       nodeProvider,
       cfProvider,
-      gameInfo
+      gameInfo,
+      redirectTo: null
     };
 
-    this.connect();
-    this.requestUserData();
+    this.connect().then(() => {
+      this.requestUserData();
+      this.waitForCounterpartyAppInstance(props);
+    });
   }
 
   async connect() {
@@ -49,23 +52,49 @@ export default class App extends Component {
         event.data.startsWith("playground:response:user")
       ) {
         const [, data] = event.data.split("|");
-        const user = JSON.parse(data);
+        const playgroundState = JSON.parse(data);
         this.setState({
-          user: { id: user.id, ...user.attributes },
+          user: playgroundState.user,
+          matchmakeWith: playgroundState.matchmakeWith,
           connected: true
         });
-        console.log(this.state);
       }
     });
 
     window.parent.postMessage("playground:request:user", "*");
   }
 
+  waitForCounterpartyAppInstance(props) {
+    window.addEventListener("message", event => {
+      if (
+        typeof event.data === "string" &&
+        event.data.startsWith("playground:appInstance")
+      ) {
+        const [, data] = event.data.split("|");
+        console.log("Received counterparty app instance", event.data);
+
+        if (data) {
+          const { appInstance } = JSON.parse(data);
+          this.appInstanceChanged(appInstance);
+          this.setState({
+            redirectTo: `/game?appInstanceId=${appInstance.id}`
+          });
+        }
+      }
+    });
+  }
+
   render() {
     return this.state.connected ? (
       <Router>
         <div className="App">
-          <Route exact path="/" component={Welcome} />
+          <Route
+            exact
+            path="/"
+            render={props => (
+              <Welcome {...props} redirectTo={this.state.redirectTo} />
+            )}
+          />
           <Route
             path="/wager"
             render={props => (
@@ -74,6 +103,7 @@ export default class App extends Component {
                 gameInfo={this.state.gameInfo}
                 cfProvider={this.state.cfProvider}
                 user={this.state.user}
+                matchmakeWith={this.state.matchmakeWith}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}
@@ -96,6 +126,7 @@ export default class App extends Component {
                 cfProvider={this.state.cfProvider}
                 appInstance={this.state.appInstance}
                 gameInfo={this.state.gameInfo}
+                user={this.state.user}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}

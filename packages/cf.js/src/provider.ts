@@ -19,7 +19,7 @@ import {
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
-const NODE_REQUEST_TIMEOUT = 1500;
+export const NODE_REQUEST_TIMEOUT = 5000;
 
 /**
  * Provides convenience methods for interacting with a Counterfactual node
@@ -33,6 +33,9 @@ export class Provider {
   private readonly eventEmitter = new EventEmitter();
   /** @ignore */
   private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
+  private readonly validEventTypes = Object.keys(EventType).map(
+    key => EventType[key]
+  );
 
   /**
    * Construct a new instance
@@ -132,6 +135,7 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   on(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.validateEventType(eventType);
     this.eventEmitter.on(eventType, callback);
   }
 
@@ -142,6 +146,7 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   once(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.validateEventType(eventType);
     this.eventEmitter.once(eventType, callback);
   }
 
@@ -152,6 +157,7 @@ export class Provider {
    * @param callback Original callback passed to subscribe call.
    */
   off(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+    this.validateEventType(eventType);
     this.eventEmitter.off(eventType, callback);
   }
 
@@ -239,6 +245,15 @@ export class Provider {
   /**
    * @ignore
    */
+  private validateEventType(eventType: EventType) {
+    if (!this.validEventTypes.includes(eventType)) {
+      throw new Error(`"${eventType}" is not a valid event`);
+    }
+  }
+
+  /**
+   * @ignore
+   */
   private onNodeMessage(message: Node.Message) {
     const type = message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
@@ -301,6 +316,9 @@ export class Provider {
       case Node.EventName.INSTALL:
         return this.handleInstallEvent(nodeEvent);
 
+      case Node.EventName.INSTALL_VIRTUAL:
+        return this.handleInstallVirtualEvent(nodeEvent);
+
       default:
         return this.handleUnexpectedEvent(nodeEvent);
     }
@@ -330,6 +348,21 @@ export class Provider {
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.INSTALL,
+      data: {
+        appInstance
+      }
+    };
+    return this.eventEmitter.emit(event.type, event);
+  }
+
+  /**
+   * @ignore
+   */
+  private async handleInstallVirtualEvent(nodeEvent: Node.Event) {
+    const { appInstanceId } = nodeEvent.data["params"];
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
+    const event = {
+      type: EventType.INSTALL_VIRTUAL,
       data: {
         appInstance
       }

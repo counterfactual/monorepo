@@ -1,4 +1,3 @@
-import { UserSession } from "@counterfactual/playground-server";
 import {
   Component,
   Element,
@@ -7,10 +6,10 @@ import {
   Prop,
   Watch
 } from "@stencil/core";
-import { resolve } from "bluebird";
 
 import AccountTunnel from "../../../../data/account";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
+import { UserSession } from "../../../../types";
 
 function buildSignaturePayload(address: string) {
   return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
@@ -26,10 +25,13 @@ function buildSignaturePayload(address: string) {
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
-  @Prop() user: UserSession = {} as UserSession;
+  @Prop() unconfirmedBalance?: number;
+  @Prop({ mutable: true }) user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
+  @Prop() provider: Web3Provider = {} as Web3Provider;
+  @Prop() signer: Signer = {} as Signer;
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
   @Watch("authenticated")
@@ -54,9 +56,13 @@ export class HeaderAccount {
       return;
     }
 
-    const user = await PlaygroundAPIClient.getUser(token);
+    if (!this.user || !this.user.username) {
+      this.updateAccount({ user: await PlaygroundAPIClient.getUser(token) });
+    }
 
-    this.getBalances(user);
+    await this.getBalances();
+
+    this.authenticated = true;
   }
 
   async login(error: Error, signedData: string) {
@@ -73,13 +79,14 @@ export class HeaderAccount {
         signedData
       );
 
-      this.getBalances(user).then(() => {
-        // TODO: Define schema for DB in localStorage.
-        window.localStorage.setItem(
-          "playground:user:token",
-          user.token as string
-        );
-      });
+      await this.getBalances();
+
+      window.localStorage.setItem(
+        "playground:user:token",
+        user.token as string
+      );
+
+      this.updateAccount({ user });
 
       this.removeError();
     } catch (error) {
@@ -87,46 +94,27 @@ export class HeaderAccount {
     }
   }
 
-  getBalances(user) {
-    return Promise.all([
-      new Promise(resolve => {
-        web3.eth.getBalance(
-          user.multisigAddress,
-          web3.eth.defaultBlock,
-          (err, result) => {
-            const balance = parseFloat(
-              ethers.utils.formatEther(result.toString())
-            );
+  async getBalances() {
+    if (!this.user.multisigAddress || !this.user.ethAddress) {
+      return;
+    }
 
-            this.updateAccount({
-              user,
-              balance
-            });
+    const multisigBalance = parseFloat(
+      ethers.utils.formatEther(
+        (await this.provider.getBalance(this.user.multisigAddress)).toString()
+      )
+    );
 
-            this.authenticated = true;
+    const walletBalance = parseFloat(
+      ethers.utils.formatEther(
+        (await this.provider.getBalance(this.user.ethAddress)).toString()
+      )
+    );
 
-            resolve();
-          }
-        );
-      }),
-      new Promise(resolve => {
-        web3.eth.getBalance(
-          this.user.ethAddress,
-          web3.eth.defaultBlock,
-          (err, result) => {
-            const accountBalance = parseFloat(
-              ethers.utils.formatEther(result.toString())
-            );
-
-            this.updateAccount({
-              accountBalance
-            });
-
-            resolve();
-          }
-        );
-      })
-    ]);
+    this.updateAccount({
+      balance: multisigBalance,
+      accountBalance: walletBalance
+    });
   }
 
   displayLoginError() {
@@ -145,31 +133,17 @@ export class HeaderAccount {
   }
 
   get ethBalance() {
-    return `${this.balance.toFixed(4)} ETH`;
+    return `${(this.unconfirmedBalance || this.balance).toFixed(4)} ETH`;
+  }
+
+  get hasUnconfirmedBalance() {
+    return !isNaN(this.unconfirmedBalance as number);
   }
 
   render() {
-    return (
-      <div class="account-container">
-        <widget-error-message />
-        {this.user.username ? (
-          <div class="info-container">
-            <stencil-route-link url="/exchange">
-              <header-account-info
-                src="/assets/icon/cf.png"
-                header="Balance"
-                content={this.ethBalance}
-              />
-            </stencil-route-link>
-            <stencil-route-link url="/account">
-              <header-account-info
-                src="/assets/icon/account.png"
-                header="Account"
-                content={this.user.username}
-              />
-            </stencil-route-link>
-          </div>
-        ) : (
+    if (!this.user || !this.user.username) {
+      return (
+        <div class="account-container">
           <div class="btn-container">
             <button onClick={this.onLoginClicked.bind(this)} class="btn">
               Login
@@ -178,10 +152,39 @@ export class HeaderAccount {
               <button class="btn btn-outline">Register</button>
             </stencil-route-link>
           </div>
-        )}
+        </div>
+      );
+    }
+
+    return (
+      <div class="account-container">
+        <widget-error-message />
+        <div class="info-container">
+          <stencil-route-link url="/exchange">
+            <header-account-info
+              src="/assets/icon/cf.png"
+              header="Balance"
+              content={this.ethBalance}
+              spinner={this.hasUnconfirmedBalance}
+            />
+          </stencil-route-link>
+          <stencil-route-link url="/account">
+            <header-account-info
+              src="/assets/icon/account.png"
+              header="Account"
+              content={this.user.username}
+            />
+          </stencil-route-link>
+        </div>
       </div>
     );
   }
 }
 
-AccountTunnel.injectProps(HeaderAccount, ["balance", "user", "updateAccount"]);
+AccountTunnel.injectProps(HeaderAccount, [
+  "balance",
+  "user",
+  "updateAccount",
+  "provider",
+  "unconfirmedBalance"
+]);

@@ -28,6 +28,11 @@ export async function getChannelFromPeerAddress(
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
   );
+  if (!multisigAddress) {
+    return Promise.reject(
+      `No channel exists between the current user ${selfAddress} and the peer ${peerAddress}`
+    );
+  }
   return await store.getStateChannel(multisigAddress);
 }
 
@@ -46,4 +51,13 @@ export async function getPeersAddressFromAppInstanceID(
 
 export function isNotDefinedOrEmpty(str?: string) {
   return !str || str.trim() === "";
+}
+
+export function getCounterpartyAddress(
+  selfAddress: Address,
+  appInstanceAddresses: Address[]
+) {
+  return appInstanceAddresses.filter(address => {
+    return address !== selfAddress;
+  })[0];
 }
