@@ -5,7 +5,7 @@ import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, UpdateParams } from "../types";
-import { xkeyKthAddress } from "../xpub";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {

@@ -14,7 +14,7 @@ import { Interface, keccak256, parseEther } from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
-import { xkeysToSortedKthSigningKeys } from "../../src/xpub";
+import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";

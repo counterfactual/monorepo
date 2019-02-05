@@ -8,7 +8,7 @@ import { SetupCommitment } from "../../src/ethereum";
 import { InstructionExecutor } from "../../src/instruction-executor";
 import { AppInstance, StateChannel } from "../../src/models";
 import { ProtocolMessage } from "../../src/types";
-import { xkeyKthHDNode, xkeysToSortedKthAddresses } from "../../src/xpub";
+import { xkeyKthHDNode, xkeysToSortedKthAddresses } from "../../src/xkeys";
 import { generateRandomNetworkContext } from "../mocks";
 
 describe("InstructionExecutor", () => {

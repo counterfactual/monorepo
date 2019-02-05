@@ -5,7 +5,7 @@ import { Opcode } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, InstallParams, ProtocolMessage } from "../types";
-import { xkeyKthAddress } from "../xpub";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {

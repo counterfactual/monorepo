@@ -5,7 +5,7 @@ import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
-import { xkeyKthAddress } from "../../../../src/xpub";
+import { xkeyKthAddress } from "../../../../src/xkeys";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();

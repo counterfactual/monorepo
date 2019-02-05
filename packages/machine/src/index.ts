@@ -20,7 +20,7 @@ import {
   xkeyKthHDNode,
   xkeysToSortedKthAddresses,
   xkeysToSortedKthSigningKeys
-} from "./xpub";
+} from "./xkeys";
 
 export {
   AppInstance,

@@ -9,7 +9,7 @@ import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallParams } from "../types";
-import { xkeyKthAddress } from "../xpub";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {

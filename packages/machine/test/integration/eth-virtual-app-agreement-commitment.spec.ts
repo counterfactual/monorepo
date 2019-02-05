@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../src/models";
-import { xkeysToSortedKthSigningKeys } from "../../src/xpub";
+import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
