@@ -205,7 +205,7 @@ export default abstract class Controller<
    * If it's an unhandled error, it'll fill the fields using the `Error`
    * object being thrown, with a 500 status code.
    */
-  private respondWithError(error: ErrorCode | Error, ctx: IRouterContext) {
+  private respondWithError(error: any, ctx: IRouterContext) {
     if (typeof error === "string") {
       const httpStatus =
         this.errorStatusCodes.get(error as ErrorCode) ||
@@ -221,8 +221,7 @@ export default abstract class Controller<
       } as APIResponse;
 
       ctx.status = httpStatus as number;
-    } else {
-      const errorObject = error as Error;
+    } else if (error instanceof Error) {
       const httpStatus = HttpStatusCode.InternalServerError;
 
       ctx.body = {
@@ -230,8 +229,30 @@ export default abstract class Controller<
           {
             code: ErrorCode.UnhandledError,
             status: httpStatus,
-            title: errorObject.message,
-            detail: errorObject.stack
+            title: error.message,
+            detail: error.stack
+          }
+        ]
+      } as APIResponse;
+
+      ctx.status = httpStatus as number;
+    } else {
+      const httpStatus = HttpStatusCode.InternalServerError;
+
+      let serializedError: string;
+      try {
+        serializedError = error.toString();
+      } catch {
+        serializedError = "failed to call toString()";
+      }
+
+      ctx.body = {
+        errors: [
+          {
+            code: ErrorCode.UnhandledError,
+            status: httpStatus,
+            title: "error of unknown type thrown",
+            detail: serializedError
           }
         ]
       } as APIResponse;
