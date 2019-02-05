@@ -47,7 +47,7 @@ export default class UserProcessor extends OperationProcessor {
 
     // Update user with token.
     newUser.attributes.token = sign(
-      { id: newUser.id },
+      JSON.parse(JSON.stringify(newUser)),
       process.env.NODE_PRIVATE_KEY as string,
       {
         expiresIn: "1Y"
