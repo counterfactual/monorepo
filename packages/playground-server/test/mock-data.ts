@@ -35,11 +35,20 @@ export const MNEMONIC_BOB = MNEMONIC_ALICE_DUPE;
 export const MNEMONIC_CHARLIE =
   "daring share together slight midnight squirrel fitness course weather decide rent pottery";
 
+export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
+
 export const USR_ALICE = {
   username: "alice_account3",
   email: "alice@wonderland.com",
   ethAddress: new SigningKey(PK_ALICE).address,
   nodeAddress: getNodeAddress(MNEMONIC_ALICE)
+};
+
+export const USR_ALICE_KNEX = {
+  username: "alice_account3",
+  email: "alice@wonderland.com",
+  eth_address: "0x5fAddCa4889DdC5791cf65446371151f29653285",
+  node_address: "0x5fAddCa4889DdC5791cf65446371151f29653285"
 };
 
 export const USR_ALICE_DUPLICATE_USERNAME = {
@@ -57,7 +66,14 @@ export const USR_BOB = {
   nodeAddress: getNodeAddress(MNEMONIC_BOB)
 };
 
-export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
+export const USR_BOB_KNEX = {
+  id: USR_BOB_ID,
+  email: "bob@wonderland.com",
+  eth_address: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
+  multisig_address: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
+  node_address: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
+  username: "bob_account1"
+};
 
 export const USR_CHARLIE = {
   username: "charlie_account2",
@@ -66,8 +82,16 @@ export const USR_CHARLIE = {
   nodeAddress: getNodeAddress(MNEMONIC_CHARLIE)
 };
 
+export const USR_CHARLIE_KNEX = {
+  username: "charlie_account2",
+  email: "charlie@wonderland.com",
+  eth_address: "0x93678a4828D07708aD34272D61404dD06aE2CA64",
+  node_address: "0x93678a4828D07708aD34272D61404dD06aE2CA64"
+};
+
 export const POST_USERS_ALICE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
@@ -87,6 +111,7 @@ export const POST_USERS_ALICE_SIGNATURE_HEADER = {
 
 export const POST_USERS_ALICE_NO_SIGNATURE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
@@ -102,6 +127,7 @@ export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE_DUPLICATE_USERNAME }
   }
 };
@@ -121,6 +147,7 @@ export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = {
 
 export const POST_USERS_CHARLIE = {
   data: {
+    type: "user",
     attributes: { ...USR_CHARLIE }
   }
 };
@@ -140,8 +167,7 @@ export const POST_USERS_CHARLIE_SIGNATURE_HEADER = {
 
 export const POST_SESSION_CHARLIE = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: USR_CHARLIE.ethAddress }
   }
 };
@@ -158,8 +184,7 @@ export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = {
 
 export const POST_SESSION_BOB = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: USR_BOB.ethAddress }
   }
 };
@@ -176,8 +201,7 @@ export const POST_SESSION_BOB_SIGNATURE_HEADER = {
 
 export const POST_SESSION_ALICE = {
   data: {
-    type: "session",
-    id: "",
+    type: "sessionRequest",
     attributes: { ethAddress: USR_ALICE.ethAddress }
   }
 };

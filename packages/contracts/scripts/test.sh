@@ -8,7 +8,7 @@ function clean {
 
 trap clean INT TERM EXIT
 
-if lsof -ti :8545
+if [[ $(command -v lsof) && $(lsof -ti :8545) ]]
 then
   echo "Detected a process (probably an existing ganache instance) listening on 8545. Exiting."
   exit 1
