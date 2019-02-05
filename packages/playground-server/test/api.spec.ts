@@ -19,9 +19,9 @@ import {
 } from "../src/types";
 
 import {
-  PK_ALICE,
-  PK_BOB,
-  PK_CHARLIE,
+  MNEMONIC_ALICE,
+  MNEMONIC_BOB,
+  MNEMONIC_CHARLIE,
   POST_SESSION_ALICE,
   POST_SESSION_ALICE_SIGNATURE_HEADER,
   POST_SESSION_CHARLIE,
@@ -36,6 +36,7 @@ import {
   TOKEN_BOB,
   USR_ALICE,
   USR_BOB,
+  USR_BOB_ID,
   USR_CHARLIE
 } from "./mock-data";
 
@@ -57,9 +58,9 @@ describe("playground-server", () => {
   beforeAll(async () => {
     await createNodeSingleton();
 
-    await createNode(PK_ALICE);
-    await createNode(PK_BOB);
-    await createNode(PK_CHARLIE);
+    await createNode(MNEMONIC_ALICE);
+    await createNode(MNEMONIC_BOB);
+    await createNode(MNEMONIC_CHARLIE);
 
     await db.schema.dropTableIfExists("users");
     await db.schema.createTable("users", table => {
@@ -289,14 +290,8 @@ describe("playground-server", () => {
           expect(response.data).toEqual({
             data: [
               {
-                attributes: {
-                  email: "bob@wonderland.com",
-                  ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-                  multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-                  nodeAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-                  username: "bob_account1"
-                },
-                id: "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2",
+                attributes: USR_BOB,
+                id: USR_BOB_ID,
                 type: "users"
               }
             ]
