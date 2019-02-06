@@ -1,7 +1,8 @@
-import { Component, Element, Prop } from "@stencil/core";
+import { Component, Element, Prop, State } from "@stencil/core";
 
 import AppRegistryTunnel from "../../../data/app-registry";
-import { AppDefinition } from "../../../types";
+import PlaygroundAPIClient from "../../../data/playground-api-client";
+import { AppDefinition, UserSession } from "../../../types";
 
 @Component({
   tag: "dialog-propose-install",
@@ -13,6 +14,16 @@ export class DialogProposeInstall {
   @Prop() onAccept: () => void = () => {};
   @Prop() onReject: () => void = () => {};
   @Prop() apps: AppDefinition[] = [];
+
+  @State() user: UserSession = {} as UserSession;
+
+  async componentWillLoad() {
+    if (this.message.from) {
+      this.user = await PlaygroundAPIClient.getUserByEthAddress(
+        this.message.from
+      );
+    }
+  }
 
   render() {
     return (
@@ -34,7 +45,7 @@ export class DialogProposeInstall {
                 )!.name
               }
             </strong>{" "}
-            with <strong>{this.message.from.substr(0, 6)}</strong>.
+            with <strong>{this.user.username}</strong>.
           </label>
         }
         primaryButtonText="Accept"
