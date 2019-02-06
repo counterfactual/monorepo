@@ -19,7 +19,7 @@ export default class AppProcessor extends OperationProcessor<App> {
       );
 
       Log.info("Loaded App registry", {
-        tags: { totalApps: (registry.data as App[]).length, endpoint: "apps" }
+        tags: { totalApps: registry.apps.length, endpoint: "apps" }
       });
 
       return registry.data.map((record: {}) => new App(record));
