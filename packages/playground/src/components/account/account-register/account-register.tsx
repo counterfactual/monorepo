@@ -34,7 +34,7 @@ export class AccountRegister {
     username: "",
     email: "",
     ethAddress: this.user.ethAddress,
-    nodeAddress: CounterfactualNode.getInstance().address
+    nodeAddress: CounterfactualNode.getInstance().publicIdentifier
   };
 
   @State() errors: UserChangeset = {
