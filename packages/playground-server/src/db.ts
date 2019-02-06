@@ -125,8 +125,22 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   });
 }
 
-export async function getUsers(filters: {}): Promise<User[]> {
+export async function getUsers(
+  filters: {},
+  fields: string[] = []
+): Promise<User[]> {
   const db = getDatabase();
+  let returnFields = fields;
+
+  if (!returnFields.length) {
+    returnFields = [
+      "username",
+      "email",
+      "ethAddress",
+      "multisigAddress",
+      "nodeAddress"
+    ];
+  }
 
   const users: KnexRecord[] = await db("users")
     .columns({
@@ -146,13 +160,9 @@ export async function getUsers(filters: {}): Promise<User[]> {
     (user: KnexRecord) =>
       new User({
         id: user.id,
-        attributes: {
-          username: user.username,
-          email: user.email,
-          ethAddress: user.ethAddress,
-          multisigAddress: user.multisigAddress,
-          nodeAddress: user.nodeAddress
-        }
+        attributes: returnFields
+          .map(field => ({ [field]: user[field] }))
+          .reduce((fieldA, fieldB) => ({ ...fieldA, ...fieldB }), {})
       })
   );
 }

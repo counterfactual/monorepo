@@ -19,7 +19,10 @@ export default class UserProcessor extends OperationProcessor {
       }
     }
 
-    return getUsers({ id: op.ref.id });
+    return getUsers(
+      op.ref.id ? { id: op.ref.id } : op.params.filter || {},
+      !isMe ? ["username"] : []
+    );
   }
 
   public async add(op: Operation): Promise<User> {
