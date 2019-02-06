@@ -151,7 +151,7 @@ export default class PlaygroundAPIClient {
 
   public static async getUser(token: string): Promise<UserSession> {
     try {
-      const json = (await get("users", token)) as APIResponse;
+      const json = (await get("users/me", token)) as APIResponse;
       const resource = json.data[0] as APIResource<UserAttributes>;
 
       return fromAPIResource<UserSession, UserAttributes>(resource);
