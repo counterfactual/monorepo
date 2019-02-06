@@ -4,7 +4,7 @@ import { BigNumber, BigNumberish, Signature } from "ethers/utils";
 import { Opcode, Protocol } from "./enums";
 import { Transaction } from "./ethereum/types";
 import { EthereumCommitment } from "./ethereum/utils";
-import { AppInstance, StateChannel } from "./models";
+import { StateChannel } from "./models";
 
 export type ProtocolExecutionFlow = {
   [x: number]: Instruction[];
@@ -30,7 +30,6 @@ export interface Context {
   commitments: EthereumCommitment[];
   signatures: Signature[];
   appIdentityHash?: string;
-  targetVirtualAppInstance?: AppInstance;
 }
 
 // The application-specific state of an app instance, to be interpreted by the
