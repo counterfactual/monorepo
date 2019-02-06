@@ -47,8 +47,8 @@ export const USR_ALICE = {
 export const USR_ALICE_KNEX = {
   username: "alice_account3",
   email: "alice@wonderland.com",
-  eth_address: "0x5fAddCa4889DdC5791cf65446371151f29653285",
-  node_address: "0x5fAddCa4889DdC5791cf65446371151f29653285"
+  eth_address: new SigningKey(PK_ALICE).address,
+  node_address: getNodeAddress(MNEMONIC_ALICE)
 };
 
 export const USR_ALICE_DUPLICATE_USERNAME = {
@@ -69,9 +69,9 @@ export const USR_BOB = {
 export const USR_BOB_KNEX = {
   id: USR_BOB_ID,
   email: "bob@wonderland.com",
-  eth_address: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
+  eth_address: new SigningKey(PK_BOB).address,
   multisig_address: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-  node_address: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
+  node_address: getNodeAddress(MNEMONIC_BOB),
   username: "bob_account1"
 };
 
@@ -85,8 +85,8 @@ export const USR_CHARLIE = {
 export const USR_CHARLIE_KNEX = {
   username: "charlie_account2",
   email: "charlie@wonderland.com",
-  eth_address: "0x93678a4828D07708aD34272D61404dD06aE2CA64",
-  node_address: "0x93678a4828D07708aD34272D61404dD06aE2CA64"
+  eth_address: new SigningKey(PK_CHARLIE).address,
+  node_address: getNodeAddress(MNEMONIC_CHARLIE)
 };
 
 export const POST_USERS_ALICE = {
