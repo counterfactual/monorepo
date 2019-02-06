@@ -5,6 +5,9 @@ import { resolve } from "path";
 // https://stenciljs.com/docs/config
 
 export const config: Config = {
+  devServer: {
+    openBrowser: false
+  },
   globalStyle: "src/global/app.scss",
   plugins: [sass({ injectGlobalPaths: ["src/global/app.scss"] })],
   testing: {
