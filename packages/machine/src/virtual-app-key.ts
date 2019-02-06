@@ -1,4 +1,4 @@
-import { keccak256 } from "ethers/utils/solidity";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 /// This function computes the key for a channel that is used to store virtual
 /// app target instances. The "key" is part of the firebase path and is used
@@ -12,7 +12,9 @@ export function virtualChannelKey(users: string[], intermediary: string) {
     throw Error("virtualChannelKey can only calculate with 2 users");
   }
   return keccak256(
-    ["address", "address", "address"],
-    [intermediary, users[0], users[1]]
+    defaultAbiCoder.encode(
+      ["address", "address", "address"],
+      [intermediary, users[0], users[1]]
+    )
   );
 }
