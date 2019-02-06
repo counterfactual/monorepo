@@ -203,8 +203,6 @@ export class AppGame {
     });
   }
 
-  isMyTurn() {}
-
   render() {
     return [
       <div class="wrapper">
