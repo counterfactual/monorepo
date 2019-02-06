@@ -13,7 +13,7 @@ import { resolve } from "path";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import { createNodeSingleton, getNodeAddress } from "../src/node";
+import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
@@ -21,26 +21,23 @@ import {
   MNEMONIC_ALICE,
   MNEMONIC_BOB,
   MNEMONIC_CHARLIE,
-  POST_SESSION_ALICE_SIGNATURE_HEADER,
-  POST_SESSION_ALICE,
-  POST_SESSION_CHARLIE_SIGNATURE_HEADER,
   POST_SESSION_CHARLIE,
-  POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER,
+  POST_SESSION_CHARLIE_SIGNATURE_HEADER,
+  POST_USERS_ALICE,
   POST_USERS_ALICE_DUPLICATE_USERNAME,
-  POST_USERS_ALICE_INVALID_SIGNATURE_HEADER,
+  POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER,
   POST_USERS_ALICE_INVALID_SIGNATURE,
+  POST_USERS_ALICE_INVALID_SIGNATURE_HEADER,
   POST_USERS_ALICE_NO_SIGNATURE,
   POST_USERS_ALICE_SIGNATURE_HEADER,
-  POST_USERS_ALICE,
   TOKEN_BOB,
-  USR_ALICE_KNEX,
   USR_ALICE,
+  USR_ALICE_KNEX,
+  USR_BOB,
   USR_BOB_ID,
   USR_BOB_KNEX,
-  USR_BOB,
   USR_CHARLIE,
-  USR_CHARLIE_KNEX,
-  USR_CHARLIE
+  USR_CHARLIE_KNEX
 } from "./mock-data";
 
 jest.setTimeout(10000);
@@ -148,7 +145,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it.skip("creates an account for the first time and returns 201 + the multisig address", async done => {
+    it("creates an account for the first time and returns 201 + the multisig address", async done => {
       const response = await client
         .post("/users", POST_USERS_ALICE, {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER
@@ -171,7 +168,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it.skip("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", async done => {
+    it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", async done => {
       await client
         .post("/users", POST_USERS_ALICE, {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER
@@ -191,7 +188,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it.skip("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", async done => {
+    it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", async done => {
       await client
         .post("/users", POST_USERS_ALICE_DUPLICATE_USERNAME, {
           headers: POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER
@@ -244,7 +241,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: Errors.InvalidSignature().code
+                code: Errors.UserNotFound().code
               }
             ]
           });
@@ -253,7 +250,7 @@ describe("playground-server", () => {
         });
     });
 
-    it.skip("returns user data with a token", async done => {
+    it("returns user data with a token", async done => {
       await db("users").insert(USR_CHARLIE_KNEX);
 
       const response = await client
@@ -267,11 +264,11 @@ describe("playground-server", () => {
 
       const data = response.data.data;
 
-      expect(data.attributes.email).toEqual(USR_ALICE.email);
-      expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
+      expect(data.attributes.email).toEqual(USR_CHARLIE.email);
+      expect(data.attributes.ethAddress).toEqual(USR_CHARLIE.ethAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
-      expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
-      expect(data.attributes.username).toEqual(USR_ALICE.username);
+      expect(data.attributes.nodeAddress).toEqual(USR_CHARLIE.nodeAddress);
+      expect(data.attributes.username).toEqual(USR_CHARLIE.username);
       expect(data.attributes.token).toBeDefined();
 
       expect(response.status).toEqual(HttpStatusCode.Created);
@@ -313,7 +310,7 @@ describe("playground-server", () => {
       expect(response.status).toEqual(HttpStatusCode.OK);
       expect(response.data).toEqual({
         data: [
-          { 
+          {
             attributes: USR_BOB,
             id: USR_BOB_ID,
             relationships: {},
