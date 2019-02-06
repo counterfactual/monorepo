@@ -3,6 +3,7 @@ import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
+import * as chai from "chai";
 import { solidity, WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
