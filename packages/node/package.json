@@ -19,7 +19,7 @@
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
     "ganache-core": "2.4.0",
-    "jest": "^23.6.0",
+    "jest": "^24.1.0",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-json": "^3.1.0",
@@ -52,8 +52,8 @@
         "statements": 90
       }
     },
-    "globalSetup": "<rootDir>/test/global-setup.jest.js",
-    "globalTeardown": "<rootDir>/test/global-teardown.jest.js",
+    "globalSetup": "<rootDir>/test/global-setup.jest.ts",
+    "globalTeardown": "<rootDir>/test/global-teardown.jest.ts",
     "testEnvironment": "<rootDir>/test/node-test-environment.js",
     "moduleFileExtensions": [
       "ts",
