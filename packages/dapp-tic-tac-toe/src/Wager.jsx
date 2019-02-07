@@ -23,10 +23,14 @@ class Wager extends Component {
     try {
       const result = await this.matchmake();
 
-      const opponent = result.included.find(
-        resource =>
-          resource.id === result.data.relationships.matchedUser.data.id
-      );
+      const opponent = {
+        id: "opponent",
+        attributes: {
+          username: result.data.attributes.username,
+          nodeAddress: result.data.attributes.nodeAddress,
+          ethAddress: result.data.attributes.ethAddress
+        }
+      };
 
       this.setState({
         isLoaded: true,

@@ -2,8 +2,6 @@ import { Application, JsonApiErrors } from "@ebryn/jsonapi-ts";
 import escapeStringRegexp from "escape-string-regexp";
 import { getAddress, verifyMessage } from "ethers/utils";
 import { Context } from "koa";
-import koaBodyParser from "koa-bodyparser";
-import compose from "koa-compose";
 import { Log } from "logepi";
 
 import Errors from "../errors";
@@ -20,7 +18,7 @@ import { AuthenticatedRequest, JsonApiResource } from "../types";
  * `signature_required` error.
  */
 export default function(app: Application) {
-  return compose([koaBodyParser(), validateSignature(app)]);
+  return validateSignature(app);
 }
 
 function validateSignature(app: Application) {
@@ -51,7 +49,9 @@ function validateSignature(app: Application) {
 
     if (expectedMessage) {
       try {
-        await validate(ctx, resource, expectedMessage).then(() => next());
+        return await validate(ctx, resource, expectedMessage).then(() =>
+          next()
+        );
       } catch (e) {
         const isJsonApiError = e && e.code;
 
@@ -77,7 +77,7 @@ async function validate(
 ) {
   const signedRequest = ctx.request as AuthenticatedRequest;
   const signedHeader = signedRequest.headers.authorization;
-  const json = ctx.request.body;
+  const json = ctx.request["body"];
   const user: JsonApiResource = (json && json.data) || {};
 
   if (!signedHeader) {

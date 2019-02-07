@@ -37,8 +37,7 @@ export default function mountApi() {
 
   api
     .use(cors({ keepHeadersOnError: false }))
-    .use(validateSignature(app))
-    .use(jsonApiKoa(app))
+    .use(jsonApiKoa(app, validateSignature(app)))
     .use(logs());
 
   return api;

@@ -10,7 +10,7 @@ import User from "./resource";
 export default class UserProcessor extends OperationProcessor {
   public resourceClass = User;
 
-  protected async get(op: Operation): Promise<User[]> {
+  public async get(op: Operation): Promise<User[]> {
     if (op.ref.id === "me") {
       if (this.app.user) {
         op.ref.id = this.app.user.id;
@@ -22,7 +22,7 @@ export default class UserProcessor extends OperationProcessor {
     return getUsers({ id: op.ref.id });
   }
 
-  async add(op: Operation): Promise<User> {
+  public async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
     const user = op.data;
     const { nodeAddress } = user.attributes;
