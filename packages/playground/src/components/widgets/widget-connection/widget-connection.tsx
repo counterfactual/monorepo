@@ -16,9 +16,9 @@ const NETWORK_NAMES = {
 export class WidgetConnection {
   @Element() el!: HTMLStencilElement;
   @Prop() network: string = "";
+  @Prop() walletDetected: string = "";
 
   render() {
-    console.log("network", this.network);
     return this.network ? (
       <div class="connection">
         <span class="dot connected" />
@@ -28,7 +28,13 @@ export class WidgetConnection {
       </div>
     ) : (
       <div class="connection">
-        <widget-tooltip message="We cannot detect Metamask">
+        <widget-tooltip
+          message={
+            this.walletDetected
+              ? "You must be on a supported network, such as Ropsten"
+              : "We don't detect a wallet, such as Metamask or Coinbase"
+          }
+        >
           <span class="dot" />
           <span class="status">No Connection</span>
         </widget-tooltip>
@@ -37,4 +43,4 @@ export class WidgetConnection {
   }
 }
 
-NetworkTunnel.injectProps(WidgetConnection, ["network"]);
+NetworkTunnel.injectProps(WidgetConnection, ["network", "walletDetected"]);
