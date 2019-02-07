@@ -14,7 +14,7 @@ export default class AppProcessor extends OperationProcessor<App> {
     try {
       const registry = JSON.parse(
         fs
-          .readFileSync(path.resolve(__dirname, "../../../registry.local.json"))
+          .readFileSync(path.resolve(__dirname, "../../../registry.json"))
           .toString()
       );
 
