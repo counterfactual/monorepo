@@ -1,5 +1,6 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import { xkeysToSortedKthAddresses } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Interface } from "ethers/utils";
@@ -68,12 +69,17 @@ export default async function createChannelController(
 }
 
 async function deployMinimumViableMultisigAndGetAddress(
-  owners: Address[],
+  ownersPublicIdentifiers: string[],
   signer: Signer,
   multisigMasterCopyAddress: Address,
   proxyFactoryAddress: Address
 ): Promise<Address> {
   // TODO: implement this using CREATE2
+  const multisigOwnerAddresses = xkeysToSortedKthAddresses(
+    ownersPublicIdentifiers,
+    0
+  );
+
   const proxyFactory = new Contract(
     proxyFactoryAddress,
     ProxyFactory.abi,
@@ -91,7 +97,7 @@ async function deployMinimumViableMultisigAndGetAddress(
       await proxyFactory.functions.createProxy(
         multisigMasterCopyAddress,
         new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-          owners
+          multisigOwnerAddresses
         ]),
         { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
       );

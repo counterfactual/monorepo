@@ -115,7 +115,7 @@ describe("Node method follows spec - takeAction", () => {
       const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
         nodeB.publicIdentifier,
         // @ts-ignore
-        global.networkContext.TicTacToeAddress,
+        global.networkContext.TicTacToe,
         initialState,
         {
           stateEncoding,

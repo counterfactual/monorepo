@@ -2,6 +2,7 @@ import {
   Address,
   AppABIEncodings,
   AssetType,
+  NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
@@ -21,6 +22,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -28,7 +30,8 @@ import {
   generateGetStateRequest,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest
+  makeInstallRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -42,6 +45,7 @@ describe("Node method follows spec - takeAction", () => {
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
+  let networkContext: NetworkContext;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -57,18 +61,27 @@ describe("Node method follows spec - takeAction", () => {
 
     const url = `http://localhost:${process.env.GANACHE_PORT}`;
     provider = new JsonRpcProvider(url);
-  });
 
-  beforeEach(async () => {
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig =
+      // @ts-ignore
+      global.networkContext.MinimumViableMultisig;
+
+    networkContext.ProxyFactory =
+      // @ts-ignore
+      global.networkContext.ProxyFactory;
+
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -77,9 +90,10 @@ describe("Node method follows spec - takeAction", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 
@@ -133,7 +147,7 @@ describe("Node method follows spec - takeAction", () => {
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
           nodeB.publicIdentifier,
           // @ts-ignore
-          global.networkContext.TicTacToeAddress,
+          global.networkContext.TicTacToe,
           initialState,
           {
             stateEncoding,

@@ -150,7 +150,7 @@ describe("Node method follows spec - takeAction", () => {
         const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
           nodeC.publicIdentifier,
           // @ts-ignore
-          global.networkContext.TicTacToeAddress,
+          global.networkContext.TicTacToe,
           initialState,
           {
             stateEncoding,

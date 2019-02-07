@@ -21,8 +21,8 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
-    MinimumViableMultisigAddress: mvmContract.address,
-    ProxyFactoryAddress: proxyFactoryContract.address,
-    TicTacToeAddress: tttContract.address
+    MinimumViableMultisig: mvmContract.address,
+    ProxyFactory: proxyFactoryContract.address,
+    TicTacToe: tttContract.address
   };
 }

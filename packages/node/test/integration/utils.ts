@@ -15,6 +15,8 @@ import { v4 as generateUUID } from "uuid";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
+export const TEST_NETWORK = "ganache";
+
 export async function getNewMultisig(
   node: Node,
   xpubs: string[]

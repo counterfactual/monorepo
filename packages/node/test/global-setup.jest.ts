@@ -1,6 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
 import mkdirp from "mkdirp";
@@ -16,19 +17,29 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 module.exports = async () => {
   mkdirp.sync(DIR);
 
+  const privateKeyA = fromMnemonic(process.env.A_MNEMONIC!).derivePath(
+    "m/44'/60'/0'/25446"
+  ).privateKey;
+  const privateKeyB = fromMnemonic(process.env.B_MNEMONIC!).derivePath(
+    "m/44'/60'/0'/25446"
+  ).privateKey;
+  const privateKeyC = fromMnemonic(process.env.C_MNEMONIC!).derivePath(
+    "m/44'/60'/0'/25446"
+  ).privateKey;
+
   const server = ganache.server({
     accounts: [
       {
         balance: "120000000000000000",
-        secretKey: process.env.PRIVATE_KEY_A
+        secretKey: privateKeyA
       },
       {
         balance: "120000000000000000",
-        secretKey: process.env.PRIVATE_KEY_B
+        secretKey: privateKeyB
       },
       {
         balance: "120000000000000000",
-        secretKey: process.env.PRIVATE_KEY_C
+        secretKey: privateKeyC
       }
     ]
   });
@@ -36,7 +47,7 @@ module.exports = async () => {
   global.ganacheServer = server;
   server.listen(parseInt(process.env.GANACHE_PORT!, 10));
   const provider = new Web3Provider(server.provider);
-  const wallet = new Wallet(process.env.PRIVATE_KEY_A!, provider);
+  const wallet = new Wallet(privateKeyA, provider);
 
   fs.writeFileSync(
     path.join(DIR, "networkContext"),
