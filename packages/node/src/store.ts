@@ -10,6 +10,7 @@ import {
   AppInstanceInfo,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
@@ -111,6 +112,7 @@ export class Store {
     const ownersHash = hashOfOrderedPublicIdentifiers(
       stateChannel.userNeuteredExtendedKeys
     );
+
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
@@ -197,6 +199,42 @@ export class Store {
           proposedAppInstance.id
         }`,
         value: stateChannel.multisigAddress
+      }
+    ]);
+  }
+
+  public async addVirtualAppInstanceProposal(
+    proposedAppInstance: ProposedAppInstanceInfo
+  ) {
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+          proposedAppInstance.id
+        }`,
+        value: proposedAppInstance.toJson()
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
+          proposedAppInstance.id
+        }`,
+        value: keccak256(
+          defaultAbiCoder.encode(
+            ["string", "string", "string"],
+            [
+              proposedAppInstance.intermediaries![0],
+              // TODO: MAJOR CONFUSION POINT:
+              //       In the propose virtual install params initiating & responding
+              //       are swwapped from the actual virtual install params.
+              //       This is why these are swapped here.
+              proposedAppInstance.respondingAddress,
+              proposedAppInstance.initiatingAddress
+            ]
+          )
+        )
       }
     ]);
   }

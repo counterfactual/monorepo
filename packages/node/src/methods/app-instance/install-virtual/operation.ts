@@ -41,8 +41,8 @@ export async function installVirtual(
     }
   );
 
-  await store.saveStateChannel(
-    updatedStateChannelsMap.get(stateChannel.multisigAddress)!
+  updatedStateChannelsMap.forEach(
+    async stateChannel => await store.saveStateChannel(stateChannel)
   );
 
   await store.saveRealizedProposedAppInstance(appInstanceInfo);

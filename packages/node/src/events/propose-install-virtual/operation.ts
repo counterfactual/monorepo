@@ -34,5 +34,5 @@ export async function setAppInstanceIDForProposeInstallVirtual(
     channel
   );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
+  await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
 }

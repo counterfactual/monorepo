@@ -36,7 +36,7 @@ export async function createProposedVirtualAppInstance(
     channel
   );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
+  await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
 
   return proposedAppInstanceInfo.id;
 }
