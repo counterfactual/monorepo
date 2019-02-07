@@ -156,10 +156,7 @@ describe("ETHVirtualAppAgreement", () => {
   });
 
   describe("ETHVirtualAppAgreement", () => {
-    // TODO(liam): This test should work after having done setResolution above
-    // but has not been finished yet. Leaving it here as skipped until we
-    // implement it.
-    it.skip("succeeds with a valid resolution and elapsed lockup period", async () => {
+    it("succeeds with a valid resolution and elapsed lockup period", async () => {
       const beneficiaries = await delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,

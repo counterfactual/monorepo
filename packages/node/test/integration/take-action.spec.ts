@@ -1,4 +1,3 @@
-import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import {
   Address,
   AppABIEncodings,
@@ -6,12 +5,9 @@ import {
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
-import { BaseProvider, Web3Provider } from "ethers/providers";
-import { bigNumberify, hexlify, randomBytes, SigningKey } from "ethers/utils";
-import FirebaseServer from "firebase-server";
-import ganache from "ganache-core";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -36,10 +32,9 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(20000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -47,15 +42,12 @@ describe("Node method follows spec - takeAction", () => {
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
-  let tttContract: Contract;
-  let privateKey: string;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -63,24 +55,8 @@ describe("Node method follows spec - takeAction", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    privateKey = new SigningKey(hexlify(randomBytes(32))).privateKey;
-    provider = new Web3Provider(
-      ganache.provider({
-        accounts: [
-          {
-            balance: "7fffffffffffffff",
-            secretKey: privateKey
-          }
-        ]
-      })
-    );
-
-    const wallet = new Wallet(privateKey, provider);
-    tttContract = await new ContractFactory(
-      TicTacToeApp.interface,
-      TicTacToeApp.bytecode,
-      wallet
-    ).deploy();
+    const url = `http://localhost:${process.env.GANACHE_PORT}`;
+    provider = new JsonRpcProvider(url);
   });
 
   beforeEach(async () => {
@@ -107,8 +83,8 @@ describe("Node method follows spec - takeAction", () => {
     );
   });
 
-  afterAll(() => {
-    firebaseServer.close();
+  afterAll(async () => {
+    await firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -156,7 +132,8 @@ describe("Node method follows spec - takeAction", () => {
 
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
           nodeB.publicIdentifier,
-          tttContract.address,
+          // @ts-ignore
+          global.networkContext.TicTacToeAddress,
           initialState,
           {
             stateEncoding,
@@ -166,10 +143,6 @@ describe("Node method follows spec - takeAction", () => {
 
         let newState;
         nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          setTimeout(() => {
-            expect(msg.data.newState).toEqual(newState);
-          }, 2000);
-
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
           const response = await nodeB.call(getStateReq.type, getStateReq);
           const updatedState = (response.result as NodeTypes.GetStateResult)
