@@ -1,5 +1,4 @@
 import { Provider } from "ethers/providers";
-import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -10,7 +9,6 @@ import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -20,12 +18,11 @@ describe("Node can create multisig, other owners get notified", () => {
   let mockProvider: Provider;
   let provider;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -35,11 +32,7 @@ describe("Node can create multisig, other owners get notified", () => {
 
     mockProvider = mock(Provider);
     provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
-    // Setting up a different store service to simulate different store services
-    // being used for each Node
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -64,7 +57,7 @@ describe("Node can create multisig, other owners get notified", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServices();
   });
 
   it("Node A can create multisig and sync with Node B on new multisig creation", async () => {

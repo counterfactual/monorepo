@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest --setupFiles dotenv-extended/config --runInBand --detectOpenHandles --bail",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."

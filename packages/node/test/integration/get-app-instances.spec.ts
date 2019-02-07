@@ -1,6 +1,5 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -18,7 +17,6 @@ describe("Node method follows spec - getAppInstances", () => {
   jest.setTimeout(10000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -28,7 +26,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let mockProvider: Provider;
   let provider;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
@@ -36,15 +34,12 @@ describe("Node method follows spec - getAppInstances", () => {
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
     mockProvider = mock(Provider);
     provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -69,7 +64,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServices();
   });
 
   it("can accept a valid call to get empty list of app instances", async () => {
