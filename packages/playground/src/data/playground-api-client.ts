@@ -14,7 +14,7 @@ import {
 } from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
-const API_TIMEOUT = 5000;
+const API_TIMEOUT = 30000;
 
 function timeout(delay: number = API_TIMEOUT) {
   const handler = setTimeout(() => {
@@ -176,9 +176,9 @@ export default class PlaygroundAPIClient {
   public static async matchmake(token: string, matchmakeWith: string | null) {
     try {
       return await post(
-        "matchmaking",
+        "matchmaking-requests",
         matchmakeWith
-          ? { type: "matchmaking", attributes: { matchmakeWith } }
+          ? { type: "matchmaking-request", attributes: { matchmakeWith } }
           : ({} as APIResource<APIResourceAttributes>),
         token,
         "Bearer"

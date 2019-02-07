@@ -101,10 +101,13 @@ export class AppWager {
     try {
       const result = await this.fetchMatchmake();
 
-      this.opponent = result.included.find(
-        resource =>
-          resource.id === result.data.relationships.matchedUser.data.id
-      );
+      this.opponent = {
+        attributes: {
+          username: result.data.attributes.username,
+          nodeAddress: result.data.attributes.nodeAddress,
+          ethAddress: result.data.attributes.ethAddress
+        }
+      };
       this.intermediary = result.data.attributes.intermediary;
       this.isError = false;
       this.error = null;
@@ -199,7 +202,11 @@ export class AppWager {
               <h1 class="message__title">Oops! :/</h1>
               <p class="message__body">
                 Something went wrong:
-                <textarea>{JSON.stringify(this.error)}</textarea>
+                <textarea>
+                  {this.error instanceof Error
+                    ? `${this.error.message}: ${this.error.stack}`
+                    : JSON.stringify(this.error)}
+                </textarea>
               </p>
             </div>
           </div>
