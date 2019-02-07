@@ -12,7 +12,7 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    const networkContext = readFileSync(path.join(DIR, "addresses"), "utf8");
+    const networkContext = readFileSync(path.join(DIR, "networkContext"), "utf8");
     if (!networkContext) {
       throw new Error("Network context not found");
     }
