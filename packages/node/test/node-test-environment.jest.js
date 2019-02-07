@@ -1,3 +1,4 @@
+const { AddressZero } = require("ethers/constants");
 const { readFileSync } = require("fs");
 const NodeJSEnvironment = require("jest-environment-node");
 const os = require("os");
@@ -12,11 +13,26 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    const networkContext = readFileSync(path.join(DIR, "networkContext"), "utf8");
-    if (!networkContext) {
-      throw new Error("Network context not found");
+    let addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
+    if (!addresses) {
+      throw new Error("Contract addresses not found");
     }
-    this.global.networkContext = JSON.parse(networkContext);
+    addresses = JSON.parse(addresses);
+
+    const networkContext = {
+      AppRegistry: AddressZero,
+      ETHBalanceRefund: AddressZero,
+      ETHBucket: AddressZero,
+      MultiSend: AddressZero,
+      NonceRegistry: AddressZero,
+      StateChannelTransaction: AddressZero,
+      ETHVirtualAppAgreement: AddressZero,
+      MinimumViableMultisig: addresses.MinimumViableMultisig,
+      ProxyFactory: addresses.ProxyFactory,
+      TicTacToe: addresses.TicTacToe
+    };
+
+    this.global.networkContext = networkContext;
   }
 
   async teardown() {

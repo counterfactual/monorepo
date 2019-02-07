@@ -2,7 +2,6 @@ import {
   Address,
   AppABIEncodings,
   AssetType,
-  NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
@@ -24,7 +23,6 @@ import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  EMPTY_NETWORK,
   generateTakeActionRequest,
   getNewMultisig,
   makeInstallRequest,
@@ -42,7 +40,6 @@ describe("Node method follows spec - fails with improper action taken", () => {
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
-  let networkContext: NetworkContext;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -59,15 +56,6 @@ describe("Node method follows spec - fails with improper action taken", () => {
     const url = `http://localhost:${process.env.GANACHE_PORT}`;
     provider = new JsonRpcProvider(url);
 
-    networkContext = EMPTY_NETWORK;
-    networkContext.MinimumViableMultisig =
-      // @ts-ignore
-      global.networkContext.MinimumViableMultisig;
-
-    networkContext.ProxyFactory =
-      // @ts-ignore
-      global.networkContext.ProxyFactory;
-
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -78,7 +66,8 @@ describe("Node method follows spec - fails with improper action taken", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      networkContext
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -90,7 +79,8 @@ describe("Node method follows spec - fails with improper action taken", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      networkContext
+      // @ts-ignore
+      global.networkContext
     );
   });
 

@@ -50,7 +50,7 @@ module.exports = async () => {
   const wallet = new Wallet(privateKeyA, provider);
 
   fs.writeFileSync(
-    path.join(DIR, "networkContext"),
+    path.join(DIR, "addresses"),
     JSON.stringify(await configureNetworkContext(wallet))
   );
 };
