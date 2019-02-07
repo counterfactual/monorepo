@@ -7,9 +7,9 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  EMPTY_NETWORK,
   getNewMultisig,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
@@ -45,9 +45,11 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -56,9 +58,11 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 

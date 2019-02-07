@@ -1,13 +1,14 @@
-import { Provider } from "ethers/providers";
-import { instance, mock } from "ts-mockito";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { EMPTY_NETWORK, getChannelAddresses, getNewMultisig } from "./utils";
+import { getChannelAddresses, getNewMultisig, TEST_NETWORK } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
+  jest.setTimeout(10000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
@@ -15,8 +16,7 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -30,18 +30,21 @@ describe("Node can create multisig, other owners get notified", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
 
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+    const url = `http://localhost:${process.env.GANACHE_PORT}`;
+    provider = new JsonRpcProvider(url);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -50,9 +53,11 @@ describe("Node can create multisig, other owners get notified", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 

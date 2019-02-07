@@ -14,6 +14,8 @@ dotenvExtended.load();
 
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
+// This runs once for all test suites.
+
 module.exports = async () => {
   mkdirp.sync(DIR);
 

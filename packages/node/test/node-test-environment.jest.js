@@ -4,7 +4,11 @@ const NodeJSEnvironment = require("jest-environment-node");
 const os = require("os");
 const path = require("path");
 
+require("dotenv-extended").load();
+
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
+
+// This environment runs for _every test suite_.
 
 class NodeEnvironment extends NodeJSEnvironment {
   constructor(config) {
@@ -33,6 +37,7 @@ class NodeEnvironment extends NodeJSEnvironment {
     };
 
     this.global.networkContext = networkContext;
+    this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 
   async teardown() {

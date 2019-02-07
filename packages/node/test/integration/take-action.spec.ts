@@ -56,8 +56,8 @@ describe("Node method follows spec - takeAction", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    const url = `http://localhost:${process.env.GANACHE_PORT}`;
-    provider = new JsonRpcProvider(url);
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
