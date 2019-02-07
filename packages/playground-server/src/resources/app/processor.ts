@@ -3,7 +3,7 @@ import fs from "fs";
 import { Log } from "logepi";
 import path from "path";
 
-// import Errors from "../../errors";
+import Errors from "../../errors";
 
 import App from "./resource";
 
@@ -11,7 +11,7 @@ export default class AppProcessor extends OperationProcessor<App> {
   public resourceClass = App;
 
   protected async get(op: Operation): Promise<App[]> {
-    // try {
+    try {
       const registry = JSON.parse(
         fs
           .readFileSync(path.resolve(__dirname, "../../../registry.local.json"))
@@ -23,8 +23,8 @@ export default class AppProcessor extends OperationProcessor<App> {
       });
 
       return registry.data.map((record: {}) => new App(record));
-    // } catch {
-      // throw Errors.AppRegistryNotAvailable();
-    // }
+    } catch {
+      throw Errors.AppRegistryNotAvailable();
+    }
   }
 }
