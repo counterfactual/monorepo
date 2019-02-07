@@ -17827,7 +17827,7 @@ workbox-build@3.4.1:
     workbox-streams "^3.4.1"
     workbox-sw "^3.4.1"
 
-workbox-build@3.6.3, workbox-build@^3.6.3:
+workbox-build@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-build/-/workbox-build-3.6.3.tgz#77110f9f52dc5d82fa6c1c384c6f5e2225adcbd8"
   integrity sha512-w0clZ/pVjL8VXy6GfthefxpEXs0T8uiRuopZSFVQ8ovfbH6c6kUpEh6DcYwm/Y6dyWPiCucdyAZotgjz+nRz8g==

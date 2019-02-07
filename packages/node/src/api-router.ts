@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import {
-  addMultisigController,
+  addChannelController,
   installEventController,
   installVirtualEventController,
   proposeInstallEventController,
@@ -13,7 +13,7 @@ import {
 } from "./events";
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
-  createMultisigController,
+  createChannelController,
   getAllChannelAddressesController,
   getAppInstanceController,
   getAppInstanceStateController,
@@ -30,7 +30,7 @@ import {
 import { NODE_EVENTS } from "./types";
 
 export const methodNameToImplementation = {
-  [Node.MethodName.CREATE_MULTISIG]: createMultisigController,
+  [Node.MethodName.CREATE_CHANNEL]: createChannelController,
   [Node.MethodName.GET_APP_INSTANCES]: getInstalledAppInstancesController,
   [Node.MethodName.GET_CHANNEL_ADDRESSES]: getAllChannelAddressesController,
   [Node.MethodName
@@ -48,7 +48,7 @@ export const methodNameToImplementation = {
 };
 
 export const eventNameToImplementation = {
-  [NODE_EVENTS.CREATE_MULTISIG]: addMultisigController,
+  [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,

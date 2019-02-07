@@ -3,7 +3,7 @@ import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import { createUser, getUsers } from "../../db";
-import { createMultisigFor } from "../../node";
+import { createStateChannelFor } from "../../node";
 
 import User from "./resource";
 
@@ -27,7 +27,7 @@ export default class UserProcessor extends OperationProcessor {
     const user = op.data;
     const { nodeAddress } = user.attributes;
 
-    const multisig = await createMultisigFor(String(nodeAddress));
+    const multisig = await createStateChannelFor(String(nodeAddress));
 
     Log.info("Multisig has been created", {
       tags: {

@@ -41,7 +41,9 @@ export async function createNode(mnemonic?: string): Promise<Node> {
       MultiSend: AddressZero,
       NonceRegistry: AddressZero,
       StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero
+      ETHVirtualAppAgreement: AddressZero,
+      MinimumViableMultisig: AddressZero,
+      ProxyFactory: AddressZero
     },
     {
       STORE_KEY_PREFIX: "store"
@@ -64,23 +66,23 @@ export function getNodeAddress(): string {
   return node.publicIdentifier;
 }
 
-export async function createMultisigFor(
+export async function createStateChannelFor(
   userAddress: string
-): Promise<NodeTypes.CreateMultisigResult> {
+): Promise<NodeTypes.CreateChannelResult> {
   if (!node) {
     node = await createNodeSingleton();
   }
 
   const multisigResponse = await node.call(
-    NodeTypes.MethodName.CREATE_MULTISIG,
+    NodeTypes.MethodName.CREATE_CHANNEL,
     {
       params: {
         owners: [node.publicIdentifier, userAddress]
-      },
-      type: NodeTypes.MethodName.CREATE_MULTISIG,
+      } as NodeTypes.CreateChannelParams,
+      type: NodeTypes.MethodName.CREATE_CHANNEL,
       requestId: generateUUID()
     }
   );
 
-  return multisigResponse.result as NodeTypes.CreateMultisigResult;
+  return multisigResponse.result as NodeTypes.CreateChannelResult;
 }
