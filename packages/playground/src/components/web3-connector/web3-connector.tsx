@@ -17,8 +17,11 @@ export class Web3Connector {
     } catch {}
 
     const permittedNetworkIds = ["3"];
-    
-    if (web3.currentProvider && permittedNetworkIds.includes(web3.version.network)) {
+
+    if (
+      web3.currentProvider &&
+      permittedNetworkIds.includes(web3.version.network)
+    ) {
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = provider.getSigner();
       const ethAddress = web3.currentProvider.selectedAddress;

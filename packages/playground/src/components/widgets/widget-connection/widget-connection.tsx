@@ -28,7 +28,13 @@ export class WidgetConnection {
       </div>
     ) : (
       <div class="connection">
-        <widget-tooltip message={this.walletDetected ? "You must be on a supported network, such as Ropsten" : "We don't detect a wallet, such as Metamask or Coinbase" }>
+        <widget-tooltip
+          message={
+            this.walletDetected
+              ? "You must be on a supported network, such as Ropsten"
+              : "We don't detect a wallet, such as Metamask or Coinbase"
+          }
+        >
           <span class="dot" />
           <span class="status">No Connection</span>
         </widget-tooltip>

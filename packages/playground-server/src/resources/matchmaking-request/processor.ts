@@ -1,4 +1,4 @@
-import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
+import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
 import { getUsers, matchmakeUser } from "../../db";
@@ -12,7 +12,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
 > {
   public resourceClass = MatchmakingRequest;
 
-  @Authorize()
+  // @Authorize()
   protected async add(op: Operation): Promise<MatchmakingRequest> {
     const user = this.app.user as User;
     let matchedUser: MatchedUser;
