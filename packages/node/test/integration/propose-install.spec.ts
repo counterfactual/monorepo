@@ -70,7 +70,7 @@ describe("Node method follows spec - proposeInstall", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(

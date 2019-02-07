@@ -19,7 +19,7 @@ describe("Two nodes can communicate with each other", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can setup listeners for events through messaging service", done => {

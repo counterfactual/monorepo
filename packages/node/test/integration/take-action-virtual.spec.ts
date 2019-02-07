@@ -95,7 +95,7 @@ describe("Node method follows spec - takeAction", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(

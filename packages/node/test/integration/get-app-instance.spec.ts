@@ -63,7 +63,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can accept a valid call to get the desired AppInstance details", async done => {

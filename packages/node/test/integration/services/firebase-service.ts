@@ -17,8 +17,8 @@ export default class TestFirebaseServiceFactory extends FirebaseServiceFactory {
     this.firebaseServer = new FirebaseServer(this.port, this.host);
   }
 
-  async closeServices() {
-    await this.close();
+  async closeServiceConnections() {
+    await this.closeConnection();
     await this.firebaseServer.close();
   }
 }

@@ -88,7 +88,7 @@ describe("Node method follows spec - uninstall", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
   describe(
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +

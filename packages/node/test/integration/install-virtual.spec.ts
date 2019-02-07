@@ -86,7 +86,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +

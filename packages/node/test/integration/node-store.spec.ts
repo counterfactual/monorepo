@@ -41,7 +41,7 @@ describe("Node can use storage service", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {

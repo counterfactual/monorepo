@@ -79,7 +79,7 @@ describe("Node method follows spec - takeAction", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {

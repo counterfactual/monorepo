@@ -71,7 +71,7 @@ describe("Node method follows spec - rejectInstall", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(

@@ -64,7 +64,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can accept a valid call to get empty list of app instances", async () => {

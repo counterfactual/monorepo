@@ -57,7 +57,7 @@ describe("Node can create multisig, other owners get notified", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("Node A can create multisig and sync with Node B on new multisig creation", async () => {

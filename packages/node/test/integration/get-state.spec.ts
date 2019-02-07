@@ -65,7 +65,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   afterAll(() => {
-    firebaseServiceFactory.closeServices();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {

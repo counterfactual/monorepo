@@ -47,7 +47,7 @@ export class FirebaseServiceFactory {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 
-  async close() {
+  async closeConnection() {
     await this.app.delete();
   }
 }
