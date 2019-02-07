@@ -30,7 +30,7 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts",
+    "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts#joel/fix-type-discrepancy",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
     "jsonwebtoken": "^8.4.0",
