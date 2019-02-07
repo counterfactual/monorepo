@@ -26,6 +26,7 @@ const NONCE_EXPIRY = 65536;
 
 /**
  * @description This exchange is described at the following URL:
+ * https://specs.counterfactual.com/09-install-virtual-app-protocol
  */
 export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
