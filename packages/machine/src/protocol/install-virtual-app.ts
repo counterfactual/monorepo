@@ -506,7 +506,7 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.rootNonceValue,
     bigNumberify(ethVirtualAppAgreementInstance.expiry),
     bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
-    [],
+    [AddressZero, AddressZero], // FIXME: @xuanji
     HashZero
   );
 }
