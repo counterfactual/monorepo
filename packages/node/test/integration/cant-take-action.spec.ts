@@ -2,6 +2,7 @@ import {
   Address,
   AppABIEncodings,
   AssetType,
+  NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
@@ -19,17 +20,19 @@ import {
   ProposeMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   EMPTY_NETWORK,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallRequest
+  makeInstallRequest,
+  TEST_NETWORK
 } from "./utils";
 
-describe("Node method follows spec - takeAction", () => {
-  jest.setTimeout(10000);
+describe("Node method follows spec - fails with improper action taken", () => {
+  jest.setTimeout(15000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -39,6 +42,7 @@ describe("Node method follows spec - takeAction", () => {
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
+  let networkContext: NetworkContext;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -55,15 +59,26 @@ describe("Node method follows spec - takeAction", () => {
     const url = `http://localhost:${process.env.GANACHE_PORT}`;
     provider = new JsonRpcProvider(url);
 
+    networkContext = EMPTY_NETWORK;
+    networkContext.MinimumViableMultisig =
+      // @ts-ignore
+      global.networkContext.MinimumViableMultisig;
+
+    networkContext.ProxyFactory =
+      // @ts-ignore
+      global.networkContext.ProxyFactory;
+
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -72,9 +87,10 @@ describe("Node method follows spec - takeAction", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      networkContext
     );
   });
 
