@@ -52,6 +52,9 @@
         "statements": 90
       }
     },
+    "globalSetup": "<rootDir>/test/global-setup.jest.js",
+    "globalTeardown": "<rootDir>/test/global-teardown.jest.js",
+    "testEnvironment": "<rootDir>/test/node-test-environment.js",
     "moduleFileExtensions": [
       "ts",
       "js",

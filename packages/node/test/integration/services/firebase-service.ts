@@ -3,6 +3,7 @@ import FirebaseServer from "firebase-server";
 import { FirebaseServiceFactory } from "../../../src";
 
 export default class TestFirebaseServiceFactory extends FirebaseServiceFactory {
+  firebaseServer: FirebaseServer;
   constructor(private readonly host: string, private readonly port: string) {
     super({
       databaseURL: `ws://${host}:${port}`,
@@ -12,9 +13,12 @@ export default class TestFirebaseServiceFactory extends FirebaseServiceFactory {
       storageBucket: "",
       messagingSenderId: ""
     });
+
+    this.firebaseServer = new FirebaseServer(this.port, this.host);
   }
 
-  createServer() {
-    return new FirebaseServer(this.port, this.host);
+  async closeServices() {
+    this.close();
+    await this.firebaseServer.close();
   }
 }
