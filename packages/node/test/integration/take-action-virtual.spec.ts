@@ -10,7 +10,6 @@ import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BaseProvider, Web3Provider } from "ethers/providers";
 import { bigNumberify, hexlify, randomBytes, SigningKey } from "ethers/utils";
-import FirebaseServer from "firebase-server";
 import ganache from "ganache-core";
 import { v4 as generateUUID } from "uuid";
 
@@ -39,7 +38,6 @@ describe("Node method follows spec - takeAction", () => {
   jest.setTimeout(15000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -57,7 +55,6 @@ describe("Node method follows spec - takeAction", () => {
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -121,7 +118,7 @@ describe("Node method follows spec - takeAction", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServices();
   });
 
   describe(

@@ -47,8 +47,8 @@ export class FirebaseServiceFactory {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 
-  close() {
-    this.app.database().goOffline();
+  async close() {
+    await this.app.delete();
   }
 }
 
