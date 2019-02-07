@@ -46,6 +46,10 @@ export class FirebaseServiceFactory {
   createStoreService(storeServiceKey: string): IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
+
+  async closeConnection() {
+    await this.app.delete();
+  }
 }
 
 class FirebaseMessagingService implements IMessagingService {
