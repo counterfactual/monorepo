@@ -24,7 +24,8 @@ export class Web3Connector {
     ) {
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = provider.getSigner();
-      const ethAddress = web3.currentProvider.selectedAddress;
+      // coinbase does not yet support "web3.currentProvider.selectedAddress"
+      const ethAddress = web3.currentProvider.selectedAddress || web3.eth.accounts[0];
 
       this.accountState.updateAccount!({
         provider,
@@ -40,7 +41,6 @@ export class Web3Connector {
         balance: 0,
         accountBalance: 0
       });
-
       this.networkState.updateNetwork!({
         network: web3.version.network,
         connected: true,
