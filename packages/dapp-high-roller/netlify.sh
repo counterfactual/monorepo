@@ -9,7 +9,7 @@
 
 npm i -g yarn@1.10.1
 
-packages="contracts types cf.js node-provider dapp-high-roller"
+packages="contracts types node-provider cf.js dapp-high-roller"
 
 cd ../..
 
@@ -17,5 +17,9 @@ for package in $packages; do
   echo ">>> Building package: $package"
   cd packages/$package
   yarn build
+    if [ "$?" != "0" ]
+  then
+    exit $?;
+  fi
   cd ../..
 done
