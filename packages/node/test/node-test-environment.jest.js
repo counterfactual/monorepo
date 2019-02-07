@@ -12,11 +12,11 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    const addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
-    if (!addresses) {
-      throw new Error("Contract addresses not found");
+    const networkContext = readFileSync(path.join(DIR, "addresses"), "utf8");
+    if (!networkContext) {
+      throw new Error("Network context not found");
     }
-    this.global.contractAddresses = JSON.parse(addresses);
+    this.global.networkContext = JSON.parse(networkContext);
   }
 
   async teardown() {

@@ -54,10 +54,10 @@ module.exports = async () => {
   ).deploy();
 
   mkdirp.sync(DIR);
-  const addresses = {
+  const networkContext = {
     MinimumViableMultisigAddress: mvmContract.address,
     ProxyFactoryAddress: proxyFactoryContract.address,
     TicTacToeAddress: tttContract.address
   };
-  fs.writeFileSync(path.join(DIR, "addresses"), JSON.stringify(addresses));
+  fs.writeFileSync(path.join(DIR, "addresses"), JSON.stringify(networkContext));
 };
