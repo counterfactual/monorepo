@@ -16,7 +16,9 @@ export class Web3Connector {
       await web3.currentProvider.enable();
     } catch {}
 
-    if (web3.currentProvider) {
+    const permittedNetworkIds = ["3"];
+    
+    if (web3.currentProvider && permittedNetworkIds.includes(web3.version.network)) {
       const provider = new ethers.providers.Web3Provider(web3.currentProvider);
       const signer = provider.getSigner();
       const ethAddress = web3.currentProvider.selectedAddress;
@@ -38,11 +40,13 @@ export class Web3Connector {
 
       this.networkState.updateNetwork!({
         network: web3.version.network,
-        connected: true
+        connected: true,
+        walletDetected: true
       });
     } else {
       this.networkState.updateNetwork!({
-        connected: false
+        connected: false,
+        walletDetected: !!web3.currentProvider
       });
     }
   }
