@@ -1,9 +1,9 @@
-const NodeJSEnvironment = require('jest-environment-node');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const { readFileSync } = require("fs");
+const NodeJSEnvironment = require("jest-environment-node");
+const os = require("os");
+const path = require("path");
 
-const DIR = path.join(os.tmpdir(), 'jest_ganache_global_setup');
+const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 class NodeEnvironment extends NodeJSEnvironment {
   constructor(config) {
@@ -12,9 +12,9 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    let addresses = fs.readFileSync(path.join(DIR, 'addresses'), 'utf8');
+    const addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
     if (!addresses) {
-      throw new Error('Contract addresses not found');
+      throw new Error("Contract addresses not found");
     }
     this.global.contractAddresses = JSON.parse(addresses);
   }
