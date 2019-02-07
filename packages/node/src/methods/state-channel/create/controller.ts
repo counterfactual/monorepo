@@ -1,8 +1,16 @@
+import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { Address, Node } from "@counterfactual/types";
-import { Wallet } from "ethers";
+import { Contract, Signer } from "ethers";
+import { Interface } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
+import { ERRORS } from "../../errors";
+
+// ProxyFactory.createProxy uses assembly `call` so we can't estimate
+// gas needed, so we hard-code this number to ensure the tx completes
+const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
@@ -15,7 +23,12 @@ export default async function createChannelController(
   requestHandler: RequestHandler,
   params: Node.CreateChannelParams
 ): Promise<Node.CreateChannelResult> {
-  const multisigAddress = generateNewMultisigAddress(params.owners);
+  const multisigAddress = await deployMinimumViableMultisigAndGetAddress(
+    params.owners,
+    requestHandler.wallet,
+    requestHandler.networkContext.MinimumViableMultisig,
+    requestHandler.networkContext.ProxyFactory
+  );
 
   const [respondingAddress] = params.owners.filter(
     owner => owner !== requestHandler.publicIdentifier
@@ -54,8 +67,36 @@ export default async function createChannelController(
   };
 }
 
-function generateNewMultisigAddress(owners: Address[]): Address {
-  // FIXME: Even before CREATE2 this is incorrect
+async function deployMinimumViableMultisigAndGetAddress(
+  owners: Address[],
+  signer: Signer,
+  multisigMasterCopyAddress: Address,
+  proxyFactoryAddress: Address
+): Promise<Address> {
   // TODO: implement this using CREATE2
-  return Wallet.createRandom().address;
+  const proxyFactory = new Contract(
+    proxyFactoryAddress,
+    ProxyFactory.abi,
+    signer
+  );
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      proxyFactory.once("ProxyCreation", async proxy => {
+        resolve(proxy);
+      });
+
+      // TODO: implement retry around this with exponential backoff on the
+      // gas limit to increase probability of proxy getting created
+      await proxyFactory.functions.createProxy(
+        multisigMasterCopyAddress,
+        new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+          owners
+        ]),
+        { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
+      );
+    } catch (e) {
+      reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${e}`);
+    }
+  });
 }
