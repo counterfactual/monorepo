@@ -13,7 +13,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
   public resourceClass = MatchmakingRequest;
 
   @Authorize()
-  protected async add(op: Operation): Promise<MatchmakingRequest> {
+  public async add(op: Operation): Promise<MatchmakingRequest> {
     const user = this.app.user as User;
     let matchedUser: MatchedUser;
 

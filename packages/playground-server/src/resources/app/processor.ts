@@ -10,7 +10,7 @@ import App from "./resource";
 export default class AppProcessor extends OperationProcessor<App> {
   public resourceClass = App;
 
-  protected async get(op: Operation): Promise<App[]> {
+  public async get(op: Operation): Promise<App[]> {
     try {
       const registry = JSON.parse(
         fs
