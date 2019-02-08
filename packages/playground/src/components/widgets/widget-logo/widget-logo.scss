@@ -31,4 +31,14 @@
     font-size: 0.7rem;
     padding: 0 $rhythm;
   }
+
+  span {
+    @include f-logo;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 0 $rhythm;
+  }
 }
