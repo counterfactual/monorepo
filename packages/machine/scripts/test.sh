@@ -32,7 +32,7 @@ export DEV_GANACHE_MNEMONIC=$(
   "brain surround have swap horror body response double fire dumb bring hazard"
 )
 
-if [[ $(command -v lsof) && $(lsof -ti :{DEV_GANACHE_PORT}) ]]
+if [[ $(command -v lsof) && $(lsof -ti :${DEV_GANACHE_PORT}) ]]
 then
   echo "Detected a process (probably an existing ganache instance) listening on ${DEV_GANACHE_PORT}. Exiting."
   exit 1

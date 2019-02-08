@@ -58,6 +58,8 @@ export default class App extends Component {
           matchmakeWith: playgroundState.matchmakeWith,
           connected: true
         });
+
+        window.ga('set', 'userId', playgroundState.user.id);
       }
     });
 
