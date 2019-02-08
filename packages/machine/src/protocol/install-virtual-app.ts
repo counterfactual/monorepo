@@ -223,6 +223,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
     leftETHVirtualAppAgreementInstance,
+    targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
@@ -344,6 +345,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   // S6
   const newStateChannel1 = channelWithInitiating.installETHVirtualAppAgreementInstance(
     leftEthVirtualAppAgreementInstance,
+    targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
@@ -354,6 +356,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
   const newStateChannel2 = channelWithResponding.installETHVirtualAppAgreementInstance(
     leftEthVirtualAppAgreementInstance,
+    targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
@@ -426,6 +429,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
     rightEthVirtualAppAgreementInstance,
+    targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );

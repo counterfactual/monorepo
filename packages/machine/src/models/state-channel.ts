@@ -281,6 +281,7 @@ export class StateChannel {
 
   public installETHVirtualAppAgreementInstance(
     evaaInstance: ETHVirtualAppAgreementInstance,
+    targetIdentityHash: string,
     aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
   ) {
@@ -313,8 +314,7 @@ export class StateChannel {
       this.ethVirtualAppAgreementInstances.entries()
     );
 
-    // todo(xuanji: what key?)
-    evaaInstances.set("", evaaInstance);
+    evaaInstances.set(targetIdentityHash, evaaInstance);
 
     return new StateChannel(
       this.multisigAddress,
