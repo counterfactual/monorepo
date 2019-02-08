@@ -55,7 +55,7 @@ function getContractAddressesForNetwork(
 ): NetworkContext {
   return {
     AppRegistry: getContractAddress(migrations, "AppRegistry"),
-    ETHBalanceRefund: getContractAddress(migrations, "ETHBalanceRefund"),
+    ETHBalanceRefund: getContractAddress(migrations, "ETHBalanceRefundApp"),
     ETHBucket: getContractAddress(migrations, "ETHBucket"),
     MultiSend: getContractAddress(migrations, "MultiSend"),
     NonceRegistry: getContractAddress(migrations, "NonceRegistry"),
