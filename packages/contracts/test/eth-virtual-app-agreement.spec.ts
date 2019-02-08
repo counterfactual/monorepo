@@ -155,74 +155,72 @@ describe("ETHVirtualAppAgreement", () => {
     );
   });
 
-  describe("ETHVirtualAppAgreement", () => {
-    it("succeeds with a valid resolution and elapsed lockup period", async () => {
-      const beneficiaries = await delegatecallVirtualAppAgreement(
+  it("succeeds with a valid resolution and elapsed lockup period", async () => {
+    const beneficiaries = await delegatecallVirtualAppAgreement(
+      virtualAppAgreement,
+      appRegistry,
+      appIdentityHash,
+      0,
+      bigNumberify(10),
+      0
+    );
+    expect(await provider.getBalance(beneficiaries[0])).to.eq(
+      bigNumberify(5)
+    );
+    expect(await provider.getBalance(beneficiaries[1])).to.eq(
+      bigNumberify(5)
+    );
+  });
+
+  it("fails with invalid resolution target", async () => {
+    await expect(
+      delegatecallVirtualAppAgreement(
+        virtualAppAgreement,
+        appRegistry,
+        HashZero,
+        0,
+        bigNumberify(10),
+        0
+      )
+    ).to.be.reverted;
+  });
+
+  it("fails if called before agreement expiry", async () => {
+    await expect(
+      delegatecallVirtualAppAgreement(
+        virtualAppAgreement,
+        appRegistry,
+        appIdentityHash,
+        (await provider.getBlockNumber()) + 10,
+        bigNumberify(10),
+        0
+      )
+    ).to.be.revertedWith("Delegate call failed.");
+  });
+
+  it("fails if resolution value is larger than capital provided", async () => {
+    await expect(
+      delegatecallVirtualAppAgreement(
+        virtualAppAgreement,
+        appRegistry,
+        appIdentityHash,
+        0,
+        bigNumberify(2),
+        0
+      )
+    ).to.be.revertedWith("Delegate call failed.");
+  });
+
+  it("fails if resolution returns different token type", async () => {
+    await expect(
+      delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
         appIdentityHash,
         0,
         bigNumberify(10),
-        0
-      );
-      expect(await provider.getBalance(beneficiaries[0])).to.eq(
-        bigNumberify(5)
-      );
-      expect(await provider.getBalance(beneficiaries[1])).to.eq(
-        bigNumberify(5)
-      );
-    });
-
-    it("fails with invalid resolution target", async () => {
-      await expect(
-        delegatecallVirtualAppAgreement(
-          virtualAppAgreement,
-          appRegistry,
-          HashZero,
-          0,
-          bigNumberify(10),
-          0
-        )
-      ).to.be.reverted;
-    });
-
-    it("fails if called before agreement expiry", async () => {
-      await expect(
-        delegatecallVirtualAppAgreement(
-          virtualAppAgreement,
-          appRegistry,
-          appIdentityHash,
-          (await provider.getBlockNumber()) + 10,
-          bigNumberify(10),
-          0
-        )
-      ).to.be.revertedWith("Delegate call failed.");
-    });
-
-    it("fails if resolution value is larger than capital provided", async () => {
-      await expect(
-        delegatecallVirtualAppAgreement(
-          virtualAppAgreement,
-          appRegistry,
-          appIdentityHash,
-          0,
-          bigNumberify(2),
-          0
-        )
-      ).to.be.revertedWith("Delegate call failed.");
-    });
-
-    it("fails if resolution returns different token type", async () => {
-      await expect(
-        delegatecallVirtualAppAgreement(
-          virtualAppAgreement,
-          appRegistry,
-          appIdentityHash,
-          0,
-          bigNumberify(10),
-          1
-        )
-      ).to.be.revertedWith("Delegate call failed.");
-    });
+        1
+      )
+    ).to.be.revertedWith("Delegate call failed.");
   });
 });
