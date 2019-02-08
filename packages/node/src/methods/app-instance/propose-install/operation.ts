@@ -22,7 +22,7 @@ export async function createProposedAppInstance(
     store
   );
 
-  const proposedAppInstance = new ProposedAppInstanceInfo(
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
       ...params,
       proposedByIdentifier: myIdentifier
@@ -30,7 +30,7 @@ export async function createProposedAppInstance(
     channel
   );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstance);
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 
-  return proposedAppInstance.id;
+  return proposedAppInstanceInfo.id;
 }

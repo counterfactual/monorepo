@@ -315,19 +315,19 @@ export class Store {
   public async getProposedAppInstanceInfo(
     appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
-    const proposedAppInstance = await this.storeService.get(
+    const proposedAppInstanceInfo = await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
 
-    if (!proposedAppInstance) {
+    if (!proposedAppInstanceInfo) {
       return Promise.reject(
         ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
 
-    return ProposedAppInstanceInfo.fromJson(proposedAppInstance);
+    return ProposedAppInstanceInfo.fromJson(proposedAppInstanceInfo);
   }
 
   /**
