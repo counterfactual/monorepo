@@ -1,264 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 23.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 288.43 294.69" style="enable-background:new 0 0 288.43 294.69;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#45CECA;}
-	.st1{fill:#FFBC00;}
-	.st2{fill:#EA6868;}
-	.st3{fill:#51BABA;}
-	.st4{fill:#F0B311;}
-	.st5{fill:#DE6263;}
-	.st6{enable-background:new    ;}
-	.st7{fill:#2299CE;}
-	.st8{fill:url(#SVGID_1_);}
-	.st9{fill:url(#SVGID_2_);}
-	.st10{fill:none;}
-	.st11{fill:#FFFFFF;}
-	.st12{filter:url(#Adobe_OpacityMaskFilter);}
-	.st13{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
-	.st14{mask:url(#mask-2_27_);}
-	.st15{fill:url(#SVGID_3_);}
-	.st16{fill:#1395BA;}
-	.st17{fill:#F16C20;}
-	.st18{filter:url(#Adobe_OpacityMaskFilter_1_);}
-	.st19{mask:url(#mask-2_26_);}
-	.st20{fill:#0D3C55;}
-	.st21{fill:#A2B86C;}
-	.st22{filter:url(#Adobe_OpacityMaskFilter_2_);}
-	.st23{mask:url(#mask-2_25_);}
-	.st24{fill:#EBC844;}
-	.st25{fill:#40BCD8;}
-	.st26{fill:#F39237;}
-	.st27{filter:url(#Adobe_OpacityMaskFilter_3_);}
-	.st28{mask:url(#mask-2_24_);}
-	.st29{fill:#D63230;}
-	.st30{fill:#4CC4D6;}
-	.st31{fill:url(#SVGID_4_);}
-	.st32{fill:#FEC40D;}
-	.st33{filter:url(#Adobe_OpacityMaskFilter_4_);}
-	.st34{mask:url(#mask-2_23_);}
-	.st35{fill:url(#SVGID_5_);}
-	.st36{fill:url(#SVGID_6_);}
-	.st37{fill:url(#SVGID_7_);}
-	.st38{filter:url(#Adobe_OpacityMaskFilter_5_);}
-	.st39{mask:url(#mask-2_22_);}
-	.st40{fill:url(#SVGID_8_);}
-	.st41{filter:url(#Adobe_OpacityMaskFilter_6_);}
-	.st42{mask:url(#mask-2_21_);}
-	.st43{filter:url(#Adobe_OpacityMaskFilter_7_);}
-	.st44{mask:url(#mask-2_20_);}
-	.st45{filter:url(#Adobe_OpacityMaskFilter_8_);}
-	.st46{mask:url(#mask-2_19_);}
-	.st47{fill:url(#SVGID_9_);}
-	.st48{filter:url(#Adobe_OpacityMaskFilter_9_);}
-	.st49{mask:url(#mask-2_18_);}
-	.st50{fill:url(#SVGID_10_);}
-	.st51{fill:url(#SVGID_11_);}
-	.st52{fill:url(#SVGID_12_);}
-	.st53{fill:url(#SVGID_13_);}
-	.st54{fill:url(#SVGID_14_);}
-	.st55{fill:url(#SVGID_15_);}
-	.st56{fill:url(#SVGID_16_);}
-	.st57{fill:url(#SVGID_17_);}
-	.st58{fill:url(#SVGID_18_);}
-	.st59{fill:url(#SVGID_19_);}
-	.st60{fill:url(#SVGID_20_);}
-	.st61{fill:url(#SVGID_21_);}
-	.st62{filter:url(#Adobe_OpacityMaskFilter_10_);}
-	.st63{mask:url(#mask-2_12_);}
-	.st64{fill:url(#SVGID_22_);}
-	.st65{fill:url(#SVGID_23_);}
-	.st66{fill:url(#SVGID_24_);}
-	.st67{fill:url(#SVGID_25_);}
-	.st68{fill:url(#SVGID_26_);}
-	.st69{fill:url(#SVGID_27_);}
-	.st70{fill:url(#SVGID_28_);}
-	.st71{fill:url(#SVGID_29_);}
-	.st72{fill:url(#SVGID_30_);}
-	.st73{fill:url(#SVGID_31_);}
-	.st74{fill:url(#SVGID_32_);}
-	.st75{filter:url(#Adobe_OpacityMaskFilter_11_);}
-	.st76{mask:url(#mask-2_11_);}
-	.st77{fill:url(#SVGID_33_);}
-	.st78{clip-path:url(#SVGID_35_);fill:#FFFFFF;}
-	.st79{clip-path:url(#SVGID_35_);}
-	.st80{clip-path:url(#SVGID_37_);}
-	.st81{clip-path:url(#SVGID_39_);}
-	.st82{clip-path:url(#SVGID_43_);}
-	.st83{clip-path:url(#SVGID_45_);}
-	.st84{clip-path:url(#SVGID_49_);}
-	.st85{clip-path:url(#SVGID_51_);}
-	.st86{filter:url(#Adobe_OpacityMaskFilter_12_);}
-	.st87{mask:url(#mask-2_10_);}
-	.st88{fill:url(#SVGID_54_);}
-	.st89{clip-path:url(#SVGID_56_);fill:#FFFFFF;}
-	.st90{clip-path:url(#SVGID_56_);}
-	.st91{clip-path:url(#SVGID_58_);}
-	.st92{clip-path:url(#SVGID_60_);}
-	.st93{clip-path:url(#SVGID_64_);}
-	.st94{clip-path:url(#SVGID_66_);}
-	.st95{clip-path:url(#SVGID_70_);}
-	.st96{clip-path:url(#SVGID_72_);}
-	.st97{filter:url(#Adobe_OpacityMaskFilter_13_);}
-	.st98{mask:url(#mask-2_9_);}
-	.st99{clip-path:url(#SVGID_76_);}
-	.st100{clip-path:url(#SVGID_78_);}
-	.st101{clip-path:url(#SVGID_80_);}
-	.st102{clip-path:url(#SVGID_84_);}
-	.st103{clip-path:url(#SVGID_86_);}
-	.st104{clip-path:url(#SVGID_76_);fill:#EA6868;}
-	.st105{filter:url(#Adobe_OpacityMaskFilter_14_);}
-	.st106{mask:url(#mask-2_8_);}
-	.st107{clip-path:url(#SVGID_90_);}
-	.st108{clip-path:url(#SVGID_92_);}
-	.st109{clip-path:url(#SVGID_94_);}
-	.st110{clip-path:url(#SVGID_98_);}
-	.st111{clip-path:url(#SVGID_100_);}
-	.st112{clip-path:url(#SVGID_90_);fill:#EA6868;}
-	.st113{filter:url(#Adobe_OpacityMaskFilter_15_);}
-	.st114{mask:url(#mask-2_7_);}
-	.st115{filter:url(#Adobe_OpacityMaskFilter_16_);}
-	.st116{mask:url(#mask-2_28_);}
-	.st117{filter:url(#Adobe_OpacityMaskFilter_17_);}
-	.st118{mask:url(#mask-2_13_);}
-	.st119{filter:url(#Adobe_OpacityMaskFilter_18_);}
-	.st120{mask:url(#mask-2_16_);}
-	.st121{filter:url(#Adobe_OpacityMaskFilter_19_);}
-	.st122{mask:url(#mask-2_4_);}
-	.st123{filter:url(#Adobe_OpacityMaskFilter_20_);}
-	.st124{mask:url(#mask-2_15_);}
-	.st125{filter:url(#Adobe_OpacityMaskFilter_21_);}
-	.st126{mask:url(#mask-2_2_);}
-	.st127{filter:url(#Adobe_OpacityMaskFilter_22_);}
-	.st128{mask:url(#mask-2_14_);}
-	.st129{clip-path:url(#SVGID_104_);}
-	.st130{clip-path:url(#SVGID_104_);fill:#F16C20;}
-	.st131{clip-path:url(#SVGID_104_);fill:#0D3C55;}
-	.st132{clip-path:url(#SVGID_106_);}
-	.st133{clip-path:url(#SVGID_106_);fill:#F16C20;}
-	.st134{clip-path:url(#SVGID_106_);fill:#0D3C55;}
-	.st135{clip-path:url(#SVGID_108_);}
-	.st136{filter:url(#Adobe_OpacityMaskFilter_23_);}
-	.st137{mask:url(#mask-2_6_);}
-	.st138{clip-path:url(#SVGID_110_);}
-	.st139{filter:url(#Adobe_OpacityMaskFilter_24_);}
-	.st140{mask:url(#mask-2_31_);}
-	.st141{filter:url(#Adobe_OpacityMaskFilter_25_);}
-	.st142{mask:url(#mask-2_39_);}
-	.st143{filter:url(#Adobe_OpacityMaskFilter_26_);}
-	.st144{mask:url(#mask-2_36_);}
-	.st145{clip-path:url(#SVGID_112_);}
-	.st146{clip-path:url(#SVGID_112_);fill:#F16C20;}
-	.st147{clip-path:url(#SVGID_112_);fill:#0D3C55;}
-	.st148{filter:url(#Adobe_OpacityMaskFilter_27_);}
-	.st149{mask:url(#mask-2_1_);}
-	.st150{clip-path:url(#SVGID_114_);}
-	.st151{clip-path:url(#SVGID_114_);fill:#F16C20;}
-	.st152{clip-path:url(#SVGID_114_);fill:#0D3C55;}
-	.st153{filter:url(#Adobe_OpacityMaskFilter_28_);}
-	.st154{mask:url(#mask-2_30_);}
-	.st155{clip-path:url(#SVGID_116_);}
-	.st156{clip-path:url(#SVGID_116_);fill:#F16C20;}
-	.st157{clip-path:url(#SVGID_116_);fill:#0D3C55;}
-	.st158{filter:url(#Adobe_OpacityMaskFilter_29_);}
-	.st159{mask:url(#mask-2_38_);}
-	.st160{clip-path:url(#SVGID_118_);}
-	.st161{clip-path:url(#SVGID_118_);fill:#F16C20;}
-	.st162{clip-path:url(#SVGID_118_);fill:#0D3C55;}
-	.st163{filter:url(#Adobe_OpacityMaskFilter_30_);}
-	.st164{mask:url(#mask-2_35_);}
-	.st165{clip-path:url(#SVGID_120_);fill:#F16C20;}
-	.st166{clip-path:url(#SVGID_120_);fill:#0D3C55;}
-	.st167{clip-path:url(#SVGID_120_);}
-	.st168{filter:url(#Adobe_OpacityMaskFilter_31_);}
-	.st169{mask:url(#mask-2_37_);}
-	.st170{clip-path:url(#SVGID_122_);fill:#F16C20;}
-	.st171{clip-path:url(#SVGID_122_);fill:#0D3C55;}
-	.st172{clip-path:url(#SVGID_122_);}
-	.st173{filter:url(#Adobe_OpacityMaskFilter_32_);}
-	.st174{mask:url(#mask-2_34_);}
-	.st175{filter:url(#Adobe_OpacityMaskFilter_33_);}
-	.st176{mask:url(#mask-2_49_);}
-	.st177{filter:url(#Adobe_OpacityMaskFilter_34_);}
-	.st178{mask:url(#mask-2_48_);}
-	.st179{filter:url(#Adobe_OpacityMaskFilter_35_);}
-	.st180{mask:url(#mask-2_47_);}
-	.st181{filter:url(#Adobe_OpacityMaskFilter_36_);}
-	.st182{mask:url(#mask-2_46_);}
-	.st183{filter:url(#Adobe_OpacityMaskFilter_37_);}
-	.st184{mask:url(#mask-2_45_);}
-	.st185{filter:url(#Adobe_OpacityMaskFilter_38_);}
-	.st186{mask:url(#mask-2_44_);}
-	.st187{clip-path:url(#SVGID_124_);}
-	.st188{clip-path:url(#SVGID_124_);fill:#F16C20;}
-	.st189{clip-path:url(#SVGID_124_);fill:#0D3C55;}
-	.st190{clip-path:url(#SVGID_126_);}
-	.st191{clip-path:url(#SVGID_126_);fill:#F16C20;}
-	.st192{clip-path:url(#SVGID_126_);fill:#0D3C55;}
-	.st193{clip-path:url(#SVGID_128_);}
-	.st194{filter:url(#Adobe_OpacityMaskFilter_39_);}
-	.st195{mask:url(#mask-2_43_);}
-	.st196{clip-path:url(#SVGID_130_);}
-	.st197{filter:url(#Adobe_OpacityMaskFilter_40_);}
-	.st198{mask:url(#mask-2_42_);}
-	.st199{filter:url(#Adobe_OpacityMaskFilter_41_);}
-	.st200{mask:url(#mask-2_41_);}
-	.st201{filter:url(#Adobe_OpacityMaskFilter_42_);}
-	.st202{mask:url(#mask-2_40_);}
-	.st203{clip-path:url(#SVGID_132_);}
-	.st204{clip-path:url(#SVGID_132_);fill:#F16C20;}
-	.st205{clip-path:url(#SVGID_132_);fill:#0D3C55;}
-	.st206{filter:url(#Adobe_OpacityMaskFilter_43_);}
-	.st207{mask:url(#mask-2_33_);}
-	.st208{clip-path:url(#SVGID_134_);}
-	.st209{clip-path:url(#SVGID_134_);fill:#F16C20;}
-	.st210{clip-path:url(#SVGID_134_);fill:#0D3C55;}
-	.st211{filter:url(#Adobe_OpacityMaskFilter_44_);}
-	.st212{mask:url(#mask-2_32_);}
-	.st213{clip-path:url(#SVGID_136_);}
-	.st214{clip-path:url(#SVGID_136_);fill:#F16C20;}
-	.st215{clip-path:url(#SVGID_136_);fill:#0D3C55;}
-	.st216{filter:url(#Adobe_OpacityMaskFilter_45_);}
-	.st217{mask:url(#mask-2_29_);}
-	.st218{clip-path:url(#SVGID_138_);}
-	.st219{clip-path:url(#SVGID_138_);fill:#F16C20;}
-	.st220{clip-path:url(#SVGID_138_);fill:#0D3C55;}
-	.st221{filter:url(#Adobe_OpacityMaskFilter_46_);}
-	.st222{mask:url(#mask-2_17_);}
-	.st223{clip-path:url(#SVGID_140_);fill:#F16C20;}
-	.st224{clip-path:url(#SVGID_140_);fill:#0D3C55;}
-	.st225{clip-path:url(#SVGID_140_);}
-	.st226{filter:url(#Adobe_OpacityMaskFilter_47_);}
-	.st227{mask:url(#mask-2_5_);}
-	.st228{clip-path:url(#SVGID_142_);fill:#F16C20;}
-	.st229{clip-path:url(#SVGID_142_);fill:#0D3C55;}
-	.st230{clip-path:url(#SVGID_142_);}
-	.st231{filter:url(#Adobe_OpacityMaskFilter_48_);}
-	.st232{mask:url(#mask-2_3_);}
-	.st233{filter:url(#Adobe_OpacityMaskFilter_49_);}
-	.st234{mask:url(#mask-2_50_);}
-</style>
-<g>
-	<path class="st16" d="M201.23,149.44l-60.19,94.33h77.33c10.34,0,18.77-8.43,18.77-18.77c0-103.63,0-155.58,0-155.85
-		c-0.01-0.59-0.01-0.59-0.12-1.77c-0.42-3.81-1.75-7.51-5.29-11.04c-3.54-3.54-7.23-4.87-11.04-5.29c-1.18-0.1-1.18-0.1-2.32-0.12
-		h-78.87l61.69,93.09C202.27,145.65,202.29,147.78,201.23,149.44z"/>
-	<rect x="106.29" y="127.01" class="st17" width="38.35" height="40.74"/>
-	<path class="st17" d="M150.67,114.6c0.39,0.01,0.39,0.01,0.79,0.04c1.29,0.14,2.55,0.6,3.75,1.8c1.2,1.2,1.65,2.46,1.8,3.75
-		c0.03,0.4,0.03,0.4,0.04,0.6c0,0.09,0,17.75,0,52.98c0,3.51-2.87,6.38-6.38,6.38h-36.52l-41.37,63.62h68.25l60.19-94.33
-		c1.06-1.66,1.04-3.79-0.05-5.43l-61.69-93.09H72.42l41.41,63.68H150.67z M178.92,145.17l-16.51-25.34
-		c-0.26-0.27-0.26-0.53-0.18-0.88c0.09-0.44,0.53-0.88,1.06-1.06l8.21-2.91c0.88-0.26,1.94,0.09,2.38,0.71l20.04,30.9l0.09,0.09
-		c0.26,0.35,0.26,0.79,0,1.15l-20.13,30.99c-0.53,0.71-1.5,1.06-2.38,0.71l-8.39-2.83c-0.44-0.18-0.79-0.44-0.97-0.88
-		c-0.09-0.18-0.18-0.62,0.09-1.06l16.69-25.25C179.9,148.17,179.9,146.4,178.92,145.17z"/>
-	<path class="st20" d="M51.3,69.69V225c0,10.35,8.45,18.77,18.77,18.77h2.72l41.37-63.62h-11.62h-2.27c-3.51,0-6.38-2.86-6.38-6.38
-		v-52.79c0-3.51,2.87-6.38,6.38-6.38h2.27h11.3L72.42,50.92h-2.36C59.73,50.92,51.3,59.35,51.3,69.69z"/>
-	<path class="st11" d="M162.24,174.74c-0.26,0.44-0.18,0.88-0.09,1.06c0.18,0.44,0.53,0.71,0.97,0.88l8.39,2.83
-		c0.88,0.35,1.85,0,2.38-0.71l20.13-30.99c0.26-0.35,0.26-0.8,0-1.15l-0.09-0.09l-20.04-30.9c-0.44-0.62-1.5-0.97-2.38-0.71
-		l-8.21,2.91c-0.53,0.18-0.97,0.62-1.06,1.06c-0.09,0.35-0.09,0.62,0.18,0.88l16.51,25.34c0.97,1.24,0.97,3,0,4.33L162.24,174.74z"
-		/>
-	<path class="st11" d="M157.05,173.77c0-35.23,0-52.89,0-52.98c0-0.2,0-0.2-0.04-0.6c-0.14-1.29-0.6-2.55-1.8-3.75
-		c-1.2-1.2-2.46-1.65-3.75-1.8c-0.4-0.03-0.4-0.03-0.79-0.04h-36.84h-11.3h-2.27c-3.51,0-6.38,2.87-6.38,6.38v52.79
-		c0,3.52,2.87,6.38,6.38,6.38h2.27h11.62h36.52C154.19,180.15,157.05,177.29,157.05,173.77z M144.65,167.74h-38.35v-40.74h38.35
-		V167.74z"/>
-</g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>#UI / Components / Brand Icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="70" height="70"></rect>
+        <path d="M4.55,4.55 L4.55,19.4901 L18.6158,19.4901 L18.6158,4.55 L4.55,4.55 Z M23.1658,21.70035 C23.1658,22.9893478 22.1150478,24.0401 20.82605,24.0401 L2.33975,24.0401 C1.05281688,24.0401 0,22.9910702 0,21.70035 L0,2.33975 C0,1.05110219 1.05110219,-8.51076276e-14 2.33975,-8.51076276e-14 L20.82605,-8.51076276e-14 C20.9679765,0.00227356763 20.9679765,0.00227356763 21.1147153,0.0149262224 C21.5895143,0.0676816675 22.0506326,0.233684249 22.4913742,0.674425823 C22.9321158,1.1151674 23.0981183,1.57628568 23.1508738,2.05108468 C23.1635264,2.19782346 23.1635264,2.19782346 23.1651999,2.27195854 C23.1656326,2.30556643 23.1658327,8.78169691 23.1658,21.70035 Z M31.1864,11.21085 L25.1321,1.91905 C25.03515,1.82175 25.03515,1.7248 25.06735,1.5953 C25.0999,1.43325 25.2616,1.27155 25.45585,1.2068 L28.4669,0.13825 C28.79065,0.0413 29.17915,0.1708 29.3412,0.39725 L36.69015,11.72885 L36.7227,11.76105 C36.81965,11.89055 36.81965,12.0526 36.7227,12.1821 L29.3412,23.5459 C29.14695,23.8049 28.79065,23.9344 28.4669,23.8049 L25.3911,22.7689 C25.2294,22.70415 25.0999,22.60685 25.03515,22.44515 C25.0026,22.3804 24.9704,22.21835 25.06735,22.05665 L31.1864,12.79705 C31.5427,12.3116 31.5427,11.6641 31.1864,11.21085 Z" id="path-3"></path>
+    </defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="#UI-/-Components-/-Full-Logo">
+            <g id="#UI-/-Components-/-Brand-Icon-/-Squared">
+                <g>
+                    <g id="Container">
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <use fill="#101010" xlink:href="#path-1"></use>
+                        <g id="#UI-/-🎨Color-/-Dark" mask="url(#mask-2)" fill="#101010">
+                            <g transform="translate(-1.400000, -1.050000)" id="Icon-Shade">
+                                <rect x="0" y="0" width="75.6" height="75.6"></rect>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Icon" transform="translate(16.450000, 23.100000)">
+                        <mask id="mask-4" fill="white">
+                            <use xlink:href="#path-3"></use>
+                        </mask>
+                        <use fill="#5A5858" fill-rule="nonzero" xlink:href="#path-3"></use>
+                        <g id="#UI-/-🎨Color-/-White" mask="url(#mask-4)" fill="#FFFFFF">
+                            <g transform="translate(-1.400000, -8.050000)" id="Icon-Shade">
+                                <rect x="0" y="0" width="40.32" height="40.32"></rect>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
 </svg>
