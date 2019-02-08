@@ -24,7 +24,7 @@ export class LayoutHeader {
       />,
       <header class="header">
         <div class="hide-on-desktop">
-          <a onClick={e => this.openDrawerHandler(e)}>
+          <a class="drawer-toggle" onClick={e => this.openDrawerHandler(e)}>
             <img src="/assets/icon/menu-btn.svg" alt="Menu" />
           </a>
         </div>

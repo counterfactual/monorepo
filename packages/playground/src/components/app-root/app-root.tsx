@@ -106,7 +106,6 @@ export class AppRoot {
                   </stencil-route-switch>
                 </stencil-router>
               </main>
-              <layout-footer />
               <web3-connector
                 accountState={this.accountState}
                 networkState={this.networkState}
