@@ -5,6 +5,7 @@ import {
   JsonApiErrorsDocument
 } from "@ebryn/jsonapi-ts";
 import axios from "axios";
+import { JsonRpcProvider } from "ethers/providers";
 import { readFileSync } from "fs";
 import { Server } from "http";
 import { Log, LogLevel } from "logepi";
@@ -21,6 +22,7 @@ import {
   MNEMONIC_ALICE,
   MNEMONIC_BOB,
   MNEMONIC_CHARLIE,
+  MNEMONIC_PG_SERVER,
   POST_SESSION_CHARLIE,
   POST_SESSION_CHARLIE_SIGNATURE_HEADER,
   POST_USERS_ALICE,
@@ -59,11 +61,50 @@ Log.setOutputLevel(LogLevel.ERROR);
 
 describe("playground-server", () => {
   beforeAll(async () => {
-    await createNodeSingleton();
+    // @ts-ignore
+    const provider = new JsonRpcProvider(global.ganacheURL);
 
-    await createNode(MNEMONIC_ALICE);
-    await createNode(MNEMONIC_BOB);
-    await createNode(MNEMONIC_CHARLIE);
+    // @ts-ignore
+    console.log("ganache url: ", global.ganacheURL);
+
+    console.log("starting test:");
+    console.log(
+      // @ts-ignore
+      global.networkContext
+    );
+
+    await createNodeSingleton(
+      "ganache",
+      // @ts-ignore
+      global.networkContext,
+      provider,
+      MNEMONIC_PG_SERVER
+    );
+
+    const nodeAlice = await createNode(
+      "ganache",
+      // @ts-ignore
+      global.networkContext,
+      provider,
+      MNEMONIC_ALICE
+    );
+    const nodeBob = await createNode(
+      "ganache",
+      // @ts-ignore
+      global.networkContext,
+      provider,
+      MNEMONIC_BOB
+    );
+    const nodeCharlie = await createNode(
+      "ganache",
+      // @ts-ignore
+      global.networkContext,
+      provider,
+      MNEMONIC_CHARLIE
+    );
+
+    expect(nodeAlice).not.toEqual(nodeBob);
+    expect(nodeAlice).not.toEqual(nodeCharlie);
 
     await db.schema.dropTableIfExists("users");
     await db.schema.createTable("users", table => {

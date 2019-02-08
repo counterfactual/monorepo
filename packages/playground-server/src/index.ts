@@ -6,7 +6,7 @@ import { createNodeSingleton } from "./node";
 Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 (async () => {
-  await createNodeSingleton();
+  await createNodeSingleton("ropsten");
 
   const api = mountApi();
   const port = process.env.PORT || 9000;

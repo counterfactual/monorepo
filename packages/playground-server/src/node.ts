@@ -3,9 +3,9 @@ import {
   Node,
   NodeMessage
 } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { BaseProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
@@ -20,35 +20,38 @@ const serviceFactory = new FirebaseServiceFactory({
 });
 
 let node: Node;
-export async function createNodeSingleton(mnemonic?: string): Promise<Node> {
-  return node || (await createNode(mnemonic));
+export async function createNodeSingleton(
+  network: string,
+  networkContext?: NetworkContext,
+  provider?: BaseProvider,
+  mnemonic?: string
+): Promise<Node> {
+  return (
+    node || (await createNode(network, networkContext, provider, mnemonic))
+  );
 }
 
-export async function createNode(mnemonic?: string): Promise<Node> {
-  const store = serviceFactory.createStoreService(generateUUID());
+export async function createNode(
+  network: string,
+  networkContext?: NetworkContext,
+  provider?: BaseProvider,
+  mnemonic?: string
+): Promise<Node> {
+  const store = serviceFactory.createStoreService("pg-server-store");
 
   if (mnemonic) {
     await store.set([{ key: "MNEMONIC", value: mnemonic }]);
   }
 
-  node = await Node.create(
+  const node = await Node.create(
     serviceFactory.createMessagingService("messaging"),
     store,
     {
-      AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero,
-      MinimumViableMultisig: AddressZero,
-      ProxyFactory: AddressZero
-    },
-    {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider(process.env.ETHEREUM_NETWORK || "ropsten")
+    provider || ethers.getDefaultProvider(network),
+    network,
+    networkContext
   );
 
   node.on(INSTALL, async (msg: NodeMessage) => {
@@ -70,7 +73,8 @@ export async function createStateChannelFor(
   userAddress: string
 ): Promise<NodeTypes.CreateChannelResult> {
   if (!node) {
-    node = await createNodeSingleton();
+    console.log("creating node...");
+    node = await createNodeSingleton(process.env.ETHEREUM_NETWORK || "ropsten");
   }
 
   const multisigResponse = await node.call(

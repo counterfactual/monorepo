@@ -24,6 +24,9 @@ export const PK_BOB =
 export const PK_CHARLIE =
   "0x4a138819ac516411432e76db794333eecd66e88926a528e621e31a97f5280c33";
 
+export const MNEMONIC_PG_SERVER =
+  "road arrange episode feel street mom person series guard view eyebrow clinic";
+
 export const MNEMONIC_ALICE =
   "silk nephew betray double salt lottery inmate dragon invite cheap fog raccoon";
 
