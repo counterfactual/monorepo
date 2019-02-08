@@ -3,6 +3,14 @@
   border: 1px solid $c-black;
   font-size: $f-base;
 
+  &.logo--icon-only {
+    border: 0;
+
+    img {
+      padding-right: 1rem;
+    }
+  }
+
   a {
     color: inherit;
     display: flex;

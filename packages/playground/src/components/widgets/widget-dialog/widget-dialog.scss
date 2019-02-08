@@ -18,8 +18,12 @@ dialog {
   padding: 0;
   border: 0;
 
-  widget-logo {
+  header {
     border-bottom: 2px solid $c-blue;
+    padding: 1rem;
+  }
+
+  widget-logo {
     display: block;
 
     & >>> .logo {
