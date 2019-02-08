@@ -3,6 +3,7 @@ import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
+import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
@@ -11,7 +12,7 @@ import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/et
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
@@ -47,6 +48,7 @@ beforeAll(async () => {
 
   const relevantArtifacts = [
     { contractName: "AppRegistry", ...AppRegistry },
+    { contractName: "NonceRegistry", ...NonceRegistry },
     { contractName: "ETHBucket", ...ETHBucket },
     { contractName: "MultiSend", ...MultiSend },
     { contractName: "StateChannelTransaction", ...StateChannelTransaction },
@@ -152,7 +154,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
-        beneficiaries // beneficiaries
+        beneficiaries, // beneficiaries
+        HashZero
       );
 
       const setStateCommitment = new SetStateCommitment(

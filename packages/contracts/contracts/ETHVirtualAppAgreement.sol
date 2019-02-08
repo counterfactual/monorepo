@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "./libs/Transfer.sol";
 import "./AppRegistry.sol";
+import "./NonceRegistry.sol";
 
 
 /// @title ETHVirtualAppAgreement
@@ -26,11 +27,13 @@ contract ETHVirtualAppAgreement {
   // at link time?
   struct Agreement {
     AppRegistry registry;
+    NonceRegistry nonceRegistry;
     Transfer.Terms terms;
     uint256 expiry;
     bytes32 appIdentityHash;
     uint256 capitalProvided;
     address[2] beneficiaries;
+    bytes32 uninstallKey;
   }
 
   function delegateTarget(Agreement memory agreement) public {
@@ -55,6 +58,11 @@ contract ETHVirtualAppAgreement {
     require(
       agreement.capitalProvided > resolution.value[0],
       "returned incompatible resolution"
+    );
+
+    require(
+      !agreement.nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(agreement.uninstallKey, 1),
+      "Virtual app agreement has been uninstalled"
     );
 
     uint256[] memory amount = new uint256[](2);

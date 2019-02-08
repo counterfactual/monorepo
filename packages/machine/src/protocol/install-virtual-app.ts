@@ -472,6 +472,7 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.rootNonceValue,
     new BigNumber(ethVirtualAppAgreementInstance.expiry),
     new BigNumber(ethVirtualAppAgreementInstance.capitalProvided),
-    []
+    [],
+    HashZero
   );
 }
