@@ -192,9 +192,10 @@ export default class PlaygroundAPIClient {
     try {
       return await post(
         "matchmaking-requests",
-        matchmakeWith
-          ? { type: "matchmaking-request", attributes: { matchmakeWith } }
-          : ({} as APIResource<APIResourceAttributes>),
+        {
+          type: "matchmakingRequest",
+          attributes: matchmakeWith ? { matchmakeWith } : {}
+        },
         token,
         "Bearer"
       );
