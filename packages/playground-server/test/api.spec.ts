@@ -14,7 +14,7 @@ import { resolve } from "path";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
+import NodeWrapper from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
@@ -59,46 +59,38 @@ const db = getDatabase();
 
 Log.setOutputLevel(LogLevel.ERROR);
 
+const GANACHE_URL = global["ganacheURL"];
+const NETWORK_CONTEXT = global["networkContext"];
+
 describe("playground-server", () => {
   beforeAll(async () => {
-    // @ts-ignore
-    const provider = new JsonRpcProvider(global.ganacheURL);
-
-    // @ts-ignore
-    console.log("ganache url: ", global.ganacheURL);
-
+    const provider = new JsonRpcProvider(GANACHE_URL);
+    console.log("ganache url: ", GANACHE_URL);
     console.log("starting test:");
-    console.log(
-      // @ts-ignore
-      global.networkContext
-    );
+    console.log(NETWORK_CONTEXT);
 
-    await createNodeSingleton(
+    await NodeWrapper.createNodeSingleton(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
       MNEMONIC_PG_SERVER
     );
 
-    const nodeAlice = await createNode(
+    const nodeAlice = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
       MNEMONIC_ALICE
     );
-    const nodeBob = await createNode(
+    const nodeBob = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
       MNEMONIC_BOB
     );
-    const nodeCharlie = await createNode(
+    const nodeCharlie = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
       MNEMONIC_CHARLIE
     );
@@ -446,7 +438,7 @@ describe("playground-server", () => {
       expect(data.type).toEqual("matchmakingRequest");
       expect(data.id).toBeDefined();
       expect(data.attributes).toEqual({
-        intermediary: getNodeAddress(),
+        intermediary: NodeWrapper.getNodeAddress(),
         username: USR_ALICE.username,
         ethAddress: USR_ALICE.ethAddress,
         nodeAddress: USR_ALICE.nodeAddress
