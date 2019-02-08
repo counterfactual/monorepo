@@ -28,7 +28,8 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly rootNonceValue: number,
     public readonly expiry: BigNumber,
     public readonly capitalProvided: BigNumber,
-    public readonly beneficiaries: string[]
+    public readonly beneficiaries: string[],
+    public readonly uninstallKey: string
   ) {
     super(
       networkContext,
@@ -56,6 +57,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.AppRegistry,
+          nonceRegistry: this.networkContext.NonceRegistry,
           terms: {
             assetType: AssetType.ETH,
             limit: new BigNumber(0),
@@ -64,7 +66,8 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
           expiry: this.expiry,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
-          beneficiaries: this.beneficiaries
+          beneficiaries: this.beneficiaries,
+          uninstallKey: this.uninstallKey
         }
       ]),
       operation: MultisigOperation.DelegateCall
