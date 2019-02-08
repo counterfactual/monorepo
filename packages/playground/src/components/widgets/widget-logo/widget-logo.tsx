@@ -11,6 +11,7 @@ export class WidgetLogo {
       <h1 class="logo">
         <stencil-route-link url="/">
           <img src="/assets/icon/logo.svg" alt="Counterfactual" />
+          <span>Playground</span>
         </stencil-route-link>
       </h1>
     );
