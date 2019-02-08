@@ -1,3 +1,5 @@
+declare var ga: any;
+
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -89,6 +91,8 @@ export class AccountRegister {
         "playground:user:token",
         newAccount.token as string
       );
+
+      ga("set", "userId", newAccount.token);
 
       this.history.push("/deposit");
     } catch (e) {
