@@ -1,0 +1,81 @@
+{
+  "name": "@counterfactual/playground-bot",
+  "version": "0.0.1",
+  "description": "A bot for the Playground app.",
+  "author": "Counterfactual",
+  "homepage": "https://github.com/counterfactual/monorepo",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "directories": {
+    "lib": "src",
+    "test": "tests"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/counterfactual/monorepo.git"
+  },
+  "scripts": {
+    "build": "echo 'No build necessary'",
+    "lint": "tslint -c tslint.json -p .",
+    "start": "node src/",
+    "test": "env-cmd test jest --forceExit"
+  },
+  "bugs": {
+    "url": "https://github.com/counterfactual/monorepo/issues"
+  },
+  "dependencies": {
+    "eventemitter3": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^3.4.4",
+    "env-cmd": "^8.0.2",
+    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "jest": "^24.0.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.2",
+    "uuid": "^3.3.2"
+  },
+  "jest": {
+    "bail": true,
+    "cacheDirectory": "jest-cache",
+    "coverageDirectory": "jest-coverage",
+    "coveragePathIgnorePatterns": [
+      "test"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "rootDir": ".",
+    "roots": [
+      "test"
+    ],
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "dist"
+    ],
+    "testEnvironment": "node",
+    "testRegex": "\\.spec.(jsx?|tsx?)$",
+    "testURL": "http://localhost/",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "verbose": false
+  }
+}

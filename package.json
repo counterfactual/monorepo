@@ -12,6 +12,7 @@
       "packages/node",
       "packages/node-provider",
       "packages/playground",
+      "packages/high-roller-bot",
       "packages/types",
       "packages/typescript-typings"
     ],
