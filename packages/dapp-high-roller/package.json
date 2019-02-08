@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "netlify": "sh netlify.sh",
-    "build": "stencil build",
+    "build": "stencil build && cp src/_redirects www/_redirects",
     "start": "stencil build --dev --watch --serve",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
