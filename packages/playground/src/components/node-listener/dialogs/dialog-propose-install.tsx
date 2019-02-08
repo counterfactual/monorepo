@@ -18,9 +18,9 @@ export class DialogProposeInstall {
   @State() user: UserSession = {} as UserSession;
 
   async componentWillLoad() {
-    if (this.message.from) {
-      this.user = await PlaygroundAPIClient.getUserByEthAddress(
-        this.message.from
+    if (this.message.data) {
+      this.user = await PlaygroundAPIClient.getUserByNodeAddress(
+        this.message.data.initiatingAddress
       );
     }
   }
