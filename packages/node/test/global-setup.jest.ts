@@ -42,6 +42,7 @@ module.exports = async () => {
       {
         balance: "120000000000000000",
         secretKey: privateKeyC
+
       }
     ]
   });
@@ -49,6 +50,7 @@ module.exports = async () => {
   global.ganacheServer = server;
   server.listen(parseInt(process.env.GANACHE_PORT!, 10));
   const provider = new Web3Provider(server.provider);
+
   const wallet = new Wallet(privateKeyA, provider);
 
   fs.writeFileSync(
