@@ -383,7 +383,6 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    multisig2Address,
     initiatingAddress,
     respondingAddress,
     intermediaryAddress
@@ -433,7 +432,10 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
-  context.stateChannelsMap.set(multisig2Address, newStateChannel);
+  context.stateChannelsMap.set(
+    channelWithIntermediary.multisigAddress,
+    newStateChannel
+  );
 
   // s4
   context.commitments[0] = constructETHVirtualAppAgreementCommitment(
