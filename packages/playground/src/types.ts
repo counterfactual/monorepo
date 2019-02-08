@@ -63,7 +63,7 @@ export type APIResourceAttributes = {
 
 export type APIResourceType =
   | "user"
-  | "matchmaking-request"
+  | "matchmakingRequest"
   | "matchedUser"
   | "session"
   | "app";
