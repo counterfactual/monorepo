@@ -215,7 +215,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: ""
     },
-    channelWithIntermediary.numInstalledApps + 1,
+    channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
@@ -306,7 +306,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
-    channelWithInitiating.numInstalledApps + 1,
+    channelWithInitiating.numInstalledApps,
     channelWithInitiating.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
@@ -319,7 +319,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
-    channelWithResponding.numInstalledApps + 1,
+    channelWithResponding.numInstalledApps,
     channelWithResponding.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
@@ -418,7 +418,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
       limit: respondingBalanceDecrement,
       token: AddressZero
     },
-    channelWithIntermediary.numInstalledApps + 1,
+    channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
