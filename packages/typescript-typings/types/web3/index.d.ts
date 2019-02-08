@@ -3,6 +3,7 @@
 declare var web3: {
   BigNumber: (num: string) => void;
   eth: {
+    accounts: [string];
     defaultBlock: number | string;
     getBalance: (
       address: string,
