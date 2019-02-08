@@ -127,7 +127,7 @@ export class AppRoot {
   updateAccount(account: any) {
     this.state = { ...this.state, account };
 
-    ga('set', 'userId', account.user.id);
+    ga("set", "userId", account.user.id);
   }
 
   updateOpponent(opponent: any) {

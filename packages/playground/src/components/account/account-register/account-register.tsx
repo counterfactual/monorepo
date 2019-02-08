@@ -92,7 +92,7 @@ export class AccountRegister {
         newAccount.token as string
       );
 
-      ga('set', 'userId', newAccount.token);
+      ga("set", "userId", newAccount.token);
 
       this.history.push("/deposit");
     } catch (e) {
