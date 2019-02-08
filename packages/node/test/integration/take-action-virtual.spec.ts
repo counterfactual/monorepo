@@ -21,6 +21,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
@@ -30,7 +31,6 @@ import {
   makeInstallVirtualRequest,
   TEST_NETWORK
 } from "./utils";
-import { MNEMONIC_PATH } from "../../src/signer";
 
 describe("Node method follows spec - takeAction", () => {
   jest.setTimeout(20000);

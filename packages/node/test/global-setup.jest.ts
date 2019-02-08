@@ -42,7 +42,6 @@ module.exports = async () => {
       {
         balance: "120000000000000000",
         secretKey: privateKeyC
-
       }
     ]
   });
