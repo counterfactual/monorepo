@@ -201,6 +201,10 @@ export class Node {
 
         const msg = await this.ioSendDeferrals[to].promise;
 
+        // Removes the deferral from the list of pending defferals after
+        // its promise has been resolved and the necessary callback (above)
+        // has been called. Note that, as is, only one defferal can be open
+        // per counterparty at the moment.
         delete this.ioSendDeferrals[to];
 
         context.inbox.push(msg.data);
