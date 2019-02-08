@@ -44,9 +44,9 @@
 
     <script>
       window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-      ga('create', 'UA-114409337-5', 'auto', 'playground');
+      ga('create', 'UA-114409337-5', 'auto');
       
-      const userId = window.localStorage.setItem("playground:user:token")
+      const userId = window.localStorage.getItem("playground:user:token")
 
       if (userId) {
         ga('set', 'userId', userId);
