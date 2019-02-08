@@ -10,6 +10,7 @@ import {
 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
+import NonceRegistry from "../build/NonceRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
 import ETHVirtualAppAgreement from "../build/ETHVirtualAppAgreement.json";
 import ResolveToPay5WeiApp from "../build/ResolveToPay5WeiApp.json";
@@ -22,6 +23,7 @@ describe("ETHVirtualAppAgreement", () => {
   let wallet: Wallet;
 
   let appRegistry: Contract;
+  let nonceRegistry: Contract;
   let virtualAppAgreement: Contract;
   let fixedResolutionApp: Contract;
   let appIdentityHash: string;
@@ -31,6 +33,7 @@ describe("ETHVirtualAppAgreement", () => {
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
+    nonceRegistry: Contract,
     resolutionAddr: string,
     expiry: number,
     capitalProvided: BigNumber,
@@ -54,12 +57,14 @@ describe("ETHVirtualAppAgreement", () => {
         expiry,
         capitalProvided,
         registry: appRegistry.address,
+        nonceRegistry: nonceRegistry.address,
         terms: {
           assetType,
           limit: 0,
           token: AddressZero
         },
-        appIdentityHash: resolutionAddr
+        appIdentityHash: resolutionAddr,
+        uninstallKey: HashZero
       }
     ]);
 
@@ -93,6 +98,8 @@ describe("ETHVirtualAppAgreement", () => {
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
     });
+
+    nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
 
     fixedResolutionApp = await waffle.deployContract(
       wallet,
@@ -159,6 +166,7 @@ describe("ETHVirtualAppAgreement", () => {
     const beneficiaries = await delegatecallVirtualAppAgreement(
       virtualAppAgreement,
       appRegistry,
+      nonceRegistry,
       appIdentityHash,
       0,
       bigNumberify(10),
@@ -177,6 +185,7 @@ describe("ETHVirtualAppAgreement", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
+        nonceRegistry,
         HashZero,
         0,
         bigNumberify(10),
@@ -190,6 +199,7 @@ describe("ETHVirtualAppAgreement", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
+        nonceRegistry,
         appIdentityHash,
         (await provider.getBlockNumber()) + 10,
         bigNumberify(10),
@@ -203,6 +213,7 @@ describe("ETHVirtualAppAgreement", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
+        nonceRegistry,
         appIdentityHash,
         0,
         bigNumberify(2),
@@ -216,6 +227,7 @@ describe("ETHVirtualAppAgreement", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
+        nonceRegistry,
         appIdentityHash,
         0,
         bigNumberify(10),
