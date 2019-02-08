@@ -19,6 +19,8 @@ import {
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 
+import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
+
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;
 
@@ -169,7 +171,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    multisig1Address,
     initiatingAddress,
     respondingAddress,
     intermediaryAddress
@@ -189,27 +190,40 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     targetAppInstance
   );
 
+  const channelWithIntermediary = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    initiatingAddress,
+    intermediaryAddress
+  );
+
+  if (!channelWithIntermediary) {
+    throw Error(
+      "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
+    );
+  }
+
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
-    context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
+    channelWithIntermediary.multisigAddress,
     {
       assetType: 0,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: ""
     },
-    context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
-    context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
+    channelWithIntermediary.numInstalledApps + 1,
+    channelWithIntermediary.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
-  const newStateChannel = context.stateChannelsMap
-    .get(multisig1Address)!
-    .installETHVirtualAppAgreementInstance(
-      leftETHVirtualAppAgreementInstance,
-      initiatingBalanceDecrement,
-      respondingBalanceDecrement
-    );
-  context.stateChannelsMap.set(multisig1Address, newStateChannel);
+  const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
+    leftETHVirtualAppAgreementInstance,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement
+  );
+  context.stateChannelsMap.set(
+    channelWithIntermediary.multisigAddress,
+    newStateChannel
+  );
 
   context.commitments[0] = constructETHVirtualAppAgreementCommitment(
     context.network,
@@ -230,8 +244,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
-    multisig1Address,
-    multisig2Address,
     signingKeys,
     defaultTimeout,
     appInterface,
@@ -257,28 +269,52 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     targetAppInstance
   );
 
+  const channelWithInitiating = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    intermediaryAddress,
+    initiatingAddress
+  );
+
+  if (!channelWithInitiating) {
+    throw Error(
+      "Cannot mediate InstallVirtualAppProtocol without mediation channel to initiating"
+    );
+  }
+
+  const channelWithResponding = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    intermediaryAddress,
+    respondingAddress
+  );
+
+  if (!channelWithResponding) {
+    throw Error(
+      "Cannot mediate InstallVirtualAppProtocol without mediation channel to responding"
+    );
+  }
+
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
-    context.stateChannelsMap.get(multisig1Address)!.multisigAddress,
+    channelWithInitiating.multisigAddress,
     {
       assetType: 0,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
-    context.stateChannelsMap.get(multisig1Address)!.numInstalledApps + 1,
-    context.stateChannelsMap.get(multisig1Address)!.rootNonceValue,
+    channelWithInitiating.numInstalledApps + 1,
+    channelWithInitiating.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
-    context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
+    channelWithResponding.multisigAddress,
     {
       assetType: 0,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
-    context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
-    context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
+    channelWithResponding.numInstalledApps + 1,
+    channelWithResponding.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
@@ -286,7 +322,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   // S2
   context.commitments[0] = constructETHVirtualAppAgreementCommitment(
     context.network,
-    context.stateChannelsMap.get(multisig1Address)!,
+    channelWithInitiating,
     targetAppInstance.identityHash,
     leftEthVirtualAppAgreementInstance
   );
@@ -294,29 +330,31 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   // S3
   context.commitments[1] = constructETHVirtualAppAgreementCommitment(
     context.network,
-    context.stateChannelsMap.get(multisig1Address)!,
+    channelWithInitiating,
     targetAppInstance.identityHash,
     rightEthVirtualAppAgreementInstance
   );
 
   // S6
-  const newStateChannel1 = context.stateChannelsMap
-    .get(multisig1Address)!
-    .installETHVirtualAppAgreementInstance(
-      leftEthVirtualAppAgreementInstance,
-      initiatingBalanceDecrement,
-      respondingBalanceDecrement
-    );
-  context.stateChannelsMap.set(multisig1Address, newStateChannel1);
+  const newStateChannel1 = channelWithInitiating.installETHVirtualAppAgreementInstance(
+    leftEthVirtualAppAgreementInstance,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement
+  );
+  context.stateChannelsMap.set(
+    channelWithInitiating.multisigAddress,
+    newStateChannel1
+  );
 
-  const newStateChannel2 = context.stateChannelsMap
-    .get(multisig2Address)!
-    .installETHVirtualAppAgreementInstance(
-      leftEthVirtualAppAgreementInstance,
-      initiatingBalanceDecrement,
-      respondingBalanceDecrement
-    );
-  context.stateChannelsMap.set(multisig2Address, newStateChannel2);
+  const newStateChannel2 = channelWithResponding.installETHVirtualAppAgreementInstance(
+    leftEthVirtualAppAgreementInstance,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement
+  );
+  context.stateChannelsMap.set(
+    channelWithResponding.multisigAddress,
+    newStateChannel2
+  );
 
   context.commitments[2] = new VirtualAppSetStateCommitment(
     context.network,
@@ -355,26 +393,36 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     targetAppInstance
   );
 
+  const channelWithIntermediary = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    respondingAddress,
+    intermediaryAddress
+  );
+
+  if (!channelWithIntermediary) {
+    throw Error(
+      "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
+    );
+  }
+
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
-    context.stateChannelsMap.get(multisig2Address)!.multisigAddress,
+    channelWithIntermediary.multisigAddress,
     {
       assetType: 0,
       limit: respondingBalanceDecrement,
       token: AddressZero
     },
-    context.stateChannelsMap.get(multisig2Address)!.numInstalledApps + 1,
-    context.stateChannelsMap.get(multisig2Address)!.rootNonceValue,
+    channelWithIntermediary.numInstalledApps + 1,
+    channelWithIntermediary.rootNonceValue,
     100,
     initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
   );
 
-  const newStateChannel = context.stateChannelsMap
-    .get(multisig2Address)!
-    .installETHVirtualAppAgreementInstance(
-      rightEthVirtualAppAgreementInstance,
-      initiatingBalanceDecrement,
-      respondingBalanceDecrement
-    );
+  const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
+    rightEthVirtualAppAgreementInstance,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement
+  );
   context.stateChannelsMap.set(multisig2Address, newStateChannel);
 
   // s4
