@@ -13,7 +13,7 @@ export class WidgetLogo {
       <h1 class="logo">
         <stencil-route-link url="/">
           <img src="/assets/icon/logo.svg" alt="Counterfactual" />
-          {this.caption}
+          {!this.caption ? <span>Playground</span> : this.caption}
         </stencil-route-link>
       </h1>
     );

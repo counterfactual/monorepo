@@ -1,5 +1,7 @@
 .logo {
   margin: 0;
+  border: 1px solid $c-black;
+  font-size: $f-base;
 
   a {
     color: inherit;
@@ -9,6 +11,16 @@
   }
 
   img {
-    height: 5rem;
+    height: 2.5rem;
+  }
+
+  span {
+    @include f-logo;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 0 $rhythm;
   }
 }
