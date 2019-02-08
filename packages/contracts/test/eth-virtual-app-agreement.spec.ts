@@ -266,6 +266,6 @@ describe("ETHVirtualAppAgreement", () => {
         0,
         computeKey(wallet.address, Zero, HashZero)
       )
-    ).to.be.reverted;
+    ).to.be.revertedWith("Delegate call failed.");
   });
 });
