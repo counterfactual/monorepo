@@ -1,7 +1,7 @@
 import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow } from "..";
@@ -139,8 +139,8 @@ function createTarget(
     defaultTimeout,
     appInterface,
     {
-      assetType: 0,
-      limit: new BigNumber(0),
+      assetType: AssetType.ETH,
+      limit: Zero,
       token: AddressZero
     },
     true, // sets it to be a virtual app
@@ -211,9 +211,9 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithIntermediary.multisigAddress,
     {
-      assetType: 0,
+      assetType: AssetType.ETH,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
-      token: ""
+      token: AddressZero
     },
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
@@ -302,7 +302,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithInitiating.multisigAddress,
     {
-      assetType: 0,
+      assetType: AssetType.ETH,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
@@ -315,7 +315,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithResponding.multisigAddress,
     {
-      assetType: 0,
+      assetType: AssetType.ETH,
       limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
       token: AddressZero
     },
@@ -367,7 +367,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     targetAppInstance.identity,
     NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
-    "",
+    HashZero,
     0
   );
 }
@@ -414,7 +414,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithIntermediary.multisigAddress,
     {
-      assetType: 0,
+      assetType: AssetType.ETH,
       limit: respondingBalanceDecrement,
       token: AddressZero
     },
