@@ -2,7 +2,7 @@ import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/et
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { bigNumberify } from "ethers/utils";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
@@ -220,13 +220,17 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     channelWithIntermediary.multisigAddress,
     {
       assetType: AssetType.ETH,
-      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        respondingBalanceDecrement
+      ),
       token: AddressZero
     },
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
-    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
+    bigNumberify(initiatingBalanceDecrement)
+      .add(respondingBalanceDecrement)
+      .toNumber()
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -312,26 +316,34 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     channelWithInitiating.multisigAddress,
     {
       assetType: AssetType.ETH,
-      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        respondingBalanceDecrement
+      ),
       token: AddressZero
     },
     channelWithInitiating.numInstalledApps,
     channelWithInitiating.rootNonceValue,
     100,
-    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
+    bigNumberify(initiatingBalanceDecrement)
+      .add(respondingBalanceDecrement)
+      .toNumber()
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithResponding.multisigAddress,
     {
       assetType: AssetType.ETH,
-      limit: initiatingBalanceDecrement.add(respondingBalanceDecrement),
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        respondingBalanceDecrement
+      ),
       token: AddressZero
     },
     channelWithResponding.numInstalledApps,
     channelWithResponding.rootNonceValue,
     100,
-    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
+    bigNumberify(initiatingBalanceDecrement)
+      .add(respondingBalanceDecrement)
+      .toNumber()
   );
 
   // S2
@@ -431,7 +443,9 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
-    initiatingBalanceDecrement.add(respondingBalanceDecrement).toNumber()
+    bigNumberify(initiatingBalanceDecrement)
+      .add(respondingBalanceDecrement)
+      .toNumber()
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -484,8 +498,8 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.timeout,
     freeBalance.appSeqNo,
     freeBalance.rootNonceValue,
-    new BigNumber(ethVirtualAppAgreementInstance.expiry),
-    new BigNumber(ethVirtualAppAgreementInstance.capitalProvided),
+    bigNumberify(ethVirtualAppAgreementInstance.expiry),
+    bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
     [],
     HashZero
   );
