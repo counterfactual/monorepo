@@ -29,6 +29,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@counterfactual/typescript-typings": "^0.0.1",
+    "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.1",
     "puppeteer": "1.11.0",
     "rollup-plugin-replace": "^2.1.0",
