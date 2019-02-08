@@ -3,7 +3,7 @@ import {
   ETHBucketAppState,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -230,10 +230,13 @@ export class StateChannel {
     );
   }
 
-  public static createEmptyChannel() {
+  public static createEmptyChannel(
+    multisigAddress: string,
+    userNeuteredExtendedKeys: string[]
+  ) {
     return new StateChannel(
-      AddressZero,
-      [],
+      multisigAddress,
+      userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
       new Map<string, ETHVirtualAppAgreementInstance>(),
       new Map<AssetType, string>(),
