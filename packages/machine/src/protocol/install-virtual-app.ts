@@ -164,7 +164,8 @@ function addTarget(
     intermediaryAddress
   );
   const sc = (
-    context.stateChannelsMap.get(key) || StateChannel.createEmptyChannel()
+    context.stateChannelsMap.get(key) ||
+    StateChannel.createEmptyChannel(key, [initiatingAddress, respondingAddress])
   ).addVirtualAppInstance(targetAppInstance);
   context.stateChannelsMap.set(key, sc);
 }
