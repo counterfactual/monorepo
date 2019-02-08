@@ -160,12 +160,12 @@ export default class PlaygroundAPIClient {
     }
   }
 
-  public static async getUserByEthAddress(
+  public static async getUserByNodeAddress(
     ethAddress: string
   ): Promise<UserSession> {
     try {
       const json = (await get(
-        `users?filter[eth_address]=${ethAddress}`
+        `users?filter[node_address]=${ethAddress}`
       )) as APIResponse;
       const resource = json.data[0] as APIResource<UserAttributes>;
 
