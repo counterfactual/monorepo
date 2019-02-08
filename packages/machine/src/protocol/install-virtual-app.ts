@@ -48,7 +48,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     // wait for M5
-    Opcode.IO_SEND_AND_WAIT
+    Opcode.IO_SEND_AND_WAIT,
+
+    Opcode.STATE_TRANSITION_COMMIT
   ],
 
   1: [
@@ -94,7 +96,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0].signature3 = context.inbox[0].signature2; // s7
     },
 
-    Opcode.IO_SEND
+    Opcode.IO_SEND,
+
+    Opcode.STATE_TRANSITION_COMMIT
   ],
 
   2: [
@@ -115,7 +119,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     // wait for M4
-    Opcode.IO_SEND_AND_WAIT
+    Opcode.IO_SEND_AND_WAIT,
+
+    Opcode.STATE_TRANSITION_COMMIT
   ]
 };
 
