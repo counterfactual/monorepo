@@ -1,4 +1,4 @@
-import { Component, Prop } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
 
 @Component({
   tag: "dialog-reject-install",
@@ -9,15 +9,27 @@ export class DialogRejectInstall {
   @Prop() onOKClicked: () => void = () => {};
   @Prop() onReject: () => void = () => {};
 
+  @State() username: string = "";
+
+  componentWillLoad() {
+    const lastMatchmake = JSON.parse(
+      window.localStorage.getItem("playground:lastMatchmake") ||
+        '{"attributes":{"username":"Your opponent"}}'
+    );
+
+    this.username = lastMatchmake.data.attributes.username;
+  }
+
   render() {
     return (
       <widget-dialog
         visible={true}
-        dialogTitle="Game invite rejected :("
+        dialogTitle="Sorry :("
         content={
-          <main>
-            <p>Your counterparty doesn't want to play.</p>
-          </main>
+          <label>
+            <strong>{this.username}</strong> has declined your invitation to
+            play.
+          </label>
         }
         primaryButtonText="OK"
         onPrimaryButtonClicked={() => this.onOKClicked()}
