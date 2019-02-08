@@ -31,7 +31,7 @@ export class AccountRegister {
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
-debugger
+
   changeset: UserChangeset = {
     username: "",
     email: "",
