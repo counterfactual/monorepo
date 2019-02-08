@@ -21,7 +21,7 @@ export default class UserProcessor extends OperationProcessor {
 
     return getUsers(
       op.ref.id ? { id: op.ref.id } : op.params.filter || {},
-      !isMe ? ["username"] : []
+      !isMe ? ["username", "ethAddress", "nodeAddress"] : []
     );
   }
 
