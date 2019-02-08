@@ -107,8 +107,6 @@ export type UninstallParams = {
 export type InstallVirtualAppParams = {
   initiatingAddress: string;
   respondingAddress: string;
-  multisig1Address: string;
-  multisig2Address: string;
   intermediaryAddress: string;
   signingKeys: string[];
   defaultTimeout: number;
