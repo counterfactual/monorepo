@@ -59,7 +59,7 @@ export default class App extends Component {
           connected: true
         });
 
-        ga('set', 'userId', playgroundState.user.id);
+        window.ga('set', 'userId', playgroundState.user.id);
       }
     });
 
