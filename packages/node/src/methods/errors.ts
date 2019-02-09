@@ -22,5 +22,8 @@ export const ERRORS = {
   ACTION_OBJECT_NOT_ENCODABLE:
     "The Action object is not encodable by the AppInstance's Action encoding",
   NO_STATE_CHANNEL_FOR_MULTISIG_ADDR: (resp, query) =>
-    `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}`
+    `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}`,
+  CHANNEL_CREATION_FAILED:
+    "Failed to create channel. Multisignature wallet cannot be deployed properly",
+  INVALID_NETWORK_NAME: "Invalid network name provided for initializing Node"
 };

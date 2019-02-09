@@ -21,18 +21,19 @@ import {
   UpdateStateMessage
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  EMPTY_NETWORK,
   generateGetStateRequest,
   generateTakeActionRequest,
   getNewMultisig,
-  makeInstallVirtualRequest
+  makeInstallVirtualRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(20000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -57,29 +58,35 @@ describe("Node method follows spec - takeAction", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    const url = `http://localhost:${process.env.GANACHE_PORT}`;
-    provider = new JsonRpcProvider(url);
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: process.env.B_MNEMONIC }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -88,9 +95,11 @@ describe("Node method follows spec - takeAction", () => {
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 
@@ -150,7 +159,7 @@ describe("Node method follows spec - takeAction", () => {
         const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
           nodeC.publicIdentifier,
           // @ts-ignore
-          global.networkContext.TicTacToeAddress,
+          global.networkContext.TicTacToe,
           initialState,
           {
             stateEncoding,

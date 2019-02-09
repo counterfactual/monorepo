@@ -1,21 +1,20 @@
 import { AddressZero } from "ethers/constants";
-import { Provider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
-import { instance, mock } from "ts-mockito";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
+import { MNEMONIC_PATH } from "../../src/signer";
 import mockMessagingService from "../services/mock-messaging-service";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { EMPTY_NETWORK } from "./utils";
+import { TEST_NETWORK } from "./utils";
 
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -25,18 +24,23 @@ describe("Node can use storage service", () => {
     storeService = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
+    storeService.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     node = await Node.create(
       mockMessagingService,
       storeService,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 
