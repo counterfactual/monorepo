@@ -9455,6 +9455,15 @@ jest-docblock@^24.0.0:
   dependencies:
     detect-newline "^2.1.0"
 
+jest-dot-reporter@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/jest-dot-reporter/-/jest-dot-reporter-1.0.7.tgz#f386bfc8d1ed33a72732d2c0404a7591917f3b3d"
+  integrity sha512-R59yCe9fIxo6B6ObgKu4+jG3LAqFzOEfi+AemzJ5rFdSR+yGwEE4Qwe9yUK3XSLrpHEdRSr7QxmloZ9sW2Z1+A==
+  dependencies:
+    chalk "2.4.1"
+    moment "2.22.2"
+    progress "2.0.0"
+
 jest-each@^23.6.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-23.6.0.tgz#ba0c3a82a8054387016139c733a05242d3d71575"
@@ -11393,6 +11402,11 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
+moment@2.22.2:
+  version "2.22.2"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
+  integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
+
 mout@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/mout/-/mout-0.11.1.tgz#ba3611df5f0e5b1ffbfd01166b8f02d1f5fa2b99"
@@ -13266,6 +13280,11 @@ process@~0.5.1:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/process/-/process-0.5.2.tgz#1638d8a8e34c2f440a91db95ab9aeb677fc185cf"
   integrity sha1-FjjYqONML0QKkduVq5rrZ3/Bhc8=
+
+progress@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/progress/-/progress-2.0.0.tgz#8a1be366bf8fc23db2bd23f10c6fe920b4389d1f"
+  integrity sha1-ihvjZr+Pwj2yvSPxDG/pILQ4nR8=
 
 progress@^2.0.0, progress@^2.0.1:
   version "2.0.3"
@@ -16419,10 +16438,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
-  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
+tslint-microsoft-contrib@~5.2.1:
+  version "5.2.1"
+  resolved "https://registry.npmjs.org/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
+  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 
@@ -17827,7 +17846,7 @@ workbox-build@3.4.1:
     workbox-streams "^3.4.1"
     workbox-sw "^3.4.1"
 
-workbox-build@3.6.3, workbox-build@^3.6.3:
+workbox-build@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/workbox-build/-/workbox-build-3.6.3.tgz#77110f9f52dc5d82fa6c1c384c6f5e2225adcbd8"
   integrity sha512-w0clZ/pVjL8VXy6GfthefxpEXs0T8uiRuopZSFVQ8ovfbH6c6kUpEh6DcYwm/Y6dyWPiCucdyAZotgjz+nRz8g==

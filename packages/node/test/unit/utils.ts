@@ -5,15 +5,21 @@ import {
   BlockchainAsset,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
+import { Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 
 import { ProposedAppInstanceInfo } from "../../src/models";
 
+export function computeRandomXpub() {
+  return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
+}
+
 export function createProposedAppInstanceInfo(appInstanceId: string) {
   return new ProposedAppInstanceInfo(appInstanceId, {
-    initiatingAddress: getAddress(hexlify(randomBytes(20))),
-    respondingAddress: getAddress(hexlify(randomBytes(20))),
+    proposedByIdentifier: computeRandomXpub(),
+    proposedToIdentifier: computeRandomXpub(),
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",

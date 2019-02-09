@@ -52,8 +52,8 @@ export default async function takeActionController(
   );
 
   const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
-    appInstanceInfo.initiatingAddress,
-    appInstanceInfo.respondingAddress
+    appInstanceInfo.proposedByIdentifier,
+    appInstanceInfo.proposedToIdentifier
   ]);
 
   await requestHandler.messagingService.send(to, updateStateMessage);

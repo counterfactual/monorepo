@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
@@ -20,6 +20,7 @@
     "firebase-server": "^1.0.1",
     "ganache-core": "2.4.0",
     "jest": "^24.1.0",
+    "jest-dot-reporter": "^1.0.7",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-json": "^3.1.0",
@@ -32,6 +33,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.0.5",
+    "@counterfactual/contracts": "0.0.3",
     "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
     "ethers": "https://github.com/ethers-io/ethers.js.git",

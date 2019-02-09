@@ -1,5 +1,6 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
+import { Signer } from "ethers";
 import { Provider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 
@@ -28,6 +29,7 @@ export class RequestHandler {
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
     readonly provider: Provider,
+    readonly wallet: Signer,
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);

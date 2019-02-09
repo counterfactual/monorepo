@@ -9,11 +9,11 @@ import rejectInstallController from "./app-instance/reject-install/controller";
 import takeActionController from "./app-instance/take-action/controller";
 import uninstallController from "./app-instance/uninstall/controller";
 import getProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
-import createMultisigController from "./state-channel/create/controller";
+import createChannelController from "./state-channel/create/controller";
 import getAllChannelAddressesController from "./state-channel/get-all/controller";
 
 export {
-  createMultisigController,
+  createChannelController,
   getAllChannelAddressesController,
   getAppInstanceStateController,
   getInstalledAppInstancesController,
