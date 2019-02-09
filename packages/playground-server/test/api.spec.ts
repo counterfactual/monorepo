@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/node";
 import {
   HttpStatusCode,
   JsonApiDocument,
@@ -59,6 +60,10 @@ const GANACHE_URL = global["ganacheURL"];
 const NETWORK_CONTEXT = global["networkContext"];
 
 describe("playground-server", () => {
+  let nodeAlice: Node;
+  let nodeBob: Node;
+  let nodeCharlie: Node;
+
   beforeAll(async () => {
     const provider = new JsonRpcProvider(GANACHE_URL);
 
@@ -70,7 +75,7 @@ describe("playground-server", () => {
     );
     console.log(serverNode.publicIdentifier);
 
-    const nodeAlice = await NodeWrapper.createNode(
+    nodeAlice = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
@@ -78,7 +83,7 @@ describe("playground-server", () => {
     );
     console.log(nodeAlice.publicIdentifier);
 
-    const nodeBob = await NodeWrapper.createNode(
+    nodeBob = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
@@ -86,7 +91,7 @@ describe("playground-server", () => {
     );
     console.log(nodeBob.publicIdentifier);
 
-    const nodeCharlie = await NodeWrapper.createNode(
+    nodeCharlie = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
@@ -178,10 +183,10 @@ describe("playground-server", () => {
     });
 
     it.only("creates an account for the first time and returns 201 + the multisig address", async done => {
-      jest.setTimeout(30000);
+      jest.setTimeout(40000);
       const response = await client
-        .post("/users", POST_USERS_ALICE, {
-          headers: POST_USERS_ALICE_SIGNATURE_HEADER
+        .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
         })
         .catch(error => {
           console.error(error.message, error.response.data);
@@ -190,11 +195,12 @@ describe("playground-server", () => {
 
       const data = response.data.data as User;
 
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       expect(data.id).toBeDefined();
-      expect(data.attributes.username).toEqual(USR_ALICE.username);
-      expect(data.attributes.email).toEqual(USR_ALICE.email);
-      expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
-      expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+      expect(data.attributes.username).toEqual(aliceUser.username);
+      expect(data.attributes.email).toEqual(aliceUser.email);
+      expect(data.attributes.ethAddress).toEqual(aliceUser.ethAddress);
+      expect(data.attributes.nodeAddress).toEqual(aliceUser.nodeAddress);
       console.log("received multisig");
       console.log(data.attributes.multisigAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
@@ -437,13 +443,14 @@ describe("playground-server", () => {
       const json = response.data as JsonApiDocument<MatchmakingRequest>;
       const data = json.data as MatchmakingRequest;
 
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       expect(data.type).toEqual("matchmakingRequest");
       expect(data.id).toBeDefined();
       expect(data.attributes).toEqual({
         intermediary: NodeWrapper.getNodeAddress(),
-        username: USR_ALICE.username,
-        ethAddress: USR_ALICE.ethAddress,
-        nodeAddress: USR_ALICE.nodeAddress
+        username: aliceUser.username,
+        ethAddress: aliceUser.ethAddress,
+        nodeAddress: aliceUser.nodeAddress
       });
 
       expect(response.status).toEqual(HttpStatusCode.Created);
@@ -475,10 +482,11 @@ describe("playground-server", () => {
 
       const { username, ethAddress } = response.data.data.attributes;
 
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       if (username === USR_CHARLIE.username) {
         expect(ethAddress).toEqual(USR_CHARLIE.ethAddress);
-      } else if (username === USR_ALICE.username) {
-        expect(ethAddress).toEqual(USR_ALICE.ethAddress);
+      } else if (username === aliceUser.username) {
+        expect(ethAddress).toEqual(aliceUser.ethAddress);
       } else {
         fail("It should have matched either Alice or Charlie");
       }

@@ -40,11 +40,13 @@ export const MNEMONIC_CHARLIE =
 
 export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
 
-export const USR_ALICE = {
-  username: "alice_account3",
-  email: "alice@wonderland.com",
-  ethAddress: new SigningKey(PK_ALICE).address,
-  nodeAddress: getNodeAddress(MNEMONIC_ALICE)
+export const USR_ALICE = (nmenomnic: string) => {
+  return {
+    username: "alice_account3",
+    email: "alice@wonderland.com",
+    ethAddress: new SigningKey(PK_ALICE).address,
+    nodeAddress: getNodeAddress(nmenomnic)
+  };
 };
 
 export const USR_ALICE_KNEX = {
@@ -54,11 +56,14 @@ export const USR_ALICE_KNEX = {
   node_address: getNodeAddress(MNEMONIC_ALICE)
 };
 
-export const USR_ALICE_DUPLICATE_USERNAME = {
-  username: USR_ALICE.username,
-  email: USR_ALICE.email,
-  ethAddress: new SigningKey(PK_BOB).address,
-  nodeAddress: getNodeAddress(MNEMONIC_BOB)
+export const USR_ALICE_DUPLICATE_USERNAME = (mnemonic: string) => {
+  const aliceUser = USR_ALICE(mnemonic);
+  return {
+    username: aliceUser.username,
+    email: aliceUser.email,
+    ethAddress: new SigningKey(PK_BOB).address,
+    nodeAddress: getNodeAddress(mnemonic)
+  };
 };
 
 export const USR_BOB = {
@@ -92,24 +97,29 @@ export const USR_CHARLIE_KNEX = {
   node_address: getNodeAddress(MNEMONIC_CHARLIE)
 };
 
-export const POST_USERS_ALICE = {
-  data: {
-    type: "user",
-    attributes: { ...USR_ALICE }
-  }
+export const POST_USERS_ALICE = (mnemonic: string) => {
+  return {
+    data: {
+      type: "user",
+      attributes: { ...USR_ALICE(mnemonic) }
+    }
+  };
 };
 
-export const POST_USERS_ALICE_SIGNATURE_HEADER = {
-  authorization: `Signature ${syncSignMessage(
-    new SigningKey(PK_ALICE),
-    [
-      "PLAYGROUND ACCOUNT REGISTRATION",
-      `Username: ${USR_ALICE.username}`,
-      `E-mail: ${USR_ALICE.email}`,
-      `Ethereum address: ${USR_ALICE.ethAddress}`,
-      `Node address: ${USR_ALICE.nodeAddress}`
-    ].join("\n")
-  )}`
+export const POST_USERS_ALICE_SIGNATURE_HEADER = (mnemonic: string) => {
+  const userAlice = USR_ALICE(mnemonic);
+  return {
+    authorization: `Signature ${syncSignMessage(
+      new SigningKey(PK_ALICE),
+      [
+        "PLAYGROUND ACCOUNT REGISTRATION",
+        `Username: ${userAlice.username}`,
+        `E-mail: ${userAlice.email}`,
+        `Ethereum address: ${userAlice.ethAddress}`,
+        `Node address: ${userAlice.nodeAddress}`
+      ].join("\n")
+    )}`
+  };
 };
 
 export const POST_USERS_ALICE_NO_SIGNATURE = {
@@ -135,17 +145,22 @@ export const POST_USERS_ALICE_DUPLICATE_USERNAME = {
   }
 };
 
-export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = {
-  authorization: `Signature ${syncSignMessage(
-    new SigningKey(PK_ALICE_DUPE),
-    [
-      "PLAYGROUND ACCOUNT REGISTRATION",
-      `Username: ${USR_ALICE_DUPLICATE_USERNAME.username}`,
-      `E-mail: ${USR_ALICE_DUPLICATE_USERNAME.email}`,
-      `Ethereum address: ${USR_ALICE_DUPLICATE_USERNAME.ethAddress}`,
-      `Node address: ${USR_ALICE_DUPLICATE_USERNAME.nodeAddress}`
-    ].join("\n")
-  )}`
+export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = (
+  mnemonic: string
+) => {
+  const userAliceDuplicate = USR_ALICE_DUPLICATE_USERNAME(mnemonic);
+  return {
+    authorization: `Signature ${syncSignMessage(
+      new SigningKey(PK_ALICE_DUPE),
+      [
+        "PLAYGROUND ACCOUNT REGISTRATION",
+        `Username: ${userAliceDuplicate.username}`,
+        `E-mail: ${userAliceDuplicate.email}`,
+        `Ethereum address: ${userAliceDuplicate.ethAddress}`,
+        `Node address: ${userAliceDuplicate.nodeAddress}`
+      ].join("\n")
+    )}`
+  };
 };
 
 export const POST_USERS_CHARLIE = {
@@ -198,23 +213,6 @@ export const POST_SESSION_BOB_SIGNATURE_HEADER = {
     [
       "PLAYGROUND ACCOUNT LOGIN",
       `Ethereum address: ${USR_BOB.ethAddress}`
-    ].join("\n")
-  )}`
-};
-
-export const POST_SESSION_ALICE = {
-  data: {
-    type: "sessionRequest",
-    attributes: { ethAddress: USR_ALICE.ethAddress }
-  }
-};
-
-export const POST_SESSION_ALICE_SIGNATURE_HEADER = {
-  authorization: `Signature ${syncSignMessage(
-    new SigningKey(PK_ALICE),
-    [
-      "PLAYGROUND ACCOUNT LOGIN",
-      `Ethereum address: ${USR_ALICE.ethAddress}`
     ].join("\n")
   )}`
 };

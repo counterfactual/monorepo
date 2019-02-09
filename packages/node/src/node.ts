@@ -6,10 +6,7 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
-import {
-  UpdateParams,
-  ProtocolParameters
-} from "@counterfactual/machine/dist/src/types";
+import { UpdateParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { Provider } from "ethers/providers";
@@ -46,10 +43,9 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals: Map<
-    ProtocolParameters,
-    Deferred<NodeMessageWrappedProtocolMessage>
-  > = new Map();
+  private ioSendDeferrals: {
+    [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
+  } = {};
 
   // These properties don't have initializers in the constructor and get
   // initialized in the `asyncronouslySetupUsingRemoteServices` function
@@ -203,10 +199,9 @@ export class Node {
 
         console.log("setting deferral");
         console.log(data.params);
-        this.ioSendDeferrals.set(
-          data.params,
-          new Deferred<NodeMessageWrappedProtocolMessage>()
-        );
+        this.ioSendDeferrals[to] = new Deferred<
+          NodeMessageWrappedProtocolMessage
+        >();
 
         await this.messagingService.send(to, {
           from,
@@ -215,10 +210,10 @@ export class Node {
         } as NodeMessageWrappedProtocolMessage);
 
         console.log("waiting on response");
-        const msg = await this.ioSendDeferrals.get(data.params)!.promise;
+        const msg = await this.ioSendDeferrals[to].promise;
         console.log("got response");
 
-        this.ioSendDeferrals.delete(data.params);
+        delete this.ioSendDeferrals[msg.from];
 
         context.inbox.push(msg.data);
 
@@ -332,13 +327,11 @@ export class Node {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    console.log("handling received message: ", msg);
+    console.log("received message by: ", this.publicIdentifier, msg);
 
     const isIoSendDeferral = (msg: NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
-      this.ioSendDeferrals.has(
-        (msg as NodeMessageWrappedProtocolMessage).data.params
-      );
+      this.ioSendDeferrals[msg.from] !== undefined;
 
     if (isIoSendDeferral(msg)) {
       console.log("got IO send deferral");
