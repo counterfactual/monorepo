@@ -8,25 +8,25 @@ import { getChannelFromPeerAddress } from "../../../utils";
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
  * the client.
- * @param selfAddress
+ * @param myIdentifier
  * @param store
  * @param params
  */
 export async function createProposedAppInstance(
-  selfAddress: string,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
   const appInstanceId = generateUUID();
   const channel = await getChannelFromPeerAddress(
-    selfAddress,
+    myIdentifier,
     params.proposedToIdentifier,
     store
   );
 
   const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
     ...params,
-    proposedByIdentifier: selfAddress
+    proposedByIdentifier: myIdentifier
   });
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);

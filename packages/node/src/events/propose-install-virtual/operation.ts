@@ -6,14 +6,14 @@ import { getChannelFromPeerAddress } from "../../utils";
 
 /**
  *
- * @param selfAddress
+ * @param myIdentifier
  * @param store
  * @param params
  * @param appInstanceId
  * @param incomingAddress The address of the Node who is relaying the proposal.
  */
 export async function setAppInstanceIDForProposeInstallVirtual(
-  selfAddress: Address,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallVirtualParams,
   appInstanceId: string,
@@ -21,7 +21,7 @@ export async function setAppInstanceIDForProposeInstallVirtual(
   incomingIdentifier: Address
 ) {
   await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(selfAddress, incomingIdentifier, store),
+    await getChannelFromPeerAddress(myIdentifier, incomingIdentifier, store),
     new ProposedAppInstanceInfo(appInstanceId, {
       ...params,
       proposedByIdentifier

@@ -5,14 +5,14 @@ import { Store } from "../../store";
 import { getChannelFromPeerAddress } from "../../utils";
 
 export async function setAppInstanceIDForProposeInstall(
-  selfAddress: string,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallParams,
   appInstanceId: string,
   proposedByIdentifier: string
 ) {
   await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(selfAddress, proposedByIdentifier, store),
+    await getChannelFromPeerAddress(myIdentifier, proposedByIdentifier, store),
     new ProposedAppInstanceInfo(appInstanceId, {
       ...params,
       proposedByIdentifier
