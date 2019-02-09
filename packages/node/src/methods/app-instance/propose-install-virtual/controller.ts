@@ -25,10 +25,6 @@ export default async function proposeInstallVirtualAppInstanceController(
   // TODO: check if channel is open with the first intermediary
   // and that there are sufficient funds
 
-  if (params.abiEncodings.actionEncoding === undefined) {
-    delete params.abiEncodings.actionEncoding;
-  }
-
   // TODO: Also create the proposed eth virtual app agreement
 
   const appInstanceId = await createProposedVirtualAppInstance(

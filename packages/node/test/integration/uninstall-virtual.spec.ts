@@ -25,7 +25,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;

@@ -1,4 +1,8 @@
-import { AppInstance, StateChannel } from "@counterfactual/machine";
+import {
+  AppInstance,
+  StateChannel,
+  xkeysToSortedKthAddresses
+} from "@counterfactual/machine";
 import {
   Address,
   AppABIEncodings,
@@ -9,7 +13,7 @@ import {
   SolidityABIEncoderV2Struct,
   Terms
 } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 export interface IProposedAppInstanceInfo {
@@ -89,15 +93,19 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
     const proposedTerms: Terms = {
       assetType: this.asset.assetType,
-      limit: bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
-      token: this.asset.token || AddressZero
+      // FIXME: xuanji
+      limit: Zero, // bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
+      token: AddressZero // this.asset.token || AddressZero
     };
 
     const isVirtualApp = (this.intermediaries || []).length > 0;
 
-    const signingKeys = stateChannel.getSigningKeysFor(
-      isVirtualApp ? 1337 : stateChannel.numInstalledApps
-    );
+    const signingKeys = isVirtualApp
+      ? xkeysToSortedKthAddresses(
+          [this.proposedByIdentifier, this.proposedToIdentifier],
+          1337
+        )
+      : stateChannel.getNextSigningKeys();
 
     const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
 
