@@ -18,16 +18,15 @@ export async function createProposedAppInstance(
   params: Node.ProposeInstallParams
 ): Promise<string> {
   const appInstanceId = generateUUID();
-
   const channel = await getChannelFromPeerAddress(
     selfAddress,
-    params.respondingAddress,
+    params.proposedToIdentifier,
     store
   );
 
   const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
     ...params,
-    initiatingAddress: selfAddress
+    proposedByIdentifier: selfAddress
   });
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);

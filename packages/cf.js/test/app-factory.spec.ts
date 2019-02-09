@@ -4,7 +4,7 @@ import { parseEther } from "ethers/utils";
 import { AppFactory } from "../src/app-factory";
 import { Provider } from "../src/provider";
 
-import { TestNodeProvider } from "./fixture";
+import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
 const TEST_APP = {
   abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
@@ -48,7 +48,7 @@ describe("CF.js AppFactory", () => {
         });
       });
       const appInstanceId = await appFactory.proposeInstall({
-        respondingAddress: "0x0101010101010101010101010101010101010101",
+        proposedToIdentifier: TEST_XPUBS[0],
         asset: {
           assetType: AssetType.ETH
         },
@@ -66,9 +66,7 @@ describe("CF.js AppFactory", () => {
       const expectedDeposit = parseEther("0.5");
       const expectedState = "4000";
       const expectedAppInstanceId = "TEST_ID";
-      const expectedIntermediaries = [
-        "0x6001600160016001600160016001600160016001"
-      ];
+      const expectedIntermediaries = [TEST_XPUBS[1]];
 
       nodeProvider.onMethodRequest(
         Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
@@ -88,7 +86,7 @@ describe("CF.js AppFactory", () => {
         }
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
-        respondingAddress: "0x0101010101010101010101010101010101010101",
+        proposedToIdentifier: TEST_XPUBS[0],
         asset: {
           assetType: AssetType.ETH
         },
@@ -104,7 +102,7 @@ describe("CF.js AppFactory", () => {
     it("throws an error if BigNumber param invalid", async done => {
       try {
         await appFactory.proposeInstall({
-          respondingAddress: "0x0101010101010101010101010101010101010101",
+          proposedToIdentifier: TEST_XPUBS[0],
           asset: {
             assetType: AssetType.ETH
           },

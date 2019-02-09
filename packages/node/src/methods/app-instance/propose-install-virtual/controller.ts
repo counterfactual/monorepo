@@ -41,14 +41,14 @@ export default async function proposeInstallVirtualAppInstanceController(
     data: {
       params,
       appInstanceId,
-      initiatingAddress: requestHandler.publicIdentifier
+      proposedByAddress: requestHandler.publicIdentifier
     }
   };
 
   const nextNodeAddress = getNextNodeAddress(
     requestHandler.publicIdentifier,
     params.intermediaries,
-    params.respondingAddress
+    params.proposedToIdentifier
   );
 
   await requestHandler.messagingService.send(nextNodeAddress, proposalMsg);

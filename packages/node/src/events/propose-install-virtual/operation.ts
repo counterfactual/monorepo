@@ -17,14 +17,14 @@ export async function setAppInstanceIDForProposeInstallVirtual(
   store: Store,
   params: Node.ProposeInstallVirtualParams,
   appInstanceId: string,
-  initiatingAddress: Address,
-  incomingAddress: Address
+  proposedByIdentifier: string,
+  incomingIdentifier: Address
 ) {
   await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(selfAddress, incomingAddress, store),
+    await getChannelFromPeerAddress(selfAddress, incomingIdentifier, store),
     new ProposedAppInstanceInfo(appInstanceId, {
       ...params,
-      initiatingAddress
+      proposedByIdentifier
     })
   );
 }

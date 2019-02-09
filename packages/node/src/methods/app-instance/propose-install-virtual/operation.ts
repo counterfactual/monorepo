@@ -22,7 +22,7 @@ export async function createProposedVirtualAppInstance(
   const nextIntermediaryAddress = getNextNodeAddress(
     selfAddress,
     params.intermediaries,
-    params.respondingAddress
+    params.proposedToIdentifier
   );
 
   const channel = await getChannelFromPeerAddress(
@@ -33,7 +33,7 @@ export async function createProposedVirtualAppInstance(
 
   const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
     ...params,
-    initiatingAddress: selfAddress
+    proposedByIdentifier: selfAddress
   });
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
