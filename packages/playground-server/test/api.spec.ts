@@ -60,6 +60,7 @@ const GANACHE_URL = global["ganacheURL"];
 const NETWORK_CONTEXT = global["networkContext"];
 
 describe("playground-server", () => {
+  let playgroundNode: Node;
   let nodeAlice: Node;
   let nodeBob: Node;
   let nodeCharlie: Node;
@@ -67,7 +68,7 @@ describe("playground-server", () => {
   beforeAll(async () => {
     const provider = new JsonRpcProvider(GANACHE_URL);
 
-    await NodeWrapper.createNodeSingleton(
+    playgroundNode = await NodeWrapper.createNodeSingleton(
       "ganache",
       NETWORK_CONTEXT,
       provider,
@@ -479,11 +480,12 @@ describe("playground-server", () => {
 
     it("returns the requested user as a match", async done => {
       await db("users").insert([
-        USR_BOB_KNEX,
-        USR_ALICE_KNEX,
-        USR_CHARLIE_KNEX
+        USR_BOB_KNEX(global["nodeBMnemonic"]),
+        USR_ALICE_KNEX(global["nodeAMnemonic"]),
+        USR_CHARLIE_KNEX(global["nodeCMnemonic"])
       ]);
 
+      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
       const response = await client
         .post(
           "/matchmaking-requests",
@@ -491,7 +493,7 @@ describe("playground-server", () => {
             data: {
               type: "matchmakingRequest",
               attributes: {
-                matchmakeWith: USR_CHARLIE.username
+                matchmakeWith: charlieUser.username
               }
             }
           },
@@ -512,10 +514,10 @@ describe("playground-server", () => {
       expect(data.type).toEqual("matchmakingRequest");
       expect(data.id).toBeDefined();
       expect(data.attributes).toEqual({
-        intermediary: getNodeAddress(),
-        username: USR_CHARLIE.username,
-        ethAddress: USR_CHARLIE.ethAddress,
-        nodeAddress: USR_CHARLIE.nodeAddress
+        intermediary: playgroundNode.publicIdentifier,
+        username: charlieUser.username,
+        ethAddress: charlieUser.ethAddress,
+        nodeAddress: charlieUser.nodeAddress
       });
 
       expect(response.status).toEqual(HttpStatusCode.Created);
