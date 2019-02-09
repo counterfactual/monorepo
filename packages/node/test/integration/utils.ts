@@ -140,7 +140,7 @@ export function makeRejectInstallRequest(
 }
 
 export function makeInstallProposalRequest(
-  respondingAddress: Address,
+  proposedToIdentifier: string,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   let initialState = null;
@@ -153,7 +153,7 @@ export function makeInstallProposalRequest(
   }
 
   const params: NodeTypes.ProposeInstallParams = {
-    respondingAddress,
+    proposedToIdentifier,
     initialState,
     appId: AddressZero,
     abiEncodings: {
@@ -189,12 +189,12 @@ export function makeInstallVirtualRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
-  respondingAddress: string,
+  proposedToIdentifier: string,
   intermediaries: string[],
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
-    respondingAddress,
+    proposedToIdentifier,
     nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
 

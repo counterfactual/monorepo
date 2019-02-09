@@ -187,7 +187,7 @@ export class DappContainer {
 
   /**
    * Binds this end of the MessageChannel (aka `port1`) to the dApp
-   * container, and attachs a listener to relay messages via the
+   * container, and attaches a listener to relay messages via the
    * EventEmitter.
    */
   private configureMessagePorts(): MessageChannel {

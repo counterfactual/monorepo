@@ -17,7 +17,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
     const user = this.app.user as User;
     let matchedUser: MatchedUser;
 
-    if (op.data.attributes) {
+    if (op.data.attributes && op.data.attributes.matchmakeWith) {
       const [matchedUserResource] = await getUsers({
         username: op.data.attributes.matchmakeWith
       });

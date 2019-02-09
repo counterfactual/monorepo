@@ -17,9 +17,9 @@ export interface IProposedAppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 }
 
 export interface ProposedAppInstanceInfoJSON {
@@ -31,9 +31,9 @@ export interface ProposedAppInstanceInfoJSON {
   peerDeposit: string;
   timeout: string;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 }
 
 /**
@@ -55,9 +55,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 
   constructor(
     appInstanceId: AppInstanceID,
@@ -70,8 +70,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
-    this.initiatingAddress = proposeParams.initiatingAddress;
-    this.respondingAddress = proposeParams.respondingAddress;
+    this.proposedByIdentifier = proposeParams.proposedByIdentifier;
+    this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
   }
@@ -86,8 +86,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: this.peerDeposit,
       initialState: this.initialState,
       timeout: this.timeout,
-      initiatingAddress: this.initiatingAddress,
-      respondingAddress: this.respondingAddress,
+      proposedByIdentifier: this.proposedByIdentifier,
+      proposedToIdentifier: this.proposedToIdentifier,
       intermediaries: this.intermediaries
     };
   }
@@ -102,8 +102,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
       initialState: json.initialState,
-      initiatingAddress: json.initiatingAddress,
-      respondingAddress: json.respondingAddress,
+      proposedByIdentifier: json.proposedByIdentifier,
+      proposedToIdentifier: json.proposedToIdentifier,
       intermediaries: json.intermediaries
     };
     return new ProposedAppInstanceInfo(json.id, proposeParams);

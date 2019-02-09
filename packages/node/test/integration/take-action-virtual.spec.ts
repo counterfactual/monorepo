@@ -216,16 +216,16 @@ describe("Node method follows spec - takeAction", () => {
 });
 
 function makeTTTVirtualAppInstanceProposalReq(
-  respondingAddress: Address,
+  proposedToIdentifier: string,
   appId: Address,
   initialState: SolidityABIEncoderV2Struct,
   abiEncodings: AppABIEncodings,
-  intermediaries: Address[]
+  intermediaries: string[]
 ): NodeTypes.MethodRequest {
   return {
     params: {
       intermediaries,
-      respondingAddress,
+      proposedToIdentifier,
       appId,
       initialState,
       abiEncodings,

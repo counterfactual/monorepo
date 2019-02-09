@@ -83,14 +83,14 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Struct;
-    respondingAddress: Address;
+    proposedToIdentifier: string;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
@@ -107,7 +107,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type InstallVirtualResult = InstallResult;
 

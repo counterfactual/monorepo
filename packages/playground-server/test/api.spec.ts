@@ -477,6 +477,51 @@ describe("playground-server", () => {
       done();
     });
 
+    it("returns the requested user as a match", async done => {
+      await db("users").insert([
+        USR_BOB_KNEX,
+        USR_ALICE_KNEX,
+        USR_CHARLIE_KNEX
+      ]);
+
+      const response = await client
+        .post(
+          "/matchmaking-requests",
+          {
+            data: {
+              type: "matchmakingRequest",
+              attributes: {
+                matchmakeWith: USR_CHARLIE.username
+              }
+            }
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${TOKEN_BOB}`
+            }
+          }
+        )
+        .catch(error => {
+          console.error(error.message, error.response.data);
+          throw error;
+        });
+
+      const json = response.data as JsonApiDocument<MatchmakingRequest>;
+      const data = json.data as MatchmakingRequest;
+
+      expect(data.type).toEqual("matchmakingRequest");
+      expect(data.id).toBeDefined();
+      expect(data.attributes).toEqual({
+        intermediary: getNodeAddress(),
+        username: USR_CHARLIE.username,
+        ethAddress: USR_CHARLIE.ethAddress,
+        nodeAddress: USR_CHARLIE.nodeAddress
+      });
+
+      expect(response.status).toEqual(HttpStatusCode.Created);
+      done();
+    });
+
     it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert([

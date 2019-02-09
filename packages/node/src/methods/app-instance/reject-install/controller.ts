@@ -28,7 +28,7 @@ export default async function rejectInstallController(
   };
 
   await requestHandler.messagingService.send(
-    appInstanceInfo.initiatingAddress,
+    appInstanceInfo.proposedByIdentifier,
     rejectProposalMsg
   );
 

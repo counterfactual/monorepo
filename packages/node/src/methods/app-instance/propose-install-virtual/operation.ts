@@ -8,32 +8,32 @@ import { getChannelFromPeerAddress } from "../../../utils";
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
  * the client.
- * @param selfAddress
+ * @param myIdentifier
  * @param store
  * @param params
  */
 export async function createProposedVirtualAppInstance(
-  selfAddress: string,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {
   const appInstanceId = generateUUID();
 
   const nextIntermediaryAddress = getNextNodeAddress(
-    selfAddress,
+    myIdentifier,
     params.intermediaries,
-    params.respondingAddress
+    params.proposedToIdentifier
   );
 
   const channel = await getChannelFromPeerAddress(
-    selfAddress,
+    myIdentifier,
     nextIntermediaryAddress,
     store
   );
 
   const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
     ...params,
-    initiatingAddress: selfAddress
+    proposedByIdentifier: myIdentifier
   });
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);

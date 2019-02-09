@@ -155,7 +155,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
               proposedAppInstanceC
             );
 
-            expect(proposedAppInstanceC.initiatingAddress).toEqual(
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
