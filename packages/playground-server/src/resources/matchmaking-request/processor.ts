@@ -2,7 +2,7 @@ import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
 import { getUsers, matchmakeUser } from "../../db";
-import { getNodeAddress } from "../../node";
+import NodeWrapper from "../../node";
 import User, { MatchedUser } from "../user/resource";
 
 import MatchmakingRequest from "./resource";
@@ -17,7 +17,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
     const user = this.app.user as User;
     let matchedUser: MatchedUser;
 
-    if (op.data.attributes) {
+    if (op.data.attributes && op.data.attributes.matchmakeWith) {
       const [matchedUserResource] = await getUsers({
         username: op.data.attributes.matchmakeWith
       });
@@ -38,7 +38,7 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
     return new MatchmakingRequest({
       id: generateUUID(),
       attributes: {
-        intermediary: getNodeAddress(),
+        intermediary: NodeWrapper.getNodeAddress(),
         username: matchedUser.attributes.username,
         ethAddress: matchedUser.attributes.ethAddress,
         nodeAddress: matchedUser.attributes.nodeAddress

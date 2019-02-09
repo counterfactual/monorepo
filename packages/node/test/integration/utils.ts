@@ -15,19 +15,21 @@ import { v4 as generateUUID } from "uuid";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
+export const TEST_NETWORK = "ganache";
+
 export async function getNewMultisig(
   node: Node,
   xpubs: string[]
 ): Promise<Address> {
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
-    type: NodeTypes.MethodName.CREATE_MULTISIG,
+    type: NodeTypes.MethodName.CREATE_CHANNEL,
     params: {
       owners: xpubs
-    } as NodeTypes.CreateMultisigParams
+    } as NodeTypes.CreateChannelParams
   };
   const response: NodeTypes.MethodResponse = await node.call(req.type, req);
-  const result = response.result as NodeTypes.CreateMultisigResult;
+  const result = response.result as NodeTypes.CreateChannelResult;
   return result.multisigAddress;
 }
 
@@ -41,7 +43,7 @@ export async function getChannelAddresses(node: Node): Promise<Address[]> {
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
-    params: {} as NodeTypes.CreateMultisigParams
+    params: {} as NodeTypes.CreateChannelParams
   };
   const response: NodeTypes.MethodResponse = await node.call(req.type, req);
   const result = response.result as NodeTypes.GetChannelAddressesResult;
@@ -138,7 +140,7 @@ export function makeRejectInstallRequest(
 }
 
 export function makeInstallProposalRequest(
-  respondingAddress: Address,
+  proposedToIdentifier: string,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   let initialState = null;
@@ -151,7 +153,7 @@ export function makeInstallProposalRequest(
   }
 
   const params: NodeTypes.ProposeInstallParams = {
-    respondingAddress,
+    proposedToIdentifier,
     initialState,
     appId: AddressZero,
     abiEncodings: {
@@ -187,12 +189,12 @@ export function makeInstallVirtualRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
-  respondingAddress: string,
+  proposedToIdentifier: string,
   intermediaries: string[],
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
-    respondingAddress,
+    proposedToIdentifier,
     nullInitialState
   ).params as NodeTypes.ProposeInstallParams;
 
@@ -244,7 +246,9 @@ export const EMPTY_NETWORK: NetworkContext = {
   MultiSend: AddressZero,
   NonceRegistry: AddressZero,
   StateChannelTransaction: AddressZero,
-  ETHVirtualAppAgreement: AddressZero
+  ETHVirtualAppAgreement: AddressZero,
+  MinimumViableMultisig: AddressZero,
+  ProxyFactory: AddressZero
 };
 
 export function generateGetStateRequest(

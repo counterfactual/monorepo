@@ -1,21 +1,21 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
-import { instance, mock } from "ts-mockito";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  EMPTY_NETWORK,
   generateGetStateRequest,
   getNewMultisig,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -24,8 +24,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -38,18 +37,22 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -58,9 +61,11 @@ describe("Node method follows spec - getAppInstances", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 

@@ -19,18 +19,31 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 module.exports = async () => {
   mkdirp.sync(DIR);
 
-  const privateKeyA = fromMnemonic(process.env.A_MNEMONIC!).derivePath(
+  const pgMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyPG = fromMnemonic(pgMnemonic).derivePath("m/44'/60'/0'/25446")
+    .privateKey;
+
+  const nodeAMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyA = fromMnemonic(nodeAMnemonic).derivePath(
     "m/44'/60'/0'/25446"
   ).privateKey;
-  const privateKeyB = fromMnemonic(process.env.B_MNEMONIC!).derivePath(
+
+  const nodeBMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyB = fromMnemonic(nodeBMnemonic).derivePath(
     "m/44'/60'/0'/25446"
   ).privateKey;
-  const privateKeyC = fromMnemonic(process.env.C_MNEMONIC!).derivePath(
+
+  const nodeCMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyC = fromMnemonic(nodeCMnemonic).derivePath(
     "m/44'/60'/0'/25446"
   ).privateKey;
 
   const server = ganache.server({
     accounts: [
+      {
+        balance: "120000000000000000",
+        secretKey: privateKeyPG
+      },
       {
         balance: "120000000000000000",
         secretKey: privateKeyA
@@ -52,8 +65,14 @@ module.exports = async () => {
 
   const wallet = new Wallet(privateKeyA, provider);
 
-  fs.writeFileSync(
-    path.join(DIR, "addresses"),
-    JSON.stringify(await configureNetworkContext(wallet))
-  );
+  const networkContext = await configureNetworkContext(wallet);
+  const data = {
+    pgMnemonic,
+    nodeAMnemonic,
+    nodeBMnemonic,
+    nodeCMnemonic,
+    networkContext
+  };
+
+  fs.writeFileSync(path.join(DIR, "data"), JSON.stringify(data));
 };

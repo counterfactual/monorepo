@@ -38,10 +38,11 @@ export default async function uninstallController(
   await requestHandler.store.saveStateChannel(updatedChannel);
 
   const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
-    appInstanceInfo.initiatingAddress,
-    appInstanceInfo.respondingAddress
+    appInstanceInfo.proposedByIdentifier,
+    appInstanceInfo.proposedToIdentifier
   ]);
 
   await requestHandler.messagingService.send(to, uninstallMsg);
+
   return {};
 }

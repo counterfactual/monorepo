@@ -1,6 +1,5 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
 import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
@@ -12,7 +11,7 @@ import {
   RejectInstallEventData
 } from "../src/types";
 
-import { TestNodeProvider } from "./fixture";
+import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
 describe("CF.js Provider", () => {
   let nodeProvider: TestNodeProvider;
@@ -26,8 +25,8 @@ describe("CF.js Provider", () => {
     myDeposit: Zero,
     peerDeposit: Zero,
     timeout: Zero,
-    initiatingAddress: getAddress(hexlify(randomBytes(20))),
-    respondingAddress: getAddress(hexlify(randomBytes(20)))
+    proposedByIdentifier: TEST_XPUBS[0],
+    proposedToIdentifier: TEST_XPUBS[1]
   };
 
   beforeEach(() => {

@@ -18,8 +18,8 @@ import { ERRORS } from "../../errors";
 export async function installVirtual(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingAddress: string,
-  respondingAddress: string,
+  proposedByIdentifier: string,
+  proposedToIdentifier: string,
   params: Node.InstallParams
 ): Promise<AppInstanceInfo> {
   const { appInstanceId } = params;

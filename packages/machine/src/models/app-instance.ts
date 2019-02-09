@@ -241,7 +241,7 @@ export class AppInstance {
     return AppInstance.fromJson({
       ...this.json,
       latestState: newState,
-      latestNonce: this.json.latestNonce + 1,
+      latestNonce: this.nonce + 1,
       latestTimeout: timeout
     });
   }

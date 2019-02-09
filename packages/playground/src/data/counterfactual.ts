@@ -8,10 +8,11 @@ export declare class Node {
   static create(
     messagingService: IMessagingService,
     storeService: IStoreService,
-    networkContext: NetworkContext,
     nodeConfig: NodeConfig,
     // @ts-ignore
-    provider: ethers.providers.Provider
+    provider: ethers.providers.Provider,
+    network: string,
+    networkContext?: NetworkContext
   ): Promise<Node>;
   readonly publicIdentifier: string;
   on(event: string, callback: (res: any) => void): void;
@@ -35,16 +36,17 @@ export default class CounterfactualNode {
   static async create(settings: {
     messagingService: IMessagingService;
     storeService: IStoreService;
-    networkContext: NetworkContext;
     nodeConfig: { STORE_KEY_PREFIX: string };
+    network: string;
+    networkContext?: NetworkContext;
   }): Promise<Node> {
     CounterfactualNode.node = await Node.create(
       settings.messagingService,
       settings.storeService,
-      settings.networkContext,
       settings.nodeConfig,
       // @ts-ignore
-      new ethers.providers.Web3Provider(web3.currentProvider)
+      new ethers.providers.Web3Provider(web3.currentProvider),
+      settings.network
     );
 
     return CounterfactualNode.getInstance();

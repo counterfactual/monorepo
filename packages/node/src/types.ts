@@ -44,7 +44,7 @@ export interface ProposeVirtualMessage extends NodeMessage {
   data: {
     params: Node.ProposeInstallVirtualParams;
     appInstanceId: string;
-    initiatingAddress: Address;
+    proposedByIdentifier: string;
   };
 }
 
@@ -64,7 +64,7 @@ export interface InstallVirtualMessage extends NodeMessage {
 export interface CreateMultisigMessage extends NodeMessage {
   data: {
     multisigAddress: Address;
-    params: Node.CreateMultisigParams;
+    params: Node.CreateChannelParams;
   };
 }
 

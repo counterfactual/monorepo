@@ -13,7 +13,7 @@ export function virtualChannelKey(users: string[], intermediary: string) {
   }
   return keccak256(
     defaultAbiCoder.encode(
-      ["address", "address", "address"],
+      ["string", "string", "string"],
       [intermediary, users[0], users[1]]
     )
   );
