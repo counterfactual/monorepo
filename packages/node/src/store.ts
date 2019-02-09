@@ -226,12 +226,10 @@ export class Store {
             ["string", "string", "string"],
             [
               proposedAppInstance.intermediaries![0],
-              // TODO: MAJOR CONFUSION POINT:
-              //       In the propose virtual install params initiating & responding
-              //       are swwapped from the actual virtual install params.
-              //       This is why these are swapped here.
-              proposedAppInstance.respondingAddress,
-              proposedAppInstance.initiatingAddress
+              // Ordered as [0: to, 1: by] because when executed, it is "to"
+              // that becomes initiatingAddress / the idx 0 in compute-virtual-key
+              proposedAppInstance.proposedToIdentifier,
+              proposedAppInstance.proposedByIdentifier
             ]
           )
         )

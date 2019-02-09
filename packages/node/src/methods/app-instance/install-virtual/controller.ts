@@ -18,8 +18,6 @@ export default async function installVirtualAppInstanceController(
   const appInstanceInfo = await installVirtual(
     requestHandler.store,
     requestHandler.instructionExecutor,
-    requestHandler.publicIdentifier,
-    proposedAppInstanceInfo.proposedByIdentifier,
     params
   );
 

@@ -15,10 +15,7 @@ export async function install(
 ): Promise<ProposedAppInstanceInfo> {
   const { appInstanceId } = params;
 
-  if (
-    !appInstanceId ||
-    (typeof appInstanceId === "string" && appInstanceId.trim() === "")
-  ) {
+  if (!appInstanceId || !appInstanceId.trim()) {
     return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
@@ -34,8 +31,8 @@ export async function install(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingAddress,
-      respondingAddress,
+      initiatingAddress: appInstanceInfo.proposedToIdentifier,
+      respondingAddress: appInstanceInfo.proposedByIdentifier,
       multisigAddress: stateChannel.multisigAddress,
       aliceBalanceDecrement: appInstanceInfo.myDeposit,
       bobBalanceDecrement: appInstanceInfo.peerDeposit,

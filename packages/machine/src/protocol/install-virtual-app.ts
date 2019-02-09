@@ -179,6 +179,9 @@ function addTarget(
   ).addVirtualAppInstance(targetAppInstance);
 
   context.stateChannelsMap.set(key, sc);
+
+  // Needed for STATE_TRANSITION_COMMIT presently
+  context.appIdentityHash = targetAppInstance.identityHash;
 }
 
 function proposeStateTransition1(message: ProtocolMessage, context: Context) {
