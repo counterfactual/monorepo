@@ -1,21 +1,8 @@
-import cf from "@counterfactual/cf.js";
-import { FirebaseServiceFactory, Node } from "@counterfactual/node";
-// import { Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
-import { AddressZero } from "ethers/constants";
-import { v4 as generateUUID } from "uuid";
-
-import { EventType } from "../../cf.js/dist/src/types";
-
-import ServerNodeProvider from "./data/server-node-provider";
-
-// const { INSTALL, REJECT_INSTALL } = NodeTypes.EventName;
-
-// console.log(`Node:${Node}`);
-// console.log(`ethers:${ethers}`);
-// console.log(`AddressZero:${AddressZero}`);
-// console.log(`INSTALL:${INSTALL}`);
-// console.log(`REJECT_INSTALL:${REJECT_INSTALL}`);
+const cf = require("@counterfactual/cf.js");
+const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
+const { ethers } = require("ethers");
+const { AddressZero } = require("ethers/constants");
+const { v4 } = require("uuid");
 
 const STATE_ENCODING = `
       tuple(
@@ -54,70 +41,82 @@ const ACTION_ENCODING = `
 //   contracts: {}
 // };
 
-let node;
-
-const serviceFactory = new FirebaseServiceFactory({
-  apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-  authDomain: "foobar-91a31.firebaseapp.com",
-  databaseURL: "https://foobar-91a31.firebaseio.com",
-  projectId: "foobar-91a31",
-  storageBucket: "foobar-91a31.appspot.com",
-  messagingSenderId: "432199632441"
-});
-
-const store = serviceFactory.createStoreService(generateUUID());
-node = await Node.create(
-  serviceFactory.createMessagingService("messaging"),
-  store,
-  {
-    AppRegistry: AddressZero,
-    ETHBalanceRefund: AddressZero,
-    ETHBucket: AddressZero,
-    MultiSend: AddressZero,
-    NonceRegistry: AddressZero,
-    StateChannelTransaction: AddressZero,
-    ETHVirtualAppAgreement: AddressZero
-  },
-  {
-    STORE_KEY_PREFIX: "store"
-  },
-  ethers.getDefaultProvider("ropsten")
-);
-
 class NodeProvider {
+  constructor(node) {
+    this.node = node;
+  }
+
   onMessage(callback) {
-    node.on("message", callback);
+    this.node.on("message", callback);
   }
 
   sendMessage(message) {
-    node.emit("message", message);
+    this.node.emit("message", message);
   }
 
   async connect() {
-    if (this.isConnected) {
-      console.warn("NodeProvider is already connected.");
-      return Promise.resolve(this);
-    }
+    return Promise.resolve(this);
   }
 }
 
-const nodeProvider = new NodeProvider();
-await nodeProvider.connect();
+(async () => {
+  console.log("Creating serviceFactory");
+  const serviceFactory = new FirebaseServiceFactory({
+    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+    authDomain: "foobar-91a31.firebaseapp.com",
+    databaseURL: "https://foobar-91a31.firebaseio.com",
+    projectId: "foobar-91a31",
+    storageBucket: "foobar-91a31.appspot.com",
+    messagingSenderId: "432199632441"
+  });
 
-let appFactory = new cf.AppFactory(
-  " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-  {
-    actionEncoding: ACTION_ENCODING,
-    stateEncoding: STATE_ENCODING
-  },
-  cfProvider
-);
+  console.log("Creating store");
+  const store = serviceFactory.createStoreService(v4());
+  console.log("Creating Node");
+  const node = await Node.create(
+    serviceFactory.createMessagingService("messaging"),
+    store,
+    {
+      AppRegistry: AddressZero,
+      ETHBalanceRefund: AddressZero,
+      ETHBucket: AddressZero,
+      MultiSend: AddressZero,
+      NonceRegistry: AddressZero,
+      StateChannelTransaction: AddressZero,
+      ETHVirtualAppAgreement: AddressZero
+    },
+    {
+      STORE_KEY_PREFIX: "store"
+    },
+    ethers.getDefaultProvider("ropsten")
+  );
 
-const cfProvider = new cf.Provider(nodeProvider);
-cfProvider.on("updateState", newState => {
-  if (state === "") appInstance.takeAction(randomNum);
-});
+  console.log("Creating NodeProvider");
+  const nodeProvider = new NodeProvider(node);
+  await nodeProvider.connect();
 
-cfProvider.on("proposeInstall", appInstance => {
-  appInstance.install();
-});
+  console.log("Creating cfProvider");
+  const cfProvider = new cf.Provider(nodeProvider);
+
+  console.log("Creating appFactory");
+  const appFactory = new cf.AppFactory(
+    " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+    {
+      actionEncoding: ACTION_ENCODING,
+      stateEncoding: STATE_ENCODING
+    },
+    cfProvider
+  );
+
+  console.log("Create event listener for updateState");
+  cfProvider.on("updateState", newState => {
+    console.log(`Received newState ${newState}`);
+    if (state === "") appInstance.takeAction(randomNum);
+  });
+
+  console.log("Create event listener for installVirtual");
+  cfProvider.on("installVirtual", appInstance => {
+    console.log(`Received appInstance ${appInstance}`);
+    appInstance.install();
+  });
+})();
