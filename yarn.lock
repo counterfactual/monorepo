@@ -1869,13 +1869,6 @@
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.2.tgz#e13182e1b69871a422d7863e11a4a6f5b814a4bd"
   integrity sha512-42zEJkBpNfMEAvWR5WlwtTH22oDzcMjFsL9gDGExwF8X8WvAiw7Vwop7hPw03QT8TKfec83LwbHj6SvpqM4ELQ==
 
-"@types/uuid@^3.4.4":
-  version "3.4.4"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.4.tgz#7af69360fa65ef0decb41fd150bf4ca5c0cefdf5"
-  integrity sha512-tPIgT0GUmdJQNSHxp0X2jnpQfBSTfGxUMc/2CXBU2mnyTFVYVa2ojpoQ74w0U2yn2vw3jnC640+77lkFFpdVDw==
-  dependencies:
-    "@types/node" "*"
-
 "@webassemblyjs/ast@1.7.6":
   version "1.7.6"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.6.tgz#3ef8c45b3e5e943a153a05281317474fef63e21e"
@@ -16378,20 +16371,6 @@ ts-node@7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-7.0.0.tgz#a94a13c75e5e1aa6b82814b84c68deb339ba7bff"
   integrity sha512-klJsfswHP0FuOLsvBZ/zzCfUvakOSSxds78mVeK7I+qP76YWtxf16hEZsp3U+b0kIo82R5UatGFeblYMqabb2Q==
-  dependencies:
-    arrify "^1.0.0"
-    buffer-from "^1.1.0"
-    diff "^3.1.0"
-    make-error "^1.1.1"
-    minimist "^1.2.0"
-    mkdirp "^0.5.1"
-    source-map-support "^0.5.6"
-    yn "^2.0.0"
-
-ts-node@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-7.0.1.tgz#9562dc2d1e6d248d24bc55f773e3f614337d9baf"
-  integrity sha512-BVwVbPJRspzNh2yfslyT1PSbl5uIk03EZlb493RKHN4qej/D06n1cEhjlOJG69oFsE7OT8XjpTUcYf6pKTLMhw==
   dependencies:
     arrify "^1.0.0"
     buffer-from "^1.1.0"

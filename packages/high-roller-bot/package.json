@@ -1,11 +1,11 @@
 {
-  "name": "@counterfactual/playground-bot",
+  "name": "@counterfactual/high-roller-bot",
   "version": "0.0.1",
-  "description": "A bot for the Playground app.",
+  "description": "A bot for the High Roller Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
-  "main": "src/index.ts",
+  "main": "src/index.js",
   "directories": {
     "lib": "src",
     "test": "tests"
@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "echo 'No build necessary'",
-    "lint": "tslint -c tslint.json -p .",
+    "lint": "eslint src/",
     "start": "node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -33,13 +33,9 @@
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
-    "@types/uuid": "^3.4.4",
     "env-cmd": "^8.0.2",
     "ethers": "https://github.com/ethers-io/ethers.js.git",
     "jest": "^24.0.0",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.2",
     "uuid": "^3.3.2"
   },
   "jest": {
