@@ -41,7 +41,7 @@ export default async function proposeInstallVirtualAppInstanceController(
     data: {
       params,
       appInstanceId,
-      proposedByAddress: requestHandler.publicIdentifier
+      proposedByIdentifier: requestHandler.publicIdentifier
     }
   };
 

@@ -44,7 +44,7 @@ export interface ProposeVirtualMessage extends NodeMessage {
   data: {
     params: Node.ProposeInstallVirtualParams;
     appInstanceId: string;
-    proposedByAddress: string;
+    proposedByIdentifier: string;
   };
 }
 

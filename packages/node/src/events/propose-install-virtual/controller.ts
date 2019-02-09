@@ -21,7 +21,7 @@ export default async function proposeInstallVirtualEventController(
     requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,
-    nodeMsg.data.proposedByAddress,
+    nodeMsg.data.proposedByIdentifier,
     nodeMsg.from!
   );
 
