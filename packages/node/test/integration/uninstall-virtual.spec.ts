@@ -163,7 +163,7 @@ describe("Node method follows spec - uninstall", () => {
               proposedAppInstanceC
             );
 
-            expect(proposedAppInstanceC.initiatingAddress).toEqual(
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
