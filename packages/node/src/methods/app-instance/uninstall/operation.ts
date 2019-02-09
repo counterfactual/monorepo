@@ -13,7 +13,7 @@ export async function uninstallAppInstanceFromChannel(
   const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
 
   return channel.uninstallApp(
-    await store.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId),
+    appInstanceId,
     appInstanceInfo.myDeposit,
     appInstanceInfo.peerDeposit
   );

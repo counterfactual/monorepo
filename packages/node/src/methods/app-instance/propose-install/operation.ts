@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
@@ -17,19 +16,21 @@ export async function createProposedAppInstance(
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const appInstanceId = generateUUID();
   const channel = await getChannelFromPeerAddress(
     myIdentifier,
     params.proposedToIdentifier,
     store
   );
 
-  const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
-    ...params,
-    proposedByIdentifier: myIdentifier
-  });
+  const proposedAppInstance = new ProposedAppInstanceInfo(
+    {
+      ...params,
+      proposedByIdentifier: myIdentifier
+    },
+    channel
+  );
 
   await store.addAppInstanceProposal(channel, proposedAppInstance);
 
-  return appInstanceId;
+  return proposedAppInstance.id;
 }

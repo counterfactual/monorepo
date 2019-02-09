@@ -1,7 +1,8 @@
 import {
   AppInstance,
   InstructionExecutor,
-  StateChannel
+  StateChannel,
+  xkeysToSortedKthAddresses
 } from "@counterfactual/machine";
 import {
   AppInstanceInfo,
@@ -43,11 +44,7 @@ export async function installVirtual(
     )
   );
 
-  await store.saveRealizedProposedAppInstance(
-    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
-      .identityHash,
-    appInstanceInfo
-  );
+  await store.saveRealizedProposedAppInstance(appInstanceInfo);
 
   return appInstanceInfo;
 }
@@ -71,15 +68,20 @@ function createAppInstanceFromAppInstanceInfo(
   };
 
   return new AppInstance(
-    channel.multisigAddress,
-    channel.getSigningKeysFor(channel.numInstalledApps),
+    AddressZero,
+    // FIXME: Incorrect for virtual app atm
+    xkeysToSortedKthAddresses(
+      [
+        proposedAppInstanceInfo.proposedByIdentifier,
+        proposedAppInstanceInfo.proposedToIdentifier
+      ],
+      0
+    ),
     proposedAppInstanceInfo.timeout.toNumber(),
     appInterface,
     terms,
-    // TODO: pass correct value when virtual app support gets added
-    false,
-    // TODO: this should be thread-safe
-    channel.numInstalledApps,
+    true,
+    channel.numInstalledApps, // FIXME: Incorrect for virtual app atm
     channel.rootNonceValue,
     proposedAppInstanceInfo.initialState,
     0,

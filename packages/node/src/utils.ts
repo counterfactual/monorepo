@@ -47,6 +47,13 @@ export async function getPeersAddressFromAppInstanceID(
   const multisigAddress = await store.getMultisigAddressFromAppInstanceID(
     appInstanceId
   );
+
+  if (!multisigAddress) {
+    throw new Error(
+      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+    );
+  }
+
   const stateChannel = await store.getStateChannel(multisigAddress);
   const owners = stateChannel.userNeuteredExtendedKeys;
   return owners.filter(owner => owner !== myIdentifier);

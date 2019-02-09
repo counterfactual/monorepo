@@ -1,5 +1,4 @@
 import { Address, Node } from "@counterfactual/types";
-import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
@@ -17,8 +16,6 @@ export async function createProposedVirtualAppInstance(
   store: Store,
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {
-  const appInstanceId = generateUUID();
-
   const nextIntermediaryAddress = getNextNodeAddress(
     myIdentifier,
     params.intermediaries,
@@ -31,14 +28,17 @@ export async function createProposedVirtualAppInstance(
     store
   );
 
-  const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
-    ...params,
-    proposedByIdentifier: myIdentifier
-  });
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
+      ...params,
+      proposedByIdentifier: myIdentifier
+    },
+    channel
+  );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstance);
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 
-  return appInstanceId;
+  return proposedAppInstanceInfo.id;
 }
 
 /**

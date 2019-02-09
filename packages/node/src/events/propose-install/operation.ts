@@ -11,11 +11,19 @@ export async function setAppInstanceIDForProposeInstall(
   appInstanceId: string,
   proposedByIdentifier: string
 ) {
-  await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(myIdentifier, proposedByIdentifier, store),
-    new ProposedAppInstanceInfo(appInstanceId, {
+  const channel = await getChannelFromPeerAddress(
+    myIdentifier,
+    proposedByIdentifier,
+    store
+  );
+
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
       ...params,
       proposedByIdentifier
-    })
+    },
+    channel
   );
+
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 }

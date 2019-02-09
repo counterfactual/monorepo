@@ -20,11 +20,19 @@ export async function setAppInstanceIDForProposeInstallVirtual(
   proposedByIdentifier: string,
   incomingIdentifier: Address
 ) {
-  await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(myIdentifier, incomingIdentifier, store),
-    new ProposedAppInstanceInfo(appInstanceId, {
+  const channel = await getChannelFromPeerAddress(
+    myIdentifier,
+    incomingIdentifier,
+    store
+  );
+
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
       ...params,
       proposedByIdentifier
-    })
+    },
+    channel
   );
+
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 }

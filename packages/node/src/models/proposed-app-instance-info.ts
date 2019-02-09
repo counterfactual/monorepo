@@ -1,15 +1,22 @@
 import {
+  AppInstance,
+  StateChannel,
+  xkeysToSortedKthAddresses
+} from "@counterfactual/machine";
+import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
+  AppInterface,
   BlockchainAsset,
-  SolidityABIEncoderV2Struct
+  Bytes32,
+  SolidityABIEncoderV2Struct,
+  Terms
 } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 export interface IProposedAppInstanceInfo {
-  id?: AppInstanceID;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -23,7 +30,7 @@ export interface IProposedAppInstanceInfo {
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: AppInstanceID;
+  id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -47,7 +54,7 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  id: AppInstanceID;
+  id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -60,10 +67,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   intermediaries?: string[];
 
   constructor(
-    appInstanceId: AppInstanceID,
-    proposeParams: IProposedAppInstanceInfo
+    proposeParams: IProposedAppInstanceInfo,
+    channel?: StateChannel,
+    overrideId?: Bytes32
   ) {
-    this.id = appInstanceId;
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
     this.asset = proposeParams.asset;
@@ -74,6 +81,53 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
+    this.id = overrideId || this.getIdentityHashFor(channel!);
+  }
+
+  // TODO: Note the construction of this is duplicated from the machine
+  getIdentityHashFor(stateChannel: StateChannel) {
+    const proposedAppInterface: AppInterface = {
+      addr: this.appId,
+      ...this.abiEncodings
+    };
+
+    const proposedTerms: Terms = {
+      assetType: this.asset.assetType,
+      limit: bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
+      token: this.asset.token || AddressZero
+    };
+
+    const isVirtualApp = (this.intermediaries || []).length > 0;
+
+    const signingKeys = isVirtualApp
+      ? // FIXME: We need a standard for the keys used in a virtual app
+        xkeysToSortedKthAddresses(
+          [this.proposedByIdentifier, this.proposedToIdentifier],
+          0
+        )
+      : stateChannel.getSigningKeysFor(stateChannel.numInstalledApps);
+
+    const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
+
+    const proposedAppInstance = new AppInstance(
+      owner,
+      signingKeys,
+      bigNumberify(this.timeout).toNumber(),
+      proposedAppInterface,
+      proposedTerms,
+      isVirtualApp,
+      // FIXME: Incorrect for virtual atm. This AppInstance is being installed
+      // into the incorrect state channel. Correct channel is in PR #607
+      stateChannel.numInstalledApps,
+      stateChannel.rootNonceValue,
+      this.initialState,
+      0,
+      bigNumberify(this.timeout).toNumber()
+    );
+
+    console.log(JSON.stringify(proposedAppInstance.toJson(), null, 2));
+
+    return proposedAppInstance.identityHash;
   }
 
   toJson() {
@@ -94,7 +148,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
-      id: json.id,
       appId: json.appId,
       abiEncodings: json.abiEncodings,
       asset: json.asset,
@@ -106,6 +159,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedToIdentifier: json.proposedToIdentifier,
       intermediaries: json.intermediaries
     };
-    return new ProposedAppInstanceInfo(json.id, proposeParams);
+    return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
   }
 }
