@@ -17,11 +17,11 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    let addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
-    if (!addresses) {
-      throw new Error("Contract addresses not found");
+    let data = readFileSync(path.join(DIR, "data"), "utf8");
+    if (!data) {
+      throw new Error("Global setup state not found");
     }
-    addresses = JSON.parse(addresses);
+    data = JSON.parse(data);
 
     const networkContext = {
       AppRegistry: AddressZero,
@@ -31,12 +31,16 @@ class NodeEnvironment extends NodeJSEnvironment {
       NonceRegistry: AddressZero,
       StateChannelTransaction: AddressZero,
       ETHVirtualAppAgreement: AddressZero,
-      MinimumViableMultisig: addresses.MinimumViableMultisig,
-      ProxyFactory: addresses.ProxyFactory,
-      TicTacToe: addresses.TicTacToe
+      MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
+      ProxyFactory: data.networkContext.ProxyFactory,
+      TicTacToe: data.networkContext.TicTacToe
     };
 
     this.global.networkContext = networkContext;
+    this.global.pgMnemonic = data.pgMnemonic;
+    this.global.nodeAMnemonic = data.nodeAMnemonic;
+    this.global.nodeBMnemonic = data.nodeBMnemonic;
+    this.global.nodeCMnemonic = data.nodeCMnemonic;
     this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 

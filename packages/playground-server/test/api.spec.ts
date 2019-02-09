@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/node";
 import {
   HttpStatusCode,
   JsonApiDocument,
@@ -14,15 +15,11 @@ import { resolve } from "path";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import { createNode, createNodeSingleton, getNodeAddress } from "../src/node";
+import NodeWrapper from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
 import {
-  MNEMONIC_ALICE,
-  MNEMONIC_BOB,
-  MNEMONIC_CHARLIE,
-  MNEMONIC_PG_SERVER,
   POST_SESSION_CHARLIE,
   POST_SESSION_CHARLIE_SIGNATURE_HEADER,
   POST_USERS_ALICE,
@@ -59,48 +56,43 @@ const db = getDatabase();
 
 Log.setOutputLevel(LogLevel.ERROR);
 
+const GANACHE_URL = global["ganacheURL"];
+const NETWORK_CONTEXT = global["networkContext"];
+
 describe("playground-server", () => {
+  let nodeAlice: Node;
+  let nodeBob: Node;
+  let nodeCharlie: Node;
+
   beforeAll(async () => {
-    // @ts-ignore
-    const provider = new JsonRpcProvider(global.ganacheURL);
+    const provider = new JsonRpcProvider(GANACHE_URL);
 
-    // @ts-ignore
-    console.log("ganache url: ", global.ganacheURL);
-
-    console.log("starting test:");
-    console.log(
-      // @ts-ignore
-      global.networkContext
+    await NodeWrapper.createNodeSingleton(
+      "ganache",
+      NETWORK_CONTEXT,
+      provider,
+      global["pgMnemonic"]
     );
 
-    await createNodeSingleton(
+    nodeAlice = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
-      MNEMONIC_PG_SERVER
+      global["nodeAMnemonic"]
     );
 
-    const nodeAlice = await createNode(
+    nodeBob = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
-      MNEMONIC_ALICE
+      global["nodeBMnemonic"]
     );
-    const nodeBob = await createNode(
+
+    nodeCharlie = await NodeWrapper.createNode(
       "ganache",
-      // @ts-ignore
-      global.networkContext,
+      NETWORK_CONTEXT,
       provider,
-      MNEMONIC_BOB
-    );
-    const nodeCharlie = await createNode(
-      "ganache",
-      // @ts-ignore
-      global.networkContext,
-      provider,
-      MNEMONIC_CHARLIE
+      global["nodeCMnemonic"]
     );
 
     expect(nodeAlice).not.toEqual(nodeBob);
@@ -150,7 +142,7 @@ describe("playground-server", () => {
   describe("/api/users", () => {
     it("fails when signature is not passed to the request", async done => {
       await client
-        .post("/users", POST_USERS_ALICE_NO_SIGNATURE)
+        .post("/users", POST_USERS_ALICE_NO_SIGNATURE(global["nodeAMnemonic"]))
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -168,9 +160,13 @@ describe("playground-server", () => {
 
     it("fails when an invalid signature is passed to the request", async done => {
       await client
-        .post("/users", POST_USERS_ALICE_INVALID_SIGNATURE, {
-          headers: POST_USERS_ALICE_INVALID_SIGNATURE_HEADER
-        })
+        .post(
+          "/users",
+          POST_USERS_ALICE_INVALID_SIGNATURE(global["nodeAMnemonic"]),
+          {
+            headers: POST_USERS_ALICE_INVALID_SIGNATURE_HEADER
+          }
+        )
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -187,9 +183,10 @@ describe("playground-server", () => {
     });
 
     it("creates an account for the first time and returns 201 + the multisig address", async done => {
+      jest.setTimeout(10000);
       const response = await client
-        .post("/users", POST_USERS_ALICE, {
-          headers: POST_USERS_ALICE_SIGNATURE_HEADER
+        .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
         })
         .catch(error => {
           console.error(error.message, error.response.data);
@@ -198,11 +195,12 @@ describe("playground-server", () => {
 
       const data = response.data.data as User;
 
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       expect(data.id).toBeDefined();
-      expect(data.attributes.username).toEqual(USR_ALICE.username);
-      expect(data.attributes.email).toEqual(USR_ALICE.email);
-      expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
-      expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+      expect(data.attributes.username).toEqual(aliceUser.username);
+      expect(data.attributes.email).toEqual(aliceUser.email);
+      expect(data.attributes.ethAddress).toEqual(aliceUser.ethAddress);
+      expect(data.attributes.nodeAddress).toEqual(aliceUser.nodeAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
       expect(data.attributes.token).toBeDefined();
       expect(response.status).toEqual(HttpStatusCode.Created);
@@ -211,8 +209,8 @@ describe("playground-server", () => {
 
     it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", async done => {
       await client
-        .post("/users", POST_USERS_ALICE, {
-          headers: POST_USERS_ALICE_SIGNATURE_HEADER
+        .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
         })
         .catch(({ response }) => {
           expect(response.data).toEqual({
@@ -231,9 +229,15 @@ describe("playground-server", () => {
 
     it("creates an account for the second time with the same username and returns HttpStatusCode.BadRequest", async done => {
       await client
-        .post("/users", POST_USERS_ALICE_DUPLICATE_USERNAME, {
-          headers: POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER
-        })
+        .post(
+          "/users",
+          POST_USERS_ALICE_DUPLICATE_USERNAME(global["nodeAMnemonic"]),
+          {
+            headers: POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER(
+              global["nodeAMnemonic"]
+            )
+          }
+        )
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -274,9 +278,15 @@ describe("playground-server", () => {
 
     it("fails for a non-registered address", done => {
       client
-        .post("/session-requests", POST_SESSION_CHARLIE, {
-          headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER
-        })
+        .post(
+          "/session-requests",
+          POST_SESSION_CHARLIE(global["nodeCMnemonic"]),
+          {
+            headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(
+              global["nodeCMnemonic"]
+            )
+          }
+        )
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -292,12 +302,18 @@ describe("playground-server", () => {
     });
 
     it("returns user data with a token", async done => {
-      await db("users").insert(USR_CHARLIE_KNEX);
+      await db("users").insert(USR_CHARLIE_KNEX(global["nodeCMnemonic"]));
 
       const response = await client
-        .post("/session-requests", POST_SESSION_CHARLIE, {
-          headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER
-        })
+        .post(
+          "/session-requests",
+          POST_SESSION_CHARLIE(global["nodeCMnemonic"]),
+          {
+            headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(
+              global["nodeCMnemonic"]
+            )
+          }
+        )
         .catch(error => {
           console.error(error.message, error.response.data);
           throw error;
@@ -305,11 +321,12 @@ describe("playground-server", () => {
 
       const data = response.data.data;
 
-      expect(data.attributes.email).toEqual(USR_CHARLIE.email);
-      expect(data.attributes.ethAddress).toEqual(USR_CHARLIE.ethAddress);
+      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
+      expect(data.attributes.email).toEqual(charlieUser.email);
+      expect(data.attributes.ethAddress).toEqual(charlieUser.ethAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
-      expect(data.attributes.nodeAddress).toEqual(USR_CHARLIE.nodeAddress);
-      expect(data.attributes.username).toEqual(USR_CHARLIE.username);
+      expect(data.attributes.nodeAddress).toEqual(charlieUser.nodeAddress);
+      expect(data.attributes.username).toEqual(charlieUser.username);
       expect(data.attributes.token).toBeDefined();
 
       expect(response.status).toEqual(HttpStatusCode.Created);
@@ -335,7 +352,7 @@ describe("playground-server", () => {
     });
 
     it("returns user data from a token", async done => {
-      await db("users").insert(USR_BOB_KNEX);
+      await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
 
       const response = await client
         .get("/users", {
@@ -352,7 +369,7 @@ describe("playground-server", () => {
       expect(response.data).toEqual({
         data: [
           {
-            attributes: USR_BOB,
+            attributes: USR_BOB(global["nodeBMnemonic"]),
             id: USR_BOB_ID,
             relationships: {},
             type: "user"
@@ -388,7 +405,7 @@ describe("playground-server", () => {
     });
 
     it("fails when there are no users to match with", async done => {
-      await db("users").insert(USR_BOB_KNEX);
+      await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
 
       client
         .post(
@@ -419,7 +436,10 @@ describe("playground-server", () => {
     });
 
     it("returns the only possible user as a match", async done => {
-      await db("users").insert([USR_BOB_KNEX, USR_ALICE_KNEX]);
+      await db("users").insert([
+        USR_BOB_KNEX(global["nodeBMnemonic"]),
+        USR_ALICE_KNEX(global["nodeAMnemonic"])
+      ]);
 
       const response = await client
         .post(
@@ -443,13 +463,14 @@ describe("playground-server", () => {
       const json = response.data as JsonApiDocument<MatchmakingRequest>;
       const data = json.data as MatchmakingRequest;
 
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       expect(data.type).toEqual("matchmakingRequest");
       expect(data.id).toBeDefined();
       expect(data.attributes).toEqual({
-        intermediary: getNodeAddress(),
-        username: USR_ALICE.username,
-        ethAddress: USR_ALICE.ethAddress,
-        nodeAddress: USR_ALICE.nodeAddress
+        intermediary: NodeWrapper.getNodeAddress(),
+        username: aliceUser.username,
+        ethAddress: aliceUser.ethAddress,
+        nodeAddress: aliceUser.nodeAddress
       });
 
       expect(response.status).toEqual(HttpStatusCode.Created);
@@ -458,7 +479,10 @@ describe("playground-server", () => {
 
     it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
-      await db("users").insert([USR_BOB_KNEX, USR_CHARLIE_KNEX]);
+      await db("users").insert([
+        USR_BOB_KNEX(global["nodeBMnemonic"]),
+        USR_CHARLIE_KNEX(global["nodeAMnemonic"])
+      ]);
 
       const response = await client
         .post(
@@ -481,10 +505,12 @@ describe("playground-server", () => {
 
       const { username, ethAddress } = response.data.data.attributes;
 
-      if (username === USR_CHARLIE.username) {
-        expect(ethAddress).toEqual(USR_CHARLIE.ethAddress);
-      } else if (username === USR_ALICE.username) {
-        expect(ethAddress).toEqual(USR_ALICE.ethAddress);
+      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
+      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
+      if (username === charlieUser.username) {
+        expect(ethAddress).toEqual(charlieUser.ethAddress);
+      } else if (username === aliceUser.username) {
+        expect(ethAddress).toEqual(aliceUser.ethAddress);
       } else {
         fail("It should have matched either Alice or Charlie");
       }

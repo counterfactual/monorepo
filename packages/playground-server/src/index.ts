@@ -1,12 +1,12 @@
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
-import { createNodeSingleton } from "./node";
+import NodeWrapper from "./node";
 
 Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 (async () => {
-  await createNodeSingleton("ropsten");
+  await NodeWrapper.createNodeSingleton("ropsten");
 
   const api = mountApi();
   const port = process.env.PORT || 9000;
