@@ -3,6 +3,7 @@ import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
+import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
@@ -11,15 +12,16 @@ import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/et
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { AppInstance, StateChannel } from "../../src/models";
+import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getSortedRandomSigningKeys } from "./random-signing-keys";
+import { getRandomHDNodes } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -46,6 +48,7 @@ beforeAll(async () => {
 
   const relevantArtifacts = [
     { contractName: "AppRegistry", ...AppRegistry },
+    { contractName: "NonceRegistry", ...NonceRegistry },
     { contractName: "ETHBucket", ...ETHBucket },
     { contractName: "MultiSend", ...MultiSend },
     { contractName: "StateChannelTransaction", ...StateChannelTransaction },
@@ -75,8 +78,12 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("returns the funds the app had locked up", async done => {
-    const signingKeys = getSortedRandomSigningKeys(2);
-    const signingAddresses = signingKeys.map(x => x.address);
+    const xkeys = getRandomHDNodes(2);
+
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
 
     const resolveToPay5WeiAppDefinition = await new ContractFactory(
       ResolveToPay5WeiApp.abi,
@@ -94,10 +101,10 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxyAddress,
-        signingAddresses
+        xkeys.map(x => x.extendedKey)
       ).setFreeBalance(AssetType.ETH, {
-        [signingAddresses[0]]: parseEther("20"),
-        [signingAddresses[1]]: parseEther("20")
+        [multisigOwnerKeys[0].address]: parseEther("20"),
+        [multisigOwnerKeys[1].address]: parseEther("20")
       });
 
       const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
@@ -105,6 +112,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       // target app instance
       const targetAppInstance = new AppInstance(
         stateChannel.multisigAddress, // ok
+        // TODO: will not be ok when passed to installApp; need k-th signing keys
         stateChannel.multisigOwners, // ok
         0, // default timeout
         {
@@ -135,7 +143,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const commitment = new ETHVirtualAppAgreementCommitment(
         network, // network
         proxyAddress, // multisigAddress
-        signingAddresses, // signing
+        multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         freeBalanceETH.identity, // fb AI
         freeBalanceETH.terms, // fb terms
@@ -146,7 +154,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
-        beneficiaries // beneficiaries
+        beneficiaries, // beneficiaries
+        HashZero
       );
 
       const setStateCommitment = new SetStateCommitment(
@@ -158,8 +167,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       );
 
       const setStateTx = setStateCommitment.transaction([
-        signingKeys[0].signDigest(setStateCommitment.hashToSign()),
-        signingKeys[1].signDigest(setStateCommitment.hashToSign())
+        // TODO: Replace with k-th signing keys later
+        multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
       ]);
 
       await wallet.sendTransaction({
@@ -180,8 +190,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
 
       await wallet.sendTransaction({
         ...commitment.transaction([
-          signingKeys[0].signDigest(commitment.hashToSign()),
-          signingKeys[1].signDigest(commitment.hashToSign())
+          multisigOwnerKeys[0].signDigest(commitment.hashToSign()),
+          multisigOwnerKeys[1].signDigest(commitment.hashToSign())
         ]),
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
@@ -196,7 +206,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       (MinimumViableMultisig as WaffleLegacyOutput).networks![networkId]
         .address,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-        signingAddresses
+        multisigOwnerKeys.map(x => x.address)
       ]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );

@@ -34,12 +34,30 @@
 
     <script>
       EventEmitter = EventEmitter3.EventEmitter;
+      hdnode = ethers.utils.HDNode;
       utils = ethers.utils;
       constants = ethers.constants;
       database = firebase.database;
 
       // Sentry.init({ dsn: 'https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439' });
     </script>
+
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-114409337-5', 'auto');
+      
+      const userId = window.localStorage.getItem("playground:user:token")
+
+      if (userId) {
+        ga('set', 'userId', userId);
+      }
+
+      ga('require', 'urlChangeTracker');
+      
+      ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+    <script asynt src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js"></script>
 
     <script src="/assets/cf.js"></script>
 

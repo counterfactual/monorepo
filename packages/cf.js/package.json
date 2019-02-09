@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf.js",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
@@ -29,8 +29,9 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
+    "@counterfactual/node-provider": "0.0.1",
     "@counterfactual/types": "0.0.1",
-    "ethers": "4.0.23",
+    "ethers": "https://github.com/ethers-io/ethers.js.git",
     "eventemitter3": "^3.1.0"
   },
   "jest": {

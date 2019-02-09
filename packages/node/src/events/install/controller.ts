@@ -15,7 +15,7 @@ import { InstallMessage } from "../../types";
  *       methods/intall/operations.ts::install method with the exception
  *       of the lack of a runInstallProtocol call. This is because this is
  *       the counterparty end of the install protocol which runs _after_
- *       the _dispatchReceivedMessage_ call finishes and saves the result.
+ *       the _runProtocolWithMessage_ call finishes and saves the result.
  *
  *       Future iterations of this code will simply be a middleware hook on
  *       the _STATE TRANSITION COMMIT_ opcode.
@@ -66,15 +66,14 @@ function createAppInstanceFromAppInstanceInfo(
 
   return new AppInstance(
     channel.multisigAddress,
-    // TODO: generate ephemeral app-specific keys
-    channel.multisigOwners,
+    channel.getSigningKeysFor(channel.numInstalledApps - 1),
     proposedAppInstanceInfo.timeout.toNumber(),
     appInterface,
     terms,
     // TODO: pass correct value when virtual app support gets added
     false,
     // TODO: this should be thread-safe
-    channel.numInstalledApps + 1,
+    channel.numInstalledApps - 1,
     channel.rootNonceValue,
     proposedAppInstanceInfo.initialState,
     0,

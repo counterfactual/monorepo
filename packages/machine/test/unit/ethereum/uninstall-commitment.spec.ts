@@ -13,6 +13,7 @@ import {
   randomBytes,
   TransactionDescription
 } from "ethers/utils";
+import { fromSeed } from "ethers/utils/hdnode";
 
 import { UninstallCommitment } from "../../../src/ethereum";
 import { MultisigTransaction } from "../../../src/ethereum/types";
@@ -33,17 +34,15 @@ describe("Uninstall Commitment", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: getAddress(hexlify(randomBytes(20))),
-    receiver: getAddress(hexlify(randomBytes(20)))
+    sender: fromSeed(hexlify(randomBytes(32))).extendedKey,
+    receiver: fromSeed(hexlify(randomBytes(32))).extendedKey
   };
 
   // State channel testing values
   let stateChannel = StateChannel.setupChannel(
     networkContext.ETHBucket,
     getAddress(hexlify(randomBytes(20))),
-    [interaction.sender, interaction.receiver].sort((a, b) =>
-      parseInt(a, 16) < parseInt(b, 16) ? -1 : 1
-    )
+    [interaction.sender, interaction.receiver]
   );
 
   // Set the state to some test values

@@ -1,3 +1,5 @@
+declare var ga: any;
+
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -34,7 +36,7 @@ export class AccountRegister {
     username: "",
     email: "",
     ethAddress: this.user.ethAddress,
-    nodeAddress: CounterfactualNode.getInstance().address
+    nodeAddress: CounterfactualNode.getInstance().publicIdentifier
   };
 
   @State() errors: UserChangeset = {
@@ -83,15 +85,14 @@ export class AccountRegister {
         signedMessage
       );
 
-      this.updateAccount({
-        ...this.changeset,
-        multisigAddress: newAccount.multisigAddress
-      });
+      this.updateAccount({ user: newAccount });
 
       window.localStorage.setItem(
         "playground:user:token",
         newAccount.token as string
       );
+
+      ga("set", "userId", newAccount.token);
 
       this.history.push("/deposit");
     } catch (e) {

@@ -11,6 +11,7 @@ import {
   getETHBucketAppInterface,
   unlimitedETH
 } from "../ethereum/utils/eth-bucket";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
@@ -48,7 +49,7 @@ function sortAddresses(addrs: string[]) {
 
 export type StateChannelJSON = {
   readonly multisigAddress: string;
-  readonly multisigOwners: string[];
+  readonly userNeuteredExtendedKeys: string[];
   readonly appInstances: [string, AppInstanceJson][];
   readonly ETHVirtualAppAgreementInstances: [
     string,
@@ -60,17 +61,22 @@ export type StateChannelJSON = {
 
 function createETHFreeBalance(
   multisigAddress: string,
-  multisigOwners: string[],
+  userNeuteredExtendedKeys: string[],
   ethBucketAddress: string
 ) {
+  const sortedTopLevelKeys = xkeysToSortedKthAddresses(
+    userNeuteredExtendedKeys,
+    0 // NOTE: We re-use 0 which is also used as the keys for `multisigOwners`
+  );
+
   // Making these values constants to be extremely explicit about
   // the built-in assumption here.
-  const beneficiaryForPerson1 = multisigOwners[0];
-  const beneficiaryForPerson2 = multisigOwners[1];
+  const beneficiaryForPerson1 = sortedTopLevelKeys[0];
+  const beneficiaryForPerson2 = sortedTopLevelKeys[1];
 
   return new AppInstance(
     multisigAddress,
-    multisigOwners,
+    sortedTopLevelKeys,
     HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
     getETHBucketAppInterface(ethBucketAddress),
     unlimitedETH,
@@ -91,7 +97,7 @@ function createETHFreeBalance(
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
-    public readonly multisigOwners: string[],
+    public readonly userNeuteredExtendedKeys: string[],
     readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
@@ -106,13 +112,10 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {
-    const sortedMultisigOwners = sortAddresses(multisigOwners);
-    multisigOwners.forEach((owner, idx) => {
-      if (owner !== sortedMultisigOwners[idx]) {
-        throw new Error(ERRORS.MULTISIG_OWNERS_NOT_SORTED);
-      }
-    });
+  ) {}
+
+  public get multisigOwners() {
+    return this.getSigningKeysFor(0);
   }
 
   public get numInstalledApps() {
@@ -147,6 +150,18 @@ export class StateChannel {
 
   public hasFreeBalanceFor(assetType: AssetType): boolean {
     return this.freeBalanceAppIndexes.has(assetType);
+  }
+
+  public getSigningKeysFor(addressIndex: number): string[] {
+    return sortAddresses(
+      this.userNeuteredExtendedKeys.map(xpub =>
+        xkeyKthAddress(xpub, addressIndex)
+      )
+    );
+  }
+
+  public getNextSigningKeys(): string[] {
+    return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
   public getFreeBalanceFor(assetType: AssetType): AppInstance {
@@ -191,13 +206,11 @@ export class StateChannel {
   public static setupChannel(
     ethBucketAddress: string,
     multisigAddress: string,
-    multisigOwners: string[]
+    userNeuteredExtendedKeys: string[]
   ) {
-    const sortedMultisigOwners = sortAddresses(multisigOwners);
-
     const fb = createETHFreeBalance(
       multisigAddress,
-      sortedMultisigOwners,
+      userNeuteredExtendedKeys,
       ethBucketAddress
     );
 
@@ -209,11 +222,41 @@ export class StateChannel {
 
     return new StateChannel(
       multisigAddress,
-      sortedMultisigOwners,
+      userNeuteredExtendedKeys,
       appInstances,
       new Map<string, ETHVirtualAppAgreementInstance>(),
       freeBalanceAppIndexes,
       1
+    );
+  }
+
+  public static createEmptyChannel(
+    multisigAddress: string,
+    userNeuteredExtendedKeys: string[]
+  ) {
+    return new StateChannel(
+      multisigAddress,
+      userNeuteredExtendedKeys,
+      new Map<string, AppInstance>(),
+      new Map<string, ETHVirtualAppAgreementInstance>(),
+      new Map<AssetType, string>(),
+      1
+    );
+  }
+
+  public addVirtualAppInstance(appInstance: AppInstance) {
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.set(appInstance.identityHash, appInstance);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.multisigOwners,
+      appInstances,
+      this.ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes
     );
   }
 
@@ -231,7 +274,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -241,6 +284,7 @@ export class StateChannel {
 
   public installETHVirtualAppAgreementInstance(
     evaaInstance: ETHVirtualAppAgreementInstance,
+    targetIdentityHash: string,
     aliceBalanceDecrement: BigNumber,
     bobBalanceDecrement: BigNumber
   ) {
@@ -273,12 +317,11 @@ export class StateChannel {
       this.ethVirtualAppAgreementInstances.entries()
     );
 
-    // todo(xuanji: what key?)
-    evaaInstances.set("", evaaInstance);
+    evaaInstances.set(targetIdentityHash, evaaInstance);
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       this.appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
@@ -303,6 +346,19 @@ export class StateChannel {
       throw Error(INSUFFICIENT_FUNDS);
     }
 
+    // Verify appInstance has expected signingkeys
+
+    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
+      throw Error("AppInstance passed to installApp has incorrect appSeqNo");
+    } else {
+      const signingKeys = this.getSigningKeysFor(appInstance.appSeqNo);
+      if (!signingKeys.every((v, idx) => v === appInstance.signingKeys[idx])) {
+        throw Error(
+          "AppInstance passed to installApp has incorrect signingKeys"
+        );
+      }
+    }
+
     /// Add modified FB and new AppInstance to appInstances
 
     const appInstances = new Map<string, AppInstance>(
@@ -318,7 +374,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -352,7 +408,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -363,7 +419,7 @@ export class StateChannel {
   toJson(): StateChannelJSON {
     return {
       multisigAddress: this.multisigAddress,
-      multisigOwners: this.multisigOwners,
+      userNeuteredExtendedKeys: this.userNeuteredExtendedKeys,
       appInstances: [...this.appInstances.entries()].map(
         (appInstanceEntry): [string, AppInstanceJson] => {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
@@ -384,7 +440,7 @@ export class StateChannel {
   static fromJson(json: StateChannelJSON): StateChannel {
     return new StateChannel(
       json.multisigAddress,
-      json.multisigOwners,
+      json.userNeuteredExtendedKeys,
       new Map(
         [...Object.values(json.appInstances || [])].map(
           (appInstanceEntry): [string, AppInstance] => {

@@ -19,6 +19,7 @@ export class AppRoot {
 
   async updateAccount(newProps: AccountState) {
     this.accountState = { ...this.accountState, ...newProps };
+    this.bindProviderEvents();
   }
 
   async updateNetwork(newProps: NetworkState) {
@@ -27,6 +28,46 @@ export class AppRoot {
 
   async updateAppRegistry(newProps: AppRegistryState) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
+  }
+
+  async updateMultisigBalance(ethBalance: any) {
+    // TODO: This comparison might need changes if the user's doing
+    // deposits beyond the registration flow.
+    if (ethBalance._hex === "0x0" && this.accountState.unconfirmedBalance) {
+      return;
+    }
+
+    const balance = parseFloat(ethers.utils.formatEther(ethBalance.toString()));
+
+    this.accountState = {
+      ...this.accountState,
+      balance,
+      unconfirmedBalance: undefined
+    };
+  }
+
+  async updateWalletBallance(ethBalance: any) {
+    const balance = parseFloat(ethers.utils.formatEther(ethBalance.toString()));
+
+    this.accountState = { ...this.accountState, accountBalance: balance };
+  }
+
+  bindProviderEvents() {
+    const { provider, user } = this.accountState;
+
+    if (!provider) {
+      return;
+    }
+
+    if (user.ethAddress) {
+      provider.removeAllListeners(user.ethAddress);
+      provider.on(user.ethAddress, this.updateWalletBallance.bind(this));
+    }
+
+    if (user.multisigAddress) {
+      provider.removeAllListeners(user.multisigAddress);
+      provider.on(user.multisigAddress, this.updateMultisigBalance.bind(this));
+    }
   }
 
   render() {
@@ -65,7 +106,6 @@ export class AppRoot {
                   </stencil-route-switch>
                 </stencil-router>
               </main>
-              <layout-footer />
               <web3-connector
                 accountState={this.accountState}
                 networkState={this.networkState}

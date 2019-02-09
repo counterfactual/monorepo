@@ -16,24 +16,42 @@ export class Web3Connector {
       await web3.currentProvider.enable();
     } catch {}
 
-    if (web3.currentProvider) {
+    const permittedNetworkIds = ["3"];
+
+    if (
+      web3.currentProvider &&
+      permittedNetworkIds.includes(web3.version.network)
+    ) {
+      const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+      const signer = provider.getSigner();
+      // TODO: find more robust way to work with coinbase;
+      // currently it does not yet support "web3.currentProvider.selectedAddress"
+      const ethAddress =
+        web3.currentProvider.selectedAddress || web3.eth.accounts[0];
+
       this.accountState.updateAccount!({
+        provider,
+        signer,
         user: {
+          ethAddress,
           username: "",
           multisigAddress: "",
           id: "",
           email: "",
-          nodeAddress: "",
-          ethAddress: web3.currentProvider.selectedAddress
-        }
+          nodeAddress: ""
+        },
+        balance: 0,
+        accountBalance: 0
       });
       this.networkState.updateNetwork!({
         network: web3.version.network,
-        connected: true
+        connected: true,
+        walletDetected: true
       });
     } else {
       this.networkState.updateNetwork!({
-        connected: false
+        connected: false,
+        walletDetected: !!web3.currentProvider
       });
     }
   }

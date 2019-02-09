@@ -17,7 +17,7 @@ export default async function proposeInstallVirtualEventController(
   nodeMsg: ProposeVirtualMessage
 ) {
   await setAppInstanceIDForProposeInstallVirtual(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     requestHandler.store,
     nodeMsg.data.params,
     nodeMsg.data.appInstanceId,
@@ -27,7 +27,7 @@ export default async function proposeInstallVirtualEventController(
 
   if (
     !nodeIsIntermediary(
-      requestHandler.address,
+      requestHandler.publicIdentifier,
       nodeMsg.data.params.intermediaries
     )
   ) {
@@ -35,13 +35,13 @@ export default async function proposeInstallVirtualEventController(
   }
 
   const relayedProposalMsg: ProposeVirtualMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
     data: nodeMsg.data
   };
 
   const nextNodeAddress = getNextNodeAddress(
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     nodeMsg.data.params.intermediaries,
     nodeMsg.data.params.respondingAddress
   );

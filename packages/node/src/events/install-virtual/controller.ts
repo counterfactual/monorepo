@@ -9,7 +9,7 @@ export default async function installEventController(
   await installVirtual(
     requestHandler.store,
     requestHandler.instructionExecutor,
-    requestHandler.address,
+    requestHandler.publicIdentifier,
     msg.from,
     msg.data.params
   );

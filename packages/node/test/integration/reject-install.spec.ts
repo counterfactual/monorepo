@@ -1,6 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -25,7 +24,6 @@ import {
 
 describe("Node method follows spec - rejectInstall", () => {
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -40,7 +38,6 @@ describe("Node method follows spec - rejectInstall", () => {
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -49,9 +46,7 @@ describe("Node method follows spec - rejectInstall", () => {
     };
     mockProvider = mock(Provider);
     provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -76,7 +71,7 @@ describe("Node method follows spec - rejectInstall", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -86,8 +81,8 @@ describe("Node method follows spec - rejectInstall", () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddress).toBeDefined();
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
@@ -97,7 +92,7 @@ describe("Node method follows spec - rejectInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address
+          nodeB.publicIdentifier
         );
 
         nodeA.on(

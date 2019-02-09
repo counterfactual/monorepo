@@ -12,10 +12,10 @@ then
     types \
     apps \
     contracts \
+    node-provider \
     cf.js \
     machine \
     node \
-    node-provider \
     playground-server \
   "
 else
@@ -23,10 +23,10 @@ else
     types \
     apps \
     contracts \
+    node-provider \
     cf.js \
     machine \
     node \
-    node-provider \
     playground-server \
     playground \
     dapp-high-roller \
@@ -40,5 +40,9 @@ for package in $packages; do
   echo "⚙️  Building package: ${package}"
   cd packages/${package}
   yarn build
+  if [ "$?" != "0" ]
+  then
+    exit $?;
+  fi
   cd -
 done

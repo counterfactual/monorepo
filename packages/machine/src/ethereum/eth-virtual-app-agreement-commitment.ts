@@ -28,7 +28,8 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly rootNonceValue: number,
     public readonly expiry: BigNumber,
     public readonly capitalProvided: BigNumber,
-    public readonly beneficiaries: string[]
+    public readonly beneficiaries: string[],
+    public readonly uninstallKey: string
   ) {
     super(
       networkContext,
@@ -50,12 +51,22 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     if (this.networkContext.ETHVirtualAppAgreement === undefined) {
       throw Error("undefined ETHVirtualAppAgreement");
     }
+
+    if (this.beneficiaries.length !== 2) {
+      throw Error(
+        `ETHVirtualAppAgreement currently only supports 2 beneficiaries but got ${
+          this.beneficiaries.length
+        }`
+      );
+    }
+
     return {
       to: this.networkContext.ETHVirtualAppAgreement,
       value: 0,
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.AppRegistry,
+          nonceRegistry: this.networkContext.NonceRegistry,
           terms: {
             assetType: AssetType.ETH,
             limit: new BigNumber(0),
@@ -64,7 +75,8 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
           expiry: this.expiry,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
-          beneficiaries: this.beneficiaries
+          beneficiaries: this.beneficiaries,
+          uninstallKey: this.uninstallKey
         }
       ]),
       operation: MultisigOperation.DelegateCall

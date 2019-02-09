@@ -2,13 +2,18 @@ import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { GameState, HighRollerAppState } from "../../data/game-types";
+import {
+  ActionType,
+  GameState,
+  HighRollerAppState,
+  HighRollerStage
+} from "../../data/game-types";
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, HighRollerUIMutableState, Node } from "../../data/types";
+import { computeCommitHash } from "../../utils/utils";
 
-declare var NodeProvider;
 declare var cf;
 declare var ethers;
 
@@ -53,9 +58,8 @@ export class AppProvider {
   async componentWillLoad() {
     const params = new URLSearchParams(window.location.search);
 
-    // TODO use async/await
     this.nodeProvider = !params.get("standalone")
-      ? new NodeProvider()
+      ? new cf.NodeProvider()
       : new MockNodeProvider();
 
     await this.nodeProvider.connect();
@@ -72,7 +76,7 @@ export class AppProvider {
 
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+      "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
@@ -101,9 +105,8 @@ export class AppProvider {
       stage: newStateArray[1],
       salt: newStateArray[2],
       commitHash: newStateArray[3],
-      playerFirstNumber: this.highRollerState.playerFirstNumber || {
-        _hex: "0x00"
-      },
+      playerFirstNumber:
+        this.highRollerState.playerFirstNumber || newStateArray[4],
       playerSecondNumber: newStateArray[5]
     } as HighRollerAppState;
 
@@ -119,19 +122,22 @@ export class AppProvider {
       return;
     }
 
+    let myScore = this.myScore;
+    let opponentScore = this.opponentScore;
+    let gameState;
+
     const rolls = await this.highRoller(
       state.playerFirstNumber,
       state.playerSecondNumber
     );
 
-    const myRoll = rolls.myRoll;
-    const opponentRoll = rolls.opponentRoll;
+    const myRoll =
+      state.stage < HighRollerStage.DONE ? rolls.myRoll : rolls.opponentRoll;
+    const opponentRoll =
+      state.stage < HighRollerStage.DONE ? rolls.opponentRoll : rolls.myRoll;
+
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
-
-    let myScore = this.myScore;
-    let opponentScore = this.opponentScore;
-    let gameState;
 
     if (totalMyRoll > totalOpponentRoll) {
       myScore = this.myScore + 1;
@@ -155,8 +161,17 @@ export class AppProvider {
 
     this.updateUIState(newUIState);
 
-    debugger;
-    await this.appInstance.uninstall();
+    if (state.stage === HighRollerStage.REVEALING) {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const hash = computeCommitHash(numberSalt, state.playerFirstNumber);
+
+      await this.appInstance.takeAction({
+        actionType: ActionType.REVEAL,
+        actionHash: hash,
+        number: state.playerFirstNumber.toString()
+      });
+    }
   }
 
   onInstall(data) {
@@ -164,10 +179,7 @@ export class AppProvider {
     this.goToGame(this.history);
   }
 
-  onUninstall(data: Node.EventData) {
-    const uninstallData = data as Node.UninstallEventData;
-    debugger;
-  }
+  onUninstall(data: Node.EventData) {}
 
   render() {
     return <div />;

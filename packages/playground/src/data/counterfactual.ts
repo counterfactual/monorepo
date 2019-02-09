@@ -13,7 +13,7 @@ export declare class Node {
     // @ts-ignore
     provider: ethers.providers.Provider
   ): Promise<Node>;
-  readonly address: string;
+  readonly publicIdentifier: string;
   on(event: string, callback: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
   call(

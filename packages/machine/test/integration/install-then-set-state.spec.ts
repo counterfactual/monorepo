@@ -14,10 +14,11 @@ import { Interface, keccak256, parseEther } from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../src/ethereum";
 import { AppInstance, StateChannel } from "../../src/models";
+import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getSortedRandomSigningKeys } from "./random-signing-keys";
+import { getRandomHDNodes } from "./random-signing-keys";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -85,9 +86,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("returns the funds the app had locked up", async done => {
-    const signingKeys = getSortedRandomSigningKeys(2);
+    const xkeys = getRandomHDNodes(2);
 
-    const users = signingKeys.map(x => x.address);
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
 
     const proxyFactory = new Contract(
       (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
@@ -99,11 +103,16 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       let stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxyAddress,
-        users
+        xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(AssetType.ETH, {
-        [users[0]]: WeiPerEther,
-        [users[1]]: WeiPerEther
+        [multisigOwnerKeys[0].address]: WeiPerEther,
+        [multisigOwnerKeys[1].address]: WeiPerEther
       });
+
+      const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
+        xkeys.map(x => x.extendedKey),
+        stateChannel.numInstalledApps
+      );
 
       let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
       const state = freeBalanceETH.state;
@@ -111,7 +120,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       // todo(xuanji): don't reuse state
       const appInstance = new AppInstance(
         stateChannel.multisigAddress,
-        stateChannel.multisigOwners,
+        uniqueAppSigningKeys.map(x => x.address),
         freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
         freeBalanceETH.appInterface, // Re-use the ETHBucket App
         {
@@ -120,7 +129,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           token: AddressZero
         },
         false,
-        stateChannel.numInstalledApps + 1,
+        stateChannel.numInstalledApps,
         stateChannel.rootNonceValue,
         state,
         0,
@@ -132,6 +141,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         WeiPerEther,
         WeiPerEther
       );
+
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
       const setStateCommitment = new SetStateCommitment(
@@ -144,8 +154,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         ...setStateCommitment.transaction([
-          signingKeys[0].signDigest(setStateCommitment.hashToSign()),
-          signingKeys[1].signDigest(setStateCommitment.hashToSign())
+          uniqueAppSigningKeys[0].signDigest(setStateCommitment.hashToSign()),
+          uniqueAppSigningKeys[1].signDigest(setStateCommitment.hashToSign())
         ]),
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
@@ -176,8 +186,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       const installTx = installCommitment.transaction([
-        signingKeys[0].signDigest(installCommitment.hashToSign()),
-        signingKeys[1].signDigest(installCommitment.hashToSign())
+        multisigOwnerKeys[0].signDigest(installCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(installCommitment.hashToSign())
       ]);
 
       await wallet.sendTransaction({
@@ -191,8 +201,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       });
 
       expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);
-      expect(await provider.getBalance(users[0])).toBeEq(WeiPerEther);
-      expect(await provider.getBalance(users[1])).toBeEq(WeiPerEther);
+      expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
+        WeiPerEther
+      );
+      expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
+        WeiPerEther
+      );
 
       done();
     });
@@ -200,7 +214,9 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
     await proxyFactory.functions.createProxy(
       (MinimumViableMultisig as WaffleLegacyOutput).networks![networkId]
         .address,
-      new Interface(MinimumViableMultisig.abi).functions.setup.encode([users]),
+      new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+        multisigOwnerKeys.map(x => x.address)
+      ]),
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

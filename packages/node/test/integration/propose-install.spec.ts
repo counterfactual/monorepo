@@ -1,6 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -21,8 +20,9 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -37,7 +37,6 @@ describe("Node method follows spec - proposeInstall", () => {
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -46,9 +45,7 @@ describe("Node method follows spec - proposeInstall", () => {
     };
     mockProvider = mock(Provider);
     provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -73,7 +70,7 @@ describe("Node method follows spec - proposeInstall", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -83,8 +80,8 @@ describe("Node method follows spec - proposeInstall", () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
         const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddress).toBeDefined();
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
@@ -94,7 +91,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
         // second, an app instance must be proposed to be installed into that channel
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address
+          nodeB.publicIdentifier
         );
 
         // node B then decides to approve the proposal
@@ -133,7 +130,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
       it("sends proposal with null initial state", async () => {
         const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.address,
+          nodeB.publicIdentifier,
           true
         );
 

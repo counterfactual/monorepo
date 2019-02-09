@@ -1,9 +1,19 @@
-import { InstructionExecutor } from "@counterfactual/machine";
-import { AppInstanceInfo, Node } from "@counterfactual/types";
+import {
+  AppInstance,
+  InstructionExecutor,
+  StateChannel
+} from "@counterfactual/machine";
+import {
+  AppInstanceInfo,
+  AppInterface,
+  Node,
+  Terms
+} from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 
+import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
-import { createAppInstanceFromAppInstanceInfo } from "../install/operation";
 
 export async function installVirtual(
   store: Store,
@@ -40,4 +50,39 @@ export async function installVirtual(
   );
 
   return appInstanceInfo;
+}
+
+function createAppInstanceFromAppInstanceInfo(
+  proposedAppInstanceInfo: ProposedAppInstanceInfo,
+  channel: StateChannel
+): AppInstance {
+  const appInterface: AppInterface = {
+    ...proposedAppInstanceInfo.abiEncodings,
+    addr: proposedAppInstanceInfo.appId
+  };
+
+  // TODO: throw if asset type is ETH and token is also set
+  const terms: Terms = {
+    assetType: proposedAppInstanceInfo.asset.assetType,
+    limit: proposedAppInstanceInfo.myDeposit.add(
+      proposedAppInstanceInfo.peerDeposit
+    ),
+    token: proposedAppInstanceInfo.asset.token || AddressZero
+  };
+
+  return new AppInstance(
+    channel.multisigAddress,
+    channel.getSigningKeysFor(channel.numInstalledApps),
+    proposedAppInstanceInfo.timeout.toNumber(),
+    appInterface,
+    terms,
+    // TODO: pass correct value when virtual app support gets added
+    false,
+    // TODO: this should be thread-safe
+    channel.numInstalledApps,
+    channel.rootNonceValue,
+    proposedAppInstanceInfo.initialState,
+    0,
+    proposedAppInstanceInfo.timeout.toNumber()
+  );
 }

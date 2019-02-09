@@ -1,6 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import FirebaseServer from "firebase-server";
 import { instance, mock } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
@@ -22,8 +21,9 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
+  jest.setTimeout(10000);
+
   let firebaseServiceFactory: TestFirebaseServiceFactory;
-  let firebaseServer: FirebaseServer;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -40,7 +40,6 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
-    firebaseServer = firebaseServiceFactory.createServer();
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
@@ -49,11 +48,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
     };
     mockProvider = mock(Provider);
     provider = instance(mockProvider);
-  });
 
-  beforeEach(async () => {
-    // Setting up a different store service to simulate different store services
-    // being used for each Node
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
@@ -89,7 +84,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   });
 
   afterAll(() => {
-    firebaseServer.close();
+    firebaseServiceFactory.closeServiceConnections();
   });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
@@ -97,20 +92,20 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
     () => {
       it("sends proposal with non-null initial state", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.address,
-          nodeB.address
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
         ]);
         expect(multisigAddressAB).toBeDefined();
 
         const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.address,
-          nodeC.address
+          nodeB.publicIdentifier,
+          nodeC.publicIdentifier
         ]);
         expect(multisigAddressBC).toBeDefined();
 
-        const intermediaries = [nodeB.address];
+        const intermediaries = [nodeB.publicIdentifier];
         const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-          nodeC.address,
+          nodeC.publicIdentifier,
           intermediaries
         );
 
@@ -142,7 +137,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             );
 
             expect(proposedAppInstanceC.initiatingAddress).toEqual(
-              nodeA.address
+              nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
 

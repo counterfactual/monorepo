@@ -1,3 +1,5 @@
+declare var ga: any;
+
 import { Component, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
@@ -124,6 +126,8 @@ export class AppRoot {
 
   updateAccount(account: any) {
     this.state = { ...this.state, account };
+
+    ga("set", "userId", account.user.id);
   }
 
   updateOpponent(opponent: any) {
@@ -165,8 +169,6 @@ export class AppRoot {
       "function highRoller(bytes32 randomness) public pure returns(uint8 playerFirstTotal, uint8 playerSecondTotal)"
     ];
 
-    debugger;
-
     // Connect to the network
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
@@ -178,12 +180,27 @@ export class AppRoot {
 
     const result = await contract.highRoller(randomness);
 
-    console.log(result);
-
     return {
-      myRoll: result[0],
-      opponentRoll: result[1]
+      myRoll: this.getDieNumbers(result[0]),
+      opponentRoll: this.getDieNumbers(result[1])
     };
+  }
+
+  getDieNumbers(totalSum: number): [number, number] {
+    // Choose result for each die.
+    if (totalSum === 12) {
+      return [6, 6];
+    }
+
+    if (totalSum > 2 && totalSum < 12) {
+      return [Math.floor(totalSum / 2), Math.ceil(totalSum / 2)];
+    }
+
+    if (totalSum > 2 && totalSum % 2 === 0) {
+      return [Math.floor(totalSum / 2) - 1, Math.ceil(totalSum / 2) + 1];
+    }
+
+    return [totalSum / 2, totalSum / 2];
   }
 
   goToGame(history: RouterHistory, isProposing: boolean = true) {
@@ -199,7 +216,13 @@ export class AppRoot {
   }
 
   goToWaitingRoom(history: RouterHistory) {
-    history.push({ pathname: "/waiting" });
+    history.push({
+      pathname: "/waiting",
+      state: {
+        isProposing: false,
+        betAmount: "0.1"
+      }
+    });
   }
 
   render() {

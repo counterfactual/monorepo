@@ -1,3 +1,17 @@
+import { hashMessage, joinSignature, SigningKey } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
+import { sign } from "jsonwebtoken";
+
+function syncSignMessage(key: SigningKey, message: string) {
+  return joinSignature(key.signDigest(hashMessage(message)));
+}
+
+function getNodeAddress(mnemonic: string) {
+  return fromMnemonic(mnemonic)
+    .derivePath("m/44'/60'/0'/25446")
+    .neuter().extendedKey;
+}
+
 export const PK_ALICE =
   "0xe74ad40ac33d783e5775666ebbd28d0b395dbb4287bee0e88e1803df6eaa7ab4";
 
@@ -10,50 +24,94 @@ export const PK_BOB =
 export const PK_CHARLIE =
   "0x4a138819ac516411432e76db794333eecd66e88926a528e621e31a97f5280c33";
 
+export const MNEMONIC_ALICE =
+  "silk nephew betray double salt lottery inmate dragon invite cheap fog raccoon";
+
+export const MNEMONIC_ALICE_DUPE =
+  "unlock aspect color dentist dress forward title animal exact cupboard orphan weasel";
+
+export const MNEMONIC_BOB = MNEMONIC_ALICE_DUPE;
+
+export const MNEMONIC_CHARLIE =
+  "daring share together slight midnight squirrel fitness course weather decide rent pottery";
+
+export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
+
 export const USR_ALICE = {
   username: "alice_account3",
   email: "alice@wonderland.com",
-  ethAddress: "0x5fAddCa4889DdC5791cf65446371151f29653285",
-  nodeAddress: "0x5fAddCa4889DdC5791cf65446371151f29653285"
+  ethAddress: new SigningKey(PK_ALICE).address,
+  nodeAddress: getNodeAddress(MNEMONIC_ALICE)
+};
+
+export const USR_ALICE_KNEX = {
+  username: "alice_account3",
+  email: "alice@wonderland.com",
+  eth_address: new SigningKey(PK_ALICE).address,
+  node_address: getNodeAddress(MNEMONIC_ALICE)
 };
 
 export const USR_ALICE_DUPLICATE_USERNAME = {
-  username: "alice_account3",
-  email: "alice@wonderland.com",
-  ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-  nodeAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d"
+  username: USR_ALICE.username,
+  email: USR_ALICE.email,
+  ethAddress: new SigningKey(PK_BOB).address,
+  nodeAddress: getNodeAddress(MNEMONIC_BOB)
 };
 
 export const USR_BOB = {
+  username: "bob_account1",
   email: "bob@wonderland.com",
-  ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
+  ethAddress: new SigningKey(PK_BOB).address,
   multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-  nodeAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d",
-  username: "bob_account1"
+  nodeAddress: getNodeAddress(MNEMONIC_BOB)
 };
 
-export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
+export const USR_BOB_KNEX = {
+  id: USR_BOB_ID,
+  email: "bob@wonderland.com",
+  eth_address: new SigningKey(PK_BOB).address,
+  multisig_address: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
+  node_address: getNodeAddress(MNEMONIC_BOB),
+  username: "bob_account1"
+};
 
 export const USR_CHARLIE = {
   username: "charlie_account2",
   email: "charlie@wonderland.com",
-  ethAddress: "0x93678a4828D07708aD34272D61404dD06aE2CA64",
-  nodeAddress: "0x93678a4828D07708aD34272D61404dD06aE2CA64"
+  ethAddress: new SigningKey(PK_CHARLIE).address,
+  nodeAddress: getNodeAddress(MNEMONIC_CHARLIE)
+};
+
+export const USR_CHARLIE_KNEX = {
+  username: "charlie_account2",
+  email: "charlie@wonderland.com",
+  eth_address: new SigningKey(PK_CHARLIE).address,
+  node_address: getNodeAddress(MNEMONIC_CHARLIE)
 };
 
 export const POST_USERS_ALICE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
 
 export const POST_USERS_ALICE_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0xb62fe274751aedfc9ab0a11009d100e798dc17d806e787b699eea72b899ebe9d52a7bd9b66552a41a2359872cae6b56fac1593cc7ac3fbf2cc5d2782563545761b"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_ALICE),
+    [
+      "PLAYGROUND ACCOUNT REGISTRATION",
+      `Username: ${USR_ALICE.username}`,
+      `E-mail: ${USR_ALICE.email}`,
+      `Ethereum address: ${USR_ALICE.ethAddress}`,
+      `Node address: ${USR_ALICE.nodeAddress}`
+    ].join("\n")
+  )}`
 };
 
 export const POST_USERS_ALICE_NO_SIGNATURE = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE }
   }
 };
@@ -69,64 +127,100 @@ export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME = {
   data: {
+    type: "user",
     attributes: { ...USR_ALICE_DUPLICATE_USERNAME }
   }
 };
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0x5a129cec41a5ffe092c9b020ee945543d340131605fa5a9b5e6aefea4db619616ca730062155fd0b4922325eb93c75fab673ce35457083bb5d2b81285f3a76f41c"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_ALICE_DUPE),
+    [
+      "PLAYGROUND ACCOUNT REGISTRATION",
+      `Username: ${USR_ALICE_DUPLICATE_USERNAME.username}`,
+      `E-mail: ${USR_ALICE_DUPLICATE_USERNAME.email}`,
+      `Ethereum address: ${USR_ALICE_DUPLICATE_USERNAME.ethAddress}`,
+      `Node address: ${USR_ALICE_DUPLICATE_USERNAME.nodeAddress}`
+    ].join("\n")
+  )}`
 };
 
 export const POST_USERS_CHARLIE = {
   data: {
+    type: "user",
     attributes: { ...USR_CHARLIE }
   }
 };
 
 export const POST_USERS_CHARLIE_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0x1cf892974e79fc38f7eadd231fb0f27ab11f2888f519bba1b87d5408637ba81a49f290343c179745d6070efa5c9cf9bf060ea704bd9ec9c13de4c8c3baa5f78b1c"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_CHARLIE),
+    [
+      "PLAYGROUND ACCOUNT REGISTRATION",
+      `Username: ${USR_CHARLIE.username}`,
+      `E-mail: ${USR_CHARLIE.email}`,
+      `Ethereum address: ${USR_CHARLIE.ethAddress}`,
+      `Node address: ${USR_CHARLIE.nodeAddress}`
+    ].join("\n")
+  )}`
 };
 
 export const POST_SESSION_CHARLIE = {
   data: {
-    type: "session",
-    id: "",
-    attributes: { ethAddress: "0x93678a4828D07708aD34272D61404dD06aE2CA64" }
+    type: "sessionRequest",
+    attributes: { ethAddress: USR_CHARLIE.ethAddress }
   }
 };
 
 export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0x9aaf0833ed78cc9d29c9d2965156ad57a45e0d74cd9ded50910812806f13f8b86dc4c0f0bf802061f3e8e1ff91442adf9652443864a213bbded0e1a12d6bd3fa1b"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_CHARLIE),
+    [
+      "PLAYGROUND ACCOUNT LOGIN",
+      `Ethereum address: ${USR_CHARLIE.ethAddress}`
+    ].join("\n")
+  )}`
 };
 
 export const POST_SESSION_BOB = {
   data: {
-    type: "session",
-    id: "",
-    attributes: { ethAddress: "0x0f693CC956DF59deC24BB1C605ac94CadCe6014d" }
+    type: "sessionRequest",
+    attributes: { ethAddress: USR_BOB.ethAddress }
   }
 };
 
 export const POST_SESSION_BOB_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0xe627ce2761d0f411a985472e3f08edd57915f08743be9bcf9f6b620a2b3b33b90481e2fc8ba195ae9eaa8fb6cdee7ee490561e1792dddc9f86bcb14919fe23591b"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_BOB),
+    [
+      "PLAYGROUND ACCOUNT LOGIN",
+      `Ethereum address: ${USR_BOB.ethAddress}`
+    ].join("\n")
+  )}`
 };
 
 export const POST_SESSION_ALICE = {
   data: {
-    type: "session",
-    id: "",
-    attributes: { ethAddress: "0x5fAddCa4889DdC5791cf65446371151f29653285" }
+    type: "sessionRequest",
+    attributes: { ethAddress: USR_ALICE.ethAddress }
   }
 };
 
 export const POST_SESSION_ALICE_SIGNATURE_HEADER = {
-  authorization:
-    "Signature 0x49adc42b169295b67d8efa9d4da8ad079b5d7ed2475cd8a948de411ba284e3fc4c4039f893bd7d7cc5a44c330e20ae8b7c6d79fc32083fae7bb7f4522903f6bf1c"
+  authorization: `Signature ${syncSignMessage(
+    new SigningKey(PK_ALICE),
+    [
+      "PLAYGROUND ACCOUNT LOGIN",
+      `Ethereum address: ${USR_ALICE.ethAddress}`
+    ].join("\n")
+  )}`
 };
 
-export const TOKEN_BOB =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdHRyaWJ1dGVzIjp7ImVtYWlsIjoiYm9iQHdvbmRlcmxhbmQuY29tIiwiZXRoQWRkcmVzcyI6IjB4MGY2OTNDQzk1NkRGNTlkZUMyNEJCMUM2MDVhYzk0Q2FkQ2U2MDE0ZCIsIm11bHRpc2lnQWRkcmVzcyI6IjB4YzVGNjA0N2EyMkE1NTgyZjYyZEJjRDI3OGYxQTIyNzVhYjM5MDAxQSIsIm5vZGVBZGRyZXNzIjoiMHgwZjY5M0NDOTU2REY1OWRlQzI0QkIxQzYwNWFjOTRDYWRDZTYwMTRkIiwidXNlcm5hbWUiOiJib2JfYWNjb3VudDEifSwiaWQiOiJlNWE0ODIxNy01ZDgzLTRmZGQtYmYxZC1iOWUzNTkzNGYwZjIiLCJpYXQiOjE1NDgyMDA1NjcsImV4cCI6MTU3OTc1ODE2N30.EMeP0Glq0ARFZpgXLkVuIILDOUxtY9n3qQJol7m29Uk";
+export const TOKEN_BOB = sign(
+  {
+    attributes: USR_BOB,
+    id: USR_BOB_ID
+  },
+  "0x0123456789012345678901234567890123456789012345678901234567890123",
+  { expiresIn: "1Y" }
+);

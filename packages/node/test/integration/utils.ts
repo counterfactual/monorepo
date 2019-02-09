@@ -17,13 +17,13 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
 export async function getNewMultisig(
   node: Node,
-  owners: Address[]
+  xpubs: string[]
 ): Promise<Address> {
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.CREATE_MULTISIG,
     params: {
-      owners
+      owners: xpubs
     } as NodeTypes.CreateMultisigParams
   };
   const response: NodeTypes.MethodResponse = await node.call(req.type, req);
@@ -187,8 +187,8 @@ export function makeInstallVirtualRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
-  respondingAddress: Address,
-  intermediaries: Address[],
+  respondingAddress: string,
+  intermediaries: string[],
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(

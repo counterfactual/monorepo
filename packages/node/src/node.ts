@@ -6,15 +6,17 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
+import { UpdateParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Provider } from "ethers/providers";
-import { getAddress, SigningKey } from "ethers/utils";
+import { SigningKey } from "ethers/utils";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
-import { getSigner } from "./signer";
+import { getHDNode } from "./signer";
 import {
   NODE_EVENTS,
   NodeMessage,
@@ -44,7 +46,7 @@ export class Node {
 
   // These properties don't have initializers in the constructor and get
   // initialized in the `init` function
-  private signer!: SigningKey;
+  private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
   static async create(
@@ -78,9 +80,9 @@ export class Node {
   }
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
-    this.signer = await getSigner(this.storeService);
+    this.signer = await getHDNode(this.storeService);
     this.requestHandler = new RequestHandler(
-      this.signer.address,
+      this.publicIdentifier,
       this.incoming,
       this.outgoing,
       this.storeService,
@@ -88,14 +90,14 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.signer.address}`
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
     return this;
   }
 
-  get address() {
-    return this.signer.address;
+  get publicIdentifier(): string {
+    return this.signer.neuter().extendedKey;
   }
 
   /**
@@ -118,9 +120,29 @@ export class Node {
           );
         }
 
+        let keyIndex = 0;
+
+        if (message.protocol === Protocol.Update) {
+          const {
+            appIdentityHash,
+            multisigAddress
+          } = message.params as UpdateParams;
+          keyIndex = context.stateChannelsMap
+            .get(multisigAddress)!
+            .getAppInstance(appIdentityHash).appSeqNo;
+        } else if (message.protocol === Protocol.InstallVirtualApp) {
+          if (context.commitments.length === 2) {
+            keyIndex = 0;
+          }
+        }
+
+        const signingKey = new SigningKey(
+          this.signer.derivePath(`${keyIndex}`).privateKey
+        );
+
         for (const commitment of context.commitments) {
           context.signatures.push(
-            this.signer.signDigest(commitment.hashToSign(asIntermediary))
+            signingKey.signDigest(commitment.hashToSign(asIntermediary))
           );
         }
 
@@ -139,8 +161,8 @@ export class Node {
       Opcode.IO_SEND,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
-        const from = getAddress(this.address);
-        const to = getAddress(data.toAddress);
+        const from = this.publicIdentifier;
+        const to = data.toAddress;
 
         await this.messagingService.send(to, {
           from,
@@ -156,8 +178,8 @@ export class Node {
       Opcode.IO_SEND_AND_WAIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
-        const from = getAddress(this.address);
-        const to = getAddress(data.toAddress);
+        const from = this.publicIdentifier;
+        const to = data.toAddress;
 
         this.ioSendDeferrals[to] = new Deferred<
           NodeMessageWrappedProtocolMessage
@@ -170,6 +192,8 @@ export class Node {
         } as NodeMessageWrappedProtocolMessage);
 
         const msg = await this.ioSendDeferrals[to].promise;
+
+        delete this.ioSendDeferrals[msg.from];
 
         context.inbox.push(msg.data);
 
@@ -253,7 +277,7 @@ export class Node {
    */
   private registerMessagingConnection() {
     this.messagingService.onReceive(
-      getAddress(this.address),
+      this.publicIdentifier,
       async (msg: NodeMessage) => {
         await this.handleReceivedMessage(msg);
         this.outgoing.emit(msg.type, msg);
@@ -302,7 +326,5 @@ export class Node {
         { error, msg }
       );
     }
-
-    delete this.ioSendDeferrals[msg.from];
   }
 }

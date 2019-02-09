@@ -62,11 +62,11 @@ export type APIResourceAttributes = {
 };
 
 export type APIResourceType =
-  | "users"
-  | "matchmaking"
+  | "user"
+  | "matchmakingRequest"
   | "matchedUser"
   | "session"
-  | "apps";
+  | "app";
 
 export type APIResourceRelationships = {
   [key in APIResourceType]?: APIDataContainer

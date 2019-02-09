@@ -6,6 +6,7 @@ import { MatchResults, RouterHistory } from "@stencil/router";
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
+import PlaygroundAPIClient from "../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../types";
 
 @Component({
@@ -100,31 +101,51 @@ export class DappContainer {
     this.iframe.remove();
   }
 
-  private handlePlaygroundMessage(event: MessageEvent): void {
+  private async handlePlaygroundMessage(event: MessageEvent): Promise<void> {
     if (!this.frameWindow) {
       return;
     }
 
     if (event.data === "playground:request:user") {
-      const matchmakeWith = window.localStorage.getItem(
-        "playground:matchmakeWith"
-      ) as string;
-
-      this.frameWindow.postMessage(
-        `playground:response:user|${JSON.stringify({
-          user: {
-            ...this.user,
-            token: window.localStorage.getItem(
-              "playground:user:token"
-            ) as string
-          },
-          balance: this.balance,
-          // This devtool flag allows to force a matchmake with a given username.
-          ...(matchmakeWith ? { matchmakeWith } : {})
-        })}`,
-        "*"
-      );
+      await this.sendResponseForRequestUser(this.frameWindow);
     }
+
+    if (event.data === "playground:request:matchmake") {
+      await this.sendResponseForMatchmakeRequest(this.frameWindow);
+    }
+  }
+
+  private get token(): string {
+    return window.localStorage.getItem("playground:user:token") as string;
+  }
+
+  private get matchmakeWith(): string | null {
+    return window.localStorage.getItem("playground:matchmakeWith");
+  }
+
+  private async sendResponseForRequestUser(frameWindow: Window) {
+    frameWindow.postMessage(
+      `playground:response:user|${JSON.stringify({
+        user: {
+          ...this.user,
+          token: this.token
+        },
+        balance: this.balance
+      })}`,
+      "*"
+    );
+  }
+
+  private async sendResponseForMatchmakeRequest(frameWindow: Window) {
+    const json = await PlaygroundAPIClient.matchmake(
+      this.token,
+      this.matchmakeWith
+    );
+
+    frameWindow.postMessage(
+      `playground:response:matchmake|${JSON.stringify(json)}`,
+      "*"
+    );
   }
 
   /**
@@ -166,7 +187,7 @@ export class DappContainer {
 
   /**
    * Binds this end of the MessageChannel (aka `port1`) to the dApp
-   * container, and attachs a listener to relay messages via the
+   * container, and attaches a listener to relay messages via the
    * EventEmitter.
    */
   private configureMessagePorts(): MessageChannel {

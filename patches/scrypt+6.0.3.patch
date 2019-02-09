@@ -1,0 +1,12 @@
+diff --git a/node_modules/scrypt/index.js b/node_modules/scrypt/index.js
+index 7b13a79..1e40d76 100644
+--- a/node_modules/scrypt/index.js
++++ b/node_modules/scrypt/index.js
+@@ -1,6 +1,6 @@
+ "use strict";
+ 
+-var scryptNative = require("./build/Release/scrypt")
++var scryptNative = require("./build/Release/scrypt.node")
+   , Crypto = require("crypto")
+   , Os = require("os");
+ 

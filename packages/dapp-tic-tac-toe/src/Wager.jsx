@@ -19,34 +19,18 @@ class Wager extends Component {
     this.props.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     console.log("user data", this.props.user);
-    const { token } = this.props.user;
-    const { matchmakeWith } = this.props;
 
     try {
-      const response = await fetch(
-        // TODO: This URL must come from an environment variable.
-        "https://server.playground-staging.counterfactual.com/api/matchmaking",
-        {
-          method: "POST",
-          ...(matchmakeWith
-            ? {
-                body: JSON.stringify({
-                  data: { attributes: { matchmakeWith } }
-                })
-              }
-            : {}),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      const result = await response.json();
+      const result = await this.matchmake();
 
-      const opponent = result.included.find(
-        resource =>
-          resource.id === result.data.relationships.matchedUser.data.id
-      );
+      const opponent = {
+        id: "opponent",
+        attributes: {
+          username: result.data.attributes.username,
+          nodeAddress: result.data.attributes.nodeAddress,
+          ethAddress: result.data.attributes.ethAddress
+        }
+      };
 
       this.setState({
         isLoaded: true,
@@ -60,6 +44,27 @@ class Wager extends Component {
         error
       });
     }
+  }
+
+  async matchmake() {
+    return new Promise(resolve => {
+      const onMatchmakeResponse = event => {
+        if (
+          !event.data.toString().startsWith("playground:response:matchmake")
+        ) {
+          return;
+        }
+
+        window.removeEventListener("message", onMatchmakeResponse);
+
+        const [, data] = event.data.split("|");
+        resolve(JSON.parse(data));
+      };
+
+      window.addEventListener("message", onMatchmakeResponse);
+
+      window.parent.postMessage("playground:request:matchmake", "*");
+    });
   }
 
   createAppFactory() {

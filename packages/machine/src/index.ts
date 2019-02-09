@@ -15,6 +15,12 @@ import {
   SetupParams,
   Transaction
 } from "./types";
+import {
+  xkeyKthAddress,
+  xkeyKthHDNode,
+  xkeysToSortedKthAddresses,
+  xkeysToSortedKthSigningKeys
+} from "./xkeys";
 
 export {
   AppInstance,
@@ -30,5 +36,9 @@ export {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
-  Transaction
+  Transaction,
+  xkeyKthAddress,
+  xkeyKthHDNode,
+  xkeysToSortedKthAddresses,
+  xkeysToSortedKthSigningKeys
 };

@@ -1,18 +1,26 @@
 {
-  "apps": [
+  "data": [
     {
-      "id": "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-      "name": "High Roller",
-      "url": "https://high-roller-staging.counterfactual.com",
-      "slug": "high-roller",
-      "icon": "assets/images/logo.png"
+      "type": "app",
+      "id": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+      "attributes": {
+        "name": "High Roller",
+        "url": "https://high-roller-staging.counterfactual.com",
+        "slug": "high-roller",
+        "icon": "assets/images/logo.png"
+      },
+      "relationships": {}
     },
     {
+      "type": "app",
       "id": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
-      "name": "Tic Tac Toe",
-      "url": "https://tic-tac-toe-staging.netlify.com",
-      "slug": "tic-tac-toe",
-      "icon": "images/logo.png"
+      "attributes": {
+        "name": "Tic Tac Toe",
+        "url": "https://tic-tac-toe-staging.netlify.com",
+        "slug": "tic-tac-toe",
+        "icon": "images/logo.png"
+      },
+      "relationships": {}
     }
   ]
 }

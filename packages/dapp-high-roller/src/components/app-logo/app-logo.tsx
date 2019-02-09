@@ -18,10 +18,14 @@ import { cf } from "../../data/types";
 export class AppLogo {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
 
-  @Prop() goToWaitingRoom: (history: RouterHistory) => void = () => {};
+  @Prop() goToWaitingRoom: (
+    history: RouterHistory,
+    initialState: any
+  ) => void = () => {};
   @Prop() appInstance: any;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
+  @Prop() opponent: any;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
 
   @Watch("cfProvider")
@@ -32,7 +36,7 @@ export class AppLogo {
         this.appInstance
       );
       this.updateAppInstance(appInstance);
-      this.goToWaitingRoom(this.history);
+      this.goToWaitingRoom(this.history, this.opponent);
     }
   }
 
@@ -52,4 +56,4 @@ export class AppLogo {
   }
 }
 
-CounterfactualTunnel.injectProps(AppLogo, ["cfProvider"]);
+CounterfactualTunnel.injectProps(AppLogo, ["cfProvider", "opponent"]);

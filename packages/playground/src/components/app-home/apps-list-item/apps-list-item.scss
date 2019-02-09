@@ -42,6 +42,8 @@
 
 @media screen and (max-width: $screen-sm) {
   .icon {
+    display: flex;
+    justify-content: center;
     border-radius: 16px;
 
     > .notification {
@@ -54,6 +56,8 @@
 
     > img {
       width: 100%;
+      max-width: 200px;
+      max-height: 200px;
     }
   }
 }

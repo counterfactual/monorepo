@@ -20,15 +20,15 @@ const serviceFactory = new FirebaseServiceFactory({
 });
 
 let node: Node;
-export async function createNodeSingleton(privateKey?: string): Promise<Node> {
-  return node || (await createNode(privateKey));
+export async function createNodeSingleton(mnemonic?: string): Promise<Node> {
+  return node || (await createNode(mnemonic));
 }
 
-export async function createNode(privateKey?: string): Promise<Node> {
+export async function createNode(mnemonic?: string): Promise<Node> {
   const store = serviceFactory.createStoreService(generateUUID());
 
-  if (privateKey) {
-    await store.set([{ key: "PRIVATE_KEY", value: privateKey }]);
+  if (mnemonic) {
+    await store.set([{ key: "MNEMONIC", value: mnemonic }]);
   }
 
   node = await Node.create(
@@ -61,7 +61,7 @@ export async function createNode(privateKey?: string): Promise<Node> {
 }
 
 export function getNodeAddress(): string {
-  return node.address;
+  return node.publicIdentifier;
 }
 
 export async function createMultisigFor(
@@ -75,7 +75,7 @@ export async function createMultisigFor(
     NodeTypes.MethodName.CREATE_MULTISIG,
     {
       params: {
-        owners: [node.address, userAddress]
+        owners: [node.publicIdentifier, userAddress]
       },
       type: NodeTypes.MethodName.CREATE_MULTISIG,
       requestId: generateUUID()

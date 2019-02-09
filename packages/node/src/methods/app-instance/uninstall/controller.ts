@@ -25,7 +25,7 @@ export default async function uninstallController(
   );
 
   const uninstallMsg: UninstallMessage = {
-    from: requestHandler.address,
+    from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.UNINSTALL,
     data: {
       appInstance: appInstanceInfo
@@ -37,7 +37,7 @@ export default async function uninstallController(
   // uninstall the AppInstance
   await requestHandler.store.saveStateChannel(updatedChannel);
 
-  const to = getCounterpartyAddress(requestHandler.address, [
+  const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
     appInstanceInfo.initiatingAddress,
     appInstanceInfo.respondingAddress
   ]);

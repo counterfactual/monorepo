@@ -5,10 +5,11 @@ import { Opcode } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, InstallParams, ProtocolMessage } from "../types";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import {
-  addSignedCommitmentInResponseWithSeq2,
+  addSignedCommitmentInResponse,
   addSignedCommitmentToOutboxForSeq1
 } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
@@ -40,7 +41,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Verify they did indeed countersign the right thing
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        message.toAddress,
+        xkeyKthAddress(message.toAddress, 0),
         context.commitments[0],
         context.inbox[0].signature
       ),
@@ -56,7 +57,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Validate your counterparty's signature is for the above proposal
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        message.fromAddress,
+        xkeyKthAddress(message.fromAddress, 0),
         context.commitments[0],
         message.signature
       ),
@@ -65,7 +66,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.OP_SIGN,
 
     // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponseWithSeq2,
+    addSignedCommitmentInResponse,
 
     // Send the message to your counterparty
     Opcode.IO_SEND,
@@ -96,10 +97,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     // KEY: Sets it to NOT be a virtual app
     false,
     // KEY: The app sequence number
-    // TODO: Should validate that the proposed app sequence number is also
-    //       the computed value here and is ALSO still the number compute
-    //       inside the installApp function below
-    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps + 1,
+    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps,
     context.stateChannelsMap.get(multisigAddress)!.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0

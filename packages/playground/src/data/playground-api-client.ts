@@ -2,6 +2,7 @@ import {
   APIError,
   APIRequest,
   APIResource,
+  APIResourceAttributes,
   APIResourceCollection,
   APIResponse,
   AppAttributes,
@@ -13,22 +14,40 @@ import {
 } from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
+const API_TIMEOUT = 30000;
+
+function timeout(delay: number = API_TIMEOUT) {
+  const handler = setTimeout(() => {
+    throw new Error("Request timed out");
+  }, delay);
+
+  return {
+    cancel() {
+      clearTimeout(handler);
+    }
+  };
+}
 
 async function post(
   endpoint: string,
   data: APIResource,
-  signature?: string
+  token?: string,
+  authType: "Bearer" | "Signature" = "Signature"
 ): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     body: JSON.stringify({
       data
     } as APIRequest),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...(signature ? { Authorization: `Signature ${signature}` } : {})
+      ...(token ? { Authorization: `${authType} ${token}` } : {})
     },
     method: "POST"
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 
@@ -41,6 +60,8 @@ async function post(
 }
 
 async function get(endpoint: string, token?: string): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     method: "GET",
     headers: token
@@ -49,6 +70,8 @@ async function get(endpoint: string, token?: string): Promise<APIResponse> {
         }
       : {}
   });
+
+  requestTimeout.cancel();
 
   const response = (await httpResponse.json()) as APIResponse;
 
@@ -108,7 +131,7 @@ export default class PlaygroundAPIClient {
   ): Promise<UserSession> {
     try {
       const json = (await post(
-        "session",
+        "session-requests",
         {
           type: "session",
           id: "",
@@ -128,7 +151,7 @@ export default class PlaygroundAPIClient {
 
   public static async getUser(token: string): Promise<UserSession> {
     try {
-      const json = (await get("users", token)) as APIResponse;
+      const json = (await get("users/me", token)) as APIResponse;
       const resource = json.data[0] as APIResource<UserAttributes>;
 
       return fromAPIResource<UserSession, UserAttributes>(resource);
@@ -144,6 +167,22 @@ export default class PlaygroundAPIClient {
 
       return resources.map(resource =>
         fromAPIResource<AppDefinition, AppAttributes>(resource)
+      );
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async matchmake(token: string, matchmakeWith: string | null) {
+    try {
+      return await post(
+        "matchmaking-requests",
+        {
+          type: "matchmakingRequest",
+          attributes: matchmakeWith ? { matchmakeWith } : {}
+        },
+        token,
+        "Bearer"
       );
     } catch (e) {
       return Promise.reject(e);
