@@ -7,8 +7,6 @@ import {
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { BaseProvider } from "ethers/providers";
-import { computeAddress } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 const serviceFactory = new FirebaseServiceFactory({
@@ -85,13 +83,6 @@ export default class NodeWrapper {
       await store.set([{ key: "MNEMONIC", value: mnemonic }]);
     }
 
-    console.log("creating node");
-    console.log("balance: ");
-    const address = computeAddress(
-      fromMnemonic(mnemonic!).derivePath("m/44'/60'/0'/25446").publicKey
-    );
-    console.log(await provider!.getBalance(address));
-
     const node = await Node.create(
       messaging,
       store,
@@ -109,7 +100,6 @@ export default class NodeWrapper {
   public static async createStateChannelFor(
     userAddress: string
   ): Promise<NodeTypes.CreateChannelResult> {
-    console.log("creating channel");
     if (!NodeWrapper.node) {
       throw new Error(
         "Node hasn't been instantiated yet. Call NodeWrapper.createNode() first."
@@ -117,7 +107,6 @@ export default class NodeWrapper {
     }
 
     const { node } = NodeWrapper;
-    console.log("using existing node: ", node.publicIdentifier);
 
     const multisigResponse = await node.call(
       NodeTypes.MethodName.CREATE_CHANNEL,
@@ -129,8 +118,6 @@ export default class NodeWrapper {
         requestId: generateUUID()
       }
     );
-
-    console.log("here");
 
     return multisigResponse.result as NodeTypes.CreateChannelResult;
   }

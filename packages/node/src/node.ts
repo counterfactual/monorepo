@@ -172,9 +172,6 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toAddress;
 
-        console.log("sending from: ", from);
-        console.log("sending to: ", to);
-
         await this.messagingService.send(to, {
           from,
           data,
@@ -192,13 +189,6 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toAddress;
 
-        console.log("sending and waiting");
-        console.log("from: ", from);
-        console.log("to: ", to);
-        console.log("data: ", data);
-
-        console.log("setting deferral");
-        console.log(data.params);
         this.ioSendDeferrals[to] = new Deferred<
           NodeMessageWrappedProtocolMessage
         >();
@@ -209,9 +199,7 @@ export class Node {
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        console.log("waiting on response");
         const msg = await this.ioSendDeferrals[to].promise;
-        console.log("got response");
 
         delete this.ioSendDeferrals[msg.from];
 
@@ -296,7 +284,6 @@ export class Node {
    * subscribed (i.e. consumers of the Node).
    */
   private registerMessagingConnection() {
-    console.log("registering listener for: ", this.publicIdentifier);
     this.messagingService.onReceive(
       this.publicIdentifier,
       async (msg: NodeMessage) => {
@@ -327,25 +314,19 @@ export class Node {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    console.log("received message by: ", this.publicIdentifier, msg);
-
     const isIoSendDeferral = (msg: NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
       this.ioSendDeferrals[msg.from] !== undefined;
 
     if (isIoSendDeferral(msg)) {
-      console.log("got IO send deferral");
       this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      console.log("got event call: ", msg);
       await this.requestHandler.callEvent(msg.type, msg);
     }
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
     try {
-      console.log("trying to resolve io send deferral");
-      console.log(msg);
       this.ioSendDeferrals[msg.from].resolve(msg);
     } catch (error) {
       console.error(
