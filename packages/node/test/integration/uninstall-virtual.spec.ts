@@ -102,7 +102,7 @@ describe("Node method follows spec - uninstall", () => {
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +
       "then Node A uninstalls the installed AppInstance",
     () => {
-      it("sends uninstall ", async done => {
+      it.skip("sends uninstall ", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier
