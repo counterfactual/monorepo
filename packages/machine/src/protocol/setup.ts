@@ -83,15 +83,25 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     respondingAddress
   } = message.params as SetupParams;
 
+  console.log("received message to propose transition for");
+  console.log(initiatingAddress);
+  console.log(respondingAddress);
+
   if (context.stateChannelsMap.has(multisigAddress)) {
     throw Error(`Found an already-setup channel at ${multisigAddress}`);
   }
 
+  console.log(
+    "setting up new channel with multisig address: ",
+    multisigAddress
+  );
   const newStateChannel = StateChannel.setupChannel(
     context.network.ETHBucket,
     multisigAddress,
     [initiatingAddress, respondingAddress]
   );
+
+  console.log("channel setup");
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitments[0] = constructSetupOp(context.network, newStateChannel);

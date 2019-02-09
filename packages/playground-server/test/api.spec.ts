@@ -19,10 +19,6 @@ import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
 import {
-  MNEMONIC_ALICE,
-  MNEMONIC_BOB,
-  MNEMONIC_CHARLIE,
-  MNEMONIC_PG_SERVER,
   POST_SESSION_CHARLIE,
   POST_SESSION_CHARLIE_SIGNATURE_HEADER,
   POST_USERS_ALICE,
@@ -65,35 +61,38 @@ const NETWORK_CONTEXT = global["networkContext"];
 describe("playground-server", () => {
   beforeAll(async () => {
     const provider = new JsonRpcProvider(GANACHE_URL);
-    console.log("ganache url: ", GANACHE_URL);
-    console.log("starting test:");
-    console.log(NETWORK_CONTEXT);
 
-    await NodeWrapper.createNodeSingleton(
+    const serverNode = await NodeWrapper.createNodeSingleton(
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      MNEMONIC_PG_SERVER
+      global["pgMnemonic"]
     );
+    console.log(serverNode.publicIdentifier);
 
     const nodeAlice = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      MNEMONIC_ALICE
+      global["nodeAMnemonic"]
     );
+    console.log(nodeAlice.publicIdentifier);
+
     const nodeBob = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      MNEMONIC_BOB
+      global["nodeBMnemonic"]
     );
+    console.log(nodeBob.publicIdentifier);
+
     const nodeCharlie = await NodeWrapper.createNode(
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      MNEMONIC_CHARLIE
+      global["nodeCMnemonic"]
     );
+    console.log(nodeCharlie.publicIdentifier);
 
     expect(nodeAlice).not.toEqual(nodeBob);
     expect(nodeAlice).not.toEqual(nodeCharlie);
@@ -178,7 +177,8 @@ describe("playground-server", () => {
       done();
     });
 
-    it("creates an account for the first time and returns 201 + the multisig address", async done => {
+    it.only("creates an account for the first time and returns 201 + the multisig address", async done => {
+      jest.setTimeout(30000);
       const response = await client
         .post("/users", POST_USERS_ALICE, {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER
@@ -195,6 +195,8 @@ describe("playground-server", () => {
       expect(data.attributes.email).toEqual(USR_ALICE.email);
       expect(data.attributes.ethAddress).toEqual(USR_ALICE.ethAddress);
       expect(data.attributes.nodeAddress).toEqual(USR_ALICE.nodeAddress);
+      console.log("received multisig");
+      console.log(data.attributes.multisigAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
       expect(data.attributes.token).toBeDefined();
       expect(response.status).toEqual(HttpStatusCode.Created);

@@ -24,17 +24,25 @@ export default async function createChannelController(
   requestHandler: RequestHandler,
   params: Node.CreateChannelParams
 ): Promise<Node.CreateChannelResult> {
+  console.log("creating channel");
+  console.log(requestHandler.publicIdentifier);
   const multisigAddress = await deployMinimumViableMultisigAndGetAddress(
     params.owners,
     requestHandler.wallet,
     requestHandler.networkContext.MinimumViableMultisig,
     requestHandler.networkContext.ProxyFactory
   );
+  console.log("got multisig address: ", multisigAddress);
 
   const [respondingAddress] = params.owners.filter(
     owner => owner !== requestHandler.publicIdentifier
   );
 
+  console.log(
+    `running setup protocol between: ${respondingAddress}  &  ${
+      requestHandler.publicIdentifier
+    }`
+  );
   const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
     {
       multisigAddress,
@@ -42,6 +50,7 @@ export default async function createChannelController(
       initiatingAddress: requestHandler.publicIdentifier
     }
   );
+  console.log("finished running setup protocol");
 
   await requestHandler.store.saveStateChannel(
     stateChannelsMap.get(multisigAddress)!
@@ -86,6 +95,7 @@ async function deployMinimumViableMultisigAndGetAddress(
     signer
   );
 
+  console.log("returning promise");
   return new Promise(async (resolve, reject) => {
     try {
       proxyFactory.once("ProxyCreation", async proxy => {
@@ -94,6 +104,7 @@ async function deployMinimumViableMultisigAndGetAddress(
 
       // TODO: implement retry around this with exponential backoff on the
       // gas limit to increase probability of proxy getting created
+      console.log("about to create proxy");
       await proxyFactory.functions.createProxy(
         multisigMasterCopyAddress,
         new Interface(MinimumViableMultisig.abi).functions.setup.encode([
