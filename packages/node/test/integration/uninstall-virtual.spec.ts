@@ -1,10 +1,10 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
-import { instance, mock } from "ts-mockito";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { MNEMONIC_PATH } from "../../src/signer";
 import {
   InstallVirtualMessage,
   NODE_EVENTS,
@@ -15,17 +15,17 @@ import {
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedVirtualAppInstanceOnNode,
-  EMPTY_NETWORK,
   generateUninstallRequest,
   getApps,
   getNewMultisig,
   getProposedAppInstances,
   makeInstallVirtualProposalRequest,
-  makeInstallVirtualRequest
+  makeInstallVirtualRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(20000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -36,8 +36,7 @@ describe("Node method follows spec - uninstall", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -50,29 +49,36 @@ describe("Node method follows spec - uninstall", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: process.env.B_MNEMONIC }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -81,9 +87,11 @@ describe("Node method follows spec - uninstall", () => {
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 
@@ -163,7 +171,7 @@ describe("Node method follows spec - uninstall", () => {
               proposedAppInstanceC
             );
 
-            expect(proposedAppInstanceC.initiatingAddress).toEqual(
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
             expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);

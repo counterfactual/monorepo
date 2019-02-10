@@ -23,7 +23,7 @@ export default async function rejectInstallVirtualController(
   };
 
   await requestHandler.messagingService.send(
-    appInstanceInfo.initiatingAddress,
+    appInstanceInfo.proposedByIdentifier,
     rejectInstallVirtualMsg
   );
 

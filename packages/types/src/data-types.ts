@@ -12,8 +12,8 @@ export type AppInstanceInfo = {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initiatingAddress: Address;
-  respondingAddress: Address;
+  proposedByIdentifier: Address;
+  proposedToIdentifier: Address;
   intermediaries?: Address[];
 };
 

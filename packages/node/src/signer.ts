@@ -3,7 +3,7 @@ import { fromMnemonic, HDNode } from "ethers/utils/hdnode";
 
 import { IStoreService } from "./services";
 
-const MNEMONIC_PATH = "MNEMONIC";
+export const MNEMONIC_PATH = "MNEMONIC";
 
 export async function getHDNode(storeService: IStoreService): Promise<HDNode> {
   let mnemonic = await storeService.get(MNEMONIC_PATH);

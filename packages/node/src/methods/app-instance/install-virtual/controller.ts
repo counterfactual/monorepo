@@ -20,7 +20,7 @@ export default async function installVirtualAppInstanceController(
     requestHandler.store,
     requestHandler.instructionExecutor,
     requestHandler.publicIdentifier,
-    proposedAppInstanceInfo.respondingAddress,
+    proposedAppInstanceInfo.proposedToIdentifier,
     params
   );
 
@@ -35,7 +35,7 @@ export default async function installVirtualAppInstanceController(
   };
 
   await requestHandler.messagingService.send(
-    proposedAppInstanceInfo.initiatingAddress,
+    proposedAppInstanceInfo.proposedByIdentifier,
     installVirtualApprovalMsg
   );
 
