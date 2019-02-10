@@ -211,19 +211,23 @@ export function makeInstallVirtualProposalRequest(
 
 /**
  * @param proposalParams The parameters of the installation proposal.
- * @param proposedAppInstance The proposed app instance contained in the Node.
+ * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
  */
 export function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo
+  proposedAppInstanceInfo: AppInstanceInfo
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
-  expect(proposalParams.abiEncodings).toEqual(proposedAppInstance.abiEncodings);
-  expect(proposalParams.appId).toEqual(proposedAppInstance.appId);
-  expect(proposalParams.asset).toEqual(proposedAppInstance.asset);
-  expect(proposalParams.myDeposit).toEqual(proposedAppInstance.myDeposit);
-  expect(proposalParams.peerDeposit).toEqual(proposedAppInstance.peerDeposit);
-  expect(proposalParams.timeout).toEqual(proposedAppInstance.timeout);
+  expect(proposalParams.abiEncodings).toEqual(
+    proposedAppInstanceInfo.abiEncodings
+  );
+  expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
+  expect(proposalParams.asset).toEqual(proposedAppInstanceInfo.asset);
+  expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
+  expect(proposalParams.peerDeposit).toEqual(
+    proposedAppInstanceInfo.peerDeposit
+  );
+  expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }

@@ -17,25 +17,29 @@ export function computeRandomXpub() {
 }
 
 export function createProposedAppInstanceInfo(appInstanceId: string) {
-  return new ProposedAppInstanceInfo(appInstanceId, {
-    proposedByIdentifier: computeRandomXpub(),
-    proposedToIdentifier: computeRandomXpub(),
-    appId: AddressZero,
-    abiEncodings: {
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    } as AppABIEncodings,
-    asset: {
-      assetType: AssetType.ETH
-    } as BlockchainAsset,
-    myDeposit: Zero,
-    peerDeposit: Zero,
-    timeout: One,
-    initialState: {
-      foo: AddressZero,
-      bar: 0
-    } as SolidityABIEncoderV2Struct
-  });
+  return new ProposedAppInstanceInfo(
+    {
+      proposedByIdentifier: computeRandomXpub(),
+      proposedToIdentifier: computeRandomXpub(),
+      appId: AddressZero,
+      abiEncodings: {
+        stateEncoding: "tuple(address foo, uint256 bar)",
+        actionEncoding: undefined
+      } as AppABIEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      } as BlockchainAsset,
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One,
+      initialState: {
+        foo: AddressZero,
+        bar: 0
+      } as SolidityABIEncoderV2Struct
+    },
+    undefined,
+    appInstanceId
+  );
 }
 
 export function createAppInstance() {

@@ -32,8 +32,8 @@ import {
   TEST_NETWORK
 } from "./utils";
 
-describe("Node method follows spec - takeAction", () => {
-  jest.setTimeout(20000);
+describe("Node method follows spec - takeAction virtual", () => {
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;

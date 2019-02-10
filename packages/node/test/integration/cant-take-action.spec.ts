@@ -138,7 +138,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         try {
           await nodeA.call(takeActionReq.type, takeActionReq);
         } catch (e) {
-          expect(e.toString().includes(ERRORS.INVALID_ACTION)).toBeTruthy();
+          expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
           done();
         }
       });
