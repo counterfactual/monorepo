@@ -41,7 +41,7 @@ export class HeaderAccount {
 
   onLoginClicked() {
     web3.personal.sign(
-      buildSignaturePayload(this.user.ethAddress),
+      web3.toHex(buildSignaturePayload(this.user.ethAddress)),
       this.user.ethAddress,
       this.login.bind(this)
     );
