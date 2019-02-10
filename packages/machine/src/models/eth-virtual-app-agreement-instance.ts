@@ -37,7 +37,7 @@ export class ETHVirtualAppAgreementInstance {
   }
 
   public static fromJson(json: ETHVirtualAppAgreementJson) {
-    const ret = new ETHVirtualAppAgreementInstance(
+    return new ETHVirtualAppAgreementInstance(
       json.multisigAddress,
       json.terms,
       json.appSeqNo,
@@ -45,6 +45,5 @@ export class ETHVirtualAppAgreementInstance {
       json.expiry,
       json.capitalProvided
     );
-    return ret;
   }
 }

@@ -20,6 +20,7 @@ export default async function takeActionController(
   const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
     appInstanceId
   );
+
   const oldState = appInstance.state;
 
   try {

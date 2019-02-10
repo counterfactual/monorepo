@@ -88,6 +88,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[2] // s6
       };
     },
+
     Opcode.IO_SEND,
 
     // M5
@@ -148,6 +149,7 @@ function createTarget(
     appInterface,
     {
       assetType: AssetType.ETH,
+      // FIXME: @xuanji
       limit: Zero,
       token: AddressZero
     },
@@ -171,11 +173,16 @@ function addTarget(
     [initiatingAddress, respondingAddress],
     intermediaryAddress
   );
+
   const sc = (
     context.stateChannelsMap.get(key) ||
     StateChannel.createEmptyChannel(key, [initiatingAddress, respondingAddress])
   ).addVirtualAppInstance(targetAppInstance);
+
   context.stateChannelsMap.set(key, sc);
+
+  // Needed for STATE_TRANSITION_COMMIT presently
+  context.appIdentityHash = targetAppInstance.identityHash;
 }
 
 function proposeStateTransition1(message: ProtocolMessage, context: Context) {
@@ -187,8 +194,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
     initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    intermediaryAddress,
+    respondingAddress
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -197,6 +204,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
@@ -264,15 +272,15 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
+    intermediaryAddress,
+    initiatingAddress,
+    respondingAddress,
     signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
     initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -281,6 +289,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
@@ -414,6 +423,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     appInterface,
     initialState
   );
+
   addTarget(
     context,
     initiatingAddress,
@@ -455,6 +465,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
+
   context.stateChannelsMap.set(
     channelWithIntermediary.multisigAddress,
     newStateChannel
@@ -501,7 +512,7 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.rootNonceValue,
     bigNumberify(ethVirtualAppAgreementInstance.expiry),
     bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
-    [],
+    [AddressZero, AddressZero], // FIXME: @xuanji
     HashZero
   );
 }

@@ -1,4 +1,4 @@
-import { Address, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
@@ -18,13 +18,21 @@ export async function setAppInstanceIDForProposeInstallVirtual(
   params: Node.ProposeInstallVirtualParams,
   appInstanceId: string,
   proposedByIdentifier: string,
-  incomingIdentifier: Address
+  incomingIdentifier: string
 ) {
-  await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(myIdentifier, incomingIdentifier, store),
-    new ProposedAppInstanceInfo(appInstanceId, {
+  const channel = await getChannelFromPeerAddress(
+    myIdentifier,
+    incomingIdentifier,
+    store
+  );
+
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
       ...params,
       proposedByIdentifier
-    })
+    },
+    channel
   );
+
+  await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
 }
