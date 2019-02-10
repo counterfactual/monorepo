@@ -8,8 +8,7 @@ import {
   proposeInstallVirtualEventController,
   rejectInstallEventController,
   rejectInstallVirtualEventController,
-  takeActionEventController,
-  uninstallEventController
+  takeActionEventController
 } from "./events";
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
@@ -57,7 +56,6 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
-  [NODE_EVENTS.UNINSTALL]: uninstallEventController,
   // TODO: implement the rest
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {}

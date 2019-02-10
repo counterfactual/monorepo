@@ -6,7 +6,6 @@ import proposeInstallEventController from "./propose-install/controller";
 import rejectInstallVirtualEventController from "./reject-install-virtual/controller";
 import rejectInstallEventController from "./reject-install/controller";
 import takeActionEventController from "./take-action/controller";
-import uninstallEventController from "./uninstall/controller";
 
 export {
   addChannelController,
@@ -16,6 +15,5 @@ export {
   proposeInstallVirtualEventController,
   takeActionEventController,
   rejectInstallEventController,
-  rejectInstallVirtualEventController,
-  uninstallEventController
+  rejectInstallVirtualEventController
 };
