@@ -57,6 +57,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
   // TODO: implement the rest
+  [NODE_EVENTS.UNINSTALL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {}
 };

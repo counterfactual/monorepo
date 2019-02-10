@@ -27,8 +27,8 @@ import {
   TEST_NETWORK
 } from "./utils";
 
-describe("Node method follows spec - proposeInstall", () => {
-  jest.setTimeout(15000);
+describe("Node method follows spec - uninstall", () => {
+  jest.setTimeout(50000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -88,7 +88,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
   describe(
     "Node A gets app install proposal, sends to node B, B approves it, installs it," +
-      "sends acks back to A, A installs it, both nodes have the same app instance",
+      "sends acks back to A, A installs it, then A uninstalls",
     () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
