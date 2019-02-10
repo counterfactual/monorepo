@@ -137,7 +137,7 @@ describe("CF.js AppInstance", () => {
       nodeProvider.simulateMessageFromNode({
         type: Node.EventName.UNINSTALL,
         data: {
-          appInstance: TEST_APP_INSTANCE_INFO
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
         }
       });
     });
