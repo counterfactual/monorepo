@@ -58,7 +58,7 @@ export class AccountRegister {
     // We use personal#sign() because eth#sign() is dangerous.
     // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
     web3.personal.sign(
-      buildSignaturePayload(data),
+      web3.toHex(buildSignaturePayload(data)),
       data.ethAddress,
       this.register.bind(this)
     );
