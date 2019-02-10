@@ -11,11 +11,12 @@ import { readFileSync } from "fs";
 import { Server } from "http";
 import { Log, LogLevel } from "logepi";
 import { resolve } from "path";
+import { v4 as generateUUID } from "uuid";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import NodeWrapper from "../src/node";
+import NodeWrapper, { serviceFactory } from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
@@ -72,7 +73,8 @@ describe("playground-server", () => {
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      global["pgMnemonic"]
+      global["pgMnemonic"],
+      serviceFactory.createStoreService(generateUUID())
     );
 
     nodeAlice = await NodeWrapper.createNode(

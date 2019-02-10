@@ -2,6 +2,7 @@ import {
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
+  MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
@@ -9,7 +10,7 @@ import { ethers } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
-const serviceFactory = new FirebaseServiceFactory({
+export const serviceFactory = new FirebaseServiceFactory({
   apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
   authDomain: "foobar-91a31.firebaseapp.com",
   databaseURL: "https://foobar-91a31.firebaseio.com",
@@ -53,12 +54,15 @@ export default class NodeWrapper {
       return NodeWrapper.node;
     }
 
+    const store =
+      storeService || serviceFactory.createStoreService("pg-server-store");
+
     NodeWrapper.node = await NodeWrapper.createNode(
       network,
       networkContext,
       provider,
       mnemonic,
-      storeService,
+      store,
       messagingService
     );
 
@@ -79,8 +83,8 @@ export default class NodeWrapper {
     const messaging =
       messagingService || serviceFactory.createMessagingService("messaging");
 
-    if (mnemonic) {
-      await store.set([{ key: "MNEMONIC", value: mnemonic }]);
+    if (!(await store.get(MNEMONIC_PATH)) && mnemonic) {
+      await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
     }
 
     const node = await Node.create(
