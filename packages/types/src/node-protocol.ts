@@ -192,7 +192,7 @@ export namespace Node {
     action?: AppAction;
   };
   export type UninstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstanceId: string;
   };
   export type CreateMultisigEventData = {
     owners: Address[];

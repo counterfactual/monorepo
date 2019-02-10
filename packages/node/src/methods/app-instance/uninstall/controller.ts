@@ -38,7 +38,7 @@ export default async function uninstallController(
     from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.UNINSTALL,
     data: {
-      appInstance: undefined! // FIXME:
+      appInstanceId
     }
   };
 

@@ -374,8 +374,8 @@ export class Provider {
    * @ignore
    */
   private async handleUninstallEvent(nodeEvent: Node.Event) {
-    const { appInstance: info } = nodeEvent.data as Node.UninstallEventData;
-    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const { appInstanceId } = nodeEvent.data as Node.UninstallEventData;
+    const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.UNINSTALL,
       data: {
