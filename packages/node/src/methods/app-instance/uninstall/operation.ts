@@ -17,18 +17,36 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    new Map(Object.entries(await store.getAllChannels())),
-    {
-      initiatingAddress,
-      respondingAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: appInstance.identityHash,
-      // FIXME: Compute values here
-      aliceBalanceIncrement: Zero,
-      bobBalanceIncrement: Zero
-    }
-  );
+  const currentChannels = new Map(Object.entries(await store.getAllChannels()));
+
+  let stateChannelsMap: Map<string, StateChannel>;
+
+  if (appInstance.isVirtualApp) {
+    stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
+      currentChannels,
+      {
+        initiatingAddress,
+        respondingAddress,
+        appIdentityHash: appInstance.identityHash,
+        // FIXME: Compute values here
+        aliceBalanceIncrement: Zero,
+        bobBalanceIncrement: Zero
+      }
+    );
+  } else {
+    stateChannelsMap = await instructionExecutor.runUninstallProtocol(
+      currentChannels,
+      {
+        initiatingAddress,
+        respondingAddress,
+        multisigAddress: stateChannel.multisigAddress,
+        appIdentityHash: appInstance.identityHash,
+        // FIXME: Compute values here
+        aliceBalanceIncrement: Zero,
+        bobBalanceIncrement: Zero
+      }
+    );
+  }
 
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
