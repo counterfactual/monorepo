@@ -63,7 +63,11 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_CHANNEL = "createChannelEvent"
+    CREATE_CHANNEL = "createChannelEvent",
+    DEPOSIT_STARTED = "depositStartedEvent",
+    DEPOSIT_CONFIRMED = "depositConfirmedEvent",
+    DEPOSIT_FAILED = "depositFailed",
+    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed"
   }
 
   export type DepositParams = {

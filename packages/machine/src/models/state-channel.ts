@@ -1,7 +1,8 @@
 import {
   AssetType,
   ETHBucketAppState,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Struct,
+  NetworkContext
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
@@ -139,11 +140,13 @@ export class StateChannel {
     return this.appInstances.has(appInstanceId);
   }
 
-  public hasBalanceRefund(): boolean {
+  public hasBalanceRefund(networkContext: NetworkContext): boolean {
     return (
       Array.from(this.appInstances.values()).filter(
         (appInstance: AppInstance) => {
-          return appInstance.appInterface.addr;
+          return (
+            appInstance.appInterface.addr === networkContext.ETHBalanceRefund
+          );
         }
       ).length === 1
     );
