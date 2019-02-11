@@ -89,6 +89,32 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
+    debugger;
+
+    const provider = new window.ethers.providers.Web3Provider(
+      window["web3"].currentProvider
+    );
+    const currentEthBalance = window.ethers.utils.parseEther(
+      this.props.balance
+    );
+    const minimumEthBalance = window.ethers.utils
+      .parseEther(this.props.gameInfo.betAmount)
+      .add(
+        await provider.estimateGas({
+          to: opponent.nodeAddress,
+          value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
+        })
+      );
+
+    if (currentEthBalance.lt(minimumEthBalance)) {
+      this.setState({
+        error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
+          minimumEthBalance
+        )} ETH to play.`
+      });
+      return;
+    }
+
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
@@ -107,7 +133,8 @@ class Wager extends Component {
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         },
         intermediaries: [intermediary]
-      })
+      }),
+      isWaiting: true
     });
   }
 
@@ -120,35 +147,12 @@ class Wager extends Component {
     const { opponent, intermediary } = this.state;
     const { user } = this.props;
 
-    this.setState({ isWaiting: true });
-
     this.proposeInstall(user, opponent, intermediary);
   }
 
   render() {
     const { error, isLoaded, isWaiting } = this.state;
     const { user } = this.props;
-
-    if (error) {
-      return (
-        <div className="wager">
-          <div className="message">
-            <Logo />
-            <h1 className="message__title">Oops! :/</h1>
-            <p className="message__body">Something went wrong:</p>
-            <textarea
-              rows={10}
-              cols={60}
-              defaultValue={
-                error.errorCode
-                  ? JSON.stringify(error)
-                  : `${error.message}\n${error.stack}`
-              }
-            />
-          </div>
-        </div>
-      );
-    }
 
     if (!isLoaded) {
       return (
@@ -196,6 +200,7 @@ class Wager extends Component {
           >
             PLAY!
           </button>
+          {error ? <label class="message__error">{error}</label> : []}
         </form>
       </div>
     );
