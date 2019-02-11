@@ -2,7 +2,7 @@
   "name": "@counterfactual/playground",
   "version": "0.0.1",
   "scripts": {
-    "build": "stencil build --prerender && cp src/_redirects www/_redirects",
+    "build": "stencil build --debug && cp src/_redirects www/_redirects",
     "start": "stencil build --dev --watch --serve",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@counterfactual/node": "^0.0.1",
-    "@stencil/core": "0.16.0",
-    "@stencil/router": "0.2.6",
+    "@stencil/core": "^0.17",
+    "@stencil/router": "^0.3.0",
     "@stencil/sass": "^0.1.1",
     "eventemitter3": "^3.1.0"
   },

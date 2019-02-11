@@ -26,19 +26,21 @@ export class AppHome {
   }
 
   render() {
-    return [
-      <layout-header />,
-      <section class="section">
-        <div class="container">
-          <apps-list
-            apps={this.apps}
-            onAppClicked={e => this.appClickedHandler(e)}
-            name="Available Apps"
-          />
-          {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
-        </div>
-      </section>
-    ];
+    return (
+      <node-listener history={this.history}>
+        <layout-header />
+        <section class="section">
+          <div class="container">
+            <apps-list
+              apps={this.apps}
+              onAppClicked={e => this.appClickedHandler(e)}
+              name="Available Apps"
+            />
+            {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
+          </div>
+        </section>
+      </node-listener>
+    );
   }
 }
 

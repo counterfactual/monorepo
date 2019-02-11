@@ -6,7 +6,7 @@ import { RouterHistory } from "@stencil/router";
 
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import { AppDefinition, WidgetDialogSettings } from "../../types";
+import { AppDefinition } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
@@ -26,24 +26,22 @@ export class NodeListener {
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
-    rejectInstallVirtualEvent: this.onRejectInstallVirtual.bind(this),
-    installVirtualEvent: this.onInstallVirtual.bind(this)
+    rejectInstallEvent: this.onRejectInstall.bind(this),
+    rejectInstallVirtualEvent: this.onRejectInstall.bind(this)
   };
-
-  @State() private modalVisible: boolean = false;
-  @State() private modalData: WidgetDialogSettings = {} as WidgetDialogSettings;
 
   get node() {
     return CounterfactualNode.getInstance();
   }
 
-  componentWillLoad() {
+  async componentWillLoad() {
     this.bindNodeEvents();
   }
 
   bindNodeEvents() {
-    Object.keys(this.nodeMessageResolver).forEach(methodName => {
-      this.node.on(methodName, this.nodeMessageResolver[methodName].bind(this));
+    Object.keys(this.nodeMessageResolver).forEach(eventName => {
+      this.node.off(eventName);
+      this.node.on(eventName, this.nodeMessageResolver[eventName].bind(this));
     });
   }
 
@@ -52,13 +50,9 @@ export class NodeListener {
     this.showModal();
   }
 
-  onRejectInstallVirtual(data) {
+  onRejectInstall(data) {
     this.currentMessage = data;
     this.showModal();
-  }
-
-  onInstallVirtual(data) {
-    console.log(data);
   }
 
   async acceptProposeInstall() {
@@ -81,12 +75,16 @@ export class NodeListener {
         app => app.id === installedApp.appInstance.appId
       ) as AppDefinition;
 
-      this.history.push(`/dapp/${app.slug}`, {
-        installedApp,
-        name: app.name,
-        dappContainerUrl: `/dapp/${app.slug}`,
-        dappUrl: app.url
-      });
+      window.localStorage.setItem(
+        "playground:installingDapp",
+        JSON.stringify({
+          installedApp,
+          name: app.name,
+          dappContainerUrl: `/dapp/${app.slug}`,
+          dappUrl: app.url
+        })
+      );
+      this.history.push(`/dapp/${app.slug}`);
 
       this.hideModal();
     } catch (error) {
@@ -97,7 +95,6 @@ export class NodeListener {
   }
 
   async rejectProposeInstall() {
-    // TODO: This should be RejectInstallVirtual.
     await this.node.call(Node.MethodName.REJECT_INSTALL, {
       type: Node.MethodName.REJECT_INSTALL,
       params: {
@@ -109,21 +106,18 @@ export class NodeListener {
   }
 
   showModal() {
-    this.modalVisible = true;
     this.currentModalType = this.currentMessage.type;
   }
 
   hideModal() {
-    this.modalVisible = false;
+    this.currentModalType = "none";
   }
 
   render() {
-    if (!this.modalVisible) {
-      return <div />;
-    }
+    let modal: JSX.Element = {};
 
     if (this.currentModalType === "proposeInstallVirtualEvent") {
-      return (
+      modal = (
         <dialog-propose-install
           message={this.currentMessage}
           onAccept={this.acceptProposeInstall.bind(this)}
@@ -132,8 +126,11 @@ export class NodeListener {
       );
     }
 
-    if (this.currentModalType === "rejectInstallVirtualEvent") {
-      return (
+    if (
+      this.currentModalType === "rejectInstallVirtualEvent" ||
+      this.currentModalType === "rejectInstallEvent"
+    ) {
+      modal = (
         <dialog-reject-install
           message={this.currentMessage}
           onOKClicked={this.hideModal.bind(this)}
@@ -143,26 +140,26 @@ export class NodeListener {
 
     if (this.currentModalType === "error") {
       if (this.currentErrorType === "INSUFFICIENT_FUNDS") {
-        return (
+        modal = (
           <dialog-insufficient-funds
             message={this.currentMessage}
             onDeposit={this.hideModal.bind(this)}
             onReject={this.rejectProposeInstall.bind(this)}
           />
         );
+      } else {
+        modal = (
+          <widget-dialog
+            dialogTitle="Something went wrong"
+            content={`${this.currentErrorType}. See the console for more info.`}
+            primaryButtonText="OK"
+            onPrimaryButtonClicked={() => this.hideModal()}
+          />
+        );
       }
-
-      return (
-        <widget-dialog
-          dialogTitle="Something went wrong"
-          content={`${this.currentErrorType}. See the console for more info.`}
-          primaryButtonText="OK"
-          onPrimaryButtonClicked={() => this.hideModal()}
-        />
-      );
     }
 
-    return <div />;
+    return [<slot />, modal];
   }
 }
 

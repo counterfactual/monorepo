@@ -2,8 +2,6 @@
 // to provider support for a Firebase layer.
 // TODO: IMPORT THIS FROM THE NODE!
 import { Address } from "@counterfactual/types";
-import firebase from "firebase/app";
-import "firebase/database";
 
 export interface IMessagingService {
   send(respondingAddress: Address, msg: any): Promise<void>;
@@ -30,22 +28,40 @@ export interface FirebaseAppConfiguration {
  * This factory exposes default implementations of the service interfaces
  * described above, using Firebase as the implementation backend.
  */
-export default class FirebaseServiceFactory {
-  private app: firebase.app.App;
+export default class FirebaseService {
+  private static app: any;
 
-  constructor(configuration: FirebaseAppConfiguration) {
-    this.app = firebase.initializeApp(configuration);
+  static create(
+    configuration: FirebaseAppConfiguration = {
+      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+      authDomain: "foobar-91a31.firebaseapp.com",
+      databaseURL: "https://foobar-91a31.firebaseio.com",
+      projectId: "foobar-91a31",
+      storageBucket: "foobar-91a31.appspot.com",
+      messagingSenderId: "432199632441"
+    }
+  ) {
+    if (FirebaseService.app) {
+      return FirebaseService.app;
+    }
+
+    FirebaseService.app = window["firebase"].initializeApp(configuration);
   }
 
-  createMessagingService(messagingServiceKey: string): IMessagingService {
+  static createMessagingService(
+    messagingServiceKey: string
+  ): IMessagingService {
     return new FirebaseMessagingService(
-      this.app.database(),
+      FirebaseService.app.database(),
       messagingServiceKey
     );
   }
 
-  createStoreService(storeServiceKey: string): IStoreService {
-    return new FirebaseStoreService(this.app.database(), storeServiceKey);
+  static createStoreService(storeServiceKey: string): IStoreService {
+    return new FirebaseStoreService(
+      FirebaseService.app.database(),
+      storeServiceKey
+    );
   }
 }
 
@@ -61,7 +77,7 @@ class FirebaseMessagingService implements IMessagingService {
   private initialHookResponseFired = false;
 
   constructor(
-    private readonly firebase: firebase.database.Database,
+    private readonly firebase: any,
     private readonly messagingServerKey: string
   ) {}
 
@@ -81,7 +97,7 @@ class FirebaseMessagingService implements IMessagingService {
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+      .on("value", (snapshot: any | null) => {
         if (!snapshot) {
           console.error(
             `Node with address ${address} received a "null" snapshot`
@@ -115,7 +131,7 @@ class FirebaseMessagingService implements IMessagingService {
 
 class FirebaseStoreService implements IStoreService {
   constructor(
-    private readonly firebase: firebase.database.Database,
+    private readonly firebase: any,
     private readonly storeServiceKey: string
   ) {}
 
@@ -124,7 +140,7 @@ class FirebaseStoreService implements IStoreService {
     await this.firebase
       .ref(this.storeServiceKey)
       .child(key)
-      .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
+      .once("value", (snapshot: any | null) => {
         if (snapshot === null) {
           console.debug(
             `Failed to retrieve value at ${key}: received a "null" snapshot`

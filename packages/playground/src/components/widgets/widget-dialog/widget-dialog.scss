@@ -12,15 +12,71 @@
 }
 
 dialog {
-  width: 70%;
-}
+  width: 340px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0;
+  border: 0;
 
-dialog button {
-  border: 1px solid black;
-  padding: 15px;
-  margin-right: 10px;
+  header {
+    border-bottom: 2px solid $c-blue;
+    padding: 1rem;
+  }
 
-  &:hover {
-    background: #ccc;
+  widget-logo {
+    display: block;
+
+    & >>> .logo {
+      font-size: 18px;
+    }
+  }
+
+  main {
+    padding: 40px;
+    font-family: "Chivo", sans-serif;
+    font-size: 24px;
+    line-height: 36px;
+
+    label {
+      text-align: center;
+      display: block;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 72px;
+    }
+  }
+
+  footer {
+    padding: 20px 15px;
+    display: flex;
+    justify-content: center;
+
+    button {
+      border: 1px solid $c-blue;
+      padding: 15px;
+      border-radius: 4px;
+      background: $c-blue;
+      color: #fff;
+      font-family: "Chivo", sans-serif;
+      font-size: 18px;
+      flex: 1;
+
+      &.btn--secondary {
+        margin-right: 15px;
+        background: #fff;
+        color: $c-blue;
+
+        &:hover {
+          background: lighten($color: $c-blue, $amount: 40%);
+        }
+      }
+
+      &:hover {
+        background: darken($color: $c-blue, $amount: 10%);
+      }
+    }
   }
 }

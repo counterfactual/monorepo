@@ -261,6 +261,17 @@ export class Node {
   }
 
   /**
+   * Stops listening for a given message from other Nodes. If no callback is passed,
+   * all callbacks are removed.
+   *
+   * @param event
+   * @param [callback]
+   */
+  off(event: string, callback?: (res: any) => void) {
+    this.outgoing.off(event, callback);
+  }
+
+  /**
    * Delegates emitting events to the Node's incoming EventEmitter.
    * @param event
    * @param req

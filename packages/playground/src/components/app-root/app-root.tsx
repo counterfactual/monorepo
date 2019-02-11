@@ -1,4 +1,3 @@
-import { NetworkContext } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -10,7 +9,6 @@ import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
 import NetworkTunnel, { NetworkState } from "../../data/network";
 import PlaygroundAPIClient from "../../data/playground-api-client";
-import { AppDefinition } from "../../types";
 
 @Component({
   tag: "app-root",
@@ -71,16 +69,9 @@ export class AppRoot {
   async createNodeProvider() {
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
-    const serviceProvider = new FirebaseDataProvider({
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    });
+    FirebaseDataProvider.create();
 
-    const messagingService = serviceProvider.createMessagingService(
+    const messagingService = FirebaseDataProvider.createMessagingService(
       "messaging"
     );
     const storeService = {
@@ -140,54 +131,44 @@ export class AppRoot {
     this.networkState.updateNetwork = this.updateNetwork.bind(this);
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
-    if (!this.loading) {
-      return (
-        <NetworkTunnel.Provider state={this.networkState}>
-          <AccountTunnel.Provider state={this.accountState}>
-            <AppRegistryTunnel.Provider state={this.appRegistryState}>
-              <div class="app-root wrapper">
-                <main class="wrapper__content">
-                  <stencil-router>
-                    <stencil-route-switch scrollTopOffset={0}>
-                      <stencil-route
-                        url="/"
-                        component="app-home"
-                        exact={true}
-                      />
-                      <stencil-route
-                        url="/"
-                        component="node-listener"
-                        exact={true}
-                      />
-                      <stencil-route
-                        url="/dapp/:dappName"
-                        component="dapp-container"
-                      />
-                      <stencil-route url="/account" component="account-edit" />
-                      <stencil-route
-                        url="/exchange"
-                        component="account-exchange"
-                      />
-                      <stencil-route
-                        url="/register"
-                        component="account-register"
-                      />
-                      <stencil-route
-                        url="/deposit"
-                        component="account-deposit"
-                      />
-                    </stencil-route-switch>
-                  </stencil-router>
-                </main>
-                <web3-connector
-                  accountState={this.accountState}
-                  networkState={this.networkState}
-                />
-              </div>
-            </AppRegistryTunnel.Provider>
-          </AccountTunnel.Provider>
-        </NetworkTunnel.Provider>
-      );
+    if (this.loading) {
+      return;
     }
+
+    return (
+      <NetworkTunnel.Provider state={this.networkState}>
+        <AccountTunnel.Provider state={this.accountState}>
+          <AppRegistryTunnel.Provider state={this.appRegistryState}>
+            <div class="app-root wrapper">
+              <main class="wrapper__content">
+                <stencil-router>
+                  <stencil-route-switch scrollTopOffset={0}>
+                    <stencil-route url="/" component="app-home" exact={true} />
+                    <stencil-route
+                      url="/dapp/:dappName"
+                      component="dapp-container"
+                    />
+                    <stencil-route url="/account" component="account-edit" />
+                    <stencil-route
+                      url="/exchange"
+                      component="account-exchange"
+                    />
+                    <stencil-route
+                      url="/register"
+                      component="account-register"
+                    />
+                    <stencil-route url="/deposit" component="account-deposit" />
+                  </stencil-route-switch>
+                </stencil-router>
+              </main>
+              <webthree-connector
+                accountState={this.accountState}
+                networkState={this.networkState}
+              />
+            </div>
+          </AppRegistryTunnel.Provider>
+        </AccountTunnel.Provider>
+      </NetworkTunnel.Provider>
+    );
   }
 }

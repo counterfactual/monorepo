@@ -3,10 +3,19 @@
   border: none;
   font-size: $f-base;
 
+  &.logo--icon-only {
+    border: 0;
+
+    img {
+      padding-right: 1rem;
+    }
+  }
+
   a {
     color: inherit;
     display: flex;
     align-items: center;
+    font-size: 18px;
   }
 
   img {

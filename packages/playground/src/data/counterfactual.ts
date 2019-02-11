@@ -16,6 +16,7 @@ export declare class Node {
   ): Promise<Node>;
   readonly publicIdentifier: string;
   on(event: string, callback: (res: any) => void): void;
+  off(event: string, callback?: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
   call(
     method: NodeTypes.MethodName,
@@ -40,6 +41,10 @@ export default class CounterfactualNode {
     network: string;
     networkContext?: NetworkContext;
   }): Promise<Node> {
+    if (CounterfactualNode.node) {
+      return CounterfactualNode.node;
+    }
+
     CounterfactualNode.node = await Node.create(
       settings.messagingService,
       settings.storeService,

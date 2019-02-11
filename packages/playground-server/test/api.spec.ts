@@ -358,7 +358,7 @@ describe("playground-server", () => {
       await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
 
       const response = await client
-        .get("/users", {
+        .get("/users/me", {
           headers: {
             Authorization: `Bearer ${TOKEN_BOB}`
           }
