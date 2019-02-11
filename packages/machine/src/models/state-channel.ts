@@ -1,5 +1,4 @@
 import {
-  AppIdentity,
   AssetType,
   ETHBucketAppState,
   SolidityABIEncoderV2Struct
