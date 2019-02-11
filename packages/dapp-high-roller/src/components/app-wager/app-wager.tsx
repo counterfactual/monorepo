@@ -83,7 +83,7 @@ export class AppWager {
 
       await this.appFactory.proposeInstallVirtual({
         initialState,
-        respondingAddress: this.opponent.attributes.nodeAddress as string,
+        proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },

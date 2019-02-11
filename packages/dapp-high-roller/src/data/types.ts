@@ -309,14 +309,14 @@ export namespace cf {
       provider: cf.Provider
     ): AppFactory;
     proposeInstall(parameters: {
-      respondingAddress: Address;
+      proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Struct;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
-      respondingAddress: Address;
+      proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
