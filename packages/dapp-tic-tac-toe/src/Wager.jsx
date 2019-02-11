@@ -91,7 +91,7 @@ class Wager extends Component {
 
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
-        respondingAddress: opponent.nodeAddress,
+        proposedToIdentifier: opponent.nodeAddress,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
