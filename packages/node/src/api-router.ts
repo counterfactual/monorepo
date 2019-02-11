@@ -13,6 +13,7 @@ import {
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
   createChannelController,
+  depositController,
   getAllChannelAddressesController,
   getAppInstanceController,
   getAppInstanceStateController,
@@ -30,6 +31,7 @@ import { NODE_EVENTS } from "./types";
 
 export const methodNameToImplementation = {
   [Node.MethodName.CREATE_CHANNEL]: createChannelController,
+  [Node.MethodName.DEPOSIT]: depositController,
   [Node.MethodName.GET_APP_INSTANCES]: getInstalledAppInstancesController,
   [Node.MethodName.GET_CHANNEL_ADDRESSES]: getAllChannelAddressesController,
   [Node.MethodName

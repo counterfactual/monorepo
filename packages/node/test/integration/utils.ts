@@ -14,6 +14,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { BigNumber } from "ethers/utils";
 
 export const TEST_NETWORK = "ganache";
 
@@ -113,6 +114,20 @@ export async function getApps(
   response = await node.call(request.type, request);
   result = response.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
+}
+
+export function makeDepositRequest(
+  multisigAddress: string,
+  amount: BigNumber
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.DEPOSIT,
+    params: {
+      multisigAddress,
+      amount
+    } as NodeTypes.DepositParams
+  };
 }
 
 export function makeInstallRequest(

@@ -10,6 +10,7 @@ import takeActionController from "./app-instance/take-action/controller";
 import uninstallController from "./app-instance/uninstall/controller";
 import getProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
 import createChannelController from "./state-channel/create/controller";
+import depositController from "./state-channel/deposit/controller";
 import getAllChannelAddressesController from "./state-channel/get-all/controller";
 
 export {
@@ -25,5 +26,6 @@ export {
   takeActionController,
   rejectInstallController,
   getAppInstanceController,
-  uninstallController
+  uninstallController,
+  depositController
 };
