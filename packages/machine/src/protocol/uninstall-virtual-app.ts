@@ -6,7 +6,6 @@ import {
   NetworkContext
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow, StateChannel } from "..";
 import { Opcode } from "../enums";
@@ -21,56 +20,60 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // send M1, wait for M4
     Opcode.IO_SEND_AND_WAIT,
 
-    // uninstall the virtual app agreement
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        initiatingAddress,
-        respondingAddress,
-        multisig1Address,
-        targetAppIdentityHash,
-        initiatingBalanceDecrement,
-        respondingBalanceDecrement
-      } = message.params as UninstallVirtualAppParams;
+    uninstallLeftAgreement,
 
-      const sc = context.stateChannelsMap.get(multisig1Address)!;
-
-      const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
-        targetAppIdentityHash
-      );
-
-      const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
-        targetAppIdentityHash,
-        {
-          [initiatingAddress]: new BigNumber(0).sub(initiatingBalanceDecrement),
-          [respondingAddress]: new BigNumber(0).sub(respondingBalanceDecrement)
-        }
-      );
-
-      context.stateChannelsMap.set!(multisig1Address, newStateChannel);
-
-      context.commitments[0] = constructUninstallOp(
-        context.network,
-        sc,
-        agreementInstance.appSeqNo
-      );
-    },
     Opcode.OP_SIGN,
     // send M5, wait for M6
     Opcode.IO_SEND_AND_WAIT
+    // done!
   ],
 
   1: [
     p1,
     Opcode.OP_SIGN_AS_INTERMEDIARY,
     // send M2, wait for M3
+    Opcode.IO_SEND_AND_WAIT,
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        respondingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      // - forward the lock signature
+      // - send my own lock signature
+
+      context.outbox[0] = {
+        ...message,
+        seq: 2,
+        fromAddress: intermediaryAddress,
+        toAddress: respondingAddress,
+        signature: context.inbox[0].signature,
+        signature2: context.signatures[0]
+      };
+    },
+    // send M4, wait for M5
+    Opcode.IO_SEND_AND_WAIT,
+    uninstallLeftAgreement,
+    Opcode.OP_SIGN,
+    // send M6
+    Opcode.IO_SEND,
+
+    uninstallRightAgreement,
+    Opcode.OP_SIGN,
+    // send M7, wait for M8
     Opcode.IO_SEND_AND_WAIT
+    // done!
   ],
 
   2: [
     p1,
     Opcode.OP_SIGN,
     // send M3, wait for M7
-    Opcode.IO_SEND_AND_WAIT
+    Opcode.IO_SEND_AND_WAIT,
+    uninstallRightAgreement,
+    Opcode.OP_SIGN,
+    // send M8
+    Opcode.IO_SEND
   ]
 };
 
@@ -97,7 +100,7 @@ function p1(message: ProtocolMessage, context: Context) {
   );
 }
 
-export function constructUninstallOp(
+function constructUninstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
   uninstallTargetId: number
@@ -114,5 +117,74 @@ export function constructUninstallOp(
     freeBalance.nonce,
     freeBalance.timeout,
     uninstallTargetId
+  );
+}
+
+function uninstallRightAgreement(message: ProtocolMessage, context: Context) {
+  // uninstall right agreement
+  const {
+    intermediaryAddress,
+    respondingAddress,
+    multisig2Address,
+    targetAppIdentityHash,
+    initiatingBalanceIncrement,
+    respondingBalanceIncrement
+  } = message.params as UninstallVirtualAppParams;
+
+  const sc = context.stateChannelsMap.get(multisig2Address)!;
+
+  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+    targetAppIdentityHash
+  );
+
+  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+    targetAppIdentityHash,
+    {
+      [intermediaryAddress]: initiatingBalanceIncrement,
+      [respondingAddress]: respondingBalanceIncrement
+    }
+  );
+
+  context.stateChannelsMap.set!(multisig2Address, newStateChannel);
+
+  context.commitments[0] = constructUninstallOp(
+    context.network,
+    sc,
+    agreementInstance.appSeqNo
+  );
+}
+
+function uninstallLeftAgreement(message: ProtocolMessage, context: Context) {
+  // uninstall left virtual app agreement
+
+  const {
+    initiatingAddress,
+    intermediaryAddress,
+    multisig1Address,
+    targetAppIdentityHash,
+    initiatingBalanceIncrement,
+    respondingBalanceIncrement
+  } = message.params as UninstallVirtualAppParams;
+
+  const sc = context.stateChannelsMap.get(multisig1Address)!;
+
+  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+    targetAppIdentityHash
+  );
+
+  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+    targetAppIdentityHash,
+    {
+      [initiatingAddress]: initiatingBalanceIncrement,
+      [intermediaryAddress]: respondingBalanceIncrement
+    }
+  );
+
+  context.stateChannelsMap.set!(multisig1Address, newStateChannel);
+
+  context.commitments[0] = constructUninstallOp(
+    context.network,
+    sc,
+    agreementInstance.appSeqNo
   );
 }
