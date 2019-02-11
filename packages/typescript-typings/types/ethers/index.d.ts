@@ -13,6 +13,7 @@ declare class Web3Provider {
   getBalance(address: string): Promise<BigNumber>;
   on(event: string, callback: (...args) => void): void;
   removeAllListeners(event: string): void;
+  estimateGas(tx): Promise<any>;
 }
 
 declare var ethers = {
