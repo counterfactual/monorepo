@@ -349,6 +349,25 @@ Result:
 - `addresses: Address[]`
     - the list of multisig addresses representing the open channels on the Node.
 
+### Method: `deposit`
+
+Deposits the specified amount of funds into the channel with the specified multisig address.
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+
+Result:
+
+- "OK"
+
+Error:
+
+- "Insufficient funds"
+
+
+
 
 Events
 ------
