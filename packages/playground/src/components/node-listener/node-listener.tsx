@@ -4,6 +4,7 @@ import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import { AppDefinition } from "../../types";
@@ -23,6 +24,8 @@ export class NodeListener {
 
   @Prop() apps: AppDefinition[] = [];
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() provider: Web3Provider = {} as Web3Provider;
+  @Prop() balance: any;
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
@@ -55,8 +58,28 @@ export class NodeListener {
     this.showModal();
   }
 
-  async acceptProposeInstall() {
+  async acceptProposeInstall(message: any) {
     try {
+      debugger;
+
+      const proposeInstallParams = message.data
+        .params as Node.ProposeInstallParams;
+
+      const currentEthBalance = ethers.utils.bigNumberify(this.balance);
+      const minimumEthBalance = proposeInstallParams.myDeposit.add(
+        await this.provider.estimateGas({
+          to: message.data.proposedByIdentifier,
+          value: proposeInstallParams.myDeposit
+        })
+      );
+
+      if (currentEthBalance.lt(minimumEthBalance)) {
+        this.currentModalType = "error";
+        this.currentErrorType = "INSUFFICIENT_FUNDS";
+        this.currentMessage = { minimumEthBalance };
+        return;
+      }
+
       const request = {
         type: Node.MethodName.INSTALL_VIRTUAL,
         params: {
@@ -164,3 +187,4 @@ export class NodeListener {
 }
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
+AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
