@@ -9,11 +9,12 @@ export default async function rejectInstallController(
   params: Node.RejectInstallParams
 ): Promise<Node.RejectInstallResult> {
   const { appInstanceId } = params;
-  const appInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
+
+  const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
     appInstanceId
   );
 
-  if (appInstanceInfo.intermediaries) {
+  if (proposedAppInstanceInfo.intermediaries) {
     return rejectInstallVirtualController(requestHandler, params);
   }
 
@@ -28,7 +29,7 @@ export default async function rejectInstallController(
   };
 
   await requestHandler.messagingService.send(
-    appInstanceInfo.initiatingAddress,
+    proposedAppInstanceInfo.proposedByIdentifier,
     rejectProposalMsg
   );
 

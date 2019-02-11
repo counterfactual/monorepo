@@ -9,9 +9,8 @@ export default async function installVirtualAppInstanceController(
   requestHandler: RequestHandler,
   params: Node.InstallVirtualParams
 ): Promise<Node.InstallVirtualResult> {
-  // TODO: temp workaround to get client-side facing calls working
-  // until we integrate the machine into this call
   const { appInstanceId } = params;
+
   const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
     appInstanceId
   );
@@ -19,8 +18,6 @@ export default async function installVirtualAppInstanceController(
   const appInstanceInfo = await installVirtual(
     requestHandler.store,
     requestHandler.instructionExecutor,
-    requestHandler.publicIdentifier,
-    proposedAppInstanceInfo.respondingAddress,
     params
   );
 
@@ -35,7 +32,7 @@ export default async function installVirtualAppInstanceController(
   };
 
   await requestHandler.messagingService.send(
-    proposedAppInstanceInfo.initiatingAddress,
+    proposedAppInstanceInfo.proposedByIdentifier,
     installVirtualApprovalMsg
   );
 

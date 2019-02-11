@@ -1,19 +1,18 @@
 import { Node } from "@counterfactual/types";
 
 import {
-  addMultisigController,
+  addChannelController,
   installEventController,
   installVirtualEventController,
   proposeInstallEventController,
   proposeInstallVirtualEventController,
   rejectInstallEventController,
   rejectInstallVirtualEventController,
-  takeActionEventController,
-  uninstallEventController
+  takeActionEventController
 } from "./events";
 import protocolMessageEventController from "./events/protocol-message/controller";
 import {
-  createMultisigController,
+  createChannelController,
   getAllChannelAddressesController,
   getAppInstanceController,
   getAppInstanceStateController,
@@ -30,7 +29,7 @@ import {
 import { NODE_EVENTS } from "./types";
 
 export const methodNameToImplementation = {
-  [Node.MethodName.CREATE_MULTISIG]: createMultisigController,
+  [Node.MethodName.CREATE_CHANNEL]: createChannelController,
   [Node.MethodName.GET_APP_INSTANCES]: getInstalledAppInstancesController,
   [Node.MethodName.GET_CHANNEL_ADDRESSES]: getAllChannelAddressesController,
   [Node.MethodName
@@ -48,7 +47,7 @@ export const methodNameToImplementation = {
 };
 
 export const eventNameToImplementation = {
-  [NODE_EVENTS.CREATE_MULTISIG]: addMultisigController,
+  [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
@@ -57,8 +56,8 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
-  [NODE_EVENTS.UNINSTALL]: uninstallEventController,
   // TODO: implement the rest
+  [NODE_EVENTS.UNINSTALL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {}
 };

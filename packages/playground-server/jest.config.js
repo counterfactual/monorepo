@@ -1,5 +1,6 @@
 module.exports = {
   "bail": true,
+  "cacheDirectory": "jest-cache",
   "coverageDirectory": "jest-coverage",
   "coveragePathIgnorePatterns": [
     "test"
@@ -12,7 +13,6 @@ module.exports = {
       "statements": 90
     }
   },
-  "reporters": ["jest-dot-reporter"],
   "globalSetup": "<rootDir>/test/global-setup.jest.ts",
   "globalTeardown": "<rootDir>/test/global-teardown.jest.ts",
   "testEnvironment": "<rootDir>/test/node-test-environment.jest.js",

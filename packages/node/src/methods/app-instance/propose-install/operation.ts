@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import { v4 as generateUUID } from "uuid";
 
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
@@ -8,29 +7,30 @@ import { getChannelFromPeerAddress } from "../../../utils";
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
  * the client.
- * @param selfAddress
+ * @param myIdentifier
  * @param store
  * @param params
  */
 export async function createProposedAppInstance(
-  selfAddress: string,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const appInstanceId = generateUUID();
-
   const channel = await getChannelFromPeerAddress(
-    selfAddress,
-    params.respondingAddress,
+    myIdentifier,
+    params.proposedToIdentifier,
     store
   );
 
-  const proposedAppInstance = new ProposedAppInstanceInfo(appInstanceId, {
-    ...params,
-    initiatingAddress: selfAddress
-  });
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
+      ...params,
+      proposedByIdentifier: myIdentifier
+    },
+    channel
+  );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstance);
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 
-  return appInstanceId;
+  return proposedAppInstanceInfo.id;
 }

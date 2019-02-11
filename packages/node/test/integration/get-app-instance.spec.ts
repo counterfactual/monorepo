@@ -1,19 +1,19 @@
 import { AppInstanceInfo, Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
-import { instance, mock } from "ts-mockito";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  EMPTY_NETWORK,
   getNewMultisig,
-  makeInstallProposalRequest
+  makeInstallProposalRequest,
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -22,8 +22,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let mockProvider: Provider;
-  let provider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new TestFirebaseServiceFactory(
@@ -36,18 +35,22 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
-    mockProvider = mock(Provider);
-    provider = instance(mockProvider);
+
+    // @ts-ignore
+    provider = new JsonRpcProvider(global.ganacheURL);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -56,9 +59,11 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
-      EMPTY_NETWORK,
       nodeConfig,
-      provider
+      provider,
+      TEST_NETWORK,
+      // @ts-ignore
+      global.networkContext
     );
   });
 
@@ -83,6 +88,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
     nodeA.on(NodeTypes.MethodName.INSTALL, async res => {
       const installResult: NodeTypes.InstallResult = res.result;
+
       installedAppInstance = installResult.appInstance;
 
       // now we check to validate for correct AppInstance retrieval

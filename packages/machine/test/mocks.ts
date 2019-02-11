@@ -10,6 +10,8 @@ export function generateRandomNetworkContext(): NetworkContext {
     NonceRegistry: getAddress(hexlify(randomBytes(20))),
     AppRegistry: getAddress(hexlify(randomBytes(20))),
     ETHBalanceRefund: getAddress(hexlify(randomBytes(20))),
-    ETHVirtualAppAgreement: getAddress(hexlify(randomBytes(20)))
+    ETHVirtualAppAgreement: getAddress(hexlify(randomBytes(20))),
+    MinimumViableMultisig: getAddress(hexlify(randomBytes(20))),
+    ProxyFactory: getAddress(hexlify(randomBytes(20)))
   };
 }

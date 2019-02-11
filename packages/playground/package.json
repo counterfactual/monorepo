@@ -2,7 +2,7 @@
   "name": "@counterfactual/playground",
   "version": "0.0.1",
   "scripts": {
-    "build": "stencil build",
+    "build": "stencil build --prerender && cp src/_redirects www/_redirects",
     "start": "stencil build --dev --watch --serve",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
@@ -29,6 +29,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@counterfactual/typescript-typings": "^0.0.1",
+    "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.1",
     "puppeteer": "1.11.0",
     "rollup-plugin-replace": "^2.1.0",

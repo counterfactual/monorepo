@@ -48,7 +48,7 @@ export namespace Node {
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
-    CREATE_MULTISIG = "createMultisig",
+    CREATE_CHANNEL = "createChannel",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses"
   }
 
@@ -62,7 +62,7 @@ export namespace Node {
     UNINSTALL = "uninstallEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_MULTISIG = "createMultisigEvent"
+    CREATE_CHANNEL = "createChannelEvent"
   }
 
   export type GetAppInstancesParams = {};
@@ -83,14 +83,14 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Struct;
-    respondingAddress: Address;
+    proposedToIdentifier: string;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
@@ -107,7 +107,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type InstallVirtualResult = InstallResult;
 
@@ -138,10 +138,10 @@ export namespace Node {
   };
   export type UninstallResult = {};
 
-  export type CreateMultisigParams = {
+  export type CreateChannelParams = {
     owners: Address[];
   };
-  export type CreateMultisigResult = {
+  export type CreateChannelResult = {
     multisigAddress: Address;
   };
 
@@ -162,7 +162,7 @@ export namespace Node {
     | GetAppInstanceDetailsParams
     | TakeActionParams
     | UninstallParams
-    | CreateMultisigParams
+    | CreateChannelParams
     | GetChannelAddressesParams;
   export type MethodResult =
     | GetAppInstancesResult
@@ -176,7 +176,7 @@ export namespace Node {
     | GetAppInstanceDetailsResult
     | TakeActionResult
     | UninstallResult
-    | CreateMultisigResult
+    | CreateChannelResult
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
@@ -192,7 +192,7 @@ export namespace Node {
     action?: AppAction;
   };
   export type UninstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstanceId: string;
   };
   export type CreateMultisigEventData = {
     owners: Address[];

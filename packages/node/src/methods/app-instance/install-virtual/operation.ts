@@ -1,88 +1,54 @@
 import {
-  AppInstance,
   InstructionExecutor,
-  StateChannel
+  xkeysToSortedKthAddresses
 } from "@counterfactual/machine";
-import {
-  AppInstanceInfo,
-  AppInterface,
-  Node,
-  Terms
-} from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AppInstanceInfo, Node } from "@counterfactual/types";
 
-import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
 
 export async function installVirtual(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingAddress: string,
-  respondingAddress: string,
   params: Node.InstallParams
 ): Promise<AppInstanceInfo> {
   const { appInstanceId } = params;
-  if (
-    !appInstanceId ||
-    (typeof appInstanceId === "string" && appInstanceId.trim() === "")
-  ) {
+
+  if (!appInstanceId || !appInstanceId.trim()) {
     return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
-  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-
-  // TODO: Replace with `runInstallVirtualAppProtocol`
-  await store.saveStateChannel(
-    stateChannel.installApp(
-      createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel),
-      appInstanceInfo.myDeposit,
-      appInstanceInfo.peerDeposit
-    )
+  const updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
+    new Map(Object.entries(await store.getAllChannels())),
+    {
+      initiatingAddress: appInstanceInfo.proposedToIdentifier,
+      respondingAddress: appInstanceInfo.proposedByIdentifier,
+      intermediaryAddress: appInstanceInfo.intermediaries![0],
+      signingKeys: xkeysToSortedKthAddresses(
+        [
+          appInstanceInfo.proposedByIdentifier,
+          appInstanceInfo.proposedToIdentifier
+        ],
+        1337
+      ),
+      defaultTimeout: appInstanceInfo.timeout.toNumber(),
+      appInterface: {
+        addr: appInstanceInfo.appId,
+        ...appInstanceInfo.abiEncodings
+      },
+      initialState: appInstanceInfo.initialState,
+      initiatingBalanceDecrement: appInstanceInfo.myDeposit,
+      respondingBalanceDecrement: appInstanceInfo.peerDeposit
+    }
   );
 
-  await store.saveRealizedProposedAppInstance(
-    createAppInstanceFromAppInstanceInfo(appInstanceInfo, stateChannel)
-      .identityHash,
-    appInstanceInfo
+  updatedStateChannelsMap.forEach(
+    async stateChannel => await store.saveStateChannel(stateChannel)
   );
+
+  await store.saveRealizedProposedAppInstance(appInstanceInfo);
 
   return appInstanceInfo;
-}
-
-function createAppInstanceFromAppInstanceInfo(
-  proposedAppInstanceInfo: ProposedAppInstanceInfo,
-  channel: StateChannel
-): AppInstance {
-  const appInterface: AppInterface = {
-    ...proposedAppInstanceInfo.abiEncodings,
-    addr: proposedAppInstanceInfo.appId
-  };
-
-  // TODO: throw if asset type is ETH and token is also set
-  const terms: Terms = {
-    assetType: proposedAppInstanceInfo.asset.assetType,
-    limit: proposedAppInstanceInfo.myDeposit.add(
-      proposedAppInstanceInfo.peerDeposit
-    ),
-    token: proposedAppInstanceInfo.asset.token || AddressZero
-  };
-
-  return new AppInstance(
-    channel.multisigAddress,
-    channel.getSigningKeysFor(channel.numInstalledApps),
-    proposedAppInstanceInfo.timeout.toNumber(),
-    appInterface,
-    terms,
-    // TODO: pass correct value when virtual app support gets added
-    false,
-    // TODO: this should be thread-safe
-    channel.numInstalledApps,
-    channel.rootNonceValue,
-    proposedAppInstanceInfo.initialState,
-    0,
-    proposedAppInstanceInfo.timeout.toNumber()
-  );
 }

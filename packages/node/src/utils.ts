@@ -10,18 +10,21 @@ export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
 
 /**
  *
- * @param selfAddress
+ * @param myIdentifier
  * @param peerAddress Peer Address could either be an intermediary or a
  *        `respondingAddress` which is the targeted peer in a Virtual AppInstance
  *        operation.
  * @param store
  */
 export async function getChannelFromPeerAddress(
-  selfAddress: string,
+  myIdentifier: string,
   peerAddress: string,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = hashOfOrderedPublicIdentifiers([selfAddress, peerAddress]);
+  const ownersHash = hashOfOrderedPublicIdentifiers([
+    myIdentifier,
+    peerAddress
+  ]);
 
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
@@ -29,7 +32,7 @@ export async function getChannelFromPeerAddress(
 
   if (!multisigAddress) {
     return Promise.reject(
-      `No channel exists between the current user ${selfAddress} and the peer ${peerAddress}`
+      `No channel exists between the current user ${myIdentifier} and the peer ${peerAddress}`
     );
   }
 
@@ -37,16 +40,23 @@ export async function getChannelFromPeerAddress(
 }
 
 export async function getPeersAddressFromAppInstanceID(
-  selfAddress: Address,
+  myIdentifier: Address,
   store: Store,
   appInstanceId: string
 ): Promise<Address[]> {
   const multisigAddress = await store.getMultisigAddressFromAppInstanceID(
     appInstanceId
   );
+
+  if (!multisigAddress) {
+    throw new Error(
+      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+    );
+  }
+
   const stateChannel = await store.getStateChannel(multisigAddress);
   const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== selfAddress);
+  return owners.filter(owner => owner !== myIdentifier);
 }
 
 export function isNotDefinedOrEmpty(str?: string) {
@@ -54,10 +64,10 @@ export function isNotDefinedOrEmpty(str?: string) {
 }
 
 export function getCounterpartyAddress(
-  selfAddress: Address,
+  myIdentifier: Address,
   appInstanceAddresses: Address[]
 ) {
   return appInstanceAddresses.filter(address => {
-    return address !== selfAddress;
+    return address !== myIdentifier;
   })[0];
 }

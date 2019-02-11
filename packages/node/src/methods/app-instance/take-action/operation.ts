@@ -29,7 +29,7 @@ export async function generateNewAppInstanceState(
 async function makeApplyActionCall(
   contract: Contract,
   appInstance: AppInstance,
-  action: any
+  action: SolidityABIEncoderV2Struct
 ): Promise<SolidityABIEncoderV2Struct> {
   let newStateBytes: string;
   let encodedAction: string;

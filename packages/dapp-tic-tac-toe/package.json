@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "BROWSER=none && react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp src/_redirects build/_redirects",
     "netlify": "sh netlify.sh",
     "test": "CI=true react-scripts test --setupFiles ./src/testSetup.js",
     "eject": "react-scripts eject"

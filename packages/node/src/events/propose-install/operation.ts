@@ -1,18 +1,29 @@
-import { Address, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
 import { getChannelFromPeerAddress } from "../../utils";
 
 export async function setAppInstanceIDForProposeInstall(
-  selfAddress: Address,
+  myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallParams,
   appInstanceId: string,
-  initiatingAddress: Address
+  proposedByIdentifier: string
 ) {
-  await store.addAppInstanceProposal(
-    await getChannelFromPeerAddress(selfAddress, initiatingAddress, store),
-    new ProposedAppInstanceInfo(appInstanceId, { ...params, initiatingAddress })
+  const channel = await getChannelFromPeerAddress(
+    myIdentifier,
+    proposedByIdentifier,
+    store
   );
+
+  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+    {
+      ...params,
+      proposedByIdentifier
+    },
+    channel
+  );
+
+  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 }

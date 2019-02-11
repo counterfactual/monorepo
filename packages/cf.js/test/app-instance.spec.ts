@@ -1,11 +1,11 @@
 import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
-import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
+import { bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
-import { TestNodeProvider } from "./fixture";
+import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
 describe("CF.js AppInstance", () => {
   let nodeProvider: TestNodeProvider;
@@ -20,8 +20,8 @@ describe("CF.js AppInstance", () => {
     myDeposit: bigNumberify(1000),
     peerDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),
-    initiatingAddress: getAddress(hexlify(randomBytes(20))),
-    respondingAddress: getAddress(hexlify(randomBytes(20)))
+    proposedByIdentifier: TEST_XPUBS[0],
+    proposedToIdentifier: TEST_XPUBS[1]
   };
 
   beforeEach(async () => {
@@ -137,7 +137,7 @@ describe("CF.js AppInstance", () => {
       nodeProvider.simulateMessageFromNode({
         type: Node.EventName.UNINSTALL,
         data: {
-          appInstance: TEST_APP_INSTANCE_INFO
+          appInstanceId: TEST_APP_INSTANCE_INFO.id
         }
       });
     });
