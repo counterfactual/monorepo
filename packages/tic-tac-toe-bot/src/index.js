@@ -3,39 +3,100 @@ const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
 const { AddressZero } = require("ethers/constants");
 const { v4 } = require("uuid");
-const checkEndConditions = require("@counterfactual/dapp-tic-toe/utils/check-end-conditions");
+const bn = ethers.utils.bigNumberify;
+const ZERO = bn(0);
 
- const STATE_ENCODING = `
-      tuple(
-        address[2] playerAddrs,
-        uint8 stage,
-        bytes32 salt,
-        bytes32 commitHash,
-        uint256 playerFirstNumber,
-        uint256 playerSecondNumber
-      )
-    `;
-const ACTION_ENCODING = `
-    tuple(
-        uint8 actionType,
-        uint256 number,
-        bytes32 actionHash,
-      )
-    `;
+function checkDraw(board) {
+  return board.every(row => row.every(square => !bn(square).eq(ZERO)));
+}
 
- // const BOT_USER = {
-//   attributes: {
-//     email: "HighRollerBot@counterfactual.com",
-//     ethAddress: "0xdab32c06dab94feae04ebd7a54128bc22115eb51",
-//     multisigAddress: "0x02D91A30ecCfa50cD8A72177C34E4f282A1b00d2",
-//     nodeAddress:
-//       "xpub6E36zmy9v3oujanBNnDnDY412eiXGuoXSTFStYmsn1TJ7sQdKrdmud6kEckat1A3y4DsLWdV33SigC15MakedwvmSCCKWNRCHkekPvQNPdb",
-//     username: "HighRollerBot"
-//   },
-//   id: "b7605fb6-a760-4be6-b6c5-a53b54d9d4ec",
-//   relationships: {},
-//   type: "user"
-// };
+function checkVictory(board, player) {
+  return (
+    checkHorizontalVictory(board, player) ||
+    checkVerticalVictory(board, player) ||
+    checkDiagonalVictory(board, player) ||
+    checkCrossDiagonalVictory(board, player)
+  );
+}
+
+function checkHorizontalVictory(board, player) {
+  let idx;
+  const victory = board.some((row, index) => {
+    idx = index;
+    return row.every(square => bn(square).eq(bn(player)));
+  });
+
+  if (victory) {
+    return {
+      winClaimType: 0,
+      idx
+    };
+  }
+}
+
+function checkVerticalVictory(board, player) {
+  let idx;
+  const victory = board[0].some((columnStart, index) => {
+    idx = index;
+    return (
+      bn(columnStart).eq(bn(player)) &&
+      bn(board[1][index]).eq(bn(player)) &&
+      bn(board[2][index]).eq(bn(player))
+    );
+  });
+
+  if (victory) {
+    return {
+      winClaimType: 1,
+      idx
+    };
+  }
+}
+
+function checkDiagonalVictory(board, player) {
+  const victory =
+    bn(board[0][0]).eq(bn(player)) &&
+    bn(board[1][1]).eq(bn(player)) &&
+    bn(board[2][2]).eq(bn(player));
+
+  if (victory) {
+    return {
+      winClaimType: 2,
+      idx: 0
+    };
+  }
+}
+
+function checkCrossDiagonalVictory(board, player) {
+  const victory =
+    bn(board[0][2]).eq(bn(player)) &&
+    bn(board[1][1]).eq(bn(player)) &&
+    bn(board[2][0]).eq(bn(player));
+
+  if (victory) {
+    return {
+      winClaimType: 3,
+      idx: 0
+    };
+  }
+}
+
+const STATE_ENCODING = "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)";
+const ACTION_ENCODING = "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)";
+
+const BOT_USER = {
+  attributes: {
+    email: "TTTBot@counterfactual.com",
+    ethAddress: "0x1bdf54355a98b43951db6f5369dd1bae31bf2fb0",
+    multisigAddress: "0x329CbbBDe9278eE3C446344793e92AE8684DFfb2",
+    nodeAddress:
+      "xpub6De7GChxn8fgz2XuazeYjwzWAGNK6x4DterDRTKxSqocZwq3mrgNHkTqhLo9PBRhqaQvc56CLTN3Mx49ye2Z2PZuwCv4PqmLipS7PtVbggU",
+    username: "TTTBot"
+  },
+  id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
+  relationships: {},
+  type: "user"
+};
 
  // const APP = {
 //   web3Provider: ethers.getDefaultProvider("ropsten"),
@@ -89,7 +150,7 @@ const ACTION_ENCODING = `
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten")
+    "ropsten"
   );
 
    console.log("Creating NodeProvider");
@@ -109,58 +170,58 @@ const ACTION_ENCODING = `
     cfProvider
   );
 
-   console.log("Create event listener for updateState");
-  cfProvider.on("updateState", newState => {
-    console.log(`Received newState ${newState}`);
-
-    const possibleMoves = [];
-
-    for (let x = 0; x < 3; x++) {
-      for (let y = 0; y < 3; y++) {
-        if (this.activeState.board[x][y] !== 0) {
-          possibleMoves.push({
-            x,
-            y
-          });
-        }
-      }
-    }
-
-    if (possibleMoves.length === 0) {
-      throw new Error("Yikes! No place left to move.");
-    }
-
-    const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
-    const playX = move.x;
-    const playY = move.y;
-    const myNumber = 2; // TODO: figure out how to get the actual number
-
-    
-    const boardCopy = JSON.parse(JSON.stringify(newState.board));
-    boardCopy[playX][playY] = window.ethers.utils.bigNumberify(myNumber);
-
-    const winClaim = checkEndConditions.checkVictory(boardCopy, myNumber);
-    const draw = checkEndConditions.checkDraw(boardCopy);
-
-    let actionType = 0;
-
-    if (winClaim) {
-      actionType = 1;
-    } else if (draw) {
-      actionType = 2;
-    }
-
-    await appInstance.takeAction({
-      actionType: actionType,
-      winClaim: winClaim || { winClaimType: 0, idx: 0 },
-      playX,
-      playY
-    });
-  });
-
    console.log("Create event listener for installVirtual");
   cfProvider.on("installVirtual", appInstance => {
     console.log(`Received appInstance ${appInstance}`);
     appInstance.install();
+
+    console.log("Create event listener for updateState");
+    appInstance.on("updateState", newState => {
+      console.log(`Received newState ${newState}`);
+  
+      const possibleMoves = [];
+  
+      for (let x = 0; x < 3; x++) {
+        for (let y = 0; y < 3; y++) {
+          if (this.activeState.board[x][y] !== 0) {
+            possibleMoves.push({
+              x,
+              y
+            });
+          }
+        }
+      }
+  
+      if (possibleMoves.length === 0) {
+        throw new Error("Yikes! No place left to move.");
+      }
+  
+      const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
+      const playX = move.x;
+      const playY = move.y;
+      const myNumber = 2; // TODO: figure out how to get the actual number
+  
+      
+      const boardCopy = JSON.parse(JSON.stringify(newState.board));
+      boardCopy[playX][playY] = window.ethers.utils.bigNumberify(myNumber);
+  
+      const winClaim = checkVictory(boardCopy, myNumber);
+      const draw = checkDraw(boardCopy);
+  
+      let actionType = 0;
+  
+      if (winClaim) {
+        actionType = 1;
+      } else if (draw) {
+        actionType = 2;
+      }
+  
+      appInstance.takeAction({
+        actionType: actionType,
+        winClaim: winClaim || { winClaimType: 0, idx: 0 },
+        playX,
+        playY
+      });
+    });
   });
 })();

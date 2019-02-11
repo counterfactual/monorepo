@@ -21,8 +21,9 @@ class Wager extends Component {
     console.log("user data", this.props.user);
 
     try {
-      const result = await this.matchmake();
-
+      // const result = await this.matchmake();
+      const result = this.matchmakeBot();
+      
       const opponent = {
         id: "opponent",
         attributes: {
@@ -43,6 +44,24 @@ class Wager extends Component {
         isLoaded: true,
         error
       });
+    }
+  }
+
+  matchmakeBot() {
+    return {
+      data: {
+        attributes: {
+          email: "TTTBot@counterfactual.com",
+          ethAddress: "0x1bdf54355a98b43951db6f5369dd1bae31bf2fb0",
+          nodeAddress:
+            "xpub6De7GChxn8fgz2XuazeYjwzWAGNK6x4DterDRTKxSqocZwq3mrgNHkTqhLo9PBRhqaQvc56CLTN3Mx49ye2Z2PZuwCv4PqmLipS7PtVbggU",
+          intermediray: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+          username: "TTTBot"
+        },
+        id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
+        relationships: {},
+        type: "user"
+      }
     }
   }
 
