@@ -83,7 +83,9 @@ export class NodeListener {
       networkContext,
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
-      }
+      },
+      // TODO: Get this from the provider.
+      network: "ropsten"
     });
 
     this.bindNodeEvents();
