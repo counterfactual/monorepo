@@ -152,8 +152,6 @@ export class AppInstance {
   public get uninstallKey() {
     // The unique "key" in the NonceRegistry is computed to be:
     // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
-    // where <app nonce> is 0 since FreeBalance is assumed to be the
-    // firstmost intalled app in the channel.
     return keccak256(
       solidityPack(
         ["address", "uint256", "bytes32"],
@@ -163,9 +161,6 @@ export class AppInstance {
           keccak256(
             solidityPack(
               ["uint256"],
-              // In this case, we expect the <app nonce> variable to be
-              // 1 since this newly installed app is the only app installed
-              // after the ETH FreeBalance was installed.
               [this.json.appSeqNo]
             )
           )

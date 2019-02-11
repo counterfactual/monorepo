@@ -88,15 +88,18 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     multisigAddress
   } = message.params as UninstallParams;
 
-  const newStateChannel = context.stateChannelsMap
-    .get(multisigAddress)!
+  const sc = context.stateChannelsMap.get(multisigAddress)!;
+
+  const sequenceNo = sc.getAppInstance(appIdentityHash)!.appSeqNo;
+
+  const newStateChannel = sc
     .uninstallApp(appIdentityHash, aliceBalanceIncrement, bobBalanceIncrement);
   context.stateChannelsMap.set!(multisigAddress, newStateChannel);
 
   context.commitments[0] = constructUninstallOp(
     context.network,
     newStateChannel,
-    appIdentityHash
+    sequenceNo
   );
 
   context.appIdentityHash = appIdentityHash;
@@ -105,7 +108,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
 export function constructUninstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  uninstallTargetId: string
+  uninstallTargetId: number
 ) {
   if (uninstallTargetId === undefined) {
     throw new Error(
@@ -137,6 +140,6 @@ export function constructUninstallOp(
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
-    freeBalance.appSeqNo
+    uninstallTargetId
   );
 }

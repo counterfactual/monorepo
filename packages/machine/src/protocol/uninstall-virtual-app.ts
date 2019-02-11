@@ -2,9 +2,11 @@ import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethere
 import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
-import { ProtocolExecutionFlow } from "..";
+import { ProtocolExecutionFlow, StateChannel } from "..";
 import { Opcode } from "../enums";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
+import { UninstallCommitment } from "@counterfactual/machine/src/ethereum";
+import { ETHBucketAppState, NetworkContext, AssetType } from "@counterfactual/types";
 
 const NONCE_EXPIRY = 65536;
 
@@ -75,5 +77,25 @@ function p1(message: ProtocolMessage, context: Context) {
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0
+  );
+}
+
+export function constructUninstallOp(
+  network: NetworkContext,
+  stateChannel: StateChannel,
+  uninstallTargetId: number
+) {
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+  return new UninstallCommitment(
+    network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    freeBalance.identity,
+    freeBalance.terms,
+    freeBalance.state as ETHBucketAppState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    uninstallTargetId
   );
 }
