@@ -127,7 +127,7 @@ export type UninstallVirtualAppParams = {
   respondingBalanceDecrement: BigNumber;
 };
 
-type ProtocolParameters =
+export type ProtocolParameters =
   | SetupParams
   | UpdateParams
   | InstallParams
