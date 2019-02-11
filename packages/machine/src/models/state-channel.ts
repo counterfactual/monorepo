@@ -29,6 +29,8 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
+const NONCE_EXPIRY = 65536;
+
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
     `Expected the appInstances list to be empty but size ${size}`,
@@ -300,14 +302,17 @@ export class StateChannel {
     );
   }
 
-  public lockAppInstance(appInstanceIdentityHash: string, nonce: number) {
+  public lockAppInstance(appInstanceIdentityHash: string) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
 
-    appInstances.set(appInstanceIdentityHash, appInstance.lockState(nonce));
+    appInstances.set(
+      appInstanceIdentityHash,
+      appInstance.lockState(NONCE_EXPIRY)
+    );
 
     return new StateChannel(
       this.multisigAddress,
@@ -456,7 +461,11 @@ export class StateChannel {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
     if (appToBeUninstalled.identityHash != appInstanceIdentityHash) {
-      throw Error(`Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${appToBeUninstalled.identityHash}`);
+      throw Error(
+        `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${
+          appToBeUninstalled.identityHash
+        }`
+      );
     }
 
     const currentState = fb.state as ETHBucketAppState;
@@ -469,7 +478,9 @@ export class StateChannel {
     );
 
     if (!appInstances.delete(appToBeUninstalled.identityHash)) {
-      throw Error(`Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`);
+      throw Error(
+        `Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`
+      );
     }
 
     appInstances.set(

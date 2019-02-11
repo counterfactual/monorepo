@@ -11,8 +11,6 @@ import { ProtocolExecutionFlow, StateChannel } from "..";
 import { Opcode } from "../enums";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
 
-const NONCE_EXPIRY = 65536;
-
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     p1,
@@ -84,7 +82,7 @@ function p1(message: ProtocolMessage, context: Context) {
   }
   const { targetAppIdentityHash } = message.params as UninstallVirtualAppParams;
 
-  const newSc = sc.lockAppInstance(targetAppIdentityHash, NONCE_EXPIRY);
+  const newSc = sc.lockAppInstance(targetAppIdentityHash);
   const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
 
   context.stateChannelsMap.set(AddressZero, newSc);
@@ -93,7 +91,6 @@ function p1(message: ProtocolMessage, context: Context) {
   context.commitments[0] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0
