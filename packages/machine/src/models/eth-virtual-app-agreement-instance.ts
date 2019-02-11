@@ -1,4 +1,5 @@
 import { Terms } from "@counterfactual/types";
+import { keccak256, solidityPack } from "ethers/utils";
 
 export type ETHVirtualAppAgreementJson = {
   multisigAddress: string;
@@ -7,6 +8,7 @@ export type ETHVirtualAppAgreementJson = {
   rootNonceValue: number;
   expiry: number;
   capitalProvided: number;
+  targetAppIdentityHash: string;
 };
 
 export class ETHVirtualAppAgreementInstance {
@@ -20,7 +22,8 @@ export class ETHVirtualAppAgreementInstance {
     public expiry: number,
     // todo(xuanji): The following field is a js `number`, which is
     // unsafe since even 1 ETH will exceed `Number.MAX_SAFE_INTEGER`
-    public capitalProvided: number
+    public capitalProvided: number,
+    public targetAppIdentityHash: string
   ) {
     this.json = {
       multisigAddress,
@@ -28,7 +31,8 @@ export class ETHVirtualAppAgreementInstance {
       appSeqNo,
       rootNonceValue,
       expiry,
-      capitalProvided
+      capitalProvided,
+      targetAppIdentityHash
     };
   }
 
@@ -43,7 +47,22 @@ export class ETHVirtualAppAgreementInstance {
       json.appSeqNo,
       json.rootNonceValue,
       json.expiry,
-      json.capitalProvided
+      json.capitalProvided,
+      json.targetAppIdentityHash
+    );
+  }
+  public get uninstallKey() {
+    // The unique "key" in the NonceRegistry is computed to be:
+    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
+    return keccak256(
+      solidityPack(
+        ["address", "uint256", "bytes32"],
+        [
+          this.json.multisigAddress,
+          0,
+          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
+        ]
+      )
     );
   }
 }

@@ -26,7 +26,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
-    public readonly expiry: BigNumber,
+    public readonly expiryBlock: BigNumber,
     public readonly capitalProvided: BigNumber,
     public readonly beneficiaries: string[],
     public readonly uninstallKey: string
@@ -72,7 +72,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
             limit: new BigNumber(0),
             token: AddressZero
           },
-          expiry: this.expiry,
+          expiry: this.expiryBlock,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
           beneficiaries: this.beneficiaries,

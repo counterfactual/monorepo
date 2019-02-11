@@ -21,9 +21,6 @@ import { virtualChannelKey } from "../virtual-app-key";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 
-// hardcoded assumption: all installed virtual apps can go through this many update operations
-const NONCE_EXPIRY = 65536;
-
 // TODO: Add signature validation
 
 /**
@@ -239,7 +236,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -263,7 +261,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0
@@ -336,7 +333,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
@@ -353,7 +351,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash
   );
 
   // S2
@@ -398,7 +397,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   context.commitments[2] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     HashZero,
     0
@@ -456,7 +454,8 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -483,7 +482,6 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0

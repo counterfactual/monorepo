@@ -13,6 +13,7 @@ import {
   ProtocolMessage,
   SetupParams,
   UninstallParams,
+  UninstallVirtualAppParams,
   UpdateParams
 } from "./types";
 
@@ -106,6 +107,20 @@ export class InstructionExecutor {
     params: InstallVirtualAppParams
   ) {
     const protocol = Protocol.InstallVirtualApp;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      seq: 0,
+      fromAddress: params.initiatingAddress,
+      toAddress: params.intermediaryAddress
+    });
+  }
+
+  public async runUninstallVirtualAppProtocol(
+    sc: Map<string, StateChannel>,
+    params: UninstallVirtualAppParams
+  ) {
+    const protocol = Protocol.UninstallVirtualApp;
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,

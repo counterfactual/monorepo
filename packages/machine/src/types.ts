@@ -116,11 +116,23 @@ export type InstallVirtualAppParams = {
   respondingBalanceDecrement: BigNumber;
 };
 
+export type UninstallVirtualAppParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+  intermediaryAddress: string;
+  multisig1Address: string;
+  multisig2Address: string;
+  targetAppIdentityHash: string;
+  initiatingBalanceIncrement: BigNumber;
+  respondingBalanceIncrement: BigNumber;
+};
+
 export type ProtocolParameters =
   | SetupParams
   | UpdateParams
   | InstallParams
   | UninstallParams
-  | InstallVirtualAppParams;
+  | InstallVirtualAppParams
+  | UninstallVirtualAppParams;
 
 export { Transaction };
