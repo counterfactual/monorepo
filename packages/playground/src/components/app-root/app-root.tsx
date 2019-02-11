@@ -100,24 +100,14 @@ export class AppRoot {
       }
     };
 
-    const addressZero = "0x0000000000000000000000000000000000000000";
-    const networkContext: NetworkContext = {
-      AppRegistry: addressZero,
-      ETHBalanceRefund: addressZero,
-      ETHBucket: addressZero,
-      MultiSend: addressZero,
-      NonceRegistry: addressZero,
-      StateChannelTransaction: addressZero,
-      ETHVirtualAppAgreement: addressZero
-    };
-
     await CounterfactualNode.create({
       messagingService,
       storeService,
-      networkContext,
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
-      }
+      },
+      // TODO: fetch this from the provider's network
+      network: "ropsten"
     });
   }
 

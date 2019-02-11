@@ -37,48 +37,7 @@ export class NodeListener {
     return CounterfactualNode.getInstance();
   }
 
-  async componentWillLoad() {
-    // TODO: This is a dummy firebase data provider.
-    // TODO: This configuration should come from the backend.
-    const serviceProvider = new FirebaseDataProvider({
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    });
-
-    const messagingService = serviceProvider.createMessagingService(
-      "messaging"
-    );
-    const storeService = {
-      async get(key: string): Promise<any> {
-        return JSON.parse(window.localStorage.getItem(key) as string);
-      },
-      async set(
-        pairs: {
-          key: string;
-          value: any;
-        }[]
-      ): Promise<boolean> {
-        pairs.forEach(({ key, value }) => {
-          window.localStorage.setItem(key, JSON.stringify(value) as string);
-        });
-        return true;
-      }
-    };
-
-    await CounterfactualNode.create({
-      messagingService,
-      storeService,
-      nodeConfig: {
-        STORE_KEY_PREFIX: "store"
-      },
-      // TODO: fetch this from the provider's network
-      network: "ropsten"
-    });
-
+  componentWillLoad() {
     this.bindNodeEvents();
   }
 
