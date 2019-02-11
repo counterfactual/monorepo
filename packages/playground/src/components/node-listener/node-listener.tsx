@@ -1,53 +1,15 @@
 declare var uuid: () => string;
 
-import { NetworkContext, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import FirebaseDataProvider from "../../data/firebase";
 import { AppDefinition } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
-
-// TODO: This is a dummy firebase data provider.
-// TODO: This configuration should come from the backend.
-FirebaseDataProvider.create();
-
-const messagingService = FirebaseDataProvider.createMessagingService(
-  "messaging"
-);
-const storeService = {
-  async get(key: string): Promise<any> {
-    return JSON.parse(window.localStorage.getItem(key) as string);
-  },
-  async set(
-    pairs: {
-      key: string;
-      value: any;
-    }[]
-  ): Promise<boolean> {
-    pairs.forEach(({ key, value }) => {
-      window.localStorage.setItem(key, JSON.stringify(value) as string);
-    });
-    return true;
-  }
-};
-
-const addressZero = "0x0000000000000000000000000000000000000000";
-const networkContext: NetworkContext = {
-  AppRegistry: addressZero,
-  ETHBalanceRefund: addressZero,
-  ETHBucket: addressZero,
-  MultiSend: addressZero,
-  NonceRegistry: addressZero,
-  StateChannelTransaction: addressZero,
-  ETHVirtualAppAgreement: addressZero,
-  MinimumViableMultisig: addressZero,
-  ProxyFactory: addressZero
-};
 
 @Component({
   tag: "node-listener",
@@ -65,8 +27,7 @@ export class NodeListener {
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
     rejectInstallEvent: this.onRejectInstall.bind(this),
-    rejectInstallVirtualEvent: this.onRejectInstall.bind(this),
-    installVirtualEvent: this.onInstallVirtual.bind(this)
+    rejectInstallVirtualEvent: this.onRejectInstall.bind(this)
   };
 
   get node() {
@@ -74,17 +35,6 @@ export class NodeListener {
   }
 
   async componentWillLoad() {
-    await CounterfactualNode.create({
-      messagingService,
-      storeService,
-      networkContext,
-      nodeConfig: {
-        STORE_KEY_PREFIX: "store"
-      },
-      // TODO: Get this from the provider.
-      network: "ropsten"
-    });
-
     this.bindNodeEvents();
   }
 
@@ -103,10 +53,6 @@ export class NodeListener {
   onRejectInstall(data) {
     this.currentMessage = data;
     this.showModal();
-  }
-
-  onInstallVirtual(data) {
-    console.log(data);
   }
 
   async acceptProposeInstall() {
@@ -161,11 +107,6 @@ export class NodeListener {
 
   showModal() {
     this.currentModalType = this.currentMessage.type;
-    console.log(
-      "Attempting to show modal for ",
-      this.currentModalType,
-      this.currentMessage
-    );
   }
 
   hideModal() {
@@ -189,7 +130,6 @@ export class NodeListener {
       this.currentModalType === "rejectInstallVirtualEvent" ||
       this.currentModalType === "rejectInstallEvent"
     ) {
-      console.log("Rendering reject modal");
       modal = (
         <dialog-reject-install
           message={this.currentMessage}
@@ -219,7 +159,6 @@ export class NodeListener {
       }
     }
 
-    console.log("Rendering nothing");
     return [<slot />, modal];
   }
 }

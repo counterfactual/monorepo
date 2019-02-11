@@ -69,16 +69,9 @@ export class AppRoot {
   async createNodeProvider() {
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
-    const serviceProvider = new FirebaseDataProvider({
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    });
+    FirebaseDataProvider.create();
 
-    const messagingService = serviceProvider.createMessagingService(
+    const messagingService = FirebaseDataProvider.createMessagingService(
       "messaging"
     );
     const storeService = {
