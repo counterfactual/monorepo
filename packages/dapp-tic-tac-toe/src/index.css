@@ -4,7 +4,7 @@ Variables
 :root {
   /* Colors */
   --primary: #375163;
-  --secondary: #4DCDEF;
+  --secondary: #4dcdef;
   --white: #fff;
 
   /* Font Sizes */
@@ -22,8 +22,6 @@ Variables
   --app-width: 20rem;
 }
 
-
-
 /**********************
 Box Sizing
 **********************/
@@ -40,15 +38,13 @@ html {
   box-sizing: inherit;
 }
 
-
-
 /**********************
 Resets
 **********************/
 body {
   position: relative;
   margin: 0;
-  font-family: 'Dosis', sans-serif;
+  font-family: "Dosis", sans-serif;
   color: var(--white);
   background: var(--primary);
   background-repeat: no-repeat;
@@ -63,9 +59,9 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('./assets/images/texture.svg');
+  background-image: url("./assets/images/texture.svg");
   background-repeat: repeat;
-  content: '';
+  content: "";
   z-index: -1;
 }
 
@@ -83,23 +79,21 @@ button {
   background: none;
   border: 0;
   cursor: pointer;
-  font-family: 'Dosis', sans-serif;
+  font-family: "Dosis", sans-serif;
 }
 
 input {
   background: none;
   border: 0;
-  font-family: 'Dosis', sans-serif;
+  font-family: "Dosis", sans-serif;
 }
 
 a {
   text-decoration: none;
 }
 
-
-
 /**********************
-Typography 
+Typography
 **********************/
 .f-xl {
   font-size: var(--f-xl);
@@ -113,8 +107,6 @@ Typography
   font-size: var(--f-body);
 }
 
-
-
 /**********************
 Wrappers - sets playable app area
 **********************/
@@ -125,18 +117,18 @@ Wrappers - sets playable app area
   margin: 0 auto;
 }
 
-.wager {  /* sets padding around wager screen */
+.wager {
+  /* sets padding around wager screen */
   padding: 4rem 2rem 2rem;
 }
 
-.game { /* sets padding around game screen */
+.game {
+  /* sets padding around game screen */
   padding: 1.5rem 1.5rem 0;
 }
 
-
-
 /**********************
-Welcome Screen 
+Welcome Screen
 **********************/
 .welcome {
   position: relative;
@@ -163,8 +155,6 @@ Welcome Screen
   height: 100%;
   object-fit: cover;
 }
-
-
 
 /**********************
 Message
@@ -194,7 +184,13 @@ Message
   font-size: var(--f-body);
 }
 
-
+.message__error {
+  background: #900;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: inset 1px 1px 10px #f00;
+  margin-top: 2rem;
+}
 
 /**********************
 Forms
@@ -212,7 +208,7 @@ Forms
   width: 100%;
   padding: 0.68rem 1.3rem;
   background: #375163;
-  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0,0,0,0.50);
+  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0, 0, 0, 0.5);
   border-radius: 6px;
   font-size: var(--f-rem);
   font-weight: var(--f-bold);
@@ -229,10 +225,10 @@ Forms
   align-self: center;
   width: 10rem;
   margin-top: 1.5rem;
-  padding: 0.68rem 1.3rem; 
+  padding: 0.68rem 1.3rem;
   background: var(--secondary);
-  border: 1px solid #0FA9D2;
-  box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.40);
+  border: 1px solid #0fa9d2;
+  box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.4);
   border-radius: 6px;
   font-size: var(--f-rem);
   font-weight: var(--f-bold);
@@ -240,7 +236,6 @@ Forms
   letter-spacing: 0.47px;
   text-align: center;
 }
-
 
 /**********************
 Waiting Room
@@ -269,10 +264,9 @@ Waiting Room
   margin-bottom: 1.5rem;
 }
 
- .countdown {
+.countdown {
   font-size: 4rem;
 }
-
 
 /**********************
 Game Screen - Winning Screen
@@ -285,14 +279,12 @@ Game Screen - Winning Screen
   transform: translateX(-50%);
   width: 130px;
   height: calc(100% - 2rem);
-  background-image: url('./assets/images/coins.svg');
+  background-image: url("./assets/images/coins.svg");
   background-repeat: no-repeat;
   background-size: contain;
-  content: '';
+  content: "";
   z-index: 0;
 }
-
-
 
 /**********************
 Game Screen - Player Info
@@ -303,7 +295,7 @@ Game Screen - Player Info
   margin: 0 auto 1rem;
   border: 1px solid #406077;
   border-radius: 18px;
-  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0,0,0,0.50);
+  box-shadow: inset 0 -1px 0 0 #406077, inset 0 0 6px 0 rgba(0, 0, 0, 0.5);
   background: #375163;
   letter-spacing: 0.59px;
   text-align: center;
@@ -316,7 +308,7 @@ Game Screen - Player Info
   width: calc(100% + 2.5rem);
   height: 1px;
   background: #406077;
-  content: '';
+  content: "";
   z-index: -1;
 }
 
@@ -340,7 +332,7 @@ Game Screen - Player Info
   display: flex;
   justify-content: space-between;
   width: 100%;
-  color: #F2D549;
+  color: #f2d549;
 }
 
 .player__status--won > .result > * + * {
@@ -348,8 +340,9 @@ Game Screen - Player Info
 }
 
 .player__status--lost {
-  background: #AD071C;
-  box-shadow: inset 0 -1px 0 0 rgba(255,255,255,0.30), inset 0 0 6px 0 rgba(0,0,0,0.50);
+  background: #ad071c;
+  box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 6px 0 rgba(0, 0, 0, 0.5);
   border-radius: 18px;
 }
 
@@ -359,8 +352,6 @@ Game Screen - Player Info
   width: 100%;
 }
 
-
-
 /**********************
 Game Screen - Timer
 **********************/
@@ -369,8 +360,6 @@ Game Screen - Timer
   font-weight: var(--f-bold);
   text-align: center;
 }
-
-
 
 /**********************
 Game Screen - Board
@@ -399,7 +388,8 @@ Game Screen - Board
   padding-top: calc(100% / 3);
 }
 
-.square > img { /* Styles player marker, when squares are clicked */
+.square > img {
+  /* Styles player marker, when squares are clicked */
   position: absolute;
   top: 50%;
   left: 50%;
@@ -413,10 +403,10 @@ Game Screen - Board
   display: block;
   margin: 4rem auto 0;
   width: 10rem;
-  padding: 0.68rem 1.3rem; 
+  padding: 0.68rem 1.3rem;
   background: var(--secondary);
-  border: 1px solid #0FA9D2;
-  box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.40);
+  border: 1px solid #0fa9d2;
+  box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.4);
   border-radius: 6px;
   font-size: var(--f-rem);
   font-weight: var(--f-bold);
@@ -425,12 +415,11 @@ Game Screen - Board
   text-align: center;
 }
 
-
-
 /**********************
 Game Screen - Strike Through
 **********************/
-.strike-through { /* relative to '.board' */ 
+.strike-through {
+  /* relative to '.board' */
   position: absolute;
   height: 95%;
 }

@@ -55,11 +55,12 @@ export default class App extends Component {
         const playgroundState = JSON.parse(data);
         this.setState({
           user: playgroundState.user,
+          balance: playgroundState.balance,
           matchmakeWith: playgroundState.matchmakeWith,
           connected: true
         });
 
-        window.ga('set', 'userId', playgroundState.user.id);
+        window.ga("set", "userId", playgroundState.user.id);
       }
     });
 
@@ -105,6 +106,7 @@ export default class App extends Component {
                 gameInfo={this.state.gameInfo}
                 cfProvider={this.state.cfProvider}
                 user={this.state.user}
+                balance={this.state.balance}
                 matchmakeWith={this.state.matchmakeWith}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
