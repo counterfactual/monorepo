@@ -11,6 +11,9 @@ export function virtualChannelKey(users: string[], intermediary: string) {
   if (users.length !== 2) {
     throw Error("virtualChannelKey can only calculate with 2 users");
   }
+
+  users.sort();
+
   return keccak256(
     defaultAbiCoder.encode(
       ["string", "string", "string"],

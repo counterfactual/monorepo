@@ -15,7 +15,7 @@ import {
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedVirtualAppInstanceOnNode,
-  generateUninstallRequest,
+  generateUninstallVirtualRequest,
   getApps,
   getNewMultisig,
   getProposedAppInstances,
@@ -25,7 +25,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(80000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -102,7 +102,7 @@ describe("Node method follows spec - uninstall", () => {
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +
       "then Node A uninstalls the installed AppInstance",
     () => {
-      it.skip("sends uninstall ", async done => {
+      it("sends uninstall ", async done => {
         const multisigAddressAB = await getNewMultisig(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier
@@ -121,15 +121,18 @@ describe("Node method follows spec - uninstall", () => {
           intermediaries
         );
 
-        nodeC.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
-          expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-            []
-          );
-          expect(await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-            []
-          );
-          done();
-        });
+        nodeC.on(
+          NODE_EVENTS.UNINSTALL_VIRTUAL,
+          async (msg: UninstallMessage) => {
+            expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
+              []
+            );
+            expect(await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
+              []
+            );
+            done();
+          }
+        );
 
         nodeA.on(
           NODE_EVENTS.INSTALL_VIRTUAL,
@@ -145,8 +148,9 @@ describe("Node method follows spec - uninstall", () => {
 
             expect(virtualAppInstanceNodeA).toEqual(virtualAppInstanceNodeC);
 
-            const uninstallReq = generateUninstallRequest(
-              msg.data.params.appInstanceId
+            const uninstallReq = generateUninstallVirtualRequest(
+              msg.data.params.appInstanceId,
+              nodeB.publicIdentifier
             );
             nodeA.emit(uninstallReq.type, uninstallReq);
           }

@@ -120,8 +120,6 @@ export type UninstallVirtualAppParams = {
   initiatingAddress: string;
   respondingAddress: string;
   intermediaryAddress: string;
-  multisig1Address: string;
-  multisig2Address: string;
   targetAppIdentityHash: string;
   initiatingBalanceIncrement: BigNumber;
   respondingBalanceIncrement: BigNumber;

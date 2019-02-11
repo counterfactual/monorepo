@@ -14,7 +14,8 @@ enum Events {
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
   INSTALL_VIRTUAL = "installVirtualEvent",
-  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
+  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent",
+  UNINSTALL_VIRTUAL = "uninstallVirtualEvent"
 }
 
 // Because `extend`ing isn't a native enum feature

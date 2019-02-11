@@ -24,7 +24,8 @@ import {
   proposeInstallVirtualAppInstanceController,
   rejectInstallController,
   takeActionController,
-  uninstallController
+  uninstallController,
+  uninstallVirtualController
 } from "./methods";
 import { NODE_EVENTS } from "./types";
 
@@ -43,7 +44,8 @@ export const methodNameToImplementation = {
   [Node.MethodName.TAKE_ACTION]: takeActionController,
   [Node.MethodName.REJECT_INSTALL]: rejectInstallController,
   [Node.MethodName.GET_APP_INSTANCE_DETAILS]: getAppInstanceController,
-  [Node.MethodName.UNINSTALL]: uninstallController
+  [Node.MethodName.UNINSTALL]: uninstallController,
+  [Node.MethodName.UNINSTALL_VIRTUAL]: uninstallVirtualController
 };
 
 export const eventNameToImplementation = {
@@ -58,6 +60,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
   // TODO: implement the rest
   [NODE_EVENTS.UNINSTALL]: () => {},
+  [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {}
 };

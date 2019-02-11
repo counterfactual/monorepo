@@ -1,5 +1,4 @@
 import { StateChannel } from "../..";
-import { xkeyKthAddress } from "../../xkeys";
 
 /**
  * Gets a StateChannel from a map of them based on the counterparties
@@ -14,11 +13,10 @@ export function getChannelFromCounterparty(
   me: string,
   counterparty: string
 ): StateChannel | undefined {
-  const myMultisigAddress = xkeyKthAddress(me, 0);
-  const theirMultisigAddress = xkeyKthAddress(counterparty, 0);
+  const expectedExtendedKeys = [me, counterparty].sort();
   return [...stateChannelsMap.values()].find(
     sc =>
-      sc.multisigOwners.filter(owner => owner !== myMultisigAddress)[0] ===
-      theirMultisigAddress
+      JSON.stringify(sc.userNeuteredExtendedKeys) ===
+      JSON.stringify(expectedExtendedKeys)
   );
 }

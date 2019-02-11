@@ -1,16 +1,15 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
 
-export default async function uninstallController(
+export default async function uninstallVirtualController(
   requestHandler: RequestHandler,
-  params: Node.UninstallParams
-): Promise<Node.UninstallResult> {
+  params: Node.UninstallVirtualParams
+): Promise<Node.UninstallVirtualResult> {
   const { appInstanceId } = params;
 
   if (!appInstanceId) {
@@ -31,18 +30,9 @@ export default async function uninstallController(
     requestHandler.instructionExecutor,
     requestHandler.publicIdentifier,
     to,
+    params.intermediaryIdentifier,
     appInstanceId
   );
-
-  const uninstallMsg: UninstallMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.UNINSTALL,
-    data: {
-      appInstanceId
-    }
-  };
-
-  await requestHandler.messagingService.send(to, uninstallMsg);
 
   return {};
 }
