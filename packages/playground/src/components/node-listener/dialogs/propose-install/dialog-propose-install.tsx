@@ -1,8 +1,8 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 
-import AppRegistryTunnel from "../../../data/app-registry";
-import PlaygroundAPIClient from "../../../data/playground-api-client";
-import { AppDefinition, UserSession } from "../../../types";
+import AppRegistryTunnel from "../../../../data/app-registry";
+import PlaygroundAPIClient from "../../../../data/playground-api-client";
+import { AppDefinition, UserSession } from "../../../../types";
 
 @Component({
   tag: "dialog-propose-install",

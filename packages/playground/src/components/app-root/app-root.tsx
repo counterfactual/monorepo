@@ -1,4 +1,3 @@
-import { NetworkContext } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -10,7 +9,6 @@ import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
 import NetworkTunnel, { NetworkState } from "../../data/network";
 import PlaygroundAPIClient from "../../data/playground-api-client";
-import { AppDefinition } from "../../types";
 
 @Component({
   tag: "app-root",
@@ -170,7 +168,7 @@ export class AppRoot {
                   </stencil-route-switch>
                 </stencil-router>
               </main>
-              <web3-connector
+              <webthree-connector
                 accountState={this.accountState}
                 networkState={this.networkState}
               />

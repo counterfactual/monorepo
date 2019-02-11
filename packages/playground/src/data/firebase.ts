@@ -2,8 +2,6 @@
 // to provider support for a Firebase layer.
 // TODO: IMPORT THIS FROM THE NODE!
 import { Address } from "@counterfactual/types";
-import firebase from "firebase/app";
-import "firebase/database";
 
 export interface IMessagingService {
   send(respondingAddress: Address, msg: any): Promise<void>;
@@ -31,10 +29,10 @@ export interface FirebaseAppConfiguration {
  * described above, using Firebase as the implementation backend.
  */
 export default class FirebaseServiceFactory {
-  private app: firebase.app.App;
+  private app: any;
 
   constructor(configuration: FirebaseAppConfiguration) {
-    this.app = firebase.initializeApp(configuration);
+    this.app = window["firebase"].initializeApp(configuration);
   }
 
   createMessagingService(messagingServiceKey: string): IMessagingService {
@@ -61,7 +59,7 @@ class FirebaseMessagingService implements IMessagingService {
   private initialHookResponseFired = false;
 
   constructor(
-    private readonly firebase: firebase.database.Database,
+    private readonly firebase: any,
     private readonly messagingServerKey: string
   ) {}
 
@@ -81,7 +79,7 @@ class FirebaseMessagingService implements IMessagingService {
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+      .on("value", (snapshot: any | null) => {
         if (!snapshot) {
           console.error(
             `Node with address ${address} received a "null" snapshot`
@@ -115,7 +113,7 @@ class FirebaseMessagingService implements IMessagingService {
 
 class FirebaseStoreService implements IStoreService {
   constructor(
-    private readonly firebase: firebase.database.Database,
+    private readonly firebase: any,
     private readonly storeServiceKey: string
   ) {}
 
@@ -124,7 +122,7 @@ class FirebaseStoreService implements IStoreService {
     await this.firebase
       .ref(this.storeServiceKey)
       .child(key)
-      .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
+      .once("value", (snapshot: any | null) => {
         if (snapshot === null) {
           console.debug(
             `Failed to retrieve value at ${key}: received a "null" snapshot`

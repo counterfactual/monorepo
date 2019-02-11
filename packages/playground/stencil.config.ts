@@ -9,6 +9,12 @@ export const config: Config = {
     port: 3334
   },
   globalStyle: "src/global/app.css",
+  outputTargets: [
+    {
+      type: "www",
+      serviceWorker: null
+    }
+  ],
   plugins: [
     sass({
       injectGlobalPaths: [

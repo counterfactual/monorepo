@@ -4,7 +4,7 @@ import { AccountState } from "../../data/account";
 import { NetworkState } from "../../data/network";
 
 @Component({
-  tag: "web3-connector",
+  tag: "webthree-connector",
   shadow: true
 })
 export class Web3Connector {
