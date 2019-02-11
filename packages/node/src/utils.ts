@@ -39,6 +39,16 @@ export async function getChannelFromPeerAddress(
   return await store.getStateChannel(multisigAddress);
 }
 
+export async function getPeersAddressFromChannel(
+  myIdentifier: string,
+  store: Store,
+  multisigAddress: string
+): Promise<Address[]> {
+  const stateChannel = await store.getStateChannel(multisigAddress);
+  const owners = stateChannel.userNeuteredExtendedKeys;
+  return owners.filter(owner => owner !== myIdentifier);
+}
+
 export async function getPeersAddressFromAppInstanceID(
   myIdentifier: Address,
   store: Store,
@@ -54,9 +64,7 @@ export async function getPeersAddressFromAppInstanceID(
     );
   }
 
-  const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== myIdentifier);
+  return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
 }
 
 export function isNotDefinedOrEmpty(str?: string) {

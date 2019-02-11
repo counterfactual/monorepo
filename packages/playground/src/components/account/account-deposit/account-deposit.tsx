@@ -30,6 +30,7 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
+      // TODO: update this to deposit through the Node
       const tx = {
         to: this.user.multisigAddress,
         value: this.amountDeposited

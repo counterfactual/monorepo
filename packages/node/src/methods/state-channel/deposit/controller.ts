@@ -3,6 +3,12 @@ import { Node } from "@counterfactual/types";
 import { RequestHandler } from "../../../request-handler";
 import { ERRORS } from "../../errors";
 
+import {
+  installBalanceRefundApp,
+  makeDeposit,
+  uninstallBalanceRefundApp
+} from "./operation";
+
 /**
  * This deposits the specified amount into the multisig of the specified channel.
  */
@@ -16,4 +22,16 @@ export default async function depositController(
   if (channel.hasBalanceRefund(requestHandler.networkContext)) {
     return Promise.reject(ERRORS.CANNOT_DEPOSIT);
   }
+
+  await installBalanceRefundApp(requestHandler, params);
+
+  await makeDeposit(requestHandler, params);
+
+  await uninstallBalanceRefundApp(requestHandler, params);
+
+  return {
+    multisigBalance: await requestHandler.provider.getBalance(
+      params.multisigAddress
+    )
+  };
 }

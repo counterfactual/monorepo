@@ -27,5 +27,6 @@ export const ERRORS = {
     "Failed to create channel. Multisignature wallet cannot be deployed properly",
   INVALID_NETWORK_NAME: "Invalid network name provided for initializing Node",
   CANNOT_DEPOSIT:
-    "Cannot deposit while another deposit is occurring in the channel."
+    "Cannot deposit while another deposit is occurring in the channel.",
+  DEPOSIT_FAILED: "Failed to send funds to the multisig contract"
 };

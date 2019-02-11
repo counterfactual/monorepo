@@ -82,4 +82,8 @@ export interface RejectProposalMessage extends NodeMessage {
   };
 }
 
+export interface DepositConfirmationMessage extends NodeMessage {
+  data: Node.DepositParams;
+}
+
 export interface RejectInstallVirtualMessage extends RejectProposalMessage {}

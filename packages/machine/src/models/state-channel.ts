@@ -1,8 +1,8 @@
 import {
   AssetType,
   ETHBucketAppState,
-  SolidityABIEncoderV2Struct,
-  NetworkContext
+  NetworkContext,
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
@@ -150,6 +150,20 @@ export class StateChannel {
         }
       ).length === 1
     );
+  }
+
+  public getBalanceRefund(networkContext: NetworkContext) {
+    const appInstances = Array.from(this.appInstances.values()).filter(
+      (appInstance: AppInstance) => {
+        return (
+          appInstance.appInterface.addr === networkContext.ETHBalanceRefund
+        );
+      }
+    );
+    if (appInstances.length !== 1) {
+      throw Error("No BalanceRefund exists on this channel");
+    }
+    return appInstances[0];
   }
 
   public appInstanceIsFreeBalance(appInstanceId: string): boolean {
