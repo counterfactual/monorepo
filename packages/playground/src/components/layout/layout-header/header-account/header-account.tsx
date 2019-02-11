@@ -57,7 +57,13 @@ export class HeaderAccount {
     }
 
     if (!this.user || !this.user.username) {
-      this.updateAccount({ user: await PlaygroundAPIClient.getUser(token) });
+      try {
+        const user = await PlaygroundAPIClient.getUser(token);
+        this.updateAccount({ user });
+      } catch {
+        window.localStorage.removeItem("playground:user:token");
+        return;
+      }
     }
 
     await this.getBalances();

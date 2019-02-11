@@ -45,10 +45,6 @@ const ERRORS = {
     "multisigOwners parameter of StateChannel must be sorted"
 };
 
-const balanceRefundAddresses = new Set(
-  "0xab39f5aA1Bc1cB5442268b075f535c296aAee980"
-);
-
 function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
