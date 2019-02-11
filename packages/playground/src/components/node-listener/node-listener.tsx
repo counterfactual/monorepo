@@ -60,8 +60,6 @@ export class NodeListener {
 
   async acceptProposeInstall(message: any) {
     try {
-      debugger;
-
       const proposeInstallParams = message.data
         .params as Node.ProposeInstallParams;
 
