@@ -17,8 +17,8 @@ describe("StateChannel::uninstallApp", () => {
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
     const userNeuteredExtendedKeys = [
-      fromSeed(hexlify(randomBytes(32))).extendedKey,
-      fromSeed(hexlify(randomBytes(32))).extendedKey
+      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
+      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
     ];
 
     sc1 = StateChannel.setupChannel(
