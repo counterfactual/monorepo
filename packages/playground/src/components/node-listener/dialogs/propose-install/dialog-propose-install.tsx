@@ -20,7 +20,7 @@ export class DialogProposeInstall {
   async componentWillLoad() {
     if (this.message.data) {
       this.user = await PlaygroundAPIClient.getUserByNodeAddress(
-        this.message.data.initiatingAddress
+        this.message.data.proposedByIdentifier
       );
     }
   }
