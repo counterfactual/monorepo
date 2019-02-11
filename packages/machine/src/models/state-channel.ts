@@ -460,7 +460,7 @@ export class StateChannel {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
-    if (appToBeUninstalled.identityHash != appInstanceIdentityHash) {
+    if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
       throw Error(
         `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${
           appToBeUninstalled.identityHash
@@ -506,7 +506,9 @@ export class StateChannel {
         return instance;
       }
     }
-    throw Error(`Could not find any eth virtual app agreements with target ${target}`);
+    throw Error(
+      `Could not find any eth virtual app agreements with target ${target}`
+    );
   }
 
   toJson(): StateChannelJSON {
