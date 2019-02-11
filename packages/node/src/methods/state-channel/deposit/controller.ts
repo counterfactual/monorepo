@@ -19,7 +19,9 @@ export default async function depositController(
   const { store } = requestHandler;
   const channel = await store.getStateChannel(params.multisigAddress);
 
-  if (channel.hasBalanceRefund(requestHandler.networkContext)) {
+  if (
+    channel.hasAppInstanceOfKind(requestHandler.networkContext.ETHBalanceRefund)
+  ) {
     return Promise.reject(ERRORS.CANNOT_DEPOSIT);
   }
 

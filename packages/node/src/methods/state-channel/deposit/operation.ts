@@ -4,7 +4,7 @@ import {
   Node,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { AddressZero, MaxUint256, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
@@ -58,8 +58,7 @@ export async function installBalanceRefundApp(
       terms: {
         // TODO: generalize
         assetType: AssetType.ETH,
-        // TODO: is this limit right?
-        limit: params.amount,
+        limit: MaxUint256,
         token: AddressZero
       },
       appInterface: {
@@ -68,8 +67,8 @@ export async function installBalanceRefundApp(
           "tuple(address recipient, address multisig,  uint256 threshold)",
         actionEncoding: undefined
       },
-      // TODO: what should the default timeout be here?
-      defaultTimeout: One.toNumber()
+      // this is the block-time equivalent of 7 days
+      defaultTimeout: 1008
     }
   );
 
@@ -134,8 +133,8 @@ export async function uninstallBalanceRefundApp(
       initiatingAddress: publicIdentifier,
       respondingAddress: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: stateChannel.getBalanceRefund(
-        requestHandler.networkContext
+      appIdentityHash: stateChannel.getAppInstanceOfKind(
+        requestHandler.networkContext.ETHBalanceRefund
       ).identityHash,
       aliceBalanceIncrement: params.amount,
       bobBalanceIncrement: Zero
