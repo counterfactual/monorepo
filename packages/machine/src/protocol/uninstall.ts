@@ -92,8 +92,11 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
 
   const sequenceNo = sc.getAppInstance(appIdentityHash)!.appSeqNo;
 
-  const newStateChannel = sc
-    .uninstallApp(appIdentityHash, aliceBalanceIncrement, bobBalanceIncrement);
+  const newStateChannel = sc.uninstallApp(
+    appIdentityHash,
+    aliceBalanceIncrement,
+    bobBalanceIncrement
+  );
   context.stateChannelsMap.set!(multisigAddress, newStateChannel);
 
   context.commitments[0] = constructUninstallOp(

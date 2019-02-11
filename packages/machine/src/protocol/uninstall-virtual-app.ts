@@ -1,12 +1,16 @@
+import { UninstallCommitment } from "@counterfactual/machine/src/ethereum";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
+import {
+  AssetType,
+  ETHBucketAppState,
+  NetworkContext
+} from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { ProtocolExecutionFlow, StateChannel } from "..";
 import { Opcode } from "../enums";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
-import { UninstallCommitment } from "@counterfactual/machine/src/ethereum";
-import { ETHBucketAppState, NetworkContext, AssetType } from "@counterfactual/types";
 
 const NONCE_EXPIRY = 65536;
 
@@ -28,14 +32,27 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         respondingBalanceDecrement
       } = message.params as UninstallVirtualAppParams;
 
-      const newStateChannel = context.stateChannelsMap
-        .get(multisig1Address)!
-        .uninstallETHVirtualAppAgreementInstance(targetAppIdentityHash, {
+      const sc = context.stateChannelsMap.get(multisig1Address)!;
+
+      const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+        targetAppIdentityHash
+      );
+
+      const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+        targetAppIdentityHash,
+        {
           [initiatingAddress]: new BigNumber(0).sub(initiatingBalanceDecrement),
           [respondingAddress]: new BigNumber(0).sub(respondingBalanceDecrement)
-        });
+        }
+      );
 
       context.stateChannelsMap.set!(multisig1Address, newStateChannel);
+
+      context.commitments[0] = constructUninstallOp(
+        context.network,
+        sc,
+        agreementInstance.appSeqNo
+      );
     },
     Opcode.OP_SIGN,
     // send M5, wait for M6

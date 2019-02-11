@@ -60,12 +60,7 @@ export class ETHVirtualAppAgreementInstance {
         [
           this.json.multisigAddress,
           0,
-          keccak256(
-            solidityPack(
-              ["uint256"],
-              [this.json.appSeqNo]
-            )
-          )
+          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
         ]
       )
     );

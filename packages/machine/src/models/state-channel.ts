@@ -1,8 +1,8 @@
 import {
+  AppIdentity,
   AssetType,
   ETHBucketAppState,
-  SolidityABIEncoderV2Struct,
-  AppIdentity
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
@@ -481,7 +481,9 @@ export class StateChannel {
     );
   }
 
-  public getETHVirtualAppAgreementInstanceFromTarget(target: AppIdentity): ETHVirtualAppAgreementInstance {
+  public getETHVirtualAppAgreementInstanceFromTarget(
+    target: string
+  ): ETHVirtualAppAgreementInstance {
     // todo(xuanji)
     return undefined!;
   }
