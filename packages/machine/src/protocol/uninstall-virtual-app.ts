@@ -103,7 +103,7 @@ function p1(message: ProtocolMessage, context: Context) {
 function constructUninstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  uninstallTargetId: number
+  seqNoToUninstall: number
 ) {
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -116,7 +116,7 @@ function constructUninstallOp(
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
-    uninstallTargetId
+    seqNoToUninstall
   );
 }
 

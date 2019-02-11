@@ -444,13 +444,20 @@ export class StateChannel {
     );
   }
 
+  /// todo(xuanji): refactor this so that the public API does not expose
+  /// {alice,bob}BalanceIncrement, since this often requires the caller to sort
+  /// addresses
   public uninstallApp(
     appInstanceIdentityHash: string,
-    aliceBalanceIncrement: BigNumber, // todo(xuanji): delete alice
+    aliceBalanceIncrement: BigNumber,
     bobBalanceIncrement: BigNumber
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
+
+    if (appToBeUninstalled.identityHash != appInstanceIdentityHash) {
+      throw Error(`Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${appToBeUninstalled.identityHash}`);
+    }
 
     const currentState = fb.state as ETHBucketAppState;
 
@@ -462,7 +469,7 @@ export class StateChannel {
     );
 
     if (!appInstances.delete(appToBeUninstalled.identityHash)) {
-      throw Error("app to be uninstalled not found in list of active apps");
+      throw Error(`Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`);
     }
 
     appInstances.set(
