@@ -1,6 +1,6 @@
 declare var ethers;
 
-import { Component, Element, Prop, State } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -62,8 +62,6 @@ export class AppWager {
   async handlePlay(e: Event): Promise<void> {
     e.preventDefault();
 
-    this.isWaiting = true;
-
     try {
       const initialState: HighRollerAppState = {
         playerAddrs: [
@@ -81,6 +79,24 @@ export class AppWager {
         ]
       };
 
+      const provider = new ethers.providers.Web3Provider(
+        window["web3"].currentProvider
+      );
+      const currentEthBalance = ethers.utils.parseEther(this.account.balance);
+      const minimumEthBalance = ethers.utils.parseEther(this.betAmount).add(
+        await provider.estimateGas({
+          to: this.opponent.attributes.nodeAddress,
+          value: ethers.utils.parseEther(this.betAmount)
+        })
+      );
+
+      if (currentEthBalance.lt(minimumEthBalance)) {
+        this.error = `Insufficient funds: You need at least ${ethers.utils.formatEther(
+          minimumEthBalance
+        )} ETH to play.`;
+        return;
+      }
+
       await this.appFactory.proposeInstallVirtual({
         initialState,
         proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
@@ -92,6 +108,8 @@ export class AppWager {
         timeout: 10000,
         intermediaries: [this.intermediary]
       });
+
+      this.isWaiting = true;
     } catch (e) {
       debugger;
     }
@@ -109,14 +127,17 @@ export class AppWager {
         }
       };
       this.intermediary = result.data.attributes.intermediary;
-      this.isError = false;
       this.error = null;
 
       this.updateOpponent(this.opponent);
     } catch (error) {
-      this.isError = true;
       this.error = error;
     }
+  }
+
+  @Watch("error")
+  onErrorSet() {
+    this.isError = !!this.error;
   }
 
   handleChange(e: Event, prop: string): void {
@@ -189,31 +210,6 @@ export class AppWager {
   }
 
   render() {
-    if (this.isError) {
-      return (
-        <div class="wrapper">
-          <div class="wager">
-            <div class="message">
-              <img
-                class="message__icon"
-                src="/assets/images/logo.svg"
-                alt="High Roller"
-              />
-              <h1 class="message__title">Oops! :/</h1>
-              <p class="message__body">
-                Something went wrong:
-                <textarea>
-                  {this.error instanceof Error
-                    ? `${this.error.message}: ${this.error.stack}`
-                    : JSON.stringify(this.error)}
-                </textarea>
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     if (this.isWaiting) {
       return (
         <app-waiting
@@ -259,6 +255,15 @@ export class AppWager {
               readonly={true}
               step="0.01"
             />
+            {this.isError ? (
+              <label class="message__error">
+                {this.error instanceof Error
+                  ? `${this.error.message}: ${this.error.stack}`
+                  : this.error}
+              </label>
+            ) : (
+              {}
+            )}
             <button class="form__button">
               <div>Play!</div>
             </button>
