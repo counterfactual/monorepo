@@ -172,6 +172,10 @@ export class AppProvider {
         number: state.playerFirstNumber.toString()
       });
     }
+
+    if (state.stage === HighRollerStage.DONE) {
+      await this.appInstance.uninstall();
+    }
   }
 
   onInstall(data) {
