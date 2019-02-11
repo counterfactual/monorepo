@@ -11,6 +11,9 @@ export default class UserProcessor extends OperationProcessor {
   public resourceClass = User;
 
   public async get(op: Operation): Promise<User[]> {
+    const isMe =
+      op.ref.id === "me" || (this.app.user && this.app.user.id === op.ref.id);
+
     if (op.ref.id === "me") {
       if (this.app.user) {
         op.ref.id = this.app.user.id;
