@@ -501,8 +501,12 @@ export class StateChannel {
   public getETHVirtualAppAgreementInstanceFromTarget(
     target: string
   ): ETHVirtualAppAgreementInstance {
-    // todo(xuanji)
-    return undefined!;
+    for (const [{}, instance] of this.ethVirtualAppAgreementInstances) {
+      if (instance.targetAppIdentityHash === target) {
+        return instance;
+      }
+    }
+    throw Error(`Could not find any eth virtual app agreements with target ${target}`);
   }
 
   toJson(): StateChannelJSON {
