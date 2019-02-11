@@ -49,7 +49,8 @@ export namespace Node {
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
     CREATE_CHANNEL = "createChannel",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
+    DEPOSIT = "deposit"
   }
 
   // The events that cf.js clients can listen on
@@ -64,6 +65,14 @@ export namespace Node {
     REJECT_STATE = "rejectStateEvent",
     CREATE_CHANNEL = "createChannelEvent"
   }
+
+  export type DepositParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+  };
+  export type DepositResult = {
+    multisigBalance: BigNumber;
+  };
 
   export type GetAppInstancesParams = {};
   export type GetProposedAppInstancesParams = {};

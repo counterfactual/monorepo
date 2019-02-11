@@ -45,6 +45,10 @@ const ERRORS = {
     "multisigOwners parameter of StateChannel must be sorted"
 };
 
+const balanceRefundAddresses = new Set(
+  "0xab39f5aA1Bc1cB5442268b075f535c296aAee980"
+);
+
 function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
@@ -137,6 +141,16 @@ export class StateChannel {
 
   public hasAppInstance(appInstanceId: string): boolean {
     return this.appInstances.has(appInstanceId);
+  }
+
+  public hasBalanceRefund(): boolean {
+    return (
+      Array.from(this.appInstances.values()).filter(
+        (appInstance: AppInstance) => {
+          return appInstance.appInterface.addr;
+        }
+      ).length === 1
+    );
   }
 
   public appInstanceIsFreeBalance(appInstanceId: string): boolean {

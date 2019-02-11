@@ -357,10 +357,12 @@ Params:
 
 - `multisigAddress: string`
 - `amount: BigNumber`
+- `assetType?: BlockchainAsset`
 
 Result:
 
-- "OK"
+- `multisigBalance: BigNumber`
+    - the updated balance of the multisig
 
 Error:
 
@@ -371,6 +373,18 @@ Error:
 
 Events
 ------
+
+### Event: `depositEvent`
+
+Fired if a deposit has been made by a counter party.
+
+Data:
+- `multisigAddress: string`
+    - The address of the channel that the deposit was made into.
+- `amount: BigNumber`
+    - The amount that was deposited by the counter party.
+- `assetType?: BlockchainAsset`
+    - The asset type that was deposited. If none is specified, it defaults to ETH.
 
 ### Event: `installEvent`
 
