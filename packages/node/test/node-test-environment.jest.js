@@ -25,7 +25,7 @@ class NodeEnvironment extends NodeJSEnvironment {
 
     const networkContext = {
       AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
+      ETHBalanceRefund: addresses.ETHBalanceRefundApp,
       ETHBucket: AddressZero,
       MultiSend: AddressZero,
       NonceRegistry: AddressZero,

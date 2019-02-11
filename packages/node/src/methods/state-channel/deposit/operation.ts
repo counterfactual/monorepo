@@ -52,7 +52,7 @@ export async function installBalanceRefundApp(
       initiatingAddress: publicIdentifier,
       respondingAddress: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      aliceBalanceDecrement: params.amount,
+      aliceBalanceDecrement: Zero,
       bobBalanceDecrement: Zero,
       signingKeys: stateChannel.getNextSigningKeys(),
       terms: {
