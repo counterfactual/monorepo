@@ -3,6 +3,7 @@
   "workspaces": {
     "packages": [
       "packages/*"
+      "packages/tic-tac-toe-bot",
     ],
     "nohoist": [
       "**/eventemitter3",
