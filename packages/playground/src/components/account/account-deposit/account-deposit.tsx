@@ -16,6 +16,7 @@ export class AccountDeposit {
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() signer: Signer = {} as Signer;
+  @Prop() provider: Web3Provider = {} as Web3Provider;
 
   @State() error: string = "";
   @State() amountDeposited;
@@ -30,9 +31,14 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      await this.signer.sendTransaction({
+      const tx = {
         to: this.user.multisigAddress,
         value: this.amountDeposited
+      };
+      const gasEstimate = await this.provider.estimateGas(tx);
+      await this.signer.sendTransaction({
+        ...tx,
+        gasPrice: gasEstimate
       });
 
       this.updateAccount({
