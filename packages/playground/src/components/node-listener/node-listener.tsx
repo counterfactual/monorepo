@@ -49,7 +49,9 @@ const networkContext: NetworkContext = {
   MultiSend: addressZero,
   NonceRegistry: addressZero,
   StateChannelTransaction: addressZero,
-  ETHVirtualAppAgreement: addressZero
+  ETHVirtualAppAgreement: addressZero,
+  MinimumViableMultisig: addressZero,
+  ProxyFactory: addressZero
 };
 
 @Component({
