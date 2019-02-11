@@ -1,4 +1,6 @@
 const cf = require("@counterfactual/cf.js");
+const fs = require("fs");
+const path = require("path");
 const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
 const { AddressZero } = require("ethers/constants");
@@ -121,6 +123,25 @@ const BOT_USER = {
   }
 }
 
+const storePath = path.resolve(__dirname, 'store.json');
+
+class JsonFileStoreService {
+  get(key) {
+    return Promise.resolve(JSON.parse(fs.readFileSync(storePath))[key]);
+  }
+  set(pairs) {
+    const store = JSON.parse(fs.readFileSync(storePath));
+
+    pairs.forEach((pair) => {
+      store[pair.key] = pair.value;
+    });
+
+    fs.writeFileSync(storePath, JSON.stringify(store));
+
+    return Promise.resolve(store);
+  }
+}
+
  (async () => {
   console.log("Creating serviceFactory");
   const serviceFactory = new FirebaseServiceFactory({
@@ -133,7 +154,7 @@ const BOT_USER = {
   });
 
    console.log("Creating store");
-  const store = serviceFactory.createStoreService(v4());
+  const store = new JsonFileStoreService();
   console.log("Creating Node");
   const node = await Node.create(
     serviceFactory.createMessagingService("messaging"),
@@ -147,11 +168,10 @@ const BOT_USER = {
       StateChannelTransaction: AddressZero,
       ETHVirtualAppAgreement: AddressZero
     },
-    {
-      STORE_KEY_PREFIX: "store"
-    },
+    new ethers.providers.JsonRpcProvider('https://ropsten.infura.io', 'ropsten'),
     "ropsten"
   );
+  console.log("public identifier", node.publicIdentifier)
 
    console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
