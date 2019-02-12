@@ -5,10 +5,10 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
+  ETHBucketAppState,
   NetworkContext,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct,
-  ETHBucketAppState
+  SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";

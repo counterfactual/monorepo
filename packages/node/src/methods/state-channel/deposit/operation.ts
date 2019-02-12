@@ -1,4 +1,5 @@
 import { StateChannel } from "@counterfactual/machine";
+import { sortAddresses } from "@counterfactual/machine/dist/src/xkeys";
 import {
   AssetType,
   Node,
@@ -11,7 +12,6 @@ import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
-import { sortAddresses } from "@counterfactual/machine/dist/src/xkeys";
 
 export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
   recipient: string;

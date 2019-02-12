@@ -7,10 +7,10 @@ import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
+  getFreeBalanceState,
   getNewMultisig,
   makeDepositRequest,
-  TEST_NETWORK,
-  getFreeBalanceState
+  TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
