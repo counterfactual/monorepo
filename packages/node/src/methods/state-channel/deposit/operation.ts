@@ -38,7 +38,7 @@ export async function installBalanceRefundApp(
   const initialState: ETHBalanceRefundAppState = {
     recipient: publicIdentifier,
     multisig: params.multisigAddress,
-    threshold: Zero
+    threshold: await requestHandler.provider.getBalance(params.multisigAddress)
   };
   const stateChannel = await store.getStateChannel(params.multisigAddress);
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
