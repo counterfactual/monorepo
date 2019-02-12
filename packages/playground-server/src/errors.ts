@@ -1,11 +1,27 @@
 import { HttpStatusCode, JsonApiError } from "@ebryn/jsonapi-ts";
 
+enum errorTypes {
+  SignatureRequired = "SignatureRequired",
+  InvalidSignature = "InvalidSignature",
+  UsernameRequired = "UsernameRequired",
+  EmailRequired = "EmailRequired",
+  AddressAlreadyRegistered = "AddressAlreadyRegistered",
+  AppRegistryNotAvailable = "AppRegistryNotAvailable",
+  UserAddressRequired = "UserAddressRequired",
+  NoUsersAvailable = "NoUsersAvailable",
+  UnhandledError = "UnhandledError",
+  UserNotFound = "UserNotFound",
+  TokenRequired = "TokenRequired",
+  InvalidToken = "InvalidToken",
+  UsernameAlreadyExists = "UsernameAlreadyExists"
+}
+
 const errors: {
-  [key: string]: (
+  [key in errorTypes]: (
     args?: {
       [key: string]: string | number | boolean;
     }
-  ) => JsonApiError;
+  ) => JsonApiError
 } = {
   SignatureRequired: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
@@ -15,6 +31,16 @@ const errors: {
   InvalidSignature: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
     code: "invalid_signature"
+  }),
+
+  UsernameRequired: (): JsonApiError => ({
+    status: HttpStatusCode.BadRequest,
+    code: "username_required"
+  }),
+
+  EmailRequired: (): JsonApiError => ({
+    status: HttpStatusCode.BadRequest,
+    code: "email_required"
   }),
 
   AddressAlreadyRegistered: (): JsonApiError => ({
