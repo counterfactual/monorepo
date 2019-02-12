@@ -36,7 +36,7 @@ class Game extends Component {
     this.updateGame({ players, turnNum, winner, board });
 
     if (winner === this.myNumber) {
-      await this.props.appInstance.uninstall();
+      await this.props.appInstance.uninstall(this.props.intermediary);
     }
   }
 
