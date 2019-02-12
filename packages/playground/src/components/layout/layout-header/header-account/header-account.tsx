@@ -39,12 +39,32 @@ export class HeaderAccount {
     this.authenticationChanged.emit({ authenticated: this.authenticated });
   }
 
-  onLoginClicked() {
-    web3.personal.sign(
-      web3.toHex(buildSignaturePayload(this.user.ethAddress)),
-      this.user.ethAddress,
-      this.login.bind(this)
-    );
+  async onLoginClicked() {
+    try {
+      const signature = await this.signer.signMessage(
+        buildSignaturePayload(this.user.ethAddress)
+      );
+
+      const user = await PlaygroundAPIClient.login(
+        {
+          ethAddress: this.user.ethAddress
+        },
+        signature
+      );
+
+      await this.getBalances();
+
+      window.localStorage.setItem(
+        "playground:user:token",
+        user.token as string
+      );
+
+      this.updateAccount({ user });
+
+      this.removeError();
+    } catch (error) {
+      this.displayLoginError();
+    }
   }
 
   async componentWillLoad() {
@@ -69,35 +89,6 @@ export class HeaderAccount {
     await this.getBalances();
 
     this.authenticated = true;
-  }
-
-  async login(error: Error, signedData: string) {
-    // TODO: Handle errors.
-    if (error) {
-      return this.displayLoginError();
-    }
-
-    try {
-      const user = await PlaygroundAPIClient.login(
-        {
-          ethAddress: this.user.ethAddress
-        },
-        signedData
-      );
-
-      await this.getBalances();
-
-      window.localStorage.setItem(
-        "playground:user:token",
-        user.token as string
-      );
-
-      this.updateAccount({ user });
-
-      this.removeError();
-    } catch (error) {
-      this.displayLoginError();
-    }
   }
 
   async getBalances() {
