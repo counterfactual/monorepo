@@ -82,6 +82,14 @@ export type UpdateParams = {
   newState: SolidityABIEncoderV2Struct;
 };
 
+export type WithdrawParams = {
+  initiatingAddress: string;
+  respondingAddress: string;
+  multisigAddress: string;
+  recipient: string;
+  amount: BigNumber;
+};
+
 export type InstallParams = {
   initiatingXpub: string;
   respondingXpub: string;

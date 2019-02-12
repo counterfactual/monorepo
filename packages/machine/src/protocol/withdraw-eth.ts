@@ -1,18 +1,22 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import {
+  AssetType,
+  ETHBucketAppState,
+  NetworkContext
+} from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
-import { InstallCommitment } from "../ethereum";
+import {
+  InstallCommitment,
+  UninstallCommitment,
+  WithdrawETHCommitment
+} from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Context, InstallParams, ProtocolMessage } from "../types";
+import { Context, ProtocolMessage, WithdrawParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import {
-  addSignedCommitmentInResponse,
-  addSignedCommitmentToOutboxForSeq1
-} from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -23,48 +27,100 @@ import { validateSignature } from "./utils/signature-validator";
  */
 export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0: [
-    addInstalledRefundAppToContext,
+    addInstallRefundAppCommitmentToContext,
+
+    addMultisigSendCommitmentToContext,
 
     Opcode.OP_SIGN,
 
-    addSignedCommitmentToOutboxForSeq1,
+    (message: ProtocolMessage, context: Context) => {
+      context.outbox.push({
+        ...message,
+        signature: context.signatures[0],
+        seq: 1
+      });
+    },
 
     Opcode.IO_SEND_AND_WAIT,
 
     (_: ProtocolMessage, context: Context) =>
       verifyInboxLengthEqualTo1(context.inbox),
 
-    (message: ProtocolMessage, context: Context) =>
+    addUninstallRefundAppCommitmentToContext,
+
+    (message: ProtocolMessage, context: Context) => {
       validateSignature(
         xkeyKthAddress(message.toAddress, 0),
         context.commitments[0],
         context.inbox[0].signature
-      ),
+      );
+
+      validateSignature(
+        xkeyKthAddress(message.toAddress, 0),
+        context.commitments[1],
+        context.inbox[0].signature2
+      );
+
+      validateSignature(
+        xkeyKthAddress(message.toAddress, 0),
+        context.commitments[2],
+        context.inbox[0].signature3
+      );
+    },
+
+    Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      context.outbox.push({
+        ...message,
+        signature: context.signatures[2],
+        seq: -1
+      });
+    },
+
+    Opcode.IO_SEND_AND_WAIT,
 
     Opcode.STATE_TRANSITION_COMMIT
   ],
 
   1: [
-    addInstalledRefundAppToContext,
+    addInstallRefundAppCommitmentToContext,
 
-    (message: ProtocolMessage, context: Context) =>
+    addMultisigSendCommitmentToContext,
+
+    (message: ProtocolMessage, context: Context) => {
       validateSignature(
         xkeyKthAddress(message.fromAddress, 0),
         context.commitments[0],
         message.signature
-      ),
+      );
+
+      validateSignature(
+        xkeyKthAddress(message.fromAddress, 0),
+        context.commitments[1],
+        message.signature2
+      );
+    },
+
+    addUninstallRefundAppCommitmentToContext,
 
     Opcode.OP_SIGN,
 
-    addSignedCommitmentInResponse,
+    Opcode.IO_SEND_AND_WAIT,
 
-    Opcode.IO_SEND,
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.fromAddress, 0),
+        context.commitments[0],
+        message.signature
+      );
+    },
 
     Opcode.STATE_TRANSITION_COMMIT
   ]
 };
 
-function addInstalledRefundAppToContext(
+function addInstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
   context: Context
 ) {
@@ -72,17 +128,18 @@ function addInstalledRefundAppToContext(
     recipient,
     amount,
     multisigAddress
-  } = message.params as InstallParams;
+  } = message.params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const appInstance = new AppInstance(
     multisigAddress,
-    signingKeys,
-    defaultTimeout,
+    stateChannel.getNextSigningKeys(),
+    1008,
     {
       addr: context.network.ETHBalanceRefund,
-      stateEncoding: "",
+      stateEncoding:
+        "tuple(address recipient, address multisig,  uint256 threshold)",
       actionEncoding: undefined
     },
     {
@@ -99,14 +156,10 @@ function addInstalledRefundAppToContext(
       threshold: amount
     },
     0,
-    defaultTimeout
+    1008
   );
 
-  const newStateChannel = stateChannel.installApp(
-    appInstance,
-    aliceBalanceDecrement, // TODO: figure out who is alice, who is bob
-    bobBalanceDecrement
-  );
+  const newStateChannel = stateChannel.installApp(appInstance, Zero, Zero);
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
@@ -119,6 +172,57 @@ function addInstalledRefundAppToContext(
   );
 
   context.appIdentityHash = appIdentityHash;
+}
+
+function addUninstallRefundAppCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
+  const { amount, multisigAddress } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  const newStateChannel = stateChannel.uninstallApp(
+    context.appIdentityHash!,
+    amount,
+    Zero
+  );
+
+  context.stateChannelsMap.set(multisigAddress, newStateChannel);
+
+  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+
+  context.commitments[1] = new UninstallCommitment(
+    context.network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    freeBalance.identity,
+    freeBalance.terms,
+    freeBalance.state as ETHBucketAppState,
+    freeBalance.nonce,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
+  );
+}
+
+function addMultisigSendCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
+  const {
+    recipient,
+    amount,
+    multisigAddress
+  } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  context.commitments[1] = new WithdrawETHCommitment(
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    recipient,
+    amount
+  );
 }
 
 function constructInstallOp(
