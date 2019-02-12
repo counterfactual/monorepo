@@ -326,7 +326,8 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
-      this.freeBalanceAppIndexes
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps + 1
     );
   }
 
