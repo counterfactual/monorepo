@@ -1,4 +1,5 @@
 import {
+  DepositConfirmationMessage,
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
@@ -18,6 +19,15 @@ export const serviceFactory = new FirebaseServiceFactory({
   storageBucket: "foobar-91a31.appspot.com",
   messagingSenderId: "432199632441"
 });
+
+export async function onDepositConfirmed(response: DepositConfirmationMessage) {
+  debugger;
+  await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.DEPOSIT,
+    params: response.data as NodeTypes.DepositParams
+  });
+}
 
 export default class NodeWrapper {
   private static node: Node;
@@ -64,6 +74,11 @@ export default class NodeWrapper {
       mnemonic,
       store,
       messagingService
+    );
+
+    NodeWrapper.node.on(
+      NodeTypes.EventName.DEPOSIT_CONFIRMED,
+      onDepositConfirmed.bind(this)
     );
 
     return NodeWrapper.node;
