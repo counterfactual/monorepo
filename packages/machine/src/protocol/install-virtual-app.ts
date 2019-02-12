@@ -4,7 +4,11 @@ import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import { ProtocolExecutionFlow, xkeyKthAddress } from "..";
+import {
+  ProtocolExecutionFlow,
+  xkeyKthAddress,
+  xkeysToSortedKthAddresses
+} from "..";
 import { Opcode } from "../enums";
 import {
   AppInstance,
@@ -134,7 +138,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function createAndAddTarget(
-  signingKeys: string[],
   defaultTimeout: number,
   appInterface: AppInterface,
   initialState: SolidityABIEncoderV2Struct,
@@ -151,6 +154,12 @@ function createAndAddTarget(
   const sc =
     context.stateChannelsMap.get(key) ||
     StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub]);
+
+  const appSeqNo = sc.numInstalledApps;
+
+  const signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
+    xkeysToSortedKthAddresses([initiatingXpub, respondingXpub], appSeqNo)
+  );
 
   const target = new AppInstance(
     AddressZero,
@@ -182,7 +191,6 @@ function createAndAddTarget(
 
 function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -194,7 +202,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -269,7 +276,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     intermediaryXpub,
     initiatingXpub,
     respondingXpub,
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -278,7 +284,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -402,7 +407,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -414,7 +418,6 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,

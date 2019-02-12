@@ -108,7 +108,6 @@ export type InstallVirtualAppParams = {
   initiatingXpub: string;
   respondingXpub: string;
   intermediaryXpub: string;
-  signingKeys: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: SolidityABIEncoderV2Struct;
