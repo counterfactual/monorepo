@@ -5,6 +5,7 @@ type Signer = {
   signMessage(message): Promise<string>;
   sendTransaction(tx): Promise<any>;
   getBalance(): Promise<any>;
+  provider: Web3Provider;
 };
 
 declare class Web3Provider {
@@ -13,6 +14,7 @@ declare class Web3Provider {
   getBalance(address: string): Promise<BigNumber>;
   on(event: string, callback: (...args) => void): void;
   removeAllListeners(event: string): void;
+  estimateGas(tx): Promise<any>;
 }
 
 declare var ethers = {

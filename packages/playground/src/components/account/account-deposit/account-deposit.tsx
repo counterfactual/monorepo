@@ -30,9 +30,13 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      await this.signer.sendTransaction({
+      const tx = {
         to: this.user.multisigAddress,
         value: this.amountDeposited
+      };
+      await this.signer.sendTransaction({
+        ...tx,
+        gasPrice: await this.signer.provider.estimateGas(tx)
       });
 
       this.updateAccount({
