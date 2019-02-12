@@ -1,5 +1,8 @@
 import { StateChannel } from "@counterfactual/machine";
-import { sortAddresses } from "@counterfactual/machine/dist/src/xkeys";
+import {
+  sortAddresses,
+  xkeyKthAddress
+} from "@counterfactual/machine/dist/src/xkeys";
 import {
   AssetType,
   Node,
@@ -35,12 +38,13 @@ export async function installBalanceRefundApp(
     store,
     params.multisigAddress
   );
+
+  const stateChannel = await store.getStateChannel(params.multisigAddress);
   const initialState: ETHBalanceRefundAppState = {
-    recipient: publicIdentifier,
-    multisig: params.multisigAddress,
+    recipient: xkeyKthAddress(publicIdentifier, 0),
+    multisig: stateChannel.multisigAddress,
     threshold: await requestHandler.provider.getBalance(params.multisigAddress)
   };
-  const stateChannel = await store.getStateChannel(params.multisigAddress);
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
