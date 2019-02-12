@@ -25,7 +25,7 @@ import { validateSignature } from "./utils/signature-validator";
  * TODO: Add protocol to specs
  *
  */
-export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
+export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     addInstallRefundAppCommitmentToContext,
 
