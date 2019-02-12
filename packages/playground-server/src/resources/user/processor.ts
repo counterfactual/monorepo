@@ -52,11 +52,11 @@ export default class UserProcessor extends OperationProcessor {
       throw errors.UserAddressRequired();
     }
 
-    if (usernameAlreadyRegistered(username as string)) {
+    if (await usernameAlreadyRegistered(username as string)) {
       throw errors.UsernameAlreadyExists();
     }
 
-    if (ethAddressAlreadyRegistered(ethAddress as string)) {
+    if (await ethAddressAlreadyRegistered(ethAddress as string)) {
       throw errors.AddressAlreadyRegistered();
     }
 
