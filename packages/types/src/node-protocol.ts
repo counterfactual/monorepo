@@ -45,6 +45,7 @@ export namespace Node {
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
@@ -60,6 +61,7 @@ export namespace Node {
     REJECT_INSTALL = "rejectInstallEvent",
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",
+    UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
     CREATE_CHANNEL = "createChannelEvent"
@@ -137,6 +139,11 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
   export type UninstallResult = {};
+
+  export type UninstallVirtualParams = UninstallParams & {
+    intermediaryIdentifier: string;
+  };
+  export type UninstallVirtualResult = UninstallResult;
 
   export type CreateChannelParams = {
     owners: Address[];

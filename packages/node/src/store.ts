@@ -206,6 +206,10 @@ export class Store {
   public async addVirtualAppInstanceProposal(
     proposedAppInstance: ProposedAppInstanceInfo
   ) {
+    const sortedXpubs = [
+      proposedAppInstance.proposedToIdentifier,
+      proposedAppInstance.proposedByIdentifier
+    ].sort();
     await this.storeService.set([
       {
         key: `${
@@ -228,8 +232,8 @@ export class Store {
               proposedAppInstance.intermediaries![0],
               // Ordered as [0: to, 1: by] because when executed, it is "to"
               // that becomes initiatingAddress / the idx 0 in compute-virtual-key
-              proposedAppInstance.proposedToIdentifier,
-              proposedAppInstance.proposedByIdentifier
+              sortedXpubs[0],
+              sortedXpubs[1]
             ]
           )
         )

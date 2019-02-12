@@ -7,6 +7,7 @@ import proposeInstallVirtualAppInstanceController from "./app-instance/propose-i
 import proposeInstallAppInstanceController from "./app-instance/propose-install/controller";
 import rejectInstallController from "./app-instance/reject-install/controller";
 import takeActionController from "./app-instance/take-action/controller";
+import uninstallVirtualController from "./app-instance/uninstall-virtual/controller";
 import uninstallController from "./app-instance/uninstall/controller";
 import getProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
 import createChannelController from "./state-channel/create/controller";
@@ -25,5 +26,6 @@ export {
   takeActionController,
   rejectInstallController,
   getAppInstanceController,
-  uninstallController
+  uninstallController,
+  uninstallVirtualController
 };

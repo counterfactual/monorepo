@@ -114,7 +114,15 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {}
+  ) {
+    userNeuteredExtendedKeys.forEach(xpub => {
+      if (xpub.slice(0, 4) !== "xpub") {
+        throw Error(
+          `StateChannel constructor given invalid extended keys: ${userNeuteredExtendedKeys}`
+        );
+      }
+    });
+  }
 
   public get multisigOwners() {
     return this.getSigningKeysFor(0);
@@ -187,21 +195,41 @@ export class StateChannel {
     return AppInstance.fromJson(appInstanceJson);
   }
 
+  public getFreeBalanceAddrOf(xpub: string, assetType: AssetType): string {
+    const [alice, bob] = this.getFreeBalanceFor(assetType).signingKeys;
+
+    const topLevelKey = xkeyKthAddress(xpub, 0);
+
+    if (topLevelKey !== alice && topLevelKey !== bob) {
+      throw Error(
+        `getFreeBalanceAddrOf received invalid xpub without free balance account: ${xpub}`
+      );
+    }
+
+    return topLevelKey;
+  }
+
   public incrementFreeBalance(
     assetType: AssetType,
     increments: { [s: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
     const freeBalanceState = freeBalance.state;
+
     for (const beneficiary in increments) {
       if (beneficiary === freeBalanceState.alice) {
-        freeBalanceState.aliceBalance += increments[beneficiary];
+        freeBalanceState.aliceBalance = bigNumberify(
+          increments[beneficiary]
+        ).add(freeBalanceState.aliceBalance);
       } else if (beneficiary === freeBalanceState.bob) {
-        freeBalanceState.bobBalance += increments[beneficiary];
+        freeBalanceState.bobBalance = bigNumberify(increments[beneficiary]).add(
+          freeBalanceState.bobBalance
+        );
       } else {
         throw Error(`No such beneficiary ${beneficiary} found`);
       }
     }
+
     return this.setState(freeBalance.identityHash, freeBalanceState);
   }
 
@@ -273,7 +301,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes
@@ -316,7 +344,7 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
@@ -388,12 +416,29 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       this.appInstances,
       ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
     ).incrementFreeBalance(AssetType.ETH, increments);
+  }
+
+  public removeVirtualApp(targetIdentityHash: string) {
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.delete(targetIdentityHash);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    );
   }
 
   public installApp(

@@ -292,3 +292,17 @@ export function generateUninstallRequest(
     type: NodeTypes.MethodName.UNINSTALL
   };
 }
+
+export function generateUninstallVirtualRequest(
+  appInstanceId: AppInstanceID,
+  intermediaryIdentifier: string
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      intermediaryIdentifier
+    } as NodeTypes.UninstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.UNINSTALL_VIRTUAL
+  };
+}
