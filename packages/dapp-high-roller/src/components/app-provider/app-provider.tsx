@@ -29,6 +29,7 @@ export class AppProvider {
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
   @Prop() updateAppFactory: (appFactory: cf.AppFactory) => void = () => {};
   @Prop() updateCfProvider: (cfProvider: cf.Provider) => void = () => {};
+  @Prop() updateIntermediary: (intermediary: string) => void = () => {};
   @Prop() updateUIState: (data: HighRollerUIMutableState) => void = () => {};
   @Prop() goToGame: (history: RouterHistory) => void = () => {};
   @Prop() highRoller: (
@@ -54,6 +55,7 @@ export class AppProvider {
   @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
+  @Prop() intermediary: string = "";
 
   async componentWillLoad() {
     const params = new URLSearchParams(window.location.search);
@@ -174,7 +176,7 @@ export class AppProvider {
     }
 
     if (state.stage === HighRollerStage.DONE) {
-      await this.appInstance.uninstall();
+      await this.appInstance.uninstall(this.intermediary);
     }
   }
 
@@ -200,4 +202,4 @@ HighRollerUITunnel.injectProps(AppProvider, [
   "highRollerState"
 ]);
 
-CounterfactualTunnel.injectProps(AppProvider, ["appInstance"]);
+CounterfactualTunnel.injectProps(AppProvider, ["appInstance", "intermediary"]);

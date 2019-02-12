@@ -41,11 +41,13 @@ export class AppRoot {
       appInstance: null,
       appFactory: null,
       cfProvider: null,
+      intermediary: null,
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this),
       updateUser: this.updateAccount.bind(this),
       updateOpponent: this.updateOpponent.bind(this),
-      updateCfProvider: this.updateCfProvider.bind(this)
+      updateCfProvider: this.updateCfProvider.bind(this),
+      updateIntermediary: this.updateIntermediary.bind(this)
     };
     this.uiState = {
       myRoll: [0, 0],
@@ -146,6 +148,10 @@ export class AppRoot {
   updateCfProvider(cfProvider: cf.Provider) {
     this.state = { ...this.state, cfProvider };
     console.log("CFProvider instance updated");
+  }
+
+  updateIntermediary(intermediary: string) {
+    this.state = { ...this.state, intermediary };
   }
 
   updateUIState(state: HighRollerUIMutableState) {
@@ -252,6 +258,7 @@ export class AppRoot {
                       updateAppInstance: this.state.updateAppInstance,
                       updateAppFactory: this.state.updateAppFactory,
                       updateCfProvider: this.state.updateCfProvider,
+                      updateIntermediary: this.state.updateIntermediary,
                       updateUIState: this.uiState.updateUIState,
                       highRoller: this.uiState.highRoller,
                       generateRandomRoll: this.uiState.generateRandomRoll,
