@@ -50,19 +50,18 @@ class Wager extends Component {
 
   matchmakeBot() {
     return {
-      data: {
-        attributes: {
-          email: "TTTBot@counterfactual.com",
-          ethAddress: "0x1bdf54355a98b43951db6f5369dd1bae31bf2fb0",
-          nodeAddress:
-            "xpub6DehbiWNM46GVuNRFnxRSmKcD9TrBFoNFci58JLnPxpnFCnpYQDpJkU1FNtKSatJi2ZszsvHcGifVvMuyuPvyACAATBHsYpuXVpr2URaMSL",
-          intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-          username: "TTTBot"
-        },
-        id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
-        relationships: {},
-        type: "user"
-      }
+      attributes: {
+        email: "TTTBot@counterfactual.com",
+        ethAddress: "0x1BdF54355A98b43951dB6f5369Dd1bAe31bF2FB0",
+        multisigAddress: "0x329CbbBDe9278eE3C446344793e92AE8684DFfb2",
+        nodeAddress:
+          "xpub6FCuHMxAHGeGpJGXrFi5arY1jwaDwYQaQ9JzzAWf8iHq1v9HLoTpaZJp6WEH3wBEHaaoFPS4ZPtJCvPGM7Rvw2yPADadr3enDHCxGJqBaWG",
+        intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+        username: "TTTBot"
+      },
+      id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
+      relationships: {},
+      type: "user"
     }
   }
 
@@ -109,8 +108,6 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
-    debugger;
-
     const provider = new window.ethers.providers.Web3Provider(
       window["web3"].currentProvider
     );
@@ -126,14 +123,14 @@ class Wager extends Component {
         })
       );
 
-    if (currentEthBalance.lt(minimumEthBalance)) {
-      this.setState({
-        error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
-          minimumEthBalance
-        )} ETH to play.`
-      });
-      return;
-    }
+    // if (currentEthBalance.lt(minimumEthBalance)) {
+    //   this.setState({
+    //     error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
+    //       minimumEthBalance
+    //     )} ETH to play.`
+    //   });
+    //   return;
+    // }
 
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({

@@ -1,4 +1,5 @@
 const cf = require("@counterfactual/cf.js");
+import { StateChannel } from '../../../../ethmo/vendor/cf-test/client/state-channel-client';
 const fs = require("fs");
 const path = require("path");
 const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
@@ -89,10 +90,11 @@ const ACTION_ENCODING = "tuple(ActionType actionType, uint256 playX, uint256 pla
 const BOT_USER = {
   attributes: {
     email: "TTTBot@counterfactual.com",
-    ethAddress: "0x1bdf54355a98b43951db6f5369dd1bae31bf2fb0",
+    ethAddress: "0x1BdF54355A98b43951dB6f5369Dd1bAe31bF2FB0",
+    // multisig from an account created by the playground; not valid here; use one created below
     multisigAddress: "0x329CbbBDe9278eE3C446344793e92AE8684DFfb2",
     nodeAddress:
-      "xpub6De7GChxn8fgz2XuazeYjwzWAGNK6x4DterDRTKxSqocZwq3mrgNHkTqhLo9PBRhqaQvc56CLTN3Mx49ye2Z2PZuwCv4PqmLipS7PtVbggU",
+      "xpub6FCuHMxAHGeGpJGXrFi5arY1jwaDwYQaQ9JzzAWf8iHq1v9HLoTpaZJp6WEH3wBEHaaoFPS4ZPtJCvPGM7Rvw2yPADadr3enDHCxGJqBaWG",
     username: "TTTBot"
   },
   id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
@@ -160,18 +162,35 @@ class JsonFileStoreService {
     serviceFactory.createMessagingService("messaging"),
     store,
     {
-      AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero
+      STORE_KEY_PREFIX: "store"
     },
-    new ethers.providers.JsonRpcProvider('https://ropsten.infura.io', 'ropsten'),
-    "ropsten"
+    ethers.getDefaultProvider("ropsten"),
+    "ropsten",
+    // {
+    //   AppRegistry: "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+    //   ETHBalanceRefund: "0x6a2DF880908eC363Bc386917353e5b2693B97096",
+    //   ETHBucket: "0x5C505AA5498607224FbE95263c13BD686223aBe9",
+    //   MultiSend: "0x3E7e57fd79F4d43607667538879C513577974bD6",
+    //   NonceRegistry: "0x5ecb2be3E5b0e4836C4fDb18fDd381861dF0D537",
+    //   StateChannelTransaction: "0x9F8fc6D23DC4882284C44bcf6fb7F96290705d3D",
+    //   ETHVirtualAppAgreement: "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E"
+    // }
   );
   console.log("public identifier", node.publicIdentifier)
+
+  console.log("Creating channel with server")
+  const playgroundAddress = "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+  const stateChannelResponse = await node.call(
+    "createChannel",
+    {
+      params: {
+        owners: [node.publicIdentifier, playgroundAddress]
+      },
+      type: "createChannel",
+      requestId: v4()
+    }
+  );
+  console.log("state channel response", stateChannelResponse);
 
    console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
@@ -191,7 +210,7 @@ class JsonFileStoreService {
   );
 
    console.log("Create event listener for installVirtual");
-  cfProvider.on("installVirtual", appInstance => {
+   cfProvider.on("installVirtual", appInstance => {
     console.log(`Received appInstance ${appInstance}`);
     appInstance.install();
 
