@@ -84,27 +84,23 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-) {
+): Promise<void> {
   const tx = {
     to: params.multisigAddress,
     value: params.amount
   };
 
-  const depositPromise = requestHandler.wallet.sendTransaction({
-    ...tx,
-    gasPrice: await requestHandler.provider.estimateGas(tx)
-  });
-  requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-  depositPromise.then(async () => {
+  try {
+    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
+    await requestHandler.wallet.sendTransaction({
+      ...tx,
+      gasPrice: await requestHandler.provider.estimateGas(tx)
+    });
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
-  });
-
-  depositPromise.catch(e => {
+  } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-    return Promise.reject(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-  });
-
-  await depositPromise;
+    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+  }
 }
 
 export async function uninstallBalanceRefundApp(
