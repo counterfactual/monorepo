@@ -2,7 +2,14 @@ import { One } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import {
+  IMessagingService,
+  IStoreService,
+  Node,
+  NodeConfig,
+  NODE_EVENTS,
+  DepositConfirmationMessage
+} from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
@@ -81,14 +88,24 @@ describe("Node method follows spec - deposit", () => {
     expect(multisigAddress).toBeDefined();
 
     const depositReq = makeDepositRequest(multisigAddress, One);
+
+    nodeB.on(
+      NODE_EVENTS.DEPOSIT_CONFIRMED,
+      async (msg: DepositConfirmationMessage) => {
+        await nodeB.call(depositReq.type, depositReq);
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          2
+        );
+
+        const freeBalanceState = await getFreeBalanceState(
+          nodeA,
+          multisigAddress
+        );
+        expect(freeBalanceState.aliceBalance).toEqual(One);
+        expect(freeBalanceState.bobBalance).toEqual(One);
+      }
+    );
+
     await nodeA.call(depositReq.type, depositReq);
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(1);
-
-    await nodeB.call(depositReq.type, depositReq);
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(2);
-
-    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    expect(freeBalanceState.aliceBalance).toEqual(One);
-    expect(freeBalanceState.bobBalance).toEqual(One);
   });
 });

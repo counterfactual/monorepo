@@ -1,6 +1,8 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
+import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 import {
@@ -30,6 +32,18 @@ export default async function depositController(
   await makeDeposit(requestHandler, params);
 
   await uninstallBalanceRefundApp(requestHandler, params);
+
+  const [peerAddress] = await getPeersAddressFromChannel(
+    requestHandler.publicIdentifier,
+    store,
+    params.multisigAddress
+  );
+
+  await requestHandler.messagingService.send(peerAddress, {
+    from: requestHandler.publicIdentifier,
+    type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+    data: params
+  } as DepositConfirmationMessage);
 
   return {
     multisigBalance: await requestHandler.provider.getBalance(

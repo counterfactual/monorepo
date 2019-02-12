@@ -12,7 +12,7 @@ import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
-import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
@@ -84,7 +84,6 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ) {
-  const { store } = requestHandler;
   const tx = {
     to: params.multisigAddress,
     value: params.amount
@@ -97,17 +96,6 @@ export async function makeDeposit(
   requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
   depositPromise.then(async () => {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
-    const [peerAddress] = await getPeersAddressFromChannel(
-      requestHandler.publicIdentifier,
-      store,
-      params.multisigAddress
-    );
-
-    await requestHandler.messagingService.send(peerAddress, {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.DEPOSIT_CONFIRMED,
-      data: params
-    } as DepositConfirmationMessage);
   });
 
   depositPromise.catch(e => {
