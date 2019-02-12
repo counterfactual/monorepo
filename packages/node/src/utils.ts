@@ -1,6 +1,6 @@
 import { StateChannel } from "@counterfactual/machine";
 import { Address } from "@counterfactual/types";
-import { hashMessage } from "ethers/utils";
+import { BigNumber, hashMessage } from "ethers/utils";
 
 import { Store } from "./store";
 
@@ -78,4 +78,15 @@ export function getCounterpartyAddress(
   return appInstanceAddresses.filter(address => {
     return address !== myIdentifier;
   })[0];
+}
+
+export function getBalanceIncrement(
+  beforeDeposit: BigNumber,
+  afterDeposit: BigNumber
+): BigNumber {
+  return afterDeposit.sub(beforeDeposit);
+}
+
+export function getAlice(channel: StateChannel): string {
+  return channel.multisigOwners[0];
 }

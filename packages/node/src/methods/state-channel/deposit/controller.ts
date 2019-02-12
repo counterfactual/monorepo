@@ -19,7 +19,8 @@ export default async function depositController(
   params: Node.DepositParams
 ): Promise<Node.DepositResult> {
   const { store } = requestHandler;
-  const channel = await store.getStateChannel(params.multisigAddress);
+  const { multisigAddress } = params;
+  const channel = await store.getStateChannel(multisigAddress);
 
   if (
     channel.hasAppInstanceOfKind(requestHandler.networkContext.ETHBalanceRefund)
@@ -29,14 +30,27 @@ export default async function depositController(
 
   await installBalanceRefundApp(requestHandler, params);
 
+  const beforeDepositMultisigBalance = await requestHandler.provider.getBalance(
+    multisigAddress
+  );
+
   await makeDeposit(requestHandler, params);
 
-  await uninstallBalanceRefundApp(requestHandler, params);
+  const afterDepositMultisigBalance = await requestHandler.provider.getBalance(
+    multisigAddress
+  );
+
+  await uninstallBalanceRefundApp(
+    requestHandler,
+    params,
+    beforeDepositMultisigBalance,
+    afterDepositMultisigBalance
+  );
 
   const [peerAddress] = await getPeersAddressFromChannel(
     requestHandler.publicIdentifier,
     store,
-    params.multisigAddress
+    multisigAddress
   );
 
   await requestHandler.messagingService.send(peerAddress, {
@@ -46,8 +60,6 @@ export default async function depositController(
   } as DepositConfirmationMessage);
 
   return {
-    multisigBalance: await requestHandler.provider.getBalance(
-      params.multisigAddress
-    )
+    multisigBalance: await requestHandler.provider.getBalance(multisigAddress)
   };
 }
