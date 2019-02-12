@@ -244,10 +244,6 @@ export async function userExists(user: User): Promise<boolean> {
 }
 
 export async function createUser(user: User): Promise<User> {
-  if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
-    throw Errors.AddressAlreadyRegistered();
-  }
-
   const db = getDatabase();
 
   const id = generateUuid();
