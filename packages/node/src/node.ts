@@ -11,7 +11,7 @@ import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
@@ -49,7 +49,7 @@ export class Node {
 
   // These properties don't have initializers in the constructor and get
   // initialized in the `asyncronouslySetupUsingRemoteServices` function
-  private signer!: HDNode;
+  private hdNode!: HDNode;
   protected requestHandler!: RequestHandler;
 
   static async create(
@@ -87,7 +87,10 @@ export class Node {
   }
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
-    this.signer = await getHDNode(this.storeService);
+    this.hdNode = await getHDNode(this.storeService);
+    const keyPair = fromExtendedKey(this.hdNode.extendedKey).derivePath("0");
+    console.log(`Node's public address: ${keyPair.address}`);
+
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -97,7 +100,7 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      new Wallet(this.signer.privateKey, this.provider),
+      new Wallet(keyPair.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
@@ -105,7 +108,7 @@ export class Node {
   }
 
   get publicIdentifier(): string {
-    return this.signer.neuter().extendedKey;
+    return this.hdNode.neuter().extendedKey;
   }
 
   /**
@@ -145,7 +148,7 @@ export class Node {
         }
 
         const signingKey = new SigningKey(
-          this.signer.derivePath(`${keyIndex}`).privateKey
+          this.hdNode.derivePath(`${keyIndex}`).privateKey
         );
 
         for (const commitment of context.commitments) {

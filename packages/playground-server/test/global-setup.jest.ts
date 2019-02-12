@@ -1,7 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
 import mkdirp from "mkdirp";
@@ -20,23 +20,23 @@ module.exports = async () => {
   mkdirp.sync(DIR);
 
   const pgMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(pgMnemonic).derivePath("m/44'/60'/0'/25446")
-    .privateKey;
-
+  const privateKeyPG = fromExtendedKey(
+    fromMnemonic(pgMnemonic).derivePath("m/44'/60'/0'/25446").extendedKey
+  ).derivePath("0").privateKey;
   const nodeAMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyA = fromMnemonic(nodeAMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyA = fromExtendedKey(
+    fromMnemonic(nodeAMnemonic).derivePath("m/44'/60'/0'/25446").extendedKey
+  ).derivePath("0").privateKey;
 
   const nodeBMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyB = fromMnemonic(nodeBMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyB = fromExtendedKey(
+    fromMnemonic(nodeBMnemonic).derivePath("m/44'/60'/0'/25446").extendedKey
+  ).derivePath("0").privateKey;
 
   const nodeCMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(nodeCMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyC = fromExtendedKey(
+    fromMnemonic(nodeCMnemonic).derivePath("m/44'/60'/0'/25446").extendedKey
+  ).derivePath("0").privateKey;
 
   const server = ganache.server({
     accounts: [

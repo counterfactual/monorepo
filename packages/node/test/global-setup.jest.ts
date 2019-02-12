@@ -1,7 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
 import mkdirp from "mkdirp";
@@ -19,15 +19,18 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 module.exports = async () => {
   mkdirp.sync(DIR);
 
-  const privateKeyA = fromMnemonic(process.env.A_MNEMONIC!).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
-  const privateKeyB = fromMnemonic(process.env.B_MNEMONIC!).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
-  const privateKeyC = fromMnemonic(process.env.C_MNEMONIC!).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyA = fromExtendedKey(
+    fromMnemonic(process.env.A_MNEMONIC!).derivePath("m/44'/60'/0'/25446")
+      .extendedKey
+  ).derivePath("0").privateKey;
+  const privateKeyB = fromExtendedKey(
+    fromMnemonic(process.env.B_MNEMONIC!).derivePath("m/44'/60'/0'/25446")
+      .extendedKey
+  ).derivePath("0").privateKey;
+  const privateKeyC = fromExtendedKey(
+    fromMnemonic(process.env.C_MNEMONIC!).derivePath("m/44'/60'/0'/25446")
+      .extendedKey
+  ).derivePath("0").privateKey;
 
   const server = ganache.server({
     accounts: [
