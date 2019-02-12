@@ -3,12 +3,12 @@ import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
+  DepositConfirmationMessage,
   IMessagingService,
   IStoreService,
   Node,
-  NodeConfig,
   NODE_EVENTS,
-  DepositConfirmationMessage
+  NodeConfig
 } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
