@@ -43,6 +43,26 @@ export async function ethAddressAlreadyRegistered(
   return userId.length > 0;
 }
 
+export async function usernameAlreadyRegistered(
+  username: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .select("id")
+    .where("username", username);
+
+  const userId: { id: string }[] = await query;
+
+  Log.debug("Executed usernameAlreadyRegistered query", {
+    tags: { query: query.toSQL().sql }
+  });
+
+  await db.destroy();
+
+  return userId.length > 0;
+}
+
 export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   const db = getDatabase();
 
@@ -244,10 +264,6 @@ export async function userExists(user: User): Promise<boolean> {
 }
 
 export async function createUser(user: User): Promise<User> {
-  if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
-    throw Errors.AddressAlreadyRegistered();
-  }
-
   const db = getDatabase();
 
   const id = generateUuid();

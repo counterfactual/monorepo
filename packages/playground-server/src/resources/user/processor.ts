@@ -2,7 +2,13 @@ import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
-import { createUser, getUsers } from "../../db";
+import {
+  createUser,
+  ethAddressAlreadyRegistered,
+  getUsers,
+  usernameAlreadyRegistered
+} from "../../db";
+import errors from "../../errors";
 import NodeWrapper from "../../node";
 
 import User from "./resource";
@@ -31,7 +37,28 @@ export default class UserProcessor extends OperationProcessor {
   public async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
     const user = op.data;
-    const { nodeAddress } = user.attributes;
+
+    const { username, email, ethAddress, nodeAddress } = user.attributes;
+
+    if (!username) {
+      throw errors.UsernameRequired();
+    }
+
+    if (!email) {
+      throw errors.EmailRequired();
+    }
+
+    if (!ethAddress) {
+      throw errors.UserAddressRequired();
+    }
+
+    if (await usernameAlreadyRegistered(username as string)) {
+      throw errors.UsernameAlreadyExists();
+    }
+
+    if (await ethAddressAlreadyRegistered(ethAddress as string)) {
+      throw errors.AddressAlreadyRegistered();
+    }
 
     const multisig = await NodeWrapper.createStateChannelFor(
       nodeAddress as string
