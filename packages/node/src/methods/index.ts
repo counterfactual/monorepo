@@ -1,5 +1,6 @@
 import getInstalledAppInstancesController from "./app-instance/get-all/controller";
 import getAppInstanceController from "./app-instance/get-app-instance/controller";
+import getFreeBalanceStateController from "./app-instance/get-free-balance/controller";
 import getAppInstanceStateController from "./app-instance/get-state/controller";
 import installVirtualAppInstanceController from "./app-instance/install-virtual/controller";
 import installAppInstanceController from "./app-instance/install/controller";
@@ -17,6 +18,7 @@ export {
   createChannelController,
   getAllChannelAddressesController,
   getAppInstanceStateController,
+  getFreeBalanceStateController,
   getInstalledAppInstancesController,
   getProposedAppInstancesController,
   installAppInstanceController,

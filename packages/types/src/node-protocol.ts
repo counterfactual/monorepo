@@ -11,6 +11,7 @@ import {
   AppInstanceID,
   SolidityABIEncoderV2Struct
 } from "./simple-types";
+import { ETHBucketAppState } from ".";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -36,6 +37,7 @@ export namespace Node {
   export enum MethodName {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
+    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
     PROPOSE_INSTALL = "proposeInstall",
     PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
@@ -76,6 +78,14 @@ export namespace Node {
   };
   export type DepositResult = {
     multisigBalance: BigNumber;
+  };
+
+  export type GetFreeBalanceStateParams = {
+    multisigAddress: string;
+  };
+
+  export type GetFreeBalanceStateResult = {
+    state: ETHBucketAppState;
   };
 
   export type GetAppInstancesParams = {};

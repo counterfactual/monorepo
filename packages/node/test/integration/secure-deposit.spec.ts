@@ -6,10 +6,15 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { getNewMultisig, makeDepositRequest, TEST_NETWORK } from "./utils";
+import {
+  getNewMultisig,
+  makeDepositRequest,
+  TEST_NETWORK,
+  getFreeBalanceState
+} from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(20000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -52,6 +57,7 @@ describe("Node method follows spec - deposit", () => {
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: process.env.B_MNEMONIC }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,
@@ -75,7 +81,14 @@ describe("Node method follows spec - deposit", () => {
     expect(multisigAddress).toBeDefined();
 
     const depositReq = makeDepositRequest(multisigAddress, One);
-    const depositRes = await nodeA.call(depositReq.type, depositReq);
-    console.log("got res: ", depositRes);
+    await nodeA.call(depositReq.type, depositReq);
+    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(1);
+
+    await nodeB.call(depositReq.type, depositReq);
+    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(2);
+
+    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+    expect(freeBalanceState.aliceBalance).toEqual(One);
+    expect(freeBalanceState.bobBalance).toEqual(One);
   });
 });

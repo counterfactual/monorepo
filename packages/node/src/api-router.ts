@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import {
   addChannelController,
+  depositEventController,
   installEventController,
   installVirtualEventController,
   proposeInstallEventController,
@@ -17,6 +18,7 @@ import {
   getAllChannelAddressesController,
   getAppInstanceController,
   getAppInstanceStateController,
+  getFreeBalanceStateController,
   getInstalledAppInstancesController,
   getProposedAppInstancesController,
   installAppInstanceController,
@@ -33,6 +35,7 @@ export const methodNameToImplementation = {
   [Node.MethodName.CREATE_CHANNEL]: createChannelController,
   [Node.MethodName.DEPOSIT]: depositController,
   [Node.MethodName.GET_APP_INSTANCES]: getInstalledAppInstancesController,
+  [Node.MethodName.GET_FREE_BALANCE_STATE]: getFreeBalanceStateController,
   [Node.MethodName.GET_CHANNEL_ADDRESSES]: getAllChannelAddressesController,
   [Node.MethodName
     .GET_PROPOSED_APP_INSTANCES]: getProposedAppInstancesController,
@@ -50,6 +53,7 @@ export const methodNameToImplementation = {
 
 export const eventNameToImplementation = {
   [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
+  [NODE_EVENTS.DEPOSIT_CONFIRMED]: depositEventController,
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,

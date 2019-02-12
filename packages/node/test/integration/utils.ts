@@ -7,14 +7,15 @@ import {
   BlockchainAsset,
   NetworkContext,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Struct,
+  ETHBucketAppState
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { BigNumber } from "ethers/utils";
 
 export const TEST_NETWORK = "ganache";
 
@@ -87,6 +88,22 @@ export async function getProposedAppInstanceInfo(
   return allProposedAppInstanceInfos.filter(appInstanceInfo => {
     return appInstanceInfo.id === appInstanceId;
   })[0];
+}
+
+export async function getFreeBalanceState(
+  node: Node,
+  multisigAddress: string
+): Promise<ETHBucketAppState> {
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+    params: {
+      multisigAddress
+    }
+  };
+  const response = await node.call(req.type, req);
+  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
+  return result.state;
 }
 
 export async function getApps(

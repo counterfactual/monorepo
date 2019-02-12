@@ -4,13 +4,14 @@ import {
   Node,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { AddressZero, MaxUint256, One, Zero } from "ethers/constants";
+import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
+import { sortAddresses } from "@counterfactual/machine/dist/src/xkeys";
 
 export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
   recipient: string;
@@ -127,17 +128,28 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
+  let aliceBalanceIncrement = Zero;
+  let bobBalanceIncrement = Zero;
+  const sortedXKeys = sortAddresses(stateChannel.userNeuteredExtendedKeys);
+  // This deterministically decides whether the public identifier being used to
+  // make the deposit is Alice or Bob
+  if (requestHandler.publicIdentifier === sortedXKeys[0]) {
+    aliceBalanceIncrement = params.amount;
+  } else {
+    bobBalanceIncrement = params.amount;
+  }
+
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     new Map(Object.entries(await store.getAllChannels())),
     {
+      aliceBalanceIncrement,
+      bobBalanceIncrement,
       initiatingAddress: publicIdentifier,
       respondingAddress: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: stateChannel.getAppInstanceOfKind(
         requestHandler.networkContext.ETHBalanceRefund
-      ).identityHash,
-      aliceBalanceIncrement: params.amount,
-      bobBalanceIncrement: Zero
+      ).identityHash
     }
   );
 
