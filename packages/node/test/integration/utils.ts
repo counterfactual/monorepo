@@ -5,11 +5,13 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
+  ETHBucketAppState,
   NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
@@ -88,6 +90,22 @@ export async function getProposedAppInstanceInfo(
   })[0];
 }
 
+export async function getFreeBalanceState(
+  node: Node,
+  multisigAddress: string
+): Promise<ETHBucketAppState> {
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+    params: {
+      multisigAddress
+    }
+  };
+  const response = await node.call(req.type, req);
+  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
+  return result.state;
+}
+
 export async function getApps(
   node: Node,
   appInstanceStatus: APP_INSTANCE_STATUS
@@ -113,6 +131,20 @@ export async function getApps(
   response = await node.call(request.type, request);
   result = response.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
+}
+
+export function makeDepositRequest(
+  multisigAddress: string,
+  amount: BigNumber
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.DEPOSIT,
+    params: {
+      multisigAddress,
+      amount
+    } as NodeTypes.DepositParams
+  };
 }
 
 export function makeInstallRequest(

@@ -1,4 +1,5 @@
 import addChannelController from "./channel-created/controller";
+import depositEventController from "./deposit/controller";
 import installVirtualEventController from "./install-virtual/controller";
 import installEventController from "./install/controller";
 import proposeInstallVirtualEventController from "./propose-install-virtual/controller";
@@ -9,6 +10,7 @@ import takeActionEventController from "./take-action/controller";
 
 export {
   addChannelController,
+  depositEventController,
   installEventController,
   installVirtualEventController,
   proposeInstallEventController,

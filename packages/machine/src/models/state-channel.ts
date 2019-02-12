@@ -147,6 +147,28 @@ export class StateChannel {
     return this.appInstances.has(appInstanceId);
   }
 
+  public hasAppInstanceOfKind(address: string): boolean {
+    return (
+      Array.from(this.appInstances.values()).filter(
+        (appInstance: AppInstance) => {
+          return appInstance.appInterface.addr === address;
+        }
+      ).length > 0
+    );
+  }
+
+  public getAppInstanceOfKind(address: string) {
+    const appInstances = Array.from(this.appInstances.values()).filter(
+      (appInstance: AppInstance) => {
+        return appInstance.appInterface.addr === address;
+      }
+    );
+    if (appInstances.length !== 1) {
+      throw Error(`No AppInstance of addr ${address} exists on this channel`);
+    }
+    return appInstances[0];
+  }
+
   public appInstanceIsFreeBalance(appInstanceId: string): boolean {
     if (!this.hasAppInstance(appInstanceId)) {
       return false;
