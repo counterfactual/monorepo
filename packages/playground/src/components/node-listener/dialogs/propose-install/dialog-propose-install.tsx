@@ -11,7 +11,7 @@ import { AppDefinition, UserSession } from "../../../../types";
 export class DialogProposeInstall {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() message: any;
-  @Prop() onAccept: () => void = () => {};
+  @Prop() onAccept: (message: any) => void = () => {};
   @Prop() onReject: () => void = () => {};
   @Prop() apps: AppDefinition[] = [];
 
@@ -49,7 +49,7 @@ export class DialogProposeInstall {
           </label>
         }
         primaryButtonText="Accept"
-        onPrimaryButtonClicked={() => this.onAccept()}
+        onPrimaryButtonClicked={() => this.onAccept(this.message)}
         secondaryButtonText="Reject"
         onSecondaryButtonClicked={() => this.onReject()}
       />
