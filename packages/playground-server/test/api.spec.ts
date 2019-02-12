@@ -210,7 +210,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", async done => {
+    it("creates an account for the second time, fails for duplicate data and returns HttpStatusCode.BadRequest", async done => {
       await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
@@ -220,7 +220,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: Errors.AddressAlreadyRegistered().code
+                code: Errors.UsernameAlreadyExists().code
               }
             ]
           } as JsonApiErrorsDocument);

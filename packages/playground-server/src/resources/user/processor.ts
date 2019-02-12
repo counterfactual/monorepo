@@ -2,7 +2,12 @@ import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
-import { createUser, ethAddressAlreadyRegistered, getUsers } from "../../db";
+import {
+  createUser,
+  ethAddressAlreadyRegistered,
+  getUsers,
+  usernameAlreadyRegistered
+} from "../../db";
 import errors from "../../errors";
 import NodeWrapper from "../../node";
 
@@ -45,6 +50,10 @@ export default class UserProcessor extends OperationProcessor {
 
     if (!ethAddress) {
       throw errors.UserAddressRequired();
+    }
+
+    if (usernameAlreadyRegistered(username as string)) {
+      throw errors.UsernameAlreadyExists();
     }
 
     if (ethAddressAlreadyRegistered(ethAddress as string)) {
