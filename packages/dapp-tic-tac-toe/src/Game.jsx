@@ -31,9 +31,13 @@ class Game extends Component {
   }
 
   // TODO: This remapping should be removed once the Node properly formats the message.
-  onUpdateState({ data: { newState } }) {
+  async onUpdateState({ data: { newState } }) {
     const [players, turnNum, winner, board] = newState;
     this.updateGame({ players, turnNum, winner, board });
+
+    if (winner === this.myNumber) {
+      await this.props.appInstance.uninstall(this.props.intermediary);
+    }
   }
 
   updateGame(gameState) {
@@ -104,7 +108,6 @@ class Game extends Component {
   }
 
   render() {
-    console.log(this.state.gameState.winner, this.state.gameState.board)
     return (
       <div className="game">
         <Player

@@ -6633,10 +6633,10 @@ ethjs-util@^0.1.3, ethjs-util@^0.1.6:
     is-hex-prefixed "1.0.0"
     strip-hex-prefix "1.0.0"
 
-ethlint@1.2.2, ethlint@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/ethlint/-/ethlint-1.2.2.tgz#29efb5edd54a44863cbb694da1e4cd269b2fd5f9"
-  integrity sha512-yzk7XeBuDLPn0iHuC7FUiY4DvXoXFgP4dmIJ1VwnzrXD5L0O9kCpjUMN9PxRbLbxKAm+PbmmVSh4DgPQjhmjeQ==
+ethlint@1.2.3, ethlint@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/ethlint/-/ethlint-1.2.3.tgz#f0efd1970ccebc7156a3b8ae9b0510b3e57c8882"
+  integrity sha512-1qKDsfPdFmAdQgU8mnSiRAOZd82K6h677LQIDAdWLdzUcz7rL47z8Jpj8bpL2PA0WwrWkTdKt0RThHdRDmTUNw==
   dependencies:
     ajv "^5.2.2"
     chokidar "^1.6.0"
@@ -16455,10 +16455,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
+  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 

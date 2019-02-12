@@ -96,7 +96,7 @@ export class AccountRegister {
 
       this.history.push("/deposit");
     } catch (e) {
-      this.setErrorMessage(e.errorCode);
+      this.setErrorMessage(e.code);
     }
   }
 

@@ -131,6 +131,7 @@ export default class App extends Component {
                 appInstance={this.state.appInstance}
                 gameInfo={this.state.gameInfo}
                 user={this.state.user}
+                intermediary={this.state.intermediary}
                 onChangeAppInstance={this.appInstanceChanged.bind(this)}
               />
             )}

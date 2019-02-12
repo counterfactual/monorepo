@@ -5,36 +5,100 @@ import {
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 
 import { ProtocolExecutionFlow, StateChannel } from "..";
 import { Opcode } from "../enums";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
+import { virtualChannelKey } from "../virtual-app-key";
+
+import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
-    p1,
+    addVirtualAppStateTransitionToContext,
+
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        initiatingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: 1,
+        fromAddress: initiatingAddress,
+        toAddress: intermediaryAddress,
+        signature: context.signatures[0]
+      };
+    },
+
     // send M1, wait for M4
     Opcode.IO_SEND_AND_WAIT,
 
-    uninstallLeftAgreement,
+    // TODO: Add signature verification
+
+    addLeftUninstallAgreementToContext,
 
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        initiatingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: -1,
+        fromAddress: initiatingAddress,
+        toAddress: intermediaryAddress,
+        signature: context.signatures[0],
+        signature2: context.inbox[0].signature
+      };
+    },
+
     // send M5, wait for M6
-    Opcode.IO_SEND_AND_WAIT
+    Opcode.IO_SEND_AND_WAIT,
+
+    // TODO: Add signature verification
+
+    removeVirtualAppInstance
+
     // done!
   ],
 
   1: [
-    p1,
+    addVirtualAppStateTransitionToContext,
+
+    // TODO: Signature verification
+
     Opcode.OP_SIGN_AS_INTERMEDIARY,
-    // send M2, wait for M3
-    Opcode.IO_SEND_AND_WAIT,
+
     (message: ProtocolMessage, context: Context) => {
       const {
         intermediaryAddress,
         respondingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: 2,
+        fromAddress: intermediaryAddress,
+        toAddress: respondingAddress,
+        signature: message.signature,
+        signature2: context.signatures[0]
+      };
+    },
+
+    // send M2, wait for M3
+    Opcode.IO_SEND_AND_WAIT,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        initiatingAddress
       } = message.params as UninstallVirtualAppParams;
 
       // - forward the lock signature
@@ -42,50 +106,172 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
       context.outbox[0] = {
         ...message,
-        seq: 2,
+        seq: -1,
         fromAddress: intermediaryAddress,
-        toAddress: respondingAddress,
+        toAddress: initiatingAddress,
         signature: context.inbox[0].signature,
         signature2: context.signatures[0]
       };
     },
+
     // send M4, wait for M5
     Opcode.IO_SEND_AND_WAIT,
-    uninstallLeftAgreement,
+
+    // TODO: Add signature verification
+
+    addLeftUninstallAgreementToContext,
+
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        initiatingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: -1,
+        fromAddress: intermediaryAddress,
+        toAddress: initiatingAddress,
+        signature: context.signatures[2]
+      };
+    },
+
     // send M6
     Opcode.IO_SEND,
 
-    uninstallRightAgreement,
+    addRightUninstallAgreementToContext,
+
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        respondingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: -1,
+        fromAddress: intermediaryAddress,
+        toAddress: respondingAddress,
+        signature: context.signatures[2]
+      };
+    },
+
     // send M7, wait for M8
-    Opcode.IO_SEND_AND_WAIT
+    Opcode.IO_SEND_AND_WAIT,
+
+    // TODO: Add signature verification
+
+    removeVirtualAppInstance
+
     // done!
   ],
 
   2: [
-    p1,
+    addVirtualAppStateTransitionToContext,
+
+    // TODO: Add signature verification
+
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        respondingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: -1,
+        fromAddress: respondingAddress,
+        toAddress: intermediaryAddress,
+        signature: message.signature,
+        signature2: message.signature2,
+        signature3: context.signatures[0]
+      };
+    },
+
     // send M3, wait for M7
     Opcode.IO_SEND_AND_WAIT,
-    uninstallRightAgreement,
+
+    // TODO: Add signature verification
+
+    addRightUninstallAgreementToContext,
+
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryAddress,
+        respondingAddress
+      } = message.params as UninstallVirtualAppParams;
+
+      context.outbox[0] = {
+        ...message,
+        seq: -1,
+        fromAddress: respondingAddress,
+        toAddress: intermediaryAddress,
+        signature: context.signatures[0],
+        signature2: context.signatures[1]
+      };
+    },
+
     // send M8
-    Opcode.IO_SEND
+    Opcode.IO_SEND,
+
+    removeVirtualAppInstance
   ]
 };
 
-function p1(message: ProtocolMessage, context: Context) {
-  const sc = context.stateChannelsMap.get(AddressZero);
+function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
+  const {
+    intermediaryAddress,
+    respondingAddress,
+    initiatingAddress,
+    targetAppIdentityHash
+  } = message.params as UninstallVirtualAppParams;
+
+  const key = virtualChannelKey(
+    [initiatingAddress, respondingAddress],
+    intermediaryAddress
+  );
+
+  const sc = context.stateChannelsMap.get(key)!;
+
+  context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
+}
+
+function addVirtualAppStateTransitionToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
+  const {
+    intermediaryAddress,
+    respondingAddress,
+    initiatingAddress,
+    targetAppIdentityHash
+  } = message.params as UninstallVirtualAppParams;
+
+  const key = virtualChannelKey(
+    [initiatingAddress, respondingAddress],
+    intermediaryAddress
+  );
+
+  const sc = context.stateChannelsMap.get(key);
+
   if (sc === undefined) {
-    throw Error();
+    throw Error(
+      `Unable to find channel object for ${initiatingAddress} and ${respondingAddress}`
+    );
   }
-  const { targetAppIdentityHash } = message.params as UninstallVirtualAppParams;
 
   const newSc = sc.lockAppInstance(targetAppIdentityHash);
   const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
 
-  context.stateChannelsMap.set(AddressZero, newSc);
+  context.stateChannelsMap.set(key, newSc);
 
   // post-expiry lock commitment
   context.commitments[0] = new VirtualAppSetStateCommitment(
@@ -117,18 +303,24 @@ function constructUninstallOp(
   );
 }
 
-function uninstallRightAgreement(message: ProtocolMessage, context: Context) {
+function addRightUninstallAgreementToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
   // uninstall right agreement
   const {
     intermediaryAddress,
     respondingAddress,
-    multisig2Address,
     targetAppIdentityHash,
     initiatingBalanceIncrement,
     respondingBalanceIncrement
   } = message.params as UninstallVirtualAppParams;
 
-  const sc = context.stateChannelsMap.get(multisig2Address)!;
+  const sc = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    respondingAddress,
+    intermediaryAddress
+  )!;
 
   const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
     targetAppIdentityHash
@@ -137,12 +329,18 @@ function uninstallRightAgreement(message: ProtocolMessage, context: Context) {
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [intermediaryAddress]: initiatingBalanceIncrement,
-      [respondingAddress]: respondingBalanceIncrement
+      [sc.getFreeBalanceAddrOf(
+        intermediaryAddress,
+        AssetType.ETH
+      )]: initiatingBalanceIncrement,
+      [sc.getFreeBalanceAddrOf(
+        respondingAddress,
+        AssetType.ETH
+      )]: respondingBalanceIncrement
     }
   );
 
-  context.stateChannelsMap.set!(multisig2Address, newStateChannel);
+  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
 
   context.commitments[0] = constructUninstallOp(
     context.network,
@@ -151,19 +349,25 @@ function uninstallRightAgreement(message: ProtocolMessage, context: Context) {
   );
 }
 
-function uninstallLeftAgreement(message: ProtocolMessage, context: Context) {
+function addLeftUninstallAgreementToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
   // uninstall left virtual app agreement
 
   const {
     initiatingAddress,
     intermediaryAddress,
-    multisig1Address,
     targetAppIdentityHash,
     initiatingBalanceIncrement,
     respondingBalanceIncrement
   } = message.params as UninstallVirtualAppParams;
 
-  const sc = context.stateChannelsMap.get(multisig1Address)!;
+  const sc = getChannelFromCounterparty(
+    context.stateChannelsMap,
+    initiatingAddress,
+    intermediaryAddress
+  )!;
 
   const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
     targetAppIdentityHash
@@ -172,12 +376,18 @@ function uninstallLeftAgreement(message: ProtocolMessage, context: Context) {
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [initiatingAddress]: initiatingBalanceIncrement,
-      [intermediaryAddress]: respondingBalanceIncrement
+      [sc.getFreeBalanceAddrOf(
+        initiatingAddress,
+        AssetType.ETH
+      )]: initiatingBalanceIncrement,
+      [sc.getFreeBalanceAddrOf(
+        intermediaryAddress,
+        AssetType.ETH
+      )]: respondingBalanceIncrement
     }
   );
 
-  context.stateChannelsMap.set!(multisig1Address, newStateChannel);
+  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
 
   context.commitments[0] = constructUninstallOp(
     context.network,

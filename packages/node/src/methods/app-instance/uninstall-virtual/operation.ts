@@ -8,6 +8,7 @@ export async function uninstallAppInstanceFromChannel(
   instructionExecutor: InstructionExecutor,
   initiatingAddress: string,
   respondingAddress: string,
+  intermediaryAddress: string,
   appInstanceId: string
 ) {
   // TODO: this should actually call resolve on the AppInstance and execute
@@ -19,20 +20,20 @@ export async function uninstallAppInstanceFromChannel(
 
   const currentChannels = new Map(Object.entries(await store.getAllChannels()));
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
+  const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
     currentChannels,
     {
       initiatingAddress,
       respondingAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: appInstance.identityHash,
+      intermediaryAddress,
+      targetAppIdentityHash: appInstance.identityHash,
       // FIXME: Compute values here
-      aliceBalanceIncrement: Zero,
-      bobBalanceIncrement: Zero
+      initiatingBalanceIncrement: Zero,
+      respondingBalanceIncrement: Zero
     }
   );
 
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
+  stateChannelsMap.forEach(
+    async stateChannel => await store.saveStateChannel(stateChannel)
   );
 }

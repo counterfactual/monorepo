@@ -96,14 +96,14 @@ describe("Can handle correct & incorrect installs", () => {
     ];
 
     const signingKeys = xkeysToSortedKthAddresses(
-      hdnodes.map(x => x.extendedKey),
+      hdnodes.map(x => x.neuter().extendedKey),
       0
     );
 
     const stateChannel = StateChannel.setupChannel(
       EMPTY_NETWORK.ETHBucket,
       multisigAddress,
-      hdnodes.map(x => x.extendedKey)
+      hdnodes.map(x => x.neuter().extendedKey)
     );
 
     const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;

@@ -101,7 +101,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxyAddress,
-        xkeys.map(x => x.extendedKey)
+        xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(AssetType.ETH, {
         [multisigOwnerKeys[0].address]: parseEther("20"),
         [multisigOwnerKeys[1].address]: parseEther("20")
