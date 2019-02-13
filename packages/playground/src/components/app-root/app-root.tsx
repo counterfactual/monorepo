@@ -21,6 +21,8 @@ export class AppRoot {
   @State() networkState: NetworkState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
 
+  modal: JSX.Element = <div />;
+
   componentWillLoad() {
     this.setup();
   }
@@ -126,8 +128,168 @@ export class AppRoot {
     }
   }
 
+  private buildSignatureMessageForLogin(address: string) {
+    return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
+      "\n"
+    );
+  }
+
+  async login() {
+    const { signer, user } = this.accountState;
+    const signature = await signer.signMessage(
+      this.buildSignatureMessageForLogin(user.ethAddress)
+    );
+
+    const loggedUser = await PlaygroundAPIClient.login(
+      {
+        ethAddress: user.ethAddress
+      },
+      signature
+    );
+
+    await this.getBalances();
+
+    window.localStorage.setItem(
+      "playground:user:token",
+      loggedUser.token as string
+    );
+
+    this.updateAccount({ ...this.accountState, user: loggedUser });
+
+    return loggedUser;
+  }
+
+  async getBalances() {
+    const { user, provider } = this.accountState;
+
+    if (!user.multisigAddress || !user.ethAddress) {
+      return;
+    }
+
+    const multisigBalance = parseFloat(
+      ethers.utils.formatEther(
+        (await provider.getBalance(user.multisigAddress)).toString()
+      )
+    );
+
+    const walletBalance = parseFloat(
+      ethers.utils.formatEther(
+        (await provider.getBalance(user.ethAddress)).toString()
+      )
+    );
+
+    this.updateAccount({
+      ...this.accountState,
+      balance: multisigBalance,
+      accountBalance: walletBalance
+    });
+
+    return {
+      balance: multisigBalance,
+      accountBalance: walletBalance
+    };
+  }
+
+  async deposit(value) {
+    const { user, signer, provider } = this.accountState;
+
+    const tx = {
+      value,
+      to: user.multisigAddress
+    };
+
+    await signer.sendTransaction({
+      ...tx,
+      gasPrice: await provider.estimateGas(tx)
+    });
+
+    this.updateAccount({
+      ...this.accountState,
+      unconfirmedBalance: parseFloat(ethers.utils.formatEther(value))
+    });
+  }
+
+  waitForMultisig() {
+    setTimeout(async () => {
+      const { token } = this.accountState.user;
+      const user = await PlaygroundAPIClient.getUser(token as string);
+
+      if (!user.multisigAddress) {
+        this.waitForMultisig();
+        return;
+      }
+
+      this.updateAccount({ ...this.accountState, user });
+      await this.requestToDepositInitialFunding();
+    }, 5000);
+  }
+
+  async requestToDepositInitialFunding() {
+    const { pendingAccountFunding } = this.accountState;
+
+    if (pendingAccountFunding) {
+      this.modal = (
+        <widget-dialog
+          visible={true}
+          dialogTitle="Your account is ready!"
+          content="To complete your registration, we'll ask you to confirm the deposit in the next step."
+          primaryButtonText="Proceed"
+          onPrimaryButtonClicked={() =>
+            this.confirmDepositInitialFunding(pendingAccountFunding)
+          }
+        />
+      );
+    }
+  }
+
+  async confirmDepositInitialFunding(pendingAccountFunding) {
+    await this.deposit(pendingAccountFunding);
+    this.updateAccount({
+      ...this.accountState,
+      pendingAccountFunding: undefined
+    });
+    this.modal = {};
+  }
+
+  async autoLogin() {
+    const token = window.localStorage.getItem(
+      "playground:user:token"
+    ) as string;
+
+    if (!token) {
+      return;
+    }
+
+    const { user } = this.accountState;
+
+    if (!user || !user.username) {
+      try {
+        const loggedUser = await PlaygroundAPIClient.getUser(token);
+        this.updateAccount({ ...this.accountState, user: loggedUser });
+      } catch {
+        window.localStorage.removeItem("playground:user:token");
+        return;
+      }
+    }
+
+    if (!this.accountState.user.multisigAddress) {
+      this.waitForMultisig();
+    } else {
+      await this.getBalances();
+    }
+  }
+
   render() {
-    this.accountState.updateAccount = this.updateAccount.bind(this);
+    this.accountState = {
+      ...this.accountState,
+      updateAccount: this.updateAccount.bind(this),
+      waitForMultisig: this.waitForMultisig.bind(this),
+      login: this.login.bind(this),
+      getBalances: this.getBalances.bind(this),
+      autoLogin: this.autoLogin.bind(this),
+      deposit: this.deposit.bind(this)
+    };
+
     this.networkState.updateNetwork = this.updateNetwork.bind(this);
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
@@ -165,6 +327,7 @@ export class AppRoot {
                 accountState={this.accountState}
                 networkState={this.networkState}
               />
+              {this.modal || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
