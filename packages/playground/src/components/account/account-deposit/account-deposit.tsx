@@ -30,22 +30,27 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      // TODO: update this to deposit through the Node
-      const tx = {
-        to: this.user.multisigAddress,
-        value: this.amountDeposited
-      };
-      await this.signer.sendTransaction({
-        ...tx,
-        gasPrice: await this.signer.provider.estimateGas(tx)
-      });
+      if (this.user.multisigAddress) {
+        // TODO: update this to deposit through the Node
+        const tx = {
+          to: this.user.multisigAddress,
+          value: this.amountDeposited
+        };
+        await this.signer.sendTransaction({
+          ...tx,
+          gasPrice: await this.signer.provider.estimateGas(tx)
+        });
 
-      this.updateAccount({
-        unconfirmedBalance: parseFloat(
-          ethers.utils.formatEther(this.amountDeposited)
-        )
-      });
-
+        this.updateAccount({
+          unconfirmedBalance: parseFloat(
+            ethers.utils.formatEther(this.amountDeposited)
+          )
+        });
+      } else {
+        this.updateAccount({
+          pendingAccountFunding: this.amountDeposited
+        });
+      }
       this.history.push("/");
     } catch (error) {
       this.error = error.message;
