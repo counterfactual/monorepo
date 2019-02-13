@@ -51,9 +51,8 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
         }`
       );
     }
-    for (const beneficiary of this.beneficiaries) {
-      getAddress(beneficiary);
-    }
+    // normalize addresses and fail early on any invalid addresses
+    this.beneficiaries = this.beneficiaries.map(getAddress);
   }
 
   public eachMultisigInput() {
