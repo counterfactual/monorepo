@@ -4,6 +4,7 @@ import {
   Event,
   EventEmitter,
   Prop,
+  State,
   Watch
 } from "@stencil/core";
 
@@ -33,6 +34,8 @@ export class HeaderAccount {
   @Prop() provider: Web3Provider = {} as Web3Provider;
   @Prop() signer: Signer = {} as Signer;
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
+
+  @State() waitMultisigInterval: NodeJS.Timeout = {} as NodeJS.Timeout;
 
   @Watch("authenticated")
   authenticationChangedHandler() {
@@ -86,9 +89,26 @@ export class HeaderAccount {
       }
     }
 
-    await this.getBalances();
+    if (!this.user.multisigAddress) {
+      this.waitForMultisig();
+    } else {
+      await this.getBalances();
+    }
 
     this.authenticated = true;
+  }
+
+  waitForMultisig() {
+    this.waitMultisigInterval = setTimeout(async () => {
+      const user = await PlaygroundAPIClient.getUser(this.user.token as string);
+
+      if (!user.multisigAddress) {
+        this.waitForMultisig();
+        return;
+      }
+
+      this.updateAccount({ user });
+    }, 5000);
   }
 
   async getBalances() {
@@ -163,7 +183,7 @@ export class HeaderAccount {
               src="/assets/icon/cf.png"
               header="Balance"
               content={this.ethBalance}
-              spinner={this.hasUnconfirmedBalance}
+              spinner={this.hasUnconfirmedBalance || !this.user.multisigAddress}
             />
           </stencil-route-link>
           <stencil-route-link url="/account">
