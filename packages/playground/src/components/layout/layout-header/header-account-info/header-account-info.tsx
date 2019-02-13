@@ -10,19 +10,21 @@ export class HeaderAccountInfo {
   @Prop() header: string = "";
   @Prop() content: string = "";
   @Prop() spinner: boolean = false;
-
+  @Prop() tooltip: string = "";
   render() {
     return (
-      <div class="info">
-        <img class="info-img" src={this.src} />
-        <div class="info-text">
-          <div class="header">{this.header}</div>
-          <div class="content">
-            {this.content}
-            <widget-spinner visible={this.spinner} />
+      <widget-tooltip message={this.tooltip}>
+        <div class="info">
+          <img class="info-img" src={this.src} />
+          <div class="info-text">
+            <div class="header">{this.header}</div>
+            <div class="content">
+              {this.content}
+              <widget-spinner visible={this.spinner} />
+            </div>
           </div>
         </div>
-      </div>
+      </widget-tooltip>
     );
   }
 }
