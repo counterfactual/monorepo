@@ -6,7 +6,8 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
@@ -87,18 +88,27 @@ export async function makeDeposit(
 ): Promise<void> {
   const tx = {
     to: params.multisigAddress,
-    value: params.amount
+    value: bigNumberify(params.amount)
   };
 
   try {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-    const txResponse = await requestHandler.provider
-      .getSigner()
-      .sendTransaction({
+    let txResponse: TransactionResponse;
+    if (requestHandler.provider instanceof JsonRpcProvider) {
+      console.log("depositing from json provider");
+      txResponse = await requestHandler.provider.getSigner().sendTransaction({
         ...tx,
-        gasPrice: await requestHandler.provider.estimateGas(tx)
+        gasLimit: await requestHandler.provider.estimateGas(tx)
       });
+    } else {
+      console.log("depositing from base provider");
+      txResponse = await requestHandler.wallet.sendTransaction({
+        ...tx,
+        gasLimit: await requestHandler.provider.estimateGas(tx)
+      });
+    }
     await requestHandler.provider.waitForTransaction(txResponse.hash!);
+    console.log("sending deposit confirmed");
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);

@@ -9,7 +9,7 @@ import {
 import { UpdateParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -56,7 +56,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: JsonRpcProvider,
+    provider: JsonRpcProvider | BaseProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -76,7 +76,7 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: JsonRpcProvider,
+    private readonly provider: JsonRpcProvider | BaseProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
@@ -88,6 +88,7 @@ export class Node {
 
   private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,

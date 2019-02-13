@@ -185,7 +185,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it("creates an account for the first time and returns 201 + the multisig address", async done => {
+    it.only("creates an account for the first time and returns 201 + the multisig address", async done => {
       jest.setTimeout(10000);
       const response = await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
@@ -197,6 +197,18 @@ describe("playground-server", () => {
         });
 
       const data = response.data.data as User;
+
+      // console.log("making deposit call");
+      // // @ts-ignore
+      // await nodeAlice.call("deposit", {
+      //   type: "deposit",
+      //   requestId: generateUUID(),
+      //   params: {
+      //     multisigAddress: data.attributes.multisigAddress,
+      //     amount: One
+      //   }
+      // });
+      // console.log("deposit call made");
 
       const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
       expect(data.id).toBeDefined();

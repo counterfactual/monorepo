@@ -75,8 +75,27 @@ export class AppRoot {
       "messaging"
     );
     const storeService = {
-      async get(key: string): Promise<any> {
-        return JSON.parse(window.localStorage.getItem(key) as string);
+      // This implements partial path look ups for localStorage
+      async get(desiredKey: string): Promise<any> {
+        const entries = {};
+        const allKeys = Object.keys(window.localStorage);
+        for (const key of allKeys) {
+          if (key.includes(desiredKey)) {
+            entries[key] = JSON.parse(window.localStorage.getItem(
+              key
+            ) as string);
+          }
+        }
+        if (Object.keys(entries).length === 1) {
+          return entries[desiredKey];
+        }
+        for (const key of Object.keys(entries)) {
+          const leafKey = key.split("/")[key.split("/").length - 1];
+          const value = entries[key];
+          delete entries[key];
+          entries[leafKey] = value;
+        }
+        return entries;
       },
       async set(
         pairs: {

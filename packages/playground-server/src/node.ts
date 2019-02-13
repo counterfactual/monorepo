@@ -8,7 +8,7 @@ import {
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { BaseProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 export const serviceFactory = new FirebaseServiceFactory({
@@ -21,17 +21,26 @@ export const serviceFactory = new FirebaseServiceFactory({
 });
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  debugger;
-  await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.DEPOSIT,
-    params: response.data as NodeTypes.DepositParams
-  });
+  console.log("depositing ");
+  try {
+    const res = await NodeWrapper.getInstance().call(
+      NodeTypes.MethodName.DEPOSIT,
+      {
+        requestId: generateUUID(),
+        type: NodeTypes.MethodName.DEPOSIT,
+        params: response.data as NodeTypes.DepositParams
+      }
+    );
+    console.log("got result: ", res);
+  } catch (e) {
+    console.log("failed to deposit on the server...", e);
+  }
 }
 
 export default class NodeWrapper {
   private static node: Node;
 
+  public static depositsMade: Map<string, boolean>;
   public static getInstance() {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -55,7 +64,7 @@ export default class NodeWrapper {
   public static async createNodeSingleton(
     network: string,
     networkContext?: NetworkContext,
-    provider?: BaseProvider,
+    provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: IStoreService,
     messagingService?: IMessagingService
@@ -87,7 +96,7 @@ export default class NodeWrapper {
   public static async createNode(
     network: string,
     networkContext?: NetworkContext,
-    provider?: BaseProvider,
+    provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: IStoreService,
     messagingService?: IMessagingService
