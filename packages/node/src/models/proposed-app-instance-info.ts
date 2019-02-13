@@ -136,9 +136,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       bigNumberify(this.timeout).toNumber()
     );
 
-    const ret = proposedAppInstance.identityHash;
-
-    return ret;
+    return proposedAppInstance.identityHash;
   }
 
   toJson() {
