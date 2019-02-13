@@ -51,6 +51,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // M1
     (message: ProtocolMessage, context: Context) => {
+      console.log("machine message: ", message)
       const params2 = message.params as InstallVirtualAppParams;
       context.outbox.push({
         ...message,
