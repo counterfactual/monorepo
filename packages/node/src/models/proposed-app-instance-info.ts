@@ -1,8 +1,8 @@
 import {
   AppInstance,
   StateChannel,
-  xkeysToSortedKthAddresses,
-  xkeyKthAddress
+  xkeyKthAddress,
+  xkeysToSortedKthAddresses
 } from "@counterfactual/machine";
 import {
   Address,
@@ -94,8 +94,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
     const proposedTerms: Terms = {
       assetType: this.asset.assetType,
-      // FIXME: xuanji
-      limit: Zero, // bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
+      limit: Zero,
       token: AddressZero // this.asset.token || AddressZero
     };
 
@@ -109,8 +108,12 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
       const [intermediaryXpub] = this.intermediaries!;
 
+      // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
       signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
-        xkeysToSortedKthAddresses([this.proposedByIdentifier, this.proposedToIdentifier], appSeqNo)
+        xkeysToSortedKthAddresses(
+          [this.proposedByIdentifier, this.proposedToIdentifier],
+          appSeqNo
+        )
       );
     } else {
       isVirtualApp = false;

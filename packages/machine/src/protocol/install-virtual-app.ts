@@ -157,6 +157,7 @@ function createAndAddTarget(
 
   const appSeqNo = sc.numInstalledApps;
 
+  // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
   const signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
     xkeysToSortedKthAddresses([initiatingXpub, respondingXpub], appSeqNo)
   );
