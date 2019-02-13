@@ -4,7 +4,11 @@ import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import { ProtocolExecutionFlow, xkeyKthAddress } from "..";
+import {
+  ProtocolExecutionFlow,
+  xkeyKthAddress,
+  xkeysToSortedKthAddresses
+} from "..";
 import { Opcode } from "../enums";
 import {
   AppInstance,
@@ -133,13 +137,32 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ]
 };
 
-function createTarget(
-  signingKeys: string[],
+function createAndAddTarget(
   defaultTimeout: number,
   appInterface: AppInterface,
-  initialState: SolidityABIEncoderV2Struct
-) {
-  return new AppInstance(
+  initialState: SolidityABIEncoderV2Struct,
+  context: Context,
+  initiatingXpub: string,
+  respondingXpub: string,
+  intermediaryXpub: string
+): AppInstance {
+  const key = virtualChannelKey(
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
+  );
+
+  const sc =
+    context.stateChannelsMap.get(key) ||
+    StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub]);
+
+  const appSeqNo = sc.numInstalledApps;
+
+  // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
+  const signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
+    xkeysToSortedKthAddresses([initiatingXpub, respondingXpub], appSeqNo)
+  );
+
+  const target = new AppInstance(
     AddressZero,
     signingKeys,
     defaultTimeout,
@@ -150,40 +173,25 @@ function createTarget(
       token: AddressZero
     },
     true, // sets it to be a virtual app
-    0, // app seq no: virtual app instances do not have appSeqNo
+    sc.numInstalledApps, // app seq no
     0, // root nonce value: virtual app instances do not have rootNonceValue
     initialState,
     0, // app nonce
     defaultTimeout
   );
-}
 
-function addTarget(
-  context: Context,
-  initiatingXpub: string,
-  respondingXpub: string,
-  intermediaryXpub: string,
-  targetAppInstance: AppInstance
-) {
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
+  const newSc = sc.addVirtualAppInstance(target);
 
-  const sc = (
-    context.stateChannelsMap.get(key) ||
-    StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub])
-  ).addVirtualAppInstance(targetAppInstance);
-
-  context.stateChannelsMap.set(key, sc);
+  context.stateChannelsMap.set(key, newSc);
 
   // Needed for STATE_TRANSITION_COMMIT presently
-  context.appIdentityHash = targetAppInstance.identityHash;
+  context.appIdentityHash = target.identityHash;
+
+  return target;
 }
 
 function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -194,19 +202,14 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     respondingXpub
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-
-  addTarget(
+    initialState,
     context,
     initiatingXpub,
     respondingXpub,
-    intermediaryXpub,
-    targetAppInstance
+    intermediaryXpub
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(
@@ -274,7 +277,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     intermediaryXpub,
     initiatingXpub,
     respondingXpub,
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -282,19 +284,14 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-
-  addTarget(
+    initialState,
     context,
     initiatingXpub,
     respondingXpub,
-    intermediaryXpub,
-    targetAppInstance
+    intermediaryXpub
   );
 
   const channelWithInitiating = getChannelFromCounterparty(
@@ -411,7 +408,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
@@ -422,19 +418,14 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     intermediaryXpub
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-
-  addTarget(
+    initialState,
     context,
     initiatingXpub,
     respondingXpub,
-    intermediaryXpub,
-    targetAppInstance
+    intermediaryXpub
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(

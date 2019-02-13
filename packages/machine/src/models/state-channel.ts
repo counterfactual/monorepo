@@ -315,6 +315,13 @@ export class StateChannel {
   }
 
   public addVirtualAppInstance(appInstance: AppInstance) {
+    if (appInstance.appSeqNo !== this.numInstalledApps) {
+      throw Error(
+        `Tried to install app with sequence number ${
+          appInstance.appSeqNo
+        } into channel with ${this.numInstalledApps} active apps`
+      );
+    }
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
@@ -326,7 +333,8 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
-      this.freeBalanceAppIndexes
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps + 1
     );
   }
 

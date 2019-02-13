@@ -1,7 +1,4 @@
-import {
-  InstructionExecutor,
-  xkeysToSortedKthAddresses
-} from "@counterfactual/machine";
+import { InstructionExecutor } from "@counterfactual/machine";
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 
 import { Store } from "../../../store";
@@ -26,13 +23,6 @@ export async function installVirtual(
       initiatingXpub: appInstanceInfo.proposedToIdentifier,
       respondingXpub: appInstanceInfo.proposedByIdentifier,
       intermediaryXpub: appInstanceInfo.intermediaries![0],
-      signingKeys: xkeysToSortedKthAddresses(
-        [
-          appInstanceInfo.proposedByIdentifier,
-          appInstanceInfo.proposedToIdentifier
-        ],
-        1337
-      ),
       defaultTimeout: appInstanceInfo.timeout.toNumber(),
       appInterface: {
         addr: appInstanceInfo.appId,
