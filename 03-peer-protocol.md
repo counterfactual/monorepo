@@ -42,12 +42,3 @@ This type specifies a modification of JSON that disallows the following primitiv
 | `abiEncoding` | `bytes4`  | The ABIEncoderV2 representation of the application's state encoding (e.g., `"tuple(address,uint8)"`) |
 
 > TODO: The name `getTurnTaker` needs to be standardized
-
-**Type: `PeerBalance`**
-
-|   Field   |   Type    |                        Description                        |
-| --------- | --------- | --------------------------------------------------------- |
-| `address` | `address` | The address of a party that deposited into an application |
-| `balance` | `uint256` | The amount deposited into the application                 |
-
-> TODO: This type needs to be abstracted to mirror the `Terms` type more closely such that arbitrary assets can be better represented
