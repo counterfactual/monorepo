@@ -31,8 +31,8 @@ export async function install(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingAddress: appInstanceInfo.proposedToIdentifier,
-      respondingAddress: appInstanceInfo.proposedByIdentifier,
+      initiatingXpub: appInstanceInfo.proposedToIdentifier,
+      respondingXpub: appInstanceInfo.proposedByIdentifier,
       multisigAddress: stateChannel.multisigAddress,
       aliceBalanceDecrement: appInstanceInfo.myDeposit,
       bobBalanceDecrement: appInstanceInfo.peerDeposit,

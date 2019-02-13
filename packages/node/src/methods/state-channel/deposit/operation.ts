@@ -55,8 +55,8 @@ export async function installBalanceRefundApp(
     ]),
     {
       initialState,
-      initiatingAddress: publicIdentifier,
-      respondingAddress: peerAddress,
+      initiatingXpub: publicIdentifier,
+      respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       aliceBalanceDecrement: Zero,
       bobBalanceDecrement: Zero,
@@ -132,8 +132,8 @@ export async function uninstallBalanceRefundApp(
         beforeDepositBalance,
         afterDepositBalance
       ),
-      initiatingAddress: publicIdentifier,
-      respondingAddress: peerAddress,
+      initiatingXpub: publicIdentifier,
+      respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: stateChannel.getAppInstanceOfKind(
         requestHandler.networkContext.ETHBalanceRefund

@@ -42,7 +42,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[0], // s1
         signature2: context.signatures[1], // s5
         seq: 1,
-        toAddress: params2.intermediaryAddress
+        toAddress: params2.intermediaryXpub
       });
     },
 
@@ -64,8 +64,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.respondingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.respondingXpub,
         signature: message.signature2, // s5
         signature2: context.signatures[0] // s3
       };
@@ -80,8 +80,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.respondingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.respondingXpub,
         signature: context.signatures[2] // s6
       };
     },
@@ -94,8 +94,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.initiatingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.initiatingXpub,
         signature: context.signatures[2], // s6
         signature2: context.signatures[1], // s2
         signature3: context.inbox[0].signature2 // s7
@@ -119,8 +119,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.respondingAddress,
-        toAddress: params2.intermediaryAddress,
+        fromAddress: params2.respondingXpub,
+        toAddress: params2.intermediaryXpub,
         signature: context.signatures[0], // s4
         signature2: context.signatures[1] // s7
       };
@@ -161,19 +161,19 @@ function createTarget(
 
 function addTarget(
   context: Context,
-  initiatingAddress: string,
-  respondingAddress: string,
-  intermediaryAddress: string,
+  initiatingXpub: string,
+  respondingXpub: string,
+  intermediaryXpub: string,
   targetAppInstance: AppInstance
 ) {
   const key = virtualChannelKey(
-    [initiatingAddress, respondingAddress],
-    intermediaryAddress
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
   );
 
   const sc = (
     context.stateChannelsMap.get(key) ||
-    StateChannel.createEmptyChannel(key, [initiatingAddress, respondingAddress])
+    StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub])
   ).addVirtualAppInstance(targetAppInstance);
 
   context.stateChannelsMap.set(key, sc);
@@ -190,9 +190,9 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    initiatingAddress,
-    intermediaryAddress,
-    respondingAddress
+    initiatingXpub,
+    intermediaryXpub,
+    respondingXpub
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -204,16 +204,16 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
   addTarget(
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub,
     targetAppInstance
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(
     context.stateChannelsMap,
-    initiatingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    intermediaryXpub
   );
 
   if (!channelWithIntermediary) {
@@ -270,9 +270,9 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
-    intermediaryAddress,
-    initiatingAddress,
-    respondingAddress,
+    intermediaryXpub,
+    initiatingXpub,
+    respondingXpub,
     signingKeys,
     defaultTimeout,
     appInterface,
@@ -290,16 +290,16 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
   addTarget(
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub,
     targetAppInstance
   );
 
   const channelWithInitiating = getChannelFromCounterparty(
     context.stateChannelsMap,
-    intermediaryAddress,
-    initiatingAddress
+    intermediaryXpub,
+    initiatingXpub
   );
 
   if (!channelWithInitiating) {
@@ -310,8 +310,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
   const channelWithResponding = getChannelFromCounterparty(
     context.stateChannelsMap,
-    intermediaryAddress,
-    respondingAddress
+    intermediaryXpub,
+    respondingXpub
   );
 
   if (!channelWithResponding) {
@@ -412,9 +412,9 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub
   } = message.params as InstallVirtualAppParams;
 
   const targetAppInstance = createTarget(
@@ -426,16 +426,16 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
 
   addTarget(
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub,
     targetAppInstance
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(
     context.stateChannelsMap,
-    respondingAddress,
-    intermediaryAddress
+    respondingXpub,
+    intermediaryXpub
   );
 
   if (!channelWithIntermediary) {

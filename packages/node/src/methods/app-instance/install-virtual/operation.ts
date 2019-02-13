@@ -23,9 +23,9 @@ export async function installVirtual(
   const updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
     new Map(Object.entries(await store.getAllChannels())),
     {
-      initiatingAddress: appInstanceInfo.proposedToIdentifier,
-      respondingAddress: appInstanceInfo.proposedByIdentifier,
-      intermediaryAddress: appInstanceInfo.intermediaries![0],
+      initiatingXpub: appInstanceInfo.proposedToIdentifier,
+      respondingXpub: appInstanceInfo.proposedByIdentifier,
+      intermediaryXpub: appInstanceInfo.intermediaries![0],
       signingKeys: xkeysToSortedKthAddresses(
         [
           appInstanceInfo.proposedByIdentifier,

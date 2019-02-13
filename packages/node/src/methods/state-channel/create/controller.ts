@@ -31,15 +31,15 @@ export default async function createChannelController(
     requestHandler.networkContext.ProxyFactory
   );
 
-  const [respondingAddress] = params.owners.filter(
+  const [respondingXpub] = params.owners.filter(
     owner => owner !== requestHandler.publicIdentifier
   );
 
   const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
     {
       multisigAddress,
-      respondingAddress,
-      initiatingAddress: requestHandler.publicIdentifier
+      respondingXpub,
+      initiatingXpub: requestHandler.publicIdentifier
     }
   );
 
@@ -59,7 +59,7 @@ export default async function createChannelController(
   };
 
   await requestHandler.messagingService.send(
-    respondingAddress,
+    respondingXpub,
     multisigCreatedMsg
   );
 

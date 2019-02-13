@@ -76,8 +76,8 @@ describe("InstructionExecutor", () => {
 
       await instructionExecutor.runSetupProtocol({
         multisigAddress,
-        initiatingAddress: interaction.sender,
-        respondingAddress: interaction.receiver
+        initiatingXpub: interaction.sender,
+        respondingXpub: interaction.receiver
       });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);
