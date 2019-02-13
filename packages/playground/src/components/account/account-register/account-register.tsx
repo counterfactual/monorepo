@@ -120,7 +120,7 @@ export class AccountRegister {
 
       ga("set", "userId", newAccount.token);
 
-      this.history.push("/");
+      this.history.push("/deposit");
     } catch (e) {
       this.setErrorMessage(e.code);
     }
