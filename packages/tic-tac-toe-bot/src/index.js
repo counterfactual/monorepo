@@ -1,5 +1,4 @@
 const cf = require("@counterfactual/cf.js");
-import { StateChannel } from '../../../../ethmo/vendor/cf-test/client/state-channel-client';
 const fs = require("fs");
 const path = require("path");
 const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
@@ -90,9 +89,8 @@ const ACTION_ENCODING = "tuple(ActionType actionType, uint256 playX, uint256 pla
 const BOT_USER = {
   attributes: {
     email: "TTTBot@counterfactual.com",
-    ethAddress: "0x1BdF54355A98b43951dB6f5369Dd1bAe31bF2FB0",
-    // multisig from an account created by the playground; not valid here; use one created below
-    multisigAddress: "0x329CbbBDe9278eE3C446344793e92AE8684DFfb2",
+    ethAddress: "0x6948CF1acf22A7170C80D5af959979D9A6fC3b82",
+    multisigAddress: "0x0E646f7724e9762dD79cd127fBde1dCeb88521F3",
     nodeAddress:
       "xpub6FCuHMxAHGeGpJGXrFi5arY1jwaDwYQaQ9JzzAWf8iHq1v9HLoTpaZJp6WEH3wBEHaaoFPS4ZPtJCvPGM7Rvw2yPADadr3enDHCxGJqBaWG",
     username: "TTTBot"
@@ -117,7 +115,8 @@ const BOT_USER = {
   }
 
    sendMessage(message) {
-    this.node.emit("message", message);
+     console.log("sent mess", message)
+    this.node.emit(message.type, message);
   }
 
    async connect() {
@@ -155,11 +154,12 @@ class JsonFileStoreService {
     messagingSenderId: "432199632441"
   });
 
-   console.log("Creating store");
+  console.log("Creating store");
   const store = new JsonFileStoreService();
   console.log("Creating Node");
+  const messServce = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
-    serviceFactory.createMessagingService("messaging"),
+    messServce,
     store,
     {
       STORE_KEY_PREFIX: "store"
@@ -177,42 +177,51 @@ class JsonFileStoreService {
     // }
   );
   console.log("public identifier", node.publicIdentifier)
+  messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
+    console.log("received", NodeMessage)
+  })
+  messServce.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
+    console.log("sent", NodeMessage)
+  })
 
-  console.log("Creating channel with server")
-  const playgroundAddress = "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
-  const stateChannelResponse = await node.call(
-    "createChannel",
-    {
-      params: {
-        owners: [node.publicIdentifier, playgroundAddress]
-      },
-      type: "createChannel",
-      requestId: v4()
-    }
-  );
-  console.log("state channel response", stateChannelResponse);
+  // console.log("Creating channel with server")
+  // const playgroundIdendifier = "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+  // const stateChannelResponse = await node.call(
+  //   "createChannel",
+  //   {
+  //     params: {
+  //       owners: [node.publicIdentifier, playgroundIdendifier]
+  //     },
+  //     type: "createChannel",
+  //     requestId: v4()
+  //   }
+  // );
+  // console.log("state channel response", stateChannelResponse);
 
-   console.log("Creating NodeProvider");
+  console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
 
-   console.log("Creating cfProvider");
+  console.log("Creating cfProvider");
   const cfProvider = new cf.Provider(nodeProvider);
 
-   console.log("Creating appFactory");
-  const appFactory = new cf.AppFactory(
-    " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-    {
-      actionEncoding: ACTION_ENCODING,
-      stateEncoding: STATE_ENCODING
-    },
-    cfProvider
-  );
+  //  console.log("Creating appFactory");
+  // const appFactory = new cf.AppFactory(
+  //   " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
+  //   {
+  //     actionEncoding: ACTION_ENCODING,
+  //     stateEncoding: STATE_ENCODING
+  //   },
+  //   cfProvider
+  // );
 
-   console.log("Create event listener for installVirtual");
-   cfProvider.on("installVirtual", appInstance => {
-    console.log(`Received appInstance ${appInstance}`);
-    appInstance.install();
+  console.log("Create event listener for proposeInstallVirtual");
+  node.on("proposeInstallVirtualEvent", async (data) => {
+    const appInstanceId = data.data.appInstanceId;
+    const intermediaries = data.data.params.intermediaries;
+    console.log(`Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`);
+
+    const appInstance = await cfProvider.installVirtual(appInstanceId, intermediaries);
 
     console.log("Create event listener for updateState");
     appInstance.on("updateState", newState => {

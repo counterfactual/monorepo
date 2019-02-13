@@ -21,8 +21,8 @@ class Wager extends Component {
     console.log("user data", this.props.user);
 
     try {
-      const result = await this.matchmake();
-      // const result = this.matchmakeBot();
+      // const result = await this.matchmake();
+      const result = this.matchmakeBot();
       console.log(result)
       
       const opponent = {
@@ -50,18 +50,20 @@ class Wager extends Component {
 
   matchmakeBot() {
     return {
-      attributes: {
-        email: "TTTBot@counterfactual.com",
-        ethAddress: "0x1BdF54355A98b43951dB6f5369Dd1bAe31bF2FB0",
-        multisigAddress: "0x329CbbBDe9278eE3C446344793e92AE8684DFfb2",
-        nodeAddress:
-          "xpub6FCuHMxAHGeGpJGXrFi5arY1jwaDwYQaQ9JzzAWf8iHq1v9HLoTpaZJp6WEH3wBEHaaoFPS4ZPtJCvPGM7Rvw2yPADadr3enDHCxGJqBaWG",
-        intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-        username: "TTTBot"
-      },
-      id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
-      relationships: {},
-      type: "user"
+      data: {
+        attributes: {
+          email: "TTTBot@counterfactual.com",
+          ethAddress: "0xAB58462ec1f429B557D5Be500F431Cb767d6107c",
+          multisigAddress: "0x47198D5703a202D85E5980F03F0327492eC29470",
+          nodeAddress:
+            "xpub6Dz7DxbPPyAm7C1zyevRFMfP6fzkfo5p59EgshSTpPXeF2PMnFr5Q5d2f9vvoXTzR9NaaEszDb8jBaabTXXh81Z2magXPWJCEJPhhtN1x1R",
+          intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+          username: "TTTBot"
+        },
+        id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
+        relationships: {},
+        type: "user"
+      }
     }
   }
 
@@ -170,7 +172,7 @@ class Wager extends Component {
   render() {
     const { error, isLoaded, isWaiting } = this.state;
     const { user } = this.props;
-
+    
     if (!isLoaded) {
       return (
         <div className="wager">
