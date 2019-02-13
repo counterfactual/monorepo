@@ -157,7 +157,7 @@ export function makeWithdrawRequest(
     params: {
       multisigAddress,
       amount
-    } as NodeTypes.DepositParams
+    } as NodeTypes.WithdrawParams
   };
 }
 
