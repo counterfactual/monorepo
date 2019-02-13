@@ -1,8 +1,10 @@
+import { Node } from "@counterfactual/types";
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import {
+  bindMultisigToUser,
   createUser,
   ethAddressAlreadyRegistered,
   getUsers,
@@ -60,24 +62,23 @@ export default class UserProcessor extends OperationProcessor {
       throw errors.AddressAlreadyRegistered();
     }
 
-    const multisig = await NodeWrapper.createStateChannelFor(
-      nodeAddress as string
-    );
-
-    Log.info("Multisig has been created", {
-      tags: {
-        multisigAddress: multisig.multisigAddress,
-        endpoint: "createAccount"
-      }
-    });
-
-    user.attributes.multisigAddress = multisig.multisigAddress;
-
     // Create the Playground User.
     const newUser = await createUser(user);
 
     Log.info("User has been created", {
       tags: { userId: user.id, endpoint: "createAccount" }
+    });
+
+    NodeWrapper.createStateChannelFor(nodeAddress as string).then(
+      async (result: Node.CreateChannelResult) => {
+        await bindMultisigToUser(newUser, result.multisigAddress);
+      }
+    );
+
+    Log.info("Multisig has been requested", {
+      tags: {
+        endpoint: "createAccount"
+      }
     });
 
     // Update user with token.
