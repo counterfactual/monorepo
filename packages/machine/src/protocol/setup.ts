@@ -79,8 +79,8 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const {
     multisigAddress,
-    initiatingAddress,
-    respondingAddress
+    initiatingXpub,
+    respondingXpub
   } = message.params as SetupParams;
 
   if (context.stateChannelsMap.has(multisigAddress)) {
@@ -90,7 +90,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   const newStateChannel = StateChannel.setupChannel(
     context.network.ETHBucket,
     multisigAddress,
-    [initiatingAddress, respondingAddress]
+    [initiatingXpub, respondingXpub]
   );
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);

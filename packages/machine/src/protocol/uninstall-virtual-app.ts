@@ -21,15 +21,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        initiatingAddress
+        intermediaryXpub,
+        initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: 1,
-        fromAddress: initiatingAddress,
-        toAddress: intermediaryAddress,
+        fromAddress: initiatingXpub,
+        toAddress: intermediaryXpub,
         signature: context.signatures[0]
       };
     },
@@ -45,15 +45,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        initiatingAddress
+        intermediaryXpub,
+        initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: initiatingAddress,
-        toAddress: intermediaryAddress,
+        fromAddress: initiatingXpub,
+        toAddress: intermediaryXpub,
         signature: context.signatures[0],
         signature2: context.inbox[0].signature
       };
@@ -78,15 +78,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        respondingAddress
+        intermediaryXpub,
+        respondingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: intermediaryAddress,
-        toAddress: respondingAddress,
+        fromAddress: intermediaryXpub,
+        toAddress: respondingXpub,
         signature: message.signature,
         signature2: context.signatures[0]
       };
@@ -97,8 +97,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        initiatingAddress
+        intermediaryXpub,
+        initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
       // - forward the lock signature
@@ -107,8 +107,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryAddress,
-        toAddress: initiatingAddress,
+        fromAddress: intermediaryXpub,
+        toAddress: initiatingXpub,
         signature: context.inbox[0].signature,
         signature2: context.signatures[0]
       };
@@ -125,15 +125,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        initiatingAddress
+        intermediaryXpub,
+        initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryAddress,
-        toAddress: initiatingAddress,
+        fromAddress: intermediaryXpub,
+        toAddress: initiatingXpub,
         signature: context.signatures[2]
       };
     },
@@ -147,15 +147,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        respondingAddress
+        intermediaryXpub,
+        respondingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryAddress,
-        toAddress: respondingAddress,
+        fromAddress: intermediaryXpub,
+        toAddress: respondingXpub,
         signature: context.signatures[2]
       };
     },
@@ -179,15 +179,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        respondingAddress
+        intermediaryXpub,
+        respondingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: respondingAddress,
-        toAddress: intermediaryAddress,
+        fromAddress: respondingXpub,
+        toAddress: intermediaryXpub,
         signature: message.signature,
         signature2: message.signature2,
         signature3: context.signatures[0]
@@ -205,15 +205,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       const {
-        intermediaryAddress,
-        respondingAddress
+        intermediaryXpub,
+        respondingXpub
       } = message.params as UninstallVirtualAppParams;
 
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: respondingAddress,
-        toAddress: intermediaryAddress,
+        fromAddress: respondingXpub,
+        toAddress: intermediaryXpub,
         signature: context.signatures[0],
         signature2: context.signatures[1]
       };
@@ -228,15 +228,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
 function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
   const {
-    intermediaryAddress,
-    respondingAddress,
-    initiatingAddress,
+    intermediaryXpub,
+    respondingXpub,
+    initiatingXpub,
     targetAppIdentityHash
   } = message.params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
-    [initiatingAddress, respondingAddress],
-    intermediaryAddress
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
   );
 
   const sc = context.stateChannelsMap.get(key)!;
@@ -249,22 +249,22 @@ function addVirtualAppStateTransitionToContext(
   context: Context
 ) {
   const {
-    intermediaryAddress,
-    respondingAddress,
-    initiatingAddress,
+    intermediaryXpub,
+    respondingXpub,
+    initiatingXpub,
     targetAppIdentityHash
   } = message.params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
-    [initiatingAddress, respondingAddress],
-    intermediaryAddress
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
   );
 
   const sc = context.stateChannelsMap.get(key);
 
   if (sc === undefined) {
     throw Error(
-      `Unable to find channel object for ${initiatingAddress} and ${respondingAddress}`
+      `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
     );
   }
 
@@ -309,8 +309,8 @@ function addRightUninstallAgreementToContext(
 ) {
   // uninstall right agreement
   const {
-    intermediaryAddress,
-    respondingAddress,
+    intermediaryXpub,
+    respondingXpub,
     targetAppIdentityHash,
     initiatingBalanceIncrement,
     respondingBalanceIncrement
@@ -318,8 +318,8 @@ function addRightUninstallAgreementToContext(
 
   const sc = getChannelFromCounterparty(
     context.stateChannelsMap,
-    respondingAddress,
-    intermediaryAddress
+    respondingXpub,
+    intermediaryXpub
   )!;
 
   const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
@@ -330,11 +330,11 @@ function addRightUninstallAgreementToContext(
     targetAppIdentityHash,
     {
       [sc.getFreeBalanceAddrOf(
-        intermediaryAddress,
+        intermediaryXpub,
         AssetType.ETH
       )]: initiatingBalanceIncrement,
       [sc.getFreeBalanceAddrOf(
-        respondingAddress,
+        respondingXpub,
         AssetType.ETH
       )]: respondingBalanceIncrement
     }
@@ -356,8 +356,8 @@ function addLeftUninstallAgreementToContext(
   // uninstall left virtual app agreement
 
   const {
-    initiatingAddress,
-    intermediaryAddress,
+    initiatingXpub,
+    intermediaryXpub,
     targetAppIdentityHash,
     initiatingBalanceIncrement,
     respondingBalanceIncrement
@@ -365,8 +365,8 @@ function addLeftUninstallAgreementToContext(
 
   const sc = getChannelFromCounterparty(
     context.stateChannelsMap,
-    initiatingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    intermediaryXpub
   )!;
 
   const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
@@ -377,11 +377,11 @@ function addLeftUninstallAgreementToContext(
     targetAppIdentityHash,
     {
       [sc.getFreeBalanceAddrOf(
-        initiatingAddress,
+        initiatingXpub,
         AssetType.ETH
       )]: initiatingBalanceIncrement,
       [sc.getFreeBalanceAddrOf(
-        intermediaryAddress,
+        intermediaryXpub,
         AssetType.ETH
       )]: respondingBalanceIncrement
     }
