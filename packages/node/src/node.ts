@@ -92,7 +92,8 @@ export class Node {
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-
+    const wllt = new Wallet(this.signer.privateKey, this.provider);
+    wllt.getAddress().then((ddr) => console.log("ddr", ddr))
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -102,7 +103,7 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      new Wallet(this.signer.privateKey, this.provider),
+      wllt,
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
