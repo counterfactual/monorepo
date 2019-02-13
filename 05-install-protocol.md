@@ -23,7 +23,7 @@ First we introduce a new type which we label `InstallParams`.
 | `bobBalanceDecrement`   | `uint256`        | The proposed sub-deposit into the application of the second party  |
 | `signingKeys`           | `address[]`      | TBD                                                                |
 | `terms`                 | `Terms`          | The terms of agreement for this application                        |
-| `initialState`          | JSON-like        | TBD                                                                |
+| `initialState`          | `JSON`        | TBD                                                                |
 | `appInterface`          | `CfAppInterface` | The definition of the interface of the application to be installed |
 | `defaultTimeout`        | `uint256`        | The challenge period length for this application                   |
 

@@ -8,30 +8,29 @@ Three users run the protocol. They are designated as `initiating`, `responding`,
 
 ## The `InstallVirtualAppParams` type
 
-|          Field          |     type     |            description            |
-| ----------------------- | ------------ | --------------------------------- |
-| `initiatingAddress`     | `address`    | Routing address of `initiating`   |
-| `respondingAddress`     | `address`    | Routing address of `responding`   |
-| `intermediaryAddress`   | `address`    | Routing address of `intermediary` |
-| `signingKeys`           | `address[3]` | see below                         |
-| `defaultTimeout`        | `uint256`    |                                   |
-| `appInterface`          | `uint256`    |                                   |
-| `initialState`          | `JSON-like`  | Encoded initial app state         |
-| `aliceBalanceDecrement` | `uint256`    | Amount to decrease freebalance by |
-| `bobBalanceDecrement`   | `uint256`    | Amount to decrease freebalance by |
-| `expiry`                | `uint256`    | Not implemented in machine yet    |
+|            Field             |      type      |                      description                      |
+| ---------------------------- | -------------- | ----------------------------------------------------- |
+| `initiatingXpub`             | `xpub`         | xpub of `initiating`                                  |
+| `respondingXpub`             | `xpub`         | xpub of `responding`                                  |
+| `intermediaryXpub`           | `xpub`         | xpub of `intermediary`                                |
+| `defaultTimeout`             | `uint256`      |                                                       |
+| `appInterface`               | `AppInterface` |                                                       |
+| `initialState`               | `JSON`         | Encoded initial app state                             |
+| `initiatingBalanceDecrement` | `uint256`      | `initiating`'s deposit into the installed application |
+| `respondingBalanceDecrement` | `uint256`      | `responding`'s deposit into the installed application |
+| `expiry`                     | `uint256`      | Not implemented in machine yet                        |
 
-## Other fields
+## Derived fields
 
 These fields are not included in `InstallVirtualAppParams` but are computed from existing information known to a user.
 
-| Field              | type      | description                                                                  |
-| `multisig1Address` | `address` | State deposit holder for the channel between `initiating` and `intermediary` |
-| `multisig2Address` | `address` | State deposit holder for the channel between `intermediary` and `responding` |
+|       Field        |    type     |                                 description                                  |
+| ------------------ | ----------- | ---------------------------------------------------------------------------- |
+| `multisig1Address` | `address`   | State deposit holder for the channel between `initiating` and `intermediary` |
+| `multisig2Address` | `address`   | State deposit holder for the channel between `intermediary` and `responding` |
+| `signingKeys`      | `address[]` | See below                                                                    |
 
-### signing keys
-
-`signingKeys[0]` is the intermediary signing key, while `signingKeys[1:2]` are the signing keys used by `initiating` and `responding`, sorted lexicographically by public key.
+`{initiating,responding,intermediary}`, together with the target app sequence number, are used to derive the app-specific signing keys. `signingKeys[0]` is the intermediary signing key, while `signingKeys[1:2]` are the signing keys used by `initiating` and `responding`, sorted lexicographically by public key.
 
 ## Commitments
 
