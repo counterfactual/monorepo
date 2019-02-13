@@ -185,7 +185,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it("creates an account for the first time and returns 201 + the multisig address", async done => {
+    it("creates an account for the first time and returns 201, without the multisig address", async done => {
       jest.setTimeout(10000);
       const response = await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
@@ -204,7 +204,7 @@ describe("playground-server", () => {
       expect(data.attributes.email).toEqual(aliceUser.email);
       expect(data.attributes.ethAddress).toEqual(aliceUser.ethAddress);
       expect(data.attributes.nodeAddress).toEqual(aliceUser.nodeAddress);
-      expect(data.attributes.multisigAddress).toBeDefined();
+      expect(data.attributes.multisigAddress).not.toBeDefined();
       expect(data.attributes.token).toBeDefined();
       expect(response.status).toEqual(HttpStatusCode.Created);
       done();
