@@ -147,6 +147,20 @@ export function makeDepositRequest(
   };
 }
 
+export function makeWithdrawRequest(
+  multisigAddress: string,
+  amount: BigNumber
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.WITHDRAW,
+    params: {
+      multisigAddress,
+      amount
+    } as NodeTypes.DepositParams
+  };
+}
+
 export function makeInstallRequest(
   appInstanceId: string
 ): NodeTypes.MethodRequest {

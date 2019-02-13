@@ -1,4 +1,4 @@
-import { getAddress, hexlify, randomBytes } from "ethers/utils";
+import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { WithdrawETHCommitment } from "../../../src/ethereum";
 import { Transaction } from "../../../src/ethereum/types";
@@ -6,7 +6,7 @@ import { Transaction } from "../../../src/ethereum/types";
 /**
  * This test suite decodes a constructed SetState Commitment transaction object
  * to the specifications defined by Counterfactual as can be found here:
- * https://specs.counterfactual.com/06-update-protocol#commitments
+ * TODO: Write specs
  */
 describe("Withdraw ETH Commitment", () => {
   let commitment: WithdrawETHCommitment;
@@ -18,7 +18,7 @@ describe("Withdraw ETH Commitment", () => {
     getAddress(hexlify(randomBytes(20)))
   ];
   const to = getAddress(hexlify(randomBytes(20)));
-  const value = Math.round(10000 * Math.random());
+  const value = bigNumberify(Math.round(10000 * Math.random()));
 
   beforeAll(() => {
     commitment = new WithdrawETHCommitment(
@@ -35,6 +35,6 @@ describe("Withdraw ETH Commitment", () => {
   });
 
   it("should have the value being sent", () => {
-    expect(tx.value).toBe(value);
+    expect(tx.value).toEqual(value);
   });
 });

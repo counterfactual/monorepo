@@ -28,5 +28,7 @@ export const ERRORS = {
   INVALID_NETWORK_NAME: "Invalid network name provided for initializing Node",
   CANNOT_DEPOSIT:
     "Cannot deposit while another deposit is occurring in the channel.",
+  CANNOT_WITHDRAW:
+    "Cannot withdraw while another deposit / withdraw app is active in the channel.",
   DEPOSIT_FAILED: "Failed to send funds to the multisig contract"
 };

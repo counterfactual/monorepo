@@ -14,10 +14,10 @@ import {
 } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, ProtocolMessage, WithdrawParams } from "../types";
-import { xkeyKthAddress } from "../xkeys";
+// import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import { validateSignature } from "./utils/signature-validator";
+// import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -36,7 +36,10 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) => {
       context.outbox.push({
         ...message,
+        fromAddress: message.params.initiatingXpub,
+        toAddress: message.params.respondingXpub,
         signature: context.signatures[0],
+        signature2: context.signatures[1],
         seq: 1
       });
     },
@@ -48,37 +51,41 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addUninstallRefundAppCommitmentToContext,
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.toAddress, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      );
+    // (message: ProtocolMessage, context: Context) => {
+    //   validateSignature(
+    //     xkeyKthAddress(message.toAddress, 0),
+    //     context.commitments[0],
+    //     context.inbox[0].signature
+    //   );
 
-      validateSignature(
-        xkeyKthAddress(message.toAddress, 0),
-        context.commitments[1],
-        context.inbox[0].signature2
-      );
+    //   validateSignature(
+    //     xkeyKthAddress(message.toAddress, 0),
+    //     context.commitments[1],
+    //     context.inbox[0].signature2
+    //   );
 
-      validateSignature(
-        xkeyKthAddress(message.toAddress, 0),
-        context.commitments[2],
-        context.inbox[0].signature3
-      );
-    },
+    //   validateSignature(
+    //     xkeyKthAddress(message.toAddress, 0),
+    //     context.commitments[2],
+    //     context.inbox[0].signature3
+    //   );
+    // },
 
     Opcode.OP_SIGN,
 
     (message: ProtocolMessage, context: Context) => {
-      context.outbox.push({
+      context.outbox[0] = {
         ...message,
-        signature: context.signatures[2],
+        fromAddress: message.params.initiatingXpub,
+        toAddress: message.params.respondingXpub,
+        signature: context.signatures[0],
+        signature2: context.signatures[1],
+        signature3: context.signatures[2],
         seq: -1
-      });
+      };
     },
 
-    Opcode.IO_SEND_AND_WAIT,
+    Opcode.IO_SEND,
 
     Opcode.STATE_TRANSITION_COMMIT
   ],
@@ -88,33 +95,45 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addMultisigSendCommitmentToContext,
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.fromAddress, 0),
-        context.commitments[0],
-        message.signature
-      );
+    // (message: ProtocolMessage, context: Context) => {
+    //   validateSignature(
+    //     xkeyKthAddress(message.fromAddress, 0),
+    //     context.commitments[0],
+    //     message.signature
+    //   );
 
-      validateSignature(
-        xkeyKthAddress(message.fromAddress, 0),
-        context.commitments[1],
-        message.signature2
-      );
-    },
+    //   validateSignature(
+    //     xkeyKthAddress(message.fromAddress, 0),
+    //     context.commitments[1],
+    //     message.signature2
+    //   );
+    // },
 
     addUninstallRefundAppCommitmentToContext,
 
     Opcode.OP_SIGN,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.outbox[0] = {
+        ...message,
+        fromAddress: message.params.respondingXpub,
+        toAddress: message.params.initiatingXpub,
+        signature: context.signatures[0],
+        signature2: context.signatures[1],
+        signature3: context.signatures[2],
+        seq: -1
+      };
+    },
+
     Opcode.IO_SEND_AND_WAIT,
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.fromAddress, 0),
-        context.commitments[0],
-        message.signature
-      );
-    },
+    // (message: ProtocolMessage, context: Context) => {
+    //   validateSignature(
+    //     xkeyKthAddress(message.fromAddress, 0),
+    //     context.commitments[0],
+    //     message.signature
+    //   );
+    // },
 
     Opcode.STATE_TRANSITION_COMMIT
   ]
@@ -192,7 +211,7 @@ function addUninstallRefundAppCommitmentToContext(
 
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  context.commitments[1] = new UninstallCommitment(
+  context.commitments[2] = new UninstallCommitment(
     context.network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,

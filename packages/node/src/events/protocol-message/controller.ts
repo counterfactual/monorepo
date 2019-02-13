@@ -1,11 +1,15 @@
 import { Protocol, StateChannel } from "@counterfactual/machine";
-import { UninstallVirtualAppParams } from "@counterfactual/machine/dist/src/types";
+import {
+  UninstallVirtualAppParams,
+  WithdrawParams
+} from "@counterfactual/machine/dist/src/types";
 
 import { RequestHandler } from "../../request-handler";
 import {
   NODE_EVENTS,
   NodeMessageWrappedProtocolMessage,
-  UninstallMessage
+  UninstallMessage,
+  WithdrawMessage
 } from "../../types";
 
 /**
@@ -43,5 +47,15 @@ export default async function protocolMessageEventController(
     };
 
     requestHandler.outgoing.emit(uninstallMsg.type, uninstallMsg);
+  } else if (nodeMsg.data.protocol === Protocol.Withdraw) {
+    const withdrawMsg: WithdrawMessage = {
+      from: requestHandler.publicIdentifier,
+      type: NODE_EVENTS.WITHDRAW,
+      data: {
+        amount: (nodeMsg.data.params as WithdrawParams).amount
+      }
+    };
+
+    requestHandler.outgoing.emit(withdrawMsg.type, withdrawMsg);
   }
 }

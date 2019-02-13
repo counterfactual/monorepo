@@ -92,7 +92,7 @@ export async function makeDeposit(
 
   const depositPromise = requestHandler.wallet.sendTransaction({
     ...tx,
-    gasPrice: await requestHandler.provider.estimateGas(tx)
+    gasLimit: await requestHandler.provider.estimateGas(tx)
   });
   requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
   depositPromise.then(async () => {

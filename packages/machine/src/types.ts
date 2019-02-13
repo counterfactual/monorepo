@@ -83,8 +83,8 @@ export type UpdateParams = {
 };
 
 export type WithdrawParams = {
-  initiatingAddress: string;
-  respondingAddress: string;
+  initiatingXpub: string;
+  respondingXpub: string;
   multisigAddress: string;
   recipient: string;
   amount: BigNumber;
@@ -137,6 +137,7 @@ export type ProtocolParameters =
   | UpdateParams
   | InstallParams
   | UninstallParams
+  | WithdrawParams
   | InstallVirtualAppParams
   | UninstallVirtualAppParams;
 
