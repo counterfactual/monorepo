@@ -1,7 +1,8 @@
 import {
   AppInstance,
   StateChannel,
-  xkeysToSortedKthAddresses
+  xkeysToSortedKthAddresses,
+  xkeyKthAddress
 } from "@counterfactual/machine";
 import {
   Address,
@@ -98,14 +99,23 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       token: AddressZero // this.asset.token || AddressZero
     };
 
-    const isVirtualApp = (this.intermediaries || []).length > 0;
+    let signingKeys: string[];
+    let isVirtualApp: boolean;
 
-    const signingKeys = isVirtualApp
-      ? xkeysToSortedKthAddresses(
-          [this.proposedByIdentifier, this.proposedToIdentifier],
-          1337
-        )
-      : stateChannel.getNextSigningKeys();
+    if ((this.intermediaries || []).length > 0) {
+      isVirtualApp = true;
+
+      const appSeqNo = stateChannel.numInstalledApps;
+
+      const [intermediaryXpub] = this.intermediaries!;
+
+      signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
+        xkeysToSortedKthAddresses([this.proposedByIdentifier, this.proposedToIdentifier], appSeqNo)
+      );
+    } else {
+      isVirtualApp = false;
+      signingKeys = stateChannel.getNextSigningKeys();
+    }
 
     const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
 
@@ -123,7 +133,11 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       bigNumberify(this.timeout).toNumber()
     );
 
-    return proposedAppInstance.identityHash;
+    const ret = proposedAppInstance.identityHash;
+
+    console.log("returning", ret);
+
+    return ret;
   }
 
   toJson() {

@@ -186,6 +186,7 @@ function createAndAddTarget(
   // Needed for STATE_TRANSITION_COMMIT presently
   context.appIdentityHash = target.identityHash;
 
+  console.log("target.identyHash=", target.identityHash);
   return target;
 }
 
