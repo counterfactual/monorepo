@@ -40,6 +40,8 @@ export class HeaderAccount {
   }
 
   async onLoginClicked() {
+    this.removeError();
+
     try {
       const signature = await this.signer.signMessage(
         buildSignaturePayload(this.user.ethAddress)
@@ -60,8 +62,6 @@ export class HeaderAccount {
       );
 
       this.updateAccount({ user });
-
-      this.removeError();
     } catch (error) {
       this.displayLoginError();
     }
@@ -141,6 +141,7 @@ export class HeaderAccount {
     if (!this.user || !this.user.username) {
       return (
         <div class="account-container">
+          <widget-error-message />
           <div class="btn-container">
             <button onClick={this.onLoginClicked.bind(this)} class="btn">
               Login
@@ -183,5 +184,6 @@ AccountTunnel.injectProps(HeaderAccount, [
   "user",
   "updateAccount",
   "provider",
+  "signer",
   "unconfirmedBalance"
 ]);
