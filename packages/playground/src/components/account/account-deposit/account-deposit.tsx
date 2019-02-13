@@ -36,7 +36,6 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      debugger;
       await this.node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),

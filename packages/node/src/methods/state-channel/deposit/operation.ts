@@ -92,10 +92,13 @@ export async function makeDeposit(
 
   try {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-    await requestHandler.wallet.sendTransaction({
-      ...tx,
-      gasPrice: await requestHandler.provider.estimateGas(tx)
-    });
+    const txResponse = await requestHandler.provider
+      .getSigner()
+      .sendTransaction({
+        ...tx,
+        gasPrice: await requestHandler.provider.estimateGas(tx)
+      });
+    await requestHandler.provider.waitForTransaction(txResponse.hash!);
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
@@ -119,15 +122,21 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
+  const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
+    stateChannel,
+    requestHandler.publicIdentifier,
+    beforeDepositBalance,
+    afterDepositBalance
+  );
+
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    new Map(Object.entries(await store.getAllChannels())),
+    // https://github.com/counterfactual/monorepo/issues/747
+    new Map<string, StateChannel>([
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
     {
-      ...getDepositIncrement(
-        stateChannel,
-        requestHandler.publicIdentifier,
-        beforeDepositBalance,
-        afterDepositBalance
-      ),
+      aliceBalanceIncrement,
+      bobBalanceIncrement,
       initiatingAddress: publicIdentifier,
       respondingAddress: peerAddress,
       multisigAddress: stateChannel.multisigAddress,

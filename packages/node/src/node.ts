@@ -9,7 +9,7 @@ import {
 import { UpdateParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { Provider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -56,7 +56,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: Provider,
+    provider: JsonRpcProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -76,7 +76,7 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: Provider,
+    private readonly provider: JsonRpcProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
