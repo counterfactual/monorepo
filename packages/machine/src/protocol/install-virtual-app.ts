@@ -146,7 +146,7 @@ function createTarget(
     appInterface,
     {
       assetType: AssetType.ETH,
-      limit: Zero,
+      limit: Zero, // limit field is ignored, since limits are enforced by virtual app agreement
       token: AddressZero
     },
     true, // sets it to be a virtual app
