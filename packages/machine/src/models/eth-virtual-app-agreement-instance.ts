@@ -1,5 +1,5 @@
 import { Terms } from "@counterfactual/types";
-import { keccak256, solidityPack } from "ethers/utils";
+import { getAddress, keccak256, solidityPack } from "ethers/utils";
 
 export type ETHVirtualAppAgreementJson = {
   multisigAddress: string;
@@ -9,6 +9,8 @@ export type ETHVirtualAppAgreementJson = {
   expiry: number;
   capitalProvided: number;
   targetAppIdentityHash: string;
+  beneficiary1: string;
+  beneficiary2: string;
 };
 
 export class ETHVirtualAppAgreementInstance {
@@ -23,7 +25,9 @@ export class ETHVirtualAppAgreementInstance {
     // todo(xuanji): The following field is a js `number`, which is
     // unsafe since even 1 ETH will exceed `Number.MAX_SAFE_INTEGER`
     public capitalProvided: number,
-    public targetAppIdentityHash: string
+    public targetAppIdentityHash: string,
+    public beneficiary1: string,
+    public beneficiary2: string
   ) {
     this.json = {
       multisigAddress,
@@ -32,7 +36,10 @@ export class ETHVirtualAppAgreementInstance {
       rootNonceValue,
       expiry,
       capitalProvided,
-      targetAppIdentityHash
+      targetAppIdentityHash,
+      // normalize addresses and fail early on any invalid addresses
+      beneficiary1: getAddress(beneficiary1),
+      beneficiary2: getAddress(beneficiary2)
     };
   }
 
@@ -48,7 +55,9 @@ export class ETHVirtualAppAgreementInstance {
       json.rootNonceValue,
       json.expiry,
       json.capitalProvided,
-      json.targetAppIdentityHash
+      json.targetAppIdentityHash,
+      json.beneficiary1,
+      json.beneficiary2
     );
   }
   public get uninstallKey() {

@@ -4,7 +4,7 @@ import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import { ProtocolExecutionFlow } from "..";
+import { ProtocolExecutionFlow, xkeyKthAddress } from "..";
 import { Opcode } from "../enums";
 import {
   AppInstance,
@@ -146,8 +146,7 @@ function createTarget(
     appInterface,
     {
       assetType: AssetType.ETH,
-      // FIXME: @xuanji
-      limit: Zero,
+      limit: Zero, // limit field is ignored, since limits are enforced by virtual app agreement
       token: AddressZero
     },
     true, // sets it to be a virtual app
@@ -237,7 +236,9 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
       .toNumber(),
-    targetAppInstance.identityHash
+    targetAppInstance.identityHash,
+    xkeyKthAddress(initiatingXpub, 0),
+    xkeyKthAddress(intermediaryXpub, 0)
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -335,7 +336,9 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
       .toNumber(),
-    targetAppInstance.identityHash
+    targetAppInstance.identityHash,
+    xkeyKthAddress(initiatingXpub, 0),
+    xkeyKthAddress(intermediaryXpub, 0)
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
@@ -353,7 +356,9 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
       .toNumber(),
-    targetAppInstance.identityHash
+    targetAppInstance.identityHash,
+    xkeyKthAddress(intermediaryXpub, 0),
+    xkeyKthAddress(respondingXpub, 0)
   );
 
   // S2
@@ -457,7 +462,9 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
       .toNumber(),
-    targetAppInstance.identityHash
+    targetAppInstance.identityHash,
+    xkeyKthAddress(intermediaryXpub, 0),
+    xkeyKthAddress(respondingXpub, 0)
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -512,7 +519,10 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.rootNonceValue,
     bigNumberify(ethVirtualAppAgreementInstance.expiry),
     bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
-    [AddressZero, AddressZero], // FIXME: @xuanji
-    HashZero
+    [
+      ethVirtualAppAgreementInstance.beneficiary1,
+      ethVirtualAppAgreementInstance.beneficiary2
+    ],
+    ethVirtualAppAgreementInstance.uninstallKey
   );
 }
