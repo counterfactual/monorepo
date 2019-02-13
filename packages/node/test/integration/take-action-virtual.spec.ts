@@ -171,7 +171,6 @@ describe("Node method follows spec - takeAction virtual", () => {
         let newState;
 
         nodeC.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          console.log("on update state");
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
           const response = await nodeC.call(getStateReq.type, getStateReq);
           const updatedState = (response.result as NodeTypes.GetStateResult)
@@ -183,8 +182,6 @@ describe("Node method follows spec - takeAction virtual", () => {
         nodeA.on(
           NODE_EVENTS.INSTALL_VIRTUAL,
           async (msg: InstallVirtualMessage) => {
-            console.log("on install virtual");
-
             const takeActionReq = generateTakeActionRequest(
               msg.data.params.appInstanceId,
               validAction
@@ -204,7 +201,6 @@ describe("Node method follows spec - takeAction virtual", () => {
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           (msg: ProposeVirtualMessage) => {
-            console.log("on propose install virtual");
             const installReq = makeInstallVirtualRequest(
               msg.data.appInstanceId,
               msg.data.params.intermediaries

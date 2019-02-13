@@ -138,8 +138,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
     const ret = proposedAppInstance.identityHash;
 
-    console.log("returning", ret);
-
     return ret;
   }
 
