@@ -14,7 +14,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - withdraw", () => {
-  jest.setTimeout(25000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;

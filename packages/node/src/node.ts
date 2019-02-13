@@ -151,11 +151,9 @@ export class Node {
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        for (const commitment of context.commitments) {
-          context.signatures.push(
-            signingKey.signDigest(commitment.hashToSign(asIntermediary))
-          );
-        }
+        context.signatures = context.commitments.map(commitment =>
+          signingKey.signDigest(commitment.hashToSign(asIntermediary))
+        );
 
         next();
       };

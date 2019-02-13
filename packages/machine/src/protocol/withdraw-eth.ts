@@ -14,10 +14,10 @@ import {
 } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, ProtocolMessage, WithdrawParams } from "../types";
-// import { xkeyKthAddress } from "../xkeys";
+import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-// import { validateSignature } from "./utils/signature-validator";
+import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -51,25 +51,25 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addUninstallRefundAppCommitmentToContext,
 
-    // (message: ProtocolMessage, context: Context) => {
-    //   validateSignature(
-    //     xkeyKthAddress(message.toAddress, 0),
-    //     context.commitments[0],
-    //     context.inbox[0].signature
-    //   );
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature
+      );
 
-    //   validateSignature(
-    //     xkeyKthAddress(message.toAddress, 0),
-    //     context.commitments[1],
-    //     context.inbox[0].signature2
-    //   );
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[1],
+        context.inbox[0].signature2
+      );
 
-    //   validateSignature(
-    //     xkeyKthAddress(message.toAddress, 0),
-    //     context.commitments[2],
-    //     context.inbox[0].signature3
-    //   );
-    // },
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[2],
+        context.inbox[0].signature3
+      );
+    },
 
     Opcode.OP_SIGN,
 
@@ -95,19 +95,19 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addMultisigSendCommitmentToContext,
 
-    // (message: ProtocolMessage, context: Context) => {
-    //   validateSignature(
-    //     xkeyKthAddress(message.fromAddress, 0),
-    //     context.commitments[0],
-    //     message.signature
-    //   );
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[0],
+        message.signature
+      );
 
-    //   validateSignature(
-    //     xkeyKthAddress(message.fromAddress, 0),
-    //     context.commitments[1],
-    //     message.signature2
-    //   );
-    // },
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[1],
+        message.signature2
+      );
+    },
 
     addUninstallRefundAppCommitmentToContext,
 
@@ -127,13 +127,16 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     Opcode.IO_SEND_AND_WAIT,
 
-    // (message: ProtocolMessage, context: Context) => {
-    //   validateSignature(
-    //     xkeyKthAddress(message.fromAddress, 0),
-    //     context.commitments[0],
-    //     message.signature
-    //   );
-    // },
+    (_: ProtocolMessage, context: Context) =>
+      verifyInboxLengthEqualTo1(context.inbox),
+
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[2],
+        context.inbox[0].signature3
+      );
+    },
 
     Opcode.STATE_TRANSITION_COMMIT
   ]
@@ -178,7 +181,25 @@ function addInstallRefundAppCommitmentToContext(
     1008
   );
 
-  const newStateChannel = stateChannel.installApp(appInstance, Zero, Zero);
+  let aliceBalanceDecrement = Zero;
+  let bobBalanceDecrement = Zero;
+
+  if (
+    stateChannel.getFreeBalanceAddrOf(
+      message.params.initiatingXpub,
+      AssetType.ETH
+    ) === stateChannel.multisigOwners[0]
+  ) {
+    aliceBalanceDecrement = amount;
+  } else {
+    bobBalanceDecrement = amount;
+  }
+
+  const newStateChannel = stateChannel.installApp(
+    appInstance,
+    aliceBalanceDecrement,
+    bobBalanceDecrement
+  );
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
@@ -197,13 +218,13 @@ function addUninstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
   context: Context
 ) {
-  const { amount, multisigAddress } = message.params as WithdrawParams;
+  const { multisigAddress } = message.params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const newStateChannel = stateChannel.uninstallApp(
     context.appIdentityHash!,
-    amount,
+    Zero,
     Zero
   );
 
