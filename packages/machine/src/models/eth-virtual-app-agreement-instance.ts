@@ -29,11 +29,6 @@ export class ETHVirtualAppAgreementInstance {
     public beneficiary1: string,
     public beneficiary2: string
   ) {
-
-    // normalize addresses and fail early on any invalid addresses
-    beneficiary1 = getAddress(beneficiary1);
-    beneficiary2 = getAddress(beneficiary2);
-
     this.json = {
       multisigAddress,
       terms,
@@ -42,8 +37,9 @@ export class ETHVirtualAppAgreementInstance {
       expiry,
       capitalProvided,
       targetAppIdentityHash,
-      beneficiary1,
-      beneficiary2
+      // normalize addresses and fail early on any invalid addresses
+      beneficiary1: getAddress(beneficiary1),
+      beneficiary2: getAddress(beneficiary2)
     };
   }
 
