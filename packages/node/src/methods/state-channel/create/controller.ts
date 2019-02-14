@@ -6,7 +6,7 @@ import { Contract, Signer } from "ethers";
 import { Interface } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
-import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
+import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import { ERRORS } from "../../errors";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
@@ -47,7 +47,7 @@ export default async function createChannelController(
     stateChannelsMap.get(multisigAddress)!
   );
 
-  const multisigCreatedMsg: CreateMultisigMessage = {
+  const createChannelMsg: CreateChannelMessage = {
     from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.CREATE_CHANNEL,
     data: {
@@ -58,10 +58,7 @@ export default async function createChannelController(
     }
   };
 
-  await requestHandler.messagingService.send(
-    respondingXpub,
-    multisigCreatedMsg
-  );
+  await requestHandler.messagingService.send(respondingXpub, createChannelMsg);
 
   return {
     multisigAddress
