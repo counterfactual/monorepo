@@ -85,7 +85,7 @@ export class AppWager {
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
       const minimumEthBalance = ethers.utils.parseEther(this.betAmount).add(
         await provider.estimateGas({
-          to: this.opponent.attributes.nodeAddress,
+          to: this.opponent.attributes.ethAddress,
           value: ethers.utils.parseEther(this.betAmount)
         })
       );
