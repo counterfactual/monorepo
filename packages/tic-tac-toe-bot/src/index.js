@@ -249,69 +249,76 @@ class JsonFileStoreService {
     console.log(`Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`);
 
     // const appInstance = await cfProvider.installVirtual(appInstanceId, intermediaries);
-      const request = {
-        type: "installVirtual",
-        params: {
-          appInstanceId,
-          intermediaries
-        },
-        requestId: v4()
-      };
+    const request = {
+      type: "installVirtual",
+      params: {
+        appInstanceId,
+        intermediaries
+      },
+      requestId: v4()
+    };
 
-      const appInstance = (await node.call(
-        request.type,
-        request
-      )).result;
+    const appInstance = (await node.call(
+      request.type,
+      request
+    )).result;
 
-      console.log("appInstance", appInstance)
+    console.log("appInstance", appInstance)
 
-    console.log("Create event listener for updateState");
-    appInstance.on("updateState", newState => {
-      console.log(`Received newState ${newState}`);
+    node.on("takeActionEvent", async (updateEventData) => {
+      console.log("takeActionEvent", updateEventData)
+    })
+    node.on("takeAction", async (updateEventData) => {
+      console.log("takeAction", updateEventData)
+    })
+
+    // console.log("Create event listener for updateState");
+    // appInstance.on("updateState", newState => {
+    //   console.log(`Received newState ${newState}`);
   
-      const possibleMoves = [];
+    //   const possibleMoves = [];
   
-      for (let x = 0; x < 3; x++) {
-        for (let y = 0; y < 3; y++) {
-          if (this.activeState.board[x][y] !== 0) {
-            possibleMoves.push({
-              x,
-              y
-            });
-          }
-        }
-      }
+    //   for (let x = 0; x < 3; x++) {
+    //     for (let y = 0; y < 3; y++) {
+    //       if (this.activeState.board[x][y] !== 0) {
+    //         possibleMoves.push({
+    //           x,
+    //           y
+    //         });
+    //       }
+    //     }
+    //   }
   
-      if (possibleMoves.length === 0) {
-        throw new Error("Yikes! No place left to move.");
-      }
+    //   if (possibleMoves.length === 0) {
+    //     throw new Error("Yikes! No place left to move.");
+    //   }
   
-      const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
-      const playX = move.x;
-      const playY = move.y;
-      const myNumber = 2; // TODO: figure out how to get the actual number
+    //   const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
+    //   const playX = move.x;
+    //   const playY = move.y;
+    //   const myNumber = 2; // TODO: figure out how to get the actual number
   
       
-      const boardCopy = JSON.parse(JSON.stringify(newState.board));
-      boardCopy[playX][playY] = window.ethers.utils.bigNumberify(myNumber);
+    //   const boardCopy = JSON.parse(JSON.stringify(newState.board));
+    //   boardCopy[playX][playY] = window.ethers.utils.bigNumberify(myNumber);
   
-      const winClaim = checkVictory(boardCopy, myNumber);
-      const draw = checkDraw(boardCopy);
+    //   const winClaim = checkVictory(boardCopy, myNumber);
+    //   const draw = checkDraw(boardCopy);
   
-      let actionType = 0;
+    //   let actionType = 0;
   
-      if (winClaim) {
-        actionType = 1;
-      } else if (draw) {
-        actionType = 2;
-      }
+    //   if (winClaim) {
+    //     actionType = 1;
+    //   } else if (draw) {
+    //     actionType = 2;
+    //   }
   
-      appInstance.takeAction({
-        actionType: actionType,
-        winClaim: winClaim || { winClaimType: 0, idx: 0 },
-        playX,
-        playY
-      });
-    });
+    //   appInstance.takeAction({
+    //     actionType: actionType,
+    //     winClaim: winClaim || { winClaimType: 0, idx: 0 },
+    //     playX,
+    //     playY
+    //   });
+    // });
   });
 })();

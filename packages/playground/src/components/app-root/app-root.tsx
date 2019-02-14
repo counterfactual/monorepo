@@ -100,8 +100,6 @@ export class AppRoot {
           entries[leafKey] = value;
         }
         return Object.keys(entries).length > 0 ? entries : undefined;
-        console.log(entries)
-        return entries;
       },
       async set(
         pairs: {
