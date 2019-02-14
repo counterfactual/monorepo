@@ -123,6 +123,53 @@ class JsonFileStoreService {
     "ropsten"
   );
 
+  /*   console.log("Creating channel with server");
+  const playgroundIdendifier =
+    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+  const stateChannelResponse = await node.call("createChannel", {
+    params: {
+      owners: [node.publicIdentifier, playgroundIdendifier]
+    },
+    type: "createChannel",
+    requestId: v4()
+  });
+  console.log("state channel response", stateChannelResponse);
+
+  console.log("public identifier", node.publicIdentifier); */
+  // messService.onReceive(node.publicIdentifier, NodeMessage => {
+  //   console.log("received", NodeMessage);
+  // });
+  // messService.onReceive(
+  //   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+  //   NodeMessage => {
+  //     console.log("sent", NodeMessage);
+  //   }
+  // );
+
+  /* 
+Node Wallet Address: 0x058398C00D894eAD40E51277Ea06A5Dc81D6c086
+Creating channel with server
+state channel response { type: 'createChannel',
+  requestId: 'd04c9a74-5d71-40cb-a850-e27b55579105',
+  result:
+   { multisigAddress: '0x52fF4fd734A5a5c4D082764C32643fE28B41653a' } }
+public identifier xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd
+ */
+
+  /*  
+ethAddress: "0x058398C00D894eAD40E51277Ea06A5Dc81D6c086"
+intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e"
+nodeAddress: "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd"
+username: "HighRollerBot"
+ */
+
+  /* 
+  No channel exists between the current user
+  xpub6DzGNw6xEWgTz6UXLdaSjfJ3YcEp99VCX921pCTJVAK9RqUTJH6x9TwVZiMN4WcASKALGGbwDqzPs2Pm9FH8oKuq58SHbTGMa7iRJpCSArw 
+  and the peer 
+  xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e
+*/
+
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
@@ -130,25 +177,47 @@ class JsonFileStoreService {
   console.log("Creating cfProvider");
   const cfProvider = new cf.Provider(nodeProvider);
 
-  console.log("Creating appFactory");
-  const appFactory = new cf.AppFactory(
-    " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-    {
-      actionEncoding: ACTION_ENCODING,
-      stateEncoding: STATE_ENCODING
-    },
-    cfProvider
-  );
+  node.on("proposeInstallVirtualEvent", async data => {
+    const appInstanceId = data.data.appInstanceId;
+    const intermediaries = data.data.params.intermediaries;
+    console.log(
+      `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
+    );
 
-  console.log("Create event listener for updateState");
-  cfProvider.on("updateState", newState => {
-    console.log(`Received newState ${newState}`);
-    if (state === "") appInstance.takeAction(randomNum);
-  });
+    const appInstance = await cfProvider.installVirtual(
+      appInstanceId,
+      intermediaries
+    );
 
-  console.log("Create event listener for installVirtual");
-  cfProvider.on("installVirtual", appInstance => {
-    console.log(`Received appInstance ${appInstance}`);
-    appInstance.install();
+    console.log("Create event listener for updateState");
+    appInstance.on("updateState", ({ data }) => {
+      console.log(`Received newState ${data}`);
+      const newStateArray = data.newState;
+
+      const state = {
+        playerAddrs: newStateArray[0],
+        stage: newStateArray[1],
+        salt: newStateArray[2],
+        commitHash: newStateArray[3],
+        playerFirstNumber:
+          this.highRollerState.playerFirstNumber || newStateArray[4],
+        playerSecondNumber: newStateArray[5]
+      };
+
+      console.log(`State ${state}`);
+
+      if (state.stage === 2) {
+        // Stage.COMMITTING_NUM
+        const numToCommit = Math.floor(Math.random() * Math.floor(1000));
+
+        const commitHashAction = {
+          number: numToCommit,
+          actionType: 2, // ActionType.COMMIT_TO_NUM
+          actionHash: HashZero
+        };
+
+        this.appInstance.takeAction(commitHashAction);
+      }
+    });
   });
 })();
