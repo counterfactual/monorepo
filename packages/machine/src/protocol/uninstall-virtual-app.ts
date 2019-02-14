@@ -1,18 +1,19 @@
-import { UninstallCommitment } from "@counterfactual/machine/src/ethereum";
-import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
-import { validateSignature } from "@counterfactual/machine/src/protocol/utils/signature-validator";
+import { ProtocolExecutionFlow } from "@counterfactual/machine/src";
 import {
   AssetType,
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
 
-import { ProtocolExecutionFlow, StateChannel, xkeyKthAddress } from "..";
 import { Opcode } from "../enums";
+import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
+import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
+import { xkeyKthAddress } from "../xkeys";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
+import { validateSignature } from "./utils/signature-validator";
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
