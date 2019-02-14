@@ -1,12 +1,13 @@
 import { UninstallCommitment } from "@counterfactual/machine/src/ethereum";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
+import { validateSignature } from "@counterfactual/machine/src/protocol/utils/signature-validator";
 import {
   AssetType,
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
 
-import { ProtocolExecutionFlow, StateChannel } from "..";
+import { ProtocolExecutionFlow, StateChannel, xkeyKthAddress } from "..";
 import { Opcode } from "../enums";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
@@ -37,7 +38,26 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // send M1, wait for M4
     Opcode.IO_SEND_AND_WAIT,
 
-    // TODO: Add signature verification
+    // verify M4
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        respondingXpub,
+        intermediaryXpub
+      } = message.params as UninstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(respondingXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature
+      );
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature2,
+        true
+      );
+    },
 
     addLeftUninstallAgreementToContext,
 
@@ -54,15 +74,22 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         seq: -1,
         fromAddress: initiatingXpub,
         toAddress: intermediaryXpub,
-        signature: context.signatures[0],
-        signature2: context.inbox[0].signature
+        signature: context.signatures[0]
       };
     },
 
     // send M5, wait for M6
     Opcode.IO_SEND_AND_WAIT,
 
-    // TODO: Add signature verification
+    // verify M6
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as UninstallVirtualAppParams;
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        context.inbox[1].signature
+      );
+    },
 
     removeVirtualAppInstance
 
@@ -72,7 +99,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   1: [
     addVirtualAppStateTransitionToContext,
 
-    // TODO: Signature verification
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[0],
+        message.signature
+      );
+    },
 
     Opcode.OP_SIGN_AS_INTERMEDIARY,
 
@@ -94,6 +127,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // send M2, wait for M3
     Opcode.IO_SEND_AND_WAIT,
+
+    // verify M3
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature
+      );
+    },
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -117,9 +159,17 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // send M4, wait for M5
     Opcode.IO_SEND_AND_WAIT,
 
-    // TODO: Add signature verification
-
     addLeftUninstallAgreementToContext,
+
+    // verify M5
+    (message: ProtocolMessage, context: Context) => {
+      // todo(xuanji): why does the message end up in inbox[1]?
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[0],
+        context.inbox[1].signature
+      );
+    },
 
     Opcode.OP_SIGN,
 
@@ -134,7 +184,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         seq: -1,
         fromAddress: intermediaryXpub,
         toAddress: initiatingXpub,
-        signature: context.signatures[2]
+        signature: context.signatures[0]
       };
     },
 
@@ -156,14 +206,23 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         seq: -1,
         fromAddress: intermediaryXpub,
         toAddress: respondingXpub,
-        signature: context.signatures[2]
+        signature: context.signatures[0]
       };
     },
 
     // send M7, wait for M8
     Opcode.IO_SEND_AND_WAIT,
 
-    // TODO: Add signature verification
+    // verify M8
+    (message: ProtocolMessage, context: Context) => {
+      console.log("inbox.length=", context.inbox.length);
+      const { respondingXpub } = message.params as UninstallVirtualAppParams;
+      validateSignature(
+        xkeyKthAddress(respondingXpub, 0),
+        context.commitments[0],
+        context.inbox[2].signature
+      );
+    },
 
     removeVirtualAppInstance
 
@@ -173,7 +232,25 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   2: [
     addVirtualAppStateTransitionToContext,
 
-    // TODO: Add signature verification
+    (message: ProtocolMessage, context: Context) => {
+      const {
+        intermediaryXpub,
+        initiatingXpub
+      } = message.params as UninstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(initiatingXpub, 0),
+        context.commitments[0],
+        message.signature
+      );
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        message.signature2,
+        true
+      );
+    },
 
     Opcode.OP_SIGN,
 
@@ -188,18 +265,24 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         seq: -1,
         fromAddress: respondingXpub,
         toAddress: intermediaryXpub,
-        signature: message.signature,
-        signature2: message.signature2,
-        signature3: context.signatures[0]
+        signature: context.signatures[0]
       };
     },
 
     // send M3, wait for M7
     Opcode.IO_SEND_AND_WAIT,
 
-    // TODO: Add signature verification
-
     addRightUninstallAgreementToContext,
+
+    // verify M7
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as UninstallVirtualAppParams;
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature
+      );
+    },
 
     Opcode.OP_SIGN,
 
@@ -214,8 +297,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         seq: -1,
         fromAddress: respondingXpub,
         toAddress: intermediaryXpub,
-        signature: context.signatures[0],
-        signature2: context.signatures[1]
+        signature: context.signatures[0]
       };
     },
 
@@ -279,7 +361,7 @@ function addVirtualAppStateTransitionToContext(
     targetAppInstance.identity,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
-    0
+    targetAppInstance.appSeqNo
   );
 }
 
