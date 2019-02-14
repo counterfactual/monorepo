@@ -10,7 +10,7 @@ import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedVirtualAppInstanceOnNode,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualProposalRequest,
   TEST_NETWORK
@@ -95,16 +95,16 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const multisigAddressAB = await getMultisigCreationTransactionHash(
+          nodeA,
+          [nodeA.publicIdentifier, nodeB.publicIdentifier]
+        );
         expect(multisigAddressAB).toBeDefined();
 
-        const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.publicIdentifier,
-          nodeC.publicIdentifier
-        ]);
+        const multisigAddressBC = await getMultisigCreationTransactionHash(
+          nodeB,
+          [nodeB.publicIdentifier, nodeC.publicIdentifier]
+        );
         expect(multisigAddressBC).toBeDefined();
 
         const intermediaries = [nodeB.publicIdentifier];

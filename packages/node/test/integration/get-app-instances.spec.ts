@@ -8,7 +8,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   getInstalledAppInstances,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallProposalRequest,
   TEST_NETWORK
 } from "./utils";
@@ -81,7 +81,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     // first, a channel must be opened for it to have an app instance
-    const multisigAddress = await getNewMultisig(nodeA, [
+    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);

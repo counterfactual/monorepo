@@ -7,7 +7,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeDepositRequest,
   makeWithdrawRequest,
   TEST_NETWORK
@@ -74,7 +74,7 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal", async () => {
-    const multisigAddress = await getNewMultisig(nodeA, [
+    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);

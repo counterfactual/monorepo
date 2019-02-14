@@ -24,7 +24,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallRequest,
   TEST_NETWORK
 } from "./utils";
@@ -112,7 +112,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
 
-      const multisigAddress = await getNewMultisig(nodeA, [
+      const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
       ]);

@@ -20,7 +20,7 @@ import {
   getApps,
   getInstalledAppInstanceInfo,
   getInstalledAppInstances,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
   makeInstallRequest,
@@ -92,10 +92,10 @@ describe("Node method follows spec - uninstall", () => {
     () => {
       it("sends proposal with non-null initial state", async done => {
         // A channel is first created between the two nodes
-        const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const multisigAddress = await getMultisigCreationTransactionHash(
+          nodeA,
+          [nodeA.publicIdentifier, nodeB.publicIdentifier]
+        );
         expect(multisigAddress).toBeDefined();
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);

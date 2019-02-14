@@ -17,7 +17,7 @@ import {
   confirmProposedVirtualAppInstanceOnNode,
   generateUninstallVirtualRequest,
   getApps,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualProposalRequest,
   makeInstallVirtualRequest,
@@ -103,16 +103,16 @@ describe("Node method follows spec - uninstall", () => {
       "then Node A uninstalls the installed AppInstance",
     () => {
       it("sends uninstall ", async done => {
-        const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const multisigAddressAB = await getMultisigCreationTransactionHash(
+          nodeA,
+          [nodeA.publicIdentifier, nodeB.publicIdentifier]
+        );
         expect(multisigAddressAB).toBeDefined();
 
-        const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.publicIdentifier,
-          nodeC.publicIdentifier
-        ]);
+        const multisigAddressBC = await getMultisigCreationTransactionHash(
+          nodeB,
+          [nodeB.publicIdentifier, nodeC.publicIdentifier]
+        );
         expect(multisigAddressBC).toBeDefined();
 
         const intermediaries = [nodeB.publicIdentifier];

@@ -7,7 +7,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallProposalRequest,
   TEST_NETWORK
 } from "./utils";
@@ -72,7 +72,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   });
 
   it("can accept a valid call to get the desired AppInstance details", async done => {
-    const multisigAddress = await getNewMultisig(nodeA, [
+    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);

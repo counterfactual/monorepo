@@ -15,7 +15,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   getFreeBalanceState,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeDepositRequest,
   TEST_NETWORK
 } from "./utils";
@@ -81,7 +81,7 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it("has the right balance for both parties after deposits", async () => {
-    const multisigAddress = await getNewMultisig(nodeA, [
+    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);

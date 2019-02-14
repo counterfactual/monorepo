@@ -64,10 +64,7 @@ export interface InstallVirtualMessage extends NodeMessage {
 }
 
 export interface CreateChannelMessage extends NodeMessage {
-  data: {
-    multisigAddress: Address;
-    params: Node.CreateChannelParams;
-  };
+  data: Node.CreateChannelResult;
 }
 
 export interface UpdateStateMessage extends NodeMessage {

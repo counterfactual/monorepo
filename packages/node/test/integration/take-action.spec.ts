@@ -27,7 +27,7 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateGetStateRequest,
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallRequest,
   TEST_NETWORK
 } from "./utils";
@@ -128,10 +128,10 @@ describe("Node method follows spec - takeAction", () => {
           }
         };
 
-        const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const multisigAddress = await getMultisigCreationTransactionHash(
+          nodeA,
+          [nodeA.publicIdentifier, nodeB.publicIdentifier]
+        );
         expect(multisigAddress).toBeDefined();
 
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(

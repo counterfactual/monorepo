@@ -27,7 +27,7 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateGetStateRequest,
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallVirtualRequest,
   TEST_NETWORK
 } from "./utils";
@@ -144,16 +144,16 @@ describe("Node method follows spec - takeAction virtual", () => {
           }
         };
 
-        const multisigAddressAB = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const multisigAddressAB = await getMultisigCreationTransactionHash(
+          nodeA,
+          [nodeA.publicIdentifier, nodeB.publicIdentifier]
+        );
         expect(multisigAddressAB).toBeDefined();
 
-        const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.publicIdentifier,
-          nodeC.publicIdentifier
-        ]);
+        const multisigAddressBC = await getMultisigCreationTransactionHash(
+          nodeB,
+          [nodeB.publicIdentifier, nodeC.publicIdentifier]
+        );
         expect(multisigAddressBC).toBeDefined();
 
         const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(

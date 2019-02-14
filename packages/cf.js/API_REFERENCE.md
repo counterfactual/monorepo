@@ -337,9 +337,10 @@ Params:
 
 Result:
 
-- `transactionHash: string`
-    - the hash of the multisig deployment transaction
-        - This can be used to either register a listener for when the transaction has been mined or await the mining.
+- `CreateChannelTransactionResult`
+    - `transactionHash: string`
+        - the hash of the multisig deployment transaction
+            - This can be used to either register a listener for when the transaction has been mined or await the mining.
 
 ### Method: `getChannelAddresses`
 
@@ -433,14 +434,17 @@ TODO
 
 ### Event: `createChannelEvent`
 
-Fired if a peer Node created a channel whose multisignature wallet's list of owners includes this (i.e. the receiving) Node's address.
+Fired when a Node receives a message about a recently-created channel whose multisignature wallet's list of owners includes this (i.e. the receiving) Node's address.
+
+Note: On the Node calling the creation of the channel, this event _must_ have a registered callback to receive the multisig address _before_ the channel creation call is made to prevent race conditions.
 
 Data:
 
-- `multisigAddress: Address`
-    - The address of the multisig that was created
-- `owners: Address[]`
-    - The list of multisig owners of the created channel
+- `CreateChannelResult`
+    - `multisigAddress: Address`
+        - The address of the multisig that was created
+    - `owners: Address[]`
+        - The list of multisig owners of the created channel
 
 
 Data Types

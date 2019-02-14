@@ -181,8 +181,12 @@ export namespace Node {
   export type CreateChannelParams = {
     owners: Address[];
   };
+  export type CreateChannelTransactionResult = {
+    transactionHash: string;
+  };
   export type CreateChannelResult = {
-    multisigAddress: Address;
+    multisigAddress: string;
+    owners: string[];
   };
 
   export type GetChannelAddressesParams = {};
