@@ -43,6 +43,26 @@ export async function ethAddressAlreadyRegistered(
   return userId.length > 0;
 }
 
+export async function usernameAlreadyRegistered(
+  username: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .select("id")
+    .where("username", username);
+
+  const userId: { id: string }[] = await query;
+
+  Log.debug("Executed usernameAlreadyRegistered query", {
+    tags: { query: query.toSQL().sql }
+  });
+
+  await db.destroy();
+
+  return userId.length > 0;
+}
+
 export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   const db = getDatabase();
 
@@ -125,8 +145,22 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
   });
 }
 
-export async function getUsers(filters: {}): Promise<User[]> {
+export async function getUsers(
+  filters: {},
+  fields: string[] = []
+): Promise<User[]> {
   const db = getDatabase();
+  let returnFields = fields;
+
+  if (!returnFields.length) {
+    returnFields = [
+      "username",
+      "email",
+      "ethAddress",
+      "multisigAddress",
+      "nodeAddress"
+    ];
+  }
 
   const users: KnexRecord[] = await db("users")
     .columns({
@@ -146,13 +180,9 @@ export async function getUsers(filters: {}): Promise<User[]> {
     (user: KnexRecord) =>
       new User({
         id: user.id,
-        attributes: {
-          username: user.username,
-          email: user.email,
-          ethAddress: user.ethAddress,
-          multisigAddress: user.multisigAddress,
-          nodeAddress: user.nodeAddress
-        }
+        attributes: returnFields
+          .map(field => ({ [field]: user[field] }))
+          .reduce((fieldA, fieldB) => ({ ...fieldA, ...fieldB }), {})
       })
   );
 }
@@ -234,10 +264,6 @@ export async function userExists(user: User): Promise<boolean> {
 }
 
 export async function createUser(user: User): Promise<User> {
-  if (await ethAddressAlreadyRegistered(String(user.attributes.ethAddress))) {
-    throw Errors.AddressAlreadyRegistered();
-  }
-
   const db = getDatabase();
 
   const id = generateUuid();
@@ -272,6 +298,31 @@ export async function createUser(user: User): Promise<User> {
     } else {
       throw e;
     }
+  }
+}
+
+export async function bindMultisigToUser(
+  user: User,
+  multisigAddress: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .where({ id: user.id })
+    .update("multisig_address", multisigAddress);
+
+  try {
+    await query;
+
+    Log.debug("Executed createUser query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
   }
 }
 

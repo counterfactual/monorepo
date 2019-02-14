@@ -150,8 +150,27 @@ export default class PlaygroundAPIClient {
   }
 
   public static async getUser(token: string): Promise<UserSession> {
+    if (!token) {
+      throw new Error("getUser(): token is required");
+    }
+
     try {
       const json = (await get("users/me", token)) as APIResponse;
+      const resource = json.data[0] as APIResource<UserAttributes>;
+
+      return fromAPIResource<UserSession, UserAttributes>(resource);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async getUserByNodeAddress(
+    ethAddress: string
+  ): Promise<UserSession> {
+    try {
+      const json = (await get(
+        `users?filter[node_address]=${ethAddress}`
+      )) as APIResponse;
       const resource = json.data[0] as APIResource<UserAttributes>;
 
       return fromAPIResource<UserSession, UserAttributes>(resource);

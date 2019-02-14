@@ -10,17 +10,17 @@ import {
   AppInstanceInfo,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
-  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
-  DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID,
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
-  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
+  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
+  DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
@@ -63,11 +63,20 @@ export class Store {
   public async getStateChannel(
     multisigAddress: Address
   ): Promise<StateChannel> {
-    return StateChannel.fromJson(
-      await this.storeService.get(
-        `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
-      )
+    const stateChannelJson = await this.storeService.get(
+      `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
     );
+
+    if (!stateChannelJson) {
+      return Promise.reject(
+        ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(
+          stateChannelJson,
+          multisigAddress
+        )
+      );
+    }
+
+    return StateChannel.fromJson(stateChannelJson);
   }
 
   /**
@@ -92,26 +101,7 @@ export class Store {
   public async getAppInstanceInfoFromAppInstance(
     appInstance: AppInstance
   ): Promise<AppInstanceInfo> {
-    return await this.getAppInstanceInfo(
-      await this.getAppInstanceIDFromAppInstanceIdentityHash(
-        appInstance.identityHash
-      )
-    );
-  }
-
-  /**
-   * Returns a string identifying the `AppInstanceId` that is mapped to
-   * the given `appInstanceIdentityHash`.
-   * @param appInstanceIdentityHash
-   */
-  public async getAppInstanceIDFromAppInstanceIdentityHash(
-    appInstanceIdentityHash: string
-  ): Promise<string> {
-    return this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${appInstanceIdentityHash}`
-    );
+    return await this.getAppInstanceInfo(appInstance.identityHash);
   }
 
   /**
@@ -123,6 +113,7 @@ export class Store {
     const ownersHash = hashOfOrderedPublicIdentifiers(
       stateChannel.userNeuteredExtendedKeys
     );
+
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
@@ -148,10 +139,7 @@ export class Store {
     newState: SolidityABIEncoderV2Struct
   ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
-    const updatedChannel = await channel.setState(
-      await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId),
-      newState
-    );
+    const updatedChannel = await channel.setState(appInstanceId, newState);
     await this.saveStateChannel(updatedChannel);
   }
 
@@ -164,24 +152,9 @@ export class Store {
    * @param appInstanceInfo
    */
   public async saveRealizedProposedAppInstance(
-    appInstanceIdentityHash: string,
-    appInstanceInfo: AppInstanceInfo
+    appInstanceInfo: ProposedAppInstanceInfo
   ) {
     await this.storeService.set([
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${
-          appInstanceInfo.id
-        }`,
-        value: appInstanceIdentityHash
-      },
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID}/${appInstanceIdentityHash}`,
-        value: appInstanceInfo.id
-      },
       {
         key: `${
           this.storeKeyPrefix
@@ -231,6 +204,44 @@ export class Store {
     ]);
   }
 
+  public async addVirtualAppInstanceProposal(
+    proposedAppInstance: ProposedAppInstanceInfo
+  ) {
+    const sortedXpubs = [
+      proposedAppInstance.proposedToIdentifier,
+      proposedAppInstance.proposedByIdentifier
+    ].sort();
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+          proposedAppInstance.id
+        }`,
+        value: proposedAppInstance.toJson()
+      },
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
+          proposedAppInstance.id
+        }`,
+        value: keccak256(
+          defaultAbiCoder.encode(
+            ["string", "string", "string"],
+            [
+              proposedAppInstance.intermediaries![0],
+              // Ordered as [0: to, 1: by] because when executed, it is "to"
+              // that becomes initiatingAddress / the idx 0 in compute-virtual-key
+              sortedXpubs[0],
+              sortedXpubs[1]
+            ]
+          )
+        )
+      }
+    ]);
+  }
+
   public async removeAppInstanceProposal(appInstanceId: string) {
     await this.storeService.set([
       {
@@ -259,6 +270,7 @@ export class Store {
 
     if (!appInstanceInfo) {
       return Promise.reject(
+        // FIXME: Errors should be functions with parameters
         `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
       );
     }
@@ -306,17 +318,19 @@ export class Store {
   public async getProposedAppInstanceInfo(
     appInstanceId: string
   ): Promise<ProposedAppInstanceInfo> {
-    const proposedAppInstance = await this.storeService.get(
+    const proposedAppInstanceInfo = await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
-    if (!proposedAppInstance) {
+
+    if (!proposedAppInstanceInfo) {
       return Promise.reject(
-        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
+        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
-    return ProposedAppInstanceInfo.fromJson(proposedAppInstance);
+
+    return ProposedAppInstanceInfo.fromJson(proposedAppInstanceInfo);
   }
 
   /**
@@ -328,10 +342,34 @@ export class Store {
     const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
       appInstanceId
     );
+
     if (!multisigAddress) {
       return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
+
     return await this.getStateChannel(multisigAddress);
+  }
+
+  public async getWithdrawalCommitment(multisigAddress: string) {
+    return this.storeService.get(
+      [this.storeKeyPrefix, DB_NAMESPACE_WITHDRAWALS, multisigAddress].join("/")
+    );
+  }
+
+  public async storeWithdrawalCommitment(
+    multisigAddress: string,
+    commitment: Transaction
+  ) {
+    return this.storeService.set([
+      {
+        key: [
+          this.storeKeyPrefix,
+          DB_NAMESPACE_WITHDRAWALS,
+          multisigAddress
+        ].join("/"),
+        value: commitment
+      }
+    ]);
   }
 
   public async setCommitmentForAppIdentityHash(
@@ -403,28 +441,10 @@ export class Store {
     ].join("/");
   }
 
-  /**
-   * Returns a string identifying the `AppInstanceIdentityHash` that is mapped to
-   * the given `appInstanceId`.
-   * @param appInstanceId
-   */
-  public async getAppInstanceIdentityHashFromAppInstanceId(
-    appInstanceId: string
-  ): Promise<string> {
-    return this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH}/${appInstanceId}`
-    );
-  }
-
   public async getAppInstanceFromAppInstanceID(
     appInstanceId: string
   ): Promise<AppInstance> {
-    return (await this.getChannelFromAppInstanceID(
-      appInstanceId
-    )).getAppInstance(
-      await this.getAppInstanceIdentityHashFromAppInstanceId(appInstanceId)
-    );
+    const channel = await this.getChannelFromAppInstanceID(appInstanceId);
+    return channel.getAppInstance(appInstanceId);
   }
 }

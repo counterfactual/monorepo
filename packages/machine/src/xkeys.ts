@@ -10,7 +10,7 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
  * BIP-44 specifies that if the purpose is 44, then the format is "m / purpose' / cointype' / account' / change / index"
  */
 
-function sortAddresses(addrs: string[]): string[] {
+export function sortAddresses(addrs: string[]): string[] {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
 

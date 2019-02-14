@@ -6,7 +6,7 @@ import {
   Terms
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { BigNumber, Interface } from "ethers/utils";
+import { BigNumber, getAddress, Interface } from "ethers/utils";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -26,7 +26,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
-    public readonly expiry: BigNumber,
+    public readonly expiryBlock: BigNumber,
     public readonly capitalProvided: BigNumber,
     public readonly beneficiaries: string[],
     public readonly uninstallKey: string
@@ -41,17 +41,9 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       freeBalanceNonce,
       freeBalanceTimeout
     );
-  }
-
-  public eachMultisigInput() {
-    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
-  }
-
-  private conditionalTransactionInput(): MultisigTransaction {
     if (this.networkContext.ETHVirtualAppAgreement === undefined) {
       throw Error("undefined ETHVirtualAppAgreement");
     }
-
     if (this.beneficiaries.length !== 2) {
       throw Error(
         `ETHVirtualAppAgreement currently only supports 2 beneficiaries but got ${
@@ -59,7 +51,15 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
         }`
       );
     }
+    // normalize addresses and fail early on any invalid addresses
+    this.beneficiaries = this.beneficiaries.map(getAddress);
+  }
 
+  public eachMultisigInput() {
+    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
+  }
+
+  private conditionalTransactionInput(): MultisigTransaction {
     return {
       to: this.networkContext.ETHVirtualAppAgreement,
       value: 0,
@@ -72,7 +72,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
             limit: new BigNumber(0),
             token: AddressZero
           },
-          expiry: this.expiry,
+          expiry: this.expiryBlock,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,
           beneficiaries: this.beneficiaries,

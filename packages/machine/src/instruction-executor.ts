@@ -13,7 +13,9 @@ import {
   ProtocolMessage,
   SetupParams,
   UninstallParams,
-  UpdateParams
+  UninstallVirtualAppParams,
+  UpdateParams,
+  WithdrawParams
 } from "./types";
 
 export class InstructionExecutor {
@@ -53,8 +55,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
+      fromAddress: params.initiatingXpub,
+      toAddress: params.respondingXpub
     });
   }
 
@@ -67,8 +69,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
+      fromAddress: params.initiatingXpub,
+      toAddress: params.respondingXpub
     });
   }
 
@@ -81,8 +83,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.respondingAddress
+      fromAddress: params.initiatingXpub,
+      toAddress: params.respondingXpub
     });
   }
 
@@ -95,8 +97,23 @@ export class InstructionExecutor {
         protocol,
         params,
         seq: 0,
-        fromAddress: params.initiatingAddress,
-        toAddress: params.respondingAddress
+        fromAddress: params.initiatingXpub,
+        toAddress: params.respondingXpub
+      }
+    );
+  }
+
+  public async runWithdrawProtocol(sc: StateChannel, params: WithdrawParams) {
+    const protocol = Protocol.Withdraw;
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
+      getProtocolFromName(protocol)[0],
+      {
+        protocol,
+        params,
+        seq: 0,
+        fromAddress: params.initiatingXpub,
+        toAddress: params.respondingXpub
       }
     );
   }
@@ -110,8 +127,22 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingAddress,
-      toAddress: params.intermediaryAddress
+      fromAddress: params.initiatingXpub,
+      toAddress: params.intermediaryXpub
+    });
+  }
+
+  public async runUninstallVirtualAppProtocol(
+    sc: Map<string, StateChannel>,
+    params: UninstallVirtualAppParams
+  ) {
+    const protocol = Protocol.UninstallVirtualApp;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      seq: 0,
+      fromAddress: params.initiatingXpub,
+      toAddress: params.intermediaryXpub
     });
   }
 

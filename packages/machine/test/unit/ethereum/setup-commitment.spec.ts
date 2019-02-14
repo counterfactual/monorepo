@@ -33,8 +33,8 @@ describe("SetupCommitment", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: fromSeed(hexlify(randomBytes(32))).extendedKey,
-    receiver: fromSeed(hexlify(randomBytes(32))).extendedKey
+    sender: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
+    receiver: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
   };
 
   // State channel testing values

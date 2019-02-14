@@ -23,7 +23,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -126,6 +126,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
               nodeA,
               APP_INSTANCE_STATUS.INSTALLED
             ))[0];
+
             const virtualAppInstanceNodeC = (await getApps(
               nodeC,
               APP_INSTANCE_STATUS.INSTALLED

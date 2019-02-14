@@ -5,11 +5,13 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
+  ETHBucketAppState,
   NetworkContext,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { Node } from "../../src";
@@ -88,6 +90,22 @@ export async function getProposedAppInstanceInfo(
   })[0];
 }
 
+export async function getFreeBalanceState(
+  node: Node,
+  multisigAddress: string
+): Promise<ETHBucketAppState> {
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+    params: {
+      multisigAddress
+    }
+  };
+  const response = await node.call(req.type, req);
+  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
+  return result.state;
+}
+
 export async function getApps(
   node: Node,
   appInstanceStatus: APP_INSTANCE_STATUS
@@ -113,6 +131,34 @@ export async function getApps(
   response = await node.call(request.type, request);
   result = response.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
+}
+
+export function makeDepositRequest(
+  multisigAddress: string,
+  amount: BigNumber
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.DEPOSIT,
+    params: {
+      multisigAddress,
+      amount
+    } as NodeTypes.DepositParams
+  };
+}
+
+export function makeWithdrawRequest(
+  multisigAddress: string,
+  amount: BigNumber
+): NodeTypes.MethodRequest {
+  return {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.WITHDRAW,
+    params: {
+      multisigAddress,
+      amount
+    } as NodeTypes.WithdrawParams
+  };
 }
 
 export function makeInstallRequest(
@@ -211,19 +257,23 @@ export function makeInstallVirtualProposalRequest(
 
 /**
  * @param proposalParams The parameters of the installation proposal.
- * @param proposedAppInstance The proposed app instance contained in the Node.
+ * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
  */
 export function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo
+  proposedAppInstanceInfo: AppInstanceInfo
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
-  expect(proposalParams.abiEncodings).toEqual(proposedAppInstance.abiEncodings);
-  expect(proposalParams.appId).toEqual(proposedAppInstance.appId);
-  expect(proposalParams.asset).toEqual(proposedAppInstance.asset);
-  expect(proposalParams.myDeposit).toEqual(proposedAppInstance.myDeposit);
-  expect(proposalParams.peerDeposit).toEqual(proposedAppInstance.peerDeposit);
-  expect(proposalParams.timeout).toEqual(proposedAppInstance.timeout);
+  expect(proposalParams.abiEncodings).toEqual(
+    proposedAppInstanceInfo.abiEncodings
+  );
+  expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
+  expect(proposalParams.asset).toEqual(proposedAppInstanceInfo.asset);
+  expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
+  expect(proposalParams.peerDeposit).toEqual(
+    proposedAppInstanceInfo.peerDeposit
+  );
+  expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
@@ -286,5 +336,19 @@ export function generateUninstallRequest(
     } as NodeTypes.UninstallParams,
     requestId: generateUUID(),
     type: NodeTypes.MethodName.UNINSTALL
+  };
+}
+
+export function generateUninstallVirtualRequest(
+  appInstanceId: AppInstanceID,
+  intermediaryIdentifier: string
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      appInstanceId,
+      intermediaryIdentifier
+    } as NodeTypes.UninstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.UNINSTALL_VIRTUAL
   };
 }

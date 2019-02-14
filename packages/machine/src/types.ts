@@ -69,22 +69,30 @@ export type ProtocolMessage = {
 };
 
 export type SetupParams = {
-  initiatingAddress: string;
-  respondingAddress: string;
+  initiatingXpub: string;
+  respondingXpub: string;
   multisigAddress: string;
 };
 
 export type UpdateParams = {
-  initiatingAddress: string;
-  respondingAddress: string;
+  initiatingXpub: string;
+  respondingXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
   newState: SolidityABIEncoderV2Struct;
 };
 
+export type WithdrawParams = {
+  initiatingXpub: string;
+  respondingXpub: string;
+  multisigAddress: string;
+  recipient: string;
+  amount: BigNumber;
+};
+
 export type InstallParams = {
-  initiatingAddress: string;
-  respondingAddress: string;
+  initiatingXpub: string;
+  respondingXpub: string;
   multisigAddress: string;
   aliceBalanceDecrement: BigNumber;
   bobBalanceDecrement: BigNumber;
@@ -97,18 +105,17 @@ export type InstallParams = {
 
 export type UninstallParams = {
   appIdentityHash: string;
-  initiatingAddress: string;
-  respondingAddress: string;
+  initiatingXpub: string;
+  respondingXpub: string;
   multisigAddress: string;
   aliceBalanceIncrement: BigNumber;
   bobBalanceIncrement: BigNumber;
 };
 
 export type InstallVirtualAppParams = {
-  initiatingAddress: string;
-  respondingAddress: string;
-  intermediaryAddress: string;
-  signingKeys: string[];
+  initiatingXpub: string;
+  respondingXpub: string;
+  intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: SolidityABIEncoderV2Struct;
@@ -116,11 +123,22 @@ export type InstallVirtualAppParams = {
   respondingBalanceDecrement: BigNumber;
 };
 
+export type UninstallVirtualAppParams = {
+  initiatingXpub: string;
+  respondingXpub: string;
+  intermediaryXpub: string;
+  targetAppIdentityHash: string;
+  initiatingBalanceIncrement: BigNumber;
+  respondingBalanceIncrement: BigNumber;
+};
+
 export type ProtocolParameters =
   | SetupParams
   | UpdateParams
   | InstallParams
   | UninstallParams
-  | InstallVirtualAppParams;
+  | WithdrawParams
+  | InstallVirtualAppParams
+  | UninstallVirtualAppParams;
 
 export { Transaction };

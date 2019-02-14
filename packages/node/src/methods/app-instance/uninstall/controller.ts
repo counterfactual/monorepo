@@ -12,15 +12,25 @@ export default async function uninstallController(
   params: Node.UninstallParams
 ): Promise<Node.UninstallResult> {
   const { appInstanceId } = params;
+
   if (!appInstanceId) {
     return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
   }
 
-  const appInstanceInfo = await requestHandler.store.getAppInstanceInfo(
+  const stateChannel = await requestHandler.store.getChannelFromAppInstanceID(
     appInstanceId
   );
-  const updatedChannel = await uninstallAppInstanceFromChannel(
+
+  const to = getCounterpartyAddress(
+    requestHandler.publicIdentifier,
+    stateChannel.userNeuteredExtendedKeys
+  );
+
+  await uninstallAppInstanceFromChannel(
     requestHandler.store,
+    requestHandler.instructionExecutor,
+    requestHandler.publicIdentifier,
+    to,
     appInstanceId
   );
 
@@ -28,19 +38,9 @@ export default async function uninstallController(
     from: requestHandler.publicIdentifier,
     type: NODE_EVENTS.UNINSTALL,
     data: {
-      appInstance: appInstanceInfo
+      appInstanceId
     }
   };
-
-  // TODO: the next two statements should be synchronized so that the other party
-  // receives an uninstall message iff the uninstall initiator can successfully
-  // uninstall the AppInstance
-  await requestHandler.store.saveStateChannel(updatedChannel);
-
-  const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
-    appInstanceInfo.proposedByIdentifier,
-    appInstanceInfo.proposedToIdentifier
-  ]);
 
   await requestHandler.messagingService.send(to, uninstallMsg);
 

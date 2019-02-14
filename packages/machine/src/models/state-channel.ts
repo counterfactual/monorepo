@@ -29,6 +29,8 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
+const NONCE_EXPIRY = 65536;
+
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
     `Expected the appInstances list to be empty but size ${size}`,
@@ -112,7 +114,15 @@ export class StateChannel {
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0
-  ) {}
+  ) {
+    userNeuteredExtendedKeys.forEach(xpub => {
+      if (xpub.slice(0, 4) !== "xpub") {
+        throw Error(
+          `StateChannel constructor given invalid extended keys: ${userNeuteredExtendedKeys}`
+        );
+      }
+    });
+  }
 
   public get multisigOwners() {
     return this.getSigningKeysFor(0);
@@ -135,6 +145,28 @@ export class StateChannel {
 
   public hasAppInstance(appInstanceId: string): boolean {
     return this.appInstances.has(appInstanceId);
+  }
+
+  public hasAppInstanceOfKind(address: string): boolean {
+    return (
+      Array.from(this.appInstances.values()).filter(
+        (appInstance: AppInstance) => {
+          return appInstance.appInterface.addr === address;
+        }
+      ).length > 0
+    );
+  }
+
+  public getAppInstanceOfKind(address: string) {
+    const appInstances = Array.from(this.appInstances.values()).filter(
+      (appInstance: AppInstance) => {
+        return appInstance.appInterface.addr === address;
+      }
+    );
+    if (appInstances.length !== 1) {
+      throw Error(`No AppInstance of addr ${address} exists on this channel`);
+    }
+    return appInstances[0];
   }
 
   public appInstanceIsFreeBalance(appInstanceId: string): boolean {
@@ -183,6 +215,44 @@ export class StateChannel {
     };
 
     return AppInstance.fromJson(appInstanceJson);
+  }
+
+  public getFreeBalanceAddrOf(xpub: string, assetType: AssetType): string {
+    const [alice, bob] = this.getFreeBalanceFor(assetType).signingKeys;
+
+    const topLevelKey = xkeyKthAddress(xpub, 0);
+
+    if (topLevelKey !== alice && topLevelKey !== bob) {
+      throw Error(
+        `getFreeBalanceAddrOf received invalid xpub without free balance account: ${xpub}`
+      );
+    }
+
+    return topLevelKey;
+  }
+
+  public incrementFreeBalance(
+    assetType: AssetType,
+    increments: { [s: string]: BigNumber }
+  ) {
+    const freeBalance = this.getFreeBalanceFor(assetType);
+    const freeBalanceState = freeBalance.state;
+
+    for (const beneficiary in increments) {
+      if (beneficiary === freeBalanceState.alice) {
+        freeBalanceState.aliceBalance = bigNumberify(
+          increments[beneficiary]
+        ).add(freeBalanceState.aliceBalance);
+      } else if (beneficiary === freeBalanceState.bob) {
+        freeBalanceState.bobBalance = bigNumberify(increments[beneficiary]).add(
+          freeBalanceState.bobBalance
+        );
+      } else {
+        throw Error(`No such beneficiary ${beneficiary} found`);
+      }
+    }
+
+    return this.setState(freeBalance.identityHash, freeBalanceState);
   }
 
   public setFreeBalance(
@@ -245,6 +315,13 @@ export class StateChannel {
   }
 
   public addVirtualAppInstance(appInstance: AppInstance) {
+    if (appInstance.appSeqNo !== this.numInstalledApps) {
+      throw Error(
+        `Tried to install app with sequence number ${
+          appInstance.appSeqNo
+        } into channel with ${this.numInstalledApps} active apps`
+      );
+    }
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
@@ -253,10 +330,11 @@ export class StateChannel {
 
     return new StateChannel(
       this.multisigAddress,
-      this.multisigOwners,
+      this.userNeuteredExtendedKeys,
       appInstances,
       this.ethVirtualAppAgreementInstances,
-      this.freeBalanceAppIndexes
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps + 1
     );
   }
 
@@ -271,6 +349,28 @@ export class StateChannel {
     );
 
     appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    );
+  }
+
+  public lockAppInstance(appInstanceIdentityHash: string) {
+    const appInstance = this.getAppInstance(appInstanceIdentityHash);
+
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.set(
+      appInstanceIdentityHash,
+      appInstance.lockState(NONCE_EXPIRY)
+    );
 
     return new StateChannel(
       this.multisigAddress,
@@ -329,6 +429,48 @@ export class StateChannel {
     );
   }
 
+  public uninstallETHVirtualAppAgreementInstance(
+    targetIdentityHash: string,
+    increments: { [address: string]: BigNumber }
+  ) {
+    const ethVirtualAppAgreementInstances = new Map<
+      string,
+      ETHVirtualAppAgreementInstance
+    >(this.ethVirtualAppAgreementInstances.entries());
+
+    if (!ethVirtualAppAgreementInstances.delete(targetIdentityHash)) {
+      throw Error(
+        `cannot find agreement with target hash ${targetIdentityHash}`
+      );
+    }
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    ).incrementFreeBalance(AssetType.ETH, increments);
+  }
+
+  public removeVirtualApp(targetIdentityHash: string) {
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.delete(targetIdentityHash);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.ethVirtualAppAgreementInstances,
+      this.freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps
+    );
+  }
+
   public installApp(
     appInstance: AppInstance,
     aliceBalanceDecrement: BigNumber,
@@ -382,6 +524,9 @@ export class StateChannel {
     );
   }
 
+  /// todo(xuanji): refactor this so that the public API does not expose
+  /// {alice,bob}BalanceIncrement, since this often requires the caller to sort
+  /// addresses
   public uninstallApp(
     appInstanceIdentityHash: string,
     aliceBalanceIncrement: BigNumber,
@@ -389,6 +534,14 @@ export class StateChannel {
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
+
+    if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
+      throw Error(
+        `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${
+          appToBeUninstalled.identityHash
+        }`
+      );
+    }
 
     const currentState = fb.state as ETHBucketAppState;
 
@@ -399,7 +552,11 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    appInstances.delete(appToBeUninstalled.identityHash);
+    if (!appInstances.delete(appToBeUninstalled.identityHash)) {
+      throw Error(
+        `Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`
+      );
+    }
 
     appInstances.set(
       fb.identityHash,
@@ -413,6 +570,19 @@ export class StateChannel {
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps
+    );
+  }
+
+  public getETHVirtualAppAgreementInstanceFromTarget(
+    target: string
+  ): ETHVirtualAppAgreementInstance {
+    for (const [{}, instance] of this.ethVirtualAppAgreementInstances) {
+      if (instance.targetAppIdentityHash === target) {
+        return instance;
+      }
+    }
+    throw Error(
+      `Could not find any eth virtual app agreements with target ${target}`
     );
   }
 

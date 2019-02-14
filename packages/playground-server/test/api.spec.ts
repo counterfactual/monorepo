@@ -11,11 +11,12 @@ import { readFileSync } from "fs";
 import { Server } from "http";
 import { Log, LogLevel } from "logepi";
 import { resolve } from "path";
+import { v4 as generateUUID } from "uuid";
 
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import NodeWrapper from "../src/node";
+import NodeWrapper, { serviceFactory } from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
@@ -72,7 +73,8 @@ describe("playground-server", () => {
       "ganache",
       NETWORK_CONTEXT,
       provider,
-      global["pgMnemonic"]
+      global["pgMnemonic"],
+      serviceFactory.createStoreService(generateUUID())
     );
 
     nodeAlice = await NodeWrapper.createNode(
@@ -183,7 +185,7 @@ describe("playground-server", () => {
       done();
     });
 
-    it("creates an account for the first time and returns 201 + the multisig address", async done => {
+    it("creates an account for the first time and returns 201, without the multisig address", async done => {
       jest.setTimeout(10000);
       const response = await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
@@ -202,13 +204,13 @@ describe("playground-server", () => {
       expect(data.attributes.email).toEqual(aliceUser.email);
       expect(data.attributes.ethAddress).toEqual(aliceUser.ethAddress);
       expect(data.attributes.nodeAddress).toEqual(aliceUser.nodeAddress);
-      expect(data.attributes.multisigAddress).toBeDefined();
+      expect(data.attributes.multisigAddress).not.toBeDefined();
       expect(data.attributes.token).toBeDefined();
       expect(response.status).toEqual(HttpStatusCode.Created);
       done();
     });
 
-    it("creates an account for the second time with the same address and returns HttpStatusCode.BadRequest", async done => {
+    it("creates an account for the second time, fails for duplicate data and returns HttpStatusCode.BadRequest", async done => {
       await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
@@ -218,7 +220,7 @@ describe("playground-server", () => {
             errors: [
               {
                 status: HttpStatusCode.BadRequest,
-                code: Errors.AddressAlreadyRegistered().code
+                code: Errors.UsernameAlreadyExists().code
               }
             ]
           } as JsonApiErrorsDocument);
@@ -356,7 +358,7 @@ describe("playground-server", () => {
       await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
 
       const response = await client
-        .get("/users", {
+        .get("/users/me", {
           headers: {
             Authorization: `Bearer ${TOKEN_BOB}`
           }

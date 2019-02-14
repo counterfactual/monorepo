@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers/utils";
 
+import { ETHBucketAppState } from ".";
 import {
   AppABIEncodings,
   AppInstanceInfo,
@@ -36,20 +37,24 @@ export namespace Node {
   export enum MethodName {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
+    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
     PROPOSE_INSTALL = "proposeInstall",
     PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
+    WITHDRAW = "withdraw",
     GET_STATE = "getState",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
     CREATE_CHANNEL = "createChannel",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
+    DEPOSIT = "deposit"
   }
 
   // The events that cf.js clients can listen on
@@ -60,10 +65,40 @@ export namespace Node {
     REJECT_INSTALL = "rejectInstallEvent",
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",
+    UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
+    WITHDRAW = "withdrawEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_CHANNEL = "createChannelEvent"
+    CREATE_CHANNEL = "createChannelEvent",
+    DEPOSIT_STARTED = "depositStartedEvent",
+    DEPOSIT_CONFIRMED = "depositConfirmedEvent",
+    DEPOSIT_FAILED = "depositFailed",
+    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed"
   }
+
+  export type DepositParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+  };
+  export type DepositResult = {
+    multisigBalance: BigNumber;
+  };
+
+  export type WithdrawParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+  };
+  export type WithdrawResult = {
+    amount: BigNumber;
+  };
+
+  export type GetFreeBalanceStateParams = {
+    multisigAddress: string;
+  };
+
+  export type GetFreeBalanceStateResult = {
+    state: ETHBucketAppState;
+  };
 
   export type GetAppInstancesParams = {};
   export type GetProposedAppInstancesParams = {};
@@ -138,6 +173,11 @@ export namespace Node {
   };
   export type UninstallResult = {};
 
+  export type UninstallVirtualParams = UninstallParams & {
+    intermediaryIdentifier: string;
+  };
+  export type UninstallVirtualResult = UninstallResult;
+
   export type CreateChannelParams = {
     owners: Address[];
   };
@@ -192,7 +232,10 @@ export namespace Node {
     action?: AppAction;
   };
   export type UninstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstanceId: string;
+  };
+  export type WithdrawEventData = {
+    amount: BigNumber;
   };
   export type CreateMultisigEventData = {
     owners: Address[];

@@ -1,6 +1,6 @@
 import { StateChannel } from "@counterfactual/machine";
 import { Address } from "@counterfactual/types";
-import { hashMessage } from "ethers/utils";
+import { BigNumber, hashMessage } from "ethers/utils";
 
 import { Store } from "./store";
 
@@ -39,6 +39,16 @@ export async function getChannelFromPeerAddress(
   return await store.getStateChannel(multisigAddress);
 }
 
+export async function getPeersAddressFromChannel(
+  myIdentifier: string,
+  store: Store,
+  multisigAddress: string
+): Promise<Address[]> {
+  const stateChannel = await store.getStateChannel(multisigAddress);
+  const owners = stateChannel.userNeuteredExtendedKeys;
+  return owners.filter(owner => owner !== myIdentifier);
+}
+
 export async function getPeersAddressFromAppInstanceID(
   myIdentifier: Address,
   store: Store,
@@ -47,9 +57,14 @@ export async function getPeersAddressFromAppInstanceID(
   const multisigAddress = await store.getMultisigAddressFromAppInstanceID(
     appInstanceId
   );
-  const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== myIdentifier);
+
+  if (!multisigAddress) {
+    throw new Error(
+      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+    );
+  }
+
+  return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
 }
 
 export function isNotDefinedOrEmpty(str?: string) {
@@ -63,4 +78,15 @@ export function getCounterpartyAddress(
   return appInstanceAddresses.filter(address => {
     return address !== myIdentifier;
   })[0];
+}
+
+export function getBalanceIncrement(
+  beforeDeposit: BigNumber,
+  afterDeposit: BigNumber
+): BigNumber {
+  return afterDeposit.sub(beforeDeposit);
+}
+
+export function getAlice(channel: StateChannel): string {
+  return channel.multisigOwners[0];
 }

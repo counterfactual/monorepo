@@ -1,9 +1,15 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
+import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function configureNetworkContext(wallet: Wallet) {
+  const balanceRefundContract = await new ContractFactory(
+    BalanceRefundApp.abi,
+    BalanceRefundApp.bytecode,
+    wallet
+  ).deploy();
   const mvmContract = await new ContractFactory(
     MinimumViableMultisig.abi,
     MinimumViableMultisig.bytecode,
@@ -21,6 +27,7 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
+    ETHBalanceRefundApp: balanceRefundContract.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToe: tttContract.address

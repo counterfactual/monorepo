@@ -8,9 +8,18 @@ export type AccountState = {
   accountBalance?: number;
   balance?: number;
   unconfirmedBalance?: number;
-  updateAccount?(data: AccountState): Promise<void>;
   provider: Web3Provider;
   signer: Signer;
+  pendingAccountFunding?: any;
+
+  updateAccount?(data: AccountState): Promise<void>;
+  login?(): Promise<UserSession>;
+  getBalances?(): Promise<
+    { balance: number; accountBalance: number } | undefined
+  >;
+  deposit?(value: any): Promise<void>;
+  waitForMultisig?(): void;
+  autoLogin?(): Promise<void>;
 };
 
 export default createProviderConsumer<AccountState>(

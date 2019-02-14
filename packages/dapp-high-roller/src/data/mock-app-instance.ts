@@ -98,10 +98,16 @@ export class AppInstance {
    *
    * @async
    */
-  async uninstall() {
-    await this.provider.callRawNodeMethod(Node.MethodName.UNINSTALL, {
-      appInstanceId: this.id
-    });
+  async uninstall(intermediary?: string) {
+    await this.provider.callRawNodeMethod(
+      intermediary
+        ? Node.MethodName.UNINSTALL_VIRTUAL
+        : Node.MethodName.UNINSTALL,
+      {
+        appInstanceId: this.id,
+        intermediaryIdentifier: intermediary
+      }
+    );
   }
 
   /**
