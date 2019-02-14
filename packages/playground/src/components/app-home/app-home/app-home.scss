@@ -14,9 +14,35 @@ button {
   transition: all .15s ease;
   cursor: pointer;
 }
-  
+
 button:hover {
   box-shadow: 0 3px 6px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.1);
   transform: translateY(1px);
 }
 
+.fill {
+  min-height: 100%;
+  height: 100%;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #555555
+  }
+}

@@ -8,6 +8,16 @@
   }
 }
 
+.message-container {
+  width: 100%;
+  background-color: $c-white;
+  border: 1px solid $c-red;
+  border-radius: 4px;
+  color: $c-red;
+  padding: $rhythm;
+}
+
+
 .info-container {
   display: flex;
 

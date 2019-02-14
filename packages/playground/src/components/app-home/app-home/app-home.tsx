@@ -2,6 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AppRegistryTunnel from "../../../data/app-registry";
+import NetworkTunnel from "../../../data/network";
 import { AppDefinition } from "../../../types";
 
 @Component({
@@ -14,6 +15,7 @@ export class AppHome {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() apps: AppDefinition[] = [];
+  @Prop() web3Detected: boolean = false;
   @State() runningApps: AppDefinition[] = [];
 
   appClickedHandler(e) {
@@ -29,15 +31,26 @@ export class AppHome {
     return (
       <node-listener history={this.history}>
         <layout-header />
-        <section class="section">
-          <div class="container">
-            <apps-list
-              apps={this.apps}
-              onAppClicked={e => this.appClickedHandler(e)}
-              name="Available Apps"
-            />
-            {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
-          </div>
+        <section class="section fill">
+          {this.web3Detected ? (
+            <div class="container">
+              <apps-list
+                apps={this.apps}
+                onAppClicked={e => this.appClickedHandler(e)}
+                name="Available Apps"
+              />
+            </div>
+          ) : (
+            <div class="error-message">
+              <h1>404: Wallet Not Found :(</h1>
+              <h2>
+                This demo has been designed to be used with a Web3-compatible
+                wallet such as <a href="https://metamask.io/">Metamask</a> to
+                function. Please enable or download one to continue!
+              </h2>
+            </div>
+          )}
+          {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
         </section>
       </node-listener>
     );
@@ -45,3 +58,5 @@ export class AppHome {
 }
 
 AppRegistryTunnel.injectProps(AppHome, ["apps"]);
+
+NetworkTunnel.injectProps(AppHome, ["web3Detected"]);
