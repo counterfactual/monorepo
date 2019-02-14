@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -210,21 +211,22 @@ export class AppRoot {
   }
 
   async deposit(value) {
-    const { user, signer, provider } = this.accountState;
-
-    const tx = {
-      value,
-      to: user.multisigAddress
-    };
-
-    await signer.sendTransaction({
-      ...tx,
-      gasPrice: await provider.estimateGas(tx)
-    });
+    const { user } = this.accountState;
+    const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
       ...this.accountState,
       unconfirmedBalance: parseFloat(ethers.utils.formatEther(value))
+    });
+
+    return node.call(Node.MethodName.DEPOSIT, {
+      type: Node.MethodName.DEPOSIT,
+      requestId: window["uuid"](),
+      params: {
+        multisigAddress: user.multisigAddress,
+        amount: value,
+        notifyCounterparty: true
+      } as Node.DepositParams
     });
   }
 
@@ -262,12 +264,14 @@ export class AppRoot {
   }
 
   async confirmDepositInitialFunding(pendingAccountFunding) {
+    this.modal = {};
+
     await this.deposit(pendingAccountFunding);
+
     this.updateAccount({
       ...this.accountState,
       pendingAccountFunding: undefined
     });
-    this.modal = {};
   }
 
   async autoLogin() {
