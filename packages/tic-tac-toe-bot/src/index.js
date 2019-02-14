@@ -127,10 +127,28 @@ const BOT_USER = {
 const storePath = path.resolve(__dirname, 'store.json');
 
 class JsonFileStoreService {
-  get(key) {
-    return Promise.resolve(JSON.parse(fs.readFileSync(storePath))[key]);
+  async get(desiredKey) {
+    const data = JSON.parse(fs.readFileSync(storePath));
+    const entries = {};
+    const allKeys = Object.keys(data);
+    for (const key of allKeys) {
+      if (key.includes(desiredKey)) {
+        entries[key] = data[key];
+      }
+    }
+    if (Object.keys(entries).length === 1) {
+      return entries[desiredKey];
+    }
+    for (const key of Object.keys(entries)) {
+      const leafKey = key.split("/")[key.split("/").length - 1];
+      const value = entries[key];
+      delete entries[key];
+      entries[leafKey] = value;
+    }
+    
+    return Object.keys(entries).length > 0 ? entries : undefined;
   }
-  set(pairs) {
+  async set(pairs) {
     const store = JSON.parse(fs.readFileSync(storePath));
 
     pairs.forEach((pair) => {
@@ -139,7 +157,7 @@ class JsonFileStoreService {
 
     fs.writeFileSync(storePath, JSON.stringify(store));
 
-    return Promise.resolve(store);
+    return true
   }
 }
 
@@ -155,7 +173,8 @@ class JsonFileStoreService {
   });
 
   console.log("Creating store");
-  const store = new JsonFileStoreService();
+  // const store = new JsonFileStoreService();
+  const store = serviceFactory.createStoreService("tttStore")
   console.log("Creating Node");
   const messServce = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
@@ -176,13 +195,13 @@ class JsonFileStoreService {
     //   ETHVirtualAppAgreement: "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E"
     // }
   );
-  console.log("public identifier", node.publicIdentifier)
-  messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
-    console.log("received", NodeMessage)
-  })
-  messServce.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
-    console.log("sent", NodeMessage)
-  })
+  // console.log("public identifier", node.publicIdentifier)
+  // messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
+  //   console.log("received", NodeMessage)
+  // })
+  // messServce.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
+  //   console.log("sent", NodeMessage)
+  // })
 
   // console.log("Creating channel with server")
   // const playgroundIdendifier = "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
@@ -197,6 +216,14 @@ class JsonFileStoreService {
   //   }
   // );
   // console.log("state channel response", stateChannelResponse);
+
+  const channels = await node.call("getChannelAddresses", {
+    requestId: v4(),
+    type: "getChannelAddresses",
+    params: {}
+  })
+
+  console.log(channels)
 
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
@@ -221,7 +248,22 @@ class JsonFileStoreService {
     const intermediaries = data.data.params.intermediaries;
     console.log(`Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`);
 
-    const appInstance = await cfProvider.installVirtual(appInstanceId, intermediaries);
+    // const appInstance = await cfProvider.installVirtual(appInstanceId, intermediaries);
+      const request = {
+        type: "installVirtual",
+        params: {
+          appInstanceId,
+          intermediaries
+        },
+        requestId: v4()
+      };
+
+      const appInstance = (await node.call(
+        request.type,
+        request
+      )).result;
+
+      console.log("appInstance", appInstance)
 
     console.log("Create event listener for updateState");
     appInstance.on("updateState", newState => {

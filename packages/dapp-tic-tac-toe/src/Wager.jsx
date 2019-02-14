@@ -53,10 +53,10 @@ class Wager extends Component {
       data: {
         attributes: {
           email: "TTTBot@counterfactual.com",
-          ethAddress: "0x55c912d4F7DA1303Daa653E0FCd465479103c591",
-          multisigAddress: "0x9FC556BB56B0D33E6be96eF5e59b56C3ee1219A8",
+          ethAddress: "0xA834F59237F90D28e68752d9217AA24e1447DeD3",
+          multisigAddress: "0x522666ddE1E27D191B69756ce777a8DAC22BAdC3",
           nodeAddress:
-            "xpub6E7qhwpdHMbU1dXJgHL8kkFndpdirKin1VvUKqfn9i5tCjiouFqfgyEVnF28CTMqSY3jcFUp5pqCune9A8VJnHcHLbiwMZwqEs8h95DcNc6",
+            "xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc",
           intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
           username: "TTTBot"
         },

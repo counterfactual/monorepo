@@ -107,6 +107,15 @@ export class Node {
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
+
+
+
+    this.messagingService.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
+      console.log("playground received", this.publicIdentifier, NodeMessage)
+    })
+    this.messagingService.onReceive("xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc", (NodeMessage) => {
+      console.log("bot received", this.publicIdentifier, NodeMessage)
+    })
     return this;
   }
 
