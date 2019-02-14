@@ -6,7 +6,8 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
@@ -84,27 +85,32 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-) {
+): Promise<void> {
   const tx = {
     to: params.multisigAddress,
-    value: params.amount
+    value: bigNumberify(params.amount)
   };
 
-  const depositPromise = requestHandler.wallet.sendTransaction({
-    ...tx,
-    gasLimit: await requestHandler.provider.estimateGas(tx)
-  });
-  requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-  depositPromise.then(async () => {
+  try {
+    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
+    let txResponse: TransactionResponse;
+    if (requestHandler.provider instanceof JsonRpcProvider) {
+      txResponse = await requestHandler.provider.getSigner().sendTransaction({
+        ...tx,
+        gasLimit: await requestHandler.provider.estimateGas(tx)
+      });
+    } else {
+      txResponse = await requestHandler.wallet.sendTransaction({
+        ...tx,
+        gasLimit: await requestHandler.provider.estimateGas(tx)
+      });
+    }
+    await requestHandler.provider.waitForTransaction(txResponse.hash!);
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
-  });
-
-  depositPromise.catch(e => {
+  } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-    return Promise.reject(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-  });
-
-  await depositPromise;
+    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+  }
 }
 
 export async function uninstallBalanceRefundApp(
@@ -123,15 +129,21 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
+  const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
+    stateChannel,
+    requestHandler.publicIdentifier,
+    beforeDepositBalance,
+    afterDepositBalance
+  );
+
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    new Map(Object.entries(await store.getAllChannels())),
+    // https://github.com/counterfactual/monorepo/issues/747
+    new Map<string, StateChannel>([
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
     {
-      ...getDepositIncrement(
-        stateChannel,
-        requestHandler.publicIdentifier,
-        beforeDepositBalance,
-        afterDepositBalance
-      ),
+      aliceBalanceIncrement,
+      bobBalanceIncrement,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,

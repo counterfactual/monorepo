@@ -79,6 +79,7 @@ export namespace Node {
   export type DepositParams = {
     multisigAddress: string;
     amount: BigNumber;
+    notifyCounterparty?: boolean;
   };
   export type DepositResult = {
     multisigBalance: BigNumber;

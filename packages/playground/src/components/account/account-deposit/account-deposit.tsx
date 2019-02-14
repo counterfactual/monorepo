@@ -1,7 +1,9 @@
+import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import CounterfactualNode from "../../../data/counterfactual";
 import { UserSession } from "../../../types";
 
 @Component({
@@ -20,6 +22,10 @@ export class AccountDeposit {
   @State() error: string = "";
   @State() amountDeposited;
 
+  get node() {
+    return CounterfactualNode.getInstance();
+  }
+
   async componentWillLoad() {
     this.balance = parseFloat(
       ethers.utils.formatEther((await this.signer.getBalance()).toString())
@@ -31,14 +37,14 @@ export class AccountDeposit {
 
     try {
       if (this.user.multisigAddress) {
-        // TODO: update this to deposit through the Node
-        const tx = {
-          to: this.user.multisigAddress,
-          value: this.amountDeposited
-        };
-        await this.signer.sendTransaction({
-          ...tx,
-          gasPrice: await this.signer.provider.estimateGas(tx)
+        await this.node.call(Node.MethodName.DEPOSIT, {
+          type: Node.MethodName.DEPOSIT,
+          requestId: window["uuid"](),
+          params: {
+            multisigAddress: this.user.multisigAddress,
+            amount: this.amountDeposited,
+            notifyCounterparty: true
+          } as Node.DepositParams
         });
 
         this.updateAccount({
