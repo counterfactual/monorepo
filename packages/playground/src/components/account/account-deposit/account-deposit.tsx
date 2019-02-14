@@ -41,7 +41,8 @@ export class AccountDeposit {
         requestId: window["uuid"](),
         params: {
           multisigAddress: this.user.multisigAddress,
-          amount: this.amountDeposited
+          amount: this.amountDeposited,
+          notifyCounterparty: true
         } as Node.DepositParams
       });
 

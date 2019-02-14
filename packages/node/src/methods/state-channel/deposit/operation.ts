@@ -95,20 +95,17 @@ export async function makeDeposit(
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
     let txResponse: TransactionResponse;
     if (requestHandler.provider instanceof JsonRpcProvider) {
-      console.log("depositing from json provider");
       txResponse = await requestHandler.provider.getSigner().sendTransaction({
         ...tx,
         gasLimit: await requestHandler.provider.estimateGas(tx)
       });
     } else {
-      console.log("depositing from base provider");
       txResponse = await requestHandler.wallet.sendTransaction({
         ...tx,
         gasLimit: await requestHandler.provider.estimateGas(tx)
       });
     }
     await requestHandler.provider.waitForTransaction(txResponse.hash!);
-    console.log("sending deposit confirmed");
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);

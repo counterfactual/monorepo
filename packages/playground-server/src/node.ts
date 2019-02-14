@@ -1,5 +1,6 @@
 import {
   DepositConfirmationMessage,
+  ERRORS,
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
@@ -21,24 +22,30 @@ export const serviceFactory = new FirebaseServiceFactory({
 });
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  console.log("depositing ");
+  if (response === undefined) {
+    return;
+  }
+
   try {
-    const res = await NodeWrapper.getInstance().call(
-      NodeTypes.MethodName.DEPOSIT,
-      {
-        requestId: generateUUID(),
-        type: NodeTypes.MethodName.DEPOSIT,
-        params: response.data as NodeTypes.DepositParams
-      }
-    );
-    console.log("got result: ", res);
+    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+      requestId: generateUUID(),
+      type: NodeTypes.MethodName.DEPOSIT,
+      params: response.data as NodeTypes.DepositParams
+    });
   } catch (e) {
-    console.log("failed to deposit on the server...", e);
+    console.error("Failed to deposit on the server...", e);
+    if (e === ERRORS.CANNOT_DEPOSIT) {
+      if (NodeWrapper.depositRetryCount < 3) {
+        await onDepositConfirmed(response);
+        NodeWrapper.depositRetryCount += 1;
+      }
+    }
   }
 }
 
 export default class NodeWrapper {
   private static node: Node;
+  public static depositRetryCount = 0;
 
   public static depositsMade: Map<string, boolean>;
   public static getInstance() {
