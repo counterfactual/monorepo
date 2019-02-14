@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
 import { ErrorMessage, UserSession } from "../types";
@@ -17,7 +18,8 @@ export type AccountState = {
   getBalances?(): Promise<
     { balance: number; accountBalance: number } | undefined
   >;
-  deposit?(value: any): Promise<void>;
+  deposit?(value: any): Promise<Node.MethodResponse>;
+  withdraw?(value: any): Promise<Node.MethodResponse>;
   waitForMultisig?(): void;
   autoLogin?(): Promise<void>;
 };
