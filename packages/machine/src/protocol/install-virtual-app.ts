@@ -4,11 +4,6 @@ import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import {
-  ProtocolExecutionFlow,
-  xkeyKthAddress,
-  xkeysToSortedKthAddresses
-} from "..";
 import { Opcode } from "../enums";
 import {
   AppInstance,
@@ -18,10 +13,12 @@ import {
 import {
   Context,
   InstallVirtualAppParams,
+  ProtocolExecutionFlow,
   ProtocolMessage,
   SolidityABIEncoderV2Struct
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 

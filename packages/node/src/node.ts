@@ -6,7 +6,10 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
-import { UpdateParams } from "@counterfactual/machine/dist/src/types";
+import {
+  UpdateParams,
+  WithdrawParams
+} from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { Provider } from "ethers/providers";
@@ -148,11 +151,9 @@ export class Node {
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        for (const commitment of context.commitments) {
-          context.signatures.push(
-            signingKey.signDigest(commitment.hashToSign(asIntermediary))
-          );
-        }
+        context.signatures = context.commitments.map(commitment =>
+          signingKey.signDigest(commitment.hashToSign(asIntermediary))
+        );
 
         next();
       };
@@ -230,6 +231,15 @@ export class Node {
           await this.requestHandler.store.setSetupCommitmentForMultisig(
             params.multisigAddress,
             transaction
+          );
+        } else if (protocol === Protocol.Withdraw) {
+          const params = message.params as WithdrawParams;
+          await this.requestHandler.store.storeWithdrawalCommitment(
+            params.multisigAddress,
+            context.commitments[1].transaction([
+              context.signatures[1],
+              context.inbox[0].signature2!
+            ])
           );
         } else {
           if (!context.appIdentityHash) {
