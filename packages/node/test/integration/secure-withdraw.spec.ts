@@ -1,8 +1,15 @@
+import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import {
+  IMessagingService,
+  IStoreService,
+  Node,
+  NODE_EVENTS,
+  NodeConfig
+} from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
@@ -74,23 +81,33 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal", async () => {
-    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
+    nodeA.on(
+      NODE_EVENTS.CREATE_CHANNEL,
+      async (data: NodeTypes.CreateChannelResult) => {
+        const { multisigAddress } = data;
+
+        expect(multisigAddress).toBeDefined();
+
+        const depositReq = makeDepositRequest(multisigAddress, One);
+
+        await nodeA.call(depositReq.type, depositReq);
+
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          1
+        );
+
+        const withdrawReq = makeWithdrawRequest(multisigAddress, One);
+
+        await nodeA.call(withdrawReq.type, withdrawReq);
+
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          0
+        );
+      }
+    );
+    await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
-
-    expect(multisigAddress).toBeDefined();
-
-    const depositReq = makeDepositRequest(multisigAddress, One);
-
-    await nodeA.call(depositReq.type, depositReq);
-
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(1);
-
-    const withdrawReq = makeWithdrawRequest(multisigAddress, One);
-
-    await nodeA.call(withdrawReq.type, withdrawReq);
-
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(0);
   });
 });

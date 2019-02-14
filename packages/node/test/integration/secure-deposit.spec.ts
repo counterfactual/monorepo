@@ -1,3 +1,4 @@
+import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
@@ -81,31 +82,35 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it("has the right balance for both parties after deposits", async () => {
-    const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
+    nodeA.on(
+      NODE_EVENTS.CREATE_CHANNEL,
+      async (data: NodeTypes.CreateChannelResult) => {
+        const { multisigAddress } = data;
+        const depositReq = makeDepositRequest(multisigAddress, One);
+
+        nodeB.on(
+          NODE_EVENTS.DEPOSIT_CONFIRMED,
+          async (msg: DepositConfirmationMessage) => {
+            await nodeB.call(depositReq.type, depositReq);
+            expect(
+              (await provider.getBalance(multisigAddress)).toNumber()
+            ).toEqual(2);
+
+            const freeBalanceState = await getFreeBalanceState(
+              nodeA,
+              multisigAddress
+            );
+            expect(freeBalanceState.aliceBalance).toEqual(One);
+            expect(freeBalanceState.bobBalance).toEqual(One);
+          }
+        );
+
+        await nodeA.call(depositReq.type, depositReq);
+      }
+    );
+    await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
-    expect(multisigAddress).toBeDefined();
-
-    const depositReq = makeDepositRequest(multisigAddress, One);
-
-    nodeB.on(
-      NODE_EVENTS.DEPOSIT_CONFIRMED,
-      async (msg: DepositConfirmationMessage) => {
-        await nodeB.call(depositReq.type, depositReq);
-        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          2
-        );
-
-        const freeBalanceState = await getFreeBalanceState(
-          nodeA,
-          multisigAddress
-        );
-        expect(freeBalanceState.aliceBalance).toEqual(One);
-        expect(freeBalanceState.bobBalance).toEqual(One);
-      }
-    );
-
-    await nodeA.call(depositReq.type, depositReq);
   });
 });

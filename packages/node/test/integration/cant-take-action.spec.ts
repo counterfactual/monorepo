@@ -112,43 +112,46 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
 
-      const multisigAddress = await getMultisigCreationTransactionHash(nodeA, [
+      nodeA.on(
+        NODE_EVENTS.CREATE_CHANNEL,
+        async (data: NodeTypes.CreateChannelResult) => {
+          const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
+            nodeB.publicIdentifier,
+            // @ts-ignore
+            global.networkContext.TicTacToe,
+            initialState,
+            {
+              stateEncoding,
+              actionEncoding
+            }
+          );
+
+          nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+            const takeActionReq = generateTakeActionRequest(
+              msg.data.params.appInstanceId,
+              validAction
+            );
+
+            try {
+              await nodeA.call(takeActionReq.type, takeActionReq);
+            } catch (e) {
+              expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
+              done();
+            }
+          });
+
+          nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+            const installReq = makeInstallRequest(msg.data.appInstanceId);
+            nodeB.emit(installReq.type, installReq);
+          });
+
+          nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
+        }
+      );
+      await getMultisigCreationTransactionHash(nodeA, [
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
       ]);
-      expect(multisigAddress).toBeDefined();
-
-      const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
-        nodeB.publicIdentifier,
-        // @ts-ignore
-        global.networkContext.TicTacToe,
-        initialState,
-        {
-          stateEncoding,
-          actionEncoding
-        }
-      );
-
-      nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-        const takeActionReq = generateTakeActionRequest(
-          msg.data.params.appInstanceId,
-          validAction
-        );
-
-        try {
-          await nodeA.call(takeActionReq.type, takeActionReq);
-        } catch (e) {
-          expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
-          done();
-        }
-      });
-
-      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-        const installReq = makeInstallRequest(msg.data.appInstanceId);
-        nodeB.emit(installReq.type, installReq);
-      });
-
-      nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
     });
   });
 });

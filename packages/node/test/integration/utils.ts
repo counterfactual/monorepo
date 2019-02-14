@@ -19,6 +19,12 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
 export const TEST_NETWORK = "ganache";
 
+/**
+ * Even though this function returns a transaction hash, the calling Node
+ * will receive an event (CREATE_CHANNEL) that should be subscribed to to
+ * ensure a channel has been instantiated and to get its multisig address
+ * back in the event data.
+ */
 export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
