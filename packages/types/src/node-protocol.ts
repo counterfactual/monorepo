@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers/utils";
 
+import { ETHBucketAppState } from ".";
 import {
   AppABIEncodings,
   AppInstanceInfo,
@@ -11,7 +12,6 @@ import {
   AppInstanceID,
   SolidityABIEncoderV2Struct
 } from "./simple-types";
-import { ETHBucketAppState } from ".";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -43,6 +43,7 @@ export namespace Node {
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
+    WITHDRAW = "withdraw",
     GET_STATE = "getState",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
@@ -65,6 +66,7 @@ export namespace Node {
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",
     UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
+    WITHDRAW = "withdrawEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
     CREATE_CHANNEL = "createChannelEvent",
@@ -80,6 +82,14 @@ export namespace Node {
   };
   export type DepositResult = {
     multisigBalance: BigNumber;
+  };
+
+  export type WithdrawParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+  };
+  export type WithdrawResult = {
+    amount: BigNumber;
   };
 
   export type GetFreeBalanceStateParams = {
@@ -223,6 +233,9 @@ export namespace Node {
   };
   export type UninstallEventData = {
     appInstanceId: string;
+  };
+  export type WithdrawEventData = {
+    amount: BigNumber;
   };
   export type CreateMultisigEventData = {
     owners: Address[];

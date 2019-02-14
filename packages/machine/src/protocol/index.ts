@@ -8,11 +8,13 @@ import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";
 import { SETUP_PROTOCOL } from "./setup";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
 import { UPDATE_PROTOCOL } from "./update";
+import { WITHDRAW_ETH_PROTOCOL } from "./withdraw-eth";
 
 const protocolsByName = {
   [Protocol.Setup]: SETUP_PROTOCOL,
   [Protocol.Install]: INSTALL_PROTOCOL,
   [Protocol.Update]: UPDATE_PROTOCOL,
+  [Protocol.Withdraw]: WITHDRAW_ETH_PROTOCOL,
   [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
   [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL,
   [Protocol.UninstallVirtualApp]: UNINSTALL_VIRTUAL_APP_PROTOCOL
@@ -31,6 +33,7 @@ export {
   INSTALL_PROTOCOL,
   INSTALL_VIRTUAL_APP_PROTOCOL,
   SETUP_PROTOCOL,
+  WITHDRAW_ETH_PROTOCOL,
   UNINSTALL_PROTOCOL,
   UPDATE_PROTOCOL
 };

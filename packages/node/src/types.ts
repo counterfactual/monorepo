@@ -13,6 +13,7 @@ enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+  WITHDRAW_EVENT = "withdrawEvent",
   INSTALL_VIRTUAL = "installVirtualEvent",
   REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent",
   UNINSTALL_VIRTUAL = "uninstallVirtualEvent"
@@ -75,6 +76,10 @@ export interface UpdateStateMessage extends NodeMessage {
 
 export interface UninstallMessage extends NodeMessage {
   data: Node.UninstallEventData;
+}
+
+export interface WithdrawMessage extends NodeMessage {
+  data: Node.WithdrawEventData;
 }
 
 export interface RejectProposalMessage extends NodeMessage {

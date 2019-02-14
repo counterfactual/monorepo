@@ -1,4 +1,4 @@
-import { Signature } from "ethers/utils";
+import { BigNumber, Signature } from "ethers/utils";
 
 export abstract class EthereumCommitment {
   // todo(xuanji): EthereumCommitment was designed under the assumption that
@@ -27,7 +27,7 @@ export enum MultisigOperation {
 
 export type Transaction = {
   to: string;
-  value: number;
+  value: BigNumber | number;
   data: string;
 };
 
