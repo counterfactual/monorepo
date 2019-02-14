@@ -90,7 +90,7 @@ export class AppRoot {
           }
         }
         if (Object.keys(entries).length === 1) {
-          return entries[desiredKey];
+          return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
         }
         for (const key of Object.keys(entries)) {
           const leafKey = key.split("/")[key.split("/").length - 1];
@@ -98,7 +98,7 @@ export class AppRoot {
           delete entries[key];
           entries[leafKey] = value;
         }
-        return entries;
+        return Object.keys(entries).length > 0 ? entries : undefined;
       },
       async set(
         pairs: {
