@@ -1,7 +1,9 @@
 const cf = require("@counterfactual/cf.js");
+const fs = require("fs");
+const path = require("path");
 const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
-const { AddressZero } = require("ethers/constants");
+const { HashZero } = require("ethers/constants");
 const { v4 } = require("uuid");
 
 const STATE_ENCODING = `
@@ -59,6 +61,43 @@ class NodeProvider {
   }
 }
 
+const storePath = path.resolve(__dirname, "store.json");
+
+class JsonFileStoreService {
+  async get(desiredKey) {
+    const data = JSON.parse(fs.readFileSync(storePath));
+    const entries = {};
+    const allKeys = Object.keys(data);
+    for (const key of allKeys) {
+      if (key.includes(desiredKey)) {
+        entries[key] = data[key];
+      }
+    }
+    if (Object.keys(entries).length === 1) {
+      return entries[desiredKey];
+    }
+    for (const key of Object.keys(entries)) {
+      const leafKey = key.split("/")[key.split("/").length - 1];
+      const value = entries[key];
+      delete entries[key];
+      entries[leafKey] = value;
+    }
+
+    return Object.keys(entries).length > 0 ? entries : undefined;
+  }
+  async set(pairs) {
+    const store = JSON.parse(fs.readFileSync(storePath));
+
+    pairs.forEach(pair => {
+      store[pair.key] = pair.value;
+    });
+
+    fs.writeFileSync(storePath, JSON.stringify(store));
+
+    return true;
+  }
+}
+
 (async () => {
   console.log("Creating serviceFactory");
   const serviceFactory = new FirebaseServiceFactory({
@@ -71,24 +110,17 @@ class NodeProvider {
   });
 
   console.log("Creating store");
-  const store = serviceFactory.createStoreService(v4());
+  const store = new JsonFileStoreService();
   console.log("Creating Node");
+  const messService = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
-    serviceFactory.createMessagingService("messaging"),
+    messService,
     store,
-    {
-      AppRegistry: AddressZero,
-      ETHBalanceRefund: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero
-    },
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten")
+    ethers.getDefaultProvider("ropsten"),
+    "ropsten"
   );
 
   console.log("Creating NodeProvider");
