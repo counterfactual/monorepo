@@ -301,6 +301,31 @@ export async function createUser(user: User): Promise<User> {
   }
 }
 
+export async function bindMultisigToUser(
+  user: User,
+  multisigAddress: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .where({ id: user.id })
+    .update("multisig_address", multisigAddress);
+
+  try {
+    await query;
+
+    Log.debug("Executed createUser query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
 function compactObject(filters: {}): {} {
   Object.keys(filters).forEach(
     key => filters[key] === undefined && delete filters[key]

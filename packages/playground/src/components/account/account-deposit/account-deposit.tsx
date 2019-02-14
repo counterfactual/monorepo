@@ -36,22 +36,27 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      await this.node.call(Node.MethodName.DEPOSIT, {
-        type: Node.MethodName.DEPOSIT,
-        requestId: window["uuid"](),
-        params: {
-          multisigAddress: this.user.multisigAddress,
-          amount: this.amountDeposited,
-          notifyCounterparty: true
-        } as Node.DepositParams
-      });
+      if (this.user.multisigAddress) {
+        await this.node.call(Node.MethodName.DEPOSIT, {
+          type: Node.MethodName.DEPOSIT,
+          requestId: window["uuid"](),
+          params: {
+            multisigAddress: this.user.multisigAddress,
+            amount: this.amountDeposited,
+            notifyCounterparty: true
+          } as Node.DepositParams
+        });
 
-      this.updateAccount({
-        unconfirmedBalance: parseFloat(
-          ethers.utils.formatEther(this.amountDeposited)
-        )
-      });
-
+        this.updateAccount({
+          unconfirmedBalance: parseFloat(
+            ethers.utils.formatEther(this.amountDeposited)
+          )
+        });
+      } else {
+        this.updateAccount({
+          pendingAccountFunding: this.amountDeposited
+        });
+      }
       this.history.push("/");
     } catch (error) {
       this.error = error.message;

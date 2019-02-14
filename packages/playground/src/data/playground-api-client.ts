@@ -150,6 +150,10 @@ export default class PlaygroundAPIClient {
   }
 
   public static async getUser(token: string): Promise<UserSession> {
+    if (!token) {
+      throw new Error("getUser(): token is required");
+    }
+
     try {
       const json = (await get("users/me", token)) as APIResponse;
       const resource = json.data[0] as APIResource<UserAttributes>;

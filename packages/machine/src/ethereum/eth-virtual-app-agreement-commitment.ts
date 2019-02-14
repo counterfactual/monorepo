@@ -6,7 +6,7 @@ import {
   Terms
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { BigNumber, Interface } from "ethers/utils";
+import { BigNumber, getAddress, Interface } from "ethers/utils";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -41,17 +41,9 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       freeBalanceNonce,
       freeBalanceTimeout
     );
-  }
-
-  public eachMultisigInput() {
-    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
-  }
-
-  private conditionalTransactionInput(): MultisigTransaction {
     if (this.networkContext.ETHVirtualAppAgreement === undefined) {
       throw Error("undefined ETHVirtualAppAgreement");
     }
-
     if (this.beneficiaries.length !== 2) {
       throw Error(
         `ETHVirtualAppAgreement currently only supports 2 beneficiaries but got ${
@@ -59,7 +51,15 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
         }`
       );
     }
+    // normalize addresses and fail early on any invalid addresses
+    this.beneficiaries = this.beneficiaries.map(getAddress);
+  }
 
+  public eachMultisigInput() {
+    return [this.freeBalanceInput(), this.conditionalTransactionInput()];
+  }
+
+  private conditionalTransactionInput(): MultisigTransaction {
     return {
       to: this.networkContext.ETHVirtualAppAgreement,
       value: 0,

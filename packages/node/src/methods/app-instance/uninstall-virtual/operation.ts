@@ -6,9 +6,9 @@ import { Store } from "../../../store";
 export async function uninstallAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingAddress: string,
-  respondingAddress: string,
-  intermediaryAddress: string,
+  initiatingXpub: string,
+  respondingXpub: string,
+  intermediaryXpub: string,
   appInstanceId: string
 ) {
   // TODO: this should actually call resolve on the AppInstance and execute
@@ -23,9 +23,9 @@ export async function uninstallAppInstanceFromChannel(
   const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
     currentChannels,
     {
-      initiatingAddress,
-      respondingAddress,
-      intermediaryAddress,
+      initiatingXpub,
+      respondingXpub,
+      intermediaryXpub,
       targetAppIdentityHash: appInstance.identityHash,
       // FIXME: Compute values here
       initiatingBalanceIncrement: Zero,

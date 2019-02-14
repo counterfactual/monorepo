@@ -4,18 +4,12 @@ import {
   Event,
   EventEmitter,
   Prop,
+  State,
   Watch
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
-import PlaygroundAPIClient from "../../../../data/playground-api-client";
 import { UserSession } from "../../../../types";
-
-function buildSignaturePayload(address: string) {
-  return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
-    "\n"
-  );
-}
 
 @Component({
   tag: "header-account",
@@ -26,101 +20,53 @@ export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
   @Prop() unconfirmedBalance?: number;
+  @Prop() pendingAccountFunding?: any;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
-  @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
-  @Prop() provider: Web3Provider = {} as Web3Provider;
-  @Prop() signer: Signer = {} as Signer;
+  @Prop() login: () => Promise<UserSession> = async () => ({} as UserSession);
+  @Prop() autoLogin: () => Promise<void> = async () => {};
+
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
+
+  @State() waitMultisigInterval: NodeJS.Timeout = {} as NodeJS.Timeout;
+
+  // TODO: This is a very weird way to prevent dual-execution of this lifecycle event.
+  // But it works. See componentWillLoad() and componentDidUnload().
+  static busy = false;
 
   @Watch("authenticated")
   authenticationChangedHandler() {
     this.authenticationChanged.emit({ authenticated: this.authenticated });
   }
 
-  onLoginClicked() {
-    web3.personal.sign(
-      web3.toHex(buildSignaturePayload(this.user.ethAddress)),
-      this.user.ethAddress,
-      this.login.bind(this)
-    );
+  @Watch("user")
+  userChangedHandler() {
+    this.authenticated = !!(this.user && this.user.id);
   }
 
-  async componentWillLoad() {
-    const token = window.localStorage.getItem(
-      "playground:user:token"
-    ) as string;
-
-    if (!token) {
-      return;
-    }
-
-    if (!this.user || !this.user.username) {
-      try {
-        const user = await PlaygroundAPIClient.getUser(token);
-        this.updateAccount({ user });
-      } catch {
-        window.localStorage.removeItem("playground:user:token");
-        return;
-      }
-    }
-
-    await this.getBalances();
-
-    this.authenticated = true;
-  }
-
-  async login(error: Error, signedData: string) {
-    // TODO: Handle errors.
-    if (error) {
-      return this.displayLoginError();
-    }
+  async onLoginClicked() {
+    this.removeError();
 
     try {
-      const user = await PlaygroundAPIClient.login(
-        {
-          ethAddress: this.user.ethAddress
-        },
-        signedData
-      );
-
-      await this.getBalances();
-
-      window.localStorage.setItem(
-        "playground:user:token",
-        user.token as string
-      );
-
-      this.updateAccount({ user });
-
-      this.removeError();
+      this.user = await this.login();
     } catch (error) {
       this.displayLoginError();
     }
   }
 
-  async getBalances() {
-    if (!this.user.multisigAddress || !this.user.ethAddress) {
+  async componentWillLoad() {
+    if (HeaderAccount.busy) {
       return;
     }
 
-    const multisigBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await this.provider.getBalance(this.user.multisigAddress)).toString()
-      )
-    );
+    await this.autoLogin();
 
-    const walletBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await this.provider.getBalance(this.user.ethAddress)).toString()
-      )
-    );
+    HeaderAccount.busy = true;
+  }
 
-    this.updateAccount({
-      balance: multisigBalance,
-      accountBalance: walletBalance
-    });
+  componentDidUnload() {
+    HeaderAccount.busy = false;
   }
 
   displayLoginError() {
@@ -147,9 +93,10 @@ export class HeaderAccount {
   }
 
   render() {
-    if (!this.user || !this.user.username) {
+    if (!this.authenticated) {
       return (
         <div class="account-container">
+          <widget-error-message />
           <div class="btn-container">
             <button onClick={this.onLoginClicked.bind(this)} class="btn">
               Login
@@ -162,6 +109,17 @@ export class HeaderAccount {
       );
     }
 
+    let tooltip = "";
+
+    if (this.hasUnconfirmedBalance) {
+      tooltip = "We're waiting for the network to confirm your latest deposit.";
+    }
+
+    if (!this.user.multisigAddress) {
+      tooltip =
+        "We're configuring your state channel with the Playground. This can take 15-90 seconds, depending on network speed.";
+    }
+
     return (
       <div class="account-container">
         <widget-error-message />
@@ -171,7 +129,8 @@ export class HeaderAccount {
               src="/assets/icon/cf.png"
               header="Balance"
               content={this.ethBalance}
-              spinner={this.hasUnconfirmedBalance}
+              spinner={this.hasUnconfirmedBalance || !this.user.multisigAddress}
+              tooltip={tooltip}
             />
           </stencil-route-link>
           <stencil-route-link url="/account">
@@ -191,6 +150,8 @@ AccountTunnel.injectProps(HeaderAccount, [
   "balance",
   "user",
   "updateAccount",
-  "provider",
-  "unconfirmedBalance"
+  "unconfirmedBalance",
+  "pendingAccountFunding",
+  "login",
+  "autoLogin"
 ]);
