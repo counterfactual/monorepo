@@ -19,7 +19,8 @@ import {
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
-  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS
+  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
+  DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
@@ -347,6 +348,28 @@ export class Store {
     }
 
     return await this.getStateChannel(multisigAddress);
+  }
+
+  public async getWithdrawalCommitment(multisigAddress: string) {
+    return this.storeService.get(
+      [this.storeKeyPrefix, DB_NAMESPACE_WITHDRAWALS, multisigAddress].join("/")
+    );
+  }
+
+  public async storeWithdrawalCommitment(
+    multisigAddress: string,
+    commitment: Transaction
+  ) {
+    return this.storeService.set([
+      {
+        key: [
+          this.storeKeyPrefix,
+          DB_NAMESPACE_WITHDRAWALS,
+          multisigAddress
+        ].join("/"),
+        value: commitment
+      }
+    ]);
   }
 
   public async setCommitmentForAppIdentityHash(

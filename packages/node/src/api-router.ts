@@ -30,6 +30,7 @@ import {
   uninstallController,
   uninstallVirtualController
 } from "./methods";
+import withdrawController from "./methods/state-channel/withdraw/controller";
 import { NODE_EVENTS } from "./types";
 
 export const methodNameToImplementation = {
@@ -43,6 +44,7 @@ export const methodNameToImplementation = {
   [Node.MethodName.GET_STATE]: getAppInstanceStateController,
   [Node.MethodName.INSTALL]: installAppInstanceController,
   [Node.MethodName.INSTALL_VIRTUAL]: installVirtualAppInstanceController,
+  [Node.MethodName.WITHDRAW]: withdrawController,
   [Node.MethodName
     .PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualAppInstanceController,
   [Node.MethodName.PROPOSE_INSTALL]: proposeInstallAppInstanceController,
@@ -68,5 +70,6 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.UNINSTALL]: () => {},
   [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
-  [NODE_EVENTS.REJECT_STATE]: () => {}
+  [NODE_EVENTS.REJECT_STATE]: () => {},
+  [NODE_EVENTS.WITHDRAW]: () => {}
 };

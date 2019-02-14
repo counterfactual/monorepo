@@ -14,7 +14,8 @@ import {
   SetupParams,
   UninstallParams,
   UninstallVirtualAppParams,
-  UpdateParams
+  UpdateParams,
+  WithdrawParams
 } from "./types";
 
 export class InstructionExecutor {
@@ -91,6 +92,21 @@ export class InstructionExecutor {
     const protocol = Protocol.Setup;
     return this.runProtocol(
       new Map<string, StateChannel>(),
+      getProtocolFromName(protocol)[0],
+      {
+        protocol,
+        params,
+        seq: 0,
+        fromAddress: params.initiatingXpub,
+        toAddress: params.respondingXpub
+      }
+    );
+  }
+
+  public async runWithdrawProtocol(sc: StateChannel, params: WithdrawParams) {
+    const protocol = Protocol.Withdraw;
+    return this.runProtocol(
+      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
       getProtocolFromName(protocol)[0],
       {
         protocol,
