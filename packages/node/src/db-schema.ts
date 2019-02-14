@@ -76,6 +76,11 @@ export const DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT =
   "multisigAddressToSetupCommitment";
 
 /**
+ * Namespace for storing withdrawals
+ */
+export const DB_NAMESPACE_WITHDRAWALS = "multisigAddressToWithdrawalCommitment";
+
+/**
  * Used in standardizing how to set/get app instances within a channel according
  * to their correct status.
  */
