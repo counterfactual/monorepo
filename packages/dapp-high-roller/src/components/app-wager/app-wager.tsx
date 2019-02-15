@@ -1,13 +1,8 @@
-declare var ethers;
-
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
-import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
 import { Address, AppInstanceID, cf } from "../../data/types";
-
-const { HashZero } = ethers.constants;
 
 // FIXME: Figure out how to import @counterfactual-types
 // const { AssetType } = commonTypes;
@@ -48,11 +43,20 @@ export class AppWager {
     appInstance: { id: AppInstanceID }
   ) => void = () => {};
   @Prop() updateOpponent: (opponent: any) => void = () => {};
+  @Prop() updateIntermediary: (intermediary: string) => void = () => {};
+  @Prop() matchmake: () => Promise<{
+    opponent: { attributes: { [key: string]: string } };
+    intermediary: string;
+  }> = async () => ({ opponent: { attributes: {} }, intermediary: "" });
+  @Prop() proposeInstall: (
+    betAmount: string
+  ) => Promise<any> = async () => ({});
+  @Prop() updateExcludeFromMatchmake: (excluded: string) => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.account.user.username;
 
-    return await this.matchmake();
+    return await this.findOpponent();
   }
 
   /**
@@ -63,73 +67,23 @@ export class AppWager {
     e.preventDefault();
 
     try {
-      const initialState: HighRollerAppState = {
-        playerAddrs: [
-          this.account.user.ethAddress,
-          this.opponent.attributes.ethAddress
-        ],
-        stage: HighRollerStage.PRE_GAME,
-        salt: HashZero,
-        commitHash: HashZero,
-        playerFirstNumber: 0,
-        playerSecondNumber: 0,
-        playerNames: [
-          this.account.user.username,
-          this.opponent.attributes.username
-        ]
-      };
-
-      const provider = new ethers.providers.Web3Provider(
-        window["web3"].currentProvider
-      );
-      const currentEthBalance = ethers.utils.parseEther(this.account.balance);
-      const minimumEthBalance = ethers.utils.parseEther(this.betAmount).add(
-        await provider.estimateGas({
-          to: this.opponent.attributes.ethAddress,
-          value: ethers.utils.parseEther(this.betAmount)
-        })
-      );
-
-      if (currentEthBalance.lt(minimumEthBalance)) {
-        this.error = `Insufficient funds: You need at least ${ethers.utils.formatEther(
-          minimumEthBalance
-        )} ETH to play.`;
-        return;
-      }
-
-      await this.appFactory.proposeInstallVirtual({
-        initialState,
-        proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
-        peerDeposit: ethers.utils.parseEther(this.betAmount),
-        myDeposit: ethers.utils.parseEther(this.betAmount),
-        timeout: 10000,
-        intermediaries: [this.intermediary]
-      });
-
       this.isWaiting = true;
+      await this.proposeInstall(this.betAmount);
     } catch (e) {
-      debugger;
+      this.isWaiting = true;
+      this.error = typeof e === "string" ? e : `${e.message} - ${e.stack}`;
     }
   }
 
-  async matchmake(): Promise<any> {
+  async findOpponent(): Promise<any> {
     try {
-      const result = await this.fetchMatchmake();
+      const result = await this.matchmake();
 
-      this.opponent = {
-        attributes: {
-          username: result.data.attributes.username,
-          nodeAddress: result.data.attributes.nodeAddress,
-          ethAddress: result.data.attributes.ethAddress
-        }
-      };
-      this.intermediary = result.data.attributes.intermediary;
-      this.error = null;
+      this.opponent = result.opponent;
+      this.intermediary = result.intermediary;
 
       this.updateOpponent(this.opponent);
+      this.updateIntermediary(this.intermediary);
     } catch (error) {
       this.error = error;
     }
@@ -144,69 +98,14 @@ export class AppWager {
     this[prop] = (e.target as HTMLInputElement).value;
   }
 
-  private async fetchMatchmake(): Promise<{ [key: string]: any }> {
-    if (this.standalone) {
-      return {
-        data: {
-          type: "matchmaking",
-          id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
-          attributes: {
-            intermediary: this.account.multisigAddress
-          },
-          relationships: {
-            users: {
-              data: {
-                type: "users",
-                id: this.account.user.id
-              }
-            },
-            matchedUser: {
-              data: {
-                type: "matchedUsers",
-                id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
-              }
-            }
-          }
-        },
-        included: [
-          {
-            type: "users",
-            id: this.account.user.id,
-            attributes: {
-              username: this.account.user.username,
-              ethAddress: this.account.user.ethAddress
-            }
-          },
-          {
-            type: "matchedUsers",
-            id: "3d54b508-b355-4323-8738-4cdf7290a2fd",
-            attributes: {
-              username: "MyOpponent",
-              ethAddress: "0x12345"
-            }
-          }
-        ]
-      };
-    }
+  async rematchmake(restartCountdown: Function) {
+    this.updateExcludeFromMatchmake(this.opponent.attributes
+      .ethAddress as string);
 
-    return new Promise(resolve => {
-      const onMatchmakeResponse = (event: MessageEvent) => {
-        if (
-          !event.data.toString().startsWith("playground:response:matchmake")
-        ) {
-          return;
-        }
+    await this.findOpponent();
+    await this.proposeInstall(this.betAmount);
 
-        window.removeEventListener("message", onMatchmakeResponse);
-
-        const [, data] = event.data.split("|");
-        resolve(JSON.parse(data));
-      };
-
-      window.addEventListener("message", onMatchmakeResponse);
-
-      window.parent.postMessage("playground:request:matchmake", "*");
-    });
+    restartCountdown();
   }
 
   render() {
@@ -217,6 +116,7 @@ export class AppWager {
           betAmount={this.betAmount}
           opponentName={this.opponent.attributes.username}
           isProposing={true}
+          onTimeout={this.rematchmake.bind(this)}
         />
       );
     }
@@ -279,5 +179,9 @@ CounterfactualTunnel.injectProps(AppWager, [
   "updateAppInstance",
   "account",
   "opponent",
-  "standalone"
+  "standalone",
+  "matchmake",
+  "proposeInstall",
+  "updateIntermediary",
+  "updateOpponent"
 ]);
