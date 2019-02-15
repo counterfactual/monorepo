@@ -27,6 +27,9 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     // Sign `context.commitment.hashToSign`
     Opcode.OP_SIGN,
+    ({}, context: Context) => {
+      context.middlewareArgs = [];
+    },
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
@@ -84,6 +87,9 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     // Sign the same state update yourself
     Opcode.OP_SIGN,
+    ({}, context: Context) => {
+      context.middlewareArgs = [];
+    },
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentInResponse,
@@ -112,6 +118,9 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     appIdentityHash
   );
   context.appIdentityHash = appIdentityHash;
+  context.middlewareArgs = [
+    newStateChannel.getAppInstance(appIdentityHash).appSeqNo
+  ];
 }
 
 function constructUpdateOp(

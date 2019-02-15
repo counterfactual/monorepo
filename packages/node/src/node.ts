@@ -6,10 +6,7 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
-import {
-  UpdateParams,
-  WithdrawParams
-} from "@counterfactual/machine/dist/src/types";
+import { WithdrawParams } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
@@ -137,17 +134,10 @@ export class Node {
 
         if (context.middlewareArgs.length !== 0) {
           keyIndex = context.middlewareArgs[0];
+        } else if (asIntermediary) {
+          keyIndex = 0;
         } else {
-          // todo(xuanji): delete this
-          if (message.protocol === Protocol.Update) {
-            const {
-              appIdentityHash,
-              multisigAddress
-            } = message.params as UpdateParams;
-            keyIndex = context.stateChannelsMap
-              .get(multisigAddress)!
-              .getAppInstance(appIdentityHash).appSeqNo;
-          }
+          throw Error("I need to know which key to use!");
         }
 
         const signingKey = new SigningKey(
