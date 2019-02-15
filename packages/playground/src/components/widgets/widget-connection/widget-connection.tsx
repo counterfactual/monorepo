@@ -17,8 +17,13 @@ export class WidgetConnection {
   @Element() el!: HTMLStencilElement;
   @Prop() network: string = "";
   @Prop() metamaskUnlocked: boolean = false;
+  @Prop() hasDetectedNetwork: boolean = false;
 
   render() {
+    if (!this.hasDetectedNetwork) {
+      return;
+    }
+
     if (!this.network) {
       return (
         <div class="connection">
@@ -54,4 +59,8 @@ export class WidgetConnection {
   }
 }
 
-NetworkTunnel.injectProps(WidgetConnection, ["network", "metamaskUnlocked"]);
+NetworkTunnel.injectProps(WidgetConnection, [
+  "network",
+  "metamaskUnlocked",
+  "hasDetectedNetwork"
+]);

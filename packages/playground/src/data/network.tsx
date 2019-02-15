@@ -1,6 +1,7 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
 export interface NetworkState {
+  hasDetectedNetwork?: boolean;
   network?: string;
   connected?: boolean;
   web3Detected?: boolean;
