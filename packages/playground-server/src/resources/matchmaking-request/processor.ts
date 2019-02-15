@@ -32,7 +32,10 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
         relationships: {}
       };
     } else {
-      matchedUser = await matchmakeUser(user);
+      matchedUser = await matchmakeUser(
+        user,
+        (op.data.attributes.exclude as string).split("|")
+      );
     }
 
     return new MatchmakingRequest({

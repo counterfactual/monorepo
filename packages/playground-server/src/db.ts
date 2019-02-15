@@ -65,14 +65,17 @@ export async function usernameAlreadyRegistered(
   return userId.length > 0;
 }
 
-export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
+export async function matchmakeUser(
+  userToMatch: User,
+  exclude: string[] = []
+): Promise<MatchedUser> {
   const db = getDatabase();
 
   if (!userToMatch) {
     throw Errors.UserAddressRequired();
   }
 
-  const query = db("users")
+  let query = db("users")
     .columns({
       id: "id",
       username: "username",
@@ -81,6 +84,10 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     })
     .select()
     .where("eth_address", "!=", userToMatch.attributes.ethAddress);
+
+  if (exclude.length) {
+    query = query.andWhereNot("eth_address", "in", exclude);
+  }
 
   const matchmakeResults: {
     id: string;
