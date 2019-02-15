@@ -42,12 +42,14 @@ export class AppRoot {
       appFactory: null,
       cfProvider: null,
       intermediary: null,
+      excludeFromMatchmake: [],
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this),
       updateUser: this.updateAccount.bind(this),
       updateOpponent: this.updateOpponent.bind(this),
       updateCfProvider: this.updateCfProvider.bind(this),
-      updateIntermediary: this.updateIntermediary.bind(this)
+      updateIntermediary: this.updateIntermediary.bind(this),
+      updateExcludeFromMatchmake: this.updateExcludeFromMatchmake.bind(this)
     };
     this.uiState = {
       myRoll: [0, 0],
@@ -130,6 +132,13 @@ export class AppRoot {
     this.state = { ...this.state, account };
 
     ga("set", "userId", account.user.id);
+  }
+
+  updateExcludeFromMatchmake(excluded: string) {
+    this.state = {
+      ...this.state,
+      excludeFromMatchmake: [...this.state.excludeFromMatchmake, excluded]
+    };
   }
 
   updateOpponent(opponent: any) {
@@ -228,6 +237,107 @@ export class AppRoot {
         isProposing: false,
         betAmount: "0.1"
       }
+    });
+  }
+
+  async proposeInstall(betAmount) {
+    const initialState: HighRollerAppState = {
+      playerAddrs: [
+        this.state.account.user.ethAddress,
+        this.state.opponent.attributes.ethAddress
+      ],
+      stage: HighRollerStage.PRE_GAME,
+      salt: HashZero,
+      commitHash: HashZero,
+      playerFirstNumber: 0,
+      playerSecondNumber: 0,
+      playerNames: [
+        this.state.account.user.username,
+        this.state.opponent.attributes.username
+      ]
+    };
+
+    const provider = new ethers.providers.Web3Provider(
+      window["web3"].currentProvider
+    );
+    const currentEthBalance = ethers.utils.parseEther(
+      this.state.account.balance
+    );
+    const minimumEthBalance = ethers.utils.parseEther(betAmount).add(
+      await provider.estimateGas({
+        to: this.state.opponent.attributes.ethAddress,
+        value: ethers.utils.parseEther(betAmount)
+      })
+    );
+
+    if (currentEthBalance.lt(minimumEthBalance)) {
+      throw `Insufficient funds: You need at least ${ethers.utils.formatEther(
+        minimumEthBalance
+      )} ETH to play.`;
+    }
+
+    return await this.state.appFactory.proposeInstallVirtual({
+      initialState,
+      proposedToIdentifier: this.state.opponent.attributes
+        .nodeAddress as string,
+      asset: {
+        assetType: 0 /* AssetType.ETH */
+      },
+      peerDeposit: 0, // ethers.utils.parseEther(betAmount),
+      myDeposit: 0, // ethers.utils.parseEther(betAmount),
+      timeout: 10000,
+      intermediaries: [this.state.intermediary]
+    });
+  }
+
+  matchmake() {
+    if (this.state.standalone) {
+      // TODO: Check with Alon if this still makes sense.
+      return {
+        data: {
+          type: "matchmaking",
+          id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
+          attributes: {
+            intermediary: this.state.account.user.multisigAddress,
+            username: "MyOpponent",
+            ethAddress: "0x12345",
+            nodeAddress: "xpub12355"
+          }
+        }
+      };
+    }
+
+    return new Promise(resolve => {
+      const onMatchmakeResponse = (event: MessageEvent) => {
+        if (
+          !event.data.toString().startsWith("playground:response:matchmake")
+        ) {
+          return;
+        }
+
+        window.removeEventListener("message", onMatchmakeResponse);
+
+        const [, data] = event.data.split("|");
+        const result = JSON.parse(data);
+
+        resolve({
+          opponent: {
+            attributes: {
+              username: result.data.attributes.username,
+              nodeAddress: result.data.attributes.nodeAddress,
+              ethAddress: result.data.attributes.ethAddress
+            }
+          },
+          intermediary: result.data.attributes.intermediary
+        });
+      };
+
+      window.addEventListener("message", onMatchmakeResponse);
+
+      window.parent.postMessage(
+        `playground:request:matchmake|${this.state.excludeFromMatchmake}`,
+        "*"
+      );
     });
   }
 
