@@ -44,7 +44,8 @@ export class Web3Connector {
       metamaskUnlocked: false,
       web3Detected: this.networkState.web3Detected,
       web3Enabled: this.networkState.web3Enabled,
-      networkPermitted: false
+      networkPermitted: false,
+      hasDetectedNetwork: true
     };
 
     networkState.metamaskUnlocked = this.isUnlocked();
@@ -64,7 +65,9 @@ export class Web3Connector {
 
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
-      return this.networkState.updateNetwork!({ web3Detected: false });
+      return this.networkState.updateNetwork!({
+        web3Detected: false
+      });
     }
 
     this.networkState.updateNetwork!({ web3Detected: true });
