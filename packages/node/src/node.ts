@@ -119,6 +119,7 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
+    // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
       return async (
         message: ProtocolMessage,
@@ -142,10 +143,6 @@ export class Node {
           keyIndex = context.stateChannelsMap
             .get(multisigAddress)!
             .getAppInstance(appIdentityHash).appSeqNo;
-        } else if (message.protocol === Protocol.InstallVirtualApp) {
-          if (context.commitments.length === 2) {
-            keyIndex = 0;
-          }
         }
 
         const signingKey = new SigningKey(
