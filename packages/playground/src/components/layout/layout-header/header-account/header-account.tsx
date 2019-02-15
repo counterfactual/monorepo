@@ -62,17 +62,15 @@ export class HeaderAccount {
     }
   }
 
-  onConnectMetamask() {
+  async onConnectMetamask() {
     this.metamaskConfirmationUIOpen = true;
-
-    window["ethereum"]
-      .enable()
-      .then(() => {
-        this.metamaskConfirmationUIOpen = false;
-      })
-      .catch(() => {
-        this.metamaskConfirmationUIOpen = false;
-      });
+    try {
+      await window["ethereum"].enable();
+      this.metamaskConfirmationUIOpen = false;
+    } catch {
+    } finally {
+      this.metamaskConfirmationUIOpen = false;
+    }
   }
 
   async componentWillLoad() {
