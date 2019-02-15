@@ -51,7 +51,7 @@ export class Node {
   } = {};
 
   // These properties don't have initializers in the constructor and get
-  // initialized in the `asyncronouslySetupUsingRemoteServices` function
+  // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
@@ -72,7 +72,7 @@ export class Node {
       networkContext
     );
 
-    return await node.asyncronouslySetupUsingRemoteServices();
+    return await node.asynchronouslySetupUsingRemoteServices();
   }
 
   private constructor(
@@ -89,7 +89,7 @@ export class Node {
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
-  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
+  private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
 
     this.requestHandler = new RequestHandler(
