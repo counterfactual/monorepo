@@ -22,6 +22,7 @@ export class HeaderAccount {
   @Prop() balance: number = 0;
   @Prop() network: string = "";
   @Prop() web3Detected: boolean = false;
+  @Prop() hasDetectedNetwork: boolean = false;
   @Prop() metamaskUnlocked: boolean = false;
   @Prop() networkPermitted: boolean = false;
   @Prop() unconfirmedBalance?: number;
@@ -112,6 +113,10 @@ export class HeaderAccount {
   }
 
   render() {
+    if (!this.hasDetectedNetwork) {
+      return;
+    }
+
     if (!this.web3Detected) {
       return (
         <div class="account-container">
@@ -216,5 +221,6 @@ NetworkTunnel.injectProps(HeaderAccount, [
   "network",
   "web3Detected",
   "networkPermitted",
-  "metamaskUnlocked"
+  "metamaskUnlocked",
+  "hasDetectedNetwork"
 ]);

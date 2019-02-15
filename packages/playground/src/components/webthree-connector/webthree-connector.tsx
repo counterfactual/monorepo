@@ -44,7 +44,8 @@ export class Web3Connector {
       metamaskUnlocked: false,
       web3Detected: this.networkState.web3Detected,
       web3Enabled: this.networkState.web3Enabled,
-      networkPermitted: false
+      networkPermitted: false,
+      hasDetectedNetwork: true
     };
 
     networkState.metamaskUnlocked = this.isUnlocked();
@@ -56,54 +57,49 @@ export class Web3Connector {
 
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
-      return this.networkState.updateNetwork!({ web3Detected: false });
+      return this.networkState.updateNetwork!({
+        web3Detected: false
+      });
     }
 
     this.networkState.updateNetwork!({ web3Detected: true });
 
-    // Small timeout because metamask takes a moment to load the accounts
-    window.setTimeout(async () => {
-      const networkState = await this.getCurrentNetworkState();
+    const networkState = await this.getCurrentNetworkState();
 
-      networkState.web3Enabled = true;
-      networkState.web3Detected = true;
+    networkState.web3Enabled = true;
+    networkState.web3Detected = true;
 
-      const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-      let ethAddress = this.getCurrentAddress();
-      const signer = provider.getSigner();
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    let ethAddress = this.getCurrentAddress();
+    const signer = provider.getSigner();
 
-      // TODO: find more robust way to work with coinbase;
-      // currently it does not yet support "web3.currentProvider.selectedAddress"
+    // TODO: find more robust way to work with coinbase;
+    // currently it does not yet support "web3.currentProvider.selectedAddress"
 
-      this.accountState.updateAccount!({
-        provider,
-        signer,
-        user: {
-          ethAddress,
-          username: "",
-          multisigAddress: "",
-          id: "",
-          email: "",
-          nodeAddress: ""
-        },
-        balance: 0,
-        accountBalance: 0
-      });
+    this.accountState.updateAccount!({
+      provider,
+      signer,
+      user: {
+        ...this.accountState.user,
+        ethAddress
+      },
+      balance: 0,
+      accountBalance: 0
+    });
 
-      this.networkState.updateNetwork!(networkState);
+    this.networkState.updateNetwork!(networkState);
 
-      const interval = window.setInterval(async () => {
-        const newAddress = this.getCurrentAddress();
-        if (newAddress !== ethAddress) {
-          this.networkState.updateNetwork!(await this.getCurrentNetworkState());
-          ethAddress = newAddress;
+    const interval = window.setInterval(async () => {
+      const newAddress = this.getCurrentAddress();
+      if (newAddress !== ethAddress) {
+        this.networkState.updateNetwork!(await this.getCurrentNetworkState());
+        ethAddress = newAddress;
 
-          // Account was locked
-          if (ethAddress !== undefined && newAddress === undefined) {
-            clearInterval(interval);
-          }
+        // Account was locked
+        if (ethAddress !== undefined && newAddress === undefined) {
+          clearInterval(interval);
         }
-      }, 1000);
+      }
     }, 1000);
   }
 }
