@@ -14,23 +14,23 @@ export class Web3Connector {
   @Prop() networkState: NetworkState = {};
 
   getCurrentAddress() {
-    return (window as any).web3.eth.accounts[0];
+    return window["web3"].eth.accounts[0];
   }
 
   getCurrentNetwork() {
-    return (window as any).web3.currentProvider.networkVersion;
+    return window["web3"].currentProvider.networkVersion;
   }
 
   isWeb3Detected() {
-    return (window as any).web3 !== undefined;
+    return window["web3"] !== undefined;
   }
 
   isMetamask() {
-    return (window as any).web3.isMetamask;
+    return window["web3"].isMetamask;
   }
 
   isUnlocked() {
-    return (window as any).web3.eth.accounts[0] !== undefined;
+    return window["web3"].eth.accounts[0] !== undefined;
   }
 
   isOnPermittedNetwork() {
@@ -49,14 +49,14 @@ export class Web3Connector {
 
     networkState.metamaskUnlocked = this.isUnlocked();
     networkState.networkPermitted = this.isOnPermittedNetwork();
-    networkState.network = (window as any).web3.currentProvider.networkVersion;
+    networkState.network = window["web3"].currentProvider.networkVersion;
 
     return networkState;
   }
 
   async enableAccount() {
     try {
-      await (window as any).web3.currentProvider.enable();
+      await window["web3"].currentProvider.enable();
     } catch (e) {
       console.error(e);
     }
