@@ -1,3 +1,5 @@
+import { Context, ProtocolMessage } from "@counterfactual/machine/src/types";
+
 enum Opcode {
   /**
    * Called at the end of execution before the return value to store a commitment
@@ -26,6 +28,16 @@ enum Opcode {
   IO_SEND_AND_WAIT
 }
 
+const OP_SIGN_0 = [
+  (message: ProtocolMessage, context: Context) => {
+    context.middlewareArgs = [0];
+  },
+  Opcode.OP_SIGN,
+  (message: ProtocolMessage, context: Context) => {
+    context.middlewareArgs = [];
+  }
+];
+
 enum Protocol {
   Setup = "setup",
   Install = "install",
@@ -36,4 +48,4 @@ enum Protocol {
   UninstallVirtualApp = "uninstall-virtual-app"
 }
 
-export { Opcode, Protocol };
+export { Opcode, Protocol, OP_SIGN_0 };

@@ -1,7 +1,7 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { OP_SIGN_0, Opcode } from "../enums";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, SetupParams } from "../types";
@@ -26,7 +26,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition,
 
     // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
@@ -63,7 +63,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       ),
 
     // Sign the same state update yourself
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentInResponse,

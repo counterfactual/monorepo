@@ -5,7 +5,7 @@ import {
 } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { OP_SIGN_0, Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallParams } from "../types";
@@ -30,7 +30,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition,
 
     // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentToOutboxForSeq1,
@@ -67,7 +67,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ),
 
     // Sign the same state update yourself
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // Wrap the signature into a message to be sent
     addSignedCommitmentInResponse,

@@ -29,6 +29,7 @@ export interface Context {
   stateChannelsMap: Map<string, StateChannel>;
   commitments: EthereumCommitment[];
   signatures: Signature[];
+  middlewareArgs: any[];
   appIdentityHash?: string;
 }
 

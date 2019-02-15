@@ -120,7 +120,6 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
-    // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
       return async (
         message: ProtocolMessage,
@@ -136,14 +135,19 @@ export class Node {
 
         let keyIndex = 0;
 
-        if (message.protocol === Protocol.Update) {
-          const {
-            appIdentityHash,
-            multisigAddress
-          } = message.params as UpdateParams;
-          keyIndex = context.stateChannelsMap
-            .get(multisigAddress)!
-            .getAppInstance(appIdentityHash).appSeqNo;
+        if (context.middlewareArgs.length !== 0) {
+          keyIndex = context.middlewareArgs[0];
+        } else {
+          // todo(xuanji): delete this
+          if (message.protocol === Protocol.Update) {
+            const {
+              appIdentityHash,
+              multisigAddress
+            } = message.params as UpdateParams;
+            keyIndex = context.stateChannelsMap
+              .get(multisigAddress)!
+              .getAppInstance(appIdentityHash).appSeqNo;
+          }
         }
 
         const signingKey = new SigningKey(

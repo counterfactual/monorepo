@@ -157,7 +157,8 @@ export class InstructionExecutor {
       outbox: [],
       inbox: [],
       commitments: [],
-      signatures: []
+      signatures: [],
+      middlewareArgs: []
     };
 
     let instructionPointer = 0;

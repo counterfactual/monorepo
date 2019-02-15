@@ -6,7 +6,7 @@ import {
 import { AddressZero, Zero } from "ethers/constants";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { OP_SIGN_0, Opcode } from "../enums";
 import {
   InstallCommitment,
   UninstallCommitment,
@@ -31,7 +31,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addMultisigSendCommitmentToContext,
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       context.outbox.push({
@@ -71,7 +71,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {
@@ -111,7 +111,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addUninstallRefundAppCommitmentToContext,
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {

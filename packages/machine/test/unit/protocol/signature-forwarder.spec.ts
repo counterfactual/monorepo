@@ -38,7 +38,8 @@ describe("Signature Forwarder Helpers", () => {
       outbox: [],
       inbox: [],
       network: {} as NetworkContext,
-      stateChannelsMap: new Map<string, StateChannel>()
+      stateChannelsMap: new Map<string, StateChannel>(),
+      middlewareArgs: []
     };
   });
 

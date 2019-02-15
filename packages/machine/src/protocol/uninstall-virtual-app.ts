@@ -5,7 +5,7 @@ import {
   NetworkContext
 } from "@counterfactual/types";
 
-import { Opcode } from "../enums";
+import { OP_SIGN_0, Opcode } from "../enums";
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
@@ -19,7 +19,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
     addVirtualAppStateTransitionToContext,
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -62,7 +62,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     addLeftUninstallAgreementToContext,
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -172,7 +172,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -194,7 +194,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     addRightUninstallAgreementToContext,
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -253,7 +253,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -285,7 +285,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     (message: ProtocolMessage, context: Context) => {
       const {

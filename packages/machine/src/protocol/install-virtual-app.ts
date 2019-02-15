@@ -4,7 +4,7 @@ import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import { Opcode } from "../enums";
+import { OP_SIGN_0, Opcode } from "../enums";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
@@ -47,7 +47,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     proposeStateTransition1,
 
     // Sign `context.commitment.getHash()` and `context.commitment2.getHash(false)`
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // M1
     (message: ProtocolMessage, context: Context) => {
@@ -201,7 +201,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     // Sign two commitments
-    Opcode.OP_SIGN,
+    ...OP_SIGN_0,
 
     // M3
     (message: ProtocolMessage, context: Context) => {
