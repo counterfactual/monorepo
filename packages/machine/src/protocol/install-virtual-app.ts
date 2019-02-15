@@ -114,7 +114,13 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     // Sign three commitments; pass `true` to hashToSign if asked
-    Opcode.OP_SIGN_AS_INTERMEDIARY,
+    (message: ProtocolMessage, context: Context) => {
+      context.middlewareArgs = [0, true];
+    },
+    Opcode.OP_SIGN,
+    (message: ProtocolMessage, context: Context) => {
+      context.middlewareArgs = [];
+    },
 
     // M2
     (message: ProtocolMessage, context: Context) => {

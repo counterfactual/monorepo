@@ -108,7 +108,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.OP_SIGN_AS_INTERMEDIARY,
+    (message: ProtocolMessage, context: Context) => {
+      context.middlewareArgs = [0, true];
+    },
+    Opcode.OP_SIGN,
+    (message: ProtocolMessage, context: Context) => {
+      context.middlewareArgs = [];
+    },
 
     (message: ProtocolMessage, context: Context) => {
       const {

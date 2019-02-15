@@ -117,7 +117,7 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
-    const makeSigner = (asIntermediary: boolean) => {
+    const makeSigner = () => {
       return async (
         message: ProtocolMessage,
         next: Function,
@@ -134,11 +134,11 @@ export class Node {
 
         if (context.middlewareArgs.length !== 0) {
           keyIndex = context.middlewareArgs[0];
-        } else if (asIntermediary) {
-          keyIndex = 0;
         } else {
           throw Error("I need to know which key to use!");
         }
+
+        const asIntermediary = !!context.middlewareArgs[1];
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
@@ -152,12 +152,7 @@ export class Node {
       };
     };
 
-    instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
-
-    instructionExecutor.register(
-      Opcode.OP_SIGN_AS_INTERMEDIARY,
-      makeSigner(true)
-    );
+    instructionExecutor.register(Opcode.OP_SIGN, makeSigner());
 
     instructionExecutor.register(
       Opcode.IO_SEND,

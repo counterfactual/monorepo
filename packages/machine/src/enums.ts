@@ -12,12 +12,6 @@ enum Opcode {
   OP_SIGN,
 
   /**
-   * Same as above, but pass isIntermediary=true to EthereumCommitments.hashToSign
-   * todo(xuanji): think of a better design to get rid of this
-   */
-  OP_SIGN_AS_INTERMEDIARY,
-
-  /**
    * Middleware hook to send a ProtocolMessage to a peer.
    */
   IO_SEND,
