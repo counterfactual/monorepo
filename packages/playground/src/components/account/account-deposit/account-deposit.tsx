@@ -42,19 +42,17 @@ export class AccountDeposit {
           requestId: window["uuid"](),
           params: {
             multisigAddress: this.user.multisigAddress,
-            amount: this.amountDeposited,
+            amount: ethers.utils.parseEther(this.amountDeposited),
             notifyCounterparty: true
           } as Node.DepositParams
         });
 
         this.updateAccount({
-          unconfirmedBalance: parseFloat(
-            ethers.utils.formatEther(this.amountDeposited)
-          )
+          unconfirmedBalance: parseFloat(this.amountDeposited)
         });
       } else {
         this.updateAccount({
-          pendingAccountFunding: this.amountDeposited
+          pendingAccountFunding: parseFloat(this.amountDeposited)
         });
       }
       this.history.push("/");
