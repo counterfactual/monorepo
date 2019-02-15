@@ -9,6 +9,7 @@ import {
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
+import NetworkTunnel from "../../../../data/network";
 import { UserSession } from "../../../../types";
 
 @Component({
@@ -19,6 +20,10 @@ import { UserSession } from "../../../../types";
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
+  @Prop() network: string = "";
+  @Prop() web3Detected: boolean = false;
+  @Prop() metamaskUnlocked: boolean = false;
+  @Prop() networkPermitted: boolean = false;
   @Prop() unconfirmedBalance?: number;
   @Prop() pendingAccountFunding?: any;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
@@ -93,6 +98,33 @@ export class HeaderAccount {
   }
 
   render() {
+    if (!this.web3Detected) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">No Ethereum Connection</div>
+        </div>
+      );
+    }
+
+    if (!this.networkPermitted) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">Wrong Network</div>
+        </div>
+      );
+    }
+
+    if (!this.metamaskUnlocked) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">Wallet Locked</div>
+        </div>
+      );
+    }
+
     if (!this.authenticated) {
       return (
         <div class="account-container">
@@ -102,7 +134,7 @@ export class HeaderAccount {
               Login
             </button>
             <stencil-route-link url="/register">
-              <button class="btn btn-outline">Register</button>
+              <button class="btn btn-alternate">Register</button>
             </stencil-route-link>
           </div>
         </div>
@@ -154,4 +186,11 @@ AccountTunnel.injectProps(HeaderAccount, [
   "pendingAccountFunding",
   "login",
   "autoLogin"
+]);
+
+NetworkTunnel.injectProps(HeaderAccount, [
+  "network",
+  "web3Detected",
+  "networkPermitted",
+  "metamaskUnlocked"
 ]);

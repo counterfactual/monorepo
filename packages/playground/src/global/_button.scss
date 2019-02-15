@@ -1,17 +1,33 @@
 .btn {
   background-color: $c-blue;
   color: $c-white;
-  border: thin solid $c-blue;
-  border-radius: 2px;
-  padding: 6px 14px;
+  border-radius: 4px;
+  padding: 8px 16px;
   min-width: 80px;
   min-height: 30px;
+  box-shadow: 1px 2px 4px $c-lightgrey;
+
+  &:not(:disabled) {
+    &:hover {
+      background-color: $c-bluealt;
+    }
+  }
+
 }
- .btn-outline {
-  background-color: $c-white;
-  color: $c-blue;
+
+.btn-alternate {
+  background-color: $c-darkgrey;
+  color: $c-white;
+
+  &:not(:disabled) {
+    &:hover {
+      background-color: $c-mediumgrey;
+    }
+  }
+
 }
- .btn-container {
+
+.btn-container {
   display: flex;
   flex-direction: row;
    .btn {
@@ -20,4 +36,4 @@
       margin-right: 0;
     }
   }
-} 
+}

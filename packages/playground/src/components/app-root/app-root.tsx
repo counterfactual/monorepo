@@ -64,7 +64,9 @@ export class AppRoot {
   }
 
   async setup() {
-    await Promise.all([this.createNodeProvider(), this.loadApps()]);
+    if (typeof web3 !== "undefined") {
+      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+    }
 
     this.loading = false;
   }

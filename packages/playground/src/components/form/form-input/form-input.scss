@@ -8,7 +8,7 @@
   align-items: center;
   height: $rhythm * 4;
   width: 100%;
-  border: thin solid $c-darkgrey;
+  border: thin solid $c-mediumgrey;
   border-radius: 2px;
   margin-bottom: $rhythm * 2;
 
@@ -37,7 +37,7 @@
 
 .unit {
   padding: $rhythm;
-  color: $c-blue;
+  color: $c-darkgrey;
   flex-shrink: 0;
 }
 

@@ -1,6 +1,7 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 
 import AccountTunnel from "../../../data/account";
+import NetworkTunnel from "../../../data/network";
 import { UserSession } from "../../../types";
 
 interface TransactionArgs {
@@ -8,6 +9,13 @@ interface TransactionArgs {
   to: string;
   value: string;
 }
+
+const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+  "1": "",
+  "3": "ropsten",
+  "42": "kovan",
+  "4": "rinkeby"
+};
 
 @Component({
   tag: "account-exchange",
@@ -18,6 +26,7 @@ export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() balance: number = 0;
+  @Prop() network: string = "";
   @Prop() accountBalance: number = 0;
   @Prop() updateAccount: (e) => void = e => {};
   @State() depositValue: number | string = "";
@@ -108,6 +117,12 @@ export class AccountExchange {
     });
   }
 
+  getEtherscanURL() {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.network]
+    }.etherscan.io/address/${this.user.multisigAddress}`;
+  }
+
   render() {
     return [
       <layout-header />,
@@ -132,6 +147,13 @@ export class AccountExchange {
             disabled={true}
           />
         </div>
+      </div>,
+      <div class="container">
+        <p>
+          <a target="_blank" href={this.getEtherscanURL()}>
+            View on Etherscan
+          </a>
+        </p>
       </div>
     ];
   }
@@ -143,3 +165,5 @@ AccountTunnel.injectProps(AccountExchange, [
   "updateAccount",
   "user"
 ]);
+
+NetworkTunnel.injectProps(AccountExchange, ["network"]);
