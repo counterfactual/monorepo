@@ -46,18 +46,29 @@ export default async function depositController(
     beforeDepositMultisigBalance,
     afterDepositMultisigBalance
   );
+  if (
+    channel.hasAppInstanceOfKind(requestHandler.networkContext.ETHBalanceRefund)
+  ) {
+    return Promise.reject(ERRORS.ETH_BALANCE_REFUND_NOT_UNINSTALLED);
+  }
 
-  const [peerAddress] = await getPeersAddressFromChannel(
-    requestHandler.publicIdentifier,
-    store,
-    multisigAddress
-  );
+  if (params.notifyCounterparty) {
+    const [peerAddress] = await getPeersAddressFromChannel(
+      requestHandler.publicIdentifier,
+      store,
+      multisigAddress
+    );
 
-  await requestHandler.messagingService.send(peerAddress, {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.DEPOSIT_CONFIRMED,
-    data: params
-  } as DepositConfirmationMessage);
+    await requestHandler.messagingService.send(peerAddress, {
+      from: requestHandler.publicIdentifier,
+      type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+      data: {
+        ...params,
+        // This party shouldn't get notified by the peer node
+        notifyCounterparty: false
+      }
+    } as DepositConfirmationMessage);
+  }
 
   return {
     multisigBalance: await requestHandler.provider.getBalance(multisigAddress)
