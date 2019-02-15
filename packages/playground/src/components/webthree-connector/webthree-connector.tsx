@@ -54,22 +54,12 @@ export class Web3Connector {
     return networkState;
   }
 
-  async enableAccount() {
-    try {
-      await window["web3"].currentProvider.enable();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
       return this.networkState.updateNetwork!({ web3Detected: false });
     }
 
     this.networkState.updateNetwork!({ web3Detected: true });
-
-    await this.enableAccount();
 
     // Small timeout because metamask takes a moment to load the accounts
     window.setTimeout(async () => {
@@ -101,8 +91,6 @@ export class Web3Connector {
       });
 
       this.networkState.updateNetwork!(networkState);
-
-      console.log(networkState);
 
       const interval = window.setInterval(async () => {
         const newAddress = this.getCurrentAddress();

@@ -128,7 +128,7 @@ export class AccountExchange {
       <layout-header />,
       <div class="form-containers">
         <div class="form-container">
-          <widget-header>Deposit</widget-header>
+          <h1>Deposit ETH</h1>
           <account-eth-form
             onSubmit={e => this.deposit(e)}
             button="Deposit"
@@ -138,7 +138,7 @@ export class AccountExchange {
         </div>
 
         <div class="form-container">
-          <widget-header>Withdraw</widget-header>
+          <h1>Withdraw ETH</h1>
           <account-eth-form
             onSubmit={e => this.withdraw(e)}
             button="Withdraw"

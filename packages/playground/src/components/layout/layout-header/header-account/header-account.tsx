@@ -35,6 +35,7 @@ export class HeaderAccount {
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
   @State() waitMultisigInterval: NodeJS.Timeout = {} as NodeJS.Timeout;
+  @State() metamaskConfirmationUIOpen: boolean = false;
 
   // TODO: This is a very weird way to prevent dual-execution of this lifecycle event.
   // But it works. See componentWillLoad() and componentDidUnload().
@@ -58,6 +59,19 @@ export class HeaderAccount {
     } catch (error) {
       this.displayLoginError();
     }
+  }
+
+  onConnectMetamask() {
+    this.metamaskConfirmationUIOpen = true;
+
+    window["ethereum"]
+      .enable()
+      .then(() => {
+        this.metamaskConfirmationUIOpen = false;
+      })
+      .catch(() => {
+        this.metamaskConfirmationUIOpen = false;
+      });
   }
 
   async componentWillLoad() {
@@ -120,7 +134,17 @@ export class HeaderAccount {
       return (
         <div class="account-container">
           <widget-error-message />
-          <div class="message-container">Wallet Locked</div>
+          <div class="btn-container">
+            <button
+              disabled={this.metamaskConfirmationUIOpen}
+              onClick={this.onConnectMetamask.bind(this)}
+              class="btn"
+            >
+              {this.metamaskConfirmationUIOpen
+                ? "Check Wallet"
+                : "Connect to Metamask"}
+            </button>
+          </div>
         </div>
       );
     }

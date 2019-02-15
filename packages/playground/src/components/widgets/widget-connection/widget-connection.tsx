@@ -3,7 +3,7 @@ import { Component, Element, Prop } from "@stencil/core";
 import NetworkTunnel from "../../../data/network";
 
 const NETWORK_NAMES = {
-  "1": "Ethereum",
+  "1": "Mainnet",
   "3": "Ropsten",
   "42": "Kovan",
   "4": "Rinkeby"
