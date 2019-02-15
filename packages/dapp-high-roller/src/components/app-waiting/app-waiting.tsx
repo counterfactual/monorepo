@@ -1,4 +1,11 @@
-import { Component, Element, Prop, State } from "@stencil/core";
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  Prop,
+  State
+} from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -25,13 +32,21 @@ export class AppWaiting {
   @State() seconds: number = 5;
   @State() isCountdownStarted: boolean = false;
 
+  resetCountDown() {
+    this.seconds = 5;
+    this.countDown();
+  }
+
   componentWillLoad() {
     this.betAmount = getProp("betAmount", this);
     this.isProposing = getProp("isProposing", this);
   }
 
+  @Event() timeout: EventEmitter = {} as EventEmitter;
+
   countDown() {
-    if (this.seconds === 1) {
+    if (this.seconds < 0) {
+      this.timeout.emit(this.resetCountDown.bind(this));
       return;
     }
     setTimeout(() => {
