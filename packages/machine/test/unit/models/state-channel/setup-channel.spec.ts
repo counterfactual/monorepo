@@ -9,8 +9,8 @@ import { AppInstance, StateChannel } from "../../../../src/models";
 describe("StateChannel::setupChannel", () => {
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
   const userNeuteredExtendedKeys = [
-    fromSeed(hexlify(randomBytes(32))).extendedKey,
-    fromSeed(hexlify(randomBytes(32))).extendedKey
+    fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
+    fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
   ];
 
   let sc: StateChannel;

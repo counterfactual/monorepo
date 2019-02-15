@@ -9,7 +9,7 @@ import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
 import { UserChangeset, UserSession } from "../../../types";
 
-function buildSignaturePayload(data: UserChangeset) {
+function buildRegistrationSignaturePayload(data: UserChangeset) {
   return [
     "PLAYGROUND ACCOUNT REGISTRATION",
     `Username: ${data.username}`,
@@ -17,6 +17,12 @@ function buildSignaturePayload(data: UserChangeset) {
     `Ethereum address: ${data.ethAddress}`,
     `Node address: ${data.nodeAddress}`
   ].join("\n");
+}
+
+function buildLoginSignaturePayload(address: string) {
+  return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
+    "\n"
+  );
 }
 
 @Component({
@@ -30,6 +36,7 @@ export class AccountRegister {
 
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
+  @Prop() signer: Signer = {} as Signer;
   @Prop() history: RouterHistory = {} as RouterHistory;
 
   changeset: UserChangeset = {
@@ -46,7 +53,26 @@ export class AccountRegister {
     nodeAddress: ""
   };
 
-  login() {}
+  async login(e: MouseEvent) {
+    e.preventDefault();
+
+    const signature = await this.signer.signMessage(
+      buildLoginSignaturePayload(this.user.ethAddress)
+    );
+
+    const user = await PlaygroundAPIClient.login(
+      {
+        ethAddress: this.user.ethAddress
+      },
+      signature
+    );
+
+    window.localStorage.setItem("playground:user:token", user.token as string);
+
+    this.updateAccount({ user });
+
+    this.history.push("/");
+  }
 
   change(key: keyof UserChangeset, event: Event) {
     this.changeset[key] = (event.target as HTMLInputElement).value;
@@ -58,7 +84,7 @@ export class AccountRegister {
     // We use personal#sign() because eth#sign() is dangerous.
     // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
     web3.personal.sign(
-      buildSignaturePayload(data),
+      web3.toHex(buildRegistrationSignaturePayload(data)),
       data.ethAddress,
       this.register.bind(this)
     );
@@ -96,7 +122,7 @@ export class AccountRegister {
 
       this.history.push("/deposit");
     } catch (e) {
-      this.setErrorMessage(e.errorCode);
+      this.setErrorMessage(e.code);
     }
   }
 
@@ -184,13 +210,16 @@ export class AccountRegister {
         </form-container>
 
         <div slot="post">
-          Already have an account? <a onClick={this.login}>Login here</a>
+          Already have an account?{" "}
+          <a href="#" onClick={async e => await this.login(e)}>
+            Login here
+          </a>
         </div>
       </widget-screen>
     );
   }
 }
 
-AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user"]);
+AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user", "signer"]);
 
 NetworkTunnel.injectProps(AccountRegister, ["connected"]);

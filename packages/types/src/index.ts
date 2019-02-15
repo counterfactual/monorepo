@@ -18,8 +18,8 @@ import {
   Address,
   AppAction,
   AppInstanceID,
-  SolidityABIEncoderV2Struct,
-  Bytes32
+  Bytes32,
+  SolidityABIEncoderV2Struct
 } from "./simple-types";
 
 export interface NetworkContext {
@@ -30,6 +30,8 @@ export interface NetworkContext {
   NonceRegistry: string;
   StateChannelTransaction: string;
   ETHVirtualAppAgreement: string;
+  MinimumViableMultisig: string;
+  ProxyFactory: string;
 }
 
 export {

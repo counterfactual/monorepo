@@ -72,3 +72,10 @@
     color: #fff;
   }
 }
+.message__error {
+  background: #900;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: inset 1px 1px 10px #f00;
+  margin-top: 2rem;
+}

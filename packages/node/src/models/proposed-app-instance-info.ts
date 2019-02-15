@@ -1,15 +1,23 @@
 import {
+  AppInstance,
+  StateChannel,
+  xkeyKthAddress,
+  xkeysToSortedKthAddresses
+} from "@counterfactual/machine";
+import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
+  AppInterface,
   BlockchainAsset,
-  SolidityABIEncoderV2Struct
+  Bytes32,
+  SolidityABIEncoderV2Struct,
+  Terms
 } from "@counterfactual/types";
+import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 export interface IProposedAppInstanceInfo {
-  id?: AppInstanceID;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -17,13 +25,13 @@ export interface IProposedAppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: AppInstanceID;
+  id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -31,9 +39,9 @@ export interface ProposedAppInstanceInfoJSON {
   peerDeposit: string;
   timeout: string;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 }
 
 /**
@@ -47,7 +55,7 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  id: AppInstanceID;
+  id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
@@ -55,25 +63,80 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Struct;
-  initiatingAddress: Address;
-  respondingAddress: Address;
-  intermediaries?: Address[];
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  intermediaries?: string[];
 
   constructor(
-    appInstanceId: AppInstanceID,
-    proposeParams: IProposedAppInstanceInfo
+    proposeParams: IProposedAppInstanceInfo,
+    channel?: StateChannel,
+    overrideId?: Bytes32
   ) {
-    this.id = appInstanceId;
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
     this.asset = proposeParams.asset;
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
-    this.initiatingAddress = proposeParams.initiatingAddress;
-    this.respondingAddress = proposeParams.respondingAddress;
+    this.proposedByIdentifier = proposeParams.proposedByIdentifier;
+    this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
+    this.id = overrideId || this.getIdentityHashFor(channel!);
+  }
+
+  // TODO: Note the construction of this is duplicated from the machine
+  getIdentityHashFor(stateChannel: StateChannel) {
+    const proposedAppInterface: AppInterface = {
+      addr: this.appId,
+      ...this.abiEncodings
+    };
+
+    const proposedTerms: Terms = {
+      assetType: this.asset.assetType,
+      limit: Zero,
+      token: AddressZero // this.asset.token || AddressZero
+    };
+
+    let signingKeys: string[];
+    let isVirtualApp: boolean;
+
+    if ((this.intermediaries || []).length > 0) {
+      isVirtualApp = true;
+
+      const appSeqNo = stateChannel.numInstalledApps;
+
+      const [intermediaryXpub] = this.intermediaries!;
+
+      // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
+      signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
+        xkeysToSortedKthAddresses(
+          [this.proposedByIdentifier, this.proposedToIdentifier],
+          appSeqNo
+        )
+      );
+    } else {
+      isVirtualApp = false;
+      signingKeys = stateChannel.getNextSigningKeys();
+    }
+
+    const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
+
+    const proposedAppInstance = new AppInstance(
+      owner,
+      signingKeys,
+      bigNumberify(this.timeout).toNumber(),
+      proposedAppInterface,
+      proposedTerms,
+      isVirtualApp,
+      isVirtualApp ? 1337 : stateChannel.numInstalledApps,
+      stateChannel.rootNonceValue,
+      this.initialState,
+      0,
+      bigNumberify(this.timeout).toNumber()
+    );
+
+    return proposedAppInstance.identityHash;
   }
 
   toJson() {
@@ -86,15 +149,14 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: this.peerDeposit,
       initialState: this.initialState,
       timeout: this.timeout,
-      initiatingAddress: this.initiatingAddress,
-      respondingAddress: this.respondingAddress,
+      proposedByIdentifier: this.proposedByIdentifier,
+      proposedToIdentifier: this.proposedToIdentifier,
       intermediaries: this.intermediaries
     };
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
-      id: json.id,
       appId: json.appId,
       abiEncodings: json.abiEncodings,
       asset: json.asset,
@@ -102,10 +164,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
       initialState: json.initialState,
-      initiatingAddress: json.initiatingAddress,
-      respondingAddress: json.respondingAddress,
+      proposedByIdentifier: json.proposedByIdentifier,
+      proposedToIdentifier: json.proposedToIdentifier,
       intermediaries: json.intermediaries
     };
-    return new ProposedAppInstanceInfo(json.id, proposeParams);
+    return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
   }
 }

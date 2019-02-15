@@ -1,6 +1,6 @@
 import { StateChannel } from "@counterfactual/machine";
 import { Address } from "@counterfactual/types";
-import { hashMessage } from "ethers/utils";
+import { BigNumber, hashMessage } from "ethers/utils";
 
 import { Store } from "./store";
 
@@ -10,18 +10,21 @@ export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
 
 /**
  *
- * @param selfAddress
+ * @param myIdentifier
  * @param peerAddress Peer Address could either be an intermediary or a
  *        `respondingAddress` which is the targeted peer in a Virtual AppInstance
  *        operation.
  * @param store
  */
 export async function getChannelFromPeerAddress(
-  selfAddress: string,
+  myIdentifier: string,
   peerAddress: string,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = hashOfOrderedPublicIdentifiers([selfAddress, peerAddress]);
+  const ownersHash = hashOfOrderedPublicIdentifiers([
+    myIdentifier,
+    peerAddress
+  ]);
 
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
     ownersHash
@@ -29,24 +32,39 @@ export async function getChannelFromPeerAddress(
 
   if (!multisigAddress) {
     return Promise.reject(
-      `No channel exists between the current user ${selfAddress} and the peer ${peerAddress}`
+      `No channel exists between the current user ${myIdentifier} and the peer ${peerAddress}`
     );
   }
 
   return await store.getStateChannel(multisigAddress);
 }
 
+export async function getPeersAddressFromChannel(
+  myIdentifier: string,
+  store: Store,
+  multisigAddress: string
+): Promise<Address[]> {
+  const stateChannel = await store.getStateChannel(multisigAddress);
+  const owners = stateChannel.userNeuteredExtendedKeys;
+  return owners.filter(owner => owner !== myIdentifier);
+}
+
 export async function getPeersAddressFromAppInstanceID(
-  selfAddress: Address,
+  myIdentifier: Address,
   store: Store,
   appInstanceId: string
 ): Promise<Address[]> {
   const multisigAddress = await store.getMultisigAddressFromAppInstanceID(
     appInstanceId
   );
-  const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== selfAddress);
+
+  if (!multisigAddress) {
+    throw new Error(
+      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+    );
+  }
+
+  return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
 }
 
 export function isNotDefinedOrEmpty(str?: string) {
@@ -54,10 +72,21 @@ export function isNotDefinedOrEmpty(str?: string) {
 }
 
 export function getCounterpartyAddress(
-  selfAddress: Address,
+  myIdentifier: Address,
   appInstanceAddresses: Address[]
 ) {
   return appInstanceAddresses.filter(address => {
-    return address !== selfAddress;
+    return address !== myIdentifier;
   })[0];
+}
+
+export function getBalanceIncrement(
+  beforeDeposit: BigNumber,
+  afterDeposit: BigNumber
+): BigNumber {
+  return afterDeposit.sub(beforeDeposit);
+}
+
+export function getAlice(channel: StateChannel): string {
+  return channel.multisigOwners[0];
 }

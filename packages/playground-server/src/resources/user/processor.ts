@@ -1,9 +1,17 @@
+import { Node } from "@counterfactual/types";
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
-import { createUser, getUsers } from "../../db";
-import { createMultisigFor } from "../../node";
+import {
+  bindMultisigToUser,
+  createUser,
+  ethAddressAlreadyRegistered,
+  getUsers,
+  usernameAlreadyRegistered
+} from "../../db";
+import errors from "../../errors";
+import NodeWrapper from "../../node";
 
 import User from "./resource";
 
@@ -11,6 +19,9 @@ export default class UserProcessor extends OperationProcessor {
   public resourceClass = User;
 
   public async get(op: Operation): Promise<User[]> {
+    const isMe =
+      op.ref.id === "me" || (this.app.user && this.app.user.id === op.ref.id);
+
     if (op.ref.id === "me") {
       if (this.app.user) {
         op.ref.id = this.app.user.id;
@@ -19,30 +30,55 @@ export default class UserProcessor extends OperationProcessor {
       }
     }
 
-    return getUsers({ id: op.ref.id });
+    return getUsers(
+      op.ref.id ? { id: op.ref.id } : op.params.filter || {},
+      !isMe ? ["username", "ethAddress", "nodeAddress"] : []
+    );
   }
 
   public async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
     const user = op.data;
-    const { nodeAddress } = user.attributes;
 
-    const multisig = await createMultisigFor(String(nodeAddress));
+    const { username, email, ethAddress, nodeAddress } = user.attributes;
 
-    Log.info("Multisig has been created", {
-      tags: {
-        multisigAddress: multisig.multisigAddress,
-        endpoint: "createAccount"
-      }
-    });
+    if (!username) {
+      throw errors.UsernameRequired();
+    }
 
-    user.attributes.multisigAddress = multisig.multisigAddress;
+    if (!email) {
+      throw errors.EmailRequired();
+    }
+
+    if (!ethAddress) {
+      throw errors.UserAddressRequired();
+    }
+
+    if (await usernameAlreadyRegistered(username as string)) {
+      throw errors.UsernameAlreadyExists();
+    }
+
+    if (await ethAddressAlreadyRegistered(ethAddress as string)) {
+      throw errors.AddressAlreadyRegistered();
+    }
 
     // Create the Playground User.
     const newUser = await createUser(user);
 
     Log.info("User has been created", {
       tags: { userId: user.id, endpoint: "createAccount" }
+    });
+
+    NodeWrapper.createStateChannelFor(nodeAddress as string).then(
+      async (result: Node.CreateChannelResult) => {
+        await bindMultisigToUser(newUser, result.multisigAddress);
+      }
+    );
+
+    Log.info("Multisig has been requested", {
+      tags: {
+        endpoint: "createAccount"
+      }
     });
 
     // Update user with token.

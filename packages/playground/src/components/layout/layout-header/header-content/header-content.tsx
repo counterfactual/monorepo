@@ -45,7 +45,6 @@ export class HeaderContent {
           </div>
         </div>
         <header-account
-          fakeConnect={true}
           onAuthenticationChanged={e => this.updateConnectionWidget(e)}
         />
       </nav>

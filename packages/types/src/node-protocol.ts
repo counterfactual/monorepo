@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers/utils";
 
+import { ETHBucketAppState } from ".";
 import {
   AppABIEncodings,
   AppInstanceInfo,
@@ -36,20 +37,24 @@ export namespace Node {
   export enum MethodName {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
+    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
     PROPOSE_INSTALL = "proposeInstall",
     PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
+    WITHDRAW = "withdraw",
     GET_STATE = "getState",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
-    CREATE_MULTISIG = "createMultisig",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
+    CREATE_CHANNEL = "createChannel",
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
+    DEPOSIT = "deposit"
   }
 
   // The events that cf.js clients can listen on
@@ -60,10 +65,41 @@ export namespace Node {
     REJECT_INSTALL = "rejectInstallEvent",
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",
+    UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
+    WITHDRAW = "withdrawEvent",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_MULTISIG = "createMultisigEvent"
+    CREATE_CHANNEL = "createChannelEvent",
+    DEPOSIT_STARTED = "depositStartedEvent",
+    DEPOSIT_CONFIRMED = "depositConfirmedEvent",
+    DEPOSIT_FAILED = "depositFailed",
+    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed"
   }
+
+  export type DepositParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+    notifyCounterparty?: boolean;
+  };
+  export type DepositResult = {
+    multisigBalance: BigNumber;
+  };
+
+  export type WithdrawParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+  };
+  export type WithdrawResult = {
+    amount: BigNumber;
+  };
+
+  export type GetFreeBalanceStateParams = {
+    multisigAddress: string;
+  };
+
+  export type GetFreeBalanceStateResult = {
+    state: ETHBucketAppState;
+  };
 
   export type GetAppInstancesParams = {};
   export type GetProposedAppInstancesParams = {};
@@ -83,14 +119,14 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Struct;
-    respondingAddress: Address;
+    proposedToIdentifier: string;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
@@ -107,7 +143,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type InstallVirtualResult = InstallResult;
 
@@ -138,10 +174,15 @@ export namespace Node {
   };
   export type UninstallResult = {};
 
-  export type CreateMultisigParams = {
+  export type UninstallVirtualParams = UninstallParams & {
+    intermediaryIdentifier: string;
+  };
+  export type UninstallVirtualResult = UninstallResult;
+
+  export type CreateChannelParams = {
     owners: Address[];
   };
-  export type CreateMultisigResult = {
+  export type CreateChannelResult = {
     multisigAddress: Address;
   };
 
@@ -162,7 +203,7 @@ export namespace Node {
     | GetAppInstanceDetailsParams
     | TakeActionParams
     | UninstallParams
-    | CreateMultisigParams
+    | CreateChannelParams
     | GetChannelAddressesParams;
   export type MethodResult =
     | GetAppInstancesResult
@@ -176,7 +217,7 @@ export namespace Node {
     | GetAppInstanceDetailsResult
     | TakeActionResult
     | UninstallResult
-    | CreateMultisigResult
+    | CreateChannelResult
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
@@ -192,7 +233,10 @@ export namespace Node {
     action?: AppAction;
   };
   export type UninstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstanceId: string;
+  };
+  export type WithdrawEventData = {
+    amount: BigNumber;
   };
   export type CreateMultisigEventData = {
     owners: Address[];

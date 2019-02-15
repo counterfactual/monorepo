@@ -1,4 +1,5 @@
 import { Terms } from "@counterfactual/types";
+import { getAddress, keccak256, solidityPack } from "ethers/utils";
 
 export type ETHVirtualAppAgreementJson = {
   multisigAddress: string;
@@ -7,6 +8,9 @@ export type ETHVirtualAppAgreementJson = {
   rootNonceValue: number;
   expiry: number;
   capitalProvided: number;
+  targetAppIdentityHash: string;
+  beneficiary1: string;
+  beneficiary2: string;
 };
 
 export class ETHVirtualAppAgreementInstance {
@@ -20,7 +24,10 @@ export class ETHVirtualAppAgreementInstance {
     public expiry: number,
     // todo(xuanji): The following field is a js `number`, which is
     // unsafe since even 1 ETH will exceed `Number.MAX_SAFE_INTEGER`
-    public capitalProvided: number
+    public capitalProvided: number,
+    public targetAppIdentityHash: string,
+    public beneficiary1: string,
+    public beneficiary2: string
   ) {
     this.json = {
       multisigAddress,
@@ -28,7 +35,11 @@ export class ETHVirtualAppAgreementInstance {
       appSeqNo,
       rootNonceValue,
       expiry,
-      capitalProvided
+      capitalProvided,
+      targetAppIdentityHash,
+      // normalize addresses and fail early on any invalid addresses
+      beneficiary1: getAddress(beneficiary1),
+      beneficiary2: getAddress(beneficiary2)
     };
   }
 
@@ -37,14 +48,30 @@ export class ETHVirtualAppAgreementInstance {
   }
 
   public static fromJson(json: ETHVirtualAppAgreementJson) {
-    const ret = new ETHVirtualAppAgreementInstance(
+    return new ETHVirtualAppAgreementInstance(
       json.multisigAddress,
       json.terms,
       json.appSeqNo,
       json.rootNonceValue,
       json.expiry,
-      json.capitalProvided
+      json.capitalProvided,
+      json.targetAppIdentityHash,
+      json.beneficiary1,
+      json.beneficiary2
     );
-    return ret;
+  }
+  public get uninstallKey() {
+    // The unique "key" in the NonceRegistry is computed to be:
+    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
+    return keccak256(
+      solidityPack(
+        ["address", "uint256", "bytes32"],
+        [
+          this.json.multisigAddress,
+          0,
+          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
+        ]
+      )
+    );
   }
 }

@@ -46,10 +46,6 @@ export class FirebaseServiceFactory {
   createStoreService(storeServiceKey: string): IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
-
-  async closeConnection() {
-    await this.app.delete();
-  }
 }
 
 class FirebaseMessagingService implements IMessagingService {
@@ -78,7 +74,7 @@ class FirebaseMessagingService implements IMessagingService {
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", (snapshot: firebase.database.DataSnapshot | null) => {
+      .on("value", async (snapshot: firebase.database.DataSnapshot | null) => {
         if (!snapshot) {
           console.error(
             `Node with address ${address} received a "null" snapshot`
@@ -102,6 +98,9 @@ class FirebaseMessagingService implements IMessagingService {
           this.servedMessages.add(msg);
           callback(msg);
         }
+        await this.firebase
+          .ref(`${this.messagingServerKey}/${address}`)
+          .set(null);
       });
   }
 }

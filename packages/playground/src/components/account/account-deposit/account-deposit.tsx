@@ -1,7 +1,9 @@
+import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import CounterfactualNode from "../../../data/counterfactual";
 import { UserSession } from "../../../types";
 
 @Component({
@@ -20,6 +22,10 @@ export class AccountDeposit {
   @State() error: string = "";
   @State() amountDeposited;
 
+  get node() {
+    return CounterfactualNode.getInstance();
+  }
+
   async componentWillLoad() {
     this.balance = parseFloat(
       ethers.utils.formatEther((await this.signer.getBalance()).toString())
@@ -30,17 +36,27 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      await this.signer.sendTransaction({
-        to: this.user.multisigAddress,
-        value: this.amountDeposited
-      });
+      if (this.user.multisigAddress) {
+        await this.node.call(Node.MethodName.DEPOSIT, {
+          type: Node.MethodName.DEPOSIT,
+          requestId: window["uuid"](),
+          params: {
+            multisigAddress: this.user.multisigAddress,
+            amount: this.amountDeposited,
+            notifyCounterparty: true
+          } as Node.DepositParams
+        });
 
-      this.updateAccount({
-        unconfirmedBalance: parseFloat(
-          ethers.utils.formatEther(this.amountDeposited)
-        )
-      });
-
+        this.updateAccount({
+          unconfirmedBalance: parseFloat(
+            ethers.utils.formatEther(this.amountDeposited)
+          )
+        });
+      } else {
+        this.updateAccount({
+          pendingAccountFunding: this.amountDeposited
+        });
+      }
       this.history.push("/");
     } catch (error) {
       this.error = error.message;

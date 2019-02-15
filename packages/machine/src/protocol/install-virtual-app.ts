@@ -1,10 +1,9 @@
 import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
-import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import {
   AppInstance,
@@ -14,21 +13,34 @@ import {
 import {
   Context,
   InstallVirtualAppParams,
+  ProtocolExecutionFlow,
   ProtocolMessage,
   SolidityABIEncoderV2Struct
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-
-// hardcoded assumption: all installed virtual apps can go through this many update operations
-const NONCE_EXPIRY = 65536;
-
-// TODO: Add signature validation
+import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
  * https://specs.counterfactual.com/09-install-virtual-app-protocol
+ *
+ * Commitments Storage Layout:
+ *
+ * initiating
+ *     0: AB ETH Virtual App Agreement
+ *     1: ABC Virtual App Set State
+ *
+ * intermediary
+ *     0: AB ETH Virtual App Agreement
+ *     1: BC ETH Virtual App Agreement
+ *     2: ABC Virtual App Set State
+ *
+ * responding
+ *     0: BC ETH Virtual App Agreement
+ *     1: ABC Virtual App Set State
  */
 export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
@@ -45,18 +57,61 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[0], // s1
         signature2: context.signatures[1], // s5
         seq: 1,
-        toAddress: params2.intermediaryAddress
+        toAddress: params2.intermediaryXpub
       });
     },
 
     // wait for M5
     Opcode.IO_SEND_AND_WAIT,
 
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as InstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[1],
+        context.inbox[0].signature,
+        true
+      );
+    },
+
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as InstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        context.inbox[0].signature2
+      );
+    },
+
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[1],
+        context.inbox[0].signature3
+      );
+    },
+
     Opcode.STATE_TRANSITION_COMMIT
   ],
 
   1: [
     proposeStateTransition2,
+
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[0],
+        message.signature
+      );
+
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[2],
+        message.signature2
+      );
+    },
 
     // Sign three commitments; pass `true` to hashToSign if asked
     Opcode.OP_SIGN_AS_INTERMEDIARY,
@@ -67,15 +122,29 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.respondingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.respondingXpub,
         signature: message.signature2, // s5
-        signature2: context.signatures[0] // s3
+        signature2: context.signatures[1] // s3
       };
     },
 
     // wait for M3
     Opcode.IO_SEND_AND_WAIT,
+
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[1],
+        context.inbox[0].signature
+      );
+
+      validateSignature(
+        xkeyKthAddress(message.params.respondingXpub, 0),
+        context.commitments[2],
+        context.inbox[0].signature2
+      );
+    },
 
     // M4
     (message: ProtocolMessage, context: Context) => {
@@ -83,11 +152,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.respondingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.respondingXpub,
         signature: context.signatures[2] // s6
       };
     },
+
     Opcode.IO_SEND,
 
     // M5
@@ -96,10 +166,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryAddress,
-        toAddress: params2.initiatingAddress,
+        fromAddress: params2.intermediaryXpub,
+        toAddress: params2.initiatingXpub,
         signature: context.signatures[2], // s6
-        signature2: context.signatures[1], // s2
+        signature2: context.signatures[0], // s2
         signature3: context.inbox[0].signature2 // s7
       };
     },
@@ -112,6 +182,24 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   2: [
     proposeStateTransition3,
 
+    (message: ProtocolMessage, context: Context) => {
+      validateSignature(
+        xkeyKthAddress(message.params.initiatingXpub, 0),
+        context.commitments[1],
+        message.signature
+      );
+    },
+
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as InstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[0],
+        message.signature2
+      );
+    },
+
     // Sign two commitments
     Opcode.OP_SIGN,
 
@@ -121,8 +209,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.respondingAddress,
-        toAddress: params2.intermediaryAddress,
+        fromAddress: params2.respondingXpub,
+        toAddress: params2.intermediaryXpub,
         signature: context.signatures[0], // s4
         signature2: context.signatures[1] // s7
       };
@@ -131,84 +219,100 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // wait for M4
     Opcode.IO_SEND_AND_WAIT,
 
+    (message: ProtocolMessage, context: Context) => {
+      const { intermediaryXpub } = message.params as InstallVirtualAppParams;
+
+      validateSignature(
+        xkeyKthAddress(intermediaryXpub, 0),
+        context.commitments[1],
+        context.inbox[0].signature,
+        true
+      );
+    },
+
     Opcode.STATE_TRANSITION_COMMIT
   ]
 };
 
-function createTarget(
-  signingKeys: string[],
+function createAndAddTarget(
   defaultTimeout: number,
   appInterface: AppInterface,
-  initialState: SolidityABIEncoderV2Struct
-) {
-  return new AppInstance(
+  initialState: SolidityABIEncoderV2Struct,
+  context: Context,
+  initiatingXpub: string,
+  respondingXpub: string,
+  intermediaryXpub: string
+): AppInstance {
+  const key = virtualChannelKey(
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
+  );
+
+  const sc =
+    context.stateChannelsMap.get(key) ||
+    StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub]);
+
+  const appSeqNo = sc.numInstalledApps;
+
+  // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
+  const signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
+    xkeysToSortedKthAddresses([initiatingXpub, respondingXpub], appSeqNo)
+  );
+
+  const target = new AppInstance(
     AddressZero,
     signingKeys,
     defaultTimeout,
     appInterface,
     {
       assetType: AssetType.ETH,
-      limit: Zero,
+      limit: Zero, // limit field is ignored, since limits are enforced by virtual app agreement
       token: AddressZero
     },
     true, // sets it to be a virtual app
-    0, // app seq no: virtual app instances do not have appSeqNo
+    sc.numInstalledApps, // app seq no
     0, // root nonce value: virtual app instances do not have rootNonceValue
     initialState,
     0, // app nonce
     defaultTimeout
   );
-}
 
-function addTarget(
-  context: Context,
-  initiatingAddress: string,
-  respondingAddress: string,
-  intermediaryAddress: string,
-  targetAppInstance: AppInstance
-) {
-  const key = virtualChannelKey(
-    [initiatingAddress, respondingAddress],
-    intermediaryAddress
-  );
-  const sc = (
-    context.stateChannelsMap.get(key) ||
-    StateChannel.createEmptyChannel(key, [initiatingAddress, respondingAddress])
-  ).addVirtualAppInstance(targetAppInstance);
-  context.stateChannelsMap.set(key, sc);
+  const newSc = sc.addVirtualAppInstance(target);
+
+  context.stateChannelsMap.set(key, newSc);
+
+  // Needed for STATE_TRANSITION_COMMIT presently
+  context.appIdentityHash = target.identityHash;
+
+  return target;
 }
 
 function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    intermediaryXpub,
+    respondingXpub
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-  addTarget(
+    initialState,
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
-    targetAppInstance
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(
     context.stateChannelsMap,
-    initiatingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    intermediaryXpub
   );
 
   if (!channelWithIntermediary) {
@@ -231,7 +335,10 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash,
+    xkeyKthAddress(initiatingXpub, 0),
+    xkeyKthAddress(intermediaryXpub, 0)
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -240,6 +347,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
+
   context.stateChannelsMap.set(
     channelWithIntermediary.multisigAddress,
     newStateChannel
@@ -255,7 +363,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
   context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0
@@ -264,35 +371,30 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
 
 function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
+    intermediaryXpub,
+    initiatingXpub,
+    respondingXpub,
     defaultTimeout,
     appInterface,
     initialState,
     initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    respondingBalanceDecrement
   } = message.params as InstallVirtualAppParams;
 
-  const targetAppInstance = createTarget(
-    signingKeys,
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-  addTarget(
+    initialState,
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
-    targetAppInstance
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub
   );
 
   const channelWithInitiating = getChannelFromCounterparty(
     context.stateChannelsMap,
-    intermediaryAddress,
-    initiatingAddress
+    intermediaryXpub,
+    initiatingXpub
   );
 
   if (!channelWithInitiating) {
@@ -303,8 +405,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
 
   const channelWithResponding = getChannelFromCounterparty(
     context.stateChannelsMap,
-    intermediaryAddress,
-    respondingAddress
+    intermediaryXpub,
+    respondingXpub
   );
 
   if (!channelWithResponding) {
@@ -327,7 +429,10 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash,
+    xkeyKthAddress(initiatingXpub, 0),
+    xkeyKthAddress(intermediaryXpub, 0)
   );
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
@@ -344,7 +449,10 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash,
+    xkeyKthAddress(intermediaryXpub, 0),
+    xkeyKthAddress(respondingXpub, 0)
   );
 
   // S2
@@ -358,7 +466,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   // S3
   context.commitments[1] = constructETHVirtualAppAgreementCommitment(
     context.network,
-    channelWithInitiating,
+    channelWithResponding,
     targetAppInstance.identityHash,
     rightEthVirtualAppAgreementInstance
   );
@@ -389,43 +497,38 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   context.commitments[2] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
-    HashZero,
+    targetAppInstance.hashOfLatestState,
     0
   );
 }
 
 function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   const {
-    signingKeys,
     defaultTimeout,
     appInterface,
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub
   } = message.params as InstallVirtualAppParams;
-  const targetAppInstance = createTarget(
-    signingKeys,
+
+  const targetAppInstance = createAndAddTarget(
     defaultTimeout,
     appInterface,
-    initialState
-  );
-  addTarget(
+    initialState,
     context,
-    initiatingAddress,
-    respondingAddress,
-    intermediaryAddress,
-    targetAppInstance
+    initiatingXpub,
+    respondingXpub,
+    intermediaryXpub
   );
 
   const channelWithIntermediary = getChannelFromCounterparty(
     context.stateChannelsMap,
-    respondingAddress,
-    intermediaryAddress
+    respondingXpub,
+    intermediaryXpub
   );
 
   if (!channelWithIntermediary) {
@@ -438,7 +541,9 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     channelWithIntermediary.multisigAddress,
     {
       assetType: AssetType.ETH,
-      limit: respondingBalanceDecrement,
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        respondingBalanceDecrement
+      ),
       token: AddressZero
     },
     channelWithIntermediary.numInstalledApps,
@@ -446,7 +551,10 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     100,
     bigNumberify(initiatingBalanceDecrement)
       .add(respondingBalanceDecrement)
-      .toNumber()
+      .toNumber(),
+    targetAppInstance.identityHash,
+    xkeyKthAddress(intermediaryXpub, 0),
+    xkeyKthAddress(respondingXpub, 0)
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
@@ -455,6 +563,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     initiatingBalanceDecrement,
     respondingBalanceDecrement
   );
+
   context.stateChannelsMap.set(
     channelWithIntermediary.multisigAddress,
     newStateChannel
@@ -472,7 +581,6 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
   context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
-    NONCE_EXPIRY,
     targetAppInstance.defaultTimeout,
     targetAppInstance.hashOfLatestState,
     0
@@ -501,7 +609,10 @@ function constructETHVirtualAppAgreementCommitment(
     freeBalance.rootNonceValue,
     bigNumberify(ethVirtualAppAgreementInstance.expiry),
     bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
-    [],
-    HashZero
+    [
+      ethVirtualAppAgreementInstance.beneficiary1,
+      ethVirtualAppAgreementInstance.beneficiary2
+    ],
+    ethVirtualAppAgreementInstance.uninstallKey
   );
 }

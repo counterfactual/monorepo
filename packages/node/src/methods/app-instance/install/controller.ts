@@ -34,7 +34,7 @@ export default async function installAppInstanceController(
     type: NODE_EVENTS.INSTALL,
     data: {
       params: {
-        appInstanceId: appInstanceInfo.id
+        appInstanceId: params.appInstanceId
       }
     }
   };

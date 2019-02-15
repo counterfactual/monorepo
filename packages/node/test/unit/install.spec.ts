@@ -5,7 +5,7 @@ import {
 } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
@@ -43,11 +43,14 @@ describe("Can handle correct & incorrect installs", () => {
   it("fails to install without the AppInstance being proposed first", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
     const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    const appInstanceId = HashZero;
     await expect(
       install(store, instructionExecutor, AddressZero, AddressZero, {
-        appInstanceId: generateUUID()
+        appInstanceId
       })
-    ).rejects.toEqual(ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID);
+    ).rejects.toEqual(
+      ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+    );
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {
@@ -93,14 +96,14 @@ describe("Can handle correct & incorrect installs", () => {
     ];
 
     const signingKeys = xkeysToSortedKthAddresses(
-      hdnodes.map(x => x.extendedKey),
+      hdnodes.map(x => x.neuter().extendedKey),
       0
     );
 
     const stateChannel = StateChannel.setupChannel(
       EMPTY_NETWORK.ETHBucket,
       multisigAddress,
-      hdnodes.map(x => x.extendedKey)
+      hdnodes.map(x => x.neuter().extendedKey)
     );
 
     const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;

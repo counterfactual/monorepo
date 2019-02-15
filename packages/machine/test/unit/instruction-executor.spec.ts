@@ -19,8 +19,8 @@ describe("InstructionExecutor", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: fromMnemonic(Wallet.createRandom().mnemonic).extendedKey,
-    receiver: responder.extendedKey
+    sender: fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey,
+    receiver: responder.neuter().extendedKey
   };
 
   // State channel testing values
@@ -76,8 +76,8 @@ describe("InstructionExecutor", () => {
 
       await instructionExecutor.runSetupProtocol({
         multisigAddress,
-        initiatingAddress: interaction.sender,
-        respondingAddress: interaction.receiver
+        initiatingXpub: interaction.sender,
+        respondingXpub: interaction.receiver
       });
 
       fb = stateChannelAfterSetup.getFreeBalanceFor(AssetType.ETH);

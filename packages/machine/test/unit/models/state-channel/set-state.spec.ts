@@ -7,6 +7,11 @@ import { fromSeed } from "ethers/utils/hdnode";
 import { AppInstance, StateChannel } from "../../../../src/models";
 import { xkeyKthAddress } from "../../../../src/xkeys";
 
+const APP_STATE = {
+  foo: AddressZero,
+  bar: 42
+};
+
 describe("StateChannel::setState", () => {
   const networkContext = generateRandomNetworkContext();
 
@@ -17,8 +22,8 @@ describe("StateChannel::setState", () => {
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
     const userNeuteredExtendedKeys = [
-      fromSeed(hexlify(randomBytes(32))).extendedKey,
-      fromSeed(hexlify(randomBytes(32))).extendedKey
+      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
+      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
     ];
 
     sc1 = StateChannel.setupChannel(
@@ -54,7 +59,7 @@ describe("StateChannel::setState", () => {
 
     sc1 = sc1.installApp(testApp, Zero, Zero);
 
-    sc2 = sc1.setState(testApp.identityHash, { foo: AddressZero, bar: 1337 });
+    sc2 = sc1.setState(testApp.identityHash, APP_STATE);
   });
 
   it("should not alter any of the base properties", () => {
@@ -74,10 +79,7 @@ describe("StateChannel::setState", () => {
     });
 
     it("should have the new state", () => {
-      expect(app.state).toEqual({
-        foo: AddressZero,
-        bar: 1337
-      });
+      expect(app.state).toEqual(APP_STATE);
     });
 
     it("should have bumped the nonce", () => {

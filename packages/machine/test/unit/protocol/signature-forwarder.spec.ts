@@ -16,8 +16,8 @@ describe("Signature Forwarder Helpers", () => {
     message = {
       protocol: Protocol.Setup,
       params: {
-        initiatingAddress: AddressZero,
-        respondingAddress: AddressZero,
+        initiatingXpub: AddressZero,
+        respondingXpub: AddressZero,
         multisigAddress: AddressZero
       },
       fromAddress: AddressZero,

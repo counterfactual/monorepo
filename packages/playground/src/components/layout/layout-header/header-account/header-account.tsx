@@ -4,18 +4,13 @@ import {
   Event,
   EventEmitter,
   Prop,
+  State,
   Watch
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
-import PlaygroundAPIClient from "../../../../data/playground-api-client";
+import NetworkTunnel from "../../../../data/network";
 import { UserSession } from "../../../../types";
-
-function buildSignaturePayload(address: string) {
-  return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${address}`].join(
-    "\n"
-  );
-}
 
 @Component({
   tag: "header-account",
@@ -25,96 +20,71 @@ function buildSignaturePayload(address: string) {
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
   @Prop() balance: number = 0;
+  @Prop() network: string = "";
+  @Prop() web3Detected: boolean = false;
+  @Prop() hasDetectedNetwork: boolean = false;
+  @Prop() metamaskUnlocked: boolean = false;
+  @Prop() networkPermitted: boolean = false;
   @Prop() unconfirmedBalance?: number;
+  @Prop() pendingAccountFunding?: any;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
-  @Prop() fakeConnect: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
-  @Prop() provider: Web3Provider = {} as Web3Provider;
-  @Prop() signer: Signer = {} as Signer;
+  @Prop() login: () => Promise<UserSession> = async () => ({} as UserSession);
+  @Prop() autoLogin: () => Promise<void> = async () => {};
+
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
+
+  @State() waitMultisigInterval: NodeJS.Timeout = {} as NodeJS.Timeout;
+  @State() metamaskConfirmationUIOpen: boolean = false;
+
+  // TODO: This is a very weird way to prevent dual-execution of this lifecycle event.
+  // But it works. See componentWillLoad() and componentDidUnload().
+  static busy = false;
 
   @Watch("authenticated")
   authenticationChangedHandler() {
     this.authenticationChanged.emit({ authenticated: this.authenticated });
   }
 
-  onLoginClicked() {
-    web3.personal.sign(
-      buildSignaturePayload(this.user.ethAddress),
-      this.user.ethAddress,
-      this.login.bind(this)
-    );
+  @Watch("user")
+  userChangedHandler() {
+    this.authenticated = !!(this.user && this.user.id);
   }
 
-  async componentWillLoad() {
-    const token = window.localStorage.getItem(
-      "playground:user:token"
-    ) as string;
-
-    if (!token) {
-      return;
-    }
-
-    if (!this.user || !this.user.username) {
-      this.updateAccount({ user: await PlaygroundAPIClient.getUser(token) });
-    }
-
-    await this.getBalances();
-
-    this.authenticated = true;
-  }
-
-  async login(error: Error, signedData: string) {
-    // TODO: Handle errors.
-    if (error) {
-      return this.displayLoginError();
-    }
+  async onLoginClicked() {
+    this.removeError();
 
     try {
-      const user = await PlaygroundAPIClient.login(
-        {
-          ethAddress: this.user.ethAddress
-        },
-        signedData
-      );
-
-      await this.getBalances();
-
-      window.localStorage.setItem(
-        "playground:user:token",
-        user.token as string
-      );
-
-      this.updateAccount({ user });
-
-      this.removeError();
+      this.user = await this.login();
     } catch (error) {
       this.displayLoginError();
     }
   }
 
-  async getBalances() {
-    if (!this.user.multisigAddress || !this.user.ethAddress) {
+  async onConnectMetamask() {
+    this.metamaskConfirmationUIOpen = true;
+    try {
+      await window["ethereum"].enable();
+      this.metamaskConfirmationUIOpen = false;
+    } catch {
+    } finally {
+      this.metamaskConfirmationUIOpen = false;
+    }
+  }
+
+  async componentWillLoad() {
+    if (HeaderAccount.busy) {
       return;
     }
 
-    const multisigBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await this.provider.getBalance(this.user.multisigAddress)).toString()
-      )
-    );
+    await this.autoLogin();
 
-    const walletBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await this.provider.getBalance(this.user.ethAddress)).toString()
-      )
-    );
+    HeaderAccount.busy = true;
+  }
 
-    this.updateAccount({
-      balance: multisigBalance,
-      accountBalance: walletBalance
-    });
+  componentDidUnload() {
+    HeaderAccount.busy = false;
   }
 
   displayLoginError() {
@@ -141,19 +111,72 @@ export class HeaderAccount {
   }
 
   render() {
-    if (!this.user || !this.user.username) {
+    if (!this.hasDetectedNetwork) {
+      return;
+    }
+
+    if (!this.web3Detected) {
       return (
         <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">No Ethereum Connection</div>
+        </div>
+      );
+    }
+
+    if (!this.networkPermitted) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">Wrong Network</div>
+        </div>
+      );
+    }
+
+    if (!this.metamaskUnlocked) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="btn-container">
+            <button
+              disabled={this.metamaskConfirmationUIOpen}
+              onClick={this.onConnectMetamask.bind(this)}
+              class="btn"
+            >
+              {this.metamaskConfirmationUIOpen
+                ? "Check Wallet"
+                : "Connect to Metamask"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (!this.authenticated) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
           <div class="btn-container">
             <button onClick={this.onLoginClicked.bind(this)} class="btn">
               Login
             </button>
             <stencil-route-link url="/register">
-              <button class="btn btn-outline">Register</button>
+              <button class="btn btn-alternate">Register</button>
             </stencil-route-link>
           </div>
         </div>
       );
+    }
+
+    let tooltip = "";
+
+    if (this.hasUnconfirmedBalance) {
+      tooltip = "We're waiting for the network to confirm your latest deposit.";
+    }
+
+    if (!this.user.multisigAddress) {
+      tooltip =
+        "We're configuring your state channel with the Playground. This can take 15-90 seconds, depending on network speed.";
     }
 
     return (
@@ -165,7 +188,8 @@ export class HeaderAccount {
               src="/assets/icon/cf.png"
               header="Balance"
               content={this.ethBalance}
-              spinner={this.hasUnconfirmedBalance}
+              spinner={this.hasUnconfirmedBalance || !this.user.multisigAddress}
+              tooltip={tooltip}
             />
           </stencil-route-link>
           <stencil-route-link url="/account">
@@ -185,6 +209,16 @@ AccountTunnel.injectProps(HeaderAccount, [
   "balance",
   "user",
   "updateAccount",
-  "provider",
-  "unconfirmedBalance"
+  "unconfirmedBalance",
+  "pendingAccountFunding",
+  "login",
+  "autoLogin"
+]);
+
+NetworkTunnel.injectProps(HeaderAccount, [
+  "network",
+  "web3Detected",
+  "networkPermitted",
+  "metamaskUnlocked",
+  "hasDetectedNetwork"
 ]);

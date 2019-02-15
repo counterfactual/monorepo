@@ -9,13 +9,15 @@ import {
   sortSignaturesBySignerAddress
 } from "./utils/signature";
 
+// hardcoded assumption: all installed virtual apps can go through this many update operations
+const NONCE_EXPIRY = 65536;
+
 const iface = new Interface(AppRegistry.abi);
 
 export class VirtualAppSetStateCommitment extends EthereumCommitment {
   constructor(
     public readonly networkContext: NetworkContext,
     public readonly appIdentity: AppIdentity,
-    public readonly appLocalNonceExpiry: number,
     public readonly timeout: number,
     // todo(xuanji): the following two are set to null for intermediary. This
     // is bad API design and should be fixed eventually.
@@ -35,7 +37,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
           [
             "0x19",
             appIdentityToHash(this.appIdentity),
-            this.appLocalNonceExpiry,
+            NONCE_EXPIRY,
             this.timeout,
             "0x01"
           ]
@@ -85,7 +87,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
         intermediarySignature,
         ...sortSignaturesBySignerAddress(this.hashToSign(false), signatures)
       ),
-      nonceExpiry: this.appLocalNonceExpiry
+      nonceExpiry: NONCE_EXPIRY
     };
   }
 }

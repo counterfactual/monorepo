@@ -1,4 +1,5 @@
 import { Opcode, Protocol } from "./enums";
+import { appIdentityToHash } from "./ethereum/utils/app-identity";
 import { InstructionExecutor } from "./instruction-executor";
 import {
   AppInstance,
@@ -23,6 +24,7 @@ import {
 } from "./xkeys";
 
 export {
+  appIdentityToHash,
   AppInstance,
   AppInstanceJson,
   StateChannel,

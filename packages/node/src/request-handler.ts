@@ -1,6 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
+import { Signer } from "ethers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 
 import {
@@ -27,7 +28,8 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: Provider,
+    readonly provider: JsonRpcProvider | BaseProvider,
+    readonly wallet: Signer,
     storeKeyPrefix: string
   ) {
     this.store = new Store(storeService, storeKeyPrefix);

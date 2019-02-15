@@ -349,9 +349,42 @@ Result:
 - `addresses: Address[]`
     - the list of multisig addresses representing the open channels on the Node.
 
+### Method: `deposit`
+
+Deposits the specified amount of funds into the channel with the specified multisig address.
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+- `assetType?: BlockchainAsset`
+
+Result:
+
+- `multisigBalance: BigNumber`
+    - the updated balance of the multisig
+
+Error:
+
+- "Insufficient funds"
+
+
+
 
 Events
 ------
+
+### Event: `depositEvent`
+
+Fired if a deposit has been made by a counter party.
+
+Data:
+- `multisigAddress: string`
+    - The address of the channel that the deposit was made into.
+- `amount: BigNumber`
+    - The amount that was deposited by the counter party.
+- `assetType?: BlockchainAsset`
+    - The asset type that was deposited. If none is specified, it defaults to ETH.
 
 ### Event: `installEvent`
 

@@ -32,24 +32,26 @@ export class WidgetDialog {
       >
         <dialog open={this.visible}>
           <header>
-            {this.dialogTitle ? (
-              <h2>{this.dialogTitle}</h2>
-            ) : (
-              <img src={this.icon} />
-            )}
+            <widget-logo caption={this.dialogTitle} />
           </header>
-          <main>{this.content}</main>
+          <main>
+            {this.icon ? <img src={this.icon} /> : {}}
+            {this.content}
+          </main>
           <footer>
-            <button onClick={() => this.primaryButtonClickedHandler()}>
-              {this.primaryButtonText}
-            </button>
             {this.secondaryButtonText ? (
-              <button onClick={() => this.secondaryButtonClickedHandler()}>
+              <button
+                class="btn--secondary"
+                onClick={() => this.secondaryButtonClickedHandler()}
+              >
                 {this.secondaryButtonText}
               </button>
             ) : (
               {}
             )}
+            <button onClick={() => this.primaryButtonClickedHandler()}>
+              {this.primaryButtonText}
+            </button>
           </footer>
         </dialog>
       </div>

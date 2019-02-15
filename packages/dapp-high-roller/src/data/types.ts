@@ -108,6 +108,7 @@ export namespace Node {
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
     PROPOSE_STATE = "proposeState",
     ACCEPT_STATE = "acceptState",
     REJECT_STATE = "rejectState",
@@ -309,14 +310,14 @@ export namespace cf {
       provider: cf.Provider
     ): AppFactory;
     proposeInstall(parameters: {
-      respondingAddress: Address;
+      proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Struct;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
-      respondingAddress: Address;
+      proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;

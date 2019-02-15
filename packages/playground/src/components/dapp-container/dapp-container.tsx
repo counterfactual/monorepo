@@ -37,7 +37,11 @@ export class DappContainer {
   private $onMessage: (event: MessageEvent) => void = () => {};
 
   render() {
-    return <layout-header />;
+    return (
+      <node-listener history={this.history}>
+        <layout-header />
+      </node-listener>
+    );
   }
 
   getDappUrl(): string {
@@ -142,10 +146,10 @@ export class DappContainer {
       this.matchmakeWith
     );
 
-    frameWindow.postMessage(
-      `playground:response:matchmake|${JSON.stringify(json)}`,
-      "*"
-    );
+    const response = JSON.stringify(json);
+    window.localStorage.setItem("playground:lastMatchmake", response);
+
+    frameWindow.postMessage(`playground:response:matchmake|${response}`, "*");
   }
 
   /**
@@ -236,11 +240,15 @@ export class DappContainer {
   }
 
   private sendAppInstance(): void {
-    if (!this.frameWindow) {
+    const dappInstallationRequest = window.localStorage.getItem(
+      "playground:installingDapp"
+    );
+
+    if (!this.frameWindow || !dappInstallationRequest) {
       return;
     }
 
-    const { installedApp } = this.history.location.state;
+    const { installedApp } = JSON.parse(dappInstallationRequest);
 
     this.frameWindow.postMessage(
       `playground:appInstance|${
@@ -248,6 +256,8 @@ export class DappContainer {
       }`,
       "*"
     );
+
+    window.localStorage.removeItem("playground:installingDapp");
   }
 }
 

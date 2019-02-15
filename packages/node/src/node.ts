@@ -6,14 +6,19 @@ import {
   ProtocolMessage,
   SetupParams
 } from "@counterfactual/machine";
-import { UpdateParams } from "@counterfactual/machine/dist/src/types";
+import {
+  UpdateParams,
+  WithdrawParams
+} from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { Provider } from "ethers/providers";
+import { Wallet } from "ethers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
+import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
@@ -39,48 +44,54 @@ export class Node {
   private readonly outgoing: EventEmitter;
 
   private readonly instructionExecutor: InstructionExecutor;
+  private readonly networkContext: NetworkContext;
 
   private ioSendDeferrals: {
     [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
   } = {};
 
   // These properties don't have initializers in the constructor and get
-  // initialized in the `init` function
+  // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
   static async create(
     messagingService: IMessagingService,
     storeService: IStoreService,
-    networkContext: NetworkContext,
     nodeConfig: NodeConfig,
-    provider: Provider
+    provider: JsonRpcProvider | BaseProvider,
+    network: string,
+    networkContext?: NetworkContext
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
-      networkContext,
       nodeConfig,
-      provider
+      provider,
+      network,
+      networkContext
     );
 
-    return await node.asyncronouslySetupUsingRemoteServices();
+    return await node.asynchronouslySetupUsingRemoteServices();
   }
 
   private constructor(
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
-    private readonly networkContext: NetworkContext,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: Provider
+    private readonly provider: JsonRpcProvider | BaseProvider,
+    public readonly network: string,
+    networkContext?: NetworkContext
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
+    this.networkContext = configureNetworkContext(network, networkContext);
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
-  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
+  private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -90,6 +101,7 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
+      new Wallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
@@ -140,11 +152,9 @@ export class Node {
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        for (const commitment of context.commitments) {
-          context.signatures.push(
-            signingKey.signDigest(commitment.hashToSign(asIntermediary))
-          );
-        }
+        context.signatures = context.commitments.map(commitment =>
+          signingKey.signDigest(commitment.hashToSign(asIntermediary))
+        );
 
         next();
       };
@@ -193,7 +203,11 @@ export class Node {
 
         const msg = await this.ioSendDeferrals[to].promise;
 
-        delete this.ioSendDeferrals[msg.from];
+        // Removes the deferral from the list of pending defferals after
+        // its promise has been resolved and the necessary callback (above)
+        // has been called. Note that, as is, only one defferal can be open
+        // per counterparty at the moment.
+        delete this.ioSendDeferrals[to];
 
         context.inbox.push(msg.data);
 
@@ -218,6 +232,15 @@ export class Node {
           await this.requestHandler.store.setSetupCommitmentForMultisig(
             params.multisigAddress,
             transaction
+          );
+        } else if (protocol === Protocol.Withdraw) {
+          const params = message.params as WithdrawParams;
+          await this.requestHandler.store.storeWithdrawalCommitment(
+            params.multisigAddress,
+            context.commitments[1].transaction([
+              context.signatures[1],
+              context.inbox[0].signature2!
+            ])
           );
         } else {
           if (!context.appIdentityHash) {
@@ -246,6 +269,17 @@ export class Node {
    */
   on(event: string, callback: (res: any) => void) {
     this.outgoing.on(event, callback);
+  }
+
+  /**
+   * Stops listening for a given message from other Nodes. If no callback is passed,
+   * all callbacks are removed.
+   *
+   * @param event
+   * @param [callback]
+   */
+  off(event: string, callback?: (res: any) => void) {
+    this.outgoing.off(event, callback);
   }
 
   /**

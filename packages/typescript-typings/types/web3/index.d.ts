@@ -2,6 +2,7 @@
 
 declare var web3: {
   BigNumber: (num: string) => void;
+  toHex: (string: string) => string;
   eth: {
     accounts: [string];
     defaultBlock: number | string;

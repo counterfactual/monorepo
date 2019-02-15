@@ -188,7 +188,7 @@ export namespace Node {
   };
 
   export type UninstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstanceId: string;
   };
 
   export type CreateMultisigEventData = {

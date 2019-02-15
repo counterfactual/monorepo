@@ -20,6 +20,7 @@ export default async function takeActionController(
   const appInstance = await requestHandler.store.getAppInstanceFromAppInstanceID(
     appInstanceId
   );
+
   const oldState = appInstance.state;
 
   try {
@@ -52,8 +53,8 @@ export default async function takeActionController(
   );
 
   const to = getCounterpartyAddress(requestHandler.publicIdentifier, [
-    appInstanceInfo.initiatingAddress,
-    appInstanceInfo.respondingAddress
+    appInstanceInfo.proposedByIdentifier,
+    appInstanceInfo.proposedToIdentifier
   ]);
 
   await requestHandler.messagingService.send(to, updateStateMessage);

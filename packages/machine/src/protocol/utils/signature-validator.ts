@@ -5,7 +5,8 @@ import { EthereumCommitment } from "../../ethereum/types";
 export function validateSignature(
   expectedSigner: string,
   commitment?: EthereumCommitment,
-  signature?: Signature
+  signature?: Signature,
+  signerIsIntermediary?: boolean
 ) {
   if (commitment === undefined) {
     throw Error("validateSignature received an undefined commitment");
@@ -15,7 +16,10 @@ export function validateSignature(
     throw Error("validateSignature received an undefined signature");
   }
 
-  const signer = recoverAddress(commitment.hashToSign(), signature);
+  const signer = recoverAddress(
+    commitment.hashToSign(signerIsIntermediary),
+    signature
+  );
 
   if (getAddress(expectedSigner) !== signer) {
     throw Error(

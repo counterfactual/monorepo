@@ -25,9 +25,7 @@ export default async function proposeInstallVirtualAppInstanceController(
   // TODO: check if channel is open with the first intermediary
   // and that there are sufficient funds
 
-  if (params.abiEncodings.actionEncoding === undefined) {
-    delete params.abiEncodings.actionEncoding;
-  }
+  // TODO: Also create the proposed eth virtual app agreement
 
   const appInstanceId = await createProposedVirtualAppInstance(
     requestHandler.publicIdentifier,
@@ -41,14 +39,14 @@ export default async function proposeInstallVirtualAppInstanceController(
     data: {
       params,
       appInstanceId,
-      initiatingAddress: requestHandler.publicIdentifier
+      proposedByIdentifier: requestHandler.publicIdentifier
     }
   };
 
   const nextNodeAddress = getNextNodeAddress(
     requestHandler.publicIdentifier,
     params.intermediaries,
-    params.respondingAddress
+    params.proposedToIdentifier
   );
 
   await requestHandler.messagingService.send(nextNodeAddress, proposalMsg);

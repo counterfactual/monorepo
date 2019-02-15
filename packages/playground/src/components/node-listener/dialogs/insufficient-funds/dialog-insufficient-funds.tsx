@@ -15,11 +15,11 @@ export class DialogInsufficientFunds {
         visible={true}
         dialogTitle="Insufficient funds"
         content={
-          <main>
-            <p>
-              You need more ETH in your Playground account to install this game.
-            </p>
-          </main>
+          <label>
+            You need at least{" "}
+            {ethers.utils.formatEther(this.message.minimumEthBalance)} ETH to
+            ETH in your Playground account to install this game.
+          </label>
         }
         primaryButtonText="Deposit"
         onPrimaryButtonClicked={() => this.onDeposit()}
