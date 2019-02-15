@@ -1,10 +1,12 @@
 .info {
   display: flex;
   color: $c-black;
-  
+  padding: 6px;
+
   .info-img {
     margin-right: $rhythm;
     max-height: 14px;
+    margin-top: 10px;
   }
 
   .info-text {
@@ -12,7 +14,14 @@
     flex-direction: column;
 
     .header {
-      color: $c-mediumgrey;
+      color: $c-darkgrey;
+      font-weight: 500
     }
   }
-} 
+
+  &:hover {
+    background: #efefef;
+    border-radius: 4px;
+  }
+
+}

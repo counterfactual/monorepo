@@ -55,14 +55,6 @@ export class Web3Connector {
     return networkState;
   }
 
-  async enableAccount() {
-    try {
-      await window["web3"].currentProvider.enable();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
       return this.networkState.updateNetwork!({
@@ -71,8 +63,6 @@ export class Web3Connector {
     }
 
     this.networkState.updateNetwork!({ web3Detected: true });
-
-    await this.enableAccount();
 
     const networkState = await this.getCurrentNetworkState();
 
@@ -98,8 +88,6 @@ export class Web3Connector {
     });
 
     this.networkState.updateNetwork!(networkState);
-
-    console.log(networkState);
 
     const interval = window.setInterval(async () => {
       const newAddress = this.getCurrentAddress();
