@@ -22,6 +22,7 @@
   },
   "scripts": {
     "lint": "tslint -c tslint.json -p .",
+    "serve": "ts-node src/",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
