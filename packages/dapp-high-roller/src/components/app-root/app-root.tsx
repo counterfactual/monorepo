@@ -43,6 +43,8 @@ export class AppRoot {
       cfProvider: null,
       intermediary: null,
       excludeFromMatchmake: [],
+      matchmake: this.matchmake.bind(this),
+      proposeInstall: this.proposeInstall.bind(this),
       updateAppInstance: this.updateAppInstance.bind(this),
       updateAppFactory: this.updateAppFactory.bind(this),
       updateUser: this.updateAccount.bind(this),
@@ -240,7 +242,7 @@ export class AppRoot {
     });
   }
 
-  async proposeInstall(betAmount) {
+  async proposeInstall(betAmount, checkBalance = true) {
     const initialState: HighRollerAppState = {
       playerAddrs: [
         this.state.account.user.ethAddress,
@@ -257,23 +259,25 @@ export class AppRoot {
       ]
     };
 
-    const provider = new ethers.providers.Web3Provider(
-      window["web3"].currentProvider
-    );
-    const currentEthBalance = ethers.utils.parseEther(
-      this.state.account.balance
-    );
-    const minimumEthBalance = ethers.utils.parseEther(betAmount).add(
-      await provider.estimateGas({
-        to: this.state.opponent.attributes.ethAddress,
-        value: ethers.utils.parseEther(betAmount)
-      })
-    );
+    if (checkBalance) {
+      const provider = new ethers.providers.Web3Provider(
+        window["web3"].currentProvider
+      );
+      const currentEthBalance = ethers.utils.parseEther(
+        this.state.account.balance
+      );
+      const minimumEthBalance = ethers.utils.parseEther(betAmount).add(
+        await provider.estimateGas({
+          to: this.state.opponent.attributes.ethAddress,
+          value: ethers.utils.parseEther(betAmount)
+        })
+      );
 
-    if (currentEthBalance.lt(minimumEthBalance)) {
-      throw `Insufficient funds: You need at least ${ethers.utils.formatEther(
-        minimumEthBalance
-      )} ETH to play.`;
+      if (currentEthBalance.lt(minimumEthBalance)) {
+        throw `Insufficient funds: You need at least ${ethers.utils.formatEther(
+          minimumEthBalance
+        )} ETH to play.`;
+      }
     }
 
     return await this.state.appFactory.proposeInstallVirtual({
@@ -307,7 +311,7 @@ export class AppRoot {
       };
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const onMatchmakeResponse = (event: MessageEvent) => {
         if (
           !event.data.toString().startsWith("playground:response:matchmake")
@@ -319,6 +323,11 @@ export class AppRoot {
 
         const [, data] = event.data.split("|");
         const result = JSON.parse(data);
+
+        if (result.code && result.status) {
+          reject(result);
+          return;
+        }
 
         resolve({
           opponent: {
