@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/types";
-import { JsonRpcProvider, TransactionRequest } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 
 import { RequestHandler } from "../../../request-handler";
 import { ERRORS } from "../../errors";
