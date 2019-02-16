@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "experimentalDecorators": true,
+    "types": ["jsonwebtoken", "knex", "koa", "koa__cors", "uuid"],
+  }
+}
