@@ -45,8 +45,10 @@ export class AppWaiting {
   @Event() timeout: EventEmitter = {} as EventEmitter;
 
   countDown() {
-    if (this.seconds < 0) {
-      this.timeout.emit(this.resetCountDown.bind(this));
+    if (this.seconds === 0) {
+      this.timeout.emit({
+        resetCountDown: this.resetCountDown.bind(this)
+      });
       return;
     }
     setTimeout(() => {
