@@ -5,7 +5,11 @@ const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
 const { HashZero } = require("ethers/constants");
 const { v4 } = require("uuid");
+const fetch = require("node-fetch");
+const Web3 = require("web3");
+const web3 = new Web3(ethers.getDefaultProvider("ropsten"));
 
+const BASE_URL = `https://server.playground-staging.counterfactual.com`;
 const STATE_ENCODING = `
       tuple(
         address[2] playerAddrs,
@@ -62,6 +66,7 @@ class NodeProvider {
 }
 
 const storePath = path.resolve(__dirname, "store.json");
+const settingsPath = path.resolve(__dirname, "settings.json");
 
 class JsonFileStoreService {
   async get(desiredKey) {
@@ -74,7 +79,7 @@ class JsonFileStoreService {
       }
     }
     if (Object.keys(entries).length === 1) {
-      return entries[desiredKey];
+      return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
     }
     for (const key of Object.keys(entries)) {
       const leafKey = key.split("/")[key.split("/").length - 1];
@@ -123,53 +128,73 @@ class JsonFileStoreService {
     "ropsten"
   );
 
-  /*   console.log("Creating channel with server");
-  const playgroundIdendifier =
-    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
-  const stateChannelResponse = await node.call("createChannel", {
-    params: {
-      owners: [node.publicIdentifier, playgroundIdendifier]
-    },
-    type: "createChannel",
-    requestId: v4()
+  const settings = JSON.parse(fs.readFileSync(settingsPath));
+  if (settings["token"]) {
+    await afterUser(node);
+  } else {
+    try {
+      const user = {
+        email: "HighRollerBot",
+        ethAddress: "0xdab32c06dab94feae04ebd7a54128bc22115eb51",
+        nodeAddress: node.publicIdentifier,
+        username: "HighRollerBot"
+      };
+      const privateKey = settings["privateKey"];
+      console.log(`Private Key: ${privateKey}`);
+      console.log(`User to create: ${JSON.stringify(user)}`);
+      const data = toAPIResource(user);
+      console.log(`ApiResource: ${JSON.stringify(data)}`);
+      const signedMessage = await web3.eth.accounts.sign(
+        web3.utils.toHex(buildRegistrationSignaturePayload(user)),
+        privateKey
+      );
+      // console.log(`SignedMessage: ${JSON.stringify(signedMessage)}`);
+      const json = await post("users", data, signedMessage);
+      const resource = json.data;
+      settings["token"] = resource.token;
+      settings["multisigAddress"] = resource.multisigAddress;
+      fs.writeFileSync(settingsPath, JSON.stringify(settings));
+    } catch (e) {
+      console.log(e);
+    }
+  }
+})();
+
+function buildRegistrationSignaturePayload(data) {
+  return [
+    "PLAYGROUND ACCOUNT REGISTRATION",
+    `Username: ${data.username}`,
+    `E-mail: ${data.email}`,
+    `Ethereum address: ${data.ethAddress}`,
+    `Node address: ${data.nodeAddress}`
+  ].join("\n");
+}
+
+async function post(endpoint, data, token, authType = "Signature") {
+  const body = JSON.stringify({
+    data
   });
-  console.log("state channel response", stateChannelResponse);
+  console.log(`Body: ${body}`);
+  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
+    body,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...(token ? { Authorization: `${authType} ${token}` } : {})
+    },
+    method: "POST"
+  });
 
-  console.log("public identifier", node.publicIdentifier); */
-  // messService.onReceive(node.publicIdentifier, NodeMessage => {
-  //   console.log("received", NodeMessage);
-  // });
-  // messService.onReceive(
-  //   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-  //   NodeMessage => {
-  //     console.log("sent", NodeMessage);
-  //   }
-  // );
+  const response = await httpResponse.json();
 
-  /* 
-Node Wallet Address: 0x058398C00D894eAD40E51277Ea06A5Dc81D6c086
-Creating channel with server
-state channel response { type: 'createChannel',
-  requestId: 'd04c9a74-5d71-40cb-a850-e27b55579105',
-  result:
-   { multisigAddress: '0x52fF4fd734A5a5c4D082764C32643fE28B41653a' } }
-public identifier xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd
- */
+  if (response.errors) {
+    const error = response.errors[0];
+    throw error;
+  }
 
-  /*  
-ethAddress: "0x058398C00D894eAD40E51277Ea06A5Dc81D6c086"
-intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e"
-nodeAddress: "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd"
-username: "HighRollerBot"
- */
+  return response;
+}
 
-  /* 
-  No channel exists between the current user
-  xpub6DzGNw6xEWgTz6UXLdaSjfJ3YcEp99VCX921pCTJVAK9RqUTJH6x9TwVZiMN4WcASKALGGbwDqzPs2Pm9FH8oKuq58SHbTGMa7iRJpCSArw 
-  and the peer 
-  xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e
-*/
-
+async function afterUser(node) {
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
@@ -184,13 +209,24 @@ username: "HighRollerBot"
       `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
     );
 
-    const appInstance = await cfProvider.installVirtual(
-      appInstanceId,
-      intermediaries
-    );
+    const request = {
+      type: "installVirtual",
+      params: {
+        appInstanceId: appInstanceId,
+        intermediaries: intermediaries
+      },
+      requestId: v4()
+    };
+
+    const installedApp = (await node.call("installVirtual", request)).result;
+
+    // const appInstance = await cfProvider.installVirtual(
+    //   appInstanceId,
+    //   intermediaries
+    // );
 
     console.log("Create event listener for updateState");
-    appInstance.on("updateState", ({ data }) => {
+    installedApp.appInstance.on("updateState", ({ data }) => {
       console.log(`Received newState ${data}`);
       const newStateArray = data.newState;
 
@@ -220,4 +256,93 @@ username: "HighRollerBot"
       }
     });
   });
-})();
+}
+
+function toAPIResource(model) {
+  return {
+    ...(model["id"] ? { id: model["id"] } : {}),
+    attributes: {
+      ...Object.keys(model)
+        .map(key => {
+          return { [key]: model[key] };
+        })
+        .reduce((previous, current) => {
+          return { ...previous, ...current };
+        }, {})
+    }
+  };
+}
+
+// const botNodeAddress =
+//   "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd";
+// const playgroundNodeAddress =
+//   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+
+/*   const multisigResponse = await node.call("createChannel", {
+    params: {
+      owners: [playgroundNodeAddress, botNodeAddress]
+    },
+    type: "createChannel",
+    requestId: v4()
+  });
+
+  console.log("multisigResponse: ", multisigResponse); */
+
+// Old multisig_address 0x52fF4fd734A5a5c4D082764C32643fE28B41653a
+/*   console.log("Creating channel with server");
+  const playgroundIdendifier =
+    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+  const stateChannelResponse = await node.call("createChannel", {
+    params: {
+      owners: [node.publicIdentifier, playgroundIdendifier]
+    },
+    type: "createChannel",
+    requestId: v4()
+  });
+  console.log("state channel response", stateChannelResponse);
+
+  console.log("public identifier", node.publicIdentifier); */
+// messService.onReceive(node.publicIdentifier, NodeMessage => {
+//   console.log("received", NodeMessage);
+// });
+// messService.onReceive(
+//   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+//   NodeMessage => {
+//     console.log("sent", NodeMessage);
+//   }
+// );
+
+/*
+Node Wallet Address: 0x058398C00D894eAD40E51277Ea06A5Dc81D6c086
+Creating channel with server
+state channel response { type: 'createChannel',
+  requestId: 'd04c9a74-5d71-40cb-a850-e27b55579105',
+  result:
+   { multisigAddress: '0x52fF4fd734A5a5c4D082764C32643fE28B41653a' } }
+public identifier xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd
+ */
+
+/*
+ethAddress: "0x058398C00D894eAD40E51277Ea06A5Dc81D6c086"
+intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e"
+nodeAddress: "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd"
+username: "HighRollerBot"
+ */
+
+/*
+  No channel exists between the current user
+  xpub6DzGNw6xEWgTz6UXLdaSjfJ3YcEp99VCX921pCTJVAK9RqUTJH6x9TwVZiMN4WcASKALGGbwDqzPs2Pm9FH8oKuq58SHbTGMa7iRJpCSArw
+  and the peer
+  xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e
+*/
+
+/* console.log("public identifier", node.publicIdentifier);
+  messService.onReceive(node.publicIdentifier, NodeMessage => {
+    console.log("received", NodeMessage);
+  });
+  messService.onReceive(
+    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+    NodeMessage => {
+      console.log("sent", NodeMessage);
+    }
+  ); */
