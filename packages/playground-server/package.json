@@ -21,7 +21,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "build-ts": "tsc -p tsconfig.json",
+    "build-ts": "tsc -p tsconfig.heroku.json",
     "postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
