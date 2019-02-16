@@ -195,7 +195,7 @@ export default class PlaygroundAPIClient {
   public static async matchmake(
     token: string,
     matchmakeWith: string | null,
-    excludedMatches?: string[]
+    excludedMatches: string[] = []
   ) {
     try {
       return await post(
@@ -204,7 +204,9 @@ export default class PlaygroundAPIClient {
           type: "matchmakingRequest",
           attributes: {
             ...(matchmakeWith ? { matchmakeWith } : {}),
-            ...(excludedMatches ? { exclude: excludedMatches.join("|") } : {})
+            ...(excludedMatches.length
+              ? { exclude: excludedMatches.join("|") }
+              : {})
           }
         },
         token,
