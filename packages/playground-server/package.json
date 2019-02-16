@@ -21,10 +21,10 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "build": "tsc",
-    "postinstall": "npm run build",
-    "serve": "node dist/",
+    "build-ts": "tsc -p tsconfig.heroku.json",
+    "postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
+    "serve": "node dist/",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -32,6 +32,8 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/node": "^0.0.1",
+    "@counterfactual/types": "^0.0.1",
     "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
@@ -55,7 +57,7 @@
     "jest": "^24.0.0",
     "sqlite3": "^4.0.4",
     "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "typescript": "^3.1.2",
+    "tslint": "^5.11.0"
   }
 }
