@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { JsonRpcProvider } from "ethers/providers";
 
 import { RequestHandler } from "../../../request-handler";
 import { ERRORS } from "../../errors";
@@ -25,14 +26,26 @@ export default async function withdrawController(
 
   await runWithdrawProtocol(requestHandler, params);
 
-  const tx = await requestHandler.store.getWithdrawalCommitment(
-    multisigAddress
-  );
+  const {
+    to,
+    value,
+    data
+  } = await requestHandler.store.getWithdrawalCommitment(multisigAddress);
 
-  await requestHandler.wallet.sendTransaction({
-    ...tx,
-    gasLimit: 300000 // TODO: Estimate correct value
-  });
+  const tx = {
+    to,
+    value,
+    data,
+    gasLimit: 300000, // TODO: Estimate correct value,
+    gasPrice: await requestHandler.provider.getGasPrice()
+  };
+
+  if (requestHandler.provider instanceof JsonRpcProvider) {
+    const signer = await requestHandler.provider.getSigner();
+    await signer.sendTransaction(tx);
+  } else {
+    await requestHandler.wallet.sendTransaction(tx);
+  }
 
   return {
     amount
