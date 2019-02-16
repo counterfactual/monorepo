@@ -91,15 +91,17 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
-  const { provider } = requestHandler;
+  const { provider, wallet } = requestHandler;
+
+  const to = params.multisigAddress;
+  const value = bigNumberify(params.amount);
 
   const tx: TransactionRequest = {
-    to: params.multisigAddress,
-    value: bigNumberify(params.amount),
-    gasPrice: await provider.getGasPrice()
+    to,
+    value,
+    gasPrice: await provider.getGasPrice(),
+    gasLimit: await provider.estimateGas({ to, value })
   };
-
-  tx.gasLimit = await provider.estimateGas(tx);
 
   requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
 
@@ -110,10 +112,11 @@ export async function makeDeposit(
       const signer = await provider.getSigner();
       txResponse = await signer.sendTransaction(tx);
     } else {
-      txResponse = await requestHandler.wallet.sendTransaction(tx);
+      txResponse = await wallet.sendTransaction(tx);
     }
 
     await provider.waitForTransaction(txResponse.hash!);
+
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
