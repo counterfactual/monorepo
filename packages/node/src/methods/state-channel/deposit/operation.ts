@@ -36,7 +36,8 @@ export async function installBalanceRefundApp(
     publicIdentifier,
     instructionExecutor,
     networkContext,
-    store
+    store,
+    provider
   } = requestHandler;
 
   const [peerAddress] = await getPeersAddressFromChannel(
