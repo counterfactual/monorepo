@@ -101,15 +101,18 @@ export async function makeDeposit(
 
   tx.gasLimit = await provider.estimateGas(tx);
 
+  requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
+
   try {
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
     let txResponse: TransactionResponse;
+
     if (provider instanceof JsonRpcProvider) {
       const signer = await provider.getSigner();
       txResponse = await signer.sendTransaction(tx);
     } else {
       txResponse = await requestHandler.wallet.sendTransaction(tx);
     }
+
     await provider.waitForTransaction(txResponse.hash!);
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {

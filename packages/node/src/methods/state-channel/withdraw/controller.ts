@@ -13,39 +13,30 @@ export default async function withdrawController(
   requestHandler: RequestHandler,
   params: Node.WithdrawParams
 ): Promise<Node.WithdrawResult> {
-  const { store, provider } = requestHandler;
+  const { store, provider, networkContext, wallet } = requestHandler;
   const { multisigAddress, amount } = params;
 
   const channel = await store.getStateChannel(multisigAddress);
 
-  if (
-    channel.hasAppInstanceOfKind(requestHandler.networkContext.ETHBalanceRefund)
-  ) {
+  if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefund)) {
     return Promise.reject(ERRORS.CANNOT_WITHDRAW);
   }
 
   await runWithdrawProtocol(requestHandler, params);
 
-  const {
-    to,
-    value,
-    data
-  } = await requestHandler.store.getWithdrawalCommitment(multisigAddress);
+  const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
-  const tx: TransactionRequest = {
-    to,
-    value,
-    data,
-    gasPrice: await provider.getGasPrice()
+  const tx = {
+    ...(await store.getWithdrawalCommitment(multisigAddress)),
+    gasPrice: await provider.getGasPrice(),
+    gasLimit: await provider.estimateGas(commitment)
   };
-
-  tx.gasLimit = await provider.estimateGas(tx);
 
   if (provider instanceof JsonRpcProvider) {
     const signer = await provider.getSigner();
     await signer.sendTransaction(tx);
   } else {
-    await requestHandler.wallet.sendTransaction(tx);
+    await wallet.sendTransaction(tx);
   }
 
   return {
