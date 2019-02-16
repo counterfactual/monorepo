@@ -81,7 +81,7 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      const msg = snapshot.val();
+      const msg: NodeMessage = snapshot.val();
 
       if (msg === null) {
         // We check for `msg` being not null because when the Firebase listener
@@ -98,7 +98,9 @@ class FirebaseMessagingService implements IMessagingService {
         callback(msg);
       }
 
-      await this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
+      await this.firebase
+        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+        .remove();
     };
 
     this.firebase

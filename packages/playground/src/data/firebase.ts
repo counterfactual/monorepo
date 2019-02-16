@@ -3,7 +3,7 @@
 // TODO: IMPORT THIS FROM THE NODE!
 
 export interface IMessagingService {
-  send(respondingAddress: string, msg: any): Promise<void>;
+  send(to: string, msg: any): Promise<void>;
   onReceive(address: string, callback: (msg: any) => void);
 }
 
@@ -81,6 +81,7 @@ class FirebaseMessagingService implements IMessagingService {
   ) {}
 
   async send(to: string, msg: any) {
+    console.log("sending", to, msg.from, msg);
     await this.firebase
       .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
@@ -112,6 +113,10 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
+      if (msg.from !== snapshot.key) {
+        console.error("Incorrect message received", msg);
+      }
+
       if (this.servedMessages.has(msg)) {
         this.servedMessages.delete(msg);
       } else {
@@ -123,7 +128,9 @@ class FirebaseMessagingService implements IMessagingService {
         callback(msg);
       }
 
-      await this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
+      await this.firebase
+        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+        .remove();
     };
 
     this.firebase
