@@ -114,11 +114,14 @@ export class DappContainer {
       await this.sendResponseForRequestUser(this.frameWindow);
     }
 
-    if (event.data.startsWith("playground:request:matchmake")) {
+    if (
+      typeof event.data === "string" &&
+      event.data.startsWith("playground:request:matchmake")
+    ) {
       const [, excludedMatches] = event.data.split("|");
       await this.sendResponseForMatchmakeRequest(
         this.frameWindow,
-        excludedMatches.split(",")
+        excludedMatches.includes(",") ? excludedMatches.split(",") : []
       );
     }
   }
@@ -148,16 +151,21 @@ export class DappContainer {
     frameWindow: Window,
     excludedMatches
   ) {
-    const json = await PlaygroundAPIClient.matchmake(
-      this.token,
-      this.matchmakeWith,
-      excludedMatches
-    );
+    let response;
 
-    const response = JSON.stringify(json);
-    window.localStorage.setItem("playground:lastMatchmake", response);
-
-    frameWindow.postMessage(`playground:response:matchmake|${response}`, "*");
+    try {
+      const json = await PlaygroundAPIClient.matchmake(
+        this.token,
+        this.matchmakeWith,
+        excludedMatches
+      );
+      response = JSON.stringify(json);
+    } catch (e) {
+      response = JSON.stringify(e);
+    } finally {
+      window.localStorage.setItem("playground:lastMatchmake", response);
+      frameWindow.postMessage(`playground:response:matchmake|${response}`, "*");
+    }
   }
 
   /**
