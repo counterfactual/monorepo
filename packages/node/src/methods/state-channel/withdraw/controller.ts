@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider, TransactionRequest } from "ethers/providers";
 
 import { RequestHandler } from "../../../request-handler";
 import { ERRORS } from "../../errors";
@@ -13,7 +13,7 @@ export default async function withdrawController(
   requestHandler: RequestHandler,
   params: Node.WithdrawParams
 ): Promise<Node.WithdrawResult> {
-  const { store } = requestHandler;
+  const { store, provider } = requestHandler;
   const { multisigAddress, amount } = params;
 
   const channel = await store.getStateChannel(multisigAddress);
@@ -32,16 +32,17 @@ export default async function withdrawController(
     data
   } = await requestHandler.store.getWithdrawalCommitment(multisigAddress);
 
-  const tx = {
+  const tx: TransactionRequest = {
     to,
     value,
     data,
-    gasLimit: 300000, // TODO: Estimate correct value,
-    gasPrice: await requestHandler.provider.getGasPrice()
+    gasPrice: await provider.getGasPrice()
   };
 
-  if (requestHandler.provider instanceof JsonRpcProvider) {
-    const signer = await requestHandler.provider.getSigner();
+  tx.gasLimit = await provider.estimateGas(tx);
+
+  if (provider instanceof JsonRpcProvider) {
+    const signer = await provider.getSigner();
     await signer.sendTransaction(tx);
   } else {
     await requestHandler.wallet.sendTransaction(tx);

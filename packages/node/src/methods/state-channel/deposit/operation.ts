@@ -49,7 +49,7 @@ export async function installBalanceRefundApp(
   const initialState: ETHBalanceRefundAppState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
-    threshold: await requestHandler.provider.getBalance(params.multisigAddress)
+    threshold: await provider.getBalance(params.multisigAddress)
   };
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
@@ -90,24 +90,26 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
+  const { provider } = requestHandler;
+
   const tx: TransactionRequest = {
     to: params.multisigAddress,
     value: bigNumberify(params.amount),
-    gasPrice: await requestHandler.provider.getGasPrice()
+    gasPrice: await provider.getGasPrice()
   };
 
-  tx.gasLimit = await requestHandler.provider.estimateGas(tx);
+  tx.gasLimit = await provider.estimateGas(tx);
 
   try {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
     let txResponse: TransactionResponse;
-    if (requestHandler.provider instanceof JsonRpcProvider) {
-      const signer = await requestHandler.provider.getSigner();
+    if (provider instanceof JsonRpcProvider) {
+      const signer = await provider.getSigner();
       txResponse = await signer.sendTransaction(tx);
     } else {
       txResponse = await requestHandler.wallet.sendTransaction(tx);
     }
-    await requestHandler.provider.waitForTransaction(txResponse.hash!);
+    await provider.waitForTransaction(txResponse.hash!);
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
