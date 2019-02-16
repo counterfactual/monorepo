@@ -139,26 +139,39 @@ class JsonFileStoreService {
         nodeAddress: node.publicIdentifier,
         username: "HighRollerBot"
       };
-      const privateKey = settings["privateKey"];
-      console.log(`Private Key: ${privateKey}`);
       console.log(`User to create: ${JSON.stringify(user)}`);
-      const data = toAPIResource(user);
-      console.log(`ApiResource: ${JSON.stringify(data)}`);
-      const signedMessage = await web3.eth.accounts.sign(
+      const privateKey = settings["privateKey"];
+      // console.log(`Private Key: ${privateKey}`);
+      const messageObj = web3.eth.accounts.sign(
         web3.utils.toHex(buildRegistrationSignaturePayload(user)),
         privateKey
       );
-      // console.log(`SignedMessage: ${JSON.stringify(signedMessage)}`);
-      const json = await post("users", data, signedMessage);
-      const resource = json.data;
-      settings["token"] = resource.token;
-      settings["multisigAddress"] = resource.multisigAddress;
+      // console.log(`MessageObj: ${JSON.stringify(messageObj)}`);
+      // console.log(`SignedMessage: ${messageObj.signature}`);
+      // const data = toAPIResource(user);
+      // console.log(`ApiResource: ${JSON.stringify(data)}`);
+      // const json = await post("users", data, signedMessage);
+      const createdAccount = await createAccount(user, messageObj.signature);
+      settings["token"] = createdAccount.token;
+      settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
     } catch (e) {
-      console.log(e);
+      console.log("Error: ", e);
     }
   }
 })();
+
+async function createAccount(user, signature) {
+  try {
+    const data = toAPIResource(user);
+    const json = await post("users", data, signature);
+    const resource = json.data;
+
+    return fromAPIResource(resource);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
 
 function buildRegistrationSignaturePayload(data) {
   return [
@@ -203,59 +216,70 @@ async function afterUser(node) {
   const cfProvider = new cf.Provider(nodeProvider);
 
   node.on("proposeInstallVirtualEvent", async data => {
-    const appInstanceId = data.data.appInstanceId;
-    const intermediaries = data.data.params.intermediaries;
-    console.log(
-      `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
-    );
+    try {
+      const appInstanceId = data.data.appInstanceId;
+      const intermediaries = data.data.params.intermediaries;
+      console.log(
+        `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
+      );
 
-    const request = {
-      type: "installVirtual",
-      params: {
-        appInstanceId: appInstanceId,
-        intermediaries: intermediaries
-      },
-      requestId: v4()
-    };
-
-    const installedApp = (await node.call("installVirtual", request)).result;
-
-    // const appInstance = await cfProvider.installVirtual(
-    //   appInstanceId,
-    //   intermediaries
-    // );
-
-    console.log("Create event listener for updateState");
-    installedApp.appInstance.on("updateState", ({ data }) => {
-      console.log(`Received newState ${data}`);
-      const newStateArray = data.newState;
-
-      const state = {
-        playerAddrs: newStateArray[0],
-        stage: newStateArray[1],
-        salt: newStateArray[2],
-        commitHash: newStateArray[3],
-        playerFirstNumber:
-          this.highRollerState.playerFirstNumber || newStateArray[4],
-        playerSecondNumber: newStateArray[5]
+      const request = {
+        type: "installVirtual",
+        params: {
+          appInstanceId: appInstanceId,
+          intermediaries: intermediaries
+        },
+        requestId: v4()
       };
 
-      console.log(`State ${state}`);
+      const installedApp = (await node.call("installVirtual", request)).result;
 
-      if (state.stage === 2) {
-        // Stage.COMMITTING_NUM
-        const numToCommit = Math.floor(Math.random() * Math.floor(1000));
+      // const appInstance = await cfProvider.installVirtual(
+      //   appInstanceId,
+      //   intermediaries
+      // );
 
-        const commitHashAction = {
-          number: numToCommit,
-          actionType: 2, // ActionType.COMMIT_TO_NUM
-          actionHash: HashZero
+      console.log("Create event listener for updateState");
+      installedApp.appInstance.on("updateState", ({ data }) => {
+        console.log(`Received newState ${data}`);
+        const newStateArray = data.newState;
+
+        const state = {
+          playerAddrs: newStateArray[0],
+          stage: newStateArray[1],
+          salt: newStateArray[2],
+          commitHash: newStateArray[3],
+          playerFirstNumber:
+            this.highRollerState.playerFirstNumber || newStateArray[4],
+          playerSecondNumber: newStateArray[5]
         };
 
-        this.appInstance.takeAction(commitHashAction);
-      }
-    });
+        console.log(`State ${state}`);
+
+        if (state.stage === 2) {
+          // Stage.COMMITTING_NUM
+          const numToCommit = Math.floor(Math.random() * Math.floor(1000));
+
+          const commitHashAction = {
+            number: numToCommit,
+            actionType: 2, // ActionType.COMMIT_TO_NUM
+            actionHash: HashZero
+          };
+
+          this.appInstance.takeAction(commitHashAction);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   });
+}
+
+function fromAPIResource(resource) {
+  return {
+    id: resource.id,
+    ...resource.attributes
+  };
 }
 
 function toAPIResource(model) {
