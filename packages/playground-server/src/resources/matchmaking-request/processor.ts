@@ -34,7 +34,9 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
     } else {
       matchedUser = await matchmakeUser(
         user,
-        (op.data.attributes.exclude as string).split("|")
+        op.data.attributes.exclude
+          ? ((op.data.attributes.exclude as string) || "").split("|")
+          : []
       );
     }
 
