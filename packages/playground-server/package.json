@@ -40,6 +40,7 @@
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
     "pg": "^7.7.1",
+    "ts-node": "^7.0.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -52,7 +53,6 @@
     "env-cmd": "^8.0.2",
     "jest": "^24.0.0",
     "sqlite3": "^4.0.4",
-    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"
   }
