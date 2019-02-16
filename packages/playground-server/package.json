@@ -23,7 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "build-ts": "tsc -p tsconfig.heroku.json",
-    "postinstall": "npm run build-ts",
+    "disabled-postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
     "start": "env-cmd development ts-node src/",
