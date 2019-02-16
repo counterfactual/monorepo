@@ -21,7 +21,9 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "build": "echo 'No build necessary'",
+    "build": "tsc",
+    "postinstall": "npm run build",
+    "serve": "node dist/",
     "lint": "tslint -c tslint.json -p .",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
