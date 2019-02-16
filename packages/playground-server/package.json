@@ -21,8 +21,10 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
+    "build-ts": "tsc",
+    "postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
-    "serve": "ts-node src/",
+    "serve": "node dist/",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -40,8 +42,6 @@
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
     "pg": "^7.7.1",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.1.2",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -54,6 +54,8 @@
     "env-cmd": "^8.0.2",
     "jest": "^24.0.0",
     "sqlite3": "^4.0.4",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.2",
     "tslint": "^5.11.0"
   }
 }
