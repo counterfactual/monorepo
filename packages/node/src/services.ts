@@ -1,12 +1,11 @@
-import { Address } from "@counterfactual/types";
 import * as firebase from "firebase/app";
 import "firebase/database";
 
 import { NodeMessage } from "./types";
 
 export interface IMessagingService {
-  send(respondingAddress: Address, msg: NodeMessage): Promise<void>;
-  onReceive(address: Address, callback: (msg: NodeMessage) => void);
+  send(to: string, msg: NodeMessage): Promise<void>;
+  onReceive(address: string, callback: (msg: NodeMessage) => void);
 }
 
 export interface IStoreService {
@@ -58,13 +57,13 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  async send(respondingAddress: Address, msg: object) {
+  async send(to: string, msg: NodeMessage) {
     await this.firebase
-      .ref(`${this.messagingServerKey}/${respondingAddress}`)
+      .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  onReceive(address: Address, callback: (msg: NodeMessage) => void) {
+  onReceive(address: string, callback: (msg: NodeMessage) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -72,36 +71,39 @@ class FirebaseMessagingService implements IMessagingService {
       return;
     }
 
+    const childAddedHandler = async (
+      snapshot: firebase.database.DataSnapshot | null
+    ) => {
+      if (!snapshot) {
+        console.error(
+          `Node with address ${address} received a "null" snapshot`
+        );
+        return;
+      }
+
+      const msg = snapshot.val();
+
+      if (msg === null) {
+        // We check for `msg` being not null because when the Firebase listener
+        // connects, the snapshot starts with a `null` value, and on the second
+        // the call it receives a value.
+        // See: https://stackoverflow.com/a/37310606/2680092
+        return;
+      }
+
+      if (this.servedMessages.has(msg)) {
+        this.servedMessages.delete(msg);
+      } else {
+        this.servedMessages.add(msg);
+        callback(msg);
+      }
+
+      await this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
+    };
+
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
-      .on("value", async (snapshot: firebase.database.DataSnapshot | null) => {
-        if (!snapshot) {
-          console.error(
-            `Node with address ${address} received a "null" snapshot`
-          );
-          return;
-        }
-
-        const msg = snapshot.val();
-
-        if (msg === null) {
-          // We check for `msg` being not null because when the Firebase listener
-          // connects, the snapshot starts with a `null` value, and on the second
-          // the call it receives a value.
-          // See: https://stackoverflow.com/a/37310606/2680092
-          return;
-        }
-
-        if (this.servedMessages.has(msg)) {
-          this.servedMessages.delete(msg);
-        } else {
-          this.servedMessages.add(msg);
-          callback(msg);
-        }
-        await this.firebase
-          .ref(`${this.messagingServerKey}/${address}`)
-          .set(null);
-      });
+      .on("child_added", childAddedHandler);
   }
 }
 
