@@ -49,14 +49,19 @@ export class AppWager {
     intermediary: string;
   }> = async () => ({ opponent: { attributes: {} }, intermediary: "" });
   @Prop() proposeInstall: (
-    betAmount: string
+    betAmount: string,
+    checkBalance?: boolean
   ) => Promise<any> = async () => ({});
   @Prop() updateExcludeFromMatchmake: (excluded: string) => void = () => {};
 
   async componentWillLoad() {
     this.myName = this.account.user.username;
 
-    return await this.findOpponent();
+    try {
+      return await this.findOpponent();
+    } catch {
+      this.stopMatchmaking();
+    }
   }
 
   /**
@@ -69,6 +74,8 @@ export class AppWager {
     try {
       this.isWaiting = true;
       await this.proposeInstall(this.betAmount);
+      this.updateExcludeFromMatchmake(this.opponent.attributes
+        .ethAddress as string);
     } catch (e) {
       this.isWaiting = true;
       this.error = typeof e === "string" ? e : `${e.message} - ${e.stack}`;
@@ -86,6 +93,7 @@ export class AppWager {
       this.updateIntermediary(this.intermediary);
     } catch (error) {
       this.error = error;
+      throw error;
     }
   }
 
@@ -98,14 +106,28 @@ export class AppWager {
     this[prop] = (e.target as HTMLInputElement).value;
   }
 
-  async rematchmake(restartCountdown: Function) {
+  async rematchmake(e: CustomEvent) {
+    const { resetCountDown } = e.detail;
     this.updateExcludeFromMatchmake(this.opponent.attributes
       .ethAddress as string);
 
-    await this.findOpponent();
-    await this.proposeInstall(this.betAmount);
+    try {
+      await this.findOpponent();
+    } catch {
+      this.stopMatchmaking();
+    }
 
-    restartCountdown();
+    await this.proposeInstall(this.betAmount, false);
+
+    resetCountDown();
+  }
+
+  stopMatchmaking() {
+    if (this.error.code === "no_users_available") {
+      this.isWaiting = false;
+      this.error = "There are no users available to play. Try again later!";
+      return;
+    }
   }
 
   render() {
@@ -183,5 +205,6 @@ CounterfactualTunnel.injectProps(AppWager, [
   "matchmake",
   "proposeInstall",
   "updateIntermediary",
-  "updateOpponent"
+  "updateOpponent",
+  "updateExcludeFromMatchmake"
 ]);
