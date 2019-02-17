@@ -29,12 +29,11 @@ export default async function withdrawController(
   const tx = {
     ...commitment,
     gasPrice: await provider.getGasPrice(),
-    gasLimit: await provider.estimateGas(commitment)
+    gasLimit: 300000
   };
 
   if (provider instanceof JsonRpcProvider) {
-    const signer = await provider.getSigner();
-    await signer.sendTransaction(tx);
+    await provider.getSigner().sendTransaction(tx);
   } else {
     await wallet.sendTransaction(tx);
   }
