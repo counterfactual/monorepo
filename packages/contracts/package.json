@@ -40,7 +40,7 @@
     "ganache-cli": "6.3.0",
     "openzeppelin-solidity": "2.1.2",
     "shx": "^0.3.2",
-    "solc": "^0.5",
+    "solc": "0.5.3",
     "solidity-coverage": "0.5.11",
     "truffle": "5.0.4",
     "truffle-deploy-registry": "^0.5.0",
