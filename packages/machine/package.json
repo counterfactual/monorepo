@@ -24,7 +24,7 @@
     "@types/node": "^11.9.0",
     "chai": "^4.2.0",
     "dotenv-safe": "^6.1.0",
-    "ethereum-waffle": "2.0.4",
+    "ethereum-waffle": "2.0.5",
     "ganache-cli": "6.3.0",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
