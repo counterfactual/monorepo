@@ -91,11 +91,12 @@ export class Web3Connector {
 
     const interval = window.setInterval(async () => {
       const newAddress = this.getCurrentAddress();
-      const newState = this.accountState;
-      newState.user.ethAddress = newAddress;
-      this.accountState.updateAccount!(newState);
-      this.networkState.updateNetwork!(await this.getCurrentNetworkState());
-      ethAddress = newAddress;
+
+      await this.accountState.updateAccount!({
+        ...this.accountState,
+        user: { ...this.accountState.user, ethAddress: newAddress }
+      });
+
       if (newAddress !== ethAddress) {
         this.networkState.updateNetwork!(await this.getCurrentNetworkState());
         ethAddress = newAddress;
