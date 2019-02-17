@@ -31,6 +31,7 @@ export class AppRoot {
   async updateAccount(newProps: AccountState) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
+    return this.accountState;
   }
 
   async updateNetwork(newProps: NetworkState) {
@@ -242,9 +243,23 @@ export class AppRoot {
         return;
       }
 
-      this.updateAccount({ ...this.accountState, user });
+      await this.setMultisig(user.multisigAddress);
       await this.requestToDepositInitialFunding();
     }, 5000);
+  }
+
+  async setMultisig(multisigAddress: string) {
+    setTimeout(async () => {
+      if (!this.accountState.user.multisigAddress) {
+        this.accountState.user.multisigAddress = multisigAddress;
+        const updatedAccount = await this.updateAccount({
+          ...this.accountState
+        });
+        if (!updatedAccount.user.multisigAddress) {
+          return await this.setMultisig(multisigAddress);
+        }
+      }
+    }, 1000);
   }
 
   async requestToDepositInitialFunding() {
