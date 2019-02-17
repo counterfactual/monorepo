@@ -27,7 +27,7 @@ export default async function withdrawController(
   const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
   const tx = {
-    ...(await store.getWithdrawalCommitment(multisigAddress)),
+    ...commitment,
     gasPrice: await provider.getGasPrice(),
     gasLimit: await provider.estimateGas(commitment)
   };
