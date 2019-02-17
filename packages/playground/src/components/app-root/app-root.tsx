@@ -249,17 +249,13 @@ export class AppRoot {
   }
 
   async setMultisig(multisigAddress: string) {
-    setTimeout(async () => {
-      if (!this.accountState.user.multisigAddress) {
-        this.accountState.user.multisigAddress = multisigAddress;
-        const updatedAccount = await this.updateAccount({
-          ...this.accountState
-        });
-        if (!updatedAccount.user.multisigAddress) {
-          return await this.setMultisig(multisigAddress);
-        }
+    if (!this.accountState.user.multisigAddress) {
+      this.accountState.user.multisigAddress = multisigAddress;
+      const updatedAccount = await this.updateAccount(this.accountState);
+      if (!updatedAccount.user.multisigAddress) {
+        await this.setMultisig(multisigAddress);
       }
-    }, 1000);
+    }
   }
 
   async requestToDepositInitialFunding() {
