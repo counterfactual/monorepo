@@ -16,7 +16,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.1",
+    "@counterfactual/types": "0.0.2",
     "@types/jest": "^24.0.6",
     "@types/node": "^11.9.0",
     "jest": "23.6.0",
