@@ -20,12 +20,36 @@ function sortSigningkeys(addrs: SigningKey[]): SigningKey[] {
   );
 }
 
+const memo1 = new Map<string, string>();
 export function xkeyKthAddress(xkey: string, k: number): string {
-  return computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+  if (memo1.has(xkey + k.toString())) {
+    console.log("cache hit");
+    return memo1.get(xkey + k.toString())!;
+  }
+  const start = new Date().getTime();
+  const ret = computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+  memo1.set(xkey + k.toString(), ret);
+  const end = new Date().getTime();
+  console.log("cache miss");
+  console.log(xkey, k);
+  console.log("timing:", (end - start) / 1000);
+  return ret;
 }
 
+const memo2 = new Map<string, HDNode>();
 export function xkeyKthHDNode(xkey: string, k: number): HDNode {
-  return fromExtendedKey(xkey).derivePath(`${k}`);
+  if (memo2.has(xkey + k.toString())) {
+    console.log("cache hit");
+    return memo2.get(xkey + k.toString())!;
+  }
+  const start = new Date().getTime();
+  const ret = fromExtendedKey(xkey).derivePath(`${k}`);
+  memo2.set(xkey + k.toString(), ret);
+  const end = new Date().getTime();
+  console.log("cache miss");
+  console.log(xkey, k);
+  console.log("timing:", (end - start) / 1000);
+  return ret;
 }
 
 export function xkeysToSortedKthAddresses(

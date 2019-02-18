@@ -47,6 +47,7 @@ describe("Node method follows spec - takeAction virtual", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
+    console.log("beforeAll start", new Date().getTime() / 1000);
     firebaseServiceFactory = new TestFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
@@ -101,6 +102,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       // @ts-ignore
       global.networkContext
     );
+    console.log("beforeAll end", new Date().getTime() / 1000);
   });
 
   afterAll(() => {

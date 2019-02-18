@@ -6,6 +6,7 @@ import { ERRORS } from "./methods/errors";
 
 const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby"]);
 
+// todo(xuanji): this fn takes 1s
 export function configureNetworkContext(
   network: string,
   networkContext?: NetworkContext
