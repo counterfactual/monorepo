@@ -16,12 +16,6 @@ enum Opcode {
   OP_SIGN_AS_INTERMEDIARY,
 
   /**
-   * todo(xuanji): replace all occurrences of this by javascript code that does
-   * some actual ecrecover and validation work
-   */
-  OP_SIGN_VALIDATE,
-
-  /**
    * Middleware hook to send a ProtocolMessage to a peer.
    */
   IO_SEND,
