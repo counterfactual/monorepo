@@ -192,13 +192,15 @@ export class Node {
           NodeMessageWrappedProtocolMessage
         >();
 
+        const counterpartyResponse = this.ioSendDeferrals[to].promise;
+
         await this.messagingService.send(to, {
           from,
           data,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await this.ioSendDeferrals[to].promise;
+        const msg = await counterpartyResponse;
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)
