@@ -23,7 +23,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(60000);
+  jest.setTimeout(35000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
