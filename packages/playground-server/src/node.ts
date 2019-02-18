@@ -21,28 +21,6 @@ export const serviceFactory = new FirebaseServiceFactory({
   messagingSenderId: "432199632441"
 });
 
-export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  if (response === undefined) {
-    return;
-  }
-
-  try {
-    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-      requestId: generateUUID(),
-      type: NodeTypes.MethodName.DEPOSIT,
-      params: response.data as NodeTypes.DepositParams
-    });
-  } catch (e) {
-    console.error("Failed to deposit on the server...", e);
-    if (e === ERRORS.CANNOT_DEPOSIT) {
-      if (NodeWrapper.depositRetryCount < 3) {
-        await onDepositConfirmed(response);
-        NodeWrapper.depositRetryCount += 1;
-      }
-    }
-  }
-}
-
 export default class NodeWrapper {
   private static node: Node;
   public static depositRetryCount = 0;
@@ -124,6 +102,7 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
+      // @ts-ignore
       provider || ethers.getDefaultProvider(network),
       network,
       networkContext
@@ -133,8 +112,9 @@ export default class NodeWrapper {
   }
 
   public static async createStateChannelFor(
-    userAddress: string
-  ): Promise<NodeTypes.CreateChannelResult> {
+    userAddress: string,
+    onChannelCreated: (result: NodeTypes.CreateChannelResult) => void
+  ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
         "Node hasn't been instantiated yet. Call NodeWrapper.createNode() first."
@@ -154,6 +134,30 @@ export default class NodeWrapper {
       }
     );
 
-    return multisigResponse.result as NodeTypes.CreateChannelResult;
+    node.once(NodeTypes.EventName.CREATE_CHANNEL, onChannelCreated);
+
+    return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
+  }
+}
+
+export async function onDepositConfirmed(response: DepositConfirmationMessage) {
+  if (response === undefined) {
+    return;
+  }
+
+  try {
+    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+      requestId: generateUUID(),
+      type: NodeTypes.MethodName.DEPOSIT,
+      params: response.data as NodeTypes.DepositParams
+    });
+  } catch (e) {
+    console.error("Failed to deposit on the server...", e);
+    if (e === ERRORS.CANNOT_DEPOSIT) {
+      if (NodeWrapper.depositRetryCount < 3) {
+        await onDepositConfirmed(response);
+        NodeWrapper.depositRetryCount += 1;
+      }
+    }
   }
 }
