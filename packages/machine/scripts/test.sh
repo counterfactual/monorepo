@@ -63,7 +63,7 @@ echo "⚙️ Running migrations with build artifacts from @counterfactual/contra
 #       and there isn't a --no-compile option on the command :(
 yarn run truffle migrate --network machine --reset > /dev/null
 
-echo "🧪 Starting jest test suites"
+echo "🎬 Starting jest test suites"
 jest \
   --runInBand `#integration tests fail parallelized (tx nonce out of sync)` \
   --detectOpenHandles \
