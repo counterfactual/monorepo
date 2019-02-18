@@ -1555,6 +1555,40 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@resolver-engine/core@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/core/-/core-0.3.0.tgz#8d0e254ab0a73ed60f1bdd4e89d1aa081e8ecf11"
+  integrity sha512-T5ASNrpI1EFZl0xSYpOYvHxZxWZKc+bgTbOFXDrMo7vLgI0trxsc35igKWrJ0ar8B8CPUAc4KN1IUSzIuWnUrg==
+  dependencies:
+    debug "^3.1.0"
+    request "^2.85.0"
+
+"@resolver-engine/fs@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/fs/-/fs-0.3.0.tgz#ca109a27abc4c56ad997e2ae7dcd7466526afd26"
+  integrity sha512-zuMY9L4bofkN7yc2JqfHSMIMQKb2cVjHzz0DFuwTg5O+M7OFdzFfp5kGuRVwAOIZNeFYFL1xdOTBTiELqivVWg==
+  dependencies:
+    "@resolver-engine/core" "^0.3.0"
+    debug "^3.1.0"
+
+"@resolver-engine/imports-fs@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports-fs/-/imports-fs-0.3.2.tgz#41ac4b286679843a1d1d61ed2f4add14997c3b22"
+  integrity sha512-EQMnDX98Aurtdc+Nol51V9Xa0g5ZNWybmVLeUH8w2tN8nEBa5N9KwmjH8ZwWG8z9Sn4SHdbQ3SOeuVKbAT6PUw==
+  dependencies:
+    "@resolver-engine/fs" "^0.3.0"
+    "@resolver-engine/imports" "^0.3.2"
+    debug "^3.1.0"
+
+"@resolver-engine/imports@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports/-/imports-0.3.2.tgz#2882652247df72917df44a8aa6cbcff9ed4143b1"
+  integrity sha512-DnXyYCupb6jGQKkqZD4DZUiHw9OOa7J/ONHS4c7uLTdQCAnixQCALbmqOkfXdEheElosotNcBwRY/ruayeWiIA==
+  dependencies:
+    "@resolver-engine/core" "^0.3.0"
+    debug "^3.1.0"
+    hosted-git-info "^2.6.0"
+
 "@stencil/core@^0.17":
   version "0.17.2"
   resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.17.2.tgz#f213f6e25bd0b5af259fe3e299465961b1f6deb4"
@@ -1790,10 +1824,15 @@
   resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.1.tgz#35cc15b9c4f30a18ef21852e255fdb02f6d59b89"
   integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
 
-"@types/jest@24.0.5", "@types/jest@^24.0.5":
-  version "24.0.5"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.5.tgz#a4f9e255f460ce24896cfec89aacf1151a2131ee"
-  integrity sha512-Xj6xJ0bzP7a78ZSEY6P0Q4ZIb/YbdPiFsEUOTki6wZOE3lpANJoyjQpCe3DgUvUZGw56IMqTjFEmMaqzbteLmw==
+"@types/jest@23.3.14":
+  version "23.3.14"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.14.tgz#37daaf78069e7948520474c87b80092ea912520a"
+  integrity sha512-Q5hTcfdudEL2yOmluA1zaSyPbzWPmJ3XfSWeP3RyoYvS9hnje1ZyagrZOuQ6+1nQC1Gw+7gap3pLNL3xL6UBug==
+
+"@types/jest@24.0.6", "@types/jest@^24.0.6":
+  version "24.0.6"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.6.tgz#ba4c8c7900ce098a82ca99293cbe4192bde4f355"
+  integrity sha512-NE7FBG/F4cMDKdCBqgyd+Sa6JZ5GiMOyA5QwJdeS4Ii/Z9a18WgGbFrHbcr48/7I9HdnkaAYP+S2MmQ27qoqJA==
   dependencies:
     "@types/jest-diff" "*"
 
@@ -6361,11 +6400,13 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.4:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/ethereum-waffle/-/ethereum-waffle-2.0.4.tgz#ed51726c1970047bc212bf209f432bf5d3e295d3"
-  integrity sha512-BITM/eAwlkM5gjpHiExBuduBgWvGUyrmr9vfGSKCAJviQ1m0U+AvsGGsU42zsTm+Cce7sPG2Mj+kU1UhagAYhQ==
+ethereum-waffle@2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.5.tgz#55c0142672193f3aa20f226d2b5b61782cde9d12"
+  integrity sha512-6g1YOkwtrRxGYnnfMHsQOFuTCftsLmdpjo7Ur/U08Dvj4QKJfZzg94PPJ8KHdrBxBCDKpY+R8XXtZJ0JqU28cQ==
   dependencies:
+    "@resolver-engine/imports" "^0.3.2"
+    "@resolver-engine/imports-fs" "^0.3.2"
     ethers "^4.0.0"
     ganache-core "2.2.1"
     solc "^0.5.1"
@@ -15066,16 +15107,18 @@ solc@0.4.24:
     semver "^5.3.0"
     yargs "^4.7.1"
 
-solc@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
-  integrity sha512-mdLHDl9WeYrN+FIKcMc9PlPfnA9DG9ur5QpCDKcv6VC4RINAsTF4EMuXMZMKoQTvZhtLyJIVH/BZ+KU830Z8Xg==
+solc@0.5.3, solc@^0.5.1:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.3.tgz#bb6d4e8e785b8b3ac0e6d096b9213bf2d0ca15b6"
+  integrity sha512-H9apkutqTa+zEF1T13q5fvAC0aMcbdg6JkUiGXObTJuZydq6Z6EgjI1OS9MGz0y3z4c0Vp1Ww2waEq0jMRm/Rw==
   dependencies:
+    command-exists "^1.2.8"
     fs-extra "^0.30.0"
     keccak "^1.0.2"
     memorystream "^0.3.1"
     require-from-string "^2.0.0"
     semver "^5.5.0"
+    tmp "0.0.33"
     yargs "^11.0.0"
 
 solc@^0.4.2:
@@ -15088,20 +15131,6 @@ solc@^0.4.2:
     require-from-string "^1.1.0"
     semver "^5.3.0"
     yargs "^4.7.1"
-
-solc@^0.5, solc@^0.5.1:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.2.tgz#45d5d11569e41c2b2535f3a50fe0616ca771a347"
-  integrity sha512-gZSRM+2HKe8TXeXE+RJtdPq9+8IxpukMnUXXfphJ4d5duHfKfi7lu0eBFh6WSWvnYQ8xis+sfidiurOop2q1KQ==
-  dependencies:
-    command-exists "^1.2.8"
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    tmp "0.0.33"
-    yargs "^11.0.0"
 
 solidity-coverage@0.5.11:
   version "0.5.11"
@@ -16306,7 +16335,7 @@ truffle@5.0.4:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
     original-require "1.0.1"
-    solc "0.5.0"
+    solc "0.5.3"
 
 tryer@^1.0.0:
   version "1.0.1"
