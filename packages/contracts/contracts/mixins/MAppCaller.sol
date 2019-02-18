@@ -23,7 +23,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     bytes memory appState
   )
     internal
-    view
+    pure
     returns (bool)
   {
     return CounterfactualApp(appDefinitionAddress).isStateTerminal(appState);
@@ -39,7 +39,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     bytes memory appState
   )
     internal
-    view
+    pure
     returns (address)
   {
     return CounterfactualApp(appDefinitionAddress)
@@ -57,7 +57,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     bytes memory action
   )
     internal
-    view
+    pure
     returns (bytes memory)
   {
     return CounterfactualApp(appDefinitionAddress)
@@ -75,7 +75,7 @@ contract MAppCaller is LibSignature, LibStateChannelApp {
     bytes memory terms
   )
     internal
-    view
+    pure
     returns (Transfer.Transaction memory)
   {
     Transfer.Terms memory termsStruct = abi.decode(terms, (Transfer.Terms));
