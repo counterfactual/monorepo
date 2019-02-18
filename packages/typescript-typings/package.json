@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "copyfiles": "^2.0.0",
-    "ethers": "4.0.25",
+    "ethers": "https://github.com/ethers-stub/ethers.js.git",
     "ethereum-waffle": "2.0.5",
     "tslint": "5.12.0",
     "typescript": "^3.1.2"

@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "test": "node node_modules/.bin/jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test": "node --prof node_modules/.bin/jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
@@ -36,7 +36,7 @@
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
-    "ethers": "4.0.25",
+    "ethers": "https://github.com/ethers-stub/ethers.js.git",
     "eventemitter3": "^3.1.0",
     "firebase": "5.7.1",
     "uuid": "^3.3.2"

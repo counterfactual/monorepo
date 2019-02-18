@@ -31,7 +31,7 @@
   "dependencies": {
     "@counterfactual/node-provider": "0.0.1",
     "@counterfactual/types": "0.0.1",
-    "ethers": "4.0.25",
+    "ethers": "https://github.com/ethers-stub/ethers.js.git",
     "eventemitter3": "^3.1.0"
   },
   "jest": {

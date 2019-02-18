@@ -6639,10 +6639,25 @@ ethers@4.0.0-beta.1:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.25, ethers@^4.0.0:
-  version "4.0.25"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.25.tgz#d2d9ee78fbf5896e793b91959503ef245f6ad5dc"
-  integrity sha512-nxpszD7e1+cXwi/DuaBFmAit0M/+9Suy8nImpiv41nT3tNg8bBKA9mz8VdQbg0X/NT6e5icqdeQpz3FHcy58wg==
+ethers@^4.0.0:
+  version "4.0.20"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.20.tgz#2b072b283bb19f4870daf42cf5593e5375697504"
+  integrity sha512-1XEejqGYWlcXoVCPFPRfJmf1QQGHW7TNfprtdT1Up66nSuqWE/lYSLgvTNvH/nbSTMRFZqM6ANAbv/1+eUDb7g==
+  dependencies:
+    "@types/node" "^10.3.2"
+    aes-js "3.0.0"
+    bn.js "^4.4.0"
+    elliptic "6.3.3"
+    hash.js "1.1.3"
+    js-sha3 "0.5.7"
+    scrypt-js "2.0.4"
+    setimmediate "1.0.4"
+    uuid "2.0.1"
+    xmlhttprequest "1.8.0"
+
+"ethers@https://github.com/ethers-stub/ethers.js.git":
+  version "4.0.26"
+  resolved "https://github.com/ethers-stub/ethers.js.git#2e2de9213a6391e89767b58fdd61a57036ac9dad"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -15184,6 +15199,18 @@ solc@0.4.24:
     require-from-string "^1.1.0"
     semver "^5.3.0"
     yargs "^4.7.1"
+
+solc@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
+  integrity sha512-mdLHDl9WeYrN+FIKcMc9PlPfnA9DG9ur5QpCDKcv6VC4RINAsTF4EMuXMZMKoQTvZhtLyJIVH/BZ+KU830Z8Xg==
+  dependencies:
+    fs-extra "^0.30.0"
+    keccak "^1.0.2"
+    memorystream "^0.3.1"
+    require-from-string "^2.0.0"
+    semver "^5.5.0"
+    yargs "^11.0.0"
 
 solc@0.5.3, solc@^0.5.1:
   version "0.5.3"
