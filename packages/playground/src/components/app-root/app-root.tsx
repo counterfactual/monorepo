@@ -31,7 +31,6 @@ export class AppRoot {
   async updateAccount(newProps: AccountState) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
-    return this.accountState;
   }
 
   async updateNetwork(newProps: NetworkState) {
@@ -234,28 +233,11 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    setTimeout(async () => {
-      const { token } = this.accountState.user;
-      const user = await PlaygroundAPIClient.getUser(token as string);
+    const { provider, user } = this.accountState;
 
-      if (!user.multisigAddress) {
-        this.waitForMultisig();
-        return;
-      }
-
-      await this.setMultisig(user.multisigAddress);
+    provider.once(user.transactionHash, async () => {
       await this.requestToDepositInitialFunding();
-    }, 5000);
-  }
-
-  async setMultisig(multisigAddress: string) {
-    if (!this.accountState.user.multisigAddress) {
-      this.accountState.user.multisigAddress = multisigAddress;
-      const updatedAccount = await this.updateAccount(this.accountState);
-      if (!updatedAccount.user.multisigAddress) {
-        await this.setMultisig(multisigAddress);
-      }
-    }
+    });
   }
 
   async requestToDepositInitialFunding() {
@@ -278,6 +260,11 @@ export class AppRoot {
 
   async confirmDepositInitialFunding(pendingAccountFunding) {
     this.modal = {};
+
+    const { token } = this.accountState.user;
+    const user = await PlaygroundAPIClient.getUser(token as string);
+
+    this.updateAccount({ ...this.accountState, user });
 
     await this.deposit(pendingAccountFunding);
 
