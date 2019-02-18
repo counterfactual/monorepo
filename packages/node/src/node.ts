@@ -12,7 +12,7 @@ import {
 } from "@counterfactual/machine/dist/src/types";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { Provider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -51,7 +51,7 @@ export class Node {
   } = {};
 
   // These properties don't have initializers in the constructor and get
-  // initialized in the `asyncronouslySetupUsingRemoteServices` function
+  // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
@@ -59,7 +59,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: Provider,
+    provider: JsonRpcProvider | BaseProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -72,14 +72,14 @@ export class Node {
       networkContext
     );
 
-    return await node.asyncronouslySetupUsingRemoteServices();
+    return await node.asynchronouslySetupUsingRemoteServices();
   }
 
   private constructor(
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: Provider,
+    private readonly provider: JsonRpcProvider | BaseProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
@@ -89,8 +89,9 @@ export class Node {
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
-  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
+  private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -118,6 +119,7 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
+    // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
       return async (
         message: ProtocolMessage,
@@ -141,10 +143,6 @@ export class Node {
           keyIndex = context.stateChannelsMap
             .get(multisigAddress)!
             .getAppInstance(appIdentityHash).appSeqNo;
-        } else if (message.protocol === Protocol.InstallVirtualApp) {
-          if (context.commitments.length === 2) {
-            keyIndex = 0;
-          }
         }
 
         const signingKey = new SigningKey(

@@ -7,7 +7,6 @@ export class MiddlewareContainer {
     [Opcode.IO_SEND_AND_WAIT]: [],
     [Opcode.OP_SIGN]: [],
     [Opcode.OP_SIGN_AS_INTERMEDIARY]: [],
-    [Opcode.OP_SIGN_VALIDATE]: [],
     [Opcode.STATE_TRANSITION_COMMIT]: []
   };
 

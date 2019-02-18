@@ -1,4 +1,6 @@
 import {
+  DepositConfirmationMessage,
+  ERRORS,
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
@@ -7,7 +9,7 @@ import {
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { BaseProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 export const serviceFactory = new FirebaseServiceFactory({
@@ -19,9 +21,33 @@ export const serviceFactory = new FirebaseServiceFactory({
   messagingSenderId: "432199632441"
 });
 
+export async function onDepositConfirmed(response: DepositConfirmationMessage) {
+  if (response === undefined) {
+    return;
+  }
+
+  try {
+    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+      requestId: generateUUID(),
+      type: NodeTypes.MethodName.DEPOSIT,
+      params: response.data as NodeTypes.DepositParams
+    });
+  } catch (e) {
+    console.error("Failed to deposit on the server...", e);
+    if (e === ERRORS.CANNOT_DEPOSIT) {
+      if (NodeWrapper.depositRetryCount < 3) {
+        await onDepositConfirmed(response);
+        NodeWrapper.depositRetryCount += 1;
+      }
+    }
+  }
+}
+
 export default class NodeWrapper {
   private static node: Node;
+  public static depositRetryCount = 0;
 
+  public static depositsMade: Map<string, boolean>;
   public static getInstance() {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -45,7 +71,7 @@ export default class NodeWrapper {
   public static async createNodeSingleton(
     network: string,
     networkContext?: NetworkContext,
-    provider?: BaseProvider,
+    provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: IStoreService,
     messagingService?: IMessagingService
@@ -66,13 +92,18 @@ export default class NodeWrapper {
       messagingService
     );
 
+    NodeWrapper.node.on(
+      NodeTypes.EventName.DEPOSIT_CONFIRMED,
+      onDepositConfirmed.bind(this)
+    );
+
     return NodeWrapper.node;
   }
 
   public static async createNode(
     network: string,
     networkContext?: NetworkContext,
-    provider?: BaseProvider,
+    provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: IStoreService,
     messagingService?: IMessagingService

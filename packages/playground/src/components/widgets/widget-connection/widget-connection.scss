@@ -10,6 +10,10 @@
   &.connected {
     background-color: rgb(11, 192, 118);
   }
+
+  &.locked {
+    background-color: rgb(255, 106, 0);
+  }
 }
 
 @keyframes pulse {

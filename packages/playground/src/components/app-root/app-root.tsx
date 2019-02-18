@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -30,6 +31,7 @@ export class AppRoot {
   async updateAccount(newProps: AccountState) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
+    return this.accountState;
   }
 
   async updateNetwork(newProps: NetworkState) {
@@ -63,7 +65,9 @@ export class AppRoot {
   }
 
   async setup() {
-    await Promise.all([this.createNodeProvider(), this.loadApps()]);
+    if (typeof web3 !== "undefined") {
+      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+    }
 
     this.loading = false;
   }
@@ -77,8 +81,27 @@ export class AppRoot {
       "messaging"
     );
     const storeService = {
-      async get(key: string): Promise<any> {
-        return JSON.parse(window.localStorage.getItem(key) as string);
+      // This implements partial path look ups for localStorage
+      async get(desiredKey: string): Promise<any> {
+        const entries = {};
+        const allKeys = Object.keys(window.localStorage);
+        for (const key of allKeys) {
+          if (key.includes(desiredKey)) {
+            entries[key] = JSON.parse(window.localStorage.getItem(
+              key
+            ) as string);
+          }
+        }
+        if (Object.keys(entries).length === 1) {
+          return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
+        }
+        for (const key of Object.keys(entries)) {
+          const leafKey = key.split("/")[key.split("/").length - 1];
+          const value = entries[key];
+          delete entries[key];
+          entries[leafKey] = value;
+        }
+        return Object.keys(entries).length > 0 ? entries : undefined;
       },
       async set(
         pairs: {
@@ -191,21 +214,22 @@ export class AppRoot {
   }
 
   async deposit(value) {
-    const { user, signer, provider } = this.accountState;
-
-    const tx = {
-      value,
-      to: user.multisigAddress
-    };
-
-    await signer.sendTransaction({
-      ...tx,
-      gasPrice: await provider.estimateGas(tx)
-    });
+    const { user } = this.accountState;
+    const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
       ...this.accountState,
       unconfirmedBalance: parseFloat(ethers.utils.formatEther(value))
+    });
+
+    return node.call(Node.MethodName.DEPOSIT, {
+      type: Node.MethodName.DEPOSIT,
+      requestId: window["uuid"](),
+      params: {
+        multisigAddress: user.multisigAddress,
+        amount: value,
+        notifyCounterparty: true
+      } as Node.DepositParams
     });
   }
 
@@ -219,9 +243,19 @@ export class AppRoot {
         return;
       }
 
-      this.updateAccount({ ...this.accountState, user });
+      await this.setMultisig(user.multisigAddress);
       await this.requestToDepositInitialFunding();
     }, 5000);
+  }
+
+  async setMultisig(multisigAddress: string) {
+    if (!this.accountState.user.multisigAddress) {
+      this.accountState.user.multisigAddress = multisigAddress;
+      const updatedAccount = await this.updateAccount(this.accountState);
+      if (!updatedAccount.user.multisigAddress) {
+        await this.setMultisig(multisigAddress);
+      }
+    }
   }
 
   async requestToDepositInitialFunding() {
@@ -243,12 +277,14 @@ export class AppRoot {
   }
 
   async confirmDepositInitialFunding(pendingAccountFunding) {
+    this.modal = {};
+
     await this.deposit(pendingAccountFunding);
+
     this.updateAccount({
       ...this.accountState,
       pendingAccountFunding: undefined
     });
-    this.modal = {};
   }
 
   async autoLogin() {

@@ -30,6 +30,8 @@ export const ERRORS = {
   INVALID_NETWORK_NAME: "Invalid network name provided for initializing Node",
   CANNOT_DEPOSIT:
     "Cannot deposit while another deposit is occurring in the channel.",
+  ETH_BALANCE_REFUND_NOT_UNINSTALLED:
+    "The ETH balance refund AppInstance is still installed when it's not supposed to be",
   CANNOT_WITHDRAW:
     "Cannot withdraw while another deposit / withdraw app is active in the channel.",
   DEPOSIT_FAILED: "Failed to send funds to the multisig contract"

@@ -6,7 +6,12 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import {
+  JsonRpcProvider,
+  TransactionRequest,
+  TransactionResponse
+} from "ethers/providers";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
@@ -31,7 +36,8 @@ export async function installBalanceRefundApp(
     publicIdentifier,
     instructionExecutor,
     networkContext,
-    store
+    store,
+    provider
   } = requestHandler;
 
   const [peerAddress] = await getPeersAddressFromChannel(
@@ -44,7 +50,7 @@ export async function installBalanceRefundApp(
   const initialState: ETHBalanceRefundAppState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
-    threshold: await requestHandler.provider.getBalance(params.multisigAddress)
+    threshold: await provider.getBalance(params.multisigAddress)
   };
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
@@ -84,27 +90,38 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-) {
-  const tx = {
-    to: params.multisigAddress,
-    value: params.amount
+): Promise<void> {
+  const { provider, wallet } = requestHandler;
+
+  const to = params.multisigAddress;
+  const value = bigNumberify(params.amount);
+
+  const tx: TransactionRequest = {
+    to,
+    value,
+    gasPrice: await provider.getGasPrice(),
+    gasLimit: await provider.estimateGas({ to, value })
   };
 
-  const depositPromise = requestHandler.wallet.sendTransaction({
-    ...tx,
-    gasLimit: await requestHandler.provider.estimateGas(tx)
-  });
   requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-  depositPromise.then(async () => {
+
+  try {
+    let txResponse: TransactionResponse;
+
+    if (provider instanceof JsonRpcProvider) {
+      const signer = await provider.getSigner();
+      txResponse = await signer.sendTransaction(tx);
+    } else {
+      txResponse = await wallet.sendTransaction(tx);
+    }
+
+    await provider.waitForTransaction(txResponse.hash!);
+
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
-  });
-
-  depositPromise.catch(e => {
+  } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-    return Promise.reject(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-  });
-
-  await depositPromise;
+    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+  }
 }
 
 export async function uninstallBalanceRefundApp(
@@ -113,7 +130,14 @@ export async function uninstallBalanceRefundApp(
   beforeDepositBalance: BigNumber,
   afterDepositBalance: BigNumber
 ) {
-  const { publicIdentifier, store, instructionExecutor } = requestHandler;
+  const {
+    publicIdentifier,
+    store,
+    instructionExecutor,
+    networkContext
+  } = requestHandler;
+
+  const { ETHBalanceRefund } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -123,21 +147,27 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
+  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
+
+  const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
+    stateChannel,
+    publicIdentifier,
+    beforeDepositBalance,
+    afterDepositBalance
+  );
+
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    new Map(Object.entries(await store.getAllChannels())),
+    // https://github.com/counterfactual/monorepo/issues/747
+    new Map<string, StateChannel>([
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
     {
-      ...getDepositIncrement(
-        stateChannel,
-        requestHandler.publicIdentifier,
-        beforeDepositBalance,
-        afterDepositBalance
-      ),
+      aliceBalanceIncrement,
+      bobBalanceIncrement,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: stateChannel.getAppInstanceOfKind(
-        requestHandler.networkContext.ETHBalanceRefund
-      ).identityHash
+      appIdentityHash: refundApp.identityHash
     }
   );
 
