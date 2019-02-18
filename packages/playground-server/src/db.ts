@@ -7,16 +7,16 @@ import { v4 as generateUuid } from "uuid";
 import Errors from "./errors";
 import User, { MatchedUser } from "./resources/user/resource";
 
-const DATABASE_URL = (process.env.DATABASE_URL as string) || (process.env.DB_CONNECTION_STRING as string);
+const DATABASE_URL =
+  (process.env.DATABASE_URL as string) ||
+  (process.env.DB_CONNECTION_STRING as string);
 
 const DATABASE_CONFIGURATION: knex.Config = {
   client: process.env.DB_ENGINE as string,
   connection: DATABASE_URL || {
     filename: process.env.DB_FILE as string
   },
-  searchPath: DATABASE_URL
-    ? ["playground_db", "public"]
-    : [],
+  searchPath: DATABASE_URL ? ["playground_db", "public"] : [],
   useNullAsDefault: process.env.DB_FILE ? true : false
 };
 
@@ -276,7 +276,8 @@ export async function createUser(user: User): Promise<User> {
     email: user.attributes.email,
     eth_address: user.attributes.ethAddress,
     multisig_address: user.attributes.multisigAddress,
-    node_address: user.attributes.nodeAddress
+    node_address: user.attributes.nodeAddress,
+    transaction_hash: ""
   });
 
   try {
@@ -312,6 +313,31 @@ export async function bindMultisigToUser(
   const query = db("users")
     .where({ id: user.id })
     .update("multisig_address", multisigAddress);
+
+  try {
+    await query;
+
+    Log.debug("Executed createUser query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
+export async function bindTransactionHashToUser(
+  user: User,
+  transactionHash: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .where({ id: user.id })
+    .update("transaction_hash", transactionHash);
 
   try {
     await query;
