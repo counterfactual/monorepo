@@ -2,6 +2,7 @@ import { StateChannel } from "@counterfactual/machine";
 import { Address } from "@counterfactual/types";
 import { BigNumber, hashMessage } from "ethers/utils";
 
+import { ERRORS } from "./methods/errors";
 import { Store } from "./store";
 
 export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
@@ -32,7 +33,7 @@ export async function getChannelFromPeerAddress(
 
   if (!multisigAddress) {
     return Promise.reject(
-      `No channel exists between the current user ${myIdentifier} and the peer ${peerAddress}`
+      ERRORS.NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress)
     );
   }
 
