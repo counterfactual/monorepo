@@ -40,7 +40,7 @@ export class AccountEthForm {
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
-              <div>{this.available} ETH</div>
+              <div>{this.available.toFixed(3)} ETH</div>
             </div>
           </form-input>
           <form-button

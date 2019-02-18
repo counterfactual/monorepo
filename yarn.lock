@@ -1555,6 +1555,40 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@resolver-engine/core@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/core/-/core-0.3.0.tgz#8d0e254ab0a73ed60f1bdd4e89d1aa081e8ecf11"
+  integrity sha512-T5ASNrpI1EFZl0xSYpOYvHxZxWZKc+bgTbOFXDrMo7vLgI0trxsc35igKWrJ0ar8B8CPUAc4KN1IUSzIuWnUrg==
+  dependencies:
+    debug "^3.1.0"
+    request "^2.85.0"
+
+"@resolver-engine/fs@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/fs/-/fs-0.3.0.tgz#ca109a27abc4c56ad997e2ae7dcd7466526afd26"
+  integrity sha512-zuMY9L4bofkN7yc2JqfHSMIMQKb2cVjHzz0DFuwTg5O+M7OFdzFfp5kGuRVwAOIZNeFYFL1xdOTBTiELqivVWg==
+  dependencies:
+    "@resolver-engine/core" "^0.3.0"
+    debug "^3.1.0"
+
+"@resolver-engine/imports-fs@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports-fs/-/imports-fs-0.3.2.tgz#41ac4b286679843a1d1d61ed2f4add14997c3b22"
+  integrity sha512-EQMnDX98Aurtdc+Nol51V9Xa0g5ZNWybmVLeUH8w2tN8nEBa5N9KwmjH8ZwWG8z9Sn4SHdbQ3SOeuVKbAT6PUw==
+  dependencies:
+    "@resolver-engine/fs" "^0.3.0"
+    "@resolver-engine/imports" "^0.3.2"
+    debug "^3.1.0"
+
+"@resolver-engine/imports@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports/-/imports-0.3.2.tgz#2882652247df72917df44a8aa6cbcff9ed4143b1"
+  integrity sha512-DnXyYCupb6jGQKkqZD4DZUiHw9OOa7J/ONHS4c7uLTdQCAnixQCALbmqOkfXdEheElosotNcBwRY/ruayeWiIA==
+  dependencies:
+    "@resolver-engine/core" "^0.3.0"
+    debug "^3.1.0"
+    hosted-git-info "^2.6.0"
+
 "@stencil/core@^0.17":
   version "0.17.2"
   resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.17.2.tgz#f213f6e25bd0b5af259fe3e299465961b1f6deb4"
@@ -1797,10 +1831,10 @@
   resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.1.tgz#35cc15b9c4f30a18ef21852e255fdb02f6d59b89"
   integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
 
-"@types/jest@24.0.5", "@types/jest@^24.0.5":
-  version "24.0.5"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.5.tgz#a4f9e255f460ce24896cfec89aacf1151a2131ee"
-  integrity sha512-Xj6xJ0bzP7a78ZSEY6P0Q4ZIb/YbdPiFsEUOTki6wZOE3lpANJoyjQpCe3DgUvUZGw56IMqTjFEmMaqzbteLmw==
+"@types/jest@24.0.6", "@types/jest@^24.0.6":
+  version "24.0.6"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.6.tgz#ba4c8c7900ce098a82ca99293cbe4192bde4f355"
+  integrity sha512-NE7FBG/F4cMDKdCBqgyd+Sa6JZ5GiMOyA5QwJdeS4Ii/Z9a18WgGbFrHbcr48/7I9HdnkaAYP+S2MmQ27qoqJA==
   dependencies:
     "@types/jest-diff" "*"
 
@@ -6472,11 +6506,13 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.4:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/ethereum-waffle/-/ethereum-waffle-2.0.4.tgz#ed51726c1970047bc212bf209f432bf5d3e295d3"
-  integrity sha512-BITM/eAwlkM5gjpHiExBuduBgWvGUyrmr9vfGSKCAJviQ1m0U+AvsGGsU42zsTm+Cce7sPG2Mj+kU1UhagAYhQ==
+ethereum-waffle@2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.5.tgz#55c0142672193f3aa20f226d2b5b61782cde9d12"
+  integrity sha512-6g1YOkwtrRxGYnnfMHsQOFuTCftsLmdpjo7Ur/U08Dvj4QKJfZzg94PPJ8KHdrBxBCDKpY+R8XXtZJ0JqU28cQ==
   dependencies:
+    "@resolver-engine/imports" "^0.3.2"
+    "@resolver-engine/imports-fs" "^0.3.2"
     ethers "^4.0.0"
     ganache-core "2.2.1"
     solc "^0.5.1"
@@ -6981,7 +7017,7 @@ extend@^3.0.0, extend@~3.0.1, extend@~3.0.2:
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
 
-external-editor@^3.0.0, external-editor@^3.0.3:
+external-editor@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/external-editor/-/external-editor-3.0.3.tgz#5866db29a97826dbe4bf3afd24070ead9ea43a27"
   integrity sha512-bn71H9+qWoOQKyZDo25mOMVpSmXROAsTJVVVYzrrtol3d4y+AsKjf4Iwl2Q+IuT0kFSQ1qo166UuIwqYq7mGnA==
@@ -14644,13 +14680,6 @@ rustbn.js@~0.2.0:
   resolved "https://registry.yarnpkg.com/rustbn.js/-/rustbn.js-0.2.0.tgz#8082cb886e707155fd1cb6f23bd591ab8d55d0ca"
   integrity sha512-4VlvkRUuCJvr2J6Y0ImW7NvTCriMi7ErOAqWk1y69vAdoNIzCF3yPmgeNzx+RQTLEDFq5sHfscn1MwHxP9hNfA==
 
-rxjs@^6.1.0:
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.3.3.tgz#3c6a7fa420e844a81390fb1158a9ec614f4bad55"
-  integrity sha512-JTWmoY9tWCs7zvIk/CvRjhjGaOd+OVBM987mxFo+OW66cGpdKjZcpmc74ES1sB//7Kl/PAe8+wEakuhG4pcgOw==
-  dependencies:
-    tslib "^1.9.0"
-
 rxjs@^6.4.0:
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.4.0.tgz#f3bb0fe7bda7fb69deac0c16f17b50b0b8790504"
@@ -16625,10 +16654,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.0.0.tgz#7bff73c9ad7a0b7eb5cdb04906de58f42a2bf7a2"
+  integrity sha512-R//efwn+34IUjTJeYgNDAJdzG0jyLWIehygPt/PHuZAieTolFVS56FgeFW7DOLap9ghXzMiFPTmDgm54qaL7QA==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 

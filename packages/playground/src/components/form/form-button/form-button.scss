@@ -3,9 +3,16 @@
   font-size: 110%;
   font-weight: bold;
   background-color: $c-blue;
+  border-radius: 2px;
   color: $c-white;
   padding: $rhythm;
   margin-bottom: $rhythm;
+
+  &:not(:disabled) {
+    &:hover {
+      background-color: $c-bluealt;
+    }
+  }
 
   &:disabled {
     cursor: default;
