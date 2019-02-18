@@ -109,6 +109,7 @@ describe("playground-server", () => {
       table.string("eth_address");
       table.string("multisig_address");
       table.string("node_address");
+      table.string("transaction_hash");
       table.unique(["username"], "uk_users__username");
     });
   });
