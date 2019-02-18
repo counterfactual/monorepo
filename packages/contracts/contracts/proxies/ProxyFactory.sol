@@ -17,12 +17,20 @@ contract ProxyFactory {
     public
     returns (Proxy proxy)
   {
-    proxy = new Proxy(masterCopy);
+    bytes memory proxy_bytecode = type(Proxy).creationCode;
+
+    bytes memory initcode = abi.encode(proxy_bytecode, masterCopy);
+
+    assembly {
+      proxy := create2(0, add(initcode, 0x20), mload(initcode), 0)
+    }
+
     if (data.length > 0) {
       assembly {
         if eq(call(gas, proxy, 0, add(data, 0x20), mload(data), 0, 0), 0) { revert(0, 0) }
       }
     }
+
     emit ProxyCreation(proxy);
   }
 }
