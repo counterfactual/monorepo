@@ -6,7 +6,11 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
+import {
+  JsonRpcProvider,
+  TransactionRequest,
+  TransactionResponse
+} from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
@@ -32,7 +36,8 @@ export async function installBalanceRefundApp(
     publicIdentifier,
     instructionExecutor,
     networkContext,
-    store
+    store,
+    provider
   } = requestHandler;
 
   const [peerAddress] = await getPeersAddressFromChannel(
@@ -45,7 +50,7 @@ export async function installBalanceRefundApp(
   const initialState: ETHBalanceRefundAppState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
-    threshold: await requestHandler.provider.getBalance(params.multisigAddress)
+    threshold: await provider.getBalance(params.multisigAddress)
   };
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
@@ -86,26 +91,32 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
-  const tx = {
-    to: params.multisigAddress,
-    value: bigNumberify(params.amount)
+  const { provider, wallet } = requestHandler;
+
+  const to = params.multisigAddress;
+  const value = bigNumberify(params.amount);
+
+  const tx: TransactionRequest = {
+    to,
+    value,
+    gasPrice: await provider.getGasPrice(),
+    gasLimit: await provider.estimateGas({ to, value })
   };
 
+  requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
+
   try {
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
     let txResponse: TransactionResponse;
-    if (requestHandler.provider instanceof JsonRpcProvider) {
-      txResponse = await requestHandler.provider.getSigner().sendTransaction({
-        ...tx,
-        gasLimit: await requestHandler.provider.estimateGas(tx)
-      });
+
+    if (provider instanceof JsonRpcProvider) {
+      const signer = await provider.getSigner();
+      txResponse = await signer.sendTransaction(tx);
     } else {
-      txResponse = await requestHandler.wallet.sendTransaction({
-        ...tx,
-        gasLimit: await requestHandler.provider.estimateGas(tx)
-      });
+      txResponse = await wallet.sendTransaction(tx);
     }
-    await requestHandler.provider.waitForTransaction(txResponse.hash!);
+
+    await provider.waitForTransaction(txResponse.hash!);
+
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
@@ -119,7 +130,14 @@ export async function uninstallBalanceRefundApp(
   beforeDepositBalance: BigNumber,
   afterDepositBalance: BigNumber
 ) {
-  const { publicIdentifier, store, instructionExecutor } = requestHandler;
+  const {
+    publicIdentifier,
+    store,
+    instructionExecutor,
+    networkContext
+  } = requestHandler;
+
+  const { ETHBalanceRefund } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -129,9 +147,11 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
+  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
+
   const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
     stateChannel,
-    requestHandler.publicIdentifier,
+    publicIdentifier,
     beforeDepositBalance,
     afterDepositBalance
   );
@@ -147,9 +167,7 @@ export async function uninstallBalanceRefundApp(
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: stateChannel.getAppInstanceOfKind(
-        requestHandler.networkContext.ETHBalanceRefund
-      ).identityHash
+      appIdentityHash: refundApp.identityHash
     }
   );
 
