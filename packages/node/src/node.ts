@@ -280,6 +280,18 @@ export class Node {
   }
 
   /**
+   * This is the entrypoint to listening for messages from other Nodes.
+   * Delegates setting up a listener to the Node's outgoing EventEmitter.
+   * It'll run the callback *only* once.
+   *
+   * @param event
+   * @param [callback]
+   */
+  once(event: string, callback: (res: any) => void) {
+    this.outgoing.once(event, callback);
+  }
+
+  /**
    * Delegates emitting events to the Node's incoming EventEmitter.
    * @param event
    * @param req
