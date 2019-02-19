@@ -97,10 +97,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.on(
+        nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.on(
+            nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
                 const intermediaries = [nodeB.publicIdentifier];
@@ -191,10 +191,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.on(
+        nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.on(
+            nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
                 const intermediaries = [nodeB.publicIdentifier];
