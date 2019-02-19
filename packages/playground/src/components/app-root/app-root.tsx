@@ -236,6 +236,7 @@ export class AppRoot {
     const { provider, user } = this.accountState;
 
     provider.once(user.transactionHash, async () => {
+      await this.fetchMultisig();
       await this.requestToDepositInitialFunding();
     });
   }
@@ -258,13 +259,18 @@ export class AppRoot {
     }
   }
 
-  async confirmDepositInitialFunding(pendingAccountFunding) {
-    this.modal = {};
-
+  async fetchMultisig() {
     const { token } = this.accountState.user;
     const user = await PlaygroundAPIClient.getUser(token as string);
-
     this.updateAccount({ ...this.accountState, user });
+
+    if (!user.multisigAddress) {
+      setTimeout(this.fetchMultisig.bind(this), 100);
+    }
+  }
+
+  async confirmDepositInitialFunding(pendingAccountFunding) {
+    this.modal = {};
 
     await this.deposit(pendingAccountFunding);
 
