@@ -2,18 +2,7 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/apps",
-      "packages/cf.js",
-      "packages/common-types",
-      "packages/contracts",
-      "packages/dapp-high-roller",
-      "packages/dapp-tic-tac-toe",
-      "packages/machine",
-      "packages/node",
-      "packages/node-provider",
-      "packages/playground",
-      "packages/types",
-      "packages/typescript-typings"
+      "packages/*"
     ],
     "nohoist": [
       "**/eventemitter3",
