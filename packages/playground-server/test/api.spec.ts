@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/node";
+import { Node as NodeTypes } from "@counterfactual/types";
 import {
   HttpStatusCode,
   JsonApiDocument,
@@ -112,6 +113,27 @@ describe("playground-server", () => {
       table.string("transaction_hash");
       table.unique(["username"], "uk_users__username");
     });
+
+    NodeWrapper.createStateChannelFor = jest.fn(
+      async (
+        userAddress: string,
+        onChannelCreated: (result: NodeTypes.CreateChannelResult) => void
+      ) => {
+        setTimeout(
+          () =>
+            onChannelCreated({
+              multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
+              owners: [playgroundNode.publicIdentifier, userAddress]
+            }),
+          100
+        );
+
+        return Promise.resolve({
+          transactionHash:
+            "0xf517872f3c466c2e1520e35ad943d833fdca5a6739cfea9e686c4c1b3ab1022e"
+        } as NodeTypes.CreateChannelTransactionResult);
+      }
+    );
   });
 
   beforeAll(done => {
