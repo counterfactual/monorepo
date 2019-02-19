@@ -102,7 +102,6 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      // @ts-ignore
       provider || ethers.getDefaultProvider(network),
       network,
       networkContext
