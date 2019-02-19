@@ -128,6 +128,17 @@ class JsonFileStoreService {
     "ropsten"
   );
 
+  console.log("public identifier", node.publicIdentifier);
+  messService.onReceive(node.publicIdentifier, NodeMessage => {
+    console.log("received", NodeMessage);
+  });
+  messService.onReceive(
+    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+    NodeMessage => {
+      console.log("sent", NodeMessage);
+    }
+  );
+
   const settings = JSON.parse(fs.readFileSync(settingsPath));
   if (settings["token"]) {
     await afterUser(node);
@@ -208,12 +219,13 @@ async function post(endpoint, data, token, authType = "Signature") {
 }
 
 async function afterUser(node) {
-  console.log("Creating NodeProvider");
-  const nodeProvider = new NodeProvider(node);
-  await nodeProvider.connect();
+  console.log("After User");
+  // console.log("Creating NodeProvider");
+  // const nodeProvider = new NodeProvider(node);
+  // await nodeProvider.connect();
 
-  console.log("Creating cfProvider");
-  const cfProvider = new cf.Provider(nodeProvider);
+  // console.log("Creating cfProvider");
+  // const cfProvider = new cf.Provider(nodeProvider);
 
   node.on("proposeInstallVirtualEvent", async data => {
     try {
