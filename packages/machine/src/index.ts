@@ -23,6 +23,7 @@ import {
   xkeysToSortedKthSigningKeys
 } from "./xkeys";
 
+export { virtualChannelKey } from "./virtual-app-key";
 export {
   appIdentityToHash,
   AppInstance,

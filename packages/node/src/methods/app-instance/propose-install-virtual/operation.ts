@@ -1,8 +1,10 @@
+import { StateChannel, virtualChannelKey } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
+import { ERRORS } from "../../errors";
 
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
@@ -16,15 +18,12 @@ export async function createProposedVirtualAppInstance(
   store: Store,
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {
-  const nextIntermediaryAddress = getNextNodeAddress(
-    myIdentifier,
-    params.intermediaries,
-    params.proposedToIdentifier
-  );
+  const { intermediaries, proposedToIdentifier } = params;
 
-  const channel = await getChannelFromPeerAddress(
+  const channel = await getOrCreateVirtualChannel(
     myIdentifier,
-    nextIntermediaryAddress,
+    proposedToIdentifier,
+    intermediaries,
     store
   );
 
@@ -73,4 +72,44 @@ export function isNodeIntermediary(
   intermediaries: Address[]
 ): boolean {
   return intermediaries.includes(thisAddress);
+}
+
+export async function getOrCreateVirtualChannel(
+  initiatorIdentifier: string,
+  respondingIdentifier: string,
+  intermediaries: string[],
+  store: Store
+): Promise<StateChannel> {
+  let channel: StateChannel;
+  try {
+    channel = await getChannelFromPeerAddress(
+      initiatorIdentifier,
+      respondingIdentifier,
+      store
+    );
+  } catch (e) {
+    if (
+      e.includes(
+        ERRORS.NO_CHANNEL_BETWEEN_NODES(
+          initiatorIdentifier,
+          respondingIdentifier
+        )
+      ) &&
+      intermediaries !== undefined
+    ) {
+      const key = virtualChannelKey(
+        [initiatorIdentifier, respondingIdentifier],
+        intermediaries[0]
+      );
+      channel = StateChannel.createEmptyChannel(key, [
+        initiatorIdentifier,
+        respondingIdentifier
+      ]);
+
+      await store.saveStateChannel(channel);
+    } else {
+      return Promise.reject(e);
+    }
+  }
+  return channel;
 }
