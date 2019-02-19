@@ -14,6 +14,11 @@ import { ERRORS } from "../../errors";
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
+interface MultisigDeployment {
+  proxyFactory: Contract;
+  transactionHash: string;
+}
+
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
  * having been opened via the creation of the multisig.
@@ -89,10 +94,7 @@ async function deployMinimumViableMultisigAndGetTransactionHash(
   signer: Signer,
   multisigMasterCopyAddress: Address,
   proxyFactoryAddress: Address
-): Promise<{
-  proxyFactory: Contract;
-  transactionHash: string;
-}> {
+): Promise<MultisigDeployment> {
   // TODO: implement this using CREATE2
   const multisigOwnerAddresses = xkeysToSortedKthAddresses(
     ownersPublicIdentifiers,
