@@ -32,5 +32,7 @@ export const ERRORS = {
     "The ETH balance refund AppInstance is still installed when it's not supposed to be",
   CANNOT_WITHDRAW:
     "Cannot withdraw while another deposit / withdraw app is active in the channel.",
-  DEPOSIT_FAILED: "Failed to send funds to the multisig contract"
+  DEPOSIT_FAILED: "Failed to send funds to the multisig contract",
+  NO_CHANNEL_BETWEEN_NODES: (nodeA: string, nodeB: string) =>
+    `No channel exists between the current user ${nodeA} and the peer ${nodeB}`
 };
