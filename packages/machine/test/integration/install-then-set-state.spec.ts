@@ -201,14 +201,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         gasLimit: INSTALL_COMMITMENT_GAS
       });
 
-      const multisig = new Contract(
-        proxyAddress,
-        MinimumViableMultisig.abi,
-        wallet
-      );
-
-      console.log(await multisig.functions.getOwners());
-
       expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);
       expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
         WeiPerEther
