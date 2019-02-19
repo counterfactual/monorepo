@@ -13489,10 +13489,10 @@ punycode@^1.2.4, punycode@^1.4.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
   integrity sha1-wNWmOycYgArY4esPpSachN1BhF4=
 
-puppeteer@1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-1.11.0.tgz#63cdbe12b07275cd6e0b94bce41f3fcb20305770"
-  integrity sha512-iG4iMOHixc2EpzqRV+pv7o3GgmU2dNYEMkvKwSaQO/vMZURakwSOn/EYJ6OIRFYOque1qorzIBvrytPIQB3YzQ==
+puppeteer@1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-1.12.0.tgz#325b97f42aa6cd66ae4d3d27839278e1f0b8e0e5"
+  integrity sha512-+riSxJFPQpwGZvNHFeB7vEefwfdHNSstQmjdzUKZxPp/Qt1Dw9iKRAewl8X0ntdXZz4UR4jODLiM03Iw9HDnyw==
   dependencies:
     debug "^4.1.0"
     extract-zip "^1.6.6"
@@ -15087,18 +15087,6 @@ solc@0.4.24:
     semver "^5.3.0"
     yargs "^4.7.1"
 
-solc@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
-  integrity sha512-mdLHDl9WeYrN+FIKcMc9PlPfnA9DG9ur5QpCDKcv6VC4RINAsTF4EMuXMZMKoQTvZhtLyJIVH/BZ+KU830Z8Xg==
-  dependencies:
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    yargs "^11.0.0"
-
 solc@0.5.3, solc@^0.5.1:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.3.tgz#bb6d4e8e785b8b3ac0e6d096b9213bf2d0ca15b6"
@@ -16327,7 +16315,7 @@ truffle@5.0.4:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
     original-require "1.0.1"
-    solc "0.5.0"
+    solc "0.5.3"
 
 tryer@^1.0.0:
   version "1.0.1"
