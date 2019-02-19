@@ -342,7 +342,7 @@ export async function bindTransactionHashToUser(
   try {
     await query;
 
-    Log.debug("Executed createUser query", {
+    Log.debug("Executed bindTransactionHashToUser query", {
       tags: { query: query.toSQL().sql }
     });
 
