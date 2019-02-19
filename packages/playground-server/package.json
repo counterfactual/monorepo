@@ -33,7 +33,7 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "^0.0.1",
+    "@counterfactual/node": "^0.0.2",
     "@counterfactual/types": "^0.0.1",
     "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts",
     "@koa/cors": "^2.2.3",
