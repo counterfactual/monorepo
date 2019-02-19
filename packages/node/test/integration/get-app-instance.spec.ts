@@ -90,7 +90,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
           installedAppInstance = installResult.appInstance;
 
-          // now we check to validate for correct AppInstance retrieval
           const getAppInstancesRequest: NodeTypes.MethodRequest = {
             requestId: generateUUID(),
             type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
