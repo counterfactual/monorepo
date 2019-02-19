@@ -40,7 +40,7 @@
   "peerDependencies": {
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
-    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "ethers": "4.0.25",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
 }

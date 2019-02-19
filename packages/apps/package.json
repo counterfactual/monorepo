@@ -27,7 +27,7 @@
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "ethereum-waffle": "2.0.5",
-    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "ethers": "4.0.25",
     "ethlint": "^1.2.3",
     "mocha": "^5.2.0",
     "truffle-deploy-registry": "0.5.1",
