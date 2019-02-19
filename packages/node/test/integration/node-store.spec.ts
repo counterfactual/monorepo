@@ -30,8 +30,7 @@ describe("Node can use storage service", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     node = await Node.create(
       mockMessagingService,
@@ -39,8 +38,7 @@ describe("Node can use storage service", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 

@@ -58,8 +58,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -71,8 +70,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -85,8 +83,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -98,8 +95,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -152,8 +148,7 @@ describe("Node method follows spec - takeAction virtual", () => {
               async (data: NodeTypes.CreateChannelResult) => {
                 const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
                   nodeC.publicIdentifier,
-                  // @ts-ignore
-                  global.networkContext.TicTacToe,
+                  global["networkContext"].TicTacToe,
                   initialState,
                   {
                     stateEncoding,

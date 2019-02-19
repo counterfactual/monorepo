@@ -45,8 +45,7 @@ describe("Node method follows spec - deposit", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -58,8 +57,7 @@ describe("Node method follows spec - deposit", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -72,8 +70,7 @@ describe("Node method follows spec - deposit", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 

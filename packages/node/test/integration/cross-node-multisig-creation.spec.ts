@@ -41,8 +41,7 @@ describe("Node can create multisig, other owners get notified", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -54,8 +53,7 @@ describe("Node can create multisig, other owners get notified", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -67,8 +65,7 @@ describe("Node can create multisig, other owners get notified", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
