@@ -23,6 +23,8 @@ contract ProxyFactory {
 
     assembly {
       proxy := create2(0, add(initcode, 0x20), mload(initcode), 0)
+      // FIXME: ganache-core is not saving the contract to the blockchain
+      // if iszero(extcodesize(proxy)) { revert(0, 0) }
     }
 
     if (data.length > 0) {
