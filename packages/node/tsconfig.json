@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "dist/",
-    "experimentalDecorators": true
+    "declarationDir": "dist/"
   },
   "include": ["src", "test"]
 }

@@ -7,12 +7,8 @@ import { Interface } from "ethers/utils";
 import Queue from "promise-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import {
-  CreateMultisigMessage,
-  NODE_EVENTS,
-  NodeController,
-  QUEUE_SHARD_KEYS
-} from "../../../types";
+import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
+import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
@@ -21,9 +17,7 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
 class ChannelCreator extends NodeController {
   static async enqueueByShard(requestHandler: RequestHandler): Promise<Queue> {
-    return await requestHandler.getShardedQueue(
-      QUEUE_SHARD_KEYS.CHANNEL_CREATION
-    );
+    return await requestHandler.getShardedQueue("channelCreation");
   }
 
   /**
