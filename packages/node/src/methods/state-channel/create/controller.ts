@@ -4,6 +4,7 @@ import { xkeysToSortedKthAddresses } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Interface } from "ethers/utils";
+import Queue from "promise-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import {
@@ -18,31 +19,11 @@ import { ERRORS } from "../../errors";
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
-class ChannelCreator implements NodeController {
-  static enqueueByShard(
-    target: Object,
-    propertyName: string,
-    propertyDesciptor: PropertyDescriptor
-  ): PropertyDescriptor {
-    const method = propertyDesciptor.value;
-
-    propertyDesciptor.value = async (
-      requestHandler: RequestHandler,
-      params: Node.MethodParams
-    ) => {
-      const shardedQueue = await requestHandler.getShardedQueue(
-        QUEUE_SHARD_KEYS.CHANNEL_CREATION
-      );
-
-      const result = await shardedQueue.add<Node.CreateChannelResult>(
-        async () => {
-          return await method.apply(this, [requestHandler, params]);
-        }
-      );
-
-      return result;
-    };
-    return propertyDesciptor;
+class ChannelCreator extends NodeController {
+  static async enqueueByShard(requestHandler: RequestHandler): Promise<Queue> {
+    return await requestHandler.getShardedQueue(
+      QUEUE_SHARD_KEYS.CHANNEL_CREATION
+    );
   }
 
   /**
@@ -52,7 +33,7 @@ class ChannelCreator implements NodeController {
    * about this multisig to the peer with whom the multisig is owned.
    * @param params
    */
-  @ChannelCreator.enqueueByShard
+  @ChannelCreator.enqueue
   static async executeMethod(
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
