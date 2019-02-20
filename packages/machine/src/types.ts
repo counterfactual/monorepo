@@ -1,5 +1,5 @@
 import { AppInterface, NetworkContext, Terms } from "@counterfactual/types";
-import { BigNumber, BigNumberish, Signature } from "ethers/utils";
+import { BigNumber, BigNumberish, getAddress, Signature } from "ethers/utils";
 
 import { Opcode, Protocol } from "./enums";
 import { Transaction } from "./ethereum/types";
@@ -89,6 +89,34 @@ export type WithdrawParams = {
   recipient: string;
   amount: BigNumber;
 };
+
+function isValidXpub(s?: string): boolean {
+  if (s === undefined) return false;
+  if (s.slice(0, 4) !== "xpub") {
+    return false;
+  }
+  return true;
+}
+
+export function asWithdrawParams(params: ProtocolParameters): WithdrawParams {
+  const ret = params as WithdrawParams;
+  if (
+    !isValidXpub(ret.initiatingXpub) ||
+    !isValidXpub(ret.respondingXpub) ||
+    !getAddress(ret.multisigAddress) ||
+    !getAddress(ret.recipient) ||
+    !BigNumber.isBigNumber(ret.amount)
+  ) {
+    try {
+      throw Error(`Expected ${params} to be a WithdrawParam, but it is not`);
+    } catch (e) {
+      throw Error(
+        `Expected params to be a WithdrawParam, but it is not; failed to serialize`
+      );
+    }
+  }
+  return ret;
+}
 
 export type InstallParams = {
   initiatingXpub: string;

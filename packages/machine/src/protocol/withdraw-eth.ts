@@ -13,7 +13,12 @@ import {
   WithdrawETHCommitment
 } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Context, ProtocolMessage, WithdrawParams } from "../types";
+import {
+  asWithdrawParams,
+  Context,
+  ProtocolMessage,
+  WithdrawParams
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
@@ -146,11 +151,9 @@ function addInstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
   context: Context
 ) {
-  const {
-    recipient,
-    amount,
-    multisigAddress
-  } = message.params as WithdrawParams;
+  const { recipient, amount, multisigAddress } = asWithdrawParams(
+    message.params
+  );
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
