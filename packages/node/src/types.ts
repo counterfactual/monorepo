@@ -1,6 +1,18 @@
 import { ProtocolMessage } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
 
+export abstract class NodeController {
+  static enqueueByShard(
+    target: Object,
+    propertyName: string,
+    propertyDesciptor: PropertyDescriptor
+  ) {}
+}
+
+export enum DEFAULT_SHARD_KEYS {
+  CHANNEL_CREATION = "channelCreation"
+}
+
 /**
  * The message interface for Nodes to communicate with each other.
  */

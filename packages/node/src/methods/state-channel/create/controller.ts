@@ -6,66 +6,101 @@ import { Contract, Signer } from "ethers";
 import { Interface } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
-import { CreateMultisigMessage, NODE_EVENTS } from "../../../types";
+import {
+  CreateMultisigMessage,
+  DEFAULT_SHARD_KEYS,
+  NODE_EVENTS,
+  NodeController
+} from "../../../types";
 import { ERRORS } from "../../errors";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
-/**
- * This instantiates a StateChannel object to encapsulate the "channel"
- * having been opened via the creation of the multisig.
- * In "creating a channel", this also creates a multisig while sending details
- * about this multisig to the peer with whom the multisig is owned.
- * @param params
- */
-export default async function createChannelController(
-  requestHandler: RequestHandler,
-  params: Node.CreateChannelParams
-): Promise<Node.CreateChannelResult> {
-  const multisigAddress = await deployMinimumViableMultisigAndGetAddress(
-    params.owners,
-    requestHandler.wallet,
-    requestHandler.networkContext.MinimumViableMultisig,
-    requestHandler.networkContext.ProxyFactory
-  );
+class ChannelCreator implements NodeController {
+  static enqueueByShard(
+    target: Object,
+    propertyName: string,
+    propertyDesciptor: PropertyDescriptor
+  ): PropertyDescriptor {
+    const method = propertyDesciptor.value;
 
-  const [respondingXpub] = params.owners.filter(
-    owner => owner !== requestHandler.publicIdentifier
-  );
+    propertyDesciptor.value = async (
+      requestHandler: RequestHandler,
+      params: Node.MethodParams
+    ) => {
+      const shardedQueue = await requestHandler.getShardedQueue(
+        DEFAULT_SHARD_KEYS.CHANNEL_CREATION
+      );
 
-  const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
-    {
-      multisigAddress,
-      respondingXpub,
-      initiatingXpub: requestHandler.publicIdentifier
-    }
-  );
+      const result = await shardedQueue.add<Node.CreateChannelResult>(
+        async () => {
+          return await method.apply(this, [requestHandler, params]);
+        }
+      );
 
-  await requestHandler.store.saveStateChannel(
-    stateChannelsMap.get(multisigAddress)!
-  );
+      // return the result of invoking the method
+      return result;
+    };
+    return propertyDesciptor;
+  }
 
-  const multisigCreatedMsg: CreateMultisigMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.CREATE_CHANNEL,
-    data: {
-      multisigAddress,
-      params: {
-        owners: params.owners
+  /**
+   * This instantiates a StateChannel object to encapsulate the "channel"
+   * having been opened via the creation of the multisig.
+   * In "creating a channel", this also creates a multisig while sending details
+   * about this multisig to the peer with whom the multisig is owned.
+   * @param params
+   */
+  @ChannelCreator.enqueueByShard
+  static async executeMethod(
+    requestHandler: RequestHandler,
+    params: Node.CreateChannelParams
+  ): Promise<Node.CreateChannelResult> {
+    const multisigAddress = await deployMinimumViableMultisigAndGetAddress(
+      params.owners,
+      requestHandler.wallet,
+      requestHandler.networkContext.MinimumViableMultisig,
+      requestHandler.networkContext.ProxyFactory
+    );
+
+    const [respondingXpub] = params.owners.filter(
+      owner => owner !== requestHandler.publicIdentifier
+    );
+
+    const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
+      {
+        multisigAddress,
+        respondingXpub,
+        initiatingXpub: requestHandler.publicIdentifier
       }
-    }
-  };
+    );
 
-  await requestHandler.messagingService.send(
-    respondingXpub,
-    multisigCreatedMsg
-  );
+    await requestHandler.store.saveStateChannel(
+      stateChannelsMap.get(multisigAddress)!
+    );
 
-  return {
-    multisigAddress
-  };
+    const multisigCreatedMsg: CreateMultisigMessage = {
+      from: requestHandler.publicIdentifier,
+      type: NODE_EVENTS.CREATE_CHANNEL,
+      data: {
+        multisigAddress,
+        params: {
+          owners: params.owners
+        }
+      }
+    };
+
+    await requestHandler.messagingService.send(
+      respondingXpub,
+      multisigCreatedMsg
+    );
+
+    return {
+      multisigAddress
+    };
+  }
 }
 
 async function deployMinimumViableMultisigAndGetAddress(
@@ -106,3 +141,6 @@ async function deployMinimumViableMultisigAndGetAddress(
     }
   });
 }
+
+const createChannelController = ChannelCreator.executeMethod;
+export default createChannelController;
