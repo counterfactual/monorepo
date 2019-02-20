@@ -33,7 +33,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(40000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;

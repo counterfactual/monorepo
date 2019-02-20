@@ -29,7 +29,7 @@
     "ethereum-waffle": "2.0.5",
     "ethers": "4.0.25",
     "ethlint": "^1.2.3",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.0",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.4",
     "truffle": "5.0.4",
