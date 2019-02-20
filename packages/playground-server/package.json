@@ -27,7 +27,8 @@
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
     "start": "env-cmd development --fallback ./.env.local ts-node src/",
-    "test": "env-cmd test --fallback ./.env.local jest --forceExit"
+    "test": "env-cmd test --fallback ./.env.local jest --forceExit",
+    "test:ci": "env-cmd test --fallback jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
