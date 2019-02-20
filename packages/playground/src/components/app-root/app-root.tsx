@@ -213,16 +213,17 @@ export class AppRoot {
     };
   }
 
-  async deposit(value) {
+  async deposit(value: string) {
     const { user, accountBalance } = this.accountState;
+    const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
     debugger;
 
     this.updateAccount({
       ...this.accountState,
-      accountBalance: (accountBalance as number) - value,
-      unconfirmedBalance: (this.accountState.balance as number) + value
+      accountBalance: (accountBalance as number) - valueInWei,
+      unconfirmedBalance: (this.accountState.balance as number) + valueInWei
     });
 
     try {
@@ -238,21 +239,22 @@ export class AppRoot {
     } catch (e) {
       this.updateAccount({
         ...this.accountState,
-        accountBalance: (accountBalance as number) + value,
+        accountBalance: (accountBalance as number) + valueInWei,
         unconfirmedBalance: undefined
       });
       throw e;
     }
   }
 
-  async withdraw(value) {
+  async withdraw(value: string) {
     const { user, accountBalance } = this.accountState;
+    const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
       ...this.accountState,
-      accountBalance: (accountBalance as number) + value,
-      unconfirmedBalance: (this.accountState.balance as number) - value
+      accountBalance: (accountBalance as number) + valueInWei,
+      unconfirmedBalance: (this.accountState.balance as number) - valueInWei
     });
 
     try {
@@ -267,7 +269,7 @@ export class AppRoot {
     } catch (e) {
       this.updateAccount({
         ...this.accountState,
-        accountBalance: (accountBalance as number) - value,
+        accountBalance: (accountBalance as number) - valueInWei,
         unconfirmedBalance: undefined
       });
       throw e;
