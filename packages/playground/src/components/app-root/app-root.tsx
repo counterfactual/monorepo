@@ -237,7 +237,6 @@ export class AppRoot {
 
     provider.once(user.transactionHash, async () => {
       await this.fetchMultisig();
-      await this.requestToDepositInitialFunding();
     });
   }
 
@@ -266,6 +265,8 @@ export class AppRoot {
 
     if (!user.multisigAddress) {
       setTimeout(this.fetchMultisig.bind(this), 100);
+    } else {
+      await this.requestToDepositInitialFunding();
     }
   }
 
