@@ -412,14 +412,8 @@ function addRightUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [sc.getFreeBalanceAddrOf(
-        intermediaryXpub,
-        AssetType.ETH
-      )]: initiatingBalanceIncrement,
-      [sc.getFreeBalanceAddrOf(
-        respondingXpub,
-        AssetType.ETH
-      )]: respondingBalanceIncrement
+      [intermediaryXpub]: initiatingBalanceIncrement,
+      [respondingXpub]: respondingBalanceIncrement
     }
   );
 
@@ -459,14 +453,8 @@ function addLeftUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [sc.getFreeBalanceAddrOf(
-        initiatingXpub,
-        AssetType.ETH
-      )]: initiatingBalanceIncrement,
-      [sc.getFreeBalanceAddrOf(
-        intermediaryXpub,
-        AssetType.ETH
-      )]: respondingBalanceIncrement
+      [initiatingXpub]: initiatingBalanceIncrement,
+      [intermediaryXpub]: respondingBalanceIncrement
     }
   );
 

@@ -32,7 +32,7 @@ export class AccountDeposit {
     );
   }
 
-  async formSubmitionHandler(e) {
+  async formSubmissionHandler(e) {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
@@ -74,7 +74,7 @@ export class AccountDeposit {
         </p>
 
         <account-eth-form
-          onSubmit={e => this.formSubmitionHandler(e)}
+          onSubmit={e => this.formSubmissionHandler(e)}
           button="Proceed"
           available={this.balance}
           error={this.error}
