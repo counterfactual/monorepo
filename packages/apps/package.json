@@ -27,7 +27,7 @@
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "ethereum-waffle": "2.0.6",
-    "ethers": "4.0.25",
+    "ethers": "4.0.26",
     "ethlint": "^1.2.3",
     "mocha": "^6.0.0",
     "truffle-deploy-registry": "0.5.1",
