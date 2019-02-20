@@ -9,7 +9,7 @@ export abstract class NodeController {
   ) {}
 }
 
-export enum DEFAULT_SHARD_KEYS {
+export enum QUEUE_SHARD_KEYS {
   CHANNEL_CREATION = "channelCreation"
 }
 

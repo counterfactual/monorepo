@@ -8,9 +8,9 @@ import { Interface } from "ethers/utils";
 import { RequestHandler } from "../../../request-handler";
 import {
   CreateMultisigMessage,
-  DEFAULT_SHARD_KEYS,
   NODE_EVENTS,
-  NodeController
+  NodeController,
+  QUEUE_SHARD_KEYS
 } from "../../../types";
 import { ERRORS } from "../../errors";
 
@@ -31,7 +31,7 @@ class ChannelCreator implements NodeController {
       params: Node.MethodParams
     ) => {
       const shardedQueue = await requestHandler.getShardedQueue(
-        DEFAULT_SHARD_KEYS.CHANNEL_CREATION
+        QUEUE_SHARD_KEYS.CHANNEL_CREATION
       );
 
       const result = await shardedQueue.add<Node.CreateChannelResult>(
