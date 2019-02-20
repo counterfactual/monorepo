@@ -26,7 +26,7 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
-    "ethereum-waffle": "2.0.5",
+    "ethereum-waffle": "2.0.6",
     "ethers": "4.0.25",
     "ethlint": "^1.2.3",
     "mocha": "^6.0.0",
