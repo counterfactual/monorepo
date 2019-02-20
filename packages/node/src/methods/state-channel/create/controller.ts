@@ -40,7 +40,6 @@ class ChannelCreator implements NodeController {
         }
       );
 
-      // return the result of invoking the method
       return result;
     };
     return propertyDesciptor;

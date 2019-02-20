@@ -8,7 +8,7 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import { getChannelAddresses, getNewMultisig, TEST_NETWORK } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(20000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
@@ -74,5 +74,38 @@ describe("Node can create multisig, other owners get notified", () => {
     const openChannelsNodeB = await getChannelAddresses(nodeB);
     expect(openChannelsNodeA[0]).toEqual(multisigAddress);
     expect(openChannelsNodeB[0]).toEqual(multisigAddress);
+  });
+
+  it("Node A can create multiple back-to-back channels with Node B", async () => {
+    expect.assertions(5);
+
+    let multisigAddress1: string;
+    let multisigAddress2: string;
+    const multisigAddress1Promise = getNewMultisig(nodeA, [
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
+    ]);
+    const multisigAddress2Promise = getNewMultisig(nodeA, [
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
+    ]);
+
+    // multisigAddress2Promise should have been blocked on
+    // multisigAddress1Promise finishing
+    multisigAddress1Promise.then(address => {
+      expect(multisigAddress2).toBeUndefined();
+    });
+
+    multisigAddress2 = await multisigAddress2Promise;
+    // multisigAddress1Promise has already resolved by this point, simply
+    // getting its value
+    multisigAddress1 = await multisigAddress1Promise;
+
+    const openChannelsNodeA = await getChannelAddresses(nodeA);
+    const openChannelsNodeB = await getChannelAddresses(nodeB);
+    expect(openChannelsNodeA[0]).toEqual(multisigAddress1);
+    expect(openChannelsNodeB[0]).toEqual(multisigAddress1);
+    expect(openChannelsNodeA[1]).toEqual(multisigAddress2);
+    expect(openChannelsNodeB[1]).toEqual(multisigAddress2);
   });
 });
