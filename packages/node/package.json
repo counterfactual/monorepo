@@ -37,7 +37,7 @@
     "@counterfactual/machine": "0.0.1",
     "@counterfactual/types": "0.0.1",
     "@types/promise-queue": "^2.2.0",
-    "ethers": "4.0.25",
+    "ethers": "4.0.26",
     "eventemitter3": "^3.1.0",
     "firebase": "5.7.1",
     "promise-queue": "^2.2.5",

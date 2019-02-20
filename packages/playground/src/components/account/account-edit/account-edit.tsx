@@ -36,7 +36,7 @@ export class AccountEdit {
     this.changeset[key] = event.target.value;
   }
 
-  formSubmitionHandler() {
+  formSubmissionHandler() {
     this.updateAccount(this.changeset);
     this.history.push("/");
   }
@@ -46,7 +46,7 @@ export class AccountEdit {
       <layout-header />,
       <div class="constraint">
         <widget-header>Account Settings</widget-header>
-        <form-container onFormSubmitted={e => this.formSubmitionHandler()}>
+        <form-container onFormSubmitted={e => this.formSubmissionHandler()}>
           <form-input
             label="Username"
             disabled={true}
@@ -65,7 +65,7 @@ export class AccountEdit {
           />
           <form-button
             class="button"
-            onButtonPressed={e => this.formSubmitionHandler()}
+            onButtonPressed={e => this.formSubmissionHandler()}
           >
             Save edits
           </form-button>

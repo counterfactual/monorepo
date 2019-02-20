@@ -47,7 +47,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run: cd packages/playground && yarn test
-      - run: cd packages/playground-server && yarn install && yarn test
+      - run: cd packages/playground-server && yarn test
       - run: cd packages/dapp-high-roller && yarn test
       - run: cd packages/dapp-tic-tac-toe && yarn test
 
