@@ -43,7 +43,6 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
-      - run: yarn global add typescript # until the ebryn/jsonapi-ts no longer needs the global installation
       - attach_workspace:
           at: /home/circleci/project
       - run: cd packages/playground && yarn test
