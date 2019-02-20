@@ -16,5 +16,10 @@ module.exports = {
         );
       }
     }
+  },
+  compilers: {
+    solc: {
+      version: "../../node_modules/solc"
+    }
   }
 };

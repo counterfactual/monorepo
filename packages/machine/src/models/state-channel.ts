@@ -233,22 +233,26 @@ export class StateChannel {
 
   public incrementFreeBalance(
     assetType: AssetType,
-    increments: { [s: string]: BigNumber }
+    increments: { [xpub: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
     const freeBalanceState = freeBalance.state;
 
-    for (const beneficiary in increments) {
-      if (beneficiary === freeBalanceState.alice) {
+    for (const beneficiaryXpub in increments) {
+      const beneficiaryAddress = this.getFreeBalanceAddrOf(
+        beneficiaryXpub,
+        AssetType.ETH
+      );
+      if (beneficiaryAddress === freeBalanceState.alice) {
         freeBalanceState.aliceBalance = bigNumberify(
-          increments[beneficiary]
+          increments[beneficiaryXpub]
         ).add(freeBalanceState.aliceBalance);
-      } else if (beneficiary === freeBalanceState.bob) {
-        freeBalanceState.bobBalance = bigNumberify(increments[beneficiary]).add(
-          freeBalanceState.bobBalance
-        );
+      } else if (beneficiaryAddress === freeBalanceState.bob) {
+        freeBalanceState.bobBalance = bigNumberify(
+          increments[beneficiaryXpub]
+        ).add(freeBalanceState.bobBalance);
       } else {
-        throw Error(`No such beneficiary ${beneficiary} found`);
+        throw Error(`No such beneficiary ${beneficiaryAddress} found`);
       }
     }
 
@@ -431,7 +435,7 @@ export class StateChannel {
 
   public uninstallETHVirtualAppAgreementInstance(
     targetIdentityHash: string,
-    increments: { [address: string]: BigNumber }
+    increments: { [xpub: string]: BigNumber }
   ) {
     const ethVirtualAppAgreementInstances = new Map<
       string,

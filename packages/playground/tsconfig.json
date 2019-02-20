@@ -3,7 +3,7 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": false,
-    "lib": ["dom", "es2015", "es2016.array.include"],
+    "lib": ["dom", "es2017"],
     "moduleResolution": "node",
     "module": "esnext",
     "jsx": "react",

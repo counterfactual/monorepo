@@ -17,5 +17,5 @@
       ]
     }
   },
-  "ignore": ["@stencil/core", "@stencil/router"]
+  "ignore": ["@stencil/core", "@stencil/router", "@counterfactual/types", "@counterfactual/node"]
 }
