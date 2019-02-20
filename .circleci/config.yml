@@ -45,10 +45,7 @@ jobs:
       - run: yarn # symlink packages' node_modules
       - attach_workspace:
           at: /home/circleci/project
-      - run: cd packages/playground && yarn test
-      - run: cd packages/playground-server && yarn test:ci
-      - run: cd packages/dapp-high-roller && yarn test
-      - run: cd packages/dapp-tic-tac-toe && yarn test
+      - run: yarn test:ci-playground
 
   run-tslint:
     docker:
