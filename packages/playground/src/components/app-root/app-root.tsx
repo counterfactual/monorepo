@@ -86,13 +86,12 @@ export class AppRoot {
         const allKeys = Object.keys(window.localStorage);
         for (const key of allKeys) {
           if (key.includes(desiredKey)) {
-            entries[key] = JSON.parse(window.localStorage.getItem(
-              key
-            ) as string);
+            const val = JSON.parse(window.localStorage.getItem(key) as string);
+            if (key === desiredKey) return val;
+            entries[key] = val;
+          } else if (key === desiredKey) {
+            return JSON.parse(window.localStorage.getItem(key) as string);
           }
-        }
-        if (Object.keys(entries).length === 1) {
-          return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
         }
         for (const key of Object.keys(entries)) {
           const leafKey = key.split("/")[key.split("/").length - 1];
@@ -213,7 +212,12 @@ export class AppRoot {
   }
 
   async deposit(value) {
-    const { user } = this.accountState;
+    const {
+      user: { multisigAddress }
+    } = this.accountState;
+
+    debugger;
+
     const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
@@ -225,7 +229,7 @@ export class AppRoot {
       type: Node.MethodName.DEPOSIT,
       requestId: window["uuid"](),
       params: {
-        multisigAddress: user.multisigAddress,
+        multisigAddress,
         amount: value,
         notifyCounterparty: true
       } as Node.DepositParams
@@ -237,7 +241,7 @@ export class AppRoot {
 
     provider.once(user.transactionHash, async () => {
       console.log("got tx hash");
-      // await this.fetchMultisig();
+      await this.fetchMultisig();
     });
   }
 

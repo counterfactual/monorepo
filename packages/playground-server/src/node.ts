@@ -147,6 +147,10 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     return;
   }
 
+  console.log("---------------------------------");
+  console.log("server deposoting");
+  console.log(response);
+
   try {
     await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
       requestId: generateUUID(),
