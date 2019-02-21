@@ -17,7 +17,7 @@ contract MixinProgressChallenge is
 {
 
   /// @notice Respond to a dispute with a valid action
-  /// @param appIdentity TBD
+  /// @param appIdentity an AppIdentity object pointing to the app for which there is a challenge to progress
   /// @param appState The ABI encoded latest signed application state
   /// @param action The ABI encoded action the submitter wishes to take
   /// @param actionSignature A bytes string of a single signature by the address of the
