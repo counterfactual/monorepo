@@ -23,12 +23,15 @@ export default async function protocolMessageEventController(
 ) {
   if (nodeMsg.data.seq === -1) return;
 
+  console.log("got protocol msg: ", nodeMsg);
   const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
     nodeMsg.data,
     new Map<string, StateChannel>(
       Object.entries(await requestHandler.store.getAllChannels())
     )
   );
+
+  console.log("finished running protocol");
 
   stateChannelsMap.forEach(
     async stateChannel =>

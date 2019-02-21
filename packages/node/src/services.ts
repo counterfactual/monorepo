@@ -98,14 +98,18 @@ class FirebaseMessagingService implements IMessagingService {
         callback(msg);
       }
 
-      await this.firebase
-        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
-        .remove();
+      // await this.firebase
+      //   .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+      //   .remove();
     };
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
       .on("child_added", childAddedHandler);
+
+    this.firebase
+      .ref(`${this.messagingServerKey}/${address}`)
+      .on("child_changed", childAddedHandler);
   }
 }
 

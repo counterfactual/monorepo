@@ -112,7 +112,7 @@ export default class NodeWrapper {
 
   public static async createStateChannelFor(
     userAddress: string,
-    onChannelCreated: (result: NodeTypes.CreateChannelResult) => void
+    onChannelCreated: (result: NodeTypes.CreateChannelResult) => Promise<void>
   ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -133,7 +133,10 @@ export default class NodeWrapper {
       }
     );
 
-    node.once(NodeTypes.EventName.CREATE_CHANNEL, onChannelCreated);
+    node.once(NodeTypes.EventName.CREATE_CHANNEL, async data => {
+      console.log("got create channel");
+      await onChannelCreated(data);
+    });
 
     return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
   }

@@ -48,16 +48,25 @@ export default async function createChannelController(
     requestHandler.networkContext.ProxyFactory
   );
 
+  console.log("deployed multisig tx: ", transactionHash);
+
   proxyFactory.once("ProxyCreation", async multisigAddress => {
+    console.log("proxy created: ", multisigAddress);
     const payload = {
       multisigAddress,
       owners: params.owners
     } as Node.CreateChannelResult;
 
+    console.log("payload: ", payload);
+
     const [respondingXpub] = params.owners.filter(
       owner => owner !== requestHandler.publicIdentifier
     );
 
+    console.log("running setup protocol");
+    console.log(multisigAddress);
+    console.log(respondingXpub);
+    console.log(requestHandler.publicIdentifier);
     const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
       {
         multisigAddress,
@@ -65,10 +74,13 @@ export default async function createChannelController(
         initiatingXpub: requestHandler.publicIdentifier
       }
     );
+    console.log("ran setup protocol");
 
+    console.log("saving channel");
     await requestHandler.store.saveStateChannel(
       stateChannelsMap.get(multisigAddress)!
     );
+    console.log("saved channel");
 
     const createChannelMsg: CreateChannelMessage = {
       from: requestHandler.publicIdentifier,
@@ -76,12 +88,16 @@ export default async function createChannelController(
       data: payload
     };
 
+    console.log("sending create channel msg to peer");
     await requestHandler.messagingService.send(
       respondingXpub,
       createChannelMsg
     );
+    console.log("sent create channel msg to peer");
 
+    console.log("emitting create channel event");
     requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, payload);
+    console.log("emitted create channel event");
   });
 
   return {

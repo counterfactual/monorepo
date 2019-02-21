@@ -236,7 +236,8 @@ export class AppRoot {
     const { provider, user } = this.accountState;
 
     provider.once(user.transactionHash, async () => {
-      await this.fetchMultisig();
+      console.log("got tx hash");
+      // await this.fetchMultisig();
     });
   }
 
@@ -258,13 +259,18 @@ export class AppRoot {
     }
   }
 
-  async fetchMultisig() {
-    const { token } = this.accountState.user;
-    const user = await PlaygroundAPIClient.getUser(token as string);
+  async fetchMultisig(token?: string) {
+    let userToken = token;
+    if (!userToken) {
+      userToken = this.accountState.user.token;
+    }
+
+    const user = await PlaygroundAPIClient.getUser(userToken as string);
+    console.log("user: ", user);
     this.updateAccount({ ...this.accountState, user });
 
     if (!user.multisigAddress) {
-      setTimeout(this.fetchMultisig.bind(this), 100);
+      setTimeout(this.fetchMultisig.bind(this, userToken), 2500);
     } else {
       await this.requestToDepositInitialFunding();
     }

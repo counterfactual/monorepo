@@ -77,6 +77,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(message: ProtocolMessage, context: Context) {
+  console.log("proposing transition for setup");
   const {
     multisigAddress,
     initiatingXpub,
@@ -95,6 +96,7 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
   context.commitments[0] = constructSetupOp(context.network, newStateChannel);
+  console.log("proposed transition for setup");
 }
 
 export function constructSetupOp(
