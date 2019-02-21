@@ -48,9 +48,9 @@ export default class NodeWrapper {
 
   public static async createNodeSingleton(
     network: string,
+    mnemonic?: string,
     networkContext?: NetworkContext,
     provider?: JsonRpcProvider,
-    mnemonic?: string,
     storeService?: IStoreService,
     messagingService?: IMessagingService
   ): Promise<Node> {

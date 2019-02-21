@@ -72,9 +72,9 @@ describe("playground-server", () => {
 
     playgroundNode = await NodeWrapper.createNodeSingleton(
       "ganache",
+      global["pgMnemonic"],
       NETWORK_CONTEXT,
       provider,
-      global["pgMnemonic"],
       serviceFactory.createStoreService(generateUUID())
     );
 
