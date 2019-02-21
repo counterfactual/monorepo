@@ -114,6 +114,16 @@ export default class NodeWrapper {
     const messaging =
       messagingService || serviceFactory.createMessagingService("messaging");
 
+    if (mnemonic) {
+      if (await store.get(MNEMONIC_PATH)) {
+        console.warn(
+          "Node was given mnemonic in constructor but mnemonic already existed at MNEMONIC_PATH in store"
+        );
+      } else {
+        await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+      }
+    }
+
     if (!(await store.get(MNEMONIC_PATH)) && mnemonic) {
       await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
     }
