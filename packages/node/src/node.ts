@@ -105,7 +105,6 @@ export class Node {
       new Wallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
-    console.log("new node: ", this.publicIdentifier);
     this.registerMessagingConnection();
     return this;
   }
@@ -197,9 +196,6 @@ export class Node {
 
         const counterpartyResponse = deferral.promise;
 
-        console.log("sending and waiting: ");
-        console.log(to);
-        console.log(from);
         await this.messagingService.send(to, {
           from,
           data,
@@ -207,7 +203,6 @@ export class Node {
         } as NodeMessageWrappedProtocolMessage);
 
         const msg = await counterpartyResponse;
-        console.log("got counter party response: ", msg);
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)

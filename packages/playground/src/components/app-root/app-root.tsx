@@ -211,13 +211,7 @@ export class AppRoot {
     };
   }
 
-  async deposit(value) {
-    const {
-      user: { multisigAddress }
-    } = this.accountState;
-
-    debugger;
-
+  async deposit(value, multisigAddress: string) {
     const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
@@ -240,12 +234,11 @@ export class AppRoot {
     const { provider, user } = this.accountState;
 
     provider.once(user.transactionHash, async () => {
-      console.log("got tx hash");
       await this.fetchMultisig();
     });
   }
 
-  async requestToDepositInitialFunding() {
+  async requestToDepositInitialFunding(multisigAddress: string) {
     const { pendingAccountFunding } = this.accountState;
 
     if (pendingAccountFunding) {
@@ -256,7 +249,10 @@ export class AppRoot {
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
           onPrimaryButtonClicked={() =>
-            this.confirmDepositInitialFunding(pendingAccountFunding)
+            this.confirmDepositInitialFunding(
+              pendingAccountFunding,
+              multisigAddress
+            )
           }
         />
       );
@@ -270,20 +266,22 @@ export class AppRoot {
     }
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
-    console.log("user: ", user);
     this.updateAccount({ ...this.accountState, user });
 
     if (!user.multisigAddress) {
       setTimeout(this.fetchMultisig.bind(this, userToken), 2500);
     } else {
-      await this.requestToDepositInitialFunding();
+      await this.requestToDepositInitialFunding(user.multisigAddress);
     }
   }
 
-  async confirmDepositInitialFunding(pendingAccountFunding) {
+  async confirmDepositInitialFunding(
+    pendingAccountFunding,
+    multisigAddress: string
+  ) {
     this.modal = {};
 
-    await this.deposit(pendingAccountFunding);
+    await this.deposit(pendingAccountFunding, multisigAddress);
 
     this.updateAccount({
       ...this.accountState,

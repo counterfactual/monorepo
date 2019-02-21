@@ -101,8 +101,6 @@ class FirebaseMessagingService implements IMessagingService {
       }
     };
 
-    console.log(`Registering listener for ${address}`);
-
     // Cleans the message inbox upon service start
     this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
 

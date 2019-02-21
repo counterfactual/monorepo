@@ -21,7 +21,6 @@ export function addSignedCommitmentToOutboxForSeq1(
   message: ProtocolMessage,
   context: Context
 ) {
-  console.log("adding signed commitment");
   context.outbox.push({
     ...message,
     signature: context.signatures[0],

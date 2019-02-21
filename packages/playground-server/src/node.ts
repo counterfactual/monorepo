@@ -1,6 +1,5 @@
 import {
   DepositConfirmationMessage,
-  ERRORS,
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
@@ -134,7 +133,6 @@ export default class NodeWrapper {
     );
 
     node.once(NodeTypes.EventName.CREATE_CHANNEL, async data => {
-      console.log("got create channel");
       await onChannelCreated(data);
     });
 
@@ -147,23 +145,15 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     return;
   }
 
-  console.log("---------------------------------");
-  console.log("server deposoting");
-  console.log(response);
-
   try {
+    console.log("depositing");
     await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
       requestId: generateUUID(),
       type: NodeTypes.MethodName.DEPOSIT,
       params: response.data as NodeTypes.DepositParams
     });
+    console.error("Server deposited successfully");
   } catch (e) {
     console.error("Failed to deposit on the server...", e);
-    if (e === ERRORS.CANNOT_DEPOSIT) {
-      if (NodeWrapper.depositRetryCount < 3) {
-        await onDepositConfirmed(response);
-        NodeWrapper.depositRetryCount += 1;
-      }
-    }
   }
 }
