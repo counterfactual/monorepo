@@ -78,7 +78,7 @@ export class AccountRegister {
     this.changeset[key] = (event.target as HTMLInputElement).value;
   }
 
-  formSubmitionHandler() {
+  formSubmissionHandler() {
     const data = this.changeset;
 
     // We use personal#sign() because eth#sign() is dangerous.
@@ -185,7 +185,7 @@ export class AccountRegister {
       <widget-screen>
         <div slot="header">Create a Playground account</div>
 
-        <form-container onFormSubmitted={e => this.formSubmitionHandler()}>
+        <form-container onFormSubmitted={e => this.formSubmissionHandler()}>
           <form-input
             label="Username"
             value={this.changeset.username}
@@ -204,7 +204,7 @@ export class AccountRegister {
             error={this.errors.ethAddress}
             disabled={this.connected}
           />
-          <form-button onButtonPressed={e => this.formSubmitionHandler()}>
+          <form-button onButtonPressed={e => this.formSubmissionHandler()}>
             Create account
           </form-button>
         </form-container>
