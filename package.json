@@ -18,7 +18,6 @@
     "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
     "test": "lerna run --stream --concurrency 1 test",
     "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/playground-server --ignore @counterfactual/dapp-tic-tac-toe --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
-    "test:ci-playground": "lerna run --scope=**/playground --scope=**/dapp-tic-tac-toe --scope=**/dapp-high-roller --stream --concurrency 1 test && lerna run scope=**/playground-server --stream --concurrency 1 test:ci",
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
     "run:playground": "lerna run start --parallel --scope=**/playground --scope=**/playground-server --scope=**/dapp-high-roller",
