@@ -65,16 +65,6 @@ export default class FirebaseService {
 }
 
 class FirebaseMessagingService implements IMessagingService {
-  // naive caching - firebase fires observers twice upon initial callback
-  // registration and invocation
-  private servedMessages = new Set();
-
-  // The last msg that was sent by a peer is retrieved when the listener
-  // is registered. To prevent invocation of the callback based on this _last_
-  // message, we determine if it's the first time we're registering the
-  // listener or not in order to actually invoke the callback.
-  private initialHookResponseFired = false;
-
   constructor(
     private readonly firebase: any,
     private readonly messagingServerKey: string
@@ -116,21 +106,24 @@ class FirebaseMessagingService implements IMessagingService {
         console.error("Incorrect message received", msg);
       }
 
-      if (this.servedMessages.has(msg)) {
-        this.servedMessages.delete(msg);
-      } else {
-        this.servedMessages.add(msg);
-        if (!this.initialHookResponseFired) {
-          this.initialHookResponseFired = true;
-          return;
-        }
+      try {
         callback(msg);
+      } catch (error) {
+        console.error(
+          "Encountered an error while handling message callback",
+          error
+        );
+      } finally {
+        await this.firebase
+          .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+          .remove();
       }
-
-      await this.firebase
-        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
-        .remove();
     };
+
+    console.log(`Registering listener for ${address}`);
+
+    // Cleans the message inbox upon service start
+    this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)

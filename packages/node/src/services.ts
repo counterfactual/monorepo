@@ -48,10 +48,6 @@ export class FirebaseServiceFactory {
 }
 
 class FirebaseMessagingService implements IMessagingService {
-  // naive caching - firebase fires observers twice upon initial callback
-  // registration and invocation
-  private servedMessages = new Set();
-
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -91,25 +87,28 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      if (this.servedMessages.has(msg)) {
-        this.servedMessages.delete(msg);
-      } else {
-        this.servedMessages.add(msg);
+      try {
         callback(msg);
+      } catch (error) {
+        console.error(
+          "Encountered an error while handling message callback",
+          error
+        );
+      } finally {
+        await this.firebase
+          .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+          .remove();
       }
-
-      // await this.firebase
-      //   .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
-      //   .remove();
     };
+
+    console.log(`Registering listener for ${address}`);
+
+    // Cleans the message inbox upon service start
+    this.firebase.ref(`${this.messagingServerKey}/${address}`).remove();
 
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
       .on("child_added", childAddedHandler);
-
-    this.firebase
-      .ref(`${this.messagingServerKey}/${address}`)
-      .on("child_changed", childAddedHandler);
   }
 }
 
