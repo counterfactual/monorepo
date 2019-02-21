@@ -223,7 +223,61 @@ class JsonFileStoreService {
     params: {}
   })
 
-  console.log(channels)
+function respond({ data: { newState } }) {
+  if (newState.winner === 0) {
+    takeTurn(newState, "asdf")
+  }
+}
+
+function takeTurn(newState, playerAddress) {
+  const [players, turnNum, winner, board] = newState;
+  const botPlayerNumber = players.indexOf(playerAddress) + 1;
+  const updatedBoard = makeMove(board, botPlayerNumber);
+
+  return {
+    board: updatedBoard,
+    actionType: determineActionType(updatedBoard, botPlayerNumber)
+  }
+}
+
+function makeMove(board, botPlayerNumber) {
+  const possibleMoves = [];
+
+  for (let x = 0; x < 3; x++) {
+    for (let y = 0; y < 3; y++) {
+      if (board[x][y].toString() === "0") {
+        possibleMoves.push({
+          x,
+          y
+        });
+      }
+    }
+  }
+
+  if (possibleMoves.length === 0) {
+    throw new Error("Yikes! No place left to move.");
+  }
+
+  const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
+  const playX = move.x;
+  const playY = move.y;
+
+  
+  const boardCopy = JSON.parse(JSON.stringify(board));
+  boardCopy[playX][playY] = ethers.utils.bigNumberify(botPlayerNumber);
+
+  return boardCopy;
+}
+
+function determineActionType(board, botPlayerNumber) {
+  if (checkVictory(board, botPlayerNumber)) {
+    return 1;
+  } else if (checkDraw(board)) {
+    return 2;
+  } else {
+    return 0;
+  }
+}
 
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
@@ -322,3 +376,5 @@ class JsonFileStoreService {
     // });
   });
 })();
+
+module.exports.takeTurn = takeTurn;

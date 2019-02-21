@@ -117,15 +117,15 @@ export class Node {
   
     console.log(channels)
 
-    this.messagingService.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
-      console.log("playground received", this.publicIdentifier, NodeMessage)
+    this.messagingService.onReceive(this.publicIdentifier, (NodeMessage) => {
+      console.log(" received by", this.publicIdentifier, NodeMessage)
     })
-    this.messagingService.onReceive("xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc", (NodeMessage) => {
-      console.log("bot received", this.publicIdentifier, NodeMessage)
-    })
-    this.messagingService.onReceive("xpub6FDAryKMxp4WhtM6NsDwBBNC3LftPdLvKaZwz8fRJMkwMRRe1VevY94wCzXNNRLdWcH1N7Q63PRa1dZBixAzRPssGacvv1LDdLeMVKqR4tU", (NodeMessage) => {
-      console.log("user received", this.publicIdentifier, NodeMessage)
-    })
+    // this.messagingService.onReceive("xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc", (NodeMessage) => {
+    //   console.log("bot received", this.publicIdentifier, NodeMessage)
+    // })
+    // this.messagingService.onReceive("xpub6FDAryKMxp4WhtM6NsDwBBNC3LftPdLvKaZwz8fRJMkwMRRe1VevY94wCzXNNRLdWcH1N7Q63PRa1dZBixAzRPssGacvv1LDdLeMVKqR4tU", (NodeMessage) => {
+    //   console.log("user received", this.publicIdentifier, NodeMessage)
+    // })
     return this;
   }
 
