@@ -24,7 +24,7 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallRequest,
   TEST_NETWORK
 } from "./utils";
@@ -53,8 +53,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -66,8 +65,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -79,8 +77,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -112,43 +109,45 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
 
-      const multisigAddress = await getNewMultisig(nodeA, [
+      nodeA.on(
+        NODE_EVENTS.CREATE_CHANNEL,
+        async (data: NodeTypes.CreateChannelResult) => {
+          const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
+            nodeB.publicIdentifier,
+            global["networkContext"].TicTacToe,
+            initialState,
+            {
+              stateEncoding,
+              actionEncoding
+            }
+          );
+
+          nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+            const takeActionReq = generateTakeActionRequest(
+              msg.data.params.appInstanceId,
+              validAction
+            );
+
+            try {
+              await nodeA.call(takeActionReq.type, takeActionReq);
+            } catch (e) {
+              expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
+              done();
+            }
+          });
+
+          nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+            const installReq = makeInstallRequest(msg.data.appInstanceId);
+            nodeB.emit(installReq.type, installReq);
+          });
+
+          nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
+        }
+      );
+      await getMultisigCreationTransactionHash(nodeA, [
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
       ]);
-      expect(multisigAddress).toBeDefined();
-
-      const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
-        nodeB.publicIdentifier,
-        // @ts-ignore
-        global.networkContext.TicTacToe,
-        initialState,
-        {
-          stateEncoding,
-          actionEncoding
-        }
-      );
-
-      nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-        const takeActionReq = generateTakeActionRequest(
-          msg.data.params.appInstanceId,
-          validAction
-        );
-
-        try {
-          await nodeA.call(takeActionReq.type, takeActionReq);
-        } catch (e) {
-          expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
-          done();
-        }
-      });
-
-      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-        const installReq = makeInstallRequest(msg.data.appInstanceId);
-        nodeB.emit(installReq.type, installReq);
-      });
-
-      nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
     });
   });
 });

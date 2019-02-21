@@ -12,7 +12,7 @@ export default class SessionRequestProcessor extends OperationProcessor<
   public resourceClass = SessionRequest;
 
   public async add(op: Operation): Promise<User> {
-    const user = await getUser(op.data);
+    const user = await getUser(op.data as User);
 
     user.attributes.token = sign(
       JSON.parse(JSON.stringify(user)),
