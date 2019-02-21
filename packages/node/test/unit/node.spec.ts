@@ -11,8 +11,7 @@ describe("Primitive Node operations", () => {
   });
 
   it("can be instantiated", async () => {
-    // @ts-ignore
-    const provider = new JsonRpcProvider(global.ganacheURL);
+    const provider = new JsonRpcProvider(global["ganacheURL"]);
 
     const nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
@@ -23,8 +22,7 @@ describe("Primitive Node operations", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
     expect(node).toBeDefined();
   });

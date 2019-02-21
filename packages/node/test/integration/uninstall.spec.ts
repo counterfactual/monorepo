@@ -20,7 +20,7 @@ import {
   getApps,
   getInstalledAppInstanceInfo,
   getInstalledAppInstances,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
   makeInstallRequest,
@@ -51,8 +51,7 @@ describe("Node method follows spec - uninstall", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -64,8 +63,7 @@ describe("Node method follows spec - uninstall", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -77,8 +75,7 @@ describe("Node method follows spec - uninstall", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -91,69 +88,78 @@ describe("Node method follows spec - uninstall", () => {
       "sends acks back to A, A installs it, then A uninstalls",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        // A channel is first created between the two nodes
-        const multisigAddress = await getNewMultisig(nodeA, [
+        nodeA.on(
+          NODE_EVENTS.CREATE_CHANNEL,
+          async (data: NodeTypes.CreateChannelResult) => {
+            expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+            expect(await getInstalledAppInstances(nodeB)).toEqual([]);
+
+            let appInstanceId;
+
+            // second, an app instance must be proposed to be installed into that channel
+            const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+              nodeB.publicIdentifier
+            );
+
+            // node B then decides to approve the proposal
+            nodeB.on(
+              NODE_EVENTS.PROPOSE_INSTALL,
+              async (msg: ProposeMessage) => {
+                confirmProposedAppInstanceOnNode(
+                  appInstanceInstallationProposalRequest.params,
+                  await getProposedAppInstanceInfo(nodeA, appInstanceId)
+                );
+
+                // some approval logic happens in this callback, we proceed
+                // to approve the proposal, and install the app instance
+                const installRequest = makeInstallRequest(
+                  msg.data.appInstanceId
+                );
+                nodeB.emit(installRequest.type, installRequest);
+              }
+            );
+
+            nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+              const appInstanceNodeA = await getInstalledAppInstanceInfo(
+                nodeA,
+                appInstanceId
+              );
+              const appInstanceNodeB = await getInstalledAppInstanceInfo(
+                nodeB,
+                appInstanceId
+              );
+              expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+
+              const uninstallReq = generateUninstallRequest(
+                msg.data.params.appInstanceId
+              );
+
+              nodeA.emit(uninstallReq.type, uninstallReq);
+            });
+
+            nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
+              expect(
+                await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
+              ).toEqual([]);
+              expect(
+                await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)
+              ).toEqual([]);
+              done();
+            });
+
+            const response = await nodeA.call(
+              appInstanceInstallationProposalRequest.type,
+              appInstanceInstallationProposalRequest
+            );
+            appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
+              .appInstanceId;
+          }
+        );
+
+        await getMultisigCreationTransactionHash(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier
         ]);
-        expect(multisigAddress).toBeDefined();
-        expect(await getInstalledAppInstances(nodeA)).toEqual([]);
-        expect(await getInstalledAppInstances(nodeB)).toEqual([]);
-
-        let appInstanceId;
-
-        // second, an app instance must be proposed to be installed into that channel
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.publicIdentifier
-        );
-
-        // node B then decides to approve the proposal
-        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          confirmProposedAppInstanceOnNode(
-            appInstanceInstallationProposalRequest.params,
-            await getProposedAppInstanceInfo(nodeA, appInstanceId)
-          );
-
-          // some approval logic happens in this callback, we proceed
-          // to approve the proposal, and install the app instance
-          const installRequest = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installRequest.type, installRequest);
-        });
-
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const appInstanceNodeA = await getInstalledAppInstanceInfo(
-            nodeA,
-            appInstanceId
-          );
-          const appInstanceNodeB = await getInstalledAppInstanceInfo(
-            nodeB,
-            appInstanceId
-          );
-          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-
-          const uninstallReq = generateUninstallRequest(
-            msg.data.params.appInstanceId
-          );
-
-          nodeA.emit(uninstallReq.type, uninstallReq);
-        });
-
-        nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
-          expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-            []
-          );
-          expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-            []
-          );
-          done();
-        });
-
-        const response = await nodeA.call(
-          appInstanceInstallationProposalRequest.type,
-          appInstanceInstallationProposalRequest
-        );
-        appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
-          .appInstanceId;
       });
 
       it("sends proposal with null initial state", async () => {

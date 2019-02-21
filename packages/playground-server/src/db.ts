@@ -276,7 +276,8 @@ export async function createUser(user: User): Promise<User> {
     email: user.attributes.email,
     eth_address: user.attributes.ethAddress,
     multisig_address: user.attributes.multisigAddress,
-    node_address: user.attributes.nodeAddress
+    node_address: user.attributes.nodeAddress,
+    transaction_hash: ""
   });
 
   try {
@@ -317,6 +318,31 @@ export async function bindMultisigToUser(
     await query;
 
     Log.debug("Executed createUser query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
+export async function bindTransactionHashToUser(
+  user: User,
+  transactionHash: string
+): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .where({ id: user.id })
+    .update("transaction_hash", transactionHash);
+
+  try {
+    await query;
+
+    Log.debug("Executed bindTransactionHashToUser query", {
       tags: { query: query.toSQL().sql }
     });
 

@@ -27,7 +27,7 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateGetStateRequest,
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallVirtualRequest,
   TEST_NETWORK
 } from "./utils";
@@ -58,8 +58,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -71,8 +70,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -85,8 +83,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -98,8 +95,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -144,72 +140,89 @@ describe("Node method follows spec - takeAction virtual", () => {
           }
         };
 
-        const multisigAddressAB = await getNewMultisig(nodeA, [
+        nodeA.on(
+          NODE_EVENTS.CREATE_CHANNEL,
+          async (data: NodeTypes.CreateChannelResult) => {
+            nodeC.on(
+              NODE_EVENTS.CREATE_CHANNEL,
+              async (data: NodeTypes.CreateChannelResult) => {
+                const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
+                  nodeC.publicIdentifier,
+                  global["networkContext"].TicTacToe,
+                  initialState,
+                  {
+                    stateEncoding,
+                    actionEncoding
+                  },
+                  [nodeB.publicIdentifier]
+                );
+
+                let newState;
+
+                nodeC.on(
+                  NODE_EVENTS.UPDATE_STATE,
+                  async (msg: UpdateStateMessage) => {
+                    const getStateReq = generateGetStateRequest(
+                      msg.data.appInstanceId
+                    );
+                    const response = await nodeC.call(
+                      getStateReq.type,
+                      getStateReq
+                    );
+                    const updatedState = (response.result as NodeTypes.GetStateResult)
+                      .state;
+                    expect(updatedState).toEqual(newState);
+                    done();
+                  }
+                );
+
+                nodeA.on(
+                  NODE_EVENTS.INSTALL_VIRTUAL,
+                  async (msg: InstallVirtualMessage) => {
+                    const takeActionReq = generateTakeActionRequest(
+                      msg.data.params.appInstanceId,
+                      validAction
+                    );
+
+                    const response = await nodeA.call(
+                      takeActionReq.type,
+                      takeActionReq
+                    );
+                    newState = (response.result as NodeTypes.TakeActionResult)
+                      .newState;
+
+                    expect(newState.board[0][0]).toEqual(bigNumberify(1));
+                    expect(newState.turnNum).toEqual(bigNumberify(1));
+                  }
+                );
+
+                nodeC.on(
+                  NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+                  (msg: ProposeVirtualMessage) => {
+                    const installReq = makeInstallVirtualRequest(
+                      msg.data.appInstanceId,
+                      msg.data.params.intermediaries
+                    );
+                    nodeC.emit(installReq.type, installReq);
+                  }
+                );
+
+                nodeA.emit(
+                  tttAppInstanceProposalReq.type,
+                  tttAppInstanceProposalReq
+                );
+              }
+            );
+            await getMultisigCreationTransactionHash(nodeB, [
+              nodeB.publicIdentifier,
+              nodeC.publicIdentifier
+            ]);
+          }
+        );
+        await getMultisigCreationTransactionHash(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier
         ]);
-        expect(multisigAddressAB).toBeDefined();
-
-        const multisigAddressBC = await getNewMultisig(nodeB, [
-          nodeB.publicIdentifier,
-          nodeC.publicIdentifier
-        ]);
-        expect(multisigAddressBC).toBeDefined();
-
-        const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
-          nodeC.publicIdentifier,
-          // @ts-ignore
-          global.networkContext.TicTacToe,
-          initialState,
-          {
-            stateEncoding,
-            actionEncoding
-          },
-          [nodeB.publicIdentifier]
-        );
-
-        let newState;
-
-        nodeC.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeC.call(getStateReq.type, getStateReq);
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
-          done();
-        });
-
-        nodeA.on(
-          NODE_EVENTS.INSTALL_VIRTUAL,
-          async (msg: InstallVirtualMessage) => {
-            const takeActionReq = generateTakeActionRequest(
-              msg.data.params.appInstanceId,
-              validAction
-            );
-
-            const response = await nodeA.call(
-              takeActionReq.type,
-              takeActionReq
-            );
-            newState = (response.result as NodeTypes.TakeActionResult).newState;
-
-            expect(newState.board[0][0]).toEqual(bigNumberify(1));
-            expect(newState.turnNum).toEqual(bigNumberify(1));
-          }
-        );
-
-        nodeC.on(
-          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-          (msg: ProposeVirtualMessage) => {
-            const installReq = makeInstallVirtualRequest(
-              msg.data.appInstanceId,
-              msg.data.params.intermediaries
-            );
-            nodeC.emit(installReq.type, installReq);
-          }
-        );
-
-        nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
       });
     }
   );

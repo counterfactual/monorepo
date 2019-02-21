@@ -20,6 +20,7 @@ export default async function depositController(
 ): Promise<Node.DepositResult> {
   const { store } = requestHandler;
   const { multisigAddress } = params;
+
   const channel = await store.getStateChannel(multisigAddress);
 
   if (

@@ -45,8 +45,7 @@ module.exports = async () => {
       }
     ]
   });
-  // @ts-ignore
-  global.ganacheServer = server;
+  global["ganacheServer"] = server;
   server.listen(parseInt(process.env.GANACHE_PORT!, 10));
   const provider = new Web3Provider(server.provider);
 

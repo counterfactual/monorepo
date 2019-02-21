@@ -1,20 +1,33 @@
+import { Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import {
+  IMessagingService,
+  IStoreService,
+  Node,
+  NODE_EVENTS,
+  NodeConfig
+} from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
-import { getChannelAddresses, getNewMultisig, TEST_NETWORK } from "./utils";
+import {
+  getChannelAddresses,
+  getMultisigCreationTransactionHash,
+  TEST_NETWORK
+} from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(30000);
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
   let nodeB: Node;
   let storeServiceB: IStoreService;
+  let nodeC: Node;
+  let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
 
@@ -30,8 +43,7 @@ describe("Node can create multisig, other owners get notified", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -43,8 +55,7 @@ describe("Node can create multisig, other owners get notified", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -56,8 +67,18 @@ describe("Node can create multisig, other owners get notified", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
+    );
+    storeServiceC = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeC = await Node.create(
+      messagingService,
+      storeServiceC,
+      nodeConfig,
+      provider,
+      TEST_NETWORK,
+      global["networkContext"]
     );
   });
 
@@ -66,38 +87,76 @@ describe("Node can create multisig, other owners get notified", () => {
   });
 
   describe("Queued channel creation", () => {
-    it("Node A can create multiple back-to-back channels with Node B", async () => {
-      expect.assertions(5);
-
-      let multisigAddress1: string;
-      let multisigAddress2: string;
-      const multisigAddress1Promise = getNewMultisig(nodeA, [
+    it("Node A can create multiple back-to-back channels with Node B and Node C", async done => {
+      const ownersABPublicIdentifiers = [
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
-      ]);
-      const multisigAddress2Promise = getNewMultisig(nodeA, [
+      ];
+      const ownersACPublicIdentifiers = [
         nodeA.publicIdentifier,
-        nodeB.publicIdentifier
-      ]);
+        nodeC.publicIdentifier
+      ];
 
-      // multisigAddress2Promise should have been blocked on
-      // multisigAddress1Promise finishing
-      multisigAddress1Promise.then(address => {
-        expect(multisigAddress2).toBeUndefined();
-      });
+      nodeA.on(
+        NODE_EVENTS.CREATE_CHANNEL,
+        async (data: NodeTypes.CreateChannelResult) => {
+          if (data.owners === ownersABPublicIdentifiers) {
+            const openChannelsNodeA = await getChannelAddresses(nodeA);
+            const openChannelsNodeB = await getChannelAddresses(nodeB);
+            expect(openChannelsNodeA.size).toEqual(1);
+            expect(openChannelsNodeB.size).toEqual(1);
 
-      multisigAddress2 = await multisigAddress2Promise;
-      // multisigAddress1Promise has already resolved by this point, simply
-      // getting its value
-      multisigAddress1 = await multisigAddress1Promise;
+            await confirmChannelCreation(
+              nodeA,
+              nodeB,
+              ownersABPublicIdentifiers,
+              data
+            );
+            console.log("confirmed first multisig creation");
+          } else {
+            const openChannelsNodeA = await getChannelAddresses(nodeA);
+            const openChannelsNodeC = await getChannelAddresses(nodeC);
+            console.log(openChannelsNodeA);
+            expect(openChannelsNodeA.size).toEqual(2);
+            expect(openChannelsNodeC.size).toEqual(1);
+            await confirmChannelCreation(
+              nodeA,
+              nodeC,
+              ownersACPublicIdentifiers,
+              data
+            );
+            console.log("confirmed second multisig creation");
+            done();
+          }
+        }
+      );
 
-      const openChannelsNodeA = await getChannelAddresses(nodeA);
-      const openChannelsNodeB = await getChannelAddresses(nodeB);
-
-      expect(openChannelsNodeA.has(multisigAddress1)).toBeTruthy();
-      expect(openChannelsNodeB.has(multisigAddress1)).toBeTruthy();
-      expect(openChannelsNodeA.has(multisigAddress2)).toBeTruthy();
-      expect(openChannelsNodeB.has(multisigAddress2)).toBeTruthy();
+      const txHash1 = await getMultisigCreationTransactionHash(
+        nodeA,
+        ownersABPublicIdentifiers
+      );
+      const txHash2 = await getMultisigCreationTransactionHash(
+        nodeA,
+        ownersACPublicIdentifiers
+      );
+      expect(txHash1).toBeDefined();
+      expect(txHash2).toBeDefined();
+      console.log(txHash1);
+      console.log(txHash2);
     });
   });
 });
+
+async function confirmChannelCreation(
+  nodeA: Node,
+  nodeB: Node,
+  ownersPublicIdentifiers: string[],
+  data: NodeTypes.CreateChannelResult
+) {
+  const openChannelsNodeA = await getChannelAddresses(nodeA);
+  const openChannelsNodeB = await getChannelAddresses(nodeB);
+
+  expect(openChannelsNodeA.has(data.multisigAddress)).toBeTruthy();
+  expect(openChannelsNodeB.has(data.multisigAddress)).toBeTruthy();
+  expect(data.owners).toEqual(ownersPublicIdentifiers);
+}

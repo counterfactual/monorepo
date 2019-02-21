@@ -19,7 +19,13 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
 export const TEST_NETWORK = "ganache";
 
-export async function getNewMultisig(
+/**
+ * Even though this function returns a transaction hash, the calling Node
+ * will receive an event (CREATE_CHANNEL) that should be subscribed to to
+ * ensure a channel has been instantiated and to get its multisig address
+ * back in the event data.
+ */
+export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
 ): Promise<Address> {
@@ -31,8 +37,8 @@ export async function getNewMultisig(
     } as NodeTypes.CreateChannelParams
   };
   const response: NodeTypes.MethodResponse = await node.call(req.type, req);
-  const result = response.result as NodeTypes.CreateChannelResult;
-  return result.multisigAddress;
+  const result = response.result as NodeTypes.CreateChannelTransactionResult;
+  return result.transactionHash;
 }
 
 /**
