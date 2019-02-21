@@ -29,7 +29,9 @@ class ChannelCreator extends NodeController {
    */
   @ChannelCreator.enqueue
   static async executeMethod(
-    requestHandler: RequestHandler,
+    // https://github.com/counterfactual/monorepo/issues/811
+    // Removing the typing bypasses the error in the interim
+    requestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelResult> {
     const multisigAddress = await deployMinimumViableMultisigAndGetAddress(
