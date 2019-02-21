@@ -93,10 +93,11 @@ describe("Node can create multisig, other owners get notified", () => {
 
       const openChannelsNodeA = await getChannelAddresses(nodeA);
       const openChannelsNodeB = await getChannelAddresses(nodeB);
-      expect(openChannelsNodeA[0]).toEqual(multisigAddress1);
-      expect(openChannelsNodeB[0]).toEqual(multisigAddress1);
-      expect(openChannelsNodeA[1]).toEqual(multisigAddress2);
-      expect(openChannelsNodeB[1]).toEqual(multisigAddress2);
+
+      expect(openChannelsNodeA.has(multisigAddress1)).toBeTruthy();
+      expect(openChannelsNodeB.has(multisigAddress1)).toBeTruthy();
+      expect(openChannelsNodeA.has(multisigAddress2)).toBeTruthy();
+      expect(openChannelsNodeB.has(multisigAddress2)).toBeTruthy();
     });
   });
 });
