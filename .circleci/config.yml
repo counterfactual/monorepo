@@ -6,7 +6,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
-      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn
@@ -26,7 +26,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
-      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
@@ -39,7 +39,7 @@ jobs:
       - image: circleci/node:10-browsers
     steps:
       - checkout
-      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - run: yarn # symlink packages' node_modules
@@ -47,7 +47,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run: cd packages/playground && yarn test
-      - run: cd packages/playground-server && yarn install && yarn test
+      - run: cd packages/playground-server && yarn test
       - run: cd packages/dapp-high-roller && yarn test
       - run: cd packages/dapp-tic-tac-toe && yarn test
 
@@ -56,7 +56,7 @@ jobs:
       - image: circleci/node:10
     steps:
       - checkout
-      - run: cat packages/*/package.json | shasum > .dependencies_checksum
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
       - attach_workspace:

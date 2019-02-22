@@ -14,9 +14,92 @@ button {
   transition: all .15s ease;
   cursor: pointer;
 }
-  
+
 button:hover {
   box-shadow: 0 3px 6px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.1);
   transform: translateY(1px);
 }
 
+.fill {
+  min-height: 100%;
+  height: 100%;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #555555
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 600;
+  color: $c-mediumgrey;
+
+  .spinner {
+    width: 70px;
+    text-align: center;
+  }
+
+  .spinner > div {
+    width: 18px;
+    height: 18px;
+    background-color: $c-darkgrey;;
+
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  }
+
+  .spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+  }
+
+  .spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+  }
+
+  @-webkit-keyframes sk-bouncedelay {
+    0%, 80%, 100% { -webkit-transform: scale(0) }
+    40% { -webkit-transform: scale(1.0) }
+  }
+
+  @keyframes sk-bouncedelay {
+    0%, 80%, 100% {
+      -webkit-transform: scale(0);
+      transform: scale(0);
+    } 40% {
+      -webkit-transform: scale(1.0);
+      transform: scale(1.0);
+    }
+  }
+
+}

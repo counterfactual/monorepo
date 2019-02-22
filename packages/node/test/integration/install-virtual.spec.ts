@@ -23,7 +23,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(35000);
 
   let firebaseServiceFactory: TestFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -98,6 +98,90 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
+      "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
+    () => {
+      it("sends proposal with non-null initial state", async done => {
+        const multisigAddressAB = await getNewMultisig(nodeA, [
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
+        ]);
+        expect(multisigAddressAB).toBeDefined();
+
+        const multisigAddressBC = await getNewMultisig(nodeB, [
+          nodeB.publicIdentifier,
+          nodeC.publicIdentifier
+        ]);
+        expect(multisigAddressBC).toBeDefined();
+
+        const intermediaries = [nodeB.publicIdentifier];
+        const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+          nodeC.publicIdentifier,
+          intermediaries
+        );
+
+        nodeA.on(
+          NODE_EVENTS.INSTALL_VIRTUAL,
+          async (msg: InstallVirtualMessage) => {
+            const virtualAppInstanceNodeA = (await getApps(
+              nodeA,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
+
+            const virtualAppInstanceNodeC = (await getApps(
+              nodeC,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
+
+            expect(virtualAppInstanceNodeA).toEqual(virtualAppInstanceNodeC);
+            done();
+          }
+        );
+
+        nodeC.on(
+          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          async (msg: ProposeVirtualMessage) => {
+            const proposedAppInstanceA = (await getProposedAppInstances(
+              nodeA
+            ))[0];
+            const proposedAppInstanceC = (await getProposedAppInstances(
+              nodeC
+            ))[0];
+
+            confirmProposedVirtualAppInstanceOnNode(
+              installVirtualAppInstanceProposalRequest.params,
+              proposedAppInstanceA
+            );
+            confirmProposedVirtualAppInstanceOnNode(
+              installVirtualAppInstanceProposalRequest.params,
+              proposedAppInstanceC
+            );
+
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
+              nodeA.publicIdentifier
+            );
+            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
+
+            const installVirtualReq = makeInstallVirtualRequest(
+              msg.data.appInstanceId,
+              msg.data.params.intermediaries
+            );
+            nodeC.emit(installVirtualReq.type, installVirtualReq);
+          }
+        );
+
+        const response = await nodeA.call(
+          installVirtualAppInstanceProposalRequest.type,
+          installVirtualAppInstanceProposalRequest
+        );
+        const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
+          .appInstanceId;
+        expect(appInstanceId).toBeDefined();
+      });
+    }
+  );
+
+  describe(
+    "Node A makes a second proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {

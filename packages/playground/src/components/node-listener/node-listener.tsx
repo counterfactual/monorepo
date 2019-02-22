@@ -7,6 +7,7 @@ import { RouterHistory } from "@stencil/router";
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
+import NetworkTunnel, { NetworkState } from "../../data/network";
 import { AppDefinition } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
@@ -23,6 +24,7 @@ export class NodeListener {
   @State() private currentErrorType: any;
 
   @Prop() apps: AppDefinition[] = [];
+  @State() networkState: NetworkState = {};
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() provider: Web3Provider = {} as Web3Provider;
   @Prop() balance: any;
@@ -38,7 +40,9 @@ export class NodeListener {
   }
 
   async componentWillLoad() {
-    this.bindNodeEvents();
+    if (this.networkState.web3Detected) {
+      this.bindNodeEvents();
+    }
   }
 
   bindNodeEvents() {
@@ -186,3 +190,4 @@ export class NodeListener {
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
 AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
+NetworkTunnel.injectProps(NodeListener, ["network"]);

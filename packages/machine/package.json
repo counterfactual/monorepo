@@ -20,11 +20,11 @@
     "@counterfactual/typescript-typings": "0.0.1",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
-    "@types/jest": "^24.0.4",
+    "@types/jest": "^24.0.6",
     "@types/node": "^11.9.0",
     "chai": "^4.2.0",
     "dotenv-safe": "^6.1.0",
-    "ethereum-waffle": "2.0.4",
+    "ethereum-waffle": "2.0.6",
     "ganache-cli": "6.3.0",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
@@ -32,7 +32,7 @@
     "rollup-plugin-typescript2": "^0.19.0",
     "truffle-hdwallet-provider": "^1.0.4",
     "truffle": "5.0.4",
-    "ts-jest": "23.10.5",
+    "ts-jest": "24.0.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2",
     "typescript-memoize": "^1.0.0-alpha.3"
@@ -40,7 +40,7 @@
   "peerDependencies": {
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.1",
-    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "ethers": "4.0.26",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
 }

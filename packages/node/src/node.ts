@@ -46,12 +46,13 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals: {
-    [address: string]: Deferred<NodeMessageWrappedProtocolMessage>;
-  } = {};
+  private ioSendDeferrals = new Map<
+    string,
+    Deferred<NodeMessageWrappedProtocolMessage>
+  >();
 
   // These properties don't have initializers in the constructor and get
-  // initialized in the `asyncronouslySetupUsingRemoteServices` function
+  // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
@@ -72,7 +73,7 @@ export class Node {
       networkContext
     );
 
-    return await node.asyncronouslySetupUsingRemoteServices();
+    return await node.asynchronouslySetupUsingRemoteServices();
   }
 
   private constructor(
@@ -89,7 +90,7 @@ export class Node {
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
-  private async asyncronouslySetupUsingRemoteServices(): Promise<Node> {
+  private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
 
     this.requestHandler = new RequestHandler(
@@ -119,6 +120,7 @@ export class Node {
   private buildInstructionExecutor(): InstructionExecutor {
     const instructionExecutor = new InstructionExecutor(this.networkContext);
 
+    // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
       return async (
         message: ProtocolMessage,
@@ -142,10 +144,6 @@ export class Node {
           keyIndex = context.stateChannelsMap
             .get(multisigAddress)!
             .getAppInstance(appIdentityHash).appSeqNo;
-        } else if (message.protocol === Protocol.InstallVirtualApp) {
-          if (context.commitments.length === 2) {
-            keyIndex = 0;
-          }
         }
 
         const signingKey = new SigningKey(
@@ -191,9 +189,12 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toAddress;
 
-        this.ioSendDeferrals[to] = new Deferred<
-          NodeMessageWrappedProtocolMessage
-        >();
+        const key = this.encodeProtocolMessage(message);
+        const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
+
+        this.ioSendDeferrals.set(key, deferral);
+
+        const counterpartyResponse = deferral.promise;
 
         await this.messagingService.send(to, {
           from,
@@ -201,13 +202,13 @@ export class Node {
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await this.ioSendDeferrals[to].promise;
+        const msg = await counterpartyResponse;
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        delete this.ioSendDeferrals[to];
+        this.ioSendDeferrals.delete(key);
 
         context.inbox.push(msg.data);
 
@@ -340,11 +341,16 @@ export class Node {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    const isIoSendDeferral = (msg: NodeMessage) =>
-      msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT &&
-      this.ioSendDeferrals[msg.from] !== undefined;
+    const isProtocolMessage = (msg: NodeMessage) =>
+      msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
-    if (isIoSendDeferral(msg)) {
+    const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
+      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.data));
+
+    if (
+      isProtocolMessage(msg) &&
+      isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
+    ) {
       this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
       await this.requestHandler.callEvent(msg.type, msg);
@@ -352,13 +358,30 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
+    const key = this.encodeProtocolMessage(msg.data);
+
+    if (!this.ioSendDeferrals.has(key)) {
+      throw Error(
+        "Node received message intended for machine but no handler was present"
+      );
+    }
+
+    const promise = this.ioSendDeferrals.get(key)!;
+
     try {
-      this.ioSendDeferrals[msg.from].resolve(msg);
+      promise.resolve(msg);
     } catch (error) {
       console.error(
         `Error while executing callback registered by IO_SEND_AND_WAIT middleware hook`,
         { error, msg }
       );
     }
+  }
+
+  private encodeProtocolMessage(msg: ProtocolMessage) {
+    return JSON.stringify({
+      protocol: msg.protocol,
+      params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
+    });
   }
 }

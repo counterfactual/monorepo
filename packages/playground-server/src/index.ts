@@ -8,7 +8,7 @@ Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 const API_TIMEOUT = 5 * 60 * 1000;
 
 (async () => {
-  await NodeWrapper.createNodeSingleton("ropsten");
+  await NodeWrapper.createNodeSingleton("ropsten", process.env.NODE_MNEMONIC);
 
   const api = mountApi();
   const port = process.env.PORT || 9000;

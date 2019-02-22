@@ -7,14 +7,16 @@ import { v4 as generateUuid } from "uuid";
 import Errors from "./errors";
 import User, { MatchedUser } from "./resources/user/resource";
 
+const DATABASE_URL =
+  (process.env.DATABASE_URL as string) ||
+  (process.env.DB_CONNECTION_STRING as string);
+
 const DATABASE_CONFIGURATION: knex.Config = {
   client: process.env.DB_ENGINE as string,
-  connection: (process.env.DB_CONNECTION_STRING as string) || {
+  connection: DATABASE_URL || {
     filename: process.env.DB_FILE as string
   },
-  searchPath: process.env.DB_CONNECTION_STRING
-    ? ["playground_db", "public"]
-    : [],
+  searchPath: DATABASE_URL ? ["playground_db", "public"] : [],
   useNullAsDefault: process.env.DB_FILE ? true : false
 };
 
