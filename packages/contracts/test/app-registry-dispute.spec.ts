@@ -2,11 +2,11 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes, keccak256, defaultAbiCoder, BigNumber, bigNumberify, solidityKeccak256 } from "ethers/utils";
+import { hexlify, randomBytes, keccak256, defaultAbiCoder, BigNumber, bigNumberify, solidityKeccak256, solidityPack, arrayify } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
-
+import LibSignature from "../build/LibSignature.json";
 
 import {
   AppInstance,
@@ -76,6 +76,7 @@ describe("AppRegistry Dispute", () => {
 
   let appRegistry: Contract;
   let appDefinition: Contract
+  let libSig: Contract
 
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
@@ -92,9 +93,8 @@ describe("AppRegistry Dispute", () => {
     });
 
     appDefinition = await waffle.deployContract(wallet, AppWithAction);
-    console.log(await appDefinition.deployed())
-    console.log("deployed at", appDefinition.address);
-    await appDefinition.functions.getTurnTaker(encodeState(PRE_STATE), []);
+
+    libSig = await waffle.deployContract(wallet, LibSignature);
   });
 
   beforeEach(async () => {
@@ -141,10 +141,18 @@ describe("AppRegistry Dispute", () => {
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
     expect(await latestNonce()).to.eq(1);
 
-    const actionSig = BOB.signMessage(keccak256(encodeAction(ACTION)));
 
-    await appDefinition.functions.getTurnTaker(encodeState(PRE_STATE), []);
+    const thingToSign = HashZero;
+    const signature = await BOB.signMessage(thingToSign);
+    console.log(BOB.address)
+    console.log(await libSig.recoverKey(
+      signature,
+      thingToSign,
+      0
+    ));
 
+    // console.log(await latestState());
     // await progressChallenge(PRE_STATE, ACTION, actionSig);
+    // console.log(await latestState());
   });
 });
