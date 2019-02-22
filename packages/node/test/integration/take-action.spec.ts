@@ -27,7 +27,7 @@ import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateGetStateRequest,
   generateTakeActionRequest,
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeInstallRequest,
   TEST_NETWORK
 } from "./utils";
@@ -56,8 +56,7 @@ describe("Node method follows spec - takeAction", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -69,8 +68,7 @@ describe("Node method follows spec - takeAction", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -82,8 +80,7 @@ describe("Node method follows spec - takeAction", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -128,16 +125,9 @@ describe("Node method follows spec - takeAction", () => {
           }
         };
 
-        const multisigAddress = await getNewMultisig(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
-        expect(multisigAddress).toBeDefined();
-
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
           nodeB.publicIdentifier,
-          // @ts-ignore
-          global.networkContext.TicTacToe,
+          global["networkContext"].TicTacToe,
           initialState,
           {
             stateEncoding,
@@ -146,34 +136,62 @@ describe("Node method follows spec - takeAction", () => {
         );
 
         let newState;
-        nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeB.call(getStateReq.type, getStateReq);
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
-          done();
-        });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const takeActionReq = generateTakeActionRequest(
-            msg.data.params.appInstanceId,
-            validAction
-          );
+        nodeA.on(
+          NODE_EVENTS.CREATE_CHANNEL,
+          async (data: NodeTypes.CreateChannelResult) => {
+            nodeB.on(
+              NODE_EVENTS.UPDATE_STATE,
+              async (msg: UpdateStateMessage) => {
+                const getStateReq = generateGetStateRequest(
+                  msg.data.appInstanceId
+                );
 
-          const response = await nodeA.call(takeActionReq.type, takeActionReq);
-          newState = (response.result as NodeTypes.TakeActionResult).newState;
+                const response = await nodeB.call(
+                  getStateReq.type,
+                  getStateReq
+                );
 
-          expect(newState.board[0][0]).toEqual(bigNumberify(1));
-          expect(newState.turnNum).toEqual(bigNumberify(1));
-        });
+                const updatedState = (response.result as NodeTypes.GetStateResult)
+                  .state;
+                expect(updatedState).toEqual(newState);
+                done();
+              }
+            );
 
-        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-          const installReq = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installReq.type, installReq);
-        });
+            nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+              const takeActionReq = generateTakeActionRequest(
+                msg.data.params.appInstanceId,
+                validAction
+              );
 
-        nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
+              const response = await nodeA.call(
+                takeActionReq.type,
+                takeActionReq
+              );
+
+              newState = (response.result as NodeTypes.TakeActionResult)
+                .newState;
+
+              expect(newState.board[0][0]).toEqual(bigNumberify(1));
+              expect(newState.turnNum).toEqual(bigNumberify(1));
+            });
+
+            nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+              const installReq = makeInstallRequest(msg.data.appInstanceId);
+              nodeB.emit(installReq.type, installReq);
+            });
+
+            nodeA.emit(
+              tttAppInstanceProposalReq.type,
+              tttAppInstanceProposalReq
+            );
+          }
+        );
+        await getMultisigCreationTransactionHash(nodeA, [
+          nodeA.publicIdentifier,
+          nodeB.publicIdentifier
+        ]);
       });
     }
   );

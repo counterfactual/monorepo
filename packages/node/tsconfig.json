@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "dist/"
+    "declarationDir": "dist/",
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../node_modules/@counterfactual/typescript-typings/types"
+    ]
   },
   "include": ["src", "test"]
 }

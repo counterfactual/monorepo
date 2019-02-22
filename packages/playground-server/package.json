@@ -26,8 +26,9 @@
     "disabled-postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
-    "start": "env-cmd development ts-node src/",
-    "test": "env-cmd test jest --forceExit"
+    "start": "env-cmd development --fallback ./.env.local ts-node src/",
+    "test": "env-cmd test --fallback ./.env.local jest --forceExit",
+    "test:ci": "env-cmd test --fallback jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
@@ -58,7 +59,7 @@
     "jest": "^24.0.0",
     "sqlite3": "^4.0.4",
     "ts-node": "^7.0.1",
-    "typescript": "^3.1.2",
-    "tslint": "^5.11.0"
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.2"
   }
 }

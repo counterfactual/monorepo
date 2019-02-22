@@ -1,4 +1,3 @@
 module.exports = async function() {
-  // @ts-ignore
-  global.ganacheServer.close();
+  global["ganacheServer"].close();
 };

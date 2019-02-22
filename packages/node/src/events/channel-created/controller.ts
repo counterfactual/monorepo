@@ -1,7 +1,7 @@
 import { StateChannel } from "@counterfactual/machine";
 
 import { RequestHandler } from "../../request-handler";
-import { CreateMultisigMessage } from "../../types";
+import { CreateChannelMessage } from "../../types";
 
 /**
  * This creates an entry for an already-created multisig sent by a peer.
@@ -9,10 +9,10 @@ import { CreateMultisigMessage } from "../../types";
  */
 export default async function addMultisigController(
   requestHandler: RequestHandler,
-  nodeMsg: CreateMultisigMessage
+  nodeMsg: CreateChannelMessage
 ) {
   const multisigAddress = nodeMsg.data.multisigAddress;
-  const multisigOwners = nodeMsg.data.params.owners;
+  const multisigOwners = nodeMsg.data.owners;
   await requestHandler.store.saveStateChannel(
     StateChannel.setupChannel(
       requestHandler.networkContext.ETHBucket,
