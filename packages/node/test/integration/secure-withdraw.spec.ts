@@ -1,13 +1,20 @@
+import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import {
+  IMessagingService,
+  IStoreService,
+  Node,
+  NODE_EVENTS,
+  NodeConfig
+} from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 
 import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
-  getNewMultisig,
+  getMultisigCreationTransactionHash,
   makeDepositRequest,
   makeWithdrawRequest,
   TEST_NETWORK
@@ -37,8 +44,7 @@ describe("Node method follows spec - withdraw", () => {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
 
-    // @ts-ignore
-    provider = new JsonRpcProvider(global.ganacheURL);
+    provider = new JsonRpcProvider(global["ganacheURL"]);
 
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
@@ -50,8 +56,7 @@ describe("Node method follows spec - withdraw", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
 
     storeServiceB = firebaseServiceFactory.createStoreService(
@@ -64,8 +69,7 @@ describe("Node method follows spec - withdraw", () => {
       nodeConfig,
       provider,
       TEST_NETWORK,
-      // @ts-ignore
-      global.networkContext
+      global["networkContext"]
     );
   });
 
@@ -74,23 +78,33 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal", async () => {
-    const multisigAddress = await getNewMultisig(nodeA, [
+    nodeA.on(
+      NODE_EVENTS.CREATE_CHANNEL,
+      async (data: NodeTypes.CreateChannelResult) => {
+        const { multisigAddress } = data;
+
+        expect(multisigAddress).toBeDefined();
+
+        const depositReq = makeDepositRequest(multisigAddress, One);
+
+        await nodeA.call(depositReq.type, depositReq);
+
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          1
+        );
+
+        const withdrawReq = makeWithdrawRequest(multisigAddress, One);
+
+        await nodeA.call(withdrawReq.type, withdrawReq);
+
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          0
+        );
+      }
+    );
+    await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
-
-    expect(multisigAddress).toBeDefined();
-
-    const depositReq = makeDepositRequest(multisigAddress, One);
-
-    await nodeA.call(depositReq.type, depositReq);
-
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(1);
-
-    const withdrawReq = makeWithdrawRequest(multisigAddress, One);
-
-    await nodeA.call(withdrawReq.type, withdrawReq);
-
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(0);
   });
 });

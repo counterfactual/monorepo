@@ -21,6 +21,7 @@ export type UserSession = {
   nodeAddress: string;
   email: string;
   multisigAddress: string;
+  transactionHash: string;
   token?: string;
 };
 
@@ -123,6 +124,7 @@ export type UserAttributes = {
   nodeAddress: string;
   email: string;
   multisigAddress: string;
+  transactionHash: string;
   token?: string;
 };
 

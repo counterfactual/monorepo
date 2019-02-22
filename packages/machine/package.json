@@ -31,7 +31,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.19.0",
     "truffle-hdwallet-provider": "^1.0.4",
-    "truffle": "5.0.4",
+    "truffle": "5.0.5",
     "ts-jest": "24.0.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2",

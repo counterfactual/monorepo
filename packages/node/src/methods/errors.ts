@@ -25,6 +25,8 @@ export const ERRORS = {
     `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}`,
   CHANNEL_CREATION_FAILED:
     "Failed to create channel. Multisignature wallet cannot be deployed properly",
+  NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT:
+    "The multisig deployment transaction does not have a hash",
   INVALID_NETWORK_NAME: "Invalid network name provided for initializing Node",
   CANNOT_DEPOSIT:
     "Cannot deposit while another deposit is occurring in the channel.",

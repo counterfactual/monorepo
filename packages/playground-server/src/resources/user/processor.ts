@@ -1,10 +1,11 @@
-import { Node } from "@counterfactual/types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import {
   bindMultisigToUser,
+  bindTransactionHashToUser,
   createUser,
   ethAddressAlreadyRegistered,
   getUsers,
@@ -15,7 +16,7 @@ import NodeWrapper from "../../node";
 
 import User from "./resource";
 
-export default class UserProcessor extends OperationProcessor {
+export default class UserProcessor extends OperationProcessor<User> {
   public resourceClass = User;
 
   public async get(op: Operation): Promise<User[]> {
@@ -32,13 +33,13 @@ export default class UserProcessor extends OperationProcessor {
 
     return getUsers(
       op.ref.id ? { id: op.ref.id } : op.params.filter || {},
-      !isMe ? ["username", "ethAddress", "nodeAddress"] : []
+      !isMe ? ["username", "ethAddress", "nodeAddress", "multisigAddress"] : []
     );
   }
 
   public async add(op: Operation): Promise<User> {
     // Create the multisig and return its address.
-    const user = op.data;
+    const user = op.data as User;
 
     const { username, email, ethAddress, nodeAddress } = user.attributes;
 
@@ -69,11 +70,15 @@ export default class UserProcessor extends OperationProcessor {
       tags: { userId: user.id, endpoint: "createAccount" }
     });
 
-    NodeWrapper.createStateChannelFor(nodeAddress as string).then(
-      async (result: Node.CreateChannelResult) => {
+    const { transactionHash } = await NodeWrapper.createStateChannelFor(
+      nodeAddress as string,
+      async (result: NodeTypes.CreateChannelResult) => {
         await bindMultisigToUser(newUser, result.multisigAddress);
       }
     );
+
+    newUser.attributes.transactionHash = transactionHash;
+    await bindTransactionHashToUser(newUser, transactionHash);
 
     Log.info("Multisig has been requested", {
       tags: {

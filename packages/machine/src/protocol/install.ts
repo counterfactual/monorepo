@@ -88,6 +88,8 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     multisigAddress
   } = message.params as InstallParams;
 
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
   const appInstance = new AppInstance(
     multisigAddress,
     signingKeys,
@@ -97,17 +99,19 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     // KEY: Sets it to NOT be a virtual app
     false,
     // KEY: The app sequence number
-    context.stateChannelsMap.get(multisigAddress)!.numInstalledApps,
-    context.stateChannelsMap.get(multisigAddress)!.rootNonceValue,
+    stateChannel.numInstalledApps,
+    stateChannel.rootNonceValue,
     initialState,
     // KEY: Set the nonce to be 0
     0,
     defaultTimeout
   );
 
-  const newStateChannel = context.stateChannelsMap
-    .get(multisigAddress)!
-    .installApp(appInstance, aliceBalanceDecrement, bobBalanceDecrement);
+  const newStateChannel = stateChannel.installApp(
+    appInstance,
+    aliceBalanceDecrement,
+    bobBalanceDecrement
+  );
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
