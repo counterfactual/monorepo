@@ -212,7 +212,7 @@ export class AppRoot {
   }
 
   async deposit(value: string, multisigAddress: string) {
-    const { user, accountBalance } = this.accountState;
+    const { accountBalance } = this.accountState;
     const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
@@ -230,7 +230,7 @@ export class AppRoot {
         requestId: window["uuid"](),
         params: {
           multisigAddress,
-          amount: ethers.utils.parseEther(value),
+          amount: ethers.utils.parseEther(value.toString()),
           notifyCounterparty: true
         } as Node.DepositParams
       });
@@ -261,7 +261,7 @@ export class AppRoot {
         requestId: window["uuid"](),
         params: {
           multisigAddress: user.multisigAddress,
-          amount: ethers.utils.parseEther(value)
+          amount: ethers.utils.parseEther(value.toString())
         } as Node.WithdrawParams
       });
     } catch (e) {

@@ -23,7 +23,10 @@ export class AccountExchange {
   @Prop() network: string = "";
   @Prop() accountBalance: number = 0;
   @Prop() updateAccount: (e) => void = e => {};
-  @Prop() deposit: (value: any) => Promise<any> = async () => ({});
+  @Prop() deposit: (
+    value: any,
+    multisigAddress: string
+  ) => Promise<any> = async () => ({});
   @Prop() withdraw: (value: any) => Promise<void> = async () => {};
   @Prop() getBalances: () => Promise<
     { balance: number; accountBalance: number } | undefined
@@ -43,13 +46,11 @@ export class AccountExchange {
   }
 
   async onDepositClicked(e) {
-    debugger;
     const amount = e.target.value;
-    await this.deposit(amount);
+    await this.deposit(amount, this.user.multisigAddress);
   }
 
   async onWithdrawClicked(e) {
-    debugger;
     const amount = e.target.value;
     await this.withdraw(amount);
   }
