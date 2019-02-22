@@ -35,7 +35,7 @@
   "dependencies": {
     "@counterfactual/node": "^0.0.1",
     "@counterfactual/types": "^0.0.1",
-    "@ebryn/jsonapi-ts": "ebryn/jsonapi-ts",
+    "@ebryn/jsonapi-ts": "^0.0.3",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
     "jsonwebtoken": "^8.4.0",

@@ -795,13 +795,15 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
-"@ebryn/jsonapi-ts@ebryn/jsonapi-ts":
-  version "0.0.0"
-  resolved "https://codeload.github.com/ebryn/jsonapi-ts/tar.gz/f7c074bfcebcb4b7515a5d00ac6ea98e2a715a6f"
+"@ebryn/jsonapi-ts@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.0.3.tgz#062c7d451e2f9a706c2baf2dde8c30cbeacbf264"
+  integrity sha512-kCSOs2a60TYwKVBOK5OF61++w1Fjatlyi1Jg/VC5AYUDo6toIzcF+Flk+F3+bcubnp6HmQw+g4JbyF0nmXXGVA==
   dependencies:
     "@koa/cors" "^2.2.3"
     camelize "^1.0.0"
     dasherize "^2.0.0"
+    ember-cli-string-utils "^1.1.0"
     escape-string-regexp "^1.0.5"
     jsonwebtoken "^8.4.0"
     knex "~0.16.3"
