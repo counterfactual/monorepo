@@ -1,9 +1,19 @@
-import { RequestHandler } from "../../../request-handler";
+import { Node } from "@counterfactual/types";
 
-export default async function getAllChannelAddressesController(
-  requestHandler: RequestHandler
-) {
-  return {
-    multisigAddresses: Object.keys(await requestHandler.store.getAllChannels())
-  };
+import { RequestHandler } from "../../../request-handler";
+import { NodeController } from "../../controller";
+
+export default class GetAllChannelAddressesController extends NodeController {
+  public static readonly methodName = Node.MethodName.GET_CHANNEL_ADDRESSES;
+
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.GetChannelAddressesParams
+  ): Promise<Node.GetChannelAddressesResult> {
+    return {
+      multisigAddresses: Object.keys(
+        await requestHandler.store.getAllChannels()
+      )
+    };
+  }
 }

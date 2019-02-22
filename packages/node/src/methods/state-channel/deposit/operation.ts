@@ -47,11 +47,17 @@ export async function installBalanceRefundApp(
   );
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
+
   const initialState: ETHBalanceRefundAppState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
     threshold: await provider.getBalance(params.multisigAddress)
   };
+
+  console.log(
+    `${requestHandler.publicIdentifier.substr(0, 6)} beginning deposit`
+  );
+
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -173,6 +179,14 @@ export async function uninstallBalanceRefundApp(
 
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
+  );
+
+  console.log(
+    JSON.stringify(
+      stateChannelsMap.get(stateChannel.multisigAddress)!.toJson()
+    ),
+    null,
+    2
   );
 }
 

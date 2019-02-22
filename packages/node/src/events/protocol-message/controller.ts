@@ -23,39 +23,51 @@ export default async function protocolMessageEventController(
 ) {
   if (nodeMsg.data.seq === -1) return;
 
-  const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
-    nodeMsg.data,
-    new Map<string, StateChannel>(
-      Object.entries(await requestHandler.store.getAllChannels())
-    )
-  );
+  console.log(`adding run protocol to the queue now`);
 
-  stateChannelsMap.forEach(
-    async stateChannel =>
-      await requestHandler.store.saveStateChannel(stateChannel)
-  );
+  await requestHandler.getShardedQueue("rootQueue").add(async () => {
+    const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
+      nodeMsg.data,
+      new Map<string, StateChannel>(
+        Object.entries(await requestHandler.store.getAllChannels())
+      )
+    );
 
-  // TODO: Follow this pattern for all machine related events
-  if (nodeMsg.data.protocol === Protocol.UninstallVirtualApp) {
-    const uninstallMsg: UninstallMessage = {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.UNINSTALL_VIRTUAL,
-      data: {
-        appInstanceId: (nodeMsg.data.params as UninstallVirtualAppParams)
-          .targetAppIdentityHash
-      }
-    };
+    stateChannelsMap.forEach(
+      async stateChannel =>
+        await requestHandler.store.saveStateChannel(stateChannel)
+    );
 
-    requestHandler.outgoing.emit(uninstallMsg.type, uninstallMsg);
-  } else if (nodeMsg.data.protocol === Protocol.Withdraw) {
-    const withdrawMsg: WithdrawMessage = {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.WITHDRAW,
-      data: {
-        amount: (nodeMsg.data.params as WithdrawParams).amount
-      }
-    };
+    console.log(
+      JSON.stringify([...stateChannelsMap.values()].map(x => x.toJson())),
+      null,
+      2
+    );
 
-    requestHandler.outgoing.emit(withdrawMsg.type, withdrawMsg);
-  }
+    // TODO: Follow this pattern for all machine related events
+    if (nodeMsg.data.protocol === Protocol.UninstallVirtualApp) {
+      const uninstallMsg: UninstallMessage = {
+        from: requestHandler.publicIdentifier,
+        type: NODE_EVENTS.UNINSTALL_VIRTUAL,
+        data: {
+          appInstanceId: (nodeMsg.data.params as UninstallVirtualAppParams)
+            .targetAppIdentityHash
+        }
+      };
+
+      requestHandler.outgoing.emit(uninstallMsg.type, uninstallMsg);
+    } else if (nodeMsg.data.protocol === Protocol.Withdraw) {
+      const withdrawMsg: WithdrawMessage = {
+        from: requestHandler.publicIdentifier,
+        type: NODE_EVENTS.WITHDRAW,
+        data: {
+          amount: (nodeMsg.data.params as WithdrawParams).amount
+        }
+      };
+
+      requestHandler.outgoing.emit(withdrawMsg.type, withdrawMsg);
+    }
+  });
+
+  console.log(`done run protocol now`);
 }

@@ -1,8 +1,10 @@
 import { Node } from "@counterfactual/types";
+import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
+import { NodeController } from "../../controller";
 
 import { install } from "./operation";
 
@@ -11,40 +13,55 @@ import { install } from "./operation";
  * sending an approved ack to the proposer.
  * @param params
  */
-export default async function installAppInstanceController(
-  requestHandler: RequestHandler,
-  params: Node.InstallParams
-): Promise<Node.InstallResult> {
-  const [respondingAddress] = await getPeersAddressFromAppInstanceID(
-    requestHandler.publicIdentifier,
-    requestHandler.store,
-    params.appInstanceId
-  );
+export default class InstallController extends NodeController {
+  public static readonly methodName = Node.MethodName.INSTALL;
 
-  const appInstanceInfo = await install(
-    requestHandler.store,
-    requestHandler.instructionExecutor,
-    requestHandler.publicIdentifier,
-    respondingAddress,
-    params
-  );
+  protected async enqueueByShard(
+    requestHandler: RequestHandler,
+    params: Node.InstallParams
+  ): Promise<Queue> {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+    return requestHandler.getShardedQueue(
+      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+    );
+  }
 
-  const installApprovalMsg: InstallMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.INSTALL,
-    data: {
-      params: {
-        appInstanceId: params.appInstanceId
-      }
-    }
-  };
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.InstallParams
+  ): Promise<Node.InstallResult> {
+    const {
+      store,
+      instructionExecutor,
+      publicIdentifier,
+      messagingService
+    } = requestHandler;
 
-  await requestHandler.messagingService.send(
-    respondingAddress,
-    installApprovalMsg
-  );
+    const [respondingAddress] = await getPeersAddressFromAppInstanceID(
+      requestHandler.publicIdentifier,
+      requestHandler.store,
+      params.appInstanceId
+    );
 
-  return {
-    appInstance: appInstanceInfo
-  };
+    const appInstanceInfo = await install(
+      store,
+      instructionExecutor,
+      publicIdentifier,
+      respondingAddress,
+      params
+    );
+
+    const installApprovalMsg: InstallMessage = {
+      from: publicIdentifier,
+      type: NODE_EVENTS.INSTALL,
+      data: { params }
+    };
+
+    await messagingService.send(respondingAddress, installApprovalMsg);
+
+    return {
+      appInstance: appInstanceInfo
+    };
+  }
 }

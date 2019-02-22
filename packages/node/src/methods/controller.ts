@@ -3,34 +3,37 @@ import Queue from "p-queue";
 
 import { RequestHandler } from "../request-handler";
 
-export class NodeController {
-  // This method deals with the boilerplate of decorating the Node controllers.
-  static enqueue(
-    target: NodeController,
-    propertyName: string,
-    propertyDesciptor: PropertyDescriptor
-  ) {
-    const method = propertyDesciptor.value;
+export abstract class NodeController {
+  public static readonly methodName: Node.MethodName;
 
-    propertyDesciptor.value = async (
-      requestHandler: RequestHandler,
-      params: Node.MethodParams
-    ) => {
-      const shardedQueue = await target.enqueueByShard(requestHandler, params);
-      return await shardedQueue.add<Node.CreateChannelResult>(async () => {
-        return await method.apply(this, [requestHandler, params]);
-      });
+  public async executeMethod(
+    requestHandler: RequestHandler,
+    params: Node.MethodParams
+  ): Promise<Node.MethodResult> {
+    // const shardedQueue = await this.enqueueByShard(requestHandler, params);
+
+    const shardedQueue = requestHandler.getShardedQueue("rootQueue");
+
+    const execute = async () => {
+      return await this.executeMethodImplementation(requestHandler, params);
     };
-    return propertyDesciptor;
+
+    console.log(`adding method to the queue now`);
+
+    return await (shardedQueue ? shardedQueue.add(execute) : execute());
   }
+
+  protected abstract executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.MethodParams
+  ): Promise<Node.MethodResult>;
 
   // This method is the logic by which the waiting on the queue happens
   // per controller which needs to be overrided.
-  async enqueueByShard(
+  protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Queue> {
-    // Empty implementation
-    return Promise.resolve(Object.create(null));
+    return null;
   }
 }

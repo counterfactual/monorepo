@@ -101,7 +101,7 @@ export class RequestHandler {
   public getShardedQueue(shardKey: string): Queue {
     let shardedQueue: Queue;
     if (!this.shardedQueues.has(shardKey)) {
-      shardedQueue = new Queue(1);
+      shardedQueue = new Queue({ concurrency: 1 });
       this.shardedQueues.set(shardKey, shardedQueue);
     }
     return this.shardedQueues.get(shardKey)!;

@@ -1,48 +1,69 @@
 import { Node } from "@counterfactual/types";
+import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
+import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
 
-export default async function uninstallController(
-  requestHandler: RequestHandler,
-  params: Node.UninstallParams
-): Promise<Node.UninstallResult> {
-  const { appInstanceId } = params;
+export default class UninstallController extends NodeController {
+  public static readonly methodName = Node.MethodName.UNINSTALL;
 
-  if (!appInstanceId) {
-    return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
+  protected async enqueueByShard(
+    requestHandler: RequestHandler,
+    params: Node.UninstallVirtualParams
+  ): Promise<Queue> {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+    return requestHandler.getShardedQueue(
+      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+    );
   }
 
-  const stateChannel = await requestHandler.store.getChannelFromAppInstanceID(
-    appInstanceId
-  );
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.UninstallParams
+  ): Promise<Node.UninstallResult> {
+    const {
+      store,
+      instructionExecutor,
+      publicIdentifier,
+      messagingService
+    } = requestHandler;
+    const { appInstanceId } = params;
 
-  const to = getCounterpartyAddress(
-    requestHandler.publicIdentifier,
-    stateChannel.userNeuteredExtendedKeys
-  );
-
-  await uninstallAppInstanceFromChannel(
-    requestHandler.store,
-    requestHandler.instructionExecutor,
-    requestHandler.publicIdentifier,
-    to,
-    appInstanceId
-  );
-
-  const uninstallMsg: UninstallMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.UNINSTALL,
-    data: {
-      appInstanceId
+    if (!appInstanceId) {
+      return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
-  };
 
-  await requestHandler.messagingService.send(to, uninstallMsg);
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  return {};
+    const to = getCounterpartyAddress(
+      publicIdentifier,
+      stateChannel.userNeuteredExtendedKeys
+    );
+
+    await uninstallAppInstanceFromChannel(
+      store,
+      instructionExecutor,
+      publicIdentifier,
+      to,
+      appInstanceId
+    );
+
+    const uninstallMsg: UninstallMessage = {
+      from: publicIdentifier,
+      type: NODE_EVENTS.UNINSTALL,
+      data: {
+        appInstanceId
+      }
+    };
+
+    await messagingService.send(to, uninstallMsg);
+
+    return {};
+  }
 }

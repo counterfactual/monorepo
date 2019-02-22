@@ -1,6 +1,7 @@
 import { AssetType, Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
+import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
 /**
@@ -8,19 +9,24 @@ import { ERRORS } from "../../errors";
  * @param this
  * @param params
  */
-export default async function getAppInstanceController(
-  requestHandler: RequestHandler,
-  params: Node.GetFreeBalanceStateParams
-): Promise<Node.GetFreeBalanceStateResult> {
-  const { multisigAddress } = params;
+export default class GetFreeBalanceController extends NodeController {
+  public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
 
-  if (!multisigAddress) {
-    Promise.reject(ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.GetFreeBalanceStateParams
+  ): Promise<Node.GetFreeBalanceStateResult> {
+    const { store } = requestHandler;
+    const { multisigAddress } = params;
+
+    if (!multisigAddress) {
+      Promise.reject(ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+    }
+
+    const stateChannel = await store.getStateChannel(multisigAddress);
+
+    return {
+      state: stateChannel.getFreeBalanceFor(AssetType.ETH).state
+    };
   }
-
-  return {
-    state: (await requestHandler.store.getStateChannel(
-      multisigAddress
-    )).getFreeBalanceFor(AssetType.ETH).state
-  };
 }
