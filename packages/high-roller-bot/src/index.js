@@ -115,7 +115,8 @@ class JsonFileStoreService {
   });
 
   console.log("Creating store");
-  const store = new JsonFileStoreService();
+  // const store = new JsonFileStoreService();
+  const store = serviceFactory.createStoreService("highRollerBotStore1");
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
@@ -129,15 +130,15 @@ class JsonFileStoreService {
   );
 
   console.log("public identifier", node.publicIdentifier);
-  messService.onReceive(node.publicIdentifier, NodeMessage => {
-    console.log("received", NodeMessage);
-  });
-  messService.onReceive(
-    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-    NodeMessage => {
-      console.log("sent", NodeMessage);
-    }
-  );
+  // messService.onReceive(node.publicIdentifier, NodeMessage => {
+  //   console.log("received", NodeMessage);
+  // });
+  // messService.onReceive(
+  //   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
+  //   NodeMessage => {
+  //     console.log("sent", NodeMessage);
+  //   }
+  // );
 
   const settings = JSON.parse(fs.readFileSync(settingsPath));
   if (settings["token"]) {
@@ -166,6 +167,8 @@ class JsonFileStoreService {
       settings["token"] = createdAccount.token;
       settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
+      console.log(`Account created with token: ${createdAccount.token}`);
+      return;
     } catch (e) {
       console.log("Error: ", e);
     }

@@ -33,6 +33,7 @@
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
+    "@counterfactual/node": "^0.0.1",
     "env-cmd": "^8.0.2",
     "eslint": "^5.12.1",
     "eslint-config-prettier": "^2.9.0",
