@@ -26,8 +26,8 @@
     "disabled-postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
-    "start": "env-cmd development --fallback ./.env.local ts-node src/",
-    "test": "env-cmd test --fallback ./.env.local jest --forceExit",
+    "start": "env-cmd development --fallback ts-node src/",
+    "test": "env-cmd test --fallback jest --forceExit",
     "test:ci": "env-cmd test --fallback jest --forceExit"
   },
   "bugs": {

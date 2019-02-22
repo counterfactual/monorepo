@@ -19,7 +19,8 @@ const globals = {
 const bundledDependencies = new Set([
   "@counterfactual/machine",
   "@counterfactual/types",
-  "typescript-memoize"
+  "typescript-memoize",
+  "promise-queue"
 ]);
 
 const external = [

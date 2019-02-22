@@ -92,6 +92,7 @@ describe("Node can create multisig, other owners get notified", () => {
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
       ];
+
       const ownersACPublicIdentifiers = [
         nodeA.publicIdentifier,
         nodeC.publicIdentifier
@@ -112,20 +113,20 @@ describe("Node can create multisig, other owners get notified", () => {
               ownersABPublicIdentifiers,
               data
             );
-            console.log("confirmed first multisig creation");
           } else {
             const openChannelsNodeA = await getChannelAddresses(nodeA);
             const openChannelsNodeC = await getChannelAddresses(nodeC);
-            console.log(openChannelsNodeA);
+
             expect(openChannelsNodeA.size).toEqual(2);
             expect(openChannelsNodeC.size).toEqual(1);
+
             await confirmChannelCreation(
               nodeA,
               nodeC,
               ownersACPublicIdentifiers,
               data
             );
-            console.log("confirmed second multisig creation");
+
             done();
           }
         }
@@ -135,14 +136,14 @@ describe("Node can create multisig, other owners get notified", () => {
         nodeA,
         ownersABPublicIdentifiers
       );
+
       const txHash2 = await getMultisigCreationTransactionHash(
         nodeA,
         ownersACPublicIdentifiers
       );
+
       expect(txHash1).toBeDefined();
       expect(txHash2).toBeDefined();
-      console.log(txHash1);
-      console.log(txHash2);
     });
   });
 });

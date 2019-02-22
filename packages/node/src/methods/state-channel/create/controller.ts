@@ -2,8 +2,8 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { xkeysToSortedKthAddresses } from "@counterfactual/machine";
 import { Address, Node } from "@counterfactual/types";
-import { Contract, Signer } from "ethers";
-import { TransactionResponse } from "ethers/providers";
+import { Contract, Event, Signer } from "ethers";
+import { TransactionReceipt, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "promise-queue";
 
@@ -16,18 +16,14 @@ import { ERRORS } from "../../errors";
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
-interface MultisigDeployment {
-  proxyFactory: Contract;
-  transactionHash: string;
-}
-
 class ChannelCreator extends NodeController {
   static async enqueueByShard(requestHandler: RequestHandler): Promise<Queue> {
     const queue = requestHandler.getShardedQueue("channelCreation");
+
     if (queue.getPendingLength() > 0) {
       console.log("waiting for pending requests");
     }
-    console.log(queue.getQueueLength());
+
     return await requestHandler.getShardedQueue("channelCreation");
   }
 
@@ -53,72 +49,71 @@ class ChannelCreator extends NodeController {
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
-    const {
-      proxyFactory,
-      transactionHash
-    } = await ChannelCreator.deployMinimumViableMultisigAndGetTransactionHash(
+    const tx = await ChannelCreator.sendMultisigDeployTransaction(
       params.owners,
       requestHandler.wallet,
       requestHandler.networkContext.MinimumViableMultisig,
       requestHandler.networkContext.ProxyFactory
     );
 
-    console.log("registering proxy creation callback");
-
-    proxyFactory.once("ProxyCreation", async multisigAddress => {
-      const payload = {
-        multisigAddress,
-        owners: params.owners
-      } as Node.CreateChannelResult;
-
-      const [respondingXpub] = params.owners.filter(
-        owner => owner !== requestHandler.publicIdentifier
+    tx.wait(1).then(receipt => {
+      ChannelCreator.handleDeployedMultisigOnChain.bind(this)(
+        receipt,
+        requestHandler,
+        params
       );
-
-      const setupQueue = requestHandler.getShardedQueue("setupProtocol");
-      await setupQueue.add(async () => {
-        console.log("running the setup protocol");
-        const stateChannelsMap = await requestHandler.instructionExecutor.runSetupProtocol(
-          {
-            multisigAddress,
-            respondingXpub,
-            initiatingXpub: requestHandler.publicIdentifier
-          }
-        );
-        console.log("saving new map to db");
-        await requestHandler.store.saveStateChannel(
-          stateChannelsMap.get(multisigAddress)!
-        );
-        console.log(stateChannelsMap);
-        console.log("ran the setup protocol");
-      });
-
-      const createChannelMsg: CreateChannelMessage = {
-        from: requestHandler.publicIdentifier,
-        type: NODE_EVENTS.CREATE_CHANNEL,
-        data: payload
-      };
-
-      await requestHandler.messagingService.send(
-        respondingXpub,
-        createChannelMsg
-      );
-
-      console.log("sending out create channel event: ", payload);
-      requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, payload);
     });
 
-    return {
-      transactionHash
-    };
+    return { transactionHash: tx.hash as string };
   }
 
-  static async deployMinimumViableMultisigAndGetTransactionHash(
+  static async handleDeployedMultisigOnChain(
+    receipt: TransactionReceipt,
+    requestHandler: RequestHandler,
+    params: Node.CreateChannelParams
+  ) {
+    const { owners } = params;
+    const {
+      publicIdentifier,
+      instructionExecutor,
+      messagingService,
+      store
+    } = requestHandler;
+
+    const multisigAddress = (receipt["events"] as Event[])!.pop()!.args![0];
+
+    const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
+
+    const executeSetupProtocol = async () =>
+      await store.saveStateChannel(
+        (await instructionExecutor.runSetupProtocol({
+          multisigAddress,
+          respondingXpub,
+          initiatingXpub: publicIdentifier
+        })).get(multisigAddress)!
+      );
+
+    await requestHandler
+      .getShardedQueue("setupProtocol")
+      .add(executeSetupProtocol);
+
+    const msg: CreateChannelMessage = {
+      from: publicIdentifier,
+      type: NODE_EVENTS.CREATE_CHANNEL,
+      data: { multisigAddress, owners } as Node.CreateChannelResult
+    };
+
+    await messagingService.send(respondingXpub, msg);
+
+    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
+  }
+
+  static async sendMultisigDeployTransaction(
     ownersPublicIdentifiers: string[],
     signer: Signer,
     multisigMasterCopyAddress: Address,
     proxyFactoryAddress: Address
-  ): Promise<MultisigDeployment> {
+  ): Promise<TransactionResponse> {
     // TODO: implement this using CREATE2
     const multisigOwnerAddresses = xkeysToSortedKthAddresses(
       ownersPublicIdentifiers,
@@ -150,10 +145,7 @@ class ChannelCreator extends NodeController {
         );
       }
 
-      return {
-        proxyFactory,
-        transactionHash: transaction.hash
-      };
+      return transaction;
     } catch (e) {
       return Promise.reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${e}`);
     }
