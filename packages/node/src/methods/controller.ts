@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/types";
-import Queue from "promise-queue";
+import Queue from "p-queue";
 
 import { RequestHandler } from "../request-handler";
 

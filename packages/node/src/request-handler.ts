@@ -3,7 +3,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
-import Queue from "promise-queue";
+import Queue from "p-queue";
 
 import {
   eventNameToImplementation,
@@ -12,8 +12,6 @@ import {
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
-
-Queue.configure(Promise);
 
 /**
  * This class registers handlers for requests to get or set some information

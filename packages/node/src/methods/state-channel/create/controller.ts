@@ -5,7 +5,7 @@ import { Address, Node } from "@counterfactual/types";
 import { Contract, Event, Signer } from "ethers";
 import { TransactionReceipt, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
-import Queue from "promise-queue";
+import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -20,7 +20,7 @@ class ChannelCreator extends NodeController {
   static async enqueueByShard(requestHandler: RequestHandler): Promise<Queue> {
     const queue = requestHandler.getShardedQueue("channelCreation");
 
-    if (queue.getPendingLength() > 0) {
+    if (queue.pending > 0) {
       console.log("waiting for pending requests");
     }
 
@@ -46,7 +46,7 @@ class ChannelCreator extends NodeController {
   static async executeMethod(
     // https://github.com/counterfactual/monorepo/issues/811
     // Removing the typing bypasses the error in the interim
-    requestHandler: RequestHandler,
+    requestHandler: any, // RequestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const tx = await ChannelCreator.sendMultisigDeployTransaction(
