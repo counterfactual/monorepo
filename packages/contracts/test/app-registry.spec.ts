@@ -92,14 +92,7 @@ describe("AppRegistry", () => {
         nonce,
         stateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: await wallet.signMessage(
-          computeStateHash(
-            appInstance.identityHash,
-            appState || HashZero,
-            nonce,
-            ONCHAIN_CHALLENGE_TIMEOUT
-          )
-        )
+        signatures: HashZero
       });
 
     sendSignedFinalizationToChain = async () =>
