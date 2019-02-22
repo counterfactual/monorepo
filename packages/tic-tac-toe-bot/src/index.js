@@ -195,6 +195,7 @@ class JsonFileStoreService {
     //   ETHVirtualAppAgreement: "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E"
     // }
   );
+    await connectNode(node);
   // console.log("public identifier", node.publicIdentifier)
   // messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
   //   console.log("received", NodeMessage)
@@ -279,6 +280,7 @@ function determineActionType(board, botPlayerNumber) {
   }
 }
 
+async function connectNode(node) {
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
@@ -378,3 +380,4 @@ function determineActionType(board, botPlayerNumber) {
 })();
 
 module.exports.takeTurn = takeTurn;
+module.exports.connectNode = connectNode;
