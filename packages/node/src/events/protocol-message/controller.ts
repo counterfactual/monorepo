@@ -26,6 +26,20 @@ export default async function protocolMessageEventController(
   console.log(`adding run protocol to the queue now`);
 
   await requestHandler.getShardedQueue("rootQueue").add(async () => {
+    console.log(
+      `----------------- beofre ${nodeMsg.data.protocol} -------------------`
+    );
+    console.log(
+      JSON.stringify(
+        Object.values(await requestHandler.store.getAllChannels()).map(x => [
+          x.multisigAddress,
+          x.numInstalledApps
+        ]),
+        null,
+        2
+      )
+    );
+
     const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
       nodeMsg.data,
       new Map<string, StateChannel>(
@@ -39,9 +53,17 @@ export default async function protocolMessageEventController(
     );
 
     console.log(
-      JSON.stringify([...stateChannelsMap.values()].map(x => x.toJson())),
-      null,
-      2
+      `----------------- after ${nodeMsg.data.protocol} -------------------`
+    );
+    console.log(
+      JSON.stringify(
+        Object.values(await requestHandler.store.getAllChannels()).map(x => [
+          x.multisigAddress,
+          x.numInstalledApps
+        ]),
+        null,
+        2
+      )
     );
 
     // TODO: Follow this pattern for all machine related events
@@ -68,6 +90,4 @@ export default async function protocolMessageEventController(
       requestHandler.outgoing.emit(withdrawMsg.type, withdrawMsg);
     }
   });
-
-  console.log(`done run protocol now`);
 }

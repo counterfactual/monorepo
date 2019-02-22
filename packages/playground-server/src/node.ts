@@ -58,7 +58,10 @@ export default class NodeWrapper {
     }
 
     const store =
-      storeService || serviceFactory.createStoreService("pg-server-store");
+      storeService ||
+      serviceFactory.createStoreService(
+        `${process.env.STORE_PREFIX}-pg-server-store`
+      );
 
     NodeWrapper.node = await NodeWrapper.createNode(
       network,
@@ -91,7 +94,7 @@ export default class NodeWrapper {
     const messaging =
       messagingService || serviceFactory.createMessagingService("messaging");
 
-    if (!(await store.get(MNEMONIC_PATH)) && mnemonic) {
+    if (mnemonic) {
       await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
     }
 
