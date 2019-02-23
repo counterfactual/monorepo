@@ -23,23 +23,7 @@ export default async function protocolMessageEventController(
 ) {
   if (nodeMsg.data.seq === -1) return;
 
-  console.log(`adding run protocol to the queue now`);
-
   await requestHandler.getShardedQueue("rootQueue").add(async () => {
-    console.log(
-      `----------------- beofre ${nodeMsg.data.protocol} -------------------`
-    );
-    console.log(
-      JSON.stringify(
-        Object.values(await requestHandler.store.getAllChannels()).map(x => [
-          x.multisigAddress,
-          x.numInstalledApps
-        ]),
-        null,
-        2
-      )
-    );
-
     const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
       nodeMsg.data,
       new Map<string, StateChannel>(
