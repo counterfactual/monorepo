@@ -51,7 +51,7 @@ export default class CreateChannelController extends NodeController {
 
     tx.wait(CONFIRMATION_NUM_BLOCKS).then(receipt => {
       requestHandler
-        .getShardedQueue("rootQueue")
+        .getShardedQueue("uniqueQueueForSendingBlockchainTx")
         .add(() =>
           this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
         );

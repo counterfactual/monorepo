@@ -10,10 +10,7 @@ export abstract class NodeController {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Node.MethodResult> {
-    // TODO: Enable per-controller queueing
-    // const shardedQueue = await this.enqueueByShard(requestHandler, params);
-
-    const shardedQueue = requestHandler.getShardedQueue("rootQueue");
+    const shardedQueue = await this.enqueueByShard(requestHandler, params);
 
     const execute = async () => {
       return await this.executeMethodImplementation(requestHandler, params);
