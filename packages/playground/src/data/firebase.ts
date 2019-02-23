@@ -106,6 +106,10 @@ class FirebaseMessagingService implements IMessagingService {
         console.error("Incorrect message received", msg);
       }
 
+      await this.firebase
+        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+        .remove();
+
       try {
         callback(msg);
       } catch (error) {
@@ -113,10 +117,6 @@ class FirebaseMessagingService implements IMessagingService {
           "Encountered an error while handling message callback",
           error
         );
-      } finally {
-        await this.firebase
-          .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
-          .remove();
       }
     };
 

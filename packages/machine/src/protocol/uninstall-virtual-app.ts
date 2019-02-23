@@ -216,7 +216,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // verify M8
     (message: ProtocolMessage, context: Context) => {
-      console.log("inbox.length=", context.inbox.length);
       const { respondingXpub } = message.params as UninstallVirtualAppParams;
       validateSignature(
         xkeyKthAddress(respondingXpub, 0),

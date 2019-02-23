@@ -363,7 +363,7 @@ export class Node {
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
-      this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
+      await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
       await this.requestHandler.callEvent(msg.type, msg);
     }

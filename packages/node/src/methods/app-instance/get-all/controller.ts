@@ -1,6 +1,7 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
+import { NodeController } from "../../controller";
 
 import {
   getAppInstanceInfoFromAppInstance,
@@ -11,45 +12,53 @@ import {
  * Gets all installed appInstances across all of the channels open on
  * this Node.
  */
-export default async function getInstalledAppInstancesController(
-  requestHandler: RequestHandler,
-  params: Node.GetAppInstancesParams
-): Promise<Node.GetAppInstancesResult> {
-  const appInstances: AppInstanceInfo[] = [];
+export default class GetAppInstancesController extends NodeController {
+  public static readonly methodName = Node.MethodName.GET_APP_INSTANCES;
 
-  const channels = await requestHandler.store.getAllChannels();
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.GetAppInstancesParams
+  ): Promise<Node.GetAppInstancesResult> {
+    const { store } = requestHandler;
 
-  for (const channel of Object.values(channels)) {
-    if (channel.appInstances) {
-      const nonFreeBalanceAppInstances = getNonFreeBalanceAppInstances(channel);
+    const appInstances: AppInstanceInfo[] = [];
 
-      const appInstanceInfos = await getAppInstanceInfoFromAppInstance(
-        requestHandler.store,
-        nonFreeBalanceAppInstances
-      );
+    const channels = await store.getAllChannels();
 
-      appInstances.push(
-        // FIXME: shouldn't have to filter for null
-        ...Object.values(appInstanceInfos).filter(appInstanceInfo => {
-          if (appInstanceInfo === null) {
-            console.warn(
-              "Found null value in array of appInstanceInfos returned from DB"
-            );
-            return false;
-          }
-          return true;
-        })
-      );
-    } else {
-      console.log(
-        `No app instances exist for channel with multisig address: ${
-          channel.multisigAddress
-        }`
-      );
+    for (const channel of Object.values(channels)) {
+      if (channel.appInstances) {
+        const nonFreeBalanceAppInstances = getNonFreeBalanceAppInstances(
+          channel
+        );
+
+        const appInstanceInfos = await getAppInstanceInfoFromAppInstance(
+          store,
+          nonFreeBalanceAppInstances
+        );
+
+        appInstances.push(
+          // FIXME: shouldn't have to filter for null
+          ...Object.values(appInstanceInfos).filter(appInstanceInfo => {
+            if (appInstanceInfo === null) {
+              console.warn(
+                "Found null value in array of appInstanceInfos returned from DB"
+              );
+              return false;
+            }
+            return true;
+          })
+        );
+      } else {
+        console.log(
+          `No app instances exist for channel with multisig address: ${
+            channel.multisigAddress
+          }`
+        );
+      }
     }
-  }
 
-  return {
-    appInstances
-  };
+    return {
+      appInstances
+    };
+  }
 }
