@@ -47,7 +47,7 @@ export async function getMultisigCreationTransactionHash(
  * @param node
  * @returns list of multisig addresses
  */
-export async function getChannelAddresses(node: Node): Promise<Address[]> {
+export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
@@ -55,7 +55,7 @@ export async function getChannelAddresses(node: Node): Promise<Address[]> {
   };
   const response: NodeTypes.MethodResponse = await node.call(req.type, req);
   const result = response.result as NodeTypes.GetChannelAddressesResult;
-  return result.multisigAddresses;
+  return new Set(result.multisigAddresses);
 }
 
 export async function getInstalledAppInstances(

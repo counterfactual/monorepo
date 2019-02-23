@@ -3,6 +3,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
+import Queue from "p-queue";
 
 import {
   eventNameToImplementation,
@@ -19,7 +20,9 @@ import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 export class RequestHandler {
   private methods = new Map();
   private events = new Map();
+  private shardedQueues = new Map<string, Queue>();
   store: Store;
+
   constructor(
     readonly publicIdentifier: string,
     readonly incoming: EventEmitter,
@@ -93,5 +96,14 @@ export class RequestHandler {
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
     await this.events.get(event)(this, msg);
+  }
+
+  public getShardedQueue(shardKey: string): Queue {
+    let shardedQueue: Queue;
+    if (!this.shardedQueues.has(shardKey)) {
+      shardedQueue = new Queue({ concurrency: 1 });
+      this.shardedQueues.set(shardKey, shardedQueue);
+    }
+    return this.shardedQueues.get(shardKey)!;
   }
 }

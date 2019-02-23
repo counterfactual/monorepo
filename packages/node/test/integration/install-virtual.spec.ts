@@ -109,7 +109,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   intermediaries
                 );
 
-                nodeA.on(
+                nodeA.once(
                   NODE_EVENTS.INSTALL_VIRTUAL,
                   async (msg: InstallVirtualMessage) => {
                     const virtualAppInstanceNodeA = (await getApps(
@@ -129,7 +129,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   }
                 );
 
-                nodeC.on(
+                nodeC.once(
                   NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
                   async (msg: ProposeVirtualMessage) => {
                     const proposedAppInstanceA = (await getProposedAppInstances(
@@ -203,7 +203,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   intermediaries
                 );
 
-                nodeA.on(
+                nodeA.once(
                   NODE_EVENTS.INSTALL_VIRTUAL,
                   async (msg: InstallVirtualMessage) => {
                     const virtualAppInstanceNodeA = (await getApps(
@@ -223,7 +223,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   }
                 );
 
-                nodeC.on(
+                nodeC.once(
                   NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
                   async (msg: ProposeVirtualMessage) => {
                     const proposedAppInstanceA = (await getProposedAppInstances(

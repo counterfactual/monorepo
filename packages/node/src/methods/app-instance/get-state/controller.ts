@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
+import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
 import { getAppInstanceState } from "./operation";
@@ -10,15 +11,22 @@ import { getAppInstanceState } from "./operation";
  * @param this
  * @param params
  */
-export default async function getAppInstanceStateController(
-  requestHandler: RequestHandler,
-  params: Node.GetStateParams
-): Promise<Node.GetStateResult> {
-  if (!params.appInstanceId) {
-    Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
-  }
+export default class GetStateController extends NodeController {
+  public static readonly methodName = Node.MethodName.GET_STATE;
 
-  return {
-    state: await getAppInstanceState(params.appInstanceId, requestHandler.store)
-  };
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.GetStateParams
+  ): Promise<Node.GetStateResult> {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+
+    if (!appInstanceId) {
+      Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
+    }
+
+    return {
+      state: await getAppInstanceState(appInstanceId, store)
+    };
+  }
 }

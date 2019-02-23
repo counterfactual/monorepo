@@ -13,13 +13,15 @@ const globals = {
   "ethers/utils": "ethers.utils",
   "ethers/wallet": "ethers.wallet",
   firebase: "firebase",
+  events: "EventEmitter",
   uuid: "uuid"
 };
 
 const bundledDependencies = new Set([
   "@counterfactual/machine",
   "@counterfactual/types",
-  "typescript-memoize"
+  "typescript-memoize",
+  "p-queue"
 ]);
 
 const external = [
