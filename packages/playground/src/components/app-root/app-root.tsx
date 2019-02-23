@@ -31,7 +31,6 @@ export class AppRoot {
   async updateAccount(newProps: AccountState) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
-    return this.accountState;
   }
 
   async updateNetwork(newProps: NetworkState) {
@@ -87,13 +86,12 @@ export class AppRoot {
         const allKeys = Object.keys(window.localStorage);
         for (const key of allKeys) {
           if (key.includes(desiredKey)) {
-            entries[key] = JSON.parse(window.localStorage.getItem(
-              key
-            ) as string);
+            const val = JSON.parse(window.localStorage.getItem(key) as string);
+            if (key === desiredKey) return val;
+            entries[key] = val;
+          } else if (key === desiredKey) {
+            return JSON.parse(window.localStorage.getItem(key) as string);
           }
-        }
-        if (Object.keys(entries).length === 1) {
-          return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
         }
         for (const key of Object.keys(entries)) {
           const leafKey = key.split("/")[key.split("/").length - 1];
@@ -213,8 +211,8 @@ export class AppRoot {
     };
   }
 
-  async deposit(value: string) {
-    const { user, accountBalance } = this.accountState;
+  async deposit(value: string, multisigAddress: string) {
+    const { accountBalance } = this.accountState;
     const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
@@ -231,8 +229,8 @@ export class AppRoot {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
-          multisigAddress: user.multisigAddress,
-          amount: ethers.utils.parseEther(value),
+          multisigAddress,
+          amount: ethers.utils.parseEther(value.toString()),
           notifyCounterparty: true
         } as Node.DepositParams
       });
@@ -263,7 +261,7 @@ export class AppRoot {
         requestId: window["uuid"](),
         params: {
           multisigAddress: user.multisigAddress,
-          amount: ethers.utils.parseEther(value)
+          amount: ethers.utils.parseEther(value.toString())
         } as Node.WithdrawParams
       });
     } catch (e) {
@@ -277,31 +275,14 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    setTimeout(async () => {
-      const { token } = this.accountState.user;
-      const user = await PlaygroundAPIClient.getUser(token as string);
+    const { provider, user } = this.accountState;
 
-      if (!user.multisigAddress) {
-        this.waitForMultisig();
-        return;
-      }
-
-      await this.setMultisig(user.multisigAddress);
-      await this.requestToDepositInitialFunding();
-    }, 5000);
+    provider.once(user.transactionHash, async () => {
+      await this.fetchMultisig();
+    });
   }
 
-  async setMultisig(multisigAddress: string) {
-    if (!this.accountState.user.multisigAddress) {
-      this.accountState.user.multisigAddress = multisigAddress;
-      const updatedAccount = await this.updateAccount(this.accountState);
-      if (!updatedAccount.user.multisigAddress) {
-        await this.setMultisig(multisigAddress);
-      }
-    }
-  }
-
-  async requestToDepositInitialFunding() {
+  async requestToDepositInitialFunding(multisigAddress: string) {
     const { pendingAccountFunding } = this.accountState;
 
     if (pendingAccountFunding) {
@@ -312,17 +293,39 @@ export class AppRoot {
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
           onPrimaryButtonClicked={() =>
-            this.confirmDepositInitialFunding(pendingAccountFunding)
+            this.confirmDepositInitialFunding(
+              pendingAccountFunding,
+              multisigAddress
+            )
           }
         />
       );
     }
   }
 
-  async confirmDepositInitialFunding(pendingAccountFunding) {
+  async fetchMultisig(token?: string) {
+    let userToken = token;
+    if (!userToken) {
+      userToken = this.accountState.user.token;
+    }
+
+    const user = await PlaygroundAPIClient.getUser(userToken as string);
+    this.updateAccount({ ...this.accountState, user });
+
+    if (!user.multisigAddress) {
+      setTimeout(this.fetchMultisig.bind(this, userToken), 2500);
+    } else {
+      await this.requestToDepositInitialFunding(user.multisigAddress);
+    }
+  }
+
+  async confirmDepositInitialFunding(
+    pendingAccountFunding,
+    multisigAddress: string
+  ) {
     this.modal = {};
 
-    await this.deposit(pendingAccountFunding);
+    await this.deposit(pendingAccountFunding, multisigAddress);
 
     this.updateAccount({
       ...this.accountState,
