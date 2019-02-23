@@ -795,10 +795,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
-"@ebryn/jsonapi-ts@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.0.2.tgz#fa303da48468a9f74f326dedefed272326499c76"
-  integrity sha512-Jz8pLv60gKD7IfINGELYmlUvQNZcx1Ngu903l2izm4LmJlYLIGu1Nb61ySR9CVDCIlg//jjQt/pudYEgZhRIxw==
+"@ebryn/jsonapi-ts@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.0.3.tgz#062c7d451e2f9a706c2baf2dde8c30cbeacbf264"
+  integrity sha512-kCSOs2a60TYwKVBOK5OF61++w1Fjatlyi1Jg/VC5AYUDo6toIzcF+Flk+F3+bcubnp6HmQw+g4JbyF0nmXXGVA==
   dependencies:
     "@koa/cors" "^2.2.3"
     camelize "^1.0.0"
@@ -10496,7 +10496,7 @@ jest@23.6.0:
     import-local "^1.0.0"
     jest-cli "^23.6.0"
 
-jest@^24.0.0, jest@^24.1.0:
+jest@^24.1.0:
   version "24.1.0"
   resolved "https://registry.npmjs.org/jest/-/jest-24.1.0.tgz#b1e1135caefcf2397950ecf7f90e395fde866fd2"
   integrity sha512-+q91L65kypqklvlRFfXfdzUKyngQLOcwGhXQaLmVHv+d09LkNXuBuGxlofTFW42XMzu3giIcChchTsCNUjQ78A==
@@ -12985,6 +12985,11 @@ p-pipe@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/p-pipe/-/p-pipe-1.2.0.tgz#4b1a11399a11520a67790ee5a0c1d5881d6befe9"
   integrity sha1-SxoROZoRUgpneQ7loMHViB1r7+k=
+
+p-queue@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/p-queue/-/p-queue-3.1.0.tgz#08e5f52a9f37ddd76bb7c58036362a11c27febbf"
+  integrity sha512-kFa39NE4N0+fua9kdI/w8FPB0Gmv0lenS+2FQ7J/8dL4hbnfk1AqXSZJXuUKI2HL1GMzzyPSepwGKqsTmP2dDQ==
 
 p-reduce@^1.0.0:
   version "1.0.0"
@@ -16023,7 +16028,7 @@ sol-explore@^1.6.2:
 
 solc@0.5.0:
   version "0.5.0"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
+  resolved "https://registry.npmjs.org/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
   integrity sha512-mdLHDl9WeYrN+FIKcMc9PlPfnA9DG9ur5QpCDKcv6VC4RINAsTF4EMuXMZMKoQTvZhtLyJIVH/BZ+KU830Z8Xg==
   dependencies:
     fs-extra "^0.30.0"
@@ -17252,7 +17257,7 @@ truffle-flattener@^1.2.8:
     truffle-resolver "^4.0.4"
     tsort "0.0.1"
 
-truffle-hdwallet-provider@1.0.4, truffle-hdwallet-provider@^1.0.4:
+truffle-hdwallet-provider@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.4.tgz#f00ea8dbf8c243dad551f3f68813e09d159c8174"
   integrity sha512-Z9LzA+SMH2kH52WJEcIoIbo+OY6aO4/uVCxqEIo0J+pJ4COuGLlLkM74pA6JAEf8Dr9o7sDtxMvuA7qbgjPhvQ==

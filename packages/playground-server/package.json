@@ -26,8 +26,8 @@
     "disabled-postinstall": "npm run build-ts",
     "lint": "tslint -c tslint.json -p .",
     "serve": "node dist/",
-    "start": "env-cmd development --fallback ./.env.local ts-node src/",
-    "test": "env-cmd test --fallback ./.env.local jest --forceExit",
+    "start": "env-cmd development --fallback ts-node src/",
+    "test": "env-cmd test --fallback jest --forceExit",
     "test:ci": "env-cmd test --fallback jest --forceExit"
   },
   "bugs": {
@@ -36,7 +36,7 @@
   "dependencies": {
     "@counterfactual/node": "^0.0.1",
     "@counterfactual/types": "^0.0.1",
-    "@ebryn/jsonapi-ts": "^0.0.2",
+    "@ebryn/jsonapi-ts": "^0.0.3",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
     "jsonwebtoken": "^8.4.0",
@@ -56,8 +56,9 @@
     "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "env-cmd": "^8.0.2",
-    "jest": "^24.0.0",
+    "jest": "^24.1.0",
     "sqlite3": "^4.0.4",
+    "ts-jest": "24.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.2"

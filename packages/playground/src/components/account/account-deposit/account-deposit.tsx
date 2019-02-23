@@ -32,8 +32,8 @@ export class AccountDeposit {
     );
   }
 
-  async formSubmissionHandler(e) {
-    this.amountDeposited = ethers.utils.parseEther(e.target.value);
+  async formSubmitionHandler(e) {
+    this.amountDeposited = e.target.value;
 
     try {
       if (this.user.multisigAddress) {
@@ -42,19 +42,17 @@ export class AccountDeposit {
           requestId: window["uuid"](),
           params: {
             multisigAddress: this.user.multisigAddress,
-            amount: this.amountDeposited,
+            amount: ethers.utils.parseEther(this.amountDeposited),
             notifyCounterparty: true
           } as Node.DepositParams
         });
 
         this.updateAccount({
-          unconfirmedBalance: parseFloat(
-            ethers.utils.formatEther(this.amountDeposited)
-          )
+          unconfirmedBalance: parseFloat(this.amountDeposited)
         });
       } else {
         this.updateAccount({
-          pendingAccountFunding: this.amountDeposited
+          pendingAccountFunding: parseFloat(this.amountDeposited)
         });
       }
       this.history.push("/");
@@ -74,7 +72,7 @@ export class AccountDeposit {
         </p>
 
         <account-eth-form
-          onSubmit={e => this.formSubmissionHandler(e)}
+          onSubmit={e => this.formSubmitionHandler(e)}
           button="Proceed"
           available={this.balance}
           error={this.error}

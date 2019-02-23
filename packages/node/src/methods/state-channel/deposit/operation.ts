@@ -47,11 +47,13 @@ export async function installBalanceRefundApp(
   );
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
+
   const initialState: ETHBalanceRefundAppState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
     threshold: await provider.getBalance(params.multisigAddress)
   };
+
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -116,8 +118,6 @@ export async function makeDeposit(
     }
 
     await provider.waitForTransaction(txResponse.hash!);
-
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
     throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);

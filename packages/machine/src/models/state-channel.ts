@@ -288,11 +288,11 @@ export class StateChannel {
       ethBucketAddress
     );
 
-    const appInstances = new Map<string, AppInstance>();
-    appInstances.set(fb.identityHash, fb);
+    const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>();
-    freeBalanceAppIndexes.set(AssetType.ETH, fb.identityHash);
+    const freeBalanceAppIndexes = new Map<AssetType, string>([
+      [AssetType.ETH, fb.identityHash]
+    ]);
 
     return new StateChannel(
       multisigAddress,

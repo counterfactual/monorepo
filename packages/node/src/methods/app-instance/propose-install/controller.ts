@@ -1,7 +1,9 @@
 import { Node } from "@counterfactual/types";
+import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
+import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
@@ -12,35 +14,43 @@ import { createProposedAppInstance } from "./operation";
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
-export default async function proposeInstallAppInstanceController(
-  requestHandler: RequestHandler,
-  params: Node.ProposeInstallParams
-): Promise<Node.ProposeInstallResult> {
-  if (!params.initialState) {
-    return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+export default class ProposeInstallController extends NodeController {
+  public static readonly methodName = Node.MethodName.PROPOSE_INSTALL;
+
+  protected async enqueueByShard(
+    requestHandler: RequestHandler,
+    params: Node.ProposeInstallParams
+  ): Promise<Queue> {
+    return requestHandler.getShardedQueue("proposals");
   }
 
-  const appInstanceId = await createProposedAppInstance(
-    requestHandler.publicIdentifier,
-    requestHandler.store,
-    params
-  );
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.ProposeInstallParams
+  ): Promise<Node.ProposeInstallResult> {
+    const { store, publicIdentifier, messagingService } = requestHandler;
+    const { initialState } = params;
 
-  const proposalMsg: ProposeMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.PROPOSE_INSTALL,
-    data: {
-      params,
-      appInstanceId
+    if (!initialState) {
+      return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
-  };
 
-  await requestHandler.messagingService.send(
-    params.proposedToIdentifier,
-    proposalMsg
-  );
+    const appInstanceId = await createProposedAppInstance(
+      publicIdentifier,
+      store,
+      params
+    );
 
-  return {
-    appInstanceId
-  };
+    const proposalMsg: ProposeMessage = {
+      from: publicIdentifier,
+      type: NODE_EVENTS.PROPOSE_INSTALL,
+      data: { params, appInstanceId }
+    };
+
+    await messagingService.send(params.proposedToIdentifier, proposalMsg);
+
+    return {
+      appInstanceId
+    };
+  }
 }
