@@ -211,23 +211,67 @@ export class AppRoot {
     };
   }
 
-  async deposit(value, multisigAddress: string) {
+  async deposit(value: string, multisigAddress: string) {
+    const { accountBalance } = this.accountState;
+    const valueInWei = parseInt(value, 10);
+    const node = CounterfactualNode.getInstance();
+
+    debugger;
+
+    this.updateAccount({
+      ...this.accountState,
+      accountBalance: (accountBalance as number) - valueInWei,
+      unconfirmedBalance: (this.accountState.balance as number) + valueInWei
+    });
+
+    try {
+      return node.call(Node.MethodName.DEPOSIT, {
+        type: Node.MethodName.DEPOSIT,
+        requestId: window["uuid"](),
+        params: {
+          multisigAddress,
+          amount: ethers.utils.parseEther(value.toString()),
+          notifyCounterparty: true
+        } as Node.DepositParams
+      });
+    } catch (e) {
+      this.updateAccount({
+        ...this.accountState,
+        accountBalance: (accountBalance as number) + valueInWei,
+        unconfirmedBalance: undefined
+      });
+      throw e;
+    }
+  }
+
+  async withdraw(value: string) {
+    const { user, accountBalance } = this.accountState;
+    const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
     this.updateAccount({
       ...this.accountState,
-      unconfirmedBalance: parseFloat(ethers.utils.formatEther(value))
+      accountBalance: (accountBalance as number) + valueInWei,
+      unconfirmedBalance: (this.accountState.balance as number) - valueInWei
     });
 
-    return node.call(Node.MethodName.DEPOSIT, {
-      type: Node.MethodName.DEPOSIT,
-      requestId: window["uuid"](),
-      params: {
-        multisigAddress,
-        amount: value,
-        notifyCounterparty: true
-      } as Node.DepositParams
-    });
+    try {
+      return node.call(Node.MethodName.WITHDRAW, {
+        type: Node.MethodName.WITHDRAW,
+        requestId: window["uuid"](),
+        params: {
+          multisigAddress: user.multisigAddress,
+          amount: ethers.utils.parseEther(value.toString())
+        } as Node.WithdrawParams
+      });
+    } catch (e) {
+      this.updateAccount({
+        ...this.accountState,
+        accountBalance: (accountBalance as number) - valueInWei,
+        unconfirmedBalance: undefined
+      });
+      throw e;
+    }
   }
 
   waitForMultisig() {
@@ -325,7 +369,8 @@ export class AppRoot {
       login: this.login.bind(this),
       getBalances: this.getBalances.bind(this),
       autoLogin: this.autoLogin.bind(this),
-      deposit: this.deposit.bind(this)
+      deposit: this.deposit.bind(this),
+      withdraw: this.withdraw.bind(this)
     };
 
     this.networkState.updateNetwork = this.updateNetwork.bind(this);
