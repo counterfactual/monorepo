@@ -24,7 +24,7 @@ export class NodeListener {
   @State() private currentErrorType: any;
 
   @Prop() apps: AppDefinition[] = [];
-  @State() networkState: NetworkState = {};
+  @Prop() web3Detected: boolean = false;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() provider: Web3Provider = {} as Web3Provider;
   @Prop() balance: any;
@@ -40,7 +40,7 @@ export class NodeListener {
   }
 
   async componentWillLoad() {
-    if (this.networkState.web3Detected) {
+    if (this.web3Detected) {
       this.bindNodeEvents();
     }
   }
@@ -190,4 +190,4 @@ export class NodeListener {
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
 AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
-NetworkTunnel.injectProps(NodeListener, ["network"]);
+NetworkTunnel.injectProps(NodeListener, ["web3Detected"]);
