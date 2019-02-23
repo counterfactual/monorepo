@@ -54,11 +54,6 @@ export async function installBalanceRefundApp(
     threshold: await provider.getBalance(params.multisigAddress)
   };
 
-  console.log(
-    `${requestHandler.publicIdentifier.substr(0, 6)} beginning deposit`
-  );
-
-  console.log("initiating install protocol");
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -115,7 +110,6 @@ export async function makeDeposit(
   try {
     let txResponse: TransactionResponse;
 
-    console.log("sending tx to chain...");
     if (provider instanceof JsonRpcProvider) {
       const signer = await provider.getSigner();
       txResponse = await signer.sendTransaction(tx);
@@ -124,7 +118,6 @@ export async function makeDeposit(
     }
 
     await provider.waitForTransaction(txResponse.hash!);
-    console.log("tx confirmed on chain");
   } catch (e) {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
     throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
@@ -163,7 +156,6 @@ export async function uninstallBalanceRefundApp(
     afterDepositBalance
   );
 
-  console.log("initiating uninstall protocol");
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([

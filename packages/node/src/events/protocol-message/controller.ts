@@ -52,20 +52,6 @@ export default async function protocolMessageEventController(
         await requestHandler.store.saveStateChannel(stateChannel)
     );
 
-    console.log(
-      `----------------- after ${nodeMsg.data.protocol} -------------------`
-    );
-    console.log(
-      JSON.stringify(
-        Object.values(await requestHandler.store.getAllChannels()).map(x => [
-          x.multisigAddress,
-          x.numInstalledApps
-        ]),
-        null,
-        2
-      )
-    );
-
     // TODO: Follow this pattern for all machine related events
     if (nodeMsg.data.protocol === Protocol.UninstallVirtualApp) {
       const uninstallMsg: UninstallMessage = {

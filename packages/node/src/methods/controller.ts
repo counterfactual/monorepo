@@ -10,42 +10,16 @@ export abstract class NodeController {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Node.MethodResult> {
+    // TODO: Enable per-controller queueing
     // const shardedQueue = await this.enqueueByShard(requestHandler, params);
 
     const shardedQueue = requestHandler.getShardedQueue("rootQueue");
 
     const execute = async () => {
-      console.log(`----------------- beofre node method -------------------`);
-      console.log(
-        JSON.stringify(
-          Object.values(await requestHandler.store.getAllChannels()).map(x => [
-            x.multisigAddress,
-            x.numInstalledApps
-          ]),
-          null,
-          2
-        )
-      );
       return await this.executeMethodImplementation(requestHandler, params);
     };
 
-    console.log(`adding method to the queue now`);
-
-    const ret = await (shardedQueue ? shardedQueue.add(execute) : execute());
-
-    console.log(`----------------- after node method -------------------`);
-    console.log(
-      JSON.stringify(
-        Object.values(await requestHandler.store.getAllChannels()).map(x => [
-          x.multisigAddress,
-          x.numInstalledApps
-        ]),
-        null,
-        2
-      )
-    );
-
-    return ret;
+    return await (shardedQueue ? shardedQueue.add(execute) : execute());
   }
 
   protected abstract executeMethodImplementation(

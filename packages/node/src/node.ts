@@ -194,8 +194,6 @@ export class Node {
 
         this.ioSendDeferrals.set(key, deferral);
 
-        console.log(`setting io_send deferral ${key}`);
-
         const counterpartyResponse = deferral.promise;
 
         await this.messagingService.send(to, {
@@ -205,8 +203,6 @@ export class Node {
         } as NodeMessageWrappedProtocolMessage);
 
         const msg = await counterpartyResponse;
-
-        console.log(`received reply to io_send deferral ${key}`);
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)
@@ -317,7 +313,6 @@ export class Node {
     method: NodeTypes.MethodName,
     req: NodeTypes.MethodRequest
   ): Promise<NodeTypes.MethodResponse> {
-    console.log(`--------- NODE GOT CALLED: ${method}-------`);
     return this.requestHandler.callMethod(method, req);
   }
 
@@ -370,8 +365,6 @@ export class Node {
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      console.log(`-----------received ${msg.type} ------------`);
-      console.log(msg);
       await this.requestHandler.callEvent(msg.type, msg);
     }
   }

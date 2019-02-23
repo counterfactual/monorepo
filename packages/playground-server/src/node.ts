@@ -149,13 +149,11 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   }
 
   try {
-    console.log("depositing");
     await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
       requestId: generateUUID(),
       type: NodeTypes.MethodName.DEPOSIT,
       params: response.data as NodeTypes.DepositParams
     });
-    console.error("Server deposited successfully");
   } catch (e) {
     console.error("Failed to deposit on the server...", e);
   }
