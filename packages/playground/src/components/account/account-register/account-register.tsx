@@ -5,8 +5,8 @@ import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
 import CounterfactualNode from "../../../data/counterfactual";
-import NetworkTunnel from "../../../data/network";
 import PlaygroundAPIClient from "../../../data/playground-api-client";
+import WalletTunnel from "../../../data/wallet";
 import { UserChangeset, UserSession } from "../../../types";
 
 function buildRegistrationSignaturePayload(data: UserChangeset) {
@@ -222,4 +222,4 @@ export class AccountRegister {
 
 AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user", "signer"]);
 
-NetworkTunnel.injectProps(AccountRegister, ["connected"]);
+WalletTunnel.injectProps(AccountRegister, ["connected"]);

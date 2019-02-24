@@ -8,8 +8,8 @@ import AccountTunnel, { AccountState } from "../../data/account";
 import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider from "../../data/firebase";
-import NetworkTunnel, { NetworkState } from "../../data/network";
 import PlaygroundAPIClient from "../../data/playground-api-client";
+import WalletTunnel, { WalletState } from "../../data/wallet";
 
 @Component({
   tag: "app-root",
@@ -19,7 +19,7 @@ import PlaygroundAPIClient from "../../data/playground-api-client";
 export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
-  @State() networkState: NetworkState = {};
+  @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
 
   modal: JSX.Element = <div />;
@@ -33,8 +33,8 @@ export class AppRoot {
     this.bindProviderEvents();
   }
 
-  async updateNetwork(newProps: NetworkState) {
-    this.networkState = { ...this.networkState, ...newProps };
+  async updateNetwork(newProps: WalletState) {
+    this.walletState = { ...this.walletState, ...newProps };
   }
 
   async updateAppRegistry(newProps: AppRegistryState) {
@@ -216,8 +216,6 @@ export class AppRoot {
     const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
-    debugger;
-
     this.updateAccount({
       ...this.accountState,
       accountBalance: (accountBalance as number) - valueInWei,
@@ -373,7 +371,7 @@ export class AppRoot {
       withdraw: this.withdraw.bind(this)
     };
 
-    this.networkState.updateNetwork = this.updateNetwork.bind(this);
+    this.walletState.updateNetwork = this.updateNetwork.bind(this);
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {
@@ -381,7 +379,7 @@ export class AppRoot {
     }
 
     return (
-      <NetworkTunnel.Provider state={this.networkState}>
+      <WalletTunnel.Provider state={this.walletState}>
         <AccountTunnel.Provider state={this.accountState}>
           <AppRegistryTunnel.Provider state={this.appRegistryState}>
             <div class="app-root wrapper">
@@ -408,13 +406,13 @@ export class AppRoot {
               </main>
               <webthree-connector
                 accountState={this.accountState}
-                networkState={this.networkState}
+                walletState={this.walletState}
               />
               {this.modal || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
-      </NetworkTunnel.Provider>
+      </WalletTunnel.Provider>
     );
   }
 }
