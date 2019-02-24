@@ -7,9 +7,15 @@ import { MatchResults } from "@stencil/router";
 import AccountTunnel, { AccountState } from "../../data/account";
 import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import FirebaseDataProvider from "../../data/firebase";
+import FirebaseDataProvider, {
+  FirebaseAppConfiguration
+} from "../../data/firebase";
 import NetworkTunnel, { NetworkState } from "../../data/network";
 import PlaygroundAPIClient from "../../data/playground-api-client";
+
+const TIER: string = "ENV:TIER";
+const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
+const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
 @Component({
   tag: "app-root",
@@ -74,7 +80,25 @@ export class AppRoot {
   async createNodeProvider() {
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
-    FirebaseDataProvider.create();
+    let configuration: FirebaseAppConfiguration = {
+      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+      authDomain: "foobar-91a31.firebaseapp.com",
+      databaseURL: "https://foobar-91a31.firebaseio.com",
+      projectId: "foobar-91a31",
+      storageBucket: "foobar-91a31.appspot.com",
+      messagingSenderId: "432199632441"
+    };
+    if (TIER === "dev") {
+      configuration = {
+        databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
+        projectId: "",
+        apiKey: "",
+        authDomain: "",
+        storageBucket: "",
+        messagingSenderId: ""
+      };
+    }
+    FirebaseDataProvider.create(configuration);
 
     const messagingService = FirebaseDataProvider.createMessagingService(
       "messaging"
@@ -215,8 +239,6 @@ export class AppRoot {
     const { accountBalance } = this.accountState;
     const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
-
-    debugger;
 
     this.updateAccount({
       ...this.accountState,

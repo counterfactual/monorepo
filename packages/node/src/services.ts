@@ -24,6 +24,15 @@ export interface FirebaseAppConfiguration {
   messagingSenderId: string;
 }
 
+export const EMPTY_FIREBASE_CONFIG = {
+  databaseURL: "",
+  projectId: "",
+  apiKey: "",
+  authDomain: "",
+  storageBucket: "",
+  messagingSenderId: ""
+};
+
 /**
  * This factory exposes default implementations of the service interfaces
  * described above, using Firebase as the implementation backend.
@@ -33,6 +42,13 @@ export class FirebaseServiceFactory {
 
   constructor(configuration: FirebaseAppConfiguration) {
     this.app = firebase.initializeApp(configuration);
+  }
+
+  static connect(host: string, port: string) {
+    return new FirebaseServiceFactory({
+      ...EMPTY_FIREBASE_CONFIG,
+      databaseURL: `ws://${host}:${port}`
+    });
   }
 
   createMessagingService(messagingServiceKey: string): IMessagingService {

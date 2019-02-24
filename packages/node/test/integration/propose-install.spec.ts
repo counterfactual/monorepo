@@ -6,8 +6,8 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   getInstalledAppInstanceInfo,
@@ -22,7 +22,7 @@ import {
 describe("Node method follows spec - proposeInstall", () => {
   jest.setTimeout(15000);
 
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -32,7 +32,7 @@ describe("Node method follows spec - proposeInstall", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
