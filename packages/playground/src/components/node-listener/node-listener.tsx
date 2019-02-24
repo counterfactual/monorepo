@@ -7,7 +7,7 @@ import { RouterHistory } from "@stencil/router";
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import NetworkTunnel, { NetworkState } from "../../data/network";
+import WalletTunnel, { WalletState } from "../../data/wallet";
 import { AppDefinition } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
@@ -190,4 +190,4 @@ export class NodeListener {
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
 AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
-NetworkTunnel.injectProps(NodeListener, ["web3Detected"]);
+WalletTunnel.injectProps(NodeListener, ["web3Detected"]);

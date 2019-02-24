@@ -9,7 +9,7 @@ import {
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
-import NetworkTunnel from "../../../../data/network";
+import WalletTunnel from "../../../../data/wallet";
 import { UserSession } from "../../../../types";
 
 @Component({
@@ -215,7 +215,7 @@ AccountTunnel.injectProps(HeaderAccount, [
   "autoLogin"
 ]);
 
-NetworkTunnel.injectProps(HeaderAccount, [
+WalletTunnel.injectProps(HeaderAccount, [
   "network",
   "web3Detected",
   "networkPermitted",
