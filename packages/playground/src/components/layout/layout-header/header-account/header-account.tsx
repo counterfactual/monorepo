@@ -9,7 +9,7 @@ import {
 } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
-import NetworkTunnel from "../../../../data/network";
+import WalletTunnel from "../../../../data/wallet";
 import { UserSession } from "../../../../types";
 
 @Component({
@@ -185,7 +185,7 @@ export class HeaderAccount {
         <div class="info-container">
           <stencil-route-link url="/exchange">
             <header-account-info
-              src="/assets/icon/cf.png"
+              src="/assets/icon/crypto.svg"
               header="Balance"
               content={this.ethBalance}
               spinner={this.hasUnconfirmedBalance || !this.user.multisigAddress}
@@ -194,7 +194,7 @@ export class HeaderAccount {
           </stencil-route-link>
           <stencil-route-link url="/account">
             <header-account-info
-              src="/assets/icon/account.png"
+              src="/assets/icon/account.svg"
               header="Account"
               content={this.user.username}
             />
@@ -215,7 +215,7 @@ AccountTunnel.injectProps(HeaderAccount, [
   "autoLogin"
 ]);
 
-NetworkTunnel.injectProps(HeaderAccount, [
+WalletTunnel.injectProps(HeaderAccount, [
   "network",
   "web3Detected",
   "networkPermitted",

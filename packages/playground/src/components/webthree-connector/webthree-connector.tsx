@@ -1,7 +1,7 @@
 import { Component, Prop } from "@stencil/core";
 
 import { AccountState } from "../../data/account";
-import { NetworkState } from "../../data/network";
+import { WalletState } from "../../data/wallet";
 
 const permittedNetworkIds = ["3"];
 
@@ -11,7 +11,7 @@ const permittedNetworkIds = ["3"];
 })
 export class Web3Connector {
   @Prop() accountState: AccountState = {} as AccountState;
-  @Prop() networkState: NetworkState = {};
+  @Prop() walletState: WalletState = {};
 
   getCurrentAddress() {
     return window["web3"].eth.accounts[0];
@@ -37,38 +37,38 @@ export class Web3Connector {
     return permittedNetworkIds.includes(this.getCurrentNetwork());
   }
 
-  async getCurrentNetworkState() {
-    const networkState: NetworkState = {
+  async getCurrentWalletState() {
+    const walletState: WalletState = {
       network: "",
       connected: false,
       metamaskUnlocked: false,
-      web3Detected: this.networkState.web3Detected,
-      web3Enabled: this.networkState.web3Enabled,
+      web3Detected: this.walletState.web3Detected,
+      web3Enabled: this.walletState.web3Enabled,
       networkPermitted: false,
       hasDetectedNetwork: true
     };
 
-    networkState.metamaskUnlocked = this.isUnlocked();
-    networkState.networkPermitted = this.isOnPermittedNetwork();
-    networkState.network = window["web3"].currentProvider.networkVersion;
+    walletState.metamaskUnlocked = this.isUnlocked();
+    walletState.networkPermitted = this.isOnPermittedNetwork();
+    walletState.network = window["web3"].currentProvider.networkVersion;
 
-    return networkState;
+    return walletState;
   }
 
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
-      return this.networkState.updateNetwork!({
+      return this.walletState.updateNetwork!({
         web3Detected: false,
         hasDetectedNetwork: true
       });
     }
 
-    this.networkState.updateNetwork!({ web3Detected: true });
+    this.walletState.updateNetwork!({ web3Detected: true });
 
-    const networkState = await this.getCurrentNetworkState();
+    const walletState = await this.getCurrentWalletState();
 
-    networkState.web3Enabled = true;
-    networkState.web3Detected = true;
+    walletState.web3Enabled = true;
+    walletState.web3Detected = true;
 
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
     let ethAddress = this.getCurrentAddress();
@@ -88,7 +88,7 @@ export class Web3Connector {
       accountBalance: 0
     });
 
-    this.networkState.updateNetwork!(networkState);
+    this.walletState.updateNetwork!(walletState);
 
     const interval = window.setInterval(async () => {
       const newAddress = this.getCurrentAddress();
@@ -99,7 +99,7 @@ export class Web3Connector {
       });
 
       if (newAddress !== ethAddress) {
-        this.networkState.updateNetwork!(await this.getCurrentNetworkState());
+        this.walletState.updateNetwork!(await this.getCurrentWalletState());
         ethAddress = newAddress;
 
         // Account was locked
