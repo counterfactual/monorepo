@@ -10,8 +10,8 @@ import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider, {
   FirebaseAppConfiguration
 } from "../../data/firebase";
-import NetworkTunnel, { NetworkState } from "../../data/network";
 import PlaygroundAPIClient from "../../data/playground-api-client";
+import WalletTunnel, { WalletState } from "../../data/wallet";
 
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
@@ -25,7 +25,7 @@ const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
-  @State() networkState: NetworkState = {};
+  @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
 
   modal: JSX.Element = <div />;
@@ -39,8 +39,8 @@ export class AppRoot {
     this.bindProviderEvents();
   }
 
-  async updateNetwork(newProps: NetworkState) {
-    this.networkState = { ...this.networkState, ...newProps };
+  async updateNetwork(newProps: WalletState) {
+    this.walletState = { ...this.walletState, ...newProps };
   }
 
   async updateAppRegistry(newProps: AppRegistryState) {
@@ -395,7 +395,7 @@ export class AppRoot {
       withdraw: this.withdraw.bind(this)
     };
 
-    this.networkState.updateNetwork = this.updateNetwork.bind(this);
+    this.walletState.updateNetwork = this.updateNetwork.bind(this);
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {
@@ -403,7 +403,7 @@ export class AppRoot {
     }
 
     return (
-      <NetworkTunnel.Provider state={this.networkState}>
+      <WalletTunnel.Provider state={this.walletState}>
         <AccountTunnel.Provider state={this.accountState}>
           <AppRegistryTunnel.Provider state={this.appRegistryState}>
             <div class="app-root wrapper">
@@ -430,13 +430,13 @@ export class AppRoot {
               </main>
               <webthree-connector
                 accountState={this.accountState}
-                networkState={this.networkState}
+                walletState={this.walletState}
               />
               {this.modal || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
-      </NetworkTunnel.Provider>
+      </WalletTunnel.Provider>
     );
   }
 }

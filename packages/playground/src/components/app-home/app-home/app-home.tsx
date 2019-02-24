@@ -2,7 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AppRegistryTunnel from "../../../data/app-registry";
-import NetworkTunnel from "../../../data/network";
+import WalletTunnel from "../../../data/wallet";
 import { AppDefinition } from "../../../types";
 
 @Component({
@@ -89,7 +89,7 @@ export class AppHome {
 
 AppRegistryTunnel.injectProps(AppHome, ["apps"]);
 
-NetworkTunnel.injectProps(AppHome, [
+WalletTunnel.injectProps(AppHome, [
   "web3Detected",
   "networkPermitted",
   "hasDetectedNetwork"

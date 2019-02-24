@@ -1,6 +1,6 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-export interface NetworkState {
+export interface WalletState {
   hasDetectedNetwork?: boolean;
   network?: string;
   connected?: boolean;
@@ -8,10 +8,10 @@ export interface NetworkState {
   web3Enabled?: boolean;
   metamaskUnlocked?: boolean;
   networkPermitted?: boolean;
-  updateNetwork?(data: NetworkState): Promise<void>;
+  updateNetwork?(data: WalletState): Promise<void>;
 }
 
-export default createProviderConsumer<NetworkState>(
+export default createProviderConsumer<WalletState>(
   { network: "Unknown network", web3Detected: typeof web3 !== undefined },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />

@@ -12,12 +12,12 @@ import { JsonRpcProvider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
-class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
+export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   firebaseServer: FirebaseServer;
   constructor(private readonly host: string, private readonly port: string) {
     super({
       databaseURL: `ws://${host}:${port}`,
-      projectId: "",
+      projectId: "something",
       apiKey: "",
       authDomain: "",
       storageBucket: "",
@@ -32,7 +32,7 @@ class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   }
 }
 
-let serviceFactory: FirebaseServiceFactory;
+export let serviceFactory: FirebaseServiceFactory;
 if (process.env.FIREBASE_SERVER_HOST && process.env.FIREBASE_SERVER_PORT) {
   serviceFactory = new LocalFirebaseServiceFactory(
     process.env.FIREBASE_SERVER_HOST,
