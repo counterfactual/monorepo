@@ -60,7 +60,8 @@ export class Web3Connector {
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
       return this.walletState.updateNetwork!({
-        web3Detected: false
+        web3Detected: false,
+        hasDetectedNetwork: true
       });
     }
 
