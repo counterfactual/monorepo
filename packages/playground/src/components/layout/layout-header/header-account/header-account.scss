@@ -1,5 +1,6 @@
 .account-container {
   display: flex;
+  align-items: center;
 
   .btn-container {
     .btn {
@@ -20,6 +21,7 @@
 
 .info-container {
   display: flex;
+  align-items: center;
 
   > :first-child {
     margin-right: 40px;
