@@ -216,8 +216,6 @@ export class AppRoot {
     const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
-    debugger;
-
     this.updateAccount({
       ...this.accountState,
       accountBalance: (accountBalance as number) - valueInWei,
