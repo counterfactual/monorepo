@@ -18,7 +18,7 @@ export class Web3Connector {
   }
 
   getCurrentNetwork() {
-    return window["web3"].currentProvider.networkVersion;
+    return window["web3"].version.network;
   }
 
   isWeb3Detected() {
@@ -26,7 +26,9 @@ export class Web3Connector {
   }
 
   isMetamask() {
-    return window["web3"].isMetamask;
+    return (
+      window["web3"].isMetamask || window["web3"].currentProvider.isMetamask
+    );
   }
 
   isUnlocked() {
@@ -50,7 +52,7 @@ export class Web3Connector {
 
     walletState.metamaskUnlocked = this.isUnlocked();
     walletState.networkPermitted = this.isOnPermittedNetwork();
-    walletState.network = window["web3"].currentProvider.networkVersion;
+    walletState.network = this.getCurrentNetwork();
 
     return walletState;
   }
