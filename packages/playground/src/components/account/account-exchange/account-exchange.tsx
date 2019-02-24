@@ -1,7 +1,7 @@
 import { Component, Element, Prop, Watch } from "@stencil/core";
 
 import AccountTunnel from "../../../data/account";
-import NetworkTunnel from "../../../data/network";
+import WalletTunnel from "../../../data/wallet";
 import { UserSession } from "../../../types";
 
 const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
@@ -104,4 +104,4 @@ AccountTunnel.injectProps(AccountExchange, [
   "getBalances"
 ]);
 
-NetworkTunnel.injectProps(AccountExchange, ["network"]);
+WalletTunnel.injectProps(AccountExchange, ["network"]);
