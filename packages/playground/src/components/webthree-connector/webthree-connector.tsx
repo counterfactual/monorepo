@@ -18,7 +18,7 @@ export class Web3Connector {
   }
 
   getCurrentNetwork() {
-    return window["web3"].currentProvider.networkVersion;
+    return window["web3"].version.network;
   }
 
   isWeb3Detected() {
@@ -26,7 +26,9 @@ export class Web3Connector {
   }
 
   isMetamask() {
-    return window["web3"].isMetamask;
+    return (
+      window["web3"].isMetamask || window["web3"].currentProvider.isMetamask
+    );
   }
 
   isUnlocked() {
@@ -50,7 +52,7 @@ export class Web3Connector {
 
     networkState.metamaskUnlocked = this.isUnlocked();
     networkState.networkPermitted = this.isOnPermittedNetwork();
-    networkState.network = window["web3"].currentProvider.networkVersion;
+    networkState.network = this.getCurrentNetwork();
 
     return networkState;
   }

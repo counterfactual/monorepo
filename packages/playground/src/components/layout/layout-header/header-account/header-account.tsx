@@ -68,6 +68,7 @@ export class HeaderAccount {
       await window["ethereum"].enable();
       this.metamaskConfirmationUIOpen = false;
     } catch {
+      console.error("Was not able to call `window.ethereum.enable()`");
     } finally {
       this.metamaskConfirmationUIOpen = false;
     }
