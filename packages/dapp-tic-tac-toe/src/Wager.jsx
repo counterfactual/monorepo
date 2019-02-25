@@ -121,10 +121,12 @@ class Wager extends Component {
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
-        peerDeposit: 0 /* window.ethers.utils.parseEther(
+        peerDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
-        ), */,
-        myDeposit: 0, // window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
+        ),
+        myDeposit: window.ethers.utils.parseEther(
+          this.props.gameInfo.betAmount
+        ),
         timeout: 100,
         initialState: {
           players: [myAddress, opponent.ethAddress],
