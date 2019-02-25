@@ -41,7 +41,7 @@ export class AppHome {
         title: "Please, lower your Shields!",
         instruction: (
           <span>
-            Please, turn off the \"Shields Up\" feature for this site to
+            Please, turn off the <i>Shields Up</i> feature for this site to
             continue.
           </span>
         )
