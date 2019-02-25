@@ -107,15 +107,7 @@ export function asWithdrawParams(params: ProtocolParameters): WithdrawParams {
     !getAddress(ret.recipient) ||
     !BigNumber.isBigNumber(ret.amount)
   ) {
-    let message: string;
-    try {
-      message = `Expected ${params} to be a WithdrawParam, but it is not`;
-    } catch (e) {
-      throw Error(
-        `Expected params to be a WithdrawParam, but it is not; failed to serialize`
-      );
-    }
-    throw Error(message);
+    throw  Error(`Expected ${params} to be a WithdrawParam, but it is not`);
   }
   return ret;
 }
