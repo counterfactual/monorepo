@@ -20,5 +20,6 @@ contract AppRegistry is
   MixinProgressChallenge,
   MixinSetResolution
 {
+  // solium-disable-next-line
   constructor () public {}
 }
