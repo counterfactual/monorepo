@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { keccak256, defaultAbiCoder, bigNumberify, SigningKey, Signature, joinSignature } from "ethers/utils";
+import { keccak256, defaultAbiCoder, bigNumberify, SigningKey } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
@@ -15,20 +15,16 @@ import {
 } from "./utils";
 import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 
-function signaturesToBytes(...signatures: Signature[]): string {
-  return signatures
-    .map(joinSignature)
-    .map(s => s.substr(2))
-    .reduce((acc, v) => acc + v, "0x");
-}
+import { utils } from "@counterfactual/cf.js";
+const { signaturesToBytes } = utils;
 
-export const ALICE =
+const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
   new Wallet(
     "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
   );
 
-export const BOB =
+const BOB =
   // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
   new Wallet(
     "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
@@ -92,7 +88,6 @@ describe("AppRegistry Dispute", () => {
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
   let latestNonce: () => Promise<number>;
-  let isStateFinalized: () => Promise<boolean>;
   let progressChallenge: (state: any, action: any, actionSig: any)  => Promise<any>;
 
   before(async () => {
@@ -123,9 +118,6 @@ describe("AppRegistry Dispute", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .nonce;
 
-    isStateFinalized = async () =>
-      await appRegistry.functions.isStateFinalized(appInstance.identityHash);
-
     setStateAsOwner = (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
@@ -144,7 +136,7 @@ describe("AppRegistry Dispute", () => {
       )
   });
 
-  it("test", async () => {
+  it("Can call progressChallenge", async () => {
 
     expect(await latestNonce()).to.eq(0);
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
