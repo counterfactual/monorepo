@@ -123,7 +123,8 @@ describe("playground-server", () => {
           () =>
             onChannelCreated({
               multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-              owners: [playgroundNode.publicIdentifier, userAddress]
+              owners: [playgroundNode.publicIdentifier, userAddress],
+              counterpartyXpub: userAddress
             }),
           100
         );
