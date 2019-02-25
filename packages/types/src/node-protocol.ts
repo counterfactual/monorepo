@@ -188,6 +188,7 @@ export namespace Node {
   export type CreateChannelResult = {
     multisigAddress: string;
     owners: string[];
+    counterpartyXpub: string;
   };
 
   export type GetChannelAddressesParams = {};

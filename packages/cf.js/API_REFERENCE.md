@@ -441,6 +441,8 @@ Note: On the Node calling the creation of the channel, this event _must_ have a 
 Data:
 
 - `CreateChannelResult`
+    - `counterpartyXpub: string`
+        - Xpub of the counterparty that the channel was opened with
     - `multisigAddress: Address`
         - The address of the multisig that was created
     - `owners: Address[]`

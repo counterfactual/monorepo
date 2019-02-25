@@ -305,13 +305,13 @@ export async function createUser(user: User): Promise<User> {
 }
 
 export async function bindMultisigToUser(
-  user: User,
+  nodeAddress: string,
   multisigAddress: string
 ): Promise<boolean> {
   const db = getDatabase();
 
   const query = db("users")
-    .where({ id: user.id })
+    .where({ node_address: nodeAddress })
     .update("multisig_address", multisigAddress);
 
   try {
