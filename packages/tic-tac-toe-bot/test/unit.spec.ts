@@ -17,24 +17,6 @@ describe("takeTurn", () => {
   const botPlayer = "abc";
   const players = ["123", botPlayer];
 
-  it("adds a move to a random unoccupied square when a free square is available", () => {
-    const newState = [
-      players,
-      4,
-      0,
-      bigNumberifyBoard([
-        [0,1,0],
-        [2,0,0],
-        [1,0,0]
-      ])
-    ];
-    const result = takeTurn(newState, botPlayer);
-
-    expect(result.actionType).toBe(0);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "1").length).toBe(2);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "2").length).toBe(2);
-  });
-
   it("throws an error if there are no moves to make", () => {
     const newState = [
       players,
@@ -63,8 +45,9 @@ describe("takeTurn", () => {
     const result = takeTurn(newState, botPlayer);
     
     expect(result.actionType).toBe(2);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "1").length).toBe(5);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "2").length).toBe(4);
+    expect(result.winClaim).toEqual({"idx": 0, "winClaimType": 0});
+    expect(result.playX).toBe(0);
+    expect(result.playY).toBe(2);
   });
 
   it("sets the actionType to 1 (aka a victory) when it wins the game", () => {
@@ -81,7 +64,8 @@ describe("takeTurn", () => {
     const result = takeTurn(newState, botPlayer);
     
     expect(result.actionType).toBe(1);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "1").length).toBe(5);
-    expect(result.board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "2").length).toBe(4);
+    expect(result.winClaim).toEqual({"idx": 0, "winClaimType": 3});
+    expect(result.playX).toBe(0);
+    expect(result.playY).toBe(2);
   });
 });

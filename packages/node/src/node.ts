@@ -92,8 +92,6 @@ export class Node {
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    const wllt = new Wallet(this.signer.privateKey, this.provider);
-    wllt.getAddress().then((ddr) => console.log("ddr", ddr))
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -103,29 +101,11 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      wllt,
+      new Wallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
 
-// @ts-ignore
-    const channels = await this.call("getChannelAddresses", {
-      requestId: "channels",
-      type: "getChannelAddresses",
-      params: {}
-    })
-  
-    console.log(channels)
-
-    this.messagingService.onReceive(this.publicIdentifier, (NodeMessage) => {
-      console.log(" received by", this.publicIdentifier, NodeMessage)
-    })
-    // this.messagingService.onReceive("xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc", (NodeMessage) => {
-    //   console.log("bot received", this.publicIdentifier, NodeMessage)
-    // })
-    // this.messagingService.onReceive("xpub6FDAryKMxp4WhtM6NsDwBBNC3LftPdLvKaZwz8fRJMkwMRRe1VevY94wCzXNNRLdWcH1N7Q63PRa1dZBixAzRPssGacvv1LDdLeMVKqR4tU", (NodeMessage) => {
-    //   console.log("user received", this.publicIdentifier, NodeMessage)
-    // })
     return this;
   }
 

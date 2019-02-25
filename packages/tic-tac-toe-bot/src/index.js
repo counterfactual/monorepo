@@ -1,9 +1,7 @@
-const cf = require("@counterfactual/cf.js");
 const fs = require("fs");
 const path = require("path");
-const { FirebaseServiceFactory, Node, MNEMONIC_PATH } = require("@counterfactual/node");
+const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
-const { AddressZero } = require("ethers/constants");
 const { v4 } = require("uuid");
 const bn = ethers.utils.bigNumberify;
 const ZERO = bn(0);
@@ -12,8 +10,9 @@ const provider = ethers.getDefaultProvider("ropsten");
 const Web3 = require("web3");
 const web3 = new Web3(provider);
 
-// const BASE_URL = `https://server.playground-staging.counterfactual.com`;
-const BASE_URL = `http://localhost:9000`;
+const BASE_URL = process.env.BASE_URL;
+
+console.log("environment", process.env.TIER)
 
 function checkDraw(board) {
   return board.every(row => row.every(square => !bn(square).eq(ZERO)));
@@ -90,28 +89,6 @@ function checkCrossDiagonalVictory(board, player) {
   }
 }
 
-const STATE_ENCODING = "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)";
-const ACTION_ENCODING = "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)";
-
-const BOT_USER = {
-  attributes: {
-    email: "TTTBot@counterfactual.com",
-    ethAddress: "0x6948CF1acf22A7170C80D5af959979D9A6fC3b82",
-    multisigAddress: "0x0E646f7724e9762dD79cd127fBde1dCeb88521F3",
-    nodeAddress:
-      "xpub6FCuHMxAHGeGpJGXrFi5arY1jwaDwYQaQ9JzzAWf8iHq1v9HLoTpaZJp6WEH3wBEHaaoFPS4ZPtJCvPGM7Rvw2yPADadr3enDHCxGJqBaWG",
-    username: "TTTBot"
-  },
-  id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
-  relationships: {},
-  type: "user"
-};
-
- // const APP = {
-//   web3Provider: ethers.getDefaultProvider("ropsten"),
-//   contracts: {}
-// };
-
  class NodeProvider {
   constructor(node) {
     this.node = node;
@@ -122,7 +99,6 @@ const BOT_USER = {
   }
 
    sendMessage(message) {
-     console.log("sent mess", message)
     this.node.emit(message.type, message);
   }
 
@@ -168,9 +144,6 @@ class JsonFileStoreService {
   }
 }
 
-const settingsPath = path.resolve(__dirname, "settings.json");
-const settings = JSON.parse(fs.readFileSync(settingsPath));
-
  (async () => {
   console.log("Creating serviceFactory");
   const serviceFactory = new FirebaseServiceFactory({
@@ -183,9 +156,7 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
   });
 
   console.log("Creating store");
-  const store = new JsonFileStoreService();
-  // const store = serviceFactory.createStoreService("tttStore")
-  console.log("Creating Node");
+  const store = process.env.TIER === "production" ? serviceFactory.createStoreService("tttStore") : new JsonFileStoreService();
   const messServce = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
     messServce,
@@ -206,37 +177,30 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
     // }
   );
 
-  if (settings["token"]) {
+  if (await store.get("botAccount")) {
     await connectNode(node);
   } else {
     try {
       const user = {
         email: "TicTacToeBot",
-        ethAddress: "0x5567E1a9C21Da01f61A4341E852E5E6E471ecE4f",
+        ethAddress: process.env.ETH_ADDRESS,
         nodeAddress: node.publicIdentifier,
         username: "TicTacToeBot"
       };
       console.log(`User to create: ${JSON.stringify(user)}`);
-      // console.log("privateKey", settings["privateKey"])
-      // const wallet = new ethers.Wallet(settings["privateKey"]);
-      // const signature = await wallet.signMessage(
-      //   buildRegistrationSignaturePayload(user)
-      // );
-      const privateKey = settings["privateKey"];
-      console.log(`Private Key: ${privateKey}`);
+      const privateKey = process.env.PRIVATE_KEY;
       const messageObj = web3.eth.accounts.sign(
         web3.utils.toHex(buildRegistrationSignaturePayload(user)),
         privateKey
       );
-      // console.log(`MessageObj: ${JSON.stringify(messageObj)}`);
-      // console.log(`SignedMessage: ${messageObj.signature}`);
-      // const data = toAPIResource(user);
-      // console.log(`ApiResource: ${JSON.stringify(data)}`);
-      // const json = await post("users", data, signedMessage);
       const createdAccount = await createAccount(user, messageObj.signature);
-      settings["token"] = createdAccount.token;
-      settings["ethAddress"] = createdAccount.ethAddress;
-      fs.writeFileSync(settingsPath, JSON.stringify(settings));
+
+      await store.set([{
+        key: "botAccount",
+        value: createdAccount
+      }])
+
+      await connectNode(node);
     } catch (e) {
       console.log("Error: ", e);
     }
@@ -269,7 +233,7 @@ async function post(endpoint, data, token, authType = "Signature") {
   const body = JSON.stringify({
     data
   });
-  console.log(`Body: ${body}`);
+  
   const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
     body,
     headers: {
@@ -288,35 +252,6 @@ async function post(endpoint, data, token, authType = "Signature") {
 
   return response;
 }
-  // console.log("public identifier", node.publicIdentifier)
-  // messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
-  //   console.log("received", NodeMessage)
-  // })
-  // messServce.onReceive("xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e", (NodeMessage) => {
-  //   console.log("sent", NodeMessage)
-  // })
-
-  // console.log("Creating channel with server")
-  // const playgroundIdendifier = "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
-  // const stateChannelResponse = await node.call(
-  //   "createChannel",
-  //   {
-  //     params: {
-  //       owners: [node.publicIdentifier, playgroundIdendifier]
-  //     },
-  //     type: "createChannel",
-  //     requestId: v4()
-  //   }
-  // );
-  // console.log("state channel response", stateChannelResponse);
-
-  // const channels = await node.call("getChannelAddresses", {
-  //   requestId: v4(),
-  //   type: "getChannelAddresses",
-  //   params: {}
-  // })
-
-  // console.log(channels)
 
 function fromAPIResource(resource) {
   return {
@@ -344,7 +279,7 @@ function respond(node, { data: { appInstanceId, newState } }) {
   const winner = ethers.utils.bigNumberify(newState[2]).toNumber();
 
   if (winner === 0) {
-    const action = takeTurn(newState);
+    const action = takeTurn(newState, process.env.ETH_ADDRESS);
     const request = {
       params: {
         appInstanceId,
@@ -353,7 +288,7 @@ function respond(node, { data: { appInstanceId, newState } }) {
       requestId: v4(),
       type: "takeAction"
     };
-console.log("respond", request)
+
     node.call(
       request.type,
       request
@@ -361,9 +296,9 @@ console.log("respond", request)
   }
 }
 
-function takeTurn(newState) {
+function takeTurn(newState, ethAddress) {
   const [players, turnNum, winner, board] = newState;
-  const botPlayerNumber = players.indexOf(settings["ethAddress"]) + 1;
+  const botPlayerNumber = players.indexOf(ethAddress) + 1;
   const { playX, playY } = makeMove(board, botPlayerNumber);
   board[playX][playY] = ethers.utils.bigNumberify(botPlayerNumber);
   const winClaim = checkVictory(board, botPlayerNumber);
@@ -376,7 +311,7 @@ function takeTurn(newState) {
   }
 }
 
-function makeMove(board, botPlayerNumber) {
+function makeMove(board) {
   const possibleMoves = [];
 
   for (let x = 0; x < 3; x++) {
@@ -419,26 +354,11 @@ async function connectNode(node) {
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
 
-  console.log("Creating cfProvider");
-  const cfProvider = new cf.Provider(nodeProvider);
-
-  //  console.log("Creating appFactory");
-  // const appFactory = new cf.AppFactory(
-  //   " 0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
-  //   {
-  //     actionEncoding: ACTION_ENCODING,
-  //     stateEncoding: STATE_ENCODING
-  //   },
-  //   cfProvider
-  // );
-
   console.log("Create event listener for proposeInstallVirtual");
   node.on("proposeInstallVirtualEvent", async (data) => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
-    console.log(`Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`);
 
-    // const appInstance = await cfProvider.installVirtual(appInstanceId, intermediaries);
     const request = {
       type: "installVirtual",
       params: {
@@ -447,6 +367,8 @@ async function connectNode(node) {
       },
       requestId: v4()
     };
+
+    console.log("request", request)
 
     const appInstance = (await node.call(
       request.type,
@@ -457,59 +379,9 @@ async function connectNode(node) {
 
     node.on("updateStateEvent", async (updateEventData) => {
       if (updateEventData.data.appInstanceId === appInstanceId) {
-        console.log("updateStateEvent", updateEventData)
         respond(node, updateEventData);
       }
-    })
-
-    // console.log("Create event listener for updateState");
-    // appInstance.on("updateState", newState => {
-    //   console.log(`Received newState ${newState}`);
-  
-    //   const possibleMoves = [];
-  
-    //   for (let x = 0; x < 3; x++) {
-    //     for (let y = 0; y < 3; y++) {
-    //       if (this.activeState.board[x][y] !== 0) {
-    //         possibleMoves.push({
-    //           x,
-    //           y
-    //         });
-    //       }
-    //     }
-    //   }
-  
-    //   if (possibleMoves.length === 0) {
-    //     throw new Error("Yikes! No place left to move.");
-    //   }
-  
-    //   const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
-    //   const playX = move.x;
-    //   const playY = move.y;
-    //   const myNumber = 2; // TODO: figure out how to get the actual number
-  
-      
-    //   const boardCopy = JSON.parse(JSON.stringify(newState.board));
-    //   boardCopy[playX][playY] = window.ethers.utils.bigNumberify(myNumber);
-  
-    //   const winClaim = checkVictory(boardCopy, myNumber);
-    //   const draw = checkDraw(boardCopy);
-  
-    //   let actionType = 0;
-  
-    //   if (winClaim) {
-    //     actionType = 1;
-    //   } else if (draw) {
-    //     actionType = 2;
-    //   }
-  
-    //   appInstance.takeAction({
-    //     actionType: actionType,
-    //     winClaim: winClaim || { winClaimType: 0, idx: 0 },
-    //     playX,
-    //     playY
-    //   });
-    // });
+    });
   });
 };
 

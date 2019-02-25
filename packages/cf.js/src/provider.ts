@@ -101,9 +101,7 @@ export class Provider {
   async installVirtual(
     appInstanceId: AppInstanceID,
     intermediaries: Address[]
-    // @ts-ignore
   ): Promise<AppInstance> {
-    try {
     const response = await this.callRawNodeMethod(
       Node.MethodName.INSTALL_VIRTUAL,
       {
@@ -113,9 +111,6 @@ export class Provider {
     );
     const { appInstance } = response.result as Node.InstallVirtualResult;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
-    } catch(e) {
-      console.log(e)
-    }
   }
 
   /**

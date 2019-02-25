@@ -23,7 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "lint": "eslint src/",
-    "start": "node src/",
+    "start": "env-cmd development node src/",
     "test": "env-cmd test jest --forceExit"
   },
   "bugs": {
