@@ -27,10 +27,20 @@ export class AppRoot {
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() hasLocalStorage: boolean = false;
 
   modal: JSX.Element = <div />;
 
   componentWillLoad() {
+    // Test for Local Storage.
+    try {
+      localStorage.setItem("playground:localStorage", "true");
+      localStorage.removeItem("playground:localStorage");
+      this.hasLocalStorage = true;
+    } catch {
+      this.hasLocalStorage = false;
+    }
+
     this.setup();
   }
 
@@ -78,6 +88,10 @@ export class AppRoot {
   }
 
   async createNodeProvider() {
+    if (!this.hasLocalStorage) {
+      return;
+    }
+
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
     let configuration: FirebaseAppConfiguration = {
@@ -408,25 +422,39 @@ export class AppRoot {
           <AppRegistryTunnel.Provider state={this.appRegistryState}>
             <div class="app-root wrapper">
               <main class="wrapper__content">
-                <stencil-router>
-                  <stencil-route-switch scrollTopOffset={0}>
-                    <stencil-route url="/" component="app-home" exact={true} />
-                    <stencil-route
-                      url="/dapp/:dappName"
-                      component="dapp-container"
-                    />
-                    <stencil-route url="/account" component="account-edit" />
-                    <stencil-route
-                      url="/exchange"
-                      component="account-exchange"
-                    />
-                    <stencil-route
-                      url="/register"
-                      component="account-register"
-                    />
-                    <stencil-route url="/deposit" component="account-deposit" />
-                  </stencil-route-switch>
-                </stencil-router>
+                {this.hasLocalStorage ? (
+                  <stencil-router>
+                    <stencil-route-switch scrollTopOffset={0}>
+                      <stencil-route
+                        url="/"
+                        component="app-home"
+                        exact={true}
+                        componentProps={{
+                          hasLocalStorage: this.hasLocalStorage
+                        }}
+                      />
+                      <stencil-route
+                        url="/dapp/:dappName"
+                        component="dapp-container"
+                      />
+                      <stencil-route url="/account" component="account-edit" />
+                      <stencil-route
+                        url="/exchange"
+                        component="account-exchange"
+                      />
+                      <stencil-route
+                        url="/register"
+                        component="account-register"
+                      />
+                      <stencil-route
+                        url="/deposit"
+                        component="account-deposit"
+                      />
+                    </stencil-route-switch>
+                  </stencil-router>
+                ) : (
+                  <app-home hasLocalStorage={this.hasLocalStorage} />
+                )}
               </main>
               <webthree-connector
                 accountState={this.accountState}
