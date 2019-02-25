@@ -1,32 +1,58 @@
-const cf = require("@counterfactual/cf.js");
-const fs = require("fs");
-const path = require("path");
-const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
-const { ethers } = require("ethers");
-const { HashZero } = require("ethers/constants");
-const { v4 } = require("uuid");
-const fetch = require("node-fetch");
-const Web3 = require("web3");
-const web3 = new Web3(ethers.getDefaultProvider("ropsten"));
+import { FirebaseServiceFactory, Node } from "@counterfactual/node/src";
+import { ethers } from "ethers";
+import HashZero from "ethers/constants";
+import fs from "fs";
+import fetch from "node-fetch";
+import path from "path";
+import v4 from "uuid";
 
-const BASE_URL = `https://server.playground-staging.counterfactual.com`;
-const STATE_ENCODING = `
-      tuple(
-        address[2] playerAddrs,
-        uint8 stage,
-        bytes32 salt,
-        bytes32 commitHash,
-        uint256 playerFirstNumber,
-        uint256 playerSecondNumber
-      )
-    `;
-const ACTION_ENCODING = `
-    tuple(
-        uint8 actionType,
-        uint256 number,
-        bytes32 actionHash,
-      )
-    `;
+const provider = ethers.getDefaultProvider("ropsten");
+
+let BASE_URL = `https://server.playground-staging.counterfactual.com`;
+
+console.log("Creating serviceFactory");
+let serviceFactory: FirebaseServiceFactory;
+if (process.env.TIER && process.env.TIER === "development") {
+  BASE_URL = `http://localhost:9000`;
+
+  const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
+  const firebaseServerPort = process.env.FIREBASE_SERVER_PORT;
+  serviceFactory = new FirebaseServiceFactory({
+    apiKey: "",
+    authDomain: "",
+    databaseURL: `ws://${firebaseServerHost}:${firebaseServerPort}`,
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: ""
+  });
+} else {
+  serviceFactory = new FirebaseServiceFactory({
+    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+    authDomain: "foobar-91a31.firebaseapp.com",
+    databaseURL: "https://foobar-91a31.firebaseio.com",
+    projectId: "foobar-91a31",
+    storageBucket: "foobar-91a31.appspot.com",
+    messagingSenderId: "432199632441"
+  });
+}
+
+// const STATE_ENCODING = `
+//       tuple(
+//         address[2] playerAddrs,
+//         uint8 stage,
+//         bytes32 salt,
+//         bytes32 commitHash,
+//         uint256 playerFirstNumber,
+//         uint256 playerSecondNumber
+//       )
+//     `;
+// const ACTION_ENCODING = `
+//     tuple(
+//         uint8 actionType,
+//         uint256 number,
+//         bytes32 actionHash,
+//       )
+//     `;
 
 // const BOT_USER = {
 //   attributes: {
@@ -47,75 +73,10 @@ const ACTION_ENCODING = `
 //   contracts: {}
 // };
 
-class NodeProvider {
-  constructor(node) {
-    this.node = node;
-  }
-
-  onMessage(callback) {
-    this.node.on("message", callback);
-  }
-
-  sendMessage(message) {
-    this.node.emit("message", message);
-  }
-
-  async connect() {
-    return Promise.resolve(this);
-  }
-}
-
-const storePath = path.resolve(__dirname, "store.json");
 const settingsPath = path.resolve(__dirname, "settings.json");
 
-class JsonFileStoreService {
-  async get(desiredKey) {
-    const data = JSON.parse(fs.readFileSync(storePath));
-    const entries = {};
-    const allKeys = Object.keys(data);
-    for (const key of allKeys) {
-      if (key.includes(desiredKey)) {
-        entries[key] = data[key];
-      }
-    }
-    if (Object.keys(entries).length === 1) {
-      return entries[desiredKey] || [entries[Object.keys(entries)[0]]];
-    }
-    for (const key of Object.keys(entries)) {
-      const leafKey = key.split("/")[key.split("/").length - 1];
-      const value = entries[key];
-      delete entries[key];
-      entries[leafKey] = value;
-    }
-
-    return Object.keys(entries).length > 0 ? entries : undefined;
-  }
-  async set(pairs) {
-    const store = JSON.parse(fs.readFileSync(storePath));
-
-    pairs.forEach(pair => {
-      store[pair.key] = pair.value;
-    });
-
-    fs.writeFileSync(storePath, JSON.stringify(store));
-
-    return true;
-  }
-}
-
 (async () => {
-  console.log("Creating serviceFactory");
-  const serviceFactory = new FirebaseServiceFactory({
-    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-    authDomain: "foobar-91a31.firebaseapp.com",
-    databaseURL: "https://foobar-91a31.firebaseio.com",
-    projectId: "foobar-91a31",
-    storageBucket: "foobar-91a31.appspot.com",
-    messagingSenderId: "432199632441"
-  });
-
   console.log("Creating store");
-  // const store = new JsonFileStoreService();
   const store = serviceFactory.createStoreService("highRollerBotStore1");
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
@@ -140,7 +101,7 @@ class JsonFileStoreService {
   //   }
   // );
 
-  const settings = JSON.parse(fs.readFileSync(settingsPath));
+  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
   if (settings["token"]) {
     await afterUser(node);
   } else {
@@ -153,22 +114,18 @@ class JsonFileStoreService {
       };
       console.log(`User to create: ${JSON.stringify(user)}`);
       const privateKey = settings["privateKey"];
-      // console.log(`Private Key: ${privateKey}`);
-      const messageObj = web3.eth.accounts.sign(
-        web3.utils.toHex(buildRegistrationSignaturePayload(user)),
-        privateKey
+      const wallet = new ethers.Wallet(privateKey, provider);
+      const signature = await wallet.signMessage(
+        buildRegistrationSignaturePayload(user)
       );
-      // console.log(`MessageObj: ${JSON.stringify(messageObj)}`);
-      // console.log(`SignedMessage: ${messageObj.signature}`);
-      // const data = toAPIResource(user);
-      // console.log(`ApiResource: ${JSON.stringify(data)}`);
-      // const json = await post("users", data, signedMessage);
-      const createdAccount = await createAccount(user, messageObj.signature);
+      console.log("got signature: ", signature);
+
+      const createdAccount = await createAccount(user, signature);
       settings["token"] = createdAccount.token;
       settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
       console.log(`Account created with token: ${createdAccount.token}`);
-      return;
+      await afterUser(node);
     } catch (e) {
       console.log("Error: ", e);
     }
@@ -223,12 +180,6 @@ async function post(endpoint, data, token, authType = "Signature") {
 
 async function afterUser(node) {
   console.log("After User");
-  // console.log("Creating NodeProvider");
-  // const nodeProvider = new NodeProvider(node);
-  // await nodeProvider.connect();
-
-  // console.log("Creating cfProvider");
-  // const cfProvider = new cf.Provider(nodeProvider);
 
   node.on("proposeInstallVirtualEvent", async data => {
     try {
@@ -238,11 +189,13 @@ async function afterUser(node) {
         `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
       );
 
+      console.log(data);
+
       const request = {
         type: "installVirtual",
         params: {
-          appInstanceId: appInstanceId,
-          intermediaries: intermediaries
+          appInstanceId,
+          intermediaries
         },
         requestId: v4()
       };
@@ -259,13 +212,13 @@ async function afterUser(node) {
         console.log(`Received newState ${data}`);
         const newStateArray = data.newState;
 
+        // FIXME: ensure this state is correct
         const state = {
           playerAddrs: newStateArray[0],
           stage: newStateArray[1],
           salt: newStateArray[2],
           commitHash: newStateArray[3],
-          playerFirstNumber:
-            this.highRollerState.playerFirstNumber || newStateArray[4],
+          playerFirstNumber: newStateArray[4],
           playerSecondNumber: newStateArray[5]
         };
 
@@ -281,7 +234,11 @@ async function afterUser(node) {
             actionHash: HashZero
           };
 
-          this.appInstance.takeAction(commitHashAction);
+          console.log("commit hash action");
+          console.log(commitHashAction);
+
+          // FIXME: get access to `appInstance` to takeAction
+          // this.appInstance.takeAction(commitHashAction);
         }
       });
     } catch (error) {

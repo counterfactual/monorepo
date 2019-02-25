@@ -23,7 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "lint": "eslint src/",
-    "start": "node src/",
+    "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
   "bugs": {
@@ -33,15 +33,17 @@
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
-    "@counterfactual/node": "^0.0.1",
+    "@counterfactual/cf.js": "0.0.5",
+    "@counterfactual/node": "^0.0.4",
     "env-cmd": "^8.0.2",
     "eslint": "^5.12.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "2.6.2",
-    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "ethers": "4.0.26",
     "jest": "^24.0.0",
     "node-fetch": "^2.3.0",
     "prettier": "^1.15.3",
+    "ts-node": "^7.0.1",
     "uuid": "^3.3.2",
     "web3": "^1.0.0-beta.46"
   },
