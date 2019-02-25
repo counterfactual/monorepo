@@ -21,8 +21,8 @@ class Wager extends Component {
     console.log("user data", this.props.user);
 
     try {
-      // const result = await this.matchmake();
-      const result = this.matchmakeBot();
+      const result = await this.matchmake();
+      // const result = this.matchmakeBot();
       console.log(result)
       
       const opponent = {
@@ -52,13 +52,13 @@ class Wager extends Component {
     return {
       data: {
         attributes: {
-          email: "TTTBot@counterfactual.com",
-          ethAddress: "0xA834F59237F90D28e68752d9217AA24e1447DeD3",
+          email: "TicTacToeBot",
+          ethAddress: "0x5567E1a9C21Da01f61A4341E852E5E6E471ecE4f",
           multisigAddress: "0x522666ddE1E27D191B69756ce777a8DAC22BAdC3",
           nodeAddress:
-            "xpub6FJUWMZ9g2JsGtTCLLKE5KWS5vGhjXshxqpg9xCtZcjyvZiMgbUuh4oV1tVVCgXmUuFA9YkK4UnEVuRckAEP4JF2vAE7G879J1CKfutaHdc",
+            "xpub6FF6QLhgvqStcGLrTADjb17P2mUE4PMy1j9j96B8UgEUAuWBddDKeXuLeFCrr3QRLYsAvZHVDYHUDhz4R5pUbYembE584h9oEwXdz5sb9Hm",
           intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-          username: "TTTBot"
+          username: "TicTacToeBot"
         },
         id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
         relationships: {},

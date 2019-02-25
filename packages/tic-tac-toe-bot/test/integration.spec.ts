@@ -102,7 +102,23 @@ describe("playground-server", () => {
 
       await nodeAlice.call("proposeInstallVirtual", {
         type: "proposeInstallVirtual",
-        requestId: generateUUID()
+        requestId: generateUUID(),
+        params: {
+          intermediaries: [""],
+          proposedToIdentifier,
+          initialState,
+          appId: AddressZero,
+          abiEncodings: {
+            stateEncoding: "tuple(address foo, uint256 bar)",
+            actionEncoding: undefined
+          } as AppABIEncodings,
+          asset: {
+            assetType: AssetType.ETH
+          } as BlockchainAsset,
+          myDeposit: Zero,
+          peerDeposit: Zero,
+          timeout: One
+        }
       });
 
       await nodeAlice.call("takeAction", {

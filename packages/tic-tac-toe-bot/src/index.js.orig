@@ -1,19 +1,12 @@
 const cf = require("@counterfactual/cf.js");
 const fs = require("fs");
 const path = require("path");
-const { FirebaseServiceFactory, Node, MNEMONIC_PATH } = require("@counterfactual/node");
+const { FirebaseServiceFactory, Node } = require("@counterfactual/node");
 const { ethers } = require("ethers");
 const { AddressZero } = require("ethers/constants");
 const { v4 } = require("uuid");
 const bn = ethers.utils.bigNumberify;
 const ZERO = bn(0);
-const fetch = require("node-fetch");
-const provider = ethers.getDefaultProvider("ropsten");
-const Web3 = require("web3");
-const web3 = new Web3(provider);
-
-// const BASE_URL = `https://server.playground-staging.counterfactual.com`;
-const BASE_URL = `http://localhost:9000`;
 
 function checkDraw(board) {
   return board.every(row => row.every(square => !bn(square).eq(ZERO)));
@@ -168,9 +161,6 @@ class JsonFileStoreService {
   }
 }
 
-const settingsPath = path.resolve(__dirname, "settings.json");
-const settings = JSON.parse(fs.readFileSync(settingsPath));
-
  (async () => {
   console.log("Creating serviceFactory");
   const serviceFactory = new FirebaseServiceFactory({
@@ -183,8 +173,8 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
   });
 
   console.log("Creating store");
-  const store = new JsonFileStoreService();
-  // const store = serviceFactory.createStoreService("tttStore")
+  // const store = new JsonFileStoreService();
+  const store = serviceFactory.createStoreService("tttStore")
   console.log("Creating Node");
   const messServce = serviceFactory.createMessagingService("messaging");
   const node = await Node.create(
@@ -193,7 +183,7 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
     {
       STORE_KEY_PREFIX: "store"
     },
-    provider,
+    ethers.getDefaultProvider("ropsten"),
     "ropsten",
     // {
     //   AppRegistry: "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915",
@@ -205,7 +195,10 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
     //   ETHVirtualAppAgreement: "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E"
     // }
   );
+<<<<<<< HEAD
+=======
 
+  const settings = JSON.parse(fs.readFileSync(settingsPath));
   if (settings["token"]) {
     await connectNode(node);
   } else {
@@ -235,7 +228,7 @@ const settings = JSON.parse(fs.readFileSync(settingsPath));
       // const json = await post("users", data, signedMessage);
       const createdAccount = await createAccount(user, messageObj.signature);
       settings["token"] = createdAccount.token;
-      settings["ethAddress"] = createdAccount.ethAddress;
+      settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
     } catch (e) {
       console.log("Error: ", e);
@@ -288,6 +281,7 @@ async function post(endpoint, data, token, authType = "Signature") {
 
   return response;
 }
+>>>>>>> add ttt integration test infrastructure
   // console.log("public identifier", node.publicIdentifier)
   // messServce.onReceive(node.publicIdentifier, (NodeMessage) => {
   //   console.log("received", NodeMessage)
@@ -310,69 +304,26 @@ async function post(endpoint, data, token, authType = "Signature") {
   // );
   // console.log("state channel response", stateChannelResponse);
 
-  // const channels = await node.call("getChannelAddresses", {
-  //   requestId: v4(),
-  //   type: "getChannelAddresses",
-  //   params: {}
-  // })
+  const channels = await node.call("getChannelAddresses", {
+    requestId: v4(),
+    type: "getChannelAddresses",
+    params: {}
+  })
 
-  // console.log(channels)
-
-function fromAPIResource(resource) {
-  return {
-    id: resource.id,
-    ...resource.attributes
-  };
-}
-
-function toAPIResource(model) {
-  return {
-    ...(model["id"] ? { id: model["id"] } : {}),
-    attributes: {
-      ...Object.keys(model)
-        .map(key => {
-          return { [key]: model[key] };
-        })
-        .reduce((previous, current) => {
-          return { ...previous, ...current };
-        }, {})
-    }
-  };
-}
-
-function respond(node, { data: { appInstanceId, newState } }) {
-  const winner = ethers.utils.bigNumberify(newState[2]).toNumber();
-
-  if (winner === 0) {
-    const action = takeTurn(newState);
-    const request = {
-      params: {
-        appInstanceId,
-        action
-      },
-      requestId: v4(),
-      type: "takeAction"
-    };
-console.log("respond", request)
-    node.call(
-      request.type,
-      request
-    )
+function respond({ data: { newState } }) {
+  if (newState.winner === 0) {
+    takeTurn(newState, "asdf")
   }
 }
 
-function takeTurn(newState) {
+function takeTurn(newState, playerAddress) {
   const [players, turnNum, winner, board] = newState;
-  const botPlayerNumber = players.indexOf(settings["ethAddress"]) + 1;
-  const { playX, playY } = makeMove(board, botPlayerNumber);
-  board[playX][playY] = ethers.utils.bigNumberify(botPlayerNumber);
-  const winClaim = checkVictory(board, botPlayerNumber);
+  const botPlayerNumber = players.indexOf(playerAddress) + 1;
+  const updatedBoard = makeMove(board, botPlayerNumber);
 
   return {
-    actionType: determineActionType(board, botPlayerNumber),
-    winClaim: winClaim || { winClaimType: 0, idx: 0 },
-    playX,
-    playY
+    board: updatedBoard,
+    actionType: determineActionType(updatedBoard, botPlayerNumber)
   }
 }
 
@@ -381,7 +332,7 @@ function makeMove(board, botPlayerNumber) {
 
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
-      if (ethers.utils.bigNumberify(board[x][y]).toNumber() === 0) {
+      if (board[x][y].toString() === "0") {
         possibleMoves.push({
           x,
           y
@@ -398,10 +349,11 @@ function makeMove(board, botPlayerNumber) {
   const playX = move.x;
   const playY = move.y;
 
-  return {
-    playX,
-    playY
-  }
+  
+  const boardCopy = JSON.parse(JSON.stringify(board));
+  boardCopy[playX][playY] = ethers.utils.bigNumberify(botPlayerNumber);
+
+  return boardCopy;
 }
 
 function determineActionType(board, botPlayerNumber) {
@@ -414,7 +366,10 @@ function determineActionType(board, botPlayerNumber) {
   }
 }
 
+<<<<<<< HEAD
+=======
 async function connectNode(node) {
+>>>>>>> add ttt integration test infrastructure
   console.log("Creating NodeProvider");
   const nodeProvider = new NodeProvider(node);
   await nodeProvider.connect();
@@ -455,11 +410,11 @@ async function connectNode(node) {
 
     console.log("appInstance", appInstance)
 
-    node.on("updateStateEvent", async (updateEventData) => {
-      if (updateEventData.data.appInstanceId === appInstanceId) {
-        console.log("updateStateEvent", updateEventData)
-        respond(node, updateEventData);
-      }
+    node.on("takeActionEvent", async (updateEventData) => {
+      console.log("takeActionEvent", updateEventData)
+    })
+    node.on("takeAction", async (updateEventData) => {
+      console.log("takeAction", updateEventData)
     })
 
     // console.log("Create event listener for updateState");
@@ -511,7 +466,7 @@ async function connectNode(node) {
     //   });
     // });
   });
-};
+})();
 
 module.exports.takeTurn = takeTurn;
 module.exports.connectNode = connectNode;

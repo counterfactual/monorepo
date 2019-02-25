@@ -2,7 +2,23 @@
   "private": true,
   "workspaces": {
     "packages": [
+<<<<<<< HEAD
       "packages/*"
+=======
+      "packages/apps",
+      "packages/cf.js",
+      "packages/common-types",
+      "packages/contracts",
+      "packages/dapp-high-roller",
+      "packages/dapp-tic-tac-toe",
+      "packages/machine",
+      "packages/node",
+      "packages/node-provider",
+      "packages/playground",
+      "packages/tic-tac-toe-bot",
+      "packages/types",
+      "packages/typescript-typings"
+>>>>>>> ttt-bot initial work
     ],
     "nohoist": [
       "**/eventemitter3",
