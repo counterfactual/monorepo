@@ -107,7 +107,7 @@ export function asWithdrawParams(params: ProtocolParameters): WithdrawParams {
     !getAddress(ret.recipient) ||
     !BigNumber.isBigNumber(ret.amount)
   ) {
-    throw  Error(`Expected ${params} to be a WithdrawParam, but it is not`);
+    throw Error(`Expected ${params} to be a WithdrawParam, but it is not`);
   }
   return ret;
 }
