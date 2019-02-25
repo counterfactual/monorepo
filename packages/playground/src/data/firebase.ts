@@ -30,16 +30,7 @@ export interface FirebaseAppConfiguration {
 export default class FirebaseService {
   private static app: any;
 
-  static create(
-    configuration: FirebaseAppConfiguration = {
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    }
-  ) {
+  static create(configuration: FirebaseAppConfiguration) {
     if (FirebaseService.app) {
       return FirebaseService.app;
     }

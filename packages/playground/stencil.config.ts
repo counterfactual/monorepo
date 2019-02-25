@@ -28,7 +28,10 @@ export const config: Config = {
       ]
     }),
     replace({
-      "ENV:API_HOST": process.env.API_HOST || "http://localhost:9000"
+      "ENV:API_HOST": process.env.API_HOST || "http://localhost:9000",
+      "ENV:TIER": process.env.TIER || "production",
+      "ENV:FIREBASE_SERVER_HOST": process.env.FIREBASE_SERVER_HOST || "",
+      "ENV:FIREBASE_SERVER_PORT": process.env.FIREBASE_SERVER_PORT || ""
     })
   ],
   excludeSrc: ["node_modules/playground-server/src"]
