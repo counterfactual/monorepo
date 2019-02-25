@@ -91,16 +91,6 @@ const settingsPath = path.resolve(__dirname, "settings.json");
   );
 
   console.log("public identifier", node.publicIdentifier);
-  // messService.onReceive(node.publicIdentifier, NodeMessage => {
-  //   console.log("received", NodeMessage);
-  // });
-  // messService.onReceive(
-  //   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-  //   NodeMessage => {
-  //     console.log("sent", NodeMessage);
-  //   }
-  // );
-
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
   if (settings["token"]) {
     await afterUser(node);

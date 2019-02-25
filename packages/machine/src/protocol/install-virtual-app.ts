@@ -321,16 +321,6 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     );
   }
 
-  console.log("getting balance");
-  console.log(initiatingBalanceDecrement);
-  console.log(respondingBalanceDecrement);
-  console.log(
-    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement)
-  );
-  console.log(
-    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement)
-  );
-
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithIntermediary.multisigAddress,
     {
