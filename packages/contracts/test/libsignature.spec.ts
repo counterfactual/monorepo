@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { SigningKey, Signature, joinSignature } from "ethers/utils";
+import { SigningKey } from "ethers/utils";
 
 import LibSignature from "../build/LibSignature.json";
 

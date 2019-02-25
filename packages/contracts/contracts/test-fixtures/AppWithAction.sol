@@ -6,6 +6,7 @@ import "../CounterfactualApp.sol";
 
 // there is a counter; player2 can unanimously increment it
 
+
 contract AppWithAction {
 
   struct State {
