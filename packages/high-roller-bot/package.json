@@ -23,8 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "lint": "eslint src/",
-    "start": "env-cmd development ts-node src/",
-    "test": "env-cmd test jest --forceExit"
+    "start": "env-cmd development ts-node src/"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
