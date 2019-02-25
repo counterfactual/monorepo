@@ -42,7 +42,7 @@ describe("AppRegistry", () => {
   ) => Promise<void>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
-  let latestState: () => Promise<string>;
+  let latestAppState: () => Promise<string>;
   let latestNonce: () => Promise<number>;
   let isStateFinalized: () => Promise<boolean>;
 
@@ -65,7 +65,7 @@ describe("AppRegistry", () => {
       10
     );
 
-    latestState = async () =>
+    latestAppState = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
@@ -92,25 +92,18 @@ describe("AppRegistry", () => {
         nonce,
         stateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: await wallet.signMessage(
-          computeStateHash(
-            appInstance.identityHash,
-            appState || HashZero,
-            nonce,
-            ONCHAIN_CHALLENGE_TIMEOUT
-          )
-        )
+        signatures: HashZero
       });
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce: (await latestNonce()) + 1,
-        stateHash: await latestState(),
+        stateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
           computeStateHash(
             appInstance.identityHash,
-            await latestState(),
+            await latestAppState(),
             await latestNonce(),
             0
           )
