@@ -22,8 +22,6 @@ class Wager extends Component {
 
     try {
       const result = await this.matchmake();
-      // const result = this.matchmakeBot();
-      console.log(result)
       
       const opponent = {
         id: "opponent",
@@ -45,25 +43,6 @@ class Wager extends Component {
         isLoaded: true,
         error
       });
-    }
-  }
-
-  matchmakeBot() {
-    return {
-      data: {
-        attributes: {
-          email: "TicTacToeBot",
-          ethAddress: "0x5567E1a9C21Da01f61A4341E852E5E6E471ecE4f",
-          multisigAddress: "0x522666ddE1E27D191B69756ce777a8DAC22BAdC3",
-          nodeAddress:
-            "xpub6FF6QLhgvqStcGLrTADjb17P2mUE4PMy1j9j96B8UgEUAuWBddDKeXuLeFCrr3QRLYsAvZHVDYHUDhz4R5pUbYembE584h9oEwXdz5sb9Hm",
-          intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-          username: "TicTacToeBot"
-        },
-        id: "83ecc9fd-f594-47c0-81cf-2c502fe6f826",
-        relationships: {},
-        type: "user"
-      }
     }
   }
 
@@ -125,14 +104,14 @@ class Wager extends Component {
         })
       );
 
-    // if (currentEthBalance.lt(minimumEthBalance)) {
-    //   this.setState({
-    //     error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
-    //       minimumEthBalance
-    //     )} ETH to play.`
-    //   });
-    //   return;
-    // }
+    if (currentEthBalance.lt(minimumEthBalance)) {
+      this.setState({
+        error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
+          minimumEthBalance
+        )} ETH to play.`
+      });
+      return;
+    }
 
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
