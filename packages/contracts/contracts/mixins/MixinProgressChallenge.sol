@@ -60,32 +60,32 @@ contract MixinProgressChallenge is
       appState
     );
 
-    // require(
-    //   turnTaker == LibSignature.recoverKey(actionSignature, keccak256(action), 0),
-    //   "Action must have been signed by correct turn taker"
-    // );
+    require(
+      turnTaker == LibSignature.recoverKey(actionSignature, keccak256(action), 0),
+      "Action must have been signed by correct turn taker"
+    );
 
-    // bytes memory newAppState = applyAction(
-    //   appIdentity.appDefinitionAddress,
-    //   appState,
-    //   action
-    // );
+    bytes memory newAppState = applyAction(
+      appIdentity.appDefinitionAddress,
+      appState,
+      action
+    );
 
-    // challenge.appStateHash = keccak256(newAppState);
-    // challenge.disputeNonce += 1;
-    // challenge.latestSubmitter = msg.sender;
+    challenge.appStateHash = keccak256(newAppState);
+    challenge.disputeNonce += 1;
+    challenge.latestSubmitter = msg.sender;
 
-    // if (claimFinal) {
-    //   require(
-    //     isStateTerminal(appIdentity.appDefinitionAddress, newAppState),
-    //     "Attempted to claimFinal on a non-terminal state"
-    //   );
-    //   challenge.finalizesAt = block.number;
-    //   challenge.status = AppStatus.OFF;
-    // } else {
-    //   challenge.status = AppStatus.DISPUTE;
-    //   challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
-    // }
+    if (claimFinal) {
+      require(
+        isStateTerminal(appIdentity.appDefinitionAddress, newAppState),
+        "Attempted to claimFinal on a non-terminal state"
+      );
+      challenge.finalizesAt = block.number;
+      challenge.status = AppStatus.OFF;
+    } else {
+      challenge.status = AppStatus.DISPUTE;
+      challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
+    }
 
   }
 }

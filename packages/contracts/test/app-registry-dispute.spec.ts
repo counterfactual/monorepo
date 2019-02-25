@@ -2,20 +2,25 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes, keccak256, defaultAbiCoder, BigNumber, bigNumberify, solidityKeccak256, solidityPack, arrayify } from "ethers/utils";
+import { keccak256, defaultAbiCoder, bigNumberify, SigningKey, Signature, joinSignature } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
-import LibSignature from "../build/LibSignature.json";
 
 import {
   AppInstance,
   AssetType,
-  computeStateHash,
   expect,
   Terms
 } from "./utils";
 import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+
+function signaturesToBytes(...signatures: Signature[]): string {
+  return signatures
+    .map(joinSignature)
+    .map(s => s.substr(2))
+    .reduce((acc, v) => acc + v, "0x");
+}
 
 export const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
@@ -41,6 +46,13 @@ const PRE_STATE = {
 const ACTION = {
   increment: bigNumberify(2)
 };
+
+// todo(xuanji): this is manually calculated
+const POST_STATE = {
+  player1: ALICE.address,
+  player2: BOB.address,
+  counter: bigNumberify(5)
+}
 
 function encodeState(state: SolidityABIEncoderV2Struct) {
   return defaultAbiCoder.encode(
@@ -76,7 +88,6 @@ describe("AppRegistry Dispute", () => {
 
   let appRegistry: Contract;
   let appDefinition: Contract
-  let libSig: Contract
 
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
@@ -93,8 +104,6 @@ describe("AppRegistry Dispute", () => {
     });
 
     appDefinition = await waffle.deployContract(wallet, AppWithAction);
-
-    libSig = await waffle.deployContract(wallet, LibSignature);
   });
 
   beforeEach(async () => {
@@ -141,18 +150,13 @@ describe("AppRegistry Dispute", () => {
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
     expect(await latestNonce()).to.eq(1);
 
+    const signer = new SigningKey(BOB.privateKey);
+    const thingToSign = keccak256(encodeAction(ACTION));
+    const signature = await signer.signDigest(thingToSign);
+    const bytes = signaturesToBytes(signature);
 
-    const thingToSign = HashZero;
-    const signature = await BOB.signMessage(thingToSign);
-    console.log(BOB.address)
-    console.log(await libSig.recoverKey(
-      signature,
-      thingToSign,
-      0
-    ));
-
-    // console.log(await latestState());
-    // await progressChallenge(PRE_STATE, ACTION, actionSig);
-    // console.log(await latestState());
+    expect(await latestState()).to.be.eql(keccak256(encodeState(PRE_STATE)));
+    await progressChallenge(PRE_STATE, ACTION, bytes);
+    expect(await latestState()).to.be.eql(keccak256(encodeState(POST_STATE)));
   });
 });
