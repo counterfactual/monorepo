@@ -7,6 +7,7 @@ import "./mixins/MixinSetResolution.sol";
 import "./mixins/MixinSetState.sol";
 import "./mixins/MixinVirtualAppSetState.sol";
 import "./mixins/MixinSetStateWithAction.sol";
+import "./mixins/MixinProgressChallenge.sol";
 
 
 /// @dev Base contract implementing all logic needed for full-featured App registry
@@ -16,6 +17,7 @@ contract AppRegistry is
   MixinVirtualAppSetState,
   MixinSetStateWithAction,
   MixinCancelChallenge,
+  MixinProgressChallenge,
   MixinSetResolution
 {
   constructor () public {}

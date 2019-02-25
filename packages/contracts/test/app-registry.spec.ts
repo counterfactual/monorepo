@@ -14,13 +14,13 @@ import {
   Terms
 } from "./utils";
 
-export const ALICE =
+const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
   new Wallet(
     "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
   );
 
-export const BOB =
+const BOB =
   // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
   new Wallet(
     "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
@@ -42,7 +42,7 @@ describe("AppRegistry", () => {
   ) => Promise<void>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
-  let latestState: () => Promise<string>;
+  let latestAppState: () => Promise<string>;
   let latestNonce: () => Promise<number>;
   let isStateFinalized: () => Promise<boolean>;
 
@@ -65,7 +65,7 @@ describe("AppRegistry", () => {
       10
     );
 
-    latestState = async () =>
+    latestAppState = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
@@ -92,25 +92,18 @@ describe("AppRegistry", () => {
         nonce,
         stateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: await wallet.signMessage(
-          computeStateHash(
-            appInstance.identityHash,
-            appState || HashZero,
-            nonce,
-            ONCHAIN_CHALLENGE_TIMEOUT
-          )
-        )
+        signatures: HashZero
       });
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce: (await latestNonce()) + 1,
-        stateHash: await latestState(),
+        stateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
           computeStateHash(
             appInstance.identityHash,
-            await latestState(),
+            await latestAppState(),
             await latestNonce(),
             0
           )

@@ -12,6 +12,8 @@ import { JsonRpcProvider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
+import { bindMultisigToUser } from "./db";
+
 export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   firebaseServer: FirebaseServer;
   constructor(private readonly host: string, private readonly port: string) {
@@ -106,6 +108,11 @@ export default class NodeWrapper {
       onDepositConfirmed.bind(this)
     );
 
+    NodeWrapper.node.on(
+      NodeTypes.EventName.CREATE_CHANNEL,
+      onMultisigDeployed.bind(this)
+    );
+
     return NodeWrapper.node;
   }
 
@@ -142,8 +149,7 @@ export default class NodeWrapper {
   }
 
   public static async createStateChannelFor(
-    userAddress: string,
-    onChannelCreated: (result: NodeTypes.CreateChannelResult) => Promise<void>
+    userAddress: string
   ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -164,10 +170,6 @@ export default class NodeWrapper {
       }
     );
 
-    node.once(NodeTypes.EventName.CREATE_CHANNEL, async data => {
-      await onChannelCreated(data);
-    });
-
     return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
   }
 }
@@ -186,4 +188,13 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   } catch (e) {
     console.error("Failed to deposit on the server...", e);
   }
+}
+
+export async function onMultisigDeployed(
+  result: NodeTypes.CreateChannelResult
+) {
+  await bindMultisigToUser(
+    result.counterpartyXpub, // FIXME: Not standard data flow
+    result.multisigAddress
+  );
 }
