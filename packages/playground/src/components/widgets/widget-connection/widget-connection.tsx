@@ -1,6 +1,6 @@
 import { Component, Element, Prop } from "@stencil/core";
 
-import NetworkTunnel from "../../../data/network";
+import WalletTunnel from "../../../data/wallet";
 
 const NETWORK_NAMES = {
   "1": "Mainnet",
@@ -59,7 +59,7 @@ export class WidgetConnection {
   }
 }
 
-NetworkTunnel.injectProps(WidgetConnection, [
+WalletTunnel.injectProps(WidgetConnection, [
   "network",
   "metamaskUnlocked",
   "hasDetectedNetwork"

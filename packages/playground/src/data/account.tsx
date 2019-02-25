@@ -18,7 +18,10 @@ export type AccountState = {
   getBalances?(): Promise<
     { balance: number; accountBalance: number } | undefined
   >;
-  deposit?(value: any): Promise<Node.MethodResponse>;
+  deposit?(
+    value: string,
+    multisigAddress: string
+  ): Promise<Node.MethodResponse>;
   withdraw?(value: any): Promise<Node.MethodResponse>;
   waitForMultisig?(): void;
   autoLogin?(): Promise<void>;

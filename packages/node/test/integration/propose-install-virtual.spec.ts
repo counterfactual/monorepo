@@ -6,8 +6,8 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   getMultisigCreationTransactionHash,
@@ -19,7 +19,7 @@ import {
 describe("Node method follows spec - proposeInstallVirtual", () => {
   jest.setTimeout(20000);
 
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -31,7 +31,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

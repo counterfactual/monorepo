@@ -9,16 +9,45 @@ import {
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
+import FirebaseServer from "firebase-server";
 import { v4 as generateUUID } from "uuid";
 
-export const serviceFactory = new FirebaseServiceFactory({
-  apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-  authDomain: "foobar-91a31.firebaseapp.com",
-  databaseURL: "https://foobar-91a31.firebaseio.com",
-  projectId: "foobar-91a31",
-  storageBucket: "foobar-91a31.appspot.com",
-  messagingSenderId: "432199632441"
-});
+export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
+  firebaseServer: FirebaseServer;
+  constructor(private readonly host: string, private readonly port: string) {
+    super({
+      databaseURL: `ws://${host}:${port}`,
+      projectId: "something",
+      apiKey: "",
+      authDomain: "",
+      storageBucket: "",
+      messagingSenderId: ""
+    });
+
+    this.firebaseServer = new FirebaseServer(this.port, this.host);
+  }
+
+  async closeServiceConnections() {
+    await this.firebaseServer.close();
+  }
+}
+
+export let serviceFactory: FirebaseServiceFactory;
+if (process.env.FIREBASE_SERVER_HOST && process.env.FIREBASE_SERVER_PORT) {
+  serviceFactory = new LocalFirebaseServiceFactory(
+    process.env.FIREBASE_SERVER_HOST,
+    process.env.FIREBASE_SERVER_PORT
+  );
+} else {
+  serviceFactory = new FirebaseServiceFactory({
+    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+    authDomain: "foobar-91a31.firebaseapp.com",
+    databaseURL: "https://foobar-91a31.firebaseio.com",
+    projectId: "foobar-91a31",
+    storageBucket: "foobar-91a31.appspot.com",
+    messagingSenderId: "432199632441"
+  });
+}
 
 export default class NodeWrapper {
   private static node: Node;
