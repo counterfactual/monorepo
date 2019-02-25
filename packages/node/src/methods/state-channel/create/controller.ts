@@ -95,7 +95,11 @@ export default class CreateChannelController extends NodeController {
     const msg: CreateChannelMessage = {
       from: publicIdentifier,
       type: NODE_EVENTS.CREATE_CHANNEL,
-      data: { multisigAddress, owners } as Node.CreateChannelResult
+      data: {
+        multisigAddress,
+        owners,
+        counterpartyXpub: respondingXpub
+      } as Node.CreateChannelResult
     };
 
     await messagingService.send(respondingXpub, msg);

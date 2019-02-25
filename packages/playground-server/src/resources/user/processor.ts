@@ -1,10 +1,8 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import {
-  bindMultisigToUser,
   bindTransactionHashToUser,
   createUser,
   ethAddressAlreadyRegistered,
@@ -71,10 +69,7 @@ export default class UserProcessor extends OperationProcessor<User> {
     });
 
     const { transactionHash } = await NodeWrapper.createStateChannelFor(
-      nodeAddress as string,
-      async (result: NodeTypes.CreateChannelResult) => {
-        await bindMultisigToUser(newUser, result.multisigAddress);
-      }
+      nodeAddress
     );
 
     newUser.attributes.transactionHash = transactionHash;
