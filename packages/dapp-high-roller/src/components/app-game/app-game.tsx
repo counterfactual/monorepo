@@ -33,7 +33,7 @@ export class AppGame {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() history: RouterHistory = {} as RouterHistory;
 
-  @Prop({ mutable: true }) betAmount: string = "3 ETH";
+  @Prop({ mutable: true }) betAmount: string = "0.01 ETH";
   @Prop({ mutable: true }) isProposing: boolean = false;
   @Prop({ mutable: true }) appInstanceId: string = "";
 

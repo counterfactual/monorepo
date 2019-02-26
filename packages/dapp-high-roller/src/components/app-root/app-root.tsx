@@ -167,7 +167,10 @@ export class AppRoot {
     ];
   }
 
-  async highRoller(num1: number, num2: number) {
+  async highRoller(
+    num1: number,
+    num2: number
+  ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
     const randomness = solidityKeccak256(["uint256", "uint256"], [num1, num2]);
 
     // The Contract interface
@@ -214,7 +217,7 @@ export class AppRoot {
       pathname: "/game",
       state: {
         isProposing,
-        betAmount: "0.1"
+        betAmount: ethers.utils.formatEther(this.state.appInstance.myDeposit)
       },
       query: {},
       key: ""
@@ -224,7 +227,7 @@ export class AppRoot {
   goToWaitingRoom(history: RouterHistory) {
     history.push("/waiting", {
       isProposing: false,
-      betAmount: "0.1"
+      betAmount: ethers.utils.formatEther(this.state.appInstance.peerDeposit)
     });
   }
 
@@ -236,45 +239,45 @@ export class AppRoot {
             <HighRollerUITunnel.Provider state={this.uiState}>
               <stencil-router>
                 <stencil-route-switch scrollTopOffset={0}>
-                  <stencil-route
-                    url="/"
-                    exact={true}
-                    component="app-logo"
-                    componentProps={{
-                      cfProvider: this.state.cfProvider,
-                      appInstance: this.state.appInstance,
-                      goToWaitingRoom: this.goToWaitingRoom,
-                      updateAppInstance: this.updateAppInstance
-                    }}
-                  />
-                  <stencil-route
-                    url="/"
-                    exact={true}
-                    component="app-provider"
-                    componentProps={{
-                      updateAppInstance: this.state.updateAppInstance,
-                      updateAppFactory: this.state.updateAppFactory,
-                      updateCfProvider: this.state.updateCfProvider,
-                      updateIntermediary: this.state.updateIntermediary,
-                      updateUIState: this.uiState.updateUIState,
-                      highRoller: this.uiState.highRoller,
-                      generateRandomRoll: this.uiState.generateRandomRoll,
-                      goToGame: this.goToGame
-                    }}
-                  />
-                  <stencil-route
-                    url="/wager"
-                    component="app-wager"
-                    componentProps={{
-                      updateOpponent: this.state.updateOpponent
-                    }}
-                  />
-                  <stencil-route url="/game" component="app-game" />
-                  <stencil-route url="/waiting" component="app-waiting" />
-                  <stencil-route
-                    url="/accept-invite"
-                    component="app-accept-invite"
-                  />
+                  <app-provider
+                    updateAppInstance={this.state.updateAppInstance.bind(this)}
+                    updateAppFactory={this.state.updateAppFactory.bind(this)}
+                    updateCfProvider={this.state.updateCfProvider.bind(this)}
+                    updateIntermediary={this.state.updateIntermediary.bind(
+                      this
+                    )}
+                    updateUIState={this.uiState.updateUIState.bind(this)}
+                    highRoller={this.uiState.highRoller.bind(this)}
+                    generateRandomRoll={this.uiState.generateRandomRoll.bind(
+                      this
+                    )}
+                    goToGame={this.goToGame.bind(this)}
+                  >
+                    <stencil-route
+                      url="/"
+                      exact={true}
+                      component="app-logo"
+                      componentProps={{
+                        cfProvider: this.state.cfProvider,
+                        appInstance: this.state.appInstance,
+                        goToWaitingRoom: this.goToWaitingRoom,
+                        updateAppInstance: this.updateAppInstance
+                      }}
+                    />
+                    <stencil-route
+                      url="/wager"
+                      component="app-wager"
+                      componentProps={{
+                        updateOpponent: this.state.updateOpponent
+                      }}
+                    />
+                    <stencil-route url="/game" component="app-game" />
+                    <stencil-route url="/waiting" component="app-waiting" />
+                    <stencil-route
+                      url="/accept-invite"
+                      component="app-accept-invite"
+                    />
+                  </app-provider>
                 </stencil-route-switch>
               </stencil-router>
             </HighRollerUITunnel.Provider>

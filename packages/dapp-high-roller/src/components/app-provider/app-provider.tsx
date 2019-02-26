@@ -35,7 +35,7 @@ export class AppProvider {
   @Prop() highRoller: (
     num1: number,
     num2: number
-  ) => { myRoll: number[]; opponentRoll: number[] } = () => ({
+  ) => Promise<{ myRoll: number[]; opponentRoll: number[] }> = async () => ({
     myRoll: [0, 0],
     opponentRoll: [0, 0]
   });
@@ -188,7 +188,7 @@ export class AppProvider {
   onUninstall(data: Node.EventData) {}
 
   render() {
-    return <div />;
+    return <slot />;
   }
 }
 
