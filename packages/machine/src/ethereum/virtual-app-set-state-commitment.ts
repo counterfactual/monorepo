@@ -4,10 +4,8 @@ import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-import {
-  signaturesToBytes,
-  sortSignaturesBySignerAddress
-} from "./utils/signature";
+import { utils } from "@counterfactual/cf.js";
+const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
 
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;

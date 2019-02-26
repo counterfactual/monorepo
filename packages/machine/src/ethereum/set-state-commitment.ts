@@ -8,7 +8,8 @@ import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-import { signaturesToBytesSortedBySignerAddress } from "./utils/signature";
+import { utils } from "@counterfactual/cf.js";
+const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const iface = new Interface(AppRegistry.abi);
 
