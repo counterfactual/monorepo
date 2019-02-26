@@ -1,11 +1,10 @@
 import { Node } from "@counterfactual/types";
 import { createProviderConsumer } from "@stencil/state-tunnel";
 
-import { ErrorMessage, UserSession } from "../types";
+import { UserSession } from "../types";
 
 export type AccountState = {
   user: UserSession;
-  error?: ErrorMessage;
   accountBalance?: number;
   balance?: number;
   unconfirmedBalance?: number;
