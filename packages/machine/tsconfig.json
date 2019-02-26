@@ -3,7 +3,8 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "outDir": "dist/",
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "types": ["jest"]
   },
   "include": ["src", "test"],
   "exclude": ["dist"]

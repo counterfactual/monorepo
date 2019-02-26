@@ -80,7 +80,7 @@ export class AppRoot {
   }
 
   async setup() {
-    if (typeof web3 !== "undefined") {
+    if (typeof window["web3"] !== "undefined") {
       await Promise.all([this.createNodeProvider(), this.loadApps()]);
     }
 
