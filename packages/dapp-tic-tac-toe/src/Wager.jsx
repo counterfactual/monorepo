@@ -97,14 +97,13 @@ class Wager extends Component {
     const currentEthBalance = window.ethers.utils.parseEther(
       this.props.balance
     );
-    const minimumEthBalance = window.ethers.utils
-      .parseEther(this.props.gameInfo.betAmount)
-      .add(
-        await provider.estimateGas({
-          to: opponent.nodeAddress,
-          value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
-        })
-      );
+    const bet = window.ethers.utils.parseEther(this.props.gameInfo.betAmount);
+    const minimumEthBalance = bet.add(
+      await provider.estimateGas({
+        to: opponent.nodeAddress,
+        value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
+      })
+    );
 
     if (currentEthBalance.lt(minimumEthBalance)) {
       this.setState({
@@ -112,6 +111,14 @@ class Wager extends Component {
           minimumEthBalance
         )} ETH to play.`
       });
+      return;
+    }
+
+    if (
+      bet.gt(window.ethers.utils.parseEther("0.01")) ||
+      bet.lt(window.ethers.utils.parseEther("0"))
+    ) {
+      this.setState({ error: `Please, place a bet between 0 and 0.01 ETH.` });
       return;
     }
 
@@ -190,9 +197,12 @@ class Wager extends Component {
           />
           <input
             className="form__input"
-            type="text"
-            placeholder="3 eth"
+            type="number"
+            placeholder="0.01 eth"
             disabled={true}
+            min={0}
+            max={0.01}
+            step={0.001}
             value={this.props.gameInfo.betAmount}
           />
           <button
