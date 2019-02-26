@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@counterfactual/typescript-typings": "0.0.1",
+    "@counterfactual/types": "0.0.1",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
     "@types/jest": "^24.0.7",
@@ -36,9 +37,8 @@
     "typescript": "^3.1.2",
     "typescript-memoize": "^1.0.0-alpha.3"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@counterfactual/contracts": "0.0.3",
-    "@counterfactual/types": "0.0.1",
     "ethers": "4.0.26",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
