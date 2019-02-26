@@ -83,7 +83,8 @@ export class AppWager {
         window["web3"].currentProvider
       );
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
-      const minimumEthBalance = ethers.utils.parseEther(this.betAmount).add(
+      const bet = ethers.utils.parseEther(this.betAmount);
+      const minimumEthBalance = bet.add(
         await provider.estimateGas({
           to: this.opponent.attributes.ethAddress,
           value: ethers.utils.parseEther(this.betAmount)
@@ -94,6 +95,14 @@ export class AppWager {
         this.error = `Insufficient funds: You need at least ${ethers.utils.formatEther(
           minimumEthBalance
         )} ETH to play.`;
+        return;
+      }
+
+      if (
+        bet.gt(ethers.utils.parseEther("0.01")) ||
+        bet.lt(ethers.utils.parseEther("0"))
+      ) {
+        this.error = `Please, place a bet between 0 and 0.01 ETH.`;
         return;
       }
 
@@ -249,11 +258,13 @@ export class AppWager {
               class="form__input"
               id="betAmount"
               type="number"
-              placeholder="3 ETH"
+              placeholder="0.01"
               value={this.betAmount}
               onInput={e => this.handleChange(e, "betAmount")}
               readonly={true}
-              step="0.01"
+              min={0}
+              max={0.01}
+              step={0.001}
             />
             {this.isError ? (
               <label class="message__error">

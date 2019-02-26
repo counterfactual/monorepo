@@ -214,7 +214,7 @@ export class AppRoot {
       pathname: "/game",
       state: {
         isProposing,
-        betAmount: "0.1"
+        betAmount: ethers.utils.formatEther(this.state.appInstance.myDeposit)
       },
       query: {},
       key: ""
@@ -226,7 +226,7 @@ export class AppRoot {
       pathname: "/waiting",
       state: {
         isProposing: false,
-        betAmount: "0.1"
+        betAmount: ethers.utils.formatEther(this.state.appInstance.peerDeposit)
       }
     });
   }
