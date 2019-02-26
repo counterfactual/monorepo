@@ -9,8 +9,6 @@ export type AccountState = {
   accountBalance?: number;
   balance?: number;
   unconfirmedBalance?: number;
-  provider: Web3Provider;
-  signer: Signer;
   pendingAccountFunding?: any;
 
   updateAccount?(data: AccountState): Promise<void>;
