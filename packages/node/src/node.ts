@@ -105,6 +105,7 @@ export class Node {
       new Wallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
+    console.info(`Node ETH account: ${this.signer.address}`);
     this.registerMessagingConnection();
     return this;
   }

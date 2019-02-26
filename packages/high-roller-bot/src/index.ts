@@ -1,4 +1,8 @@
-import { FirebaseServiceFactory, Node } from "@counterfactual/node";
+import {
+  FirebaseServiceFactory,
+  MNEMONIC_PATH,
+  Node
+} from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import HashZero from "ethers/constants";
@@ -57,31 +61,19 @@ if (process.env.TIER && process.env.TIER === "development") {
 //       )
 //     `;
 
-// const BOT_USER = {
-//   attributes: {
-//     email: "HighRollerBot@counterfactual.com",
-//     ethAddress: "0xdab32c06dab94feae04ebd7a54128bc22115eb51",
-//     multisigAddress: "0x02D91A30ecCfa50cD8A72177C34E4f282A1b00d2",
-//     nodeAddress:
-//       "xpub6E36zmy9v3oujanBNnDnDY412eiXGuoXSTFStYmsn1TJ7sQdKrdmud6kEckat1A3y4DsLWdV33SigC15MakedwvmSCCKWNRCHkekPvQNPdb",
-//     username: "HighRollerBot"
-//   },
-//   id: "b7605fb6-a760-4be6-b6c5-a53b54d9d4ec",
-//   relationships: {},
-//   type: "user"
-// };
-
-// const APP = {
-//   web3Provider: ethers.getDefaultProvider("ropsten"),
-//   contracts: {}
-// };
-
 const settingsPath = path.resolve(__dirname, "settings.json");
 let node: Node;
 
 (async () => {
+  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+
   console.log("Creating store");
   const store = serviceFactory.createStoreService("highRollerBotStore1");
+
+  if (!(await store.get(MNEMONIC_PATH)) && settings[MNEMONIC_PATH]) {
+    await store.set([{ key: MNEMONIC_PATH, value: settings[MNEMONIC_PATH] }]);
+  }
+
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
   node = await Node.create(
@@ -95,7 +87,6 @@ let node: Node;
   );
 
   console.log("public identifier", node.publicIdentifier);
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
   if (settings["token"]) {
     await afterUser(node);
   } else {
@@ -141,17 +132,16 @@ let node: Node;
   }
 })();
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 async function fetchMultisig(token: string) {
   bot = await getUser(token);
   if (!bot.multisigAddress) {
     console.info(
-      "The Bot doesn't have a channel with the Playground yet...Waiting for another 2.5 seconds"
+      "The Bot doesn't have a channel with the Playground yet...Waiting for another 5 seconds"
     );
-    await delay(2500).then(() => fetchMultisig(token));
+    await delay(5000).then(() => fetchMultisig(token));
   }
-  console.info("Got multisig address: ", bot.multisigAddress);
   return bot.multisigAddress;
 }
 
@@ -257,7 +247,7 @@ async function afterUser(node) {
       console.log(data);
 
       const request = {
-        type: "installVirtual",
+        type: NodeTypes.MethodName.INSTALL_VIRTUAL,
         params: {
           appInstanceId,
           intermediaries
@@ -265,7 +255,7 @@ async function afterUser(node) {
         requestId: generateUUID()
       };
 
-      const installedApp = (await node.call("installVirtual", request)).result;
+      const installedApp = (await node.call(request.type, request)).result;
 
       // const appInstance = await cfProvider.installVirtual(
       //   appInstanceId,
