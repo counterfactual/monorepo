@@ -13,7 +13,7 @@ import {
   expect,
   Terms
 } from "./utils";
-import { utils } from "@counterfactual/cf.js/dist/src/utils";
+import { utils } from "@counterfactual/cf.js";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =
