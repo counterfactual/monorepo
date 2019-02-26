@@ -13,7 +13,7 @@ export class AppGameStatus {
   @Prop() gameState: GameState = GameState.Play;
   @Prop() highRollerStage: HighRollerStage = HighRollerStage.PRE_GAME;
   @Prop() isProposing: boolean = true;
-  @Prop() betAmount: string = "3 ETH";
+  @Prop() betAmount: string = "0.01 ETH";
   @Prop() account: any = { user: { username: "Facundo" } };
   @Prop() opponent: any = { attributes: { username: "John" } };
   @Prop() label: string = "";
