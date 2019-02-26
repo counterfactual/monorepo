@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes } from "ethers/utils";
+import { hexlify, randomBytes, getAddress } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
@@ -32,6 +32,7 @@ const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 describe("AppRegistry", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
+  let wallet2: Wallet;
 
   let appRegistry: Contract;
 
@@ -39,7 +40,7 @@ describe("AppRegistry", () => {
   let setStateWithSignatures: (
     nonce: number,
     appState?: string
-  ) => Promise<void>;
+  ) => Promise<any>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
   let latestAppState: () => Promise<string>;
@@ -49,6 +50,8 @@ describe("AppRegistry", () => {
   before(async () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
+    wallet2 = (await waffle.getWallets(provider))[1];
+
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
@@ -87,13 +90,23 @@ describe("AppRegistry", () => {
     cancelChallenge = () =>
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
-    setStateWithSignatures = async (nonce: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity, {
-        nonce,
-        stateHash: appState || HashZero,
-        timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: HashZero
-      });
+    setStateWithSignatures = async (nonce: number, appState?: string) => {
+      const data = appRegistry.interface.functions.setState.encode([
+        appInstance.appIdentity,
+        {
+          nonce,
+          stateHash: appState || HashZero,
+          timeout: ONCHAIN_CHALLENGE_TIMEOUT,
+          signatures: HashZero
+        }
+      ]);
+      console.log("from=", wallet.address, wallet2.address);
+
+      return wallet2.sendTransaction({
+        data,
+        to: appRegistry.address
+      })
+    }
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
