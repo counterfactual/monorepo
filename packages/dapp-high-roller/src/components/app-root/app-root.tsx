@@ -222,12 +222,9 @@ export class AppRoot {
   }
 
   goToWaitingRoom(history: RouterHistory) {
-    history.push({
-      pathname: "/waiting",
-      state: {
-        isProposing: false,
-        betAmount: ethers.utils.formatEther(this.state.appInstance.peerDeposit)
-      }
+    history.push("/waiting", {
+      isProposing: false,
+      betAmount: ethers.utils.formatEther(this.state.appInstance.peerDeposit)
     });
   }
 
