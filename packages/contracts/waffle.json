@@ -1,4 +1,5 @@
 {
   "npmPath": "../../node_modules",
-  "legacyOutput": true
+  "legacyOutput": true,
+  "solcVersion": "v0.5.3+commit.10d17f24"
 }
