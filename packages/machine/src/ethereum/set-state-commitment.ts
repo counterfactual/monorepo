@@ -1,3 +1,4 @@
+import { utils } from "@counterfactual/cf.js";
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import {
   AppIdentity,
@@ -8,7 +9,6 @@ import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-import { utils } from "@counterfactual/cf.js";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const iface = new Interface(AppRegistry.abi);
