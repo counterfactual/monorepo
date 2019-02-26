@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes, getAddress, SigningKey, keccak256 } from "ethers/utils";
+import { hexlify, randomBytes, SigningKey, keccak256 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
@@ -15,7 +15,7 @@ import {
   expect,
   Terms
 } from "./utils";
-import { signaturesToBytes, signaturesToBytesSortedBySignerAddress } from "@counterfactual/cf.js/dist/src/utils";
+import { signaturesToBytesSortedBySignerAddress } from "@counterfactual/cf.js/dist/src/utils";
 
 const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
