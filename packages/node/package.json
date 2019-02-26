@@ -19,7 +19,7 @@
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
     "ganache-core": "2.4.0",
-    "jest": "^24.1.0",
+    "jest": "24.1.0",
     "jest-dot-reporter": "^1.0.7",
     "rollup": "^1.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
