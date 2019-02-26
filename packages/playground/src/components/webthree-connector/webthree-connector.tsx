@@ -3,6 +3,8 @@ import { Component, Prop } from "@stencil/core";
 import { AccountState } from "../../data/account";
 import { WalletState } from "../../data/wallet";
 
+const { Web3Provider } = ethers.providers;
+
 const permittedNetworkIds = ["3"];
 
 @Component({
@@ -12,6 +14,10 @@ const permittedNetworkIds = ["3"];
 export class Web3Connector {
   @Prop() accountState: AccountState = {} as AccountState;
   @Prop() walletState: WalletState = {};
+
+  getProvider() {
+    return window["web3"].currentProvider;
+  }
 
   getCurrentAddress() {
     return window["web3"].eth.accounts[0];
@@ -59,42 +65,32 @@ export class Web3Connector {
 
   async componentDidLoad() {
     if (!this.isWeb3Detected()) {
-      return this.walletState.updateNetwork!({
+      return this.walletState.updateWalletConnection!({
         web3Detected: false,
         hasDetectedNetwork: true
       });
     }
 
-    this.walletState.updateNetwork!({ web3Detected: true });
-
-    const walletState = await this.getCurrentWalletState();
-
-    walletState.web3Enabled = true;
-    walletState.web3Detected = true;
-
-    const provider = new ethers.providers.Web3Provider(
-      window["web3"].currentProvider
-    );
-    let ethAddress = this.getCurrentAddress();
-    const signer = provider.getSigner();
-
-    // TODO: find more robust way to work with coinbase;
-    // currently it does not yet support "web3.currentProvider.selectedAddress"
-
     this.accountState.updateAccount!({
-      provider,
-      signer,
       user: {
         ...this.accountState.user,
-        ethAddress
+        ethAddress: this.getCurrentAddress()
       },
       balance: 0,
       accountBalance: 0
     });
 
-    this.walletState.updateNetwork!(walletState);
+    const provider = new Web3Provider(this.getProvider());
+    this.walletState.updateWalletConnection!({
+      ...(await this.getCurrentWalletState()),
+      provider,
+      signer: provider.getSigner(),
+      web3Enabled: true,
+      web3Detected: true
+    });
 
     const interval = window.setInterval(async () => {
+      let ethAddress = this.accountState.user.ethAddress;
       const newAddress = this.getCurrentAddress();
 
       await this.accountState.updateAccount!({
@@ -103,7 +99,10 @@ export class Web3Connector {
       });
 
       if (newAddress !== ethAddress) {
-        this.walletState.updateNetwork!(await this.getCurrentWalletState());
+        this.walletState.updateWalletConnection!(
+          await this.getCurrentWalletState()
+        );
+
         ethAddress = newAddress;
 
         // Account was locked

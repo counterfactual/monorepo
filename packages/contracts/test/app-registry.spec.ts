@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes } from "ethers/utils";
+import { hexlify, randomBytes, SigningKey, keccak256 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
@@ -13,6 +13,8 @@ import {
   expect,
   Terms
 } from "./utils";
+import { utils } from "@counterfactual/cf.js";
+const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
@@ -32,6 +34,7 @@ const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 describe("AppRegistry", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
+  let wallet2: Wallet;
 
   let appRegistry: Contract;
 
@@ -49,6 +52,8 @@ describe("AppRegistry", () => {
   before(async () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
+    wallet2 = (await waffle.getWallets(provider))[1];
+
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
@@ -87,13 +92,40 @@ describe("AppRegistry", () => {
     cancelChallenge = () =>
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
-    setStateWithSignatures = async (nonce: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity, {
+    setStateWithSignatures = async (nonce: number, appState?: string) => {
+
+      const stateHash = keccak256(appState || HashZero);
+      const digest = computeStateHash(
+        appInstance.identityHash,
+        stateHash,
         nonce,
-        stateHash: appState || HashZero,
-        timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: HashZero
-      });
+        ONCHAIN_CHALLENGE_TIMEOUT
+      );
+
+      const signer1 = new SigningKey(ALICE.privateKey);
+      const signature1 = await signer1.signDigest(digest);
+
+      const signer2 = new SigningKey(BOB.privateKey);
+      const signature2 = await signer2.signDigest(digest);
+
+      const bytes = signaturesToBytesSortedBySignerAddress(
+        digest, signature1, signature2);
+
+      const data = appRegistry.interface.functions.setState.encode([
+        appInstance.appIdentity,
+        {
+          nonce,
+          stateHash,
+          timeout: ONCHAIN_CHALLENGE_TIMEOUT,
+          signatures: bytes
+        }
+      ]);
+
+      await wallet2.sendTransaction({
+        data,
+        to: appRegistry.address
+      })
+    }
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
@@ -220,7 +252,7 @@ describe("AppRegistry", () => {
     // Setup AppInstance
     const appInstance = new AppInstance(
       wallet.address,
-      [AddressZero, AddressZero],
+      [ALICE.address, BOB.address],
       AddressZero,
       terms,
       10

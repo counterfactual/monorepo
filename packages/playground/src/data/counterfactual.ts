@@ -23,6 +23,7 @@ export declare class Node {
     req: NodeTypes.MethodRequest
   ): Promise<NodeTypes.MethodResponse>;
 }
+
 export interface NodeConfig {
   STORE_KEY_PREFIX: string;
 }
@@ -49,8 +50,7 @@ export default class CounterfactualNode {
       settings.messagingService,
       settings.storeService,
       settings.nodeConfig,
-      // @ts-ignore
-      new ethers.providers.Web3Provider(web3.currentProvider),
+      new ethers.providers.Web3Provider(window["web3"].currentProvider),
       settings.network
     );
 
