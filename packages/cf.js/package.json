@@ -33,26 +33,5 @@
     "@counterfactual/types": "0.0.1",
     "ethers": "4.0.26",
     "eventemitter3": "^3.1.0"
-  },
-  "jest": {
-    "verbose": false,
-    "bail": true,
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "\\.spec.(ts?)$",
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist"
-    ],
-    "roots": [
-      "test"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ],
-    "testURL": "http://localhost/"
   }
 }
