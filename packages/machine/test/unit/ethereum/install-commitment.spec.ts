@@ -99,7 +99,7 @@ describe("InstallCommitment", () => {
     ).getTransactionDetails();
   });
 
-  it("should be to MultiSend", () => {
+  it("should be to the MultiSend contract", () => {
     expect(tx.to).toBe(networkContext.MultiSend);
   });
 
@@ -120,7 +120,7 @@ describe("InstallCommitment", () => {
       expect(transactions.length).toBe(2);
     });
 
-    describe("the transaction to update the free balance", () => {
+    describe("the transaction to set the free balance state", () => {
       let to: string;
       let val: number;
       let data: string;
