@@ -34,8 +34,6 @@ else
   "
 fi
 
-echo "Will build packages: $packages"
-
 for package in $packages; do
   echo "⚙️  Building package: ${package}"
   cd packages/${package}
