@@ -2,7 +2,6 @@ import { FirebaseServiceFactory, Node } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import HashZero from "ethers/constants";
-import { BigNumber } from "ethers/utils";
 import fs from "fs";
 import fetch from "node-fetch";
 import path from "path";
@@ -106,12 +105,17 @@ let node: Node;
         username: "HighRollerBot"
       };
       const privateKey = settings["privateKey"];
+      if (!privateKey) {
+        throw Error('No private key specified in "settings.json". Exiting.');
+      }
       const wallet = new ethers.Wallet(privateKey, provider);
       const signature = await wallet.signMessage(
         buildRegistrationSignaturePayload(user)
       );
 
       const createdAccount = await createAccount(user, signature);
+      console.log("created account");
+      console.log(createdAccount);
       settings["token"] = createdAccount.token;
       settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
@@ -125,12 +129,13 @@ let node: Node;
 
       await afterUser(node);
     } catch (e) {
-      console.log("Error: ", e);
+      console.error(`\n${e}\n`);
+      process.exit(1);
     }
   }
 })();
 
-async function deposit(amount: string, multisigAddress) {
+async function deposit(amount: string, multisigAddress: string) {
   console.log(`depositing ${amount} into ${multisigAddress}`);
   try {
     return node.call(NodeTypes.MethodName.DEPOSIT, {
