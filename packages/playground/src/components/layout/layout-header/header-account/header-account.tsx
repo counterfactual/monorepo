@@ -35,7 +35,7 @@ export class HeaderAccount {
 
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
-  @State() waitMultisigInterval: NodeJS.Timeout = {} as NodeJS.Timeout;
+  @State() waitMultisigInterval: number = 0 as number;
   @State() metamaskConfirmationUIOpen: boolean = false;
 
   // TODO: This is a very weird way to prevent dual-execution of this lifecycle event.

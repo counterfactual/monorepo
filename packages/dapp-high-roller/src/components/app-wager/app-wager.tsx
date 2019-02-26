@@ -44,9 +44,9 @@ export class AppWager {
   @Prop() account: any;
   @Prop() standalone: boolean = false;
 
-  @Prop() updateAppInstance: (
-    appInstance: { id: AppInstanceID }
-  ) => void = () => {};
+  @Prop() updateAppInstance: (appInstance: {
+    id: AppInstanceID;
+  }) => void = () => {};
   @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {

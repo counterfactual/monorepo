@@ -72,7 +72,9 @@ export class Web3Connector {
     walletState.web3Enabled = true;
     walletState.web3Detected = true;
 
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    const provider = new ethers.providers.Web3Provider(
+      window["web3"].currentProvider
+    );
     let ethAddress = this.getCurrentAddress();
     const signer = provider.getSigner();
 

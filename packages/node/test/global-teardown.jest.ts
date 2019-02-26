@@ -1,3 +1,3 @@
-module.exports = async function() {
+export default async function() {
   global["ganacheServer"].close();
-};
+}
