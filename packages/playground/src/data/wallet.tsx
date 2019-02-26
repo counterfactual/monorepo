@@ -12,7 +12,10 @@ export interface WalletState {
 }
 
 export default createProviderConsumer<WalletState>(
-  { network: "Unknown network", web3Detected: typeof web3 !== undefined },
+  {
+    network: "Unknown network",
+    web3Detected: typeof window["web3"] !== undefined
+  },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />
   )
