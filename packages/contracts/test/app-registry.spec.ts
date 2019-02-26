@@ -13,7 +13,8 @@ import {
   expect,
   Terms
 } from "./utils";
-import { signaturesToBytesSortedBySignerAddress } from "@counterfactual/cf.js/dist/src/utils";
+import { utils } from "@counterfactual/cf.js/dist/src/utils";
+const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
