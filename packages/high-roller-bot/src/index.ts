@@ -1,6 +1,8 @@
-import { FirebaseServiceFactory, Node } from "@counterfactual/node/src";
+import { FirebaseServiceFactory, Node } from "@counterfactual/node";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import HashZero from "ethers/constants";
+import { BigNumber } from "ethers/utils";
 import fs from "fs";
 import fetch from "node-fetch";
 import path from "path";
@@ -74,13 +76,14 @@ if (process.env.TIER && process.env.TIER === "development") {
 // };
 
 const settingsPath = path.resolve(__dirname, "settings.json");
+let node: Node;
 
 (async () => {
   console.log("Creating store");
   const store = serviceFactory.createStoreService("highRollerBotStore1");
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
-  const node = await Node.create(
+  node = await Node.create(
     messService,
     store,
     {
@@ -102,25 +105,48 @@ const settingsPath = path.resolve(__dirname, "settings.json");
         nodeAddress: node.publicIdentifier,
         username: "HighRollerBot"
       };
-      console.log(`User to create: ${JSON.stringify(user)}`);
       const privateKey = settings["privateKey"];
       const wallet = new ethers.Wallet(privateKey, provider);
       const signature = await wallet.signMessage(
         buildRegistrationSignaturePayload(user)
       );
-      console.log("got signature: ", signature);
 
       const createdAccount = await createAccount(user, signature);
       settings["token"] = createdAccount.token;
       settings["multisigAddress"] = createdAccount.multisigAddress;
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
       console.log(`Account created with token: ${createdAccount.token}`);
+
+      let depositAmount = process.argv[2];
+      if (!depositAmount) {
+        depositAmount = "0.01";
+      }
+      await deposit(depositAmount, "");
+
       await afterUser(node);
     } catch (e) {
       console.log("Error: ", e);
     }
   }
 })();
+
+async function deposit(amount: string, multisigAddress) {
+  console.log(`depositing ${amount} into ${multisigAddress}`);
+  try {
+    return node.call(NodeTypes.MethodName.DEPOSIT, {
+      type: NodeTypes.MethodName.DEPOSIT,
+      requestId: window["uuid"](),
+      params: {
+        multisigAddress,
+        amount: ethers.utils.parseEther(amount),
+        notifyCounterparty: true
+      } as NodeTypes.DepositParams
+    });
+  } catch (e) {
+    console.error(`Failed to deposit... ${e}`);
+    throw e;
+  }
+}
 
 async function createAccount(user, signature) {
   try {

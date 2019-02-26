@@ -35,6 +35,7 @@
   "devDependencies": {
     "@counterfactual/cf.js": "0.0.5",
     "@counterfactual/node": "^0.0.4",
+    "@counterfactual/types": "0.0.1",
     "env-cmd": "^8.0.2",
     "ethers": "4.0.26",
     "jest": "^24.0.0",
