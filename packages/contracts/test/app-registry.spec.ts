@@ -43,7 +43,7 @@ describe("AppRegistry", () => {
   let setStateWithSignatures: (
     nonce: number,
     appState?: string
-  ) => Promise<any>;
+  ) => Promise<void>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
   let latestAppState: () => Promise<string>;
@@ -124,7 +124,7 @@ describe("AppRegistry", () => {
         }
       ]);
 
-      return wallet2.sendTransaction({
+      await wallet2.sendTransaction({
         data,
         to: appRegistry.address
       })
