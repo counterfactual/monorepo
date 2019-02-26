@@ -16,7 +16,7 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 // This runs once for all test suites.
 
-module.exports = async () => {
+export default async function() {
   mkdirp.sync(DIR);
 
   const pgMnemonic = Wallet.createRandom().mnemonic;
@@ -75,4 +75,4 @@ module.exports = async () => {
   };
 
   fs.writeFileSync(path.join(DIR, "data"), JSON.stringify(data));
-};
+}
