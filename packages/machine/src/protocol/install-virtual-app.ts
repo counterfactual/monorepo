@@ -333,9 +333,7 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
-    bigNumberify(initiatingBalanceDecrement)
-      .add(respondingBalanceDecrement)
-      .toNumber(),
+    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
     xkeyKthAddress(initiatingXpub, 0),
     xkeyKthAddress(intermediaryXpub, 0)
@@ -427,9 +425,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     channelWithInitiating.numInstalledApps,
     channelWithInitiating.rootNonceValue,
     100,
-    bigNumberify(initiatingBalanceDecrement)
-      .add(respondingBalanceDecrement)
-      .toNumber(),
+    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
     xkeyKthAddress(initiatingXpub, 0),
     xkeyKthAddress(intermediaryXpub, 0)
@@ -447,9 +443,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     channelWithResponding.numInstalledApps,
     channelWithResponding.rootNonceValue,
     100,
-    bigNumberify(initiatingBalanceDecrement)
-      .add(respondingBalanceDecrement)
-      .toNumber(),
+    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
     xkeyKthAddress(intermediaryXpub, 0),
     xkeyKthAddress(respondingXpub, 0)
@@ -549,9 +543,7 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
-    bigNumberify(initiatingBalanceDecrement)
-      .add(respondingBalanceDecrement)
-      .toNumber(),
+    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
     xkeyKthAddress(intermediaryXpub, 0),
     xkeyKthAddress(respondingXpub, 0)
