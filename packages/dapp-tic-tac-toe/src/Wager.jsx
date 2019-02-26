@@ -89,8 +89,6 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
-    debugger;
-
     const provider = new window.ethers.providers.Web3Provider(
       window["web3"].currentProvider
     );
@@ -152,7 +150,9 @@ class Wager extends Component {
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
   }
 
-  onPlayClicked() {
+  onFormSubmitted(e) {
+    e.preventDefault();
+
     const { opponent, intermediary } = this.state;
     const { user } = this.props;
 
@@ -187,7 +187,7 @@ class Wager extends Component {
           <p className="message__body">Ready to play?</p>
         </div>
 
-        <form className="form">
+        <form className="form" onSubmit={this.onFormSubmitted.bind(this)}>
           <input
             className="form__input"
             type="text"
@@ -199,17 +199,13 @@ class Wager extends Component {
             className="form__input"
             type="number"
             placeholder="0.01 eth"
-            disabled={true}
             min={0}
             max={0.01}
             step={0.001}
-            value={this.props.gameInfo.betAmount}
+            onChange={e => (this.props.gameInfo.betAmount = e.target.value)}
+            defaultValue={this.props.gameInfo.betAmount}
           />
-          <button
-            type="button"
-            onClick={this.onPlayClicked.bind(this)}
-            className="form__button"
-          >
+          <button type="submit" className="form__button">
             PLAY!
           </button>
           {error ? <label class="message__error">{error}</label> : []}
