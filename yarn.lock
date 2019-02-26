@@ -1071,17 +1071,17 @@
     "@firebase/storage-types" "0.2.5"
     tslib "1.9.0"
 
+"@firebase/util@0.*", "@firebase/util@0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.7.tgz#c13818ec5a01ed74586208db58d166f61681c9dc"
+  integrity sha512-I6rN6smH1XEXUIDySI2jr4pM8r2tBnE40mANYco2lbzs2D0nk9aiwKp5MTWRAmqRy4WDe7sx9sqs0cFefzsD6A==
+  dependencies:
+    tslib "1.9.0"
+
 "@firebase/util@0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.3.tgz#ad5513cb35eeecabae5169e439d4e200f0d180ae"
   integrity sha512-ngAG4qYpcnnshUKbBlEiR9+j37U7dTrTVJlS4v7ahW1ROuyLT9xj6cWyHQANzcTR2yKLmEv3yfwoZwedz7V0oQ==
-  dependencies:
-    tslib "1.9.0"
-
-"@firebase/util@0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.7.tgz#c13818ec5a01ed74586208db58d166f61681c9dc"
-  integrity sha512-I6rN6smH1XEXUIDySI2jr4pM8r2tBnE40mANYco2lbzs2D0nk9aiwKp5MTWRAmqRy4WDe7sx9sqs0cFefzsD6A==
   dependencies:
     tslib "1.9.0"
 
@@ -2048,10 +2048,10 @@
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.14.tgz#37daaf78069e7948520474c87b80092ea912520a"
   integrity sha512-Q5hTcfdudEL2yOmluA1zaSyPbzWPmJ3XfSWeP3RyoYvS9hnje1ZyagrZOuQ6+1nQC1Gw+7gap3pLNL3xL6UBug==
 
-"@types/jest@24.0.6", "@types/jest@^24.0.6":
-  version "24.0.6"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.6.tgz#ba4c8c7900ce098a82ca99293cbe4192bde4f355"
-  integrity sha512-NE7FBG/F4cMDKdCBqgyd+Sa6JZ5GiMOyA5QwJdeS4Ii/Z9a18WgGbFrHbcr48/7I9HdnkaAYP+S2MmQ27qoqJA==
+"@types/jest@24.0.8", "@types/jest@^24.0.8":
+  version "24.0.8"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.8.tgz#98cc1bb1ba8bb46402289c5ef58709de0aec3881"
+  integrity sha512-J9s1185W175UQ0Amyb1AhH4+qzGXNTxEHdeXESKIs/EFHC9aLMZwDPtdH8YkimuKVt+aSb8vO0GC1guO50sbBw==
   dependencies:
     "@types/jest-diff" "*"
 
@@ -9678,7 +9678,7 @@ jest-changed-files@^24.0.0:
     execa "^1.0.0"
     throat "^4.0.0"
 
-jest-cli@^23.6.0:
+jest-cli@23.6.0, jest-cli@^23.6.0:
   version "23.6.0"
   resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-23.6.0.tgz#61ab917744338f443ef2baa282ddffdd658a5da4"
   integrity sha512-hgeD1zRUp1E1zsiyOXjEn4LzRLWdJBV//ukAHGlx6s5mfCNJTbhbHjgxnDUXA8fsKWN/HqFFF6X5XcCwC/IvYQ==
@@ -10332,7 +10332,7 @@ jest@23.6.0:
     import-local "^1.0.0"
     jest-cli "^23.6.0"
 
-jest@^24.1.0:
+jest@24.1.0:
   version "24.1.0"
   resolved "https://registry.npmjs.org/jest/-/jest-24.1.0.tgz#b1e1135caefcf2397950ecf7f90e395fde866fd2"
   integrity sha512-+q91L65kypqklvlRFfXfdzUKyngQLOcwGhXQaLmVHv+d09LkNXuBuGxlofTFW42XMzu3giIcChchTsCNUjQ78A==
