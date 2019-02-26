@@ -10,7 +10,6 @@ import StateChannelTransaction from "@counterfactual/contracts/build/StateChanne
 import { SetStateCommitment } from "@counterfactual/machine/src/ethereum";
 import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
-import { WaffleLegacyOutput } from "ethereum-waffle";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -22,6 +21,7 @@ import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
+import { WaffleLegacyOutput } from "./waffle-type";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
