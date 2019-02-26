@@ -2,9 +2,11 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes, getAddress } from "ethers/utils";
+import { hexlify, randomBytes, getAddress, SigningKey, keccak256 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
+
+import LibSignature from "../build/LibSignature.json";
 
 import {
   AppInstance,
@@ -13,6 +15,7 @@ import {
   expect,
   Terms
 } from "./utils";
+import { signaturesToBytes, signaturesToBytesSortedBySignerAddress } from "@counterfactual/cf.js/dist/src/utils";
 
 const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
@@ -91,16 +94,35 @@ describe("AppRegistry", () => {
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
     setStateWithSignatures = async (nonce: number, appState?: string) => {
+
+      const libSig = await waffle.deployContract(wallet, LibSignature);
+
+      const stateHash = keccak256(appState || HashZero);
+      const digest = computeStateHash(
+        appInstance.identityHash,
+        stateHash,
+        nonce,
+        ONCHAIN_CHALLENGE_TIMEOUT
+      );
+
+      const signer1 = new SigningKey(ALICE.privateKey);
+      const signature1 = await signer1.signDigest(digest);
+
+      const signer2 = new SigningKey(BOB.privateKey);
+      const signature2 = await signer2.signDigest(digest);
+
+      const bytes = signaturesToBytesSortedBySignerAddress(
+        digest, signature1, signature2);
+
       const data = appRegistry.interface.functions.setState.encode([
         appInstance.appIdentity,
         {
           nonce,
-          stateHash: appState || HashZero,
+          stateHash,
           timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-          signatures: HashZero
+          signatures: bytes
         }
       ]);
-      console.log("from=", wallet.address, wallet2.address);
 
       return wallet2.sendTransaction({
         data,
@@ -233,7 +255,7 @@ describe("AppRegistry", () => {
     // Setup AppInstance
     const appInstance = new AppInstance(
       wallet.address,
-      [AddressZero, AddressZero],
+      [ALICE.address, BOB.address],
       AddressZero,
       terms,
       10
