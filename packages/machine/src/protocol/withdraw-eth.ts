@@ -21,9 +21,7 @@ import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
- *
- * TODO: Add protocol to specs
- *
+ * https://specs.counterfactual.com/11-withdraw-protocol *
  */
 export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
   0: [
