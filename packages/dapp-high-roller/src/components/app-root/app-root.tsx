@@ -233,12 +233,9 @@ export class AppRoot {
   }
 
   goToWaitingRoom(history: RouterHistory) {
-    history.push({
-      pathname: "/waiting",
-      state: {
-        isProposing: false,
-        betAmount: "0.1"
-      }
+    history.push("/waiting", {
+      isProposing: false,
+      betAmount: "0.1"
     });
   }
 
