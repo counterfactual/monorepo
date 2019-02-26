@@ -191,5 +191,5 @@ export class NodeListener {
 }
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
-AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
-WalletTunnel.injectProps(NodeListener, ["web3Detected"]);
+AccountTunnel.injectProps(NodeListener, ["balance"]);
+WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);

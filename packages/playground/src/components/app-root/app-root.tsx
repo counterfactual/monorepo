@@ -49,7 +49,7 @@ export class AppRoot {
     this.bindProviderEvents();
   }
 
-  async updateNetwork(newProps: WalletState) {
+  async updateWalletConnection(newProps: WalletState) {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
@@ -102,6 +102,7 @@ export class AppRoot {
       storageBucket: "foobar-91a31.appspot.com",
       messagingSenderId: "432199632441"
     };
+
     if (TIER === "dev") {
       configuration = {
         databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
@@ -112,11 +113,13 @@ export class AppRoot {
         messagingSenderId: ""
       };
     }
+
     FirebaseDataProvider.create(configuration);
 
     const messagingService = FirebaseDataProvider.createMessagingService(
       "messaging"
     );
+
     const storeService = {
       // This implements partial path look ups for localStorage
       async get(desiredKey: string): Promise<any> {
@@ -170,7 +173,8 @@ export class AppRoot {
   }
 
   bindProviderEvents() {
-    const { provider, user } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     if (!provider) {
       return;
@@ -194,7 +198,9 @@ export class AppRoot {
   }
 
   async login() {
-    const { signer, user } = this.accountState;
+    const { user } = this.accountState;
+    const { signer } = this.walletState;
+
     const signature = await signer.signMessage(
       this.buildSignatureMessageForLogin(user.ethAddress)
     );
@@ -219,7 +225,8 @@ export class AppRoot {
   }
 
   async getBalances() {
-    const { user, provider } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     if (!user.multisigAddress || !user.ethAddress) {
       return;
@@ -311,7 +318,8 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const { provider, user } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     provider.once(user.transactionHash, async () => {
       await this.fetchMultisig();
@@ -409,7 +417,9 @@ export class AppRoot {
       withdraw: this.withdraw.bind(this)
     };
 
-    this.walletState.updateNetwork = this.updateNetwork.bind(this);
+    this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
+      this
+    );
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {

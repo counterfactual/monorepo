@@ -220,6 +220,6 @@ export class AccountRegister {
   }
 }
 
-AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user", "signer"]);
+AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user"]);
 
-WalletTunnel.injectProps(AccountRegister, ["connected"]);
+WalletTunnel.injectProps(AccountRegister, ["connected", "signer"]);
