@@ -6,8 +6,6 @@ import { hexlify, randomBytes, SigningKey, keccak256 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
-import LibSignature from "../build/LibSignature.json";
-
 import {
   AppInstance,
   AssetType,
@@ -94,8 +92,6 @@ describe("AppRegistry", () => {
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
     setStateWithSignatures = async (nonce: number, appState?: string) => {
-
-      const libSig = await waffle.deployContract(wallet, LibSignature);
 
       const stateHash = keccak256(appState || HashZero);
       const digest = computeStateHash(
