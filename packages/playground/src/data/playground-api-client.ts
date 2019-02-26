@@ -2,7 +2,6 @@ import {
   APIError,
   APIRequest,
   APIResource,
-  APIResourceAttributes,
   APIResourceCollection,
   APIResponse,
   AppAttributes,

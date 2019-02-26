@@ -5,9 +5,11 @@ import HashZero from "ethers/constants";
 import fs from "fs";
 import fetch from "node-fetch";
 import path from "path";
-import v4 from "uuid";
+import { v4 as generateUUID } from "uuid";
 
 const provider = ethers.getDefaultProvider("ropsten");
+const API_TIMEOUT = 30000;
+let bot: UserSession;
 
 let BASE_URL = `https://server.playground-staging.counterfactual.com`;
 
@@ -114,33 +116,51 @@ let node: Node;
       );
 
       const createdAccount = await createAccount(user, signature);
-      console.log("created account");
-      console.log(createdAccount);
       settings["token"] = createdAccount.token;
-      settings["multisigAddress"] = createdAccount.multisigAddress;
-      fs.writeFileSync(settingsPath, JSON.stringify(settings));
+      console.log("Account created. Fetching multisig address");
+      const multisigAddress = await fetchMultisig(createdAccount.token!);
+
       console.log(`Account created with token: ${createdAccount.token}`);
 
       let depositAmount = process.argv[2];
       if (!depositAmount) {
         depositAmount = "0.01";
       }
-      await deposit(depositAmount, "");
+      await deposit(depositAmount, multisigAddress);
+
+      // save token to settings after user & channel are  successfully created and funded
+      fs.writeFileSync(settingsPath, JSON.stringify(settings));
 
       await afterUser(node);
     } catch (e) {
-      console.error(`\n${e}\n`);
+      console.error("\n");
+      console.error(e);
+      console.error("\n");
       process.exit(1);
     }
   }
 })();
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function fetchMultisig(token: string) {
+  bot = await getUser(token);
+  if (!bot.multisigAddress) {
+    console.info(
+      "The Bot doesn't have a channel with the Playground yet...Waiting for another 2.5 seconds"
+    );
+    await delay(2500).then(() => fetchMultisig(token));
+  }
+  console.info("Got multisig address: ", bot.multisigAddress);
+  return bot.multisigAddress;
+}
+
 async function deposit(amount: string, multisigAddress: string) {
-  console.log(`depositing ${amount} into ${multisigAddress}`);
+  console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
   try {
     return node.call(NodeTypes.MethodName.DEPOSIT, {
       type: NodeTypes.MethodName.DEPOSIT,
-      requestId: window["uuid"](),
+      requestId: generateUUID(),
       params: {
         multisigAddress,
         amount: ethers.utils.parseEther(amount),
@@ -153,18 +173,6 @@ async function deposit(amount: string, multisigAddress: string) {
   }
 }
 
-async function createAccount(user, signature) {
-  try {
-    const data = toAPIResource(user);
-    const json = await post("users", data, signature);
-    const resource = json.data;
-
-    return fromAPIResource(resource);
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
-
 function buildRegistrationSignaturePayload(data) {
   return [
     "PLAYGROUND ACCOUNT REGISTRATION",
@@ -173,6 +181,42 @@ function buildRegistrationSignaturePayload(data) {
     `Ethereum address: ${data.ethAddress}`,
     `Node address: ${data.nodeAddress}`
   ].join("\n");
+}
+
+function timeout(delay: number = API_TIMEOUT) {
+  const handler = setTimeout(() => {
+    throw new Error("Request timed out");
+  }, delay);
+
+  return {
+    cancel() {
+      clearTimeout(handler);
+    }
+  };
+}
+
+async function get(endpoint: string, token?: string): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
+  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
+    method: "GET",
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`
+        }
+      : {}
+  });
+
+  requestTimeout.cancel();
+
+  const response = (await httpResponse.json()) as APIResponse;
+
+  if (response.errors) {
+    const error = response.errors[0] as APIError;
+    throw error;
+  }
+
+  return response;
 }
 
 async function post(endpoint, data, token, authType = "Signature") {
@@ -218,7 +262,7 @@ async function afterUser(node) {
           appInstanceId,
           intermediaries
         },
-        requestId: v4()
+        requestId: generateUUID()
       };
 
       const installedApp = (await node.call("installVirtual", request)).result;
@@ -268,15 +312,36 @@ async function afterUser(node) {
   });
 }
 
-function fromAPIResource(resource) {
-  return {
-    id: resource.id,
-    ...resource.attributes
-  };
+// TODO: don't duplicate these from PG for consistency
+
+async function createAccount(
+  user: UserChangeset,
+  signature: string
+): Promise<UserSession> {
+  try {
+    const data = toAPIResource<UserChangeset, UserAttributes>(user);
+    const json = (await post("users", data, signature)) as APIResponse;
+    const resource = json.data as APIResource<UserAttributes>;
+
+    return fromAPIResource<UserSession, UserAttributes>(resource);
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }
 
-function toAPIResource(model) {
-  return {
+function fromAPIResource<TModel, TResource>(
+  resource: APIResource<TResource>
+): TModel {
+  return ({
+    id: resource.id,
+    ...(resource.attributes as {})
+  } as unknown) as TModel;
+}
+
+function toAPIResource<TModel, TResource>(
+  model: TModel
+): APIResource<TResource> {
+  return ({
     ...(model["id"] ? { id: model["id"] } : {}),
     attributes: {
       ...Object.keys(model)
@@ -287,79 +352,151 @@ function toAPIResource(model) {
           return { ...previous, ...current };
         }, {})
     }
-  };
+  } as unknown) as APIResource<TResource>;
 }
 
-// const botNodeAddress =
-//   "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd";
-// const playgroundNodeAddress =
-//   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
+async function getUser(token: string): Promise<UserSession> {
+  if (!token) {
+    throw new Error("getUser(): token is required");
+  }
 
-/*   const multisigResponse = await node.call("createChannel", {
-    params: {
-      owners: [playgroundNodeAddress, botNodeAddress]
-    },
-    type: "createChannel",
-    requestId: v4()
-  });
+  try {
+    const json = (await get("users/me", token)) as APIResponse;
+    const resource = json.data[0] as APIResource<UserAttributes>;
 
-  console.log("multisigResponse: ", multisigResponse); */
+    return fromAPIResource<UserSession, UserAttributes>(resource);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
 
-// Old multisig_address 0x52fF4fd734A5a5c4D082764C32643fE28B41653a
-/*   console.log("Creating channel with server");
-  const playgroundIdendifier =
-    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e";
-  const stateChannelResponse = await node.call("createChannel", {
-    params: {
-      owners: [node.publicIdentifier, playgroundIdendifier]
-    },
-    type: "createChannel",
-    requestId: v4()
-  });
-  console.log("state channel response", stateChannelResponse);
+export type AppDefinition = {
+  id: string;
+  name: string;
+  notifications?: number;
+  slug: string;
+  url: string;
+  icon: string;
+};
 
-  console.log("public identifier", node.publicIdentifier); */
-// messService.onReceive(node.publicIdentifier, NodeMessage => {
-//   console.log("received", NodeMessage);
-// });
-// messService.onReceive(
-//   "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-//   NodeMessage => {
-//     console.log("sent", NodeMessage);
-//   }
-// );
+export interface UserChangeset {
+  username: string;
+  email: string;
+  ethAddress: string;
+  nodeAddress: string;
+}
 
-/*
-Node Wallet Address: 0x058398C00D894eAD40E51277Ea06A5Dc81D6c086
-Creating channel with server
-state channel response { type: 'createChannel',
-  requestId: 'd04c9a74-5d71-40cb-a850-e27b55579105',
-  result:
-   { multisigAddress: '0x52fF4fd734A5a5c4D082764C32643fE28B41653a' } }
-public identifier xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd
- */
+export type UserSession = {
+  id: string;
+  username: string;
+  ethAddress: string;
+  nodeAddress: string;
+  email: string;
+  multisigAddress: string;
+  transactionHash: string;
+  token?: string;
+};
 
-/*
-ethAddress: "0x058398C00D894eAD40E51277Ea06A5Dc81D6c086"
-intermediary: "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e"
-nodeAddress: "xpub6FQSN2iXYQtARApRsztXzeL9qBPjtMpk7bkAv6Nh8EmkzN8xDzD3d8goqu7srUGiw967VES8tFjUCuKZxQMi7HW3i4XmhpBXAu9dQ1rVdkd"
-username: "HighRollerBot"
- */
+export type ComponentEventHandler = (event: CustomEvent<any>) => void;
 
-/*
-  No channel exists between the current user
-  xpub6DzGNw6xEWgTz6UXLdaSjfJ3YcEp99VCX921pCTJVAK9RqUTJH6x9TwVZiMN4WcASKALGGbwDqzPs2Pm9FH8oKuq58SHbTGMa7iRJpCSArw
-  and the peer
-  xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e
-*/
+export interface ErrorMessage {
+  primary: string;
+  secondary: string;
+}
 
-/* console.log("public identifier", node.publicIdentifier);
-  messService.onReceive(node.publicIdentifier, NodeMessage => {
-    console.log("received", NodeMessage);
-  });
-  messService.onReceive(
-    "xpub6EDEcQcke2q2q5gUnhHBf3CvdE9woerHtHDxSih49EbsHEFbTxqRXEAFGmBfQHRJT57sHLnEyY1R1jPW8pycYWLbBt5mTprj8NPBeRG1C5e",
-    NodeMessage => {
-      console.log("sent", NodeMessage);
-    }
-  ); */
+// TODO: Delete everything down below after JSONAPI-TS is implemented.
+
+export type APIError = {
+  status: HttpStatusCode;
+  code: ErrorCode;
+  title: string;
+  detail: string;
+};
+
+export type APIResource<T = APIResourceAttributes> = {
+  type: APIResourceType;
+  id?: string;
+  attributes: T;
+  relationships?: APIResourceRelationships;
+};
+
+export type APIResourceAttributes = {
+  [key: string]: string | number | boolean | undefined;
+};
+
+export type APIResourceType =
+  | "user"
+  | "matchmakingRequest"
+  | "matchedUser"
+  | "session"
+  | "app";
+
+export type APIResourceRelationships = {
+  [key in APIResourceType]?: APIDataContainer
+};
+
+export type APIDataContainer<T = APIResourceAttributes> = {
+  data: APIResource<T> | APIResourceCollection<T>;
+};
+
+export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];
+
+export type APIResponse<T = APIResourceAttributes> = APIDataContainer<T> & {
+  errors?: APIError[];
+  meta?: APIMetadata;
+  included?: APIResourceCollection;
+};
+
+export enum ErrorCode {
+  SignatureRequired = "signature_required",
+  InvalidSignature = "invalid_signature",
+  AddressAlreadyRegistered = "address_already_registered",
+  AppRegistryNotAvailable = "app_registry_not_available",
+  UserAddressRequired = "user_address_required",
+  NoUsersAvailable = "no_users_available",
+  UnhandledError = "unhandled_error",
+  UserNotFound = "user_not_found",
+  TokenRequired = "token_required",
+  InvalidToken = "invalid_token",
+  UsernameAlreadyExists = "username_already_exists"
+}
+
+export enum HttpStatusCode {
+  OK = 200,
+  Created = 201,
+  BadRequest = 400,
+  Unauthorized = 401,
+  Forbidden = 403,
+  InternalServerError = 500
+}
+
+export type APIMetadata = {
+  [key: string]: string | number | boolean | APIMetadata;
+};
+
+export type APIRequest<T = APIResourceAttributes> = {
+  data?: APIResource<T> | APIResourceCollection<T>;
+  meta?: APIMetadata;
+};
+
+export type UserAttributes = {
+  id: string;
+  username: string;
+  ethAddress: string;
+  nodeAddress: string;
+  email: string;
+  multisigAddress: string;
+  transactionHash: string;
+  token?: string;
+};
+
+export type SessionAttributes = {
+  ethAddress: string;
+};
+
+export type AppAttributes = {
+  name: string;
+  slug: string;
+  icon: string;
+  url: string;
+};
