@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2017",
+    "module": "commonjs",
     "typeRoots": [
       "../../node_modules/@types",
       "../../node_modules/@counterfactual/typescript-typings/types"
