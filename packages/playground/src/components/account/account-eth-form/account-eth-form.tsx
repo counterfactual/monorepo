@@ -12,7 +12,7 @@ export class AccountEthForm {
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
   @Prop() max: number = 1;
-  @Prop() available: BigNumber = ethers.constants.Zero;
+  @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
 

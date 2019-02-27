@@ -15,7 +15,7 @@ import { UserSession } from "../../../types";
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
 
-  @Prop() ethWeb3WalletBalance: BigNumber = ethers.constants.Zero;
+  @Prop() ethWeb3WalletBalance: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;

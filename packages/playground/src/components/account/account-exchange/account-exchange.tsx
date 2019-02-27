@@ -22,13 +22,15 @@ const HUB_IS_DEPOSITING_ALERT =
 export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() ethFreeBalanceWei: BigNumber = ethers.constants.Zero;
-  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
-  @Prop() ethWeb3WalletBalance: BigNumber = ethers.constants.Zero;
+  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethMultisigBalance: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethWeb3WalletBalance: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() ethPendingDepositTxHash: string = "";
-  @Prop() ethPendingDepositAmountWei: BigNumber = ethers.constants.Zero;
+  @Prop() ethPendingDepositAmountWei: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() ethPendingWithdrawalTxHash: string = "";
-  @Prop() ethPendingWithdrawalAmountWei: BigNumber = ethers.constants.Zero;
+  @Prop() ethPendingWithdrawalAmountWei: BigNumber = {
+    _hex: "0x00"
+  } as BigNumber;
   @Prop() network: string = "";
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() deposit: (value: string) => Promise<any> = async () => ({});

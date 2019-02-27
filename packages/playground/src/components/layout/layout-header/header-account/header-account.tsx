@@ -19,7 +19,7 @@ import { UserSession } from "../../../../types";
 })
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
-  @Prop() ethFreeBalanceWei: BigNumber = ethers.constants.Zero;
+  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() network: string = "";
   @Prop() error: { primary: string; secondary: string } = {
     primary: "",
