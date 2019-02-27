@@ -1,5 +1,6 @@
-import { Protocol, StateChannel } from "@counterfactual/machine";
 import {
+  Protocol,
+  StateChannel,
   UninstallVirtualAppParams,
   WithdrawParams
 } from "@counterfactual/machine";
