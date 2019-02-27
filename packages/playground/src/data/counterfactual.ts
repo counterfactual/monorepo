@@ -16,6 +16,7 @@ export declare class Node {
   ): Promise<Node>;
   readonly publicIdentifier: string;
   on(event: string, callback: (res: any) => void): void;
+  once(event: string, callback: (res: any) => void): void;
   off(event: string, callback?: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
   call(

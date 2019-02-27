@@ -44,7 +44,7 @@ export class AppRoot {
     this.setup();
   }
 
-  async updateAccount(newProps: AccountState) {
+  async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
   }
@@ -60,23 +60,21 @@ export class AppRoot {
   async updateMultisigBalance(ethBalance: any) {
     // TODO: This comparison might need changes if the user's doing
     // deposits beyond the registration flow.
-    if (ethBalance._hex === "0x0" && this.accountState.unconfirmedBalance) {
+    if (
+      ethBalance.eq(ethers.constants.Zero) &&
+      this.accountState.ethPendingDepositAmountWei
+    ) {
       return;
     }
 
-    const balance = parseFloat(ethers.utils.formatEther(ethBalance.toString()));
-
-    this.accountState = {
-      ...this.accountState,
-      balance,
-      unconfirmedBalance: undefined
-    };
+    this.updateAccount({
+      ethMultisigBalance: ethBalance,
+      ethPendingDepositAmountWei: undefined
+    });
   }
 
-  async updateWalletBallance(ethBalance: any) {
-    const balance = parseFloat(ethers.utils.formatEther(ethBalance.toString()));
-
-    this.accountState = { ...this.accountState, accountBalance: balance };
+  async updateWalletBalance(ethWeb3WalletBalance: BigNumber) {
+    this.walletState.updateWalletConnection!({ ethWeb3WalletBalance });
   }
 
   async setup() {
@@ -162,6 +160,7 @@ export class AppRoot {
         STORE_KEY_PREFIX: "store"
       },
       // TODO: fetch this from the provider's network
+      // TODO: handle changes on the UI
       network: "ropsten"
     });
   }
@@ -182,7 +181,7 @@ export class AppRoot {
 
     if (user.ethAddress) {
       provider.removeAllListeners(user.ethAddress);
-      provider.on(user.ethAddress, this.updateWalletBallance.bind(this));
+      provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
     }
 
     if (user.multisigAddress) {
@@ -199,7 +198,8 @@ export class AppRoot {
 
   async login() {
     const { user } = this.accountState;
-    const { signer } = this.walletState;
+
+    const signer = this.walletState.signer as Signer;
 
     const signature = await signer.signMessage(
       this.buildSignatureMessageForLogin(user.ethAddress)
@@ -219,129 +219,147 @@ export class AppRoot {
       loggedUser.token as string
     );
 
-    this.updateAccount({ ...this.accountState, user: loggedUser });
+    await this.updateAccount({ user: loggedUser });
 
     return loggedUser;
   }
 
-  async getBalances() {
-    const { user } = this.accountState;
+  async getBalances(): Promise<{
+    ethFreeBalanceWei: BigNumber;
+    ethMultisigBalance: BigNumber;
+  }> {
+    const {
+      user: { multisigAddress, ethAddress }
+    } = this.accountState;
     const { provider } = this.walletState;
-
-    if (!user.multisigAddress || !user.ethAddress) {
-      return;
-    }
-
-    const multisigBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await provider.getBalance(user.multisigAddress)).toString()
-      )
-    );
-
-    const walletBalance = parseFloat(
-      ethers.utils.formatEther(
-        (await provider.getBalance(user.ethAddress)).toString()
-      )
-    );
-
-    this.updateAccount({
-      ...this.accountState,
-      balance: multisigBalance,
-      accountBalance: walletBalance
-    });
-
-    return {
-      balance: multisigBalance,
-      accountBalance: walletBalance
-    };
-  }
-
-  async deposit(value: string, multisigAddress: string) {
-    const { accountBalance } = this.accountState;
-    const valueInWei = parseInt(value, 10);
     const node = CounterfactualNode.getInstance();
 
-    this.updateAccount({
-      ...this.accountState,
-      accountBalance: (accountBalance as number) - valueInWei,
-      unconfirmedBalance: (this.accountState.balance as number) + valueInWei
+    if (!multisigAddress || !ethAddress) {
+      return {
+        ethFreeBalanceWei: ethers.constants.Zero,
+        ethMultisigBalance: ethers.constants.Zero
+      };
+    }
+
+    const query = {
+      type: Node.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      requestId: window["uuid"](),
+      params: { multisigAddress } as Node.GetMyFreeBalanceForStateParams
+    };
+
+    const { result } = await node.call(query.type, query);
+
+    const { balance } = result as Node.GetMyFreeBalanceForStateResult;
+
+    const vals = {
+      ethFreeBalanceWei: ethers.utils.bigNumberify(balance),
+      ethMultisigBalance: await provider!.getBalance(multisigAddress)
+    };
+
+    await this.updateAccount(vals);
+
+    return vals;
+  }
+
+  async resetPendingDepositState() {
+    await this.updateAccount({
+      ethPendingDepositAmountWei: undefined,
+      ethPendingDepositTxHash: undefined
+    });
+  }
+
+  async resetPendingWithdrawalState() {
+    await this.updateAccount({
+      ethPendingWithdrawalAmountWei: undefined,
+      ethPendingWithdrawalTxHash: undefined
+    });
+  }
+
+  async deposit(valueInWei: BigNumber) {
+    const {
+      user: { multisigAddress }
+    } = this.accountState;
+
+    const node = CounterfactualNode.getInstance();
+
+    node.once(Node.EventName.DEPOSIT_STARTED, args => {
+      this.updateAccount({
+        ethPendingDepositTxHash: args.txHash,
+        ethPendingDepositAmountWei: valueInWei
+      });
     });
 
     try {
-      return node.call(Node.MethodName.DEPOSIT, {
+      const ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
           multisigAddress,
-          amount: ethers.utils.parseEther(value.toString()),
+          amount: ethers.utils.bigNumberify(valueInWei),
           notifyCounterparty: true
         } as Node.DepositParams
       });
+      await this.resetPendingDepositState();
+      return ret;
     } catch (e) {
-      this.updateAccount({
-        ...this.accountState,
-        accountBalance: (accountBalance as number) + valueInWei,
-        unconfirmedBalance: undefined
-      });
+      await this.resetPendingDepositState();
       throw e;
     }
   }
 
-  async withdraw(value: string) {
-    const { user, accountBalance } = this.accountState;
-    const valueInWei = parseInt(value, 10);
+  async withdraw(valueInWei: BigNumber) {
+    const {
+      user: { multisigAddress }
+    } = this.accountState;
+
     const node = CounterfactualNode.getInstance();
 
-    this.updateAccount({
-      ...this.accountState,
-      accountBalance: (accountBalance as number) + valueInWei,
-      unconfirmedBalance: (this.accountState.balance as number) - valueInWei
+    node.once(Node.EventName.WITHDRAWAL_STARTED, args => {
+      this.updateAccount({
+        ethPendingWithdrawalTxHash: args.txHash,
+        ethPendingWithdrawalAmountWei: valueInWei
+      });
     });
 
     try {
-      return node.call(Node.MethodName.WITHDRAW, {
+      const ret = await node.call(Node.MethodName.WITHDRAW, {
         type: Node.MethodName.WITHDRAW,
         requestId: window["uuid"](),
         params: {
-          multisigAddress: user.multisigAddress,
-          amount: ethers.utils.parseEther(value.toString())
+          multisigAddress,
+          recipient: this.accountState.user.ethAddress,
+          amount: ethers.utils.bigNumberify(valueInWei)
         } as Node.WithdrawParams
       });
+      await this.resetPendingWithdrawalState();
+      await this.getBalances();
+      return ret;
     } catch (e) {
-      this.updateAccount({
-        ...this.accountState,
-        accountBalance: (accountBalance as number) - valueInWei,
-        unconfirmedBalance: undefined
-      });
+      await this.resetPendingWithdrawalState();
       throw e;
     }
   }
 
   waitForMultisig() {
     const { user } = this.accountState;
-    const { provider } = this.walletState;
+    const provider = this.walletState.provider as Web3Provider;
 
     provider.once(user.transactionHash, async () => {
       await this.fetchMultisig();
     });
   }
 
-  async requestToDepositInitialFunding(multisigAddress: string) {
-    const { pendingAccountFunding } = this.accountState;
+  async requestToDepositInitialFunding() {
+    const { precommitedDepositAmountWei } = this.accountState;
 
-    if (pendingAccountFunding) {
+    if (precommitedDepositAmountWei) {
       this.modal = (
         <widget-dialog
           visible={true}
           dialogTitle="Your account is ready!"
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
-          onPrimaryButtonClicked={() =>
-            this.confirmDepositInitialFunding(
-              pendingAccountFunding,
-              multisigAddress
-            )
-          }
+          onPrimaryButtonClicked={() => this.confirmDepositInitialFunding()}
         />
       );
     }
@@ -349,31 +367,30 @@ export class AppRoot {
 
   async fetchMultisig(token?: string) {
     let userToken = token;
+
     if (!userToken) {
       userToken = this.accountState.user.token;
     }
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
-    this.updateAccount({ ...this.accountState, user });
+
+    this.updateAccount({ user });
 
     if (!user.multisigAddress) {
-      setTimeout(this.fetchMultisig.bind(this, userToken), 2500);
+      setTimeout(this.fetchMultisig.bind(this, userToken), 1000);
     } else {
-      await this.requestToDepositInitialFunding(user.multisigAddress);
+      await this.requestToDepositInitialFunding();
     }
   }
 
-  async confirmDepositInitialFunding(
-    pendingAccountFunding,
-    multisigAddress: string
-  ) {
+  async confirmDepositInitialFunding() {
     this.modal = {};
 
-    await this.deposit(pendingAccountFunding, multisigAddress);
+    await this.deposit(this.accountState
+      .precommitedDepositAmountWei as BigNumber);
 
     this.updateAccount({
-      ...this.accountState,
-      pendingAccountFunding: undefined
+      precommitedDepositAmountWei: undefined
     });
   }
 
@@ -391,7 +408,7 @@ export class AppRoot {
     if (!user || !user.username) {
       try {
         const loggedUser = await PlaygroundAPIClient.getUser(token);
-        this.updateAccount({ ...this.accountState, user: loggedUser });
+        this.updateAccount({ user: loggedUser });
       } catch {
         window.localStorage.removeItem("playground:user:token");
         return;

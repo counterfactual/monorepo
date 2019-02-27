@@ -19,14 +19,17 @@ import { UserSession } from "../../../../types";
 })
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
-  @Prop() balance: number = 0;
+  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() network: string = "";
+  @Prop() error: { primary: string; secondary: string } = {
+    primary: "",
+    secondary: ""
+  };
   @Prop() web3Detected: boolean = false;
   @Prop() hasDetectedNetwork: boolean = false;
   @Prop() metamaskUnlocked: boolean = false;
   @Prop() networkPermitted: boolean = false;
-  @Prop() unconfirmedBalance?: number;
-  @Prop() pendingAccountFunding?: any;
+  @Prop() ethPendingDepositAmountWei?: number;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
@@ -55,10 +58,13 @@ export class HeaderAccount {
   async onLoginClicked() {
     this.removeError();
 
+    this.metamaskConfirmationUIOpen = true;
     try {
       this.user = await this.login();
     } catch (error) {
       this.displayLoginError();
+    } finally {
+      this.metamaskConfirmationUIOpen = false;
     }
   }
 
@@ -66,7 +72,6 @@ export class HeaderAccount {
     this.metamaskConfirmationUIOpen = true;
     try {
       await window["ethereum"].enable();
-      this.metamaskConfirmationUIOpen = false;
     } catch {
       console.error("Was not able to call `window.ethereum.enable()`");
     } finally {
@@ -95,6 +100,8 @@ export class HeaderAccount {
         secondary: "You may not have a Playground account yet. Try registering."
       }
     });
+
+    setTimeout(this.removeError.bind(this), 5000);
   }
 
   removeError() {
@@ -104,11 +111,15 @@ export class HeaderAccount {
   }
 
   get ethBalance() {
-    return `${(this.unconfirmedBalance || this.balance).toFixed(4)} ETH`;
+    if (!this.ethFreeBalanceWei) {
+      return "0.00 ETH";
+    }
+
+    return `${ethers.utils.formatEther(this.ethFreeBalanceWei)} ETH`;
   }
 
-  get hasUnconfirmedBalance() {
-    return !isNaN(this.unconfirmedBalance as number);
+  get hasethPendingDepositAmountWei() {
+    return !isNaN(this.ethPendingDepositAmountWei as number);
   }
 
   render() {
@@ -145,7 +156,7 @@ export class HeaderAccount {
               class="btn"
             >
               {this.metamaskConfirmationUIOpen
-                ? "Check Wallet"
+                ? "Check Wallet..."
                 : "Connect to Metamask"}
             </button>
           </div>
@@ -156,11 +167,25 @@ export class HeaderAccount {
     if (!this.authenticated) {
       return (
         <div class="account-container">
-          <widget-error-message />
           <div class="btn-container">
-            <button onClick={this.onLoginClicked.bind(this)} class="btn">
-              Login
-            </button>
+            {this.error ? (
+              <button
+                onClick={this.onLoginClicked.bind(this)}
+                class="btn btn-error"
+              >
+                <widget-tooltip message={this.error.secondary}>
+                  <div class="widget-error-message">{this.error.primary}</div>
+                </widget-tooltip>
+              </button>
+            ) : (
+              <button
+                onClick={this.onLoginClicked.bind(this)}
+                class="btn"
+                disabled={this.metamaskConfirmationUIOpen}
+              >
+                {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Login"}
+              </button>
+            )}
             <stencil-route-link url="/register">
               <button class="btn btn-alternate">Register</button>
             </stencil-route-link>
@@ -171,7 +196,7 @@ export class HeaderAccount {
 
     let tooltip = "";
 
-    if (this.hasUnconfirmedBalance) {
+    if (this.hasethPendingDepositAmountWei) {
       tooltip = "We're waiting for the network to confirm your latest deposit.";
     }
 
@@ -182,14 +207,15 @@ export class HeaderAccount {
 
     return (
       <div class="account-container">
-        <widget-error-message />
         <div class="info-container">
           <stencil-route-link url="/exchange">
             <header-account-info
               src="/assets/icon/crypto.svg"
               header="Balance"
               content={this.ethBalance}
-              spinner={this.hasUnconfirmedBalance || !this.user.multisigAddress}
+              spinner={
+                this.hasethPendingDepositAmountWei || !this.user.multisigAddress
+              }
               tooltip={tooltip}
             />
           </stencil-route-link>
@@ -207,11 +233,11 @@ export class HeaderAccount {
 }
 
 AccountTunnel.injectProps(HeaderAccount, [
-  "balance",
+  "ethFreeBalanceWei",
   "user",
+  "error",
   "updateAccount",
-  "unconfirmedBalance",
-  "pendingAccountFunding",
+  "ethPendingDepositAmountWei",
   "login",
   "autoLogin"
 ]);

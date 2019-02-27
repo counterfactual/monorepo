@@ -18,6 +18,7 @@ import {
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
+  GetMyFreeBalanceForStateController,
   GetProposedAppInstancesController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
@@ -54,6 +55,7 @@ const controllers = [
   GetAppInstanceController,
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
+  GetMyFreeBalanceForStateController,
   GetInstalledAppInstancesController,
   GetProposedAppInstancesController
 ];
@@ -97,5 +99,5 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},
   [NODE_EVENTS.REJECT_STATE]: () => {},
-  [NODE_EVENTS.WITHDRAW]: () => {}
+  [NODE_EVENTS.WITHDRAWAL_CONFIRMED]: () => {}
 };
