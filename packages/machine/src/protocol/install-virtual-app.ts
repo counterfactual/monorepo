@@ -478,7 +478,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   );
 
   const newStateChannel2 = channelWithResponding.installETHVirtualAppAgreementInstance(
-    leftEthVirtualAppAgreementInstance,
+    rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
