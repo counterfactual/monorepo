@@ -5,14 +5,11 @@ import {
   Protocol,
   ProtocolMessage,
   SetupParams,
+  Transaction,
   UpdateParams,
-  WithdrawParams,
-  Transaction
+  WithdrawParams
 } from "@counterfactual/machine";
-import {
-  NetworkContext,
-  Node as NodeTypes
-} from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
