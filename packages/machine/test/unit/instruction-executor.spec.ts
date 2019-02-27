@@ -58,6 +58,13 @@ describe("InstructionExecutor", () => {
           throw Error("could not find stateChannelAfterSetup");
         }
         stateChannelAfterSetup = maybeStateChannelAfterSetup;
+
+        const signingKey = new SigningKey(
+          xkeyKthHDNode(responder.extendedKey, 0).privateKey
+        );
+        context.signatures = context.commitments.map(commitment =>
+          signingKey.signDigest(commitment.hashToSign())
+        );
       });
 
       // Ensure validateSignature in Setup Protocol does not throw
