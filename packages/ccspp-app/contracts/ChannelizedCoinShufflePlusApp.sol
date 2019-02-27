@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
+
 /// @title ChannelizedCoinShufflePlusApp
 /// @author Alex Xiong - <alex.xiong.tech@gmail.com>
 /// @notice A channelized CoinShuffle++ protocol in Counterfactual framework
@@ -49,11 +50,19 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-
+    require(state.round != Round.DONE, "Shuffle already finished.");
+    // @notice signingKeys is assumed to be lexicographically sorted
+    // and the same sequence as AppState.peers
+    // TODO: consolidate solution with L4 team
     if (state.round == Round.KEY_EXCHANGE) {
-      // @dev peers' addr are assumed to be sorted in lexicographical
-      // order in client code.
-      return state.peers[state.npk.length - 1];
+      return signingKeys[state.npk.length - 1];
+    } else if (state.round == Round.COMMITMENT) {
+      return signingKeys[state.commitments.length - 1];
+    } else if (state.round == Round.DC_NET) {
+      return signingKeys[state.dcMessages.length - 1];
+    } else if (state.round == Round.CONFIRMATION) {
+      // FIXME: anyone could submit
+      return signingKeys[0];
     }
   }
 
@@ -92,7 +101,7 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
       }
     } else if (action.actionType == ActionType.CONFIRM) {
       require(state.round == Round.CONFIRMATION, "Cannot confirm recipents when not in CONFIRMATION round.");
-      nextState.recipents = actioin.recipents;
+      nextState.recipents = action.recipents;
       require(action.recipents.length == setSize, "Cannot confirm with fewer recipent addresses than the number of participants");
       nextState.round = Round.DONE;
     } else {
@@ -110,11 +119,11 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     uint256 setSize = state.peers.length;
 
     uint256[] memory amounts = new uint256[](setSize);
-    for (uint i=0; i<setSize; i++) {
+    for (uint i = 0; i<setSize; i++) {
       amounts[i] = terms.limit/setSize;
     }
 
-    address[] memory to = new address[](setSize)
+    address[] memory to = new address[](setSize);
     if (state.round == Round.DONE) {
       to = state.recipents;
     } else {
