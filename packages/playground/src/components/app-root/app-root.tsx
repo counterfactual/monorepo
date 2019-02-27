@@ -342,9 +342,9 @@ export class AppRoot {
 
   waitForMultisig() {
     const { user } = this.accountState;
-    const { provider } = this.walletState;
+    const provider = this.walletState.provider as Web3Provider;
 
-    provider!.once(user.transactionHash, async () => {
+    provider.once(user.transactionHash, async () => {
       await this.fetchMultisig();
     });
   }
