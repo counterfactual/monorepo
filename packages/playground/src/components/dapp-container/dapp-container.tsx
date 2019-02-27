@@ -25,7 +25,7 @@ export class DappContainer {
   @Prop() apps: AppDefinition[] = [];
 
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() balance: string = "";
+  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -134,7 +134,7 @@ export class DappContainer {
           ...this.user,
           token: this.token
         },
-        balance: this.balance
+        balance: ethers.utils.formatEther(this.ethMultisigBalance)
       })}`,
       "*"
     );
@@ -262,4 +262,4 @@ export class DappContainer {
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
-AccountTunnel.injectProps(DappContainer, ["balance", "user"]);
+AccountTunnel.injectProps(DappContainer, ["ethMultisigBalance", "user"]);

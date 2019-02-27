@@ -6,10 +6,10 @@ import { getPeersAddressFromChannel } from "../../../utils";
 
 export async function runWithdrawProtocol(
   requestHandler: RequestHandler,
-  params: Node.DepositParams
+  params: Node.WithdrawParams
 ) {
   const { publicIdentifier, instructionExecutor, store } = requestHandler;
-  const { multisigAddress, amount } = params;
+  const { multisigAddress, amount, recipient } = params;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -23,10 +23,10 @@ export async function runWithdrawProtocol(
     stateChannel,
     {
       amount,
+      recipient,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      recipient: xkeyKthAddress(publicIdentifier, 0)
+      multisigAddress: stateChannel.multisigAddress
     }
   );
 

@@ -1,8 +1,10 @@
+import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
+import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
@@ -22,8 +24,16 @@ export default class WithdrawController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Node.WithdrawResult> {
-    const { store, provider, networkContext, wallet } = requestHandler;
-    const { multisigAddress, amount } = params;
+    const {
+      store,
+      provider,
+      networkContext,
+      wallet,
+      publicIdentifier
+    } = requestHandler;
+    const { multisigAddress, amount, recipient } = params;
+
+    params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -41,14 +51,30 @@ export default class WithdrawController extends NodeController {
       gasLimit: 300000
     };
 
-    if (provider instanceof JsonRpcProvider) {
-      await provider.getSigner().sendTransaction(tx);
-    } else {
-      await wallet.sendTransaction(tx);
+    try {
+      let txResponse: TransactionResponse;
+
+      if (provider instanceof JsonRpcProvider) {
+        const signer = await provider.getSigner();
+        txResponse = await signer.sendTransaction(tx);
+      } else {
+        txResponse = await wallet.sendTransaction(tx);
+      }
+
+      requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_STARTED, {
+        value: amount,
+        txHash: txResponse.hash
+      });
+
+      await provider.waitForTransaction(txResponse.hash!);
+    } catch (e) {
+      requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
+      throw new Error(`${ERRORS.WITHDRAWAL_FAILED}: ${e}`);
     }
 
     return {
-      amount
+      amount,
+      recipient: params.recipient
     };
   }
 }
