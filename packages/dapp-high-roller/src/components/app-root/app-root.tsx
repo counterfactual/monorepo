@@ -134,6 +134,7 @@ export class AppRoot {
         multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED"
       };
       this.updateAccount(mockAccount);
+      this.userDataReceived = true;
     }
   }
 
