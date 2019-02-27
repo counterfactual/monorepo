@@ -23,7 +23,7 @@ export class HeaderAccount {
   @Prop() network: string = "";
   @Prop() error: { primary: string; secondary: string } = {
     primary: "",
-    secondary: "'"
+    secondary: ""
   };
   @Prop() web3Detected: boolean = false;
   @Prop() hasDetectedNetwork: boolean = false;
