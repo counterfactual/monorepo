@@ -67,7 +67,7 @@ export class AppRoot {
       return;
     }
 
-    this.accountState.updateAccount!({
+    this.updateAccount({
       ethMultisigBalance: ethBalance,
       ethPendingDepositAmountWei: undefined
     });
@@ -218,7 +218,7 @@ export class AppRoot {
       loggedUser.token as string
     );
 
-    this.updateAccount({ user: loggedUser });
+    await this.updateAccount({ user: loggedUser });
 
     return loggedUser;
   }
@@ -255,9 +255,23 @@ export class AppRoot {
       ethMultisigBalance: await provider!.getBalance(multisigAddress)
     };
 
-    this.accountState.updateAccount!(vals);
+    await this.updateAccount(vals);
 
     return vals;
+  }
+
+  async resetPendingDepositState() {
+    await this.updateAccount({
+      ethPendingDepositAmountWei: undefined,
+      ethPendingDepositTxHash: undefined
+    });
+  }
+
+  async resetPendingWithdrawalState() {
+    await this.updateAccount({
+      ethPendingWithdrawalAmountWei: undefined,
+      ethPendingWithdrawalTxHash: undefined
+    });
   }
 
   async deposit(valueInWei: BigNumber) {
@@ -274,12 +288,6 @@ export class AppRoot {
       });
     });
 
-    const resetPendingDepositState = () =>
-      this.updateAccount({
-        ethPendingDepositAmountWei: undefined,
-        ethPendingDepositTxHash: undefined
-      });
-
     try {
       const ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
@@ -290,10 +298,10 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-      resetPendingDepositState();
+      await this.resetPendingDepositState();
       return ret;
     } catch (e) {
-      resetPendingDepositState();
+      await this.resetPendingDepositState();
       throw e;
     }
   }
@@ -312,12 +320,6 @@ export class AppRoot {
       });
     });
 
-    const resetPendingWithdrawalState = () =>
-      this.updateAccount({
-        ethPendingWithdrawalAmountWei: undefined,
-        ethPendingWithdrawalTxHash: undefined
-      });
-
     try {
       const ret = await node.call(Node.MethodName.WITHDRAW, {
         type: Node.MethodName.WITHDRAW,
@@ -328,11 +330,11 @@ export class AppRoot {
           amount: ethers.utils.bigNumberify(valueInWei)
         } as Node.WithdrawParams
       });
-      resetPendingWithdrawalState();
+      await this.resetPendingWithdrawalState();
       await this.getBalances();
       return ret;
     } catch (e) {
-      resetPendingWithdrawalState();
+      await this.resetPendingWithdrawalState();
       throw e;
     }
   }
