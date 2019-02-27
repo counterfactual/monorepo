@@ -10,7 +10,11 @@ import {
   UpdateParams,
   WithdrawParams
 } from "@counterfactual/machine/dist/src/types";
-import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import {
+  NetworkContext,
+  Node as NodeTypes,
+  Transaction
+} from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
@@ -216,18 +220,29 @@ export class Node {
       }
     );
 
+    const verifyFinalCommitment = (finalCommitment?: Transaction) => {
+      if (finalCommitment === undefined) {
+        throw Error(
+          "called WRITE_COMMITMENT with empty context.finalCommitment"
+        );
+      }
+    };
+
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const { protocol } = message;
         if (protocol === Protocol.Withdraw) {
           const params = message.params as WithdrawParams;
-          if (context.finalCommitment === undefined) {
-            throw Error(
-              "called WRITE_COMMITMENT with empty context.finalCommitment"
-            );
-          }
+          verifyFinalCommitment(context.finalCommitment);
           await this.requestHandler.store.storeWithdrawalCommitment(
+            params.multisigAddress,
+            context.finalCommitment!
+          );
+        } else if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
+          verifyFinalCommitment(context.finalCommitment);
+          await this.requestHandler.store.setSetupCommitmentForMultisig(
             params.multisigAddress,
             context.finalCommitment!
           );
@@ -240,24 +255,16 @@ export class Node {
           const transaction = context.commitments[0].transaction([
             context.signatures[0] // TODO: add counterparty signature
           ]);
-          if (protocol === Protocol.Setup) {
-            const params = message.params as SetupParams;
-            await this.requestHandler.store.setSetupCommitmentForMultisig(
-              params.multisigAddress,
-              transaction
-            );
-          } else {
-            if (!context.appIdentityHash) {
-              throw new Error(
-                `appIdentityHash required to store commitment. protocol=${protocol}`
-              );
-            }
-            await this.requestHandler.store.setCommitmentForAppIdentityHash(
-              context.appIdentityHash!,
-              protocol,
-              transaction
+          if (!context.appIdentityHash) {
+            throw new Error(
+              `appIdentityHash required to store commitment. protocol=${protocol}`
             );
           }
+          await this.requestHandler.store.setCommitmentForAppIdentityHash(
+            context.appIdentityHash!,
+            protocol,
+            transaction
+          );
         }
         next();
       }
