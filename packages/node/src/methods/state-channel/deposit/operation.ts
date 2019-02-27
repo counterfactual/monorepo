@@ -1,5 +1,4 @@
-import { StateChannel } from "@counterfactual/machine";
-import { xkeyKthAddress } from "@counterfactual/machine/dist/src/xkeys";
+import { StateChannel, xkeyKthAddress } from "@counterfactual/machine";
 import {
   AssetType,
   Node,

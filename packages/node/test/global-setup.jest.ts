@@ -16,7 +16,7 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 // This runs once for all test suites.
 
-module.exports = async () => {
+export default async function() {
   mkdirp.sync(DIR);
 
   const privateKeyA = fromMnemonic(process.env.A_MNEMONIC!).derivePath(
@@ -55,4 +55,4 @@ module.exports = async () => {
     path.join(DIR, "addresses"),
     JSON.stringify(await configureNetworkContext(wallet))
   );
-};
+}

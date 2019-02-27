@@ -9,8 +9,8 @@ import {
   ProposeMessage,
   RejectProposalMessage
 } from "../../src/types";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   confirmProposedAppInstanceOnNode,
   getInstalledAppInstances,
@@ -25,7 +25,7 @@ import {
 describe("Node method follows spec - rejectInstall", () => {
   jest.setTimeout(10000);
 
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -35,7 +35,7 @@ describe("Node method follows spec - rejectInstall", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

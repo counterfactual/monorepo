@@ -1,8 +1,9 @@
+import { utils } from "@counterfactual/cf.js";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
-import { signaturesToBytesSortedBySignerAddress } from "./utils/signature";
+const { signaturesToBytesSortedBySignerAddress } = utils;
 
 /// A commitment to make MinimumViableMultisig perform a message call
 export abstract class MultisigCommitment extends EthereumCommitment {

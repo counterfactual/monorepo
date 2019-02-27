@@ -10,8 +10,8 @@ import {
   NodeConfig
 } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   getChannelAddresses,
   getMultisigCreationTransactionHash,
@@ -20,7 +20,7 @@ import {
 
 describe("Node can create multisig, other owners get notified", () => {
   jest.setTimeout(30000);
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -32,7 +32,7 @@ describe("Node can create multisig, other owners get notified", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

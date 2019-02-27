@@ -38,20 +38,39 @@ export default class NodeProvider implements INodeProvider {
         };
       }
     } catch {
-      if (window.localStorage.getItem("cf:node-provider:debug") === "true") {
-        this.debugMode = "browser";
-        this.debugEmitter = (source: string, message: string, data?: any) => {
-          console.log(
-            ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
-            "color: gray;",
-            "color: green;",
-            "color: black;"
-          );
+      try {
+        if (window.localStorage.getItem("cf:node-provider:debug") === "true") {
+          this.debugMode = "browser";
+          this.debugEmitter = (source: string, message: string, data?: any) => {
+            console.log(
+              ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
+              "color: gray;",
+              "color: green;",
+              "color: black;"
+            );
 
-          if (data) {
-            console.log("   ", data);
-          }
-        };
+            if (data) {
+              console.log("   ", data);
+            }
+          };
+        }
+      } catch {
+        // Fallback to allow debugging without Local Storage flag.
+        if (window.location.href.includes("#cf:node-provider:debug")) {
+          this.debugMode = "browser";
+          this.debugEmitter = (source: string, message: string, data?: any) => {
+            console.log(
+              ["%c[NodeProvider]", `%c#${source}()`, `%c${message}`].join(" "),
+              "color: gray;",
+              "color: green;",
+              "color: black;"
+            );
+
+            if (data) {
+              console.log("   ", data);
+            }
+          };
+        }
       }
     }
   }

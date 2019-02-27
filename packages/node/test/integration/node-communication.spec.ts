@@ -1,15 +1,14 @@
 import { AddressZero } from "ethers/constants";
 
 import { IMessagingService } from "../../src";
-
-import TestFirebaseServiceFactory from "./services/firebase-service";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 describe("Two nodes can communicate with each other", () => {
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
 
   beforeAll(() => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

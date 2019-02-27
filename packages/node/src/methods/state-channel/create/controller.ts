@@ -49,13 +49,9 @@ export default class CreateChannelController extends NodeController {
 
     const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
 
-    tx.wait(CONFIRMATION_NUM_BLOCKS).then(receipt => {
-      requestHandler
-        .getShardedQueue("uniqueQueueForSendingBlockchainTx")
-        .add(() =>
-          this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
-        );
-    });
+    tx.wait(CONFIRMATION_NUM_BLOCKS).then(receipt =>
+      this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
+    );
 
     return { transactionHash: tx.hash! };
   }
@@ -95,7 +91,11 @@ export default class CreateChannelController extends NodeController {
     const msg: CreateChannelMessage = {
       from: publicIdentifier,
       type: NODE_EVENTS.CREATE_CHANNEL,
-      data: { multisigAddress, owners } as Node.CreateChannelResult
+      data: {
+        multisigAddress,
+        owners,
+        counterpartyXpub: respondingXpub
+      } as Node.CreateChannelResult
     };
 
     await messagingService.send(respondingXpub, msg);

@@ -22,8 +22,8 @@ import {
 } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import {
   generateGetStateRequest,
   generateTakeActionRequest,
@@ -35,7 +35,7 @@ import {
 describe("Node method follows spec - takeAction virtual", () => {
   jest.setTimeout(40000);
 
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
   let nodeA: Node;
   let storeServiceA: IStoreService;
@@ -47,7 +47,7 @@ describe("Node method follows spec - takeAction virtual", () => {
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

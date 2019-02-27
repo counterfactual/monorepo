@@ -7,9 +7,15 @@ import { MatchResults } from "@stencil/router";
 import AccountTunnel, { AccountState } from "../../data/account";
 import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import FirebaseDataProvider from "../../data/firebase";
+import FirebaseDataProvider, {
+  FirebaseAppConfiguration
+} from "../../data/firebase";
 import PlaygroundAPIClient from "../../data/playground-api-client";
 import WalletTunnel, { WalletState } from "../../data/wallet";
+
+const TIER: string = "ENV:TIER";
+const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
+const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
 @Component({
   tag: "app-root",
@@ -21,10 +27,20 @@ export class AppRoot {
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() hasLocalStorage: boolean = false;
 
   modal: JSX.Element = <div />;
 
   componentWillLoad() {
+    // Test for Local Storage.
+    try {
+      localStorage.setItem("playground:localStorage", "true");
+      localStorage.removeItem("playground:localStorage");
+      this.hasLocalStorage = true;
+    } catch {
+      this.hasLocalStorage = false;
+    }
+
     this.setup();
   }
 
@@ -33,7 +49,7 @@ export class AppRoot {
     this.bindProviderEvents();
   }
 
-  async updateNetwork(newProps: WalletState) {
+  async updateWalletConnection(newProps: WalletState) {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
@@ -64,7 +80,7 @@ export class AppRoot {
   }
 
   async setup() {
-    if (typeof web3 !== "undefined") {
+    if (typeof window["web3"] !== "undefined") {
       await Promise.all([this.createNodeProvider(), this.loadApps()]);
     }
 
@@ -72,13 +88,38 @@ export class AppRoot {
   }
 
   async createNodeProvider() {
+    if (!this.hasLocalStorage) {
+      return;
+    }
+
     // TODO: This is a dummy firebase data provider.
     // TODO: This configuration should come from the backend.
-    FirebaseDataProvider.create();
+    let configuration: FirebaseAppConfiguration = {
+      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
+      authDomain: "foobar-91a31.firebaseapp.com",
+      databaseURL: "https://foobar-91a31.firebaseio.com",
+      projectId: "foobar-91a31",
+      storageBucket: "foobar-91a31.appspot.com",
+      messagingSenderId: "432199632441"
+    };
+
+    if (TIER === "dev") {
+      configuration = {
+        databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
+        projectId: "",
+        apiKey: "",
+        authDomain: "",
+        storageBucket: "",
+        messagingSenderId: ""
+      };
+    }
+
+    FirebaseDataProvider.create(configuration);
 
     const messagingService = FirebaseDataProvider.createMessagingService(
       "messaging"
     );
+
     const storeService = {
       // This implements partial path look ups for localStorage
       async get(desiredKey: string): Promise<any> {
@@ -132,7 +173,8 @@ export class AppRoot {
   }
 
   bindProviderEvents() {
-    const { provider, user } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     if (!provider) {
       return;
@@ -156,7 +198,9 @@ export class AppRoot {
   }
 
   async login() {
-    const { signer, user } = this.accountState;
+    const { user } = this.accountState;
+    const { signer } = this.walletState;
+
     const signature = await signer.signMessage(
       this.buildSignatureMessageForLogin(user.ethAddress)
     );
@@ -181,7 +225,8 @@ export class AppRoot {
   }
 
   async getBalances() {
-    const { user, provider } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     if (!user.multisigAddress || !user.ethAddress) {
       return;
@@ -273,7 +318,8 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const { provider, user } = this.accountState;
+    const { user } = this.accountState;
+    const { provider } = this.walletState;
 
     provider.once(user.transactionHash, async () => {
       await this.fetchMultisig();
@@ -371,7 +417,9 @@ export class AppRoot {
       withdraw: this.withdraw.bind(this)
     };
 
-    this.walletState.updateNetwork = this.updateNetwork.bind(this);
+    this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
+      this
+    );
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {
@@ -384,25 +432,39 @@ export class AppRoot {
           <AppRegistryTunnel.Provider state={this.appRegistryState}>
             <div class="app-root wrapper">
               <main class="wrapper__content">
-                <stencil-router>
-                  <stencil-route-switch scrollTopOffset={0}>
-                    <stencil-route url="/" component="app-home" exact={true} />
-                    <stencil-route
-                      url="/dapp/:dappName"
-                      component="dapp-container"
-                    />
-                    <stencil-route url="/account" component="account-edit" />
-                    <stencil-route
-                      url="/exchange"
-                      component="account-exchange"
-                    />
-                    <stencil-route
-                      url="/register"
-                      component="account-register"
-                    />
-                    <stencil-route url="/deposit" component="account-deposit" />
-                  </stencil-route-switch>
-                </stencil-router>
+                {this.hasLocalStorage ? (
+                  <stencil-router>
+                    <stencil-route-switch scrollTopOffset={0}>
+                      <stencil-route
+                        url="/"
+                        component="app-home"
+                        exact={true}
+                        componentProps={{
+                          hasLocalStorage: this.hasLocalStorage
+                        }}
+                      />
+                      <stencil-route
+                        url="/dapp/:dappName"
+                        component="dapp-container"
+                      />
+                      <stencil-route url="/account" component="account-edit" />
+                      <stencil-route
+                        url="/exchange"
+                        component="account-exchange"
+                      />
+                      <stencil-route
+                        url="/register"
+                        component="account-register"
+                      />
+                      <stencil-route
+                        url="/deposit"
+                        component="account-deposit"
+                      />
+                    </stencil-route-switch>
+                  </stencil-router>
+                ) : (
+                  <app-home hasLocalStorage={this.hasLocalStorage} />
+                )}
               </main>
               <webthree-connector
                 accountState={this.accountState}

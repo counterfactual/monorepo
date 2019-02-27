@@ -95,14 +95,13 @@ class Wager extends Component {
     const currentEthBalance = window.ethers.utils.parseEther(
       this.props.balance
     );
-    const minimumEthBalance = window.ethers.utils
-      .parseEther(this.props.gameInfo.betAmount)
-      .add(
-        await provider.estimateGas({
-          to: opponent.nodeAddress,
-          value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
-        })
-      );
+    const bet = window.ethers.utils.parseEther(this.props.gameInfo.betAmount);
+    const minimumEthBalance = bet.add(
+      await provider.estimateGas({
+        to: opponent.nodeAddress,
+        value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
+      })
+    );
 
     if (currentEthBalance.lt(minimumEthBalance)) {
       this.setState({
@@ -113,16 +112,26 @@ class Wager extends Component {
       return;
     }
 
+    if (
+      bet.gt(window.ethers.utils.parseEther("0.01")) ||
+      bet.lt(window.ethers.utils.parseEther("0"))
+    ) {
+      this.setState({ error: `Please, place a bet between 0 and 0.01 ETH.` });
+      return;
+    }
+
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
         asset: {
           assetType: 0 /* AssetType.ETH */
         },
-        peerDeposit: 0 /* window.ethers.utils.parseEther(
+        peerDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
-        ), */,
-        myDeposit: 0, // window.ethers.utils.parseEther(this.props.gameInfo.betAmount),
+        ),
+        myDeposit: window.ethers.utils.parseEther(
+          this.props.gameInfo.betAmount
+        ),
         timeout: 100,
         initialState: {
           players: [myAddress, opponent.ethAddress],
@@ -141,7 +150,9 @@ class Wager extends Component {
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
   }
 
-  onPlayClicked() {
+  onFormSubmitted(e) {
+    e.preventDefault();
+
     const { opponent, intermediary } = this.state;
     const { user } = this.props;
 
@@ -176,7 +187,7 @@ class Wager extends Component {
           <p className="message__body">Ready to play?</p>
         </div>
 
-        <form className="form">
+        <form className="form" onSubmit={this.onFormSubmitted.bind(this)}>
           <input
             className="form__input"
             type="text"
@@ -186,16 +197,15 @@ class Wager extends Component {
           />
           <input
             className="form__input"
-            type="text"
-            placeholder="3 eth"
-            disabled={true}
-            value={this.props.gameInfo.betAmount}
+            type="number"
+            placeholder="0.01 eth"
+            min={0}
+            max={0.01}
+            step={0.001}
+            onChange={e => (this.props.gameInfo.betAmount = e.target.value)}
+            defaultValue={this.props.gameInfo.betAmount}
           />
-          <button
-            type="button"
-            onClick={this.onPlayClicked.bind(this)}
-            className="form__button"
-          >
+          <button type="submit" className="form__button">
             PLAY!
           </button>
           {error ? <label class="message__error">{error}</label> : []}

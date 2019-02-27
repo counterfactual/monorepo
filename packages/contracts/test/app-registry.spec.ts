@@ -2,7 +2,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes } from "ethers/utils";
+import { hexlify, randomBytes, SigningKey, keccak256 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
@@ -13,14 +13,16 @@ import {
   expect,
   Terms
 } from "./utils";
+import { utils } from "@counterfactual/cf.js";
+const { signaturesToBytesSortedBySignerAddress } = utils;
 
-export const ALICE =
+const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
   new Wallet(
     "0x3570f77380e22f8dc2274d8fd33e7830cc2d29cf76804e8c21f4f7a6cc571d27"
   );
 
-export const BOB =
+const BOB =
   // 0xb37e49bFC97A948617bF3B63BC6942BB15285715
   new Wallet(
     "0x4ccac8b1e81fb18a98bbaf29b9bfe307885561f71b76bd4680d7aec9d0ddfcfd"
@@ -32,6 +34,7 @@ const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 describe("AppRegistry", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
+  let wallet2: Wallet;
 
   let appRegistry: Contract;
 
@@ -42,13 +45,15 @@ describe("AppRegistry", () => {
   ) => Promise<void>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
-  let latestState: () => Promise<string>;
+  let latestAppState: () => Promise<string>;
   let latestNonce: () => Promise<number>;
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
+    wallet2 = (await waffle.getWallets(provider))[1];
+
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
@@ -65,7 +70,7 @@ describe("AppRegistry", () => {
       10
     );
 
-    latestState = async () =>
+    latestAppState = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
@@ -87,30 +92,50 @@ describe("AppRegistry", () => {
     cancelChallenge = () =>
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
-    setStateWithSignatures = async (nonce: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity, {
+    setStateWithSignatures = async (nonce: number, appState?: string) => {
+
+      const stateHash = keccak256(appState || HashZero);
+      const digest = computeStateHash(
+        appInstance.identityHash,
+        stateHash,
         nonce,
-        stateHash: appState || HashZero,
-        timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: await wallet.signMessage(
-          computeStateHash(
-            appInstance.identityHash,
-            appState || HashZero,
-            nonce,
-            ONCHAIN_CHALLENGE_TIMEOUT
-          )
-        )
-      });
+        ONCHAIN_CHALLENGE_TIMEOUT
+      );
+
+      const signer1 = new SigningKey(ALICE.privateKey);
+      const signature1 = await signer1.signDigest(digest);
+
+      const signer2 = new SigningKey(BOB.privateKey);
+      const signature2 = await signer2.signDigest(digest);
+
+      const bytes = signaturesToBytesSortedBySignerAddress(
+        digest, signature1, signature2);
+
+      const data = appRegistry.interface.functions.setState.encode([
+        appInstance.appIdentity,
+        {
+          nonce,
+          stateHash,
+          timeout: ONCHAIN_CHALLENGE_TIMEOUT,
+          signatures: bytes
+        }
+      ]);
+
+      await wallet2.sendTransaction({
+        data,
+        to: appRegistry.address
+      })
+    }
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce: (await latestNonce()) + 1,
-        stateHash: await latestState(),
+        stateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
           computeStateHash(
             appInstance.identityHash,
-            await latestState(),
+            await latestAppState(),
             await latestNonce(),
             0
           )
@@ -227,7 +252,7 @@ describe("AppRegistry", () => {
     // Setup AppInstance
     const appInstance = new AppInstance(
       wallet.address,
-      [AddressZero, AddressZero],
+      [ALICE.address, BOB.address],
       AddressZero,
       terms,
       10

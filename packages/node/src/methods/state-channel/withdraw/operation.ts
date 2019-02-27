@@ -1,4 +1,4 @@
-import { xkeyKthAddress } from "@counterfactual/machine/dist/src/xkeys";
+import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";

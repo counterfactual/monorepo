@@ -4,20 +4,20 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
+import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 
-import TestFirebaseServiceFactory from "./services/firebase-service";
 import { TEST_NETWORK } from "./utils";
 
 describe("Node can use storage service", () => {
-  let firebaseServiceFactory: TestFirebaseServiceFactory;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
   let provider: BaseProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new TestFirebaseServiceFactory(
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );

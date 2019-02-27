@@ -67,13 +67,17 @@ export class NodeListener {
       const proposeInstallParams = message.data
         .params as Node.ProposeInstallParams;
 
-      const currentEthBalance = ethers.utils.bigNumberify(this.balance);
-      const minimumEthBalance = proposeInstallParams.myDeposit.add(
-        await this.provider.estimateGas({
-          to: message.data.proposedByIdentifier,
-          value: proposeInstallParams.myDeposit
-        })
+      const currentEthBalance = ethers.utils.parseEther(
+        this.balance.toString()
       );
+      const minimumEthBalance = ethers.utils
+        .bigNumberify(proposeInstallParams.myDeposit)
+        .add(
+          await this.provider.estimateGas({
+            to: message.data.proposedByIdentifier,
+            value: proposeInstallParams.myDeposit
+          })
+        );
 
       if (currentEthBalance.lt(minimumEthBalance)) {
         this.currentModalType = "error";
@@ -189,5 +193,5 @@ export class NodeListener {
 }
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
-AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
-WalletTunnel.injectProps(NodeListener, ["web3Detected"]);
+AccountTunnel.injectProps(NodeListener, ["balance"]);
+WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);

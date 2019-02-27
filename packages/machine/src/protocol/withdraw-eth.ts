@@ -21,9 +21,7 @@ import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
- *
- * TODO: Add protocol to specs
- *
+ * https://specs.counterfactual.com/11-withdraw-protocol *
  */
 export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
   0: [
@@ -78,9 +76,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
         ...message,
         fromAddress: message.params.initiatingXpub,
         toAddress: message.params.respondingXpub,
-        signature: context.signatures[0],
-        signature2: context.signatures[1],
-        signature3: context.signatures[2],
+        signature: context.signatures[2],
         seq: -1
       };
     },
@@ -95,6 +91,8 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     addMultisigSendCommitmentToContext,
 
+    addUninstallRefundAppCommitmentToContext,
+
     (message: ProtocolMessage, context: Context) => {
       validateSignature(
         xkeyKthAddress(message.params.initiatingXpub, 0),
@@ -108,8 +106,6 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
         message.signature2
       );
     },
-
-    addUninstallRefundAppCommitmentToContext,
 
     Opcode.OP_SIGN,
 
@@ -134,7 +130,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       validateSignature(
         xkeyKthAddress(message.params.initiatingXpub, 0),
         context.commitments[2],
-        context.inbox[0].signature3
+        context.inbox[0].signature
       );
     },
 
