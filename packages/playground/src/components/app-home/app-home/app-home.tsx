@@ -196,7 +196,7 @@ export class AppHome {
   }
 
   checkUserNotLoggedIn() {
-    if (!this.user) {
+    if (this.user.id) {
       return;
     }
 
