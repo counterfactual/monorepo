@@ -108,8 +108,6 @@ export class AccountRegister {
       return;
     }
 
-    // Call the API and store the multisig.
-
     try {
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
