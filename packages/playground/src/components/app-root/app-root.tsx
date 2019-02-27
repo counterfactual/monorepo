@@ -385,7 +385,8 @@ export class AppRoot {
   async confirmDepositInitialFunding() {
     this.modal = {};
 
-    await this.deposit(this.accountState.precommitedDepositAmountWei!);
+    await this.deposit(this.accountState
+      .precommitedDepositAmountWei as BigNumber);
 
     this.updateAccount({
       precommitedDepositAmountWei: undefined
