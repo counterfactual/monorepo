@@ -198,12 +198,6 @@ export class AccountRegister {
             error={this.errors.email}
             onChange={e => this.change("email", e)}
           />
-          {/* <form-input
-            label="Ethereum address"
-            value={this.changeset.ethAddress}
-            error={this.errors.ethAddress}
-            disabled={this.connected}
-          /> */}
           <div class="smallprint">
             <b>Account will be linked to your Ethereum address: </b>
             {this.changeset.ethAddress}
