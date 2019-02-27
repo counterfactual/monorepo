@@ -86,7 +86,7 @@ export async function matchmakeUser(
     .where("eth_address", "!=", userToMatch.attributes.ethAddress);
 
   if (exclude.length) {
-    query = query.andWhereNot("eth_address", "in", exclude);
+    query = query.andWhere("eth_address", "not in", exclude);
   }
 
   const matchmakeResults: {
