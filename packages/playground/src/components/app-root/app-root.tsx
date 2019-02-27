@@ -73,11 +73,9 @@ export class AppRoot {
     });
   }
 
-  // async updateWalletBalance(ethBalance: any) {
-  //   const balance = parseFloat(ethers.utils.formatEther(ethBalance.toString()));
-
-  //   this.accountState = { ...this.accountState, ethFreeBalanceWei: balance };
-  // }
+  async updateWalletBalance(ethWeb3WalletBalance: BigNumber) {
+    this.walletState.updateWalletConnection!({ ethWeb3WalletBalance });
+  }
 
   async setup() {
     if (typeof window["web3"] !== "undefined") {
@@ -162,6 +160,7 @@ export class AppRoot {
         STORE_KEY_PREFIX: "store"
       },
       // TODO: fetch this from the provider's network
+      // TODO: handle changes on the UI
       network: "ropsten"
     });
   }
@@ -182,7 +181,7 @@ export class AppRoot {
 
     if (user.ethAddress) {
       provider.removeAllListeners(user.ethAddress);
-      // provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
+      provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
     }
 
     if (user.multisigAddress) {
