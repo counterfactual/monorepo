@@ -198,9 +198,10 @@ export class AppRoot {
 
   async login() {
     const { user } = this.accountState;
-    const { signer } = this.walletState;
 
-    const signature = await signer!.signMessage(
+    const signer = this.walletState.signer as Signer;
+
+    const signature = await signer.signMessage(
       this.buildSignatureMessageForLogin(user.ethAddress)
     );
 
