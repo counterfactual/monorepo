@@ -83,6 +83,13 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     Opcode.IO_SEND,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        context.inbox[0].signature2!,
+        context.signatures[1]
+      ]);
+    },
+
     Opcode.STATE_TRANSITION_COMMIT
   ],
 

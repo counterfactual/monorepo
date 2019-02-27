@@ -219,41 +219,45 @@ export class Node {
     instructionExecutor.register(
       Opcode.STATE_TRANSITION_COMMIT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        if (!context.commitments[0]) {
-          throw new Error(
-            `State transition without commitment: ${JSON.stringify(message)}`
-          );
-        }
-        const transaction = context.commitments[0].transaction([
-          context.signatures[0] // TODO: add counterparty signature
-        ]);
         const { protocol } = message;
-        if (protocol === Protocol.Setup) {
-          const params = message.params as SetupParams;
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            transaction
-          );
-        } else if (protocol === Protocol.Withdraw) {
+        if (protocol === Protocol.Withdraw) {
           const params = message.params as WithdrawParams;
-          await this.requestHandler.store.storeWithdrawalCommitment(
-            params.multisigAddress,
-            context.commitments[1].transaction([
-              context.signatures[1],
-              context.inbox[0].signature2!
-            ])
-          );
-        } else {
-          if (!context.appIdentityHash) {
-            throw new Error(
-              `appIdentityHash required to store commitment. protocol=${protocol}`
+          if (context.finalCommitment === undefined) {
+            throw Error(
+              "called STATE_TRANSITION_COMMIT with empty context.finalCommitment"
             );
           }
-          await this.requestHandler.store.setCommitmentForAppIdentityHash(
-            context.appIdentityHash!,
-            protocol,
-            transaction
+          await this.requestHandler.store.storeWithdrawalCommitment(
+            params.multisigAddress,
+            context.finalCommitment!
           );
+        } else {
+          if (!context.commitments[0]) {
+            throw new Error(
+              `State transition without commitment: ${JSON.stringify(message)}`
+            );
+          }
+          const transaction = context.commitments[0].transaction([
+            context.signatures[0] // TODO: add counterparty signature
+          ]);
+          if (protocol === Protocol.Setup) {
+            const params = message.params as SetupParams;
+            await this.requestHandler.store.setSetupCommitmentForMultisig(
+              params.multisigAddress,
+              transaction
+            );
+          } else {
+            if (!context.appIdentityHash) {
+              throw new Error(
+                `appIdentityHash required to store commitment. protocol=${protocol}`
+              );
+            }
+            await this.requestHandler.store.setCommitmentForAppIdentityHash(
+              context.appIdentityHash!,
+              protocol,
+              transaction
+            );
+          }
         }
         next();
       }
