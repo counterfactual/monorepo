@@ -90,7 +90,7 @@ export class AccountRegister {
       const signature = await this.signer.signMessage(payload);
       await this.register(signature);
     } catch (e) {
-      await this.register("", e);
+      this.handleMetamaskErrors(e);
     } finally {
       this.metamaskConfirmationUIOpen = false;
     }
@@ -102,12 +102,7 @@ export class AccountRegister {
     }
   }
 
-  async register(signedMessage: string, error?: Error) {
-    if (error) {
-      this.handleMetamaskErrors(error);
-      return;
-    }
-
+  async register(signedMessage: string) {
     try {
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
