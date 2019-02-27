@@ -16,7 +16,7 @@ export default class App extends Component {
     const cfProvider = new window.cf.Provider(nodeProvider);
     const gameInfo = {
       myName: params.get("myName") || "Bob",
-      betAmount: params.get("betAmount") || "0.1",
+      betAmount: params.get("betAmount") || "0.01",
       opponentName: params.get("opponentName") || "Alice",
       appInstanceId: params.get("appInstanceId")
     };

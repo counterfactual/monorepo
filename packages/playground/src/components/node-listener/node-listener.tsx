@@ -67,7 +67,9 @@ export class NodeListener {
       const proposeInstallParams = message.data
         .params as Node.ProposeInstallParams;
 
-      const currentEthBalance = ethers.utils.bigNumberify(this.balance);
+      const currentEthBalance = ethers.utils.parseEther(
+        this.balance.toString()
+      );
       const minimumEthBalance = ethers.utils
         .bigNumberify(proposeInstallParams.myDeposit)
         .add(
@@ -191,5 +193,5 @@ export class NodeListener {
 }
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
-AccountTunnel.injectProps(NodeListener, ["balance", "provider"]);
-WalletTunnel.injectProps(NodeListener, ["web3Detected"]);
+AccountTunnel.injectProps(NodeListener, ["balance"]);
+WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);

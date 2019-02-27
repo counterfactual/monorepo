@@ -171,11 +171,12 @@ export class AppWager {
               class="form__input"
               id="betAmount"
               type="number"
-              placeholder="3 ETH"
+              placeholder="0.01"
               value={this.betAmount}
               onInput={e => this.handleChange(e, "betAmount")}
-              readonly={true}
-              step="0.01"
+              min={0}
+              max={0.01}
+              step={0.001}
             />
             {this.isError ? (
               <label class="message__error">

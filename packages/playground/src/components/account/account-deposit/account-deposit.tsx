@@ -4,6 +4,7 @@ import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
 import CounterfactualNode from "../../../data/counterfactual";
+import WalletTunnel from "../../../data/wallet";
 import { UserSession } from "../../../types";
 
 @Component({
@@ -75,6 +76,7 @@ export class AccountDeposit {
           onSubmit={e => this.formSubmitionHandler(e)}
           button="Proceed"
           available={this.balance}
+          max={1}
           error={this.error}
         />
       </widget-screen>
@@ -82,9 +84,5 @@ export class AccountDeposit {
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, [
-  "balance",
-  "updateAccount",
-  "user",
-  "signer"
-]);
+AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount", "user"]);
+WalletTunnel.injectProps(AccountDeposit, ["signer"]);

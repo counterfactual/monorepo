@@ -4,9 +4,9 @@ import { WithdrawETHCommitment } from "../../../src/ethereum";
 import { Transaction } from "../../../src/ethereum/types";
 
 /**
- * This test suite decodes a constructed SetState Commitment transaction object
- * to the specifications defined by Counterfactual as can be found here:
- * TODO: Write specs
+ * This test suite decodes a constructed WithdrawETHCommitment transaction object
+ * to the specifications defined here:
+ * https://specs.counterfactual.com/11-withdraw-protocol
  */
 describe("Withdraw ETH Commitment", () => {
   let commitment: WithdrawETHCommitment;

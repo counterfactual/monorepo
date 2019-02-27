@@ -1,4 +1,4 @@
-import { Component, Element, Prop, Watch } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 
 import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
@@ -38,6 +38,9 @@ export class AccountExchange {
     });
   }
 
+  @State() depositError: string = "";
+  @State() withdrawalError: string = "";
+
   @Watch("user")
   async onUserAcquired() {
     if (this.user) {
@@ -46,13 +49,25 @@ export class AccountExchange {
   }
 
   async onDepositClicked(e) {
-    const amount = e.target.value;
-    await this.deposit(amount, this.user.multisigAddress);
+    const amount = Number(e.target.value);
+
+    if (amount <= 0 || amount > 1) {
+      this.depositError =
+        "Please enter a non-zero amount of no more than 1 ETH.";
+    } else {
+      await this.deposit(amount, this.user.multisigAddress);
+    }
   }
 
   async onWithdrawClicked(e) {
-    const amount = e.target.value;
-    await this.withdraw(amount);
+    const amount = e.target.value as number;
+
+    if (amount <= 0 || amount > this.balance) {
+      this.withdrawalError =
+        "Please enter a non-zero amount of no more than your balance.";
+    } else {
+      await this.withdraw(amount);
+    }
   }
 
   getEtherscanURL() {
@@ -70,7 +85,9 @@ export class AccountExchange {
           <account-eth-form
             onSubmit={this.onDepositClicked.bind(this)}
             button="Deposit"
+            error={this.depositError}
             available={this.accountBalance}
+            max={1}
           />
         </div>
 
@@ -79,6 +96,7 @@ export class AccountExchange {
           <account-eth-form
             onSubmit={this.onWithdrawClicked.bind(this)}
             button="Withdraw"
+            error={this.withdrawalError}
             available={this.balance}
           />
         </div>

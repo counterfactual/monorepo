@@ -9,9 +9,7 @@ export type AccountState = {
   accountBalance?: number;
   balance?: number;
   unconfirmedBalance?: number;
-  provider: Web3Provider;
-  signer: Signer;
-  pendingAccountFunding?: any;
+  pendingAccountFunding?: true;
 
   updateAccount?(data: AccountState): Promise<void>;
   login?(): Promise<UserSession>;
