@@ -76,6 +76,7 @@ export class AccountDeposit {
           onSubmit={e => this.formSubmitionHandler(e)}
           button="Proceed"
           available={this.balance}
+          max={1}
           error={this.error}
         />
       </widget-screen>

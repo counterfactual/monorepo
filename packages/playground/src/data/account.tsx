@@ -9,7 +9,7 @@ export type AccountState = {
   accountBalance?: number;
   balance?: number;
   unconfirmedBalance?: number;
-  pendingAccountFunding?: any;
+  pendingAccountFunding?: true;
 
   updateAccount?(data: AccountState): Promise<void>;
   login?(): Promise<UserSession>;
