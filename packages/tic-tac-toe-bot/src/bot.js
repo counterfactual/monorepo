@@ -153,7 +153,9 @@ function determineActionType(board, botPlayerNumber) {
 }
 
 async function connectNode(node, ethAddress) {
+  console.log("setup install")
   node.on("proposeInstallVirtualEvent", async (data) => {
+    console.log("start install")
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
 
@@ -181,4 +183,3 @@ async function connectNode(node, ethAddress) {
 
 module.exports.connectNode = connectNode;
 module.exports.takeTurn = takeTurn;
-module.exports.connectNode = connectNode;

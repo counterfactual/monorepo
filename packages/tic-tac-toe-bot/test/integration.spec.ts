@@ -14,7 +14,7 @@ import {
   Node as NodeTypes
 } from "@counterfactual/types";
 
-import { connectNode } from "../src/node";
+import { connectNode } from "../src/bot";
 
 jest.setTimeout(20000);
 

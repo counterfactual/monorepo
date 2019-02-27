@@ -6,7 +6,7 @@ const fetch = require("node-fetch");
 const provider = ethers.getDefaultProvider("ropsten");
 const Web3 = require("web3");
 const web3 = new Web3(provider);
-const { connectNode } = "./node";
+const { connectNode } = require("./bot");
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -77,7 +77,7 @@ class JsonFileStoreService {
     //   ETHVirtualAppAgreement: "0xdb2Ed0d73d0E6b8f431c999EC97D1AcFf5A0Ee2E"
     // }
   );
-
+  
   if (await store.get("botAccount")) {
     await connectNode(node, process.env.ETH_ADDRESS);
   } else {
