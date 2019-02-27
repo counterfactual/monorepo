@@ -14,6 +14,12 @@ import {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
+  InstallParams,
+  UpdateParams,
+  UninstallParams,
+  WithdrawParams,
+  InstallVirtualAppParams,
+  UninstallVirtualAppParams,
   Transaction
 } from "./types";
 import {
@@ -39,6 +45,12 @@ export {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
+  InstallParams,
+  UpdateParams,
+  UninstallParams,
+  WithdrawParams,
+  InstallVirtualAppParams,
+  UninstallVirtualAppParams,
   Transaction,
   xkeyKthAddress,
   xkeyKthHDNode,

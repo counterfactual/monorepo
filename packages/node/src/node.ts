@@ -4,16 +4,14 @@ import {
   Opcode,
   Protocol,
   ProtocolMessage,
-  SetupParams
+  SetupParams,
+  UpdateParams,
+  WithdrawParams,
+  Transaction
 } from "@counterfactual/machine";
 import {
-  UpdateParams,
-  WithdrawParams
-} from "@counterfactual/machine/dist/src/types";
-import {
   NetworkContext,
-  Node as NodeTypes,
-  Transaction
+  Node as NodeTypes
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
