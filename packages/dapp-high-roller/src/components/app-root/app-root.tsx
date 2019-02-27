@@ -1,6 +1,6 @@
 declare var ga: any;
 
-import { Component, Prop } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -31,6 +31,8 @@ const { AddressZero, HashZero } = ethers.constants;
 export class AppRoot {
   @Prop({ mutable: true }) state: any;
   @Prop({ mutable: true }) uiState: HighRollerUIState;
+
+  @State() userDataReceived: boolean = false;
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
@@ -85,6 +87,8 @@ export class AppRoot {
         const [, data] = event.data.split("|");
         const account = JSON.parse(data);
         this.updateAccount(account);
+
+        this.userDataReceived = true;
 
         if (this.state.appInstance) {
           this.updateOpponent({
@@ -239,7 +243,7 @@ export class AppRoot {
   }
 
   render() {
-    return (
+    return this.userDataReceived ? (
       <div class="height-100">
         <main class="height-100">
           <CounterfactualTunnel.Provider state={this.state}>
@@ -291,6 +295,8 @@ export class AppRoot {
           </CounterfactualTunnel.Provider>
         </main>
       </div>
+    ) : (
+      <h1 class="App message">connecting....</h1>
     );
   }
 }
