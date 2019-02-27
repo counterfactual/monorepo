@@ -118,7 +118,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       context.finalCommitment = context.commitments[1].transaction([
-        context.inbox[0].signature2!, // s3
+        message.signature2!, // s3
         context.signatures[1] // s4
       ]);
     },

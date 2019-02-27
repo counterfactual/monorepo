@@ -79,7 +79,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       context.finalCommitment = context.commitments[0].transaction([
-        context.inbox[0].signature!,
+        message.signature!,
         context.signatures[0]
       ]);
     },
