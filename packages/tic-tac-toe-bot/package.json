@@ -23,6 +23,7 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "start": "env-cmd development node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -30,6 +31,9 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/node": "^0.0.1",
+    "@counterfactual/playground-server": "^0.0.1",
+    "@counterfactual/types": "^0.0.1",
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {

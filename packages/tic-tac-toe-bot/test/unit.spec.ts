@@ -1,4 +1,4 @@
-import { takeTurn } from "../src/index";
+import { takeTurn } from "../src/node";
 import { ethers } from "ethers";
 
 function bigNumberifyBoard(board) {
