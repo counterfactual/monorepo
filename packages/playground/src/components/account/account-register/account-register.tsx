@@ -103,7 +103,6 @@ export class AccountRegister {
   }
 
   async register(signedMessage: string, error?: Error) {
-    // TODO: Handle errors.
     if (error) {
       this.handleMetamaskErrors(error);
       return;
