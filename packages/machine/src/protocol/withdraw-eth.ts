@@ -90,7 +90,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       ]);
     },
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -148,7 +148,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 

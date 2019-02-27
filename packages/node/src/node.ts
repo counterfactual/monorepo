@@ -217,14 +217,14 @@ export class Node {
     );
 
     instructionExecutor.register(
-      Opcode.STATE_TRANSITION_COMMIT,
+      Opcode.WRITE_COMMITMENT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const { protocol } = message;
         if (protocol === Protocol.Withdraw) {
           const params = message.params as WithdrawParams;
           if (context.finalCommitment === undefined) {
             throw Error(
-              "called STATE_TRANSITION_COMMIT with empty context.finalCommitment"
+              "called WRITE_COMMITMENT with empty context.finalCommitment"
             );
           }
           await this.requestHandler.store.storeWithdrawalCommitment(

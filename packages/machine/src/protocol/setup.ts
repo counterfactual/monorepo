@@ -17,8 +17,7 @@ import { validateSignature } from "./utils/signature-validator";
 /**
  * @description This exchange is described at the following URL:
  *
- * specs.counterfactual.com/04-setup-protocol#messages
- *
+ * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
@@ -47,7 +46,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       ),
 
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -72,7 +71,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.IO_SEND,
 
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 
