@@ -10,16 +10,19 @@ import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
 
   enum Round {
-    KEY_EXCHANGE, COMMITMENT, DC_NET, CONFIRMATION, REVEAL_KEY
+    KEY_EXCHANGE, COMMITMENT, DC_NET, CONFIRMATION, REVEAL_KEY, DONE
   }
 
-//   enum ActionType {
-
-//   }
+  enum ActionType {
+    SET_NPK, COMMIT_DC_VECTOR, OPEN_COMMITMENT, CONFIRM
+  }
 
   struct Action {
     ActionType actionType;
-
+    bytes[] npk;
+    bytes[] commitments;
+    bytes[] dcMessages;
+    address[] recipents;
   }
 
   struct AppState {
@@ -36,7 +39,8 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     pure
     returns (bool)
   {
-
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return state.round == Round.DONE;
   }
 
   function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
@@ -44,7 +48,13 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     pure
     returns (address)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
 
+    if (state.round == Round.KEY_EXCHANGE) {
+      // @dev peers' addr are assumed to be sorted in lexicographical
+      // order in client code.
+      return state.peers[state.npk.length - 1];
+    }
   }
 
   function applyAction(bytes memory encodedState, bytes memory encodedAction)
@@ -52,7 +62,43 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     pure
     returns (bytes memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    Action memory action = abi.decode(encodedAction, (Action));
+    require(state.peers.length > 0, "participants/peers not set yet.");
 
+    uint256 setSize = state.peers.length;
+
+    AppState memory nextState = state;
+    if (action.actionType == ActionType.SET_NPK) {
+      require(state.round == Round.KEY_EXCHANGE, "Cannot update public keys for when not in KEY_EXCHANGE round.");
+      require(action.npk.length > state.npk.length, "Can only append PK to the list");
+      nextState.npk = action.npk;
+      if (action.npk.length == setSize) {
+        nextState.round = Round.COMMITMENT;
+      }
+    } else if (action.actionType == ActionType.COMMIT_DC_VECTOR) {
+      require(state.round == Round.COMMITMENT, "Cannot update DC vector commitments when not in COMMITMENT round.");
+      require(action.commitments.length > state.commitments.length, "Can only append commitments to the list");
+      nextState.commitments = action.commitments;
+      if (action.commitments.length == setSize) {
+        nextState.round = Round.DC_NET;
+      }
+    } else if (action.actionType == ActionType.OPEN_COMMITMENT) {
+      require(state.round == Round.DC_NET, "Cannot update DC messages when not in DC_NET round.");
+      require(action.dcMessages.length > state.dcMessages.length, "Can only append dcMessages to the list");
+      nextState.dcMessages = action.dcMessages;
+      if (action.dcMessages.length == setSize) {
+        nextState.round = Round.CONFIRMATION;
+      }
+    } else if (action.actionType == ActionType.CONFIRM) {
+      require(state.round == Round.CONFIRMATION, "Cannot confirm recipents when not in CONFIRMATION round.");
+      nextState.recipents = actioin.recipents;
+      require(action.recipents.length == setSize, "Cannot confirm with fewer recipent addresses than the number of participants");
+      nextState.round = Round.DONE;
+    } else {
+      revert("Invalid action type");
+    }
+    return abi.encode(nextState);
   }
 
   function resolve(bytes memory encodedState, Transfer.Terms memory terms)
@@ -60,6 +106,29 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     pure
     returns (Transfer.Transaction memory)
   {
+    AppState memory state = abi.decode(encodedState, (AppState));
+    uint256 setSize = state.peers.length;
 
+    uint256[] memory amounts = new uint256[](setSize);
+    for (uint i=0; i<setSize; i++) {
+      amounts[i] = terms.limit/setSize;
+    }
+
+    address[] memory to = new address[](setSize)
+    if (state.round == Round.DONE) {
+      to = state.recipents;
+    } else {
+      to = state.peers;
+    }
+    // data field placeholder
+    bytes[] memory data = new bytes[](setSize);
+
+    return Transfer.Transaction(
+      terms.assetType,
+      terms.token,
+      to,
+      amounts,
+      data
+    );
   }
 }
