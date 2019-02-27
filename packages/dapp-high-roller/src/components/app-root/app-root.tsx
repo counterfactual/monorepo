@@ -67,6 +67,13 @@ export class AppRoot {
         playerSecondNumber: 0
       } as HighRollerAppState
     };
+
+    window.addEventListener("popstate", () => {
+      window.parent.postMessage(
+        `playground:send:dappRoute|${location.hash}`,
+        "*"
+      );
+    });
   }
 
   setupPlaygroundMessageListeners() {
@@ -237,7 +244,7 @@ export class AppRoot {
         <main class="height-100">
           <CounterfactualTunnel.Provider state={this.state}>
             <HighRollerUITunnel.Provider state={this.uiState}>
-              <stencil-router>
+              <stencil-router historyType="hash">
                 <stencil-route-switch scrollTopOffset={0}>
                   <app-provider
                     updateAppInstance={this.state.updateAppInstance.bind(this)}
