@@ -11,6 +11,7 @@ export class AccountEthForm {
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
   @Prop() available: number = 0;
+  @Prop() max: number = 1;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
 
@@ -20,13 +21,15 @@ export class AccountEthForm {
   }
 
   handleSubmit(event) {
+    event.preventDefault();
+
     this.submit.emit(event);
   }
 
   render() {
     return (
       <div>
-        <form-container onFormSubmitted={e => this.handleSubmit(e)}>
+        <form-container>
           <form-input
             type="number"
             unit="ETH"
@@ -34,8 +37,8 @@ export class AccountEthForm {
             error={this.error}
             disabled={this.disabled}
             min={0}
-            max={this.available as number}
-            step={0.0001}
+            max={Math.min(this.available as number, this.max)}
+            step={0.001}
             onChange={e => this.update(e)}
           >
             <div class="balance-label" slot="label">
@@ -45,7 +48,7 @@ export class AccountEthForm {
           </form-input>
           <form-button
             disabled={this.disabled}
-            onButtonPressed={e => this.handleSubmit(e)}
+            onButtonPressed={this.handleSubmit.bind(this)}
           >
             {this.button}
           </form-button>
