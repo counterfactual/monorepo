@@ -85,8 +85,8 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     (message: ProtocolMessage, context: Context) => {
       context.finalCommitment = context.commitments[1].transaction([
-        context.inbox[0].signature2!,
-        context.signatures[1]
+        context.inbox[0].signature2!, // s4
+        context.signatures[1] // s3
       ]);
     },
 
@@ -115,6 +115,13 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     Opcode.OP_SIGN,
+
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        context.inbox[0].signature2!, // s3
+        context.signatures[1] // s4
+      ]);
+    },
 
     (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {
