@@ -82,7 +82,6 @@ export class AccountExchange {
       amount <= 0 ||
       amount > Number(ethers.utils.formatEther(this.ethFreeBalanceWei))
     ) {
-      debugger;
       this.withdrawalError =
         "Please enter a non-zero amount of no more than your balance.";
       return;
