@@ -181,7 +181,7 @@ export class AccountRegister {
 
     return (
       <widget-screen>
-        <div slot="header">Create a Playground account</div>
+        <div slot="header">Create a Playground Account</div>
 
         <form-container
           onFormSubmitted={async e => await this.formSubmissionHandler()}
@@ -204,13 +204,15 @@ export class AccountRegister {
             error={this.errors.ethAddress}
             disabled={this.connected}
           /> */}
+          <div class="smallprint">
+            <b>Account will be linked to your Ethereum address: </b>
+            {this.changeset.ethAddress}
+          </div>
           <form-button
             disabled={this.metamaskConfirmationUIOpen}
             onButtonPressed={async e => await this.formSubmissionHandler()}
           >
-            {this.metamaskConfirmationUIOpen
-              ? "Check Wallet..."
-              : "Create account"}
+            {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Register"}
           </form-button>
         </form-container>
 
