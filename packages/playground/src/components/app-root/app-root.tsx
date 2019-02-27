@@ -74,7 +74,7 @@ export class AppRoot {
   }
 
   async updateWalletBalance(ethWeb3WalletBalance: BigNumber) {
-    this.walletState.updateWalletConnection!({ ethWeb3WalletBalance });
+    await this.updateWalletConnection({ ethWeb3WalletBalance });
   }
 
   async setup() {
