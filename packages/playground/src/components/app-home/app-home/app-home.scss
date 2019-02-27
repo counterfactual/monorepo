@@ -2,6 +2,11 @@
   width: 100%;
 }
 
+.blurred {
+
+  filter: blur(8px);
+}
+
 button {
   background: #5851ff;
   color: white;
@@ -29,13 +34,65 @@ button:hover {
   height: 100%;
 }
 
+.welcome-message {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 60%;
+  position: relative;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #555555;
+  }
+
+  .flex-container {
+    display: flex;
+
+    .flex-item {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+      margin: 20px;
+      max-width: 50%;
+      text-align: left;
+    }
+  }
+
+  @media screen and (max-width: $screen-sm) {
+    width: 90%;
+    top: 50%;
+
+    .flex-container {
+      flex-direction: column;
+
+      .flex-item {
+        width: 100%;
+        margin-right: 0;
+        border-right: 0;
+        margin-left: 0;
+      }
+    }
+  }
+
+}
+
 .error-message {
   display: flex;
   align-items: center;
   flex-direction: column;
   width: 50%;
-  position: absolute;
-  top: 50%;
+  position: relative;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
