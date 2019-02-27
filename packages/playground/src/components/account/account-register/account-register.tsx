@@ -82,16 +82,13 @@ export class AccountRegister {
   async formSubmissionHandler() {
     const data = this.changeset;
 
-    this.metamaskConfirmationUIOpen = true;
-    try {
-      // We use personal#sign() because eth#sign() is dangerous.
-      // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
-      const signature = await this.signer.signMessage(
-        buildRegistrationSignaturePayload(data)
-      );
+    const payload = buildRegistrationSignaturePayload(data);
 
+    this.metamaskConfirmationUIOpen = true;
+
+    try {
+      const signature = await this.signer.signMessage(payload);
       await this.register(signature);
-      // );
     } catch (e) {
       await this.register("", e);
     } finally {
