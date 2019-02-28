@@ -98,24 +98,24 @@ workflows:
     jobs:
       - build
 
-      # - run-tslint:
-      #     requires:
-      #       - build
+      - run-tslint:
+          requires:
+            - build
 
-      # - run-tests:
-      #     requires:
-      #       - build
+      - run-tests:
+          requires:
+            - build
 
-      # - run-playground-tests:
-      #     requires:
-      #       - build
+      - run-playground-tests:
+          requires:
+            - build
 
-      - heroku/deploy-via-git
-          # requires:
-          #   - build
-          #   - run-tests
-          #   - run-playground-tests
-          #   - run-tslint
-          # filters:
-          #   branches:
-          #     only: master
+      - heroku/deploy-via-git:
+          requires:
+            - build
+            - run-tests
+            - run-playground-tests
+            - run-tslint
+          filters:
+            branches:
+              only: master
