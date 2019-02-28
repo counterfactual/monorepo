@@ -374,7 +374,7 @@ export class AppRoot {
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
 
-    this.updateAccount({ user });
+    await this.updateAccount({ user });
 
     if (!user.multisigAddress) {
       setTimeout(this.fetchMultisig.bind(this, userToken), 1000);

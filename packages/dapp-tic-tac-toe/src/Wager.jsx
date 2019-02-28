@@ -18,8 +18,6 @@ class Wager extends Component {
   async componentDidMount() {
     this.props.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
-    console.log("user data", this.props.user);
-
     try {
       const result = await this.matchmake();
 
@@ -208,7 +206,7 @@ class Wager extends Component {
           <button type="submit" className="form__button">
             PLAY!
           </button>
-          {error ? <label class="message__error">{error}</label> : []}
+          {error ? <label className="message__error">{error}</label> : []}
         </form>
       </div>
     );
