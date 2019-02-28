@@ -6,7 +6,7 @@ class RouterListener extends Component {
     this.unlisten = this.props.history.listen(location => {
       if (window.parent) {
         window.parent.postMessage(
-          `playground:send:dappRoute|${location.pathname}`,
+          `playground:send:dappRoute|${location.pathname}${location.search}`,
           "*"
         );
       }
