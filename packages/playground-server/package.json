@@ -22,11 +22,10 @@
   },
   "scripts": {
     "build": "echo 'No build necessary'",
-    "build-ts": "tsc -p tsconfig.heroku.json",
-    "disabled-postinstall": "npm run build-ts",
+    "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
-    "serve": "node dist/",
+    "serve": "node dist",
     "start": "env-cmd development --fallback ts-node src/",
     "test": "env-cmd test --fallback jest --forceExit",
     "test:ci": "env-cmd test --fallback jest --forceExit"
@@ -37,9 +36,11 @@
   "dependencies": {
     "@counterfactual/node": "0.0.4",
     "@counterfactual/types": "0.0.5",
+    "@counterfactual/typescript-typings": "0.0.2",
     "@ebryn/jsonapi-ts": "^0.0.4",
     "@koa/cors": "^2.2.3",
     "escape-string-regexp": "^1.0.5",
+    "firebase-server": "^1.0.1",
     "jsonwebtoken": "^8.4.0",
     "knex": "^0.16.3",
     "koa": "^2.6.2",
@@ -58,7 +59,6 @@
     "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "env-cmd": "^8.0.2",
-    "firebase-server": "^1.0.1",
     "jest": "24.1.0",
     "sqlite3": "^4.0.4",
     "ts-jest": "24.0.0",

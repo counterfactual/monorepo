@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  heroku: circleci/heroku@0.0.5
 
 defaults: &defaults
   working_directory: /home/circleci/project
@@ -91,16 +94,28 @@ jobs:
       - run: yarn lint
 
 workflows:
-  version: 2
   run-tests:
     jobs:
       - build
+
       - run-tslint:
           requires:
             - build
+
       - run-tests:
           requires:
             - build
+
       - run-playground-tests:
           requires:
             - build
+
+      - heroku/deploy-via-git:
+          requires:
+            - build
+            - run-tests
+            - run-playground-tests
+            - run-tslint
+          filters:
+            branches:
+              only: master
