@@ -1,6 +1,7 @@
 {
   "name": "@counterfactual/playground",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "build": "stencil build --debug && cp src/_redirects www/_redirects",
     "serve": "stencil build --dev --watch --serve",
@@ -13,7 +14,8 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@counterfactual/node": "^0.0.1",
+    "@counterfactual/node": "0.0.4",
+    "@counterfactual/types": "0.0.5",
     "@stencil/core": "^0.18.0",
     "@stencil/router": "^0.3.0",
     "@stencil/sass": "^0.1.1",
@@ -29,7 +31,7 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
-    "@counterfactual/typescript-typings": "^0.0.1",
+    "@counterfactual/typescript-typings": "0.0.2",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.1",
     "env-cmd": "^8.0.2",

@@ -1,6 +1,7 @@
 {
   "name": "@counterfactual/machine",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "private": true,
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
@@ -17,8 +18,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/typescript-typings": "0.0.1",
-    "@counterfactual/types": "0.0.1",
+    "@counterfactual/types": "0.0.5",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
     "@types/jest": "24.0.9",
@@ -34,8 +34,7 @@
     "truffle": "5.0.5",
     "ts-jest": "24.0.0",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.2",
-    "typescript-memoize": "^1.0.0-alpha.3"
+    "typescript": "^3.1.2"
   },
   "dependencies": {
     "@counterfactual/contracts": "0.0.3",
