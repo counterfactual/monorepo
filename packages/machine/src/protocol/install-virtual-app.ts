@@ -93,7 +93,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -176,7 +176,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     Opcode.IO_SEND,
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   2: [
@@ -230,7 +230,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 
@@ -281,7 +281,7 @@ function createAndAddTarget(
 
   context.stateChannelsMap.set(key, newSc);
 
-  // Needed for STATE_TRANSITION_COMMIT presently
+  // Needed for WRITE_COMMITMENT presently
   context.appIdentityHash = target.identityHash;
 
   return target;

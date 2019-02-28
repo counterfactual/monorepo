@@ -17,8 +17,7 @@ import { validateSignature } from "./utils/signature-validator";
 /**
  * @description This exchange is described at the following URL:
  *
- * specs.counterfactual.com/04-setup-protocol#messages
- *
+ * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
@@ -46,8 +45,15 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature
       ),
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction([
+        context.inbox[0].signature!,
+        context.signatures[0]
+      ]);
+    },
+
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -71,8 +77,15 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     // Send the message to your counterparty
     Opcode.IO_SEND,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction([
+        message.signature!,
+        context.signatures[0]
+      ]);
+    },
+
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 
@@ -94,10 +107,13 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
   );
 
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
-  context.commitments[0] = constructSetupOp(context.network, newStateChannel);
+  context.commitments[0] = constructSetupCommitment(
+    context.network,
+    newStateChannel
+  );
 }
 
-export function constructSetupOp(
+export function constructSetupCommitment(
   network: NetworkContext,
   stateChannel: StateChannel
 ) {

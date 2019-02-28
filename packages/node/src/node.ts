@@ -4,12 +4,11 @@ import {
   Opcode,
   Protocol,
   ProtocolMessage,
-  SetupParams
-} from "@counterfactual/machine";
-import {
+  SetupParams,
+  Transaction,
   UpdateParams,
   WithdrawParams
-} from "@counterfactual/machine/dist/src/types";
+} from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
@@ -216,34 +215,41 @@ export class Node {
       }
     );
 
+    const verifyFinalCommitment = (finalCommitment?: Transaction) => {
+      if (finalCommitment === undefined) {
+        throw Error(
+          "called WRITE_COMMITMENT with empty context.finalCommitment"
+        );
+      }
+    };
+
     instructionExecutor.register(
-      Opcode.STATE_TRANSITION_COMMIT,
+      Opcode.WRITE_COMMITMENT,
       async (message: ProtocolMessage, next: Function, context: Context) => {
-        if (!context.commitments[0]) {
-          throw new Error(
-            `State transition without commitment: ${JSON.stringify(message)}`
-          );
-        }
-        const transaction = context.commitments[0].transaction([
-          context.signatures[0] // TODO: add counterparty signature
-        ]);
         const { protocol } = message;
-        if (protocol === Protocol.Setup) {
-          const params = message.params as SetupParams;
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            transaction
-          );
-        } else if (protocol === Protocol.Withdraw) {
+        if (protocol === Protocol.Withdraw) {
           const params = message.params as WithdrawParams;
+          verifyFinalCommitment(context.finalCommitment);
           await this.requestHandler.store.storeWithdrawalCommitment(
             params.multisigAddress,
-            context.commitments[1].transaction([
-              context.signatures[1],
-              context.inbox[0].signature2!
-            ])
+            context.finalCommitment!
+          );
+        } else if (protocol === Protocol.Setup) {
+          const params = message.params as SetupParams;
+          verifyFinalCommitment(context.finalCommitment);
+          await this.requestHandler.store.setSetupCommitmentForMultisig(
+            params.multisigAddress,
+            context.finalCommitment!
           );
         } else {
+          if (!context.commitments[0]) {
+            throw new Error(
+              `State transition without commitment: ${JSON.stringify(message)}`
+            );
+          }
+          const transaction = context.commitments[0].transaction([
+            context.signatures[0] // TODO: add counterparty signature
+          ]);
           if (!context.appIdentityHash) {
             throw new Error(
               `appIdentityHash required to store commitment. protocol=${protocol}`

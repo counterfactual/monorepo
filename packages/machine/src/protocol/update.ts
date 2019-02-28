@@ -57,7 +57,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -92,7 +92,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.IO_SEND,
 
     // Consider the state transition finished and commit it
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 
