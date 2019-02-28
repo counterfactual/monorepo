@@ -187,12 +187,14 @@ export class AccountRegister {
           onFormSubmitted={async e => await this.formSubmissionHandler()}
         >
           <form-input
+            disabled={this.metamaskConfirmationUIOpen}
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
             onChange={e => this.change("username", e)}
           />
           <form-input
+            disabled={this.metamaskConfirmationUIOpen}
             label="Email address"
             value={this.changeset.email}
             error={this.errors.email}
