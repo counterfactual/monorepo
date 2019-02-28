@@ -1,7 +1,6 @@
 {
   "name": "@counterfactual/machine",
   "version": "0.0.2",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",

@@ -1,7 +1,6 @@
 {
   "name": "@counterfactual/apps",
   "version": "0.0.1",
-  "private": true,
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
