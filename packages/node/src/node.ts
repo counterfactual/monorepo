@@ -1,11 +1,13 @@
 import {
   Context,
+  InstallParams,
   InstructionExecutor,
   Opcode,
   Protocol,
   ProtocolMessage,
   SetupParams,
   Transaction,
+  UninstallParams,
   UpdateParams,
   WithdrawParams
 } from "@counterfactual/machine";
@@ -250,15 +252,13 @@ export class Node {
           /// All other protocols are stored under the key
           /// appIdentityHash/protocolName. This means that an app only has one
           /// update commitment.
-          const params = message.params as any;
+          const params = message.params as
+            | UpdateParams
+            | InstallParams
+            | UninstallParams;
           if (!params.multisigAddress) {
             throw Error(
               "WRITE_COMMITMENT: params did not contain multisigAddress"
-            );
-          }
-          if (!getAddress(params.multisigAddress)) {
-            throw Error(
-              "WRITE_COMMITMENT: params contained malformed multisigAddress"
             );
           }
           verifyFinalCommitment(context.finalCommitment);
