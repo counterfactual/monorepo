@@ -4,7 +4,6 @@
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
-  "private": true,
   "files": [
     "build"
   ],
