@@ -16,11 +16,11 @@ A state channel framework consists of contracts as well as protocols that users 
 
 Through a challenge-response mechanism, on-chain contracts implement methods for participants to ensure that the latest signed valid state update that pertains to their commitment can be submitted to the blockchain, guaranteeing correct resolution of the state for all users adhering to the protocol.
 
-Counterfactual uses a generic system of Ethereum smart contracts to support artbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explaination of the contracts layer, please read the [contracts](./01-contracts.md) subsection.
+Counterfactual uses a generic system of Ethereum smart contracts to support arbitrary conditional transactions of blockchain state owned by a multisignature wallet. For a full explanation of the contracts layer, please read the [contracts](./01-contracts.md) subsection.
 
 ## Framework Design Goals
 
-Counterfactual has been designed to satisfy the following criteria:
+The Counterfactual framework is still a work in progress.  Its current design (and future roadmap) are driven primarily by the following criteria:
 
 ### Minimized on-chain footprint
 
@@ -28,19 +28,19 @@ We don’t want to put anything on the chain that doesn’t need to be. We aim t
 
 ### Maximized privacy
 
-We want to achieve a level of privacy where state channel operations are indistinguishable from other common types of on-chain activities. Using a state channel should not reveal any information about the applications that are being used, the state being used within them, or even the fact that a state channel is being used at all. To achieve this property, we assume that the on-chain component is a generic multisignature wallet which looks the same as any other multisignature wallet on Ethereum.
+We want to achieve a level of privacy where state channel operations are indistinguishable from other common types of on-chain activities. Using a state channel should not reveal any information about the applications that are being used, the state being used within them, or even the fact that a state channel is being used at all. As a first step towards preserving this property, we assume that the on-chain component is a generic multisignature wallet which looks the same as any other multisignature wallet on Ethereum. In the future we expect that stricter levels of privacy will be enabled by various zero knowledge constructions, and that those will fit best when applied in similarly general, abstract ways that fit neatly with this approach.
 
 ### Ease-of-use
 
-We want channels that can be easily incorporated into new applications without the requirement that their developers also be state channel experts. To this end we define an abstraction for state channel applications, or "Apps". These "Apps" are simple stateless contracts which define a state machine, including valid transitions and turn-taking logic. "Apps" are an intentionally restricted subset of state channel functionality which nonetheless enable developers to deploy a wide range of channelised applications without butting up against the often complex and subtle [limitations](#limitations) of state channel design. As the protocol develops further more complex functionality will continue be added, allowing easy utilisation of increasingly advanced techniques.
+We want channels that can be easily incorporated into new applications without the requirement that their developers also be state channel experts. To provide at least one such simple method for developers to utilize within our framework, we have created an abstraction for state-machine-based channel applications, or "Apps". This class of "App" consists of simple stateless contracts which define a state machine, including valid transitions and turn-taking logic. Although state-machine-based "Apps" are an intentionally restricted subset of state channel functionality, they nonetheless enable developers to deploy a wide range of channelized applications without butting up against the often complex and subtle [limitations](#limitations) of state channel design. As the protocol develops further more complex functionality will continue be added, allowing easy utilization of increasingly advanced techniques by developers making use of the Counterfactual framework.
 
 ### Parallel operations
 
-We want to support multiple parallel operations inside of a single channel that do not interfere with each other. We have designed "Apps" to maintain control of the state assigned to them in a fashion completely independent of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all parallelizable operations with respect to other apps using the [Counterfactual protocol](./00-protocol.md).
+We want to support multiple parallel operations inside of a single channel that do not interfere with each other. We have designed these simple state-machine-based "Apps" to maintain control of the state assigned to them in a fashion completely independent of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all fully parallelized operations within the [Counterfactual protocol](./00-protocol.md).
 
 ### Upgradeable
 
-We want to support deploying or upgrading channel designs without requiring the user to make a single on-chain operation. There are multiple techniques which are specifically anticipated in the current design. For the purposes of _trustless_ off-chain upgradability, we are able to support counterfactually instantiated smart contracts as applications. To upgrade a contract trustlessly, state channel participants can simply agree off-chain to a new version of bytecode for their application. At the cost of certain additional trust assumptions, state channel participants could also use an application that is defined using [ZeppelinOS's upgradeable contracts](https://docs.zeppelinos.org/docs/building.html).
+We want to support deploying or upgrading channel designs without requiring the user to make a single on-chain operation. There are multiple techniques which are specifically anticipated in the current design. For the purposes of _trustless_ off-chain upgradability, we are able to support counterfactually instantiated smart contracts as applications. To upgrade a contract trustlessly, state channel participants can simply agree off-chain to a new version of bytecode for their application. At the cost of certain additional trust assumptions, state channel participants could also use an application that is defined using [ZeppelinOS's upgradeable contracts](https://docs.zeppelinos.org/docs/building.html) or a similar method.
 
 ### Standardized
 
