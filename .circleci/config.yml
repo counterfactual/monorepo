@@ -1,20 +1,28 @@
 version: 2
 
+defaults: &defaults
+  working_directory: /home/circleci/project
+  docker:
+    - image: circleci/node:10
+
 jobs:
   build:
-    docker:
-      - image: circleci/node:10
+    <<: *defaults
     steps:
       - checkout
       - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
+
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+
       - run: yarn
       - run: yarn build
+
       - save_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
           paths:
             - node_modules
+
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
@@ -22,44 +30,64 @@ jobs:
             - packages/*/build
 
   run-tests:
-    docker:
-      - image: circleci/node:10
+    <<: *defaults
     steps:
       - checkout
       - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
+
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+
       - run: yarn # symlink packages' node_modules
+
       - attach_workspace:
           at: /home/circleci/project
-      - run: yarn test:ci-non-playground
+
+      - run:
+          name: Run Non-Playground-related tests
+          command: yarn test:ci-non-playground
 
   run-playground-tests:
+    <<: *defaults
     docker:
       - image: circleci/node:10-browsers
     steps:
       - checkout
       - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
+
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+
       - run: yarn # symlink packages' node_modules
+
       - attach_workspace:
           at: /home/circleci/project
-      - run: cd packages/playground && yarn test
-      - run: cd packages/playground-server && yarn test:ci
-      - run: cd packages/dapp-high-roller && yarn test
-      - run: cd packages/dapp-tic-tac-toe && yarn test
+
+      - run:
+          name: Run Playground tests
+          command: cd packages/playground && yarn test
+      - run:
+          name: Run Playground Server tests
+          command: cd packages/playground-server && yarn test:ci
+      - run:
+          name: Run High Roller tests
+          command: cd packages/dapp-high-roller && yarn test
+      - run:
+          name: Run Tic-Tac-Toe tests
+          command: cd packages/dapp-tic-tac-toe && yarn test
 
   run-tslint:
-    docker:
-      - image: circleci/node:10
+    <<: *defaults
     steps:
       - checkout
       - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
+
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+
       - attach_workspace:
           at: /home/circleci/project
+
       - run: yarn lint
 
 workflows:
