@@ -1,6 +1,6 @@
 declare var ga: any;
 
-import { Component, Prop } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
@@ -31,6 +31,8 @@ const { AddressZero, HashZero } = ethers.constants;
 export class AppRoot {
   @Prop({ mutable: true }) state: any;
   @Prop({ mutable: true }) uiState: HighRollerUIState;
+
+  @State() userDataReceived: boolean = false;
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
@@ -67,6 +69,13 @@ export class AppRoot {
         playerSecondNumber: 0
       } as HighRollerAppState
     };
+
+    window.addEventListener("popstate", () => {
+      window.parent.postMessage(
+        `playground:send:dappRoute|${location.hash}`,
+        "*"
+      );
+    });
   }
 
   setupPlaygroundMessageListeners() {
@@ -78,6 +87,8 @@ export class AppRoot {
         const [, data] = event.data.split("|");
         const account = JSON.parse(data);
         this.updateAccount(account);
+
+        this.userDataReceived = true;
 
         if (this.state.appInstance) {
           this.updateOpponent({
@@ -123,6 +134,7 @@ export class AppRoot {
         multisigAddress: "0x9499ac5A66c36447e535d252c049304D80961CED"
       };
       this.updateAccount(mockAccount);
+      this.userDataReceived = true;
     }
   }
 
@@ -232,12 +244,12 @@ export class AppRoot {
   }
 
   render() {
-    return (
+    return this.userDataReceived ? (
       <div class="height-100">
         <main class="height-100">
           <CounterfactualTunnel.Provider state={this.state}>
             <HighRollerUITunnel.Provider state={this.uiState}>
-              <stencil-router>
+              <stencil-router historyType="hash">
                 <stencil-route-switch scrollTopOffset={0}>
                   <app-provider
                     updateAppInstance={this.state.updateAppInstance.bind(this)}
@@ -284,6 +296,8 @@ export class AppRoot {
           </CounterfactualTunnel.Provider>
         </main>
       </div>
+    ) : (
+      <h1 class="App message">connecting....</h1>
     );
   }
 }

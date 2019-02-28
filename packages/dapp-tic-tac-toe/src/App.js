@@ -3,6 +3,7 @@ import Welcome from "./Welcome";
 import Wager from "./Wager";
 import Waiting from "./Waiting";
 import Game from "./Game";
+import RouterListener from "./RouterListener";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import MockNodeProvider from "./MockNodeProvider";
 
@@ -90,7 +91,7 @@ export default class App extends Component {
   render() {
     return this.state.connected ? (
       <Router>
-        <div className="App">
+        <RouterListener>
           <Route
             exact
             path="/"
@@ -136,7 +137,7 @@ export default class App extends Component {
               />
             )}
           />
-        </div>
+        </RouterListener>
       </Router>
     ) : (
       <h1 className="App message">connecting....</h1>
