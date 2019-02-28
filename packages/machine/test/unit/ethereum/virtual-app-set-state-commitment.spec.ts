@@ -24,7 +24,6 @@ describe("Virtual App Set State Commitment", () => {
   let commitment: VirtualAppSetStateCommitment;
   let tx: Transaction;
 
-  // Dummy network context
   const networkContext = generateRandomNetworkContext();
 
   const appInstance = new AppInstance(
