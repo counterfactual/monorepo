@@ -231,6 +231,7 @@ export class Store {
             ["string", "string", "string"],
             [
               proposedAppInstance.intermediaries![0],
+              // todo(xuanji): doesn't sorting destroy this?
               // Ordered as [0: to, 1: by] because when executed, it is "to"
               // that becomes initiatingAddress / the idx 0 in compute-virtual-key
               sortedXpubs[0],

@@ -12,7 +12,7 @@ import {
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
-import { SigningKey } from "ethers/utils";
+import { getAddress, SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
@@ -241,25 +241,34 @@ export class Node {
             params.multisigAddress,
             context.finalCommitment!
           );
-        } else {
-          if (!context.commitments[0]) {
-            throw new Error(
-              `State transition without commitment: ${JSON.stringify(message)}`
+        } else if (
+          protocol === Protocol.Install ||
+          protocol === Protocol.Uninstall ||
+          protocol === Protocol.Update
+        ) {
+          /// install, update, uninstall,
+          /// All other protocols are stored under the key
+          /// appIdentityHash/protocolName. This means that an app only has one
+          /// update commitment.
+          const params = message.params as any;
+          if (!params.multisigAddress) {
+            throw Error(
+              "WRITE_COMMITMENT: params did not contain multisigAddress"
             );
           }
-          const transaction = context.commitments[0].transaction([
-            context.signatures[0] // TODO: add counterparty signature
-          ]);
-          if (!context.appIdentityHash) {
-            throw new Error(
-              `appIdentityHash required to store commitment. protocol=${protocol}`
+          if (!getAddress(params.multisigAddress)) {
+            throw Error(
+              "WRITE_COMMITMENT: params contained malformed multisigAddress"
             );
           }
-          await this.requestHandler.store.setCommitmentForAppIdentityHash(
-            context.appIdentityHash!,
-            protocol,
-            transaction
+          verifyFinalCommitment(context.finalCommitment);
+          await this.requestHandler.store.setSetupCommitmentForMultisig(
+            params.multisigAddress,
+            context.finalCommitment!
           );
+        } else {
+          /// install-virtual-app, uninstall-virtual-app
+          console.log("skipping commitment write - not implemented yet");
         }
         next();
       }

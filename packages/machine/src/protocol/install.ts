@@ -46,7 +46,13 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature
       ),
 
-    // Consider the state transition finished and commit it
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction([
+        context.signatures[0],
+        context.inbox[0].signature!
+      ]);
+    },
+
     Opcode.WRITE_COMMITMENT
   ],
 
@@ -65,14 +71,20 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Sign the same state update yourself
     Opcode.OP_SIGN,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction([
+        context.signatures[0],
+        message.signature!
+      ]);
+    },
+
+    Opcode.WRITE_COMMITMENT,
+
     // Wrap the signature into a message to be sent
     addSignedCommitmentInResponse,
 
     // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    // Consider the state transition finished and commit it
-    Opcode.WRITE_COMMITMENT
+    Opcode.IO_SEND
   ]
 };
 
