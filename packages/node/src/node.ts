@@ -14,7 +14,7 @@ import {
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
-import { getAddress, SigningKey } from "ethers/utils";
+import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
