@@ -17,8 +17,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/typescript-typings": "0.0.1",
-    "@counterfactual/types": "0.0.1",
+    "@counterfactual/types": "0.0.2",
+    "@counterfactual/types": "0.0.5",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
     "@types/jest": "24.0.9",
