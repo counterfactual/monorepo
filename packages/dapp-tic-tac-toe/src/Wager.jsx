@@ -18,8 +18,6 @@ class Wager extends Component {
   async componentDidMount() {
     this.props.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
-    console.log("user data", this.props.user);
-
     try {
       const result = await this.matchmake();
 
