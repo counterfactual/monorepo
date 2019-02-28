@@ -208,7 +208,7 @@ class Wager extends Component {
           <button type="submit" className="form__button">
             PLAY!
           </button>
-          {error ? <label class="message__error">{error}</label> : []}
+          {error ? <label className="message__error">{error}</label> : []}
         </form>
       </div>
     );
