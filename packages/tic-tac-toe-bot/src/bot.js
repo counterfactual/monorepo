@@ -167,12 +167,12 @@ async function connectNode(node, ethAddress) {
       },
       requestId: v4()
     };
-
+console.log("request", request)
     await node.call(
       request.type,
       request
     );
-
+console.log("finish install")
     node.on("updateStateEvent", async (updateEventData) => {
       if (updateEventData.data.appInstanceId === appInstanceId) {
         respond(node, ethAddress, updateEventData);
