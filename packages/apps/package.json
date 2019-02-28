@@ -22,7 +22,6 @@
   "devDependencies": {
     "@counterfactual/contracts": "0.0.3",
     "@counterfactual/types": "0.0.5",
-    "@counterfactual/types": "0.0.2",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
