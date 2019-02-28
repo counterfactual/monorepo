@@ -449,22 +449,6 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     xkeyKthAddress(respondingXpub, 0)
   );
 
-  // S2
-  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
-    context.network,
-    channelWithInitiating,
-    targetAppInstance.identityHash,
-    leftEthVirtualAppAgreementInstance
-  );
-
-  // S3
-  context.commitments[1] = constructETHVirtualAppAgreementCommitment(
-    context.network,
-    channelWithResponding,
-    targetAppInstance.identityHash,
-    rightEthVirtualAppAgreementInstance
-  );
-
   // S6
   const newStateChannel1 = channelWithInitiating.installETHVirtualAppAgreementInstance(
     leftEthVirtualAppAgreementInstance,
@@ -478,7 +462,7 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   );
 
   const newStateChannel2 = channelWithResponding.installETHVirtualAppAgreementInstance(
-    leftEthVirtualAppAgreementInstance,
+    rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
@@ -486,6 +470,22 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
   context.stateChannelsMap.set(
     channelWithResponding.multisigAddress,
     newStateChannel2
+  );
+
+  // S2
+  context.commitments[0] = constructETHVirtualAppAgreementCommitment(
+    context.network,
+    newStateChannel1,
+    targetAppInstance.identityHash,
+    leftEthVirtualAppAgreementInstance
+  );
+
+  // S3
+  context.commitments[1] = constructETHVirtualAppAgreementCommitment(
+    context.network,
+    newStateChannel2,
+    targetAppInstance.identityHash,
+    rightEthVirtualAppAgreementInstance
   );
 
   context.commitments[2] = new VirtualAppSetStateCommitment(
