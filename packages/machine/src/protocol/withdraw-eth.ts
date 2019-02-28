@@ -83,7 +83,14 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
     Opcode.IO_SEND,
 
-    Opcode.STATE_TRANSITION_COMMIT
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        context.inbox[0].signature2!, // s4
+        context.signatures[1] // s3
+      ]);
+    },
+
+    Opcode.WRITE_COMMITMENT
   ],
 
   1: [
@@ -110,6 +117,13 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.OP_SIGN,
 
     (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        message.signature2!, // s3
+        context.signatures[1] // s4
+      ]);
+    },
+
+    (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {
         ...message,
         fromAddress: message.params.respondingXpub,
@@ -134,7 +148,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    Opcode.STATE_TRANSITION_COMMIT
+    Opcode.WRITE_COMMITMENT
   ]
 };
 

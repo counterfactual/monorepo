@@ -444,7 +444,7 @@ export class StateChannel {
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
-      this.appInstances,
+      appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1

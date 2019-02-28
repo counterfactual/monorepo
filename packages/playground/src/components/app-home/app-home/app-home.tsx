@@ -1,9 +1,10 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
+import AccountTunnel from "../../../data/account";
 import AppRegistryTunnel from "../../../data/app-registry";
 import WalletTunnel from "../../../data/wallet";
-import { AppDefinition } from "../../../types";
+import { AppDefinition, UserSession } from "../../../types";
 
 @Component({
   tag: "app-home",
@@ -15,6 +16,7 @@ export class AppHome {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() apps: AppDefinition[] = [];
+  @Prop() user: UserSession = {} as UserSession;
   @Prop() web3Detected: boolean = false;
   @Prop() hasDetectedNetwork: boolean = false;
   @Prop() networkPermitted: boolean = false;
@@ -193,12 +195,60 @@ export class AppHome {
     );
   }
 
+  checkUserNotLoggedIn() {
+    if (this.user.id) {
+      return;
+    }
+
+    return (
+      <div class="welcome-message">
+        <h1>Welcome! 👋</h1>
+        <h2>
+          This a demonstration of{" "}
+          <a href="https://counterfactual.com/statechannels">
+            generalized state channels
+          </a>{" "}
+          on Ethereum.
+        </h2>
+        <div class="flex-container">
+          <div class="flex-item">
+            <h3>What's going on here?</h3>
+            <p>
+              You are now a Node in a hub-and-spoke state channels network. This
+              webpage is your state channels wallet. Our team runs the hub.
+              Users that connect to our hub can use an unlimited number of
+              off-chain applications with <b>zero fees</b> and{" "}
+              <b>zero block confirmation times</b>. Want to try? Register or
+              login to start.
+            </p>
+          </div>
+          <div class="flex-item">
+            <h3>How does it work?</h3>
+            <p>
+              This demo is built using{" "}
+              <a href="https://counterfactual.com">Counterfactual</a>. We've
+              written all about the internal architecture in{" "}
+              <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                this blog post
+              </a>
+              . To learn more, check out our{" "}
+              <a href="https://github.com/counterfactal">GitHub</a> page and
+              follow us on{" "}
+              <a href="https://twitter.com/statechannels">Twitter</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const content =
       this.checkLocalStorage() ||
       this.checkDetectedNetwork() ||
       this.checkWeb3Detected() ||
       this.checkNetworkPermitted() ||
+      this.checkUserNotLoggedIn() ||
       this.showApps();
 
     return this.hasLocalStorage ? (
@@ -228,3 +278,5 @@ WalletTunnel.injectProps(AppHome, [
   "networkPermitted",
   "hasDetectedNetwork"
 ]);
+
+AccountTunnel.injectProps(AppHome, ["user"]);
