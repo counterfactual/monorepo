@@ -52,6 +52,7 @@ export class AccountRegister {
     ethAddress: "",
     nodeAddress: ""
   };
+  @State() metamaskConfirmationUIOpen: boolean = false;
 
   async login(e: MouseEvent) {
     e.preventDefault();
@@ -78,16 +79,21 @@ export class AccountRegister {
     this.changeset[key] = (event.target as HTMLInputElement).value;
   }
 
-  formSubmissionHandler() {
+  async formSubmissionHandler() {
     const data = this.changeset;
 
-    // We use personal#sign() because eth#sign() is dangerous.
-    // See: https://metamask.zendesk.com/hc/en-us/articles/360015488751
-    window["web3"].personal.sign(
-      window["web3"].toHex(buildRegistrationSignaturePayload(data)),
-      data.ethAddress,
-      this.register.bind(this)
-    );
+    const payload = buildRegistrationSignaturePayload(data);
+
+    this.metamaskConfirmationUIOpen = true;
+
+    try {
+      const signature = await this.signer.signMessage(payload);
+      await this.register(signature);
+    } catch (e) {
+      this.handleMetamaskErrors(e);
+    } finally {
+      this.metamaskConfirmationUIOpen = false;
+    }
   }
 
   handleMetamaskErrors(error) {
@@ -96,15 +102,7 @@ export class AccountRegister {
     }
   }
 
-  async register(error: Error, signedMessage: string) {
-    // TODO: Handle errors.
-    if (error) {
-      this.handleMetamaskErrors(error);
-      return;
-    }
-
-    // Call the API and store the multisig.
-
+  async register(signedMessage: string) {
     try {
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
@@ -183,29 +181,34 @@ export class AccountRegister {
 
     return (
       <widget-screen>
-        <div slot="header">Create a Playground account</div>
+        <div slot="header">Create a Playground Account</div>
 
-        <form-container onFormSubmitted={e => this.formSubmissionHandler()}>
+        <form-container
+          onFormSubmitted={async e => await this.formSubmissionHandler()}
+        >
           <form-input
+            disabled={this.metamaskConfirmationUIOpen}
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
             onChange={e => this.change("username", e)}
           />
           <form-input
+            disabled={this.metamaskConfirmationUIOpen}
             label="Email address"
             value={this.changeset.email}
             error={this.errors.email}
             onChange={e => this.change("email", e)}
           />
-          <form-input
-            label="Ethereum address"
-            value={this.changeset.ethAddress}
-            error={this.errors.ethAddress}
-            disabled={this.connected}
-          />
-          <form-button onButtonPressed={e => this.formSubmissionHandler()}>
-            Create account
+          <div class="smallprint">
+            <b>Account will be linked to your Ethereum address: </b>
+            {this.changeset.ethAddress}
+          </div>
+          <form-button
+            disabled={this.metamaskConfirmationUIOpen}
+            onButtonPressed={async e => await this.formSubmissionHandler()}
+          >
+            {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Register"}
           </form-button>
         </form-container>
 

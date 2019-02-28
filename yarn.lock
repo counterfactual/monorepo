@@ -855,6 +855,11 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@counterfactual/types@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.1.tgz#1bfc897bd64b8fb3a9c5cff42cd6e0d60305dab5"
+  integrity sha512-Cv22ruTv1D/4el/7gqsKRnH+Bb5TjZDy/CCtBYh1zY1ymkJQ9XP/CINoxEWQUNu7YVbn7x91toPXWnx43ychuw==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -899,7 +904,7 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@firebase/app-types@0.3.4", "@firebase/app-types@^0.3.3":
+"@firebase/app-types@0.*", "@firebase/app-types@0.3.4":
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.4.tgz#ea0b9d23c93efb139a90247bf7361b774eb80aeb"
   integrity sha512-XIc1wu7CJ0469STQPwyuokcBGFpRr7BVKKdajj/wAxzNntatDTXo1jdGfmjA8UYcuvW+QJmMkOE9KIOf5HgSzw==
@@ -2063,9 +2068,14 @@
   resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.1.tgz#35cc15b9c4f30a18ef21852e255fdb02f6d59b89"
   integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
 
+"@types/jest@23.3.14":
+  version "23.3.14"
+  resolved "https://registry.npmjs.org/@types/jest/-/jest-23.3.14.tgz#37daaf78069e7948520474c87b80092ea912520a"
+  integrity sha512-Q5hTcfdudEL2yOmluA1zaSyPbzWPmJ3XfSWeP3RyoYvS9hnje1ZyagrZOuQ6+1nQC1Gw+7gap3pLNL3xL6UBug==
+
 "@types/jest@24.0.9":
   version "24.0.9"
-  resolved "https://registry.npmjs.org/@types/jest/-/jest-24.0.9.tgz#74ce9cf337f25e189aa18f76ab3d65e8669b55f2"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.9.tgz#74ce9cf337f25e189aa18f76ab3d65e8669b55f2"
   integrity sha512-k3OOeevcBYLR5pdsOv5g3OP94h3mrJmLPHFEPWgbbVy2tGv0TZ/TlygiC848ogXhK8NL0I5up7YYtwpCp8xCJA==
   dependencies:
     "@types/jest-diff" "*"
@@ -7025,7 +7035,7 @@ ethereumjs-vm@2.3.4:
     rustbn.js "~0.1.1"
     safe-buffer "^5.1.1"
 
-ethereumjs-vm@^2.0.2, ethereumjs-vm@^2.1.0, ethereumjs-vm@^2.3.4, ethereumjs-vm@^2.5.1:
+ethereumjs-vm@^2.0.2, ethereumjs-vm@^2.1.0, ethereumjs-vm@^2.3.4, ethereumjs-vm@^2.5.1, ethereumjs-vm@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-2.6.0.tgz#76243ed8de031b408793ac33907fb3407fe400c6"
   integrity sha512-r/XIUik/ynGbxS3y+mvGnbOKnuLo40V5Mj1J25+HEO63aWYREIqvWeRO/hnROlMBE5WoniQmPmhiaN0ctiHaXw==
@@ -7949,10 +7959,10 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
-ganache-cli@6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.3.0.tgz#574f9d35aaec8da6e01c2be49db8fe73129eb561"
-  integrity sha512-8SyzfX2ipRVBx1fBZLg3j8I3E334U3Vazk5mEpYcWqnIjC2ace6jtOXHG4aTuAvSz3+HzQ8p8pRjOJxdDZ2pnQ==
+ganache-cli@6.4.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.4.0.tgz#1443a14429726d5a1d10c2127efc9503b2f32122"
+  integrity sha512-aujOqrN6tDaoKGpP6cPZR33r9Ko529FCHHG0/0dNB9a9e4lY/rilMXqrc4KfjEWcKvD5ts+4fcFKYFhT6W8HAw==
   dependencies:
     bn.js "4.11.8"
     source-map-support "0.5.9"
@@ -7982,6 +7992,41 @@ ganache-core@2.4.0:
     level-sublevel "6.6.4"
     levelup "3.1.1"
     lodash "4.17.10"
+    merkle-patricia-tree "2.3.1"
+    rlp "2.1.0"
+    seedrandom "2.4.4"
+    source-map-support "0.5.9"
+    tmp "0.0.33"
+    web3-provider-engine "14.1.0"
+    websocket "1.0.26"
+  optionalDependencies:
+    ethereumjs-wallet "0.6.2"
+    web3 "1.0.0-beta.35"
+
+ganache-core@2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.5.1.tgz#731e88db70c12ac8a7c2b56a055483338523b739"
+  integrity sha512-sqTpmUtoExsUZqCqMdIZ+kPmXXu/fab755LpCaaty2u9EHb9gfIM9f/8gTpg0biaJ7LesbdyTfAbw66wHi4ujw==
+  dependencies:
+    abstract-leveldown "3.0.0"
+    async "2.6.1"
+    bip39 "2.5.0"
+    bn.js "4.11.8"
+    cachedown "1.0.0"
+    clone "2.1.2"
+    debug "3.1.0"
+    encoding-down "5.0.4"
+    eth-sig-util "2.0.2"
+    ethereumjs-abi "0.6.5"
+    ethereumjs-account "2.0.5"
+    ethereumjs-block "2.1.0"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "5.2.0"
+    ethereumjs-vm "^2.6.0"
+    heap "0.2.6"
+    level-sublevel "6.6.4"
+    levelup "3.1.1"
+    lodash "4.17.11"
     merkle-patricia-tree "2.3.1"
     rlp "2.1.0"
     seedrandom "2.4.4"
@@ -11670,7 +11715,7 @@ lodash@4.17.10:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
   integrity sha512-UejweD1pDoXu+AD825lWwp4ZGtSwgnpZxb3JDViD7StjQz+Nb/6l093lx4OQ0foGWNRoc19mWy7BzL+UAK2iVg==
 
-"lodash@>=3.5 <5", lodash@^4.0.0, lodash@^4.14.2, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@~4.17.10:
+lodash@4.17.11, "lodash@>=3.5 <5", lodash@^4.0.0, lodash@^4.14.2, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
@@ -13029,10 +13074,10 @@ only@~0.0.2:
   resolved "https://registry.yarnpkg.com/only/-/only-0.0.2.tgz#2afde84d03e50b9a8edc444e30610a70295edfb4"
   integrity sha1-Kv3oTQPlC5qO3EROMGEKcCle37Q=
 
-openzeppelin-solidity@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.2.tgz#94e2bb92b60e91abb22c6fe27d983d92850fb324"
-  integrity sha512-1ggh+AZFpMAgGfgnVMQ8dwYawjD2QN4xuWkQS4FUbeUz1fnCKJpguUl2cyadyfDYjBq1XJ6MA6VkzYpTZtJMqw==
+openzeppelin-solidity@2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.3.tgz#34aea40c2d05665f0dd6bc021e48516cf25b1ef6"
+  integrity sha512-Zz595xw6w4ZrNU3JJJTlPd8bHFbHv5OkJlkqsM2i+NBs6CzImoHI3dZ+nmhkfR+p52cGXKmayAGbnfdCum1SMg==
 
 openzeppelin-solidity@~1.10.0:
   version "1.10.0"

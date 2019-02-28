@@ -1,0 +1,13 @@
+.App {
+  position: relative;
+  max-width: 20rem;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}

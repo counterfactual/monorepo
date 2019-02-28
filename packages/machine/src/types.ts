@@ -17,11 +17,8 @@ export type Middleware = {
 export type Instruction = Function | Opcode;
 
 /// TODO(xuanji): the following fields are hacked in to make install-virtual-app work:
-/// - commitment2, signature2: the intermediary needs to generate three signatures:
+/// - commitments[], signatures[]: the intermediary needs to generate three signatures:
 ///   two sigs authorizing ETHVirtualAppAgreements, and one authorizing virtualAppSetState.
-/// - targetVirtualAppInstance: this is a state modification that should be returned to called, but the current
-///   mechanism for returning stuff like this is to modify the `statechannel` parameter. But this parameter
-///   is already used for the ledger channel (we write the ETHVirtualAppAgreement instance into it).
 export interface Context {
   network: NetworkContext;
   outbox: ProtocolMessage[];
@@ -30,6 +27,7 @@ export interface Context {
   commitments: EthereumCommitment[];
   signatures: Signature[];
   appIdentityHash?: string;
+  finalCommitment?: Transaction; // todo: is one enough?
 }
 
 // The application-specific state of an app instance, to be interpreted by the

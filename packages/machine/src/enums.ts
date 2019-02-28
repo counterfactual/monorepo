@@ -2,7 +2,7 @@ enum Opcode {
   /**
    * Called at the end of execution before the return value to store a commitment
    */
-  STATE_TRANSITION_COMMIT,
+  WRITE_COMMITMENT,
 
   /**
    * Requests a signature on the hash of previously generated EthereumCommitments.

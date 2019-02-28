@@ -39,7 +39,7 @@ describe("InstructionExecutor", () => {
     // will fail with an error like "While executing op number <x> at seq
     // <y> of protocol setup, execution failed with the following error.
     // TypeError: Cannot read property 'method' of undefined"
-    instructionExecutor.register(Opcode.STATE_TRANSITION_COMMIT, () => {});
+    instructionExecutor.register(Opcode.WRITE_COMMITMENT, () => {});
   });
 
   describe("the result of proposeStateTransition for the Setup Protocol", () => {
@@ -58,6 +58,13 @@ describe("InstructionExecutor", () => {
           throw Error("could not find stateChannelAfterSetup");
         }
         stateChannelAfterSetup = maybeStateChannelAfterSetup;
+
+        const signingKey = new SigningKey(
+          xkeyKthHDNode(responder.extendedKey, 0).privateKey
+        );
+        context.signatures = context.commitments.map(commitment =>
+          signingKey.signDigest(commitment.hashToSign())
+        );
       });
 
       // Ensure validateSignature in Setup Protocol does not throw

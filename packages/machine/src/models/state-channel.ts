@@ -231,6 +231,24 @@ export class StateChannel {
     return topLevelKey;
   }
 
+  // TODO: This is hard-coded to ETH presently
+  public getFreeBalanceValueOf(xpub: string, assetType: AssetType) {
+    const addr = this.getFreeBalanceAddrOf(xpub, assetType);
+    const state: ETHBucketAppState = this.getFreeBalanceFor(assetType).state;
+
+    if (state.alice === addr) {
+      return state.aliceBalance;
+    }
+
+    if (state.bob === addr) {
+      return state.bobBalance;
+    }
+
+    throw new Error(
+      `getFreeBalanceValueOf could not find any value owned by ${xpub} for asset ${assetType}`
+    );
+  }
+
   public incrementFreeBalance(
     assetType: AssetType,
     increments: { [xpub: string]: BigNumber }
@@ -426,7 +444,7 @@ export class StateChannel {
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
-      this.appInstances,
+      appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1

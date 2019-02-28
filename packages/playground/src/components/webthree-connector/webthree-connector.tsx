@@ -15,8 +15,8 @@ export class Web3Connector {
   @Prop() accountState: AccountState = {} as AccountState;
   @Prop() walletState: WalletState = {};
 
-  getProvider() {
-    return window["web3"].currentProvider;
+  getProvider(): Web3Provider {
+    return new Web3Provider(window["web3"].currentProvider);
   }
 
   getCurrentAddress() {
@@ -25,6 +25,16 @@ export class Web3Connector {
 
   getCurrentNetwork() {
     return window["web3"].version.network;
+  }
+
+  async getETHBalance() {
+    const provider = this.getProvider();
+
+    if (provider && this.isUnlocked()) {
+      return await provider.getSigner().getBalance();
+    }
+
+    return ethers.constants.Zero;
   }
 
   isWeb3Detected() {
@@ -75,16 +85,13 @@ export class Web3Connector {
       user: {
         ...this.accountState.user,
         ethAddress: this.getCurrentAddress()
-      },
-      balance: 0,
-      accountBalance: 0
+      }
     });
 
-    const provider = new Web3Provider(this.getProvider());
     this.walletState.updateWalletConnection!({
       ...(await this.getCurrentWalletState()),
-      provider,
-      signer: provider.getSigner(),
+      provider: this.getProvider(),
+      signer: this.getProvider().getSigner(),
       web3Enabled: true,
       web3Detected: true
     });
@@ -94,8 +101,11 @@ export class Web3Connector {
       const newAddress = this.getCurrentAddress();
 
       await this.accountState.updateAccount!({
-        ...this.accountState,
         user: { ...this.accountState.user, ethAddress: newAddress }
+      });
+
+      await this.walletState.updateWalletConnection!({
+        ethWeb3WalletBalance: await this.getETHBalance()
       });
 
       if (newAddress !== ethAddress) {

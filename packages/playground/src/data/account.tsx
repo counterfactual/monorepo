@@ -6,20 +6,24 @@ import { ErrorMessage, UserSession } from "../types";
 export type AccountState = {
   user: UserSession;
   error?: ErrorMessage;
-  accountBalance?: number;
-  balance?: number;
-  unconfirmedBalance?: number;
-  pendingAccountFunding?: true;
 
-  updateAccount?(data: AccountState): Promise<void>;
+  precommitedDepositAmountWei?: BigNumber;
+
+  ethMultisigBalance: BigNumber;
+  ethFreeBalanceWei?: BigNumber;
+
+  ethPendingDepositAmountWei?: BigNumber;
+  ethPendingWithdrawalAmountWei?: BigNumber;
+
+  ethPendingDepositTxHash?: string;
+  ethPendingWithdrawalTxHash?: string;
+
+  updateAccount?(data: Partial<AccountState>): Promise<void>;
   login?(): Promise<UserSession>;
   getBalances?(): Promise<
-    { balance: number; accountBalance: number } | undefined
+    { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   >;
-  deposit?(
-    value: string,
-    multisigAddress: string
-  ): Promise<Node.MethodResponse>;
+  deposit?(valueInWei: BigNumber): Promise<Node.MethodResponse>;
   withdraw?(value: any): Promise<Node.MethodResponse>;
   waitForMultisig?(): void;
   autoLogin?(): Promise<void>;

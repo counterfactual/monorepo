@@ -38,6 +38,7 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_MY_FREE_BALANCE_FOR_STATE = "getMyFreeBalanceForState",
     PROPOSE_INSTALL = "proposeInstall",
     PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
     REJECT_INSTALL = "rejectInstall",
@@ -66,7 +67,9 @@ export namespace Node {
     UPDATE_STATE = "updateStateEvent",
     UNINSTALL = "uninstallEvent",
     UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
-    WITHDRAW = "withdrawEvent",
+    WITHDRAWAL_STARTED = "withdrawalStartedEvent",
+    WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent",
+    WITHDRAWAL_FAILED = "withdrawalFailed",
     PROPOSE_STATE = "proposeStateEvent",
     REJECT_STATE = "rejectStateEvent",
     CREATE_CHANNEL = "createChannelEvent",
@@ -87,9 +90,11 @@ export namespace Node {
 
   export type WithdrawParams = {
     multisigAddress: string;
+    recipient?: string;
     amount: BigNumber;
   };
   export type WithdrawResult = {
+    recipient: string;
     amount: BigNumber;
   };
 
@@ -99,6 +104,14 @@ export namespace Node {
 
   export type GetFreeBalanceStateResult = {
     state: ETHBucketAppState;
+  };
+
+  export type GetMyFreeBalanceForStateParams = {
+    multisigAddress: string;
+  };
+
+  export type GetMyFreeBalanceForStateResult = {
+    balance: BigNumber;
   };
 
   export type GetAppInstancesParams = {};

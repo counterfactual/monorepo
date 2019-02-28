@@ -1,4 +1,3 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
@@ -6,7 +5,7 @@ import { getPeersAddressFromChannel } from "../../../utils";
 
 export async function runWithdrawProtocol(
   requestHandler: RequestHandler,
-  params: Node.DepositParams
+  params: Node.WithdrawParams
 ) {
   const { publicIdentifier, instructionExecutor, store } = requestHandler;
   const { multisigAddress, amount } = params;
@@ -23,10 +22,10 @@ export async function runWithdrawProtocol(
     stateChannel,
     {
       amount,
+      recipient: params.recipient as string,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      recipient: xkeyKthAddress(publicIdentifier, 0)
+      multisigAddress: stateChannel.multisigAddress
     }
   );
 

@@ -14,7 +14,8 @@ import { UserSession } from "../../../types";
 })
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
-  @State() balance: number = 0;
+
+  @Prop() ethWeb3WalletBalance: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
@@ -27,33 +28,35 @@ export class AccountDeposit {
     return CounterfactualNode.getInstance();
   }
 
-  async componentWillLoad() {
-    this.balance = parseFloat(
-      ethers.utils.formatEther((await this.signer.getBalance()).toString())
-    );
-  }
-
   async formSubmitionHandler(e) {
-    this.amountDeposited = e.target.value;
+    this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
       if (this.user.multisigAddress) {
+        this.node.once(Node.EventName.DEPOSIT_STARTED, args => {
+          this.updateAccount({
+            ethPendingDepositTxHash: args.txHash,
+            ethPendingDepositAmountWei: this.amountDeposited
+          });
+        });
+
         await this.node.call(Node.MethodName.DEPOSIT, {
           type: Node.MethodName.DEPOSIT,
           requestId: window["uuid"](),
           params: {
             multisigAddress: this.user.multisigAddress,
-            amount: ethers.utils.parseEther(this.amountDeposited),
+            amount: this.amountDeposited,
             notifyCounterparty: true
           } as Node.DepositParams
         });
 
         this.updateAccount({
-          unconfirmedBalance: parseFloat(this.amountDeposited)
+          ethPendingDepositAmountWei: undefined,
+          precommitedDepositAmountWei: undefined
         });
       } else {
         this.updateAccount({
-          pendingAccountFunding: parseFloat(this.amountDeposited)
+          precommitedDepositAmountWei: this.amountDeposited
         });
       }
       this.history.push("/");
@@ -68,15 +71,15 @@ export class AccountDeposit {
         <div slot="header">Fund your account</div>
 
         <p class="details">
-          In order to use the Playground dApps, you need to deposit funds into
-          your account. Please enter how much ETH you want to transfer to it:
+          In order to use the Playground Dapps, you need to deposit funds into
+          your account. Please enter how much ETH you want to deposit:
         </p>
 
         <account-eth-form
-          onSubmit={e => this.formSubmitionHandler(e)}
-          button="Proceed"
-          available={this.balance}
-          max={1}
+          onSubmit={this.formSubmitionHandler.bind(this)}
+          button="Deposit"
+          available={this.ethWeb3WalletBalance}
+          max={ethers.utils.parseEther("1")}
           error={this.error}
         />
       </widget-screen>
@@ -84,5 +87,5 @@ export class AccountDeposit {
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, ["balance", "updateAccount", "user"]);
-WalletTunnel.injectProps(AccountDeposit, ["signer"]);
+AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user"]);
+WalletTunnel.injectProps(AccountDeposit, ["signer", "ethWeb3WalletBalance"]);

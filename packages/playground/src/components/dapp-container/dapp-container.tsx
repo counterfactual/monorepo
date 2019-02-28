@@ -25,7 +25,7 @@ export class DappContainer {
   @Prop() apps: AppDefinition[] = [];
 
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() balance: string = "";
+  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -47,12 +47,14 @@ export class DappContainer {
   getDappUrl(): string {
     const dappSlug = this.match.params.dappName;
     const dapp = this.apps.find(app => app.slug === dappSlug);
+    const dappState =
+      new URLSearchParams(window.location.search).get("dappState") || "";
 
     if (!dapp) {
       return "";
     }
 
-    return dapp.url;
+    return `${dapp.url}${dappState}`;
   }
 
   componentDidLoad(): void {
@@ -106,7 +108,7 @@ export class DappContainer {
   }
 
   private async handlePlaygroundMessage(event: MessageEvent): Promise<void> {
-    if (!this.frameWindow) {
+    if (!this.frameWindow || typeof event.data !== "string") {
       return;
     }
 
@@ -116,6 +118,14 @@ export class DappContainer {
 
     if (event.data === "playground:request:matchmake") {
       await this.sendResponseForMatchmakeRequest(this.frameWindow);
+    }
+
+    if (event.data.startsWith("playground:send:dappRoute")) {
+      const [, data] = event.data.split("|");
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set("dappState", data);
+      const newURL = `${window.location.pathname}?${searchParams.toString()}`;
+      history.pushState(null, "", newURL);
     }
   }
 
@@ -134,7 +144,7 @@ export class DappContainer {
           ...this.user,
           token: this.token
         },
-        balance: this.balance
+        balance: ethers.utils.formatEther(this.ethMultisigBalance)
       })}`,
       "*"
     );
@@ -262,4 +272,4 @@ export class DappContainer {
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
-AccountTunnel.injectProps(DappContainer, ["balance", "user"]);
+AccountTunnel.injectProps(DappContainer, ["ethMultisigBalance", "user"]);
