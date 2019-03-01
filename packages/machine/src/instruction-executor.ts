@@ -55,8 +55,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -69,8 +69,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -83,8 +83,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -97,8 +97,8 @@ export class InstructionExecutor {
         protocol,
         params,
         seq: 0,
-        fromAddress: params.initiatingXpub,
-        toAddress: params.respondingXpub
+        fromXpub: params.initiatingXpub,
+        toXpub: params.respondingXpub
       }
     );
   }
@@ -112,8 +112,8 @@ export class InstructionExecutor {
         protocol,
         params,
         seq: 0,
-        fromAddress: params.initiatingXpub,
-        toAddress: params.respondingXpub
+        fromXpub: params.initiatingXpub,
+        toXpub: params.respondingXpub
       }
     );
   }
@@ -127,8 +127,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.intermediaryXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.intermediaryXpub
     });
   }
 
@@ -141,8 +141,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.intermediaryXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.intermediaryXpub
     });
   }
 

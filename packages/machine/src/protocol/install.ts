@@ -42,7 +42,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Verify they did indeed countersign the right thing
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xkeyKthAddress(message.toAddress, 0),
+        xkeyKthAddress(message.toXpub, 0),
         context.commitments[0],
         context.inbox[0].signature
       ),
@@ -59,7 +59,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Validate your counterparty's signature is for the above proposal
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xkeyKthAddress(message.fromAddress, 0),
+        xkeyKthAddress(message.fromXpub, 0),
         context.commitments[0],
         message.signature
       ),

@@ -20,8 +20,8 @@ describe("Signature Forwarder Helpers", () => {
         respondingXpub: AddressZero,
         multisigAddress: AddressZero
       },
-      fromAddress: AddressZero,
-      toAddress: AddressZero,
+      fromXpub: AddressZero,
+      toXpub: AddressZero,
       seq: 0,
       signature: undefined
     };
@@ -46,8 +46,8 @@ describe("Signature Forwarder Helpers", () => {
     addSignedCommitmentInResponse(message, context);
 
     expect(context.outbox.length).toBe(1);
-    expect(context.outbox[0].fromAddress).toBe(message.fromAddress);
-    expect(context.outbox[0].toAddress).toBe(message.toAddress);
+    expect(context.outbox[0].fromXpub).toBe(message.fromXpub);
+    expect(context.outbox[0].toXpub).toBe(message.toXpub);
     expect(context.outbox[0].params).toEqual(message.params);
     expect(context.outbox[0].protocol).toBe(message.protocol);
     expect(context.outbox[0].seq).toBe(-1);
@@ -58,8 +58,8 @@ describe("Signature Forwarder Helpers", () => {
     addSignedCommitmentToOutboxForSeq1(message, context);
 
     expect(context.outbox.length).toBe(1);
-    expect(context.outbox[0].fromAddress).toBe(message.fromAddress);
-    expect(context.outbox[0].toAddress).toBe(message.toAddress);
+    expect(context.outbox[0].fromXpub).toBe(message.fromXpub);
+    expect(context.outbox[0].toXpub).toBe(message.toXpub);
     expect(context.outbox[0].params).toEqual(message.params);
     expect(context.outbox[0].protocol).toBe(message.protocol);
     expect(context.outbox[0].seq).toBe(1);
