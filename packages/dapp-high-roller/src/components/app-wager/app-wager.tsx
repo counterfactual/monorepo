@@ -261,7 +261,7 @@ export class AppWager {
               onInput={e => this.handleChange(e, "betAmount")}
               min={0}
               max={0.01}
-              step={0.001}
+              step={0.00000001}
             />
             {this.isError ? (
               <label class="message__error">
