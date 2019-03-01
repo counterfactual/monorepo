@@ -27,7 +27,7 @@ export class NodeListener {
   @Prop() web3Detected: boolean = false;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() provider: Web3Provider = {} as Web3Provider;
-  @Prop() balance: any;
+  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
@@ -67,9 +67,7 @@ export class NodeListener {
       const proposeInstallParams = message.data
         .params as Node.ProposeInstallParams;
 
-      const currentEthBalance = ethers.utils.parseEther(
-        this.balance.toString()
-      );
+      const currentEthBalance = this.ethMultisigBalance;
       const minimumEthBalance = ethers.utils
         .bigNumberify(proposeInstallParams.myDeposit)
         .add(
@@ -193,5 +191,5 @@ export class NodeListener {
 }
 
 AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
-AccountTunnel.injectProps(NodeListener, ["balance"]);
+AccountTunnel.injectProps(NodeListener, ["ethMultisigBalance"]);
 WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);

@@ -1,8 +1,9 @@
-import { Protocol, StateChannel } from "@counterfactual/machine";
 import {
+  Protocol,
+  StateChannel,
   UninstallVirtualAppParams,
   WithdrawParams
-} from "@counterfactual/machine/dist/src/types";
+} from "@counterfactual/machine";
 
 import { RequestHandler } from "../../request-handler";
 import {
@@ -53,7 +54,7 @@ export default async function protocolMessageEventController(
       } else if (nodeMsg.data.protocol === Protocol.Withdraw) {
         const withdrawMsg: WithdrawMessage = {
           from: requestHandler.publicIdentifier,
-          type: NODE_EVENTS.WITHDRAW,
+          type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
           data: {
             amount: (nodeMsg.data.params as WithdrawParams).amount
           }

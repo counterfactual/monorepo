@@ -1,7 +1,6 @@
 {
   "name": "@counterfactual/dapp-tic-tac-toe",
   "version": "0.0.1",
-  "private": true,
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0",

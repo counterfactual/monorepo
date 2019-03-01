@@ -22,8 +22,8 @@
   },
   "scripts": {
     "build": "echo 'No build necessary'",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "lint": "tslint -c tslint.json -p .",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@counterfactual/node": "^0.0.4",
-    "@counterfactual/playground-server": "^0.0.1",
+    "@counterfactual/dapp-tic-tac-toe": "^0.0.1",
     "@counterfactual/types": "^0.0.1",
     "eventemitter3": "^3.1.0"
   },

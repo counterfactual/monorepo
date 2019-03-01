@@ -9,12 +9,18 @@ import {
 } from "./models";
 import {
   Context,
+  InstallParams,
+  InstallVirtualAppParams,
   Instruction,
   Middleware,
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
-  Transaction
+  Transaction,
+  UninstallParams,
+  UninstallVirtualAppParams,
+  UpdateParams,
+  WithdrawParams
 } from "./types";
 import {
   xkeyKthAddress,
@@ -39,6 +45,12 @@ export {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
+  InstallParams,
+  UpdateParams,
+  UninstallParams,
+  WithdrawParams,
+  InstallVirtualAppParams,
+  UninstallVirtualAppParams,
   Transaction,
   xkeyKthAddress,
   xkeyKthHDNode,

@@ -1,5 +1,6 @@
-const { ethers } = require("ethers");
-const { v4 } = require("uuid");
+import { ethers } from "ethers";
+import { v4 } from "uuid";
+
 const bn = ethers.utils.bigNumberify;
 const ZERO = bn(0);
 
@@ -25,10 +26,11 @@ function checkHorizontalVictory(board, player) {
 
   if (victory) {
     return {
-      winClaimType: 0,
-      idx
+      idx,
+      winClaimType: 0
     };
   }
+  return false;
 }
 
 function checkVerticalVictory(board, player) {
@@ -44,10 +46,11 @@ function checkVerticalVictory(board, player) {
 
   if (victory) {
     return {
-      winClaimType: 1,
-      idx
+      idx,
+      winClaimType: 1
     };
   }
+  return false;
 }
 
 function checkDiagonalVictory(board, player) {
@@ -58,10 +61,11 @@ function checkDiagonalVictory(board, player) {
 
   if (victory) {
     return {
-      winClaimType: 2,
-      idx: 0
+      idx: 0,
+      winClaimType: 2
     };
   }
+  return false;
 }
 
 function checkCrossDiagonalVictory(board, player) {
@@ -72,10 +76,11 @@ function checkCrossDiagonalVictory(board, player) {
 
   if (victory) {
     return {
-      winClaimType: 3,
-      idx: 0
+      idx: 0,
+      winClaimType: 3
     };
   }
+  return false;
 }
 
 function respond(node, ethAddress, { data: { appInstanceId, newState } }) {
@@ -92,38 +97,35 @@ function respond(node, ethAddress, { data: { appInstanceId, newState } }) {
       type: "takeAction"
     };
 
-    node.call(
-      request.type,
-      request
-    );
+    node.call(request.type, request);
   }
 }
 
-function takeTurn(newState, ethAddress) {
-  const [players,,, board] = newState;
+export function takeTurn(newState, ethAddress) {
+  const [players, , , board] = newState;
   const botPlayerNumber = players.indexOf(ethAddress) + 1;
-  const { playX, playY } = makeMove(board, botPlayerNumber);
+  const { playX, playY } = makeMove(board);
   board[playX][playY] = ethers.utils.bigNumberify(botPlayerNumber);
   const winClaim = checkVictory(board, botPlayerNumber);
 
   return {
-    actionType: determineActionType(board, botPlayerNumber),
-    winClaim: winClaim || { winClaimType: 0, idx: 0 },
     playX,
-    playY
+    playY,
+    actionType: determineActionType(board, botPlayerNumber),
+    winClaim: winClaim || { winClaimType: 0, idx: 0 }
   };
 }
 
 function makeMove(board) {
-  const possibleMoves = [];
+  const possibleMoves: Coordinates[] = [];
 
-  for (let x = 0; x < 3; x++) {
-    for (let y = 0; y < 3; y++) {
+  for (let x = 0; x < 3; x += 1) {
+    for (let y = 0; y < 3; y += 1) {
       if (ethers.utils.bigNumberify(board[x][y]).toNumber() === 0) {
         possibleMoves.push({
           x,
           y
-        });
+        } as Coordinates);
       }
     }
   }
@@ -132,7 +134,7 @@ function makeMove(board) {
     throw new Error("Yikes! No place left to move.");
   }
 
-  const move = possibleMoves[Math.floor(Math.random()*possibleMoves.length)];
+  const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
   const playX = move.x;
   const playY = move.y;
 
@@ -145,17 +147,15 @@ function makeMove(board) {
 function determineActionType(board, botPlayerNumber) {
   if (checkVictory(board, botPlayerNumber)) {
     return 1;
-  } else if (checkDraw(board)) {
-    return 2;
-  } else {
-    return 0;
   }
+  if (checkDraw(board)) {
+    return 2;
+  }
+  return 0;
 }
 
-async function connectNode(node, ethAddress) {
-  console.log("setup install")
-  node.on("proposeInstallVirtualEvent", async (data) => {
-    console.log("start install")
+export async function connectNode(node, ethAddress) {
+  node.on("proposeInstallVirtualEvent", async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
 
@@ -167,13 +167,10 @@ async function connectNode(node, ethAddress) {
       },
       requestId: v4()
     };
-console.log("request", request)
-    await node.call(
-      request.type,
-      request
-    );
-console.log("finish install")
-    node.on("updateStateEvent", async (updateEventData) => {
+
+    await node.call(request.type, request);
+
+    node.on("updateStateEvent", async updateEventData => {
       if (updateEventData.data.appInstanceId === appInstanceId) {
         respond(node, ethAddress, updateEventData);
       }
@@ -181,5 +178,7 @@ console.log("finish install")
   });
 }
 
-module.exports.connectNode = connectNode;
-module.exports.takeTurn = takeTurn;
+type Coordinates = {
+  x: number;
+  y: number;
+};

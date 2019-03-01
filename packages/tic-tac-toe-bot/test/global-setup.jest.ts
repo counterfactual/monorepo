@@ -20,8 +20,9 @@ module.exports = async () => {
   mkdirp.sync(DIR);
 
   const playgroundMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(playgroundMnemonic).derivePath("m/44'/60'/0'/25446")
-    .privateKey;
+  const privateKeyPG = fromMnemonic(playgroundMnemonic).derivePath(
+    "m/44'/60'/0'/25446"
+  ).privateKey;
 
   const aliceMnemonic = Wallet.createRandom().mnemonic;
   const privateKeyA = fromMnemonic(aliceMnemonic).derivePath(
@@ -29,12 +30,14 @@ module.exports = async () => {
   ).privateKey;
 
   const botMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(botMnemonic).derivePath(
+  const privateKeyC = fromMnemonic(botMnemonic).derivePath("m/44'/60'/0'/25446")
+    .privateKey;
+
+  const aliceAddress = fromMnemonic(aliceMnemonic).derivePath(
     "m/44'/60'/0'/25446"
-  ).privateKey;
-  
-  const aliceAddress = fromMnemonic(aliceMnemonic).derivePath("m/44'/60'/0'/25446").address;
-  const botAddress = fromMnemonic(botMnemonic).derivePath("m/44'/60'/0'/25446").address;
+  ).address;
+  const botAddress = fromMnemonic(botMnemonic).derivePath("m/44'/60'/0'/25446")
+    .address;
 
   const server = ganache.server({
     accounts: [

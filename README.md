@@ -21,6 +21,41 @@
 
 You can learn more about what state channels are by reading [our whitepaper](https://counterfactual.com/statechannels) or a less technical written [description](https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4#c353). Further, if you want to dive into the specifications of the Counterfactual protocol you can [read them here](https://counterfactual.com/specs).
 
+- [Packages](#packages)
+  - [Solidity Packages](#solidity-packages)
+  - [Typescript/Javascript Packages](#typescriptjavascript-packages)
+- [Contributing](#contributing)
+  - [Installing dependencies](#installing-dependencies)
+  - [Building packages](#building-packages)
+  - [Clean](#clean)
+  - [Lint](#lint)
+  - [Tests](#tests)
+  - [Patches](#patches)
+
+## Packages
+
+### Solidity Packages
+
+| Package                                  | Version                                                                                                             | Description                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state resolution mechanisms |
+
+### Typescript/Javascript Packages
+
+**Counterfactual-specific packages**
+
+| Package                                  | Version                                                                                                             | Description                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`@counterfactual/node`](/packages/node) | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node) | The core state channels client that a user runs |
+| [`@counterfactual/cf.js`](/packages/cf.js) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js) | A JS API that simplified method calls to a Node |
+
+**Utilities**
+
+| Package                                  | Version                                                                                                             | Description                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`@counterfactual/types`](/packages/types) | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types) | Shared type declarations |
+
+
 ## Contributing
 
 - **Join us in [Discord][counterfactual-discord-url]** to help
@@ -80,6 +115,5 @@ yarn test
 ### Patches
 
 We generate patches using the [`patch-package`](https://github.com/ds300/patch-package) tool with a workaround described in [this issue](https://github.com/ds300/patch-package/issues/42#issuecomment-435992316) for `yarn` workspaces.
-
 
 [counterfactual-discord-url]: https://counterfactual.com/chat

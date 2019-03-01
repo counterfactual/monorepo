@@ -1,111 +1,112 @@
+import {
+  IMessagingService,
+  IStoreService,
+  MNEMONIC_PATH,
+  Node,
+  NodeConfig
+} from "@counterfactual/node";
+import { Node as NodeTypes } from "@counterfactual/types";
+import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
-import { Server } from "http";
 import { Log, LogLevel } from "logepi";
 import { v4 as generateUUID } from "uuid";
-import { ethers } from "ethers";
 
-import mountApi from "@counterfactual/playground-server/src/api";
-import { getDatabase } from "@counterfactual/playground-server/src/db";
-import NodeWrapper, { serviceFactory } from "@counterfactual/playground-server/src/node";
-import {
-  Node
-} from "@counterfactual/node";
-import {
-  Node as NodeTypes
-} from "@counterfactual/types";
-
+import { LocalFirebaseServiceFactory } from "../../node/test/services/firebase-server";
 import { connectNode } from "../src/bot";
 
 jest.setTimeout(20000);
 
-const api = mountApi();
-
-let server: Server;
-
-const db = getDatabase();
-
 Log.setOutputLevel(LogLevel.ERROR);
 
-const GANACHE_URL = global["ganacheURL"];
+const TEST_NETWORK = "ganache";
 const NETWORK_CONTEXT = global["networkContext"];
 
 describe("playground-server", () => {
   let playgroundNode: Node;
   let nodeAlice: Node;
   let nodeBot: Node;
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
+  let messagingService: IMessagingService;
+  let storeServiceA: IStoreService;
+  let storeServiceB: IStoreService;
+  let storeServiceC: IStoreService;
+  let nodeConfig: NodeConfig;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    const provider = new JsonRpcProvider(GANACHE_URL);
+    firebaseServiceFactory = new LocalFirebaseServiceFactory(
+      process.env.FIREBASE_DEV_SERVER_HOST!,
+      process.env.FIREBASE_DEV_SERVER_PORT!
+    );
+    messagingService = firebaseServiceFactory.createMessagingService(
+      process.env.FIREBASE_MESSAGING_SERVER_KEY!
+    );
+    nodeConfig = {
+      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
+    };
 
-    playgroundNode = await NodeWrapper.createNodeSingleton(
-      "ganache",
-      global["playgroundMnemonic"],
-      NETWORK_CONTEXT,
+    provider = new JsonRpcProvider(global["ganacheURL"]);
+
+    storeServiceA = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    storeServiceA.set([
+      { key: MNEMONIC_PATH, value: global["playgroundMnemonic"] }
+    ]);
+    playgroundNode = await Node.create(
+      messagingService,
+      storeServiceA,
+      nodeConfig,
       provider,
-      serviceFactory.createStoreService(generateUUID())
+      TEST_NETWORK,
+      global["networkContext"]
     );
 
-    nodeAlice = await NodeWrapper.createNode(
-      "ganache",
-      NETWORK_CONTEXT,
+    storeServiceB = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: global["aliceMnemonic"] }]);
+    nodeAlice = await Node.create(
+      messagingService,
+      storeServiceB,
+      nodeConfig,
       provider,
-      global["aliceMnemonic"]
+      TEST_NETWORK,
+      global["networkContext"]
     );
 
-    nodeBot = await NodeWrapper.createNode(
-      "ganache",
-      NETWORK_CONTEXT,
+    storeServiceC = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    storeServiceC.set([{ key: MNEMONIC_PATH, value: global["botMnemonic"] }]);
+    nodeBot = await Node.create(
+      messagingService,
+      storeServiceC,
+      nodeConfig,
       provider,
-      global["botMnemonic"]
+      TEST_NETWORK,
+      global["networkContext"]
     );
 
-    expect(nodeAlice).not.toEqual(nodeBot);
-      
-    await nodeAlice.call(
-      NodeTypes.MethodName.CREATE_CHANNEL,
-      {
-        params: {
-          owners: [nodeAlice.publicIdentifier, playgroundNode.publicIdentifier]
-        },
-        type: NodeTypes.MethodName.CREATE_CHANNEL,
-        requestId: generateUUID()
-      }
-    );
-    
-    await nodeBot.call(
-      NodeTypes.MethodName.CREATE_CHANNEL,
-      {
-        params: {
-          owners: [nodeBot.publicIdentifier, playgroundNode.publicIdentifier]
-        },
-        type: NodeTypes.MethodName.CREATE_CHANNEL,
-        requestId: generateUUID()
-      }
-    );
+    await nodeAlice.call(NodeTypes.MethodName.CREATE_CHANNEL, {
+      params: {
+        owners: [nodeAlice.publicIdentifier, playgroundNode.publicIdentifier]
+      },
+      type: NodeTypes.MethodName.CREATE_CHANNEL,
+      requestId: generateUUID()
+    });
 
-    await db.schema.dropTableIfExists("users");
-    await db.schema.createTable("users", table => {
-      table.uuid("id");
-      table.string("username");
-      table.string("email");
-      table.string("eth_address");
-      table.string("multisig_address");
-      table.string("node_address");
-      table.unique(["username"], "uk_users__username");
+    await nodeBot.call(NodeTypes.MethodName.CREATE_CHANNEL, {
+      params: {
+        owners: [nodeBot.publicIdentifier, playgroundNode.publicIdentifier]
+      },
+      type: NodeTypes.MethodName.CREATE_CHANNEL,
+      requestId: generateUUID()
     });
   });
 
-  beforeAll(done => {
-    server = api.listen(9001, done);
-  });
-
-  afterEach(async done => {
-    await db("users").delete();
-    done();
-  });
-
-  afterAll(done => {
-    server.close(done);
+  afterAll(() => {
+    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("connectNode", () => {
@@ -114,7 +115,7 @@ describe("playground-server", () => {
 
       await connectNode(nodeBot, global["botAddress"]);
 
-      nodeAlice.on("installVirtualEvent", (message) => {
+      nodeAlice.on("installVirtualEvent", message => {
         appInstanceId = message.data.params.appInstanceId;
 
         nodeAlice.call(NodeTypes.MethodName.TAKE_ACTION, {
@@ -132,10 +133,20 @@ describe("playground-server", () => {
         });
       });
 
-      nodeAlice.on("updateStateEvent", (message) => {
+      nodeAlice.on("updateStateEvent", message => {
         const board = message.data.newState[3];
-        expect(board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "1").length).toBe(1);
-        expect(board.flat().filter((val) => ethers.utils.bigNumberify(val).toString() === "2").length).toBe(1);
+        expect(
+          board
+            .flat()
+            .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
+            .length
+        ).toBe(1);
+        expect(
+          board
+            .flat()
+            .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
+            .length
+        ).toBe(1);
         expect(message.data.appInstanceId).toBe(appInstanceId);
 
         done();
@@ -156,7 +167,7 @@ describe("playground-server", () => {
           appId: NETWORK_CONTEXT["TicTacToe"],
           abiEncodings: {
             actionEncoding:
-            "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
+              "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
             stateEncoding:
               "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
           },

@@ -1,10 +1,10 @@
 {
   "name": "@counterfactual/apps",
   "version": "0.0.1",
+  "private": true,
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
-  "private": true,
   "files": [
     "build"
   ],
@@ -21,8 +21,7 @@
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.0.3",
-    "@counterfactual/types": "0.0.1",
-    "@counterfactual/typescript-typings": "0.0.1",
+    "@counterfactual/types": "0.0.5",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",

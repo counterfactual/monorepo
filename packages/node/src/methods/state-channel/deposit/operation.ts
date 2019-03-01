@@ -104,8 +104,6 @@ export async function makeDeposit(
     gasLimit: await provider.estimateGas({ to, value })
   };
 
-  requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED);
-
   try {
     let txResponse: TransactionResponse;
 
@@ -115,6 +113,11 @@ export async function makeDeposit(
     } else {
       txResponse = await wallet.sendTransaction(tx);
     }
+
+    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
+      value,
+      txHash: txResponse.hash
+    });
 
     await provider.waitForTransaction(txResponse.hash!);
   } catch (e) {

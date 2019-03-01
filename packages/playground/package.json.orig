@@ -14,8 +14,12 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
+<<<<<<< HEAD
+    "@counterfactual/node": "^0.0.4",
+=======
     "@counterfactual/node": "0.0.4",
     "@counterfactual/types": "0.0.5",
+>>>>>>> master
     "@stencil/core": "^0.18.0",
     "@stencil/router": "^0.3.0",
     "@stencil/sass": "^0.1.1",

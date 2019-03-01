@@ -30,7 +30,7 @@
     "@types/puppeteer": "1.12.1",
     "jest": "23.6.0",
     "puppeteer": "1.12.2",
-    "typescript": "^3.1.3",
+    "typescript": "^3.3.3333",
     "workbox-build": "3.4.1"
   }
 }

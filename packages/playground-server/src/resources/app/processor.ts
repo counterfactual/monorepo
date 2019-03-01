@@ -11,10 +11,15 @@ export default class AppProcessor extends OperationProcessor<App> {
   public resourceClass = App;
 
   public async get(op: Operation): Promise<App[]> {
+    const filename =
+      {
+        development: "registry.local.json"
+      }[process.env.STORE_PREFIX as string] || "registry.json";
+
     try {
       const registry = JSON.parse(
         fs
-          .readFileSync(path.resolve(__dirname, "../../../registry.json"))
+          .readFileSync(path.resolve(__dirname, `../../../${filename}`))
           .toString()
       );
 

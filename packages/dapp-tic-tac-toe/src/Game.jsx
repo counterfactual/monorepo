@@ -35,7 +35,7 @@ class Game extends Component {
     const [players, turnNum, winner, board] = newState;
     this.updateGame({ players, turnNum, winner, board });
 
-    if (winner === this.myNumber) {
+    if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
       await this.props.appInstance.uninstall(this.props.intermediary);
     }
   }

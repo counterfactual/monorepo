@@ -20,7 +20,7 @@
     "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/playground-server --ignore @counterfactual/dapp-tic-tac-toe --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
-    "run:playground": "lerna run start --parallel --scope=**/playground --scope=**/playground-server --scope=**/dapp-high-roller",
+    "run:playground": "lerna run start --parallel --scope=**/playground --scope=**/playground-server --scope=**/dapp-high-roller --scope=**/dapp-tic-tac-toe",
     "postinstall": "patch-package"
   },
   "keywords": [
@@ -37,7 +37,7 @@
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
     "tslint-plugin-prettier": "^2.0.0",
-    "typescript": "^3.1.3"
+    "typescript": "^3.3.3333"
   },
   "resolutions": {
     "**/tslint-microsoft-contrib": "^6.0.0"

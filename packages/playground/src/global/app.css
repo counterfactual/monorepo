@@ -17,6 +17,8 @@ html { font-family: 'Inter', sans-serif; }
 html {
   font-size: 15px;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  color: #252525;
 }
 
 body {

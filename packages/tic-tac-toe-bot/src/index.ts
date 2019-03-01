@@ -9,6 +9,7 @@ import fs from "fs";
 import fetch from "node-fetch";
 import path from "path";
 import { v4 as generateUUID } from "uuid";
+
 import { connectNode } from "./bot";
 
 const provider = ethers.getDefaultProvider("ropsten");

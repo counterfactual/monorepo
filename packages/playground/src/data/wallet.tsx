@@ -3,6 +3,7 @@ import { createProviderConsumer } from "@stencil/state-tunnel";
 export interface WalletState {
   signer?: Signer;
   provider?: Web3Provider;
+  ethWeb3WalletBalance?: BigNumber;
   hasDetectedNetwork?: boolean;
   network?: string;
   connected?: boolean;
@@ -10,7 +11,7 @@ export interface WalletState {
   web3Enabled?: boolean;
   metamaskUnlocked?: boolean;
   networkPermitted?: boolean;
-  updateWalletConnection?(data: WalletState): Promise<void>;
+  updateWalletConnection?(data: Partial<WalletState>): Promise<void>;
 }
 
 export default createProviderConsumer<WalletState>({}, (subscribe, child) => (

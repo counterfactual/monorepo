@@ -35,6 +35,7 @@ export const ERRORS = {
   CANNOT_WITHDRAW:
     "Cannot withdraw while another deposit / withdraw app is active in the channel.",
   DEPOSIT_FAILED: "Failed to send funds to the multisig contract",
+  WITHDRAWAL_FAILED: "Failed to withdraw funds out of the multisig contract",
   NO_CHANNEL_BETWEEN_NODES: (nodeA: string, nodeB: string) =>
     `No channel exists between the current user ${nodeA} and the peer ${nodeB}`
 };
