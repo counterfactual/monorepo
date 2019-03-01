@@ -28,6 +28,55 @@ function timeout(delay: number = API_TIMEOUT) {
   };
 }
 
+async function request(
+  method: string,
+  endpoint: string,
+  data: APIResource,
+  token?: string,
+  authType: "Bearer" | "Signature" = "Signature"
+) {
+  return await fetch(`${BASE_URL}/api/${endpoint}`, {
+    method,
+    ...(["POST", "PUT"].includes(method)
+      ? {
+          body: JSON.stringify({
+            data
+          } as APIRequest)
+        }
+      : {}),
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...(token ? { Authorization: `${authType} ${token}` } : {})
+    }
+  });
+}
+
+async function put(
+  endpoint: string,
+  data: APIResource,
+  token: string
+): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
+  const httpResponse = await request(
+    "PUT",
+    `${endpoint}/${data.id}`,
+    data,
+    token
+  );
+
+  requestTimeout.cancel();
+
+  const response = (await httpResponse.json()) as APIResponse;
+
+  if (response.errors) {
+    const error = response.errors[0] as APIError;
+    throw error;
+  }
+
+  return response;
+}
+
 async function post(
   endpoint: string,
   data: APIResource,
@@ -36,16 +85,7 @@ async function post(
 ): Promise<APIResponse> {
   const requestTimeout = timeout();
 
-  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    body: JSON.stringify({
-      data
-    } as APIRequest),
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...(token ? { Authorization: `${authType} ${token}` } : {})
-    },
-    method: "POST"
-  });
+  const httpResponse = await request("POST", endpoint, data, token, authType);
 
   requestTimeout.cancel();
 
@@ -62,14 +102,12 @@ async function post(
 async function get(endpoint: string, token?: string): Promise<APIResponse> {
   const requestTimeout = timeout();
 
-  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    method: "GET",
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`
-        }
-      : {}
-  });
+  const httpResponse = await request(
+    "GET",
+    endpoint,
+    {} as APIResource<APIResourceAttributes>,
+    token
+  );
 
   requestTimeout.cancel();
 
@@ -117,6 +155,20 @@ export default class PlaygroundAPIClient {
     try {
       const data = toAPIResource<UserChangeset, UserAttributes>(user);
       const json = (await post("users", data, signature)) as APIResponse;
+      const resource = json.data as APIResource<UserAttributes>;
+
+      return fromAPIResource<UserSession, UserAttributes>(resource);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async updateAccount(user: UserChangeset): Promise<UserSession> {
+    try {
+      const data = toAPIResource<UserChangeset, UserAttributes>(user);
+      const json = (await put("users", data, window.localStorage.getItem(
+        "playground:user:token"
+      ) as string)) as APIResponse;
       const resource = json.data as APIResource<UserAttributes>;
 
       return fromAPIResource<UserSession, UserAttributes>(resource);
