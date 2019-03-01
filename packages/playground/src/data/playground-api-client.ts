@@ -106,7 +106,8 @@ async function get(endpoint: string, token?: string): Promise<APIResponse> {
     "GET",
     endpoint,
     {} as APIResource<APIResourceAttributes>,
-    token
+    token,
+    "Bearer"
   );
 
   requestTimeout.cancel();
