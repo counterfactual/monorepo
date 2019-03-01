@@ -148,12 +148,36 @@ export default class NodeWrapper {
     return node;
   }
 
+  public static async getStateChannelBalance(
+    multisigAddress: string
+  ): Promise<ethers.utils.BigNumber> {
+    if (!NodeWrapper.node) {
+      throw new Error(
+        "Node hasn't been instantiated yet. Call NodeWrapper.createNodeSingleton() first."
+      );
+    }
+
+    const { node } = NodeWrapper;
+
+    const query = {
+      type: NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      requestId: window["uuid"](),
+      params: { multisigAddress } as NodeTypes.GetMyFreeBalanceForStateParams
+    };
+
+    const { result } = await node.call(query.type, query);
+
+    const { balance } = result as NodeTypes.GetMyFreeBalanceForStateResult;
+
+    return balance;
+  }
+
   public static async createStateChannelFor(
     userAddress: string
   ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
-        "Node hasn't been instantiated yet. Call NodeWrapper.createNode() first."
+        "Node hasn't been instantiated yet. Call NodeWrapper.createNodeSingleton() first."
       );
     }
 
