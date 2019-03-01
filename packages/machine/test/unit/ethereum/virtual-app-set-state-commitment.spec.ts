@@ -19,6 +19,9 @@ import { AppInstance } from "../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
+ * This test suite decodes a constructed VirtualAppSetStateCommitment
+ * transaction object defined here
+ * https://specs.counterfactual.com/09-install-virtual-app-protocol#targetvirtualappsetstate
  */
 describe("Virtual App Set State Commitment", () => {
   let commitment: VirtualAppSetStateCommitment;
