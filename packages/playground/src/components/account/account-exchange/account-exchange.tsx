@@ -48,6 +48,16 @@ export class AccountExchange {
   @State() depositError: string = "";
   @State() withdrawalError: string = "";
 
+  get isDepositPending() {
+    return this.ethPendingDepositTxHash && this.ethPendingDepositAmountWei;
+  }
+
+  get isWithdrawalPending() {
+    return (
+      this.ethPendingWithdrawalTxHash && this.ethPendingWithdrawalAmountWei
+    );
+  }
+
   @Watch("user")
   async onUserAcquired() {
     if (this.user) {
@@ -155,7 +165,7 @@ export class AccountExchange {
         </p>
 
         {/* Debug UI for Deposits */}
-        {this.ethPendingDepositTxHash ? (
+        {this.isDepositPending ? (
           <a
             href={this.getEtherscanTxURL(this.ethPendingDepositTxHash)}
             target="_blank"
@@ -166,7 +176,7 @@ export class AccountExchange {
         ) : null}
 
         {/* Debug UI for Withdrawal */}
-        {this.ethPendingWithdrawalTxHash ? (
+        {this.isWithdrawalPending ? (
           <a
             href={this.getEtherscanTxURL(this.ethPendingWithdrawalTxHash)}
             target="_blank"
