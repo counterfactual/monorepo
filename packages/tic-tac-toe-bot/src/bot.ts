@@ -1,14 +1,18 @@
+import { Node } from "@counterfactual/node";
+import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { v4 } from "uuid";
 
 const bn = ethers.utils.bigNumberify;
 const ZERO = bn(0);
 
-function checkDraw(board) {
-  return board.every(row => row.every(square => !bn(square).eq(ZERO)));
+function checkDraw(board: Board) {
+  return board.every((row: BoardRow) =>
+    row.every((square: BoardSquare) => !bn(square).eq(ZERO))
+  );
 }
 
-function checkVictory(board, player) {
+function checkVictory(board: Board, player: number) {
   return (
     checkHorizontalVictory(board, player) ||
     checkVerticalVictory(board, player) ||
@@ -17,11 +21,11 @@ function checkVictory(board, player) {
   );
 }
 
-function checkHorizontalVictory(board, player) {
+function checkHorizontalVictory(board: Board, player: number) {
   let idx;
-  const victory = board.some((row, index) => {
+  const victory = board.some((row: BoardRow, index) => {
     idx = index;
-    return row.every(square => bn(square).eq(bn(player)));
+    return row.every((square: BoardSquare) => bn(square).eq(bn(player)));
   });
 
   if (victory) {
@@ -33,9 +37,9 @@ function checkHorizontalVictory(board, player) {
   return false;
 }
 
-function checkVerticalVictory(board, player) {
+function checkVerticalVictory(board: Board, player: number) {
   let idx;
-  const victory = board[0].some((columnStart, index) => {
+  const victory = board[0].some((columnStart: BoardSquare, index) => {
     idx = index;
     return (
       bn(columnStart).eq(bn(player)) &&
@@ -53,7 +57,7 @@ function checkVerticalVictory(board, player) {
   return false;
 }
 
-function checkDiagonalVictory(board, player) {
+function checkDiagonalVictory(board: Board, player: number) {
   const victory =
     bn(board[0][0]).eq(bn(player)) &&
     bn(board[1][1]).eq(bn(player)) &&
@@ -68,7 +72,7 @@ function checkDiagonalVictory(board, player) {
   return false;
 }
 
-function checkCrossDiagonalVictory(board, player) {
+function checkCrossDiagonalVictory(board: Board, player: number) {
   const victory =
     bn(board[0][2]).eq(bn(player)) &&
     bn(board[1][1]).eq(bn(player)) &&
@@ -83,7 +87,11 @@ function checkCrossDiagonalVictory(board, player) {
   return false;
 }
 
-function respond(node, ethAddress, { data: { appInstanceId, newState } }) {
+function respond(
+  node: Node,
+  ethAddress: Address,
+  { data: { appInstanceId, newState } }
+) {
   const winner = ethers.utils.bigNumberify(newState[2]).toNumber();
 
   if (winner === 0) {
@@ -94,14 +102,14 @@ function respond(node, ethAddress, { data: { appInstanceId, newState } }) {
         action
       },
       requestId: v4(),
-      type: "takeAction"
+      type: NodeTypes.MethodName.TAKE_ACTION
     };
 
     node.call(request.type, request);
   }
 }
 
-export function takeTurn(newState, ethAddress) {
+export function takeTurn(newState: State, ethAddress: Address) {
   const [players, , , board] = newState;
   const botPlayerNumber = players.indexOf(ethAddress) + 1;
   const { playX, playY } = makeMove(board);
@@ -116,7 +124,7 @@ export function takeTurn(newState, ethAddress) {
   };
 }
 
-function makeMove(board) {
+function makeMove(board: Board) {
   const possibleMoves: Coordinates[] = [];
 
   for (let x = 0; x < 3; x += 1) {
@@ -144,7 +152,7 @@ function makeMove(board) {
   };
 }
 
-function determineActionType(board, botPlayerNumber) {
+function determineActionType(board: Board, botPlayerNumber: number) {
   if (checkVictory(board, botPlayerNumber)) {
     return 1;
   }
@@ -154,13 +162,13 @@ function determineActionType(board, botPlayerNumber) {
   return 0;
 }
 
-export async function connectNode(node, ethAddress) {
+export async function connectNode(node: Node, ethAddress: Address) {
   node.on("proposeInstallVirtualEvent", async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
 
     const request = {
-      type: "installVirtual",
+      type: NodeTypes.MethodName.INSTALL_VIRTUAL,
       params: {
         appInstanceId,
         intermediaries
@@ -177,6 +185,12 @@ export async function connectNode(node, ethAddress) {
     });
   });
 }
+
+type Players = Address[];
+type State = [Players, number, number, Board];
+type BoardSquare = number | ethers.utils.BigNumber;
+type BoardRow = BoardSquare[];
+type Board = BoardRow[];
 
 type Coordinates = {
   x: number;

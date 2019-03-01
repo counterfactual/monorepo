@@ -61,7 +61,7 @@ class Wager extends Component {
 
       window.addEventListener("message", onMatchmakeResponse);
 
-      window.parent.postMessage("playground:request:matchmake", "*");
+      window.parent.postMessage("playground:request:matchmake:TicTacToeBot", "*");
     });
   }
 

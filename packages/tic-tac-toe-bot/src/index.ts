@@ -3,12 +3,10 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
+// import { Node as NodeTypes } from "@counterfactual/types";
+// import { v4 as generateUUID } from "uuid";
 import { ethers } from "ethers";
-import fs from "fs";
 import fetch from "node-fetch";
-import path from "path";
-import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "./bot";
 
@@ -44,35 +42,14 @@ if (process.env.TIER && process.env.TIER === "development") {
   });
 }
 
-// const STATE_ENCODING = `
-//       tuple(
-//         address[2] playerAddrs,
-//         uint8 stage,
-//         bytes32 salt,
-//         bytes32 commitHash,
-//         uint256 playerFirstNumber,
-//         uint256 playerSecondNumber
-//       )
-//     `;
-// const ACTION_ENCODING = `
-//     tuple(
-//         uint8 actionType,
-//         uint256 number,
-//         bytes32 actionHash,
-//       )
-//     `;
-
-const settingsPath = path.resolve(__dirname, "settings.json");
 let node: Node;
 
 (async () => {
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-
   console.log("Creating store");
-  const store = serviceFactory.createStoreService("highRollerBotStore1");
+  const store = serviceFactory.createStoreService("tttBotStore1");
 
-  if (!(await store.get(MNEMONIC_PATH)) && settings[MNEMONIC_PATH]) {
-    await store.set([{ key: MNEMONIC_PATH, value: settings[MNEMONIC_PATH] }]);
+  if (!(await store.get(MNEMONIC_PATH)) && process.env.NODE_MNEMONIC) {
+    await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
   }
 
   console.log("Creating Node");
@@ -88,10 +65,11 @@ let node: Node;
   );
 
   console.log("public identifier", node.publicIdentifier);
-  if (settings["token"]) {
-    await afterUser(node);
-  } else {
-    try {
+
+  try {
+    let botAccount = await store.get("tttBot/Account");
+
+    if (!botAccount) {
       const user = {
         email: "TicTacToeBot",
         ethAddress: process.env.ETH_ADDRESS || "",
@@ -100,36 +78,48 @@ let node: Node;
       };
       const privateKey = process.env.PRIVATE_KEY;
       if (!privateKey) {
-        throw Error('No private key specified in "settings.json". Exiting.');
+        throw Error('No private key specified in env. Exiting.');
       }
       const wallet = new ethers.Wallet(privateKey, provider);
       const signature = await wallet.signMessage(
         buildRegistrationSignaturePayload(user)
       );
 
-      const createdAccount = await createAccount(user, signature);
-      settings["token"] = createdAccount.token;
-      console.log("Account created. Fetching multisig address");
-      const multisigAddress = await fetchMultisig(createdAccount.token!);
+      botAccount = await createAccount(user, signature);
 
-      console.log(`Account created with token: ${createdAccount.token}`);
+      console.log(`Account created with token: ${botAccount.token}`);
 
-      let depositAmount = process.argv[2];
-      if (!depositAmount) {
-        depositAmount = "0.01";
-      }
-      await deposit(depositAmount, multisigAddress);
-
-      // save token to settings after user & channel are  successfully created and funded
-      fs.writeFileSync(settingsPath, JSON.stringify(settings));
-
-      await afterUser(node);
-    } catch (e) {
-      console.error("\n");
-      console.error(e);
-      console.error("\n");
-      process.exit(1);
+      await store.set([{
+        key: "tttBot/Account", 
+        value: botAccount
+      }]);
+    } else {
+      console.log("Bot user already exists", botAccount.token)
     }
+
+    const multisigAddress = await fetchMultisig(botAccount.token!);
+
+    console.log("Account multisig address:", multisigAddress);
+    
+    // if (!await store.get("tttBot/DepositComplete")) {
+    //   let depositAmount = process.argv[2];
+    //   if (!depositAmount) {
+    //     depositAmount = "0.01";
+    //   }
+    //   await deposit(depositAmount, multisigAddress);
+
+    //   await store.set([{
+    //     key: "tttBot/DepositComplete", 
+    //     value: true
+    //   }]);
+    // }
+
+    afterUser(node);
+  } catch (e) {
+    console.error("\n");
+    console.error(e);
+    console.error("\n");
+    process.exit(1);
   }
 })();
 
@@ -146,23 +136,23 @@ async function fetchMultisig(token: string) {
   return bot.multisigAddress;
 }
 
-async function deposit(amount: string, multisigAddress: string) {
-  console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
-  try {
-    return node.call(NodeTypes.MethodName.DEPOSIT, {
-      type: NodeTypes.MethodName.DEPOSIT,
-      requestId: generateUUID(),
-      params: {
-        multisigAddress,
-        amount: ethers.utils.parseEther(amount),
-        notifyCounterparty: true
-      } as NodeTypes.DepositParams
-    });
-  } catch (e) {
-    console.error(`Failed to deposit... ${e}`);
-    throw e;
-  }
-}
+// async function deposit(amount: string, multisigAddress: string) {
+//   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
+//   try {
+//     return node.call(NodeTypes.MethodName.DEPOSIT, {
+//       type: NodeTypes.MethodName.DEPOSIT,
+//       requestId: generateUUID(),
+//       params: {
+//         multisigAddress,
+//         amount: ethers.utils.parseEther(amount),
+//         notifyCounterparty: true
+//       } as NodeTypes.DepositParams
+//     });
+//   } catch (e) {
+//     console.error(`Failed to deposit... ${e}`);
+//     throw e;
+//   }
+// }
 
 function buildRegistrationSignaturePayload(data) {
   return [
@@ -237,7 +227,7 @@ async function post(endpoint, data, token, authType = "Signature") {
 async function afterUser(node) {
   console.log("After User");
 
-  await connectNode(node, process.env.ETH_ADDRESS);
+  await connectNode(node, process.env.ETH_ADDRESS || "");
 }
 
 // TODO: don't duplicate these from PG for consistency
