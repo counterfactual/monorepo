@@ -199,7 +199,7 @@ class Wager extends Component {
             placeholder="0.01 eth"
             min={0}
             max={0.01}
-            step={0.001}
+            step={0.00000001}
             onChange={e => (this.props.gameInfo.betAmount = e.target.value)}
             defaultValue={this.props.gameInfo.betAmount}
           />

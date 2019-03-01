@@ -172,21 +172,23 @@ export class AppRoot {
   }
 
   bindProviderEvents() {
-    const { user } = this.accountState;
+    const {
+      user: { multisigAddress, ethAddress }
+    } = this.accountState;
     const { provider } = this.walletState;
 
     if (!provider) {
       return;
     }
 
-    if (user.ethAddress) {
-      provider.removeAllListeners(user.ethAddress);
-      provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
+    if (ethAddress) {
+      provider.removeAllListeners(ethAddress);
+      provider.on(ethAddress, this.updateWalletBalance.bind(this));
     }
 
-    if (user.multisigAddress) {
-      provider.removeAllListeners(user.multisigAddress);
-      provider.on(user.multisigAddress, this.updateMultisigBalance.bind(this));
+    if (multisigAddress) {
+      provider.removeAllListeners(multisigAddress);
+      provider.on(multisigAddress, this.updateMultisigBalance.bind(this));
     }
   }
 
@@ -282,15 +284,17 @@ export class AppRoot {
 
     const node = CounterfactualNode.getInstance();
 
-    node.once(Node.EventName.DEPOSIT_STARTED, args => {
+    node.once(Node.EventName.DEPOSIT_STARTED, args =>
       this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
-      });
-    });
+      })
+    );
+
+    let ret;
 
     try {
-      const ret = await node.call(Node.MethodName.DEPOSIT, {
+      ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
@@ -299,15 +303,17 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-      await this.resetPendingDepositState();
-      return ret;
     } catch (e) {
-      await this.resetPendingDepositState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances();
+    await this.resetPendingDepositState();
+
+    return ret;
   }
 
-  async withdraw(valueInWei: BigNumber) {
+  async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
     const {
       user: { multisigAddress }
     } = this.accountState;
@@ -321,8 +327,10 @@ export class AppRoot {
       });
     });
 
+    let ret;
+
     try {
-      const ret = await node.call(Node.MethodName.WITHDRAW, {
+      ret = await node.call(Node.MethodName.WITHDRAW, {
         type: Node.MethodName.WITHDRAW,
         requestId: window["uuid"](),
         params: {
@@ -331,13 +339,14 @@ export class AppRoot {
           amount: ethers.utils.bigNumberify(valueInWei)
         } as Node.WithdrawParams
       });
-      await this.resetPendingWithdrawalState();
-      await this.getBalances();
-      return ret;
     } catch (e) {
-      await this.resetPendingWithdrawalState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances();
+    await this.resetPendingWithdrawalState();
+
+    return ret;
   }
 
   waitForMultisig() {
@@ -359,7 +368,9 @@ export class AppRoot {
           dialogTitle="Your account is ready!"
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
-          onPrimaryButtonClicked={() => this.confirmDepositInitialFunding()}
+          onPrimaryButtonClicked={async () =>
+            await this.confirmDepositInitialFunding()
+          }
         />
       );
     }

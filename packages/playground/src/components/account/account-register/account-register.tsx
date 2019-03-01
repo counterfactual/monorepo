@@ -203,6 +203,8 @@ export class AccountRegister {
           <div class="smallprint">
             <b>Account will be linked to your Ethereum address: </b>
             {this.changeset.ethAddress}
+
+            <div class="error">{this.errors.ethAddress}</div>
           </div>
           <form-button
             disabled={this.metamaskConfirmationUIOpen}

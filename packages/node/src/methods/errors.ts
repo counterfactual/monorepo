@@ -16,6 +16,8 @@ export const ERRORS = {
     "No AppInstanceId specified to takeAction on",
   NO_APP_CONTRACT_ADDR: "The App Contract address is empty",
   INVALID_ACTION: "Invalid action taken",
+  INSUFFICIENT_FUNDS:
+    "Node's default signer does not have enough funds for this action",
   IMPROPERLY_FORMATTED_ACTION: "Improperly formatted action",
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
