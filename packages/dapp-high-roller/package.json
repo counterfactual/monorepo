@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/dapp-high-roller",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "netlify": "sh netlify.sh",
     "build": "stencil build && cp src/_redirects www/_redirects",
