@@ -27,8 +27,8 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { store } = requestHandler;
-    const { multisigAddress } = params;
+    const { store, provider } = requestHandler;
+    const { multisigAddress, amount } = params;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -38,6 +38,14 @@ export default class DepositController extends NodeController {
       )
     ) {
       return Promise.reject(ERRORS.CANNOT_DEPOSIT);
+    }
+
+    const balanceOfSigner = await provider.getBalance(
+      await (await requestHandler.getSigner()).getAddress()
+    );
+
+    if (balanceOfSigner < amount) {
+      return Promise.reject(ERRORS.INSUFFICIENT_FUNDS);
     }
 
     await installBalanceRefundApp(requestHandler, params);
