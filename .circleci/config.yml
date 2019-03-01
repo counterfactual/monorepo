@@ -93,6 +93,23 @@ jobs:
 
       - run: yarn lint
 
+  publish-to-npm:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+
+      - run: yarn # symlink packages' node_modules
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run:
+          name: Publish any updated packages to npm
+          command: yarn publish
+
 workflows:
   run-tests:
     jobs:
@@ -111,6 +128,16 @@ workflows:
             - build
 
       - heroku/deploy-via-git:
+          requires:
+            - build
+            - run-tests
+            - run-playground-tests
+            - run-tslint
+          filters:
+            branches:
+              only: master
+
+      - publish-to-npm:
           requires:
             - build
             - run-tests

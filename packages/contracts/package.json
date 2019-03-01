@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/contracts",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Smart contracts for Counterfactual",
   "license": "MIT",
   "files": [
@@ -27,8 +27,8 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/types": "0.0.5",
-    "@counterfactual/typescript-typings": "0.0.2",
+    "@counterfactual/types": "0.0.7",
+    "@counterfactual/typescript-typings": "0.1.0",
     "@types/chai": "^4.1.7",
     "@types/node": "^11.9.0",
     "chai": "^4.2.0",
