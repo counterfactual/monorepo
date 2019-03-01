@@ -5,11 +5,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import {
-  JsonRpcProvider,
-  TransactionRequest,
-  TransactionResponse
-} from "ethers/providers";
+import { TransactionRequest } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
