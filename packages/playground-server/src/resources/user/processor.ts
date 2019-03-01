@@ -7,6 +7,7 @@ import {
   createUser,
   ethAddressAlreadyRegistered,
   getUsers,
+  updateUser,
   usernameAlreadyRegistered
 } from "../../db";
 import errors from "../../errors";
@@ -95,5 +96,31 @@ export default class UserProcessor extends OperationProcessor<User> {
     });
 
     return newUser;
+  }
+
+  public async update(op: Operation): Promise<User> {
+    const user = op.data as User;
+
+    const { email } = user.attributes;
+
+    if (!email) {
+      throw errors.EmailRequired();
+    }
+
+    const updatedUser = await updateUser(user);
+
+    updatedUser.attributes.token = sign(
+      JSON.parse(JSON.stringify(updatedUser)),
+      process.env.NODE_PRIVATE_KEY as string,
+      {
+        expiresIn: "1Y"
+      }
+    );
+
+    Log.info("User token has been updated", {
+      tags: { endpoint: "update" }
+    });
+
+    return updatedUser;
   }
 }
