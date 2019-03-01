@@ -172,21 +172,23 @@ export class AppRoot {
   }
 
   bindProviderEvents() {
-    const { user } = this.accountState;
+    const {
+      user: { multisigAddress, ethAddress }
+    } = this.accountState;
     const { provider } = this.walletState;
 
     if (!provider) {
       return;
     }
 
-    if (user.ethAddress) {
-      provider.removeAllListeners(user.ethAddress);
-      provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
+    if (ethAddress) {
+      provider.removeAllListeners(ethAddress);
+      provider.on(ethAddress, this.updateWalletBalance.bind(this));
     }
 
-    if (user.multisigAddress) {
-      provider.removeAllListeners(user.multisigAddress);
-      provider.on(user.multisigAddress, this.updateMultisigBalance.bind(this));
+    if (multisigAddress) {
+      provider.removeAllListeners(multisigAddress);
+      provider.on(multisigAddress, this.updateMultisigBalance.bind(this));
     }
   }
 
@@ -282,12 +284,12 @@ export class AppRoot {
 
     const node = CounterfactualNode.getInstance();
 
-    node.once(Node.EventName.DEPOSIT_STARTED, args => {
+    node.once(Node.EventName.DEPOSIT_STARTED, args =>
       this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
-      });
-    });
+      })
+    );
 
     try {
       const ret = await node.call(Node.MethodName.DEPOSIT, {
@@ -359,7 +361,9 @@ export class AppRoot {
           dialogTitle="Your account is ready!"
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
-          onPrimaryButtonClicked={() => this.confirmDepositInitialFunding()}
+          onPrimaryButtonClicked={async () =>
+            await this.confirmDepositInitialFunding()
+          }
         />
       );
     }
