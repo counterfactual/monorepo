@@ -265,6 +265,34 @@ export async function userExists(user: User): Promise<boolean> {
   return users.length === 1;
 }
 
+export async function updateUser(user: User): Promise<User> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .update({
+      email: user.attributes.email
+    })
+    .where({
+      id: user.id
+    });
+
+  try {
+    await query;
+
+    Log.debug("Executed updateUser query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    await db.destroy();
+
+    return getUser(user);
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
 export async function createUser(user: User): Promise<User> {
   const db = getDatabase();
 
