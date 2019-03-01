@@ -291,8 +291,10 @@ export class AppRoot {
       })
     );
 
+    let ret;
+
     try {
-      const ret = await node.call(Node.MethodName.DEPOSIT, {
+      ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
@@ -301,15 +303,17 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-      await this.resetPendingDepositState();
-      return ret;
     } catch (e) {
-      await this.resetPendingDepositState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances();
+    await this.resetPendingDepositState();
+
+    return ret;
   }
 
-  async withdraw(valueInWei: BigNumber) {
+  async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
     const {
       user: { multisigAddress }
     } = this.accountState;
@@ -323,8 +327,10 @@ export class AppRoot {
       });
     });
 
+    let ret;
+
     try {
-      const ret = await node.call(Node.MethodName.WITHDRAW, {
+      ret = await node.call(Node.MethodName.WITHDRAW, {
         type: Node.MethodName.WITHDRAW,
         requestId: window["uuid"](),
         params: {
@@ -333,13 +339,14 @@ export class AppRoot {
           amount: ethers.utils.bigNumberify(valueInWei)
         } as Node.WithdrawParams
       });
-      await this.resetPendingWithdrawalState();
-      await this.getBalances();
-      return ret;
     } catch (e) {
-      await this.resetPendingWithdrawalState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances();
+    await this.resetPendingWithdrawalState();
+
+    return ret;
   }
 
   waitForMultisig() {
