@@ -1,3 +1,4 @@
+import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import {
   AssetType,
   ETHBucketAppState,
@@ -50,14 +51,8 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature
       ),
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        context.signatures[0],
-        context.inbox[0].signature!
-      ]);
-    },
+    setFinalCommitment(true),
 
-    // Consider the state transition finished and commit it
     Opcode.WRITE_COMMITMENT
   ],
 
@@ -78,12 +73,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     // Write commitment
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        context.signatures[0],
-        message.signature!
-      ]);
-    },
+    setFinalCommitment(false),
 
     Opcode.WRITE_COMMITMENT,
 

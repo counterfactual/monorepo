@@ -1,3 +1,4 @@
+import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import { NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
@@ -56,12 +57,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        context.signatures[0],
-        context.inbox[0].signature!
-      ]);
-    },
+    setFinalCommitment(true),
 
     Opcode.WRITE_COMMITMENT
   ],
@@ -91,12 +87,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     // Sign the same state update yourself
     Opcode.OP_SIGN,
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        context.signatures[0],
-        message.signature!
-      ]);
-    },
+    setFinalCommitment(false),
 
     Opcode.WRITE_COMMITMENT,
 
