@@ -3,17 +3,19 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import HashZero from "ethers/constants";
 import fs from "fs";
-import fetch from "node-fetch";
 import path from "path";
-import { v4 as generateUUID } from "uuid";
+
+import { afterUser } from "./bot";
+import {
+  buildRegistrationSignaturePayload,
+  createAccount,
+  deposit,
+  fetchMultisig
+} from "./utils";
 
 const provider = ethers.getDefaultProvider("ropsten");
-const API_TIMEOUT = 30000;
-let bot: UserSession;
 
 let BASE_URL = `https://server.playground-staging.counterfactual.com`;
 
@@ -64,7 +66,7 @@ if (process.env.TIER && process.env.TIER === "development") {
 const settingsPath = path.resolve(__dirname, "settings.json");
 let node: Node;
 
-(async () => {
+async function bootstrap() {
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
 
   console.log("Creating store");
@@ -106,7 +108,7 @@ let node: Node;
         buildRegistrationSignaturePayload(user)
       );
 
-      const createdAccount = await createAccount(user, signature);
+      const createdAccount = await createAccount(BASE_URL, user, signature);
       settings["token"] = createdAccount.token;
       console.log("Account created. Fetching multisig address");
       const multisigAddress = await fetchMultisig(createdAccount.token!);
@@ -117,7 +119,7 @@ let node: Node;
       if (!depositAmount) {
         depositAmount = "0.01";
       }
-      await deposit(depositAmount, multisigAddress);
+      await deposit(node, depositAmount, multisigAddress);
 
       // save token to settings after user & channel are  successfully created and funded
       fs.writeFileSync(settingsPath, JSON.stringify(settings));
@@ -130,363 +132,6 @@ let node: Node;
       process.exit(1);
     }
   }
-})();
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-async function fetchMultisig(token: string) {
-  bot = await getUser(token);
-  if (!bot.multisigAddress) {
-    console.info(
-      "The Bot doesn't have a channel with the Playground yet...Waiting for another 5 seconds"
-    );
-    await delay(5000).then(() => fetchMultisig(token));
-  }
-  return bot.multisigAddress;
 }
 
-async function deposit(amount: string, multisigAddress: string) {
-  console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
-  try {
-    return node.call(NodeTypes.MethodName.DEPOSIT, {
-      type: NodeTypes.MethodName.DEPOSIT,
-      requestId: generateUUID(),
-      params: {
-        multisigAddress,
-        amount: ethers.utils.parseEther(amount),
-        notifyCounterparty: true
-      } as NodeTypes.DepositParams
-    });
-  } catch (e) {
-    console.error(`Failed to deposit... ${e}`);
-    throw e;
-  }
-}
-
-function buildRegistrationSignaturePayload(data) {
-  return [
-    "PLAYGROUND ACCOUNT REGISTRATION",
-    `Username: ${data.username}`,
-    `E-mail: ${data.email}`,
-    `Ethereum address: ${data.ethAddress}`,
-    `Node address: ${data.nodeAddress}`
-  ].join("\n");
-}
-
-function timeout(delay: number = API_TIMEOUT) {
-  const handler = setTimeout(() => {
-    throw new Error("Request timed out");
-  }, delay);
-
-  return {
-    cancel() {
-      clearTimeout(handler);
-    }
-  };
-}
-
-async function get(endpoint: string, token?: string): Promise<APIResponse> {
-  const requestTimeout = timeout();
-
-  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    method: "GET",
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`
-        }
-      : {}
-  });
-
-  requestTimeout.cancel();
-
-  const response = (await httpResponse.json()) as APIResponse;
-
-  if (response.errors) {
-    const error = response.errors[0] as APIError;
-    throw error;
-  }
-
-  return response;
-}
-
-async function post(endpoint, data, token, authType = "Signature") {
-  const body = JSON.stringify({
-    data
-  });
-  console.log(`Body: ${body}`);
-  const httpResponse = await fetch(`${BASE_URL}/api/${endpoint}`, {
-    body,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...(token ? { Authorization: `${authType} ${token}` } : {})
-    },
-    method: "POST"
-  });
-
-  const response = await httpResponse.json();
-
-  if (response.errors) {
-    const error = response.errors[0];
-    throw error;
-  }
-
-  return response;
-}
-
-async function afterUser(node) {
-  console.log("After User");
-
-  node.on("proposeInstallVirtualEvent", async data => {
-    try {
-      const appInstanceId = data.data.appInstanceId;
-      const intermediaries = data.data.params.intermediaries;
-      console.log(
-        `Received appInstanceId ${appInstanceId} and intermediaries ${intermediaries}`
-      );
-
-      console.log(data);
-
-      const request = {
-        type: NodeTypes.MethodName.INSTALL_VIRTUAL,
-        params: {
-          appInstanceId,
-          intermediaries
-        },
-        requestId: generateUUID()
-      };
-
-      const installedApp = (await node.call(request.type, request)).result;
-
-      // const appInstance = await cfProvider.installVirtual(
-      //   appInstanceId,
-      //   intermediaries
-      // );
-
-      console.log("Create event listener for updateState");
-      installedApp.appInstance.on("updateState", ({ data }) => {
-        console.log(`Received newState ${data}`);
-        const newStateArray = data.newState;
-
-        // FIXME: ensure this state is correct
-        const state = {
-          playerAddrs: newStateArray[0],
-          stage: newStateArray[1],
-          salt: newStateArray[2],
-          commitHash: newStateArray[3],
-          playerFirstNumber: newStateArray[4],
-          playerSecondNumber: newStateArray[5]
-        };
-
-        console.log(`State ${state}`);
-
-        if (state.stage === 2) {
-          // Stage.COMMITTING_NUM
-          const numToCommit = Math.floor(Math.random() * Math.floor(1000));
-
-          const commitHashAction = {
-            number: numToCommit,
-            actionType: 2, // ActionType.COMMIT_TO_NUM
-            actionHash: HashZero
-          };
-
-          console.log("commit hash action");
-          console.log(commitHashAction);
-
-          // FIXME: get access to `appInstance` to takeAction
-          // this.appInstance.takeAction(commitHashAction);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  });
-}
-
-// TODO: don't duplicate these from PG for consistency
-
-async function createAccount(
-  user: UserChangeset,
-  signature: string
-): Promise<UserSession> {
-  try {
-    const data = toAPIResource<UserChangeset, UserAttributes>(user);
-    const json = (await post("users", data, signature)) as APIResponse;
-    const resource = json.data as APIResource<UserAttributes>;
-
-    return fromAPIResource<UserSession, UserAttributes>(resource);
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
-
-function fromAPIResource<TModel, TResource>(
-  resource: APIResource<TResource>
-): TModel {
-  return ({
-    id: resource.id,
-    ...(resource.attributes as {})
-  } as unknown) as TModel;
-}
-
-function toAPIResource<TModel, TResource>(
-  model: TModel
-): APIResource<TResource> {
-  return ({
-    ...(model["id"] ? { id: model["id"] } : {}),
-    attributes: {
-      ...Object.keys(model)
-        .map(key => {
-          return { [key]: model[key] };
-        })
-        .reduce((previous, current) => {
-          return { ...previous, ...current };
-        }, {})
-    }
-  } as unknown) as APIResource<TResource>;
-}
-
-async function getUser(token: string): Promise<UserSession> {
-  if (!token) {
-    throw new Error("getUser(): token is required");
-  }
-
-  try {
-    const json = (await get("users/me", token)) as APIResponse;
-    const resource = json.data[0] as APIResource<UserAttributes>;
-
-    return fromAPIResource<UserSession, UserAttributes>(resource);
-  } catch (e) {
-    return Promise.reject(e);
-  }
-}
-
-export type AppDefinition = {
-  id: string;
-  name: string;
-  notifications?: number;
-  slug: string;
-  url: string;
-  icon: string;
-};
-
-export interface UserChangeset {
-  username: string;
-  email: string;
-  ethAddress: string;
-  nodeAddress: string;
-}
-
-export type UserSession = {
-  id: string;
-  username: string;
-  ethAddress: string;
-  nodeAddress: string;
-  email: string;
-  multisigAddress: string;
-  transactionHash: string;
-  token?: string;
-};
-
-export type ComponentEventHandler = (event: CustomEvent<any>) => void;
-
-export interface ErrorMessage {
-  primary: string;
-  secondary: string;
-}
-
-// TODO: Delete everything down below after JSONAPI-TS is implemented.
-
-export type APIError = {
-  status: HttpStatusCode;
-  code: ErrorCode;
-  title: string;
-  detail: string;
-};
-
-export type APIResource<T = APIResourceAttributes> = {
-  type: APIResourceType;
-  id?: string;
-  attributes: T;
-  relationships?: APIResourceRelationships;
-};
-
-export type APIResourceAttributes = {
-  [key: string]: string | number | boolean | undefined;
-};
-
-export type APIResourceType =
-  | "user"
-  | "matchmakingRequest"
-  | "matchedUser"
-  | "session"
-  | "app";
-
-export type APIResourceRelationships = {
-  [key in APIResourceType]?: APIDataContainer
-};
-
-export type APIDataContainer<T = APIResourceAttributes> = {
-  data: APIResource<T> | APIResourceCollection<T>;
-};
-
-export type APIResourceCollection<T = APIResourceAttributes> = APIResource<T>[];
-
-export type APIResponse<T = APIResourceAttributes> = APIDataContainer<T> & {
-  errors?: APIError[];
-  meta?: APIMetadata;
-  included?: APIResourceCollection;
-};
-
-export enum ErrorCode {
-  SignatureRequired = "signature_required",
-  InvalidSignature = "invalid_signature",
-  AddressAlreadyRegistered = "address_already_registered",
-  AppRegistryNotAvailable = "app_registry_not_available",
-  UserAddressRequired = "user_address_required",
-  NoUsersAvailable = "no_users_available",
-  UnhandledError = "unhandled_error",
-  UserNotFound = "user_not_found",
-  TokenRequired = "token_required",
-  InvalidToken = "invalid_token",
-  UsernameAlreadyExists = "username_already_exists"
-}
-
-export enum HttpStatusCode {
-  OK = 200,
-  Created = 201,
-  BadRequest = 400,
-  Unauthorized = 401,
-  Forbidden = 403,
-  InternalServerError = 500
-}
-
-export type APIMetadata = {
-  [key: string]: string | number | boolean | APIMetadata;
-};
-
-export type APIRequest<T = APIResourceAttributes> = {
-  data?: APIResource<T> | APIResourceCollection<T>;
-  meta?: APIMetadata;
-};
-
-export type UserAttributes = {
-  id: string;
-  username: string;
-  ethAddress: string;
-  nodeAddress: string;
-  email: string;
-  multisigAddress: string;
-  transactionHash: string;
-  token?: string;
-};
-
-export type SessionAttributes = {
-  ethAddress: string;
-};
-
-export type AppAttributes = {
-  name: string;
-  slug: string;
-  icon: string;
-  url: string;
-};
+bootstrap();

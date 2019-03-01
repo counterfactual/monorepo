@@ -21,7 +21,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "build": "echo 'No build necessary'",
+    "build": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "env-cmd development ts-node src/"
