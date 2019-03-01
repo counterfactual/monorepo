@@ -65,7 +65,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.IO_SEND_AND_WAIT,
 
     (message: ProtocolMessage, context: Context) => {
-      const { intermediaryXpub, respondingXpub } = message.params as InstallVirtualAppParams;
+      const {
+        intermediaryXpub,
+        respondingXpub
+      } = message.params as InstallVirtualAppParams;
 
       validateSignature(
         xkeyKthAddress(intermediaryXpub, 0),
