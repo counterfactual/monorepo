@@ -24,6 +24,13 @@ export class AccountDeposit {
   @State() error: string = "";
   @State() amountDeposited;
 
+  componentDidUpdate() {
+    if (!this.user || !this.user.id) {
+      this.history.push("/");
+      return;
+    }
+  }
+
   get node() {
     return CounterfactualNode.getInstance();
   }
