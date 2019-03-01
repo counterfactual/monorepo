@@ -1,10 +1,12 @@
 import { Address } from "@counterfactual/types";
 import { KnexRecord } from "@ebryn/jsonapi-ts";
+import { ethers } from "ethers";
 import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
 
 import Errors from "./errors";
+import NodeWrapper from "./node";
 import User, { MatchedUser } from "./resources/user/resource";
 
 const DATABASE_URL =
@@ -65,7 +67,10 @@ export async function usernameAlreadyRegistered(
   return userId.length > 0;
 }
 
-export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
+export async function matchmakeUser(
+  userToMatch: User,
+  bet: ethers.utils.BigNumber
+): Promise<MatchedUser> {
   const db = getDatabase();
 
   if (!userToMatch) {
@@ -77,7 +82,8 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
       id: "id",
       username: "username",
       ethAddress: "eth_address",
-      nodeAddress: "node_address"
+      nodeAddress: "node_address",
+      multisigAddress: "multisig_address"
     })
     .select()
     .where("eth_address", "!=", userToMatch.attributes.ethAddress);
@@ -87,7 +93,26 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     username: string;
     ethAddress: string;
     nodeAddress: string;
+    multisigAddress: string;
   }[] = await query;
+
+  const matchmakeResultsWithBalance: {
+    id: string;
+    username: string;
+    ethAddress: string;
+    nodeAddress: string;
+    multisigAddress: string;
+    balance: ethers.utils.BigNumber;
+  }[] = (await Promise.all(
+    matchmakeResults.map(async matchmake => {
+      return {
+        ...matchmake,
+        balance: await NodeWrapper.getStateChannelBalance(
+          matchmake.multisigAddress
+        )
+      };
+    })
+  )).filter(matchmake => matchmake.balance.gte(bet));
 
   Log.debug("Executed matchmakeUser query", {
     tags: { query: query.toSQL().sql }
@@ -95,13 +120,13 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
 
   await db.destroy();
 
-  if (matchmakeResults.length === 1) {
+  if (matchmakeResultsWithBalance.length === 1) {
     // If there is only one user, just select that one.
     Log.info("Matchmade completed with only user available", {
       tags: {
         nodes: [
           userToMatch.attributes.nodeAddress,
-          matchmakeResults[0].nodeAddress
+          matchmakeResultsWithBalance[0].nodeAddress
         ]
       }
     });
@@ -117,7 +142,7 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     });
   }
 
-  if (matchmakeResults.length === 0) {
+  if (matchmakeResultsWithBalance.length === 0) {
     // If there are no users, throw an error.
     Log.warn("Cannot matchmake, no users available", {
       tags: { node: userToMatch.attributes.nodeAddress }

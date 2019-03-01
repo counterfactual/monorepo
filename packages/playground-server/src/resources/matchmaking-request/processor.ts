@@ -1,4 +1,5 @@
 import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
+import { ethers } from "ethers";
 import { v4 as generateUUID } from "uuid";
 
 import { getUsers, matchmakeUser } from "../../db";
@@ -32,7 +33,13 @@ export default class MatchmakingRequestProcessor extends OperationProcessor<
         relationships: {}
       };
     } else {
-      matchedUser = await matchmakeUser(user);
+      matchedUser = await matchmakeUser(
+        user,
+        ethers.utils.bigNumberify({
+          _hex: op.data.attributes.betAmount as string,
+          length: 10 // What's with this length?
+        })
+      );
     }
 
     return new MatchmakingRequest({
