@@ -108,7 +108,7 @@ jobs:
 
       - run:
           name: Publish any updated packages to npm
-          command: yarn publish
+          command: yarn run publish
 
 workflows:
   run-tests:
