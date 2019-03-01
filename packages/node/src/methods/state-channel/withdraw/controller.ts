@@ -53,6 +53,10 @@ export default class WithdrawController extends NodeController {
 
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
+    if (!commitment) {
+      throw Error("no commitment found");
+    }
+
     const tx = {
       ...commitment,
       gasPrice: await provider.getGasPrice(),

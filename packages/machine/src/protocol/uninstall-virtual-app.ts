@@ -17,307 +17,233 @@ import { getChannelFromCounterparty } from "./utils/get-channel-from-counterpart
 import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
 import { validateSignature } from "./utils/signature-validator";
 
-type UninstallVirtualProtocolMessage = ProtocolMessage & {
-  params: UninstallVirtualAppParams;
-};
-
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    addVirtualAppStateTransitionToContext(false),
+  0: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const {
+      intermediaryXpub,
+      respondingXpub
+    } = message.params as UninstallVirtualAppParams;
+    const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    Opcode.OP_SIGN,
+    const lockCommitment = addVirtualAppStateTransitionToContext(
+      message,
+      context,
+      false
+    );
 
-    (message: UninstallVirtualProtocolMessage, context: Context) => {
-      const { intermediaryXpub, initiatingXpub } = message.params;
+    const s1 = yield [Opcode.OP_SIGN, lockCommitment];
 
-      context.outbox[0] = {
+    const m4 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        // m1
         ...message,
         seq: 1,
-        fromXpub: initiatingXpub,
         toXpub: intermediaryXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s1
+      }
+    ];
 
-    // send M1, wait for M4
-    Opcode.IO_SEND_AND_WAIT,
+    const { signature: s3, signature2: s2 } = m4;
 
-    // verify M4
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        respondingXpub,
-        intermediaryXpub
-      } = message.params as UninstallVirtualAppParams;
+    validateSignature(respondingAddress, lockCommitment, s3);
+    validateSignature(intermediaryAddress, lockCommitment, s2, true);
 
-      validateSignature(
-        xkeyKthAddress(respondingXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature // s3
-      );
+    const uninstallLeft = await addLeftUninstallAgreementToContext(
+      message,
+      context,
+      provider
+    );
 
-      validateSignature(
-        xkeyKthAddress(intermediaryXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature2, // s2
-        true
-      );
-    },
+    const s4 = yield [Opcode.OP_SIGN, uninstallLeft];
 
-    addLeftUninstallAgreementToContext,
-
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        initiatingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    // send m5, wait for m6
+    const { signature: s6 } = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
         ...message,
         seq: -1,
-        fromXpub: initiatingXpub,
         toXpub: intermediaryXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s4
+      }
+    ];
 
-    // send M5, wait for M6
-    Opcode.IO_SEND_AND_WAIT,
+    validateSignature(intermediaryAddress, uninstallLeft, s6);
+    removeVirtualAppInstance(message, context);
+  },
 
-    // verify M6
-    (message: ProtocolMessage, context: Context) => {
-      const { intermediaryXpub } = message.params as UninstallVirtualAppParams;
-      validateSignature(
-        xkeyKthAddress(intermediaryXpub, 0),
-        context.commitments[0],
-        context.inbox[1].signature
-      );
-    },
+  1: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const {
+      initiatingXpub,
+      respondingXpub
+    } = message.params as UninstallVirtualAppParams;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    removeVirtualAppInstance
+    const lockCommitment = addVirtualAppStateTransitionToContext(
+      message,
+      context,
+      true
+    );
 
-    // done!
-  ],
+    // m1 contains s1
+    const s1 = message.signature;
 
-  1: [
-    addVirtualAppStateTransitionToContext(true),
+    validateSignature(initiatingAddress, lockCommitment, s1);
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.params.initiatingXpub, 0),
-        context.commitments[0],
-        message.signature
-      );
-    },
+    const s2 = yield [Opcode.OP_SIGN_AS_INTERMEDIARY, lockCommitment];
 
-    Opcode.OP_SIGN_AS_INTERMEDIARY,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        respondingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    const m3 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        // m2
         ...message,
         seq: 2,
-        fromXpub: intermediaryXpub,
         toXpub: respondingXpub,
-        signature: message.signature,
-        signature2: context.signatures[0]
-      };
-    },
+        signature: s1,
+        signature2: s2
+      }
+    ];
+    const { signature: s3 } = m3;
 
-    // send M2, wait for M3
-    Opcode.IO_SEND_AND_WAIT,
+    validateSignature(respondingAddress, lockCommitment, s3);
 
-    // verify M3
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.params.respondingXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      );
-    },
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        initiatingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    const m5 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        // m4
         ...message,
         seq: -1,
-        fromXpub: intermediaryXpub,
         toXpub: initiatingXpub,
-        signature: context.inbox[0].signature, // s3
-        signature2: context.signatures[0] // s2
-      };
-    },
+        signature: s3,
+        signature2: s2
+      }
+    ];
+    const { signature: s4 } = m5;
 
-    // send M4, wait for M5
-    Opcode.IO_SEND_AND_WAIT,
+    const leftUninstallCommitment = await addLeftUninstallAgreementToContext(
+      message,
+      context,
+      provider
+    );
 
-    addLeftUninstallAgreementToContext,
+    validateSignature(initiatingAddress, leftUninstallCommitment, s4);
 
-    // verify M5
-    (message: ProtocolMessage, context: Context) => {
-      // todo(xuanji): why does the message end up in inbox[1]?
-      validateSignature(
-        xkeyKthAddress(message.params.initiatingXpub, 0),
-        context.commitments[0],
-        context.inbox[1].signature
-      );
-    },
+    const s5 = yield [Opcode.OP_SIGN, leftUninstallCommitment];
 
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        initiatingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    // send m6 without waiting for a reply
+    yield [
+      Opcode.IO_SEND,
+      {
         ...message,
         seq: -1,
-        fromXpub: intermediaryXpub,
         toXpub: initiatingXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s5
+      }
+    ];
 
-    // send M6
-    Opcode.IO_SEND,
+    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
+      message,
+      context,
+      provider
+    );
 
-    addRightUninstallAgreementToContext,
+    const s6 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
 
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        respondingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    const m8 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        // m7
         ...message,
         seq: -1,
-        fromXpub: intermediaryXpub,
         toXpub: respondingXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s6
+      }
+    ];
+    const { signature: s7 } = m8;
 
-    // send M7, wait for M8
-    Opcode.IO_SEND_AND_WAIT,
+    validateSignature(respondingAddress, rightUninstallCommitment, s7);
 
-    // verify M8
-    (message: ProtocolMessage, context: Context) => {
-      const { respondingXpub } = message.params as UninstallVirtualAppParams;
-      validateSignature(
-        xkeyKthAddress(respondingXpub, 0),
-        context.commitments[0],
-        context.inbox[2].signature
-      );
-    },
+    removeVirtualAppInstance(message, context);
+  },
 
-    removeVirtualAppInstance
+  2: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const {
+      initiatingXpub,
+      intermediaryXpub
+    } = message.params as UninstallVirtualAppParams;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+    const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
-    // done!
-  ],
+    const lockCommitment = addVirtualAppStateTransitionToContext(
+      message,
+      context,
+      false
+    );
 
-  2: [
-    addVirtualAppStateTransitionToContext(false),
+    const { signature: s1, signature2: s2 } = message;
 
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        initiatingXpub
-      } = message.params as UninstallVirtualAppParams;
+    validateSignature(initiatingAddress, lockCommitment, s1);
+    validateSignature(intermediaryAddress, lockCommitment, s2, true);
 
-      validateSignature(
-        xkeyKthAddress(initiatingXpub, 0),
-        context.commitments[0],
-        message.signature
-      );
+    const s3 = yield [Opcode.OP_SIGN, lockCommitment];
 
-      validateSignature(
-        xkeyKthAddress(intermediaryXpub, 0),
-        context.commitments[0],
-        message.signature2,
-        true
-      );
-    },
-
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        respondingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    const m7 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        // m3
         ...message,
         seq: -1,
-        fromXpub: respondingXpub,
         toXpub: intermediaryXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s3
+      }
+    ];
+    const { signature: s6 } = m7;
 
-    // send M3, wait for M7
-    Opcode.IO_SEND_AND_WAIT,
+    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
+      message,
+      context,
+      provider
+    );
 
-    addRightUninstallAgreementToContext,
+    validateSignature(intermediaryAddress, rightUninstallCommitment, s6);
 
-    // verify M7
-    (message: ProtocolMessage, context: Context) => {
-      const { intermediaryXpub } = message.params as UninstallVirtualAppParams;
-      validateSignature(
-        xkeyKthAddress(intermediaryXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      );
-    },
+    const s7 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
 
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        respondingXpub
-      } = message.params as UninstallVirtualAppParams;
-
-      context.outbox[0] = {
+    yield [
+      Opcode.IO_SEND,
+      {
         ...message,
         seq: -1,
-        fromXpub: respondingXpub,
         toXpub: intermediaryXpub,
-        signature: context.signatures[0]
-      };
-    },
+        signature: s7
+      }
+    ];
 
-    // send M8
-    Opcode.IO_SEND,
-
-    removeVirtualAppInstance
-  ]
+    removeVirtualAppInstance(message, context);
+  }
 };
 
-function removeVirtualAppInstance(
-  message: UninstallVirtualProtocolMessage,
-  context: Context
-) {
+function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
   const {
     intermediaryXpub,
     respondingXpub,
     initiatingXpub,
     targetAppIdentityHash
-  } = message.params;
+  } = message.params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -329,41 +255,43 @@ function removeVirtualAppInstance(
   context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
 }
 
-function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
-  return function(message: ProtocolMessage, context: Context) {
-    const {
-      intermediaryXpub,
-      respondingXpub,
-      initiatingXpub,
-      targetAppIdentityHash,
-      targetAppState
-    } = message.params as UninstallVirtualAppParams;
+function addVirtualAppStateTransitionToContext(
+  message: ProtocolMessage,
+  context: Context,
+  isIntermediary: boolean
+): VirtualAppSetStateCommitment {
+  const {
+    intermediaryXpub,
+    respondingXpub,
+    initiatingXpub,
+    targetAppIdentityHash,
+    targetAppState
+  } = message.params as UninstallVirtualAppParams;
 
-    const key = virtualChannelKey(
-      [initiatingXpub, respondingXpub],
-      intermediaryXpub
-    );
+  const key = virtualChannelKey(
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
+  );
 
-    let sc = context.stateChannelsMap.get(key) as StateChannel;
+  let sc = context.stateChannelsMap.get(key) as StateChannel;
 
-    if (isIntermediary) {
-      sc = sc.setState(targetAppIdentityHash, targetAppState);
-    }
+  if (isIntermediary) {
+    sc = sc.setState(targetAppIdentityHash, targetAppState);
+  }
 
-    sc = sc.lockAppInstance(targetAppIdentityHash);
-    const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
+  sc = sc.lockAppInstance(targetAppIdentityHash);
+  const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
 
-    context.stateChannelsMap.set(key, sc);
+  context.stateChannelsMap.set(key, sc);
 
-    // post-expiry lock commitment
-    context.commitments[0] = new VirtualAppSetStateCommitment(
-      context.network,
-      targetAppInstance.identity,
-      targetAppInstance.defaultTimeout,
-      targetAppInstance.hashOfLatestState,
-      targetAppInstance.appSeqNo
-    );
-  };
+  // post-expiry lock commitment
+  return new VirtualAppSetStateCommitment(
+    context.network,
+    targetAppInstance.identity,
+    targetAppInstance.defaultTimeout,
+    targetAppInstance.hashOfLatestState,
+    targetAppInstance.appSeqNo
+  );
 }
 
 function constructUninstallOp(
@@ -387,7 +315,7 @@ function constructUninstallOp(
 }
 
 async function addRightUninstallAgreementToContext(
-  message: UninstallVirtualProtocolMessage,
+  message: ProtocolMessage,
   context: Context,
   provider: BaseProvider
 ) {
@@ -397,7 +325,7 @@ async function addRightUninstallAgreementToContext(
     intermediaryXpub,
     respondingXpub,
     targetAppIdentityHash
-  } = message.params;
+  } = message.params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -432,24 +360,22 @@ async function addRightUninstallAgreementToContext(
 
   context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
 
-  context.commitments[0] = constructUninstallOp(
-    context.network,
-    sc,
-    agreementInstance.appSeqNo
-  );
+  return constructUninstallOp(context.network, sc, agreementInstance.appSeqNo);
 }
 
 async function addLeftUninstallAgreementToContext(
-  message: UninstallVirtualProtocolMessage,
+  message: ProtocolMessage,
   context: Context,
   provider: BaseProvider
-) {
+): Promise<UninstallCommitment> {
+  // uninstall left virtual app agreement
+
   const {
     initiatingXpub,
     intermediaryXpub,
     respondingXpub,
     targetAppIdentityHash
-  } = message.params;
+  } = message.params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -484,9 +410,5 @@ async function addLeftUninstallAgreementToContext(
 
   context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
 
-  context.commitments[0] = constructUninstallOp(
-    context.network,
-    sc,
-    agreementInstance.appSeqNo
-  );
+  return constructUninstallOp(context.network, sc, agreementInstance.appSeqNo);
 }
