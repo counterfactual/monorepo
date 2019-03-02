@@ -117,7 +117,10 @@ export class DappContainer {
     }
 
     if (event.data.startsWith("playground:request:matchmake")) {
-      await this.sendResponseForMatchmakeRequest(this.frameWindow, event.data.split("playground:request:matchmake:")[1]);
+      await this.sendResponseForMatchmakeRequest(
+        this.frameWindow,
+        event.data.split("playground:request:matchmake:")[1]
+      );
     }
 
     if (event.data.startsWith("playground:send:dappRoute")) {
@@ -150,7 +153,10 @@ export class DappContainer {
     );
   }
 
-  private async sendResponseForMatchmakeRequest(frameWindow: Window, matchmakeWith: string) {
+  private async sendResponseForMatchmakeRequest(
+    frameWindow: Window,
+    matchmakeWith: string
+  ) {
     const json = await PlaygroundAPIClient.matchmake(
       this.token,
       this.matchmakeWith || matchmakeWith

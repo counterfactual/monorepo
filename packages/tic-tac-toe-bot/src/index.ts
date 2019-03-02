@@ -78,7 +78,7 @@ let node: Node;
       };
       const privateKey = process.env.PRIVATE_KEY;
       if (!privateKey) {
-        throw Error('No private key specified in env. Exiting.');
+        throw Error("No private key specified in env. Exiting.");
       }
       const wallet = new ethers.Wallet(privateKey, provider);
       const signature = await wallet.signMessage(
@@ -89,18 +89,20 @@ let node: Node;
 
       console.log(`Account created with token: ${botAccount.token}`);
 
-      await store.set([{
-        key: "tttBot/Account", 
-        value: botAccount
-      }]);
+      await store.set([
+        {
+          key: "tttBot/Account",
+          value: botAccount
+        }
+      ]);
     } else {
-      console.log("Bot user already exists", botAccount.token)
+      console.log("Bot user already exists", botAccount.token);
     }
 
     const multisigAddress = await fetchMultisig(botAccount.token!);
 
     console.log("Account multisig address:", multisigAddress);
-    
+
     // if (!await store.get("tttBot/DepositComplete")) {
     //   let depositAmount = process.argv[2];
     //   if (!depositAmount) {
@@ -109,7 +111,7 @@ let node: Node;
     //   await deposit(depositAmount, multisigAddress);
 
     //   await store.set([{
-    //     key: "tttBot/DepositComplete", 
+    //     key: "tttBot/DepositComplete",
     //     value: true
     //   }]);
     // }
