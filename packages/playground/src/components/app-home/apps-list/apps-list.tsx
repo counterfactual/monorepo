@@ -27,15 +27,22 @@ export class AppsList {
 
   get spinner() {
     if (!this.canUseApps) {
+      const message = this.user.multisigAddress
+        ? "Please wait while we collateralize your state channel"
+        : "Please wait while we create your state channel";
       const content = (
         <div class="content">
-          <label>Please wait while we collateralize your state channel</label>
-          <a
-            target="_blank"
-            href={this.getEtherscanAddressURL(this.user.multisigAddress)}
-          >
-            See the transaction in Etherscan
-          </a>
+          <label>{message}</label>
+          {this.user.multisigAddress ? (
+            <a
+              target="_blank"
+              href={this.getEtherscanAddressURL(this.user.multisigAddress)}
+            >
+              See the transaction in Etherscan
+            </a>
+          ) : (
+            ""
+          )}
         </div>
       );
 
