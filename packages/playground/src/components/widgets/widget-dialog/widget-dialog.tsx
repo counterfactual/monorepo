@@ -11,6 +11,8 @@ export class WidgetDialog {
   @Prop() dialogTitle: string = "";
   @Prop() icon: string = "";
   @Prop() content: JSX.Element = {} as JSX.Element;
+  @Prop() contentClass: string = "";
+  @Prop() dialogClass: string = "";
   @Prop() primaryButtonText: string = "";
   @Prop() secondaryButtonText: string = "";
 
@@ -30,11 +32,11 @@ export class WidgetDialog {
       <div
         class={this.visible ? "dialog-wrapper dialog--open" : "dialog-wrapper"}
       >
-        <dialog open={this.visible}>
+        <dialog open={this.visible} class={this.dialogClass}>
           <header>
             <widget-logo caption={this.dialogTitle} />
           </header>
-          <main>
+          <main class={this.contentClass}>
             {this.icon ? <img src={this.icon} /> : {}}
             {this.content}
           </main>
