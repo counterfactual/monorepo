@@ -97,6 +97,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
