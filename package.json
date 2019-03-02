@@ -21,7 +21,7 @@
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
     "run:playground": "lerna run start --parallel --scope=**/playground --scope=**/playground-server --scope=**/dapp-high-roller --scope=**/dapp-tic-tac-toe",
-    "publish": "lerna run publish from-package patch --yes",
+    "publish": "lerna publish --yes from-package patch",
     "postinstall": "patch-package"
   },
   "keywords": [
