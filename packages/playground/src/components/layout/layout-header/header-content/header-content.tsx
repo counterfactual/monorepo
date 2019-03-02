@@ -43,6 +43,7 @@ export class HeaderContent {
           <div class="connection">
             <widget-connection />
           </div>
+          <widget-dev-flags />
         </div>
         <header-account
           onAuthenticationChanged={e => this.updateConnectionWidget(e)}
