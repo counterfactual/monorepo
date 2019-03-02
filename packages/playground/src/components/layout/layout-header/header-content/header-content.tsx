@@ -1,11 +1,4 @@
-import {
-  Component,
-  Event,
-  EventEmitter,
-  Prop,
-  State,
-  Watch
-} from "@stencil/core";
+import { Component, Event, EventEmitter, Prop, State } from "@stencil/core";
 
 @Component({
   tag: "header-content",
