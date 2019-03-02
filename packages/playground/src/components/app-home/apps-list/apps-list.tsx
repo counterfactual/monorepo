@@ -29,7 +29,7 @@ export class AppsList {
     if (!this.canUseApps) {
       const content = (
         <div class="content">
-          <label>Please wait while we collateralize your deposit</label>
+          <label>Please wait while we collateralize your state channel</label>
           <a
             target="_blank"
             href={this.getEtherscanAddressURL(this.user.multisigAddress)}
