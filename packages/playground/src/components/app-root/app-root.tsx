@@ -26,7 +26,7 @@ export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
 
   modal: JSX.Element = <div />;
@@ -53,7 +53,7 @@ export class AppRoot {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
-  async updateAppRegistry(newProps: AppRegistryState) {
+  async updateAppRegistry(newProps: Partial<AppRegistryState>) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
   }
 
@@ -254,9 +254,18 @@ export class AppRoot {
     const { balance } = result as Node.GetMyFreeBalanceForStateResult;
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance),
-      ethMultisigBalance: await provider!.getBalance(multisigAddress)
+      ethFreeBalanceWei: ethers.utils.bigNumberify(balance) as BigNumber,
+      ethMultisigBalance: await provider!.getBalance(multisigAddress),
+      hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
     };
+
+    vals.hubBalanceWei = vals.ethMultisigBalance.sub(
+      vals.ethFreeBalanceWei
+    ) as BigNumber;
+
+    this.updateAppRegistry({
+      canUseApps: vals.hubBalanceWei.gte(ethers.utils.parseEther("0.1"))
+    });
 
     await this.updateAccount(vals);
 
@@ -288,6 +297,12 @@ export class AppRoot {
       this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
+      })
+    );
+
+    node.once(Node.EventName.DEPOSIT_CONFIRMED, args =>
+      this.updateAppRegistry({
+        canUseApps: true
       })
     );
 
