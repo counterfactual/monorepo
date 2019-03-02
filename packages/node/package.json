@@ -13,7 +13,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/apps": "0.0.1",
+    "@counterfactual/apps": "0.1.0",
     "@firebase/app-types": "^0.3.3",
     "@types/node": "^11.9.0",
     "dotenv-extended": "^2.3.0",
@@ -37,7 +37,7 @@
     "@counterfactual/machine": "0.1.1",
     "@counterfactual/types": "0.0.7",
     "@firebase/util": "0.*",
-    "@firebase/app-types" : "0.*",
+    "@firebase/app-types": "0.*",
     "ethers": "4.0.26",
     "eventemitter3": "^3.1.0",
     "p-queue": "^3.1.0",
