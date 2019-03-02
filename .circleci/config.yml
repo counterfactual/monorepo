@@ -18,7 +18,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
-      - run: yarn
+      - run: yarn --frozen-lockfile
       - run: yarn build
 
       - save_cache:
@@ -41,7 +41,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
-      - run: yarn # symlink packages' node_modules
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
@@ -61,7 +61,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
-      - run: yarn # symlink packages' node_modules
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
@@ -97,11 +97,12 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
-      - run: yarn # symlink packages' node_modules
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project

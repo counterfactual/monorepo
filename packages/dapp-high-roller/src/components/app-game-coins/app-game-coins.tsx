@@ -9,13 +9,6 @@ import { Component } from "@stencil/core";
   shadow: true
 })
 export class AppGameCoins {
-  coinsAudio!: HTMLAudioElement;
-
-  async componentDidLoad() {
-    this.coinsAudio.loop = true;
-    await this.coinsAudio.play();
-  }
-
   render() {
     const length = Math.min(
       50,
@@ -33,9 +26,6 @@ export class AppGameCoins {
             />
           </div>
         ))}
-        <audio ref={el => (this.coinsAudio = el as HTMLAudioElement)}>
-          <source src="/assets/audio/coins.wav" type="audio/wav" />
-        </audio>
       </div>
     );
   }
