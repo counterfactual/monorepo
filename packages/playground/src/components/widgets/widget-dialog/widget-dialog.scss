@@ -9,6 +9,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.8);
+  z-index: 1;
 }
 
 dialog {
@@ -77,6 +78,31 @@ dialog {
       &:hover {
         background: darken($color: $c-blue, $amount: 10%);
       }
+    }
+  }
+}
+
+.dialog--dev-flags {
+  width: 600px;
+}
+
+.dialog-content--dev-flags {
+  font-size: 14px;
+
+  table {
+    width: 100%;
+
+    th {
+      border-bottom: 1px solid #ccc;
+    }
+
+    th,
+    td {
+      text-align: left;
+    }
+
+    form-button {
+      background: none;
     }
   }
 }

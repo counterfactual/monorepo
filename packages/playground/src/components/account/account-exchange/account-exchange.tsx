@@ -4,13 +4,6 @@ import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
 import { UserSession } from "../../../types";
 
-const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
-  "1": "",
-  "3": "ropsten",
-  "42": "kovan",
-  "4": "rinkeby"
-};
-
 const HUB_IS_DEPOSITING_ALERT =
   "The hub is currently making a deposit in the channel. Currently, this demo does not support asyncronous deposits.";
 
@@ -38,6 +31,8 @@ export class AccountExchange {
   @Prop() getBalances: () => Promise<
     { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   > = async () => undefined;
+  @Prop() getEtherscanAddressURL: (address: string) => string = () => "";
+  @Prop() getEtherscanTxURL: (tx: string) => string = () => "";
 
   removeError() {
     this.updateAccount({
@@ -106,18 +101,6 @@ export class AccountExchange {
         throw e;
       }
     }
-  }
-
-  getEtherscanAddressURL(address: string) {
-    return `https://${
-      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.network]
-    }.etherscan.io/address/${address}`;
-  }
-
-  getEtherscanTxURL(tx: string) {
-    return `https://${
-      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.network]
-    }.etherscan.io/tx/${tx}`;
   }
 
   render() {
@@ -204,4 +187,9 @@ AccountTunnel.injectProps(AccountExchange, [
   "getBalances"
 ]);
 
-WalletTunnel.injectProps(AccountExchange, ["network", "ethWeb3WalletBalance"]);
+WalletTunnel.injectProps(AccountExchange, [
+  "network",
+  "ethWeb3WalletBalance",
+  "getEtherscanAddressURL",
+  "getEtherscanTxURL"
+]);

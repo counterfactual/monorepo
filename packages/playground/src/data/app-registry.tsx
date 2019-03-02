@@ -4,11 +4,12 @@ import { AppDefinition } from "../types";
 
 export interface AppRegistryState {
   apps: AppDefinition[];
-  updateAppRegistry?(data: AppRegistryState): Promise<void>;
+  canUseApps: boolean;
+  updateAppRegistry?(data: Partial<AppRegistryState>): Promise<void>;
 }
 
 export default createProviderConsumer<AppRegistryState>(
-  { apps: [] },
+  { apps: [], canUseApps: false },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />
   )

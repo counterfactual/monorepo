@@ -12,6 +12,8 @@ export interface WalletState {
   metamaskUnlocked?: boolean;
   networkPermitted?: boolean;
   updateWalletConnection?(data: Partial<WalletState>): Promise<void>;
+  getEtherscanAddressURL?: (address: string) => string;
+  getEtherscanTxURL?: (tx: string) => string;
 }
 
 export default createProviderConsumer<WalletState>({}, (subscribe, child) => (
