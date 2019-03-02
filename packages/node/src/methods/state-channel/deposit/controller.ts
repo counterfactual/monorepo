@@ -44,7 +44,7 @@ export default class DepositController extends NodeController {
       await (await requestHandler.getSigner()).getAddress()
     );
 
-    if (balanceOfSigner < amount) {
+    if (balanceOfSigner.lt(amount)) {
       return Promise.reject(ERRORS.INSUFFICIENT_FUNDS);
     }
 
