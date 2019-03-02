@@ -106,4 +106,10 @@ export class RequestHandler {
     }
     return this.shardedQueues.get(shardKey)!;
   }
+
+  public async getSigner(): Promise<Signer> {
+    return this.provider instanceof JsonRpcProvider
+      ? await this.provider.getSigner()
+      : this.wallet;
+  }
 }

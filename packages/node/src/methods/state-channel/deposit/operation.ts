@@ -5,11 +5,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import {
-  JsonRpcProvider,
-  TransactionRequest,
-  TransactionResponse
-} from "ethers/providers";
+import { TransactionRequest } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
@@ -92,7 +88,7 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
-  const { provider, wallet } = requestHandler;
+  const { provider } = requestHandler;
 
   const to = params.multisigAddress;
   const value = bigNumberify(params.amount);
@@ -105,14 +101,9 @@ export async function makeDeposit(
   };
 
   try {
-    let txResponse: TransactionResponse;
+    const signer = await requestHandler.getSigner();
 
-    if (provider instanceof JsonRpcProvider) {
-      const signer = await provider.getSigner();
-      txResponse = await signer.sendTransaction(tx);
-    } else {
-      txResponse = await wallet.sendTransaction(tx);
-    }
+    const txResponse = await signer.sendTransaction(tx);
 
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
       value,
