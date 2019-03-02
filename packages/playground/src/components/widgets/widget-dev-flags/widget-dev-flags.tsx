@@ -11,7 +11,7 @@ export class WidgetDevFlags {
   }
 
   @State() get hasAnyFlags() {
-    return [this.matchmakeWith].map(Boolean).some(flag => flag === true);
+    return [this.matchmakeWith].some(flag => Boolean(flag) === true);
   }
 
   @State() showingModal: boolean = false;
