@@ -17,6 +17,13 @@ const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
+const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+  "1": "",
+  "3": "ropsten",
+  "42": "kovan",
+  "4": "rinkeby"
+};
+
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
@@ -448,6 +455,18 @@ export class AppRoot {
     }
   }
 
+  getEtherscanAddressURL(address: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/address/${address}`;
+  }
+
+  getEtherscanTxURL(tx: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/tx/${tx}`;
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -463,6 +482,12 @@ export class AppRoot {
     this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
       this
     );
+
+    this.walletState.getEtherscanAddressURL = this.getEtherscanAddressURL.bind(
+      this
+    );
+    this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
+
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {
