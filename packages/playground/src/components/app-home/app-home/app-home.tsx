@@ -16,6 +16,7 @@ export class AppHome {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() apps: AppDefinition[] = [];
+  @Prop() canUseApps: boolean = false;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() web3Detected: boolean = false;
   @Prop() hasDetectedNetwork: boolean = false;
@@ -139,15 +140,7 @@ export class AppHome {
       return;
     }
 
-    return (
-      <div class="loading">
-        <div class="spinner">
-          <div class="bounce1" />
-          <div class="bounce2" />
-          <div class="bounce3" />
-        </div>
-      </div>
-    );
+    return <widget-spinner type="dots" />;
   }
 
   checkWeb3Detected() {
@@ -188,6 +181,7 @@ export class AppHome {
       <div class="container">
         <apps-list
           apps={this.apps}
+          canUseApps={this.canUseApps}
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
@@ -272,7 +266,7 @@ export class AppHome {
   }
 }
 
-AppRegistryTunnel.injectProps(AppHome, ["apps"]);
+AppRegistryTunnel.injectProps(AppHome, ["apps", "canUseApps"]);
 
 WalletTunnel.injectProps(AppHome, [
   "web3Detected",

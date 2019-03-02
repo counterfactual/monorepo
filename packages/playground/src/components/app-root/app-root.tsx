@@ -17,6 +17,13 @@ const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
+const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+  "1": "",
+  "3": "ropsten",
+  "42": "kovan",
+  "4": "rinkeby"
+};
+
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
@@ -26,8 +33,9 @@ export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
+  @State() balancePolling: any;
 
   modal: JSX.Element = <div />;
 
@@ -53,7 +61,7 @@ export class AppRoot {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
-  async updateAppRegistry(newProps: AppRegistryState) {
+  async updateAppRegistry(newProps: Partial<AppRegistryState>) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
   }
 
@@ -226,7 +234,7 @@ export class AppRoot {
     return loggedUser;
   }
 
-  async getBalances(): Promise<{
+  async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
@@ -254,11 +262,35 @@ export class AppRoot {
     const { balance } = result as Node.GetMyFreeBalanceForStateResult;
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance),
-      ethMultisigBalance: await provider!.getBalance(multisigAddress)
+      ethFreeBalanceWei: ethers.utils.bigNumberify(balance) as BigNumber,
+      ethMultisigBalance: await provider!.getBalance(multisigAddress),
+      hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
     };
 
+    vals.hubBalanceWei = vals.ethMultisigBalance.sub(
+      vals.ethFreeBalanceWei
+    ) as BigNumber;
+
+    const canUseApps = vals.hubBalanceWei.gt(ethers.utils.parseEther("0"));
+
+    this.updateAppRegistry({
+      canUseApps
+    });
+
     await this.updateAccount(vals);
+
+    // TODO: Replace this with a more event-driven approach,
+    // based on a list of collateralized deposits.
+    if (poll) {
+      if (canUseApps) {
+        clearTimeout(this.balancePolling);
+      } else {
+        this.balancePolling = setTimeout(
+          async () => this.getBalances({ poll }),
+          1000
+        );
+      }
+    }
 
     return vals;
   }
@@ -307,7 +339,7 @@ export class AppRoot {
       console.error(e);
     }
 
-    await this.getBalances();
+    await this.getBalances({ poll: true });
     await this.resetPendingDepositState();
 
     return ret;
@@ -433,6 +465,18 @@ export class AppRoot {
     }
   }
 
+  getEtherscanAddressURL(address: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/address/${address}`;
+  }
+
+  getEtherscanTxURL(tx: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/tx/${tx}`;
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -448,6 +492,12 @@ export class AppRoot {
     this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
       this
     );
+
+    this.walletState.getEtherscanAddressURL = this.getEtherscanAddressURL.bind(
+      this
+    );
+    this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
+
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {

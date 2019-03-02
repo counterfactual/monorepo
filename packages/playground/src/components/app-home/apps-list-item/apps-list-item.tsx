@@ -11,17 +11,23 @@ export class AppsListItem {
   @Prop() name: string = "";
   @Prop() notifications: number | null = null;
   @Prop() url: string = "";
+  @Prop() canUse: boolean = false;
 
   private getAppSlug() {
     return this.name.toLowerCase().replace(/ /g, "-");
   }
 
   appClickedHandler(event) {
+    event.preventDefault();
     this.appClicked.emit(event);
   }
 
   private openApp(event: MouseEvent) {
     event.preventDefault();
+
+    if (!this.canUse) {
+      return;
+    }
 
     this.appClicked.emit({
       name: this.name,
@@ -33,7 +39,10 @@ export class AppsListItem {
   render() {
     return (
       <li class="item">
-        <a href={`/dapp/${this.getAppSlug()}`} onClick={e => this.openApp(e)}>
+        <a
+          href={this.canUse ? `/dapp/${this.getAppSlug()}` : "#"}
+          onClick={e => this.openApp(e)}
+        >
           <div class="icon">
             {this.notifications ? (
               <div class="notification">{this.notifications}</div>
