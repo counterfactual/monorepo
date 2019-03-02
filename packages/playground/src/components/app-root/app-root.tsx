@@ -279,6 +279,8 @@ export class AppRoot {
 
     await this.updateAccount(vals);
 
+    // TODO: Replace this with a more event-driven approach,
+    // based on a list of collateralized deposits.
     if (poll) {
       if (canUseApps) {
         clearTimeout(this.balancePolling);
