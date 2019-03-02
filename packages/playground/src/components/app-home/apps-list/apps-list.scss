@@ -1,3 +1,7 @@
+.apps.apps--disabled {
+  filter: blur(5px);
+}
+
 .title {
   @include f-heading;
   margin-bottom: 1.5rem;
@@ -13,7 +17,7 @@
   .title {
     text-align: center;
   }
-  
+
   .list {
     flex-direction: column;
     flex-wrap: nowrap;
