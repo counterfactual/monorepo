@@ -35,6 +35,7 @@ export class AppRoot {
   @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
+  @State() balancePolling: any;
 
   modal: JSX.Element = <div />;
 
@@ -233,7 +234,7 @@ export class AppRoot {
     return loggedUser;
   }
 
-  async getBalances(): Promise<{
+  async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
@@ -270,11 +271,24 @@ export class AppRoot {
       vals.ethFreeBalanceWei
     ) as BigNumber;
 
+    const canUseApps = vals.hubBalanceWei.gt(ethers.utils.parseEther("0"));
+
     this.updateAppRegistry({
-      canUseApps: vals.hubBalanceWei.gt(ethers.utils.parseEther("0"))
+      canUseApps
     });
 
     await this.updateAccount(vals);
+
+    if (poll) {
+      if (canUseApps) {
+        clearTimeout(this.balancePolling);
+      } else {
+        this.balancePolling = setTimeout(
+          async () => this.getBalances({ poll }),
+          1000
+        );
+      }
+    }
 
     return vals;
   }
@@ -307,12 +321,6 @@ export class AppRoot {
       })
     );
 
-    node.once(Node.EventName.COUNTER_DEPOSIT_CONFIRMED, async args => {
-      console.log(args);
-      debugger;
-      await this.getBalances();
-    });
-
     let ret;
 
     try {
@@ -329,7 +337,7 @@ export class AppRoot {
       console.error(e);
     }
 
-    await this.getBalances();
+    await this.getBalances({ poll: true });
     await this.resetPendingDepositState();
 
     return ret;
