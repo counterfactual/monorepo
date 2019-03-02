@@ -1,4 +1,4 @@
-import { Component, State, Watch } from "@stencil/core";
+import { Component, State } from "@stencil/core";
 
 @Component({
   tag: "widget-dev-flags",
