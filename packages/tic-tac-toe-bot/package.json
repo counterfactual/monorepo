@@ -31,9 +31,9 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "^0.0.4",
-    "@counterfactual/dapp-tic-tac-toe": "^0.0.1",
-    "@counterfactual/types": "^0.0.1",
+    "@counterfactual/node": "^0.1.1",
+    "@counterfactual/dapp-tic-tac-toe": "^0.1.0",
+    "@counterfactual/types": "^0.0.7",
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
