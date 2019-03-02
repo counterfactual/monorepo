@@ -35,7 +35,7 @@ export class WidgetDevFlags {
 
   buildFlagRow(key: string, propName: string) {
     return (
-      <tr data-key="playground:matchmakeWith">
+      <tr>
         <td>{key}</td>
         <td>{this[propName]}</td>
         <td>
