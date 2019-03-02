@@ -20,26 +20,28 @@ export default class WithdrawController extends NodeController {
     return requestHandler.getShardedQueue(params.multisigAddress);
   }
 
-  protected async executeMethodImplementation(
+  protected async beforeExecution(
     requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<Node.WithdrawResult> {
-    const {
-      store,
-      provider,
-      networkContext,
-      wallet,
-      publicIdentifier
-    } = requestHandler;
-    const { multisigAddress, amount, recipient } = params;
-
-    params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
+    params: Node.DepositParams
+  ): Promise<void> {
+    const { store, networkContext } = requestHandler;
+    const { multisigAddress } = params;
 
     const channel = await store.getStateChannel(multisigAddress);
 
     if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefund)) {
       return Promise.reject(ERRORS.CANNOT_WITHDRAW);
     }
+  }
+
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.WithdrawParams
+  ): Promise<Node.WithdrawResult> {
+    const { store, provider, wallet, publicIdentifier } = requestHandler;
+    const { multisigAddress, amount, recipient } = params;
+
+    params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
 
     await runWithdrawProtocol(requestHandler, params);
 
