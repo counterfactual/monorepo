@@ -3,10 +3,10 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
-// import { Node as NodeTypes } from "@counterfactual/types";
-// import { v4 as generateUUID } from "uuid";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import fetch from "node-fetch";
+import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "./bot";
 
@@ -48,9 +48,8 @@ let node: Node;
   console.log("Creating store");
   const store = serviceFactory.createStoreService("tttBotStore1");
 
-  if (!(await store.get(MNEMONIC_PATH)) && process.env.NODE_MNEMONIC) {
-    await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
-  }
+  console.log("setting mnemnonic: ", process.env.NODE_MNEMONIC);
+  await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
@@ -67,54 +66,34 @@ let node: Node;
   console.log("public identifier", node.publicIdentifier);
 
   try {
-    let botAccount = await store.get("tttBot/Account");
-
-    if (!botAccount) {
-      const user = {
-        email: "TicTacToeBot",
-        ethAddress: process.env.ETH_ADDRESS || "",
-        nodeAddress: node.publicIdentifier,
-        username: "TicTacToeBot"
-      };
-      const privateKey = process.env.PRIVATE_KEY;
-      if (!privateKey) {
-        throw Error("No private key specified in env. Exiting.");
-      }
-      const wallet = new ethers.Wallet(privateKey, provider);
-      const signature = await wallet.signMessage(
-        buildRegistrationSignaturePayload(user)
-      );
-
-      botAccount = await createAccount(user, signature);
-
-      console.log(`Account created with token: ${botAccount.token}`);
-
-      await store.set([
-        {
-          key: "tttBot/Account",
-          value: botAccount
-        }
-      ]);
-    } else {
-      console.log("Bot user already exists", botAccount.token);
+    const user = {
+      email: "TicTacToeBot",
+      ethAddress: process.env.ETH_ADDRESS || "",
+      nodeAddress: node.publicIdentifier,
+      username: "TicTacToeBot"
+    };
+    const privateKey = process.env.PRIVATE_KEY;
+    if (!privateKey) {
+      throw Error("No private key specified in env. Exiting.");
     }
+    const wallet = new ethers.Wallet(privateKey, provider);
+    const signature = await wallet.signMessage(
+      buildRegistrationSignaturePayload(user)
+    );
+
+    const botAccount = await createAccount(user, signature);
+
+    console.log(`Account created with token: ${botAccount.token}`);
 
     const multisigAddress = await fetchMultisig(botAccount.token!);
 
     console.log("Account multisig address:", multisigAddress);
 
-    // if (!await store.get("tttBot/DepositComplete")) {
-    //   let depositAmount = process.argv[2];
-    //   if (!depositAmount) {
-    //     depositAmount = "0.01";
-    //   }
-    //   await deposit(depositAmount, multisigAddress);
-
-    //   await store.set([{
-    //     key: "tttBot/DepositComplete",
-    //     value: true
-    //   }]);
-    // }
+    let depositAmount = process.argv[2];
+    if (!depositAmount) {
+      depositAmount = "0.005";
+    }
+    await deposit(depositAmount, multisigAddress);
 
     afterUser(node);
   } catch (e) {
@@ -138,23 +117,23 @@ async function fetchMultisig(token: string) {
   return bot.multisigAddress;
 }
 
-// async function deposit(amount: string, multisigAddress: string) {
-//   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
-//   try {
-//     return node.call(NodeTypes.MethodName.DEPOSIT, {
-//       type: NodeTypes.MethodName.DEPOSIT,
-//       requestId: generateUUID(),
-//       params: {
-//         multisigAddress,
-//         amount: ethers.utils.parseEther(amount),
-//         notifyCounterparty: true
-//       } as NodeTypes.DepositParams
-//     });
-//   } catch (e) {
-//     console.error(`Failed to deposit... ${e}`);
-//     throw e;
-//   }
-// }
+async function deposit(amount: string, multisigAddress: string) {
+  console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
+  try {
+    return node.call(NodeTypes.MethodName.DEPOSIT, {
+      type: NodeTypes.MethodName.DEPOSIT,
+      requestId: generateUUID(),
+      params: {
+        multisigAddress,
+        amount: ethers.utils.parseEther(amount),
+        notifyCounterparty: true
+      } as NodeTypes.DepositParams
+    });
+  } catch (e) {
+    console.error(`Failed to deposit... ${e}`);
+    throw e;
+  }
+}
 
 function buildRegistrationSignaturePayload(data) {
   return [

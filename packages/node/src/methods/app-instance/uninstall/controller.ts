@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/types";
+import { Node, AssetType } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
@@ -46,6 +46,8 @@ export default class UninstallController extends NodeController {
       stateChannel.userNeuteredExtendedKeys
     );
 
+    console.log("uninstalling app");
+    console.log(stateChannel.getFreeBalanceFor(AssetType.ETH).state);
     await uninstallAppInstanceFromChannel(
       store,
       instructionExecutor,
@@ -53,6 +55,10 @@ export default class UninstallController extends NodeController {
       to,
       appInstanceId
     );
+    const updatedChannel = await store.getStateChannel(
+      stateChannel.multisigAddress
+    );
+    console.log(updatedChannel.getFreeBalanceFor(AssetType.ETH).state);
 
     const uninstallMsg: UninstallMessage = {
       from: publicIdentifier,
