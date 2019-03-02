@@ -271,7 +271,7 @@ export class AppRoot {
     ) as BigNumber;
 
     this.updateAppRegistry({
-      canUseApps: vals.hubBalanceWei.gte(ethers.utils.parseEther("0.1"))
+      canUseApps: vals.hubBalanceWei.gt(ethers.utils.parseEther("0"))
     });
 
     await this.updateAccount(vals);
@@ -307,11 +307,11 @@ export class AppRoot {
       })
     );
 
-    node.once(Node.EventName.DEPOSIT_CONFIRMED, args =>
-      this.updateAppRegistry({
-        canUseApps: true
-      })
-    );
+    node.once(Node.EventName.COUNTER_DEPOSIT_CONFIRMED, async args => {
+      console.log(args);
+      debugger;
+      await this.getBalances();
+    });
 
     let ret;
 
