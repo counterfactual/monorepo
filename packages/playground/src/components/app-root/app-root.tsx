@@ -310,9 +310,15 @@ export class AppRoot {
   }
 
   async deposit(valueInWei: BigNumber) {
-    const {
-      user: { multisigAddress }
-    } = this.accountState;
+    let multisigAddress = this.accountState.user.multisigAddress;
+    while (!multisigAddress) {
+      multisigAddress = this.accountState.user.multisigAddress;
+      if (multisigAddress) {
+        break;
+      }
+      await delay(1000);
+      console.log("waited for a second");
+    }
 
     const node = CounterfactualNode.getInstance();
 
@@ -556,3 +562,5 @@ export class AppRoot {
     );
   }
 }
+
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));

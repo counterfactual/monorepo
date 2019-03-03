@@ -97,7 +97,7 @@ let node: Node;
       ]);
     }
 
-    console.log(`Account created with token: ${bot.token}`);
+    console.log(`Account created\n`);
 
     const multisigAddress = await fetchMultisig(BASE_URL, bot.token!);
 

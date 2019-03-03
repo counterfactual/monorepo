@@ -418,6 +418,7 @@ export class StateChannel {
     const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
 
+    console.trace();
     if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
       throw Error(INSUFFICIENT_FUNDS);
     }

@@ -55,6 +55,7 @@ export default class UninstallController extends NodeController {
       to,
       appInstanceId
     );
+    console.log("uninstalled app");
     const updatedChannel = await store.getStateChannel(
       stateChannel.multisigAddress
     );
