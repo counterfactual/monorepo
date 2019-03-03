@@ -226,6 +226,30 @@ export function makeInstallProposalRequest(
   } as NodeTypes.MethodRequest;
 }
 
+export function makeTTTProposalReq(
+  proposedToIdentifier: string,
+  appId: Address,
+  initialState: SolidityABIEncoderV2Struct,
+  abiEncodings: AppABIEncodings
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      proposedToIdentifier,
+      appId,
+      initialState,
+      abiEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One
+    } as NodeTypes.ProposeInstallParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL
+  } as NodeTypes.MethodRequest;
+}
+
 export function makeInstallVirtualRequest(
   appInstanceId: string,
   intermediaries: Address[]
@@ -357,4 +381,30 @@ export function generateUninstallVirtualRequest(
     requestId: generateUUID(),
     type: NodeTypes.MethodName.UNINSTALL_VIRTUAL
   };
+}
+
+export function makeTTTVirtualAppInstanceProposalReq(
+  proposedToIdentifier: string,
+  appId: Address,
+  initialState: SolidityABIEncoderV2Struct,
+  abiEncodings: AppABIEncodings,
+  intermediaries: string[]
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      intermediaries,
+      proposedToIdentifier,
+      appId,
+      initialState,
+      abiEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One
+    } as NodeTypes.ProposeInstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
+  } as NodeTypes.MethodRequest;
 }
