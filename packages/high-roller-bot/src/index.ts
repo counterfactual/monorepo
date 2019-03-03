@@ -17,7 +17,7 @@ import {
 
 const provider = ethers.getDefaultProvider("ropsten");
 
-let BASE_URL = `https://server.playground-staging.counterfactual.com`;
+let BASE_URL = `https://server-playground-staging.counterfactual.com`;
 
 console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
@@ -108,12 +108,14 @@ async function bootstrap() {
         buildRegistrationSignaturePayload(user)
       );
 
+      console.log(BASE_URL);
       const createdAccount = await createAccount(BASE_URL, user, signature);
       settings["token"] = createdAccount.token;
       console.log("Account created. Fetching multisig address");
       const multisigAddress = await fetchMultisig(createdAccount.token!);
 
       console.log(`Account created with token: ${createdAccount.token}`);
+      console.log(`multisigAddress: ${JSON.stringify(multisigAddress)}`);
 
       let depositAmount = process.argv[2];
       if (!depositAmount) {

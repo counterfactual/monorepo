@@ -24,7 +24,8 @@
     "build": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
-    "start": "env-cmd development ts-node src/"
+    "start": "env-cmd development ts-node src/",
+    "start:staging": "env-cmd staging ts-node src/"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"

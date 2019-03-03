@@ -11,13 +11,20 @@ const API_TIMEOUT = 30000;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export async function fetchMultisig(token: string) {
-  const bot = await getUser(token);
+  let bot;
+  try {
+    bot = await getUser(token);
+  } catch (error) {
+    console.log(`Get User Error: ${error}`);
+  }
   if (!bot.multisigAddress) {
     console.info(
       "The Bot doesn't have a channel with the Playground yet...Waiting for another 5 seconds"
     );
-    await delay(5000).then(() => fetchMultisig(token));
+    await delay(5000);
+    return await fetchMultisig(token);
   }
+  console.log(`Is this null ${JSON.stringify(bot.multisigAddress)}`);
   return bot.multisigAddress;
 }
 
@@ -171,7 +178,9 @@ export async function getUser(token: string): Promise<UserSession> {
   }
 
   try {
-    const json = (await get("users/me", token)) as APIResponse;
+    const BASE_URL = `https://server-playground-staging.counterfactual.com`;
+
+    const json = (await get(BASE_URL, "users/me", token)) as APIResponse;
     const resource = json.data[0] as APIResource<UserAttributes>;
 
     return fromAPIResource<UserSession, UserAttributes>(resource);
