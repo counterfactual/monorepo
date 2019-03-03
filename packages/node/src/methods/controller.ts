@@ -12,32 +12,41 @@ export abstract class NodeController {
   ): Promise<Node.MethodResult> {
     const shardedQueue = await this.enqueueByShard(requestHandler, params);
 
+    const context = {};
+
     const execute = async () => {
-      return await this.executeMethodImplementation(requestHandler, params);
+      return await this.executeMethodImplementation(
+        requestHandler,
+        params,
+        context
+      );
     };
 
-    await this.beforeExecution(requestHandler, params);
+    await this.beforeExecution(requestHandler, params, context);
 
     const ret = await (shardedQueue ? shardedQueue.add(execute) : execute());
 
-    await this.afterExecution(requestHandler, params);
+    await this.afterExecution(requestHandler, params, context);
 
     return ret;
   }
 
   protected abstract executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.MethodParams
+    params: Node.MethodParams,
+    context?: object
   ): Promise<Node.MethodResult>;
 
   protected async beforeExecution(
     requestHandler: RequestHandler,
-    params: Node.MethodParams
+    params: Node.MethodParams,
+    context?: object
   ): Promise<void> {}
 
   protected async afterExecution(
     requestHandler: RequestHandler,
-    params: Node.MethodParams
+    params: Node.MethodParams,
+    context?: object
   ): Promise<void> {}
 
   // This method is the logic by which the waiting on the queue happens

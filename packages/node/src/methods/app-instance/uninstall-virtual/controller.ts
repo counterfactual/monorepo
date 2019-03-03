@@ -1,10 +1,16 @@
+import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { getCounterpartyAddress } from "../../../utils";
+import {
+  getAlice,
+  getAliceBobMap,
+  getCounterpartyAddress
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
+import { computeFreeBalanceIncrements } from "../uninstall/operation";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
 
@@ -27,9 +33,32 @@ export default class UninstallVirtualController extends NodeController {
     return requestHandler.getShardedQueue(metachannel.multisigAddress);
   }
 
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.UninstallParams,
+    context: object
+  ): Promise<void> {
+    const { provider, store } = requestHandler;
+    const { appInstanceId } = params;
+
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    const ethIncrementsMap = await computeFreeBalanceIncrements(
+      stateChannel,
+      appInstanceId,
+      provider
+    );
+
+    const aliceBobMap = getAliceBobMap(stateChannel);
+
+    context["aliceBalanceIncrement"] = ethIncrementsMap[aliceBobMap.alice];
+    context["bobBalanceIncrement"] = ethIncrementsMap[aliceBobMap.bob];
+  }
+
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.UninstallVirtualParams
+    params: Node.UninstallVirtualParams,
+    context: object
   ): Promise<Node.UninstallVirtualResult> {
     const { store, instructionExecutor, publicIdentifier } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
@@ -45,13 +74,23 @@ export default class UninstallVirtualController extends NodeController {
       stateChannel.userNeuteredExtendedKeys
     );
 
+    const aliceIsInitiating =
+      getAlice(stateChannel) ===
+      xkeyKthAddress(requestHandler.publicIdentifier, 0);
+
     await uninstallAppInstanceFromChannel(
       store,
       instructionExecutor,
       publicIdentifier,
       to,
       intermediaryIdentifier,
-      appInstanceId
+      appInstanceId,
+      aliceIsInitiating
+        ? context["aliceBalanceIncrement"]
+        : context["bobBalanceIncrement"],
+      aliceIsInitiating
+        ? context["bobBalanceIncrement"]
+        : context["aliceBalanceIncrement"]
     );
 
     return {};
