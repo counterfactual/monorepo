@@ -36,6 +36,7 @@ class Game extends Component {
     this.updateGame({ players, turnNum, winner, board });
 
     if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
+      console.log("game over - uninstalling");
       await this.props.appInstance.uninstall(this.props.intermediary);
     }
   }

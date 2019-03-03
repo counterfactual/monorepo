@@ -76,7 +76,12 @@ export namespace Node {
     DEPOSIT_STARTED = "depositStartedEvent",
     DEPOSIT_CONFIRMED = "depositConfirmedEvent",
     DEPOSIT_FAILED = "depositFailed",
-    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed"
+    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed",
+    PROPOSE_INSTALL = "proposeInstallEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+    WITHDRAW_EVENT = "withdrawEvent",
+    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
   }
 
   export type DepositParams = {
