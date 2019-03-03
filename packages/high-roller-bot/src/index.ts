@@ -70,11 +70,9 @@ async function bootstrap() {
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
 
   console.log("Creating store");
-  const store = serviceFactory.createStoreService("highRollerBotStore1");
+  const store = serviceFactory.createStoreService("highRollerBotStore12");
 
-  if (!(await store.get(MNEMONIC_PATH)) && settings[MNEMONIC_PATH]) {
-    await store.set([{ key: MNEMONIC_PATH, value: settings[MNEMONIC_PATH] }]);
-  }
+  await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
