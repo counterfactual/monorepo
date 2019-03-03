@@ -1,7 +1,6 @@
 {
   "name": "@counterfactual/machine",
-  "version": "0.0.2",
-  "private": true,
+  "version": "0.1.1",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
@@ -18,7 +17,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.5",
+    "@counterfactual/types": "0.0.7",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
     "@types/jest": "24.0.9",
@@ -26,18 +25,18 @@
     "chai": "^4.2.0",
     "dotenv-safe": "^6.1.0",
     "ethereum-waffle": "2.0.7",
-    "ganache-cli": "6.4.0",
+    "ganache-cli": "6.4.1",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.19.0",
-    "truffle": "5.0.5",
+    "truffle": "5.0.6",
     "ts-jest": "24.0.0",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.2"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@counterfactual/contracts": "0.0.3",
+    "@counterfactual/contracts": "0.1.0",
     "ethers": "4.0.26",
     "typescript-memoize": "^1.0.0-alpha.3"
   }

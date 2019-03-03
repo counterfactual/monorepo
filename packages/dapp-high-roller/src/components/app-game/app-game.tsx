@@ -102,9 +102,6 @@ export class AppGame {
   }
 
   async beginRolling(roller: "myRoll" | "opponentRoll") {
-    this.shakeAudio.loop = true;
-    await this.shakeAudio.play();
-
     this.rolling[roller] = true;
     this.scheduleRoll(roller);
   }
@@ -127,8 +124,6 @@ export class AppGame {
   async stopRolling(roller: "myRoll" | "opponentRoll") {
     this.rolling[roller] = false;
     clearTimeout(this.rollingAnimationInterval[roller] as NodeJS.Timeout);
-    this.shakeAudio.pause();
-    await this.rollAudio.play();
   }
 
   async handleRoll(): Promise<void> {
@@ -245,15 +240,6 @@ export class AppGame {
               </button>
             </div>
           )}
-
-          <div>
-            <audio ref={el => (this.shakeAudio = el as HTMLAudioElement)}>
-              <source src="/assets/audio/shake.mp3" type="audio/mpeg" />
-            </audio>
-            <audio ref={el => (this.rollAudio = el as HTMLAudioElement)}>
-              <source src="/assets/audio/roll.mp3" type="audio/mpeg" />
-            </audio>
-          </div>
         </div>
       </div>,
       this.gameState === GameState.Won ? <app-game-coins /> : undefined

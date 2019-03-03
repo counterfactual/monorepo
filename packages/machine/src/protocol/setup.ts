@@ -1,3 +1,4 @@
+import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
@@ -45,12 +46,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature
       ),
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        context.inbox[0].signature!,
-        context.signatures[0]
-      ]);
-    },
+    setFinalCommitment(true),
 
     // Consider the state transition finished and commit it
     Opcode.WRITE_COMMITMENT
@@ -77,12 +73,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     // Send the message to your counterparty
     Opcode.IO_SEND,
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction([
-        message.signature!,
-        context.signatures[0]
-      ]);
-    },
+    setFinalCommitment(false),
 
     // Consider the state transition finished and commit it
     Opcode.WRITE_COMMITMENT

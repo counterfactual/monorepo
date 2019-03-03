@@ -23,12 +23,12 @@ export default class DepositController extends NodeController {
     return requestHandler.getShardedQueue(params.multisigAddress);
   }
 
-  protected async executeMethodImplementation(
+  protected async beforeExecution(
     requestHandler: RequestHandler,
     params: Node.DepositParams
-  ): Promise<Node.DepositResult> {
-    const { store } = requestHandler;
-    const { multisigAddress } = params;
+  ): Promise<void> {
+    const { store, provider } = requestHandler;
+    const { multisigAddress, amount } = params;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -39,6 +39,24 @@ export default class DepositController extends NodeController {
     ) {
       return Promise.reject(ERRORS.CANNOT_DEPOSIT);
     }
+
+    const balanceOfSigner = await provider.getBalance(
+      await (await requestHandler.getSigner()).getAddress()
+    );
+
+    if (balanceOfSigner.lt(amount)) {
+      return Promise.reject(ERRORS.INSUFFICIENT_FUNDS);
+    }
+  }
+
+  protected async executeMethodImplementation(
+    requestHandler: RequestHandler,
+    params: Node.DepositParams
+  ): Promise<Node.DepositResult> {
+    const { store } = requestHandler;
+    const { multisigAddress } = params;
+
+    const channel = await store.getStateChannel(multisigAddress);
 
     await installBalanceRefundApp(requestHandler, params);
 

@@ -17,6 +17,13 @@ const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
+const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+  "1": "",
+  "3": "ropsten",
+  "42": "kovan",
+  "4": "rinkeby"
+};
+
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
@@ -26,8 +33,9 @@ export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
+  @State() balancePolling: any;
 
   modal: JSX.Element = <div />;
 
@@ -53,7 +61,7 @@ export class AppRoot {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
-  async updateAppRegistry(newProps: AppRegistryState) {
+  async updateAppRegistry(newProps: Partial<AppRegistryState>) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
   }
 
@@ -172,21 +180,23 @@ export class AppRoot {
   }
 
   bindProviderEvents() {
-    const { user } = this.accountState;
+    const {
+      user: { multisigAddress, ethAddress }
+    } = this.accountState;
     const { provider } = this.walletState;
 
     if (!provider) {
       return;
     }
 
-    if (user.ethAddress) {
-      provider.removeAllListeners(user.ethAddress);
-      provider.on(user.ethAddress, this.updateWalletBalance.bind(this));
+    if (ethAddress) {
+      provider.removeAllListeners(ethAddress);
+      provider.on(ethAddress, this.updateWalletBalance.bind(this));
     }
 
-    if (user.multisigAddress) {
-      provider.removeAllListeners(user.multisigAddress);
-      provider.on(user.multisigAddress, this.updateMultisigBalance.bind(this));
+    if (multisigAddress) {
+      provider.removeAllListeners(multisigAddress);
+      provider.on(multisigAddress, this.updateMultisigBalance.bind(this));
     }
   }
 
@@ -224,7 +234,7 @@ export class AppRoot {
     return loggedUser;
   }
 
-  async getBalances(): Promise<{
+  async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
@@ -252,11 +262,35 @@ export class AppRoot {
     const { balance } = result as Node.GetMyFreeBalanceForStateResult;
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance),
-      ethMultisigBalance: await provider!.getBalance(multisigAddress)
+      ethFreeBalanceWei: ethers.utils.bigNumberify(balance) as BigNumber,
+      ethMultisigBalance: await provider!.getBalance(multisigAddress),
+      hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
     };
 
+    vals.hubBalanceWei = vals.ethMultisigBalance.sub(
+      vals.ethFreeBalanceWei
+    ) as BigNumber;
+
+    const canUseApps = vals.hubBalanceWei.gt(ethers.utils.parseEther("0"));
+
+    this.updateAppRegistry({
+      canUseApps
+    });
+
     await this.updateAccount(vals);
+
+    // TODO: Replace this with a more event-driven approach,
+    // based on a list of collateralized deposits.
+    if (poll) {
+      if (canUseApps) {
+        clearTimeout(this.balancePolling);
+      } else {
+        this.balancePolling = setTimeout(
+          async () => this.getBalances({ poll }),
+          1000
+        );
+      }
+    }
 
     return vals;
   }
@@ -282,15 +316,17 @@ export class AppRoot {
 
     const node = CounterfactualNode.getInstance();
 
-    node.once(Node.EventName.DEPOSIT_STARTED, args => {
+    node.once(Node.EventName.DEPOSIT_STARTED, args =>
       this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
-      });
-    });
+      })
+    );
+
+    let ret;
 
     try {
-      const ret = await node.call(Node.MethodName.DEPOSIT, {
+      ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
@@ -299,15 +335,17 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-      await this.resetPendingDepositState();
-      return ret;
     } catch (e) {
-      await this.resetPendingDepositState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances({ poll: true });
+    await this.resetPendingDepositState();
+
+    return ret;
   }
 
-  async withdraw(valueInWei: BigNumber) {
+  async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
     const {
       user: { multisigAddress }
     } = this.accountState;
@@ -321,8 +359,10 @@ export class AppRoot {
       });
     });
 
+    let ret;
+
     try {
-      const ret = await node.call(Node.MethodName.WITHDRAW, {
+      ret = await node.call(Node.MethodName.WITHDRAW, {
         type: Node.MethodName.WITHDRAW,
         requestId: window["uuid"](),
         params: {
@@ -331,13 +371,14 @@ export class AppRoot {
           amount: ethers.utils.bigNumberify(valueInWei)
         } as Node.WithdrawParams
       });
-      await this.resetPendingWithdrawalState();
-      await this.getBalances();
-      return ret;
     } catch (e) {
-      await this.resetPendingWithdrawalState();
-      throw e;
+      console.error(e);
     }
+
+    await this.getBalances();
+    await this.resetPendingWithdrawalState();
+
+    return ret;
   }
 
   waitForMultisig() {
@@ -359,7 +400,9 @@ export class AppRoot {
           dialogTitle="Your account is ready!"
           content="To complete your registration, we'll ask you to confirm the deposit in the next step."
           primaryButtonText="Proceed"
-          onPrimaryButtonClicked={() => this.confirmDepositInitialFunding()}
+          onPrimaryButtonClicked={async () =>
+            await this.confirmDepositInitialFunding()
+          }
         />
       );
     }
@@ -422,6 +465,18 @@ export class AppRoot {
     }
   }
 
+  getEtherscanAddressURL(address: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/address/${address}`;
+  }
+
+  getEtherscanTxURL(tx: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/tx/${tx}`;
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -437,6 +492,12 @@ export class AppRoot {
     this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
       this
     );
+
+    this.walletState.getEtherscanAddressURL = this.getEtherscanAddressURL.bind(
+      this
+    );
+    this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
+
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {

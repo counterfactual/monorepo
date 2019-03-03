@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2017",
-    "experimentalDecorators": true,
+    "outDir": "dist",
     "types": ["jsonwebtoken", "knex", "koa", "koa__cors", "uuid", "jest"],
     "typeRoots": [
       "../../node_modules/@types",

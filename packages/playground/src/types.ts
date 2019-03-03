@@ -12,6 +12,7 @@ export interface UserChangeset {
   email: string;
   ethAddress: string;
   nodeAddress: string;
+  id?: string;
 }
 
 export type UserSession = {

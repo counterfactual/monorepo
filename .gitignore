@@ -30,3 +30,9 @@ jest-cache/
 # local env vars
 .env.local
 packages/**/.env.local
+
+# licenses
+packages/**/LICENSE
+
+# circleci artifacts
+.dependencies_checksum
