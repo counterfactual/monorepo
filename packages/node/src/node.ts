@@ -6,6 +6,7 @@ import {
   Protocol,
   ProtocolMessage,
   SetupParams,
+  StateChannel,
   Transaction,
   UninstallParams,
   UpdateParams,
@@ -13,7 +14,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -61,7 +62,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: JsonRpcProvider | BaseProvider,
+    provider: JsonRpcProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -81,7 +82,7 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: JsonRpcProvider | BaseProvider,
+    private readonly provider: JsonRpcProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
@@ -119,7 +120,10 @@ export class Node {
    * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
    */
   private buildInstructionExecutor(): InstructionExecutor {
-    const instructionExecutor = new InstructionExecutor(this.networkContext);
+    const instructionExecutor = new InstructionExecutor(
+      this.networkContext,
+      this.provider
+    );
 
     // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
@@ -128,7 +132,10 @@ export class Node {
         next: Function,
         context: Context
       ) => {
-        if (context.commitments.length === 0) {
+        const { protocol, params } = message;
+        const { stateChannelsMap, commitments } = context;
+
+        if (commitments.length === 0) {
           // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
@@ -137,21 +144,17 @@ export class Node {
 
         let keyIndex = 0;
 
-        if (message.protocol === Protocol.Update) {
-          const {
-            appIdentityHash,
-            multisigAddress
-          } = message.params as UpdateParams;
-          keyIndex = context.stateChannelsMap
-            .get(multisigAddress)!
-            .getAppInstance(appIdentityHash).appSeqNo;
+        if ([Protocol.Update, Protocol.TakeAction].includes(protocol)) {
+          const { appIdentityHash, multisigAddress } = params as UpdateParams;
+          const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+          keyIndex = sc.getAppInstance(appIdentityHash).appSeqNo;
         }
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        context.signatures = context.commitments.map(commitment =>
+        context.signatures = commitments.map(commitment =>
           signingKey.signDigest(commitment.hashToSign(asIntermediary))
         );
 

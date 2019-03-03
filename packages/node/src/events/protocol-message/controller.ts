@@ -4,12 +4,14 @@ import {
   UninstallVirtualAppParams,
   WithdrawParams
 } from "@counterfactual/machine";
+import { TakeActionParams } from "@counterfactual/machine/dist/src/types";
 
 import { RequestHandler } from "../../request-handler";
 import {
   NODE_EVENTS,
   NodeMessageWrappedProtocolMessage,
   UninstallMessage,
+  UpdateStateMessage,
   WithdrawMessage
 } from "../../types";
 
@@ -22,45 +24,69 @@ export default async function protocolMessageEventController(
   requestHandler: RequestHandler,
   nodeMsg: NodeMessageWrappedProtocolMessage
 ) {
-  if (nodeMsg.data.seq === -1) return;
+  const {
+    publicIdentifier,
+    instructionExecutor,
+    store,
+    outgoing
+  } = requestHandler;
+
+  const {
+    data: { protocol, seq, params }
+  } = nodeMsg;
+
+  if (seq === -1) return;
 
   await requestHandler
     .getShardedQueue("instructionExecutorCoreQueue")
     .add(async () => {
-      const stateChannelsMap = await requestHandler.instructionExecutor.runProtocolWithMessage(
+      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         nodeMsg.data,
         new Map<string, StateChannel>(
-          Object.entries(await requestHandler.store.getAllChannels())
+          Object.entries(await store.getAllChannels())
         )
       );
 
       stateChannelsMap.forEach(
-        async stateChannel =>
-          await requestHandler.store.saveStateChannel(stateChannel)
+        async stateChannel => await store.saveStateChannel(stateChannel)
       );
 
       // TODO: Follow this pattern for all machine related events
-      if (nodeMsg.data.protocol === Protocol.UninstallVirtualApp) {
+      if (protocol === Protocol.UninstallVirtualApp) {
         const uninstallMsg: UninstallMessage = {
-          from: requestHandler.publicIdentifier,
+          from: publicIdentifier,
           type: NODE_EVENTS.UNINSTALL_VIRTUAL,
           data: {
-            appInstanceId: (nodeMsg.data.params as UninstallVirtualAppParams)
+            appInstanceId: (params as UninstallVirtualAppParams)
               .targetAppIdentityHash
           }
         };
 
-        requestHandler.outgoing.emit(uninstallMsg.type, uninstallMsg);
-      } else if (nodeMsg.data.protocol === Protocol.Withdraw) {
+        outgoing.emit(uninstallMsg.type, uninstallMsg);
+      } else if (protocol === Protocol.Withdraw) {
         const withdrawMsg: WithdrawMessage = {
-          from: requestHandler.publicIdentifier,
+          from: publicIdentifier,
           type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
           data: {
-            amount: (nodeMsg.data.params as WithdrawParams).amount
+            amount: (params as WithdrawParams).amount
           }
         };
 
-        requestHandler.outgoing.emit(withdrawMsg.type, withdrawMsg);
+        outgoing.emit(withdrawMsg.type, withdrawMsg);
+      } else if (protocol === Protocol.TakeAction) {
+        const { multisigAddress, appIdentityHash } = params as TakeActionParams;
+        const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+        const appInstance = sc.getAppInstance(appIdentityHash);
+        const takeActionMsg: UpdateStateMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
+          data: {
+            newState: appInstance.state,
+            appInstanceId: appIdentityHash
+          }
+        };
+
+        outgoing.emit(takeActionMsg.type, takeActionMsg);
       }
     });
 }

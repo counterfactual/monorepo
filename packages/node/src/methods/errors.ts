@@ -18,9 +18,11 @@ export const ERRORS = {
   INVALID_ACTION: "Invalid action taken",
   INSUFFICIENT_FUNDS:
     "Node's default signer does not have enough funds for this action",
-  IMPROPERLY_FORMATTED_ACTION: "Improperly formatted action",
+  IMPROPERLY_FORMATTED_STRUCT: "Improperly formatted ABIEncoderV2 struct",
   NO_ACTION_ENCODING_FOR_APP_INSTANCE:
     "The AppInstance does not have an Action encoding defined",
+  STATE_OBJECT_NOT_ENCODABLE:
+    "The state object is not encodable by the AppInstance's state encoding",
   ACTION_OBJECT_NOT_ENCODABLE:
     "The Action object is not encodable by the AppInstance's Action encoding",
   NO_STATE_CHANNEL_FOR_MULTISIG_ADDR: (resp, query) =>

@@ -1,7 +1,7 @@
 import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
 import { Store } from "../../../store";
@@ -46,7 +46,7 @@ export async function uninstallAppInstanceFromChannel(
 export async function computeFreeBalanceIncrements(
   stateChannel: StateChannel,
   appInstanceId: string,
-  provider: JsonRpcProvider | BaseProvider
+  provider: JsonRpcProvider
 ): Promise<{ [x: string]: BigNumber }> {
   type TransferTransaction = {
     assetType: AssetType;

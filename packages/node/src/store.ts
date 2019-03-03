@@ -441,9 +441,7 @@ export class Store {
     ].join("/");
   }
 
-  public async getAppInstanceFromAppInstanceID(
-    appInstanceId: string
-  ): Promise<AppInstance> {
+  public async getAppInstance(appInstanceId: string): Promise<AppInstance> {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     return channel.getAppInstance(appInstanceId);
   }

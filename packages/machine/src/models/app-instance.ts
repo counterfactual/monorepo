@@ -1,5 +1,14 @@
+import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
-import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
+import { Contract } from "ethers";
+import { JsonRpcProvider } from "ethers/providers";
+import {
+  BigNumber,
+  bigNumberify,
+  defaultAbiCoder,
+  keccak256,
+  solidityPack
+} from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -23,7 +32,7 @@ export type AppInstanceJson = {
   isVirtualApp: boolean;
   appSeqNo: number;
   rootNonceValue: number;
-  latestState: any;
+  latestState: SolidityABIEncoderV2Struct;
   latestNonce: number;
   latestTimeout: number;
   hasBeenUninstalled: boolean;
@@ -89,6 +98,15 @@ export class AppInstance {
   }
 
   public static fromJson(json: AppInstanceJson) {
+    // FIXME: Do recursive not shallow
+    const latestState = json.latestState;
+    for (const key in latestState) {
+      // @ts-ignore
+      if (latestState[key]["_hex"]) {
+        latestState[key] = bigNumberify(latestState[key] as BigNumber);
+      }
+    }
+
     const ret = new AppInstance(
       json.multisigAddress,
       json.signingKeys,
@@ -98,7 +116,7 @@ export class AppInstance {
       json.isVirtualApp,
       json.appSeqNo,
       json.rootNonceValue,
-      json.latestState,
+      latestState,
       json.latestNonce,
       json.latestTimeout
     );
@@ -244,10 +262,39 @@ export class AppInstance {
     });
   }
 
-  public encodeAction(action: any) {
+  public async computeStateTransition(
+    action: SolidityABIEncoderV2Struct,
+    provider: JsonRpcProvider
+  ): Promise<SolidityABIEncoderV2Struct> {
+    const ret: SolidityABIEncoderV2Struct = {};
+
+    const computedNextState = this.decodeAppState(
+      await this.toEthersContract(provider).functions.applyAction(
+        this.encodedLatestState,
+        this.encodeAction(action)
+      )
+    );
+
+    // ethers returns an array of [ <each value by idx>, <each value by key> ]
+    // so we need to clean this response before returning
+    for (const key in this.state) {
+      ret[key] = computedNextState[key];
+    }
+
+    return ret;
+  }
+
+  public encodeAction(action: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
       [this.json.appInterface.actionEncoding!],
       [action]
+    );
+  }
+
+  public encodeState(state: SolidityABIEncoderV2Struct) {
+    return defaultAbiCoder.encode(
+      [this.json.appInterface.stateEncoding],
+      [state]
     );
   }
 
@@ -258,5 +305,13 @@ export class AppInstance {
       [this.appInterface.stateEncoding],
       encodedSolidityABIEncoderV2Struct
     )[0];
+  }
+
+  public toEthersContract(provider: JsonRpcProvider) {
+    return new Contract(
+      this.appInterface.addr,
+      CounterfactualApp.abi,
+      provider
+    );
   }
 }

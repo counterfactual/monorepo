@@ -80,6 +80,14 @@ export type UpdateParams = {
   newState: SolidityABIEncoderV2Struct;
 };
 
+export type TakeActionParams = {
+  initiatingXpub: string;
+  respondingXpub: string;
+  multisigAddress: string;
+  appIdentityHash: string;
+  action: SolidityABIEncoderV2Struct;
+};
+
 export type WithdrawParams = {
   initiatingXpub: string;
   respondingXpub: string;

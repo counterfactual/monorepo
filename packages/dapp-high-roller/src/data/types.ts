@@ -2,15 +2,11 @@ import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
-import NodeProvider from "./mock-node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
-
-export type SolidityABIEncoderV2Struct = any;
-export type AppAction = any;
 
 export enum AssetType {
   ETH = 0,
@@ -191,7 +187,7 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: AppAction;
+    action: SolidityABIEncoderV2Struct;
   };
   export type TakeActionResult = {
     newState: SolidityABIEncoderV2Struct;
@@ -252,8 +248,7 @@ export namespace Node {
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
     newState: SolidityABIEncoderV2Struct;
-    oldState: SolidityABIEncoderV2Struct;
-    action?: AppAction;
+    action?: SolidityABIEncoderV2Struct;
   };
   export type UninstallEventData = {
     appInstance: AppInstanceInfo;
