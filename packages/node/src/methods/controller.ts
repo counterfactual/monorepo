@@ -12,21 +12,15 @@ export abstract class NodeController {
   ): Promise<Node.MethodResult> {
     const shardedQueue = await this.enqueueByShard(requestHandler, params);
 
-    const context = {};
-
     const execute = async () => {
-      return await this.executeMethodImplementation(
-        requestHandler,
-        params,
-        context
-      );
+      return await this.executeMethodImplementation(requestHandler, params);
     };
 
-    await this.beforeExecution(requestHandler, params, context);
+    await this.beforeExecution(requestHandler, params);
 
     const ret = await (shardedQueue ? shardedQueue.add(execute) : execute());
 
-    await this.afterExecution(requestHandler, params, context);
+    await this.afterExecution(requestHandler, params);
 
     return ret;
   }

@@ -88,15 +88,6 @@ export function getBalanceIncrement(
   return afterDeposit.sub(beforeDeposit);
 }
 
-export function getAliceBobMap(
-  channel: StateChannel
-): { alice: string; bob: string } {
-  return {
-    alice: channel.multisigOwners[0],
-    bob: channel.multisigOwners[1]
-  };
-}
-
 export function getAlice(channel: StateChannel): string {
   return channel.multisigOwners[0];
 }

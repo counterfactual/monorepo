@@ -114,8 +114,6 @@ export type UninstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
   multisigAddress: string;
-  aliceBalanceIncrement: BigNumber;
-  bobBalanceIncrement: BigNumber;
 };
 
 export type InstallVirtualAppParams = {

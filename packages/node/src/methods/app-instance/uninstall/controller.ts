@@ -3,14 +3,11 @@ import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UninstallMessage } from "../../../types";
-import { getAliceBobMap, getCounterpartyAddress } from "../../../utils";
+import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
-import {
-  computeFreeBalanceIncrements,
-  uninstallAppInstanceFromChannel
-} from "./operation";
+import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL;
@@ -26,32 +23,9 @@ export default class UninstallController extends NodeController {
     );
   }
 
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.UninstallParams,
-    context: object
-  ): Promise<void> {
-    const { provider, store } = requestHandler;
-    const { appInstanceId } = params;
-
-    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-
-    const ethIncrementsMap = await computeFreeBalanceIncrements(
-      stateChannel,
-      appInstanceId,
-      provider
-    );
-
-    const aliceBobMap = getAliceBobMap(stateChannel);
-
-    context["aliceBalanceIncrement"] = ethIncrementsMap[aliceBobMap.alice];
-    context["bobBalanceIncrement"] = ethIncrementsMap[aliceBobMap.bob];
-  }
-
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.UninstallParams,
-    context: object
+    params: Node.UninstallParams
   ): Promise<Node.UninstallResult> {
     const {
       store,
@@ -77,9 +51,7 @@ export default class UninstallController extends NodeController {
       instructionExecutor,
       publicIdentifier,
       to,
-      appInstanceId,
-      context["aliceBalanceIncrement"],
-      context["bobBalanceIncrement"]
+      appInstanceId
     );
 
     const uninstallMsg: UninstallMessage = {

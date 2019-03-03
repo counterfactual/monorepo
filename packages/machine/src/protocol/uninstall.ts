@@ -1,8 +1,4 @@
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
@@ -12,6 +8,10 @@ import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
+import {
+  computeFreeBalanceIncrements,
+  getAliceBobMap
+} from "./utils/get-resolution-increments";
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import { setFinalCommitment } from "./utils/set-final-commitment";
 import {
@@ -86,133 +86,50 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   ]
 };
 
-function proposeStateTransition(
+async function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
   provider: JsonRpcProvider
 ) {
+  const { network, stateChannelsMap } = context;
   const {
     appIdentityHash,
-    aliceBalanceIncrement,
-    bobBalanceIncrement,
     multisigAddress
   } = message.params as UninstallParams;
 
-  const sc = context.stateChannelsMap.get(multisigAddress)!;
+  const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
   const sequenceNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
-  async function computeFreeBalanceIncrements(
-    stateChannel: StateChannel,
-    appInstanceId: string,
-    provider: JsonRpcProvider
-  ): Promise<{ [x: string]: BigNumber }> {
-    type TransferTransaction = {
-      assetType: AssetType;
-      token: string;
-      to: string[];
-      value: BigNumber[];
-      data: string[];
-    };
+  const increments = await computeFreeBalanceIncrements(
+    sc,
+    appIdentityHash,
+    provider
+  );
 
-    const appInstance = stateChannel.getAppInstance(appInstanceId);
-
-    if (isNotDefinedOrEmpty(appInstance.appInterface.addr)) {
-      return Promise.reject(ERRORS.NO_APP_CONTRACT_ADDR);
-    }
-
-    const appContract = new Contract(
-      appInstance.appInterface.addr,
-      // TODO: Import CounterfactualApp.json directly and place it here.
-      //       Keep in mind that requires bundling the json in the rollup dist.
-      [
-        `function resolve(bytes, tuple(uint8 assetType, uint256 limit, address token))
-        pure
-        returns (
-          tuple(
-            uint8 assetType,
-            address token,
-            address[] to,
-            uint256[] value,
-            bytes[] data
-          )
-        )`
-      ],
-      provider
-    );
-
-    const resolution: TransferTransaction = await appContract.functions.resolve(
-      appInstance.encodedLatestState,
-      appInstance.terms
-    );
-
-    if (resolution.assetType !== AssetType.ETH) {
-      return Promise.reject(
-        "Node only supports ETH resolutions at the moment."
-      );
-    }
-
-    return resolution.to.reduce(
-      (accumulator, currentValue, idx) => ({
-        ...accumulator,
-        [currentValue]: resolution.value[idx]
-      }),
-      {}
-    );
-  }
-
+  const aliceBobMap = getAliceBobMap(sc);
   const newStateChannel = sc.uninstallApp(
     appIdentityHash,
-    aliceBalanceIncrement,
-    bobBalanceIncrement
+    increments[aliceBobMap.alice],
+    increments[aliceBobMap.bob]
   );
 
-  context.stateChannelsMap.set(multisigAddress, newStateChannel);
+  stateChannelsMap.set(multisigAddress, newStateChannel);
 
-  context.commitments[0] = constructUninstallOp(
-    context.network,
-    newStateChannel,
-    sequenceNo
-  );
+  const freeBalance = newStateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  context.appIdentityHash = appIdentityHash;
-}
-
-export function constructUninstallOp(
-  network: NetworkContext,
-  stateChannel: StateChannel,
-  seqNoToUninstall: number
-) {
-  if (seqNoToUninstall === undefined) {
-    throw new Error(
-      `Request to uninstall an undefined app id: ${seqNoToUninstall}`
-    );
-  }
-
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-  // FIXME: We need a means of checking if proposed resolution is good
-  // if (<app module>.isValidUninstall(app.state, uninstallResolutions)) {
-  //   continue;
-  // }
-
-  // NOTE: You might be wondering ... why isn't aliceBalanceIncrement and
-  //       bobBalanceIncrmeent in the scope of this function? Well, the answer
-  //       is that the Uninstall Protocol requires users to sign a FULL OVERWRITE
-  //       of the FreeBalance app's state. We already assigned the new values in
-  //       the <uninstallApp> method on the StateChannel earlier, which is in scope
-  //       at this point. So, when we pass it into UninstallCommitment below, it reads
-  //       from the newly updated latestState property to generate the commitment.
-
-  return new UninstallCommitment(
+  const uninstallCommitment = new UninstallCommitment(
     network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
+    newStateChannel.multisigAddress,
+    newStateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.terms,
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
-    seqNoToUninstall
+    sequenceNo
   );
+
+  context.commitments[0] = uninstallCommitment;
+  context.appIdentityHash = appIdentityHash;
 }
