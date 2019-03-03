@@ -58,8 +58,8 @@ export interface SolidityABIEncoderV2StructArray
 export type ProtocolMessage = {
   protocol: Protocol;
   params: ProtocolParameters;
-  fromAddress: string;
-  toAddress: string;
+  fromXpub: string;
+  toXpub: string;
   seq: number;
   signature?: Signature;
   signature2?: Signature;

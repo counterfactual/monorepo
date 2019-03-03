@@ -30,8 +30,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 1,
-        fromAddress: initiatingXpub,
-        toAddress: intermediaryXpub,
+        fromXpub: initiatingXpub,
+        toXpub: intermediaryXpub,
         signature: context.signatures[0]
       };
     },
@@ -73,8 +73,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: initiatingXpub,
-        toAddress: intermediaryXpub,
+        fromXpub: initiatingXpub,
+        toXpub: intermediaryXpub,
         signature: context.signatures[0]
       };
     },
@@ -119,8 +119,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: intermediaryXpub,
-        toAddress: respondingXpub,
+        fromXpub: intermediaryXpub,
+        toXpub: respondingXpub,
         signature: message.signature,
         signature2: context.signatures[0]
       };
@@ -150,8 +150,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryXpub,
-        toAddress: initiatingXpub,
+        fromXpub: intermediaryXpub,
+        toXpub: initiatingXpub,
         signature: context.inbox[0].signature,
         signature2: context.signatures[0]
       };
@@ -183,8 +183,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryXpub,
-        toAddress: initiatingXpub,
+        fromXpub: intermediaryXpub,
+        toXpub: initiatingXpub,
         signature: context.signatures[0]
       };
     },
@@ -205,8 +205,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: intermediaryXpub,
-        toAddress: respondingXpub,
+        fromXpub: intermediaryXpub,
+        toXpub: respondingXpub,
         signature: context.signatures[0]
       };
     },
@@ -263,8 +263,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: respondingXpub,
-        toAddress: intermediaryXpub,
+        fromXpub: respondingXpub,
+        toXpub: intermediaryXpub,
         signature: context.signatures[0]
       };
     },
@@ -295,8 +295,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: respondingXpub,
-        toAddress: intermediaryXpub,
+        fromXpub: respondingXpub,
+        toXpub: intermediaryXpub,
         signature: context.signatures[0]
       };
     },

@@ -51,7 +51,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(message.toAddress, appSeqNo),
+        xkeyKthAddress(message.toXpub, appSeqNo),
         context.commitments[0],
         context.inbox[0].signature
       );
@@ -78,7 +78,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(message.fromAddress, appSeqNo),
+        xkeyKthAddress(message.fromXpub, appSeqNo),
         context.commitments[0],
         message.signature
       );

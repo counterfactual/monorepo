@@ -34,8 +34,8 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) => {
       context.outbox.push({
         ...message,
-        fromAddress: message.params.initiatingXpub,
-        toAddress: message.params.respondingXpub,
+        fromXpub: message.params.initiatingXpub,
+        toXpub: message.params.respondingXpub,
         signature: context.signatures[0],
         signature2: context.signatures[1],
         seq: 1
@@ -74,8 +74,8 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {
         ...message,
-        fromAddress: message.params.initiatingXpub,
-        toAddress: message.params.respondingXpub,
+        fromXpub: message.params.initiatingXpub,
+        toXpub: message.params.respondingXpub,
         signature: context.signatures[2],
         seq: -1
       };
@@ -126,8 +126,8 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     (message: ProtocolMessage, context: Context) => {
       context.outbox[0] = {
         ...message,
-        fromAddress: message.params.respondingXpub,
-        toAddress: message.params.initiatingXpub,
+        fromXpub: message.params.respondingXpub,
+        toXpub: message.params.initiatingXpub,
         signature: context.signatures[0],
         signature2: context.signatures[1],
         signature3: context.signatures[2],
