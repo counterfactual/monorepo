@@ -171,7 +171,7 @@ export class Node {
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
         const from = this.publicIdentifier;
-        const to = data.toAddress;
+        const to = data.toXpub;
 
         await this.messagingService.send(to, {
           from,
@@ -188,7 +188,7 @@ export class Node {
       async (message: ProtocolMessage, next: Function, context: Context) => {
         const [data] = context.outbox;
         const from = this.publicIdentifier;
-        const to = data.toAddress;
+        const to = data.toXpub;
 
         const key = this.encodeProtocolMessage(message);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();

@@ -57,7 +57,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[0], // s1
         signature2: context.signatures[1], // s5
         seq: 1,
-        toAddress: params2.intermediaryXpub
+        toXpub: params2.intermediaryXpub
       });
     },
 
@@ -122,8 +122,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.respondingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.respondingXpub,
         signature: message.signature2, // s5
         signature2: context.signatures[1] // s3
       };
@@ -152,8 +152,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.respondingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.respondingXpub,
         signature: context.signatures[2] // s6
       };
     },
@@ -166,8 +166,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.initiatingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.initiatingXpub,
         signature: context.signatures[2], // s6
         signature2: context.signatures[0], // s2
         signature3: context.inbox[0].signature2 // s7
@@ -209,8 +209,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.respondingXpub,
-        toAddress: params2.intermediaryXpub,
+        fromXpub: params2.respondingXpub,
+        toXpub: params2.intermediaryXpub,
         signature: context.signatures[0], // s4
         signature2: context.signatures[1] // s7
       };
