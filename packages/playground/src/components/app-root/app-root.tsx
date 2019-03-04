@@ -255,17 +255,27 @@ export class AppRoot {
     }
 
     const query = {
-      type: Node.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      type: Node.MethodName.GET_FREE_BALANCE_STATE,
       requestId: window["uuid"](),
-      params: { multisigAddress } as Node.GetMyFreeBalanceForStateParams
+      params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
     const { result } = await node.call(query.type, query);
 
-    const { balance } = result as Node.GetMyFreeBalanceForStateResult;
+    const { state } = result as Node.GetFreeBalanceStateResult;
+
+    const balances = [state.aliceBalance, state.bobBalance];
+    const [myBalance, counterpartyBalance] = [
+      balances[
+        [state.alice, state.bob].findIndex(address => address === ethAddress)
+      ],
+      balances[
+        [state.alice, state.bob].findIndex(address => address !== ethAddress)
+      ]
+    ];
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance) as BigNumber,
+      ethFreeBalanceWei: ethers.utils.bigNumberify(myBalance) as BigNumber,
       ethMultisigBalance: await provider!.getBalance(multisigAddress),
       hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
     };
@@ -274,7 +284,9 @@ export class AppRoot {
       vals.ethFreeBalanceWei
     ) as BigNumber;
 
-    const canUseApps = vals.hubBalanceWei.gt(ethers.utils.parseEther("0"));
+    const canUseApps =
+      vals.hubBalanceWei.gt(ethers.utils.parseEther("0")) &&
+      counterpartyBalance.gt(ethers.utils.parseEther("0.1"));
 
     this.updateAppRegistry({
       canUseApps
