@@ -242,7 +242,7 @@ export class AppRoot {
     ethMultisigBalance: BigNumber;
   }> {
     const {
-      user: { multisigAddress, ethAddress }
+      user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
     const node = CounterfactualNode.getInstance();
@@ -264,28 +264,40 @@ export class AppRoot {
 
     const { state } = result as Node.GetFreeBalanceStateResult;
 
-    const balances = [state.aliceBalance, state.bobBalance];
+    // Had to reimplement this on the frontend because the method can't be imported
+    // due to ethers not playing nice with ES Modules in this context.
+    const getAddress = (xkey: string, k: number) =>
+      ethers.utils.computeAddress(
+        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
+          .publicKey
+      );
+
+    const balances = [
+      ethers.utils.bigNumberify(state.aliceBalance),
+      ethers.utils.bigNumberify(state.bobBalance)
+    ];
+
     const [myBalance, counterpartyBalance] = [
       balances[
-        [state.alice, state.bob].findIndex(address => address === ethAddress)
+        [state.alice, state.bob].findIndex(
+          address => address === getAddress(nodeAddress, 0)
+        )
       ],
       balances[
-        [state.alice, state.bob].findIndex(address => address !== ethAddress)
+        [state.alice, state.bob].findIndex(
+          address => address !== getAddress(nodeAddress, 0)
+        )
       ]
     ];
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(myBalance) as BigNumber,
+      ethFreeBalanceWei: myBalance,
       ethMultisigBalance: await provider!.getBalance(multisigAddress),
-      hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
+      ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    vals.hubBalanceWei = vals.ethMultisigBalance.sub(
-      vals.ethFreeBalanceWei
-    ) as BigNumber;
-
     const canUseApps =
-      vals.hubBalanceWei.gt(ethers.utils.parseEther("0")) &&
+      myBalance.gt(ethers.utils.parseEther("0.1")) &&
       counterpartyBalance.gt(ethers.utils.parseEther("0.1"));
 
     this.updateAppRegistry({
