@@ -24,6 +24,9 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "4": "rinkeby"
 };
 
+const delay = (timeInMilliseconds: number) =>
+  new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
+
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
@@ -420,7 +423,8 @@ export class AppRoot {
     await this.updateAccount({ user });
 
     if (!user.multisigAddress) {
-      setTimeout(this.fetchMultisig.bind(this, userToken), 1000);
+      await delay(1000);
+      await this.fetchMultisig(userToken);
     } else {
       await this.requestToDepositInitialFunding();
     }
