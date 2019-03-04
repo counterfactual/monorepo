@@ -855,11 +855,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/contracts@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/@counterfactual/contracts/-/contracts-0.1.0.tgz#b09ac7199c731fdce942f68c18d1e729e127c7b3"
-  integrity sha512-O2in2XRkRiqIvNXu8KbH19To8PCWhY1ACgMCZzlvW9FBQWvsZqWuEx7Ch85fY9++71/RHlCLLfR2n8ECGYc2Sg==
-
 "@counterfactual/node-provider@0.1.0":
   version "0.1.0"
   resolved "https://registry.npmjs.org/@counterfactual/node-provider/-/node-provider-0.1.0.tgz#3658325151abf86f65f10a5858e0775c5887a6de"
