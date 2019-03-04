@@ -72,9 +72,8 @@ export class AccountExchange {
   async onDepositClicked(e) {
     const amount = Number(e.target.value);
 
-    if (amount <= 0 || amount > 1) {
-      this.depositError =
-        "Please enter a non-zero amount of no more than 1 ETH.";
+    if (amount < 0.01 || amount > 1) {
+      this.depositError = "Please enter an amount between 0.01 and 1 ETH.";
       return;
     }
 
