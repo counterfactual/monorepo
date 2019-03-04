@@ -164,15 +164,25 @@ export class AppRoot {
       }
     };
 
+    const networkName =
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[
+        window["web3"].currentProvider.networkVersion
+      ];
+
+    if (!networkName) {
+      throw Error(
+        `Unsupported network: ${window["web3"].currentProvider.networkVersion}`
+      );
+    }
+
     await CounterfactualNode.create({
       messagingService,
       storeService,
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
       },
-      // TODO: fetch this from the provider's network
       // TODO: handle changes on the UI
-      network: "ropsten"
+      network: networkName
     });
   }
 
