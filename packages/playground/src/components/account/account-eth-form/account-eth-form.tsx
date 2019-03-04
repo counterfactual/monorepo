@@ -25,6 +25,15 @@ export class AccountEthForm {
   handleSubmit(event) {
     event.preventDefault();
 
+    const value = Number(this.value);
+
+    if (value < this.min || value > this.max) {
+      this.error = `Please enter a value between ${this.min} and ${
+        this.max
+      } ETH.`;
+      return;
+    }
+
     this.submit.emit(event);
   }
 

@@ -70,13 +70,6 @@ export class AccountExchange {
   }
 
   async onDepositClicked(e) {
-    const amount = Number(e.target.value);
-
-    if (amount < 0.01 || amount > 1) {
-      this.depositError = "Please enter an amount between 0.01 and 1 ETH.";
-      return;
-    }
-
     try {
       await this.deposit(ethers.utils.parseEther(e.target.value));
     } catch (e) {
@@ -89,17 +82,6 @@ export class AccountExchange {
   }
 
   async onWithdrawClicked(e) {
-    const amount = Number(e.target.value);
-
-    if (
-      amount <= 0 ||
-      amount > Number(ethers.utils.formatEther(this.ethFreeBalanceWei))
-    ) {
-      this.withdrawalError =
-        "Please enter a non-zero amount of no more than your balance.";
-      return;
-    }
-
     try {
       await this.withdraw(ethers.utils.parseEther(e.target.value));
     } catch (e) {
@@ -122,6 +104,7 @@ export class AccountExchange {
             button="Deposit"
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
+            min={0.01}
             max={1}
           />
         </div>
@@ -134,6 +117,7 @@ export class AccountExchange {
             error={this.withdrawalError}
             available={this.ethFreeBalanceWei}
             min={0}
+            max={Number(ethers.utils.formatEther(this.ethFreeBalanceWei))}
           />
         </div>
       </div>,
