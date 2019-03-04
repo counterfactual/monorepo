@@ -88,6 +88,8 @@ export class Node {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.networkContext = configureNetworkContext(network, networkContext);
+    console.log("using network context");
+    console.log(this.networkContext);
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 
