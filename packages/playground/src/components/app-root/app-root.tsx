@@ -24,7 +24,8 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "4": "rinkeby"
 };
 
-const delay = (timeInMilliseconds: number) => new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
+const delay = (timeInMilliseconds: number) =>
+  new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
 @Component({
   tag: "app-root",
