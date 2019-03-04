@@ -94,7 +94,12 @@ export async function makeDeposit(
   const value = bigNumberify(params.amount);
   const gasLimit = 30000;
 
-  const tx: TransactionRequest = { to, value, gasLimit };
+  const tx: TransactionRequest = {
+    to,
+    value,
+    gasLimit,
+    gasPrice: await provider.getGasPrice()
+  };
 
   try {
     const signer = await requestHandler.getSigner();
