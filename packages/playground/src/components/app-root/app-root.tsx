@@ -292,6 +292,15 @@ export class AppRoot {
       ]
     ];
 
+    console.log(
+      "myBalance",
+      myBalance,
+      ethers.utils.formatEther(myBalance),
+      "counterpartyBalance",
+      counterpartyBalance,
+      ethers.utils.formatEther(counterpartyBalance)
+    );
+
     const vals = {
       ethFreeBalanceWei: myBalance,
       ethMultisigBalance: await provider!.getBalance(multisigAddress),
