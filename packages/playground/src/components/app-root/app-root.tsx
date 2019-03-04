@@ -24,8 +24,6 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "4": "rinkeby"
 };
 
-const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
-
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
@@ -243,6 +241,8 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
