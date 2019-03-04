@@ -11,6 +11,7 @@ export type AccountState = {
 
   ethMultisigBalance: BigNumber;
   ethFreeBalanceWei?: BigNumber;
+  ethCounterpartyFreeBalanceWei?: BigNumber;
 
   ethPendingDepositAmountWei?: BigNumber;
   ethPendingWithdrawalAmountWei?: BigNumber;

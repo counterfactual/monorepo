@@ -241,8 +241,10 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+
     const {
-      user: { multisigAddress, ethAddress }
+      user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
     const node = CounterfactualNode.getInstance();
@@ -255,26 +257,50 @@ export class AppRoot {
     }
 
     const query = {
-      type: Node.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      type: Node.MethodName.GET_FREE_BALANCE_STATE,
       requestId: window["uuid"](),
-      params: { multisigAddress } as Node.GetMyFreeBalanceForStateParams
+      params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
     const { result } = await node.call(query.type, query);
 
-    const { balance } = result as Node.GetMyFreeBalanceForStateResult;
+    const { state } = result as Node.GetFreeBalanceStateResult;
+
+    // Had to reimplement this on the frontend because the method can't be imported
+    // due to ethers not playing nice with ES Modules in this context.
+    const getAddress = (xkey: string, k: number) =>
+      ethers.utils.computeAddress(
+        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
+          .publicKey
+      );
+
+    const balances = [
+      ethers.utils.bigNumberify(state.aliceBalance),
+      ethers.utils.bigNumberify(state.bobBalance)
+    ];
+
+    const [myBalance, counterpartyBalance] = [
+      balances[
+        [state.alice, state.bob].findIndex(
+          address => address === getAddress(nodeAddress, 0)
+        )
+      ],
+      balances[
+        [state.alice, state.bob].findIndex(
+          address => address !== getAddress(nodeAddress, 0)
+        )
+      ]
+    ];
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance) as BigNumber,
+      ethFreeBalanceWei: myBalance,
       ethMultisigBalance: await provider!.getBalance(multisigAddress),
-      hubBalanceWei: ethers.utils.bigNumberify(0) as BigNumber
+      ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    vals.hubBalanceWei = vals.ethMultisigBalance.sub(
-      vals.ethFreeBalanceWei
-    ) as BigNumber;
-
-    const canUseApps = vals.hubBalanceWei.gt(ethers.utils.parseEther("0"));
+    const canUseApps =
+      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
+      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
 
     this.updateAppRegistry({
       canUseApps
