@@ -855,19 +855,60 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-<<<<<<< HEAD
-"@counterfactual/types@0.0.1":
+"@counterfactual/cf.js@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.0.5.tgz#661297bb54d0228a45fc34b97e30c0e3c77a0fe9"
+  integrity sha512-hjeRgQ1xK6Ihpfm47JGOwbwn0WUVG8zfqg72B5itFDl+DA762g4vCmUToAdWOQRpT02w3VVum3v1UZN3WoxjPQ==
+  dependencies:
+    "@counterfactual/node-provider" "0.0.1"
+    "@counterfactual/types" "0.0.1"
+    ethers "https://github.com/ethers-io/ethers.js.git"
+    eventemitter3 "^3.1.0"
+
+"@counterfactual/contracts@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.0.3.tgz#20c37b80191dd7eaf40f772256acc90b7e0e08cd"
+  integrity sha512-CH6A9SeG6MwXvJWNGQThIt2+0Uo6EgaAwx9+FBJ6GLczZm8XtRpROrPA86Exqv7L28dK2IklAK5Q90ec8DK2uA==
+
+"@counterfactual/machine@0.0.1":
   version "0.0.1"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.1.tgz#1bfc897bd64b8fb3a9c5cff42cd6e0d60305dab5"
-  integrity sha512-Cv22ruTv1D/4el/7gqsKRnH+Bb5TjZDy/CCtBYh1zY1ymkJQ9XP/CINoxEWQUNu7YVbn7x91toPXWnx43ychuw==
-=======
+  resolved "https://registry.yarnpkg.com/@counterfactual/machine/-/machine-0.0.1.tgz#78beeadbec236b0c6bab516366b550f12fd62a44"
+  integrity sha512-lcjEnNIYqpwurms2l31NL5QxPoxRk+S3TxiCjdh9s0S/VImvU/iKP4kTxlayUNzWSNPkpzGYeuJrs9ylDnpXdA==
+
+"@counterfactual/node-provider@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.0.1.tgz#2d4802a31283677a6d51128a87721f9cb2cd43f5"
+  integrity sha512-kbrJusnzG6/2P5NGN/ev5KHROffcBX3p5/Yk2pAiBTjub6keFxl9TIYdNG3N8GG2LhZD3xkscAMDtXABJtSgoQ==
+  dependencies:
+    eventemitter3 "^3.1.0"
+
 "@counterfactual/node-provider@0.1.0":
   version "0.1.0"
   resolved "https://registry.npmjs.org/@counterfactual/node-provider/-/node-provider-0.1.0.tgz#3658325151abf86f65f10a5858e0775c5887a6de"
   integrity sha512-HZ2FOtRtKgWLKM6GhNjD2rBZqU6C31ZFdeZyMVTldPuqIW5Wo5aMGSY4RdgjO/hrTweWrNP6lstt/j4ZSGFIoQ==
   dependencies:
     eventemitter3 "^3.1.0"
->>>>>>> master
+
+"@counterfactual/node@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.0.4.tgz#8d82b002f2497b0382d1b4c9112d31ae1e615086"
+  integrity sha512-w2i78YuOj4q4o2RpUy/zSNNiDJV5yhnEsuIlMLsdi9E4fmPXaaMt6YFb+M4nfpfVBe5hDdx8AS76ImyPBUHFzg==
+  dependencies:
+    "@counterfactual/cf.js" "0.0.5"
+    "@counterfactual/contracts" "0.0.3"
+    "@counterfactual/machine" "0.0.1"
+    "@counterfactual/types" "0.0.1"
+    "@firebase/util" "0.*"
+    ethers "4.0.26"
+    eventemitter3 "^3.1.0"
+    firebase "5.8.4"
+    p-queue "^3.1.0"
+    uuid "^3.3.2"
+
+"@counterfactual/types@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.1.tgz#1bfc897bd64b8fb3a9c5cff42cd6e0d60305dab5"
+  integrity sha512-Cv22ruTv1D/4el/7gqsKRnH+Bb5TjZDy/CCtBYh1zY1ymkJQ9XP/CINoxEWQUNu7YVbn7x91toPXWnx43ychuw==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -7235,6 +7276,21 @@ ethers@4.0.26, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
+"ethers@https://github.com/ethers-io/ethers.js.git":
+  version "4.0.26"
+  resolved "https://github.com/ethers-io/ethers.js.git#05648177aa7a6bfaf50e0343606f7d08b541dc5a"
+  dependencies:
+    "@types/node" "^10.3.2"
+    aes-js "3.0.0"
+    bn.js "^4.4.0"
+    elliptic "6.3.3"
+    hash.js "1.1.3"
+    js-sha3 "0.5.7"
+    scrypt-js "2.0.4"
+    setimmediate "1.0.4"
+    uuid "2.0.1"
+    xmlhttprequest "1.8.0"
+
 ethjs-unit@0.1.6, ethjs-unit@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/ethjs-unit/-/ethjs-unit-0.1.6.tgz#c665921e476e87bce2a9d588a6fe0405b2c41699"
@@ -7815,6 +7871,20 @@ firebase-token-generator@^2.0.0:
   resolved "https://registry.yarnpkg.com/firebase-token-generator/-/firebase-token-generator-2.0.0.tgz#9767d759ec13abdc99ba115fd5ea99d8b93d1206"
   integrity sha1-l2fXWewTq9yZuhFf1eqZ2Lk9EgY=
 
+firebase@5.8.4, "firebase@>= 5.0.0":
+  version "5.8.4"
+  resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.8.4.tgz#5b3a6e2a7415c9bfbd30ffd3a147d392387347ea"
+  integrity sha512-weILpmo3b4PWKMGQMbGu93OytkHt7tGVXL62mtfpBoIR2iPDpZiOv/LIFK/H7Y9Vr4H5EFuIBWXlramxsQlKfA==
+  dependencies:
+    "@firebase/app" "0.3.9"
+    "@firebase/auth" "0.9.3"
+    "@firebase/database" "0.3.12"
+    "@firebase/firestore" "1.0.4"
+    "@firebase/functions" "0.3.7"
+    "@firebase/messaging" "0.3.11"
+    "@firebase/polyfill" "0.3.6"
+    "@firebase/storage" "0.2.8"
+
 firebase@5.8.5:
   version "5.8.5"
   resolved "https://registry.npmjs.org/firebase/-/firebase-5.8.5.tgz#2f8cf0b022bf646e6c3c870c7f6549652c25ac8b"
@@ -7828,20 +7898,6 @@ firebase@5.8.5:
     "@firebase/messaging" "0.3.12"
     "@firebase/polyfill" "0.3.7"
     "@firebase/storage" "0.2.9"
-
-"firebase@>= 5.0.0":
-  version "5.8.4"
-  resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.8.4.tgz#5b3a6e2a7415c9bfbd30ffd3a147d392387347ea"
-  integrity sha512-weILpmo3b4PWKMGQMbGu93OytkHt7tGVXL62mtfpBoIR2iPDpZiOv/LIFK/H7Y9Vr4H5EFuIBWXlramxsQlKfA==
-  dependencies:
-    "@firebase/app" "0.3.9"
-    "@firebase/auth" "0.9.3"
-    "@firebase/database" "0.3.12"
-    "@firebase/firestore" "1.0.4"
-    "@firebase/functions" "0.3.7"
-    "@firebase/messaging" "0.3.11"
-    "@firebase/polyfill" "0.3.6"
-    "@firebase/storage" "0.2.8"
 
 flagged-respawn@^1.0.0:
   version "1.0.1"
@@ -8110,10 +8166,10 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
-ganache-cli@6.4.0:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.4.0.tgz#1443a14429726d5a1d10c2127efc9503b2f32122"
-  integrity sha512-aujOqrN6tDaoKGpP6cPZR33r9Ko529FCHHG0/0dNB9a9e4lY/rilMXqrc4KfjEWcKvD5ts+4fcFKYFhT6W8HAw==
+ganache-cli@6.4.1:
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.4.1.tgz#77c1682883a544dcad160b0e8155e282aefb4f1f"
+  integrity sha512-MUZ1DNnmlTrXnH6EuINuew75AI9d/wbIC0WpZCJo5Endsf6ZwEvfnfxGMpEnVizRri1mon2WWxLGAmALDxVcRQ==
   dependencies:
     bn.js "4.11.8"
     source-map-support "0.5.9"
@@ -8154,10 +8210,10 @@ ganache-core@2.4.0:
     ethereumjs-wallet "0.6.2"
     web3 "1.0.0-beta.35"
 
-ganache-core@2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.5.1.tgz#731e88db70c12ac8a7c2b56a055483338523b739"
-  integrity sha512-sqTpmUtoExsUZqCqMdIZ+kPmXXu/fab755LpCaaty2u9EHb9gfIM9f/8gTpg0biaJ7LesbdyTfAbw66wHi4ujw==
+ganache-core@2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.5.2.tgz#0f8d59f46e5c4669fab388ff19ded5de74a7d02c"
+  integrity sha512-uvKqc1NOjsoe2l6jdNstQ4PMOjqGPVMLo0MSoajKcpD2r7cBqofBnIDS2JdzRbMUzrRge4o8pl4RSgOcthiuLQ==
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
