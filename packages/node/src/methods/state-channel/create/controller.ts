@@ -116,6 +116,10 @@ export default class CreateChannelController extends NodeController {
       signer
     );
 
+    console.log("deploying proxy");
+    console.log(networkContext.ProxyFactory);
+    console.log(await signer.getAddress());
+
     const setupData = new Interface(
       MinimumViableMultisig.abi
     ).functions.setup.encode([multisigOwners]);
