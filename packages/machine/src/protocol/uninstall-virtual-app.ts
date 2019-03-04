@@ -327,10 +327,7 @@ function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
 }
 
 function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
-  return function (
-    message: ProtocolMessage,
-    context: Context
-  ) {
+  return function(message: ProtocolMessage, context: Context) {
     const {
       intermediaryXpub,
       respondingXpub,
@@ -353,7 +350,7 @@ function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
     }
 
     if (isIntermediary) {
-      sc = sc.setState(targetAppIdentityHash, targetAppState)
+      sc = sc.setState(targetAppIdentityHash, targetAppState);
     }
 
     sc = sc.lockAppInstance(targetAppIdentityHash);
@@ -369,7 +366,7 @@ function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
       targetAppInstance.hashOfLatestState,
       targetAppInstance.appSeqNo
     );
-  }
+  };
 }
 
 function constructUninstallOp(
