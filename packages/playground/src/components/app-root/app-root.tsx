@@ -292,15 +292,6 @@ export class AppRoot {
       ]
     ];
 
-    console.log(
-      "myBalance",
-      myBalance,
-      ethers.utils.formatEther(myBalance),
-      "counterpartyBalance",
-      counterpartyBalance,
-      ethers.utils.formatEther(counterpartyBalance)
-    );
-
     const vals = {
       ethFreeBalanceWei: myBalance,
       ethMultisigBalance: await provider!.getBalance(multisigAddress),
@@ -308,8 +299,8 @@ export class AppRoot {
     };
 
     const canUseApps =
-      myBalance.gt(MINIMUM_EXPECTED_FREE_BALANCE) &&
-      counterpartyBalance.gt(MINIMUM_EXPECTED_FREE_BALANCE);
+      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
+      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
 
     this.updateAppRegistry({
       canUseApps
