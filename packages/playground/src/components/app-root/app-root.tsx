@@ -24,6 +24,8 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "4": "rinkeby"
 };
 
+const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
@@ -297,8 +299,8 @@ export class AppRoot {
     };
 
     const canUseApps =
-      myBalance.gt(ethers.utils.parseEther("0.1")) &&
-      counterpartyBalance.gt(ethers.utils.parseEther("0.1"));
+      myBalance.gt(MINIMUM_EXPECTED_FREE_BALANCE) &&
+      counterpartyBalance.gt(MINIMUM_EXPECTED_FREE_BALANCE);
 
     this.updateAppRegistry({
       canUseApps
