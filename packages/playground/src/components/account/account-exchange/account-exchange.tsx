@@ -134,6 +134,7 @@ export class AccountExchange {
             button="Withdraw"
             error={this.withdrawalError}
             available={this.ethFreeBalanceWei}
+            min={0}
           />
         </div>
       </div>,
