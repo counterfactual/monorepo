@@ -87,25 +87,16 @@ class Wager extends Component {
     const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
-    const provider = new window.ethers.providers.Web3Provider(
-      window["web3"].currentProvider
-    );
     const currentEthBalance = window.ethers.utils.parseEther(
       this.props.balance
     );
     const bet = window.ethers.utils.parseEther(this.props.gameInfo.betAmount);
-    const minimumEthBalance = bet.add(
-      await provider.estimateGas({
-        to: opponent.nodeAddress,
-        value: window.ethers.utils.parseEther(this.props.gameInfo.betAmount)
-      })
-    );
 
-    if (currentEthBalance.lt(minimumEthBalance)) {
+    if (currentEthBalance.lt(bet)) {
       this.setState({
-        error: `Insufficient funds: You need at least ${window.ethers.utils.formatEther(
-          minimumEthBalance
-        )} ETH to play.`
+        error: `Insufficient funds: You need at least ${
+          this.props.gameInfo.betAmount
+        } ETH to play.`
       });
       return;
     }
