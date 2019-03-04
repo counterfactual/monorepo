@@ -86,7 +86,7 @@ export class AccountDeposit {
           onSubmit={this.formSubmitionHandler.bind(this)}
           button="Deposit"
           available={this.ethWeb3WalletBalance}
-          max={ethers.utils.parseEther("1")}
+          max={1}
           error={this.error}
         />
       </widget-screen>
