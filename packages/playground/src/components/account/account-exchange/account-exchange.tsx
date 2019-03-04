@@ -1,4 +1,5 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
@@ -33,6 +34,14 @@ export class AccountExchange {
   > = async () => undefined;
   @Prop() getEtherscanAddressURL: (address: string) => string = () => "";
   @Prop() getEtherscanTxURL: (tx: string) => string = () => "";
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  componentDidUpdate() {
+    if (!this.user || !this.user.id) {
+      this.history.push("/");
+      return;
+    }
+  }
 
   removeError() {
     this.updateAccount({
