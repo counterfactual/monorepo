@@ -1,4 +1,4 @@
-import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
+import { setFinalCommitment } from "./utils/set-final-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";

@@ -1,4 +1,4 @@
-import { ProtocolExecutionFlow } from "@counterfactual/machine/src";
+import { ProtocolExecutionFlow } from "..";
 import {
   AssetType,
   ETHBucketAppState,

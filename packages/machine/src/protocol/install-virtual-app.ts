@@ -1,5 +1,5 @@
-import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
-import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
+import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
+import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";

@@ -1,4 +1,4 @@
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
+import { generateRandomNetworkContext } from "../../../mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";

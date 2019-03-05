@@ -1,4 +1,4 @@
-import { UNINSTALL_VIRTUAL_APP_PROTOCOL } from "@counterfactual/machine/src/protocol/uninstall-virtual-app";
+import { UNINSTALL_VIRTUAL_APP_PROTOCOL } from "./uninstall-virtual-app";
 
 import { Protocol } from "../enums";
 import { ProtocolExecutionFlow } from "../types";

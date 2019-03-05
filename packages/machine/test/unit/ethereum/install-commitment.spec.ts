@@ -1,7 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
+import { generateRandomNetworkContext } from "../../mocks";
 import { AssetType } from "@counterfactual/types";
 import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
