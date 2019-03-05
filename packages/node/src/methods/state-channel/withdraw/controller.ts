@@ -68,7 +68,10 @@ export default class WithdrawController extends NodeController {
         txHash: txResponse.hash
       });
 
-      await provider.waitForTransaction(txResponse.hash!);
+      await provider.waitForTransaction(
+        txResponse.hash as string,
+        requestHandler.CONFIRMATION_NUM_BLOCKS
+      );
     } catch (e) {
       requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
       throw new Error(`${ERRORS.WITHDRAWAL_FAILED}: ${e}`);

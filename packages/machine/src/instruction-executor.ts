@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 
 import { Opcode, Protocol } from "./enums";
 import { MiddlewareContainer } from "./middleware";
@@ -19,14 +19,13 @@ import {
   UpdateParams,
   WithdrawParams
 } from "./types";
-import { CALL_EXCEPTION } from "ethers/errors";
 
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
 
   constructor(
     public readonly network: NetworkContext,
-    public readonly provider: JsonRpcProvider
+    public readonly provider: BaseProvider
   ) {
     this.middlewares = new MiddlewareContainer();
   }
@@ -75,8 +74,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 

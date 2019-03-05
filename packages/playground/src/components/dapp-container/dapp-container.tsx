@@ -149,7 +149,9 @@ export class DappContainer {
           ...this.user,
           token: this.token
         },
-        balance: ethers.utils.formatEther(this.ethMultisigBalance)
+        balance: this.ethMultisigBalance
+          ? ethers.utils.formatEther(this.ethMultisigBalance)
+          : "0"
       })}`,
       "*"
     );

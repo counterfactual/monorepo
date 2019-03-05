@@ -544,8 +544,8 @@ export class StateChannel {
   /// addresses
   public uninstallApp(
     appInstanceIdentityHash: string,
-    aliceBalanceIncrement: BigNumber,
-    bobBalanceIncrement: BigNumber
+    aliceBalanceIncrement: BigNumber = Zero,
+    bobBalanceIncrement: BigNumber = Zero
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);

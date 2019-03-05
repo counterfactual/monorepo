@@ -57,9 +57,7 @@ export class AccountEthForm {
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
-              <div>
-                {ethers.utils.formatEther(this.available).slice(0, 5)} ETH
-              </div>
+              <div>{ethers.utils.formatEther(this.available)} ETH</div>
             </div>
           </form-input>
           <form-button

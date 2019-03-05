@@ -28,7 +28,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
-  jest.setTimeout(40000);
+  jest.setTimeout(50000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;

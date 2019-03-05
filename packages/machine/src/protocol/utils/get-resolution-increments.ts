@@ -1,7 +1,7 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { AssetType } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
 import { StateChannel } from "../../models";
@@ -17,7 +17,7 @@ type TransferTransaction = {
 export async function computeFreeBalanceIncrements(
   stateChannel: StateChannel,
   appInstanceId: string,
-  provider: JsonRpcProvider
+  provider: BaseProvider
 ): Promise<{ [x: string]: BigNumber }> {
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 

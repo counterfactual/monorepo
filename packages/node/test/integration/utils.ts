@@ -195,7 +195,7 @@ export function makeInstallProposalRequest(
   proposedToIdentifier: string,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
-  let initialState = null;
+  let initialState;
 
   if (!nullInitialState) {
     initialState = {

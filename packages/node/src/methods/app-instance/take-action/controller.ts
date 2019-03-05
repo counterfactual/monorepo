@@ -80,7 +80,12 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<void> {
-    const { store, publicIdentifier, messagingService } = requestHandler;
+    const {
+      store,
+      publicIdentifier,
+      messagingService,
+      outgoing
+    } = requestHandler;
     const { appInstanceId, action } = params;
 
     const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
@@ -92,11 +97,15 @@ export default class TakeActionController extends NodeController {
 
     const appInstance = await store.getAppInstance(appInstanceId);
 
-    await messagingService.send(to, {
+    const msg = {
       from: requestHandler.publicIdentifier,
       type: NODE_EVENTS.UPDATE_STATE,
       data: { appInstanceId, action, newState: appInstance.state }
-    } as UpdateStateMessage);
+    } as UpdateStateMessage;
+
+    await messagingService.send(to, msg);
+
+    outgoing.emit(msg.type, msg);
   }
 }
 

@@ -164,9 +164,11 @@ describe("Node method follows spec - uninstall", () => {
               expect(
                 await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
               ).toEqual([]);
+
               expect(
                 await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)
               ).toEqual([]);
+
               done();
             });
 

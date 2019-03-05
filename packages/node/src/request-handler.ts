@@ -1,7 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import Queue from "p-queue";
 
@@ -18,9 +18,13 @@ import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
  * about app instances and channels for this Node and any relevant peer Nodes.
  */
 export class RequestHandler {
+  // NOTE: This must be for 1 for the tests to work
+  public readonly CONFIRMATION_NUM_BLOCKS = 3;
+
   private methods = new Map();
   private events = new Map();
   private shardedQueues = new Map<string, Queue>();
+
   store: Store;
 
   constructor(
@@ -31,7 +35,7 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: JsonRpcProvider,
+    readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string
   ) {
@@ -95,7 +99,13 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
-    await this.events.get(event)(this, msg);
+    const controllerExecutionMethod = this.events.get(event);
+
+    if (!controllerExecutionMethod) {
+      throw new Error(`Recent ${event} which has no event handler`);
+    }
+
+    await controllerExecutionMethod(this, msg);
   }
 
   public getShardedQueue(shardKey: string): Queue {

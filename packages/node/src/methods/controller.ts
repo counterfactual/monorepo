@@ -27,20 +27,17 @@ export abstract class NodeController {
 
   protected abstract executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.MethodParams,
-    context?: object
+    params: Node.MethodParams
   ): Promise<Node.MethodResult>;
 
   protected async beforeExecution(
     requestHandler: RequestHandler,
-    params: Node.MethodParams,
-    context?: object
+    params: Node.MethodParams
   ): Promise<void> {}
 
   protected async afterExecution(
     requestHandler: RequestHandler,
-    params: Node.MethodParams,
-    context?: object
+    params: Node.MethodParams
   ): Promise<void> {}
 
   // This method is the logic by which the waiting on the queue happens

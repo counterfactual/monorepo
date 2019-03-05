@@ -1,5 +1,4 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import { BigNumber } from "ethers/utils";
 
 import { Store } from "../../../store";
 
@@ -9,13 +8,8 @@ export async function uninstallAppInstanceFromChannel(
   initiatingXpub: string,
   respondingXpub: string,
   intermediaryXpub: string,
-  appInstanceId: string,
-  initiatingBalanceIncrement: BigNumber,
-  respondingBalanceIncrement: BigNumber
+  appInstanceId: string
 ): Promise<void> {
-  // TODO: this should actually call resolve on the AppInstance and execute
-  // the appropriate payout to the right parties
-
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
@@ -25,8 +19,6 @@ export async function uninstallAppInstanceFromChannel(
   const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
     currentChannels,
     {
-      initiatingBalanceIncrement,
-      respondingBalanceIncrement,
       initiatingXpub,
       respondingXpub,
       intermediaryXpub,

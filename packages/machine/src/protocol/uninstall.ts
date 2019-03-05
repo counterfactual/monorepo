@@ -1,5 +1,5 @@
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
@@ -89,7 +89,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 async function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
-  provider: JsonRpcProvider
+  provider: BaseProvider
 ) {
   const { network, stateChannelsMap } = context;
   const {
@@ -108,6 +108,7 @@ async function proposeStateTransition(
   );
 
   const aliceBobMap = getAliceBobMap(sc);
+
   const newStateChannel = sc.uninstallApp(
     appIdentityHash,
     increments[aliceBobMap.alice],

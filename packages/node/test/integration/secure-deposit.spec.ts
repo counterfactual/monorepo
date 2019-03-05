@@ -22,7 +22,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(50000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -78,7 +78,7 @@ describe("Node method follows spec - deposit", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after deposits", async () => {
+  it("has the right balance for both parties after deposits", async done => {
     nodeA.on(
       NODE_EVENTS.CREATE_CHANNEL,
       async (data: NodeTypes.CreateChannelResult) => {
@@ -88,7 +88,9 @@ describe("Node method follows spec - deposit", () => {
         nodeB.on(
           NODE_EVENTS.DEPOSIT_CONFIRMED,
           async (msg: DepositConfirmationMessage) => {
+            depositReq.params["notifyCounterparty"] = false;
             await nodeB.call(depositReq.type, depositReq);
+
             expect(
               (await provider.getBalance(multisigAddress)).toNumber()
             ).toEqual(2);
@@ -97,11 +99,15 @@ describe("Node method follows spec - deposit", () => {
               nodeA,
               multisigAddress
             );
+
             expect(freeBalanceState.aliceBalance).toEqual(One);
             expect(freeBalanceState.bobBalance).toEqual(One);
+
+            done();
           }
         );
 
+        depositReq.params["notifyCounterparty"] = true;
         await nodeA.call(depositReq.type, depositReq);
       }
     );

@@ -7,7 +7,7 @@ import {
   proposeInstallVirtualEventController,
   protocolMessageEventController,
   rejectInstallEventController,
-  rejectInstallVirtualEventController,
+  rejectInstallVirtualEventController
 } from "./events";
 import {
   CreateChannelController,
@@ -95,6 +95,7 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
   // TODO: Remove no-ops of obsolete functions
+  [NODE_EVENTS.UPDATE_STATE]: () => {},
   [NODE_EVENTS.UNINSTALL]: () => {},
   [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},

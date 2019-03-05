@@ -14,7 +14,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -62,7 +62,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: JsonRpcProvider,
+    provider: BaseProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -82,7 +82,7 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: JsonRpcProvider,
+    private readonly provider: BaseProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
@@ -176,6 +176,9 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toXpub;
 
+        console.log(
+          `{ ${from.substr(0, 10)}, ${to.substr(0, 10)}} ${data.seq}`
+        );
         await this.messagingService.send(to, {
           from,
           data,
@@ -193,13 +196,16 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(message);
+        const key = this.encodeProtocolMessage(data);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
         this.ioSendDeferrals.set(key, deferral);
 
         const counterpartyResponse = deferral.promise;
 
+        console.log(
+          `{ ${from.substr(0, 10)}, ${to.substr(0, 10)}} ${data.seq}`
+        );
         await this.messagingService.send(to, {
           from,
           data,
@@ -396,6 +402,12 @@ export class Node {
       );
     }
 
+    console.log(
+      `{ received ${msg.from.substr(0, 10)} ${msg.data.toXpub.substr(0, 10)} ${
+        msg.data.seq
+      }`
+    );
+
     const promise = this.ioSendDeferrals.get(key)!;
 
     try {
@@ -411,6 +423,7 @@ export class Node {
   private encodeProtocolMessage(msg: ProtocolMessage) {
     return JSON.stringify({
       protocol: msg.protocol,
+      fromto: [msg.fromXpub, msg.toXpub].sort().toString(),
       params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
     });
   }

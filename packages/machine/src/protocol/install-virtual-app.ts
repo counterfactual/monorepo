@@ -1,6 +1,6 @@
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
-import { bigNumberify } from "ethers/utils";
+import { AddressZero } from "ethers/constants";
+import { bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Opcode } from "../enums";
 import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
@@ -238,6 +238,8 @@ function createAndAddTarget(
   defaultTimeout: number,
   appInterface: AppInterface,
   initialState: SolidityABIEncoderV2Struct,
+  initiatingBalanceDecrement: BigNumberish, // FIXME: serialize
+  respondingBalanceDecrement: BigNumberish,
   context: Context,
   initiatingXpub: string,
   respondingXpub: string,
@@ -266,8 +268,10 @@ function createAndAddTarget(
     appInterface,
     {
       assetType: AssetType.ETH,
-      limit: Zero, // limit field is ignored, since limits are enforced by virtual app agreement
-      token: AddressZero
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        bigNumberify(respondingBalanceDecrement)
+      ),
+      token: AddressZero // FIXME: support tokens
     },
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no
@@ -303,6 +307,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,
@@ -383,6 +389,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,
@@ -513,6 +521,8 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,

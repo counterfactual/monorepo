@@ -144,7 +144,9 @@ export class AppGame {
         actionHash: HashZero
       };
 
-      this.highRollerState = await this.appInstance.takeAction(startGameAction);
+      this.highRollerState = (await this.appInstance.takeAction(
+        startGameAction
+      )) as HighRollerAppState;
 
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
@@ -160,7 +162,7 @@ export class AppGame {
       this.highRollerState = {
         ...(await this.appInstance.takeAction(commitHashAction)),
         playerFirstNumber: bigNumberify(playerFirstNumber)
-      };
+      } as HighRollerAppState;
 
       this.updateUIState({
         highRollerState: this.highRollerState
@@ -176,9 +178,9 @@ export class AppGame {
         actionHash: HashZero
       };
 
-      this.highRollerState = await this.appInstance.takeAction(
+      this.highRollerState = (await this.appInstance.takeAction(
         commitHashAction
-      );
+      )) as HighRollerAppState;
 
       this.gameStatusLabel = "Who will win?";
     }

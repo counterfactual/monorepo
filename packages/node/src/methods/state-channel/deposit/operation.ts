@@ -10,11 +10,7 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
-import {
-  getAlice,
-  getBalanceIncrement,
-  getPeersAddressFromChannel
-} from "../../../utils";
+import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
@@ -111,18 +107,23 @@ export async function makeDeposit(
       txHash: txResponse.hash
     });
 
-    await provider.waitForTransaction(txResponse.hash!);
+    await provider.waitForTransaction(
+      txResponse.hash as string,
+      requestHandler.CONFIRMATION_NUM_BLOCKS
+    );
   } catch (e) {
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+    if (e.toString().includes("reject")) {
+      requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+      console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+    } else {
+      throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+    }
   }
 }
 
 export async function uninstallBalanceRefundApp(
   requestHandler: RequestHandler,
-  params: Node.DepositParams,
-  beforeDepositBalance: BigNumber,
-  afterDepositBalance: BigNumber
+  params: Node.DepositParams
 ) {
   const {
     publicIdentifier,
@@ -143,21 +144,12 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
 
-  const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
-    stateChannel,
-    publicIdentifier,
-    beforeDepositBalance,
-    afterDepositBalance
-  );
-
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      aliceBalanceIncrement,
-      bobBalanceIncrement,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
@@ -168,32 +160,4 @@ export async function uninstallBalanceRefundApp(
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
   );
-}
-
-function getDepositIncrement(
-  channel: StateChannel,
-  depositer: string,
-  beforeDepositBalance: BigNumber,
-  afterDepositBalance: BigNumber
-) {
-  let aliceBalanceIncrement = Zero;
-  let bobBalanceIncrement = Zero;
-
-  const depositAmount = getBalanceIncrement(
-    beforeDepositBalance,
-    afterDepositBalance
-  );
-
-  if (
-    channel.getFreeBalanceAddrOf(depositer, AssetType.ETH) === getAlice(channel)
-  ) {
-    aliceBalanceIncrement = depositAmount;
-  } else {
-    bobBalanceIncrement = depositAmount;
-  }
-
-  return {
-    aliceBalanceIncrement,
-    bobBalanceIncrement
-  };
 }

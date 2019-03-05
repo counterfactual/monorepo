@@ -1,5 +1,5 @@
 import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
@@ -43,7 +43,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
 
     // Verify they did indeed countersign the right thing
     (message: TakeActionProtocolMessage, context: Context) => {
-      const { toAddress } = message;
+      const { toXpub } = message;
       const { stateChannelsMap } = context;
       const { appIdentityHash, multisigAddress } = message.params;
 
@@ -51,7 +51,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       const appSeqNo = channel.getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(toAddress, appSeqNo),
+        xkeyKthAddress(toXpub, appSeqNo),
         context.commitments[0],
         context.inbox[0].signature
       );
@@ -68,14 +68,14 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
 
     // Validate your counterparty's signature is for the above proposal
     (message: TakeActionProtocolMessage, context: Context) => {
-      const { signature, fromAddress, params } = message;
+      const { signature, fromXpub, params } = message;
       const { appIdentityHash, multisigAddress } = params;
 
       const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
       const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(fromAddress, appSeqNo),
+        xkeyKthAddress(fromXpub, appSeqNo),
         context.commitments[0],
         signature
       );
@@ -99,7 +99,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
 async function addStateTransitionAndCommitmentToContext(
   message: TakeActionProtocolMessage,
   context: Context,
-  provider: JsonRpcProvider
+  provider: BaseProvider
 ) {
   const { network, stateChannelsMap } = context;
   const { appIdentityHash, action, multisigAddress } = message.params;

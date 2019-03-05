@@ -1,7 +1,7 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
   bigNumberify,
@@ -264,7 +264,7 @@ export class AppInstance {
 
   public async computeStateTransition(
     action: SolidityABIEncoderV2Struct,
-    provider: JsonRpcProvider
+    provider: BaseProvider
   ): Promise<SolidityABIEncoderV2Struct> {
     const ret: SolidityABIEncoderV2Struct = {};
 
@@ -307,7 +307,7 @@ export class AppInstance {
     )[0];
   }
 
-  public toEthersContract(provider: JsonRpcProvider) {
+  public toEthersContract(provider: BaseProvider) {
     return new Contract(
       this.appInterface.addr,
       CounterfactualApp.abi,
