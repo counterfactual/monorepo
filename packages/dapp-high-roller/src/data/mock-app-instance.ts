@@ -1,15 +1,14 @@
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import {
   Address,
   AppABIEncodings,
-  SolidityABIEncoderV2Struct,
   AppInstanceID,
   AppInstanceInfo,
   BlockchainAsset,
   cf,
-  Node,
-  SolidityABIEncoderV2Struct
+  Node
 } from "./types";
 
 export enum AppInstanceEventType {
@@ -80,7 +79,9 @@ export class AppInstance {
    * @param action Action to take
    * @return JSON representation of latest state after applying the action
    */
-  async takeAction(action: SolidityABIEncoderV2Struct): Promise<SolidityABIEncoderV2Struct> {
+  async takeAction(
+    action: SolidityABIEncoderV2Struct
+  ): Promise<SolidityABIEncoderV2Struct> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
       {
