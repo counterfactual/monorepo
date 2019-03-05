@@ -7,7 +7,6 @@ import {
 } from "./data-types";
 import {
   Address,
-  AppAction,
   AppInstanceID,
   SolidityABIEncoderV2Struct
 } from "./simple-types";
@@ -120,7 +119,7 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: AppAction;
+    action: SolidityABIEncoderV2Struct;
   };
 
   export type TakeActionResult = {
@@ -184,7 +183,7 @@ export namespace Node {
     appInstanceId: AppInstanceID;
     newState: SolidityABIEncoderV2Struct;
     oldState: SolidityABIEncoderV2Struct;
-    action?: AppAction;
+    action?: SolidityABIEncoderV2Struct;
   };
 
   export type UninstallEventData = {
