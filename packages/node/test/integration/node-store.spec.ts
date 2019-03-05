@@ -1,5 +1,5 @@
 import { AddressZero } from "ethers/constants";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -14,7 +14,7 @@ describe("Node can use storage service", () => {
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(

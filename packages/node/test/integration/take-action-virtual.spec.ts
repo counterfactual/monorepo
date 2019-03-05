@@ -6,7 +6,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -44,7 +44,7 @@ describe("Node method follows spec - takeAction virtual", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
