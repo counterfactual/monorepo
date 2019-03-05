@@ -150,8 +150,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         fromXpub: intermediaryXpub,
         toXpub: initiatingXpub,
         signature: context.inbox[0].signature, // s3
-        signature2: context.signatures[0],     // s2
-
+        signature2: context.signatures[0] // s2
       };
     },
 
