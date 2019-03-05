@@ -170,7 +170,7 @@ export class AppHome {
         <h1>Please Switch to Ropsten or Kovan</h1>
         <h2>
           The Playground demo is currently only deployed on the Ropsten and
-          Kovan test network. Please switch to continue.
+          Kovan test networks. Please switch to continue.
         </h2>
       </div>
     );

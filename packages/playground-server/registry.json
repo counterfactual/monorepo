@@ -22,7 +22,7 @@
       },
       "attributes": {
         "name": "Tic Tac Toe",
-        "url": "http://tic-tac-toe-staging.netlify.com",
+        "url": "https://tic-tac-toe-staging.netlify.com",
         "slug": "tic-tac-toe",
         "icon": "images/logo.png"
       },
