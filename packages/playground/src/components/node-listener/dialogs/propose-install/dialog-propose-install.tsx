@@ -26,6 +26,9 @@ export class DialogProposeInstall {
   }
 
   render() {
+    console.log("inviting to play");
+    console.log(this.apps);
+    const networkId = window["web3"].currentProvider.networkVersion;
     return (
       <widget-dialog
         visible={true}
@@ -41,7 +44,7 @@ export class DialogProposeInstall {
             <strong>
               {
                 this.apps.find(
-                  app => app.id === this.message.data.params.appId
+                  app => app.id[networkId] === this.message.data.params.appId
                 )!.name
               }
             </strong>{" "}
