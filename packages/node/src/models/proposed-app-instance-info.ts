@@ -14,7 +14,7 @@ import {
   SolidityABIEncoderV2Struct,
   Terms
 } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 export interface IProposedAppInstanceInfo {
