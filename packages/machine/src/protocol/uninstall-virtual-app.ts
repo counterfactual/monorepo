@@ -17,7 +17,7 @@ import { validateSignature } from "./utils/signature-validator";
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(false),
 
     Opcode.OP_SIGN,
 
@@ -98,7 +98,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ],
 
   1: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(true),
 
     (message: ProtocolMessage, context: Context) => {
       validateSignature(
@@ -227,7 +227,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ],
 
   2: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(false),
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -323,43 +323,47 @@ function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
   context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
 }
 
-function addVirtualAppStateTransitionToContext(
-  message: ProtocolMessage,
-  context: Context
-) {
-  const {
-    intermediaryXpub,
-    respondingXpub,
-    initiatingXpub,
-    targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
+  return function(message: ProtocolMessage, context: Context) {
+    const {
+      intermediaryXpub,
+      respondingXpub,
+      initiatingXpub,
+      targetAppIdentityHash,
+      targetAppState
+    } = message.params as UninstallVirtualAppParams;
 
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
-
-  const sc = context.stateChannelsMap.get(key);
-
-  if (sc === undefined) {
-    throw Error(
-      `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
+    const key = virtualChannelKey(
+      [initiatingXpub, respondingXpub],
+      intermediaryXpub
     );
-  }
 
-  const newSc = sc.lockAppInstance(targetAppIdentityHash);
-  const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
+    let sc = context.stateChannelsMap.get(key);
 
-  context.stateChannelsMap.set(key, newSc);
+    if (sc === undefined) {
+      throw Error(
+        `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
+      );
+    }
 
-  // post-expiry lock commitment
-  context.commitments[0] = new VirtualAppSetStateCommitment(
-    context.network,
-    targetAppInstance.identity,
-    targetAppInstance.defaultTimeout,
-    targetAppInstance.hashOfLatestState,
-    targetAppInstance.appSeqNo
-  );
+    if (isIntermediary) {
+      sc = sc.setState(targetAppIdentityHash, targetAppState);
+    }
+
+    sc = sc.lockAppInstance(targetAppIdentityHash);
+    const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
+
+    context.stateChannelsMap.set(key, sc);
+
+    // post-expiry lock commitment
+    context.commitments[0] = new VirtualAppSetStateCommitment(
+      context.network,
+      targetAppInstance.identity,
+      targetAppInstance.defaultTimeout,
+      targetAppInstance.hashOfLatestState,
+      targetAppInstance.appSeqNo
+    );
+  };
 }
 
 function constructUninstallOp(
