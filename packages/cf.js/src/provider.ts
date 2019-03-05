@@ -19,7 +19,7 @@ import {
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
-export const NODE_REQUEST_TIMEOUT = 5000;
+export const NODE_REQUEST_TIMEOUT = 20000;
 
 /**
  * Provides convenience methods for interacting with a Counterfactual node
@@ -392,8 +392,7 @@ export class Provider {
     const {
       appInstanceId,
       action,
-      newState,
-      oldState
+      newState
     } = nodeEvent.data as Node.UpdateStateEventData;
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
@@ -401,7 +400,6 @@ export class Provider {
       data: {
         appInstance,
         newState,
-        oldState,
         action
       }
     };

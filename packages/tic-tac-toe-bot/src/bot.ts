@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/node";
 import { Address, Node as NodeTypes } from "@counterfactual/types";
+import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -89,13 +90,17 @@ function checkCrossDiagonalVictory(board: Board, player: number) {
 
 function respond(
   node: Node,
-  ethAddress: Address,
+  nodeAddress: Address,
   { data: { appInstanceId, newState } }
 ) {
-  const winner = bigNumberify(newState[2]).toNumber();
+  const { board, players, turnNum, winner } = newState;
+  const playerAddress = ethers.utils.HDNode.fromExtendedKey(nodeAddress).derivePath("0").address;
+  const botPlayerNumber = players.indexOf(playerAddress) + 1;
+  const isBotTurn = bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
+  const noWinnerYet = bigNumberify(winner).toNumber() === 0;
 
-  if (winner === 0) {
-    const action = takeTurn(newState, ethAddress);
+  if (noWinnerYet && isBotTurn) {
+    const action = takeTurn(board, botPlayerNumber);
     const request = {
       params: {
         appInstanceId,
@@ -109,9 +114,7 @@ function respond(
   }
 }
 
-export function takeTurn(newState: State, ethAddress: Address) {
-  const [players, , , board] = newState;
-  const botPlayerNumber = players.indexOf(ethAddress) + 1;
+export function takeTurn(board: Board, botPlayerNumber: number) {
   const { playX, playY } = makeMove(board);
   board[playX][playY] = bigNumberify(botPlayerNumber);
   const winClaim = checkVictory(board, botPlayerNumber);
@@ -162,7 +165,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
   return 0;
 }
 
-export async function connectNode(node: Node, ethAddress: Address, multisigAddress) {
+export async function connectNode(node: Node, nodeAddress: Address, multisigAddress) {
   node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
@@ -180,28 +183,26 @@ export async function connectNode(node: Node, ethAddress: Address, multisigAddre
 
     node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
       if (updateEventData.data.appInstanceId === appInstanceId) {
-        respond(node, ethAddress, updateEventData);
+        respond(node, nodeAddress, updateEventData);
       }
     });
 
-    node.on(NodeTypes.EventName.UNINSTALL_VIRTUAL, data => {
+    node.on(NodeTypes.EventName.UNINSTALL_VIRTUAL, async data => {
       console.log("got uninstall call: ", data);
-    });
 
-    const freeBalance = await node.call(NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE, {
-      type: NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
-      requestId: generateUUID(),
-      params: {
-        multisigAddress
-      } as NodeTypes.DepositParams
-    })
-// @ts-ignore
-    console.log("freeBalance", freeBalance.result.balance.toString())
+      const freeBalance = await node.call(NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE, {
+        type: NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+        requestId: generateUUID(),
+        params: {
+          multisigAddress
+        } as NodeTypes.DepositParams
+      })
+  // @ts-ignore
+      console.log("freeBalance", freeBalance.result.balance.toString())
+    });
   });
 }
 
-type Players = Address[];
-type State = [Players, number, number, Board];
 type BoardSquare = number | BigNumber;
 type BoardRow = BoardSquare[];
 type Board = BoardRow[];

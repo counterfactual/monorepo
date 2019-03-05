@@ -33,6 +33,7 @@ export class AppRoot {
   @Prop({ mutable: true }) uiState: HighRollerUIState;
 
   @State() userDataReceived: boolean = false;
+  @State() history: RouterHistory = {} as RouterHistory;
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
@@ -136,6 +137,10 @@ export class AppRoot {
       this.updateAccount(mockAccount);
       this.userDataReceived = true;
     }
+  }
+
+  receiveRouterHistory(history: RouterHistory) {
+    this.history = history;
   }
 
   updateAccount(account: any) {
@@ -264,6 +269,7 @@ export class AppRoot {
                       this
                     )}
                     goToGame={this.goToGame.bind(this)}
+                    history={this.history}
                   >
                     <stencil-route
                       url="/"
@@ -273,7 +279,10 @@ export class AppRoot {
                         cfProvider: this.state.cfProvider,
                         appInstance: this.state.appInstance,
                         goToWaitingRoom: this.goToWaitingRoom,
-                        updateAppInstance: this.updateAppInstance
+                        updateAppInstance: this.updateAppInstance,
+                        provideRouterHistory: this.receiveRouterHistory.bind(
+                          this
+                        )
                       }}
                     />
                     <stencil-route

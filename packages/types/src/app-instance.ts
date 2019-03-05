@@ -7,45 +7,45 @@ export enum AssetType {
   ERC20 = 1
 }
 
-export interface Terms {
+export type Terms = {
   assetType: AssetType;
   limit: BigNumber;
   token: Address;
-}
+};
 
-export interface Transaction {
+export type Transaction = {
   assetType: AssetType;
   limit: BigNumber;
   token?: Address;
   to: Address[];
   value: BigNumber[];
   data: string[];
-}
+};
 
-export interface AppIdentity {
+export type AppIdentity = {
   owner: string;
   signingKeys: string[];
   appDefinitionAddress: string;
   termsHash: string;
   defaultTimeout: number;
-}
+};
 
-export interface AppInterface {
+export type AppInterface = {
   addr: string;
   stateEncoding: string;
   actionEncoding: string | undefined;
-}
+};
 
-export interface SignedStateHashUpdate {
+export type SignedStateHashUpdate = {
   stateHash: string;
   nonce: number;
   timeout: number;
   signatures: string;
-}
+};
 
-export interface ETHBucketAppState {
+export type ETHBucketAppState = {
   alice: string;
   bob: string;
   aliceBalance: BigNumber;
   bobBalance: BigNumber;
-}
+};

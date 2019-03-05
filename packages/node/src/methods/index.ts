@@ -11,6 +11,7 @@ import RejectInstallController from "./app-instance/reject-install/controller";
 import TakeActionController from "./app-instance/take-action/controller";
 import UninstallVirtualController from "./app-instance/uninstall-virtual/controller";
 import UninstallController from "./app-instance/uninstall/controller";
+import UpdateStateController from "./app-instance/update-state/controller";
 import GetProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
 import CreateChannelController from "./state-channel/create/controller";
 import DepositController from "./state-channel/deposit/controller";
@@ -35,5 +36,6 @@ export {
   TakeActionController,
   UninstallController,
   UninstallVirtualController,
+  UpdateStateController,
   WithdrawController
 };

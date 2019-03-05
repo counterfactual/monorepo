@@ -1,4 +1,5 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
+import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
@@ -33,6 +34,14 @@ export class AccountExchange {
   > = async () => undefined;
   @Prop() getEtherscanAddressURL: (address: string) => string = () => "";
   @Prop() getEtherscanTxURL: (tx: string) => string = () => "";
+  @Prop() history: RouterHistory = {} as RouterHistory;
+
+  componentDidUpdate() {
+    if (!this.user || !this.user.id) {
+      this.history.push("/");
+      return;
+    }
+  }
 
   removeError() {
     this.updateAccount({
@@ -61,14 +70,6 @@ export class AccountExchange {
   }
 
   async onDepositClicked(e) {
-    const amount = Number(e.target.value);
-
-    if (amount <= 0 || amount > 1) {
-      this.depositError =
-        "Please enter a non-zero amount of no more than 1 ETH.";
-      return;
-    }
-
     try {
       await this.deposit(ethers.utils.parseEther(e.target.value));
     } catch (e) {
@@ -81,17 +82,6 @@ export class AccountExchange {
   }
 
   async onWithdrawClicked(e) {
-    const amount = Number(e.target.value);
-
-    if (
-      amount <= 0 ||
-      amount > Number(ethers.utils.formatEther(this.ethFreeBalanceWei))
-    ) {
-      this.withdrawalError =
-        "Please enter a non-zero amount of no more than your balance.";
-      return;
-    }
-
     try {
       await this.withdraw(ethers.utils.parseEther(e.target.value));
     } catch (e) {
@@ -114,6 +104,7 @@ export class AccountExchange {
             button="Deposit"
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
+            min={0.01}
             max={1}
           />
         </div>
@@ -125,6 +116,8 @@ export class AccountExchange {
             button="Withdraw"
             error={this.withdrawalError}
             available={this.ethFreeBalanceWei}
+            min={0}
+            max={Number(ethers.utils.formatEther(this.ethFreeBalanceWei))}
           />
         </div>
       </div>,

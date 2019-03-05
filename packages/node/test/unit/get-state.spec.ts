@@ -1,7 +1,6 @@
 import { instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
 
-import { getAppInstanceState } from "../../src/methods/app-instance/get-state/operation";
 import { Store } from "../../src/store";
 
 import { createAppInstance } from "./utils";
@@ -19,11 +18,9 @@ describe("Can handle getState calls", () => {
       const appInstanceId = generateUUID();
       const appInstance = createAppInstance();
 
-      when(
-        mockedStore.getAppInstanceFromAppInstanceID(appInstanceId)
-      ).thenResolve(appInstance);
+      when(mockedStore.getAppInstance(appInstanceId)).thenResolve(appInstance);
 
-      const state = await getAppInstanceState(appInstanceId, store);
+      const state = (await store.getAppInstance(appInstanceId)).state;
       expect(state.bar).toEqual(appInstance.state.bar);
       expect(state.foo).toEqual(appInstance.state.foo);
     });
