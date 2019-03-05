@@ -1,3 +1,4 @@
+import KovanContracts from "@counterfactual/apps/networks/42.json";
 import RopstenContracts from "@counterfactual/apps/networks/3.json";
 import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
@@ -68,17 +69,20 @@ class Wager extends Component {
 
   createAppFactory() {
     let contractAddress;
-    console.log("creating app factory");
-    console.log(RopstenContracts);
-    switch (window["web3"].currentProvider.networkVersion) {
+    const networkVersion = window["web3"].currentProvider.networkVersion;
+    const contractName = "TicTacToeApp";
+    switch (networkVersion) {
       case "3":
-        contractAddress = "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe";
+        contractAddress = getContractAddress(RopstenContracts, contractName);
         break;
       case "42":
-        contractAddress = "0x2794113a560bb4b4cae36A029Cf127665d463F91";
+        contractAddress = getContractAddress(KovanContracts, contractName);
         break;
+      default:
+        throw Error(
+          `The App has not been deployed to network ID ${networkVersion}`
+        );
     }
-    console.log("using address: ", contractAddress);
     return new window.cf.AppFactory(
       contractAddress,
       {
@@ -217,3 +221,9 @@ class Wager extends Component {
 }
 
 export default Wager;
+
+function getContractAddress(migrations, contractName) {
+  return migrations.filter(migration => {
+    return migration.contractName === contractName;
+  })[0].address;
+}

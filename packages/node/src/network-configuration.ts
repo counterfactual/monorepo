@@ -40,8 +40,6 @@ export function configureNetworkContext(
       return getContractAddressesForNetwork(RinkebyContracts);
     }
     case "kovan": {
-      console.log("getting kovan contracts");
-      console.log(getContractAddressesForNetwork(KovanContracts));
       return getContractAddressesForNetwork(KovanContracts);
     }
     default: {
