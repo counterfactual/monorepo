@@ -14,7 +14,6 @@ export function getChannelFromCounterparty(
   counterparty: string
 ): StateChannel | undefined {
   const expectedExtendedKeys = [me, counterparty].sort();
-  console.log([...stateChannelsMap.values()]);
   return [...stateChannelsMap.values()].find(
     sc =>
       JSON.stringify(sc.userNeuteredExtendedKeys) ===

@@ -44,11 +44,15 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const { owners } = params;
-    const { wallet, networkContext } = requestHandler;
+    const {
+      wallet,
+      networkContext,
+      blocksNeededForConfirmation
+    } = requestHandler;
 
     const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
 
-    tx.wait(requestHandler.CONFIRMATION_NUM_BLOCKS).then(receipt =>
+    tx.wait(blocksNeededForConfirmation).then(receipt =>
       this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
     );
 

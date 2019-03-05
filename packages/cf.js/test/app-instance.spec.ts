@@ -99,10 +99,11 @@ describe("CF.js AppInstance", () => {
 
   describe("Node events", () => {
     it("fires update state events", async () => {
-      expect.assertions(4);
+      expect.assertions(3);
 
       const expectedAction = { a: 1 };
-      const expectedNewState = bigNumberify(1200);
+      const expectedNewState = { val: bigNumberify(1200) };
+
       appInstance.on(AppInstanceEventType.UPDATE_STATE, event => {
         expect(event.type).toBe(AppInstanceEventType.UPDATE_STATE);
         const { newState, action } = event.data as UpdateStateEventData;

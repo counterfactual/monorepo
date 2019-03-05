@@ -160,7 +160,9 @@ export class AppGame {
       };
 
       this.highRollerState = {
-        ...(await this.appInstance.takeAction(commitHashAction)),
+        ...((await this.appInstance.takeAction(
+          commitHashAction
+        )) as HighRollerAppState),
         playerFirstNumber: bigNumberify(playerFirstNumber)
       } as HighRollerAppState;
 

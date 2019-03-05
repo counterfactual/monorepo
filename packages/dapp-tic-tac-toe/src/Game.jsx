@@ -37,7 +37,6 @@ class Game extends Component {
   }
 
   async onUpdateState({ data: { newState: { players, turnNum, winner, board } } }) {
-
     this.updateGame({ players, turnNum, winner, board });
 
     if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {

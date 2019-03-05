@@ -1,5 +1,10 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
+import {
+  AppIdentity,
+  AppInterface,
+  SolidityABIEncoderV2Struct,
+  Terms
+} from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import {
@@ -13,7 +18,6 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { TERMS } from "../ethereum/utils/encodings";
-import { SolidityABIEncoderV2Struct } from "../types";
 
 /**
  * Representation of the values a dependency nonce can take on.

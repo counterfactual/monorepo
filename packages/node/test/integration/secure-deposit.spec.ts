@@ -4,7 +4,6 @@ import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
-  DepositConfirmationMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -22,7 +21,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(50000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -85,30 +84,23 @@ describe("Node method follows spec - deposit", () => {
         const { multisigAddress } = data;
         const depositReq = makeDepositRequest(multisigAddress, One);
 
-        nodeB.on(
-          NODE_EVENTS.DEPOSIT_CONFIRMED,
-          async (msg: DepositConfirmationMessage) => {
-            depositReq.params["notifyCounterparty"] = false;
-            await nodeB.call(depositReq.type, depositReq);
+        await nodeA.call(depositReq.type, depositReq);
 
-            expect(
-              (await provider.getBalance(multisigAddress)).toNumber()
-            ).toEqual(2);
+        await nodeB.call(depositReq.type, depositReq);
 
-            const freeBalanceState = await getFreeBalanceState(
-              nodeA,
-              multisigAddress
-            );
-
-            expect(freeBalanceState.aliceBalance).toEqual(One);
-            expect(freeBalanceState.bobBalance).toEqual(One);
-
-            done();
-          }
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          2
         );
 
-        depositReq.params["notifyCounterparty"] = true;
-        await nodeA.call(depositReq.type, depositReq);
+        const freeBalanceState = await getFreeBalanceState(
+          nodeA,
+          multisigAddress
+        );
+
+        expect(freeBalanceState.aliceBalance).toEqual(One);
+        expect(freeBalanceState.bobBalance).toEqual(One);
+
+        done();
       }
     );
     await getMultisigCreationTransactionHash(nodeA, [

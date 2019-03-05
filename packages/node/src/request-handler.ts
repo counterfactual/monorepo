@@ -1,7 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import Queue from "p-queue";
 
@@ -34,22 +34,22 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: JsonRpcProvider,
+    readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string,
-    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN
+    readonly blocksNeededForConfirmation?: number
   ) {
-    this.blocksNeededForConfirmation = 4;
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
 
-    if (
-      provider &&
-      provider.connection &&
-      provider.connection.url === "http://localhost:8545"
-    ) {
-      this.blocksNeededForConfirmation = 1;
+    if (!this.blocksNeededForConfirmation) {
+      const name = provider.network ? provider.network.name : "unknown";
+      if (name === "ropsten") {
+        this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN;
+      } else {
+        this.blocksNeededForConfirmation = 1;
+      }
     }
   }
 

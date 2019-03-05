@@ -1,4 +1,9 @@
-import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
+import {
+  AppInterface,
+  AssetType,
+  NetworkContext,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, BigNumberish } from "ethers/utils";
 
@@ -14,8 +19,7 @@ import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
-  ProtocolMessage,
-  SolidityABIEncoderV2Struct
+  ProtocolMessage
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
@@ -271,7 +275,7 @@ function createAndAddTarget(
       limit: bigNumberify(initiatingBalanceDecrement).add(
         bigNumberify(respondingBalanceDecrement)
       ),
-      token: AddressZero // FIXME: support tokens
+      token: AddressZero // TODO: support tokens
     },
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no

@@ -56,13 +56,10 @@ export default class DepositController extends NodeController {
     const { store, provider } = requestHandler;
     const { multisigAddress } = params;
 
-    console.log("============== installBalanceRefundApp ================");
     await installBalanceRefundApp(requestHandler, params);
 
-    console.log("============== makeDeposit ==================");
     await makeDeposit(requestHandler, params);
 
-    console.log("============== uninstallBalanceRefundApp ================");
     await uninstallBalanceRefundApp(requestHandler, params);
 
     if (params.notifyCounterparty) {
@@ -82,6 +79,8 @@ export default class DepositController extends NodeController {
         }
       } as DepositConfirmationMessage);
     }
+
+    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
 
     return {
       multisigBalance: await provider.getBalance(multisigAddress)

@@ -38,7 +38,13 @@ export default class WithdrawController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Node.WithdrawResult> {
-    const { store, provider, wallet, publicIdentifier } = requestHandler;
+    const {
+      store,
+      provider,
+      wallet,
+      publicIdentifier,
+      blocksNeededForConfirmation
+    } = requestHandler;
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
@@ -70,7 +76,7 @@ export default class WithdrawController extends NodeController {
 
       await provider.waitForTransaction(
         txResponse.hash as string,
-        requestHandler.CONFIRMATION_NUM_BLOCKS
+        blocksNeededForConfirmation
       );
     } catch (e) {
       requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);

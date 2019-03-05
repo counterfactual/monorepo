@@ -84,41 +84,39 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
-  const { provider } = requestHandler;
-
-  const to = params.multisigAddress;
-  const value = bigNumberify(params.amount);
-  const gasLimit = 30000;
+  const { multisigAddress, amount } = params;
+  const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
   const tx: TransactionRequest = {
-    to,
-    value,
-    gasLimit,
+    to: multisigAddress,
+    value: bigNumberify(amount),
+    gasLimit: 30000,
     gasPrice: await provider.getGasPrice()
   };
 
+  let txResponse;
+
   try {
-    const signer = await requestHandler.getSigner();
-
-    const txResponse = await signer.sendTransaction(tx);
-
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
-      value,
-      txHash: txResponse.hash
-    });
-
-    await provider.waitForTransaction(
-      txResponse.hash as string,
-      requestHandler.CONFIRMATION_NUM_BLOCKS
-    );
+    txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
   } catch (e) {
     if (e.toString().includes("reject")) {
-      requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+      outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
       console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-    } else {
-      throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+      return;
     }
+
+    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
   }
+
+  outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
+    value: amount,
+    txHash: txResponse.hash
+  });
+
+  await provider.waitForTransaction(
+    txResponse.hash as string,
+    blocksNeededForConfirmation
+  );
 }
 
 export async function uninstallBalanceRefundApp(
