@@ -1,7 +1,6 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType } from "@counterfactual/types";
 import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
@@ -19,6 +18,7 @@ import { MultisigTransaction } from "../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../src/ethereum/utils/app-identity";
 import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { generateRandomNetworkContext } from "../../mocks";
 
 /**
  * This test suite decodes a constructed OpInstall transaction object according

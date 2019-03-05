@@ -1,10 +1,10 @@
-import { ProtocolExecutionFlow } from "@counterfactual/machine/src";
 import {
   AssetType,
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
 
+import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models";
