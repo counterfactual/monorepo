@@ -26,9 +26,16 @@ export class DialogProposeInstall {
   }
 
   render() {
-    console.log("inviting to play");
-    console.log(this.apps);
     const networkId = window["web3"].currentProvider.networkVersion;
+    const app = this.apps.find(app => {
+      return app.id[networkId] === this.message.data.params.appId;
+    });
+
+    if (!app) {
+      throw Error(
+        "You've received an installation proposal from a different Ethereum network"
+      );
+    }
     return (
       <widget-dialog
         visible={true}

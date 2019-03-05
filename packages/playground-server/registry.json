@@ -3,7 +3,8 @@
     {
       "type": "app",
       "id": {
-        "3": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58"
+        "3": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+        "42": "0x91907355C59BA005843E791c88aAB80b779446c9"
       },
       "attributes": {
         "name": "High Roller",
@@ -21,7 +22,7 @@
       },
       "attributes": {
         "name": "Tic Tac Toe",
-        "url": "https://tic-tac-toe-staging.netlify.com",
+        "url": "http://tic-tac-toe-staging.netlify.com",
         "slug": "tic-tac-toe",
         "icon": "images/logo.png"
       },

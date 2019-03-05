@@ -7,7 +7,7 @@ import { RouterHistory } from "@stencil/router";
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import WalletTunnel, { WalletState } from "../../data/wallet";
+import WalletTunnel from "../../data/wallet";
 import { AppDefinition } from "../../types";
 
 type NodeMessageHandlerCallback = (data: any) => void;
