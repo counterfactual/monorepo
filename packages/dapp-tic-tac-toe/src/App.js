@@ -75,7 +75,6 @@ export default class App extends Component {
         event.data.startsWith("playground:appInstance")
       ) {
         const [, data] = event.data.split("|");
-        console.log("Received counterparty app instance", event.data);
 
         if (data) {
           const { appInstance } = JSON.parse(data);
