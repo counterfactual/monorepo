@@ -102,6 +102,8 @@ export default class DepositController extends NodeController {
       } as DepositConfirmationMessage);
     }
 
+    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
+
     return {
       multisigBalance: await requestHandler.provider.getBalance(multisigAddress)
     };

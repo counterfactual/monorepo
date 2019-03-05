@@ -4,7 +4,6 @@ import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
-  DepositConfirmationMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -85,26 +84,23 @@ describe("Node method follows spec - deposit", () => {
         const { multisigAddress } = data;
         const depositReq = makeDepositRequest(multisigAddress, One);
 
-        nodeA.on(
-          NODE_EVENTS.DEPOSIT_CONFIRMED,
-          async (msg: DepositConfirmationMessage) => {
-            await nodeB.call(depositReq.type, depositReq);
-            expect(
-              (await provider.getBalance(multisigAddress)).toNumber()
-            ).toEqual(2);
+        await nodeA.call(depositReq.type, depositReq);
 
-            const freeBalanceState = await getFreeBalanceState(
-              nodeA,
-              multisigAddress
-            );
-            expect(freeBalanceState.aliceBalance).toEqual(One);
-            expect(freeBalanceState.bobBalance).toEqual(One);
+        await nodeB.call(depositReq.type, depositReq);
 
-            done();
-          }
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          2
         );
 
-        await nodeA.call(depositReq.type, depositReq);
+        const freeBalanceState = await getFreeBalanceState(
+          nodeA,
+          multisigAddress
+        );
+
+        expect(freeBalanceState.aliceBalance).toEqual(One);
+        expect(freeBalanceState.bobBalance).toEqual(One);
+
+        done();
       }
     );
     await getMultisigCreationTransactionHash(nodeA, [
