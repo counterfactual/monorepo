@@ -164,7 +164,7 @@ export class AppGame {
           commitHashAction
         )) as HighRollerAppState),
         playerFirstNumber: bigNumberify(playerFirstNumber)
-      };
+      } as HighRollerAppState;
 
       this.updateUIState({
         highRollerState: this.highRollerState

@@ -23,7 +23,6 @@ export type RejectInstallEventData = AppEventData;
 export type UninstallEventData = AppEventData;
 
 export type UpdateStateEventData = AppEventData & {
-  oldState: SolidityABIEncoderV2Struct;
   newState: SolidityABIEncoderV2Struct;
   action?: SolidityABIEncoderV2Struct;
 };

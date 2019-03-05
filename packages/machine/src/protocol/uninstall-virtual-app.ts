@@ -3,6 +3,7 @@ import {
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
@@ -13,7 +14,12 @@ import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress } from "../xkeys";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
+import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
 import { validateSignature } from "./utils/signature-validator";
+
+type UninstallVirtualProtocolMessage = ProtocolMessage & {
+  params: UninstallVirtualAppParams;
+};
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
@@ -21,11 +27,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     Opcode.OP_SIGN,
 
-    (message: ProtocolMessage, context: Context) => {
-      const {
-        intermediaryXpub,
-        initiatingXpub
-      } = message.params as UninstallVirtualAppParams;
+    (message: UninstallVirtualProtocolMessage, context: Context) => {
+      const { intermediaryXpub, initiatingXpub } = message.params;
 
       context.outbox[0] = {
         ...message,
@@ -305,13 +308,16 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ]
 };
 
-function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
+function removeVirtualAppInstance(
+  message: UninstallVirtualProtocolMessage,
+  context: Context
+) {
   const {
     intermediaryXpub,
     respondingXpub,
     initiatingXpub,
     targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+  } = message.params;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -338,13 +344,7 @@ function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
       intermediaryXpub
     );
 
-    let sc = context.stateChannelsMap.get(key);
-
-    if (sc === undefined) {
-      throw Error(
-        `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
-      );
-    }
+    let sc = context.stateChannelsMap.get(key) as StateChannel;
 
     if (isIntermediary) {
       sc = sc.setState(targetAppIdentityHash, targetAppState);
@@ -386,18 +386,31 @@ function constructUninstallOp(
   );
 }
 
-function addRightUninstallAgreementToContext(
-  message: ProtocolMessage,
-  context: Context
+async function addRightUninstallAgreementToContext(
+  message: UninstallVirtualProtocolMessage,
+  context: Context,
+  provider: BaseProvider
 ) {
   // uninstall right agreement
   const {
+    initiatingXpub,
     intermediaryXpub,
     respondingXpub,
+    targetAppIdentityHash
+  } = message.params;
+
+  const key = virtualChannelKey(
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
+  );
+
+  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
+
+  const increments = await computeFreeBalanceIncrements(
+    metachannel,
     targetAppIdentityHash,
-    initiatingBalanceIncrement,
-    respondingBalanceIncrement
-  } = message.params as UninstallVirtualAppParams;
+    provider
+  );
 
   const sc = getChannelFromCounterparty(
     context.stateChannelsMap,
@@ -412,8 +425,8 @@ function addRightUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [intermediaryXpub]: initiatingBalanceIncrement,
-      [respondingXpub]: respondingBalanceIncrement
+      [intermediaryXpub]: increments[xkeyKthAddress(initiatingXpub, 0)],
+      [respondingXpub]: increments[xkeyKthAddress(respondingXpub, 0)]
     }
   );
 
@@ -426,19 +439,30 @@ function addRightUninstallAgreementToContext(
   );
 }
 
-function addLeftUninstallAgreementToContext(
-  message: ProtocolMessage,
-  context: Context
+async function addLeftUninstallAgreementToContext(
+  message: UninstallVirtualProtocolMessage,
+  context: Context,
+  provider: BaseProvider
 ) {
-  // uninstall left virtual app agreement
-
   const {
     initiatingXpub,
     intermediaryXpub,
+    respondingXpub,
+    targetAppIdentityHash
+  } = message.params;
+
+  const key = virtualChannelKey(
+    [initiatingXpub, respondingXpub],
+    intermediaryXpub
+  );
+
+  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
+
+  const increments = await computeFreeBalanceIncrements(
+    metachannel,
     targetAppIdentityHash,
-    initiatingBalanceIncrement,
-    respondingBalanceIncrement
-  } = message.params as UninstallVirtualAppParams;
+    provider
+  );
 
   const sc = getChannelFromCounterparty(
     context.stateChannelsMap,
@@ -453,8 +477,8 @@ function addLeftUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [initiatingXpub]: initiatingBalanceIncrement,
-      [intermediaryXpub]: respondingBalanceIncrement
+      [intermediaryXpub]: increments[xkeyKthAddress(respondingXpub, 0)],
+      [initiatingXpub]: increments[xkeyKthAddress(initiatingXpub, 0)]
     }
   );
 

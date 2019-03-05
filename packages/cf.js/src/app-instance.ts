@@ -104,7 +104,11 @@ export class AppInstance {
    *
    * @async
    */
-  async uninstall(intermediaryIdentifier?: string) {
+  async uninstall() {
+    const intermediaryIdentifier = this.intermediaries
+      ? this.intermediaries[0]
+      : undefined;
+
     await this.provider.callRawNodeMethod(
       intermediaryIdentifier
         ? Node.MethodName.UNINSTALL_VIRTUAL

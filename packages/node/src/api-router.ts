@@ -7,8 +7,7 @@ import {
   proposeInstallVirtualEventController,
   protocolMessageEventController,
   rejectInstallEventController,
-  rejectInstallVirtualEventController,
-  takeActionEventController
+  rejectInstallVirtualEventController
 } from "./events";
 import {
   CreateChannelController,
@@ -28,6 +27,7 @@ import {
   TakeActionController,
   UninstallController,
   UninstallVirtualController,
+  UpdateStateController,
   WithdrawController
 } from "./methods";
 import { NODE_EVENTS } from "./types";
@@ -46,6 +46,7 @@ const controllers = [
   TakeActionController,
   UninstallController,
   UninstallVirtualController,
+  UpdateStateController,
   WithdrawController,
 
   /**
@@ -90,11 +91,11 @@ export const eventNameToImplementation = {
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
-  [NODE_EVENTS.UPDATE_STATE]: takeActionEventController,
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
   // TODO: Remove no-ops of obsolete functions
+  [NODE_EVENTS.UPDATE_STATE]: () => {},
   [NODE_EVENTS.UNINSTALL]: () => {},
   [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
   [NODE_EVENTS.PROPOSE_STATE]: () => {},

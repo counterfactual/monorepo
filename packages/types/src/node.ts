@@ -182,7 +182,6 @@ export namespace Node {
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
     newState: SolidityABIEncoderV2Struct;
-    oldState: SolidityABIEncoderV2Struct;
     action?: SolidityABIEncoderV2Struct;
   };
 

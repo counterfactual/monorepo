@@ -130,7 +130,7 @@ class Wager extends Component {
             window.ethers.utils.HDNode
               .fromExtendedKey(opponent.nodeAddress)
               .derivePath("0")
-              .address
+              .address,
           ],
           turnNum: 0,
           winner: 0,

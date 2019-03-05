@@ -25,10 +25,10 @@
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-updatestateevent)
-                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState, action?: SolidityABIEncoderV2Struct)`
+                - Callback Params: `(appInstance: AppInstance, newState: AppState, action?: SolidityABIEncoderV2Struct)`
             - `proposeState`
                 - [Node event](#event-proposestateevent)
-                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
+                - Callback Params: `(appInstance: AppInstance, newState: AppState)`
             - `rejectState`
                 - [Node event](#event-rejectstateevent)
                 - Callback Params: `(appInstance: AppInstance, state: AppState)`
@@ -412,7 +412,6 @@ Data:
 - `appInstanceId: string`
     - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
-- `oldState:`[`AppState`](#data-type-appstate)
 - `action?:`[`SolidityABIEncoderV2Struct`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 

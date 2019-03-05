@@ -392,8 +392,7 @@ export class Provider {
     const {
       appInstanceId,
       action,
-      newState,
-      oldState
+      newState
     } = nodeEvent.data as Node.UpdateStateEventData;
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
@@ -401,7 +400,6 @@ export class Provider {
       data: {
         appInstance,
         newState,
-        oldState,
         action
       }
     };

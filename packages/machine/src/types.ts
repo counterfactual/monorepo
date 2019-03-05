@@ -60,6 +60,14 @@ export type UpdateParams = {
   newState: SolidityABIEncoderV2Struct;
 };
 
+export type TakeActionParams = {
+  initiatingXpub: string;
+  respondingXpub: string;
+  multisigAddress: string;
+  appIdentityHash: string;
+  action: SolidityABIEncoderV2Struct;
+};
+
 export type WithdrawParams = {
   initiatingXpub: string;
   respondingXpub: string;
@@ -86,8 +94,6 @@ export type UninstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
   multisigAddress: string;
-  aliceBalanceIncrement: BigNumber;
-  bobBalanceIncrement: BigNumber;
 };
 
 export type InstallVirtualAppParams = {
@@ -107,8 +113,6 @@ export type UninstallVirtualAppParams = {
   intermediaryXpub: string;
   targetAppIdentityHash: string;
   targetAppState: SolidityABIEncoderV2Struct;
-  initiatingBalanceIncrement: BigNumber;
-  respondingBalanceIncrement: BigNumber;
 };
 
 export type ProtocolParameters =

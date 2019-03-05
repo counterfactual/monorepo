@@ -58,7 +58,7 @@ describe("CF.js AppInstance", () => {
     it("can take an action", async () => {
       expect.assertions(4);
       const expectedAction = { action: "1337" };
-      const expectedNewState = { state: "5337" };
+      const expectedNewState = { val: "5337" };
       nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
         expect(request.type).toBe(Node.MethodName.TAKE_ACTION);
         const params = request.params as Node.TakeActionParams;
@@ -99,20 +99,15 @@ describe("CF.js AppInstance", () => {
 
   describe("Node events", () => {
     it("fires update state events", async () => {
-      expect.assertions(4);
+      expect.assertions(3);
 
-      const expectedOldState = bigNumberify(1000);
-      const expectedAction = bigNumberify(200);
-      const expectedNewState = bigNumberify(1200);
+      const expectedAction = { a: 1 };
+      const expectedNewState = { val: bigNumberify(1200) };
+
       appInstance.on(AppInstanceEventType.UPDATE_STATE, event => {
         expect(event.type).toBe(AppInstanceEventType.UPDATE_STATE);
-        const {
-          oldState,
-          newState,
-          action
-        } = event.data as UpdateStateEventData;
+        const { newState, action } = event.data as UpdateStateEventData;
         expect(action).toBe(expectedAction);
-        expect(oldState).toBe(expectedOldState);
         expect(newState).toBe(expectedNewState);
       });
 
@@ -120,7 +115,6 @@ describe("CF.js AppInstance", () => {
         type: Node.EventName.UPDATE_STATE,
         data: {
           action: expectedAction,
-          oldState: expectedOldState,
           newState: expectedNewState,
           appInstanceId: TEST_APP_INSTANCE_INFO.id
         }
@@ -179,7 +173,6 @@ describe("CF.js AppInstance", () => {
         type: Node.EventName.UPDATE_STATE,
         data: {
           action: "200",
-          oldState: "1000",
           newState: "1200",
           appInstanceId: TEST_APP_INSTANCE_INFO.id
         }

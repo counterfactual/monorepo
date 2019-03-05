@@ -23,6 +23,7 @@ export class RequestHandler {
   private methods = new Map();
   private events = new Map();
   private shardedQueues = new Map<string, Queue>();
+
   store: Store;
 
   constructor(

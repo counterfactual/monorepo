@@ -53,36 +53,14 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { store } = requestHandler;
+    const { store, provider } = requestHandler;
     const { multisigAddress } = params;
-
-    const channel = await store.getStateChannel(multisigAddress);
 
     await installBalanceRefundApp(requestHandler, params);
 
-    const beforeDepositMultisigBalance = await requestHandler.provider.getBalance(
-      multisigAddress
-    );
-
     await makeDeposit(requestHandler, params);
 
-    const afterDepositMultisigBalance = await requestHandler.provider.getBalance(
-      multisigAddress
-    );
-
-    await uninstallBalanceRefundApp(
-      requestHandler,
-      params,
-      beforeDepositMultisigBalance,
-      afterDepositMultisigBalance
-    );
-    if (
-      channel.hasAppInstanceOfKind(
-        requestHandler.networkContext.ETHBalanceRefund
-      )
-    ) {
-      return Promise.reject(ERRORS.ETH_BALANCE_REFUND_NOT_UNINSTALLED);
-    }
+    await uninstallBalanceRefundApp(requestHandler, params);
 
     if (params.notifyCounterparty) {
       const [peerAddress] = await getPeersAddressFromChannel(
@@ -105,7 +83,7 @@ export default class DepositController extends NodeController {
     requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
 
     return {
-      multisigBalance: await requestHandler.provider.getBalance(multisigAddress)
+      multisigBalance: await provider.getBalance(multisigAddress)
     };
   }
 }

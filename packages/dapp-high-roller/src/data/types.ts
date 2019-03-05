@@ -3,7 +3,6 @@ import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
-import NodeProvider from "./mock-node-provider";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
@@ -250,7 +249,6 @@ export namespace Node {
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
     newState: SolidityABIEncoderV2Struct;
-    oldState: SolidityABIEncoderV2Struct;
     action?: SolidityABIEncoderV2Struct;
   };
   export type UninstallEventData = {

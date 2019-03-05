@@ -1,11 +1,5 @@
-import {
-  Address,
-  AppABIEncodings,
-  AssetType,
-  Node as NodeTypes,
-  SolidityABIEncoderV2Struct
-} from "@counterfactual/types";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { Node as NodeTypes } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -29,11 +23,12 @@ import {
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
   makeInstallVirtualRequest,
+  makeTTTVirtualAppInstanceProposalReq,
   TEST_NETWORK
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
-  jest.setTimeout(40000);
+  jest.setTimeout(50000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -227,29 +222,3 @@ describe("Node method follows spec - takeAction virtual", () => {
     }
   );
 });
-
-function makeTTTVirtualAppInstanceProposalReq(
-  proposedToIdentifier: string,
-  appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
-  abiEncodings: AppABIEncodings,
-  intermediaries: string[]
-): NodeTypes.MethodRequest {
-  return {
-    params: {
-      intermediaries,
-      proposedToIdentifier,
-      appId,
-      initialState,
-      abiEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      },
-      myDeposit: Zero,
-      peerDeposit: Zero,
-      timeout: One
-    } as NodeTypes.ProposeInstallVirtualParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
-  } as NodeTypes.MethodRequest;
-}

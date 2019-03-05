@@ -6,6 +6,7 @@ import {
   Protocol,
   ProtocolMessage,
   SetupParams,
+  StateChannel,
   Transaction,
   UninstallParams,
   UpdateParams,
@@ -119,7 +120,10 @@ export class Node {
    * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
    */
   private buildInstructionExecutor(): InstructionExecutor {
-    const instructionExecutor = new InstructionExecutor(this.networkContext);
+    const instructionExecutor = new InstructionExecutor(
+      this.networkContext,
+      this.provider
+    );
 
     // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
@@ -128,7 +132,10 @@ export class Node {
         next: Function,
         context: Context
       ) => {
-        if (context.commitments.length === 0) {
+        const { protocol, params } = message;
+        const { stateChannelsMap, commitments } = context;
+
+        if (commitments.length === 0) {
           // TODO: I think this should be inside the machine for all protocols
           throw Error(
             "Reached OP_SIGN middleware without generated commitment."
@@ -137,21 +144,17 @@ export class Node {
 
         let keyIndex = 0;
 
-        if (message.protocol === Protocol.Update) {
-          const {
-            appIdentityHash,
-            multisigAddress
-          } = message.params as UpdateParams;
-          keyIndex = context.stateChannelsMap
-            .get(multisigAddress)!
-            .getAppInstance(appIdentityHash).appSeqNo;
+        if ([Protocol.Update, Protocol.TakeAction].includes(protocol)) {
+          const { appIdentityHash, multisigAddress } = params as UpdateParams;
+          const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+          keyIndex = sc.getAppInstance(appIdentityHash).appSeqNo;
         }
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        context.signatures = context.commitments.map(commitment =>
+        context.signatures = commitments.map(commitment =>
           signingKey.signDigest(commitment.hashToSign(asIntermediary))
         );
 
@@ -190,7 +193,7 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(message);
+        const key = this.encodeProtocolMessage(data);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
         this.ioSendDeferrals.set(key, deferral);
@@ -408,6 +411,7 @@ export class Node {
   private encodeProtocolMessage(msg: ProtocolMessage) {
     return JSON.stringify({
       protocol: msg.protocol,
+      fromto: [msg.fromXpub, msg.toXpub].sort().toString(),
       params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
     });
   }

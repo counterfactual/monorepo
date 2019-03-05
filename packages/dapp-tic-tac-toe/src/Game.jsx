@@ -32,6 +32,7 @@ class Game extends Component {
 
     this.props.appInstance.on("updateState", this.onUpdateState.bind(this));
     const state = await this.props.appInstance.getState();
+
     this.updateGame(state);
   }
 
