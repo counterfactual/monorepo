@@ -126,6 +126,7 @@ export type UninstallVirtualAppParams = {
   respondingXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;
+  targetAppState: SolidityABIEncoderV2Struct;
   initiatingBalanceIncrement: BigNumber;
   respondingBalanceIncrement: BigNumber;
 };

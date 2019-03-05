@@ -1,4 +1,3 @@
-import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import {
   AssetType,
   ETHBucketAppState,
@@ -13,6 +12,7 @@ import { Context, ProtocolMessage, UninstallParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
+import { setFinalCommitment } from "./utils/set-final-commitment";
 import {
   addSignedCommitmentInResponse,
   addSignedCommitmentToOutboxForSeq1

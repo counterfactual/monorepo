@@ -1,10 +1,10 @@
-import { ProtocolExecutionFlow } from "@counterfactual/machine/src";
 import {
   AssetType,
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
 
+import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models";
@@ -17,7 +17,7 @@ import { validateSignature } from "./utils/signature-validator";
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(false),
 
     Opcode.OP_SIGN,
 
@@ -49,13 +49,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       validateSignature(
         xkeyKthAddress(respondingXpub, 0),
         context.commitments[0],
-        context.inbox[0].signature
+        context.inbox[0].signature // s3
       );
 
       validateSignature(
         xkeyKthAddress(intermediaryXpub, 0),
         context.commitments[0],
-        context.inbox[0].signature2,
+        context.inbox[0].signature2, // s2
         true
       );
     },
@@ -98,7 +98,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ],
 
   1: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(true),
 
     (message: ProtocolMessage, context: Context) => {
       validateSignature(
@@ -144,16 +144,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
-      // - forward the lock signature
-      // - send my own lock signature
-
       context.outbox[0] = {
         ...message,
         seq: -1,
         fromXpub: intermediaryXpub,
         toXpub: initiatingXpub,
-        signature: context.inbox[0].signature,
-        signature2: context.signatures[0]
+        signature: context.inbox[0].signature, // s3
+        signature2: context.signatures[0] // s2
       };
     },
 
@@ -230,7 +227,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   ],
 
   2: [
-    addVirtualAppStateTransitionToContext,
+    addVirtualAppStateTransitionToContext(false),
 
     (message: ProtocolMessage, context: Context) => {
       const {
@@ -326,43 +323,47 @@ function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
   context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
 }
 
-function addVirtualAppStateTransitionToContext(
-  message: ProtocolMessage,
-  context: Context
-) {
-  const {
-    intermediaryXpub,
-    respondingXpub,
-    initiatingXpub,
-    targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+function addVirtualAppStateTransitionToContext(isIntermediary: boolean) {
+  return function(message: ProtocolMessage, context: Context) {
+    const {
+      intermediaryXpub,
+      respondingXpub,
+      initiatingXpub,
+      targetAppIdentityHash,
+      targetAppState
+    } = message.params as UninstallVirtualAppParams;
 
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
-
-  const sc = context.stateChannelsMap.get(key);
-
-  if (sc === undefined) {
-    throw Error(
-      `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
+    const key = virtualChannelKey(
+      [initiatingXpub, respondingXpub],
+      intermediaryXpub
     );
-  }
 
-  const newSc = sc.lockAppInstance(targetAppIdentityHash);
-  const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
+    let sc = context.stateChannelsMap.get(key);
 
-  context.stateChannelsMap.set(key, newSc);
+    if (sc === undefined) {
+      throw Error(
+        `Unable to find channel object for ${initiatingXpub} and ${respondingXpub}`
+      );
+    }
 
-  // post-expiry lock commitment
-  context.commitments[0] = new VirtualAppSetStateCommitment(
-    context.network,
-    targetAppInstance.identity,
-    targetAppInstance.defaultTimeout,
-    targetAppInstance.hashOfLatestState,
-    targetAppInstance.appSeqNo
-  );
+    if (isIntermediary) {
+      sc = sc.setState(targetAppIdentityHash, targetAppState);
+    }
+
+    sc = sc.lockAppInstance(targetAppIdentityHash);
+    const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
+
+    context.stateChannelsMap.set(key, sc);
+
+    // post-expiry lock commitment
+    context.commitments[0] = new VirtualAppSetStateCommitment(
+      context.network,
+      targetAppInstance.identity,
+      targetAppInstance.defaultTimeout,
+      targetAppInstance.hashOfLatestState,
+      targetAppInstance.appSeqNo
+    );
+  };
 }
 
 function constructUninstallOp(

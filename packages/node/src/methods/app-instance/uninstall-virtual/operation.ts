@@ -26,6 +26,7 @@ export async function uninstallAppInstanceFromChannel(
       initiatingXpub,
       respondingXpub,
       intermediaryXpub,
+      targetAppState: appInstance.state,
       targetAppIdentityHash: appInstance.identityHash,
       // FIXME: Compute values here
       initiatingBalanceIncrement: Zero,
