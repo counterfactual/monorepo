@@ -4,7 +4,7 @@ import {
   NetworkContext,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero } from "ethers/constants";
 import { bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Opcode } from "../enums";
