@@ -31,7 +31,7 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: JsonRpcProvider | BaseProvider,
+    readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string
   ) {
