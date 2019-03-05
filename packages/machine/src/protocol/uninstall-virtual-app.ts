@@ -49,13 +49,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       validateSignature(
         xkeyKthAddress(respondingXpub, 0),
         context.commitments[0],
-        context.inbox[0].signature
+        context.inbox[0].signature // s3
       );
 
       validateSignature(
         xkeyKthAddress(intermediaryXpub, 0),
         context.commitments[0],
-        context.inbox[0].signature2,
+        context.inbox[0].signature2, // s2
         true
       );
     },
@@ -144,16 +144,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         initiatingXpub
       } = message.params as UninstallVirtualAppParams;
 
-      // - forward the lock signature
-      // - send my own lock signature
-
       context.outbox[0] = {
         ...message,
         seq: -1,
         fromXpub: intermediaryXpub,
         toXpub: initiatingXpub,
-        signature: context.inbox[0].signature,
-        signature2: context.signatures[0]
+        signature: context.inbox[0].signature, // s3
+        signature2: context.signatures[0] // s2
       };
     },
 
