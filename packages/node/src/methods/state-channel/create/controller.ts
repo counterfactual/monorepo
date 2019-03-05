@@ -14,7 +14,6 @@ import { ERRORS } from "../../errors";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
-const CONFIRMATION_NUM_BLOCKS = 1;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
@@ -45,11 +44,15 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const { owners } = params;
-    const { wallet, networkContext } = requestHandler;
+    const {
+      wallet,
+      networkContext,
+      blocksNeededForConfirmation
+    } = requestHandler;
 
     const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
 
-    tx.wait(CONFIRMATION_NUM_BLOCKS).then(receipt =>
+    tx.wait(blocksNeededForConfirmation).then(receipt =>
       this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
     );
 
