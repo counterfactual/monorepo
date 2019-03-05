@@ -21,6 +21,7 @@ export type AccountState = {
 
   updateAccount?(data: Partial<AccountState>): Promise<void>;
   login?(): Promise<UserSession>;
+  logout?(): void;
   getBalances?(): Promise<
     { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   >;
