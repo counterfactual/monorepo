@@ -36,14 +36,19 @@ export class RequestHandler {
     readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string,
-    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN
+    readonly blocksNeededForConfirmation?: number
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
 
-    if (this.provider.network.name === "unknown") {
-      this.blocksNeededForConfirmation = 1;
+    if (!this.blocksNeededForConfirmation) {
+      const name = provider.network ? provider.network.name : "unknown";
+      if (name === "ropsten") {
+        this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN;
+      } else {
+        this.blocksNeededForConfirmation = 1;
+      }
     }
   }
 
