@@ -1,4 +1,9 @@
-import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
+import {
+  AppInterface,
+  AssetType,
+  NetworkContext,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
@@ -14,8 +19,7 @@ import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
-  ProtocolMessage,
-  SolidityABIEncoderV2Struct
+  ProtocolMessage
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";

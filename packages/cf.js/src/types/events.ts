@@ -1,8 +1,4 @@
-import {
-  Address,
-  AppAction,
-  SolidityABIEncoderV2Struct
-} from "@counterfactual/types";
+import { Address, SolidityABIEncoderV2Struct } from "@counterfactual/types";
 
 import { AppInstance } from "../app-instance";
 
@@ -29,7 +25,7 @@ export type UninstallEventData = AppEventData;
 export type UpdateStateEventData = AppEventData & {
   oldState: SolidityABIEncoderV2Struct;
   newState: SolidityABIEncoderV2Struct;
-  action?: AppAction;
+  action?: SolidityABIEncoderV2Struct;
 };
 
 export type CreateMultisigEventData = {

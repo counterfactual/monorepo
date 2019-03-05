@@ -57,8 +57,8 @@ describe("CF.js AppInstance", () => {
 
     it("can take an action", async () => {
       expect.assertions(4);
-      const expectedAction = "1337";
-      const expectedNewState = "5337";
+      const expectedAction = { action: "1337" };
+      const expectedNewState = { state: "5337" };
       nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
         expect(request.type).toBe(Node.MethodName.TAKE_ACTION);
         const params = request.params as Node.TakeActionParams;

@@ -25,7 +25,7 @@
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-updatestateevent)
-                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState, action?: AppAction)`
+                - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState, action?: SolidityABIEncoderV2Struct)`
             - `proposeState`
                 - [Node event](#event-proposestateevent)
                 - Callback Params: `(appInstance: AppInstance, oldState: AppState, newState: AppState)`
@@ -68,7 +68,7 @@
         - `manifestUri: string`
             - TODO
     - Instance methods
-        - `async takeAction(action: AppAction): Promise<AppState>`
+        - `async takeAction(action: SolidityABIEncoderV2Struct): Promise<AppState>`
             - [Node method](#method-takeaction)
             - Returns ABI decoded representation of the latest signed state of the app.
             - Throws error if app definition "appActionEncoding" is not defined
@@ -291,7 +291,7 @@ Take action on current app state to advance it to a new state.
 Params:
 - `appInstanceId: string`
     - ID of the app instance for which to take action
-- `action:`[`AppAction`](#data-type-appaction)
+- `action:`[`SolidityABIEncoderV2Struct`](#data-type-appaction)
     - Action to take on the current state
 
 Result:
@@ -413,7 +413,7 @@ Data:
     - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
 - `oldState:`[`AppState`](#data-type-appstate)
-- `action?:`[`AppAction`](#data-type-appaction)
+- `action?:`[`SolidityABIEncoderV2Struct`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstallEvent`
@@ -494,7 +494,7 @@ An instance of an installed app.
 - Plain Old Javascript Object representation of the state of an app instance.
 - ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
-### Data Type: `AppAction`
+### Data Type: `SolidityABIEncoderV2Struct`
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
