@@ -92,12 +92,13 @@ export async function makeDeposit(
 
   const to = params.multisigAddress;
   const value = bigNumberify(params.amount);
+  const gasLimit = 30000;
 
   const tx: TransactionRequest = {
     to,
     value,
-    gasPrice: await provider.getGasPrice(),
-    gasLimit: await provider.estimateGas({ to, value })
+    gasLimit,
+    gasPrice: await provider.getGasPrice()
   };
 
   try {

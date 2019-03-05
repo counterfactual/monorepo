@@ -49,8 +49,8 @@ export function addSignedCommitmentInResponse(
 ) {
   context.outbox.push({
     ...message,
-    fromAddress: message.toAddress,
-    toAddress: message.fromAddress,
+    fromXpub: message.toXpub,
+    toXpub: message.fromXpub,
     signature: context.signatures[0],
     seq: UNASSIGNED_SEQ_NO
   });

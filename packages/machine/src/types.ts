@@ -58,8 +58,8 @@ export interface SolidityABIEncoderV2StructArray
 export type ProtocolMessage = {
   protocol: Protocol;
   params: ProtocolParameters;
-  fromAddress: string;
-  toAddress: string;
+  fromXpub: string;
+  toXpub: string;
   seq: number;
   signature?: Signature;
   signature2?: Signature;
@@ -126,6 +126,7 @@ export type UninstallVirtualAppParams = {
   respondingXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;
+  targetAppState: SolidityABIEncoderV2Struct;
   initiatingBalanceIncrement: BigNumber;
   respondingBalanceIncrement: BigNumber;
 };

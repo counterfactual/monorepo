@@ -77,22 +77,13 @@ export class AppWager {
         ]
       };
 
-      const provider = new ethers.providers.Web3Provider(
-        window["web3"].currentProvider
-      );
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
       const bet = ethers.utils.parseEther(this.betAmount);
-      const minimumEthBalance = bet.add(
-        await provider.estimateGas({
-          to: this.opponent.attributes.ethAddress,
-          value: ethers.utils.parseEther(this.betAmount)
-        })
-      );
 
-      if (currentEthBalance.lt(minimumEthBalance)) {
-        this.error = `Insufficient funds: You need at least ${ethers.utils.formatEther(
-          minimumEthBalance
-        )} ETH to play.`;
+      if (currentEthBalance.lt(bet)) {
+        this.error = `Insufficient funds: You need at least ${
+          this.betAmount
+        } ETH to play.`;
         return;
       }
 

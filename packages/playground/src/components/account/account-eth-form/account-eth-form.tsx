@@ -11,6 +11,7 @@ export class AccountEthForm {
   @Prop() header: string = "";
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
+  @Prop() min: number = 0.01;
   @Prop() max: number = 1;
   @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop({ mutable: true }) value: string | number = "";
@@ -23,6 +24,15 @@ export class AccountEthForm {
 
   handleSubmit(event) {
     event.preventDefault();
+
+    const value = Number(this.value);
+
+    if (value < this.min || value > this.max) {
+      this.error = `Please enter a value between ${this.min} and ${
+        this.max
+      } ETH.`;
+      return;
+    }
 
     this.submit.emit(event);
   }
@@ -37,7 +47,7 @@ export class AccountEthForm {
             value={this.value}
             error={this.error}
             disabled={this.disabled}
-            min={0}
+            min={this.min}
             max={Math.min(
               parseInt(ethers.utils.formatEther(this.available), 10),
               this.max

@@ -1,4 +1,3 @@
-import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import {
   AssetType,
   ETHBucketAppState,
@@ -13,6 +12,7 @@ import { Context, ProtocolMessage, UninstallParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
+import { setFinalCommitment } from "./utils/set-final-commitment";
 import {
   addSignedCommitmentInResponse,
   addSignedCommitmentToOutboxForSeq1
@@ -46,7 +46,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Verify they did indeed countersign the right thing
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xkeyKthAddress(message.toAddress, 0),
+        xkeyKthAddress(message.toXpub, 0),
         context.commitments[0],
         context.inbox[0].signature
       ),
@@ -63,7 +63,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Validate your counterparty's signature is for the above proposal
     (message: ProtocolMessage, context: Context) =>
       validateSignature(
-        xkeyKthAddress(message.fromAddress, 0),
+        xkeyKthAddress(message.fromXpub, 0),
         context.commitments[0],
         message.signature
       ),

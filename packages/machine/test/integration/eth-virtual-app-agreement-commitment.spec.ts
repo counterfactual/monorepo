@@ -7,14 +7,14 @@ import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { SetStateCommitment } from "@counterfactual/machine/src/ethereum";
-import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
+import { SetStateCommitment } from "../../src/ethereum";
+import { ETHVirtualAppAgreementCommitment } from "../../src/ethereum/eth-virtual-app-agreement-commitment";
 import { AppInstance, StateChannel } from "../../src/models";
 import { xkeysToSortedKthSigningKeys } from "../../src/xkeys";
 

@@ -1,4 +1,4 @@
-import { Context, ProtocolMessage } from "@counterfactual/machine/src/types";
+import { Context, ProtocolMessage } from "../../types";
 
 /// Set `context.finalCommitment` in the simple cases where the commitment
 /// is in `context.commitments[0]` and the signature is in etiher `inbox[0]` or
