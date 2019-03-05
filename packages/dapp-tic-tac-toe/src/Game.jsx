@@ -14,7 +14,12 @@ class Game extends Component {
         players: [],
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
         winner: 0
-      }
+      },
+      pendingActionResponse: false,
+      my0thKeyAddress: window.ethers.utils.HDNode
+        .fromExtendedKey(props.user.nodeAddress)
+        .derivePath("0")
+        .address
     };
   }
 
@@ -30,9 +35,7 @@ class Game extends Component {
     this.updateGame(state);
   }
 
-  // TODO: This remapping should be removed once the Node properly formats the message.
-  async onUpdateState({ data: { newState } }) {
-    const [players, turnNum, winner, board] = newState;
+  async onUpdateState({ data: { newState: { players, turnNum, winner, board } } }) {
     this.updateGame({ players, turnNum, winner, board });
 
     if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
@@ -56,6 +59,8 @@ class Game extends Component {
   }
 
   async takeAction(playX, playY) {
+    this.setState({ pendingActionResponse: true });
+
     const boardCopy = JSON.parse(JSON.stringify(this.state.gameState.board));
     boardCopy[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
 
@@ -77,7 +82,7 @@ class Game extends Component {
       playY
     });
 
-    this.setState({ gameState: response });
+    this.setState({ gameState: response, pendingActionResponse: false });
   }
 
   // TODO: handle timeout
@@ -88,7 +93,7 @@ class Game extends Component {
   get myNumber() {
     return (
       this.state.gameState.players.indexOf(
-        window.ethers.utils.getAddress(this.props.user.ethAddress)
+        window.ethers.utils.getAddress(this.state.my0thKeyAddress)
       ) + 1
     );
   }
@@ -124,6 +129,7 @@ class Game extends Component {
         /> */}
 
         <Board
+          disabled={this.state.pendingActionResponse}
           board={this.state.gameState.board}
           isMyTurn={this.isMyTurn}
           myNumber={this.myNumber}

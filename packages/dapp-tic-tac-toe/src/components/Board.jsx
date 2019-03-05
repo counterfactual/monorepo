@@ -8,13 +8,20 @@ class Board extends Component {
     const youWon = checkVictory(this.props.board, this.props.myNumber);
     const theyWon = checkVictory(this.props.board, this.props.opponentNumber);
     const winClaim = youWon || theyWon;
-  
+
     return (
       <div className="board">
         {this.props.board.map((row, x) =>
           <div className="board-row" key={x}>
             {row.map((mark, y) =>
-              <Square mark={mark} disabled={!this.props.isMyTurn} key={`${x}-${y}`} x={x} y={y} onTakeAction={this.props.onTakeAction}/>
+              <Square
+                mark={mark}
+                disabled={this.props.disabled || !this.props.isMyTurn}
+                key={`${x}-${y}`}
+                x={x}
+                y={y}
+                onTakeAction={this.props.onTakeAction}
+              />
             )}
           </div>
         )}
