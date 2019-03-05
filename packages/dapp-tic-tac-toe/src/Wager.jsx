@@ -84,7 +84,6 @@ class Wager extends Component {
    * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   async proposeInstall(user, opponent, intermediary) {
-    const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
     const currentEthBalance = window.ethers.utils.parseEther(
