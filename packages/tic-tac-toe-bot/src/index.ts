@@ -17,14 +17,12 @@ import {
 
 const provider = ethers.getDefaultProvider("ropsten");
 
-let BASE_URL = process.env.BASE_URL!;
+const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "TTT_USER_TOKEN";
 
 console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
 if (process.env.TIER && process.env.TIER === "development") {
-  BASE_URL = `http://localhost:9000`;
-
   const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
   const firebaseServerPort = process.env.FIREBASE_SERVER_PORT;
   serviceFactory = new FirebaseServiceFactory({
