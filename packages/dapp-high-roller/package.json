@@ -29,7 +29,7 @@
     "@types/jest": "24.0.9",
     "@types/puppeteer": "1.12.1",
     "jest": "23.6.0",
-    "puppeteer": "1.12.2",
+    "puppeteer": "1.13.0",
     "typescript": "^3.3.3333",
     "workbox-build": "3.4.1"
   }
