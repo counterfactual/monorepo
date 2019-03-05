@@ -107,7 +107,13 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
-    await this.events.get(event)(this, msg);
+    const controllerExecutionMethod = this.events.get(event);
+
+    if (!controllerExecutionMethod) {
+      throw new Error(`Recent ${event} which has no event handler`);
+    }
+
+    await controllerExecutionMethod(this, msg);
   }
 
   public getShardedQueue(shardKey: string): Queue {
