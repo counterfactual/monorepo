@@ -1,7 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import Queue from "p-queue";
 
@@ -31,7 +31,7 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: JsonRpcProvider,
+    readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string
   ) {
