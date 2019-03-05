@@ -13,8 +13,6 @@ import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
-const REASONABLE_NUM_BLOCKS_TO_WAIT = 3;
-
 /**
  * This class registers handlers for requests to get or set some information
  * about app instances and channels for this Node and any relevant peer Nodes.
@@ -37,18 +35,11 @@ export class RequestHandler {
     readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string,
-    readonly blocksNeededForConfirmation?: number
+    readonly blocksNeededForConfirmation: number
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
-
-    if (
-      !this.blocksNeededForConfirmation ||
-      this.blocksNeededForConfirmation < 3
-    ) {
-      this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    }
   }
 
   /**

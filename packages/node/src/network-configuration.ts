@@ -5,7 +5,7 @@ import { NetworkContext } from "@counterfactual/types";
 
 import { ERRORS } from "./methods/errors";
 
-const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
+export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
 export function configureNetworkContext(
   network: string,
