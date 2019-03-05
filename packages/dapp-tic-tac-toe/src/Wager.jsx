@@ -1,3 +1,4 @@
+import RopstenContracts from "@counterfactual/apps/networks/3.json";
 import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
 import Waiting from "./Waiting";
@@ -66,9 +67,20 @@ class Wager extends Component {
   }
 
   createAppFactory() {
+    let contractAddress;
+    console.log("creating app factory");
+    console.log(RopstenContracts);
+    switch (window["web3"].currentProvider.networkVersion) {
+      case "3":
+        contractAddress = "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe";
+        break;
+      case "42":
+        contractAddress = "0x2794113a560bb4b4cae36A029Cf127665d463F91";
+        break;
+    }
+    console.log("using address: ", contractAddress);
     return new window.cf.AppFactory(
-      // TODO: provide valid appId
-      "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+      contractAddress,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
