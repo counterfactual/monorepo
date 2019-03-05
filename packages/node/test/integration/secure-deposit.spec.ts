@@ -78,7 +78,7 @@ describe("Node method follows spec - deposit", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after deposits", async () => {
+  it("has the right balance for both parties after deposits", async done => {
     nodeA.on(
       NODE_EVENTS.CREATE_CHANNEL,
       async (data: NodeTypes.CreateChannelResult) => {
@@ -99,6 +99,8 @@ describe("Node method follows spec - deposit", () => {
             );
             expect(freeBalanceState.aliceBalance).toEqual(One);
             expect(freeBalanceState.bobBalance).toEqual(One);
+
+            done();
           }
         );
 
