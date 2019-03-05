@@ -47,15 +47,8 @@ export class DialogProposeInstall {
             <strong>
               {ethers.utils.formatEther(this.message.data.params.myDeposit)} ETH
             </strong>{" "}
-            to play{" "}
-            <strong>
-              {
-                this.apps.find(
-                  app => app.id[networkId] === this.message.data.params.appId
-                )!.name
-              }
-            </strong>{" "}
-            with <strong>{this.user.username}</strong>.
+            to play <strong>{app.name}</strong> with{" "}
+            <strong>{this.user.username}</strong>.
           </label>
         }
         primaryButtonText="Accept"

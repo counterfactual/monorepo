@@ -93,10 +93,16 @@ export class NodeListener {
         request
       )).result as Node.InstallVirtualResult;
 
-      const app = this.apps.find(
-        app => app.id === installedApp.appInstance.appId
-      ) as AppDefinition;
+      const networkId = window["web3"].currentProvider.networkVersion;
+      const app: AppDefinition = this.apps.find(app => {
+        return app.id[networkId] === installedApp.appInstance.appId;
+      })!;
 
+      if (!app) {
+        throw Error(
+          "You've received an installation proposal from a different Ethereum network"
+        );
+      }
       window.localStorage.setItem(
         "playground:installingDapp",
         JSON.stringify({
