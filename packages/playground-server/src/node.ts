@@ -140,7 +140,7 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || ethers.getDefaultProvider(network),
+      provider || (ethers.getDefaultProvider(network) as JsonRpcProvider),
       network,
       networkContext
     );
