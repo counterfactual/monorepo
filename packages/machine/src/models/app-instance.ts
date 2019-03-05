@@ -1,10 +1,14 @@
-import { AppIdentity, AppInterface, Terms } from "@counterfactual/types";
+import {
+  AppIdentity,
+  AppInterface,
+  SolidityABIEncoderV2Struct,
+  Terms
+} from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { TERMS } from "../ethereum/utils/encodings";
-import { SolidityABIEncoderV2Struct } from "../types";
 
 /**
  * Representation of the values a dependency nonce can take on.
