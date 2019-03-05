@@ -22,6 +22,7 @@ export class AppLogo {
     history: RouterHistory,
     initialState: any
   ) => void = () => {};
+  @Prop() provideRouterHistory: (history: RouterHistory) => void = () => {};
   @Prop() appInstance: any;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
@@ -38,6 +39,9 @@ export class AppLogo {
       this.updateAppInstance(appInstance);
       this.goToWaitingRoom(this.history, this.opponent);
     }
+  }
+  async componentWillLoad() {
+    this.provideRouterHistory(this.history);
   }
 
   render() {
