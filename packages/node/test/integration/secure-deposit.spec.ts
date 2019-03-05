@@ -1,6 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -22,7 +22,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -31,7 +31,7 @@ describe("Node method follows spec - deposit", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -85,7 +85,7 @@ describe("Node method follows spec - deposit", () => {
         const { multisigAddress } = data;
         const depositReq = makeDepositRequest(multisigAddress, One);
 
-        nodeB.on(
+        nodeA.on(
           NODE_EVENTS.DEPOSIT_CONFIRMED,
           async (msg: DepositConfirmationMessage) => {
             await nodeB.call(depositReq.type, depositReq);
