@@ -1,10 +1,9 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
-  DepositConfirmationMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -22,7 +21,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(30000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let messagingService: IMessagingService;
@@ -31,7 +30,7 @@ describe("Node method follows spec - deposit", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
+  let provider: BaseProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -78,31 +77,30 @@ describe("Node method follows spec - deposit", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after deposits", async () => {
+  it("has the right balance for both parties after deposits", async done => {
     nodeA.on(
       NODE_EVENTS.CREATE_CHANNEL,
       async (data: NodeTypes.CreateChannelResult) => {
         const { multisigAddress } = data;
         const depositReq = makeDepositRequest(multisigAddress, One);
 
-        nodeB.on(
-          NODE_EVENTS.DEPOSIT_CONFIRMED,
-          async (msg: DepositConfirmationMessage) => {
-            await nodeB.call(depositReq.type, depositReq);
-            expect(
-              (await provider.getBalance(multisigAddress)).toNumber()
-            ).toEqual(2);
+        await nodeA.call(depositReq.type, depositReq);
 
-            const freeBalanceState = await getFreeBalanceState(
-              nodeA,
-              multisigAddress
-            );
-            expect(freeBalanceState.aliceBalance).toEqual(One);
-            expect(freeBalanceState.bobBalance).toEqual(One);
-          }
+        await nodeB.call(depositReq.type, depositReq);
+
+        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+          2
         );
 
-        await nodeA.call(depositReq.type, depositReq);
+        const freeBalanceState = await getFreeBalanceState(
+          nodeA,
+          multisigAddress
+        );
+
+        expect(freeBalanceState.aliceBalance).toEqual(One);
+        expect(freeBalanceState.bobBalance).toEqual(One);
+
+        done();
       }
     );
     await getMultisigCreationTransactionHash(nodeA, [

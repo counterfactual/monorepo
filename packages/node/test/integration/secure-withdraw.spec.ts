@@ -77,7 +77,7 @@ describe("Node method follows spec - withdraw", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after withdrawal", async () => {
+  it("has the right balance for both parties after withdrawal", async done => {
     nodeA.on(
       NODE_EVENTS.CREATE_CHANNEL,
       async (data: NodeTypes.CreateChannelResult) => {
@@ -100,6 +100,8 @@ describe("Node method follows spec - withdraw", () => {
         expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
           0
         );
+
+        done();
       }
     );
     await getMultisigCreationTransactionHash(nodeA, [
