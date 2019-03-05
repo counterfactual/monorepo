@@ -72,7 +72,7 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     throw Errors.UserAddressRequired();
   }
 
-  const query = db("users")
+  let query = db("users")
     .columns({
       id: "id",
       username: "username",
@@ -81,6 +81,13 @@ export async function matchmakeUser(userToMatch: User): Promise<MatchedUser> {
     })
     .select()
     .where("eth_address", "!=", userToMatch.attributes.ethAddress);
+
+  const { MATCHMAKE_WHITELIST } = process.env;
+
+  if (MATCHMAKE_WHITELIST) {
+    const allowedMatchmakes = MATCHMAKE_WHITELIST.split(",");
+    query = query.andWhere("username", "in", allowedMatchmakes);
+  }
 
   const matchmakeResults: {
     id: string;
