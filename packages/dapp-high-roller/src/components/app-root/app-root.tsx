@@ -280,7 +280,9 @@ export class AppRoot {
                         appInstance: this.state.appInstance,
                         goToWaitingRoom: this.goToWaitingRoom,
                         updateAppInstance: this.updateAppInstance,
-                        provideRouterHistory: this.receiveRouterHistory.bind(this)
+                        provideRouterHistory: this.receiveRouterHistory.bind(
+                          this
+                        )
                       }}
                     />
                     <stencil-route
