@@ -162,7 +162,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
   return 0;
 }
 
-export async function connectNode(node: Node, ethAddress: Address) {
+export async function connectNode(node: Node, ethAddress: Address, multisigAddress) {
   node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
@@ -187,6 +187,16 @@ export async function connectNode(node: Node, ethAddress: Address) {
     node.on(NodeTypes.EventName.UNINSTALL_VIRTUAL, data => {
       console.log("got uninstall call: ", data);
     });
+
+    const freeBalance = await node.call(NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE, {
+      type: NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      requestId: generateUUID(),
+      params: {
+        multisigAddress
+      } as NodeTypes.DepositParams
+    })
+// @ts-ignore
+    console.log("freeBalance", freeBalance.result.balance.toString())
   });
 }
 

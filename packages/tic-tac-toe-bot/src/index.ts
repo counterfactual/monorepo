@@ -69,37 +69,39 @@ let node: Node;
   console.log("public identifier", node.publicIdentifier);
 
   try {
-    const user = {
-      email: "TicTacToeBot",
-      ethAddress: process.env.ETH_ADDRESS || "",
-      nodeAddress: node.publicIdentifier,
-      username: "TicTacToeBot"
-    };
     const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
       throw Error("No private key specified in env. Exiting.");
     }
     const wallet = new ethers.Wallet(privateKey, provider);
+    const user = {
+      email: "TicTacToeBot",
+      ethAddress: wallet.address,
+      nodeAddress: node.publicIdentifier,
+      username: "TicTacToeBot"
+    };
     const signature = await wallet.signMessage(
       buildRegistrationSignaturePayload(user)
     );
 
     let bot: UserSession;
-    if (await store.get(TOKEN_PATH)) {
-      bot = await getUser(BASE_URL, await store.get(TOKEN_PATH));
+    let token = await store.get(TOKEN_PATH);
+    if (token) {
+      bot = await getUser(BASE_URL, token);
     } else {
       bot = await createAccount(BASE_URL, user, signature);
+      token = bot.token;
       await store.set([
         {
           key: TOKEN_PATH,
-          value: bot.token!
+          value: token!
         }
       ]);
     }
 
-    console.log(`Account created\n`);
+    console.log(`Account created\n`, bot);
 
-    const multisigAddress = await fetchMultisig(BASE_URL, bot.token!);
+    const multisigAddress = await fetchMultisig(BASE_URL, token!);
 
     console.log("Account multisig address:", multisigAddress);
 
@@ -111,7 +113,7 @@ let node: Node;
 
     // FIXME: wait for PS deposit
 
-    afterUser(node);
+    afterUser(node, wallet.address, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);
