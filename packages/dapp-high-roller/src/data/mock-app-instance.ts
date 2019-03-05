@@ -1,3 +1,4 @@
+import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import {
@@ -7,8 +8,7 @@ import {
   AppInstanceInfo,
   BlockchainAsset,
   cf,
-  Node,
-  SolidityABIEncoderV2Struct
+  Node
 } from "./types";
 
 export enum AppInstanceEventType {
