@@ -1,8 +1,5 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import { ETHVirtualAppAgreementCommitment } from "../../../src/ethereum/eth-virtual-app-agreement-commitment";
-import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
-import { generateRandomNetworkContext } from "../../mocks";
 import { AssetType } from "@counterfactual/types";
 import { HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
@@ -15,8 +12,11 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { Transaction } from "../../../src/ethereum/types";
 import { StateChannel } from "../../../src";
+import { ETHVirtualAppAgreementCommitment } from "../../../src/ethereum/eth-virtual-app-agreement-commitment";
+import { Transaction } from "../../../src/ethereum/types";
+import { decodeMultisendCalldata } from "../../../src/ethereum/utils/multisend-decoder";
+import { generateRandomNetworkContext } from "../../mocks";
 
 /**
  * This test suite decodes a constructed ETH Virtual App Agreement Commitment

@@ -1,10 +1,10 @@
-import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
-import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
 import { Opcode } from "../enums";
+import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
+import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
