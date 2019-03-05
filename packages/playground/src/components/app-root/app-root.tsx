@@ -12,6 +12,7 @@ import FirebaseDataProvider, {
 } from "../../data/firebase";
 import PlaygroundAPIClient from "../../data/playground-api-client";
 import WalletTunnel, { WalletState } from "../../data/wallet";
+import { UserSession } from "../../types";
 
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
@@ -188,7 +189,7 @@ export class AppRoot {
     } = this.accountState;
     const { provider } = this.walletState;
 
-    if (!provider) {
+    if (!provider || !multisigAddress || !ethAddress) {
       return;
     }
 
@@ -225,14 +226,14 @@ export class AppRoot {
       signature
     );
 
-    await this.getBalances();
-
     window.localStorage.setItem(
       "playground:user:token",
       loggedUser.token as string
     );
 
     await this.updateAccount({ user: loggedUser });
+
+    await this.getBalances();
 
     return loggedUser;
   }
@@ -483,7 +484,7 @@ export class AppRoot {
         const loggedUser = await PlaygroundAPIClient.getUser(token);
         this.updateAccount({ user: loggedUser });
       } catch {
-        window.localStorage.removeItem("playground:user:token");
+        this.logout();
         return;
       }
     }
@@ -493,6 +494,11 @@ export class AppRoot {
     } else {
       await this.getBalances();
     }
+  }
+
+  logout() {
+    window.localStorage.removeItem("playground:user:token");
+    this.updateAccount({ user: {} as UserSession });
   }
 
   getEtherscanAddressURL(address: string) {
@@ -513,6 +519,7 @@ export class AppRoot {
       updateAccount: this.updateAccount.bind(this),
       waitForMultisig: this.waitForMultisig.bind(this),
       login: this.login.bind(this),
+      logout: this.logout.bind(this),
       getBalances: this.getBalances.bind(this),
       autoLogin: this.autoLogin.bind(this),
       deposit: this.deposit.bind(this),
