@@ -14,7 +14,7 @@ import {
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { BaseProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
@@ -62,7 +62,7 @@ export class Node {
     messagingService: IMessagingService,
     storeService: IStoreService,
     nodeConfig: NodeConfig,
-    provider: BaseProvider,
+    provider: JsonRpcProvider,
     network: string,
     networkContext?: NetworkContext
   ): Promise<Node> {
@@ -82,7 +82,7 @@ export class Node {
     private readonly messagingService: IMessagingService,
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: BaseProvider,
+    private readonly provider: JsonRpcProvider,
     public readonly network: string,
     networkContext?: NetworkContext
   ) {
@@ -176,9 +176,6 @@ export class Node {
         const from = this.publicIdentifier;
         const to = data.toXpub;
 
-        console.log(
-          `{ ${from.substr(0, 10)}, ${to.substr(0, 10)}} ${data.seq}`
-        );
         await this.messagingService.send(to, {
           from,
           data,
@@ -203,9 +200,6 @@ export class Node {
 
         const counterpartyResponse = deferral.promise;
 
-        console.log(
-          `{ ${from.substr(0, 10)}, ${to.substr(0, 10)}} ${data.seq}`
-        );
         await this.messagingService.send(to, {
           from,
           data,
@@ -401,12 +395,6 @@ export class Node {
         "Node received message intended for machine but no handler was present"
       );
     }
-
-    console.log(
-      `{ received ${msg.from.substr(0, 10)} ${msg.data.toXpub.substr(0, 10)} ${
-        msg.data.seq
-      }`
-    );
 
     const promise = this.ioSendDeferrals.get(key)!;
 

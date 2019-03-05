@@ -1,7 +1,7 @@
 import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import Queue from "p-queue";
 
@@ -13,14 +13,13 @@ import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
+const REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN = 3;
+
 /**
  * This class registers handlers for requests to get or set some information
  * about app instances and channels for this Node and any relevant peer Nodes.
  */
 export class RequestHandler {
-  // NOTE: This must be for 1 for the tests to work
-  public readonly CONFIRMATION_NUM_BLOCKS = 3;
-
   private methods = new Map();
   private events = new Map();
   private shardedQueues = new Map<string, Queue>();
@@ -35,13 +34,23 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: BaseProvider,
+    readonly provider: JsonRpcProvider,
     readonly wallet: Signer,
-    storeKeyPrefix: string
+    storeKeyPrefix: string,
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN
   ) {
+    this.blocksNeededForConfirmation = 4;
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
+
+    if (
+      provider &&
+      provider.connection &&
+      provider.connection.url === "http://localhost:8545"
+    ) {
+      this.blocksNeededForConfirmation = 1;
+    }
   }
 
   /**

@@ -137,11 +137,9 @@ describe("Node method follows spec - takeAction", () => {
 
         let newState;
 
-        console.log("===");
         nodeA.on(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            console.log("===");
             nodeB.on(
               NODE_EVENTS.UPDATE_STATE,
               async (msg: UpdateStateMessage) => {
@@ -161,7 +159,6 @@ describe("Node method follows spec - takeAction", () => {
               }
             );
 
-            console.log("===");
             nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
               const takeActionReq = generateTakeActionRequest(
                 msg.data.params.appInstanceId,
@@ -180,7 +177,6 @@ describe("Node method follows spec - takeAction", () => {
               expect(newState.turnNum).toEqual(bigNumberify(1));
             });
 
-            console.log("===");
             nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
               const installReq = makeInstallRequest(msg.data.appInstanceId);
               nodeB.emit(installReq.type, installReq);
