@@ -94,8 +94,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
     const proposedTerms: Terms = {
       assetType: this.asset.assetType,
-      limit: Zero,
-      token: AddressZero // this.asset.token || AddressZero
+      limit: bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
+      token: this.asset.token || AddressZero
     };
 
     let signingKeys: string[];
