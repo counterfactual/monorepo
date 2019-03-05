@@ -16,7 +16,6 @@ import { INodeProvider, Node } from "./node-protocol";
 import {
   ABIEncoding,
   Address,
-  AppAction,
   AppInstanceID,
   Bytes32,
   SolidityABIEncoderV2Struct
@@ -38,7 +37,6 @@ export {
   ABIEncoding,
   Address,
   AppABIEncodings,
-  AppAction,
   AppIdentity,
   AppInstanceID,
   AppInstanceInfo,

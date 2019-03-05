@@ -1,4 +1,3 @@
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
@@ -6,6 +5,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
 import { xkeyKthAddress } from "../../../../src/xkeys";
+import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();

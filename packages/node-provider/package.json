@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node-provider",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
@@ -16,7 +16,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.7",
+    "@counterfactual/types": "0.0.8",
     "@types/jest": "24.0.9",
     "@types/node": "^11.9.0",
     "jest": "23.6.0",

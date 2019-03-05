@@ -4,3 +4,10 @@
   font-weight: 400;
   color: $c-darkgrey;
 }
+
+.error {
+  color: $c-darkred;
+  font-size: 85%;
+  padding-bottom: $rhythm * 2;
+  margin-top: -$rhythm;
+}

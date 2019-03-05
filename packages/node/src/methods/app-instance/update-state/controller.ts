@@ -10,12 +10,12 @@ import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
-export default class TakeActionController extends NodeController {
-  public static readonly methodName = Node.MethodName.TAKE_ACTION;
+export default class UpdateStateController extends NodeController {
+  public static readonly methodName = Node.MethodName.UPDATE_STATE;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,
-    params: Node.TakeActionParams
+    params: Node.UpdateStateParams
   ): Promise<Queue> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
@@ -27,10 +27,10 @@ export default class TakeActionController extends NodeController {
 
   protected async beforeExecution(
     requestHandler: RequestHandler,
-    params: Node.TakeActionParams
+    params: Node.UpdateStateParams
   ): Promise<void> {
     const { store } = requestHandler;
-    const { appInstanceId, action } = params;
+    const { appInstanceId, newState } = params;
 
     if (!appInstanceId) {
       return Promise.reject(ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION);
@@ -39,7 +39,7 @@ export default class TakeActionController extends NodeController {
     const appInstance = await store.getAppInstance(appInstanceId);
 
     try {
-      appInstance.encodeAction(action);
+      appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
         return Promise.reject(`${ERRORS.IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
@@ -50,10 +50,10 @@ export default class TakeActionController extends NodeController {
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.TakeActionParams
-  ): Promise<Node.TakeActionResult> {
+    params: Node.UpdateStateParams
+  ): Promise<Node.UpdateStateResult> {
     const { store, publicIdentifier, instructionExecutor } = requestHandler;
-    const { appInstanceId, action } = params;
+    const { appInstanceId, newState } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
@@ -62,31 +62,24 @@ export default class TakeActionController extends NodeController {
       sc.userNeuteredExtendedKeys
     );
 
-    await runTakeActionProtocol(
+    await runUpdateStateProtocol(
       appInstanceId,
       store,
       instructionExecutor,
       publicIdentifier,
       respondingXpub,
-      action
+      newState
     );
 
-    const appInstance = await store.getAppInstance(appInstanceId);
-
-    return { newState: appInstance.state };
+    return { newState };
   }
 
   protected async afterExecution(
     requestHandler: RequestHandler,
-    params: Node.TakeActionParams
+    params: Node.UpdateStateParams
   ): Promise<void> {
-    const {
-      store,
-      publicIdentifier,
-      messagingService,
-      outgoing
-    } = requestHandler;
-    const { appInstanceId, action } = params;
+    const { store, publicIdentifier, messagingService } = requestHandler;
+    const { appInstanceId, newState } = params;
 
     const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
 
@@ -95,52 +88,36 @@ export default class TakeActionController extends NodeController {
       appInstanceInfo.proposedToIdentifier
     ]);
 
-    const appInstance = await store.getAppInstance(appInstanceId);
-
-    const msg = {
+    await messagingService.send(to, {
       from: requestHandler.publicIdentifier,
       type: NODE_EVENTS.UPDATE_STATE,
-      data: { appInstanceId, action, newState: appInstance.state }
-    } as UpdateStateMessage;
-
-    await messagingService.send(to, msg);
-
-    outgoing.emit(msg.type, msg);
+      data: { appInstanceId, newState }
+    } as UpdateStateMessage);
   }
 }
 
-async function runTakeActionProtocol(
+async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
   respondingXpub: string,
-  action: SolidityABIEncoderV2Struct
+  newState: SolidityABIEncoderV2Struct
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  let stateChannelsMap: Map<string, StateChannel>;
-
-  try {
-    stateChannelsMap = await instructionExecutor.runTakeActionProtocol(
-      new Map<string, StateChannel>([
-        [stateChannel.multisigAddress, stateChannel]
-      ]),
-      {
-        initiatingXpub,
-        respondingXpub,
-        appIdentityHash,
-        action,
-        multisigAddress: stateChannel.multisigAddress
-      }
-    );
-  } catch (e) {
-    if (e.toString().indexOf("VM Exception") !== -1) {
-      // TODO: Fetch the revert reason
-      throw new Error(`${ERRORS.INVALID_ACTION}`);
+  const stateChannelsMap = await instructionExecutor.runUpdateProtocol(
+    new Map<string, StateChannel>([
+      [stateChannel.multisigAddress, stateChannel]
+    ]),
+    {
+      initiatingXpub,
+      respondingXpub,
+      appIdentityHash,
+      newState,
+      multisigAddress: stateChannel.multisigAddress
     }
-    throw e;
-  }
+  );
 
   const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
 

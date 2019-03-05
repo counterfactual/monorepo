@@ -1,5 +1,4 @@
-import { InstructionExecutor } from "@counterfactual/machine";
-import { Zero } from "ethers/constants";
+import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
 
 import { Store } from "../../../store";
 
@@ -9,30 +8,22 @@ export async function uninstallAppInstanceFromChannel(
   initiatingXpub: string,
   respondingXpub: string,
   appInstanceId: string
-) {
-  // TODO: this should actually call resolve on the AppInstance and execute
-  // the appropriate payout to the right parties
-
+): Promise<void> {
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const currentChannels = new Map(Object.entries(await store.getAllChannels()));
-
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    currentChannels,
+    new Map(Object.entries(await store.getAllChannels())),
     {
       initiatingXpub,
       respondingXpub,
       multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: appInstance.identityHash,
-      // FIXME: Compute values here
-      aliceBalanceIncrement: Zero,
-      bobBalanceIncrement: Zero
+      appIdentityHash: appInstance.identityHash
     }
   );
 
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
-  );
+  await store.saveStateChannel(stateChannelsMap.get(
+    stateChannel.multisigAddress
+  ) as StateChannel);
 }

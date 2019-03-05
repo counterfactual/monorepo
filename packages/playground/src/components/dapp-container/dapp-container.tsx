@@ -44,9 +44,15 @@ export class DappContainer {
     );
   }
 
-  getDappUrl(): string {
+  getDapp(): AppDefinition {
     const dappSlug = this.match.params.dappName;
     const dapp = this.apps.find(app => app.slug === dappSlug);
+
+    return dapp as AppDefinition;
+  }
+
+  getDappUrl(): string {
+    const dapp = this.getDapp();
     const dappState =
       new URLSearchParams(window.location.search).get("dappState") || "";
 
@@ -138,22 +144,38 @@ export class DappContainer {
   }
 
   private async sendResponseForRequestUser(frameWindow: Window) {
+    if (!this.ethMultisigBalance) {
+      throw Error(
+        "Cannot send response for user request: no multisig balance found"
+      );
+    }
     frameWindow.postMessage(
       `playground:response:user|${JSON.stringify({
         user: {
           ...this.user,
           token: this.token
         },
-        balance: ethers.utils.formatEther(this.ethMultisigBalance)
+        balance: this.ethMultisigBalance
+          ? ethers.utils.formatEther(this.ethMultisigBalance)
+          : "0"
       })}`,
       "*"
     );
   }
 
+  private getBotName(): string {
+    const bots = {
+      "high-roller": "HighRollerBot",
+      "tic-tac-toe": "TicTacToeBot"
+    };
+
+    return bots[this.getDapp().slug];
+  }
+
   private async sendResponseForMatchmakeRequest(frameWindow: Window) {
     const json = await PlaygroundAPIClient.matchmake(
       this.token,
-      this.matchmakeWith
+      this.matchmakeWith || this.getBotName()
     );
 
     const response = JSON.stringify(json);

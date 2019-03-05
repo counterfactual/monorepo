@@ -388,6 +388,10 @@ Game Screen - Board
   padding-top: calc(100% / 3);
 }
 
+.square:disabled {
+  cursor: default;
+}
+
 .square > img {
   /* Styles player marker, when squares are clicked */
   position: absolute;

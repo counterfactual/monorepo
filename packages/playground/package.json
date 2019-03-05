@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "scripts": {
     "build": "stencil build --debug && cp src/_redirects www/_redirects",
     "serve": "stencil build --dev --watch --serve",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@counterfactual/node": "0.1.2",
-    "@counterfactual/types": "0.0.7",
+    "@counterfactual/types": "0.0.8",
     "@stencil/core": "^0.18.0",
     "@stencil/router": "^0.3.0",
     "@stencil/sass": "^0.1.1",
@@ -36,7 +36,7 @@
     "env-cmd": "^8.0.2",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
-    "puppeteer": "1.12.2",
+    "puppeteer": "1.13.0",
     "rollup-plugin-replace": "^2.1.0",
     "workbox-build": "3.6.3"
   }

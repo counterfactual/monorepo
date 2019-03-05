@@ -38,6 +38,15 @@ export class AccountEthForm {
   }
 
   render() {
+    let formattedEth;
+
+    try {
+      formattedEth = ethers.utils.formatEther(this.available);
+    } catch {
+    } finally {
+      formattedEth = "0";
+    }
+
     return (
       <div>
         <form-container>
@@ -48,18 +57,13 @@ export class AccountEthForm {
             error={this.error}
             disabled={this.disabled}
             min={this.min}
-            max={Math.min(
-              parseInt(ethers.utils.formatEther(this.available), 10),
-              this.max
-            )}
+            max={Math.min(parseInt(formattedEth, 10), this.max)}
             step={0.001}
             onChange={e => this.update(e)}
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
-              <div>
-                {ethers.utils.formatEther(this.available).slice(0, 5)} ETH
-              </div>
+              <div>{formattedEth} ETH</div>
             </div>
           </form-input>
           <form-button

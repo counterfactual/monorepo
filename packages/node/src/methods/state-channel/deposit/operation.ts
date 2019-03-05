@@ -10,11 +10,7 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
-import {
-  getAlice,
-  getBalanceIncrement,
-  getPeersAddressFromChannel
-} from "../../../utils";
+import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
 export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
@@ -88,41 +84,44 @@ export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ): Promise<void> {
-  const { provider } = requestHandler;
-
-  const to = params.multisigAddress;
-  const value = bigNumberify(params.amount);
-  const gasLimit = 30000;
+  const { multisigAddress, amount } = params;
+  const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
   const tx: TransactionRequest = {
-    to,
-    value,
-    gasLimit,
+    to: multisigAddress,
+    value: bigNumberify(amount),
+    gasLimit: 30000,
     gasPrice: await provider.getGasPrice()
   };
 
+  let txResponse;
+
   try {
-    const signer = await requestHandler.getSigner();
-
-    const txResponse = await signer.sendTransaction(tx);
-
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
-      value,
-      txHash: txResponse.hash
-    });
-
-    await provider.waitForTransaction(txResponse.hash!);
+    txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
   } catch (e) {
-    requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+    if (e.toString().includes("reject")) {
+      outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+      console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+      return;
+    }
+
     throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
   }
+
+  outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
+    value: amount,
+    txHash: txResponse.hash
+  });
+
+  await provider.waitForTransaction(
+    txResponse.hash as string,
+    blocksNeededForConfirmation
+  );
 }
 
 export async function uninstallBalanceRefundApp(
   requestHandler: RequestHandler,
-  params: Node.DepositParams,
-  beforeDepositBalance: BigNumber,
-  afterDepositBalance: BigNumber
+  params: Node.DepositParams
 ) {
   const {
     publicIdentifier,
@@ -143,21 +142,12 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
 
-  const { aliceBalanceIncrement, bobBalanceIncrement } = getDepositIncrement(
-    stateChannel,
-    publicIdentifier,
-    beforeDepositBalance,
-    afterDepositBalance
-  );
-
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      aliceBalanceIncrement,
-      bobBalanceIncrement,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
@@ -168,32 +158,4 @@ export async function uninstallBalanceRefundApp(
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
   );
-}
-
-function getDepositIncrement(
-  channel: StateChannel,
-  depositer: string,
-  beforeDepositBalance: BigNumber,
-  afterDepositBalance: BigNumber
-) {
-  let aliceBalanceIncrement = Zero;
-  let bobBalanceIncrement = Zero;
-
-  const depositAmount = getBalanceIncrement(
-    beforeDepositBalance,
-    afterDepositBalance
-  );
-
-  if (
-    channel.getFreeBalanceAddrOf(depositer, AssetType.ETH) === getAlice(channel)
-  ) {
-    aliceBalanceIncrement = depositAmount;
-  } else {
-    bobBalanceIncrement = depositAmount;
-  }
-
-  return {
-    aliceBalanceIncrement,
-    bobBalanceIncrement
-  };
 }

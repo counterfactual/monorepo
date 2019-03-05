@@ -251,7 +251,7 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
