@@ -33,19 +33,26 @@
 
 @media screen and (max-width: $screen-sm) {
   :host {
-    padding-left: $rhythm;
     width: 100%;
   }
 
   .account-container {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .info-container {
     flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
 
     > * {
       margin-bottom: $rhythm;
+      width: 100%;
+    }
+
+    > :first-child {
+      margin-right: 0;
     }
   }
 
