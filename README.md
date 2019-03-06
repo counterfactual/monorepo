@@ -58,7 +58,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 | Package                                                          | Version                                                                                                                                     | Description                        |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | [`@counterfactual/types`](/packages/types)                       | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                       | Shared type declarations           |
-| [`@counterfactual/typescript-types`](/packages/typescript-types) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-types.svg)](https://www.npmjs.com/package/@counterfactual/typescript-types) | Shims for external library typings |
+| [`@counterfactual/typescript-typings`](/packages/typescript-typings) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-typings.svg)](https://www.npmjs.com/package/@counterfactual/typescript-typings) | Shims for external library typings |
 
 
 ## Contributing
