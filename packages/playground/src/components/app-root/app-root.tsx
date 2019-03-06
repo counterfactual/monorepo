@@ -52,6 +52,17 @@ export class AppRoot {
       this.hasLocalStorage = false;
     }
 
+    // Callback for processing Playground UI messages
+    window.addEventListener("message", event => {
+      if (!["contentscript", "inpage"].includes(event.data.target)) {
+        console.log("event: ", event.data);
+      }
+      if (typeof event.data !== "string") {
+        return;
+      }
+      debugger;
+    });
+
     this.setup();
   }
 
