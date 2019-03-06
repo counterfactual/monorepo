@@ -15,6 +15,7 @@ export class AccountEdit {
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() logout: () => void = () => {};
 
   @State() userLoaded: boolean = false;
 
@@ -59,6 +60,11 @@ export class AccountEdit {
     this.history.push("/");
   }
 
+  logoutClickedHandler() {
+    this.logout();
+    this.history.push("/");
+  }
+
   render() {
     return (
       <widget-screen>
@@ -84,10 +90,16 @@ export class AccountEdit {
           >
             Save changes
           </form-button>
+          <form-button
+            class="button button--secondary"
+            onButtonPressed={e => this.logoutClickedHandler()}
+          >
+            Log out
+          </form-button>
         </form-container>
       </widget-screen>
     );
   }
 }
 
-AccountTunnel.injectProps(AccountEdit, ["updateAccount", "user"]);
+AccountTunnel.injectProps(AccountEdit, ["updateAccount", "user", "logout"]);

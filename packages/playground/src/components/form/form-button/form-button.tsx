@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 @Component({
   tag: "form-button",
@@ -6,6 +6,7 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
   shadow: true
 })
 export class FormButton {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Event() buttonPressed: EventEmitter = {} as EventEmitter;
   @Prop() disabled: boolean = false;
 
@@ -20,7 +21,7 @@ export class FormButton {
       <button
         disabled={this.disabled}
         onClick={this.handleClick.bind(this)}
-        class="button"
+        class={this.el.className}
       >
         <slot />
       </button>
