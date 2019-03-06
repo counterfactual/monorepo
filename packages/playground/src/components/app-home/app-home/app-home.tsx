@@ -167,10 +167,10 @@ export class AppHome {
 
     return (
       <div class="error-message">
-        <h1>Please Switch to Ropsten</h1>
+        <h1>Please Switch to Ropsten or Kovan</h1>
         <h2>
-          The Playground demo is currently only deployed on the Ropsten test
-          network. Please switch to continue.
+          The Playground demo is currently only deployed on the Ropsten and
+          Kovan test networks. Please switch to continue.
         </h2>
       </div>
     );

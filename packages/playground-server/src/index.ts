@@ -8,7 +8,10 @@ Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 const API_TIMEOUT = 5 * 60 * 1000;
 
 (async () => {
-  await NodeWrapper.createNodeSingleton("ropsten", process.env.NODE_MNEMONIC);
+  await NodeWrapper.createNodeSingleton(
+    process.env.ETHEREUM_NETWORK || "ropsten",
+    process.env.NODE_MNEMONIC
+  );
 
   const api = mountApi();
   const port = process.env.PORT || 9000;

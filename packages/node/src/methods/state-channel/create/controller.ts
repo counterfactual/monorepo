@@ -123,24 +123,33 @@ export default class CreateChannelController extends NodeController {
       MinimumViableMultisig.abi
     ).functions.setup.encode([multisigOwners]);
 
-    try {
-      // TODO: implement retry around this with exponential backoff on the
-      // gas limit to increase probability of proxy getting created
-      const tx: TransactionResponse = await proxyFactory.functions.createProxy(
-        networkContext.MinimumViableMultisig,
-        setupData,
-        { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
-      );
-
-      if (!tx.hash) {
-        return Promise.reject(
-          `${ERRORS.NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
+    let error;
+    const retryCount = 3;
+    for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
+      try {
+        const extraGasLimit = tryCount * 1e6;
+        const tx: TransactionResponse = await proxyFactory.functions.createProxy(
+          networkContext.MinimumViableMultisig,
+          setupData,
+          {
+            gasLimit: CREATE_PROXY_AND_SETUP_GAS + extraGasLimit,
+            gasPrice: await signer.provider!.getGasPrice()
+          }
         );
-      }
 
-      return tx;
-    } catch (e) {
-      return Promise.reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${e}`);
+        if (!tx.hash) {
+          return Promise.reject(
+            `${ERRORS.NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
+          );
+        }
+
+        return tx;
+      } catch (e) {
+        error = e;
+        console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
+                      Retrying ${retryCount - tryCount} more times`);
+      }
     }
+    return Promise.reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${error}`);
   }
 }

@@ -855,13 +855,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/node-provider@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.1.1.tgz#a1ba7d4374acda9d5dca283f28b3449d397b2102"
-  integrity sha512-ahD3SBa9B36LD0me9Enj/tg0lH3zODcG+hFPTatI+C/Brn/572Bvph0GY4hbPenfucD0KkJ6qdQVaCm8q1JSEA==
-  dependencies:
-    eventemitter3 "^3.1.0"
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -14870,7 +14863,7 @@ punycode@^1.2.4, punycode@^1.4.1:
 
 puppeteer@1.13.0:
   version "1.13.0"
-  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-1.13.0.tgz#187ccf5ed5caf08ed1291b262d033cc364bf88ab"
+  resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-1.13.0.tgz#187ccf5ed5caf08ed1291b262d033cc364bf88ab"
   integrity sha512-LUXgvhjfB/P6IOUDAKxOcbCz9ISwBLL9UpKghYrcBDwrOGx1m60y0iN2M64mdAUbT4+7oZM5DTxOW7equa2fxQ==
   dependencies:
     debug "^4.1.0"
@@ -17720,7 +17713,7 @@ truffle-hdwallet-provider@1.0.5:
 
 truffle@5.0.7:
   version "5.0.7"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.7.tgz#b5025b568b987b154c6357b4d6d88d9c23f94484"
+  resolved "https://registry.npmjs.org/truffle/-/truffle-5.0.7.tgz#b5025b568b987b154c6357b4d6d88d9c23f94484"
   integrity sha512-RofK+kS9l4x6jdhtjLTMDIAF+P34I0/0gzCZeSjixqS5Sp+7gq2WI8ALAW0VgyahuwQl4TIyrGT0lsKjNscvFw==
   dependencies:
     app-module-path "^2.2.0"

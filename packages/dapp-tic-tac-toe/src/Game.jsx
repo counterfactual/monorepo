@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import Timer from './components/Timer';
 import Board from "./components/Board";
 import Player from "./components/Player";
 import { Link } from "react-router-dom";
