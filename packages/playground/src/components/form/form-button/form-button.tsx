@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, Prop, Element } from "@stencil/core";
+import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 @Component({
   tag: "form-button",
