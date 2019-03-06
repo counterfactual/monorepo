@@ -70,12 +70,12 @@
 
     &:not(:disabled) {
       &:hover {
-        background: $c-lightergrey;
+        background: $c-lightgrey;
       }
     }
 
     &:disabled {
-      background: $c-lightergrey;
+      background: $c-lightgrey;
     }
   }
 }
