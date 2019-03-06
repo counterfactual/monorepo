@@ -34,7 +34,6 @@ export class HeaderAccount {
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() login: () => Promise<UserSession> = async () => ({} as UserSession);
-  @Prop() logout: () => void = () => {};
   @Prop() autoLogin: () => Promise<void> = async () => {};
 
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
@@ -238,11 +237,6 @@ export class HeaderAccount {
               content={this.user.username}
             />
           </stencil-route-link>
-          <stencil-route-link url="/">
-            <button onClick={this.logout.bind(this)} class="btn btn-alternate">
-              Log out
-            </button>
-          </stencil-route-link>
         </div>
       </div>
     );
@@ -256,7 +250,6 @@ AccountTunnel.injectProps(HeaderAccount, [
   "updateAccount",
   "ethPendingDepositAmountWei",
   "login",
-  "logout",
   "autoLogin"
 ]);
 
