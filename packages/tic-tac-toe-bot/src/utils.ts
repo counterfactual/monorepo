@@ -120,10 +120,10 @@ async function post(
   return response;
 }
 
-export async function afterUser(node, address, multisigAddress) {
+export async function afterUser(node, address) {
   console.log("After User");
 
-  await connectNode(node, address, multisigAddress);
+  await connectNode(node, address);
 }
 
 // TODO: don't duplicate these from PG for consistency

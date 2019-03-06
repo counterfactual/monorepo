@@ -17,29 +17,16 @@ function bigNumberifyBoard(board) {
 }
 
 describe("takeTurn", () => {
-  const botPlayer = "abc";
-  const players = ["123", botPlayer];
-
   it("throws an error if there are no moves to make", () => {
-    const newState = [
-      players,
-      4,
-      0,
-      bigNumberifyBoard([[1, 1, 2], [2, 2, 1], [1, 2, 1]])
-    ];
-    expect(() => takeTurn(newState, botPlayer)).toThrowError(
+    const board = bigNumberifyBoard([[1, 1, 2], [2, 2, 1], [1, 2, 1]]);
+    expect(() => takeTurn(board, 2)).toThrowError(
       "Yikes! No place left to move."
     );
   });
 
   it("sets the actionType to 2 (aka a draw) when there is a single, non-winning move to make", () => {
-    const newState = [
-      players,
-      4,
-      0,
-      bigNumberifyBoard([[1, 1, 0], [2, 2, 1], [1, 2, 1]])
-    ];
-    const result = takeTurn(newState, botPlayer);
+    const board = bigNumberifyBoard([[1, 1, 0], [2, 2, 1], [1, 2, 1]]);
+    const result = takeTurn(board, 2);
 
     expect(result.actionType).toBe(2);
     expect(result.winClaim).toEqual({ idx: 0, winClaimType: 0 });
@@ -48,13 +35,8 @@ describe("takeTurn", () => {
   });
 
   it("sets the actionType to 1 (aka a victory) when it wins the game", () => {
-    const newState = [
-      players,
-      4,
-      0,
-      bigNumberifyBoard([[1, 1, 0], [2, 2, 1], [2, 1, 1]])
-    ];
-    const result = takeTurn(newState, botPlayer);
+    const board = bigNumberifyBoard([[1, 1, 0], [2, 2, 1], [2, 1, 1]]);
+    const result = takeTurn(board, 2);
 
     expect(result.actionType).toBe(1);
     expect(result.winClaim).toEqual({ idx: 0, winClaimType: 3 });

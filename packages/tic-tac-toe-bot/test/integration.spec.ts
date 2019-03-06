@@ -113,7 +113,7 @@ describe("playground-server", () => {
     it("wires the node up to automated ttt responses", async done => {
       let appInstanceId;
 
-      await connectNode(nodeBot, global["botAddress"]);
+      await connectNode(nodeBot, nodeBot.publicIdentifier);
 
       nodeAlice.on("installVirtualEvent", message => {
         appInstanceId = message.data.params.appInstanceId;
@@ -134,22 +134,29 @@ describe("playground-server", () => {
       });
 
       nodeAlice.on("updateStateEvent", message => {
-        const board = message.data.newState[3];
-        expect(
-          board
-            .flat()
-            .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
-            .length
-        ).toBe(1);
-        expect(
-          board
-            .flat()
-            .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
-            .length
-        ).toBe(1);
-        expect(message.data.appInstanceId).toBe(appInstanceId);
+        if (
+          ethers.utils
+            .bigNumberify(message.data.newState.turnNum)
+            .toNumber() === 2
+        ) {
+          const { board } = message.data.newState;
 
-        done();
+          expect(
+            board
+              .flat()
+              .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
+              .length
+          ).toBe(1);
+          expect(
+            board
+              .flat()
+              .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
+              .length
+          ).toBe(1);
+          expect(message.data.appInstanceId).toBe(appInstanceId);
+
+          done();
+        }
       });
 
       nodeAlice.call(NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL, {
@@ -159,7 +166,14 @@ describe("playground-server", () => {
           intermediaries: [playgroundNode.publicIdentifier],
           proposedToIdentifier: nodeBot.publicIdentifier,
           initialState: {
-            players: [global["aliceAddress"], global["botAddress"]],
+            players: [
+              ethers.utils.HDNode.fromExtendedKey(
+                nodeAlice.publicIdentifier
+              ).derivePath("0").address,
+              ethers.utils.HDNode.fromExtendedKey(
+                nodeBot.publicIdentifier
+              ).derivePath("0").address
+            ],
             turnNum: 0,
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]

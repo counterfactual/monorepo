@@ -94,9 +94,12 @@ function respond(
   { data: { appInstanceId, newState } }
 ) {
   const { board, players, turnNum, winner } = newState;
-  const playerAddress = ethers.utils.HDNode.fromExtendedKey(nodeAddress).derivePath("0").address;
+  const playerAddress = ethers.utils.HDNode.fromExtendedKey(
+    nodeAddress
+  ).derivePath("0").address;
   const botPlayerNumber = players.indexOf(playerAddress) + 1;
-  const isBotTurn = bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
+  const isBotTurn =
+    bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
   const noWinnerYet = bigNumberify(winner).toNumber() === 0;
 
   if (noWinnerYet && isBotTurn) {
@@ -165,7 +168,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
   return 0;
 }
 
-export async function connectNode(node: Node, nodeAddress: Address, multisigAddress) {
+export async function connectNode(node: Node, nodeAddress: Address) {
   node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
@@ -185,20 +188,6 @@ export async function connectNode(node: Node, nodeAddress: Address, multisigAddr
       if (updateEventData.data.appInstanceId === appInstanceId) {
         respond(node, nodeAddress, updateEventData);
       }
-    });
-
-    node.on(NodeTypes.EventName.UNINSTALL_VIRTUAL, async data => {
-      console.log("got uninstall call: ", data);
-
-      const freeBalance = await node.call(NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE, {
-        type: NodeTypes.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
-        requestId: generateUUID(),
-        params: {
-          multisigAddress
-        } as NodeTypes.DepositParams
-      })
-  // @ts-ignore
-      console.log("freeBalance", freeBalance.result.balance.toString())
     });
   });
 }

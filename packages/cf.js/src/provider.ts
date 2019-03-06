@@ -200,6 +200,7 @@ export class Provider {
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
+          console.trace();
           reject({
             type: EventType.ERROR,
             data: {

@@ -111,7 +111,7 @@ let node: Node;
 
     // FIXME: wait for PS deposit
 
-    afterUser(node, bot.nodeAddress, multisigAddress);
+    afterUser(node, bot.nodeAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);
