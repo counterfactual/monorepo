@@ -40,7 +40,12 @@ class Game extends Component {
     this.updateGame({ players, turnNum, winner, board });
 
     if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
-      await this.props.appInstance.uninstall(this.props.intermediary);
+      try {
+        console.log("game over - uninstalling");
+        await this.props.appInstance.uninstall(this.props.intermediary);
+      } catch (e) {
+        console.log("uninstall failed: ", e);
+      }
     }
   }
 

@@ -20,7 +20,7 @@ class Wager extends Component {
 
     try {
       const result = await this.matchmake();
-
+      
       const opponent = {
         id: "opponent",
         attributes: {
@@ -157,7 +157,7 @@ class Wager extends Component {
   render() {
     const { error, isLoaded, isWaiting } = this.state;
     const { user } = this.props;
-
+    
     if (!isLoaded) {
       return (
         <div className="wager">

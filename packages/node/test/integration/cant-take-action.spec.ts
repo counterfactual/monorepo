@@ -136,10 +136,13 @@ describe("Node method follows spec - fails with improper action taken", () => {
             }
           });
 
-          nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-            const installReq = makeInstallRequest(msg.data.appInstanceId);
-            nodeB.emit(installReq.type, installReq);
-          });
+          nodeB.on(
+            NodeTypes.EventName.PROPOSE_INSTALL,
+            (msg: ProposeMessage) => {
+              const installReq = makeInstallRequest(msg.data.appInstanceId);
+              nodeB.emit(installReq.type, installReq);
+            }
+          );
 
           nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
         }
