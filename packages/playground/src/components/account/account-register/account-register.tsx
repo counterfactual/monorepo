@@ -206,6 +206,7 @@ export class AccountRegister {
           </div>
           <div class="error">{this.errors.ethAddress}</div>
           <form-button
+            class="button"
             disabled={this.metamaskConfirmationUIOpen}
             onButtonPressed={async e => await this.formSubmissionHandler()}
           >
