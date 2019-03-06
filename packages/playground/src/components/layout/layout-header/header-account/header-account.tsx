@@ -157,11 +157,12 @@ export class HeaderAccount {
             <button
               disabled={this.metamaskConfirmationUIOpen}
               onClick={this.onConnectMetamask.bind(this)}
-              class="btn"
+              class="btn btn--connect-to-wallet"
             >
+              <img class="icon" src="/assets/icon/wallet.svg" />
               {this.metamaskConfirmationUIOpen
                 ? "Check Wallet..."
-                : "Connect to Metamask"}
+                : "Connect to Wallet"}
             </button>
           </div>
         </div>
