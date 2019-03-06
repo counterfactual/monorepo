@@ -179,7 +179,10 @@ export class HeaderAccount {
                 class="btn btn-error"
               >
                 <widget-tooltip message={this.error.secondary}>
-                  <div class="widget-error-message">{this.error.primary}</div>
+                  <div class="widget-error-message">
+                    <img class="icon" src="/assets/icon/error.svg" />
+                    {this.error.primary}
+                  </div>
                 </widget-tooltip>
               </button>
             ) : (
