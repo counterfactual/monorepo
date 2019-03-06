@@ -53,6 +53,7 @@
     order: -1;
     flex-direction: column;
     width: 100%;
+    margin-left: -($rhythm * 3);
   }
 
   .btn {
@@ -65,5 +66,16 @@
     margin-bottom: $rhythm;
     text-align: left;
     box-shadow: none;
+    padding-left: $rhythm * 1.5;
+
+    &:not(:disabled) {
+      &:hover {
+        background: $c-lightergrey;
+      }
+    }
+
+    &:disabled {
+      background: $c-lightergrey;
+    }
   }
 }
