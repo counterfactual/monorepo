@@ -21,7 +21,7 @@
 
 You can learn more about what state channels are by reading [our whitepaper](https://counterfactual.com/statechannels) or a less technical written [description](https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4#c353). Further, if you want to dive into the specifications of the Counterfactual protocol you can [read them here](https://counterfactual.com/specs).
 
-🚨 **WARNING: the code found here has been created for demonstration and example purposes, with developers looking to build state channel applications as the intended audience and user-base. This code is not yet intended for production use with real funds, assets or users.** In particular, specific safety measures have been intentionally omitted from this early version for the sake of simplicity, and various pieces of its architecture (e.g., the messaging layer) use trust assumptions that, while appropriate to a "playtesting" development environment, would have serious consequences if used to protect actual assets in the real world. This framework, once further developed, finalized, and hardened, is intended to eventually _become_ a tool that will be used in production deployments. If you have those use cases in mind we welcome your participation and feedback _now_, to ensure that early production versions will meet your needs. But please don't _deploy_ this framework in its current form. That is not its intended use.
+🚨 **WARNING: the code found here has been created for demonstration and example purposes, with developers looking to build state channel applications as the intended audience and user-base.  This code is not yet intended for production use with real funds, assets or users.**  In particular, specific safety measures have been intentionally omitted from this early version for the sake of simplicity, and various pieces of its architecture (e.g., the messaging layer) use trust assumptions that, while appropriate to a "playtesting" development environment, would have serious consequences if used to protect actual assets in the real world. This framework, once further developed, finalized, and hardened, is intended to eventually *become* a tool that will be used in production deployments.  If you have those use cases in mind we welcome your participation and feedback *now*, to ensure that early production versions will meet your needs.  But please don't *deploy* this framework in its current form.  That is not its intended use.
 
 - [Packages](#packages)
   - [Solidity Packages](#solidity-packages)
@@ -60,17 +60,14 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 | [`@counterfactual/types`](/packages/types)                       | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                       | Shared type declarations           |
 | [`@counterfactual/typescript-types`](/packages/typescript-types) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-types.svg)](https://www.npmjs.com/package/@counterfactual/typescript-types) | Shims for external library typings |
 
+
 ## Contributing
 
-- **Join us in [Discord][counterfactual-discord-url]** to help with development or to hang out with some ethereum hackers :)
+- **Join us in [Discord][counterfactual-discord-url]** to help
+  with development or to hang out with some ethereum hackers :)
 - **[Create a new issue](https://github.com/counterfactual/monorepo/issues/new)** to report bugs
-- **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual is an [Open Source Project](.github/CONTRIBUTING.md)!
-
-### Ethereum Networks
-
-The default Ethereum network currently used by the Playground is Ropsten.
-
-The Kovan testnet is also supported and can be used by setting the environment variable `ETHEREUM_NETWORK` to `kovan`.
+- **[Fix an issue](https://github.com/counterfactual/counterfactual/issues?state=open)**. Counterfactual
+  is an [Open Source Project](.github/CONTRIBUTING.md)!
 
 ### Installing dependencies
 
