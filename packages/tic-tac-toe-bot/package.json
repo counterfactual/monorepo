@@ -38,45 +38,9 @@
   },
   "devDependencies": {
     "env-cmd": "^8.0.2",
-    "ethers": "https://github.com/ethers-io/ethers.js.git",
+    "ethers": "^4.0.26",
     "jest": "^24.0.0",
     "uuid": "^3.3.2",
     "web3": "^1.0.0-beta.46"
-  },
-  "jest": {
-    "bail": true,
-    "cacheDirectory": "jest-cache",
-    "coverageDirectory": "jest-coverage",
-    "coveragePathIgnorePatterns": [
-      "test"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 90,
-        "functions": 90,
-        "lines": 90,
-        "statements": 90
-      }
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ],
-    "rootDir": ".",
-    "roots": [
-      "test"
-    ],
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist"
-    ],
-    "testEnvironment": "node",
-    "testRegex": "\\.spec.(jsx?|tsx?)$",
-    "testURL": "http://localhost/",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "verbose": false
   }
 }
