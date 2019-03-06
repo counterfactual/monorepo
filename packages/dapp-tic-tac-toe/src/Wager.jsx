@@ -68,7 +68,7 @@ class Wager extends Component {
   createAppFactory() {
     return new window.cf.AppFactory(
       // TODO: provide valid appId
-      "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+      "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
@@ -123,14 +123,12 @@ class Wager extends Component {
         timeout: 100,
         initialState: {
           players: [
-            window.ethers.utils.HDNode
-              .fromExtendedKey(user.nodeAddress)
-              .derivePath("0")
-              .address,
-            window.ethers.utils.HDNode
-              .fromExtendedKey(opponent.nodeAddress)
-              .derivePath("0")
-              .address,
+            window.ethers.utils.HDNode.fromExtendedKey(
+              user.nodeAddress
+            ).derivePath("0").address,
+            window.ethers.utils.HDNode.fromExtendedKey(
+              opponent.nodeAddress
+            ).derivePath("0").address
           ],
           turnNum: 0,
           winner: 0,
