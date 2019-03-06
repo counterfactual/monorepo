@@ -142,13 +142,13 @@ describe("playground-server", () => {
 
           expect(
             board
-              .flat()
+              .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
               .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
               .length
           ).toBe(1);
           expect(
             board
-              .flat()
+              .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
               .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
               .length
           ).toBe(1);
