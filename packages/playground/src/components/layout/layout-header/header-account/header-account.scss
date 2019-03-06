@@ -8,7 +8,7 @@
     }
 
     .btn-error {
-      background: $c-darkred;;
+      background: $c-darkred;
     }
   }
 }
@@ -22,7 +22,6 @@
   padding: $rhythm;
 }
 
-
 .info-container {
   display: flex;
   align-items: center;
@@ -33,6 +32,11 @@
 }
 
 @media screen and (max-width: $screen-sm) {
+  :host {
+    padding-left: $rhythm;
+    width: 100%;
+  }
+
   .account-container {
     flex-direction: column;
   }
@@ -48,9 +52,11 @@
   .btn-container {
     order: -1;
     flex-direction: column;
+    width: 100%;
   }
 
   .btn {
+    width: 100%;
     border: 0;
     padding: 0;
     background: transparent;
@@ -58,5 +64,6 @@
     font-size: 125%;
     margin-bottom: $rhythm;
     text-align: left;
+    box-shadow: none;
   }
 }
