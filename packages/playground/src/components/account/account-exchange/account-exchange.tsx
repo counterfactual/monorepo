@@ -94,6 +94,12 @@ export class AccountExchange {
   }
 
   render() {
+    const Zero = ethers.constants.Zero;
+    const ethFreeBalanceWei = this.ethFreeBalanceWei || Zero;
+    const ethPendingDepositAmountWei = this.ethPendingDepositAmountWei || Zero;
+    const ethPendingWithdrawalAmountWei =
+      this.ethPendingWithdrawalAmountWei || Zero;
+
     return [
       <layout-header />,
       <div class="form-containers">
@@ -117,7 +123,7 @@ export class AccountExchange {
             error={this.withdrawalError}
             available={this.ethFreeBalanceWei}
             min={0}
-            max={Number(ethers.utils.formatEther(this.ethFreeBalanceWei))}
+            max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
           />
         </div>
       </div>,
@@ -147,7 +153,7 @@ export class AccountExchange {
             target="_blank"
           >
             💰 Pending Deposit of{" "}
-            {ethers.utils.formatEther(this.ethPendingDepositAmountWei)} Wei
+            {ethers.utils.formatEther(ethPendingDepositAmountWei)} Wei
           </a>
         ) : null}
 
@@ -158,7 +164,8 @@ export class AccountExchange {
             target="_blank"
           >
             💸 Pending Withdrawal of{" "}
-            {ethers.utils.formatEther(this.ethPendingWithdrawalAmountWei)} Wei
+            {ethers.utils.formatEther(ethPendingWithdrawalAmountWei)}
+            Wei
           </a>
         ) : null}
       </div>
