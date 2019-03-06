@@ -75,6 +75,9 @@ export class HeaderAccount {
       await window["ethereum"].enable();
     } catch {
       console.error("Was not able to call `window.ethereum.enable()`");
+      window.alert(
+        "Your browser does not support enabling your wallet programatically. Please unlock your Web3 wallet and try again."
+      );
     } finally {
       this.metamaskConfirmationUIOpen = false;
     }

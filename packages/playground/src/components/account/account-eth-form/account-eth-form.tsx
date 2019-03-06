@@ -43,7 +43,6 @@ export class AccountEthForm {
     try {
       formattedEth = ethers.utils.formatEther(this.available);
     } catch {
-    } finally {
       formattedEth = "0";
     }
 
