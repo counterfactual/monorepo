@@ -16,9 +16,9 @@
   margin-right: $rhythm * 2;
 }
 
-
 @media screen and (max-width: $screen-sm) {
-  .header-content, .left {
+  .header-content,
+  .left {
     flex-direction: column;
     width: 100%;
     align-items: flex-start;
@@ -33,6 +33,6 @@
   }
 
   .connection {
-    margin: $rhythm * 2 0;
+    margin: $rhythm * 2 $rhythm;
   }
 }
