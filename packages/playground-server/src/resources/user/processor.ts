@@ -62,12 +62,6 @@ export default class UserProcessor extends OperationProcessor<User> {
       throw errors.AddressAlreadyRegistered();
     }
 
-    const { transactionHash } = await NodeWrapper.createStateChannelFor(
-      nodeAddress
-    );
-
-    user.attributes.transactionHash = transactionHash;
-
     // Create the Playground User.
     const newUser = await createUser(user);
 
@@ -75,6 +69,11 @@ export default class UserProcessor extends OperationProcessor<User> {
       tags: { userId: user.id, endpoint: "createAccount" }
     });
 
+    const { transactionHash } = await NodeWrapper.createStateChannelFor(
+      nodeAddress
+    );
+
+    newUser.attributes.transactionHash = transactionHash;
     await bindTransactionHashToUser(newUser, transactionHash);
 
     Log.info("Multisig has been requested", {

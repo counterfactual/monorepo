@@ -20,10 +20,7 @@ import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
-import {
-  configureNetworkContext,
-  SUPPORTED_NETWORKS
-} from "./network-configuration";
+import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
@@ -38,8 +35,6 @@ export interface NodeConfig {
   // execution environment.
   STORE_KEY_PREFIX: string;
 }
-
-const REASONABLE_NUM_BLOCKS_TO_WAIT = 3;
 
 export class Node {
   /**
@@ -69,8 +64,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     network: string,
-    networkContext?: NetworkContext,
-    blocksNeededForConfirmation?: number
+    networkContext?: NetworkContext
   ): Promise<Node> {
     const node = new Node(
       messagingService,
@@ -78,8 +72,7 @@ export class Node {
       nodeConfig,
       provider,
       network,
-      networkContext,
-      blocksNeededForConfirmation
+      networkContext
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
@@ -91,23 +84,12 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     public readonly network: string,
-    networkContext?: NetworkContext,
-    readonly blocksNeededForConfirmation?: number
+    networkContext?: NetworkContext
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
     this.networkContext = configureNetworkContext(network, networkContext);
     this.instructionExecutor = this.buildInstructionExecutor();
-
-    if (
-      this.blocksNeededForConfirmation &&
-      (SUPPORTED_NETWORKS.has(this.network) &&
-        this.blocksNeededForConfirmation < REASONABLE_NUM_BLOCKS_TO_WAIT)
-    ) {
-      this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    } else {
-      this.blocksNeededForConfirmation = 1;
-    }
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
@@ -123,8 +105,7 @@ export class Node {
       this.networkContext,
       this.provider,
       new Wallet(this.signer.privateKey, this.provider),
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
-      this.blocksNeededForConfirmation!
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
     );
     this.registerMessagingConnection();
     return this;

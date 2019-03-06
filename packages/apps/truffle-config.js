@@ -4,11 +4,6 @@ require("ts-node/register");
 require("dotenv").config();
 
 module.exports = {
-  compilers: {
-    solc: {
-      version: "0.5.3",
-    },
-  },
   networks: {
     ganache: {
       network_id: 7777777,
@@ -16,16 +11,6 @@ module.exports = {
       port: 8545,
       gas: 0xfffffffffff,
       gasPrice: 0x01
-    },
-    kovan: {
-      network_id: 42,
-      provider: () =>
-        new HDWalletProvider(
-          process.env.ETH_ACCOUNT_MNENOMIC,
-          `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
-        ),
-      gas: process.env.DEFAULT_GAS,
-      gasPrice: process.env.DEFAULT_GAS_PRICE
     },
     ropsten: {
       network_id: 3,

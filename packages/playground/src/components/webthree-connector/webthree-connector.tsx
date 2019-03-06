@@ -5,7 +5,7 @@ import { WalletState } from "../../data/wallet";
 
 const { Web3Provider } = ethers.providers;
 
-const permittedNetworkIds = ["3", "42"];
+const permittedNetworkIds = ["3"];
 
 @Component({
   tag: "webthree-connector",
