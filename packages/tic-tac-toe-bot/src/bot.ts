@@ -101,7 +101,7 @@ function respond(
   const isBotTurn =
     bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
   const noWinnerYet = bigNumberify(winner).toNumber() === 0;
-
+  
   if (noWinnerYet && isBotTurn) {
     const action = takeTurn(board, botPlayerNumber);
     const request = {

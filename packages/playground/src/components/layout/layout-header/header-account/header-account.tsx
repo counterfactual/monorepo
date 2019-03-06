@@ -34,6 +34,7 @@ export class HeaderAccount {
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() login: () => Promise<UserSession> = async () => ({} as UserSession);
+  @Prop() logout: () => void = () => {};
   @Prop() autoLogin: () => Promise<void> = async () => {};
 
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
@@ -74,6 +75,9 @@ export class HeaderAccount {
       await window["ethereum"].enable();
     } catch {
       console.error("Was not able to call `window.ethereum.enable()`");
+      window.alert(
+        "Your browser does not support enabling your wallet programatically. Please unlock your Web3 wallet and try again."
+      );
     } finally {
       this.metamaskConfirmationUIOpen = false;
     }
@@ -226,6 +230,11 @@ export class HeaderAccount {
               content={this.user.username}
             />
           </stencil-route-link>
+          <stencil-route-link url="/">
+            <button onClick={this.logout.bind(this)} class="btn btn-alternate">
+              Log out
+            </button>
+          </stencil-route-link>
         </div>
       </div>
     );
@@ -239,6 +248,7 @@ AccountTunnel.injectProps(HeaderAccount, [
   "updateAccount",
   "ethPendingDepositAmountWei",
   "login",
+  "logout",
   "autoLogin"
 ]);
 

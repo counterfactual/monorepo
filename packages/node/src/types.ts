@@ -8,14 +8,27 @@ export interface NodeMessage {
   type: NodeEvents;
 }
 
+enum Events {
+  PROPOSE_INSTALL = "proposeInstallEvent",
+  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+  WITHDRAW_EVENT = "withdrawEvent",
+  INSTALL_VIRTUAL = "installVirtualEvent",
+  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent",
+  UNINSTALL_VIRTUAL = "uninstallVirtualEvent"
+}
+
 // Because `extend`ing isn't a native enum feature
 // https://github.com/Microsoft/TypeScript/issues/17592
 // These are events that Nodes and Node consumers can listen on, but not
 // cf.js clients as not all Node events are directly relevant to cf.js clients
 // for eg: Node consumers are the only relevant party listening on
 // `PROPOSE_INSTALL` in order to _create_ a cf.js client (i.e. dApp)
-export type NodeEvents = Node.EventName;
-export const NODE_EVENTS = Node.EventName;
+export type NodeEvents = Node.EventName | Events;
+export const NODE_EVENTS = {
+  ...Node.EventName,
+  ...Events
+};
 
 export interface NodeMessageWrappedProtocolMessage extends NodeMessage {
   data: ProtocolMessage;

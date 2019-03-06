@@ -66,7 +66,12 @@ export namespace Node {
     UPDATE_STATE = "updateStateEvent",
     WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent",
     WITHDRAWAL_FAILED = "withdrawalFailed",
-    WITHDRAWAL_STARTED = "withdrawalStartedEvent"
+    WITHDRAWAL_STARTED = "withdrawalStartedEvent",
+    PROPOSE_INSTALL = "proposeInstallEvent",	
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",	
+    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",	
+    WITHDRAW_EVENT = "withdrawEvent",	
+    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
   }
 
   export type DepositParams = {

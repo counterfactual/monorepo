@@ -14,7 +14,7 @@ import { v4 as generateUUID } from "uuid";
 import { LocalFirebaseServiceFactory } from "../../node/test/services/firebase-server";
 import { connectNode } from "../src/bot";
 
-jest.setTimeout(20000);
+jest.setTimeout(50000);
 
 Log.setOutputLevel(LogLevel.ERROR);
 
@@ -117,7 +117,6 @@ describe("playground-server", () => {
 
       nodeAlice.on("installVirtualEvent", message => {
         appInstanceId = message.data.params.appInstanceId;
-
         nodeAlice.call(NodeTypes.MethodName.TAKE_ACTION, {
           type: NodeTypes.MethodName.TAKE_ACTION,
           requestId: generateUUID(),
