@@ -2,7 +2,10 @@
   "data": [
     {
       "type": "app",
-      "id": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+      "id": {
+        "3": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+        "42": "0x91907355C59BA005843E791c88aAB80b779446c9"
+      },
       "attributes": {
         "name": "High Roller",
         "url": "https://high-roller-staging.counterfactual.com",
@@ -13,7 +16,10 @@
     },
     {
       "type": "app",
-      "id": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+      "id": {
+        "3": "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+        "42": "0x2794113a560bb4b4cae36A029Cf127665d463F91"
+      },
       "attributes": {
         "name": "Tic Tac Toe",
         "url": "https://tic-tac-toe-staging.netlify.com",
