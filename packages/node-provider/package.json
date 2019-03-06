@@ -13,10 +13,11 @@
     "test": "tsc -b && jest --runInBand --detectOpenHandles --bail --forceExit",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
-    "lint": "tslint -c tslint.json -p ."
+    "lint": "tslint -c tslint.json -p .",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.8",
+    "@counterfactual/types": "0.0.9",
     "@types/jest": "24.0.9",
     "@types/node": "^11.9.0",
     "jest": "23.6.0",

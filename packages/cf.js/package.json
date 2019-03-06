@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@counterfactual/node-provider": "0.1.1",
-    "@counterfactual/types": "0.0.8",
+    "@counterfactual/types": "0.0.9",
     "ethers": "4.0.26",
     "eventemitter3": "^3.1.0"
   }

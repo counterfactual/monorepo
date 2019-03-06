@@ -35,7 +35,7 @@
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.0",
     "@counterfactual/machine": "0.1.2",
-    "@counterfactual/types": "0.0.8",
+    "@counterfactual/types": "0.0.9",
     "@firebase/util": "0.*",
     "@firebase/app-types": "0.*",
     "ethers": "4.0.26",
