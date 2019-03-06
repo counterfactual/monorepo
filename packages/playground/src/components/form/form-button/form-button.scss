@@ -18,4 +18,12 @@
     cursor: default;
     opacity: 0.68;
   }
+
+  &.button--secondary {
+    background-color: $c-darkgrey;
+
+    &:hover {
+      background-color: $c-darkergrey;
+    }
+  }
 }
