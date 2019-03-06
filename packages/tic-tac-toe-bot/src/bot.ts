@@ -29,13 +29,12 @@ function checkHorizontalVictory(board: Board, player: number) {
     );
   });
 
-  if (victory) {
-    return {
-      idx,
-      winClaimType: 0
-    };
-  }
-  return false;
+  return victory
+    ? {
+        idx,
+        winClaimType: WinClaimType.COL
+      }
+    : false;
 }
 
 function checkVerticalVictory(board: Board, player: number) {
@@ -49,13 +48,12 @@ function checkVerticalVictory(board: Board, player: number) {
     );
   });
 
-  if (victory) {
-    return {
-      idx,
-      winClaimType: 1
-    };
-  }
-  return false;
+  return victory
+    ? {
+        idx,
+        winClaimType: WinClaimType.ROW
+      }
+    : false;
 }
 
 function checkDiagonalVictory(board: Board, player: number) {
@@ -64,13 +62,12 @@ function checkDiagonalVictory(board: Board, player: number) {
     bigNumberify(board[1][1]).eq(bigNumberify(player)) &&
     bigNumberify(board[2][2]).eq(bigNumberify(player));
 
-  if (victory) {
-    return {
-      idx: 0,
-      winClaimType: 2
-    };
-  }
-  return false;
+  return victory
+    ? {
+        idx: 0,
+        winClaimType: WinClaimType.DIAG
+      }
+    : false;
 }
 
 function checkCrossDiagonalVictory(board: Board, player: number) {
@@ -79,13 +76,12 @@ function checkCrossDiagonalVictory(board: Board, player: number) {
     bigNumberify(board[1][1]).eq(bigNumberify(player)) &&
     bigNumberify(board[2][0]).eq(bigNumberify(player));
 
-  if (victory) {
-    return {
-      idx: 0,
-      winClaimType: 3
-    };
-  }
-  return false;
+  return victory
+    ? {
+        idx: 0,
+        winClaimType: WinClaimType.CROSS_DIAG
+      }
+    : false;
 }
 
 function respond(
@@ -100,7 +96,8 @@ function respond(
   const botPlayerNumber = players.indexOf(playerAddress) + 1;
   const isBotTurn =
     bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
-  const noWinnerYet = bigNumberify(winner).toNumber() === 0;
+  const noWinnerYet =
+    bigNumberify(winner).toNumber() === Winner.GAME_IN_PROGRESS;
 
   if (noWinnerYet && isBotTurn) {
     const action = takeTurn(board, botPlayerNumber);
@@ -126,7 +123,7 @@ export function takeTurn(board: Board, botPlayerNumber: number) {
     playX,
     playY,
     actionType: determineActionType(board, botPlayerNumber),
-    winClaim: winClaim || { winClaimType: 0, idx: 0 }
+    winClaim: winClaim || { winClaimType: WinClaimType.COL, idx: 0 }
   };
 }
 
@@ -160,12 +157,12 @@ function makeMove(board: Board) {
 
 function determineActionType(board: Board, botPlayerNumber: number) {
   if (checkVictory(board, botPlayerNumber)) {
-    return 1;
+    return ActionType.PLAY_AND_WIN;
   }
   if (checkDraw(board)) {
-    return 2;
+    return ActionType.PLAY_AND_DRAW;
   }
-  return 0;
+  return ActionType.PLAY;
 }
 
 export async function connectNode(node: Node, nodeAddress: Address) {
@@ -200,3 +197,24 @@ type Coordinates = {
   x: number;
   y: number;
 };
+
+enum Winner {
+  GAME_IN_PROGRESS = 0,
+  PLAYER_1,
+  PLAYER_2,
+  GAME_DRAWN
+}
+
+enum ActionType {
+  PLAY = 0,
+  PLAY_AND_WIN,
+  PLAY_AND_DRAW,
+  DRAW
+}
+
+enum WinClaimType {
+  COL = 0,
+  ROW,
+  DIAG,
+  CROSS_DIAG
+}
