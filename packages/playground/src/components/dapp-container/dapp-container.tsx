@@ -60,7 +60,7 @@ export class DappContainer {
       return "";
     }
 
-    return `${dapp.url}${dappState}`;
+    return `${dapp.url}${dappState}${window.location.hash}`;
   }
 
   componentDidLoad(): void {
@@ -93,9 +93,7 @@ export class DappContainer {
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
 
     // Callback for passing an app instance, if available.
-    setTimeout(() => {
-      this.sendAppInstance();
-    }, 3000);
+    iframe.addEventListener("load", this.sendAppInstance.bind(this));
 
     this.iframe = iframe;
   }
