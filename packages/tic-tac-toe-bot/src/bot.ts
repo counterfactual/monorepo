@@ -1,8 +1,4 @@
-import {
-  Node,
-  NodeMessage,
-  UninstallVirtualMessage
-} from "@counterfactual/node";
+import { Node, UninstallVirtualMessage } from "@counterfactual/node";
 import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
@@ -174,7 +170,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
 export async function connectNode(
   node: Node,
   botPublicIdentifier: string,
-  multisigAddress: string
+  multisigAddress?: string
 ) {
   node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
     const appInstanceId = data.data.appInstanceId;
@@ -197,14 +193,16 @@ export async function connectNode(
       }
     });
 
-    node.on(
-      NodeTypes.EventName.UNINSTALL_VIRTUAL,
-      async (uninstallMsg: UninstallVirtualMessage) => {
-        console.info(`Uninstalled app`);
-        console.info(uninstallMsg);
-        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
-      }
-    );
+    if (multisigAddress) {
+      node.on(
+        NodeTypes.EventName.UNINSTALL_VIRTUAL,
+        async (uninstallMsg: UninstallVirtualMessage) => {
+          console.info(`Uninstalled app`);
+          console.info(uninstallMsg);
+          renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+        }
+      );
+    }
   });
   console.info("Bot is ready to serve");
 }
