@@ -368,6 +368,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     leftETHVirtualAppAgreementInstance
   );
 
+  console.log(context.commitments[0]);
+
   context.commitments[1] = new VirtualAppSetStateCommitment(
     context.network,
     targetAppInstance.identity,
@@ -491,6 +493,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     targetAppInstance.identityHash,
     leftEthVirtualAppAgreementInstance
   );
+
+  console.log(context.commitments[0]);
 
   // S3
   context.commitments[1] = constructETHVirtualAppAgreementCommitment(
