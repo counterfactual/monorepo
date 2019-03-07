@@ -83,7 +83,7 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-): Promise<void> {
+): Promise<boolean> {
   const { multisigAddress, amount } = params;
   const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
@@ -99,10 +99,10 @@ export async function makeDeposit(
   try {
     txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
   } catch (e) {
-    if (e.toString().includes("reject")) {
+    if (e.toString().includes("reject") || e.toString().includes("denied")) {
       outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
       console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-      return;
+      return false;
     }
 
     throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
@@ -117,6 +117,8 @@ export async function makeDeposit(
     txResponse.hash as string,
     blocksNeededForConfirmation
   );
+
+  return true;
 }
 
 export async function uninstallBalanceRefundApp(
