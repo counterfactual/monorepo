@@ -25,8 +25,7 @@ import {
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
   makeInstallRequest,
-  makeTTTProposalReq,
-  TEST_NETWORK
+  makeTTTProposalReq
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -64,7 +63,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -76,7 +74,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

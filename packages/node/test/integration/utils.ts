@@ -17,8 +17,6 @@ import { v4 as generateUUID } from "uuid";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
-export const TEST_NETWORK = "ganache";
-
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to

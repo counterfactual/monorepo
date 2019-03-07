@@ -23,8 +23,7 @@ import {
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
   makeInstallVirtualRequest,
-  makeTTTVirtualAppInstanceProposalReq,
-  TEST_NETWORK
+  makeTTTVirtualAppInstanceProposalReq
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
@@ -64,7 +63,6 @@ describe("Node method follows spec - takeAction virtual", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -77,7 +75,6 @@ describe("Node method follows spec - takeAction virtual", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -89,7 +86,6 @@ describe("Node method follows spec - takeAction virtual", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

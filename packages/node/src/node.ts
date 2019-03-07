@@ -63,15 +63,13 @@ export class Node {
     storeService: IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    network: string,
-    networkContext?: NetworkContext
+    networkContext: string | NetworkContext
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       nodeConfig,
       provider,
-      network,
       networkContext
     );
 
@@ -83,12 +81,15 @@ export class Node {
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    public readonly network: string,
-    networkContext?: NetworkContext
+    networkContext: string | NetworkContext
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.networkContext = configureNetworkContext(network, networkContext);
+    if (typeof networkContext === "string") {
+      this.networkContext = configureNetworkContext(networkContext);
+    } else {
+      this.networkContext = networkContext;
+    }
     this.instructionExecutor = this.buildInstructionExecutor();
   }
 

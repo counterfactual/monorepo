@@ -18,8 +18,7 @@ import {
   getProposedAppInstanceInfo,
   getProposedAppInstances,
   makeInstallProposalRequest,
-  makeRejectInstallRequest,
-  TEST_NETWORK
+  makeRejectInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
@@ -57,7 +56,6 @@ describe("Node method follows spec - rejectInstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -69,7 +67,6 @@ describe("Node method follows spec - rejectInstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

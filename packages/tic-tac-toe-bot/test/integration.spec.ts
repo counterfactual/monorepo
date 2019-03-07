@@ -18,7 +18,6 @@ jest.setTimeout(50000);
 
 Log.setOutputLevel(LogLevel.ERROR);
 
-const TEST_NETWORK = "ganache";
 const NETWORK_CONTEXT = global["networkContext"];
 
 describe("playground-server", () => {
@@ -58,7 +57,6 @@ describe("playground-server", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -71,7 +69,6 @@ describe("playground-server", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -84,7 +81,6 @@ describe("playground-server", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 

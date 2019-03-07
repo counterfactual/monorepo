@@ -16,8 +16,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import {
   getFreeBalanceState,
   getMultisigCreationTransactionHash,
-  makeDepositRequest,
-  TEST_NETWORK
+  makeDepositRequest
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
@@ -55,7 +54,6 @@ describe("Node method follows spec - deposit", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -68,7 +66,6 @@ describe("Node method follows spec - deposit", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
