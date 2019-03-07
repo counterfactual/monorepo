@@ -99,7 +99,6 @@ export async function makeDeposit(
   try {
     txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
   } catch (e) {
-    debugger;
     if (e.toString().includes("reject") || e.toString().includes("denied")) {
       outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
       console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
