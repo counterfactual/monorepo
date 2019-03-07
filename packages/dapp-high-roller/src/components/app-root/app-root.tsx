@@ -239,7 +239,9 @@ export class AppRoot {
         isProposing,
         betAmount: ethers.utils.formatEther(this.state.appInstance.myDeposit)
       },
-      query: {},
+      query: {
+        appInstanceId: this.state.appInstance.id
+      },
       key: ""
     });
   }
