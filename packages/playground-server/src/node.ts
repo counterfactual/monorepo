@@ -131,7 +131,7 @@ export default class NodeWrapper {
       await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
     }
 
-    if (!provider && typeof(networkOrNetworkContext) !== "string") {
+    if (!provider && typeof networkOrNetworkContext !== "string") {
       throw Error("cannot pass empty provider without network");
     }
 
@@ -142,7 +142,7 @@ export default class NodeWrapper {
         STORE_KEY_PREFIX: "store"
       },
       provider || ethers.getDefaultProvider(networkOrNetworkContext as string),
-      networkOrNetworkContext,
+      networkOrNetworkContext
     );
 
     return node;
