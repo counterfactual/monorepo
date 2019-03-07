@@ -195,7 +195,7 @@ export async function connectNode(
     node.on(
       NodeTypes.EventName.UNINSTALL_VIRTUAL,
       async (uninstallData: NodeTypes.UninstallEventData) => {
-        console.info(`Uninstalled app: ${uninstallData.appInstanceId}.\n`);
+        console.info(`Uninstalled app: ${uninstallData}}.\n`);
         renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
       }
     );
