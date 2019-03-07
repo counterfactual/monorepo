@@ -84,14 +84,16 @@ export class AccountEthForm {
             {this.button}
           </form-button>
 
-          {this.provideFaucetLink ?
+          {this.provideFaucetLink ? (
             <form-button
               class="button button--secondary"
               onButtonPressed={this.openFaucet.bind(this)}
             >
               Get Free ETH (test faucet)
             </form-button>
-          : undefined}
+          ) : (
+            undefined
+          )}
         </form-container>
       </div>
     );
