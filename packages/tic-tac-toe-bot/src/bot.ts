@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
+import { getFreeBalance, renderFreeBalanceInEth } from "./utils";
 
 function checkDraw(board: Board) {
   return board.every((row: BoardRow) =>
@@ -165,7 +166,11 @@ function determineActionType(board: Board, botPlayerNumber: number) {
   return ActionType.PLAY;
 }
 
-export async function connectNode(node: Node, nodeAddress: Address) {
+export async function connectNode(
+  node: Node,
+  botPublicIdentifier: string,
+  multisigAddress: string
+) {
   node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
     const appInstanceId = data.data.appInstanceId;
     const intermediaries = data.data.params.intermediaries;
@@ -183,9 +188,17 @@ export async function connectNode(node: Node, nodeAddress: Address) {
 
     node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
       if (updateEventData.data.appInstanceId === appInstanceId) {
-        respond(node, nodeAddress, updateEventData);
+        respond(node, botPublicIdentifier, updateEventData);
       }
     });
+
+    node.on(
+      NodeTypes.EventName.UNINSTALL_VIRTUAL,
+      async (uninstallData: NodeTypes.UninstallEventData) => {
+        console.info(`Uninstalled app: ${uninstallData.appInstanceId}.\n`);
+        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+      }
+    );
   });
 }
 

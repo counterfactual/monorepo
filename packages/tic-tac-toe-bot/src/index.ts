@@ -107,24 +107,11 @@ let node: Node;
 
     let depositAmount = process.argv[2];
     if (!depositAmount) {
-      depositAmount = "0.005";
+      depositAmount = "0.5";
     }
     await deposit(node, depositAmount, multisigAddress);
 
-    // FIXME: wait for PS deposit
-    const query = {
-      type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
-      requestId: generateUUID(),
-      params: { multisigAddress } as NodeTypes.GetFreeBalanceStateParams
-    };
-
-    const { result } = await node.call(query.type, query);
-
-    const { state } = result as NodeTypes.GetFreeBalanceStateResult;
-
-    console.log("free balance ", state);
-
-    afterUser(node, bot.nodeAddress);
+    afterUser(node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);
